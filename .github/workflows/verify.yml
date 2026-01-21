@@ -31,9 +31,6 @@ jobs:
       - name: Setup Docker
         uses: docker/setup-docker-action@v4
 
-      - name: Pull Tempo image
-        run: docker pull ghcr.io/tempoxyz/tempo:latest
-
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
