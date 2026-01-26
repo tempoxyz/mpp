@@ -151,6 +151,34 @@ describe('deserialize', () => {
       'Invalid base64url or JSON.',
     )
   })
+
+  test('error: throws for invalid challenge (missing required fields)', () => {
+    const invalidCredential = {
+      challenge: {
+        id: 'abc123',
+        // missing realm, method, intent, request
+      },
+      payload: { signature: '0x1234' },
+    }
+    const encoded = btoa(JSON.stringify(invalidCredential))
+    expect(() => Credential.deserialize(`Payment ${encoded}`)).toThrow()
+  })
+
+  test('error: throws for invalid challenge (invalid digest format)', () => {
+    const invalidCredential = {
+      challenge: {
+        id: 'abc123',
+        realm: 'api.example.com',
+        method: 'tempo',
+        intent: 'charge',
+        request: 'eyJhbW91bnQiOiIxMDAwIn0',
+        digest: 'invalid-digest-format',
+      },
+      payload: { signature: '0x1234' },
+    }
+    const encoded = btoa(JSON.stringify(invalidCredential))
+    expect(() => Credential.deserialize(`Payment ${encoded}`)).toThrow()
+  })
 })
 
 describe('fromRequest', () => {

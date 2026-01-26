@@ -1,5 +1,5 @@
 import { Base64 } from 'ox'
-import type * as Challenge from './Challenge.js'
+import * as Challenge from './Challenge.js'
 import * as PaymentRequest from './PaymentRequest.js'
 
 /**
@@ -40,11 +40,12 @@ export function deserialize<payload = unknown>(value: string): Credential<payloa
       payload: payload
       source?: string
     }
+    const challenge = Challenge.Schema.parse({
+      ...parsed.challenge,
+      request: PaymentRequest.deserialize(parsed.challenge.request),
+    })
     return {
-      challenge: {
-        ...parsed.challenge,
-        request: PaymentRequest.deserialize(parsed.challenge.request),
-      },
+      challenge,
       payload: parsed.payload,
       ...(parsed.source && { source: parsed.source }),
     } as Credential<payload>
