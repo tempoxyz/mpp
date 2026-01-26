@@ -187,7 +187,7 @@ function createIntentFn<intent extends MethodIntent.MethodIntent>(
       }
     }
 
-    async function handleNode(request: IncomingMessage, response: ServerResponse): Promise<void> {
+    async function handleNode(request: IncomingMessage, response: ServerResponse): Promise<IntentFn.Response> {
       const result = await handleFetch(Request.fromNodeListener(request, response))
 
       if (result.status === 402) {
@@ -202,6 +202,8 @@ function createIntentFn<intent extends MethodIntent.MethodIntent>(
         // biome-ignore lint/style/noNonNullAssertion: _
         response.setHeader('Payment-Receipt', wrapped.headers.get('Payment-Receipt')!)
       }
+
+      return result
     }
 
     return ((first: globalThis.Request | IncomingMessage, second?: ServerResponse) =>
@@ -243,7 +245,7 @@ declare namespace IntentFn {
 
   export type FetchFn = (request: globalThis.Request) => Promise<IntentFn.Response>
 
-  export type NodeFn = (request: IncomingMessage, response: ServerResponse) => Promise<void>
+  export type NodeFn = (request: IncomingMessage, response: ServerResponse) => Promise<IntentFn.Response>
 
   /**
    * Response returned by an intent function (Fetch API).

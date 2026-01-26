@@ -38,45 +38,48 @@ npm i mpay
 
 ```ts
 import { PaymentHandler } from 'mpay/server'
+import { Intents } from 'mpay/tempo'
 
 const payment = PaymentHandler.tempo({
-  rpcUrl: 'https://rpc.testnet.tempo.xyz',
   realm: 'api.example.com',
+  rpcUrl: 'https://rpc.tempo.xyz',
 })
 
 export async function handler(request: Request) {
-  const result = await payment.charge(request, {
-    amount: '1000000',
-    asset: '0x20c0000000000000000000000000000000000001',
-    destination: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
-    expires: '2030-01-20T12:00:00Z',
-  })
+  const response = await payment.charge({
+    request: {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000001',
+      recipient: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
+      expires: '2030-01-20T12:00:00Z',
+    },
+  })(request)
 
   // Payment required — send 402 response with challenge
-  if (result.status === 402) return result.challenge
+  if (response.status === 402) return response.challenge
 
-  // Payment verified — return resource
-  return Response.json({ data: '...' })
+  // Payment verified — attach receipt and return resource
+  return response.withReceipt(Response.json({ data: '...' }))
 }
 ```
 
 #### Node.js Compatibility
 
-Intents accept both Fetch `Request` and Node.js `http.IncomingMessage`. 
-
-Intents can write directly to `http.ServerResponse` by passing the response (`res`) as the second argument.
+Intent handlers accept both Fetch `Request` and Node.js `http.IncomingMessage`/`http.ServerResponse`.
 
 ```ts
 import * as http from 'node:http'
 
 http.createServer(async (req, res) => {
-  const challenge = await payment.charge(req, res, {
-    amount: '1000000',
-    asset: '0x20c0000000000000000000000000000000000001',
-    destination: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
-    expires: '2030-01-20T12:00:00Z',
-  })
-  if (challenge) return challenge
+  const { status } = await payment.charge({
+    request: {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000001',
+      recipient: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
+      expires: '2030-01-20T12:00:00Z',
+    },
+  })(req, res)
+  if (status === 402) return
 
   res.writeHead(200, { 'Content-Type': 'application/json' })
   res.end(JSON.stringify({ data: '...' }))
@@ -408,62 +411,32 @@ const request = Request.deserialize(serialized)
 
 ### Server
 
-#### `Mpay`
-
-##### Example
-
-```ts
-import { Mpay, tempo } from 'mpay/server'
-
-const mpay = Mpay.create({
-  methods: [tempo()],
-  realm: 'api.example.com',
-})
-```
-
 #### `PaymentHandler.from`
 
-Defines a payment handler for a payment method.
+Creates a server-side payment handler with configured intents.
 
 ```ts
 import { PaymentHandler } from 'mpay/server'
 import { Intents } from 'mpay/tempo'
 
-export function tempo(options: tempo.Options) {
-  return PaymentHandler.from({
-    method: 'tempo',
-    intents: {
-      authorize: Intents.authorize,
-      charge: Intents.charge,
-      subscription: Intents.subscription,
-    },
-    async verify(credential, request) {
-      // ... verify the credential and request, and return a receipt
-    },
-  })
-}
-```
-
-##### Usage
-
-```ts
-import { PaymentHandler } from 'mpay/server'
-
-const payment = PaymentHandler.tempo({
-  rpcUrl: 'https://rpc.testnet.tempo.xyz',
+const payment = PaymentHandler.from({
+  method: 'tempo',
+  realm: 'api.example.com',
+  secretKey: 'my-secret-key',
+  intents: {
+    authorize: Intents.authorize,
+    charge: Intents.charge,
+  },
+  async verify({ credential, request }) {
+    // Verify the credential and return a receipt
+    return { 
+      method: 'tempo',
+      status: 'success', 
+      timestamp: new Date().toISOString(), 
+      reference: '0x...' 
+    }
+  },
 })
-
-export async function handler(request: Request) {
-  const challenge = await payment.charge(request, {
-    amount: '1000000',
-    asset: '0x20c0000000000000000000000000000000000001',
-    destination: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
-    expires: '2030-01-20T12:00:00Z',
-  })
-  if (challenge) return challenge
-
-  return Response.json({ data: '...' })
-}
 ```
 
 ### Client
