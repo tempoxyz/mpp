@@ -3,10 +3,10 @@ import { type Account, type Client, createClient, http } from 'viem'
 import { prepareTransactionRequest, signTransaction } from 'viem/actions'
 import { tempo as tempo_chain } from 'viem/chains'
 import { Actions } from 'viem/tempo'
-import * as z from '../../zod.js'
 import * as Credential from '../../Credential.js'
 import type { OneOf } from '../../internal/types.js'
 import * as Method from '../../Method.js'
+import * as z from '../../zod.js'
 import * as Methods from '../Method.js'
 
 /**

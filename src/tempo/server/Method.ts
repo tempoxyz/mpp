@@ -10,9 +10,9 @@ import {
 import { getTransactionReceipt, sendRawTransactionSync, signTransaction } from 'viem/actions'
 import { tempo as tempo_chain } from 'viem/chains'
 import { Abis, Transaction } from 'viem/tempo'
-import * as z from '../../zod.js'
 import type { OneOf } from '../../internal/types.js'
 import * as Method from '../../Method.js'
+import * as z from '../../zod.js'
 import * as Methods from './../Method.js'
 
 const transfer = /*#__PURE__*/ AbiFunction.from(

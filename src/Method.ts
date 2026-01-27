@@ -1,8 +1,8 @@
-import type * as z from './zod.js'
 import type * as Challenge from './Challenge.js'
 import type * as Credential from './Credential.js'
 import type * as MethodIntent from './MethodIntent.js'
 import type * as Receipt from './Receipt.js'
+import type * as z from './zod.js'
 
 /**
  * A payment method definition.

@@ -1,6 +1,6 @@
-import type * as z from '../zod.js'
 import * as Challenge from '../Challenge.js'
 import type * as Method from '../Method.js'
+import type * as z from '../zod.js'
 
 type AnyClient = Method.Client<any, any, any>
 

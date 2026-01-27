@@ -1,7 +1,7 @@
 import { Base64 } from 'ox'
-import type * as z from './zod.js'
 import type { Compute } from './internal/types.js'
 import type * as MethodIntent from './MethodIntent.js'
+import type * as z from './zod.js'
 
 /**
  * Intent-specific payment parameters.
