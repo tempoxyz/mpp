@@ -1,0 +1,52 @@
+# `Receipt.from`
+
+Creates a receipt from the given parameters.
+
+## Usage
+
+```ts twoslash
+import { Receipt } from 'mpay'
+
+const receipt = Receipt.from({
+  method: 'tempo',
+  status: 'success',
+  timestamp: new Date().toISOString(),
+  reference: '0x...',
+})
+```
+
+## Return Type
+
+```ts
+type ReturnType = Receipt
+```
+
+A validated receipt object.
+
+## Parameters
+
+### parameters
+
+#### method
+
+- **Type:** `string`
+
+Payment method used (e.g., "tempo", "stripe").
+
+#### reference
+
+- **Type:** `string`
+
+Method-specific reference (e.g., transaction hash).
+
+#### status
+
+- **Type:** `'success' | 'failed'`
+
+Payment status.
+
+#### timestamp
+
+- **Type:** `string`
+
+ISO 8601 settlement timestamp.

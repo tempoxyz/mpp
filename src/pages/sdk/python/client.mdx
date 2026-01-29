@@ -1,0 +1,40 @@
+# Client
+
+Handle 402 Payment Required responses automatically.
+
+## Quick Start
+
+```python
+from mpay.client import Client
+from mpay.methods.tempo import tempo, TempoAccount
+
+account = TempoAccount.from_key("0x...")
+
+async with Client(methods=[tempo(account=account)]) as client:
+    response = await client.get("https://mpp.dev/ping/paid")
+    print(response.json())
+```
+
+## Common Methods
+
+| Method | Description |
+|--------|-------------|
+| `get(url, **kwargs)` | GET request with payment handling |
+| `post(url, **kwargs)` | POST request with payment handling |
+| `put(url, **kwargs)` | PUT request with payment handling |
+| `delete(url, **kwargs)` | DELETE request with payment handling |
+| `request(method, url, **kwargs)` | Generic request |
+
+## One-off Requests
+
+```python
+from mpay.client import get
+from mpay.methods.tempo import tempo, TempoAccount
+
+response = await get(
+    "https://mpp.dev/ping/paid",
+    methods=[tempo(account=TempoAccount.from_key("0x..."))],
+)
+```
+
+For manual challenge/credential handling, see [Core Types](/sdk/python/core).

@@ -1,0 +1,107 @@
+# Tempo
+
+The [Tempo](https://docs.tempo.xyz) payment method enables instant payments using TIP-20 stablecoins on the Tempo blockchain.
+
+## Overview
+
+[Tempo](https://docs.tempo.xyz) is purpose-built for machine-to-machine payments. It provides:
+
+- **Instant finality** — Transactions settle in ~500ms with deterministic confirmation
+- **Low fees** — Sub-cent transaction costs suitable for micropayments
+- **Fee sponsorship** — Servers can optionally cover gas fees for clients
+
+## Intents
+
+### Charge
+
+The [Tempo](https://docs.tempo.xyz) method supports the `charge` intent for immediate one-time payments.
+Additional intents will be documented here as they land.
+
+#### Client
+
+Use the `tempo` method from `mpay/client` to automatically sign payment transactions when encountering 402 responses.
+
+```ts twoslash
+import { Fetch, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const fetch = Fetch.from({
+  methods: [
+    tempo({
+      account: privateKeyToAccount('0x...'),
+      rpcUrl: 'https://rpc.tempo.xyz',
+    }),
+  ],
+})
+
+const response = await fetch('https://mpp.dev/ping/paid')
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `account` | `Account` | Viem account for signing transactions |
+| `rpcUrl` | `string` | Tempo RPC endpoint |
+| `chainId` | `number` | Optional chain ID (defaults to Tempo mainnet) |
+| `client` | `Client` | Optional viem client (alternative to `rpcUrl`) |
+
+See [`tempo` client reference](/sdk/typescript/client/Method.tempo) for full API documentation.
+
+#### Server
+
+Use the `tempo` method from `mpay/server` to verify payment credentials and settle transactions.
+
+```ts twoslash
+import { Mpay, tempo } from 'mpay/server'
+
+const mpay = Mpay.create({
+  method: tempo({
+    chainId: 42431,
+    rpcUrl: 'https://rpc.tempo.xyz',
+  }),
+  realm: 'mpp.dev',
+  secretKey: process.env.MPAY_SECRET_KEY!,
+})
+
+export async function handler(request: Request) {
+  const result = await mpay.charge({
+    request: {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000001',
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+    },
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `chainId` | `number` | Tempo chain ID |
+| `rpcUrl` | `string` | Tempo RPC endpoint |
+| `feePayer` | `Account` | Optional account for sponsoring client gas fees |
+| `client` | `Client` | Optional viem client (alternative to `rpcUrl`) |
+
+See [`tempo` server reference](/sdk/typescript/server/Method.tempo) for full API documentation.
+
+#### Request Fields
+
+When issuing a charge, the server specifies:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `amount` | `string` | Payment amount in token base units |
+| `currency` | `string` | TIP-20 token contract address |
+| `recipient` | `string` | Address to receive payment |
+| `expires` | `string` | Optional ISO 8601 expiration timestamp |
+| `description` | `string` | Optional human-readable description |
+
+## Specification
+
+For complete protocol details, credential formats, and verification requirements, see the [Tempo Charge specification](https://paymentauth.tempo.xyz/specs/methods/tempo/draft-tempo-charge-00.html).

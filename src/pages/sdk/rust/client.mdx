@@ -1,0 +1,47 @@
+# Client
+
+Handle 402 Payment Required responses automatically.
+
+## Quick Start
+
+Add `.send_with_payment()` to any `reqwest::RequestBuilder`.
+
+```rust
+use mpay::client::{PaymentExt, TempoProvider};
+use alloy::signers::local::PrivateKeySigner;
+
+let signer = PrivateKeySigner::random();
+let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
+
+let response = reqwest::Client::new()
+    .get("https://mpp.dev/ping/paid")
+    .send_with_payment(&provider)
+    .await?;
+```
+
+## Key Types
+
+| Type | Description |
+|------|-------------|
+| `PaymentExt` | Extension trait that adds `send_with_payment` |
+| `TempoProvider` | Signs and submits Tempo payments |
+| `PaymentProvider` | Trait for custom payment methods |
+
+## Middleware (Optional)
+
+All requests automatically handle 402. Requires the `middleware` feature.
+
+```rust
+use mpay::client::{PaymentMiddleware, TempoProvider};
+use reqwest_middleware::ClientBuilder;
+
+let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
+
+let client = ClientBuilder::new(reqwest::Client::new())
+    .with(PaymentMiddleware::new(provider))
+    .build();
+
+let response = client.get("https://mpp.dev/ping/paid").send().await?;
+```
+
+For custom methods, implement `PaymentProvider` and pass it to `send_with_payment`.

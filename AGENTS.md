@@ -1,27 +1,49 @@
----
-name: mpay-ts-docs-reference
-description: Writing TypeScript API reference documentation for mpay. Use when creating new reference pages for mpay TypeScript SDK functions and modules.
----
+# Agent Notes: mpay TypeScript Reference Docs
 
-# Writing mpay TypeScript Reference APIs
+Use this guidance when creating or updating TypeScript SDK reference pages for mpay.
 
-Reference documentation pages follow a consistent structure based on viem.sh docs.
+## Source of Truth
 
-## Specifications
+Prefer the normative Payment Auth specs at <https://paymentauth.tempo.xyz> for protocol-level details:
 
-When writing documentation, refer to the official Payment Auth specifications at https://paymentauth.tempo.xyz/ for:
-- Protocol details and terminology
-- Challenge/Credential flow
-- Intent types (charge, authorize, subscription)
-- Method implementations
-- Transport protocols (HTTP, MCP)
+- Core Payment HTTP Authentication Scheme
+- Payment methods
+- Payment intents (charge, authorize, subscription)
+- Transport bindings (HTTP, MCP)
+
+Current protocol context from this repo:
+
+- MPP standardizes HTTP 402 with a challenge → credential → receipt flow
+- Challenges live in `WWW-Authenticate`, credentials in `Authorization`
+- Receipts acknowledge successful payment
+- Transports include HTTP and MCP
 
 ## File Location
 
-Reference pages go in `src/pages/sdk/typescript/`:
+Reference pages live under `src/pages/sdk/typescript/`:
+
 - Client: `src/pages/sdk/typescript/client/{Module}.{method}.mdx`
 - Server: `src/pages/sdk/typescript/server/{Module}.{method}.mdx`
 - Core: `src/pages/sdk/typescript/{Module}.{method}.mdx`
+
+Other SDK docs live here:
+
+- SDK index: `src/pages/sdk/index.mdx`
+- Python: `src/pages/sdk/python/*.mdx`
+- Rust: `src/pages/sdk/rust/*.mdx`
+
+When editing Python or Rust pages, keep the structure aligned with the existing indexes:
+
+- Lead with a short SDK overview and install steps
+- Include a quick-start client/server or core flow example
+- Use language-appropriate fences (`python`, `rust`)
+- Keep examples realistic and consistent with MPP terms (challenge, credential, receipt)
+
+## SDK References
+
+- Typescript: <https://github.com/wevm/mpay>
+- Python: <https://github.com/tempoxyz/pympay>
+- Rust: <<https://github.com/tempoxyz/mpay-rs>
 
 ## Page Structure
 
@@ -81,6 +103,7 @@ Description of what this parameter does.
 - **Type:** `TypeName`
 
 Description of the optional parameter.
+
 ```
 
 ## Example: Fetch.from
@@ -92,7 +115,7 @@ Creates a fetch wrapper that automatically handles 402 Payment Required response
 
 ## Usage
 
-:::code-group
+::::code-group
 
 ```ts twoslash [example.ts]
 import { Fetch, tempo } from 'mpay/client'
@@ -111,7 +134,7 @@ const res = await fetch('https://api.example.com/resource')
 // @log: Response { status: 200, ... }
 ```
 
-:::
+::::
 
 ## Return Type
 
@@ -135,11 +158,12 @@ Array of payment methods to use for handling 402 responses.
 - **Type:** `typeof globalThis.fetch`
 
 Custom fetch function to wrap. Defaults to `globalThis.fetch`.
+
 ```
 
 ## Rules
 
-1. **Alphabetize everything** - Object properties in code examples and ### Parameter headings must be alphabetically ordered
+1. **Alphabetize everything** - Object properties in code examples and ### parameter headings must be alphabetically ordered
 2. **No code-groups for variants** - Use separate ### sections under ## Usage for different usage patterns (e.g., `### With MCP Transport`), not `:::code-group`
 3. **Keep descriptions concise** - One line for the intro, brief explanations for parameters
 4. **Show realistic examples** - Use actual values that make sense

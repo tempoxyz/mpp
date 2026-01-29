@@ -1,0 +1,132 @@
+# Custom Payment Methods
+
+Implement a custom payment method when integrating new rails or payment control flows (intents). In the TypeScript SDK, you can define custom intents, then attach them to a custom method and extend it with client and server logic.
+
+## Intents
+
+Start by defining the request and credential payload shape for each intent your method supports. You can use built-in intents (like `charge`, `authorize`, or `subscription`) or define your own.
+
+### Define a Custom Intent
+
+```ts twoslash
+import { Intent, z } from 'mpay'
+
+const customIntent = Intent.from({
+  name: 'stream',
+  schema: {
+    request: z.object({
+      amountPerSecond: z.string(),
+      currency: z.string(),
+      recipient: z.string(),
+    }),
+  },
+})
+```
+
+### Attach Method-Specific Schemas
+
+Attach method-specific request and credential schemas to each intent.
+
+```ts twoslash
+import { Intent, MethodIntent, z } from 'mpay'
+
+const stream = Intent.from({
+  name: 'stream',
+  schema: {
+    request: z.object({
+      amountPerSecond: z.string(),
+      currency: z.string(),
+      recipient: z.string(),
+    }),
+  },
+})
+
+const customStream = MethodIntent.fromIntent(stream, {
+  method: 'custom',
+  schema: {
+    request: {
+      methodDetails: z.object({
+        network: z.string(),
+      }),
+      requires: ['recipient'],
+    },
+    credential: {
+      payload: z.object({
+        sessionId: z.string(),
+        signature: z.string(),
+      }),
+    },
+  },
+})
+```
+
+You can also attach built-in intents like `Intent.charge` the same way.
+
+See `MethodIntent.fromIntent` and `MethodIntent.from` for more options.
+
+## Method Definition
+
+Compose your intents into a method definition. Method names are free-form and should match the `method` field used in challenges and credentials.
+
+```ts twoslash
+import { Method } from 'mpay'
+
+const method = Method.from({
+  name: 'custom',
+  intents: { charge: customCharge, stream: customStream },
+})
+```
+
+## Client Implementation
+
+Extend the method with credential creation logic and return a serialized credential.
+
+```ts twoslash
+import { Credential, Method } from 'mpay'
+
+const clientMethod = Method.toClient(method, {
+  async createCredential({ challenge }) {
+    const signature = await signChallenge(challenge)
+    const txHash = await submitPayment(challenge)
+
+    return Credential.serialize({
+      challenge,
+      payload: { signature, txHash },
+    })
+  },
+})
+```
+
+## Server Implementation
+
+Extend the method with verification logic that returns a receipt.
+
+```ts twoslash
+import { Method, Receipt } from 'mpay'
+
+const serverMethod = Method.toServer(method, {
+  async verify({ credential }) {
+    const isValid = await verifyPayment(credential)
+
+    return Receipt.from({
+      method: 'custom',
+      status: isValid ? 'success' : 'failed',
+      timestamp: new Date().toISOString(),
+      reference: credential.payload.txHash,
+    })
+  },
+})
+```
+
+## Register in Your App
+
+Client-side, pass `clientMethod` to `Fetch.from`. Server-side, pass `serverMethod` to `Mpay.create`.
+
+## TypeScript SDK References
+
+- [`MethodIntent.fromIntent`](/sdk/typescript/MethodIntent.fromIntent)
+- [`MethodIntent.from`](/sdk/typescript/MethodIntent.from)
+- [`Intent.from`](/sdk/typescript/Intent.from)
+- [`Method.from`](/sdk/typescript/Method.from)
+- [`Method.toClient`](/sdk/typescript/Method.toClient)
+- [`Method.toServer`](/sdk/typescript/Method.toServer)

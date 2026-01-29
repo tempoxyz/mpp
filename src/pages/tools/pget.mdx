@@ -1,0 +1,73 @@
+# pget
+
+A wget-like CLI tool for making HTTP requests with automatic payment support.
+
+When you request a resource that requires payment, pget automatically detects the 402 response, fulfills the payment, and retries—all in a single command.
+
+## Installation
+
+**Quick install:**
+
+```bash
+curl -fsSL https://pget.tempo.xyz/install.sh | bash
+```
+
+**From source:**
+
+```bash
+git clone https://github.com/tempoxyz/pget.git
+cd pget
+cargo install --path .
+```
+
+## Quick Start
+
+```bash
+# Initialize (first time only)
+pget init
+
+# Make a paid request
+pget https://mpp.dev/ping/paid
+```
+
+## Configuration
+
+pget uses encrypted keystores for secure wallet management.
+
+### Example Config
+
+```toml
+[evm]
+keystore = "/Users/you/.pget/keystores/my-wallet.json"
+
+# Override RPC URLs
+[rpc]
+tempo = "https://my-private-rpc.com"
+```
+
+## Payment Method Management
+
+```bash
+# List all payment methods
+pget method list
+
+# Create a new wallet
+pget method new my-wallet --generate
+
+# Import an existing private key
+pget method import my-wallet
+
+# Check balance on specific network
+pget balance -n tempo
+```
+
+## Command Reference
+
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `pget init` | `pget i` | Initialize configuration |
+| `pget config` | `pget c` | View/manage configuration |
+| `pget method` | `pget m` | Manage payment methods |
+| `pget balance` | `pget b` | Check wallet balance |
+| `pget networks` | `pget n` | List supported networks |
+| `pget inspect` | — | Inspect payment requirements |

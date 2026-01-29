@@ -1,0 +1,69 @@
+# Server
+
+Protect endpoints with payment requirements.
+
+## Quick Start
+
+```python
+from fastapi import FastAPI, Request
+from mpay import Credential, Receipt
+from mpay.server import requires_payment
+from mpay.methods.tempo import ChargeIntent
+
+app = FastAPI()
+intent = ChargeIntent(rpc_url="https://rpc.tempo.xyz")
+
+@app.get("/resource")
+@requires_payment(
+    intent=intent,
+    request={
+        "amount": "1000000",
+        "currency": "0x20c0000000000000000000000000000000000001",
+        "recipient": "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+    },
+    realm="mpp.dev",
+    secret_key="my-server-secret",
+)
+async def get_resource(request: Request, credential: Credential, receipt: Receipt):
+    return {"data": "paid content", "payer": credential.source}
+```
+
+## Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `intent` | Payment intent for verification |
+| `request` | Payment request data (dict or callable) |
+| `realm` | Server realm for `WWW-Authenticate` |
+| `secret_key` | Secret for challenge IDs |
+| `method` | Optional payment method name (defaults to `"tempo"`) |
+
+## Reuse Configuration
+
+Bind method, realm, and secret_key once.
+
+```python
+from mpay import Challenge
+from mpay.server import Mpay
+from mpay.methods.tempo import TempoMethod
+
+payment = Mpay(
+    method=TempoMethod(rpc_url="https://rpc.tempo.xyz"),
+    realm="mpp.dev",
+    secret_key="my-server-secret",
+)
+
+result = await payment.charge(
+    authorization=request.headers.get("Authorization"),
+    request={"amount": "1000", "currency": "0x...", "recipient": "0x..."},
+)
+
+if isinstance(result, Challenge):
+    return JSONResponse(
+        status_code=402,
+        headers={"WWW-Authenticate": result.to_www_authenticate(payment.realm)},
+    )
+
+credential, receipt = result
+return {"data": "paid content"}
+```

@@ -1,0 +1,71 @@
+# HTTP 402 Payment Required
+
+HTTP 402 "Payment Required" was reserved in HTTP/1.1 but never standardized. MPP gives 402 its semantics by pairing it with the Payment authentication scheme.
+
+## When Servers Return 402
+
+Servers respond with 402 when:
+
+- A resource requires payment as a precondition for access
+- The server can provide a Payment challenge the client may fulfill
+- Payment is the primary barrier (not authentication or authorization, which would result in a 401 and then potentially an incremental 402)
+
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment id="abc123",
+    realm="mpp.dev",
+    method="tempo",
+    intent="charge",
+    request="eyJ..."
+```
+
+:::warning
+Servers MUST include a `WWW-Authenticate` header with at least one Payment challenge when returning 402.
+:::
+
+## Relationship to Other Status Codes
+
+| Condition | Status Code |
+|-----------|-------------|
+| Resource requires payment | **402** |
+| Client lacks authentication | 401 |
+| Client authenticated but unauthorized | 403 |
+| Resource doesn't exist | 404 |
+
+MPP uses 402 consistently for all payment-related challenges, including when a credential fails validation. This differs from other HTTP authentication schemes that use 401 for failed credentials.
+
+## Interaction with Authentication
+
+When a resource requires both authentication and payment, servers should:
+
+1. First verify authentication credentials
+2. Return 401 if authentication fails
+3. Return 402 with a Payment challenge only after successful authentication
+
+This ordering prevents leaking payment requirements to unauthenticated clients.
+
+## Error Responses
+
+Failed payment attempts return 402 with a fresh challenge and a Problem Details body:
+
+```http
+HTTP/1.1 402 Payment Required
+Content-Type: application/problem+json
+WWW-Authenticate: Payment id="new456", ...
+
+{
+  "type": "https://ietf.org/payment/problems/verification-failed",
+  "title": "Payment Verification Failed",
+  "status": 402,
+  "detail": "Invalid payment proof."
+}
+```
+
+Error types include:
+- `malformed-credential` – Invalid base64url or bad JSON
+- `invalid-challenge` – Unknown, expired, or already-used challenge
+- `verification-failed` – Payment proof invalid
+
+## Learn More
+
+- [Full HTTP 402 Specification](https://paymentauth.tempo.xyz/core/payment-auth#usage-of-402) – Normative details on 402 usage

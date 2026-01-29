@@ -1,0 +1,28 @@
+# `BodyDigest.compute`
+
+Computes a SHA-256 digest of the given body.
+
+## Usage
+
+```ts twoslash
+import { BodyDigest } from 'mpay'
+
+const digest = BodyDigest.compute({ amount: '1000' })
+// => 'sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE'
+```
+
+## Return Type
+
+```ts
+type ReturnType = `sha-256=${string}`
+```
+
+A digest string in the format `sha-256=base64hash`.
+
+## Parameters
+
+### body
+
+- **Type:** `Record<string, unknown> | string`
+
+The body to digest. Can be a JSON object or a string.

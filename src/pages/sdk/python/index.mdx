@@ -1,3 +1,87 @@
 # Getting Started
 
-TODO
+## Overview
+
+The `mpay` Python library provides an intuitive interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives & building blocks.
+
+## Install
+
+```bash
+pip install pympay
+```
+
+With Tempo blockchain support:
+
+```bash
+pip install "pympay[tempo]"
+```
+
+## Design Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Protocol-first** | Core types map directly to HTTP headers |
+| **Async-native** | Built on `httpx` for modern async Python |
+| **Pluggable methods** | Payment networks are optional extras |
+| **Minimal dependencies** | Core has only essential dependencies |
+| **Designed for extension** | Easy to add custom payment methods |
+
+## Quick Start
+
+### Server
+
+```python
+from datetime import datetime, timedelta, UTC
+from fastapi import FastAPI, Request
+from mpay import Credential, Receipt
+from mpay.server import requires_payment
+from mpay.methods.tempo import ChargeIntent
+
+app = FastAPI()
+intent = ChargeIntent(rpc_url="https://rpc.tempo.xyz")
+
+@app.get("/resource")
+@requires_payment(
+    intent=intent,
+    request={
+        "amount": "1000000",
+        "currency": "0x20c0000000000000000000000000000000000001",
+        "recipient": "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+        "expires": (datetime.now(UTC) + timedelta(minutes=5)).isoformat(),
+    },
+    realm="mpp.dev",
+    secret_key="my-server-secret",
+)
+async def get_resource(request: Request, credential: Credential, receipt: Receipt):
+    return {"data": "paid content", "payer": credential.source}
+```
+
+### Client
+
+```python
+import asyncio
+from mpay.client import Client
+from mpay.methods.tempo import tempo, TempoAccount
+
+async def main():
+    account = TempoAccount.from_env()
+    
+    async with Client(methods=[tempo(account=account)]) as client:
+        response = await client.get("https://mpp.dev/ping/paid")
+        print(response.json())
+
+asyncio.run(main())
+```
+
+## Requirements
+
+- Python 3.10+
+- `httpx` for async HTTP
+- `eth-account` for Tempo signing (with `[tempo]` extra)
+
+## Next Steps
+
+- [Core Types →](/sdk/python/core) — `Challenge`, `Credential`, `Receipt`
+- [Client →](/sdk/python/client) — Handle 402 responses automatically
+- [Server →](/sdk/python/server) — Protect endpoints with payments
+- [Examples →](/sdk/python/examples) — Complete working examples

@@ -1,0 +1,27 @@
+# Payment Methods
+
+Payment Methods define how clients pay for resources protected by the Machine Payments Protocol. Each method specifies their own payment rails, credential format, and verification logic.
+
+## How It Works
+
+When a server responds with `402 Payment Required`, the `WWW-Authenticate` header includes a `method` parameter indicating which payment method to use:
+
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment method="tempo", intent="charge", ...
+```
+
+If supported, the client then can use the corresponding payment method to generate a credential and retry the request.
+
+## Available Methods
+
+| Method | Description | Settlement | Intents |
+|--------|-------------|------------|---------|
+| [Tempo](/payment-methods/tempo) | TIP-20 stablecoin transfers on Tempo | Instant (~500ms) | `charge` |
+| [Custom](/payment-methods/custom) | Implement your own method with the TypeScript SDK | Depends on method | Varies |
+
+## Choosing a Method
+
+Different payment methods suit different use cases:
+
+- **Tempo** — Best for instant, low-cost payments with USD stablecoins. Ideal for AI agents, APIs, and micropayments. Supports `charge`.

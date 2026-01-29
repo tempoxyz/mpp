@@ -1,0 +1,53 @@
+# HTTP Transport
+
+The HTTP transport is the primary binding for MPP, using standard HTTP headers from [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-11).
+
+## Headers
+
+| Direction | Header | Purpose |
+|-----------|--------|---------|
+| Server → Client | `WWW-Authenticate: Payment ...` | Challenge |
+| Client → Server | `Authorization: Payment ...` | Credential |
+| Server → Client | `Payment-Receipt: ...` | Receipt |
+
+## Example Flow
+
+### 1. Initial Request
+
+```http
+GET /api/data HTTP/1.1
+Host: api.example.com
+```
+
+### 2. Payment Challenge
+
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment id="abc123", method="tempo", intent="charge", request="..."
+```
+
+### 3. Request with Credential
+
+```http
+GET /api/data HTTP/1.1
+Host: api.example.com
+Authorization: Payment eyJjaGFsbGVuZ2UiOnsiaWQiOiJhYmMxMjMi...
+```
+
+### 4. Success with Receipt
+
+```http
+HTTP/1.1 200 OK
+Payment-Receipt: eyJzdGF0dXMiOiJzdWNjZXNzIi4uLn0
+Content-Type: application/json
+
+{"data": "..."}
+```
+
+## Header Encoding
+
+Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#section-11.2) in `WWW-Authenticate`. Credentials and receipts use base64url-encoded JSON.
+
+## Full Specification
+
+See the [Payment HTTP Authentication Scheme](https://paymentauth.tempo.xyz/core/payment-auth) for the normative specification.

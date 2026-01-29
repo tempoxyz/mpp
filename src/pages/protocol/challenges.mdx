@@ -1,0 +1,80 @@
+# Challenges
+
+A **challenge** is a payment requirement issued by the server in response to a request. Challenges are sent in the `WWW-Authenticate` header using the Payment authentication scheme.
+
+## Challenge Structure
+
+```http [WWW-Authenticate Header]
+WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk",
+    realm="mpp.dev",
+    method="tempo",
+    intent="charge",
+    expires="2025-01-15T12:05:00Z",
+    request="eyJhbW91bnQiOiIxMDAwIiwiY3VycmVuY3kiOiJ1c2QifQ"
+```
+
+### Required Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `id` | Unique challenge identifier, cryptographically bound to challenge parameters |
+| `realm` | Protection space identifier (typically the API domain) |
+| `method` | Payment method identifier (e.g., `tempo`, `stripe`) |
+| `intent` | Payment intent type (e.g., `charge`, `authorize`) |
+| `request` | Base64url-encoded JSON with payment details |
+
+### Optional Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `expires` | ISO 8601 timestamp when the challenge expires |
+| `description` | Human-readable description of what's being paid for |
+
+## The Request Object
+
+The `request` parameter contains method-specific payment details encoded as base64url JSON:
+
+```json [Decoded request object]
+{
+  "amount": "1000",
+  "currency": "usd",
+  "recipient": "0xa726a1CD723409074DF9108A2187cfA19899aCF8"
+}
+```
+
+Common fields across payment methods:
+
+| Field | Description |
+|-------|-------------|
+| `amount` | Payment amount in base units (e.g., cents for USD) |
+| `currency` | Currency code (`usd`) or token address (`0x20c0...`) |
+| `recipient` | Payment destination in method-native format |
+
+## Multiple Challenges
+
+Servers may offer multiple payment options in a single response:
+
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment id="abc", method="tempo", ...
+WWW-Authenticate: Payment id="def", method="stripe", ...
+```
+
+Clients select one based on their capabilities and submit a single credential.
+
+## Challenge Binding
+
+:::danger[Security requirement]
+Servers MUST cryptographically bind the `id` to the challenge parameters. This prevents clients from reusing a challenge ID with modified payment terms.
+:::
+
+Typical binding includes:
+
+- `realm`, `method`, `intent`
+- Hash of the `request` object
+- `expires` timestamp
+
+## Learn More
+
+- [Full Challenge Specification](https://paymentauth.tempo.xyz/core/payment-auth#challenge-www-authenticate) – Normative challenge format
+- [Payment Methods](https://paymentauth.tempo.xyz/methods) – Method-specific request schemas

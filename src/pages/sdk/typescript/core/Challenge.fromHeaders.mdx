@@ -1,0 +1,46 @@
+# `Challenge.fromHeaders`
+
+Extracts the challenge from a Headers object.
+
+## Usage
+
+```ts twoslash
+import { Challenge } from 'mpay'
+
+const response = await fetch('/resource')
+const challenge = Challenge.fromHeaders(response.headers)
+```
+
+### With Method Type Narrowing
+
+Use a method definition to get type-safe access to method-specific request fields.
+
+```ts twoslash
+import { Challenge } from 'mpay'
+import { method } from 'mpay/tempo'
+
+const response = await fetch('/resource')
+const challenge = Challenge.fromHeaders(response.headers, { method })
+```
+
+## Return Type
+
+```ts
+type ReturnType = Challenge
+```
+
+The deserialized challenge object.
+
+## Parameters
+
+### headers
+
+- **Type:** `Headers`
+
+The HTTP headers object.
+
+### options (optional)
+
+- **Type:** `{ method?: Method }`
+
+Optional settings to narrow the challenge type using a method definition.

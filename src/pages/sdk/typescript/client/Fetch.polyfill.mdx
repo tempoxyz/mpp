@@ -18,7 +18,7 @@ Fetch.polyfill({
 })
 
 // Global fetch now handles 402 automatically
-const res = await fetch('https://api.example.com/resource')
+const res = await fetch('https://mpp.dev/ping/paid')
 ```
 
 ### Per-Call Accounts
@@ -37,7 +37,7 @@ Fetch.polyfill({
   ],
 })
 
-const res = await fetch('https://api.example.com/resource', {
+const res = await fetch('https://mpp.dev/ping/paid', {
   context: { // [!code focus]
     account: privateKeyToAccount('0x...'), // [!code focus]
   }, // [!code focus]

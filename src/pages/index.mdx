@@ -1,3 +1,71 @@
+import { PaymentSequence } from "../components/SequenceDiagram";
+
 # Machine Payments Protocol
 
-TODO
+**Machine Payments Protocol (MPP)** is an internet-native payments protocol for machine-to-machine transactions. TK flesh out with marketing copy.
+
+You can learn more about the protocl itself at https://machinepaymentsprotocol.com
+
+:::tip[Get started in 5 minutes]
+Check out the [Quickstart](/quickstart) to build your first payment-enabled API.
+:::
+
+### Design Principles
+
+| Principle | Description |
+|---------|-------------|
+| **True web standards** | Built on an IETF-track specification using open protocol, not a proprietary protocol or payment method specific ecosystem.  |
+| **Multi-rail from day one** | Crypto, cards, bank transfers—all through one protocol |
+| **Currency agnostic** | No implicit advantages at the protocol layer for any currency or asset. |
+| **Designed for payments** | Idempotency, security, and receipts as first-class primitives |
+| **Simple, extensible core** | Minimal protocol designed for extension |
+
+## How It Works
+
+<PaymentSequence />
+
+1. **Request** – Client requests a paid resource
+2. **Challenge** – Server responds with 402 and payment requirements
+3. **Pay** – Client fulfills the challenge off-band (blockchain tx, invoice, etc.)
+4. **Retry** – Client retries with a credential proving payment
+5. **Access** – Server verifies payment, returns resource + receipt
+
+## Who It's For
+
+### APIs
+Programmatic APIs can enable true pay-per-use pricing without requiring upfront API keys or billing accounts. Clients, including agents, can authenticate and pay inline -- no manual signup or plumbing required.
+
+### MCP Servers
+
+Tools served via the Model Context Protocol (MCP) can monetize without the complexities of OAuth integrations and account models. MPP's MCP transport lets agents pay for tool calls autonomously.
+
+### Content Providers
+Publishers can monetize individual articles or data queries without forcing users through subscription paywalls—or gate content from known AI scrapers with micro-payment requirements.
+
+## Production-Grade SDKs
+
+Official implementations with full protocol support:
+
+| Language | Package | GitHub | Status |
+|----------|---------|--------|--------|
+| [TypeScript](/sdk/typescript) | [`mpay`](https://www.npmjs.com/package/mpay) | [wevm/mpay](https://github.com/wevm/mpay) | Reference |
+| [Python](/sdk/python) | [`pympay`](https://pypi.org/project/pympay/) | [tempoxyz/pympay](https://github.com/tempoxyz/pympay) | Beta |
+| [Rust](/sdk/rust) | [`mpay`](https://crates.io/crates/mpay) | [tempoxyz/mpay-rs](https://github.com/tempoxyz/mpay-rs) | Beta |
+
+## Get Started
+
+::::steps
+
+### Try the Quickstart
+
+[**Quickstart**](/quickstart) – Accept or make your first payment in 5 minutes
+
+### Learn the Protocol
+
+[**Protocol Overview**](/protocol) – Understand challenges, credentials, and receipts
+
+### Read the Spec
+
+[**Full Specification**](https://paymentauth.tempo.xyz) – Normative IETF-style spec
+
+::::

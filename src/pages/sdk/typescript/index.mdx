@@ -132,7 +132,7 @@ Fetch.polyfill({
 })
 
 // Now, the global `fetch` instance will be payment-enabled.
-const response = await fetch('https://api.example.com')
+const response = await fetch('https://mpp.dev/ping/paid')
 ```
 :::
 
@@ -141,7 +141,7 @@ const response = await fetch('https://api.example.com')
 Now, we can use our `fetch` instance to make requests to resources that require payment.
 
 ```ts [example.ts]
-const response = await fetch('https://api.example.com')
+const response = await fetch('https://mpp.dev/ping/paid')
 ```
 
 :::tip
@@ -158,7 +158,7 @@ const fetch = Fetch.from({
   ] 
 }) 
 
-const response = await fetch('https://api.example.com', {
+const response = await fetch('https://mpp.dev/ping/paid', {
   context: { 
     account, // [!code ++] 
   } 
@@ -185,7 +185,7 @@ const mpay = Mpay.create({
     chainId: 4217,
     rpcUrl: 'https://rpc.tempo.xyz',
   }),
-  realm: 'api.example.com',
+  realm: 'mpp.dev',
 })
 ```
 
@@ -211,7 +211,7 @@ const mpay = Mpay.create({
     chainId: 4217,
     rpcUrl: 'https://rpc.tempo.xyz',
   }),
-  realm: 'api.example.com',
+  realm: 'mpp.dev',
 })
 
 export async function handler(request: Request) { 
@@ -219,7 +219,7 @@ export async function handler(request: Request) {
     request: { 
       amount: '1000000', 
       currency: '0x20c0000000000000000000000000000000000001', 
-      recipient: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00', 
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
       expires: '2030-01-20T12:00:00Z', 
     }, 
   })(request) 
@@ -246,7 +246,7 @@ const mpay = Mpay.create({
     chainId: 4217,
     rpcUrl: 'https://rpc.tempo.xyz',
   }),
-  realm: 'api.example.com',
+  realm: 'mpp.dev',
 })
 
 export async function handler(req: IncomingMessage, res: ServerResponse) { 
@@ -254,7 +254,7 @@ export async function handler(req: IncomingMessage, res: ServerResponse) {
     request: { 
       amount: '1000000', 
       currency: '0x20c0000000000000000000000000000000000001', 
-      recipient: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00', 
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
       expires: '2030-01-20T12:00:00Z', 
     }, 
   }))(req, res) // [!code ++]
@@ -279,7 +279,7 @@ import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
   method: tempo({ chainId: 4217, rpcUrl: 'https://rpc.tempo.xyz' }),
-  realm: 'api.example.com',
+  realm: 'mpp.dev',
   secretKey: import.meta.env.MPAY_SECRET_KEY,
 })
 
@@ -290,7 +290,7 @@ app.get('/resource', async (c) => { // [!code focus:99]
     request: {
       amount: '1000000',
       currency: '0x20c0000000000000000000000000000000000001',
-      recipient: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
     },
   })(c.req.raw)
 

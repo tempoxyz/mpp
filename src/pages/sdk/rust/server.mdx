@@ -1,0 +1,42 @@
+# Server
+
+Protect endpoints with payment requirements.
+
+## Quick Start
+
+Bind method, realm, and secret_key for stateless verification.
+
+```rust
+use mpay::server::{Mpay, tempo_provider, TempoChargeMethod};
+
+let provider = tempo_provider("https://rpc.tempo.xyz")?;
+let method = TempoChargeMethod::new(provider);
+let payment = Mpay::new(method, "mpp.dev", "my-secret");
+```
+
+## Key Types
+
+| Type | Description |
+|------|-------------|
+| `Mpay` | Server helper for challenges and verification |
+| `TempoChargeMethod` | Built-in Tempo verification logic |
+| `ChargeMethod` | Trait for custom verification |
+
+## Generate a Challenge
+
+```rust
+let challenge = payment.charge_challenge(
+    "1000000",
+    "0x20c0000000000000000000000000000000000001",
+    "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+)?;
+```
+
+## Verify a Credential
+
+```rust
+let receipt = payment.verify(&credential, &request).await?;
+println!("Payment verified: {}", receipt.reference);
+```
+
+For custom verification, implement `ChargeMethod` and pass it to `Mpay::new`.

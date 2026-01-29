@@ -1,0 +1,35 @@
+# `BodyDigest.verify`
+
+Verifies that a digest matches the given body.
+
+## Usage
+
+```ts twoslash
+import { BodyDigest } from 'mpay'
+
+const digest = BodyDigest.compute({ amount: '1000' })
+const isValid = BodyDigest.verify(digest, '{"amount":"1000"}')
+// => true
+```
+
+## Return Type
+
+```ts
+type ReturnType = boolean
+```
+
+`true` if the digest matches, `false` otherwise.
+
+## Parameters
+
+### body
+
+- **Type:** `Record<string, unknown> | string`
+
+The body to verify against.
+
+### digest
+
+- **Type:** `` `sha-256=${string}` ``
+
+The digest to verify.

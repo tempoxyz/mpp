@@ -1,0 +1,233 @@
+import { VerificationSequence } from "../../components/SequenceDiagram";
+
+# Server Quickstart
+
+Learn how to charge for resources by issuing payment challenges and verifying credentials.
+
+## Overview
+
+The server SDK provides:
+
+| Component | Description |
+|-----------|-------------|
+| [`Mpay.create`](/sdk/typescript/server/Mpay.create) | Creates a payment handler with configured method and realm |
+| Intent methods | Functions like `payment.charge()` that handle the 402 flow |
+| [`Mpay.toNodeListener`](/sdk/typescript/server/Mpay.toNodeListener) | Adapts the handler for Node.js HTTP servers |
+
+## Basic setup
+
+Create a payment handler with your payment method and server realm:
+
+```ts [server.ts]
+import { Mpay, tempo } from 'mpay/server'
+
+const payment = Mpay.create({
+  method: tempo({
+    rpcUrl: 'https://rpc.tempo.xyz',
+    chainId: 42431,
+  }),
+  realm: 'mpp.dev', // [!code focus]
+  secretKey: process.env.MPP_SECRET_KEY!, // [!code focus]
+})
+```
+
+:::details[Configuration options]
+| Option | Description |
+|--------|-------------|
+| `method` | Payment method (e.g., `tempo({ ... })`) |
+| `realm` | Server realm, typically your hostname |
+| `secretKey` | Secret for HMAC-bound challenge IDs (enables stateless verification) |
+:::
+
+## Protecting a resource
+
+Use intent methods to protect resources. Each returns a function that handles the 402 flow:
+
+```ts [charge.ts]
+// Define what to charge
+const chargeHandler = payment.charge({
+  request: {
+    amount: '1000000',                                        // 1 USD (6 decimals)
+    currency: '0x20c0000000000000000000000000000000000000',   // pathUSD
+    recipient: '0x...',                                       // Your receiving address
+  },
+  description: 'API access',
+})
+```
+
+### With a web framework
+
+:::code-group
+
+```ts [Hono]
+import { Hono } from 'hono'
+import { Mpay, tempo } from 'mpay/server'
+
+const payment = Mpay.create({
+  method: tempo({ rpcUrl: 'https://rpc.tempo.xyz', chainId: 42431 }),
+  realm: 'mpp.dev',
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+const app = new Hono()
+
+app.get('/resource', async (c) => {
+  const result = await payment.charge({
+    request: {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000000',
+      recipient: '0x...',
+    },
+  })(c.req.raw)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(c.json({ data: 'protected content' }))
+})
+```
+
+```ts [Bun/Deno]
+import { Mpay, tempo } from 'mpay/server'
+
+const payment = Mpay.create({
+  method: tempo({ rpcUrl: 'https://rpc.tempo.xyz', chainId: 42431 }),
+  realm: 'mpp.dev',
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+export default {
+  async fetch(request: Request): Promise<Response> {
+    const result = await payment.charge({
+      request: {
+        amount: '1000000',
+        currency: '0x20c0000000000000000000000000000000000000',
+        recipient: '0x...',
+      },
+    })(request)
+
+    if (result.status === 402) return result.challenge
+
+    return result.withReceipt(
+      Response.json({ data: 'protected content' })
+    )
+  }
+}
+```
+
+```ts [Fetch API]
+async function handler(request: Request): Promise<Response> {
+  const result = await payment.charge({
+    request: {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000000',
+      recipient: '0x...',
+    },
+  })(request)
+
+  // Payment required — return 402 challenge
+  if (result.status === 402) {
+    return result.challenge
+  }
+
+  // Payment verified — return protected resource with receipt
+  return result.withReceipt(
+    Response.json({ data: 'protected content' })
+  )
+}
+```
+
+:::
+
+## Node.js HTTP server
+
+For Node.js HTTP servers, use `Mpay.toNodeListener`:
+
+```ts [node-server.ts]
+import * as http from 'node:http'
+import { Mpay, tempo } from 'mpay/server'
+
+const payment = Mpay.create({
+  method: tempo({
+    rpcUrl: 'https://rpc.tempo.xyz',
+    chainId: 42431,
+  }),
+  realm: 'mpp.dev',
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+http.createServer(async (req, res) => {
+  const result = await Mpay.toNodeListener( // [!code focus]
+    payment.charge({
+      request: {
+        amount: '1000000',
+        currency: '0x20c0000000000000000000000000000000000000',
+        recipient: '0x...',
+      },
+    }),
+  )(req, res) // [!code focus]
+
+  // 402 response already written
+  if (result.status === 402) return
+
+  // Write protected content
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify({ data: 'protected content' }))
+}).listen(3000)
+```
+
+## How verification works
+
+The server uses HMAC-bound challenge IDs for stateless verification:
+
+<VerificationSequence />
+
+:::success[Stateless]
+No database or session storage required for challenge verification.
+:::
+
+## Sponsored fees
+
+Let your server pay transaction fees for users:
+
+```ts [sponsored.ts]
+import { Mpay, tempo } from 'mpay/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const payment = Mpay.create({
+  method: tempo({
+    rpcUrl: 'https://rpc.tempo.xyz',
+    chainId: 42431,
+    feePayer: privateKeyToAccount('0x...'), // [!code focus]
+  }),
+  realm: 'mpp.dev',
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+:::tip
+When `feePayer` is set, the server co-signs transactions to cover gas fees, providing a seamless UX for end users.
+:::
+
+## Testing with pget
+
+Once your server is running, test it with [pget](/tools/pget):
+
+```bash
+# See the payment challenge
+pget inspect <your-server>/resource
+
+# Make a paid request (requires funded wallet)
+pget <your-server>/resource
+
+# Verbose output to see the full 402 flow
+pget -vi <your-server>/resource
+
+# Dry run to preview payment without executing
+pget -D <your-server>/resource
+```
+
+## Next steps
+
+- [Client Quickstart](/quickstart/client) — Learn how to pay for resources
+- [Tempo Payment Method](/payment-methods/tempo) — Configure Tempo blockchain payments
+- [Mpay.create Reference](/sdk/typescript/server/Mpay.create) — Full API documentation

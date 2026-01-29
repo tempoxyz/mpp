@@ -1,0 +1,131 @@
+# pget Examples
+
+## Try It Now
+
+The MPP docs site hosts live endpoints you can test against:
+
+```bash
+# Free endpoint - no payment required
+pget https://mpp.dev/ping
+
+# Paid endpoint - requires 0.10 PATHUSD payment
+pget https://mpp.dev/ping/paid
+
+# Inspect the payment requirements first
+pget inspect https://mpp.dev/ping/paid
+
+# Dry run to see what would happen
+pget -D https://mpp.dev/ping/paid
+
+# Verbose output to see the full 402 flow
+pget -vi https://mpp.dev/ping/paid
+```
+
+### Quick Setup with Private Key
+
+For testing, you can use a private key directly via environment variable:
+
+```bash
+# Set your private key (funded on Tempo testnet)
+export PGET_PRIVATE_KEY="0x..."
+
+# Make paid requests
+pget https://mpp.dev/ping/paid
+```
+
+:::tip[Get Testnet Funds]
+The `/ping/paid` endpoint runs on Tempo testnet. Fund your wallet at [faucet.tempo.xyz](https://faucet.tempo.xyz) with PATHUSD before testing.
+:::
+
+## Basic Requests
+
+```bash
+# Make a payment request
+pget https://mpp.dev/ping/paid
+
+# Verbose output with headers
+pget -vi https://mpp.dev/ping/paid
+
+# Save output to file
+pget -o output.json https://mpp.dev/ping/paid
+
+# JSON output format
+pget --json-output https://mpp.dev/ping/paid
+```
+
+## Payment Controls
+
+```bash
+# Preview payment without executing (dry run)
+pget -D https://mpp.dev/ping/paid
+
+# Require confirmation before payment
+pget -y https://mpp.dev/ping/paid
+
+# Set maximum payment amount (in atomic units)
+pget -M 10000 https://mpp.dev/ping/paid
+
+# Filter to specific networks
+pget -n tempo https://mpp.dev/ping/paid
+```
+
+## Wallet Management
+
+```bash
+# Check wallet balance
+pget balance
+
+# Check balance on specific network
+pget balance -n tempo
+
+# Use specific account by name
+pget -a my-wallet https://mpp.dev/ping/paid
+
+# Use specific sender address
+pget --from 0x1234... https://mpp.dev/ping/paid
+```
+
+## Inspecting Payments
+
+```bash
+# Inspect payment requirements without paying
+pget inspect https://mpp.dev/ping/paid
+
+# View configuration
+pget config
+
+# View config as JSON
+pget config --output-format json
+```
+
+## HTTP Options
+
+```bash
+# Custom headers
+pget -H "X-Custom: value" https://mpp.dev/ping/paid
+
+# POST with data
+pget -X POST -d '{"key": "value"}' https://mpp.dev/ping/paid
+
+# POST with JSON (sets Content-Type automatically)
+pget --json '{"key": "value"}' https://mpp.dev/ping/paid
+
+# Follow redirects
+pget -L https://mpp.dev/ping/paid
+
+# Set timeout
+pget -m 30 https://mpp.dev/ping/paid
+```
+
+## Output Control
+
+```bash
+# Quiet mode (suppress non-essential output)
+pget -q https://mpp.dev/ping/paid
+
+# Show only HTTP headers
+pget -I https://mpp.dev/ping/paid
+
+# Disable colors
+pget --color never https://mpp.dev/ping/paid
+```

@@ -1,10 +1,16 @@
-# `Fetch.from`
+# Fetch.from
 
 Creates a fetch wrapper that automatically handles `402 Payment Required` responses.
 
+## Import
+
+```ts [import.ts]
+import { Fetch } from 'mpay/client'
+```
+
 ## Usage
 
-```ts twoslash
+```ts twoslash [client.ts]
 import { Fetch, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -18,16 +24,18 @@ const fetch = Fetch.from({
 })
 
 // Use the wrapped fetch — handles 402 automatically
-const res = await fetch('https://api.example.com/resource')
+const res = await fetch('https://mpp.dev/ping/paid')
 ```
 
 ### Per-Call Accounts
 
 Instead of defining an `account` at instantiation, you can pass it on a per-request basis via the `context` option. 
 
+:::tip
 This is useful when you need to use different accounts for different requests.
+:::
 
-```ts twoslash
+```ts twoslash [per-call.ts]
 import { Fetch, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -39,7 +47,7 @@ const fetch = Fetch.from({
   ],
 })
 
-const res = await fetch('https://api.example.com/resource', {
+const res = await fetch('https://mpp.dev/ping/paid', {
   context: { // [!code focus]
     account: privateKeyToAccount('0x...'), // [!code focus]
   }, // [!code focus]

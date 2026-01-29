@@ -1,0 +1,28 @@
+# `PaymentRequest.deserialize`
+
+Deserializes a base64url string to a payment request.
+
+## Usage
+
+```ts twoslash
+import { PaymentRequest } from 'mpay'
+
+const encoded = 'eyJhbW91bnQiOiIxMDAwMDAwIiwiY3VycmVuY3kiOiIweC4uLiJ9'
+const request = PaymentRequest.deserialize(encoded)
+```
+
+## Return Type
+
+```ts
+type ReturnType = Request
+```
+
+The deserialized request object.
+
+## Parameters
+
+### encoded
+
+- **Type:** `string`
+
+The base64url-encoded string.

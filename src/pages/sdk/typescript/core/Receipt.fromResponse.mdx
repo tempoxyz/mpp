@@ -1,0 +1,33 @@
+# `Receipt.fromResponse`
+
+Extracts the receipt from a Response's Payment-Receipt header.
+
+## Usage
+
+```ts twoslash
+import { Receipt, Credential } from 'mpay'
+
+const response = await fetch('/resource', {
+  headers: { Authorization: Credential.serialize(credential) },
+})
+
+if (response.ok) {
+  const receipt = Receipt.fromResponse(response)
+}
+```
+
+## Return Type
+
+```ts
+type ReturnType = Receipt
+```
+
+The deserialized receipt object.
+
+## Parameters
+
+### response
+
+- **Type:** `Response`
+
+The HTTP response.

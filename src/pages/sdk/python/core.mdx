@@ -1,0 +1,34 @@
+# Core Types
+
+The SDK provides three core types that map directly to HTTP headers: `Challenge`, `Credential`, and `Receipt`.
+
+```python
+from mpay import Challenge, Credential, Receipt
+```
+
+## Parse a Challenge
+
+```python
+challenge = Challenge.from_www_authenticate(
+    'Payment id="...", realm="...", method="tempo", intent="charge", request="eyJ..."'
+)
+```
+
+## Create and Serialize a Credential
+
+```python
+credential = Credential(
+    id="challenge-id",
+    payload={"type": "transaction", "signature": "0x..."},
+    source="did:pkh:eip155:42431:0xa726a1...",
+)
+
+header = credential.to_authorization()
+```
+
+## Parse and Serialize a Receipt
+
+```python
+receipt = Receipt.from_payment_receipt(header_value)
+header = receipt.to_payment_receipt()
+```

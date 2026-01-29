@@ -1,0 +1,131 @@
+# Client Quickstart
+
+Learn how to pay for resources by handling 402 responses with the MPP client SDK.
+
+## Overview
+
+The client SDK provides two approaches:
+
+| Approach | Use Case |
+|----------|----------|
+| [`Fetch.from`](/sdk/typescript/client/Fetch.from) | Wraps fetch to automatically handle 402 responses (recommended) |
+| [`Mpay.create`](/sdk/typescript/client/Mpay.create) | Lower-level API for manual control over payment flow |
+
+## Using the Fetch wrapper
+
+The simplest way to pay with MPP is via mpay's fetch wrapper. When the server returns 402, the wrapped fetch automatically creates a payment credential and retries.
+
+```ts [client.ts]
+import { Fetch, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const fetch = Fetch.from({
+  methods: [
+    tempo({
+      account: privateKeyToAccount('0x...'), // [!code focus]
+      rpcUrl: 'https://rpc.tempo.xyz',
+    }),
+  ],
+})
+
+// Handles 402 automatically — pays and retries
+const response = await fetch('https://mpp.dev/ping/paid')
+const data = await response.json()
+```
+
+### How it works
+
+1. Makes initial request to the server
+2. If server returns 402 with `WWW-Authenticate: Payment ...`
+3. Parses the challenge and creates a payment credential
+4. Retries the request with `Authorization: Payment <credential>`
+5. Returns the final response
+
+## Global fetch polyfill
+
+Replace the global `fetch` with a payment-aware version:
+
+```ts [polyfill.ts]
+import { Fetch, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+Fetch.polyfill({
+  methods: [
+    tempo({
+      account: privateKeyToAccount('0x...'),
+      rpcUrl: 'https://rpc.tempo.xyz',
+    }),
+  ],
+})
+
+// Global fetch now handles 402 automatically
+const response = await fetch('https://mpp.dev/ping/paid')
+
+// Restore original fetch when done
+Fetch.restore()
+```
+
+:::warning
+The global polyfill affects all `fetch` calls in your application. Use `Fetch.from` for more targeted control.
+:::
+
+## Manual payment handling
+
+For more control, use `Mpay.create` directly:
+
+```ts [manual.ts]
+import { Mpay, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mpay = Mpay.create({
+  methods: [
+    tempo({
+      rpcUrl: 'https://rpc.tempo.xyz',
+    }),
+  ],
+})
+
+// Make request
+const response = await fetch('https://mpp.dev/ping/paid')
+
+// Check if payment is required
+if (response.status === 402) { // [!code focus:10]
+  // Create credential from the challenge
+  const credential = await mpay.createCredential(response, {
+    account: privateKeyToAccount('0x...'),
+  })
+
+  // Retry with credential
+  const paidResponse = await fetch('https://mpp.dev/ping/paid', {
+    headers: { Authorization: credential },
+  })
+}
+```
+
+:::tip[When to use manual handling]
+- Present payment UI before paying
+- Use different accounts per request
+- Implement custom retry logic
+:::
+
+## Payment receipts
+
+After successful payment, the server returns a `Payment-Receipt` header:
+
+```ts [receipts.ts]
+import { Receipt } from 'mpay'
+
+const receiptHeader = response.headers.get('Payment-Receipt')
+if (receiptHeader) {
+  const receipt = Receipt.deserialize(receiptHeader)
+  console.log(receipt.status)     // 'success' | 'failed'
+  console.log(receipt.reference)  // transaction hash
+  console.log(receipt.timestamp)  // ISO 8601
+}
+```
+
+## Next steps
+
+- [Server Quickstart](/quickstart/server) — Learn how to charge for resources
+- [Tempo Payment Method](/payment-methods/tempo) — Configure Tempo blockchain payments
+- [Fetch.from Reference](/sdk/typescript/client/Fetch.from) — Full API documentation

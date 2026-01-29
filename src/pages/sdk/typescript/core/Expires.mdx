@@ -1,0 +1,106 @@
+# `Expires`
+
+Utility functions for generating ISO 8601 datetime strings relative to the current time.
+
+## Usage
+
+```ts twoslash
+import { Expires } from 'mpay'
+
+// Expire in 30 seconds
+const in30Seconds = Expires.seconds(30)
+
+// Expire in 5 minutes
+const in5Minutes = Expires.minutes(5)
+
+// Expire in 2 hours
+const in2Hours = Expires.hours(2)
+
+// Expire in 7 days
+const in7Days = Expires.days(7)
+
+// Expire in 2 weeks
+const in2Weeks = Expires.weeks(2)
+
+// Expire in 3 months
+const in3Months = Expires.months(3)
+
+// Expire in 1 year
+const in1Year = Expires.years(1)
+```
+
+## Functions
+
+### seconds
+
+Returns an ISO 8601 datetime string `n` seconds from now.
+
+```ts
+function seconds(n: number): string
+```
+
+### minutes
+
+Returns an ISO 8601 datetime string `n` minutes from now.
+
+```ts
+function minutes(n: number): string
+```
+
+### hours
+
+Returns an ISO 8601 datetime string `n` hours from now.
+
+```ts
+function hours(n: number): string
+```
+
+### days
+
+Returns an ISO 8601 datetime string `n` days from now.
+
+```ts
+function days(n: number): string
+```
+
+### weeks
+
+Returns an ISO 8601 datetime string `n` weeks from now.
+
+```ts
+function weeks(n: number): string
+```
+
+### months
+
+Returns an ISO 8601 datetime string `n` months (30 days) from now.
+
+```ts
+function months(n: number): string
+```
+
+### years
+
+Returns an ISO 8601 datetime string `n` years (365 days) from now.
+
+```ts
+function years(n: number): string
+```
+
+## Return Type
+
+All functions return:
+
+```ts
+type ReturnType = string
+```
+
+An ISO 8601 datetime string (e.g., `"2025-01-15T12:30:00.000Z"`).
+
+## Parameters
+
+### n
+
+- **Type:** `number`
+
+The number of time units from now.

@@ -1,0 +1,28 @@
+# `Receipt.deserialize`
+
+Deserializes a Payment-Receipt header value to a receipt.
+
+## Usage
+
+```ts twoslash
+import { Receipt } from 'mpay'
+
+const encoded = 'eyJzdGF0dXMiOiJzdWNjZXNzIiwidGltZXN0YW1wIjoi...'
+const receipt = Receipt.deserialize(encoded)
+```
+
+## Return Type
+
+```ts
+type ReturnType = Receipt
+```
+
+The deserialized receipt object.
+
+## Parameters
+
+### encoded
+
+- **Type:** `string`
+
+The base64url-encoded header value.

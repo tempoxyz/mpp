@@ -1,0 +1,99 @@
+# MCP Transport
+
+The [Model Context Protocol](https://modelcontextprotocol.io) (MCP) transport enables payments for AI tool calls using JSON-RPC.
+
+## Overview
+
+MCP is used by AI agents to call tools on remote servers. The MCP transport for MPP allows these tool calls to require payment, enabling autonomous agent-to-service payments.
+
+| MPP Concept | MCP Encoding |
+|-------------|--------------|
+| Challenge | JSON-RPC error code `-32042` |
+| Credential | `_meta.org.paymentauth/credential` |
+| Receipt | `_meta.org.paymentauth/receipt` |
+
+## Challenge
+
+Payment requirements are signaled via JSON-RPC error code `-32042`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": {
+    "code": -32042,
+    "message": "Payment Required",
+    "data": {
+      "httpStatus": 402,
+      "challenges": [{
+        "id": "ch_abc123",
+        "realm": "search.example.com",
+        "method": "tempo",
+        "intent": "charge",
+        "request": {
+          "amount": "10",
+          "currency": "usd",
+          "recipient": "0xa726a1..."
+        }
+      }]
+    }
+  }
+}
+```
+
+## Credential
+
+Credentials are passed in the `_meta` field of the tool call:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "web-search",
+    "arguments": {"query": "MCP protocol"},
+    "_meta": {
+      "org.paymentauth/credential": {
+        "challenge": { ... },
+        "source": "0x1234...",
+        "payload": { "signature": "0xabc..." }
+      }
+    }
+  }
+}
+```
+
+## Receipt
+
+Receipts are returned in the result `_meta`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [{ "type": "text", "text": "Search results..." }],
+    "_meta": {
+      "org.paymentauth/receipt": {
+        "status": "success",
+        "challengeId": "ch_abc123",
+        "method": "tempo"
+      }
+    }
+  }
+}
+```
+
+## Comparison with HTTP
+
+| Aspect | HTTP | MCP |
+|--------|------|-----|
+| Challenge delivery | `WWW-Authenticate` header | JSON-RPC error `-32042` |
+| Credential delivery | `Authorization` header | `_meta.org.paymentauth/credential` |
+| Receipt delivery | `Payment-Receipt` header | `_meta.org.paymentauth/receipt` |
+| Encoding | Base64url in headers | Native JSON in body |
+
+## Full Specification
+
+See the [MCP Transport Specification](https://paymentauth.tempo.xyz/transports/mcp) for the normative specification.

@@ -1,0 +1,46 @@
+# SDKs
+
+The Machine Payments Protocol (MPP) has official SDK implementations in three languages. All SDKs implement the same protocol and are fully interoperable.
+
+## Available SDKs
+
+| Language | Package | GitHub | Status |
+|----------|---------|--------|--------|
+| [TypeScript](/sdk/typescript) | [`mpay`](https://www.npmjs.com/package/mpay) | [wevm/mpay](https://github.com/wevm/mpay) | Reference |
+| [Python](/sdk/python) | [`pympay`](https://pypi.org/project/pympay/) | [tempoxyz/pympay](https://github.com/tempoxyz/pympay) | Beta |
+| [Rust](/sdk/rust) | [`mpay`](https://crates.io/crates/mpay) | [tempoxyz/mpay-rs](https://github.com/tempoxyz/mpay-rs) | Beta |
+
+## Quick Install
+
+:::code-group
+
+```bash [npm]
+npm install mpay
+```
+
+```bash [pnpm]
+pnpm add mpay
+```
+
+```bash [pip]
+pip install pympay
+```
+
+```bash [cargo]
+cargo add mpay
+```
+
+:::
+
+## Feature Comparison
+
+| Feature | TypeScript | Python | Rust |
+|---------|------------|--------|------|
+| HTTP Client | `fetch` wrapper | `httpx` transport | `reqwest` middleware |
+| HTTP Server | Fetch API / Node.js | FastAPI / Starlette | Axum / Tower |
+| MCP Support | ✅ Native | ✅ Native | ✅ Native |
+| Twoslash Docs | ✅ | — | — |
+
+:::tip[Which SDK should I choose?]
+Choose based on your stack—all SDKs provide the same protocol support and are fully interoperable. The TypeScript SDK is the reference implementation with the most complete documentation.
+:::

@@ -1,3 +1,87 @@
 # Getting Started
 
-TODO
+## Overview
+
+The `mpay` Rust library provides an intuitive interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives & building blocks.
+
+## Install
+
+```bash
+cargo add mpay
+```
+
+With Tempo blockchain support:
+
+```bash
+cargo add mpay --features tempo,client,server
+```
+
+## Quick Start
+
+### Parse a Challenge
+
+```rust
+use mpay::parse_www_authenticate;
+
+let header = r#"Payment id="abc", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOiIxMDAwIn0""#;
+let challenge = parse_www_authenticate(header)?;
+
+println!("Method: {}", challenge.method);
+println!("Intent: {}", challenge.intent);
+```
+
+### Create a Credential
+
+```rust
+use mpay::{PaymentCredential, PaymentPayload, ChallengeEcho};
+
+let credential = PaymentCredential::with_source(
+    ChallengeEcho::new("challenge-id", "tempo", "charge"),
+    PaymentCredential::evm_did(42431, "0xa726a1..."),
+    PaymentPayload::transaction("0xf86c..."),
+);
+
+let header = mpay::format_authorization(&credential)?;
+```
+
+### Parse a Receipt
+
+```rust
+use mpay::parse_receipt;
+
+let receipt = parse_receipt(receipt_header)?;
+println!("Status: {:?}", receipt.status);
+println!("Reference: {}", receipt.reference);
+```
+
+## Feature Flags
+
+| Feature | Description |
+|---------|-------------|
+| `client` | Client-side providers, HTTP extensions |
+| `server` | Server verification, `ChargeMethod` trait |
+| `tempo` | Tempo blockchain support |
+| `middleware` | reqwest-middleware integration |
+
+### Common Configurations
+
+```toml
+# Client only
+mpay = { version = "0.1", features = ["tempo", "client"] }
+
+# Server only
+mpay = { version = "0.1", features = ["tempo", "server"] }
+
+# Both
+mpay = { version = "0.1", features = ["tempo", "client", "server"] }
+
+# With middleware
+mpay = { version = "0.1", features = ["tempo", "client", "middleware"] }
+```
+
+## Next Steps
+
+- [Core Types →](/sdk/rust/core) — `PaymentChallenge`, `PaymentCredential`, `Receipt`
+- [Client →](/sdk/rust/client) — Handle 402 responses automatically
+- [Server →](/sdk/rust/server) — Protect endpoints with payments
+- [Examples →](/sdk/rust/examples) — Complete working examples
