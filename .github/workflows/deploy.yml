@@ -3,11 +3,7 @@ name: Deploy
 on:
   push:
     branches: [main]
-    paths:
-      - "mpp/**"
   pull_request:
-    paths:
-      - "mpp/**"
   workflow_dispatch:
 
 permissions:
@@ -39,15 +35,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: pnpm
-          cache-dependency-path: mpp/pnpm-lock.yaml
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
 
       - name: Install dependencies
-        working-directory: mpp
         run: pnpm install
 
       - name: Build site
-        working-directory: mpp
         run: pnpm run build
 
       - name: Deploy to Cloudflare
@@ -55,7 +55,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: mpp
+          workingDirectory: .
           command: deploy
 
   build-preview:
@@ -78,15 +78,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: pnpm
-          cache-dependency-path: mpp/pnpm-lock.yaml
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
 
       - name: Install dependencies
-        working-directory: mpp
         run: pnpm install
 
       - name: Build site
-        working-directory: mpp
         run: pnpm run build
 
       - name: Upload Preview Version
@@ -95,7 +99,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: mpp
+          workingDirectory: .
           command: versions upload
 
       - name: Post Preview Comment
@@ -103,7 +107,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const url = '${{ steps.deploy.outputs.deployment-url }}'
+            const url = '${{ steps.deploy.outputs["deployment-url"] }}'
             const body = url
               ? `MPP Docs preview: ${url}`
               : 'MPP Docs preview failed to deploy.'
@@ -112,7 +116,13 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             })
-            const existing = comments.find((comment) => comment.body?.startsWith('MPP Docs preview:'))
+            let existing = null
+            for (const comment of comments) {
+              if (comment.body && comment.body.startsWith('MPP Docs preview:')) {
+                existing = comment
+                break
+              }
+            }
             if (existing) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
@@ -127,3 +137,4 @@ jobs:
                 issue_number: context.issue.number,
                 body,
               })
+            }
