@@ -3,7 +3,6 @@ import { defineConfig, McpSource } from "vocs/config";
 export default defineConfig({
 	title: "MPP",
 	titleTemplate: "%s | MPP",
-
 	mcp: {
 		enabled: true,
 		sources: [
