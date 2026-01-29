@@ -151,6 +151,16 @@ export default defineConfig({
 											},
 										],
 									},
+									{
+										text: "Method",
+										collapsed: true,
+										items: [
+											{
+												text: ".tempo",
+												link: "/sdk/typescript/client/Method.tempo",
+											},
+										],
+									},
 								],
 							},
 							{
@@ -189,6 +199,16 @@ export default defineConfig({
 											{
 												text: ".mcpSdk",
 												link: "/sdk/typescript/server/Transport.mcpSdk",
+											},
+										],
+									},
+									{
+										text: "Method",
+										collapsed: true,
+										items: [
+											{
+												text: ".tempo",
+												link: "/sdk/typescript/server/Method.tempo",
 											},
 										],
 									},
