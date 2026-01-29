@@ -1,8 +1,20 @@
-import { defineConfig } from "vocs/config";
+import { defineConfig, McpSource } from "vocs/config";
 
 export default defineConfig({
 	title: "MPP",
 	titleTemplate: "%s | MPP",
+
+	mcp: {
+		enabled: true,
+		sources: [
+			McpSource.github({ name: "mpay", repo: "wevm/mpay" }),
+			McpSource.github({ name: "mpay-rs", repo: "tempoxyz/mpay-rs" }),
+			McpSource.github({ name: "mpay-sdks", repo: "tempoxyz/mpay-sdks" }),
+			McpSource.github({ name: "pympay", repo: "tempoxyz/pympay" }),
+			McpSource.github({ name: "payment-auth-spec", repo: "tempoxyz/payment-auth-spec" }),
+			McpSource.github({ name: "tempo", repo: "tempoxyz/tempo" }),
+		],
+	},
 
 	sidebar: {
 		"/": [
