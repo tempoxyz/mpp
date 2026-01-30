@@ -1,5 +1,3 @@
-import { VerificationSequence } from "../../components/SequenceDiagram";
-
 # Server Quickstart
 
 Learn how to charge for resources by issuing payment challenges and verifying credentials.
@@ -174,16 +172,6 @@ http.createServer(async (req, res) => {
   res.end(JSON.stringify({ data: 'protected content' }))
 }).listen(3000)
 ```
-
-## How verification works
-
-The server uses HMAC-bound challenge IDs for stateless verification:
-
-<VerificationSequence />
-
-:::success[Stateless]
-No database or session storage required for challenge verification.
-:::
 
 ## Sponsored fees
 

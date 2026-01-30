@@ -1,4 +1,4 @@
-import { PaymentSequence } from "../components/SequenceDiagram";
+import { Card, Cards } from 'vocs'
 
 # Machine Payments Protocol
 
@@ -10,7 +10,7 @@ You can learn more about the protocol itself at https://machinepaymentsprotocol.
 Check out the [Quickstart](/quickstart) to build your first payment-enabled API.
 :::
 
-### Design Principles
+## Principles
 
 | Principle | Description |
 |---------|-------------|
@@ -20,15 +20,20 @@ Check out the [Quickstart](/quickstart) to build your first payment-enabled API.
 | **Designed for payments** | Idempotency, security, and receipts as first-class primitives |
 | **Simple, extensible core** | Minimal protocol designed for extension |
 
-## How It Works
+## Flow
 
-<PaymentSequence />
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
 
-1. **Request** – Client requests a paid resource
-2. **Challenge** – Server responds with 402 and payment requirements
-3. **Pay** – Client fulfills the challenge off-band (blockchain tx, invoice, etc.)
-4. **Retry** – Client retries with a credential proving payment
-5. **Access** – Server verifies payment, returns resource + receipt
+    Client->>Server: (1) GET /resource
+    Server-->>Client: (2) 402 Payment Required<br/>WWW-Authenticate: Payment <challenge>
+    Note over Client: (3) Client fulfills payment challenge<br/>(signs transaction, pays invoice, etc.)
+    Client->>Server: (4) GET /resource<br/>Authorization: Payment <credential>
+    Note over Server: (5) Server verifies and settles
+    Server-->>Client: (6) 200 OK<br/>Payment-Receipt: <receipt>
+```
 
 ## Use Cases
 
@@ -42,9 +47,9 @@ Tools served via the Model Context Protocol (MCP) can monetize without the compl
 ### Content Providers
 Publishers can monetize individual articles or data queries without forcing users through subscription paywalls—or gate content from known AI scrapers with micro-payment requirements.
 
-## Production-Grade SDKs
+## SDKs
 
-Official implementations with full protocol support:
+MPP currently ships official SDKs in TypeScript, Python, and Rust.
 
 | Language | Package | GitHub | Status |
 |----------|---------|--------|--------|
@@ -52,20 +57,25 @@ Official implementations with full protocol support:
 | [Python](/sdk/python) | [`pympay`](https://pypi.org/project/pympay/) | [tempoxyz/pympay](https://github.com/tempoxyz/pympay) | Beta |
 | [Rust](/sdk/rust) | [`mpay`](https://crates.io/crates/mpay) | [tempoxyz/mpay-rs](https://github.com/tempoxyz/mpay-rs) | Beta |
 
-## Get Started
+## Next Steps
 
-::::steps
-
-### Try the Quickstart
-
-[**Quickstart**](/quickstart) – Accept or make your first payment in 5 minutes
-
-### Learn the Protocol
-
-[**Protocol Overview**](/protocol) – Understand challenges, credentials, and receipts
-
-### Read the Spec
-
-[**Full Specification**](https://paymentauth.tempo.xyz) – Normative IETF-style spec
-
-::::
+<Cards>
+  <Card
+    description="Accept or make your first payment in 5 minutes with a simple full-stack example"
+    icon="lucide:rocket"
+    title="Quickstart"
+    to="/quickstart"
+  />
+  <Card
+    description="Understand concepts like challenges, credentials, and receipts"
+    icon="lucide:book-open"
+    title="Learn the Protocol"
+    to="/protocol"
+  />
+  <Card
+    description="Normative IETF-style spec"
+    icon="lucide:file-text"
+    title="Read the Specification"
+    to="https://paymentauth.tempo.xyz"
+  />
+</Cards>

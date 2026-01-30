@@ -4,6 +4,9 @@ import { defineConfig } from "vite";
 import { vocs } from "vocs/vite";
 
 export default defineConfig({
+	optimizeDeps: {
+		include: ["@braintree/sanitize-url", "dayjs", "mermaid"],
+	},
 	plugins: [
 		nodeLoaderCloudflare({
 			environments: ["rsc"],
