@@ -11,10 +11,9 @@ const baseUrl = (() => {
 })();
 
 export default defineConfig({
-	accentColor: "light-dark(#0066FF, #3B82F6)",
+	accentColor: "light-dark(#9333EA, #A855F7)",
 	baseUrl,
-	description: "Internet-native payments for machine-to-machine transactions",
-		"Machine Payment Protocol - Internet-native payments for machine-to-machine transactions",
+	description: "Machine Payments Protocol - Internet-native payments for machine-to-machine transactions",
 	checkDeadlinks: true,
 	iconUrl: {
 		light: "/icon-light.png",
