@@ -94,6 +94,38 @@ function parseArgs(): { output?: string } {
 	};
 }
 
+/**
+ * Check if running in GitHub Actions environment
+ */
+function isGitHubActions(): boolean {
+	return process.env.GITHUB_ACTIONS === "true";
+}
+
+/**
+ * Emit GitHub Actions workflow annotation
+ * @see https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message
+ */
+function emitAnnotation(
+	level: "error" | "warning" | "notice",
+	message: string,
+	options?: { title?: string; file?: string; line?: number },
+): void {
+	if (!isGitHubActions()) return;
+
+	let command = `::${level}`;
+	const params: string[] = [];
+
+	if (options?.file) params.push(`file=${options.file}`);
+	if (options?.line) params.push(`line=${options.line}`);
+	if (options?.title) params.push(`title=${options.title}`);
+
+	if (params.length > 0) {
+		command += ` ${params.join(",")}`;
+	}
+
+	console.log(`${command}::${message}`);
+}
+
 function getConfig(): DriftCheckConfig {
 	const args = parseArgs();
 	return {
@@ -458,6 +490,44 @@ function formatConsoleOutput(result: DriftResult): string {
 	return lines.join("\n");
 }
 
+/**
+ * Emit GitHub Actions annotations for all errors and warnings
+ */
+function emitWorkflowAnnotations(result: DriftResult, vocsConfigPath: string): void {
+	if (!isGitHubActions()) return;
+
+	for (const error of result.errors) {
+		const title =
+			error.type === "missing_export"
+				? "Missing SDK Export"
+				: error.type === "missing_member"
+					? "Missing SDK Member"
+					: "Missing Documentation Page";
+
+		emitAnnotation("error", error.details, {
+			title,
+			file: vocsConfigPath,
+		});
+	}
+
+	const warnGroups = new Map<string, string[]>();
+	for (const warn of result.warnings) {
+		const key = `${warn.area}/${warn.namespace}`;
+		if (!warnGroups.has(key)) warnGroups.set(key, []);
+		if (warn.member) warnGroups.get(key)!.push(warn.member);
+	}
+
+	for (const [key, members] of warnGroups) {
+		const msg =
+			members.length > 0
+				? `${key}: ${members.join(", ")}`
+				: `${key} (entire namespace)`;
+		emitAnnotation("warning", `Undocumented export: ${msg}`, {
+			title: "Undocumented Export",
+		});
+	}
+}
+
 async function main() {
 	const config = getConfig();
 
@@ -470,6 +540,9 @@ async function main() {
 
 	// Console output
 	console.log(formatConsoleOutput(result));
+
+	// Emit GitHub Actions annotations
+	emitWorkflowAnnotations(result, config.vocsConfigPath);
 
 	// Write JSON output if requested
 	if (config.outputPath) {
