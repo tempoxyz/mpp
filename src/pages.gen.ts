@@ -6,8 +6,10 @@ import type { PathsForPages, GetConfigResponse } from 'waku/router';
 
 // prettier-ignore
 type Page =
+| { path: '/404'; render: 'static' }
 | { path: '/faq'; render: 'static' }
 | { path: '/'; render: 'static' }
+| { path: '/install'; render: 'static' }
 | { path: '/tools/pget'; render: 'static' }
 | { path: '/tools/pget/examples'; render: 'static' }
 | { path: '/sdk'; render: 'static' }
@@ -86,7 +88,6 @@ type Page =
 | { path: '/sdk/python'; render: 'static' }
 | { path: '/sdk/python/server'; render: 'static' }
 | { path: '/quickstart/client'; render: 'static' }
-| { path: '/quickstart'; render: 'static' }
 | { path: '/quickstart/pget'; render: 'static' }
 | { path: '/quickstart/server'; render: 'static' }
 | { path: '/protocol/challenges'; render: 'static' }

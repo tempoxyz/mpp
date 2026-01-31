@@ -6,7 +6,7 @@ export const sidebar = {
 			text: "Introduction",
 			items: [
 				{ text: "Overview", link: "/" },
-				{ text: "Installation", link: "/quickstart" },
+				{ text: "Install", link: "/install" },
 				{ text: "FAQ", link: "/faq" },
 			],
 		},
@@ -58,7 +58,7 @@ export const sidebar = {
 				},
 				{
 					text: "TypeScript",
-					collapsed: true,
+					collapsed: false,
 					items: [
 						{ text: "Getting Started", link: "/sdk/typescript" },
 						{
