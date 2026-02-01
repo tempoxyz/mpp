@@ -1,5 +1,6 @@
 import nodeLoaderCloudflare from "@hiogawa/node-loader-cloudflare/vite";
 import react from "@vitejs/plugin-react";
+import Icons from "unplugin-icons/vite";
 import { defineConfig } from "vite";
 import { vocs } from "vocs/vite";
 
@@ -8,6 +9,7 @@ export default defineConfig({
 		include: ["@braintree/sanitize-url", "dayjs", "mermaid"],
 	},
 	plugins: [
+		Icons({ compiler: "jsx", jsx: "react" }),
 		nodeLoaderCloudflare({
 			environments: ["rsc"],
 			build: true,

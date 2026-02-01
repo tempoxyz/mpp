@@ -53,17 +53,35 @@ sequenceDiagram
 4. **Client retries with credential** — `GET /resource` with `Authorization: Payment` header
 5. **Server verifies and delivers** — `200` OK with `Payment-Receipt` header
 
-## Get started
+## Official SDKs
 
-`mpay` is the official SDK of the Machine Payments Protocol.
+MPP comes with a suite of official SDKs named `mpay`. The `mpay` SDKs offer high-level abstractions and low-level primitives to implement and extend the Machine Payments Protocol. 
 
-The MPP SDKs handle challenge parsing, payment method selection, and credential generation automatically across payment methods.
+All SDKs implement similar interfaces and are interoperable with one another.
 
-| Language | Package | GitHub | Maintainer | Status |
-|----------|---------|--------|------------|--------|
-| [TypeScript](/sdk/typescript) | [`mpay`](https://www.npmjs.com/package/mpay) | [wevm/mpay](https://github.com/wevm/mpay) | [wevm](https://github.com/wevm) | <Badge variant="info">Reference</Badge> |
-| [Python](/sdk/python) | [`pympay`](https://pypi.org/project/pympay/) | [tempoxyz/pympay](https://github.com/tempoxyz/pympay) | [Tempo Labs](https://github.com/tempoxyz) | <Badge variant="note">Beta</Badge> |
-| [Rust](/sdk/rust) | [`mpay`](https://crates.io/crates/mpay) | [tempoxyz/mpay-rs](https://github.com/tempoxyz/mpay-rs) | [Tempo Labs](https://github.com/tempoxyz) | <Badge variant="note">Beta</Badge> |
+<Cards>
+  <Card
+    topRight={<Badge variant="info">Reference</Badge>}
+    description="Get started with `mpay`, the reference implementation of the MPP SDKs"
+    icon="simple-icons:typescript"
+    title="TypeScript"
+    to="/sdk/typescript"
+  />
+  <Card
+    topRight={<Badge variant="warning">Beta</Badge>}
+    description="Get started with `pympay`, the official MPP SDK for Python"
+    icon="simple-icons:python"
+    title="Python"
+    to="/sdk/python"
+  />
+  <Card
+    topRight={<Badge variant="warning">Beta</Badge>}
+    description="Get started with `mpay-rs`, the official MPP SDK for Rust"
+    icon="simple-icons:rust"
+    title="Rust"
+    to="/sdk/rust"
+  />
+</Cards>
 
 ## Next steps
 
