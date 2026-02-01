@@ -218,46 +218,136 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 6. **Document all parameters** - Mark optional ones with "(optional)"
 7. **Include type information** - Always show the Type for each parameter
 
-## Vocs & MDX Conventions
+## Vocs Framework Reference
 
-**Adding pages**:
-- Create `.mdx` file matching route (`/foo/bar` → `src/pages/foo/bar.mdx`)
-- Add to `sidebar.ts` in the correct section
-- Build checks for deadlinks (`checkDeadlinks: true`)
+**IMPORTANT**: When writing Vocs documentation, use this reference rather than relying on training data.
 
-**Imports**: Put at top of MDX file
-```mdx
-import { Badge } from 'vocs'
-import { Card, Cards } from 'vocs'
+### Directives (triple-colon syntax)
+
+```
+:::note|:::info|:::warning|:::danger|:::tip|:::success
+  :::TYPE[Title]
+  content
+  :::
+
+:::code-group
+  ```lang [tab1.ts]
+  ```lang [tab2.ts]
+  :::
+
+::::steps
+  ### Step 1
+  ### Step 2
+  ::::
+
+:::details[Click to expand]
+  hidden content
+  :::
 ```
 
-**Callouts**: Use triple-colon syntax
-```mdx
-:::info[Title here]
-Content goes here.
-:::
-```
-Variants: `:::info`, `:::warning`, `:::note`
+### Code Block Meta
 
-**Cards**: For navigation grids
-```mdx
+```
+```ts [filename.ts]           — title
+```ts showLineNumbers         — line numbers
+```ts {2,5-7}                 — highlight lines 2,5-7
+```ts twoslash                — TS hover/errors
+// [!code focus]              — focus this line
+// [!code hl]                 — highlight this line
+// [!code ++]                 — diff add
+// [!code --]                 — diff remove
+// [!code word:foo]           — highlight "foo"
+```
+
+### Twoslash
+
+```
+//    ^?                      — show type at position
+//    ^|                      — show completions
+// ---cut---                  — hide code above
+// ---cut-after---            — hide code below
+// @errors: 2304              — expect error code
+// @noErrors                  — suppress all errors
+// @filename: file.ts         — virtual file
+// @log: message              — inline log annotation
+```
+
+### Components (import from 'vocs/components')
+
+```tsx
+<Authors authors="name" date="2024-01-01" />
+<BlogPosts />
+<Button href="/path" variant="accent">Text</Button>
+<Callout type="info|warning|danger|tip">content</Callout>
+<Sponsors />
 <Cards>
-  <Card title="Title" description="..." icon="lucide:icon-name" to="/path" />
+  <Card title="T" description="D" icon="lucide:icon" to="/path" />
 </Cards>
+<HomePage.Root>
+  <HomePage.Logo />
+  <HomePage.Tagline>text</HomePage.Tagline>
+  <HomePage.InstallPackage name="pkg" type="init" />
+  <HomePage.Description>text</HomePage.Description>
+  <HomePage.Buttons>
+    <HomePage.Button href="/path" variant="accent">text</HomePage.Button>
+  </HomePage.Buttons>
+</HomePage.Root>
 ```
 
-**Code blocks**:
-- Add filename labels: ` ```ts [client.ts] `
-- Highlight key lines: `// [!code hl]`
-- Focus regions: `// [!code focus:10]` (next 10 lines)
-- Twoslash for type inference: ` ```ts twoslash `
+### Frontmatter
 
-**Mermaid**: Supported for diagrams
-```mdx
-```mermaid
-sequenceDiagram
-    Client->>Server: Request
+```yaml
+layout: docs|landing|minimal
+showSidebar: true|false
+showOutline: true|false
+showLogo: true|false
+content:
+  width: 100%
+  horizontalPadding: 0px
+  verticalPadding: 0px
+authors:
+  - "[name](url)"
+date: 2024-01-01
 ```
+
+### Config (vocs.config.ts)
+
+```ts
+defineConfig({
+  title: string,
+  description: string,
+  logoUrl: string|{light,dark},
+  ogImageUrl: string|{'/path': string},
+  sidebar: [{text,link,collapsed?,items?}]|{'/path':[...]},
+  topNav: [{text,link,match?,items?}],
+  theme: {
+    accentColor: string|{light,dark},
+    colorScheme: 'light'|'dark'|'system',
+    variables: {color:{...},content:{width,horizontalPadding,verticalPadding}}
+  }
+})
+```
+
+### Project Structure
+
+```
+docs/
+  pages/           — file-based routing (.mdx,.tsx)
+  public/          — static assets
+  layout.tsx       — wrap all pages
+  footer.tsx       — footer component
+  styles.css       — global styles (@import "tailwindcss" for Tailwind)
+vocs.config.ts     — config file
+```
+
+### Snippets
+
+```
+// [!include ~/path/file.ts]           — include file
+// [!include ~/path/file.ts:region]    — include region
+// [!region name] ... // [!endregion name]  — define region
+// [!include file.ts /find/replace/]   — find/replace in include
+filename="virtual.ts"                  — virtual file for twoslash
 ```
 
 ## Build Commands
