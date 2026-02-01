@@ -94,6 +94,87 @@ Receipts are returned in the result `_meta`:
 | Receipt delivery | `Payment-Receipt` header | `_meta.org.paymentauth/receipt` |
 | Encoding | Base64url in headers | Native JSON in body |
 
+## Example flow
+
+:::steps
+
+### (Agent) Call a tool
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "web-search",
+    "arguments": {"query": "MCP payments"}
+  }
+}
+```
+
+### (Server) Return payment challenge
+
+Respond with error code `-32042`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": {
+    "code": -32042,
+    "message": "Payment Required",
+    "data": {
+      "challenges": [{ "id": "ch_abc", "method": "tempo", ... }]
+    }
+  }
+}
+```
+
+### (Agent) Retry with credential
+
+Include the credential in `_meta`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "web-search",
+    "arguments": {"query": "MCP payments"},
+    "_meta": {
+      "org.paymentauth/credential": { ... }
+    }
+  }
+}
+```
+
+### (Server) Return result with receipt
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [{ "type": "text", "text": "Results..." }],
+    "_meta": {
+      "org.paymentauth/receipt": { "status": "success", ... }
+    }
+  }
+}
+```
+
+:::
+
 ## Full specification
 
-See the [MCP Transport Specification](https://paymentauth.tempo.xyz/transports/mcp) for the normative specification.
+import { Card, Cards } from 'vocs'
+
+<Cards>
+  <Card
+    description="Normative MCP transport specification"
+    icon="lucide:file-text"
+    title="MCP Transport Specification"
+    to="https://paymentauth.tempo.xyz/transports/mcp"
+  />
+</Cards>

@@ -21,10 +21,10 @@ sequenceDiagram
     Server-->>Client: (6) 200 OK<br/>Payment-Receipt: <receipt>
 ```
 
-1. **Client requests a resource** – Standard HTTP request (GET, POST, and others)
+1. **Client requests a resource** – Standard HTTP request (`GET`, `POST`, and others)
 2. **Server responds with `402`** – Includes a **challenge** in `WWW-Authenticate` describing the payment required
 3. **Client fulfills the challenge** – Signs a transaction, pays an invoice, or performs method-specific payment
-4. **Client retries with credential** – Includes an **Authorization** header with payment proof
+4. **Client retries with credential** – Includes an `Authorization` header with payment proof
 5. **Server verifies and settles** – Validates the credential and processes payment
 6. **Server returns resource** – Responds with `200` OK and optional **receipt** in `Payment-Receipt` header
 
@@ -34,7 +34,7 @@ import { Card, Cards } from 'vocs'
 
 <Cards>
   <Card
-    description="The status code that signals payment is required"
+    description="The 402 status code that signals payment is required"
     icon="lucide:alert-circle"
     title="HTTP 402"
     to="/protocol/http-402"

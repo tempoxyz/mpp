@@ -2,7 +2,7 @@
 
 `pget` is a non-interactive commandline tool for making HTTP requests with automatic payment support.
 
-When you request a resource that requires payment, pget automatically detects the `402` response, fulfills the payment, and retries—all in a single command.
+When you request a resource that requires payment, `pget` automatically detects the `402` response, fulfills the payment, and retries—all in a single command.
 
 ## Installation
 
@@ -32,7 +32,7 @@ $ pget https://mpp.dev/ping/paid
 
 ## Configuration
 
-pget uses encrypted keystores for secure wallet management.
+`pget` uses encrypted keystores for secure wallet management.
 
 ### Example config
 
@@ -71,3 +71,22 @@ $ pget balance -n tempo
 | `pget balance` | `pget b` | Check wallet balance |
 | `pget networks` | `pget n` | List supported networks |
 | `pget inspect` | — | Inspect payment requirements |
+
+## Learn more
+
+import { Card, Cards } from 'vocs'
+
+<Cards>
+  <Card
+    description="Complete command reference and options"
+    icon="lucide:book-open"
+    title="Full Reference"
+    to="/tools/pget/examples"
+  />
+  <Card
+    description="Download pget for your platform"
+    icon="lucide:download"
+    title="Download pget"
+    to="https://pget.tempo.xyz"
+  />
+</Cards>

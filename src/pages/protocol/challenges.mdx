@@ -1,6 +1,6 @@
 # Challenges [Server-issued payment requirements]
 
-Your server issues a **challenge** to describe the payment required for a resource. Challenges are sent in the `WWW-Authenticate` header using the Payment authentication scheme.
+Your server issues a **challenge** to describe the payment required for a resource. Challenges are sent in the `WWW-Authenticate` header using the `Payment` authentication scheme.
 
 ## Structure
 
@@ -65,7 +65,7 @@ Clients select one based on their capabilities and submit a single credential.
 ## Challenge binding
 
 :::warning[Security requirement]
-Cryptographically bind the `id` to the challenge parameters. This prevents clients from reusing a challenge ID with modified payment terms.
+Challenges should be cryptographically bound to their parameters via the `id` field. This prevents clients from reusing a challenge ID with modified payment terms.
 :::
 
 Typical binding includes:

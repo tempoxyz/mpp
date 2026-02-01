@@ -23,15 +23,11 @@ With Tempo blockchain support:
 $ pip install "pympay[tempo]"
 ```
 
-## Design principles
+## Requirements
 
-| Principle | Description |
-|-----------|-------------|
-| **Protocol-first** | Core types map directly to HTTP headers |
-| **Async-native** | Built on `httpx` for modern async Python |
-| **Pluggable methods** | Payment networks are optional extras |
-| **Minimal dependencies** | Core has only essential dependencies |
-| **Designed for extension** | Easy to add custom payment methods |
+- Python 3.10+
+- `httpx` for async HTTP
+- `eth-account` for Tempo signing (with `[tempo]` extra)
 
 ## Quick start
 
@@ -80,14 +76,27 @@ async def main():
 asyncio.run(main())
 ```
 
-## Requirements
-
-- Python 3.10+
-- `httpx` for async HTTP
-- `eth-account` for Tempo signing (with `[tempo]` extra)
-
 ## Next steps
 
-- [Core types](/sdk/python/core): `Challenge`, `Credential`, `Receipt`
-- [Client](/sdk/python/client): Handle `402` responses automatically
-- [Server](/sdk/python/server): Protect endpoints with payments
+import { Card, Cards } from 'vocs'
+
+<Cards>
+  <Card
+    description="Challenge, Credential, Receipt types"
+    icon="lucide:box"
+    title="Core types"
+    to="/sdk/python/core"
+  />
+  <Card
+    description="Handle 402 responses automatically"
+    icon="lucide:send"
+    title="Client"
+    to="/sdk/python/client"
+  />
+  <Card
+    description="Protect endpoints with payments"
+    icon="lucide:server"
+    title="Server"
+    to="/sdk/python/server"
+  />
+</Cards>
