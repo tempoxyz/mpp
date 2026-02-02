@@ -79,8 +79,11 @@ runs:
         
         if [ $EXIT_CODE -eq 0 ]; then
           echo "status=passed" >> $GITHUB_OUTPUT
+        elif [ $EXIT_CODE -eq 1 ]; then
+          # Exit code 1 = drift detected (not an error, just informational)
+          echo "status=drift-detected" >> $GITHUB_OUTPUT
         else
-          echo "status=failed" >> $GITHUB_OUTPUT
+          # Exit code 2+ = actual error
+          echo "status=error" >> $GITHUB_OUTPUT
+          exit $EXIT_CODE
         fi
-        
-        exit $EXIT_CODE
