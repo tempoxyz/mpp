@@ -1,0 +1,17 @@
+[data-v-callout-icon] {
+	margin-top: 0.2rem;
+}
+
+[data-v-step-content] {
+	:where(& > :not(:last-child)) {
+		--tw-space-y-reverse: 0;
+		margin-block-start: calc(
+			calc(var(--vocs-spacing) * 4) *
+			var(--tw-space-y-reverse)
+		);
+		margin-block-end: calc(
+			calc(var(--vocs-spacing) * 4) *
+			calc(1 - var(--tw-space-y-reverse))
+		);
+	}
+}
