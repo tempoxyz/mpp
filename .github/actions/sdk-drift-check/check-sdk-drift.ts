@@ -553,7 +553,10 @@ async function main() {
 		console.log(`Results written to: ${config.outputPath}`);
 	}
 
-	// Exit with error code if there are invalid references
+	// Exit codes:
+	// 0 = no drift
+	// 1 = drift detected (informational, not an error)
+	// 2 = actual error (script failure)
 	if (result.summary.invalid > 0) {
 		process.exit(1);
 	}
@@ -567,6 +570,6 @@ const isMain =
 if (isMain) {
 	main().catch((e) => {
 		console.error("Drift check failed:", e);
-		process.exit(1);
+		process.exit(2);
 	});
 }
