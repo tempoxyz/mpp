@@ -20,7 +20,7 @@ Future versions will support additional intents like streaming payments for mete
 
 The `tempo` method supports the `charge` intent for immediate one-time payments.
 
-### Client
+#### Client
 
 Use the `tempo` method from `mpay/client` to automatically sign payment transactions when encountering 402 responses.
 
@@ -42,7 +42,7 @@ const response = await fetch('https://mpp.dev/ping/paid')
 
 See [`tempo` client reference](/sdk/typescript/client/Method.tempo) for full API documentation.
 
-### Server
+#### Server
 
 Use the `tempo` method from `mpay/server` to verify payment credentials and settle transactions.
 
@@ -59,6 +59,7 @@ const mpay = Mpay.create({
 })
 
 export async function handler(request: Request) {
+  // [!code focus:start]
   const result = await mpay.charge({
     request: {
       amount: '1000000',
@@ -67,6 +68,7 @@ export async function handler(request: Request) {
       recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
     },
   })(request)
+  // [!code focus:end]
 
   if (result.status === 402) return result.challenge
 
@@ -76,7 +78,7 @@ export async function handler(request: Request) {
 
 See [`tempo` server reference](/sdk/typescript/server/Method.tempo) for full API documentation.
 
-### Request fields
+#### Request fields
 
 When issuing a charge, the server specifies:
 

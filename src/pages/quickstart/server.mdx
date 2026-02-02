@@ -1,33 +1,30 @@
-import { Badge } from 'vocs'
+import { Badge, Card, Cards } from 'vocs'
 
 # Server quickstart [Charge for resources and verify payment credentials]
 
 ## Overview
 
-Charge for resources using the `mpay` server SDK.
+This quickstart demonstrates how to plug MPP into any server framework to accept payments for protected resources.
 
-The server SDK provides two approaches:
+## Steps
 
-| Approach | Use Case | Integration Shape |
-|----------|----------|-------------------|
-| [`Mpay.create`](/sdk/typescript/server/Mpay.create) | Creates a payment handler with configured method and realm | <Badge variant="info">Standard</Badge> |
-| [`Mpay.toNodeListener`](/sdk/typescript/server/Mpay.toNodeListener) | Adapts the handler for Node.js HTTP servers | <Badge variant="note">Custom</Badge> |
+::::steps
 
-## Basic setup
+### Create an `Mpay` instance
 
-Create a payment handler with your payment method and server realm:
+Create an `Mpay` instance to request payment for protected resources.
 
-```ts [server.ts]
+```ts twoslash [example.ts]
 import { Mpay, tempo } from 'mpay/server'
 
-const payment = Mpay.create({ // [!code hl]
-  method: tempo({ // [!code hl]
-    rpcUrl: 'https://rpc.tempo.xyz', // [!code hl]
-    chainId: 42431, // [!code hl]
-  }), // [!code hl]
-  realm: 'mpp.dev', // [!code hl]
-  secretKey: process.env.MPP_SECRET_KEY!, // [!code hl]
-}) // [!code hl]
+const mpay = Mpay.create({
+  method: tempo({
+    chainId: 4217,
+    rpcUrl: 'https://rpc.tempo.xyz',
+  }),
+  realm: 'mpp.dev',
+  secretKey: process.env.MPAY_SECRET_KEY!,
+})
 ```
 
 :::tip[Common configuration options]
@@ -36,124 +33,149 @@ const payment = Mpay.create({ // [!code hl]
 - `secretKey`: Secret for HMAC-bound challenge IDs (enables stateless verification)
 :::
 
-## Protecting a resource
+### Use in request handlers
 
-Use intent methods to protect resources. When a request lacks valid payment credentials, the server returns a `402` challenge. Once payment is verified, the server returns the protected content with a receipt.
+Use the `mpay` instance to request payment from the client.
 
-```ts [charge.ts]
-// Define what to charge
-const chargeHandler = payment.charge({
-  request: {
-    amount: '1000000',                                        // 1 USD (6 decimals)
-    currency: '0x20c0000000000000000000000000000000000000',   // pathUSD
-    recipient: '0x...',                                       // Your receiving address
-  },
-  description: 'API access',
-})
-```
+The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.
 
-### With a web framework
+The Fetch API is compatible with most server frameworks, including:
+- [Hono](https://hono.dev)
+- [Deno](https://deno.com)
+- [Cloudflare Workers](https://workers.dev)
+- [Next.js](https://nextjs.org)
+- [Bun](https://bun.sh)
+- other Fetch API-compatible frameworks
 
-:::code-group
+```ts twoslash [example.ts]
+import { Mpay, tempo } from 'mpay/server' // [!code collapse:8 collapsed]
 
-```ts [Bun]
-import { Mpay, tempo } from 'mpay/server'
-
-const payment = Mpay.create({
-  method: tempo({ rpcUrl: 'https://rpc.tempo.xyz', chainId: 42431 }),
-  realm: 'mpp.dev',
-  secretKey: process.env.MPP_SECRET_KEY!,
-})
-
-export default {
-  async fetch(request: Request): Promise<Response> {
-    const result = await payment.charge({ // [!code hl]
-      request: { // [!code hl]
-        amount: '1000000', // [!code hl]
-        currency: '0x20c0000000000000000000000000000000000000', // [!code hl]
-        recipient: '0x...', // [!code hl]
-      }, // [!code hl]
-    })(request) // [!code hl]
-
-    if (result.status === 402) return result.challenge // [!code hl]
-
-    return result.withReceipt( // [!code hl]
-      Response.json({ data: 'protected content' })
-    )
-  }
-}
-```
-
-```ts [Node]
-import * as http from 'node:http'
-import { Mpay, tempo } from 'mpay/server'
-
-const payment = Mpay.create({
-  method: tempo({ rpcUrl: 'https://rpc.tempo.xyz', chainId: 42431 }),
-  realm: 'mpp.dev',
-  secretKey: process.env.MPP_SECRET_KEY!,
-})
-
-http.createServer(async (req, res) => {
-  const result = await Mpay.toNodeListener( // [!code hl]
-    payment.charge({ // [!code hl]
-      request: { // [!code hl]
-        amount: '1000000', // [!code hl]
-        currency: '0x20c0000000000000000000000000000000000000', // [!code hl]
-        recipient: '0x...', // [!code hl]
-      }, // [!code hl]
-    }), // [!code hl]
-  )(req, res) // [!code hl]
-
-  if (result.status === 402) return // [!code hl]
-
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify({ data: 'protected content' }))
-}).listen(3000)
-```
-
-:::
-
-## Node.js HTTP server
-
-For Node.js HTTP servers, use `Mpay.toNodeListener` to adapt the payment handler:
-
-```ts [node-server.ts]
-import * as http from 'node:http'
-import { Mpay, tempo } from 'mpay/server'
-
-const payment = Mpay.create({
+const mpay = Mpay.create({
   method: tempo({
+    chainId: 4217,
     rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
   }),
   realm: 'mpp.dev',
-  secretKey: process.env.MPP_SECRET_KEY!,
+  secretKey: process.env.MPAY_SECRET_KEY!,
 })
 
-http.createServer(async (req, res) => {
-  const result = await Mpay.toNodeListener( // [!code hl]
-    payment.charge({ // [!code hl]
-      request: { // [!code hl]
-        amount: '1000000', // [!code hl]
-        currency: '0x20c0000000000000000000000000000000000000', // [!code hl]
-        recipient: '0x...', // [!code hl]
-      }, // [!code hl]
-    }), // [!code hl]
-  )(req, res) // [!code hl]
+export async function handler(request: Request) { 
+  const response = await mpay.charge({ 
+    request: { 
+      amount: '1000000', 
+      currency: '0x20c0000000000000000000000000000000000001', 
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
+      expires: '2030-01-20T12:00:00Z', 
+    }, 
+  })(request) 
 
-  // 402 response already written
-  if (result.status === 402) return
+  // Payment required: send 402 response with challenge 
+  if (response.status === 402) return response.challenge 
 
-  // Write protected content
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify({ data: 'protected content' }))
-}).listen(3000)
+  // Payment verified: attach receipt and return resource 
+  return response.withReceipt(Response.json({ data: '...' })) 
+} 
 ```
 
-:::warning
-`Mpay.toNodeListener` writes the 402 response directly to the response object. Always check `result.status` before writing your own response.
+:::tip
+If your framework doesn't support the Fetch API (for example, Express or Node.js), you're likely interfacing with the [Node.js Request Listener API](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener).
+
+Use the `Mpay.toNodeListener` helper to transform the handler into a Node.js-compatible listener.
+
+```ts  twoslash
+import { Mpay, tempo } from 'mpay/server' // [!code collapse:8]
+
+const mpay = Mpay.create({
+  method: tempo({
+    chainId: 4217,
+    rpcUrl: 'https://rpc.tempo.xyz',
+  }),
+  realm: 'mpp.dev',
+  secretKey: process.env.MPAY_SECRET_KEY!,
+})
+
+type IncomingMessage = import('node:http').IncomingMessage
+type ServerResponse = import('node:http').ServerResponse
+// ---cut---
+export async function handler(req: IncomingMessage, res: ServerResponse) { 
+  const response = await Mpay.toNodeListener(mpay.charge({ // [!code ++]
+    request: { 
+      amount: '1000000', 
+      currency: '0x20c0000000000000000000000000000000000001', 
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
+      expires: '2030-01-20T12:00:00Z', 
+    }, 
+  }))(req, res) // [!code ++]
+
+  // Payment required: send 402 response with challenge 
+  if (response.status === 402) return response.challenge 
+
+  // Payment verified: attach receipt and return resource 
+  return response.withReceipt(Response.json({ data: '...' })) 
+} 
+```
+
 :::
+
+### Plug into your framework
+
+Plug the handler into your framework of choice, like [Hono](#TODO).
+
+```ts [example.ts]
+import { Hono } from 'hono' // [!code focus]
+import { Mpay, tempo } from 'mpay/server'
+
+const mpay = Mpay.create({
+  method: tempo({ chainId: 4217, rpcUrl: 'https://rpc.tempo.xyz' }),
+  realm: 'mpp.dev',
+  secretKey: process.env.MPAY_SECRET_KEY!,
+})
+
+const app = new Hono() // [!code focus]
+
+app.get('/resource', async (c) => { // [!code focus:99]
+  const r = await mpay.charge({
+    request: {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000001',
+      expires: '2030-01-20T12:00:00Z',
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+    },
+  })(c.req.raw)
+
+  if (r.status === 402) return r.challenge
+
+  return r.withReceipt(c.json({ data: '...' }))
+})
+```
+
+### (Optional) Use agent skills
+
+Use your coding agent (Claude Code, Cursor, Amp, and similar tools) with [Agent Skills](https://skills.sh) to easily integrate `mpay` with your framework.
+
+```bash [Terminal]
+npx skills install wevm/mpay --skill mpay-hono
+```
+
+And then ask your agent something like:
+
+```
+Add an `mpay` middleware to my Hono server.
+```
+
+:::note[Available skills]
+- [`mpay-bun`](https://github.com/wevm/mpay/tree/main/skills/mpay-bun) - Bun HTTP server
+- [`mpay-cloudflare`](https://github.com/wevm/mpay/tree/main/skills/mpay-cloudflare) - Cloudflare Workers
+- [`mpay-deno`](https://github.com/wevm/mpay/tree/main/skills/mpay-deno) - Deno server
+- [`mpay-elysia`](https://github.com/wevm/mpay/tree/main/skills/mpay-elysia) - Elysia framework
+- [`mpay-express`](https://github.com/wevm/mpay/tree/main/skills/mpay-express) - Express.js
+- [`mpay-hono`](https://github.com/wevm/mpay/tree/main/skills/mpay-hono) - Hono framework
+- [`mpay-nextjs`](https://github.com/wevm/mpay/tree/main/skills/mpay-nextjs) - Next.js
+- [`mpay-node-http`](https://github.com/wevm/mpay/tree/main/skills/mpay-node-http) - Node.js HTTP server
+:::
+
+::::
+
 
 ## Testing with pget
 
@@ -179,6 +201,23 @@ Use `pget inspect` to debug your server's challenge response without making any 
 
 ## Next steps
 
-- [Client quickstart](/quickstart/client): Learn how to pay for resources
-- [Tempo payment method](/payment-methods/tempo): Configure Tempo blockchain payments
-- [Mpay.create reference](/sdk/typescript/server/Mpay.create): Full API documentation
+<Cards>
+  <Card
+    icon="lucide:user"
+    title="Client quickstart"
+    description="Learn how to pay for resources"
+    to="/quickstart/client"
+  />
+  <Card
+    icon="lucide:credit-card"
+    title="Tempo payment method"
+    description="Configure Tempo blockchain payments"
+    to="/payment-methods/tempo"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Mpay.create reference"
+    description="Full API documentation"
+    to="/sdk/typescript/server/Mpay.create"
+  />
+</Cards>

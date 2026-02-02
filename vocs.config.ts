@@ -54,7 +54,7 @@ export default defineConfig({
 	titleTemplate: "%s | MPP",
 	topNav: [
 		{ text: "Docs", link: "/", match: "/" },
-		
+
 		{ text: "Specifications", link: "https://paymentauth.tempo.xyz" },
 		{
 			text: "GitHub",
@@ -62,7 +62,10 @@ export default defineConfig({
 				{ text: "mpay (TypeScript)", link: "https://github.com/wevm/mpay" },
 				{ text: "mpay-rs (Rust)", link: "https://github.com/tempoxyz/mpay-rs" },
 				{ text: "pympay (Python)", link: "https://github.com/tempoxyz/pympay" },
-				{ text: "Specifications", link: "https://github.com/tempoxyz/payment-auth-spec" },
+				{
+					text: "Specifications",
+					link: "https://github.com/tempoxyz/payment-auth-spec",
+				},
 				{ text: "Docs", link: "https://github.com/tempoxyz/mpp" },
 			],
 		},

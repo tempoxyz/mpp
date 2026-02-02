@@ -44,7 +44,7 @@ You can apply the same patterns to [other payment methods](#TODO).
 
 #### Install peer dependencies
 
-In this example, you use the `viem` library to instantiate a Tempo account.
+In this example, you use the `viem` library to instantiate an account.
 
 :::code-group
 ```bash [npm]
@@ -58,19 +58,19 @@ bun add viem
 ```
 :::
 
-#### Define a Tempo account
+#### Define an account
 
-Define a Tempo account you use to make payments.
-
-This example uses a simple [Secp256k1 (Private Key)](https://viem.sh/tempo/accounts/account.fromSecp256k1) account. 
-There are [other types](https://viem.sh/tempo/accounts) of accounts you can use as well (for example, passkeys or WebCrypto).
+Next, define an account that will be used to sign payments.
 
 ```ts twoslash [example.ts]
-import { Account } from 'viem/tempo'
+import { privateKeyToAccount } from 'viem/accounts'
 
-const privateKey = '0xabc…123'
-const account = Account.fromSecp256k1(privateKey)
+const account = privateKeyToAccount('0xabc…123')
 ```
+
+:::tip
+When using Tempo, you can also use [Passkey or WebCrypto accounts](https://viem.sh/tempo/accounts).
+:::
 
 #### Create a payment-enabled `fetch`
 
@@ -79,11 +79,10 @@ Create a payment-enabled `fetch` instance to handle requests that require paymen
 Pass your Tempo `account` to the `fetch` instance and specify the payment `method`(s) you want to use.
 
 ```ts twoslash [example.ts]
-import { Account } from 'viem/tempo'
+import { privateKeyToAccount } from 'viem/accounts'
 import { Fetch, tempo } from 'mpay/client' // [!code focus]
 
-const privateKey = '0xabc…123'
-const account = Account.fromSecp256k1(privateKey)
+const account = privateKeyToAccount('0xabc…123')
 
 const fetch = Fetch.from({ // [!code focus]
   methods: [ // [!code focus]

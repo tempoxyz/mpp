@@ -1,14 +1,20 @@
+import { Card, Cards } from 'vocs'
+
 # pget [wget for paid APIs]
 
 `pget` is a non-interactive commandline tool for making HTTP requests with automatic payment support. Handles `402 Payment Required` responses with built-in payment methods and permissions. Works from scripts, cron jobs, and AI agents.
 
-## Install
+## Quickstart
+
+::::steps
+
+### Install
 
 ```bash [Terminal]
 $ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 ```
 
-## Initialize
+### Initialize
 
 Run the init wizard to set up your wallet:
 
@@ -27,7 +33,7 @@ $ export PGET_PRIVATE_KEY="0x..."
 
 :::
 
-## Make your first paid request
+### Make your first paid request
 
 ```bash [Terminal]
 $ pget -vv https://mpp.dev/ping/paid
@@ -42,7 +48,11 @@ $ pget -vv https://mpp.dev/ping/paid
 5. Retries with the payment credential
 6. Returns the response
 
-## Preview before paying
+::::
+
+## Learn more
+
+### Preview before paying
 
 Use dry-run mode to see what would happen without actually paying:
 
@@ -56,7 +66,7 @@ Or inspect the payment requirements before paying:
 $ pget inspect https://mpp.dev/ping/paid
 ```
 
-## Set spending limits
+### Set spending limits
 
 Protect yourself with a maximum payment amount:
 
@@ -65,7 +75,7 @@ Protect yourself with a maximum payment amount:
 $ pget -M 1000000 https://mpp.dev/ping/paid
 ```
 
-## Common flags
+### Common flags
 
 | Flag | Description |
 |------|-------------|
@@ -79,13 +89,13 @@ $ pget -M 1000000 https://mpp.dev/ping/paid
 
 ---
 
-# Built-in skills
+## Built-in skills
 
 pget ships with built-in support for common AI agents. When used as a skill by AI assistants like Claude, pget enables agents to interact with paid APIs autonomously.
 
-## How it works
+### How it works
 
-AI agents can use pget to:
+AI agents can use `pget` to:
 
 - **Access paid APIs** — Make requests to services that charge per-call
 - **Query premium data** — Fetch information from paid data providers
@@ -93,7 +103,7 @@ AI agents can use pget to:
 
 The agent calls pget like any other commandline tool when it detects a `402` Payment Required response. Payment is handled transparently.
 
-## Example: Agent making a paid request
+### Example: Agent making a paid request
 
 When an AI agent needs to access a paid resource, it runs:
 
@@ -132,7 +142,7 @@ Restrict payments to specific networks:
 pget -n tempo-moderato https://api.example.com/data
 ```
 
-## Skill configuration
+### Skill configuration
 
 For AI agent frameworks that support skills, pget can be configured as a tool:
 
@@ -180,5 +190,17 @@ pget https://api.dev-tools.com/analyze?repo=myorg/myrepo
 
 ## Next steps
 
-- [Examples](/tools/pget/examples) — More usage patterns and real endpoints
-- [Reference](/tools/pget) — Full command reference and configuration
+<Cards>
+  <Card
+    icon="lucide:code"
+    title="Examples"
+    description="More usage patterns and real endpoints"
+    to="/tools/pget/examples"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Reference"
+    description="Full command reference and configuration"
+    to="/tools/pget"
+  />
+</Cards>
