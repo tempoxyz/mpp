@@ -24,7 +24,7 @@
 		"react": "^19",
 		"react-dom": "^19",
 		"viem": "latest",
-		"vocs": "https://pkg.pr.new/wevm/vocs/vocs@next",
+		"vocs": "https://pkg.pr.new/wevm/vocs@fa4646d",
 		"waku": "^1.0.0-alpha.2"
 	},
 	"simple-git-hooks": {

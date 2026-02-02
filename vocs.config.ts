@@ -54,7 +54,7 @@ export default defineConfig({
 	titleTemplate: "%s | MPP",
 	topNav: [
 		{ text: "Docs", link: "/", match: "/" },
-
+		{ text: "SDKs & Tools", link: "/sdk" },
 		{ text: "Specifications", link: "https://paymentauth.tempo.xyz" },
 		{
 			text: "GitHub",

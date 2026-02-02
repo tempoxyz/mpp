@@ -76,19 +76,7 @@ export async function handler(request: Request) {
 }
 ```
 
-See [`tempo` server reference](/sdk/typescript/server/Method.tempo) for full API documentation.
-
-#### Request fields
-
-When issuing a charge, the server specifies:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `amount` | `string` | Payment amount in token base units |
-| `currency` | `string` | TIP-20 token contract address |
-| `recipient` | `string` | Address to receive payment |
-| `expires` | `string` | Optional ISO 8601 expiration timestamp |
-| `description` | `string` | Optional human-readable description |
+See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge) for full API documentation.
 
 ## Specification
 

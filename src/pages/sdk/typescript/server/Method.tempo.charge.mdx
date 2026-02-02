@@ -1,0 +1,108 @@
+# `Method.tempo.charge`
+
+The `charge` intent for the Tempo payment method. Requests a one-time payment from the client.
+
+## Usage
+
+```ts twoslash
+import { Mpay, tempo } from 'mpay/server'
+
+const mpay = Mpay.create({
+  method: tempo({
+    chainId: 42431,
+    rpcUrl: 'https://rpc.tempo.xyz',
+  }),
+  realm: 'api.example.com',
+  secretKey: process.env.MPAY_SECRET_KEY!,
+})
+
+export async function handler(request: Request) {
+  const response = await mpay.charge({ // [!code focus]
+    request: { // [!code focus]
+      amount: '1000000', // [!code focus]
+      currency: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', // [!code focus]
+      expires: '2030-01-20T12:00:00Z', // [!code focus]
+    }, // [!code focus]
+  })(request) // [!code focus]
+
+  if (response.status === 402) return response.challenge
+  return response.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### With Description
+
+Add a human-readable description for the payment request.
+
+```ts twoslash
+import { Mpay, tempo } from 'mpay/server'
+
+const mpay = Mpay.create({
+  method: tempo({
+    chainId: 42431,
+    rpcUrl: 'https://rpc.tempo.xyz',
+  }),
+  realm: 'api.example.com',
+  secretKey: process.env.MPAY_SECRET_KEY!,
+})
+// ---cut---
+export async function handler(request: Request) {
+  const response = await mpay.charge({
+    description: 'API access for /resource', // [!code focus]
+    request: {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000001',
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+      expires: '2030-01-20T12:00:00Z',
+    },
+  })(request)
+
+  if (response.status === 402) return response.challenge
+  return response.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+## Return Type
+
+Returns a function that accepts a `Request` and returns a response object with payment status.
+
+```ts
+type ReturnType = (request: Request) => Promise<{
+  status: 200 | 402
+  challenge: Response
+  withReceipt: (response: Response) => Response
+}>
+```
+
+## Parameters
+
+### request.amount
+
+- **Type:** `string`
+
+Payment amount in atomic units. For USD stablecoins with 6 decimals, `1000000` equals 1 USD.
+
+### request.currency
+
+- **Type:** `string`
+
+TIP-20 token address for the payment currency.
+
+### request.recipient
+
+- **Type:** `string`
+
+Address to receive the payment.
+
+### request.expires (optional)
+
+- **Type:** `string`
+
+ISO 8601 timestamp for when the payment challenge expires.
+
+### description (optional)
+
+- **Type:** `string`
+
+Human-readable description of the payment request.

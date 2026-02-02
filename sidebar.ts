@@ -171,6 +171,10 @@ export const sidebar = {
 											text: ".tempo",
 											link: "/sdk/typescript/server/Method.tempo",
 										},
+										{
+											text: ".tempo.charge",
+											link: "/sdk/typescript/server/Method.tempo.charge",
+										},
 									],
 								},
 							],

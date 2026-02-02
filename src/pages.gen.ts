@@ -43,6 +43,7 @@ type Page =
 | { path: '/sdk/typescript/Receipt.fromResponse'; render: 'static' }
 | { path: '/sdk/typescript/Receipt.serialize'; render: 'static' }
 | { path: '/sdk/typescript'; render: 'static' }
+| { path: '/sdk/typescript/server/Method.tempo.charge'; render: 'static' }
 | { path: '/sdk/typescript/server/Method.tempo'; render: 'static' }
 | { path: '/sdk/typescript/server/Mpay.create'; render: 'static' }
 | { path: '/sdk/typescript/server/Mpay.toNodeListener'; render: 'static' }
