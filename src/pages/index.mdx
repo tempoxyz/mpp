@@ -1,6 +1,7 @@
 import { Badge, Card, Cards } from 'vocs'
 
-# Machine Payments Protocol [The internet native payments protocol]
+# Machine Payments Protocol [The internet-native payments protocol]
+
 
 ## Overview
 
@@ -26,9 +27,9 @@ The Machine Payment Protocol addresses this issue, providing an internet native 
 
 ## Use cases
 
-* **Paid APIs** — Accept payments inline without requiring API keys, billing accounts, or manual signup. Clients pay per request.
-* **MCP servers** — Monetize tool calls served through the Model Context Protocol. Agents pay autonomously without OAuth or account setup.
-* **Digital content** — Monetize articles, data, or media without subscription paywalls. Charge per access or per query.
+* **Paid APIs**—Accept payments inline without requiring API keys, billing accounts, or manual signup. Clients pay per request.
+* **MCP servers**—Monetize tool calls served through the Model Context Protocol. Agents pay autonomously without OAuth or account setup.
+* **Digital content**—Monetize articles, data, or media without subscription paywalls. Charge per access or per query.
 
 ## Payment flow
 
@@ -47,11 +48,11 @@ sequenceDiagram
     Server-->>Client: (6) 200 OK<br/>Payment-Receipt: <receipt>
 ```
 
-1. **Client requests resource** — `GET /resource`
-2. **Server returns payment challenge** — `402` Payment Required with `WWW-Authenticate: Payment` header
-3. **Client fulfills payment** — Signs a transaction, pays an invoice, or completes a card payment
-4. **Client retries with credential** — `GET /resource` with `Authorization: Payment` header
-5. **Server verifies and delivers** — `200` OK with `Payment-Receipt` header
+1. **Request the resource**—`GET /resource`
+2. **Return a payment challenge**—`402` Payment Required with `WWW-Authenticate: Payment` header
+3. **Fulfill the payment**—Sign a transaction, pay an invoice, or complete a card payment
+4. **Retry with credential**—`GET /resource` with `Authorization: Payment` header
+5. **Verify and deliver**—`200` OK with `Payment-Receipt` header
 
 ## Official SDKs
 
@@ -87,7 +88,7 @@ All SDKs implement similar interfaces and are interoperable with one another.
 
 <Cards>
   <Card
-    description="Build your first payment-enabled API in 5 minutes"
+    description="Build a payment-enabled API"
     icon="lucide:rocket"
     title="Quickstart"
     to="/quickstart"
@@ -99,9 +100,9 @@ All SDKs implement similar interfaces and are interoperable with one another.
     to="/protocol"
   />
   <Card
-    description="Read the IETF-track specification"
+    description="See the normative definition"
     icon="lucide:file-text"
-    title="Specification"
+    title="Protocol spec"
     to="https://paymentauth.tempo.xyz"
   />
 </Cards>

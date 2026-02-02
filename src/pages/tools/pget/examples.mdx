@@ -4,7 +4,7 @@
 
 The MPP docs site hosts live endpoints you can test against:
 
-```bash [Terminal]
+```bash [test.sh]
 # Free endpoint - no payment required
 $ pget https://mpp.dev/ping
 
@@ -25,7 +25,7 @@ $ pget -vi https://mpp.dev/ping/paid
 
 For testing, you can use a private key directly using an environment variable:
 
-```bash [Terminal]
+```bash [test.sh]
 # Set your private key (funded on Tempo testnet)
 $ export PGET_PRIVATE_KEY="0x..."
 
@@ -39,7 +39,7 @@ The `/ping/paid` endpoint runs on Tempo testnet. Fund your wallet at [faucet.tem
 
 ## Basic requests
 
-```bash [Terminal]
+```bash [test.sh]
 # Make a payment request
 $ pget https://mpp.dev/ping/paid
 
@@ -55,7 +55,7 @@ $ pget --json-output https://mpp.dev/ping/paid
 
 ## Payment controls
 
-```bash [Terminal]
+```bash [test.sh]
 # Preview payment without executing (dry run)
 $ pget -D https://mpp.dev/ping/paid
 
@@ -71,7 +71,7 @@ $ pget -n tempo https://mpp.dev/ping/paid
 
 ## Wallet management
 
-```bash [Terminal]
+```bash [test.sh]
 # Check wallet balance
 $ pget balance
 
@@ -87,7 +87,7 @@ $ pget --from 0x1234... https://mpp.dev/ping/paid
 
 ## Inspecting payments
 
-```bash [Terminal]
+```bash [test.sh]
 # Inspect payment requirements without paying
 $ pget inspect https://mpp.dev/ping/paid
 
@@ -100,7 +100,7 @@ $ pget config --output-format json
 
 ## HTTP options
 
-```bash [Terminal]
+```bash [test.sh]
 # Custom headers
 $ pget -H "X-Custom: value" https://mpp.dev/ping/paid
 
@@ -119,7 +119,7 @@ $ pget -m 30 https://mpp.dev/ping/paid
 
 ## Output control
 
-```bash [Terminal]
+```bash [test.sh]
 # Quiet mode (suppress non-essential output)
 $ pget -q https://mpp.dev/ping/paid
 

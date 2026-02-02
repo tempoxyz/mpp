@@ -2,7 +2,7 @@ import { Badge } from 'vocs'
 
 # Protocol overview [Standardizing HTTP 402 for machine-to-machine payments]
 
-The Machine Payments Protocol (MPP) is an internet-native protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with a simple, extensible framework that works with any payment network.
+The Machine Payments Protocol (MPP) is an internet-native protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
 
 These docs provide a developer-friendly overview. For the full specification, see [paymentauth.tempo.xyz](https://paymentauth.tempo.xyz).
 
@@ -21,12 +21,12 @@ sequenceDiagram
     Server-->>Client: (6) 200 OK<br/>Payment-Receipt: <receipt>
 ```
 
-1. **Client requests a resource** – Standard HTTP request (`GET`, `POST`, and others)
-2. **Server responds with `402`** – Includes a **challenge** in `WWW-Authenticate` describing the payment required
-3. **Client fulfills the challenge** – Signs a transaction, pays an invoice, or performs method-specific payment
-4. **Client retries with credential** – Includes an `Authorization` header with payment proof
-5. **Server verifies and settles** – Validates the credential and processes payment
-6. **Server returns resource** – Responds with `200` OK and optional **receipt** in `Payment-Receipt` header
+1. **Request a resource**—Standard HTTP request (`GET`, `POST`, and others)
+2. **Respond with `402`**—Include a **challenge** in `WWW-Authenticate` describing the payment required
+3. **Fulfill the challenge**—Sign a transaction, pay an invoice, or perform method-specific payment
+4. **Retry with credential**—Include an `Authorization` header with payment proof
+5. **Verify and settle**—Validate the credential and process payment
+6. **Return resource**—Respond with `200` OK and optional **receipt** in `Payment-Receipt` header
 
 ## Core concepts
 
@@ -92,7 +92,7 @@ See [HTTP 402](/protocol/http-402) for details on when to return each status cod
 MPP works with any payment network or currency. The core protocol defines the framework, while **payment methods** define how specific networks integrate:
 
 :::info[Extensible by design]
-Anyone can define new payment methods. The protocol only requires that methods define their `request` schema (what the server asks for) and `payload` schema (what the client provides as proof).
+Anyone can define new payment methods. The protocol requires that methods define their `request` schema (what the server asks for) and `payload` schema (what the client provides as proof).
 :::
 
 | Method | Description | Status |
@@ -106,11 +106,11 @@ Each payment method specifies its own `request` and `payload` schemas while shar
 
 Payment method specifications must define:
 
-1. **Method identifier** – Unique lowercase ASCII string (e.g., `tempo`, `stripe`)
-2. **Request schema** – JSON structure for the `request` parameter in challenges
-3. **Payload schema** – JSON structure for credential `payload` fields
-4. **Verification procedure** – How servers validate payment proofs
-5. **Settlement procedure** – How payment is finalized
+1. **Method identifier**—Unique lowercase ASCII string (for example, `tempo` or `stripe`)
+2. **Request schema**—JSON structure for the `request` parameter in challenges
+3. **Payload schema**—JSON structure for credential `payload` fields
+4. **Verification procedure**—How servers validate payment proofs
+5. **Settlement procedure**—How payment is finalized
 
 ## Payment intents
 
@@ -134,7 +134,7 @@ WWW-Authenticate: Payment id="def", method="tempo", intent="authorize", ...
 
 ## Request body binding
 
-For requests with bodies (POST, PUT, PATCH), servers can bind the challenge to the request body using a `digest` parameter:
+For requests with bodies (`POST`, `PUT`, `PATCH`), servers can bind the challenge to the request body using a `digest` parameter:
 
 ```http
 WWW-Authenticate: Payment id="...",
@@ -188,7 +188,7 @@ Payment methods must provide single-use proof semantics. A payment proof can be 
 
 Servers must not perform side effects (database writes, external API calls) for requests that have not been paid. The unpaid request that triggers a `402` challenge must not modify server state beyond recording the challenge itself.
 
-For non-idempotent methods (POST, PUT, DELETE), servers should accept an `Idempotency-Key` header to enable safe client retries.
+For non-idempotent methods (`POST`, `PUT`, `DELETE`), accept an `Idempotency-Key` header to enable safe client retries.
 
 ### Amount verification
 
@@ -224,15 +224,15 @@ Implementations may define additional parameters in challenges:
 
 ### Size considerations
 
-- Servers should keep challenges under 8KB
-- Clients must handle challenges of at least 4KB
-- Servers must handle credentials of at least 4KB
+- Keep challenges under 8 KB
+- Clients must handle challenges of at least 4 KB
+- Servers must handle credentials of at least 4 KB
 
 ### Internationalization
 
 - All string values use UTF-8 encoding
 - Payment method identifiers are restricted to ASCII lowercase
-- The `realm` parameter should use ASCII-only values
+- Use ASCII-only values for the `realm` parameter
 - The `description` parameter can contain localized text; use `Accept-Language` to determine appropriate language
 
 ## Full specification
@@ -240,11 +240,11 @@ Implementations may define additional parameters in challenges:
 These docs provide a practical overview. For normative, IETF-style specifications:
 
 :::note[IETF-track specifications]
-- [Payment HTTP Authentication Scheme](https://paymentauth.tempo.xyz/draft-httpauth-payment-00) – Core protocol spec (draft-httpauth-payment-00)
-- [Payment Methods](https://paymentauth.tempo.xyz/methods) – Payment method definitions
-- [Payment Intents](https://paymentauth.tempo.xyz/intents) – Intent types (charge, authorize, subscription)
-- [MCP Transport](https://paymentauth.tempo.xyz/transports/mcp) – Model Context Protocol binding
-- [HTTP Transport](https://paymentauth.tempo.xyz/transports/http) – HTTP binding details
+- [Payment HTTP Authentication Scheme](https://paymentauth.tempo.xyz/draft-httpauth-payment-00)—Core protocol spec (draft-httpauth-payment-00)
+- [Payment Methods](https://paymentauth.tempo.xyz/methods)—Payment method definitions
+- [Payment Intents](https://paymentauth.tempo.xyz/intents)—Intent types (charge, authorize, subscription)
+- [MCP Transport](https://paymentauth.tempo.xyz/transports/mcp)—Model Context Protocol binding
+- [HTTP Transport](https://paymentauth.tempo.xyz/transports/http)—HTTP binding details
 :::
 
 The full specification includes detailed ABNF grammar, security analysis, IANA considerations, and complete examples for various payment scenarios.

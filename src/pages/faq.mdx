@@ -1,41 +1,44 @@
 # Frequently asked questions [Common questions about the Machine Payments Protocol]
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
 ## General
 
-### What is MPP?
+### MPP overview
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+The Machine Payments Protocol (MPP) is an internet-native protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network. Clients pay inline with their requests, and servers receive payment confirmation before delivering the response.
 
-### How does MPP differ from existing payment solutions?
+### Comparison to existing payment solutions
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.
+Traditional payment solutions require manual signup, API keys, billing accounts, or browser-based checkout flows. MPP eliminates these requirements by embedding payment negotiation directly in HTTP headers. The server sends a challenge describing what payment is needed, the client fulfills it, and retries the request with a credential.
 
-### Is MPP production-ready?
+### Production readiness
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+MPP is in active development. The [Tempo payment method](/payment-methods/tempo) is production-ready for stablecoin payments. Other payment methods, including Stripe, are in beta.
 
 ## Technical
 
-### Which payment methods are supported?
+### Supported payment methods
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.
+MPP supports multiple payment methods through its extensible design. Currently available methods include:
 
-### Can I use MPP with my existing infrastructure?
+- **Tempo**—Native stablecoin payments on the Tempo blockchain (production)
+- **Stripe**—Traditional card and bank payments via Stripe (beta)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.
+Anyone can define new payment methods. See the [Payment Methods](/payment-methods) page for details.
 
-### How are payments verified?
+### Integrating with existing infrastructure
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati.
+MPP works with any HTTP server or framework. The protocol uses standard HTTP headers (`WWW-Authenticate`, `Authorization`, `Payment-Receipt`) and status codes (`402`). Use the `mpay` SDK for TypeScript, Python, or Rust to add payment support to your existing APIs.
+
+### Payment verification
+
+When a client submits a credential, the server validates the payment proof against the original challenge. The verification process depends on the payment method—for example, the Tempo method verifies that the client signed a valid transaction. After verification, the server settles the payment and returns a receipt.
 
 ## Security
 
-### How secure is MPP?
+### Security model
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet.
+MPP requires TLS 1.2 or later for all payment flows. Payment methods must provide single-use proof semantics, preventing replay attacks. Challenges are cryptographically bound to their parameters, ensuring clients can't reuse a challenge ID with modified payment terms. See [Security considerations](/protocol#security-considerations) for details.
 
-### What happens if a payment fails?
+### Handling failed payments
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.
+When a payment fails, the server returns `402` with a fresh challenge and a Problem Details body describing the error. Common failure reasons include expired challenges, invalid payment proofs, or insufficient payment amounts. Clients can retry with a new credential based on the fresh challenge.

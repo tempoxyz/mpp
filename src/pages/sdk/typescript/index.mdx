@@ -31,9 +31,9 @@ bun add mpay
 
 ## Quick start
 
-This quick start guide shows you how to use `mpay` with the [`tempo` payment method](#TODO).
+This quick start guide shows you how to use `mpay` with the [`tempo` payment method](/payment-methods/tempo).
 
-You can apply the same patterns to [other payment methods](#TODO).
+You can apply the same patterns to [other payment methods](/payment-methods).
 
 - If you want to **consume a Payment-enabled service**, follow the [Client](#client) quick start.
 - If you want to **protect a service** with Payment, follow the [Server](#server) quick start.
@@ -257,7 +257,7 @@ export async function handler(req: IncomingMessage, res: ServerResponse) {
 
 #### Plug into your framework
 
-Plug the handler into your framework of choice, like [Hono](#TODO).
+Plug the handler into your framework of choice, like [Hono](https://hono.dev).
 
 ```ts [example.ts]
 import { Hono } from 'hono' // [!code focus]
@@ -295,7 +295,7 @@ Get up and running by using your coding agent (Claude Code, Cursor, Amp, and sim
 
 Use the [`skills` CLI](https://github.com/vercel-labs/skills) to install skills for your coding agent:
 
-```bash [Terminal]
+```bash [test.sh]
 # Install all mpay skills
 $ npx skills install wevm/mpay
 

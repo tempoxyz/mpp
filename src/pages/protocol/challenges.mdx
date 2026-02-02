@@ -1,6 +1,6 @@
 # Challenges [Server-issued payment requirements]
 
-Your server issues a **challenge** to describe the payment required for a resource. Challenges are sent in the `WWW-Authenticate` header using the `Payment` authentication scheme.
+Your server issues a **challenge** to describe the payment required for a resource. Send challenges in the `WWW-Authenticate` header using the `Payment` authentication scheme.
 
 ## Structure
 
@@ -30,7 +30,7 @@ WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk",
 | `expires` | ISO 8601 timestamp when the challenge expires |
 | `description` | Human-readable description of what's being paid for |
 
-## `request` Object
+## `request` object
 
 The `request` parameter contains method-specific payment details encoded as base64url JSON:
 
@@ -65,7 +65,7 @@ Clients select one based on their capabilities and submit a single credential.
 ## Challenge binding
 
 :::warning[Security requirement]
-Challenges should be cryptographically bound to their parameters via the `id` field. This prevents clients from reusing a challenge ID with modified payment terms.
+Challenges must be cryptographically bound to their parameters via the `id` field. This prevents clients from reusing a challenge ID with modified payment terms.
 :::
 
 Typical binding includes:
@@ -82,9 +82,9 @@ import { Card, Cards } from 'vocs'
 
 <Cards>
   <Card
-    description="Normative challenge format"
+    description="See the normative definition"
     icon="lucide:file-text"
-    title="Specification"
+    title="Protocol spec"
     to="https://paymentauth.tempo.xyz/draft-httpauth-payment-00#name-challenge-www-authenticate"
   />
   <Card

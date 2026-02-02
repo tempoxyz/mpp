@@ -4,7 +4,7 @@ import { Badge, Card, Cards } from 'vocs'
 
 ## Overview
 
-Agents and other programmatic flows can pay for services using the `mpay` client SDK. The SDK provides programmatic tools for paying with MPP:
+You can pay for services programmatically using the `mpay` client SDK. The SDK provides two approaches:
 
 | Approach | Use Case | Integration Shape |
 |----------|----------|-------------|
@@ -15,7 +15,17 @@ Agents and other programmatic flows can pay for services using the `mpay` client
 
 ::::steps
 
+<<<<<<< HEAD
 ### Install dependencies
+||||||| 432db39
+```ts [client.ts]
+import { Fetch, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+=======
+```ts twoslash [client.ts]
+import { Fetch, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+>>>>>>> origin/main
 
 First, ensure we have installed `mpay` and `viem`.
 
@@ -136,7 +146,7 @@ This is useful in the following scenarios:
 - Implement custom retry logic
 
 
-```ts [manual.ts]
+```ts twoslash [manual.ts]
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 

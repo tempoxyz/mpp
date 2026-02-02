@@ -10,7 +10,7 @@ import { Card, Cards } from 'vocs'
 
 ### Install
 
-```bash [Terminal]
+```bash [test.sh]
 $ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 ```
 
@@ -18,7 +18,7 @@ $ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 
 Run the init wizard to set up your wallet:
 
-```bash [Terminal]
+```bash [test.sh]
 $ pget init
 ```
 
@@ -27,7 +27,7 @@ This creates a new encrypted keystore and saves your configuration to `~/.pget/c
 :::tip[Quick setup for testing]
 For quick testing without a keystore, set your private key directly:
 
-```bash [Terminal]
+```bash [test.sh]
 $ export PGET_PRIVATE_KEY="0x..."
 ```
 
@@ -35,7 +35,7 @@ $ export PGET_PRIVATE_KEY="0x..."
 
 ### Make your first paid request
 
-```bash [Terminal]
+```bash [test.sh]
 $ pget -vv https://mpp.dev/ping/paid
 ```
 
@@ -56,13 +56,13 @@ $ pget -vv https://mpp.dev/ping/paid
 
 Use dry-run mode to see what would happen without actually paying:
 
-```bash [Terminal]
+```bash [test.sh]
 $ pget -D https://mpp.dev/ping/paid
 ```
 
 Or inspect the payment requirements before paying:
 
-```bash [Terminal]
+```bash [test.sh]
 $ pget inspect https://mpp.dev/ping/paid
 ```
 
@@ -70,7 +70,7 @@ $ pget inspect https://mpp.dev/ping/paid
 
 Protect yourself with a maximum payment amount:
 
-```bash [Terminal]
+```bash [test.sh]
 # Reject payments over 1 USD
 $ pget -M 1000000 https://mpp.dev/ping/paid
 ```
@@ -107,7 +107,7 @@ The agent calls pget like any other commandline tool when it detects a `402` Pay
 
 When an AI agent needs to access a paid resource, it runs:
 
-```bash [Terminal]
+```bash [test.sh]
 $ pget https://api.example.com/premium-data
 ```
 
@@ -121,7 +121,7 @@ pget includes safeguards for autonomous agent use:
 
 Set a maximum amount the agent can spend per request:
 
-```bash [Terminal]
+```bash [test.sh]
 # Limit to 0.50 USDC per request
 $ pget -M 500000 https://api.example.com/data
 ```
@@ -130,7 +130,7 @@ $ pget -M 500000 https://api.example.com/data
 
 Agents can preview costs before committing:
 
-```bash [Terminal]
+```bash [test.sh]
 $ pget -D https://api.example.com/expensive-endpoint
 ```
 
@@ -167,25 +167,25 @@ For AI agent frameworks that support skills, pget can be configured as a tool:
 
 ### Premium API access
 
-```bash
+```bash [test.sh]
 # Query a paid data API
-pget https://api.data-provider.com/market-data?symbol=BTC
+$ pget https://api.data-provider.com/market-data?symbol=BTC
 ```
 
 ### Paid compute
 
-```bash
+```bash [test.sh]
 # Run inference on a paid model
-pget -X POST \
+$ pget -X POST \
   --json '{"prompt": "Explain quantum computing"}' \
   https://api.ai-provider.com/generate
 ```
 
 ### Commercial tools
 
-```bash
+```bash [test.sh]
 # Use a paid developer tool
-pget https://api.dev-tools.com/analyze?repo=myorg/myrepo
+$ pget https://api.dev-tools.com/analyze?repo=myorg/myrepo
 ```
 
 ## Next steps

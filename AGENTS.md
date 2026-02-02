@@ -184,6 +184,7 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 - Bold for UI elements and list labels
 - Code font for parameters, commands, status codes, object names
 - Em dashes with no spaces: "payments immediately—you don't need to"
+- When discussing command names like `pget` or HTTP status code specifics like `402` you should always use code blocks ``
 
 **Avoid**:
 - Latin abbreviations (use "for example" not "e.g.")
@@ -192,6 +193,13 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 - Exclamation points, humor, rhetorical questions
 
 **Structure**: Never skip heading levels. Keep headings under 12 words. Use imperative mood for procedures.
+
+**H1 with bracketed tagline**: This project uses Vocs-style H1 headings with a bracketed tagline for page subtitles. This is an intentional deviation from Stripe style:
+```md
+# Page Title [Short tagline describing the page]
+```
+The bracketed text renders as a subtitle in Vocs. Do not remove these taglines or convert them to intro paragraphs.
+
 
 ## Badge Usage in Tables
 
@@ -215,6 +223,10 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 5. **Use `// @log:` comments** - Show expected output inline
 6. **Document all parameters** - Mark optional ones with "(optional)"
 7. **Include type information** - Always show the Type for each parameter
+8. **Bash terminal blocks** - Use ` ```bash [test.sh] ` with `$` prefixes for shell commands
+9. **TypeScript twoslash** - Always use ` ```ts twoslash ` for TypeScript code blocks, never bare ` ```ts `
+10. **Spec link Cards** - When linking to specs, use title `"Protocol spec"` and description `"See the normative definition"`
+11. **Plural "specifications"** - Use "specifications" (plural) when referring to multiple specs collectively
 
 ## Vocs Framework Reference
 

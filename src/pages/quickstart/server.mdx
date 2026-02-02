@@ -4,7 +4,13 @@ import { Badge, Card, Cards } from 'vocs'
 
 ## Overview
 
+<<<<<<< HEAD
 This quickstart demonstrates how to plug MPP into any server framework to accept payments for protected resources.
+||||||| 432db39
+Charge for resources using the `mpay` server SDK.
+=======
+Use the `mpay` server SDK to charge for resources.
+>>>>>>> origin/main
 
 ## Steps
 
@@ -185,16 +191,16 @@ After your server is running, test it with [pget](/tools/pget):
 
 ```bash [test.sh]
 # See the payment challenge
-pget inspect <your-server>/resource
+$ pget inspect <your-server>/resource
 
 # Make a paid request (requires funded wallet)
-pget <your-server>/resource
+$ pget <your-server>/resource
 
 # Verbose output to see the full 402 flow
-pget -vi <your-server>/resource
+$ pget -vi <your-server>/resource
 
 # Dry run to preview payment without executing
-pget -D <your-server>/resource
+$ pget -D <your-server>/resource
 ```
 
 :::tip
