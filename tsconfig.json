@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"types": ["unplugin-icons/types/react"],
+		"types": ["unplugin-icons/types/react", "node"],
 		"target": "ESNext",
 		"lib": ["DOM", "DOM.Iterable", "ESNext"],
 		"module": "ESNext",
