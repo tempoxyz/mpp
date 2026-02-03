@@ -73,10 +73,11 @@ import { Fetch, tempo } from 'mpay/client'
 
 const account = privateKeyToAccount('0xabc…123')
 
+// [!code hl:start]
 const paidFetch = Fetch.from({
   methods: [tempo({ account })]
 })
-
+// [!code hl:end]
 const response = await paidFetch('https://mpp.dev/ping/paid')
 ```
 
@@ -92,10 +93,12 @@ const paidFetch = Fetch.from({
   methods: [tempo()]
 })
 
+// [!code hl:start]
 const response = await paidFetch('https://mpp.dev/ping/paid', {
   context: {
     account: privateKeyToAccount('0xabc…123'),
   }
+  // [!code hl:end]
 })
 ```
 
@@ -111,9 +114,11 @@ Use `Mpay.create` for full control over the payment flow:
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
+// [!code hl:start]
 const mpay = Mpay.create({
   methods: [tempo()],
 })
+// [!code hl:end]
 
 const response = await fetch('https://mpp.dev/ping/paid')
 
@@ -135,7 +140,7 @@ On success, the server returns a `Payment-Receipt` header:
 ```ts [receipts.ts]
 import { Receipt } from 'mpay'
 
-const header = response.headers.get('Payment-Receipt')
+const header = response.headers.get('Payment-Receipt') // [!code hl]
 const receipt = Receipt.deserialize(header)
 console.log(receipt.status)     // 'success' | 'failed'
 console.log(receipt.reference)  // transaction hash
