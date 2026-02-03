@@ -9,11 +9,7 @@ import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const mpay = Mpay.create({
-  methods: [
-    tempo({
-      rpcUrl: 'https://rpc.tempo.xyz',
-    }),
-  ],
+  methods: [tempo()],
 })
 
 const response = await fetch('/resource')
@@ -61,7 +57,6 @@ const mpay = Mpay.create({
   methods: [
     tempo({
       account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.tempo.xyz',
     }),
   ],
   // [!code focus:end]
@@ -83,7 +78,6 @@ const mpay = Mpay.create({
   methods: [
     tempo({
       account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.tempo.xyz',
     }),
   ],
   transport: Transport.mcp(), // [!code focus]

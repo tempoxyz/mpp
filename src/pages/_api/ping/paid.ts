@@ -4,12 +4,10 @@ import { mpay } from "../../../mpay.server";
 
 export async function GET(request: Request) {
 	const result = await mpay.charge({
-		request: {
-			amount: "100000",
-			currency: env.DEFAULT_CURRENCY!,
-			recipient: env.DEFAULT_RECIPIENT!,
-			expires: Expires.minutes(5),
-		},
+		amount: "100000",
+		currency: env.DEFAULT_CURRENCY!,
+		recipient: env.DEFAULT_RECIPIENT!,
+		expires: Expires.minutes(5),
 		description: "Ping endpoint access",
 	})(request);
 

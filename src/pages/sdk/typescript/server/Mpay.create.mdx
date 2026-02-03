@@ -8,10 +8,7 @@ Creates a server-side payment handler from a method.
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -25,10 +22,7 @@ Use a custom transport for non-HTTP environments like MCP servers.
 import { Mpay, tempo, Transport } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    chainId: 42431,
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
   transport: Transport.mcpSdk(),
@@ -52,17 +46,14 @@ The returned object includes the method's intent functions (e.g., `charge`) whic
 
 - **Type:** `Method.Server`
 
-Payment method (e.g., `tempo({ ... })`).
+Payment method (e.g., `tempo()`).
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
   // [!code focus:start]
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   // [!code focus:end]
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
@@ -79,10 +70,7 @@ Server realm (e.g., hostname). Used to identify the server in payment challenges
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   realm: 'mpp.dev', // [!code focus]
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -98,10 +86,7 @@ Secret key for HMAC-bound challenge IDs. Required for stateless verification—a
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!, // [!code focus]
 })
@@ -118,10 +103,7 @@ Transport to use for handling payment requests. Defaults to HTTP transport.
 import { Mpay, tempo, Transport } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
   transport: Transport.mcp(), // [!code focus]

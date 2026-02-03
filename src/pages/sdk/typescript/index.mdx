@@ -89,11 +89,7 @@ const account = privateKeyToAccount('0xabc…123')
 // [!code focus:start]
 const fetch = Fetch.from({
   methods: [
-    tempo({
-      account,
-      chainId: 4217,
-      rpcUrl: 'https://rpc.tempo.xyz',
-    })
+    tempo({ account })
   ]
 })
 // [!code focus:end]
@@ -105,11 +101,7 @@ You can also polyfill the global `fetch` instance.
 ```ts 
 Fetch.polyfill({
   methods: [
-    tempo({
-      account,
-      chainId: 4217,
-      rpcUrl: 'https://rpc.tempo.xyz',
-    })
+    tempo({ account })
   ]
 })
 
@@ -132,12 +124,7 @@ You can also define accounts on a per-request basis under `context`.
 ```ts 
 const fetch = Fetch.from({ 
   account, // [!code --] 
-  methods: [ 
-    tempo({ 
-      chainId: 4217,
-      rpcUrl: 'https://rpc.tempo.xyz', 
-    }) 
-  ] 
+  methods: [tempo()] 
 }) 
 
 const response = await fetch('https://mpp.dev/ping/paid', {
@@ -162,10 +149,7 @@ Create an `Mpay` instance to request payment for protected resources.
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
-  method: tempo({
-    chainId: 4217,
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -189,21 +173,16 @@ The Fetch API is compatible with most server frameworks, including:
 import { Mpay, tempo } from 'mpay/server' // [!code collapse:8 collapsed]
 
 const mpay = Mpay.create({
-  method: tempo({
-    chainId: 4217,
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
 
 export async function handler(request: Request) { 
   const response = await mpay.charge({ 
-    request: { 
-      amount: '1000000', 
-      currency: '0x20c0000000000000000000000000000000000001', 
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
-    }, 
+    amount: '1000000', 
+    currency: '0x20c0000000000000000000000000000000000001', 
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
   })(request) 
 
   // Payment required: send 402 response with challenge 
@@ -223,10 +202,7 @@ Use the `Mpay.toNodeListener` helper to transform the handler into a Node.js-com
 import { Mpay, tempo } from 'mpay/server' // [!code collapse:8]
 
 const mpay = Mpay.create({
-  method: tempo({
-    chainId: 4217,
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -236,11 +212,9 @@ type ServerResponse = import('node:http').ServerResponse
 // ---cut---
 export async function handler(req: IncomingMessage, res: ServerResponse) { 
   const response = await Mpay.toNodeListener(mpay.charge({ // [!code ++]
-    request: { 
-      amount: '1000000', 
-      currency: '0x20c0000000000000000000000000000000000001', 
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
-    }, 
+    amount: '1000000', 
+    currency: '0x20c0000000000000000000000000000000000001', 
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
   }))(req, res) // [!code ++]
 
   // Payment required: send 402 response with challenge 
@@ -262,7 +236,7 @@ import { Hono } from 'hono' // [!code focus]
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
-  method: tempo({ chainId: 4217, rpcUrl: 'https://rpc.tempo.xyz' }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -271,11 +245,9 @@ const app = new Hono() // [!code focus]
 
 app.get('/resource', async (c) => { // [!code focus:99]
   const r = await mpay.charge({
-    request: {
-      amount: '1000000',
-      currency: '0x20c0000000000000000000000000000000000001',
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    },
+    amount: '1000000',
+    currency: '0x20c0000000000000000000000000000000000001',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(c.req.raw)
 
   if (r.status === 402) return r.challenge

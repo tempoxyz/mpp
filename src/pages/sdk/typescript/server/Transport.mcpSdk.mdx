@@ -9,10 +9,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { Mpay, tempo, Transport } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
   transport: Transport.mcpSdk(),
@@ -22,7 +19,7 @@ const server = new McpServer({ name: 'example', version: '1.0.0' })
 
 server.registerTool('premium', { description: 'A premium tool' }, async (extra) => {
   const result = await payment.charge({
-    request: { amount: '1000', currency: '0x...', recipient: '0x...' },
+    amount: '1000', currency: '0x...', recipient: '0x...',
   })(extra)
 
   if (result.status === 402) throw result.challenge

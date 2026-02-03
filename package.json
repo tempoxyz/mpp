@@ -20,11 +20,11 @@
 	"dependencies": {
 		"dayjs": "^1.11.19",
 		"mermaid": "^11.12.2",
-		"mpay": "https://pkg.pr.new/wevm/mpay@a847f62",
+		"mpay": "https://pkg.pr.new/wevm/mpay@e725a9d",
 		"react": "^19",
 		"react-dom": "^19",
 		"viem": "latest",
-		"vocs": "https://pkg.pr.new/wevm/vocs@fa4646d",
+		"vocs": "https://pkg.pr.new/wevm/vocs@051f2f3",
 		"waku": "^1.0.0-alpha.2"
 	},
 	"simple-git-hooks": {

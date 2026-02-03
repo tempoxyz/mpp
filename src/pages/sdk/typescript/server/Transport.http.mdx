@@ -8,10 +8,7 @@ HTTP transport for server-side payment handling.
 import { Mpay, tempo, Transport } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
   transport: Transport.http(),

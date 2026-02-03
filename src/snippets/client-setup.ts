@@ -10,12 +10,7 @@ const account = privateKeyToAccount("0x...");
 
 // [!region fetch]
 const fetch = Fetch.from({
-	methods: [
-		tempo({
-			account,
-			rpcUrl: "https://rpc.tempo.xyz",
-		}),
-	],
+	methods: [tempo({ account })],
 });
 // [!endregion fetch]
 

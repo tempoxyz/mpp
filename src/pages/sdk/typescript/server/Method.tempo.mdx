@@ -9,10 +9,7 @@ import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
   // [!code focus:start]
-  method: tempo({
-    chainId: 42431,
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo(),
   // [!code focus:end]
   realm: 'api.example.com',
   secretKey: process.env.MPAY_SECRET_KEY!,
@@ -54,9 +51,7 @@ import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
   method: tempo({ 
-    chainId: 42431, 
     feePayer: privateKeyToAccount('0x...'), // [!code focus]
-    rpcUrl: 'https://rpc.tempo.xyz', 
   }), 
   realm: 'api.example.com',
   secretKey: process.env.MPAY_SECRET_KEY!,
@@ -145,11 +140,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
-  method: tempo({
-    chainId: 42431,
-    feePayer: privateKeyToAccount('0x...'), // [!code focus]
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo({ feePayer: privateKeyToAccount('0x...') }), // [!code focus]
   realm: 'api.example.com',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })

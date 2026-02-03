@@ -8,10 +8,7 @@ The `charge` intent for the Tempo payment method. Requests a one-time payment fr
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
-  method: tempo({
-    chainId: 42431,
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo(),
   realm: 'api.example.com',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -19,11 +16,9 @@ const mpay = Mpay.create({
 export async function handler(request: Request) {
   // [!code focus:start]
   const response = await mpay.charge({
-    request: {
-      amount: '1000000',
-      currency: '0x20c0000000000000000000000000000000000001',
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    },
+    amount: '1000000',
+    currency: '0x20c0000000000000000000000000000000000001',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(request)
   // [!code focus:end]
 
@@ -40,10 +35,7 @@ Set a custom expiration time for the charge using the `expires` option.
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
-  method: tempo({
-    chainId: 42431,
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo(),
   realm: 'api.example.com',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -52,12 +44,10 @@ import { Expires } from 'mpay'
 
 export async function handler(request: Request) {
   const response = await mpay.charge({
-    request: {
-      amount: '1000000',
-      currency: '0x20c0000000000000000000000000000000000001',
-      expires: Expires.minutes(10), // [!code focus]
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    },
+    amount: '1000000',
+    currency: '0x20c0000000000000000000000000000000000001',
+    expires: Expires.minutes(10), // [!code focus]
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(request)
 
   if (response.status === 402) return response.challenge
@@ -73,22 +63,17 @@ Add a human-readable description for the payment request.
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
-  method: tempo({
-    chainId: 42431,
-    rpcUrl: 'https://rpc.tempo.xyz',
-  }),
+  method: tempo(),
   realm: 'api.example.com',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
 // ---cut---
 export async function handler(request: Request) {
   const response = await mpay.charge({
+    amount: '1000000',
+    currency: '0x20c0000000000000000000000000000000000001',
     description: 'API access for /resource', // [!code focus]
-    request: {
-      amount: '1000000',
-      currency: '0x20c0000000000000000000000000000000000001',
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    },
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(request)
 
   if (response.status === 402) return response.challenge

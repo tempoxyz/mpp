@@ -62,11 +62,7 @@ const account = privateKeyToAccount('0xabc…123')
 // [!code focus:start]
 const fetch = Fetch.from({
   methods: [
-    tempo({
-      account,
-      chainId: 4217,
-      rpcUrl: 'https://rpc.tempo.xyz',
-    })
+    tempo({ account })
   ]
 })
 // [!code focus:end]
@@ -78,11 +74,7 @@ You can also polyfill the global `fetch` instance.
 ```ts 
 Fetch.polyfill({
   methods: [
-    tempo({
-      account,
-      chainId: 4217,
-      rpcUrl: 'https://rpc.tempo.xyz',
-    })
+    tempo({ account })
   ]
 })
 
@@ -106,10 +98,7 @@ You can also define accounts on a per-request basis under `context`.
 const fetch = Fetch.from({ 
   account, // [!code --] 
   methods: [ 
-    tempo({ 
-      chainId: 4217,
-      rpcUrl: 'https://rpc.tempo.xyz', 
-    }) 
+    tempo({ account }) 
   ] 
 }) 
 
@@ -143,9 +132,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 // [!code focus:start]
 const mpay = Mpay.create({ 
   methods: [ 
-    tempo({ 
-      rpcUrl: 'https://rpc.tempo.xyz', 
-    }), 
+    tempo({ account: privateKeyToAccount('0x...') }), 
   ], 
 }) 
 // [!code focus:end]

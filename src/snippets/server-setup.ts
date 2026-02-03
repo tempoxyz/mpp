@@ -5,22 +5,18 @@ import { Mpay, tempo } from "mpay/server";
 
 // [!region mpay]
 const mpay = Mpay.create({
-	method: tempo({
-		chainId: 4217,
-		rpcUrl: "https://rpc.tempo.xyz",
-	}),
+	method: tempo(),
 	realm: "api.example.com",
+	secretKey: process.env.MPAY_SECRET_KEY!,
 });
 // [!endregion mpay]
 
 // [!region handler]
 export async function handler(request: Request) {
 	const response = await mpay.charge({
-		request: {
-			amount: "1000000",
-			currency: "0x20c0000000000000000000000000000000000001",
-			recipient: "0x742d35Cc6634c0532925a3b844bC9e7595F8fE00",
-		},
+		amount: "1000000",
+		currency: "0x20c0000000000000000000000000000000000001",
+		recipient: "0x742d35Cc6634c0532925a3b844bC9e7595F8fE00",
 	})(request);
 
 	if (response.status === 402) return response.challenge;

@@ -24,11 +24,9 @@ const mpay = Mpay.create({
 export async function handler(request: Request) {
   // [!code focus:start]
   const result = await mpay.charge({
-    request: {
-      amount: '1000000',
-      currency: '0x20c0000000000000000000000000000000000001',
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    },
+    amount: '1000000',
+    currency: '0x20c0000000000000000000000000000000000001',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(request)
   // [!code focus:end]
 
@@ -53,10 +51,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const fetch = Fetch.from({
   methods: [
-    tempo({
-      account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.tempo.xyz',
-    }),
+    tempo({ account: privateKeyToAccount('0x...') }),
   ],
 })
 

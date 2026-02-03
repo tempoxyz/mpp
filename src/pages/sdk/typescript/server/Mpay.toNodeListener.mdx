@@ -9,10 +9,7 @@ import * as http from 'node:http'
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -20,11 +17,9 @@ const payment = Mpay.create({
 http.createServer(async (req, res) => {
   const result = await Mpay.toNodeListener(
     payment.charge({
-      request: { 
-        amount: '1000', 
-        currency: '0x...', 
-        recipient: '0x...',
-      },
+      amount: '1000', 
+      currency: '0x...', 
+      recipient: '0x...',
     }),
   )(req, res)
 
@@ -61,10 +56,7 @@ import * as http from 'node:http'
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo({
-    rpcUrl: 'https://rpc.tempo.xyz',
-    chainId: 42431,
-  }),
+  method: tempo(),
   realm: 'mpp.dev',
   secretKey: process.env.MPAY_SECRET_KEY!,
 })
@@ -73,11 +65,9 @@ http.createServer(async (req, res) => {
   const result = await Mpay.toNodeListener(
     // [!code focus:start]
     payment.charge({
-      request: {
-        amount: '1000',
-        currency: '0x...',
-        recipient: '0x...',
-      },
+      amount: '1000',
+      currency: '0x...',
+      recipient: '0x...',
     }),
     // [!code focus:end]
   )(req, res)

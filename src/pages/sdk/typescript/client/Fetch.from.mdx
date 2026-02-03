@@ -16,10 +16,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const fetch = Fetch.from({
   methods: [
-    tempo({
-      account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.tempo.xyz',
-    }),
+    tempo({ account: privateKeyToAccount('0x...') }),
   ],
 })
 
@@ -41,9 +38,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const fetch = Fetch.from({
   methods: [
-    tempo({
-      rpcUrl: 'https://rpc.tempo.xyz',
-    }),
+    tempo(),
   ],
 })
 
@@ -82,10 +77,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const fetch = Fetch.from({
   // [!code focus:start]
   methods: [
-    tempo({
-      account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.tempo.xyz',
-    }),
+    tempo({ account: privateKeyToAccount('0x...') }),
   ],
   // [!code focus:end]
 })
@@ -107,10 +99,7 @@ const customFetch = globalThis.fetch
 const fetch = Fetch.from({
   fetch: customFetch, // [!code focus]
   methods: [
-    tempo({
-      account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.tempo.xyz',
-    }),
+    tempo({ account: privateKeyToAccount('0x...') }),
   ],
 })
 ```

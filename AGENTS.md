@@ -135,7 +135,6 @@ const fetch = Fetch.from({
   methods: [
     tempo({
       account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.tempo.xyz',
     }),
   ],
 })

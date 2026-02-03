@@ -9,12 +9,7 @@ import { Mpay, Transport, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const mpay = Mpay.create({
-  methods: [
-    tempo({
-      account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.tempo.xyz',
-    }),
-  ],
+  methods: [tempo({ account: privateKeyToAccount('0x...') })],
   transport: Transport.http(), // [!code focus]
 })
 ```
