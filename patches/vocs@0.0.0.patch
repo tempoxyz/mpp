@@ -1,5 +1,18 @@
+diff --git a/dist/internal/vite-plugins.js b/dist/internal/vite-plugins.js
+--- a/dist/internal/vite-plugins.js
++++ b/dist/internal/vite-plugins.js
+@@ -196,8 +196,8 @@ export function llms(config) {
+         if (description)
+             llmsTxtContent.push(description, '');
+         const nav = [];
+-        for (const { title, description, path } of results)
+-            nav.push(`- [${title}](${path === '/' ? '/index' : path})${description ? `: ${description}` : ''}`);
++        for (const { title: t, description: d, path: p } of results)
++            nav.push(`- [${t}](${p || '/'})${d ? `: ${d}` : ''}`);
+         const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', '', ''].join('\n');
+         for (const result of results)
+             result.content = sitemap + result.content;
 diff --git a/dist/internal/config.js b/dist/internal/config.js
-index d82a6451fff200ca2271a946ca044754b1127280..a6eaff24ab51c4688d52be9487237d7b1940f453 100644
 --- a/dist/internal/config.js
 +++ b/dist/internal/config.js
 @@ -84,7 +84,7 @@ export function define(config = {}) {
@@ -12,7 +25,6 @@ index d82a6451fff200ca2271a946ca044754b1127280..a6eaff24ab51c4688d52be9487237d7b
  export async function resolve(options = {}) {
      const { server, rootDir = process.cwd() } = options;
 diff --git a/dist/internal/langs.js b/dist/internal/langs.js
-index f88ab91aaf1243e7415e4f25dd6a418635241da6..2dc18ab8d659ce931da2b02667c9350eed405ead 100644
 --- a/dist/internal/langs.js
 +++ b/dist/internal/langs.js
 @@ -28,7 +28,7 @@ export function infer(options) {
