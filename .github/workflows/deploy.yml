@@ -102,7 +102,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const alias = "${{ steps.branch.outputs.alias }}"
-            const url = `https://${alias}-mpp-docs.tempo-xyz.workers.dev`
+            const url = `https://${alias}-mpp-docs.porto.workers.dev`
             const body = `MPP Docs preview: ${url}`
             const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
