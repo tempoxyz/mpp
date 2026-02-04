@@ -2,23 +2,23 @@
 
 ## Try it now
 
-We host a live demo server at `mpp-docs.tempo.xyz` running on **Tempo testnet** that you can test against:
+We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet** that you can test against:
 
 ```bash [try-demo.sh]
 # Free endpoint - no payment required
-$ pget https://mpp-docs.tempo.xyz/ping
+$ pget https://mpp.tempo.xyz/ping
 
 # Paid endpoint - requires 0.10 pathUSD payment
-$ pget https://mpp-docs.tempo.xyz/ping/paid
+$ pget https://mpp.tempo.xyz/ping/paid
 
 # Inspect the payment requirements first
-$ pget inspect https://mpp-docs.tempo.xyz/ping/paid
+$ pget inspect https://mpp.tempo.xyz/ping/paid
 
 # Dry run to preview what happens
-$ pget -D https://mpp-docs.tempo.xyz/ping/paid
+$ pget -D https://mpp.tempo.xyz/ping/paid
 
 # Verbose output to see the full 402 flow
-$ pget -vi https://mpp-docs.tempo.xyz/ping/paid
+$ pget -vi https://mpp.tempo.xyz/ping/paid
 ```
 
 ### Set up with a private key
@@ -30,7 +30,7 @@ For testing, you can use a private key directly using an environment variable:
 $ export PGET_PRIVATE_KEY="0x..."
 
 # Make paid requests
-$ pget https://mpp-docs.tempo.xyz/ping/paid
+$ pget https://mpp.tempo.xyz/ping/paid
 ```
 
 :::tip[Get testnet funds]
@@ -41,32 +41,32 @@ The demo server runs on Tempo testnet. Fund your wallet at [faucet.tempo.xyz](ht
 
 ```bash [basic-requests.sh]
 # Make a payment request
-$ pget https://mpp-docs.tempo.xyz/ping/paid
+$ pget https://mpp.tempo.xyz/ping/paid
 
 # Verbose output with headers
-$ pget -vi https://mpp-docs.tempo.xyz/ping/paid
+$ pget -vi https://mpp.tempo.xyz/ping/paid
 
 # Save output to file
-$ pget -o output.json https://mpp-docs.tempo.xyz/ping/paid
+$ pget -o output.json https://mpp.tempo.xyz/ping/paid
 
 # JSON output format
-$ pget --json-output https://mpp-docs.tempo.xyz/ping/paid
+$ pget --json-output https://mpp.tempo.xyz/ping/paid
 ```
 
 ## Payment controls
 
 ```bash [payment-controls.sh]
 # Preview payment without executing (dry run)
-$ pget -D https://mpp-docs.tempo.xyz/ping/paid
+$ pget -D https://mpp.tempo.xyz/ping/paid
 
 # Require confirmation before payment
-$ pget -y https://mpp-docs.tempo.xyz/ping/paid
+$ pget -y https://mpp.tempo.xyz/ping/paid
 
 # Set maximum payment amount (in atomic units)
-$ pget -M 10000 https://mpp-docs.tempo.xyz/ping/paid
+$ pget -M 10000 https://mpp.tempo.xyz/ping/paid
 
 # Filter to specific networks
-$ pget -n tempo-moderato https://mpp-docs.tempo.xyz/ping/paid
+$ pget -n tempo-moderato https://mpp.tempo.xyz/ping/paid
 ```
 
 ## Wallet management
@@ -79,17 +79,17 @@ $ pget balance
 $ pget balance -n tempo-moderato
 
 # Use specific account by name
-$ pget -a my-wallet https://mpp-docs.tempo.xyz/ping/paid
+$ pget -a my-wallet https://mpp.tempo.xyz/ping/paid
 
 # Use specific sender address
-$ pget --from 0x1234... https://mpp-docs.tempo.xyz/ping/paid
+$ pget --from 0x1234... https://mpp.tempo.xyz/ping/paid
 ```
 
 ## Inspecting payments
 
 ```bash [inspect-payments.sh]
 # Inspect payment requirements without paying
-$ pget inspect https://mpp-docs.tempo.xyz/ping/paid
+$ pget inspect https://mpp.tempo.xyz/ping/paid
 
 # View configuration
 $ pget config
@@ -102,30 +102,30 @@ $ pget config --output-format json
 
 ```bash [http-options.sh]
 # Custom headers
-$ pget -H "X-Custom: value" https://mpp-docs.tempo.xyz/ping/paid
+$ pget -H "X-Custom: value" https://mpp.tempo.xyz/ping/paid
 
 # POST with data
-$ pget -X POST -d '{"key": "value"}' https://mpp-docs.tempo.xyz/ping/paid
+$ pget -X POST -d '{"key": "value"}' https://mpp.tempo.xyz/ping/paid
 
 # POST with JSON (sets Content-Type automatically)
-$ pget --json '{"key": "value"}' https://mpp-docs.tempo.xyz/ping/paid
+$ pget --json '{"key": "value"}' https://mpp.tempo.xyz/ping/paid
 
 # Follow redirects
-$ pget -L https://mpp-docs.tempo.xyz/ping/paid
+$ pget -L https://mpp.tempo.xyz/ping/paid
 
 # Set timeout
-$ pget -m 30 https://mpp-docs.tempo.xyz/ping/paid
+$ pget -m 30 https://mpp.tempo.xyz/ping/paid
 ```
 
 ## Output control
 
 ```bash [output-control.sh]
 # Quiet mode (suppress non-essential output)
-$ pget -q https://mpp-docs.tempo.xyz/ping/paid
+$ pget -q https://mpp.tempo.xyz/ping/paid
 
 # Show only HTTP headers
-$ pget -I https://mpp-docs.tempo.xyz/ping/paid
+$ pget -I https://mpp.tempo.xyz/ping/paid
 
 # Disable colors
-$ pget --color never https://mpp-docs.tempo.xyz/ping/paid
+$ pget --color never https://mpp.tempo.xyz/ping/paid
 ```

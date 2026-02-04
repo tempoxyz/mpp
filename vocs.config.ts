@@ -13,6 +13,7 @@ export default defineConfig({
 	accentColor: "#0166FF",
 	colorScheme: "dark",
 	baseUrl,
+	redirects: [{ source: "/docs", destination: "/overview" }],
 	description:
 		"Machine Payments Protocol - Machine-native payments for machine-to-machine transactions",
 	checkDeadlinks: "warn",
@@ -50,7 +51,6 @@ export default defineConfig({
 					{ text: "Overview", link: "/overview" },
 					{ text: "Specifications", link: "https://paymentauth.tempo.xyz/" },
 					{ text: "FAQ", link: "/faq" },
-					{ text: "Brand", link: "/brand" },
 				],
 			},
 			{
@@ -379,6 +379,10 @@ export default defineConfig({
 						],
 					},
 				],
+			},
+			{
+				text: "Resources",
+				items: [{ text: "Brand", link: "/brand" }],
 			},
 		],
 	},

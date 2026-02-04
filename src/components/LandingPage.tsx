@@ -405,7 +405,7 @@ export function LandingPage() {
 							{/* CTAs */}
 							<div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
 								<a
-									href="/quickstart/server"
+									href="/quickstart/client"
 									className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0166FF] text-white font-medium rounded-lg transition-all hover:bg-[#0052CC] no-underline"
 								>
 									Get started

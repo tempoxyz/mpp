@@ -36,11 +36,11 @@ $ export PGET_PRIVATE_KEY="0x..."
 ### Make your first paid request
 
 ```bash [paid-request.sh]
-$ pget -vv https://mpp-docs.tempo.xyz/ping/paid
+$ pget -vv https://mpp.tempo.xyz/ping/paid
 ```
 
 :::tip[Live demo server]
-We host a live demo server at `mpp-docs.tempo.xyz` running on **Tempo testnet**. Use `/ping` for free requests and `/ping/paid` for paid requests. Get testnet funds at [faucet.tempo.xyz](https://faucet.tempo.xyz).
+We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use `/ping` for free requests and `/ping/paid` for paid requests. Get testnet funds at [faucet.tempo.xyz](https://faucet.tempo.xyz).
 :::
 
 `pget` automatically:
@@ -61,13 +61,13 @@ We host a live demo server at `mpp-docs.tempo.xyz` running on **Tempo testnet**.
 Use dry-run mode to see what would happen without actually paying:
 
 ```bash [dry-run.sh]
-$ pget -D https://mpp-docs.tempo.xyz/ping/paid
+$ pget -D https://mpp.tempo.xyz/ping/paid
 ```
 
 Or inspect the payment requirements before paying:
 
 ```bash [inspect.sh]
-$ pget inspect https://mpp-docs.tempo.xyz/ping/paid
+$ pget inspect https://mpp.tempo.xyz/ping/paid
 ```
 
 ### Set spending limits
@@ -76,7 +76,7 @@ Protect yourself with a maximum payment amount:
 
 ```bash [max-payment.sh]
 # Reject payments over 1 USD
-$ pget -M 1000000 https://mpp-docs.tempo.xyz/ping/paid
+$ pget -M 1000000 https://mpp.tempo.xyz/ping/paid
 ```
 
 ### Common flags

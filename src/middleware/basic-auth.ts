@@ -1,10 +1,16 @@
 import { env } from "cloudflare:workers";
 import type { MiddlewareHandler } from "vocs/server";
 
+const SKIP_AUTH_PATTERNS = [/^\/ping/, /^\/api\//];
+
 export function middleware(): MiddlewareHandler {
 	return async (context, next) => {
 		const url = new URL(context.req.url);
 		if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+			return next();
+		}
+
+		if (SKIP_AUTH_PATTERNS.some((pattern) => pattern.test(url.pathname))) {
 			return next();
 		}
 

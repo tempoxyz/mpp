@@ -36,10 +36,6 @@
 		{
 			"pattern": "mpp.tempo.xyz",
 			"custom_domain": true
-		},
-		{
-			"pattern": "mpp-docs.tempo.xyz",
-			"custom_domain": true
 		}
 	]
 }
