@@ -29,5 +29,11 @@
 			"enabled": true,
 			"invocation_logs": true
 		}
-	}
+	},
+	"routes": [
+		{
+			"pattern": "mpp.tempo.xyz",
+			"custom_domain": true
+		}
+	]
 }
