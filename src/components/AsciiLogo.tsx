@@ -248,21 +248,19 @@ export function AsciiLogo() {
 					opacity: 0.85,
 					textShadow: "0 0 20px rgba(1, 102, 255, 0.3)",
 					cursor: "pointer",
-					overflowX: "auto",
-					maxWidth: "100%",
+					overflow: "hidden",
+					width: "100%",
 				}}
 			>
 				<style>{`
-					.ascii-logo-inner { font-size: 3.5px; }
-					@media (min-width: 400px) { .ascii-logo-inner { font-size: 4px; } }
-					@media (min-width: 500px) { .ascii-logo-inner { font-size: 4.5px; } }
+					.ascii-logo-inner { font-size: 2.8px; transform-origin: left top; }
+					@media (min-width: 360px) { .ascii-logo-inner { font-size: 3.2px; } }
+					@media (min-width: 400px) { .ascii-logo-inner { font-size: 3.6px; } }
+					@media (min-width: 500px) { .ascii-logo-inner { font-size: 4.2px; } }
 					@media (min-width: 640px) { .ascii-logo-inner { font-size: 5px; } }
 					@media (min-width: 768px) { .ascii-logo-inner { font-size: 6px; } }
 				`}</style>
-				<div
-					className="ascii-logo-inner"
-					style={{ minWidth: "fit-content" }}
-				>
+				<div className="ascii-logo-inner" style={{ minWidth: "fit-content" }}>
 					{mppLines.map((mppLine, lineIdx) => {
 						const line402 = lines402[lineIdx] || "";
 						const lineLen = Math.max(mppLine.length, line402.length);
