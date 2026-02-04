@@ -442,7 +442,7 @@ export function LandingPage() {
 							<div
 								style={{ display: "flex", alignItems: "center", gap: "16px" }}
 							>
-								<span className="vocs:text-[13px] vocs:text-[var(--vocs-color-text-3)] vocs:uppercase vocs:tracking-wider vocs:font-medium">
+								<span className="vocs:text-[13px] vocs:text-[var(--vocs-color-text-3)] vocs:uppercase vocs:tracking-wider vocs:font-medium vocs:opacity-50">
 									Co-authored by
 								</span>
 								<div

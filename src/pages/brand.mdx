@@ -9,18 +9,18 @@ The full MPP logo for use in headers, documentation, and marketing materials.
 ### Light background
 
 <div style={{ padding: '2rem', backgroundColor: '#f5f5f5', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-  <img src="/mpp-logo-dark.svg" alt="MPP Logo" style={{ maxWidth: '300px' }} />
-</div>
-
-[Download SVG](/mpp-logo-dark.svg)
-
-### Dark background
-
-<div style={{ padding: '2rem', backgroundColor: '#1a1a1a', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
   <img src="/mpp-logo-light.svg" alt="MPP Logo" style={{ maxWidth: '300px' }} />
 </div>
 
 [Download SVG](/mpp-logo-light.svg)
+
+### Dark background
+
+<div style={{ padding: '2rem', backgroundColor: '#1a1a1a', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  <img src="/mpp-logo-dark.svg" alt="MPP Logo" style={{ maxWidth: '300px' }} />
+</div>
+
+[Download SVG](/mpp-logo-dark.svg)
 
 ## Icon
 
@@ -51,6 +51,173 @@ import { AsciiLogo } from '../components/AsciiLogo'
 <div style={{ padding: '2rem', backgroundColor: '#0a0a0a', borderRadius: '8px', overflow: 'auto' }}>
   <AsciiLogo />
 </div>
+
+[Download TXT](/mpp-ascii.txt)
+
+### React component
+
+Copy this component to render the animated ASCII logo in your React app. Hover to morph between MPP and 402.
+
+```tsx
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+const ASCII_MPP = `@@@@@@@@%                                $@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%$$$=       
+@@@@@@@@@@$                             $@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$=    
+@@@@@@@@@@@$                           %@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$   
+@@@@@@@@@@@@$                        =%@@@@@@@@@@@%===================$$$%@@@@@@@@@@@$===================$$$%@@@@@@@@@= 
+@@@@@@@@@@@@@%                      =@@@@@@@@@@@@@%                        $@@@@@@@@@=                        $@@@@@@@% 
+@@@@@@@@@@@@@@@=                   $@@@@@@@@@@@@@@%                         @@@@@@@@@=                         @@@@@@@@=
+@@@@@@@@%@@@@@@@$                 $@@@@@@@@@@@@@@@%                         @@@@@@@@@=                         @@@@@@@@=
+@@@@@@@@=$@@@@@@@$               %@@@@@@@=%@@@@@@@%                        $@@@@@@@@@=                        $@@@@@@@@ 
+@@@@@@@@= $@@@@@@@$            =%@@@@@@%  %@@@@@@@%======================%%@@@@@@@@@@$======================%%@@@@@@@@$ 
+@@@@@@@@=  =@@@@@@@@=         =@@@@@@@$   %@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$  
+@@@@@@@@=    $@@@@@@@$       $@@@@@@@$    %@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%=   
+@@@@@@@@=     $@@@@@@@$     $@@@@@@@=     %@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%$=      
+@@@@@@@@=      $@@@@@@@$   %@@@@@@%=      %@@@@@@@%                          %@@@@@@@$                                  
+@@@@@@@@=       =@@@@@@@%$@@@@@@@%        %@@@@@@@%                          %@@@@@@@$                                  
+@@@@@@@@=         $@@@@@@@@@@@@@$         %@@@@@@@%                          %@@@@@@@$                                  
+@@@@@@@@=          $@@@@@@@@@@@$          %@@@@@@@%                          %@@@@@@@$                                  
+@@@@@@@@=           $@@@@@@@@@=           %@@@@@@@%                          %@@@@@@@$                                  
+@@@@@@@@=            =@@@@@@%             %@@@@@@@%                          %@@@@@@@$                                  
+@@@@@@@@=              %@@@$              %@@@@@@@%                          %@@@@@@@$                                  
+%%%%%%%%=               $%$               $%%%%%%%$                          $%%%%%%%$`;
+
+const ASCII_402 = `              @@@@@@@                                  @@@@@@@@@@@@@@@@                        @@@@@@@@@@@@@@@             
+             @@@@@@@@                                @@@@@@@@@@@@@@@@@@@@                    @@@@@@@@@@@@@@@@@@@@        
+            @@@@@@@@@                              @@@@@@@@@@@@@@@@@@@@@@@@                @@@@@@@@@@@@@@@@@@@@@@@@      
+           @@@@@@@@@@                             @@@@@@@@@@      @@@@@@@@@@              @@@@@@@@@@       @@@@@@@@@@    
+          @@@@@@@@@@@                            @@@@@@@@            @@@@@@@@                                @@@@@@@@   
+         @@@@@@@@@@@@                           @@@@@@@@@            @@@@@@@@@                              @@@@@@@@@   
+        @@@@@@ @@@@@@                           @@@@@@@@              @@@@@@@@                            @@@@@@@@@     
+       @@@@@@  @@@@@@@                          @@@@@@@@              @@@@@@@@                          @@@@@@@@@       
+      @@@@@@   @@@@@@@                          @@@@@@@@              @@@@@@@@                        @@@@@@@@@         
+     @@@@@@     @@@@@@@@                        @@@@@@@@              @@@@@@@@                      @@@@@@@@@           
+    @@@@@@       @@@@@@@@                       @@@@@@@@              @@@@@@@@                    @@@@@@@@@             
+   @@@@@@@@@@@@@@@@@@@@@@@@                     @@@@@@@@              @@@@@@@@                  @@@@@@@@@               
+  @@@@@@@@@@@@@@@@@@@@@@@@@                     @@@@@@@@@            @@@@@@@@@                @@@@@@@@@                 
+ @@@@@@@@@@@@@@@@@@@@@@@@@@                      @@@@@@@@@@        @@@@@@@@@@               @@@@@@@@@                   
+              @@@@@@@@                            @@@@@@@@@@@@@@@@@@@@@@@@@@              @@@@@@@@@@@@@@@@@@@@@@@@@@@   
+              @@@@@@@@                              @@@@@@@@@@@@@@@@@@@@@@              @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  
+              @@@@@@@@                                @@@@@@@@@@@@@@@@@@               @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  
+              @@@@@@@@                                  @@@@@@@@@@@@@@                 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  
+              @@@@@@@@                                    @@@@@@@@@@                   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   
+              %%%%%%%%                                      %%%%%%%%                  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%`;
+
+const FILL_CHARS = ["@", "#", "%", "&", "£", "$", "█", "▓", "▒", "░", "■", "●", "◆", "★"];
+
+export function AsciiLogo() {
+  const [isHovered, setIsHovered] = useState(false);
+  const [morphProgress, setMorphProgress] = useState(0);
+  const morphStartTime = useRef(null);
+  const morphDirection = useRef("to402");
+
+  const mppLines = useMemo(() => ASCII_MPP.split("\n"), []);
+  const lines402 = useMemo(() => ASCII_402.split("\n"), []);
+
+  const currentLines = useMemo(() => {
+    if (morphProgress === 0) return mppLines;
+    if (morphProgress === 1) return lines402;
+    return mppLines.map((mppLine, lineIdx) => {
+      const line402 = lines402[lineIdx] || "";
+      const maxLen = Math.max(mppLine.length, line402.length);
+      let result = "";
+      for (let i = 0; i < maxLen; i++) {
+        const mppChar = mppLine[i] || " ";
+        const char402 = line402[i] || " ";
+        const threshold = morphProgress + (Math.random() - 0.5) * 0.3;
+        result += threshold > 0.5 ? char402 : mppChar;
+      }
+      return result;
+    });
+  }, [morphProgress, mppLines, lines402]);
+
+  const maxLines = Math.max(mppLines.length, lines402.length);
+  const maxWidth = Math.max(...mppLines.map((l) => l.length), ...lines402.map((l) => l.length));
+
+  const [charStates, setCharStates] = useState(() =>
+    Array.from({ length: maxLines }, () =>
+      Array.from({ length: maxWidth }, () => ({
+        charIndex: Math.floor(Math.random() * FILL_CHARS.length),
+        nextChangeTime: Date.now() + Math.random() * 1000,
+        cycleDuration: 300 + Math.random() * 700,
+      }))
+    )
+  );
+
+  useEffect(() => {
+    if (isHovered && morphProgress < 1) {
+      morphDirection.current = "to402";
+      if (morphStartTime.current === null) morphStartTime.current = Date.now();
+    } else if (!isHovered && morphProgress > 0) {
+      morphDirection.current = "toMPP";
+      if (morphStartTime.current === null) morphStartTime.current = Date.now();
+    }
+  }, [isHovered, morphProgress]);
+
+  useEffect(() => {
+    let animationId;
+    const MORPH_DURATION = 400;
+    const animate = () => {
+      const now = Date.now();
+      if (morphStartTime.current !== null) {
+        const elapsed = now - morphStartTime.current;
+        const progress = Math.min(elapsed / MORPH_DURATION, 1);
+        if (morphDirection.current === "to402") {
+          setMorphProgress(progress);
+        } else {
+          setMorphProgress(1 - progress);
+        }
+        if (progress >= 1) morphStartTime.current = null;
+      }
+      setCharStates((prev) => {
+        let changed = false;
+        const next = prev.map((line) =>
+          line.map((s) => {
+            if (now >= s.nextChangeTime) {
+              changed = true;
+              return {
+                charIndex: (s.charIndex + 1) % FILL_CHARS.length,
+                nextChangeTime: now + s.cycleDuration + (Math.random() - 0.5) * 200,
+                cycleDuration: s.cycleDuration,
+              };
+            }
+            return s;
+          })
+        );
+        return changed ? next : prev;
+      });
+      animationId = requestAnimationFrame(animate);
+    };
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
+
+  return (
+    <div
+      onMouseEnter={() => { setIsHovered(true); morphStartTime.current = Date.now(); }}
+      onMouseLeave={() => { setIsHovered(false); morphStartTime.current = Date.now(); }}
+      style={{
+        fontFamily: "monospace", fontSize: "6px", lineHeight: 1.15,
+        whiteSpace: "pre", letterSpacing: "1px", color: "#0166FF",
+        opacity: 0.85, overflow: "hidden", cursor: "pointer",
+        textShadow: "0 0 20px rgba(1, 102, 255, 0.3)",
+      }}
+    >
+      {currentLines.map((line, lineIdx) => (
+        <div key={lineIdx}>
+          {line.split("").map((char, charIdx) => {
+            if (char === " ") return <span key={charIdx}>{char}</span>;
+            const state = charStates[lineIdx]?.[charIdx];
+            return <span key={charIdx}>{state ? FILL_CHARS[state.charIndex] : char}</span>;
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
 
 ## Usage guidelines
 
