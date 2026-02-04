@@ -80,6 +80,11 @@ jobs:
       - name: Build site
         run: pnpm run build
 
+      - name: Sanitize branch name
+        if: github.event_name == 'pull_request'
+        id: branch
+        run: echo "alias=$(echo '${{ github.head_ref }}' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')" >> $GITHUB_OUTPUT
+
       - name: Deploy to Cloudflare
         id: deploy
         uses: cloudflare/wrangler-action@v3
@@ -88,7 +93,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: .
           wranglerVersion: "4.61.1"
-          command: ${{ github.event_name == 'pull_request' && 'versions upload' || 'deploy' }}
+          command: ${{ github.event_name == 'pull_request' && format('versions upload --preview-alias={0}', steps.branch.outputs.alias) || 'deploy' }}
 
       - name: Post Preview Comment
         if: github.event_name == 'pull_request'
@@ -96,10 +101,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const url = "${{ steps.deploy.outputs['deployment-url'] }}"
-            const body = url
-              ? `MPP Docs preview: ${url}`
-              : 'MPP Docs preview failed to deploy.'
+            const alias = "${{ steps.branch.outputs.alias }}"
+            const url = `https://${alias}-mpp-docs.tempo-xyz.workers.dev`
+            const body = `MPP Docs preview: ${url}`
             const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
