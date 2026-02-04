@@ -750,7 +750,7 @@ export function CliDemo() {
 					href={line.href}
 					target="_blank"
 					rel="noopener noreferrer"
-					className={`${typeStyles.link} vocs:no-underline hover:vocs:underline vocs:block vocs:leading-relaxed`}
+					className={`${typeStyles.link} vocs:no-underline hover:vocs:underline vocs:block vocs:leading-relaxed vocs:whitespace-pre-wrap vocs:break-words`}
 				>
 					{line.content}
 				</a>
@@ -769,11 +769,12 @@ export function CliDemo() {
 						setHighlightedIndex(line.menuIndex!);
 						runQuery(line.menuIndex!);
 					}}
-					className={`vocs:block vocs:w-full vocs:text-left vocs:leading-relaxed vocs:whitespace-pre vocs:transition-colors ${
+					className={`vocs:block vocs:w-full vocs:text-left vocs:leading-relaxed vocs:whitespace-pre-wrap vocs:break-words vocs:transition-colors ${
 						isHighlighted
 							? "vocs:bg-[var(--vocs-color-accent)]/20 vocs:text-[var(--vocs-color-accent)]"
 							: "vocs:text-[var(--vocs-color-text-2)] hover:vocs:bg-[rgba(255,255,255,0.05)]"
 					}`}
+					style={{ textIndent: "-1ch", paddingLeft: "1ch" }}
 					disabled={status !== "selecting"}
 				>
 					{isHighlighted ? "▸" : " "}
@@ -785,7 +786,7 @@ export function CliDemo() {
 		return (
 			<div
 				key={index}
-				className={`${typeStyles[line.type] || ""} vocs:leading-relaxed vocs:whitespace-pre`}
+				className={`${typeStyles[line.type] || ""} vocs:leading-relaxed vocs:whitespace-pre-wrap vocs:break-words`}
 			>
 				{line.content}
 			</div>
