@@ -1,6 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "mpp-docs",
+	"preview_urls": true,
 	"main": "./dist/server/serve-cloudflare.js",
 	"compatibility_flags": [
 		"nodejs_compat",
