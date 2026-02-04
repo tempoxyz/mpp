@@ -1,4 +1,5 @@
 import { defineConfig, McpSource } from "vocs/config";
+import basicAuth from "./src/middleware/basic-auth";
 
 const baseUrl = (() => {
 	if (process.env.VERCEL_ENV === "production")
@@ -10,6 +11,9 @@ const baseUrl = (() => {
 })();
 
 export default defineConfig({
+	server: {
+		middleware: [basicAuth()],
+	},
 	accentColor: "#0166FF",
 	colorScheme: "dark",
 	logoUrl: {
