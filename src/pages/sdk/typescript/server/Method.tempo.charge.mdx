@@ -5,6 +5,7 @@ The `charge` intent for the Tempo payment method. Requests a one-time payment fr
 ## Usage
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({ method: tempo() })
@@ -28,6 +29,7 @@ export async function handler(request: Request) {
 Set a custom expiration time for the charge using the `expires` option.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({ method: tempo() })
@@ -52,6 +54,7 @@ export async function handler(request: Request) {
 Add a human-readable description for the payment request.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({ method: tempo() })

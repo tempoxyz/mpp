@@ -4,7 +4,11 @@ import { Mpay, tempo } from "mpay/server";
 // [!endregion imports]
 
 // [!region mpay]
-const mpay = Mpay.create({ method: tempo() });
+const mpay = Mpay.create({
+	method: tempo(),
+	realm: "example.com",
+	secretKey: process.env.MPAY_SECRET_KEY!,
+});
 // [!endregion mpay]
 
 // [!region handler]

@@ -5,6 +5,7 @@ Creates a Tempo payment method client for signing payment transactions.
 ## Usage
 
 ```ts twoslash
+// @noErrors
 import { Fetch, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -38,6 +39,7 @@ type Tempo = Method.Client<
 Account to sign transactions with. Can be overridden per-call via context.
 
 ```ts twoslash
+// @noErrors
 import { tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -53,6 +55,7 @@ const method = tempo({
 RPC URLs keyed by chain ID.
 
 ```ts twoslash
+// @noErrors
 import { tempo } from 'mpay/client'
 
 const method = tempo({

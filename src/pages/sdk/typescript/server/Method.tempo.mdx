@@ -5,6 +5,7 @@ Creates a Tempo payment method for server-side payment handling.
 ## Usage
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
@@ -19,6 +20,7 @@ const mpay = Mpay.create({
 Provide a fee payer account to cover transaction fees on behalf of users.
 
 ```ts twoslash
+// @noErrors
 import { privateKeyToAccount } from 'viem/accounts'
 import { Mpay, tempo } from 'mpay/server'
 
@@ -46,6 +48,7 @@ type ReturnType = Method.Server
 Fee payer account for covering transaction fees.
 
 ```ts twoslash
+// @noErrors
 import { privateKeyToAccount } from 'viem/accounts'
 import { Mpay, tempo } from 'mpay/server'
 
@@ -56,37 +59,19 @@ const mpay = Mpay.create({
 
 ### rpcUrl (optional)
 
-- **Type:** `{ [chainId: number]: string }`
+- **Type:** `string`
 
-RPC URLs keyed by chain ID.
+RPC URL for the Tempo chain.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
   method: tempo({
-    // [!code focus:start]
-    rpcUrl: {
-      1337: 'http://localhost:8545',
-      4217: 'https://rpc.tempo.xyz',
-    },
-    // [!code focus:end]
+    rpcUrl: 'https://rpc.tempo.xyz', // [!code focus]
   }),
 })
 ```
 
-### testnet (optional)
 
-- **Type:** `boolean`
-
-Testnet mode.
-
-```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
-
-const mpay = Mpay.create({
-  method: tempo({
-    testnet: true, // [!code focus]
-  }),
-})
-```

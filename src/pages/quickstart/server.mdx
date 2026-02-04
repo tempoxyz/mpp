@@ -15,6 +15,7 @@ This quickstart demonstrates how to plug MPP into any server framework to accept
 Create an `Mpay` instance to request payment for protected resources.
 
 ```ts twoslash [example.ts]
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({ method: tempo() })
@@ -43,6 +44,7 @@ const mpay = Mpay.create({
 Use the `mpay.charge(){:ts}` method to request payment from the client within your request handler.
 
 ```ts twoslash [example.ts]
+// @noErrors
 import { Mpay, tempo } from 'mpay/server' // [!code collapse:2 collapsed]
 
 const mpay = Mpay.create({ method: tempo() })

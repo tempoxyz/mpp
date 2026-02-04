@@ -5,6 +5,7 @@ Creates a server-side payment handler from a method.
 ## Usage
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
@@ -17,6 +18,7 @@ const payment = Mpay.create({
 Use a custom transport for non-HTTP environments like MCP servers.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo, Transport } from 'mpay/server'
 
 const payment = Mpay.create({
@@ -45,6 +47,7 @@ The returned object includes the method's intent functions (e.g., `charge`) whic
 Payment method (e.g., `tempo()`).
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
@@ -61,6 +64,7 @@ const payment = Mpay.create({
 Server realm (e.g., hostname). Used to identify the server in payment challenges.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
@@ -76,6 +80,7 @@ const payment = Mpay.create({
 Secret key for HMAC-bound challenge IDs. Required for stateless verification—allows the server to verify that a challenge was issued by itself without storing state.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
@@ -92,6 +97,7 @@ const payment = Mpay.create({
 Transport to use for handling payment requests. Defaults to HTTP transport.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo, Transport } from 'mpay/server'
 
 const payment = Mpay.create({

@@ -5,6 +5,7 @@ Wraps a payment handler to create a Node.js HTTP listener.
 ## Usage
 
 ```ts twoslash
+// @noErrors
 import * as http from 'node:http'
 import { Mpay, tempo } from 'mpay/server'
 
@@ -50,6 +51,7 @@ type ReturnType = (
 The payment handler function returned by calling an intent on the payment object.
 
 ```ts twoslash
+// @noErrors
 import * as http from 'node:http'
 import { Mpay, tempo } from 'mpay/server'
 

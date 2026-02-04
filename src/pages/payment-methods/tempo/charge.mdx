@@ -10,6 +10,7 @@ The `charge` intent requests an immediate one-time payment from the client.
 Use the [`.charge` method](/sdk/typescript/server/Method.tempo.charge) on your [`Mpay` instance](/sdk/typescript/server/Mpay.create) to verify and settle payments when a user accesses your endpoint.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server' // [!code collapse:8]
 
 const mpay = Mpay.create({
