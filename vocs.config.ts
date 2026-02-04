@@ -13,8 +13,8 @@ export default defineConfig({
 	accentColor: "#0166FF",
 	colorScheme: "dark",
 	logoUrl: {
-		light: "/mpp-logo-dark.svg",
-		dark: "/mpp-logo-light.svg",
+		light: "/mpp-logo-light.svg",
+		dark: "/mpp-logo-dark.svg",
 	},
 	baseUrl,
 	description:
