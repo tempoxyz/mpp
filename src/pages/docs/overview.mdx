@@ -1,0 +1,105 @@
+import { Badge, Card, Cards } from 'vocs'
+
+# Machine Payments Protocol [The internet-native payments protocol]
+
+The Machine Payments Protocol (MPP) lets you accept payments from any client—humans, software, or AI agents—using standard HTTP control flows. Clients pay inline with their request, and you receive payment confirmation before delivering the response.
+
+MPP is built around a simple core and is designed to be neutral to the implementation of underlying payment flows and methods.
+
+- **Open standard built for the internet**—Built on an IETF-track specification, not a proprietary API
+- **Designed for payments**—Idempotency, security, and receipts as first-class primitives
+- **Composable and designed for extension**—A core allows advanced flows like disputes or additional primitives like identity to be gradually introduced
+- **Multi rail**—Crypto, cards, bank transfers, invoices. All payment methods can be supported through one protocol and flexible control flow
+- **Multi currency**—The protocol is currency agnostic, allowing for transactions in USD, EUR, BRL, USDC, BTC, or any other asset
+
+## The problem with payments on the internet
+
+You have no shortage of ways to pay for things on the internet. Hundreds of payment methods give you ample space for personal preference, and optimized payment forms with one-click checkout ensure that the act of paying is low-friction and highly secure.
+
+However, the very things that make these payment flows familiar and fast for human purchasers are structural headwinds for programmatic consumption. Many have tried, but it is a consistent uphill battle to fight browser automation pipelines, visual captchas, and ever changing payment forms—all of which reduce reliability.
+
+This is not the fault of any individual payment method or credential. This is a global problem which exists at the _interface_ level: how buyer and seller negotiate cost, supported payment methods, and ultimately transact.
+
+The Machine Payment Protocol addresses this issue, providing an internet native means of paying which strips away the complexity of rich checkout flows, while still providing robust security and reliability.
+
+## Use cases
+
+* **Paid APIs**—Accept payments inline without requiring API keys, billing accounts, or manual signup. Clients pay per request.
+* **MCP servers**—Monetize tool calls served through the Model Context Protocol. Agents pay autonomously without OAuth or account setup.
+* **Digital content**—Monetize articles, data, or media without subscription paywalls. Charge per access or per query.
+
+## Payment flow
+
+When a client requests a paid resource, the server returns a `402` response with the payment options they support. The client chooses a payment method, fulfills the request and retries with a credential. The server verifies the payment and returns the resource with a receipt.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Client->>Server: (1) GET /resource
+    Server-->>Client: (2) 402 Payment Required<br/>WWW-Authenticate: Payment <challenge>
+    Note over Client: (3) Client fulfills payment
+    Client->>Server: (4) GET /resource<br/>Authorization: Payment <credential>
+    Note over Server: (5) Server verifies payment
+    Server-->>Client: (6) 200 OK<br/>Payment-Receipt: <receipt>
+```
+
+1. **Request the resource**—`GET /resource`
+2. **Return a payment challenge**—`402` Payment Required with `WWW-Authenticate: Payment` header
+3. **Fulfill the payment**—Sign a transaction, pay an invoice, or complete a card payment
+4. **Retry with credential**—`GET /resource` with `Authorization: Payment` header
+5. **Verify and deliver**—`200` OK with `Payment-Receipt` header
+
+## Official SDKs
+
+MPP comes with a suite of official SDKs named `mpay`. The `mpay` SDKs offer high-level abstractions and low-level primitives to implement and extend the Machine Payments Protocol.
+
+All SDKs implement similar interfaces and are interoperable with one another.
+
+<Cards>
+  <Card
+    topRight={<Badge variant="info">Reference</Badge>}
+    description="Get started with `mpay`, the reference implementation of the MPP SDKs"
+    icon="simple-icons:typescript"
+    title="TypeScript"
+    to="/sdk/typescript"
+  />
+  <Card
+    topRight={<Badge variant="warning">Beta</Badge>}
+    description="Get started with `pympay`, the official MPP SDK for Python"
+    icon="simple-icons:python"
+    title="Python"
+    to="/sdk/python"
+  />
+  <Card
+    topRight={<Badge variant="warning">Beta</Badge>}
+    description="Get started with `mpay-rs`, the official MPP SDK for Rust"
+    icon="simple-icons:rust"
+    title="Rust"
+    to="/sdk/rust"
+  />
+</Cards>
+
+## Next steps
+
+<Cards>
+  <Card
+    description="Build a payment-enabled API"
+    icon="lucide:rocket"
+    title="Quickstart"
+    to="/quickstart"
+  />
+  <Card
+    description="Learn about challenges, credentials, and receipts"
+    icon="lucide:book-open"
+    title="Protocol concepts"
+    to="/protocol"
+  />
+  <Card
+    description="See the normative definition"
+    icon="lucide:file-text"
+    title="Protocol spec"
+    to="https://paymentauth.tempo.xyz"
+  />
+</Cards>

@@ -47,7 +47,7 @@ export default defineConfig({
 			{
 				text: "Introduction",
 				items: [
-					{ text: "Overview", link: "/" },
+					{ text: "Overview", link: "/docs/overview" },
 					{ text: "Specifications", link: "https://paymentauth.tempo.xyz/" },
 					{ text: "FAQ", link: "/faq" },
 					{ text: "Brand", link: "/brand" },
