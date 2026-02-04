@@ -1,10 +1,37 @@
 ---
-title: Page Not Found
+title: "404"
 layout: minimal
 ---
 
-# Page Not Found
+import { AsciiLogo } from '../components/AsciiLogo'
 
-The page you're looking for doesn't exist or has been moved.
+<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center', gap: '2rem' }}>
+  <div style={{ transform: 'scale(0.6)', opacity: 0.6 }}>
+    <AsciiLogo />
+  </div>
+  
+  <div>
+    <h1 style={{ fontSize: '4rem', fontWeight: 700, margin: 0, color: 'var(--vocs-color-text)' }}>404</h1>
+    <p style={{ fontSize: '1.25rem', color: 'var(--vocs-color-text-2)', marginTop: '0.5rem' }}>
+      Payment not found
+    </p>
+  </div>
 
-[← Back to Home](/)
+  <a 
+    href="/" 
+    style={{ 
+      display: 'inline-flex', 
+      alignItems: 'center', 
+      gap: '0.5rem',
+      padding: '0.75rem 1.5rem', 
+      backgroundColor: '#0166FF', 
+      color: 'white', 
+      borderRadius: '0.5rem', 
+      textDecoration: 'none',
+      fontWeight: 500,
+      transition: 'background-color 0.2s'
+    }}
+  >
+    ← Back to Home
+  </a>
+</div>

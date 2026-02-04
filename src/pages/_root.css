@@ -172,3 +172,11 @@
 [data-layout="minimal"] main > article {
 	max-width: 1400px;
 }
+
+/* Style disabled cards to look non-interactive */
+[data-v-card][aria-disabled="true"],
+.vocs_Card[aria-disabled="true"] {
+	opacity: 0.5;
+	cursor: not-allowed;
+	pointer-events: none;
+}
