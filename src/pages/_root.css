@@ -172,3 +172,9 @@
 [data-layout="minimal"] main > article {
 	max-width: 1400px;
 }
+
+/* Force dark mode on landing page to prevent flash */
+[data-layout="minimal"] {
+	color-scheme: dark;
+	background-color: var(--vocs-color-gray2);
+}
