@@ -307,7 +307,9 @@ function CodeTabs() {
 								({"{"} account {"}"})]
 							</span>
 							{"\n"}
-							<span className="text-[var(--vocs-text-color-primary)]">{"}"})</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{"}"})
+							</span>
 							{"\n\n"}
 							<span className="text-[var(--vocs-text-color-muted)]">
 								{"// Now all fetch calls handle 402 automatically"}
@@ -344,7 +346,10 @@ function CodeTabs() {
 							<span className="text-[#98c379]"> 'mpay/server'</span>
 							{"\n\n"}
 							<span className="text-[#c678dd]">const</span>
-							<span className="text-[var(--vocs-text-color-primary)]"> mpay = </span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{" "}
+								mpay ={" "}
+							</span>
 							<span className="text-[#e5c07b]">Mpay</span>
 							<span className="text-[var(--vocs-text-color-primary)]">
 								.create({"{"}
@@ -358,23 +363,35 @@ function CodeTabs() {
 								({"{"} recipient {"}"})]
 							</span>
 							{"\n"}
-							<span className="text-[var(--vocs-text-color-primary)]">{"}"})</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{"}"})
+							</span>
 							{"\n\n"}
 							<span className="text-[var(--vocs-text-color-muted)]">
 								{"// Return 402 with payment challenge"}
 							</span>
 							{"\n"}
 							<span className="text-[#c678dd]">return</span>
-							<span className="text-[var(--vocs-text-color-primary)]"> mpay.</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{" "}
+								mpay.
+							</span>
 							<span className="text-[#61afef]">challenge</span>
-							<span className="text-[var(--vocs-text-color-primary)]">({"{"} </span>
-							<span className="text-[var(--vocs-text-color-primary)]">amount: </span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								({"{"}{" "}
+							</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								amount:{" "}
+							</span>
 							<span className="text-[#d19a66]">0.01</span>
 							<span className="text-[var(--vocs-text-color-primary)]">
 								, currency:{" "}
 							</span>
 							<span className="text-[#98c379]">'USD'</span>
-							<span className="text-[var(--vocs-text-color-primary)]"> {"}"})</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{" "}
+								{"}"})
+							</span>
 						</code>
 					</pre>
 				)}
@@ -586,7 +603,10 @@ export function LandingPage() {
 								<div className="font-mono text-xs sm:text-sm space-y-0.5">
 									<div>
 										<span className="text-[#16a34a]">200</span>
-										<span className="text-[var(--vocs-text-color-secondary)]"> OK</span>
+										<span className="text-[var(--vocs-text-color-secondary)]">
+											{" "}
+											OK
+										</span>
 									</div>
 									<div className="text-[var(--vocs-text-color-muted)] break-all">
 										Payment-Receipt: {"<receipt>"}
