@@ -752,6 +752,9 @@ export function CliDemo() {
 		if (line.type === "menu" && line.menuIndex !== undefined) {
 			const isHighlighted =
 				status === "selecting" && line.menuIndex === highlightedIndex;
+			// Extract just the prompt text (after "[N] ")
+			const promptText = line.content.replace(/^\s*\[\d+\]\s*/, "");
+			const menuNum = (line.menuIndex ?? 0) + 1;
 			return (
 				<button
 					type="button"
@@ -760,16 +763,17 @@ export function CliDemo() {
 						setHighlightedIndex(line.menuIndex!);
 						runQuery(line.menuIndex!);
 					}}
-					className={`vocs:block vocs:w-full vocs:text-left vocs:leading-relaxed vocs:whitespace-pre-wrap vocs:break-words vocs:transition-colors ${
+					className={`vocs:flex vocs:w-full vocs:text-left vocs:leading-relaxed vocs:transition-colors ${
 						isHighlighted
 							? "vocs:bg-[var(--vocs-color-accent)]/20 vocs:text-[var(--vocs-color-accent)]"
 							: "vocs:text-[var(--vocs-color-text-2)] hover:vocs:bg-[rgba(255,255,255,0.05)]"
 					}`}
-					style={{ textIndent: "-5ch", paddingLeft: "5ch" }}
 					disabled={status !== "selecting"}
 				>
-					{isHighlighted ? "▸" : " "}
-					{line.content.slice(1)}
+					<span className="vocs:shrink-0 vocs:w-[6ch]">
+						{isHighlighted ? "▸" : " "}[{menuNum}]{" "}
+					</span>
+					<span className="vocs:break-words">{promptText}</span>
 				</button>
 			);
 		}
