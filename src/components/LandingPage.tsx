@@ -101,10 +101,17 @@ function ViemLogo({
 }
 
 // GitHub icon
-function GitHubIcon({ className }: { className?: string }) {
+function GitHubIcon({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 24 24"
 			fill="currentColor"
 			xmlns="http://www.w3.org/2000/svg"
@@ -116,10 +123,17 @@ function GitHubIcon({ className }: { className?: string }) {
 }
 
 // Arrow icon for CTAs
-function ArrowRightIcon({ className }: { className?: string }) {
+function ArrowRightIcon({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
@@ -134,10 +148,17 @@ function ArrowRightIcon({ className }: { className?: string }) {
 }
 
 // Feature icons
-function GlobeIcon({ className }: { className?: string }) {
+function GlobeIcon({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
@@ -152,10 +173,17 @@ function GlobeIcon({ className }: { className?: string }) {
 	);
 }
 
-function LayersIcon({ className }: { className?: string }) {
+function LayersIcon({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
@@ -169,10 +197,17 @@ function LayersIcon({ className }: { className?: string }) {
 	);
 }
 
-function ZapIcon({ className }: { className?: string }) {
+function ZapIcon({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"
@@ -226,8 +261,13 @@ function StatusBadge({
 
 	return (
 		<span
-			className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:px-2.5 vocs:py-1 vocs:rounded-full"
 			style={{
+				fontSize: "10px",
+				fontWeight: 500,
+				textTransform: "uppercase",
+				letterSpacing: "0.05em",
+				padding: "4px 10px",
+				borderRadius: "9999px",
 				backgroundColor: bg,
 				border: `1px solid ${border}`,
 				color: text,
@@ -243,18 +283,39 @@ function CodeTabs() {
 	const [activeTab, setActiveTab] = useState<"client" | "server">("client");
 
 	return (
-		<div className="vocs:w-full vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:overflow-hidden vocs:border vocs:border-white/20">
-			<div className="vocs:flex vocs:items-center vocs:gap-0 vocs:border-b vocs:border-white/20">
+		<div
+			style={{
+				width: "100%",
+				backgroundColor: "var(--vocs-color-background-2)",
+				borderRadius: "12px",
+				overflow: "hidden",
+				border: "1px solid rgba(255,255,255,0.2)",
+			}}
+		>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					borderBottom: "1px solid rgba(255,255,255,0.2)",
+				}}
+			>
 				<button
 					type="button"
 					onClick={() => setActiveTab("client")}
-					className={`vocs:text-[13px] vocs:font-medium vocs:px-4 vocs:py-3 vocs:transition-colors vocs:border-b-2 ${
-						activeTab === "client"
-							? "vocs:text-[var(--vocs-color-text)] vocs:border-[#0166FF]"
-							: "vocs:text-[var(--vocs-color-text-3)] vocs:border-transparent hover:vocs:text-[var(--vocs-color-text-2)]"
-					}`}
 					style={{
+						fontSize: "13px",
+						fontWeight: 500,
+						padding: "12px 16px",
 						background: "none",
+						border: "none",
+						borderBottom:
+							activeTab === "client"
+								? "2px solid #0166FF"
+								: "2px solid transparent",
+						color:
+							activeTab === "client"
+								? "var(--vocs-color-text)"
+								: "var(--vocs-color-text-3)",
 						cursor: "pointer",
 						marginBottom: "-1px",
 					}}
@@ -264,13 +325,20 @@ function CodeTabs() {
 				<button
 					type="button"
 					onClick={() => setActiveTab("server")}
-					className={`vocs:text-[13px] vocs:font-medium vocs:px-4 vocs:py-3 vocs:transition-colors vocs:border-b-2 ${
-						activeTab === "server"
-							? "vocs:text-[var(--vocs-color-text)] vocs:border-[#0166FF]"
-							: "vocs:text-[var(--vocs-color-text-3)] vocs:border-transparent hover:vocs:text-[var(--vocs-color-text-2)]"
-					}`}
 					style={{
+						fontSize: "13px",
+						fontWeight: 500,
+						padding: "12px 16px",
 						background: "none",
+						border: "none",
+						borderBottom:
+							activeTab === "server"
+								? "2px solid #0166FF"
+								: "2px solid transparent",
+						color:
+							activeTab === "server"
+								? "var(--vocs-color-text)"
+								: "var(--vocs-color-text-3)",
 						cursor: "pointer",
 						marginBottom: "-1px",
 					}}
@@ -278,110 +346,117 @@ function CodeTabs() {
 					Server
 				</button>
 			</div>
-			<div className="vocs:p-3 md:vocs:p-4 vocs:font-mono vocs:text-xs md:vocs:text-sm vocs:overflow-x-auto">
+			<div
+				style={{
+					padding: "16px",
+					fontFamily: "monospace",
+					fontSize: "13px",
+					overflowX: "auto",
+				}}
+			>
 				{activeTab === "client" ? (
-					<pre className="vocs:m-0 vocs:leading-relaxed">
+					<pre style={{ margin: 0, lineHeight: 1.6 }}>
 						<code>
-							<span className="vocs:text-[var(--vocs-color-text-3)]">
+							<span style={{ color: "var(--vocs-color-text-3)" }}>
 								{"// Polyfill fetch once at startup"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[#c678dd]">import</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#c678dd" }}>import</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								{" "}
 								{"{"} Fetch, tempo {"}"}{" "}
 							</span>
-							<span className="vocs:text-[#c678dd]">from</span>
-							<span className="vocs:text-[#98c379]"> 'mpay/client'</span>
+							<span style={{ color: "#c678dd" }}>from</span>
+							<span style={{ color: "#98c379" }}> 'mpay/client'</span>
 							{"\n\n"}
-							<span className="vocs:text-[#e5c07b]">Fetch</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#e5c07b" }}>Fetch</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								.polyfill({"{"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								{"  "}methods: [
 							</span>
-							<span className="vocs:text-[#e5c07b]">tempo</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#e5c07b" }}>tempo</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								({"{"} account {"}"})]
 							</span>
 							{"\n"}
-							<span className="vocs:text-[var(--vocs-color-text)]">{"}"})</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>{"}"});</span>
 							{"\n\n"}
-							<span className="vocs:text-[var(--vocs-color-text-3)]">
+							<span style={{ color: "var(--vocs-color-text-3)" }}>
 								{"// Now all fetch calls handle 402 automatically"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[#c678dd]">const</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#c678dd" }}>const</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								{" "}
 								response ={" "}
 							</span>
-							<span className="vocs:text-[#c678dd]">await</span>
-							<span className="vocs:text-[var(--vocs-color-text)]"> </span>
-							<span className="vocs:text-[#61afef]">fetch</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">(</span>
-							<span className="vocs:text-[#98c379]">
+							<span style={{ color: "#c678dd" }}>await</span>
+							<span style={{ color: "var(--vocs-color-text)" }}> </span>
+							<span style={{ color: "#61afef" }}>fetch</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>(</span>
+							<span style={{ color: "#98c379" }}>
 								'https://api.example.com/resource'
 							</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">)</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>)</span>
 						</code>
 					</pre>
 				) : (
-					<pre className="vocs:m-0 vocs:leading-relaxed">
+					<pre style={{ margin: 0, lineHeight: 1.6 }}>
 						<code>
-							<span className="vocs:text-[var(--vocs-color-text-3)]">
+							<span style={{ color: "var(--vocs-color-text-3)" }}>
 								{"// Add payment middleware to your server"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[#c678dd]">import</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#c678dd" }}>import</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								{" "}
 								{"{"} Mpay, tempo {"}"}{" "}
 							</span>
-							<span className="vocs:text-[#c678dd]">from</span>
-							<span className="vocs:text-[#98c379]"> 'mpay/server'</span>
+							<span style={{ color: "#c678dd" }}>from</span>
+							<span style={{ color: "#98c379" }}> 'mpay/server'</span>
 							{"\n\n"}
-							<span className="vocs:text-[#c678dd]">const</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#c678dd" }}>const</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								{" "}
 								mpay ={" "}
 							</span>
-							<span className="vocs:text-[#e5c07b]">Mpay</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#e5c07b" }}>Mpay</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								.create({"{"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								{"  "}methods: [
 							</span>
-							<span className="vocs:text-[#e5c07b]">tempo</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#e5c07b" }}>tempo</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								({"{"} recipient {"}"})]
 							</span>
 							{"\n"}
-							<span className="vocs:text-[var(--vocs-color-text)]">{"}"})</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>{"}"});</span>
 							{"\n\n"}
-							<span className="vocs:text-[var(--vocs-color-text-3)]">
+							<span style={{ color: "var(--vocs-color-text-3)" }}>
 								{"// Return 402 with payment challenge"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[#c678dd]">return</span>
-							<span className="vocs:text-[var(--vocs-color-text)]"> mpay.</span>
-							<span className="vocs:text-[#61afef]">challenge</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#c678dd" }}>return</span>
+							<span style={{ color: "var(--vocs-color-text)" }}> mpay.</span>
+							<span style={{ color: "#61afef" }}>challenge</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								({"{"}{" "}
 							</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								amount:{" "}
 							</span>
-							<span className="vocs:text-[#d19a66]">0.01</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#d19a66" }}>0.01</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								, currency:{" "}
 							</span>
-							<span className="vocs:text-[#98c379]">'USD'</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span style={{ color: "#98c379" }}>'USD'</span>
+							<span style={{ color: "var(--vocs-color-text)" }}>
 								{" "}
 								{"}"})
 							</span>
@@ -393,75 +468,280 @@ function CodeTabs() {
 	);
 }
 
+// Responsive styles injected via style tag
+const responsiveStyles = `
+.landing-section {
+	width: 100vw;
+	margin-left: calc(-50vw + 50%);
+	position: relative;
+	padding: 48px 0;
+	border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+@media (min-width: 768px) {
+	.landing-section { padding: 80px 0; }
+}
+
+.landing-container {
+	max-width: 1600px;
+	margin: 0 auto;
+	padding: 0 16px;
+}
+@media (min-width: 640px) {
+	.landing-container { padding: 0 24px; }
+}
+@media (min-width: 1024px) {
+	.landing-container { padding: 0 80px; }
+}
+
+.landing-row {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+	align-items: center;
+}
+@media (min-width: 1024px) {
+	.landing-row { flex-direction: row; gap: 80px; }
+}
+
+.landing-row-reverse {
+	display: flex;
+	flex-direction: column-reverse;
+	gap: 32px;
+	align-items: center;
+}
+@media (min-width: 1024px) {
+	.landing-row-reverse { flex-direction: row; gap: 80px; }
+}
+
+.landing-col {
+	flex: 1;
+	width: 100%;
+}
+
+.landing-demo {
+	display: none;
+}
+@media (min-width: 1024px) {
+	.landing-demo { display: block; flex: 1; min-width: 0; position: relative; }
+}
+
+.landing-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+}
+@media (min-width: 640px) {
+	.landing-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+
+.landing-cta-row {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+@media (min-width: 640px) {
+	.landing-cta-row { flex-direction: row; flex-wrap: wrap; gap: 16px; }
+}
+
+.landing-authors {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+}
+@media (min-width: 640px) {
+	.landing-authors { flex-direction: row; align-items: center; gap: 16px; }
+}
+
+.landing-h2 {
+	font-size: 24px;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+	color: var(--vocs-color-text);
+	margin: 0;
+}
+@media (min-width: 640px) {
+	.landing-h2 { font-size: 30px; }
+}
+@media (min-width: 768px) {
+	.landing-h2 { font-size: 36px; }
+}
+
+.landing-p {
+	font-size: 16px;
+	color: var(--vocs-color-text-2);
+	line-height: 1.6;
+	margin: 0;
+}
+@media (min-width: 768px) {
+	.landing-p { font-size: 18px; }
+}
+
+.landing-li {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 14px;
+	color: var(--vocs-color-text-2);
+}
+@media (min-width: 768px) {
+	.landing-li { font-size: 16px; }
+}
+
+.landing-card {
+	background: var(--vocs-color-background-2);
+	border-radius: 12px;
+	padding: 16px;
+	border: 1px solid rgba(255,255,255,0.2);
+}
+@media (min-width: 768px) {
+	.landing-card { padding: 20px; }
+}
+
+.landing-card-text {
+	font-size: 12px;
+	color: var(--vocs-color-text-2);
+	line-height: 1.6;
+	margin: 0;
+}
+@media (min-width: 768px) {
+	.landing-card-text { font-size: 14px; }
+}
+
+.landing-cta-section {
+	width: 100vw;
+	margin-left: calc(-50vw + 50%);
+	position: relative;
+	padding: 48px 0;
+}
+@media (min-width: 768px) {
+	.landing-cta-section { padding: 80px 0; }
+}
+
+.landing-cta-container {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 0 16px;
+	text-align: center;
+}
+@media (min-width: 640px) {
+	.landing-cta-container { padding: 0 24px; }
+}
+@media (min-width: 1024px) {
+	.landing-cta-container { padding: 0 80px; }
+}
+`;
+
 export function LandingPage() {
 	return (
 		<div className="vocs:not-prose">
+			<style>{responsiveStyles}</style>
+
 			{/* Hero Section */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-24 vocs:border-b vocs:border-white/[0.06]"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
-					<div className="vocs:flex vocs:flex-col lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
+			<section className="landing-section">
+				<div className="landing-container">
+					<div className="landing-row">
 						{/* Left side - Copy */}
-						<div className="vocs:flex-1 vocs:space-y-6 md:vocs:space-y-8">
+						<div
+							className="landing-col"
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								gap: "24px",
+							}}
+						>
 							{/* ASCII Logo as title */}
 							<AsciiLogo />
 
 							{/* Subtitle */}
-							<p className="vocs:text-base sm:vocs:text-lg md:vocs:text-xl vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed vocs:max-w-xl">
+							<p className="landing-p" style={{ maxWidth: "560px" }}>
 								The machine-native payments protocol. Accept payments from
 								humans, software, or AI agents using standard HTTP—no billing
 								accounts or manual signup required.
 							</p>
 
 							{/* CTAs */}
-							<div className="vocs:flex vocs:flex-col sm:vocs:flex-row vocs:flex-wrap vocs:gap-3 sm:vocs:gap-4">
+							<div className="landing-cta-row">
 								<a
 									href="/quickstart/server"
-									className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:bg-[#0166FF] vocs:text-white vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[#0052CC] vocs:no-underline"
+									style={{
+										display: "inline-flex",
+										alignItems: "center",
+										justifyContent: "center",
+										gap: "8px",
+										padding: "12px 24px",
+										backgroundColor: "#0166FF",
+										color: "white",
+										fontWeight: 500,
+										borderRadius: "8px",
+										textDecoration: "none",
+									}}
 								>
 									Get started
-									<ArrowRightIcon className="vocs:w-4 vocs:h-4" />
+									<ArrowRightIcon style={{ width: "16px", height: "16px" }} />
 								</a>
 								<a
 									href="https://github.com/tempoxyz/payment-auth-spec"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:border vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text)] vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[var(--vocs-color-background-2)] vocs:no-underline"
+									style={{
+										display: "inline-flex",
+										alignItems: "center",
+										justifyContent: "center",
+										gap: "8px",
+										padding: "12px 24px",
+										border: "1px solid var(--vocs-color-border)",
+										color: "var(--vocs-color-text)",
+										fontWeight: 500,
+										borderRadius: "8px",
+										textDecoration: "none",
+									}}
 								>
-									<GitHubIcon className="vocs:w-5 vocs:h-5" />
+									<GitHubIcon style={{ width: "20px", height: "20px" }} />
 									View on GitHub
 								</a>
 							</div>
 
 							{/* Co-authors badge */}
-							<div className="vocs:flex vocs:flex-col sm:vocs:flex-row vocs:items-start sm:vocs:items-center vocs:gap-3 sm:vocs:gap-4">
-								<span className="vocs:text-[13px] vocs:text-[var(--vocs-color-text-3)] vocs:uppercase vocs:tracking-wider vocs:font-medium vocs:opacity-50">
+							<div className="landing-authors">
+								<span
+									style={{
+										fontSize: "13px",
+										color: "var(--vocs-color-text-3)",
+										textTransform: "uppercase",
+										letterSpacing: "0.05em",
+										fontWeight: 500,
+										opacity: 0.5,
+									}}
+								>
 									Co-authored by
 								</span>
-								<div className="vocs:flex vocs:items-center vocs:gap-4 sm:vocs:gap-6">
+								<div
+									style={{ display: "flex", alignItems: "center", gap: "20px" }}
+								>
 									<a
 										href="https://tempo.xyz"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="vocs:no-underline hover:vocs:opacity-80 vocs:transition-opacity"
+										style={{ textDecoration: "none" }}
 									>
 										<TempoLogo
-											className="vocs:text-[var(--vocs-color-text-2)]"
-											style={{ width: "70px" }}
+											style={{
+												width: "70px",
+												color: "var(--vocs-color-text-2)",
+											}}
 										/>
 									</a>
 									<a
 										href="https://viem.sh"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="vocs:no-underline hover:vocs:opacity-80 vocs:transition-opacity"
+										style={{ textDecoration: "none" }}
 									>
 										<ViemLogo
-											className="vocs:text-[var(--vocs-color-text-2)]"
 											style={{
 												width: "60px",
+												color: "var(--vocs-color-text-2)",
 												position: "relative",
 												top: "-2px",
 											}}
@@ -471,11 +751,13 @@ export function LandingPage() {
 										href="https://stripe.com"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="vocs:no-underline hover:vocs:opacity-80 vocs:transition-opacity"
+										style={{ textDecoration: "none" }}
 									>
 										<StripeLogo
-											className="vocs:text-[var(--vocs-color-text-2)]"
-											style={{ width: "60px" }}
+											style={{
+												width: "60px",
+												color: "var(--vocs-color-text-2)",
+											}}
 										/>
 									</a>
 								</div>
@@ -483,9 +765,18 @@ export function LandingPage() {
 						</div>
 
 						{/* Right side - Demo (hidden on mobile) */}
-						<div className="vocs:hidden lg:vocs:block vocs:flex-1 vocs:min-w-0 vocs:relative">
-							<div className="vocs:absolute vocs:-inset-4 vocs:bg-gradient-to-r vocs:from-[#0166FF]/10 vocs:to-[#0166FF]/5 vocs:rounded-2xl vocs:blur-xl" />
-							<div className="vocs:relative">
+						<div className="landing-demo">
+							<div
+								style={{
+									position: "absolute",
+									inset: "-16px",
+									background:
+										"linear-gradient(to right, rgba(1,102,255,0.1), rgba(1,102,255,0.05))",
+									borderRadius: "16px",
+									filter: "blur(24px)",
+								}}
+							/>
+							<div style={{ position: "relative" }}>
 								<CliDemo />
 							</div>
 						</div>
@@ -494,36 +785,64 @@ export function LandingPage() {
 			</section>
 
 			{/* Feature 1: Open Standard */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-20 vocs:border-b vocs:border-white/[0.06]"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
-					<div className="vocs:flex vocs:flex-col lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
+			<section className="landing-section">
+				<div className="landing-container">
+					<div className="landing-row">
 						{/* Left - Copy */}
-						<div className="vocs:flex-1 vocs:space-y-4 md:vocs:space-y-6">
-							<div className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:w-12 vocs:h-12 vocs:rounded-xl vocs:bg-[#0166FF]/10">
-								<GlobeIcon className="vocs:w-6 vocs:h-6 vocs:text-[#0166FF]" />
+						<div
+							className="landing-col"
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								gap: "16px",
+							}}
+						>
+							<div
+								style={{
+									display: "inline-flex",
+									alignItems: "center",
+									justifyContent: "center",
+									width: "48px",
+									height: "48px",
+									borderRadius: "12px",
+									backgroundColor: "rgba(1,102,255,0.1)",
+								}}
+							>
+								<GlobeIcon
+									style={{ width: "24px", height: "24px", color: "#0166FF" }}
+								/>
 							</div>
-							<h2 className="vocs:text-2xl sm:vocs:text-3xl md:vocs:text-4xl vocs:font-semibold vocs:tracking-tight vocs:text-[var(--vocs-color-text)]">
-								Open standard built for the internet
-							</h2>
-							<p className="vocs:text-base md:vocs:text-lg vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+							<h2 className="landing-h2">Open standard built for the internet</h2>
+							<p className="landing-p">
 								MPP standardizes HTTP 402 "Payment Required" with an IETF-track
 								specification. No proprietary APIs or vendor lock-in—just HTTP
 								headers and standard authentication flows.
 							</p>
-							<ul className="vocs:space-y-3">
+							<ul
+								style={{
+									listStyle: "none",
+									padding: 0,
+									margin: 0,
+									display: "flex",
+									flexDirection: "column",
+									gap: "12px",
+								}}
+							>
 								{[
 									"Challenge → Credential → Receipt flow",
 									"Works with any HTTP client or server",
 									"Idempotency and replay protection built-in",
 								].map((item) => (
-									<li
-										key={item}
-										className="vocs:flex vocs:items-center vocs:gap-3 vocs:text-sm md:vocs:text-base vocs:text-[var(--vocs-color-text-2)]"
-									>
-										<span className="vocs:w-1.5 vocs:h-1.5 vocs:rounded-full vocs:bg-[#0166FF] vocs:flex-shrink-0" />
+									<li key={item} className="landing-li">
+										<span
+											style={{
+												width: "6px",
+												height: "6px",
+												borderRadius: "50%",
+												backgroundColor: "#0166FF",
+												flexShrink: 0,
+											}}
+										/>
 										{item}
 									</li>
 								))}
@@ -531,158 +850,207 @@ export function LandingPage() {
 						</div>
 
 						{/* Right - Protocol Flow Diagram */}
-						<div className="vocs:flex-1 vocs:w-full vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:overflow-hidden vocs:border vocs:border-white/20">
-							{/* Step 1: Initial Request */}
-							<div className="vocs:px-4 vocs:py-3 vocs:border-b vocs:border-white/20">
-								<div className="vocs:flex vocs:items-center vocs:gap-2 vocs:mb-1">
-									<span className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)]">
-										1. Request
-									</span>
-								</div>
-								<code className="vocs:font-mono vocs:text-xs sm:vocs:text-sm">
-									<span className="vocs:text-[#0166FF]">GET</span>
-									<span className="vocs:text-[var(--vocs-color-text)]">
-										{" "}
-										/resource
-									</span>
-								</code>
-							</div>
-
-							{/* Step 2: 402 Challenge */}
-							<div className="vocs:px-4 vocs:py-3 vocs:border-b vocs:border-white/20">
-								<div className="vocs:flex vocs:items-center vocs:gap-2 vocs:mb-1">
-									<span className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)]">
-										2. Challenge
-									</span>
-								</div>
-								<div className="vocs:font-mono vocs:text-xs sm:vocs:text-sm vocs:space-y-0.5">
-									<div>
-										<span className="vocs:text-[var(--vocs-color-destructive)]">
-											402
-										</span>
-										<span className="vocs:text-[var(--vocs-color-text-2)]">
-											{" "}
-											Payment Required
-										</span>
+						<div className="landing-col">
+							<div
+								style={{
+									backgroundColor: "var(--vocs-color-background-2)",
+									borderRadius: "12px",
+									overflow: "hidden",
+									border: "1px solid rgba(255,255,255,0.2)",
+								}}
+							>
+								{[
+									{
+										step: "1. Request",
+										content: (
+											<>
+												<span style={{ color: "#0166FF" }}>GET</span> /resource
+											</>
+										),
+									},
+									{
+										step: "2. Challenge",
+										content: (
+											<>
+												<div>
+													<span
+														style={{ color: "var(--vocs-color-destructive)" }}
+													>
+														402
+													</span>{" "}
+													Payment Required
+												</div>
+												<div style={{ color: "var(--vocs-color-text-3)" }}>
+													WWW-Authenticate: Payment method="tempo" ...
+												</div>
+											</>
+										),
+									},
+									{
+										step: "3. Retry with credential",
+										content: (
+											<>
+												<div>
+													<span style={{ color: "#0166FF" }}>GET</span> /resource
+												</div>
+												<div style={{ color: "var(--vocs-color-text-3)" }}>
+													Authorization: Payment {"<credential>"}
+												</div>
+											</>
+										),
+									},
+									{
+										step: "4. Success",
+										content: (
+											<>
+												<div>
+													<span style={{ color: "#16a34a" }}>200</span> OK
+												</div>
+												<div style={{ color: "var(--vocs-color-text-3)" }}>
+													Payment-Receipt: {"<receipt>"}
+												</div>
+											</>
+										),
+										last: true,
+									},
+								].map(({ step, content, last }) => (
+									<div
+										key={step}
+										style={{
+											padding: "12px 16px",
+											borderBottom: last
+												? "none"
+												: "1px solid rgba(255,255,255,0.2)",
+										}}
+									>
+										<div
+											style={{
+												fontSize: "10px",
+												fontWeight: 500,
+												textTransform: "uppercase",
+												letterSpacing: "0.05em",
+												color: "var(--vocs-color-text-3)",
+												marginBottom: "4px",
+											}}
+										>
+											{step}
+										</div>
+										<div style={{ fontFamily: "monospace", fontSize: "13px" }}>
+											{content}
+										</div>
 									</div>
-									<div className="vocs:text-[var(--vocs-color-text-3)] vocs:break-all">
-										WWW-Authenticate: Payment method="tempo" ...
-									</div>
-								</div>
-							</div>
-
-							{/* Step 3: Retry with Credential */}
-							<div className="vocs:px-4 vocs:py-3 vocs:border-b vocs:border-white/20">
-								<div className="vocs:flex vocs:items-center vocs:gap-2 vocs:mb-1">
-									<span className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)]">
-										3. Retry with credential
-									</span>
-								</div>
-								<div className="vocs:font-mono vocs:text-xs sm:vocs:text-sm vocs:space-y-0.5">
-									<div>
-										<span className="vocs:text-[#0166FF]">GET</span>
-										<span className="vocs:text-[var(--vocs-color-text)]">
-											{" "}
-											/resource
-										</span>
-									</div>
-									<div className="vocs:text-[var(--vocs-color-text-3)] vocs:break-all">
-										Authorization: Payment {"<credential>"}
-									</div>
-								</div>
-							</div>
-
-							{/* Step 4: Success with Receipt */}
-							<div className="vocs:px-4 vocs:py-3">
-								<div className="vocs:flex vocs:items-center vocs:gap-2 vocs:mb-1">
-									<span className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)]">
-										4. Success
-									</span>
-								</div>
-								<div className="vocs:font-mono vocs:text-xs sm:vocs:text-sm vocs:space-y-0.5">
-									<div>
-										<span className="vocs:text-[#16a34a]">200</span>
-										<span className="vocs:text-[var(--vocs-color-text-2)]">
-											{" "}
-											OK
-										</span>
-									</div>
-									<div className="vocs:text-[var(--vocs-color-text-3)] vocs:break-all">
-										Payment-Receipt: {"<receipt>"}
-									</div>
-								</div>
+								))}
 							</div>
 						</div>
 					</div>
 				</div>
 			</section>
 
-			{/* Feature 2: Multi-Rail (reversed layout) */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-20 vocs:border-b vocs:border-white/[0.06]"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
-					<div className="vocs:flex vocs:flex-col-reverse lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
+			{/* Feature 2: Multi-Rail */}
+			<section className="landing-section">
+				<div className="landing-container">
+					<div className="landing-row-reverse">
 						{/* Left - Payment Methods Grid */}
-						<div className="vocs:flex-1 vocs:w-full">
-							<div className="vocs:grid vocs:grid-cols-1 sm:vocs:grid-cols-2 vocs:gap-3 md:vocs:gap-4">
-								{/* Tempo Card */}
-								<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:p-4 md:vocs:p-5 vocs:space-y-3 vocs:border vocs:border-white/20">
-									<div className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-2">
+						<div className="landing-col">
+							<div className="landing-grid">
+								<div className="landing-card">
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "space-between",
+											gap: "8px",
+											marginBottom: "12px",
+										}}
+									>
 										<TempoLogo
-											className="vocs:text-[var(--vocs-color-text)]"
-											style={{ width: "60px", height: "auto" }}
+											style={{
+												width: "60px",
+												color: "var(--vocs-color-text)",
+											}}
 										/>
 										<StatusBadge status="production" />
 									</div>
-									<p className="vocs:text-xs md:vocs:text-sm vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+									<p className="landing-card-text">
 										Instant stablecoin settlement on Tempo. Sub-second finality
 										with USDC payments directly to your wallet—no invoices or
 										delayed payouts.
 									</p>
 								</div>
 
-								{/* Stripe Card */}
-								<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:p-4 md:vocs:p-5 vocs:space-y-3 vocs:border vocs:border-white/20">
-									<div className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-2">
+								<div className="landing-card">
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "space-between",
+											gap: "8px",
+											marginBottom: "12px",
+										}}
+									>
 										<StripeLogo
-											className="vocs:text-[var(--vocs-color-text)]"
-											style={{ width: "48px", height: "auto" }}
+											style={{
+												width: "48px",
+												color: "var(--vocs-color-text)",
+											}}
 										/>
 										<StatusBadge status="beta" />
 									</div>
-									<p className="vocs:text-xs md:vocs:text-sm vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+									<p className="landing-card-text">
 										Accept cards, bank transfers, and invoices through Stripe.
 										Leverage existing Stripe infrastructure with MPP's
 										standardized protocol layer.
 									</p>
 								</div>
 
-								{/* Custom Card */}
-								<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:p-4 md:vocs:p-5 vocs:space-y-3 vocs:border vocs:border-white/20">
-									<div className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-2">
-										<span className="vocs:font-semibold vocs:text-[var(--vocs-color-text)]">
+								<div className="landing-card">
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "space-between",
+											gap: "8px",
+											marginBottom: "12px",
+										}}
+									>
+										<span
+											style={{
+												fontWeight: 600,
+												color: "var(--vocs-color-text)",
+											}}
+										>
 											Custom
 										</span>
 										<StatusBadge status="available" />
 									</div>
-									<p className="vocs:text-xs md:vocs:text-sm vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+									<p className="landing-card-text">
 										Build your own payment method. MPP's extensible architecture
-										lets you integrate any payment rail—internal credits,
-										loyalty points, or custom currencies.
+										lets you integrate any payment rail—internal credits, loyalty
+										points, or custom currencies.
 									</p>
 								</div>
 
-								{/* More Coming Card */}
-								<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:p-4 md:vocs:p-5 vocs:space-y-3 vocs:border vocs:border-white/20">
-									<div className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-2">
-										<span className="vocs:font-semibold vocs:text-[var(--vocs-color-text)]">
+								<div className="landing-card">
+									<div
+										style={{
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "space-between",
+											gap: "8px",
+											marginBottom: "12px",
+										}}
+									>
+										<span
+											style={{
+												fontWeight: 600,
+												color: "var(--vocs-color-text)",
+											}}
+										>
 											More coming
 										</span>
 										<StatusBadge status="planned" />
 									</div>
-									<p className="vocs:text-xs md:vocs:text-sm vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+									<p className="landing-card-text">
 										Lightning Network for instant Bitcoin micropayments, ACH for
 										low-cost bank transfers, and more payment rails on the
 										roadmap.
@@ -692,29 +1060,60 @@ export function LandingPage() {
 						</div>
 
 						{/* Right - Copy */}
-						<div className="vocs:flex-1 vocs:space-y-4 md:vocs:space-y-6">
-							<div className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:w-12 vocs:h-12 vocs:rounded-xl vocs:bg-[#0166FF]/10">
-								<LayersIcon className="vocs:w-6 vocs:h-6 vocs:text-[#0166FF]" />
+						<div
+							className="landing-col"
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								gap: "16px",
+							}}
+						>
+							<div
+								style={{
+									display: "inline-flex",
+									alignItems: "center",
+									justifyContent: "center",
+									width: "48px",
+									height: "48px",
+									borderRadius: "12px",
+									backgroundColor: "rgba(1,102,255,0.1)",
+								}}
+							>
+								<LayersIcon
+									style={{ width: "24px", height: "24px", color: "#0166FF" }}
+								/>
 							</div>
-							<h2 className="vocs:text-2xl sm:vocs:text-3xl md:vocs:text-4xl vocs:font-semibold vocs:tracking-tight vocs:text-[var(--vocs-color-text)]">
-								Multi-rail, multi-currency
-							</h2>
-							<p className="vocs:text-base md:vocs:text-lg vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+							<h2 className="landing-h2">Multi-rail, multi-currency</h2>
+							<p className="landing-p">
 								MPP is payment method agnostic. Crypto, cards, bank transfers,
 								invoices—all payment methods work through one protocol. Support
 								USD, EUR, BTC, USDC, or any currency.
 							</p>
-							<ul className="vocs:space-y-3">
+							<ul
+								style={{
+									listStyle: "none",
+									padding: 0,
+									margin: 0,
+									display: "flex",
+									flexDirection: "column",
+									gap: "12px",
+								}}
+							>
 								{[
 									"Single integration, multiple payment rails",
 									"Currency agnostic—from fiat to crypto",
 									"Extensible: define your own payment methods",
 								].map((item) => (
-									<li
-										key={item}
-										className="vocs:flex vocs:items-center vocs:gap-3 vocs:text-sm md:vocs:text-base vocs:text-[var(--vocs-color-text-2)]"
-									>
-										<span className="vocs:w-1.5 vocs:h-1.5 vocs:rounded-full vocs:bg-[#0166FF] vocs:flex-shrink-0" />
+									<li key={item} className="landing-li">
+										<span
+											style={{
+												width: "6px",
+												height: "6px",
+												borderRadius: "50%",
+												backgroundColor: "#0166FF",
+												flexShrink: 0,
+											}}
+										/>
 										{item}
 									</li>
 								))}
@@ -725,36 +1124,64 @@ export function LandingPage() {
 			</section>
 
 			{/* Feature 3: Developer Experience */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-20 vocs:border-b vocs:border-white/[0.06]"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
-					<div className="vocs:flex vocs:flex-col lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
+			<section className="landing-section">
+				<div className="landing-container">
+					<div className="landing-row">
 						{/* Left - Copy */}
-						<div className="vocs:flex-1 vocs:space-y-4 md:vocs:space-y-6">
-							<div className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:w-12 vocs:h-12 vocs:rounded-xl vocs:bg-[#0166FF]/10">
-								<ZapIcon className="vocs:w-6 vocs:h-6 vocs:text-[#0166FF]" />
+						<div
+							className="landing-col"
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								gap: "16px",
+							}}
+						>
+							<div
+								style={{
+									display: "inline-flex",
+									alignItems: "center",
+									justifyContent: "center",
+									width: "48px",
+									height: "48px",
+									borderRadius: "12px",
+									backgroundColor: "rgba(1,102,255,0.1)",
+								}}
+							>
+								<ZapIcon
+									style={{ width: "24px", height: "24px", color: "#0166FF" }}
+								/>
 							</div>
-							<h2 className="vocs:text-2xl sm:vocs:text-3xl md:vocs:text-4xl vocs:font-semibold vocs:tracking-tight vocs:text-[var(--vocs-color-text)]">
-								Developer-first experience
-							</h2>
-							<p className="vocs:text-base md:vocs:text-lg vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+							<h2 className="landing-h2">Developer-first experience</h2>
+							<p className="landing-p">
 								Official SDKs for TypeScript, Python, and Rust. Polyfill fetch
 								or go low-level—MPP works the way you work. Add payments with
 								minimal code changes.
 							</p>
-							<ul className="vocs:space-y-3">
+							<ul
+								style={{
+									listStyle: "none",
+									padding: 0,
+									margin: 0,
+									display: "flex",
+									flexDirection: "column",
+									gap: "12px",
+								}}
+							>
 								{[
 									"Client: Polyfill fetch for automatic 402 handling",
 									"Server: Works with Hono, Express, Next.js, and more",
 									"CLI: Test with pget, a curl for paid resources",
 								].map((item) => (
-									<li
-										key={item}
-										className="vocs:flex vocs:items-center vocs:gap-3 vocs:text-sm md:vocs:text-base vocs:text-[var(--vocs-color-text-2)]"
-									>
-										<span className="vocs:w-1.5 vocs:h-1.5 vocs:rounded-full vocs:bg-[#0166FF] vocs:flex-shrink-0" />
+									<li key={item} className="landing-li">
+										<span
+											style={{
+												width: "6px",
+												height: "6px",
+												borderRadius: "50%",
+												backgroundColor: "#0166FF",
+												flexShrink: 0,
+											}}
+										/>
 										{item}
 									</li>
 								))}
@@ -762,7 +1189,7 @@ export function LandingPage() {
 						</div>
 
 						{/* Right - Code Snippet with Tabs */}
-						<div className="vocs:flex-1 vocs:w-full">
+						<div className="landing-col">
 							<CodeTabs />
 						</div>
 					</div>
@@ -770,29 +1197,59 @@ export function LandingPage() {
 			</section>
 
 			{/* CTA Section */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-20"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[900px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20 vocs:text-center">
-					<h2 className="vocs:text-2xl sm:vocs:text-3xl md:vocs:text-4xl vocs:font-semibold vocs:tracking-tight vocs:text-[var(--vocs-color-text)] vocs:mb-4">
+			<section className="landing-cta-section" style={{ borderBottom: "none" }}>
+				<div className="landing-cta-container">
+					<h2 className="landing-h2" style={{ marginBottom: "16px" }}>
 						Start accepting payments today
 					</h2>
-					<p className="vocs:text-base md:vocs:text-lg vocs:text-[var(--vocs-color-text-2)] vocs:mb-6 md:vocs:mb-8 vocs:max-w-2xl vocs:mx-auto">
+					<p
+						className="landing-p"
+						style={{
+							marginBottom: "24px",
+							maxWidth: "640px",
+							marginLeft: "auto",
+							marginRight: "auto",
+						}}
+					>
 						Add payments to your API in minutes. No signup required—just install
 						the SDK and start charging for your resources.
 					</p>
-					<div className="vocs:flex vocs:flex-col sm:vocs:flex-row vocs:flex-wrap vocs:justify-center vocs:gap-3 sm:vocs:gap-4">
+					<div
+						className="landing-cta-row"
+						style={{ justifyContent: "center" }}
+					>
 						<a
 							href="/quickstart/server"
-							className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:bg-[#0166FF] vocs:text-white vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[#0052CC] vocs:no-underline"
+							style={{
+								display: "inline-flex",
+								alignItems: "center",
+								justifyContent: "center",
+								gap: "8px",
+								padding: "12px 24px",
+								backgroundColor: "#0166FF",
+								color: "white",
+								fontWeight: 500,
+								borderRadius: "8px",
+								textDecoration: "none",
+							}}
 						>
 							Server quickstart
-							<ArrowRightIcon className="vocs:w-4 vocs:h-4" />
+							<ArrowRightIcon style={{ width: "16px", height: "16px" }} />
 						</a>
 						<a
 							href="/quickstart/client"
-							className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:border vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text)] vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[var(--vocs-color-background-2)] vocs:no-underline"
+							style={{
+								display: "inline-flex",
+								alignItems: "center",
+								justifyContent: "center",
+								gap: "8px",
+								padding: "12px 24px",
+								border: "1px solid var(--vocs-color-border)",
+								color: "var(--vocs-color-text)",
+								fontWeight: 500,
+								borderRadius: "8px",
+								textDecoration: "none",
+							}}
 						>
 							Client quickstart
 						</a>
