@@ -18,30 +18,51 @@ export async function GET(request: Request) {
 	if (result.status === 402) return result.challenge;
 
 	// Simulated directions based on destination
-	const directionsByDest: Record<string, { duration: string; distance: string; steps: string[] }> = {
+	const directionsByDest: Record<
+		string,
+		{ duration: string; distance: string; steps: string[] }
+	> = {
 		"Blue Bottle Coffee": {
 			duration: "6 min walk",
 			distance: "0.3 mi",
-			steps: ["Head north on Market St", "Turn right onto 4th St", "Destination will be on your left"],
+			steps: [
+				"Head north on Market St",
+				"Turn right onto 4th St",
+				"Destination will be on your left",
+			],
 		},
 		"Flour + Water": {
 			duration: "15 min walk",
 			distance: "0.8 mi",
-			steps: ["Head south on Mission St", "Turn left onto 20th St", "Continue to Harrison St", "Destination on right"],
+			steps: [
+				"Head south on Mission St",
+				"Turn left onto 20th St",
+				"Continue to Harrison St",
+				"Destination on right",
+			],
 		},
 		"Union Square Garage": {
 			duration: "3 min drive",
 			distance: "0.2 mi",
-			steps: ["Turn right on Geary St", "Continue for 2 blocks", "Garage entrance on left at 450 Post St"],
+			steps: [
+				"Turn right on Geary St",
+				"Continue for 2 blocks",
+				"Garage entrance on left at 450 Post St",
+			],
 		},
 		forecast: {
 			duration: "N/A",
 			distance: "local",
-			steps: ["Rain expected around 4pm", "Clear skies by evening", "Bring light jacket"],
+			steps: [
+				"Rain expected around 4pm",
+				"Clear skies by evening",
+				"Bring light jacket",
+			],
 		},
 	};
 
-	const directions = directionsByDest[destination] || directionsByDest["Blue Bottle Coffee"];
+	const directions =
+		directionsByDest[destination] || directionsByDest["Blue Bottle Coffee"];
 
 	return result.withReceipt(
 		Response.json({
