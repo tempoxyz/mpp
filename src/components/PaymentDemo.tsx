@@ -228,8 +228,7 @@ function PaymentDemoInner() {
 		address,
 		balance,
 		balanceValue,
-		faucet.isPending,
-		faucet.mutate,
+		faucet,
 	]);
 
 	return (
