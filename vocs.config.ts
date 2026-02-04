@@ -24,10 +24,6 @@ export default defineConfig({
 		light: "/icon-light.png",
 		dark: "/icon-dark.png",
 	},
-	logoUrl: {
-		light: "/logo-light.svg",
-		dark: "/logo-dark.svg",
-	},
 	mcp: {
 		enabled: true,
 		sources: [

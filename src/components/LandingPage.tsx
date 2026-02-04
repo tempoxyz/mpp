@@ -400,56 +400,32 @@ function CodeTabs() {
 }
 
 export function LandingPage() {
-	// Break out of Vocs container
-	const fullWidthStyle = {
-		width: "100vw",
-		marginLeft: "calc(-50vw + 50%)",
-		position: "relative" as const,
-	};
-
-	const containerStyle = {
-		maxWidth: "1600px",
-		margin: "0 auto",
-		padding: "0 80px",
-	};
-
 	return (
 		<div className="vocs:not-prose">
 			{/* Hero Section */}
 			<section
-				style={{
-					...fullWidthStyle,
-					paddingTop: "6rem",
-					paddingBottom: "6rem",
-					borderBottom: "1px solid rgba(255,255,255,0.06)",
-				}}
+				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-24 vocs:border-b vocs:border-white/[0.06]"
+				style={{ marginLeft: "calc(-50vw + 50%)" }}
 			>
-				<div style={containerStyle}>
-					<div
-						style={{
-							display: "flex",
-							flexDirection: "row",
-							gap: "80px",
-							alignItems: "center",
-						}}
-					>
+				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
+					<div className="vocs:flex vocs:flex-col lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
 						{/* Left side - Copy */}
-						<div style={{ flex: 1 }} className="vocs:space-y-8">
+						<div className="vocs:flex-1 vocs:space-y-6 md:vocs:space-y-8">
 							{/* ASCII Logo as title */}
 							<AsciiLogo />
 
 							{/* Subtitle */}
-							<p className="vocs:text-lg sm:vocs:text-xl vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed vocs:max-w-xl">
+							<p className="vocs:text-base sm:vocs:text-lg md:vocs:text-xl vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed vocs:max-w-xl">
 								The machine-native payments protocol. Accept payments from
 								humans, software, or AI agents using standard HTTP—no billing
 								accounts or manual signup required.
 							</p>
 
 							{/* CTAs */}
-							<div className="vocs:flex vocs:flex-wrap vocs:gap-4">
+							<div className="vocs:flex vocs:flex-col sm:vocs:flex-row vocs:flex-wrap vocs:gap-3 sm:vocs:gap-4">
 								<a
 									href="/quickstart/server"
-									className="vocs:inline-flex vocs:items-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:bg-[#0166FF] vocs:text-white vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[#0052CC] vocs:no-underline"
+									className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:bg-[#0166FF] vocs:text-white vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[#0052CC] vocs:no-underline"
 								>
 									Get started
 									<ArrowRightIcon className="vocs:w-4 vocs:h-4" />
@@ -458,7 +434,7 @@ export function LandingPage() {
 									href="https://github.com/tempoxyz/payment-auth-spec"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="vocs:inline-flex vocs:items-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:border vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text)] vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[var(--vocs-color-background-2)] vocs:no-underline"
+									className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:border vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text)] vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[var(--vocs-color-background-2)] vocs:no-underline"
 								>
 									<GitHubIcon className="vocs:w-5 vocs:h-5" />
 									View on GitHub
@@ -466,15 +442,11 @@ export function LandingPage() {
 							</div>
 
 							{/* Co-authors badge */}
-							<div
-								style={{ display: "flex", alignItems: "center", gap: "16px" }}
-							>
+							<div className="vocs:flex vocs:flex-col sm:vocs:flex-row vocs:items-start sm:vocs:items-center vocs:gap-3 sm:vocs:gap-4">
 								<span className="vocs:text-[13px] vocs:text-[var(--vocs-color-text-3)] vocs:uppercase vocs:tracking-wider vocs:font-medium vocs:opacity-50">
 									Co-authored by
 								</span>
-								<div
-									style={{ display: "flex", alignItems: "center", gap: "24px" }}
-								>
+								<div className="vocs:flex vocs:items-center vocs:gap-4 sm:vocs:gap-6">
 									<a
 										href="https://tempo.xyz"
 										target="_blank"
@@ -483,7 +455,7 @@ export function LandingPage() {
 									>
 										<TempoLogo
 											className="vocs:text-[var(--vocs-color-text-2)]"
-											style={{ width: "80px" }}
+											style={{ width: "70px" }}
 										/>
 									</a>
 									<a
@@ -495,7 +467,7 @@ export function LandingPage() {
 										<ViemLogo
 											className="vocs:text-[var(--vocs-color-text-2)]"
 											style={{
-												width: "68px",
+												width: "60px",
 												position: "relative",
 												top: "-2px",
 											}}
@@ -509,15 +481,15 @@ export function LandingPage() {
 									>
 										<StripeLogo
 											className="vocs:text-[var(--vocs-color-text-2)]"
-											style={{ width: "72px" }}
+											style={{ width: "60px" }}
 										/>
 									</a>
 								</div>
 							</div>
 						</div>
 
-						{/* Right side - Demo */}
-						<div style={{ flex: 1, minWidth: 0 }} className="vocs:relative">
+						{/* Right side - Demo (hidden on mobile) */}
+						<div className="vocs:hidden lg:vocs:block vocs:flex-1 vocs:min-w-0 vocs:relative">
 							<div className="vocs:absolute vocs:-inset-4 vocs:bg-gradient-to-r vocs:from-[#0166FF]/10 vocs:to-[#0166FF]/5 vocs:rounded-2xl vocs:blur-xl" />
 							<div className="vocs:relative">
 								<CliDemo />
