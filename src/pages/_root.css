@@ -92,10 +92,9 @@
 	max-width: 1400px;
 }
 
-
-
 /* Berkeley Mono as primary monospace + body font */
 :root {
+	--vocs-color-gray14: white;
 	--font-mono:
 		"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
 		Consolas, monospace;
