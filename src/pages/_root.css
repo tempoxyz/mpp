@@ -115,3 +115,48 @@ code,
 [data-v-code] {
 	font-family: var(--font-mono) !important;
 }
+
+/* Force mermaid diagrams to black and white */
+[data-v-mermaid] .note {
+	fill: #ffffff !important;
+	stroke: #000000 !important;
+}
+
+[data-v-mermaid] .noteText {
+	fill: #000000 !important;
+}
+
+[data-v-mermaid] .messageText {
+	fill: #000000 !important;
+}
+
+[data-v-mermaid] .messageLine0,
+[data-v-mermaid] .messageLine1 {
+	stroke: #000000 !important;
+}
+
+[data-v-mermaid] text.actor {
+	fill: #000000 !important;
+}
+
+[data-v-mermaid] rect.actor {
+	fill: #ffffff !important;
+	stroke: #000000 !important;
+}
+
+[data-v-mermaid] .actor-line {
+	stroke: #000000 !important;
+}
+
+[data-v-mermaid] #arrowhead path {
+	fill: #000000 !important;
+	stroke: #000000 !important;
+}
+
+[data-v-mermaid] .loopLine {
+	stroke: #000000 !important;
+}
+
+[data-v-mermaid] .loopText {
+	fill: #000000 !important;
+}

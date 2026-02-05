@@ -164,6 +164,38 @@ function AmpLogo({ className }: { className?: string }) {
 	);
 }
 
+function highlightBash(command: string) {
+	const parts: { text: string; color?: string }[] = [];
+	let i = 0;
+	let first = true;
+	while (i < command.length) {
+		if (command[i] === '"') {
+			const end = command.indexOf('"', i + 1);
+			const str = end === -1 ? command.slice(i) : command.slice(i, end + 1);
+			parts.push({ text: str, color: "#0a3069" });
+			i += str.length;
+		} else if (command[i] === "-") {
+			let end = i;
+			while (end < command.length && command[end] !== " ") end++;
+			parts.push({ text: command.slice(i, end), color: "#0550ae" });
+			i = end;
+		} else if (command[i] === " ") {
+			parts.push({ text: " " });
+			i++;
+		} else {
+			let end = i;
+			while (end < command.length && command[end] !== " ") end++;
+			parts.push({
+				text: command.slice(i, end),
+				color: first ? "#6639ba" : undefined,
+			});
+			first = false;
+			i = end;
+		}
+	}
+	return parts;
+}
+
 const AGENT_COMMANDS = [
 	{
 		label: "Claude",
@@ -205,9 +237,19 @@ function AgentTabs() {
 				})}
 			</div>
 			<div className="flex items-center gap-3 bg-white px-4 py-3">
-				<pre className="text-sm text-gray-500 select-none flex-1 truncate m-0 p-0 bg-transparent font-mono">
+				<pre className="text-sm select-none flex-1 truncate m-0 p-0 bg-transparent font-mono">
 					<code>
-						<span className="text-gray-400">$</span> {cmd.command}
+						<span style={{ color: "#9ca3af" }}>$</span>{" "}
+						{highlightBash(cmd.command).map((part, i) => (
+							<span
+								key={`${part.text}-${i}`}
+								style={
+									part.color ? { color: part.color } : { color: "#24292f" }
+								}
+							>
+								{part.text}
+							</span>
+						))}
 					</code>
 				</pre>
 				<CopyButton text={cmd.command} />
