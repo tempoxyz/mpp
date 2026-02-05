@@ -46,7 +46,7 @@ export default defineConfig({
 				text: "Introduction",
 				items: [
 					{ text: "Overview", link: "/overview" },
-					{ text: "Specifications", link: "https://paymentauth.tempo.xyz/" },
+					{ text: "Specifications", link: "/specs/" },
 					{ text: "FAQ", link: "/faq" },
 				],
 			},
@@ -399,7 +399,7 @@ export default defineConfig({
 	topNav: [
 		{ text: "Docs", link: "/overview", match: (path) => path !== "/" },
 		{ text: "SDKs & Tools", link: "/sdk" },
-		{ text: "Specs", link: "https://paymentauth.tempo.xyz" },
+		{ text: "Specs", link: "/specs/" },
 		{
 			text: "GitHub",
 			items: [

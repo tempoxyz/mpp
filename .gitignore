@@ -6,3 +6,7 @@ src/pages.gen.ts
 .dev.vars*
 .env
 worker-configuration.d.ts
+public/specs/*.html
+public/specs/*.txt
+public/specs/*.xml
+public/specs/*.pdf
