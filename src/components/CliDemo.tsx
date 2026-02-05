@@ -811,9 +811,7 @@ export function CliDemo() {
 						<span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
 						<span className="w-3 h-3 rounded-full bg-[#27c93f]" />
 					</div>
-					<span className="text-gray-400 text-xs ml-2">
-						agent-demo
-					</span>
+					<span className="text-gray-400 text-xs ml-2">agent-demo</span>
 				</div>
 				<div className="flex items-center gap-3 text-xs">
 					{balance !== null && (
@@ -877,9 +875,7 @@ export function CliDemo() {
 			>
 				<span
 					className={
-						status === "selecting"
-							? "text-green-600"
-							: "text-gray-300"
+						status === "selecting" ? "text-green-600" : "text-gray-300"
 					}
 				>
 					❯
