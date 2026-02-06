@@ -13,7 +13,10 @@ export default defineConfig({
 	accentColor: "#0166FF",
 	colorScheme: "light",
 	baseUrl,
-	redirects: [{ source: "/docs", destination: "/overview" }],
+	redirects: [
+		{ source: "/docs", destination: "/overview" },
+		{ source: "/specifications", destination: "/specs/" },
+	],
 	description:
 		"Machine Payments Protocol - Machine-native payments for machine-to-machine transactions",
 	checkDeadlinks: "warn",

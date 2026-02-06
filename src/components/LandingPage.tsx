@@ -170,21 +170,21 @@ const AGENT_COMMANDS = [
 		label: "Claude",
 		bin: "claude",
 		args: "-p",
-		str: '"implement an mpp client"',
+		str: '"charge $0.01 per api call with MPP"',
 		icon: ClaudeLogo,
 	},
 	{
 		label: "Codex",
 		bin: "codex",
 		args: "--full-auto",
-		str: '"implement an mpp client"',
+		str: '"charge $0.01 per api call with MPP"',
 		icon: CodexLogo,
 	},
 	{
 		label: "Amp",
 		bin: "amp",
 		args: null,
-		str: '"implement an mpp client"',
+		str: '"charge $0.01 per api call with MPP"',
 		icon: AmpLogo,
 	},
 ];
@@ -281,12 +281,15 @@ export function LandingPage() {
 									href="https://stripe.com"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
+									className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
 								>
 									<StripeLogo style={{ width: "55px" }} />
 								</a>
 							</div>
 						</div>
+
+						{/* Copy-to-agent line */}
+						<AgentTabs />
 
 						{/* CTA buttons */}
 						<div className="flex flex-wrap gap-3">
@@ -310,15 +313,12 @@ export function LandingPage() {
 								</svg>
 							</a>
 							<a
-								href="/specifications"
+								href="/specs/"
 								className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
 							>
 								Read the specs
 							</a>
 						</div>
-
-						{/* Copy-to-agent line */}
-						<AgentTabs />
 					</div>
 
 					{/* Left pane — interactive demo */}

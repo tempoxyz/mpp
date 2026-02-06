@@ -1,4 +1,4 @@
-import { Badge, Card, Cards } from 'vocs'
+import { Card, Cards } from 'vocs'
 import { PaymentDemo } from '../components/PaymentDemo'
 
 # Machine Payments Protocol [The internet-native payments protocol]
@@ -66,21 +66,18 @@ All SDKs implement similar interfaces and are interoperable with one another.
 
 <Cards>
   <Card
-    topRight={<Badge variant="info">Reference</Badge>}
     description="Get started with `mpay`, the reference implementation of the MPP SDKs"
     icon="simple-icons:typescript"
     title="TypeScript"
     to="/sdk/typescript"
   />
   <Card
-    topRight={<Badge variant="warning">Beta</Badge>}
     description="Get started with `pympay`, the official MPP SDK for Python"
     icon="simple-icons:python"
     title="Python"
     to="/sdk/python"
   />
   <Card
-    topRight={<Badge variant="warning">Beta</Badge>}
     description="Get started with `mpay-rs`, the official MPP SDK for Rust"
     icon="simple-icons:rust"
     title="Rust"
