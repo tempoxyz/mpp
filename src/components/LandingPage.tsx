@@ -313,7 +313,7 @@ export function LandingPage() {
 								</svg>
 							</a>
 							<a
-								href="/specs/"
+								href="/specs"
 								className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
 							>
 								Read the specs

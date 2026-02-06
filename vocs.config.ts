@@ -15,7 +15,7 @@ export default defineConfig({
 	baseUrl,
 	redirects: [
 		{ source: "/docs", destination: "/overview" },
-		{ source: "/specifications", destination: "/specs/" },
+		{ source: "/specifications", destination: "/specs" },
 	],
 	description:
 		"Machine Payments Protocol - Machine-native payments for machine-to-machine transactions",
@@ -49,7 +49,7 @@ export default defineConfig({
 				text: "Introduction",
 				items: [
 					{ text: "Overview", link: "/overview" },
-					{ text: "Specifications", link: "/specs/" },
+					{ text: "Specifications", link: "/specs" },
 					{ text: "FAQ", link: "/faq" },
 				],
 			},
@@ -402,7 +402,7 @@ export default defineConfig({
 	topNav: [
 		{ text: "Docs", link: "/overview", match: (path) => path !== "/" },
 		{ text: "SDKs & Tools", link: "/sdk" },
-		{ text: "Specs", link: "/specs/" },
+		{ text: "Specs", link: "/specs" },
 		{
 			text: "GitHub",
 			items: [
