@@ -387,7 +387,7 @@ export default defineConfig({
 		{ icon: "github", link: "https://github.com/tempoxyz/payment-auth-spec" },
 		{ icon: "x", link: "https://x.com/mpp" },
 	],
-	title: "MPP",
+	title: "Machine Payments Protocol",
 	titleTemplate: "%s | MPP",
 	twoslash: {
 		twoslashOptions: {
