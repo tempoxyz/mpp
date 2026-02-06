@@ -15,17 +15,19 @@ export function MermaidAscii({ chart }: { chart: string }) {
 		[chart],
 	);
 	return (
-		<pre
-			style={{
-				overflow: "auto",
-				padding: "1rem",
-				fontSize: "0.75rem",
-				lineHeight: 1.4,
-				fontFamily:
-					'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-			}}
-		>
-			<code>{ascii}</code>
-		</pre>
+		<div style={{ display: "flex", justifyContent: "center" }}>
+			<pre
+				style={{
+					display: "inline-block",
+					padding: "1rem",
+					fontSize: "0.7rem",
+					lineHeight: 1.3,
+					fontFamily:
+						'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+				}}
+			>
+				<code>{ascii}</code>
+			</pre>
+		</div>
 	);
 }
