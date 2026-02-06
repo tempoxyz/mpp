@@ -8,7 +8,7 @@ export function MermaidAscii({ content }: { content: string }) {
 					fontSize: "0.7rem",
 					lineHeight: 1.3,
 					fontFamily:
-						'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+						"Menlo, Monaco, Consolas, monospace",
 				}}
 			>
 				<code>{content}</code>

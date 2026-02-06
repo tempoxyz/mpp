@@ -1,5 +1,5 @@
+import { mkdirSync, writeFileSync } from "node:fs";
 import { renderMermaidAscii } from "beautiful-mermaid";
-import { writeFileSync, mkdirSync } from "node:fs";
 
 const opts = { useAscii: false, paddingX: 3, paddingY: 1, boxBorderPadding: 1 };
 
