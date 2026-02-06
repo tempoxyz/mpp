@@ -338,10 +338,7 @@ export function LandingPage() {
 					>
 						GitHub
 					</a>
-					<a
-						href="https://x.com/mpp"
-						className="text-[#0166ff] underline"
-					>
+					<a href="https://x.com/mpp" className="text-[#0166ff] underline">
 						X
 					</a>
 				</div>

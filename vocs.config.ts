@@ -380,7 +380,7 @@ export default defineConfig({
 					},
 				],
 			},
-			],
+		],
 	},
 	socials: [
 		{ icon: "x", link: "https://x.com/mpp" },

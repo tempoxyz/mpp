@@ -145,7 +145,6 @@ code,
 	font-family: var(--font-mono) !important;
 }
 
-
 [data-empty-line] {
 	max-height: 0.9em;
 }
