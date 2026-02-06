@@ -68,6 +68,8 @@ export function tempo(parameters: tempo.Parameters = {}) {
             ],
             ...(methodDetails?.feePayer && { feePayer: true }),
           } as never)
+          // FIXME: figure out gas estimation issue for fee payer tx
+          prepared.gas = prepared.gas! + 5_000n
           const signature = await signTransaction(client, prepared as never)
 
           return Credential.serialize({

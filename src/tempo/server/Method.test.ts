@@ -18,9 +18,11 @@ const secretKey = 'test-secret-key'
 
 const server = Mpay_server.create({
   method: Methods_server.tempo({
+    client() {
+      return client
+    },
     currency: asset,
     recipient: accounts[0].address,
-    rpcUrl: { [chain.id]: rpcUrl },
   }),
   realm,
   secretKey,
@@ -338,7 +340,9 @@ describe('tempo', () => {
         methods: [
           Methods_client.tempo({
             account: accounts[1],
-            rpcUrl: { [chain.id]: rpcUrl },
+            client() {
+              return client
+            },
           }),
         ],
       })

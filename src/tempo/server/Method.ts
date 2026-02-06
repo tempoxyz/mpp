@@ -72,16 +72,21 @@ export function tempo<const defaults extends tempo.Defaults>(
       const chainId = (() => {
         if (request.chainId) return request.chainId
         if (parameters.testnet) return defaults.testnetChainId
-        return Number(Object.keys(rpcUrl)[0])!
+        return parameters.client?.(0).chain?.id ?? Number(Object.keys(rpcUrl)[0])!
       })()
 
       if (!parameters.client && !rpcUrl[chainId as keyof typeof rpcUrl])
         throw new Error(`No RPC URL configured for chainId ${chainId}.`)
+      if (parameters.client && request.chainId) {
+        const c = parameters.client(request.chainId)
+        if (c.chain?.id !== undefined && c.chain.id !== request.chainId)
+          throw new Error(`No RPC URL configured for chainId ${request.chainId}.`)
+      }
 
       const feePayer = (() => {
         const account =
           typeof request.feePayer === 'object' ? request.feePayer : parameters.feePayer
-        const requested = request.feePayer !== false && parameters.feePayer
+        const requested = request.feePayer !== false && (account ?? parameters.feePayer)
         if (credential) return account
         if (requested) return true
         return undefined
@@ -216,7 +221,7 @@ export function tempo<const defaults extends tempo.Defaults>(
                 })
 
               const serializedTransaction_final = await (async () => {
-                if (methodDetails?.feePayer && feePayer) {
+                if (feePayer && methodDetails?.feePayer !== false) {
                   return signTransaction(client, {
                     ...transaction,
                     account: feePayer,
