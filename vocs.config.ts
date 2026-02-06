@@ -413,7 +413,6 @@ export default defineConfig({
 					text: "Specifications",
 					link: "https://github.com/tempoxyz/payment-auth-spec",
 				},
-				{ text: "Docs", link: "https://github.com/tempoxyz/mpp" },
 			],
 		},
 	],
