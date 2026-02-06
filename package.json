@@ -30,7 +30,7 @@
 		"tailwindcss": "^4.1.18",
 		"tempo.ts": "~0.14.0",
 		"viem": "latest",
-		"vocs": "https://pkg.pr.new/wevm/vocs@d482648",
+		"vocs": "https://pkg.pr.new/wevm/vocs@5647cea",
 		"wagmi": "^3.4.2",
 		"waku": "^1.0.0-alpha.2"
 	},
