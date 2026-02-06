@@ -43,12 +43,12 @@ When a client requests a paid resource, the server returns a `402` response with
 <MermaidAscii chart={`sequenceDiagram
     participant Client
     participant Server
-    Client->>Server: (1) GET /resource
-    Server-->>Client: (2) 402 + WWW-Authenticate: Payment
-    Note over Client: (3) Client fulfills payment
-    Client->>Server: (4) GET /resource + Authorization: Payment
-    Note over Server: (5) Server verifies payment
-    Server-->>Client: (6) 200 OK + Payment-Receipt
+    Client->>Server: GET /resource
+    Server-->>Client: 402 + challenge
+    Note over Client: Fulfill payment
+    Client->>Server: GET /resource + credential
+    Note over Server: Verify payment
+    Server-->>Client: 200 OK + receipt
 `} />
 
 1. **Request the resource**—`GET /resource`
