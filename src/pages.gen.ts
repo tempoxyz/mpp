@@ -13,6 +13,7 @@ type Page =
 | { path: '/overview'; render: 'static' }
 | { path: '/tools/pget'; render: 'static' }
 | { path: '/tools/pget/examples'; render: 'static' }
+| { path: '/specs'; render: 'static' }
 | { path: '/sdk'; render: 'static' }
 | { path: '/sdk/typescript/BodyDigest.compute'; render: 'static' }
 | { path: '/sdk/typescript/BodyDigest.verify'; render: 'static' }

@@ -6,3 +6,5 @@ src/pages.gen.ts
 .dev.vars*
 .env
 worker-configuration.d.ts
+public/specs/
+src/pages/specs/index.mdx

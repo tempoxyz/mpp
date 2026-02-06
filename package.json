@@ -4,6 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
+		"prebuild": "bash scripts/fetch-specs.sh",
 		"build": "vite build && node scripts/patch-cf.ts",
 		"check": "biome check --write",
 		"check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",

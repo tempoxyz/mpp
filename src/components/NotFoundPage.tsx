@@ -125,7 +125,7 @@ export function NotFoundPage() {
 
 	useEffect(() => {
 		let animationId: number;
-		const MORPH_DURATION = 800;
+		const MORPH_DURATION = 3000;
 
 		const animate = () => {
 			const now = Date.now();

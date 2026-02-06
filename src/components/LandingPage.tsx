@@ -168,15 +168,25 @@ function AmpLogo({ className }: { className?: string }) {
 const AGENT_COMMANDS = [
 	{
 		label: "Claude",
-		command: 'claude -p "implement an mpp client"',
+		bin: "claude",
+		args: "-p",
+		str: '"implement an mpp client"',
 		icon: ClaudeLogo,
 	},
 	{
 		label: "Codex",
-		command: 'codex --full-auto "implement an mpp client"',
+		bin: "codex",
+		args: "--full-auto",
+		str: '"implement an mpp client"',
 		icon: CodexLogo,
 	},
-	{ label: "Amp", command: 'amp "implement an mpp client"', icon: AmpLogo },
+	{
+		label: "Amp",
+		bin: "amp",
+		args: null,
+		str: '"implement an mpp client"',
+		icon: AmpLogo,
+	},
 ];
 
 function AgentTabs() {
@@ -206,12 +216,17 @@ function AgentTabs() {
 				})}
 			</div>
 			<div className="flex items-center gap-3 bg-white px-4 py-3">
-				<pre className="text-sm text-gray-500 select-none flex-1 truncate m-0 p-0 bg-transparent font-mono">
+				<pre className="text-sm select-none flex-1 truncate m-0 p-0 bg-transparent font-mono">
 					<code>
-						<span className="text-gray-400">$</span> {cmd.command}
+						<span className="text-gray-400">$ </span>
+						<span className="text-gray-800">{cmd.bin}</span>
+						{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
+						<span className="text-green-700"> {cmd.str}</span>
 					</code>
 				</pre>
-				<CopyButton text={cmd.command} />
+				<CopyButton
+					text={[cmd.bin, cmd.args, cmd.str].filter(Boolean).join(" ")}
+				/>
 			</div>
 		</div>
 	);

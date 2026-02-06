@@ -44,6 +44,8 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          GH_TOKEN: ${{ secrets.SPEC_PAT }}
 
   deploy:
     needs: ci
@@ -79,6 +81,8 @@ jobs:
 
       - name: Build site
         run: pnpm run build
+        env:
+          GH_TOKEN: ${{ secrets.SPEC_PAT }}
 
       - name: Sanitize branch name
         if: github.event_name == 'pull_request'
