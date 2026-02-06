@@ -26,8 +26,8 @@ importers:
         specifier: ^11.12.2
         version: 11.12.2
       mpay:
-        specifier: link:../mpay
-        version: link:../mpay
+        specifier: https://pkg.pr.new/wevm/mpay@6ddcff6
+        version: https://pkg.pr.new/wevm/mpay@6ddcff6(@modelcontextprotocol/sdk@1.25.3(hono@4.11.7)(zod@4.3.6))(typescript@5.9.3)(viem@2.45.0(typescript@5.9.3)(zod@4.3.6))(zod@4.3.6)
       react:
         specifier: ^19
         version: 19.2.4
@@ -3000,6 +3000,19 @@ packages:
 
   mlly@1.8.0:
     resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
+
+  mpay@https://pkg.pr.new/wevm/mpay@6ddcff6:
+    resolution: {integrity: sha512-dUgejf94IAgx33VvEsR9LTuH8HHB0qmafVdqEQhoRomydqlFniAc3nnx1INbRksSI00/o9LNKbWGaVRu4HNW/g==, tarball: https://pkg.pr.new/wevm/mpay@6ddcff6}
+    version: 0.1.0
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.25.0'
+      viem: '>=2.44.4'
+      zod: '>=4.0.0'
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+      viem:
+        optional: true
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -7137,6 +7150,16 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
+  mpay@https://pkg.pr.new/wevm/mpay@6ddcff6(@modelcontextprotocol/sdk@1.25.3(hono@4.11.7)(zod@4.3.6))(typescript@5.9.3)(viem@2.45.0(typescript@5.9.3)(zod@4.3.6))(zod@4.3.6):
+    dependencies:
+      ox: 0.12.0(typescript@5.9.3)(zod@4.3.6)
+      zod: 4.3.6
+    optionalDependencies:
+      '@modelcontextprotocol/sdk': 1.25.3(hono@4.11.7)(zod@4.3.6)
+      viem: 2.45.0(typescript@5.9.3)(zod@4.3.6)
+    transitivePeerDependencies:
+      - typescript
+
   ms@2.1.3: {}
 
   mz@2.7.0:
@@ -7221,7 +7244,6 @@ snapshots:
       typescript: 5.9.3
     transitivePeerDependencies:
       - zod
-    optional: true
 
   package-manager-detector@1.6.0: {}
 

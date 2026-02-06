@@ -154,7 +154,12 @@ function PaymentDemoInner() {
 			});
 			const challenge = Challenge.fromResponse(res1);
 			// Challenge type widening: createCredential expects method-narrowed challenge
-			const credential = await (method.createCredential as (args: { challenge: Challenge.Challenge; context: Record<string, unknown> }) => Promise<string>)({
+			const credential = await (
+				method.createCredential as (args: {
+					challenge: Challenge.Challenge;
+					context: Record<string, unknown>;
+				}) => Promise<string>
+			)({
 				challenge,
 				context: {},
 			});
