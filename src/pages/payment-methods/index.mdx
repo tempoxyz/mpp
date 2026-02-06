@@ -1,4 +1,4 @@
-import { Badge, Card, Cards } from 'vocs'
+import { Card, Cards } from 'vocs'
 
 # Payment methods [Available methods and how to choose one]
 
@@ -19,13 +19,11 @@ If supported, the client can then use the corresponding payment method to genera
 
 <Cards>
   <Card
-    topRight={<Badge variant="success">Stable</Badge>}
     title="Tempo"
     description="Pay with TIP-20 stablecoins on Tempo with instant settlement (~500ms)."
     to="/payment-methods/tempo"
   />
   <Card
-    topRight={<Badge variant="warning">Coming soon</Badge>}
     title="Stripe"
     description="Cards, bank transfers, and invoices using Stripe."
   />

@@ -145,6 +145,7 @@ code,
 	font-family: var(--font-mono) !important;
 }
 
+
 [data-empty-line] {
 	max-height: 0.9em;
 }
@@ -196,4 +197,10 @@ pre[data-v] {
 
 [data-v-mermaid] .loopText {
 	fill: #000000 !important;
+}
+
+[data-v-footer] a,
+[data-v-socials] a {
+	color: #0166ff;
+	text-decoration: underline;
 }

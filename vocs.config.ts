@@ -380,11 +380,7 @@ export default defineConfig({
 					},
 				],
 			},
-			{
-				text: "Resources",
-				items: [{ text: "Brand", link: "/brand" }],
-			},
-		],
+			],
 	},
 	socials: [
 		{ icon: "x", link: "https://x.com/mpp" },
