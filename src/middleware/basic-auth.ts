@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import type { MiddlewareHandler } from "vocs/server";
 
-const SKIP_AUTH_PATTERNS = [/^\/ping/, /^\/api\//];
+const SKIP_AUTH_PATTERNS = [/^\/api\//];
 
 export function middleware(): MiddlewareHandler {
 	return async (context, next) => {

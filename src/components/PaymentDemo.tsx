@@ -136,7 +136,7 @@ function PaymentDemoInner() {
 		});
 
 		try {
-			const res1 = await fetch("/ping/paid", { signal: controller.signal });
+			const res1 = await fetch("/api/ping/paid", { signal: controller.signal });
 
 			if (seq !== requestSeqRef.current) return;
 
@@ -167,7 +167,7 @@ function PaymentDemoInner() {
 				credential,
 			}));
 
-			const res2 = await fetch("/ping/paid", {
+			const res2 = await fetch("/api/ping/paid", {
 				headers: { Authorization: credential },
 				signal: controller.signal,
 			});
@@ -319,7 +319,7 @@ function PaymentDemoInner() {
 						<>
 							Make request to{" "}
 							<code className="text-xs bg-[var(--vocs-color-background-2)] px-1.5 py-0.5 rounded">
-								/ping/paid
+								/api/ping/paid
 							</code>
 						</>
 					}

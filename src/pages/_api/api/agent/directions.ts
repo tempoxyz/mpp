@@ -2,10 +2,9 @@ import { env } from "cloudflare:workers";
 import { Expires } from "mpay/server";
 import { mpay } from "../../../../mpay.server";
 
-// Directions API - $0.002 per request
 export async function GET(request: Request) {
 	const url = new URL(request.url);
-	const destination = url.searchParams.get("to") || "Blue Bottle Coffee";
+	const destination = url.searchParams.get("to") || "The Coffee Movement";
 
 	const result = await mpay.charge({
 		amount: "0.002",
@@ -17,18 +16,18 @@ export async function GET(request: Request) {
 
 	if (result.status === 402) return result.challenge;
 
-	// Simulated directions based on destination
 	const directionsByDest: Record<
 		string,
 		{ duration: string; distance: string; steps: string[] }
 	> = {
-		"Blue Bottle Coffee": {
-			duration: "6 min walk",
-			distance: "0.3 mi",
+		"The Coffee Movement": {
+			duration: "8 min walk",
+			distance: "0.4 mi",
 			steps: [
 				"Head north on Market St",
-				"Turn right onto 4th St",
-				"Destination will be on your left",
+				"Turn left onto Grant Ave through Chinatown",
+				"Turn right onto Washington St",
+				"Destination at 1030 Washington St, Nob Hill",
 			],
 		},
 		"Flour + Water": {
@@ -62,7 +61,7 @@ export async function GET(request: Request) {
 	};
 
 	const directions =
-		directionsByDest[destination] || directionsByDest["Blue Bottle Coffee"];
+		directionsByDest[destination] || directionsByDest["The Coffee Movement"];
 
 	return result.withReceipt(
 		Response.json({

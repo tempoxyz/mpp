@@ -2,7 +2,6 @@ import { env } from "cloudflare:workers";
 import { Expires } from "mpay/server";
 import { mpay } from "../../../../mpay.server";
 
-// Location lookup API - $0.001 per request
 export async function GET(request: Request) {
 	const result = await mpay.charge({
 		amount: "0.001",
@@ -14,7 +13,6 @@ export async function GET(request: Request) {
 
 	if (result.status === 402) return result.challenge;
 
-	// Simulated location response
 	return result.withReceipt(
 		Response.json({
 			location: {

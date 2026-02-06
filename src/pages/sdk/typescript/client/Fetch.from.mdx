@@ -21,7 +21,7 @@ const fetch = Fetch.from({
 })
 
 // Use the wrapped fetch — handles 402 automatically
-const res = await fetch('https://mpp.dev/ping/paid')
+const res = await fetch('https://mpp.dev/api/ping/paid')
 ```
 
 ### Per-call accounts
@@ -42,7 +42,7 @@ const fetch = Fetch.from({
   ],
 })
 
-const res = await fetch('https://mpp.dev/ping/paid', {
+const res = await fetch('https://mpp.dev/api/ping/paid', {
   // [!code focus:start]
   context: {
     account: privateKeyToAccount('0x...'),

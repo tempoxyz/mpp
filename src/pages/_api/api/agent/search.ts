@@ -2,7 +2,6 @@ import { env } from "cloudflare:workers";
 import { Expires } from "mpay/server";
 import { mpay } from "../../../../mpay.server";
 
-// Search API - $0.002 per request
 export async function GET(request: Request) {
 	const url = new URL(request.url);
 	const query = url.searchParams.get("q") || "coffee";
@@ -17,7 +16,6 @@ export async function GET(request: Request) {
 
 	if (result.status === 402) return result.challenge;
 
-	// Simulated search results based on query
 	const resultsByQuery: Record<
 		string,
 		{
@@ -31,20 +29,20 @@ export async function GET(request: Request) {
 		coffee: [
 			{
 				id: "place_001",
-				name: "Blue Bottle Coffee",
-				rating: 4.8,
-				distance: "0.3 mi",
+				name: "The Coffee Movement",
+				rating: 4.6,
+				distance: "0.4 mi",
 				price: "$$",
 			},
 			{
-				id: "place_002",
+				id: "place_008",
 				name: "Sightglass Coffee",
 				rating: 4.6,
 				distance: "0.5 mi",
 				price: "$$",
 			},
 			{
-				id: "place_003",
+				id: "place_009",
 				name: "Ritual Coffee Roasters",
 				rating: 4.5,
 				distance: "0.8 mi",

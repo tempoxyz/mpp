@@ -54,7 +54,7 @@ Fetch.polyfill({
 Use `fetch`. Payment happens when a server returns `402`.
 
 ```ts [fetch-resource.ts]
-const response = await fetch('https://mpp.dev/ping/paid')
+const response = await fetch('https://mpp.dev/api/ping/paid')
 ```
 
 ::::
@@ -78,7 +78,7 @@ const paidFetch = Fetch.from({
   methods: [tempo({ account })]
 })
 // [!code hl:end]
-const response = await paidFetch('https://mpp.dev/ping/paid')
+const response = await paidFetch('https://mpp.dev/api/ping/paid')
 ```
 
 ### Per-request accounts
@@ -94,7 +94,7 @@ const paidFetch = Fetch.from({
 })
 
 // [!code hl:start]
-const response = await paidFetch('https://mpp.dev/ping/paid', {
+const response = await paidFetch('https://mpp.dev/api/ping/paid', {
   context: {
     account: privateKeyToAccount('0xabc…123'),
   }
@@ -120,14 +120,14 @@ const mpay = Mpay.create({
 })
 // [!code hl:end]
 
-const response = await fetch('https://mpp.dev/ping/paid')
+const response = await fetch('https://mpp.dev/api/ping/paid')
 
 if (response.status === 402) {
   const credential = await mpay.createCredential(response, {
     account: privateKeyToAccount('0x...'),
   })
 
-  const paidResponse = await fetch('https://mpp.dev/ping/paid', {
+  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', {
     headers: { Authorization: credential },
   })
 }

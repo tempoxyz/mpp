@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers";
 import { Expires } from "mpay/server";
-import { mpay } from "../../../mpay.server";
+import { mpay } from "../../../../mpay.server";
 
 export async function GET(request: Request) {
 	const result = await mpay.charge({

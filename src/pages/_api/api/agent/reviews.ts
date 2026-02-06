@@ -2,7 +2,6 @@ import { env } from "cloudflare:workers";
 import { Expires } from "mpay/server";
 import { mpay } from "../../../../mpay.server";
 
-// Reviews aggregation API - $0.003 per request
 export async function GET(request: Request) {
 	const url = new URL(request.url);
 	const placeId = url.searchParams.get("place") || "place_001";
@@ -17,7 +16,6 @@ export async function GET(request: Request) {
 
 	if (result.status === 402) return result.challenge;
 
-	// Simulated reviews based on place
 	const reviewsByPlace: Record<
 		string,
 		{
@@ -30,16 +28,16 @@ export async function GET(request: Request) {
 	> = {
 		place_001: {
 			summary:
-				"Excellent specialty coffee with a focus on single-origin beans. Known for their pour-over and espresso drinks.",
+				"Outstanding specialty coffee in Nob Hill. Known for pour-overs, single-origin beans, and a warm neighborhood vibe. Baristas are knowledgeable and passionate.",
 			sentiment: "very_positive",
 			highlights: [
-				"pour-over",
-				"single-origin",
-				"minimalist vibe",
-				"friendly staff",
+				"specialty pour-over",
+				"single-origin beans",
+				"knowledgeable baristas",
+				"Nob Hill neighborhood gem",
 			],
-			reviewCount: 2847,
-			averageRating: 4.8,
+			reviewCount: 729,
+			averageRating: 4.6,
 		},
 		place_002: {
 			summary:

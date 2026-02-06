@@ -11,7 +11,7 @@ from mpay.methods.tempo import tempo, TempoAccount
 account = TempoAccount.from_key("0x...")
 
 async with Client(methods=[tempo(account=account)]) as client:
-    response = await client.get("https://mpp.dev/ping/paid")
+    response = await client.get("https://mpp.dev/api/ping/paid")
     print(response.json())
 ```
 
@@ -32,7 +32,7 @@ from mpay.client import get
 from mpay.methods.tempo import tempo, TempoAccount
 
 response = await get(
-    "https://mpp.dev/ping/paid",
+    "https://mpp.dev/api/ping/paid",
     methods=[tempo(account=TempoAccount.from_key("0x..."))],
 )
 ```

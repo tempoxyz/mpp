@@ -87,13 +87,14 @@ const QUERY_PRESETS: QueryPreset[] = [
 				price: "$0.002",
 				priceNum: 0.002,
 				description: "Get walking directions",
-				params: { to: "Blue Bottle Coffee" },
+				params: { to: "The Coffee Movement" },
 			},
 		],
 		response: [
-			'"Blue Bottle Coffee is the top-rated coffee shop nearby',
-			" (4.8★, 0.3mi). It's a 6 minute walk — head north on",
-			' Market St, then right on 4th St."',
+			'"The Coffee Movement is the top-rated coffee shop',
+			" nearby (4.6★, 0.4mi). Known for specialty pour-overs",
+			" and single-origin beans. It's an 8 minute walk — head",
+			' north on Market St to Nob Hill, 1030 Washington St."',
 		],
 	},
 	{

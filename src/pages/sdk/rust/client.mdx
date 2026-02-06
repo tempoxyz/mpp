@@ -14,7 +14,7 @@ let signer = PrivateKeySigner::random();
 let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
 
 let response = reqwest::Client::new()
-    .get("https://mpp.dev/ping/paid")
+    .get("https://mpp.dev/api/ping/paid")
     .send_with_payment(&provider)
     .await?;
 ```
@@ -41,7 +41,7 @@ let client = ClientBuilder::new(reqwest::Client::new())
     .with(PaymentMiddleware::new(provider))
     .build();
 
-let response = client.get("https://mpp.dev/ping/paid").send().await?;
+let response = client.get("https://mpp.dev/api/ping/paid").send().await?;
 ```
 
 For custom methods, implement `PaymentProvider` and pass it to `send_with_payment`.

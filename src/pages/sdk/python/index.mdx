@@ -70,7 +70,7 @@ async def main():
     account = TempoAccount.from_env()
     
     async with Client(methods=[tempo(account=account)]) as client:
-        response = await client.get("https://mpp.dev/ping/paid")
+        response = await client.get("https://mpp.dev/api/ping/paid")
         print(response.json())
 
 asyncio.run(main())
