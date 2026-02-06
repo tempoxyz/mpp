@@ -1,5 +1,6 @@
 import { Card, Cards } from 'vocs'
 import { MermaidAscii } from '../components/MermaidAscii'
+import paymentFlow from '../snippets/diagrams/payment-flow.txt?raw'
 import { PaymentDemo } from '../components/PaymentDemo'
 
 # Machine Payments Protocol [The internet-native payments protocol]
@@ -40,16 +41,7 @@ This documentation site is itself an MPP server. Create an account, fund it with
 
 When a client requests a paid resource, the server returns a `402` response with the payment options they support. The client chooses a payment method, fulfills the request and retries with a credential. The server verifies the payment and returns the resource with a receipt.
 
-<MermaidAscii chart={`sequenceDiagram
-    participant Client
-    participant Server
-    Client->>Server: GET /resource
-    Server-->>Client: 402 + challenge
-    Note over Client: Fulfill payment
-    Client->>Server: GET /resource + credential
-    Note over Server: Verify payment
-    Server-->>Client: 200 OK + receipt
-`} />
+<MermaidAscii content={paymentFlow} />
 
 1. **Request the resource**—`GET /resource`
 2. **Return a payment challenge**—`402` Payment Required with `WWW-Authenticate: Payment` header

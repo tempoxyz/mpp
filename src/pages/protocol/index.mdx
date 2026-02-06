@@ -1,5 +1,6 @@
 import { Badge } from 'vocs'
 import { MermaidAscii } from '../../components/MermaidAscii'
+import protocolFlow from '../../snippets/diagrams/protocol-flow.txt?raw'
 
 # Protocol overview [Standardizing HTTP 402 for machine-to-machine payments]
 
@@ -9,16 +10,7 @@ These docs provide a developer-friendly overview. For the full specification, se
 
 ## Flow
 
-<MermaidAscii chart={`sequenceDiagram
-    participant Client
-    participant Server
-    Client->>Server: GET /resource
-    Server-->>Client: 402 + challenge
-    Note over Client: Fulfill payment
-    Client->>Server: GET /resource + credential
-    Note over Server: Verify and settle
-    Server-->>Client: 200 OK + receipt
-`} />
+<MermaidAscii content={protocolFlow} />
 
 1. **Request a resource**—Standard HTTP request (`GET`, `POST`, and others)
 2. **Respond with `402`**—Include a **challenge** in `WWW-Authenticate` describing the payment required

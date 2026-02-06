@@ -1,19 +1,4 @@
-"use client";
-
-import { renderMermaidAscii } from "beautiful-mermaid";
-import { useMemo } from "react";
-
-export function MermaidAscii({ chart }: { chart: string }) {
-	const ascii = useMemo(
-		() =>
-			renderMermaidAscii(chart, {
-				useAscii: false,
-				paddingX: 3,
-				paddingY: 1,
-				boxBorderPadding: 1,
-			}),
-		[chart],
-	);
+export function MermaidAscii({ content }: { content: string }) {
 	return (
 		<div style={{ display: "flex", justifyContent: "center" }}>
 			<pre
@@ -26,7 +11,7 @@ export function MermaidAscii({ chart }: { chart: string }) {
 						'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
 				}}
 			>
-				<code>{ascii}</code>
+				<code>{content}</code>
 			</pre>
 		</div>
 	);
