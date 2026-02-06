@@ -258,8 +258,7 @@ export function LandingPage() {
 						{/* Description */}
 						<div className="space-y-1.5 max-w-xl">
 							<p className="text-sm md:text-base text-gray-600 leading-relaxed">
-								Accept payments from humans, software, or AI agents using
-								standard HTTP. No billing accounts or manual signup required.
+								Accept payments.
 							</p>
 						</div>
 
