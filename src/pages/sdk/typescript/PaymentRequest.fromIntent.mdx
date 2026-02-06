@@ -9,10 +9,10 @@ import { PaymentRequest } from 'mpay'
 import { Intents } from 'mpay/tempo'
 
 const request = PaymentRequest.fromIntent(Intents.charge, {
-  amount: '1000000',
+  amount: '0.1',
   currency: '0x20c0000000000000000000000000000000000001',
+  decimals: 6,
   recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-  chainId: 42431,
 })
 ```
 

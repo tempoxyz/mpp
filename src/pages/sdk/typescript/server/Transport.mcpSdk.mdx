@@ -17,7 +17,7 @@ const server = new McpServer({ name: 'example', version: '1.0.0' })
 
 server.registerTool('premium', { description: 'A premium tool' }, async (extra) => {
   const result = await payment.charge({
-    amount: '1000', currency: '0x...', recipient: '0x...',
+    amount: '0.1', currency: '0x...', recipient: '0x...',
   })(extra)
 
   if (result.status === 402) throw result.challenge

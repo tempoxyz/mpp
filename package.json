@@ -23,7 +23,7 @@
 		"@tanstack/react-query": "^5.90.20",
 		"dayjs": "^1.11.19",
 		"mermaid": "^11.12.2",
-		"mpay": "https://pkg.pr.new/wevm/mpay@c7b84d2",
+		"mpay": "~0.1.0",
 		"react": "^19",
 		"react-dom": "^19",
 		"tailwindcss": "^4.1.18",

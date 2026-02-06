@@ -10,7 +10,7 @@ const mpay = Mpay.create({ method: tempo() });
 // [!region handler]
 export async function handler(request: Request) {
 	const response = await mpay.charge({
-		amount: "1000000",
+		amount: "0.1",
 		currency: "0x20c0000000000000000000000000000000000001",
 		recipient: "0x742d35Cc6634c0532925a3b844bC9e7595F8fE00",
 	})(request);

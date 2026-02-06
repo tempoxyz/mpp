@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 	const placeId = url.searchParams.get("place") || "place_001";
 
 	const result = await mpay.charge({
-		amount: "3000", // 0.003 USD (6 decimals)
+		amount: "0.003",
 		currency: env.DEFAULT_CURRENCY!,
 		recipient: env.DEFAULT_RECIPIENT!,
 		expires: Expires.minutes(5),

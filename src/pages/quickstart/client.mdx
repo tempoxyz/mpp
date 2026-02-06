@@ -142,7 +142,7 @@ import { Receipt } from 'mpay'
 
 const header = response.headers.get('Payment-Receipt') // [!code hl]
 const receipt = Receipt.deserialize(header)
-console.log(receipt.status)     // 'success' | 'failed'
+console.log(receipt.status)     // 'success'
 console.log(receipt.reference)  // transaction hash
 console.log(receipt.timestamp)  // ISO 8601
 ```

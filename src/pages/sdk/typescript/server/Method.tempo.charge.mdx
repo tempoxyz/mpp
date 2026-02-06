@@ -12,7 +12,7 @@ const mpay = Mpay.create({ method: tempo() })
 export async function handler(request: Request) {
   // [!code focus:start]
   const response = await mpay.charge({
-    amount: '1000000',
+    amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000001',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(request)
@@ -36,7 +36,7 @@ import { Expires } from 'mpay'
 
 export async function handler(request: Request) {
   const response = await mpay.charge({
-    amount: '1000000',
+    amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000001',
     expires: Expires.minutes(10), // [!code focus]
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -58,7 +58,7 @@ const mpay = Mpay.create({ method: tempo() })
 // ---cut---
 export async function handler(request: Request) {
   const response = await mpay.charge({
-    amount: '1000000',
+    amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000001',
     description: 'API access for /resource', // [!code focus]
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',

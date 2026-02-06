@@ -4,7 +4,7 @@ import { mpay } from "../../../mpay.server";
 
 export async function GET(request: Request) {
 	const result = await mpay.charge({
-		amount: "100000",
+		amount: "0.1",
 		currency: env.DEFAULT_CURRENCY!,
 		recipient: env.DEFAULT_RECIPIENT!,
 		expires: Expires.minutes(5),

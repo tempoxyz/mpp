@@ -29,7 +29,7 @@ const server = Method.toServer(stripe, {
     
     return Receipt.from({
       method: 'stripe',
-      status: isValid ? 'success' : 'failed',
+      status: 'success',
       timestamp: new Date().toISOString(),
       reference: '0x...',
     })

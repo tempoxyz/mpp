@@ -5,7 +5,7 @@ import { mpay } from "../../../../mpay.server";
 // Location lookup API - $0.001 per request
 export async function GET(request: Request) {
 	const result = await mpay.charge({
-		amount: "1000", // 0.001 USD (6 decimals)
+		amount: "0.001",
 		currency: env.DEFAULT_CURRENCY!,
 		recipient: env.DEFAULT_RECIPIENT!,
 		expires: Expires.minutes(5),

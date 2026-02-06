@@ -184,7 +184,7 @@ const mpay = Mpay.create({ method: tempo() })
 
 export async function handler(request: Request) { 
   const response = await mpay.charge({ 
-    amount: '1000000', 
+    amount: '0.1', 
     currency: '0x20c0000000000000000000000000000000000001', 
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
   })(request) 
@@ -212,7 +212,7 @@ type ServerResponse = import('node:http').ServerResponse
 // ---cut---
 export async function handler(req: IncomingMessage, res: ServerResponse) { 
   const response = await Mpay.toNodeListener(mpay.charge({ // [!code ++]
-    amount: '1000000', 
+    amount: '0.1', 
     currency: '0x20c0000000000000000000000000000000000001', 
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
   }))(req, res) // [!code ++]
@@ -241,7 +241,7 @@ const app = new Hono() // [!code focus]
 
 app.get('/resource', async (c) => { // [!code focus:99]
   const r = await mpay.charge({
-    amount: '1000000',
+    amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000001',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(c.req.raw)

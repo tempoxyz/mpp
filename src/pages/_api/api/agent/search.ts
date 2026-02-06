@@ -8,7 +8,7 @@ export async function GET(request: Request) {
 	const query = url.searchParams.get("q") || "coffee";
 
 	const result = await mpay.charge({
-		amount: "2000", // 0.002 USD (6 decimals)
+		amount: "0.002",
 		currency: env.DEFAULT_CURRENCY!,
 		recipient: env.DEFAULT_RECIPIENT!,
 		expires: Expires.minutes(5),

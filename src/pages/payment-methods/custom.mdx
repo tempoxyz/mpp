@@ -220,7 +220,7 @@ const serverMethod = Method.toServer(lightningMethod, {
 
     return Receipt.from({
       method: 'lightning',
-      status: isValid ? 'success' : 'failed',
+      status: 'success',
       reference: preimage,
       timestamp: new Date().toISOString(),
     })
@@ -349,7 +349,7 @@ const serverMethod = Method.toServer(lightningMethod, {
 
     return Receipt.from({
       method: 'lightning',
-      status: isValid ? 'success' : 'failed',
+      status: 'success',
       reference: preimage,
       timestamp: new Date().toISOString(),
     })
