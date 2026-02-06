@@ -23,11 +23,11 @@ $ cargo install --path .
 ## Quick start
 
 ```bash [quickstart.sh]
-# Initialize (first time only)
-$ pget init
+# Log in (first time only)
+$ pget login
 
 # Make a paid request
-$ pget https://mpp.tempo.xyz/api/ping/paid
+$ pget query https://mpp.tempo.xyz/api/ping/paid
 ```
 
 :::tip[Live demo server]
@@ -49,32 +49,31 @@ keystore = "/Users/you/.pget/keystores/my-wallet.json"
 tempo = "https://my-private-rpc.com"
 ```
 
-## Payment method management
+## Key management
 
-```bash [manage-methods.sh]
-# List all payment methods
-$ pget method list
+```bash [key-management.sh]
+# List all access keys
+$ pget keys list
 
-# Create a new wallet
-$ pget method new my-wallet --generate
+# Switch to a different access key
+$ pget keys switch 1
 
-# Import an existing private key
-$ pget method import my-wallet
-
-# Check balance on specific network
-$ pget balance -n tempo
+# Delete an access key
+$ pget keys delete 2
 ```
 
 ## Command reference
 
-| Command | Alias | Description |
-|---------|-------|-------------|
-| `pget init` | `pget i` | Initialize configuration |
-| `pget config` | `pget c` | View/manage configuration |
-| `pget method` | `pget m` | Manage payment methods |
-| `pget balance` | `pget b` | Check wallet balance |
-| `pget networks` | `pget n` | List supported networks |
-| `pget inspect` | — | Inspect payment requirements |
+| Command | Description |
+|---------|-------------|
+| `pget query <url>` | Make an HTTP request with automatic payment |
+| `pget login` | Log in and set up your wallet |
+| `pget logout` | Log out and clear credentials |
+| `pget whoami` | Show the current authenticated identity |
+| `pget inspect <url>` | Inspect payment requirements |
+| `pget balance` | Check wallet balance |
+| `pget config` | View/manage configuration |
+| `pget networks` | List supported networks |
 
 ## Learn more
 

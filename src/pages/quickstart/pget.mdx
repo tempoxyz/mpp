@@ -14,12 +14,12 @@ import { Card, Cards } from 'vocs'
 $ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 ```
 
-### Initialize
+### Log in
 
-Run the init wizard to set up your wallet:
+Run the login wizard to set up your wallet:
 
-```bash [init.sh]
-$ pget init
+```bash [login.sh]
+$ pget login
 ```
 
 This creates a new encrypted keystore and saves your configuration to `~/.pget/config.toml`.
@@ -36,7 +36,7 @@ $ export PGET_PRIVATE_KEY="0x..."
 ### Make your first paid request
 
 ```bash [paid-request.sh]
-$ pget -vv https://mpp.tempo.xyz/api/ping/paid
+$ pget query -vv https://mpp.tempo.xyz/api/ping/paid
 ```
 
 :::tip[Live demo server]
@@ -61,7 +61,7 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use 
 Use dry-run mode to see what would happen without actually paying:
 
 ```bash [dry-run.sh]
-$ pget -D https://mpp.tempo.xyz/api/ping/paid
+$ pget query -D https://mpp.tempo.xyz/api/ping/paid
 ```
 
 Or inspect the payment requirements before paying:
@@ -76,7 +76,7 @@ Protect yourself with a maximum payment amount:
 
 ```bash [max-payment.sh]
 # Reject payments over 1 USD
-$ pget -M 1000000 https://mpp.tempo.xyz/api/ping/paid
+$ pget query -M 1000000 https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ### Common flags
@@ -112,7 +112,7 @@ The agent calls pget like any other commandline tool when it detects a `402` Pay
 When an AI agent needs to access a paid resource, it runs:
 
 ```bash [agent-request.sh]
-$ pget https://api.example.com/premium-data
+$ pget query https://api.example.com/premium-data
 ```
 
 The agent receives the response data directly—no manual payment handling required.
@@ -127,7 +127,7 @@ Set a maximum amount the agent can spend per request:
 
 ```bash [spending-limit.sh]
 # Limit to 0.50 USDC per request
-$ pget -M 500000 https://api.example.com/data
+$ pget query -M 500000 https://api.example.com/data
 ```
 
 ### Dry run mode
@@ -135,7 +135,7 @@ $ pget -M 500000 https://api.example.com/data
 Agents can preview costs before committing:
 
 ```bash [preview-cost.sh]
-$ pget -D https://api.example.com/expensive-endpoint
+$ pget query -D https://api.example.com/expensive-endpoint
 ```
 
 ### Network filtering
@@ -143,7 +143,7 @@ $ pget -D https://api.example.com/expensive-endpoint
 Restrict payments to specific networks:
 
 ```bash
-pget -n tempo-moderato https://api.example.com/data
+pget query -n tempo-moderato https://api.example.com/data
 ```
 
 ### Skill configuration
@@ -173,14 +173,14 @@ For AI agent frameworks that support skills, pget can be configured as a tool:
 
 ```bash [query-api.sh]
 # Query a paid data API
-$ pget https://api.data-provider.com/market-data?symbol=BTC
+$ pget query https://api.data-provider.com/market-data?symbol=BTC
 ```
 
 ### Paid compute
 
 ```bash [inference.sh]
 # Run inference on a paid model
-$ pget -X POST \
+$ pget query -X POST \
   --json '{"prompt": "Explain quantum computing"}' \
   https://api.ai-provider.com/generate
 ```
@@ -189,7 +189,7 @@ $ pget -X POST \
 
 ```bash [analyze-repo.sh]
 # Use a paid developer tool
-$ pget https://api.dev-tools.com/analyze?repo=myorg/myrepo
+$ pget query https://api.dev-tools.com/analyze?repo=myorg/myrepo
 ```
 
 ## Next steps
