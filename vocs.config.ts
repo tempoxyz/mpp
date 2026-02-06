@@ -403,9 +403,9 @@ export default defineConfig({
 		{
 			text: "GitHub",
 			items: [
-				{ text: "mpay (TypeScript)", link: "https://github.com/wevm/mpay" },
-				{ text: "mpay-rs (Rust)", link: "https://github.com/tempoxyz/mpay-rs" },
-				{ text: "pympay (Python)", link: "https://github.com/tempoxyz/pympay" },
+				{ text: "mpay [TypeScript]", link: "https://github.com/wevm/mpay" },
+				{ text: "mpay-rs [Rust]", link: "https://github.com/tempoxyz/mpay-rs" },
+				{ text: "pympay [Python]", link: "https://github.com/tempoxyz/pympay" },
 				{
 					text: "Specifications",
 					link: "https://github.com/tempoxyz/payment-auth-spec",
