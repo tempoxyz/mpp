@@ -36,6 +36,10 @@
 		{
 			"pattern": "mpp.tempo.xyz",
 			"custom_domain": true
+		},
+		{
+			"pattern": "machinepayments.dev",
+			"custom_domain": true
 		}
 	]
 }
