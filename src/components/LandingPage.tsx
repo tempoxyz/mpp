@@ -171,11 +171,14 @@ export function LandingPage() {
 				<div className="flex items-center gap-4">
 					<a
 						href="https://github.com/tempoxyz/payment-auth-spec"
-						className="text-[#0166ff] underline"
+						className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
 					>
 						GitHub
 					</a>
-					<a href="https://x.com/mpp" className="text-[#0166ff] underline">
+					<a
+						href="https://x.com/mpp"
+						className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
+					>
 						X
 					</a>
 				</div>
