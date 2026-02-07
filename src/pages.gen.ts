@@ -108,6 +108,7 @@ type Page =
 | { path: '/payment-methods/tempo/charge'; render: 'static' }
 | { path: '/payment-methods/tempo'; render: 'static' }
 | { path: '/payment-methods/tempo/stream'; render: 'static' }
+| { path: '/intents/charge'; render: 'static' }
 | { path: '/guides/building-with-ai'; render: 'static' }
 | { path: '/_api/api/og'; render: 'static' };
 

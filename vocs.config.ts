@@ -93,12 +93,17 @@ export default defineConfig({
 				items: [
 					{ text: "Overview", link: "/payment-methods" },
 					{
+						text: "Intents",
+						collapsed: true,
+						items: [{ text: "Charge", link: "/intents/charge" }],
+					},
+					{
 						text: "Tempo",
 						collapsed: true,
 						items: [
 							{ text: "Overview", link: "/payment-methods/tempo" },
-							{ text: "Charge", link: "/payment-methods/tempo/charge" },
 							{ text: "Stream", link: "/payment-methods/tempo/stream" },
+							{ text: "Charge", link: "/payment-methods/tempo/charge" },
 						],
 					},
 					{

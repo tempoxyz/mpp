@@ -1,34 +1,66 @@
-import { Card, Cards } from 'vocs'
+import { Badge, Card, Cards } from 'vocs'
 
-# Tempo [Instant stablecoin payments on the Tempo blockchain]
+# Tempo [Stablecoin payments on the Tempo blockchain]
 
-The [Tempo](https://docs.tempo.xyz) payment method enables instant payments using TIP-20 stablecoins on the Tempo blockchain.
+The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain. It supports two intents—**charge** for one-time payments and **stream** for pay-as-you-go payment channels—covering everything from simple API access to high-frequency metered billing.
 
-## Overview
+## Payments on Tempo
 
-[Tempo](https://docs.tempo.xyz) is purpose-built for machine-to-machine payments. It provides:
+Tempo is purpose-built for the payment patterns MPP enables:
 
-- **Instant finality:** Transactions settle in ~500ms with deterministic confirmation
-- **Low fees:** Sub-cent transaction costs suitable for micropayments
-- **Fee sponsorship:** Servers can optionally cover gas fees for clients
+- **Instant finality**—Transactions settle in ~500ms with deterministic confirmation, no probabilistic waiting
+- **Sub-cent fees**—Transaction costs low enough for micropayments and per-request billing
+- **Fee sponsorship**—Servers can pay gas fees on behalf of clients, removing wallet UX friction entirely
+- **2D nonces**—Parallel nonce lanes let clients submit payment transactions without blocking other account activity
+- **Payment lane**—Dedicated transaction ordering for payment channel operations, providing reliable channel management UX
+- **High throughput**—Tempo's throughput handles the on-chain settlement and channel management volume that streaming payments generate at scale
 
-## Supported intents
+## Choosing a payment method 
+
+| | **Stream** <Badge variant="info">Recommended</Badge> | **Charge** |
+|---|---|---|
+| **Pattern** | Continuous pay-as-you-go | One-time payment per request |
+| **Latency overhead** | Near-zero | ~500ms (on-chain confirmation) |
+| **Throughput** | Hundreds of vouchers per second per channel | One transaction per request |
+| **Best for** | LLM APIs, metered services, usage-based billing | Single API calls, content access, one-off purchases |
+| **On-chain cost** | Amortized across many requests (0.001 USD total) | Per request (0.001 USD per request) |
+| **Settlement** | Off-chain vouchers, periodic on-chain settlement | Immediate on-chain transaction |
+
+## Intents
 
 <Cards>
   <Card
-    icon="lucide:credit-card"
-    title="Charge"
-    description="Immediate one-time payments"
-    to="/payment-methods/tempo/charge"
-  />
-  <Card
+    topRight={<Badge variant="info">Recommended</Badge>}
     icon="lucide:waves"
     title="Stream"
-    description="Pay-as-you-go streaming payments"
+    description="Pay-as-you-go streaming payments over payment channels"
     to="/payment-methods/tempo/stream"
+  />
+  <Card
+    icon="lucide:credit-card"
+    title="Charge"
+    description="Immediate one-time payments settled on-chain"
+    to="/payment-methods/tempo/charge"
   />
 </Cards>
 
-## Specification
+## Fee sponsorship
 
-For complete protocol details, credential formats, and verification requirements, see the [Tempo Charge specification](/specs).
+Tempo supports server-paid transaction fees for both charge and stream intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The client doesn't need to hold gas tokens or understand fee mechanics.
+
+Set `feePayer: true` in the Challenge request to enable this:
+
+```ts twoslash
+import { Mpay, tempo } from 'mpay/server'
+
+const mpay = Mpay.create({ methods: [tempo.charge()] })
+
+declare const request: Request
+// ---cut---
+const response = await mpay.charge({
+  amount: '0.1',
+  currency: '0x20c0000000000000000000000000000000000001',
+  feePayer: true, // [!code hl]
+  recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+})(request)
+```
