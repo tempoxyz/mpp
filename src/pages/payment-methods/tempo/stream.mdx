@@ -9,7 +9,7 @@ Streaming payments reduce payment verification to near constant time, making it 
 
 ## Why streaming matters in MPP
 
-Traditional payment rails were designed for human purchase flows: a buyer decides, pays, and receives goods. Usage-based billing—the model that powers cloud infrastructure, LLM APIs, and metered services—requires something fundamentally different. It needs payment verification that can keep pace with the service itself.
+Traditional payment rails target human purchase flows: a buyer decides, pays, and receives goods. Usage-based billing—the model that powers cloud infrastructure, LLM APIs, and metered services—requires something fundamentally different. It needs payment verification that can keep pace with the service itself.
 
 Consider an LLM API: a single inference request can generate hundreds of tokens over several seconds. Each token has a known cost. The total cost isn't known when the request begins. Card-based billing handles this by accumulating usage and charging after the fact, introducing credit risk, reconciliation complexity, and billing disputes. Prepaid credit systems require the client to guess consumption upfront and lose unused funds.
 
@@ -49,7 +49,7 @@ A stream payment has four phases:
 
 ### 1. Open
 
-The client deposits funds into an on-chain escrow contract, creating a payment channel between the client (payer) and server (payee). The channel is identified by a unique `channelId` and holds the deposited TIP-20 tokens.
+The client deposits funds into an on-chain escrow contract, creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and holds the deposited TIP-20 tokens.
 
 ### 2. Stream
 
@@ -67,7 +67,7 @@ Either party can close the channel. The server calls `close()` on the escrow con
 
 ## High volume API billing
 
-Streaming payments are designed for the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
+Streaming payments match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
 
 A typical flow for a high-volume LLM API:
 
@@ -81,7 +81,7 @@ A typical flow for a high-volume LLM API:
 The server never touches the chain during inference. Payment verification adds microseconds of CPU overhead per chunk, not hundreds of milliseconds of network latency. 
 
 :::info[Why Tempo]
-Tempo is designed for payments at scale, and has properties that make it a uniquely good fit for streaming payments:
+Tempo handles payments at scale and has properties that make it a uniquely good fit for streaming payments:
 
 - **Channel management UX**—Opening, topping up, and closing channels are on-chain operations. Tempo's ~500ms finality and sub-cent fees keep channel lifecycle from becoming a UX bottleneck.
 - **Payment lane**—Tempo's 2D nonce system provides dedicated nonce lanes for payment transactions, so channel operations don't block other account activity. This matters for clients that use the same account for payments and other on-chain interactions.

@@ -15,7 +15,7 @@ sequenceDiagram
 
     Client->>Server: (1) GET /resource
     Server-->>Client: (2) 402 + Challenge (amount, currency, recipient)
-    Note over Client: (3) Fulfill payment (sign tx, pay invoice, etc.)
+    Note over Client: (3) Fulfill payment (sign tx, pay invoice)
     Client->>Server: (4) GET /resource + Credential (payment proof)
     Server->>Network: (5) Settle payment
     Network-->>Server: (6) Confirmed
