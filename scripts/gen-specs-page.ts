@@ -64,11 +64,11 @@ const specs = xmlFiles.map(parseXml);
 
 const categories: [string, (b: string) => boolean, string | null][] = [
 	["Core", (b) => b.startsWith("draft-httpauth-"), null],
-	["Extensions", (b) => b.startsWith("draft-payment-discovery"), null],
-	["Transports", (b) => b.startsWith("draft-payment-transport"), null],
 	["Intents", (b) => b.startsWith("draft-payment-intent"), null],
 	["Tempo", (b) => b.startsWith("draft-tempo-"), "Payment Methods"],
 	["Stripe", (b) => b.startsWith("draft-stripe-"), "Payment Methods"],
+	["Transports", (b) => b.startsWith("draft-payment-transport"), null],
+	["Extensions", (b) => b.startsWith("draft-payment-discovery"), null],
 ];
 
 const lines: string[] = [
