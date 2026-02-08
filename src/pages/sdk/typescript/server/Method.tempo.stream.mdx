@@ -59,12 +59,6 @@ type ReturnType = MethodIntent.Server
 
 Default amount to charge per unit.
 
-### chainId (optional)
-
-- **Type:** `number`
-
-Chain ID for the Tempo network. Defaults to the Tempo testnet chain ID.
-
 ### currency (optional)
 
 - **Type:** `Address`
@@ -89,6 +83,12 @@ Escrow contract address for the payment channel. Defaults to the canonical escro
 - **Type:** `Account`
 
 Account for sponsoring open and top-up transaction fees.
+
+### getClient (optional)
+
+- **Type:** `(chainId: number) => Client`
+
+Function that returns a viem client for the given chain ID.
 
 ### minVoucherDelta (optional)
 
@@ -138,8 +138,3 @@ Testnet mode.
 
 Unit type label (for example, "token", "byte", "request").
 
-### walletClient (optional)
-
-- **Type:** `WalletClient`
-
-Wallet client for submitting on-chain close transactions. Required to settle channels on-chain when the server initiates a close.

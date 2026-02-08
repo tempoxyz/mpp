@@ -65,12 +65,6 @@ const method = tempo.stream({
 })
 ```
 
-### client (optional)
-
-- **Type:** `(chainId: number) => Client`
-
-Function that returns a viem client for the given chain ID.
-
 ### deposit (optional)
 
 - **Type:** `bigint`
@@ -82,3 +76,9 @@ Initial deposit amount for auto-managed channels. When set, the client handles t
 - **Type:** `Address`
 
 Escrow contract address override. Derived from the server Challenge if not provided.
+
+### getClient (optional)
+
+- **Type:** `(chainId: number) => Client`
+
+Function that returns a viem client for the given chain ID.
