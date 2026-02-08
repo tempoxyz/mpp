@@ -153,7 +153,7 @@ export function Panel({
 		<div
 			ref={ref}
 			className={cx(
-				"p-4 overflow-y-auto bg-primary flex",
+				"p-4 overflow-y-auto bg-surface flex",
 				reverse ? "flex-col-reverse" : "flex-col",
 				className,
 			)}
@@ -876,7 +876,7 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
 
 	return (
 		<div
-			className={cx("flex flex-col text-xs bg-primary", className)}
+			className={cx("flex flex-col text-xs bg-surface", className)}
 			style={style}
 		>
 			<div className="flex items-center border-b border-primary px-3 py-1.5 text-gray8 shrink-0">
@@ -958,9 +958,9 @@ export namespace NetworkPanel {
 // Demo Components
 
 export function Demo({
+	children,
 	className,
 	height = 300,
-	steps,
 	title,
 	token,
 }: Demo.Props) {
@@ -973,7 +973,7 @@ export function Demo({
 
 			<Tabs />
 
-			<Demo.Content height={height} steps={steps} />
+			<Demo.Content height={height}>{children}</Demo.Content>
 
 			<FooterBar
 				left={<Hint />}
@@ -992,19 +992,20 @@ export namespace Demo {
 	export type Props = {
 		className?: string;
 		height?: number;
-		steps: (() => ReactNode)[];
+		children: ReactNode;
 		title?: string;
 		token?: Address;
 	};
 
 	export function Content({
+		children,
 		height,
-		steps,
 	}: {
+		children: ReactNode;
 		height: number;
-		steps: (() => ReactNode)[];
 	}) {
 		const view = useStore(store, (s) => s.view);
+		const steps = Children.toArray(children);
 
 		return (
 			<>
@@ -1013,11 +1014,9 @@ export namespace Demo {
 					className={view !== "main" ? "hidden!" : undefined}
 				>
 					<Steps>
-						{steps.map((StepComponent, i) => (
+						{steps.map((step, i) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: stable array
-							<Step key={i}>
-								<StepComponent />
-							</Step>
+							<Step key={i}>{step}</Step>
 						))}
 					</Steps>
 				</Panel>

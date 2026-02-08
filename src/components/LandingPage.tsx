@@ -2,7 +2,7 @@
 
 import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";
-import { CliDemo } from "./CliDemo";
+import { CliDemo } from "./CliDemo.new";
 
 function TempoLogo({
 	className,

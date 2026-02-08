@@ -126,11 +126,12 @@ export function CliPlayground() {
 				/>
 			</Cli.Window>
 
-			<Cli.Demo
-				title="Make a request with payment"
-				token={alphaUsd}
-				steps={[Cli.Startup, Cli.ConnectWallet, Cli.Faucet, Cli.Ping]}
-			/>
+			<Cli.Demo title="Make a request with payment" token={alphaUsd}>
+				<Cli.Startup />
+				<Cli.ConnectWallet />
+				<Cli.Faucet />
+				<Cli.Ping />
+			</Cli.Demo>
 		</div>
 	);
 }
