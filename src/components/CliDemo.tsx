@@ -319,7 +319,7 @@ export function CliDemo() {
 					"viem/accounts"
 				);
 				const { createClient, http } = await import("viem");
-				type Chain = import("viem").Chain;
+				const { tempoModerato } = await import("viem/chains");
 
 				// Initial terminal output
 				addLines([
@@ -448,7 +448,7 @@ export function CliDemo() {
 							account: acc,
 							client: () =>
 								createClient({
-									chain: { id: 42431, name: "Tempo Testnet" } as Chain,
+									chain: tempoModerato,
 									transport: http("/api/rpc"),
 								}),
 						}),
