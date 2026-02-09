@@ -110,9 +110,7 @@ function patchServerAssets(serverAssetsDir: string) {
 		// Skip eager TypeScript compiler initialization — it uses __filename,
 		// fs.accessSync, etc. that don't exist in Workers. Twoslash code
 		// highlighting is already bypassed via the CodeToHtml patch below.
-		if (
-			content.includes("var typescriptExports = requireTypescript();")
-		) {
+		if (content.includes("var typescriptExports = requireTypescript();")) {
 			content = content.replace(
 				"var typescriptExports = requireTypescript();",
 				"var typescriptExports = typeof globalThis.caches !== 'undefined' ? {} : requireTypescript();",

@@ -49,7 +49,20 @@ jobs:
 
       - name: Smoke test (wrangler dev)
         run: |
-          npx wrangler dev --port 8788 &
+          # ──────────────────────────────────────────────────────────
+          # To reproduce locally:
+          #   pnpm build
+          #   pnpm wrangler:dev &
+          #   curl -s -o /dev/null -w '%{http_code}' http://localhost:8788/quickstart/tempoctl -H 'Accept: text/html'
+          #   curl -s -o /dev/null -w '%{http_code}' http://localhost:8788/ -H 'Accept: text/html'
+          #   curl -s -o /dev/null -w '%{http_code}' http://localhost:8788/ -H 'Accept: text/markdown'
+          # All three should return 200. If any return 500, check wrangler
+          # logs for the error — usually a missing module or unsupported
+          # Node.js API. Fix in scripts/patch-cf.ts.
+          # ──────────────────────────────────────────────────────────
+
+          WRANGLER_LOG=$(mktemp)
+          npx wrangler dev --port 8788 > "$WRANGLER_LOG" 2>&1 &
           WRANGLER_PID=$!
 
           # Wait for wrangler to be ready (up to 30s)
@@ -57,39 +70,46 @@ jobs:
             if curl -sf http://localhost:8788/ -o /dev/null 2>/dev/null; then
               break
             fi
+            if ! kill -0 $WRANGLER_PID 2>/dev/null; then
+              echo "ERROR: wrangler exited before becoming ready"
+              cat "$WRANGLER_LOG"
+              exit 1
+            fi
             sleep 1
           done
 
           FAILED=0
 
-          # HTML page renders without 500
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8788/quickstart/tempoctl' -H 'Accept: text/html')
-          if [ "$STATUS" != "200" ]; then
-            echo "FAIL: /quickstart/tempoctl returned $STATUS (expected 200)"
-            FAILED=1
-          else
-            echo "OK: /quickstart/tempoctl → $STATUS"
-          fi
+          check_route() {
+            local URL=$1 LABEL=$2 ACCEPT=$3
+            BODY=$(mktemp)
+            STATUS=$(curl -s -o "$BODY" -w '%{http_code}' "$URL" -H "Accept: $ACCEPT")
+            if [ "$STATUS" != "200" ]; then
+              echo "FAIL: $LABEL returned $STATUS (expected 200)"
+              echo "--- response body (first 40 lines) ---"
+              head -40 "$BODY"
+              echo "---"
+              FAILED=1
+            else
+              echo "OK: $LABEL → $STATUS"
+            fi
+            rm -f "$BODY"
+          }
 
-          # Homepage renders
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8788/' -H 'Accept: text/html')
-          if [ "$STATUS" != "200" ]; then
-            echo "FAIL: / returned $STATUS (expected 200)"
-            FAILED=1
-          else
-            echo "OK: / → $STATUS"
-          fi
-
-          # llms.txt serves markdown (AI agent path)
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8788/' -H 'Accept: text/markdown')
-          if [ "$STATUS" != "200" ]; then
-            echo "FAIL: / (text/markdown) returned $STATUS (expected 200)"
-            FAILED=1
-          else
-            echo "OK: / (text/markdown) → $STATUS"
-          fi
+          check_route 'http://localhost:8788/quickstart/tempoctl' '/quickstart/tempoctl (html)' 'text/html'
+          check_route 'http://localhost:8788/'                     '/ (html)'                    'text/html'
+          check_route 'http://localhost:8788/'                     '/ (markdown/llms.txt)'        'text/markdown'
 
           kill $WRANGLER_PID 2>/dev/null || true
+          wait $WRANGLER_PID 2>/dev/null || true
+
+          if [ "$FAILED" = "1" ]; then
+            echo ""
+            echo "=== wrangler dev logs ==="
+            cat "$WRANGLER_LOG"
+          fi
+
+          rm -f "$WRANGLER_LOG"
           exit $FAILED
 
       - name: Prune server bundle
