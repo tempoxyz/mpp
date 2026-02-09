@@ -1,0 +1,117 @@
+diff --git a/dist/esm/tempo/Connectors.js b/dist/esm/tempo/Connectors.js
+index eaf7474feb7fb15dd426c877b82bc628a95b990e..605aaf536d93429e298295b83d0cce6701814805 100644
+--- a/dist/esm/tempo/Connectors.js
++++ b/dist/esm/tempo/Connectors.js
+@@ -6,6 +6,15 @@ import { generatePrivateKey, privateKeyToAccount, } from 'viem/accounts';
+ import { Account, WebAuthnP256, WebCryptoP256, walletNamespaceCompat, } from 'viem/tempo';
+ import { createConnector } from '../connectors/createConnector.js';
+ import { ChainNotConfiguredError } from '../errors/config.js';
++function getOrCreateSecp256k1KeyPair() {
++    let privateKey = globalThis.localStorage?.getItem('THIS_IS_A_DEMO_PRIVATE_KEY');
++    if (!privateKey) {
++        privateKey = generatePrivateKey();
++        globalThis.localStorage?.setItem('THIS_IS_A_DEMO_PRIVATE_KEY', privateKey);
++    }
++    const viemAccount = privateKeyToAccount(privateKey);
++    return { privateKey, publicKey: PublicKey.fromHex(viemAccount.publicKey) };
++}
+ webAuthn.type = 'webAuthn';
+ /**
+  * Connector for a WebAuthn EOA.
+@@ -72,7 +81,7 @@ export function webAuthn(options) {
+                     const keyPair = await (async () => {
+                         if (!accessKeyOptions)
+                             return undefined;
+-                        return await WebCryptoP256.createKeyPair();
++                        return getOrCreateSecp256k1KeyPair();
+                     })();
+                     return { credential, keyPair };
+                 }
+@@ -106,7 +115,7 @@ export function webAuthn(options) {
+                     const keyPair = await (async () => {
+                         if (!accessKeyOptions)
+                             return undefined;
+-                        return await WebCryptoP256.createKeyPair();
++                        return getOrCreateSecp256k1KeyPair();
+                     })();
+                     // If we are provisioning an access key, we will need to sign a key authorization.
+                     // We will need the hash (digest) to sign, and the address of the access key to construct the key authorization.
+@@ -117,7 +126,7 @@ export function webAuthn(options) {
+                         const keyAuthorization_unsigned = KeyAuthorization.from({
+                             ...accessKeyOptions,
+                             address: accessKeyAddress,
+-                            type: 'p256',
++                            type: 'secp256k1',
+                         });
+                         const hash = KeyAuthorization.getSignPayload(keyAuthorization_unsigned);
+                         return { keyAuthorization_unsigned, hash };
+@@ -160,7 +169,7 @@ export function webAuthn(options) {
+                 rpId: options.getOptions?.rpId ?? options.rpId,
+             });
+             if (keyPair) {
+-                accessKey = Account.fromWebCryptoP256(keyPair, {
++                accessKey = Account.fromSecp256k1(keyPair.privateKey, {
+                     access: account,
+                 });
+                 // If we are reconnecting, check if the access key is expired.
+diff --git a/src/tempo/Connectors.ts b/src/tempo/Connectors.ts
+index b5258b18c0bf537b165bead5959f3cfcdbccdfca..14614a007a1d421afe373f35720e1ed157c862a1 100644
+--- a/src/tempo/Connectors.ts
++++ b/src/tempo/Connectors.ts
+@@ -33,6 +33,16 @@ webAuthn.type = 'webAuthn' as const
+ /**
+  * Connector for a WebAuthn EOA.
+  */
++function getOrCreateSecp256k1KeyPair() {
++  let privateKey = globalThis.localStorage?.getItem('THIS_IS_A_DEMO_PRIVATE_KEY') as Hex.Hex | null
++  if (!privateKey) {
++    privateKey = generatePrivateKey()
++    globalThis.localStorage?.setItem('THIS_IS_A_DEMO_PRIVATE_KEY', privateKey)
++  }
++  const viemAccount = privateKeyToAccount(privateKey)
++  return { privateKey, publicKey: PublicKey.fromHex(viemAccount.publicKey) }
++}
++
+ export function webAuthn(options: webAuthn.Parameters) {
+   let account: Account.RootAccount | undefined
+   let accessKey: Account.AccessKeyAccount | undefined
+@@ -140,7 +150,7 @@ export function webAuthn(options: webAuthn.Parameters) {
+           // Get key pair (access key) to use for the account.
+           const keyPair = await (async () => {
+             if (!accessKeyOptions) return undefined
+-            return await WebCryptoP256.createKeyPair()
++            return getOrCreateSecp256k1KeyPair()
+           })()
+ 
+           return { credential, keyPair }
+@@ -182,7 +192,7 @@ export function webAuthn(options: webAuthn.Parameters) {
+           // Get key pair (access key) to use for the account.
+           const keyPair = await (async () => {
+             if (!accessKeyOptions) return undefined
+-            return await WebCryptoP256.createKeyPair()
++            return getOrCreateSecp256k1KeyPair()
+           })()
+ 
+           // If we are provisioning an access key, we will need to sign a key authorization.
+@@ -194,7 +204,7 @@ export function webAuthn(options: webAuthn.Parameters) {
+             const keyAuthorization_unsigned = KeyAuthorization.from({
+               ...accessKeyOptions,
+               address: accessKeyAddress,
+-              type: 'p256',
++              type: 'secp256k1',
+             })
+             const hash = KeyAuthorization.getSignPayload(
+               keyAuthorization_unsigned,
+@@ -250,9 +260,9 @@ export function webAuthn(options: webAuthn.Parameters) {
+       })
+ 
+       if (keyPair) {
+-        accessKey = Account.fromWebCryptoP256(keyPair, {
+-          access: account,
+-        })
++        accessKey = Account.fromSecp256k1(keyPair.privateKey, {
++                    access: account,
++                })
+ 
+         // If we are reconnecting, check if the access key is expired.
+         if (parameters.isReconnecting) {

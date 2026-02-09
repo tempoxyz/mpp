@@ -57,7 +57,8 @@
 	},
 	"pnpm": {
 		"patchedDependencies": {
-			"vocs@0.0.0": "patches/vocs@0.0.0.patch"
+			"vocs@0.0.0": "patches/vocs@0.0.0.patch",
+			"@wagmi/core@3.3.2": "patches/@wagmi__core@3.3.2.patch"
 		}
 	}
 }

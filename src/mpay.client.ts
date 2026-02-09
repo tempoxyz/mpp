@@ -7,7 +7,8 @@ const trackedFetch = wrapFetch(globalThis.fetch);
 export const fetch = Fetch.from({
 	fetch: trackedFetch,
 	methods: [
-		tempo.charge({
+		tempo.stream({
+			deposit: 5_000_000n,
 			async getClient(chainId) {
 				const client = await config.connectors
 					.at(0)
