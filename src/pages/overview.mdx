@@ -1,6 +1,6 @@
 import { Card, Cards } from 'vocs'
 import * as Cli from '../components/Cli'
-import { alphaUsd } from '../wagmi.config'
+import { pathUsd } from '../wagmi.config'
 
 # Machine Payments Protocol [The internet-native payments protocol]
 
@@ -28,7 +28,7 @@ The Machine Payment Protocol addresses this issue, providing an internet native 
 
 This documentation site is itself an MPP server. Create an account, fund it with testnet tokens, and make a paid request to see the full flow in action.
 
-<Cli.Demo title="Make a request with payment" token={alphaUsd} restartStep={1}>
+<Cli.Demo title="Make a request with payment" token={pathUsd} restartStep={1}>
   <Cli.Startup />
   <Cli.ConnectWallet />
   <Cli.Faucet />

@@ -107,7 +107,7 @@ declare const storage: import('mpay/server').ChannelStorage
 const mpay = Mpay.create({
   methods: [
     tempo.stream({
-      currency: '0x20c0000000000000000000000000000000000001',
+      currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
       rpcUrl: 'https://rpc.tempo.xyz',
       storage,
@@ -129,7 +129,7 @@ declare const storage: import('mpay/server').ChannelStorage
 const mpay = Mpay.create({
   methods: [
     tempo.stream({
-      currency: '0x20c0000000000000000000000000000000000001',
+      currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
       rpcUrl: 'https://rpc.tempo.xyz',
       storage,
@@ -140,7 +140,7 @@ const mpay = Mpay.create({
 export async function handler(request: Request) {
   const result = await mpay.stream({
     amount: '25',
-    currency: '0x20c0000000000000000000000000000000000001',
+    currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
     unitType: 'llm_token',
   })(request)

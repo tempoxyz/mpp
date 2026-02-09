@@ -51,7 +51,7 @@ const mpay = Mpay.create({ methods: [tempo.charge()] })
 export async function handler(request: Request) { 
   const response = await mpay.charge({ 
     amount: '0.1', 
-    currency: '0x20c0000000000000000000000000000000000001', 
+    currency: '0x20c0000000000000000000000000000000000000', 
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
   })(request) 
   // [!code focus:end]
@@ -87,7 +87,7 @@ type ServerResponse = import('node:http').ServerResponse
 export async function handler(req: IncomingMessage, res: ServerResponse) { 
   const response = await Mpay.toNodeListener(mpay.charge({ // [!code ++]
     amount: '0.1', 
-    currency: '0x20c0000000000000000000000000000000000001', 
+    currency: '0x20c0000000000000000000000000000000000000', 
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
   }))(req, res) // [!code ++]
 
@@ -107,14 +107,14 @@ We can also hoist values that we use often up into the `Mpay` instance.
 ```ts
 const mpay = Mpay.create({ 
   methods: [tempo.charge({
-    currency: '0x20c0000000000000000000000000000000000001', // [!code ++]
+    currency: '0x20c0000000000000000000000000000000000000', // [!code ++]
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', // [!code ++]
   })] 
 })
 
 const response = await mpay.charge({ 
   amount: '0.1', 
-  currency: '0x20c0000000000000000000000000000000000001',  // [!code --]
+  currency: '0x20c0000000000000000000000000000000000000',  // [!code --]
   recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',  // [!code --]
 })(request) 
 ```
@@ -135,7 +135,7 @@ const app = new Hono() // [!code focus]
 app.get('/resource', async (c) => { // [!code focus:99]
   const r = await mpay.charge({
     amount: '0.1',
-    currency: '0x20c0000000000000000000000000000000000001',
+    currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(c.req.raw)
 

@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useConnectorClient } from "wagmi";
 import { fetch } from "../mpay.client";
-import { alphaUsd } from "../wagmi.config";
+import { pathUsd } from "../wagmi.config";
 import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";
 import * as Cli from "./Cli";
@@ -102,7 +102,7 @@ export function LandingPage() {
 					<div className="flex-11 w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none">
 						<Cli.Demo
 							title="agent-demo"
-							token={alphaUsd}
+							token={pathUsd}
 							height={337}
 							restartStep={1}
 						>

@@ -23,7 +23,7 @@ const mpay = Mpay.create({
 export async function handler(request: Request) {
   const result = await mpay.charge({
     amount: '0.1',
-    currency: '0x20c0000000000000000000000000000000000001',
+    currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(request)
 
@@ -45,7 +45,7 @@ import { Expires } from 'mpay'
 export async function handler(request: Request) {
   const result = await mpay.charge({
     amount: '0.1',
-    currency: '0x20c0000000000000000000000000000000000001',
+    currency: '0x20c0000000000000000000000000000000000000',
     expires: Expires.minutes(10), // [!code hl]
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
   })(request)
@@ -66,7 +66,7 @@ declare const request: Request
 // ---cut---
 const result = await mpay.charge({
   amount: '0.1',
-  currency: '0x20c0000000000000000000000000000000000001',
+  currency: '0x20c0000000000000000000000000000000000000',
   feePayer: true, // [!code hl]
   recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
 })(request)

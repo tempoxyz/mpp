@@ -17,7 +17,7 @@ app = FastAPI()
 
 mpay = Mpay.create(
     method=tempo(
-        currency="0x20c0000000000000000000000000000000000001",
+        currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
         intents={"charge": ChargeIntent()},
     ),
@@ -46,7 +46,7 @@ async def get_resource(request: Request):
 ```python [server.py]
 mpay = Mpay.create(
     method=tempo(
-        currency="0x20c0000000000000000000000000000000000001",
+        currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
         intents={"charge": ChargeIntent()},
     ),
@@ -63,7 +63,7 @@ mpay = Mpay.create(
 from mpay.methods.tempo import tempo, ChargeIntent
 
 method = tempo(
-    currency="0x20c0000000000000000000000000000000000001",
+    currency="0x20c0000000000000000000000000000000000000",
     recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
     intents={"charge": ChargeIntent()},
 )
@@ -79,7 +79,7 @@ from mpay.methods.tempo.stream.storage import MemoryStorage
 
 mpay = Mpay.create(
     method=tempo(
-        currency="0x20c0000000000000000000000000000000000001",
+        currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
         intents={
             "charge": ChargeIntent(),
@@ -251,7 +251,7 @@ app = FastAPI()
 
 mpay = Mpay.create(
     method=tempo(
-        currency="0x20c0000000000000000000000000000000000001",
+        currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
         intents={
             "stream": StreamIntent(

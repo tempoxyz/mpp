@@ -27,7 +27,7 @@ let payment = Mpay::new(method, "mpp.dev", "my-secret");
 ```rust
 let challenge = payment.charge_challenge(
     "1000000",
-    "0x20c0000000000000000000000000000000000001",
+    "0x20c0000000000000000000000000000000000000",
     "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
 )?;
 ```

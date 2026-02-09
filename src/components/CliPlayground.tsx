@@ -1,6 +1,6 @@
 "use client";
 
-import { alphaUsd } from "../wagmi.config";
+import { pathUsd } from "../wagmi.config";
 import * as Cli from "./Cli";
 
 export function CliPlayground() {
@@ -128,7 +128,7 @@ export function CliPlayground() {
 
 			<Cli.Demo
 				title="Make a request with payment"
-				token={alphaUsd}
+				token={pathUsd}
 				restartStep={1}
 			>
 				<Cli.Startup />

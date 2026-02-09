@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 
 const RPC_URL = "https://rpc.moderato.tempo.xyz";
-const DEFAULT_CURRENCY = "0x20c0000000000000000000000000000000000001";
+const DEFAULT_CURRENCY = "0x20c0000000000000000000000000000000000000";
 
 function getRpcHeaders(): Record<string, string> {
 	const headers: Record<string, string> = {
