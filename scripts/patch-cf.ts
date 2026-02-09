@@ -83,6 +83,57 @@ function patchServerAssets(serverAssetsDir: string) {
 		let content = fs.readFileSync(filePath, "utf-8");
 		let patched = false;
 
+		// --- CF Workers module compatibility stubs ---
+		// The mdx server asset bundles build-time deps (TypeScript compiler,
+		// Shiki twoslash, vite logger, node:inspector) that aren't available
+		// in the Workers runtime. Rather than patching each one individually,
+		// we stub unavailable modules and skip eager TypeScript initialization.
+
+		// Stub bare `vite` import — not available in CF Workers
+		if (content.includes('import { createLogger } from "vite";')) {
+			content = content.replace(
+				'import { createLogger } from "vite";',
+				"const createLogger = () => ({ info() {}, warn() {}, error() {}, hasWarned: false, clearScreen() {}, hasErrorLogged() { return false; }, warnOnce() {}, });",
+			);
+			patched = true;
+		}
+
+		// Stub `inspector` import — not available in CF Workers
+		if (content.includes('import require$$6 from "inspector";')) {
+			content = content.replace(
+				'import require$$6 from "inspector";',
+				"const require$$6 = undefined;",
+			);
+			patched = true;
+		}
+
+		// Skip eager TypeScript compiler initialization — it uses __filename,
+		// fs.accessSync, etc. that don't exist in Workers. Twoslash code
+		// highlighting is already bypassed via the CodeToHtml patch below.
+		if (
+			content.includes("var typescriptExports = requireTypescript();")
+		) {
+			content = content.replace(
+				"var typescriptExports = requireTypescript();",
+				"var typescriptExports = typeof globalThis.caches !== 'undefined' ? {} : requireTypescript();",
+			);
+			patched = true;
+		}
+
+		// Force isDev=false in CF Workers — prevents resolveContent() from
+		// calling fs.glob/getPagesFromDir (pre-built static markdown is used instead)
+		if (
+			content.includes(
+				'const isDev = process.env["NODE_ENV"] !== "production";',
+			)
+		) {
+			content = content.replace(
+				'const isDev = process.env["NODE_ENV"] !== "production";',
+				'const isDev = typeof globalThis.caches !== "undefined" ? false : process.env["NODE_ENV"] !== "production";',
+			);
+			patched = true;
+		}
+
 		// Patch Ajv's new Function() for schema compilation
 		if (
 			content.includes(

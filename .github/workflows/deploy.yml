@@ -47,6 +47,51 @@ jobs:
         env:
           SPEC_PAT: ${{ secrets.SPEC_PAT }}
 
+      - name: Smoke test (wrangler dev)
+        run: |
+          npx wrangler dev --port 8788 &
+          WRANGLER_PID=$!
+
+          # Wait for wrangler to be ready (up to 30s)
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8788/ -o /dev/null 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          FAILED=0
+
+          # HTML page renders without 500
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8788/quickstart/tempoctl' -H 'Accept: text/html')
+          if [ "$STATUS" != "200" ]; then
+            echo "FAIL: /quickstart/tempoctl returned $STATUS (expected 200)"
+            FAILED=1
+          else
+            echo "OK: /quickstart/tempoctl → $STATUS"
+          fi
+
+          # Homepage renders
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8788/' -H 'Accept: text/html')
+          if [ "$STATUS" != "200" ]; then
+            echo "FAIL: / returned $STATUS (expected 200)"
+            FAILED=1
+          else
+            echo "OK: / → $STATUS"
+          fi
+
+          # llms.txt serves markdown (AI agent path)
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' 'http://localhost:8788/' -H 'Accept: text/markdown')
+          if [ "$STATUS" != "200" ]; then
+            echo "FAIL: / (text/markdown) returned $STATUS (expected 200)"
+            FAILED=1
+          else
+            echo "OK: / (text/markdown) → $STATUS"
+          fi
+
+          kill $WRANGLER_PID 2>/dev/null || true
+          exit $FAILED
+
       - name: Prune server bundle
         run: node --experimental-strip-types scripts/prune-server.ts
 
