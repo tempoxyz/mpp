@@ -74,7 +74,7 @@ const categories: [string, (b: string) => boolean, string | null][] = [
 const lines: string[] = [
 	"# Specifications [Normative protocol specifications for MPP]",
 	"",
-	"The IETF-track Internet-Drafts that define the Machine Payments Protocol.",
+	"The technical specifications that define the Machine Payments Protocol.",
 	"",
 	"[Source repository](https://github.com/tempoxyz/payment-auth-spec) · [Contributing](https://github.com/tempoxyz/payment-auth-spec/blob/main/CONTRIBUTING.md)",
 	"",
