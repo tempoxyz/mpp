@@ -1,0 +1,90 @@
+# `Mcp`
+
+Types and constants for MCP (Model Context Protocol) payment integration via JSON-RPC.
+
+## Usage
+
+```ts twoslash
+import { Mcp } from 'mpay'
+
+const code = Mcp.paymentRequiredCode
+// => -32042
+
+const credKey = Mcp.credentialMetaKey
+// => 'org.paymentauth/credential'
+
+const receiptKey = Mcp.receiptMetaKey
+// => 'org.paymentauth/receipt'
+```
+
+## Constants
+
+### paymentRequiredCode
+
+- **Type:** `number`
+- **Value:** `-32042`
+
+JSON-RPC error code for payment required.
+
+### credentialMetaKey
+
+- **Type:** `string`
+- **Value:** `"org.paymentauth/credential"`
+
+MCP metadata key for credentials in `_meta`.
+
+### receiptMetaKey
+
+- **Type:** `string`
+- **Value:** `"org.paymentauth/receipt"`
+
+MCP metadata key for receipts in `_meta`.
+
+## Types
+
+### Mcp.Request
+
+MCP request with payment metadata support.
+
+```ts
+type Request = {
+  method: string
+  params?: {
+    _meta?: {
+      ['org.paymentauth/credential']?: Credential
+    }
+  }
+}
+```
+
+### Mcp.JsonRpcRequest
+
+Full JSON-RPC request used internally by transports.
+
+```ts
+type JsonRpcRequest = Request & {
+  jsonrpc?: '2.0'
+  id?: number | string
+}
+```
+
+### Mcp.Response
+
+Full JSON-RPC response.
+
+```ts
+type Response = {
+  jsonrpc?: '2.0'
+  id?: number | string
+} & ({ result: Result } | { error: ErrorObject })
+```
+
+### Mcp.Receipt
+
+MCP receipt extending `Receipt` with `challengeId`.
+
+```ts
+type Receipt = Receipt & {
+  challengeId: string
+}
+```

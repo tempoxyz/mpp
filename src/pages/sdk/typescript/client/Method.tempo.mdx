@@ -1,0 +1,60 @@
+# `tempo` [Register all Tempo intents]
+
+Convenience function that creates both `tempo.charge` and `tempo.stream` method intents with shared configuration.
+
+## Usage
+
+```ts twoslash
+// @noErrors
+import { Mpay, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+Mpay.create({
+  methods: [
+    // [!code focus:start]
+    tempo({ account }),
+    // [!code focus:end]
+  ],
+})
+```
+
+This is equivalent to:
+
+```ts twoslash
+// @noErrors
+import { Mpay, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+Mpay.create({
+  methods: [
+    tempo.charge({ account }),
+    tempo.stream({ account }),
+  ],
+})
+```
+
+## Return type
+
+```ts
+type ReturnType = readonly [MethodIntent.Client, MethodIntent.Client]
+```
+
+A tuple of `[chargeIntent, streamIntent]`. `Mpay.create` accepts tuples in the `methods` array and flattens them automatically.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account`
+
+Account to sign transactions and vouchers with.
+
+### getClient (optional)
+
+- **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
+
+Function that returns a viem client for the given chain ID.

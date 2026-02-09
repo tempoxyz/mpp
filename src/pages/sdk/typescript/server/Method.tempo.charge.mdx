@@ -74,11 +74,10 @@ export async function handler(request: Request) {
 Returns a function that accepts a `Request` and returns a response object with payment status.
 
 ```ts
-type ReturnType = (request: Request) => Promise<{
-  status: 200 | 402
-  challenge: Response
-  withReceipt: (response: Response) => Response
-}>
+type ReturnType = (request: Request) => Promise<
+  | { status: 402; challenge: Response }
+  | { status: 200; withReceipt: <T>(response: T) => T }
+>
 ```
 
 ## Configuration
@@ -110,11 +109,11 @@ Account for sponsoring transaction fees.
 
 On-chain memo for the transaction.
 
-### rpcUrl (optional)
+### getClient (optional)
 
-- **Type:** `string | { [chainId: number]: string }`
+- **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
-RPC URL for on-chain transaction submission.
+Function that returns a viem client for the given chain ID. Overrides the default RPC configuration.
 
 ### testnet (optional)
 

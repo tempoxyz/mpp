@@ -1,0 +1,34 @@
+# `Intent.stream` [Pay-as-you-go streaming payments]
+
+Stream intent for pay-as-you-go streaming payments using cumulative vouchers over a payment channel.
+
+## Usage
+
+```ts twoslash
+import { Intent } from 'mpay'
+
+const stream = Intent.stream
+```
+
+## Type
+
+```ts
+const stream: Intent
+```
+
+## Schema
+
+### request
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `amount` | `string` | ✓ | Amount to charge per unit |
+| `unitType` | `string` | ✓ | Unit type label (e.g., "token", "byte", "request") |
+| `currency` | `string` | ✓ | Currency identifier |
+| `decimals` | `number` | ✓ | Decimal places for amount parsing |
+| `recipient` | `string` | | Payment recipient |
+| `suggestedDeposit` | `string` | | Suggested deposit amount for clients |
+
+## Reference
+
+See the [stream intent specification](/specs).
