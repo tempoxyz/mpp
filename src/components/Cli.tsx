@@ -1074,7 +1074,9 @@ export function Startup() {
 
 	return (
 		<Block>
-			<AsciiLogo morph={false} color="var(--vocs-color-gray10)" />
+			<div className="hidden sm:block">
+				<AsciiLogo morph={false} color="var(--vocs-color-gray10)" />
+			</div>
 			<Line variant="info">
 				mpp.sh@{__COMMIT_SHA__} (released {timeAgo(__COMMIT_TIMESTAMP__)})
 			</Line>
