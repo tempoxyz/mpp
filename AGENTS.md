@@ -6,7 +6,7 @@ Use this guidance when creating or updating documentation for MPP.
 
 When writing docs, reference these sites for patterns and APIs:
 
-- **MPP Spec**: <https://paymentauth.tempo.xyz> — Normative Payment Auth specs
+- **MPP Spec**: `/specs` — Normative Payment Auth specs
 - **Vocs**: <https://vocs.dev> — Documentation framework (MDX, callouts, Cards)
 - **Viem**: <https://viem.sh> — Ethereum library used in examples
 - **Wagmi**: <https://wagmi.sh> — React hooks for Ethereum (style reference)
@@ -14,7 +14,7 @@ When writing docs, reference these sites for patterns and APIs:
 
 ## Source of Truth
 
-Prefer the normative Payment Auth specs at <https://paymentauth.tempo.xyz> for protocol-level details:
+Prefer the normative Payment Auth specs at `/specs` for protocol-level details:
 
 - Core Payment HTTP Authentication Scheme
 - Payment methods

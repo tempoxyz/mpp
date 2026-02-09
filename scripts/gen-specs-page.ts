@@ -10,7 +10,7 @@ function writeFallback(reason: string) {
 		"",
 		"Spec artifacts are not available in this build.",
 		"",
-		`View the specifications at [paymentauth.tempo.xyz](https://paymentauth.tempo.xyz) or in the [source repository](https://github.com/tempoxyz/payment-auth-spec).`,
+		`View the specifications at [/specs](/specs) or in the [source repository](https://github.com/tempoxyz/payment-auth-spec).`,
 		"",
 	];
 	fs.mkdirSync(path.dirname(outputFile), { recursive: true });
