@@ -5,11 +5,10 @@ Convenience function that creates both `tempo.charge` and `tempo.stream` method 
 ## Usage
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0xabc…123')
 
 Mpay.create({
   methods: [
@@ -23,11 +22,10 @@ Mpay.create({
 This is equivalent to:
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0xabc…123')
 
 Mpay.create({
   methods: [

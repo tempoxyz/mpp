@@ -5,10 +5,9 @@ Creates a Tempo stream payment method for server-side voucher verification and c
 ## Usage
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
-declare const storage: import('mpay/server').ChannelStorage
+declare const storage: tempo.ChannelStorage
 
 const mpay = Mpay.create({
   // [!code focus:start]
@@ -28,10 +27,9 @@ const mpay = Mpay.create({
 Register both intents on a single server.
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
-declare const storage: import('mpay/server').ChannelStorage
+declare const storage: tempo.ChannelStorage
 
 const mpay = Mpay.create({
   methods: [
@@ -110,10 +108,9 @@ Default recipient address for payments.
 Storage backend for persisting channel and session state. Implements atomic read-modify-write operations for concurrency safety.
 
 ```ts twoslash
-// @noErrors
 import { tempo } from 'mpay/server'
 
-declare const storage: import('mpay/server').ChannelStorage
+declare const storage: tempo.ChannelStorage
 
 const method = tempo.stream({
   storage, // [!code focus]

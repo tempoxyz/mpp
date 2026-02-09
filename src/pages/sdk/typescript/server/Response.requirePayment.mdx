@@ -5,8 +5,8 @@ Creates a `402 Payment Required` response with the challenge in the `WWW-Authent
 ## Usage
 
 ```ts twoslash
-// @noErrors
-import { Challenge, Response } from 'mpay/server'
+import { Challenge } from 'mpay'
+import { Response } from 'mpay/server'
 
 const challenge = Challenge.from({
   id: 'abc123',

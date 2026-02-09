@@ -99,17 +99,15 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
 Use [`tempo.stream`](/sdk/typescript/server/Method.tempo.stream) to accept streaming payments. The server needs an RPC URL for on-chain verification during channel open/close, and a storage backend for channel state.
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
-declare const storage: import('mpay/server').ChannelStorage
+declare const storage: tempo.ChannelStorage
 
 const mpay = Mpay.create({
   methods: [
     tempo.stream({
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-      rpcUrl: 'https://rpc.tempo.xyz',
       storage,
     }),
   ],
@@ -121,17 +119,15 @@ During streaming, the server verifies each voucher with a single `ecrecover`—n
 Use `mpay.stream` in your request handler to meter access:
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
-declare const storage: import('mpay/server').ChannelStorage
+declare const storage: tempo.ChannelStorage
 
 const mpay = Mpay.create({
   methods: [
     tempo.stream({
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-      rpcUrl: 'https://rpc.tempo.xyz',
       storage,
     }),
   ],
@@ -158,16 +154,14 @@ Register multiple methods to accept multiple payment methods on the same server.
 For example, to accept both charge and stream payments:
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
-declare const storage: import('mpay/server').ChannelStorage
+declare const storage: tempo.ChannelStorage
 
 const mpay = Mpay.create({
   methods: [
     tempo.charge(),
     tempo.stream({
-      rpcUrl: 'https://rpc.tempo.xyz',
       storage,
     }),
   ],
@@ -186,11 +180,10 @@ See [`tempo.stream` server reference](/sdk/typescript/server/Method.tempo.stream
 Use [`tempo.stream`](/sdk/typescript/client/Method.tempo.stream) with `Mpay.create` to sign vouchers automatically when the server requests streaming payments.
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0xabc…123')
 
 Mpay.create({
   methods: [tempo.stream({ account })],
@@ -205,11 +198,10 @@ const response = await fetch('https://api.example.com/v1/chat/completions')
 If you don't want to patch `globalThis.fetch`, use `mpay.fetch` directly:
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0xabc…123')
 
 const mpay = Mpay.create({
   polyfill: false,
@@ -226,11 +218,10 @@ Register multiple methods so the client can handle servers that offer multiple p
 For example, to accept both charge and stream payments:
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0xabc…123')
 
 Mpay.create({
   methods: [

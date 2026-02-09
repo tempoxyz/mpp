@@ -5,11 +5,10 @@ Creates a Tempo stream payment method for client-side voucher signing.
 ## Usage
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0xabc…123')
 
 Mpay.create({
   methods: [
@@ -25,11 +24,10 @@ Mpay.create({
 Register both intents on a single client.
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0xabc…123')
 
 Mpay.create({
   methods: [
@@ -56,12 +54,11 @@ type ReturnType = MethodIntent.Client
 Account to sign vouchers with. You can override this per call using the context.
 
 ```ts twoslash
-// @noErrors
 import { tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.stream({
-  account: privateKeyToAccount('0x...'), // [!code focus]
+  account: privateKeyToAccount('0xabc…123'), // [!code focus]
 })
 ```
 

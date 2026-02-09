@@ -76,7 +76,6 @@ If your framework doesn't support the Fetch API (for example, Express or Node.js
 Use the `Mpay.toNodeListener` helper to transform the handler into a Node.js-compatible listener.
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({ methods: [tempo.charge()] })

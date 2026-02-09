@@ -234,6 +234,7 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 ## Rules
 
 1. **Alphabetize everything** - Object properties in code examples and ### parameter headings must be alphabetically ordered
+12. **No `// @noErrors` in twoslash** - NEVER use `// @noErrors` in twoslash code blocks. All snippets must typecheck against the installed mpay types. If a snippet fails, fix the snippet or bump the mpay version — do not suppress the error.
 2. **No code-groups for variants** - Use separate ### sections under ## Usage for different usage patterns (e.g., `### With MCP Transport`), not `:::code-group`
 3. **Keep descriptions concise** - One line for the intro, brief explanations for parameters
 4. **Show realistic examples** - Use actual values that make sense

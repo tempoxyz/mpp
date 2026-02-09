@@ -27,7 +27,7 @@
 		"class-variance-authority": "^0.7.1",
 		"dayjs": "^1.11.19",
 		"mermaid": "^11.12.2",
-		"mpay": "https://pkg.pr.new/wevm/mpay@c474f0f",
+		"mpay": "https://pkg.pr.new/wevm/mpay@6a2a8b9",
 		"react": "^19",
 		"react-dom": "^19",
 		"tailwindcss": "^4.1.18",
