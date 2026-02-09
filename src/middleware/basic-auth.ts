@@ -22,20 +22,14 @@ export function middleware(): MiddlewareHandler {
 		}
 
 		const authHeader = context.req.raw.headers.get("Authorization");
-		if (!authHeader || !authHeader.startsWith("Basic ")) {
+		const credentials = extractBasicCredentials(authHeader);
+		if (!credentials) {
 			context.res = unauthorized();
 			return;
 		}
 
-		const authenticated = (() => {
-			try {
-				const credentials = atob(authHeader.slice(6));
-				const [user, pass] = credentials.split(":");
-				return user === AUTH_USER && pass === AUTH_PASS;
-			} catch {
-				return false;
-			}
-		})();
+		const authenticated =
+			credentials.user === AUTH_USER && credentials.pass === AUTH_PASS;
 
 		if (!authenticated) {
 			context.res = unauthorized();
@@ -47,6 +41,22 @@ export function middleware(): MiddlewareHandler {
 }
 
 export default middleware;
+
+function extractBasicCredentials(
+	header: string | null,
+): { user: string; pass: string } | undefined {
+	if (!header) return undefined;
+	const schemes = header.split(",").map((s) => s.trim());
+	const basic = schemes.find((s) => s.startsWith("Basic "));
+	if (!basic) return undefined;
+	try {
+		const decoded = atob(basic.slice(6));
+		const [user, ...rest] = decoded.split(":");
+		return { user, pass: rest.join(":") };
+	} catch {
+		return undefined;
+	}
+}
 
 function unauthorized() {
 	return new Response("Unauthorized", {

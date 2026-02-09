@@ -35,8 +35,8 @@ importers:
         specifier: ^11.12.2
         version: 11.12.2
       mpay:
-        specifier: https://pkg.pr.new/wevm/mpay@4591ec6
-        version: https://pkg.pr.new/wevm/mpay@4591ec6(@modelcontextprotocol/sdk@1.25.3(hono@4.11.7)(zod@4.3.6))(typescript@5.9.3)(viem@2.45.0(typescript@5.9.3)(zod@4.3.6))(zod@4.3.6)
+        specifier: https://pkg.pr.new/wevm/mpay@a630f09
+        version: https://pkg.pr.new/wevm/mpay@a630f09(@modelcontextprotocol/sdk@1.25.3(hono@4.11.7)(zod@4.3.6))(typescript@5.9.3)(viem@2.45.0(typescript@5.9.3)(zod@4.3.6))(zod@4.3.6)
       react:
         specifier: ^19
         version: 19.2.4
@@ -3019,8 +3019,8 @@ packages:
   mlly@1.8.0:
     resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
 
-  mpay@https://pkg.pr.new/wevm/mpay@4591ec6:
-    resolution: {integrity: sha512-5TFNwSyBaY5dCQcwnUz+3NtwH1pR5HKIH9+7wWGyWx4DRR6w1JjbpM2Ya+QbRSQGOAAtBKNqnQ4hW22/UZm1Gg==, tarball: https://pkg.pr.new/wevm/mpay@4591ec6}
+  mpay@https://pkg.pr.new/wevm/mpay@a630f09:
+    resolution: {integrity: sha512-R/8YZXN2dYvetmNbdBvqFn3y9jiGuv1ryNgg0tyfsOymkiJUqkMZR/V4T1SZTx/0AXTXx35UeNQFLr/HGF99EQ==, tarball: https://pkg.pr.new/wevm/mpay@a630f09}
     version: 0.1.0
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
@@ -7177,7 +7177,7 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mpay@https://pkg.pr.new/wevm/mpay@4591ec6(@modelcontextprotocol/sdk@1.25.3(hono@4.11.7)(zod@4.3.6))(typescript@5.9.3)(viem@2.45.0(typescript@5.9.3)(zod@4.3.6))(zod@4.3.6):
+  mpay@https://pkg.pr.new/wevm/mpay@a630f09(@modelcontextprotocol/sdk@1.25.3(hono@4.11.7)(zod@4.3.6))(typescript@5.9.3)(viem@2.45.0(typescript@5.9.3)(zod@4.3.6))(zod@4.3.6):
     dependencies:
       ox: 0.12.0(typescript@5.9.3)(zod@4.3.6)
       zod: 4.3.6
