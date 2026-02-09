@@ -133,15 +133,20 @@ export function AsciiLogo({
 		return morphProgress > threshold ? char402 : mppChar;
 	};
 
-	const [charStates, setCharStates] = useState<CharState[][]>(() => {
-		return Array.from({ length: maxLines }, () =>
-			Array.from({ length: maxWidth }, () => ({
-				charIndex: Math.floor(Math.random() * FILL_CHARS.length),
-				nextChangeTime: Date.now() + Math.random() * 1000,
-				cycleDuration: 300 + Math.random() * 700,
-			})),
+	const [charStates, setCharStates] = useState<CharState[][] | null>(null);
+
+	// Defer random initialization to client to avoid hydration mismatch
+	useEffect(() => {
+		setCharStates(
+			Array.from({ length: maxLines }, () =>
+				Array.from({ length: maxWidth }, () => ({
+					charIndex: Math.floor(Math.random() * FILL_CHARS.length),
+					nextChangeTime: Date.now() + Math.random() * 1000,
+					cycleDuration: 300 + Math.random() * 700,
+				})),
+			),
 		);
-	});
+	}, [maxLines, maxWidth]);
 
 	const startMorph = (target: 0 | 1) => {
 		if (morphTarget.current === target) return;
@@ -176,6 +181,7 @@ export function AsciiLogo({
 
 			// Handle character cycling
 			setCharStates((prevStates) => {
+				if (!prevStates) return prevStates;
 				let hasChanges = false;
 				const newStates = prevStates.map((lineStates) =>
 					lineStates.map((state) => {
@@ -236,7 +242,7 @@ export function AsciiLogo({
 										// biome-ignore lint/suspicious/noArrayIndexKey: static chars don't reorder
 										return <span key={charIdx}>{baseChar}</span>;
 									}
-									const state = charStates[lineIdx]?.[charIdx];
+									const state = charStates?.[lineIdx]?.[charIdx];
 									const displayChar = state
 										? FILL_CHARS[state.charIndex]
 										: baseChar;
