@@ -121,44 +121,44 @@ server.registerTool('premium_tool', { description: '...' }, async (extra) => {
 
 ### Client
 
-#### Automatic: Fetch Polyfill
+#### Automatic: Polyfill (default)
 
-The easiest way to use mpay on the client is to polyfill `fetch` to automatically handle 402 responses:
+The easiest way to use mpay on the client — `Mpay.create()` polyfills `globalThis.fetch` by default:
 
 ```ts
 import { privateKeyToAccount } from 'viem/accounts'
-import { Fetch, tempo } from 'mpay/client'
+import { Mpay, tempo } from 'mpay/client'
 
 const account = privateKeyToAccount('0x...')
 
-// Globally polyfill fetch (mutates globalThis.fetch)
-Fetch.polyfill({
-  intents: [tempo.charge({ account })],
+Mpay.create({
+  methods: [tempo.charge({ account })],
 })
 
-// Now fetch handles 402 automatically
+// Global fetch now handles 402 automatically
 const res = await fetch('https://api.example.com/resource')
 
 // Restore original fetch if needed
-Fetch.restore()
+Mpay.restore()
 ```
 
 #### Automatic: Fetch Wrapper
 
-If you prefer not to polyfill globals, use `Fetch.from` to get a wrapped fetch function:
+If you prefer not to polyfill globals, set `polyfill: false` and use the returned `fetch`:
 
 ```ts
 import { privateKeyToAccount } from 'viem/accounts'
-import { Fetch, tempo } from 'mpay/client'
+import { Mpay, tempo } from 'mpay/client'
 
 const account = privateKeyToAccount('0x...')
 
-const fetch = Fetch.from({
-  intents: [tempo.charge({ account })],
+const mpay = Mpay.create({
+  polyfill: false,
+  methods: [tempo.charge({ account })],
 })
 
-// Use the wrapped fetch — handles 402 automatically
-const res = await fetch('https://api.example.com/resource')
+// Use the returned fetch — handles 402 automatically
+const res = await mpay.fetch('https://api.example.com/resource')
 ```
 
 #### Manual
@@ -173,7 +173,8 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 
 const mpay = Mpay.create({
-  intents: [tempo.charge({ account })],
+  polyfill: false,
+  methods: [tempo.charge({ account })],
 })
 
 const res = await fetch('https://api.example.com/resource')
@@ -189,7 +190,7 @@ const res2 = await fetch('https://api.example.com/resource', {
 
 #### MCP (Model Context Protocol)
 
-Use `McpClient.wrap` to wrap an MCP SDK client with automatic payment handling. Like `Fetch.from` for HTTP, it detects payment challenges and retries with credentials.
+Use `McpClient.wrap` to wrap an MCP SDK client with automatic payment handling. Like `mpay.fetch` for HTTP, it detects payment challenges and retries with credentials.
 
 ```ts
 import { Client } from '@modelcontextprotocol/sdk/client'
@@ -516,26 +517,12 @@ export function tempo(options: tempo.Options) {
 }
 ```
 
-#### `Fetch.from`
+#### `Mpay.restore`
 
-Create a fetch function with payment handler(s).
-
-```ts
-import { Fetch, tempo } from 'mpay/client'
-
-const fetch = Fetch.from({
-  intents: [
-    tempo.charge({ account }),
-  ],
-})
-```
-
-#### `Fetch.polyfill`
-
-Polyfill the global `fetch` function with payment handler(s).
+Restores the original `globalThis.fetch` after `Mpay.create()` polyfilled it.
 
 ```ts
-import { Fetch } from 'mpay/client'
+import { Mpay } from 'mpay/client'
 
-Fetch.polyfill({ intents: [tempo.charge({ account })] })
+Mpay.restore()
 ```

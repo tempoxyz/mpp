@@ -295,6 +295,7 @@ describe('tempo', () => {
   describe('intent: charge; type: transaction; via Mpay', () => {
     test('default', async () => {
       const mpay = Mpay_client.create({
+        polyfill: false,
         methods: [
           Methods_client.charge({
             account: accounts[1],
@@ -352,6 +353,7 @@ describe('tempo', () => {
       const overrideExpires = new Date(Date.now() + 60_000).toISOString()
 
       const mpay = Mpay_client.create({
+        polyfill: false,
         methods: [
           Methods_client.charge({
             account: accounts[1],
@@ -395,6 +397,7 @@ describe('tempo', () => {
 
     test('behavior: fee payer', async () => {
       const mpay = Mpay_client.create({
+        polyfill: false,
         methods: [
           Methods_client.charge({
             account: accounts[1],
@@ -449,6 +452,7 @@ describe('tempo', () => {
 
     test('behavior: fee payer (hoisted)', async () => {
       const mpay = Mpay_client.create({
+        polyfill: false,
         methods: [
           Methods_client.charge({
             account: accounts[1],

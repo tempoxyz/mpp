@@ -40,9 +40,9 @@ type ChannelEntry = {
  * @example
  * ```ts
  * // Auto mode
- * import { Fetch, tempo } from 'mpay/client'
+ * import { Mpay, tempo } from 'mpay/client'
  *
- * const fetch = Fetch.from({
+ * const mpay = Mpay.create({
  *   methods: [
  *     tempo.stream({
  *       account: privateKeyToAccount('0x...'),
@@ -51,7 +51,7 @@ type ChannelEntry = {
  *   ],
  * })
  *
- * const res = await fetch('/api/chat?prompt=hello')
+ * const res = await mpay.fetch('/api/chat?prompt=hello')
  * ```
  *
  * @example

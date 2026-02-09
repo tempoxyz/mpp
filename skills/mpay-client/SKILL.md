@@ -5,17 +5,17 @@ description: mpay client-side integration. Use when building apps that make paid
 
 # mpay Client
 
-Three approaches for handling 402 Payment Required responses on the client.
+Two approaches for handling 402 Payment Required responses on the client.
 
-## 1. Fetch Polyfill
+## 1. Polyfill (default)
 
-Replaces global `fetch` with a payment-aware wrapper. Best for apps where all requests should auto-pay.
+`Mpay.create()` polyfills `globalThis.fetch` by default. Best for apps where all requests should auto-pay.
 
 ```ts
-import { Fetch, tempo } from 'mpay/client'
+import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-Fetch.polyfill({
+Mpay.create({
   methods: [
     tempo.charge({
       account: privateKeyToAccount('0x...'),
@@ -28,18 +28,19 @@ Fetch.polyfill({
 const res = await fetch('https://api.example.com/resource')
 
 // Restore original fetch when done
-Fetch.restore()
+Mpay.restore()
 ```
 
 ## 2. Fetch Wrapper
 
-Creates a wrapped fetch function. Best when you want explicit control over which requests are payment-aware.
+Set `polyfill: false` to get a scoped fetch without mutating globals. Best when you want explicit control over which requests are payment-aware.
 
 ```ts
-import { Fetch, tempo } from 'mpay/client'
+import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const fetch = Fetch.from({
+const mpay = Mpay.create({
+  polyfill: false,
   methods: [
     tempo.charge({
       account: privateKeyToAccount('0x...'),
@@ -48,8 +49,8 @@ const fetch = Fetch.from({
   ],
 })
 
-// Use wrapped fetch — handles 402 automatically
-const res = await fetch('https://api.example.com/resource')
+// Use returned fetch — handles 402 automatically
+const res = await mpay.fetch('https://api.example.com/resource')
 ```
 
 ### Per-Request Context
@@ -57,10 +58,11 @@ const res = await fetch('https://api.example.com/resource')
 Pass context to override account per-request:
 
 ```ts
-import { Fetch, tempo } from 'mpay/client'
+import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const fetch = Fetch.from({
+const mpay = Mpay.create({
+  polyfill: false,
   methods: [
     tempo.charge({
       rpcUrl: 'https://rpc.tempo.xyz',
@@ -68,7 +70,7 @@ const fetch = Fetch.from({
   ],
 })
 
-const res = await fetch('https://api.example.com/resource', {
+const res = await mpay.fetch('https://api.example.com/resource', {
   context: { account: privateKeyToAccount('0x...') },
 })
 ```
@@ -82,6 +84,7 @@ import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const mpay = Mpay.create({
+  polyfill: false,
   methods: [
     tempo.charge({
       rpcUrl: 'https://rpc.tempo.xyz',
