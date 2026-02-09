@@ -6,7 +6,11 @@ const SKIP_AUTH_PATTERNS = [/^\/api\//];
 export function middleware(): MiddlewareHandler {
 	return async (context, next) => {
 		const url = new URL(context.req.url);
-		if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+		if (
+			url.hostname === "localhost" ||
+			url.hostname === "127.0.0.1" ||
+			url.hostname.endsWith("-mpp-docs.porto.workers.dev")
+		) {
 			return next();
 		}
 
