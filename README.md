@@ -54,6 +54,58 @@ Mpay.create({
 const res = await fetch('https://api.example.com/resource')
 ```
 
+## CLI
+
+mpay includes a basic CLI for making HTTP requests with automatic 402 payment handling.
+
+```
+mpay --help
+```
+```
+mpay/0.1.0
+
+Usage:
+  $ mpay [url]
+
+Commands:
+  [url]             Make HTTP request with automatic payment
+  account [action]  Manage accounts (create, delete, fund, list, view)
+
+For more info, run any command with the `--help` flag:
+  $ mpay --help
+  $ mpay account --help
+
+Actions:
+  create  Create new account
+  delete  Delete account
+  fund    Fund account with testnet tokens
+  list    List all accounts
+  view    View account address
+
+Options:
+  -A, --user-agent <ua>  Set User-Agent header
+  -d, --data <data>      Send request body (implies POST unless -X is set)
+  -f, --fail             Fail silently on HTTP errors (exit 22)
+  -H, --header <header>  Add header (repeatable)
+  -i, --include          Include response headers in output
+  -k, --insecure         Skip TLS certificate verification (true for localhost/.local)
+  -L, --location         Follow redirects
+  -s, --silent           Silent mode (suppress progress and info)
+  -v, --verbose          Make operation more talkative
+  -X, --method <method>  HTTP method
+  --accept <type>        Set Accept header (e.g. json, markdown, text/html)
+  --account <name>       Account name (default: default)
+  --json <json>          Send JSON body (sets Content-Type, implies POST)
+  -M, --mainnet          Use mainnet
+  -V, --version          Display version number
+  -h, --help             Display this message
+
+Examples:
+mpay example.com/foo/bar/baz --accept markdown
+mpay example.com/test -A claude
+mpay example.com/api -X POST --json '{"key":"value"}'
+```
+
 ## Examples
 
 | Example | Description |
