@@ -44,32 +44,41 @@ export interface ChannelState {
 }
 
 /**
- * Storage interface for channel state persistence.
+ * Generic key-value storage interface.
  *
- * ## Atomicity contract
- *
- * The `updateChannel` method uses an atomic read-modify-write callback.
- * The callback receives the current state (or `null` if none exists), and
- * returns the next state (or `null` to delete). Implementations must
- * guarantee that no concurrent mutation occurs between reading `current`
- * and writing the return value.
- *
- * Backends implement this via their native mechanisms:
- * - **In-memory / JS single-thread**: Synchronous callback execution
- * - **Durable Objects**: Single-threaded execution model
- * - **D1 / SQL**: Database transactions
+ * Isomorphic across payment methods (stream, charge, etc.) and across
+ * client and server. Implementations control the persistence backend;
+ * callers control the domain logic on top.
  */
-export interface ChannelStorage {
-  getChannel(channelId: Hex): Promise<ChannelState | null>
+export interface Storage<value> {
+  get(key: string): Promise<value | null>
+  set(key: string, value: value): Promise<void>
+  delete(key: string): Promise<void>
+}
 
-  /**
-   * Atomic read-modify-write for channel state.
-   * Return `null` from `fn` to delete the channel.
-   */
-  updateChannel(
-    channelId: Hex,
-    fn: (current: ChannelState | null) => ChannelState | null,
-  ): Promise<ChannelState | null>
+/** @deprecated Use `Storage<ChannelState>` instead. */
+export type ChannelStorage = Storage<ChannelState>
+
+/**
+ * Atomic read-modify-write helper for channel state.
+ *
+ * Reads the current value, passes it to `fn`, and writes the result.
+ * Return `null` from `fn` to delete the entry.
+ *
+ * For single-threaded runtimes (in-memory, Durable Objects) this is
+ * naturally atomic. SQL-backed implementations should wrap calls in
+ * a transaction externally.
+ */
+export async function updateChannel(
+  storage: Storage<ChannelState>,
+  channelId: Hex,
+  fn: (current: ChannelState | null) => ChannelState | null,
+): Promise<ChannelState | null> {
+  const current = await storage.get(channelId)
+  const next = fn(current)
+  if (next) await storage.set(channelId, next)
+  else if (current) await storage.delete(channelId)
+  return next
 }
 
 export type DeductResult =
@@ -84,37 +93,39 @@ export type DeductResult =
  * insufficient. Throws if the channel does not exist.
  */
 export async function deductFromChannel(
-  storage: ChannelStorage,
+  storage: Storage<ChannelState>,
   channelId: Hex,
   amount: bigint,
 ): Promise<DeductResult> {
-  let deducted = false
-  const channel = await storage.updateChannel(channelId, (current) => {
+  const before = await storage.get(channelId)
+  if (!before) throw new Error('channel not found')
+  if (before.finalized) throw new Error('channel is finalized')
+
+  const channel = await updateChannel(storage, channelId, (current) => {
     if (!current) return null
+    if (current.finalized) return current
     if (current.highestVoucherAmount - current.spent >= amount) {
-      deducted = true
       return { ...current, spent: current.spent + amount, units: current.units + 1 }
     }
     return current
   })
   if (!channel) throw new Error('channel not found')
-  return { ok: deducted, channel }
+  return { ok: channel.spent >= before.spent + amount, channel }
 }
 
-/** In-memory channel storage backed by a simple Map. Useful for development and testing. */
-export function memoryStorage(): ChannelStorage {
-  const channels = new Map<string, ChannelState>()
+/** In-memory storage backed by a simple Map. Useful for development and testing. */
+export function memoryStorage<value = ChannelState>(): Storage<value> {
+  const store = new Map<string, value>()
 
   return {
-    async getChannel(channelId) {
-      return channels.get(channelId) ?? null
+    async get(key) {
+      return store.get(key) ?? null
     },
-    async updateChannel(channelId, fn) {
-      const current = channels.get(channelId) ?? null
-      const next = fn(current)
-      if (next) channels.set(channelId, next)
-      else channels.delete(channelId)
-      return next
+    async set(key, value) {
+      store.set(key, value)
+    },
+    async delete(key) {
+      store.delete(key)
     },
   }
 }

@@ -1,5 +1,5 @@
-export type { ChannelState, ChannelStorage } from '../stream/Storage.js'
-export { memoryStorage } from '../stream/Storage.js'
+export type { ChannelState, ChannelStorage, Storage } from '../stream/Storage.js'
+export { memoryStorage, updateChannel } from '../stream/Storage.js'
 export { charge } from './Charge.js'
 export * as Sse from './Sse.js'
 export { settle, stream } from './Stream.js'

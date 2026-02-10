@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest'
 import {
   AmountExceedsDepositError,
   BadRequestError,
-
   ChannelClosedError,
   ChannelNotFoundError,
   DeltaTooSmallError,

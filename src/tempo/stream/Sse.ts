@@ -8,7 +8,7 @@
  */
 import type { Hex } from 'viem'
 import { createStreamReceipt } from './Receipt.js'
-import type { ChannelStorage } from './Storage.js'
+import type { ChannelState, Storage } from './Storage.js'
 import { deductFromChannel } from './Storage.js'
 import type { NeedVoucherEvent, StreamReceipt } from './Types.js'
 
@@ -137,7 +137,7 @@ export function serve(options: serve.Options): ReadableStream<Uint8Array> {
         }
 
         if (!aborted()) {
-          const channel = await storage.getChannel(channelId)
+          const channel = await storage.get(channelId)
           if (channel) {
             const receipt = createStreamReceipt({
               challengeId,
@@ -160,7 +160,7 @@ export function serve(options: serve.Options): ReadableStream<Uint8Array> {
 
 export declare namespace serve {
   type Options = {
-    storage: ChannelStorage
+    storage: Storage<ChannelState>
     channelId: Hex
     challengeId: string
     tickCost: bigint
@@ -180,7 +180,7 @@ export function computeRequiredCumulative(
 }
 
 export async function pollForBalance(
-  storage: ChannelStorage,
+  storage: Storage<ChannelState>,
   channelId: Hex,
   tickCost: bigint,
   pollIntervalMs: number,
@@ -190,7 +190,7 @@ export async function pollForBalance(
     await sleep(pollIntervalMs)
     if (signal?.aborted) throw new Error('Aborted while waiting for voucher')
 
-    const channel = await storage.getChannel(channelId)
+    const channel = await storage.get(channelId)
     if (channel && channel.highestVoucherAmount - channel.spent >= tickCost) {
       return
     }

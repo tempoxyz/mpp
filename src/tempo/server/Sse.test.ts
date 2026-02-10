@@ -2,29 +2,33 @@ import type { Address, Hex } from 'viem'
 import { describe, expect, test } from 'vitest'
 import type { Challenge } from '../../Challenge.js'
 import * as Credential from '../../Credential.js'
-import type { ChannelState, ChannelStorage } from '../stream/Storage.js'
+import type { ChannelState, Storage } from '../stream/Storage.js'
+import { updateChannel } from '../stream/Storage.js'
 import { from } from './Sse.js'
 
 const channelId = '0x0000000000000000000000000000000000000000000000000000000000000001' as Hex
 const tickCost = 1000000n
 
-function memoryStorage(): ChannelStorage {
+function memoryStorage(): Storage<ChannelState> {
   const channels = new Map()
   return {
-    async getChannel(id) {
+    async get(id) {
       return channels.get(id) ?? null
     },
-    async updateChannel(id, fn) {
-      const result = fn(channels.get(id) ?? null)
-      if (result) channels.set(id, result)
-      else channels.delete(id)
-      return result
+    async set(id, value) {
+      channels.set(id, value)
+    },
+    async delete(id) {
+      channels.delete(id)
     },
   }
 }
 
-function seedChannel(storage: ChannelStorage, balance: bigint): Promise<ChannelState | null> {
-  return storage.updateChannel(channelId, () => ({
+function seedChannel(
+  storage: Storage<ChannelState>,
+  balance: bigint,
+): Promise<ChannelState | null> {
+  return updateChannel(storage, channelId, () => ({
     channelId,
     payer: '0x0000000000000000000000000000000000000001' as Address,
     payee: '0x0000000000000000000000000000000000000002' as Address,
@@ -118,7 +122,7 @@ describe('Sse.from', () => {
     expect(output).toContain('event: message\ndata: done\n\n')
     expect(output).toContain('event: payment-receipt\n')
 
-    const channel = await storage.getChannel(channelId)
+    const channel = await storage.get(channelId)
     expect(channel!.spent).toBe(3000000n)
     expect(channel!.units).toBe(3)
   })
@@ -156,7 +160,7 @@ describe('Sse.from', () => {
 
     await new Promise((r) => setTimeout(r, 30))
 
-    await storage.updateChannel(channelId, (current) => {
+    await updateChannel(storage, channelId, (current) => {
       if (!current) return null
       return { ...current, highestVoucherAmount: current.highestVoucherAmount + 2000000n }
     })
@@ -246,7 +250,7 @@ describe('Sse.from', () => {
     expect(output).toContain('event: payment-receipt\n')
     expect(output).not.toContain('event: message\n')
 
-    const channel = await storage.getChannel(channelId)
+    const channel = await storage.get(channelId)
     expect(channel!.spent).toBe(0n)
     expect(channel!.units).toBe(0)
   })
@@ -270,7 +274,7 @@ describe('Sse.from', () => {
       expect(output).toContain(`event: message\ndata: tok-${i}\n\n`)
     }
 
-    const channel = await storage.getChannel(channelId)
+    const channel = await storage.get(channelId)
     expect(channel!.spent).toBe(500n)
     expect(channel!.units).toBe(5)
   })

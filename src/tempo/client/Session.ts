@@ -329,9 +329,7 @@ export function session(parameters: session.Parameters): Session {
                   if (!channel || !lastChallenge) break
                   const required = BigInt(event.data.requiredCumulative)
                   channel.cumulativeAmount =
-                    channel.cumulativeAmount > required
-                      ? channel.cumulativeAmount
-                      : required
+                    channel.cumulativeAmount > required ? channel.cumulativeAmount : required
 
                   const credential = await buildVoucherCredential(
                     lastChallenge,

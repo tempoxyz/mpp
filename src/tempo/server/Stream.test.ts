@@ -14,8 +14,8 @@ import {
   InsufficientBalanceError,
   InvalidSignatureError,
 } from '../../Errors.js'
-import type { ChannelState, ChannelStorage } from '../stream/Storage.js'
-import { memoryStorage } from '../stream/Storage.js'
+import type { ChannelState, Storage } from '../stream/Storage.js'
+import { memoryStorage, updateChannel } from '../stream/Storage.js'
 import type { StreamReceipt } from '../stream/Types.js'
 import { signVoucher } from '../stream/Voucher.js'
 import { charge, settle, stream } from './Stream.js'
@@ -34,7 +34,7 @@ beforeAll(async () => {
 })
 
 describe('stream server Method', () => {
-  let storage: ChannelStorage
+  let storage: Storage<ChannelState>
 
   beforeEach(() => {
     storage = memoryStorage()
@@ -76,7 +76,7 @@ describe('stream server Method', () => {
       expect(receipt.status).toBe('success')
       expect(receipt.reference).toBe(channelId)
 
-      const ch = await storage.getChannel(channelId)
+      const ch = await storage.get(channelId)
       expect(ch).not.toBeNull()
       expect(ch!.highestVoucherAmount).toBe(1000000n)
     })
@@ -169,7 +169,7 @@ describe('stream server Method', () => {
         request: makeRequest(),
       })
 
-      const ch1 = await storage.getChannel(channelId)
+      const ch1 = await storage.get(channelId)
       expect(ch1!.highestVoucherAmount).toBe(1000000n)
 
       const receipt = await server.verify({
@@ -188,7 +188,7 @@ describe('stream server Method', () => {
       })
 
       expect(receipt.status).toBe('success')
-      const ch2 = await storage.getChannel(channelId)
+      const ch2 = await storage.get(channelId)
       expect(ch2!.highestVoucherAmount).toBe(5000000n)
     })
 
@@ -227,7 +227,7 @@ describe('stream server Method', () => {
       })
 
       expect(receipt.status).toBe('success')
-      const ch = await storage.getChannel(channelId)
+      const ch = await storage.get(channelId)
       expect(ch!.highestVoucherAmount).toBe(1000000n)
     })
 
@@ -250,7 +250,7 @@ describe('stream server Method', () => {
         request: makeRequest(),
       })
 
-      await storage.updateChannel(channelId, (ch) =>
+      await updateChannel(storage, channelId, (ch) =>
         ch ? { ...ch, settledOnChain: 5000000n } : null,
       )
 
@@ -339,7 +339,7 @@ describe('stream server Method', () => {
 
       expect(receipt.status).toBe('success')
 
-      const ch = await storage.getChannel(channelId)
+      const ch = await storage.get(channelId)
       expect(ch!.highestVoucherAmount).toBe(2000000n)
     })
 
@@ -479,7 +479,7 @@ describe('stream server Method', () => {
 
       expect(receipt.status).toBe('success')
 
-      const ch = await storage.getChannel(channelId)
+      const ch = await storage.get(channelId)
       expect(ch!.deposit).toBe(20000000n)
     })
 
@@ -547,7 +547,7 @@ describe('stream server Method', () => {
 
       expect(receipt.status).toBe('success')
 
-      const ch = await storage.getChannel(channelId)
+      const ch = await storage.get(channelId)
       expect(ch).not.toBeNull()
       expect(ch!.highestVoucherAmount).toBe(1000000n)
     })
@@ -572,7 +572,7 @@ describe('stream server Method', () => {
 
       expect(receipt.status).toBe('success')
 
-      const ch = await storage.getChannel(channelId)
+      const ch = await storage.get(channelId)
       expect(ch!.highestVoucherAmount).toBe(5000000n)
     })
 
@@ -751,7 +751,7 @@ describe('stream server Method', () => {
       })
       expect(r3.status).toBe('success')
 
-      const ch = await storage.getChannel(channelId)
+      const ch = await storage.get(channelId)
       expect(ch!.highestVoucherAmount).toBe(7000000n)
 
       const r4 = await server.verify({
@@ -769,7 +769,7 @@ describe('stream server Method', () => {
       expect(r4.status).toBe('success')
       expect(r4.reference).toBe(channelId)
 
-      const chAfter = await storage.getChannel(channelId)
+      const chAfter = await storage.get(channelId)
       expect(chAfter).not.toBeNull()
       expect(chAfter!.highestVoucherAmount).toBe(7000000n)
     })
@@ -856,7 +856,7 @@ describe('stream server Method', () => {
       const settleTxHash = await settle(storage, client, escrowContract, channelId)
       expect(settleTxHash).toMatch(/^0x/)
 
-      const ch = await storage.getChannel(channelId)
+      const ch = await storage.get(channelId)
       expect(ch!.settledOnChain).toBe(5000000n)
     })
 
@@ -925,8 +925,8 @@ describe('stream server Method', () => {
 describe('monotonicity and TOCTOU (unit tests)', () => {
   const testChannelId = '0x0000000000000000000000000000000000000000000000000000000000000001' as Hex
 
-  function seedChannel(storage: ChannelStorage, overrides: Partial<ChannelState> = {}) {
-    return storage.updateChannel(testChannelId, () => ({
+  function seedChannel(storage: Storage<ChannelState>, overrides: Partial<ChannelState> = {}) {
+    return updateChannel(storage, testChannelId, () => ({
       channelId: testChannelId,
       payer: '0x0000000000000000000000000000000000000001' as Address,
       payee: '0x0000000000000000000000000000000000000002' as Address,
@@ -961,7 +961,7 @@ describe('monotonicity and TOCTOU (unit tests)', () => {
     const storage = memoryStorage()
     await seedChannel(storage, { settledOnChain: 3000000n })
 
-    await storage.updateChannel(testChannelId, (current) => {
+    await updateChannel(storage, testChannelId, (current) => {
       if (!current) return null
       const settledAmount = 2000000n
       const nextSettled =
@@ -969,7 +969,7 @@ describe('monotonicity and TOCTOU (unit tests)', () => {
       return { ...current, settledOnChain: nextSettled }
     })
 
-    const ch = await storage.getChannel(testChannelId)
+    const ch = await storage.get(testChannelId)
     expect(ch!.settledOnChain).toBe(3000000n)
   })
 
@@ -977,7 +977,7 @@ describe('monotonicity and TOCTOU (unit tests)', () => {
     const storage = memoryStorage()
     await seedChannel(storage, { settledOnChain: 1000000n })
 
-    await storage.updateChannel(testChannelId, (current) => {
+    await updateChannel(storage, testChannelId, (current) => {
       if (!current) return null
       const settledAmount = 5000000n
       const nextSettled =
@@ -985,7 +985,7 @@ describe('monotonicity and TOCTOU (unit tests)', () => {
       return { ...current, settledOnChain: nextSettled }
     })
 
-    const ch = await storage.getChannel(testChannelId)
+    const ch = await storage.get(testChannelId)
     expect(ch!.settledOnChain).toBe(5000000n)
   })
 
@@ -993,7 +993,7 @@ describe('monotonicity and TOCTOU (unit tests)', () => {
     const storage = memoryStorage()
     await seedChannel(storage, { highestVoucherAmount: 5000000n, spent: 2000000n, units: 3 })
 
-    const channel = await storage.updateChannel(testChannelId, (existing) => {
+    const channel = await updateChannel(storage, testChannelId, (existing) => {
       if (!existing) return null
       const nextHighest =
         3000000n > existing.highestVoucherAmount ? 3000000n : existing.highestVoucherAmount

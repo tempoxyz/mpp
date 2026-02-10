@@ -1,7 +1,8 @@
 import type { Address, Hex } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { formatNeedVoucherEvent, formatReceiptEvent, parseEvent, serve } from './Sse.js'
-import type { ChannelState, ChannelStorage } from './Storage.js'
+import type { ChannelState, Storage } from './Storage.js'
+import { updateChannel } from './Storage.js'
 import type { NeedVoucherEvent, StreamReceipt } from './Types.js'
 
 const channelId = '0x0000000000000000000000000000000000000000000000000000000000000001' as Hex
@@ -172,17 +173,17 @@ describe('parseEvent', () => {
 })
 
 describe('serve', () => {
-  function memoryStorage(): ChannelStorage {
+  function memoryStorage(): Storage<ChannelState> {
     const channels = new Map()
     return {
-      async getChannel(id) {
+      async get(id) {
         return channels.get(id) ?? null
       },
-      async updateChannel(id, fn) {
-        const result = fn(channels.get(id) ?? null)
-        if (result) channels.set(id, result)
-        else channels.delete(id)
-        return result
+      async set(id, value) {
+        channels.set(id, value)
+      },
+      async delete(id) {
+        channels.delete(id)
       },
     }
   }
@@ -203,8 +204,11 @@ describe('serve', () => {
     for (const v of values) yield v
   }
 
-  function seedChannel(storage: ChannelStorage, balance: bigint): Promise<ChannelState | null> {
-    return storage.updateChannel(channelId, () => ({
+  function seedChannel(
+    storage: Storage<ChannelState>,
+    balance: bigint,
+  ): Promise<ChannelState | null> {
+    return updateChannel(storage, channelId, () => ({
       channelId,
       payer: '0x0000000000000000000000000000000000000001' as Address,
       payee: '0x0000000000000000000000000000000000000002' as Address,
@@ -240,7 +244,7 @@ describe('serve', () => {
     expect(output).toContain('event: message\ndata: done\n\n')
     expect(output).toContain('event: payment-receipt\n')
 
-    const channel = await storage.getChannel(channelId)
+    const channel = await storage.get(channelId)
     expect(channel!.spent).toBe(3000000n)
     expect(channel!.units).toBe(3)
   })
@@ -276,7 +280,7 @@ describe('serve', () => {
 
     await new Promise((r) => setTimeout(r, 30))
 
-    await storage.updateChannel(channelId, (current) => {
+    await updateChannel(storage, channelId, (current) => {
       if (!current) return null
       return { ...current, highestVoucherAmount: current.highestVoucherAmount + 2000000n }
     })
@@ -370,7 +374,7 @@ describe('serve', () => {
     expect(output).toContain('event: payment-receipt\n')
     expect(output).not.toContain('event: message\n')
 
-    const channel = await storage.getChannel(channelId)
+    const channel = await storage.get(channelId)
     expect(channel!.spent).toBe(0n)
     expect(channel!.units).toBe(0)
   })

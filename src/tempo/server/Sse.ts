@@ -21,7 +21,7 @@ import {
   formatReceiptEvent,
   pollForBalance,
 } from '../stream/Sse.js'
-import type { ChannelStorage } from '../stream/Storage.js'
+import type { ChannelState, Storage } from '../stream/Storage.js'
 import type { StreamCredentialPayload } from '../stream/Types.js'
 import { charge } from './Stream.js'
 
@@ -39,7 +39,7 @@ export function from(parameters: from.Parameters): from.ReturnType {
     ctrl: ReadableStreamDefaultController<Uint8Array>,
     encoder: TextEncoder,
   ): Promise<void> {
-    return storage.getChannel(channelId).then((channel) => {
+    return storage.get(channelId).then((channel) => {
       if (!channel) return
       const receipt = createStreamReceipt({
         acceptedCumulative: channel.highestVoucherAmount,
@@ -64,7 +64,7 @@ export function from(parameters: from.Parameters): from.ReturnType {
       } catch (e) {
         if (!(e instanceof InsufficientBalanceError)) throw e
 
-        const channel = await storage.getChannel(channelId)
+        const channel = await storage.get(channelId)
         if (!channel) throw new Error('channel not found')
 
         const requiredCumulative = computeRequiredCumulative(
@@ -158,7 +158,7 @@ export function from(parameters: from.Parameters): from.ReturnType {
 export declare namespace from {
   type Parameters = {
     request: Request
-    storage: ChannelStorage
+    storage: Storage<ChannelState>
     tickCost?: bigint | undefined
   }
 
