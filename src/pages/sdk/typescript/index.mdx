@@ -209,7 +209,6 @@ export async function handler(req: IncomingMessage, res: ServerResponse) {
 Plug the handler into your framework of choice, like [Hono](https://hono.dev).
 
 ```ts [hono-server.ts]
-// @noErrors
 import { Hono } from 'hono' // [!code focus]
 import { Mpay, tempo } from 'mpay/server'
 

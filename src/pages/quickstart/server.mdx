@@ -15,7 +15,6 @@ Use the framework-specific middleware from `mpay` to integrate payment into your
   <div className="space-y-4">
 
 ```ts [app/api/resource/route.ts]
-// @noErrors
 import { Mpay, tempo } from 'mpay/nextjs'
 
 // [!code hl:start]
@@ -40,7 +39,6 @@ export const GET =
   <div className="space-y-4">
 
 ```ts [server.ts]
-// @noErrors
 import { Hono } from 'hono'
 import { Mpay, tempo } from 'mpay/hono'
 
@@ -70,7 +68,6 @@ app.get(
   <div className="space-y-4">
 
 ```ts [server.ts]
-// @noErrors
 import { Elysia } from 'elysia'
 import { Mpay, tempo } from 'mpay/elysia'
 
@@ -98,7 +95,6 @@ const app = new Elysia()
   <div className="space-y-4">
 
 ```ts [server.ts]
-// @noErrors
 import express from 'express'
 import { Mpay, tempo } from 'mpay/express'
 

@@ -24,8 +24,7 @@ bun add mpay express
 
 Import `Mpay` and `tempo` from `mpay/express` to create an Express-aware payment handler. Each intent (for example, `charge`) returns an Express `RequestHandler` you can slot directly into your route.
 
-```ts twoslash [server.ts]
-// @noErrors
+```ts [server.ts]
 import express from 'express'
 import { Mpay, tempo } from 'mpay/express'
 

@@ -24,8 +24,7 @@ bun add mpay hono
 
 Import `Mpay` and `tempo` from `mpay/hono` to create a Hono-aware payment handler. Each intent (for example, `charge`) returns a Hono `MiddlewareHandler` you can slot directly into your route.
 
-```ts twoslash [server.ts]
-// @noErrors
+```ts [server.ts]
 import { Hono } from 'hono'
 import { Mpay, tempo } from 'mpay/hono'
 

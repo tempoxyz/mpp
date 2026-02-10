@@ -24,8 +24,7 @@ bun add mpay
 
 Import `Mpay` and `tempo` from `mpay/nextjs` to create a Next.js-aware payment handler. Each intent (for example, `charge`) returns a wrapper that accepts a route handler.
 
-```ts twoslash [app/api/premium/route.ts]
-// @noErrors
+```ts [app/api/premium/route.ts]
 import { Mpay, tempo } from 'mpay/nextjs'
 
 const mpay = Mpay.create({ methods: [tempo.charge()] }) // [!code hl]
