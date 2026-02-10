@@ -72,10 +72,45 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 
 ::::
 
----
+## Learn more
 
-## Advanced options
+### Wagmi
 
+You can inject a Wagmi connector into Mpay by passing the `getConnectorClient` function.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @noErrors
+import { Mpay, tempo } from 'mpay/client'
+import { getConnectorClient } from 'wagmi/actions'
+import { config } from './config'
+
+Mpay.create({
+  methods: [tempo({
+    getClient: (parameters) => getConnectorClient(config, parameters), // 
+  })],
+})
+
+const response = await fetch(`https://mpp.dev/api/ping/${address}`)
+```
+
+```ts twoslash [config.ts] filename="wagmi.config.ts"
+// @noErrors
+import { createConfig, http } from 'wagmi'
+import { webAuthn } from 'wagmi/tempo'
+import { tempoModerato } from 'viem/chains'
+
+export const config = createConfig({
+  connectors: [webAuthn()],
+  chains: [tempoModerato],
+  transports: {
+    [tempoModerato.id]: http(),
+  },
+})
+```
+
+:::
 
 ### Per-request accounts
 
