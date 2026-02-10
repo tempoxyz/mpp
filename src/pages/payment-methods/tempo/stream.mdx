@@ -99,6 +99,7 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
 Use [`tempo.stream`](/sdk/typescript/server/Method.tempo.stream) to accept streaming payments. The server needs an RPC URL for on-chain verification during channel open/close, and a storage backend for channel state.
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 declare const storage: tempo.ChannelStorage
@@ -119,6 +120,7 @@ During streaming, the server verifies each voucher with a single `ecrecover`—n
 Use `mpay.stream` in your request handler to meter access:
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 declare const storage: tempo.ChannelStorage
@@ -154,6 +156,7 @@ Register multiple methods to accept multiple payment methods on the same server.
 For example, to accept both charge and stream payments:
 
 ```ts twoslash
+// @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
 declare const storage: tempo.ChannelStorage

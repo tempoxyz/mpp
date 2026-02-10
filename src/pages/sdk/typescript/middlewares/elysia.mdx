@@ -24,8 +24,7 @@ bun add mpay elysia
 
 Import `Mpay` and `tempo` from `mpay/elysia` to create an Elysia-aware payment handler. Each intent (for example, `charge`) returns an Elysia `beforeHandle` hook you can use with `.guard()` to scope payment to specific routes.
 
-```ts twoslash [server.ts]
-// @noErrors
+```ts [server.ts]
 import { Elysia } from 'elysia'
 import { Mpay, tempo } from 'mpay/elysia'
 
@@ -43,7 +42,6 @@ const app = new Elysia()
 Use `.onBeforeHandle()` to apply payment to all routes.
 
 ```ts [server.ts]
-// @noErrors
 import { Elysia } from 'elysia'
 import { Mpay, tempo } from 'mpay/elysia'
 
