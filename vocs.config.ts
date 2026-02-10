@@ -11,7 +11,7 @@ const baseUrl = (() => {
 
 export default defineConfig({
 	accentColor: "#0166FF",
-	colorScheme: "light",
+	colorScheme: "light dark",
 	baseUrl,
 	redirects: [
 		{ source: "/docs", destination: "/overview" },
