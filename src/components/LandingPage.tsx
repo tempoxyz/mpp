@@ -15,6 +15,7 @@ export function LandingPage() {
 		<div
 			className="not-prose"
 			style={{
+				color: "#111",
 				fontFamily:
 					'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
 			}}
@@ -28,19 +29,13 @@ export function LandingPage() {
 							<AsciiLogo morph={false} color="#9ca3af" />
 						</div>
 						{/* Title */}
-						<h1
-							className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
-							style={{ color: "light-dark(#000000, #ffffff)" }}
-						>
+						<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 							The Machine Payments Protocol
 						</h1>
 
 						{/* Description */}
 						<div className="space-y-1.5 max-w-xl">
-							<p
-								className="text-sm md:text-base leading-relaxed"
-								style={{ color: "light-dark(#4b5563, #d1d5db)" }}
-							>
+							<p className="text-sm md:text-base text-gray-600 leading-relaxed">
 								Accept payments from humans, software, or AI agents using
 								standard HTTP. No billing accounts or manual signup required.
 							</p>
@@ -97,11 +92,7 @@ export function LandingPage() {
 							</Link>
 							<Link
 								to="/specs"
-								className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md transition-colors no-underline"
-								style={{
-									border: "1px solid light-dark(#e5e7eb, #4b5563)",
-									color: "light-dark(#374151, #e5e7eb)",
-								}}
+								className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
 							>
 								Read the specs
 							</Link>
@@ -126,7 +117,7 @@ export function LandingPage() {
 			</section>
 
 			{/* Footer */}
-			<div style={{ borderTop: "1px solid light-dark(#f3f4f6, #1f2937)" }} />
+			<div className="border-t border-gray-100" />
 			<footer className="px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
 				<div className="flex items-center gap-4">
 					<a

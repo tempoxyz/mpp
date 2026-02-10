@@ -153,49 +153,49 @@ pre[data-v] {
 	padding-block: calc(var(--vocs-spacing) * 3) !important;
 }
 
-/* Mermaid diagram theme-aware colors */
+/* Force mermaid diagrams to black and white */
 [data-v-mermaid] .note {
-	fill: light-dark(#ffffff, #1f2937) !important;
-	stroke: light-dark(#000000, #9ca3af) !important;
+	fill: #ffffff !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] .noteText {
-	fill: light-dark(#000000, #e5e7eb) !important;
+	fill: #000000 !important;
 }
 
 [data-v-mermaid] .messageText {
-	fill: light-dark(#000000, #e5e7eb) !important;
+	fill: #000000 !important;
 }
 
 [data-v-mermaid] .messageLine0,
 [data-v-mermaid] .messageLine1 {
-	stroke: light-dark(#000000, #9ca3af) !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] text.actor {
-	fill: light-dark(#000000, #e5e7eb) !important;
+	fill: #000000 !important;
 }
 
 [data-v-mermaid] rect.actor {
-	fill: light-dark(#ffffff, #1f2937) !important;
-	stroke: light-dark(#000000, #9ca3af) !important;
+	fill: #ffffff !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] .actor-line {
-	stroke: light-dark(#000000, #4b5563) !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] #arrowhead path {
-	fill: light-dark(#000000, #9ca3af) !important;
-	stroke: light-dark(#000000, #9ca3af) !important;
+	fill: #000000 !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] .loopLine {
-	stroke: light-dark(#000000, #4b5563) !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] .loopText {
-	fill: light-dark(#000000, #e5e7eb) !important;
+	fill: #000000 !important;
 }
 
 [data-v-footer] a,

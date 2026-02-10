@@ -125,19 +125,8 @@ export function AgentTabs() {
 	const cmd = AGENT_COMMANDS[active];
 
 	return (
-		<div
-			className="max-w-xl rounded-md overflow-hidden"
-			style={{
-				border: `1px solid light-dark(#e5e7eb, #374151)`,
-			}}
-		>
-			<div
-				className="flex"
-				style={{
-					background: "light-dark(#f9fafb, #1f2937)",
-					borderBottom: `1px solid light-dark(#e5e7eb, #374151)`,
-				}}
-			>
+		<div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
+			<div className="flex bg-gray-50 border-b border-gray-200">
 				{AGENT_COMMANDS.map((a, i) => {
 					const Icon = a.icon;
 					return (
@@ -145,21 +134,11 @@ export function AgentTabs() {
 							key={a.label}
 							type="button"
 							onClick={() => setActive(i)}
-							className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
-							style={
+							className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
 								i === active
-									? {
-											color: "light-dark(#111827, #f3f4f6)",
-											background: "light-dark(#ffffff, #111827)",
-											borderBottom: `2px solid light-dark(#111827, #f3f4f6)`,
-											marginBottom: "-1px",
-										}
-									: {
-											color: "#9ca3af",
-											background: "transparent",
-											border: "none",
-										}
-							}
+									? "text-gray-900 bg-white border-b-2 border-gray-900 -mb-px"
+									: "text-gray-400 hover:text-gray-600"
+							}`}
 						>
 							<Icon className="w-3.5 h-3.5" />
 							{a.label}
@@ -167,26 +146,13 @@ export function AgentTabs() {
 					);
 				})}
 			</div>
-			<div
-				className="flex items-center gap-3 px-4 py-3"
-				style={{ background: "light-dark(#ffffff, #111827)" }}
-			>
+			<div className="flex items-center gap-3 bg-white px-4 py-3">
 				<pre className="text-sm select-none flex-1 truncate m-0 p-0 bg-transparent font-mono">
 					<code>
 						<span className="text-gray-400">$ </span>
-						<span style={{ color: "light-dark(#1f2937, #e5e7eb)" }}>
-							{cmd.bin}
-						</span>
-						{cmd.args && (
-							<span style={{ color: "light-dark(#6b7280, #9ca3af)" }}>
-								{" "}
-								{cmd.args}
-							</span>
-						)}
-						<span style={{ color: "light-dark(#15803d, #4ade80)" }}>
-							{" "}
-							{cmd.str}
-						</span>
+						<span className="text-gray-800">{cmd.bin}</span>
+						{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
+						<span className="text-green-700"> {cmd.str}</span>
 					</code>
 				</pre>
 				<CopyButton
