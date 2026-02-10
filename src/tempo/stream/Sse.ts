@@ -1,6 +1,15 @@
+/**
+ * Shared SSE utilities used by both the high-level server adapter
+ * ({@link ../server/Sse}) and the lower-level `serve()` function.
+ *
+ * Provides event formatting/parsing, balance polling, and the core
+ * `serve()` loop that meters an async iterable into a ReadableStream
+ * of SSE events.
+ */
 import type { Hex } from 'viem'
 import { createStreamReceipt } from './Receipt.js'
 import type { ChannelStorage } from './Storage.js'
+import { deductFromChannel } from './Storage.js'
 import type { NeedVoucherEvent, StreamReceipt } from './Types.js'
 
 /**
@@ -102,26 +111,26 @@ export function serve(options: serve.Options): ReadableStream<Uint8Array> {
         for await (const value of generate) {
           if (aborted()) break
 
-          let result = await deductTick(storage, channelId, tickCost)
+          let result = await deductFromChannel(storage, channelId, tickCost)
 
           while (!result.ok) {
             const requiredCumulative = computeRequiredCumulative(
-              result.state.spent,
+              result.channel.spent,
               tickCost,
-              result.state.highestVoucherAmount,
+              result.channel.highestVoucherAmount,
             )
             controller.enqueue(
               encoder.encode(
                 formatNeedVoucherEvent({
                   channelId,
                   requiredCumulative: requiredCumulative.toString(),
-                  acceptedCumulative: result.state.highestVoucherAmount.toString(),
+                  acceptedCumulative: result.channel.highestVoucherAmount.toString(),
                 }),
               ),
             )
 
             await pollForBalance(storage, channelId, tickCost, pollIntervalMs, signal)
-            result = await deductTick(storage, channelId, tickCost)
+            result = await deductFromChannel(storage, channelId, tickCost)
           }
 
           controller.enqueue(encoder.encode(`event: message\ndata: ${value}\n\n`))
@@ -159,28 +168,6 @@ export declare namespace serve {
     pollIntervalMs?: number | undefined
     signal?: AbortSignal | undefined
   }
-}
-
-type DeductResult =
-  | { ok: true; state: { spent: bigint; units: number; highestVoucherAmount: bigint } }
-  | { ok: false; state: { spent: bigint; units: number; highestVoucherAmount: bigint } }
-
-async function deductTick(
-  storage: ChannelStorage,
-  channelId: Hex,
-  tickCost: bigint,
-): Promise<DeductResult> {
-  let deducted = false
-  const channel = await storage.updateChannel(channelId, (current) => {
-    if (!current) return null
-    if (current.highestVoucherAmount - current.spent >= tickCost) {
-      deducted = true
-      return { ...current, spent: current.spent + tickCost, units: current.units + 1 }
-    }
-    return current
-  })
-  if (!channel) throw new Error('channel not found')
-  return { ok: deducted, state: channel }
 }
 
 export function computeRequiredCumulative(

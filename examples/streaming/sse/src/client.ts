@@ -5,7 +5,7 @@ import { tempoModerato } from 'viem/chains'
 import { Actions } from 'viem/tempo'
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:5173'
-const currency = '0x20c0000000000000000000000000000000000001' as const
+const currency = '0x20c0000000000000000000000000000000000000' as const
 
 const account = privateKeyToAccount((process.env.PRIVATE_KEY as Hex) ?? generatePrivateKey())
 
@@ -21,7 +21,7 @@ console.log('Funding account via faucet...')
 await Actions.faucet.fundSync(client, { account, timeout: 30_000 })
 
 const getBalance = () => Actions.token.getBalance(client, { account, token: currency })
-const fmt = (b: bigint) => `${Number(b) / 1e6} alphaUSD`
+const fmt = (b: bigint) => `${Number(b) / 1e6} pathUSD`
 
 const balanceBefore = await getBalance()
 console.log(`Balance: ${fmt(balanceBefore)}`)
@@ -48,5 +48,6 @@ for await (const token of tokens) {
 await s.close()
 
 const balanceAfter = await getBalance()
-console.log(`\nBalance: ${fmt(balanceBefore)} → ${fmt(balanceAfter)} (spent ${fmt(balanceBefore - balanceAfter)})`)
-
+console.log(
+  `\nBalance: ${fmt(balanceBefore)} → ${fmt(balanceAfter)} (spent ${fmt(balanceBefore - balanceAfter)})`,
+)

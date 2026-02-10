@@ -5,7 +5,7 @@ import { tempoModerato } from 'viem/chains'
 import { Actions } from 'viem/tempo'
 
 const account = privateKeyToAccount(generatePrivateKey())
-const currency = '0x20c0000000000000000000000000000000000001' as const
+const currency = '0x20c0000000000000000000000000000000000000' as const
 
 const storage = tempo.memoryStorage()
 

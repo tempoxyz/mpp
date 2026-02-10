@@ -72,6 +72,36 @@ export interface ChannelStorage {
   ): Promise<ChannelState | null>
 }
 
+export type DeductResult =
+  | { ok: true; channel: ChannelState }
+  | { ok: false; channel: ChannelState }
+
+/**
+ * Atomically deduct `amount` from a channel's available balance.
+ *
+ * Returns `{ ok: true, channel }` if the deduction succeeded, or
+ * `{ ok: false, channel }` with the unchanged state if balance is
+ * insufficient. Throws if the channel does not exist.
+ */
+export async function deductFromChannel(
+  storage: ChannelStorage,
+  channelId: Hex,
+  amount: bigint,
+): Promise<DeductResult> {
+  let deducted = false
+  const channel = await storage.updateChannel(channelId, (current) => {
+    if (!current) return null
+    if (current.highestVoucherAmount - current.spent >= amount) {
+      deducted = true
+      return { ...current, spent: current.spent + amount, units: current.units + 1 }
+    }
+    return current
+  })
+  if (!channel) throw new Error('channel not found')
+  return { ok: deducted, channel }
+}
+
+/** In-memory channel storage backed by a simple Map. Useful for development and testing. */
 export function memoryStorage(): ChannelStorage {
   const channels = new Map<string, ChannelState>()
 

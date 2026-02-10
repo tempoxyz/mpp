@@ -1,3 +1,15 @@
+/**
+ * Server-side stream payment method for request/response flows.
+ *
+ * Handles the full channel lifecycle (open, voucher, top-up, close) and
+ * one-shot settlement. Each incoming request carries a stream credential
+ * with a cumulative voucher that the server validates and records.
+ *
+ * Use `stream()` for standard HTTP request/response patterns where each
+ * request is a discrete paid unit (for example, a page scrape or API call).
+ * For long-lived connections that emit multiple paid events over a single
+ * request, use {@link ../server/Sse} instead.
+ */
 import { type Account, type Address, type Hex, parseUnits, type Client as viem_Client } from 'viem'
 import { tempo as tempo_chain } from 'viem/chains'
 import {
@@ -26,6 +38,7 @@ import {
 } from '../stream/Chain.js'
 import { createStreamReceipt } from '../stream/Receipt.js'
 import type { ChannelState, ChannelStorage } from '../stream/Storage.js'
+import { deductFromChannel } from '../stream/Storage.js'
 import type { SignedVoucher, StreamCredentialPayload, StreamReceipt } from '../stream/Types.js'
 import { parseVoucherFromPayload, verifyVoucher } from '../stream/Voucher.js'
 
@@ -235,25 +248,28 @@ export async function settle(
 
 /**
  * Charge against a channel's balance.
+ *
+ * Delegates to the shared `deductFromChannel` atomic helper and translates
+ * failure modes into typed errors (`InsufficientBalanceError`, `ChannelClosedError`).
  */
 export async function charge(
   storage: ChannelStorage,
   channelId: Hex,
   amount: bigint,
 ): Promise<ChannelState> {
-  const channel = await storage.updateChannel(channelId, (current) => {
-    if (!current) return null
-    const available = current.highestVoucherAmount - current.spent
-    if (available < amount) {
-      throw new InsufficientBalanceError({
-        reason: `requested ${amount}, available ${available}`,
-      })
-    }
-    return { ...current, spent: current.spent + amount, units: current.units + 1 }
-  })
-
-  if (!channel) throw new ChannelClosedError({ reason: 'channel not found' })
-  return channel
+  let result: Awaited<ReturnType<typeof deductFromChannel>>
+  try {
+    result = await deductFromChannel(storage, channelId, amount)
+  } catch {
+    throw new ChannelClosedError({ reason: 'channel not found' })
+  }
+  if (!result.ok) {
+    const available = result.channel.highestVoucherAmount - result.channel.spent
+    throw new InsufficientBalanceError({
+      reason: `requested ${amount}, available ${available}`,
+    })
+  }
+  return result.channel
 }
 
 /**
@@ -450,8 +466,6 @@ async function handleOpen(
           highestVoucherAmount: voucher.cumulativeAmount,
           highestVoucher: voucher,
           authorizedSigner,
-          spent: 0n,
-          units: 0,
         }
       }
       return {
@@ -637,15 +651,13 @@ async function handleClose(
     txHash = await closeOnChain(client, methodDetails.escrowContract, voucher)
   }
 
-  await storage.updateChannel(payload.channelId, (current) => {
+  const updated = await storage.updateChannel(payload.channelId, (current) => {
     if (!current) return null
     return {
       ...current,
       deposit: onChain.deposit,
       highestVoucherAmount: voucher.cumulativeAmount,
       highestVoucher: voucher,
-      spent: 0n,
-      units: 0,
       finalized: true,
     }
   })
@@ -654,8 +666,8 @@ async function handleClose(
     challengeId: challenge.id,
     channelId: payload.channelId,
     acceptedCumulative: voucher.cumulativeAmount,
-    spent: channel.spent,
-    units: channel.units,
+    spent: updated?.spent ?? channel.spent,
+    units: updated?.units ?? channel.units,
     ...(txHash !== undefined && { txHash }),
   })
 }

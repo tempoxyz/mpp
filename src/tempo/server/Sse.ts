@@ -1,3 +1,16 @@
+/**
+ * Server-side SSE (Server-Sent Events) adapter for streaming payments.
+ *
+ * Unlike {@link ./Stream}, which charges once per HTTP request, this module
+ * keeps a single HTTP connection open and charges per emitted event (tick).
+ * This is the right choice for LLM token streaming, real-time feeds, or any
+ * use case where the server produces a variable number of paid units within
+ * one response.
+ *
+ * The adapter handles mid-stream balance exhaustion: when the channel runs
+ * out of funds it emits an `mpay-need-voucher` event and polls storage until
+ * the client tops up, then resumes charging and emitting data.
+ */
 import type { Hex } from 'viem'
 import * as Credential from '../../Credential.js'
 import { InsufficientBalanceError } from '../../Errors.js'

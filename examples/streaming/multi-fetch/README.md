@@ -1,6 +1,6 @@
 # Stream: Multiple Fetches
 
-Multiple paid requests over a single payment channel, then close and settle. Demonstrates a batch scraping use case where each fetch increments the cumulative voucher by 0.002 alphaUSD.
+Multiple paid requests over a single payment channel, then close and settle. Demonstrates a batch scraping use case where each fetch increments the cumulative voucher by 0.002 pathUSD.
 
 ## Setup
 

@@ -5,7 +5,7 @@ import { tempoModerato } from 'viem/chains'
 import { Actions } from 'viem/tempo'
 
 const account = privateKeyToAccount(generatePrivateKey())
-const currency = '0x20c0000000000000000000000000000000000001' as const
+const currency = '0x20c0000000000000000000000000000000000000' as const
 const pricePerToken = '0.000075'
 
 const client = createClient({
@@ -56,13 +56,57 @@ export async function handler(request: Request): Promise<Response | null> {
 
 async function* generateTokens(prompt: string): AsyncGenerator<string> {
   const words = [
-    'The', ' question', ' you', ' asked', '—"', prompt, '"—is', ' a',
-    ' fascinating', ' one.', '\n\n', 'In', ' short,', ' the', ' answer',
-    ' depends', ' on', ' context.', ' Let', ' me', ' explain', ' with',
-    ' a', ' few', ' key', ' points:', '\n\n', '1.', ' First,', ' consider',
-    ' the', ' underlying', ' assumptions.', '\n', '2.', ' Then,', ' evaluate',
-    ' the', ' available', ' evidence.', '\n', '3.', ' Finally,', ' draw',
-    ' your', ' own', ' conclusions.', '\n\n', 'Hope', ' that', ' helps!',
+    'The',
+    ' question',
+    ' you',
+    ' asked',
+    '—"',
+    prompt,
+    '"—is',
+    ' a',
+    ' fascinating',
+    ' one.',
+    '\n\n',
+    'In',
+    ' short,',
+    ' the',
+    ' answer',
+    ' depends',
+    ' on',
+    ' context.',
+    ' Let',
+    ' me',
+    ' explain',
+    ' with',
+    ' a',
+    ' few',
+    ' key',
+    ' points:',
+    '\n\n',
+    '1.',
+    ' First,',
+    ' consider',
+    ' the',
+    ' underlying',
+    ' assumptions.',
+    '\n',
+    '2.',
+    ' Then,',
+    ' evaluate',
+    ' the',
+    ' available',
+    ' evidence.',
+    '\n',
+    '3.',
+    ' Finally,',
+    ' draw',
+    ' your',
+    ' own',
+    ' conclusions.',
+    '\n\n',
+    'Hope',
+    ' that',
+    ' helps!',
   ]
   for (const word of words) {
     yield word
