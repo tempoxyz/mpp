@@ -1,4 +1,4 @@
-import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
+import { Badge, Card, Cards } from 'vocs'
 
 # Server quickstart [Charge for resources and verify payment credentials]
 
@@ -10,11 +10,9 @@ This quickstart demonstrates how to plug MPP into any server framework to accept
 
 Use the framework-specific middleware from `mpay` to integrate payment into your server. Each middleware handles the `402` challenge/credential flow and attaches receipts automatically.
 
-<Tabs stateKey="framework">
-  <Tab title="Next.js">
-  <div className="space-y-4">
+::::code-group
 
-```ts [app/api/resource/route.ts]
+```ts [Next.js]
 import { Mpay, tempo } from 'mpay/nextjs'
 
 // [!code hl:start]
@@ -31,14 +29,7 @@ export const GET =
   (() => Response.json({ data: '...' }))
 ```
 
-[See Next.js middleware reference →](/sdk/typescript/middlewares/nextjs)
-
-  </div>
-  </Tab>
-  <Tab title="Hono">
-  <div className="space-y-4">
-
-```ts [server.ts]
+```ts [Hono]
 import { Hono } from 'hono'
 import { Mpay, tempo } from 'mpay/hono'
 
@@ -60,14 +51,7 @@ app.get(
 )
 ```
 
-[See Hono middleware reference →](/sdk/typescript/middlewares/hono)
-
-  </div>
-  </Tab>
-  <Tab title="Elysia">
-  <div className="space-y-4">
-
-```ts [server.ts]
+```ts [Elysia]
 import { Elysia } from 'elysia'
 import { Mpay, tempo } from 'mpay/elysia'
 
@@ -87,14 +71,7 @@ const app = new Elysia()
   )
 ```
 
-[See Elysia middleware reference →](/sdk/typescript/middlewares/elysia)
-
-  </div>
-  </Tab>
-  <Tab title="Express">
-  <div className="space-y-4">
-
-```ts [server.ts]
+```ts [Express]
 import express from 'express'
 import { Mpay, tempo } from 'mpay/express'
 
@@ -115,11 +92,7 @@ app.get(
   (req, res) => res.json({ data: '...' }))
 ```
 
-[See Express middleware reference →](/sdk/typescript/middlewares/express)
-
-  </div>
-  </Tab>
-</Tabs>
+::::
 
 :::note
 Don't see your framework? `mpay` is designed to be framework-agnostic. See [Manual mode](#manual-mode) below.
