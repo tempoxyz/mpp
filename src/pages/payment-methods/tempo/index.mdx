@@ -2,7 +2,7 @@ import { Badge, Card, Cards } from 'vocs'
 
 # Tempo [Stablecoin payments on the Tempo blockchain]
 
-The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain. It supports two intents—**charge** for one-time payments and **stream** for pay-as-you-go payment channels—covering everything from simple API access to high-frequency metered billing.
+The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain. It supports two intents—**charge** for one-time payments and **session** for pay-as-you-go payment channels—covering everything from simple API access to high-frequency metered billing.
 
 ## Payments on Tempo
 
@@ -13,11 +13,11 @@ Tempo is purpose-built for the payment patterns MPP enables:
 - **Fee sponsorship**—Servers can pay gas fees on behalf of clients, removing wallet UX friction entirely
 - **2D nonces**—Parallel nonce lanes let clients submit payment transactions without blocking other account activity
 - **Payment lane**—Dedicated transaction ordering for payment channel operations, providing reliable channel management UX
-- **High throughput**—Tempo's throughput handles the on-chain settlement and channel management volume that streaming payments generate at scale
+- **High throughput**—Tempo's throughput handles the on-chain settlement and channel management volume that session-based payments generate at scale
 
 ## Choosing a payment method 
 
-| | **Stream** <Badge variant="info">Recommended</Badge> | **Charge** |
+| | **Session** <Badge variant="info">Recommended</Badge> | **Charge** |
 |---|---|---|
 | **Pattern** | Continuous pay-as-you-go | One-time payment per request |
 | **Latency overhead** | Near-zero | ~500ms (on-chain confirmation) |
@@ -32,9 +32,9 @@ Tempo is purpose-built for the payment patterns MPP enables:
   <Card
     topRight={<Badge variant="info">Recommended</Badge>}
     icon="lucide:waves"
-    title="Stream"
-    description="Pay-as-you-go streaming payments over payment channels"
-    to="/payment-methods/tempo/stream"
+    title="Session"
+    description="Pay-as-you-go session payments over payment channels"
+    to="/payment-methods/tempo/session"
   />
   <Card
     icon="lucide:credit-card"
@@ -46,7 +46,7 @@ Tempo is purpose-built for the payment patterns MPP enables:
 
 ## Fee sponsorship
 
-Tempo supports server-paid transaction fees for both charge and stream intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The client doesn't need to hold gas tokens or understand fee mechanics.
+Tempo supports server-paid transaction fees for both charge and session intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The client doesn't need to hold gas tokens or understand fee mechanics.
 
 Set `feePayer: true` in the Challenge request to enable this:
 

@@ -1,19 +1,19 @@
 import { Cards, Tab, Tabs } from 'vocs'
 import { SpecCard } from '../../../components/SpecCard'
 
-# Stream [Low-cost high-throughput payments]
+# Session [Low-cost high-throughput payments]
 
-The `stream` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Clients deposit funds into an on-chain escrow and sign off-chain vouchers as they consume resources. The server verifies vouchers with pure CPU-bound signature checks—no I/O, no on-chain calls, no latency—and settles periodically in batches.
+The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Clients deposit funds into an on-chain escrow and sign off-chain vouchers as they consume resources. The server verifies vouchers with pure CPU-bound signature checks—no I/O, no on-chain calls, no latency—and settles periodically in batches.
 
-Streaming payments reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
+Session-based payments reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
-## Why streaming matters in MPP
+## Why sessions matter in MPP
 
 Traditional payment rails target human purchase flows: a buyer decides, pays, and receives goods. Usage-based billing—the model that powers cloud infrastructure, LLM APIs, and metered services—requires something fundamentally different. It needs payment verification that can keep pace with the service itself.
 
 Consider an LLM API: a single inference request can generate hundreds of tokens over several seconds. Each token has a known cost. The total cost isn't known when the request begins. Card-based billing handles this by accumulating usage and charging after the fact, introducing credit risk, reconciliation complexity, and billing disputes. Prepaid credit systems require the client to guess consumption upfront and lose unused funds.
 
-MPP Streams on Tempo solve this by making payment a continuous, inline part of the HTTP request. The client signs a cumulative voucher for each increment of service consumed, and the server verifies it in microseconds. No network round-trips. No database writes. No settlement latency in the hot path. The server delays on-chain settlement to whenever it chooses—batching hundreds or thousands of vouchers into a single on-chain transaction.
+MPP Sessions on Tempo solve this by making payment a continuous, inline part of the HTTP request. The client signs a cumulative voucher for each increment of service consumed, and the server verifies it in microseconds. No network round-trips. No database writes. No settlement latency in the hot path. The server delays on-chain settlement to whenever it chooses—batching hundreds or thousands of vouchers into a single on-chain transaction.
 
 ## How it works
 
@@ -45,13 +45,13 @@ sequenceDiagram
     Tempo-->>Client: Refund remaining deposit
 ```
 
-A stream payment has four phases:
+A session payment has four phases:
 
 ### 1. Open
 
 The client deposits funds into an on-chain escrow contract, creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and holds the deposited TIP-20 tokens.
 
-### 2. Stream
+### 2. Session
 
 The client signs EIP-712 vouchers with increasing cumulative amounts as service is consumed. Each voucher authorizes "I have now consumed up to X total." The server verifies the signature, checks that the cumulative amount is higher than the previous voucher, and grants access based on the delta.
 
@@ -67,7 +67,7 @@ Either party can close the channel. The server calls `close()` on the escrow con
 
 ## High volume API billing
 
-Streaming payments match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
+Session-based payments match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
 
 A typical flow for a high-volume LLM API:
 
@@ -75,13 +75,13 @@ A typical flow for a high-volume LLM API:
 2. Client sends a prompt to the LLM API
 3. As the model generates tokens, the server issues Challenges requesting payment for each chunk (for example, 0.000025 USDC per token)
 4. The client signs a voucher for each chunk—the cumulative amount increases by the cost of tokens received
-5. The server verifies the voucher signature (~microseconds) and streams the next chunk
+5. The server verifies the voucher signature (~microseconds) and sends the next chunk
 6. After the session, the server settles on-chain and the client gets the unused deposit back
 
 The server never touches the chain during inference. Payment verification adds microseconds of CPU overhead per chunk, not hundreds of milliseconds of network latency. 
 
 :::info[Why Tempo]
-Tempo handles payments at scale and has properties that make it a uniquely good fit for streaming payments:
+Tempo handles payments at scale and has properties that make it a uniquely good fit for session-based payments:
 
 - **Channel management UX**—Opening, topping up, and closing channels are on-chain operations. Tempo's ~500ms finality and sub-cent fees keep channel lifecycle from becoming a UX bottleneck.
 - **Payment lane**—Tempo's 2D nonce system provides dedicated nonce lanes for payment transactions, so channel operations don't block other account activity. This matters for clients that use the same account for payments and other on-chain interactions.
@@ -96,7 +96,7 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
   <Tab title="Server">
   <div className="space-y-4">
 
-Use [`tempo.stream`](/sdk/typescript/server/Method.tempo.stream) to accept streaming payments. The server needs an RPC URL for on-chain verification during channel open/close, and a storage backend for channel state.
+Use [`tempo.stream`](/sdk/typescript/server/Method.tempo.session) to accept session payments. The server needs an RPC URL for on-chain verification during channel open/close, and a storage backend for channel state.
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
@@ -114,7 +114,7 @@ const mpay = Mpay.create({
 })
 ```
 
-During streaming, the server verifies each voucher with a single `ecrecover`—no RPC calls, no database writes in the hot path. On-chain interaction only happens during open, settlement, and close.
+During a session, the server verifies each voucher with a single `ecrecover`—no RPC calls, no database writes in the hot path. On-chain interaction only happens during open, settlement, and close.
 
 Use `mpay.stream` in your request handler to meter access:
 
@@ -151,7 +151,7 @@ export async function handler(request: Request) {
 
 Register multiple methods to accept multiple payment methods on the same server. 
 
-For example, to accept both charge and stream payments:
+For example, to accept both charge and session payments:
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
@@ -169,7 +169,7 @@ const mpay = Mpay.create({
 ```
 
 :::info
-See [`tempo.stream` server reference](/sdk/typescript/server/Method.tempo.stream) for the full parameter list.
+See [`tempo.stream` server reference](/sdk/typescript/server/Method.tempo.session) for the full parameter list.
 :::
 
   </div>
@@ -177,7 +177,7 @@ See [`tempo.stream` server reference](/sdk/typescript/server/Method.tempo.stream
   <Tab title="Client">
   <div className="space-y-4">
 
-Use [`tempo.stream`](/sdk/typescript/client/Method.tempo.stream) with `Mpay.create` to sign vouchers automatically when the server requests streaming payments.
+Use [`tempo.stream`](/sdk/typescript/client/Method.tempo.session) with `Mpay.create` to sign vouchers automatically when the server requests session payments.
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/client'
@@ -215,7 +215,7 @@ const response = await mpay.fetch('https://api.example.com/v1/chat/completions')
 
 Register multiple methods so the client can handle servers that offer multiple payment methods. 
 
-For example, to accept both charge and stream payments:
+For example, to accept both charge and session payments:
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/client'
@@ -232,7 +232,7 @@ Mpay.create({
 ```
 
 :::info
-See [`tempo.stream` client reference](/sdk/typescript/client/Method.tempo.stream) for the full parameter list.
+See [`tempo.stream` client reference](/sdk/typescript/client/Method.tempo.session) for the full parameter list.
 :::
 
   </div>
@@ -242,5 +242,5 @@ See [`tempo.stream` client reference](/sdk/typescript/client/Method.tempo.stream
 ## Specification
 
 <Cards>
-  <SpecCard to="/specs/draft-tempo-stream-00" />
+  <SpecCard to="/specs/draft-tempo-session-00" />
 </Cards>

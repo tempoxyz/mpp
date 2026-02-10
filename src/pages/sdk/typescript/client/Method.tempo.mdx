@@ -1,6 +1,6 @@
 # `tempo` [Register all Tempo intents]
 
-Convenience function that creates both `tempo.charge` and `tempo.stream` method intents with shared configuration.
+Convenience function that creates both `tempo.charge` and `tempo.session` method intents with shared configuration.
 
 ## Usage
 
@@ -41,7 +41,7 @@ Mpay.create({
 type ReturnType = readonly [MethodIntent.Client, MethodIntent.Client]
 ```
 
-A tuple of `[chargeIntent, streamIntent]`. `Mpay.create` accepts tuples in the `methods` array and flattens them automatically.
+A tuple of `[chargeIntent, sessionIntent]`. `Mpay.create` accepts tuples in the `methods` array and flattens them automatically.
 
 ## Parameters
 

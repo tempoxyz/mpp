@@ -69,7 +69,7 @@ method = tempo(
 )
 ```
 
-### With charge and stream
+### With charge and session
 
 Register both intents on a single method:
 
@@ -111,7 +111,7 @@ Token decimal places for amount conversion (6 for pathUSD).
 
 - **Type:** `dict[str, Intent]`
 
-Intents to register (e.g. `charge`, `stream`). Each intent must be explicitly provided.
+Intents to register (e.g. `charge`, `session`). Each intent must be explicitly provided.
 
 ### recipient (optional)
 
@@ -184,7 +184,7 @@ Challenge expiration as ISO 8601 timestamp. Defaults to 5 minutes from now.
 
 Override the method's default recipient address.
 
-## `stream()` parameters
+## `session()` parameters
 
 ### amount
 
@@ -223,7 +223,7 @@ Override the method's default recipient address.
 
 Service unit type label (for example, `"token"`, `"byte"`, `"request"`).
 
-## Streaming example
+## Session example
 
 `StreamIntent` requires a `storage` backend that implements the `ChannelStorage` protocol to persist channel and session state. The SDK ships `MemoryStorage` for development and testing—state lives in a Python dict and is lost on restart. For production, implement `ChannelStorage` backed by your database (Postgres, Redis, and others). The protocol has four methods:
 
@@ -234,7 +234,7 @@ Service unit type label (for example, `"token"`, `"byte"`, `"request"`).
 | `update_channel(channel_id, fn)` | Atomic read-modify-write for channel state |
 | `update_session(challenge_id, fn)` | Atomic read-modify-write for session state |
 
-A full SSE endpoint with per-token streaming payments:
+A full SSE endpoint with per-token session payments:
 
 ```python [server.py]
 import asyncio

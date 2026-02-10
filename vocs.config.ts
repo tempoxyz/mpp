@@ -19,6 +19,18 @@ export default defineConfig({
 		{ source: "/quickstart/pget", destination: "/quickstart/tempoctl" },
 		{ source: "/tools/pget", destination: "/tools/tempoctl" },
 		{ source: "/tools/pget/examples", destination: "/tools/tempoctl/examples" },
+		{
+			source: "/payment-methods/tempo/stream",
+			destination: "/payment-methods/tempo/session",
+		},
+		{
+			source: "/sdk/typescript/client/Method.tempo.stream",
+			destination: "/sdk/typescript/client/Method.tempo.session",
+		},
+		{
+			source: "/sdk/typescript/server/Method.tempo.stream",
+			destination: "/sdk/typescript/server/Method.tempo.session",
+		},
 	],
 	description:
 		"Machine Payments Protocol - Machine-native payments for machine-to-machine transactions",
@@ -106,7 +118,7 @@ export default defineConfig({
 						collapsed: true,
 						items: [
 							{ text: "Overview", link: "/payment-methods/tempo" },
-							{ text: "Stream", link: "/payment-methods/tempo/stream" },
+							{ text: "Session", link: "/payment-methods/tempo/session" },
 							{ text: "Charge", link: "/payment-methods/tempo/charge" },
 						],
 					},
@@ -174,8 +186,8 @@ export default defineConfig({
 												link: "/sdk/typescript/client/Method.tempo.charge",
 											},
 											{
-												text: "tempo.stream",
-												link: "/sdk/typescript/client/Method.tempo.stream",
+												text: "tempo.session",
+												link: "/sdk/typescript/client/Method.tempo.session",
 											},
 										],
 									},
@@ -229,8 +241,8 @@ export default defineConfig({
 												link: "/sdk/typescript/server/Method.tempo.charge",
 											},
 											{
-												text: "tempo.stream",
-												link: "/sdk/typescript/server/Method.tempo.stream",
+												text: "tempo.session",
+												link: "/sdk/typescript/server/Method.tempo.session",
 											},
 										],
 									},
