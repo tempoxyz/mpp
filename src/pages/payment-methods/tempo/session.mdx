@@ -5,7 +5,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Clients deposit funds into an on-chain escrow and sign off-chain vouchers as they consume resources. The server verifies vouchers with pure CPU-bound signature checks—no I/O, no on-chain calls, no latency—and settles periodically in batches.
 
-Session-based payments reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
+Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
 ## Why sessions matter in MPP
 
@@ -45,7 +45,7 @@ sequenceDiagram
     Tempo-->>Client: Refund remaining deposit
 ```
 
-A session payment has four phases:
+A payment session has four phases:
 
 ### 1. Open
 
@@ -67,7 +67,7 @@ Either party can close the channel. The server calls `close()` on the escrow con
 
 ## High volume API billing
 
-Session-based payments match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
+Payment sessions match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
 
 A typical flow for a high-volume LLM API:
 
@@ -81,7 +81,7 @@ A typical flow for a high-volume LLM API:
 The server never touches the chain during inference. Payment verification adds microseconds of CPU overhead per chunk, not hundreds of milliseconds of network latency. 
 
 :::info[Why Tempo]
-Tempo handles payments at scale and has properties that make it a uniquely good fit for session-based payments:
+Tempo handles payments at scale and has properties that make it a uniquely good fit for payment sessions:
 
 - **Channel management UX**—Opening, topping up, and closing channels are on-chain operations. Tempo's ~500ms finality and sub-cent fees keep channel lifecycle from becoming a UX bottleneck.
 - **Payment lane**—Tempo's 2D nonce system provides dedicated nonce lanes for payment transactions, so channel operations don't block other account activity. This matters for clients that use the same account for payments and other on-chain interactions.
@@ -96,7 +96,7 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
   <Tab title="Server">
   <div className="space-y-4">
 
-Use [`tempo.stream`](/sdk/typescript/server/Method.tempo.session) to accept session payments. The server needs an RPC URL for on-chain verification during channel open/close, and a storage backend for channel state.
+Use [`tempo.stream`](/sdk/typescript/server/Method.tempo.session) to accept payment sessions. The server needs an RPC URL for on-chain verification during channel open/close, and a storage backend for channel state.
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
@@ -151,7 +151,7 @@ export async function handler(request: Request) {
 
 Register multiple methods to accept multiple payment methods on the same server. 
 
-For example, to accept both charge and session payments:
+For example, to accept both charge and payment sessions:
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
@@ -177,7 +177,7 @@ See [`tempo.stream` server reference](/sdk/typescript/server/Method.tempo.sessio
   <Tab title="Client">
   <div className="space-y-4">
 
-Use [`tempo.stream`](/sdk/typescript/client/Method.tempo.session) with `Mpay.create` to sign vouchers automatically when the server requests session payments.
+Use [`tempo.stream`](/sdk/typescript/client/Method.tempo.session) with `Mpay.create` to sign vouchers automatically when the server requests payment sessions.
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/client'
@@ -215,7 +215,7 @@ const response = await mpay.fetch('https://api.example.com/v1/chat/completions')
 
 Register multiple methods so the client can handle servers that offer multiple payment methods. 
 
-For example, to accept both charge and session payments:
+For example, to accept both charge and payment sessions:
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/client'

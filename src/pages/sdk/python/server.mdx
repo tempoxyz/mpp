@@ -234,7 +234,7 @@ Service unit type label (for example, `"token"`, `"byte"`, `"request"`).
 | `update_channel(channel_id, fn)` | Atomic read-modify-write for channel state |
 | `update_session(challenge_id, fn)` | Atomic read-modify-write for session state |
 
-A full SSE endpoint with per-token session payments:
+A full SSE endpoint with per-token payment sessions:
 
 ```python [server.py]
 import asyncio

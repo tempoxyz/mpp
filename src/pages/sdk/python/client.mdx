@@ -37,9 +37,9 @@ response = await get(
 )
 ```
 
-## Session payments
+## Payment sessions
 
-For session-based payment channels, use `StreamMethod` instead of `tempo()`. The client opens a payment channel and sends incremental vouchers as it consumes content:
+For payment session channels, use `StreamMethod` instead of `tempo()`. The client opens a payment channel and sends incremental vouchers as it consumes content:
 
 ```python [stream.py]
 import httpx
