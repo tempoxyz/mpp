@@ -6,27 +6,37 @@ The technical specifications that define the Machine Payments Protocol.
 
 ## Core
 
+Defines the `Payment` HTTP authentication scheme, challenge/credential/receipt flow, and `402` status code semantics.
+
 - <a href="/specs/draft-httpauth-payment-00.html">The "Payment" HTTP Authentication Scheme</a> [<a href="/specs/draft-httpauth-payment-00.txt"><code data-v="true">.txt</code></a>]
 
 ## Intents
 
-- <a href="/specs/draft-payment-intent-charge-00.html">Charge Intent for HTTP Payment Authentication</a> [<a href="/specs/draft-payment-intent-charge-00.txt"><code data-v="true">.txt</code></a>]
+Intents describe what kind of payment a server expects from the client.
+
+- <a href="/specs/draft-payment-intent-charge-00.html">Charge Intent for HTTP Payment Authentication</a> [<a href="/specs/draft-payment-intent-charge-00.txt"><code data-v="true">.txt</code></a>] — Defines the `charge` intent for immediate one-time payments with fixed amounts.
 
 ## Payment Methods
 
+Payment methods specify how a particular intent settles on a given network or provider.
+
 ### Tempo
 
-- <a href="/specs/draft-tempo-charge-00.html">Tempo charge Intent for HTTP Payment Authentication</a> [<a href="/specs/draft-tempo-charge-00.txt"><code data-v="true">.txt</code></a>]
-- <a href="/specs/draft-tempo-stream-00.html">Tempo Stream Intent for HTTP Payment Authentication</a> [<a href="/specs/draft-tempo-stream-00.txt"><code data-v="true">.txt</code></a>]
+- <a href="/specs/draft-tempo-charge-00.html">Tempo charge Intent for HTTP Payment Authentication</a> [<a href="/specs/draft-tempo-charge-00.txt"><code data-v="true">.txt</code></a>] — Specifies how one-time TIP-20 token transfers settle on Tempo (~500ms finality).
+- <a href="/specs/draft-tempo-stream-00.html">Tempo Stream Intent for HTTP Payment Authentication</a> [<a href="/specs/draft-tempo-stream-00.txt"><code data-v="true">.txt</code></a>] — Specifies payment channel-based streaming payments with off-chain vouchers.
 
 ### Stripe
 
-- <a href="/specs/draft-stripe-charge-00.html">Stripe charge Intent for HTTP Payment Authentication</a> [<a href="/specs/draft-stripe-charge-00.txt"><code data-v="true">.txt</code></a>]
+- <a href="/specs/draft-stripe-charge-00.html">Stripe charge Intent for HTTP Payment Authentication</a> [<a href="/specs/draft-stripe-charge-00.txt"><code data-v="true">.txt</code></a>] — Specifies card and bank payment integration through Stripe.
 
 ## Transports
 
-- <a href="/specs/draft-payment-transport-mcp-00.html">Payment Authentication Scheme: MCP Transport</a> [<a href="/specs/draft-payment-transport-mcp-00.txt"><code data-v="true">.txt</code></a>]
+Transports map the Payment authentication scheme to non-HTTP protocols.
+
+- <a href="/specs/draft-payment-transport-mcp-00.html">Payment Authentication Scheme: MCP Transport</a> [<a href="/specs/draft-payment-transport-mcp-00.txt"><code data-v="true">.txt</code></a>] — Maps the Payment authentication scheme to JSON-RPC for AI tool calls via MCP.
 
 ## Extensions
 
-- <a href="/specs/draft-payment-discovery-00.html">Discovery Mechanisms for HTTP Payment Authentication</a> [<a href="/specs/draft-payment-discovery-00.txt"><code data-v="true">.txt</code></a>]
+Optional extensions that build on the core protocol.
+
+- <a href="/specs/draft-payment-discovery-00.html">Discovery Mechanisms for HTTP Payment Authentication</a> [<a href="/specs/draft-payment-discovery-00.txt"><code data-v="true">.txt</code></a>] — Defines mechanisms for clients to discover payment requirements before making requests.
