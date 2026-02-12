@@ -151,16 +151,13 @@ function HeroVariantB() {
 // ============================================================
 function HeroVariantC() {
 	return (
-		<div
-			className="h-screen overflow-y-auto"
-			style={{ scrollSnapType: "y mandatory" }}
-		>
+		<>
 			{/* Section 1: Hero content - full viewport height */}
 			<section
 				className="flex flex-col items-center justify-center text-center px-6 relative"
-				style={{ height: "100vh", scrollSnapAlign: "start" }}
+				style={{ minHeight: "calc(100vh - 64px)" }}
 			>
-				<div className="max-w-2xl space-y-8">
+				<div className="max-w-2xl space-y-8 pb-20">
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
@@ -176,8 +173,8 @@ function HeroVariantC() {
 						<CTAButtons />
 					</div>
 				</div>
-				{/* Bouncing scroll indicator */}
-				<div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+				{/* Bouncing scroll indicator - fixed to bottom of viewport */}
+				<div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-10">
 					<span className="text-xs text-gray-400">Scroll to try demo</span>
 					<svg
 						width="20"
@@ -199,7 +196,7 @@ function HeroVariantC() {
 			{/* Section 2: CLI Demo */}
 			<section
 				className="flex items-center justify-center px-6"
-				style={{ height: "100vh", scrollSnapAlign: "start" }}
+				style={{ minHeight: "calc(100vh - 64px)" }}
 			>
 				<div className="max-w-[574px] w-full">
 					<Cli.Demo
@@ -215,7 +212,7 @@ function HeroVariantC() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</div>
+		</>
 	);
 }
 
