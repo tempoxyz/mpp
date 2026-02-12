@@ -831,13 +831,13 @@ function HeroVariantF() {
 
 				{/* Middle: Demo with chrome */}
 				<div className="w-full max-w-xl">
-					{demoAddress && (
-						<Cli.DemoSimple
-							title="Try it out"
-							token={pathUsd}
-							height={280}
-							restartStep={1}
-						>
+				{demoAddress && (
+					<Cli.DemoSimple
+						title="Try it out"
+						token={pathUsd}
+						height={330}
+						restartStep={1}
+					>
 							<Cli.Startup />
 							<Cli.SilentDemoSetup demoAddress={demoAddress} />
 							<DemoSelectQuery />
@@ -859,10 +859,10 @@ function HeroVariantF() {
 				<CTAButtons />
 			</section>
 
-		{/* Fixed bottom services */}
-		<div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30">
-			<ServiceCardsCompact />
-		</div>
+			{/* Fixed bottom services */}
+			<div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30">
+				<ServiceCardsCompact />
+			</div>
 		</>
 	);
 }
