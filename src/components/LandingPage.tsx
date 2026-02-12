@@ -763,9 +763,11 @@ function HeroVariantF() {
 					title="Try it out"
 					token={pathUsd}
 					height={320}
-					restartStep={0}
+					restartStep={1}
 				>
 					<Cli.Startup />
+					<Cli.ConnectWallet />
+					<Cli.Faucet />
 					<SelectQuery />
 				</Cli.DemoSimple>
 			</div>
