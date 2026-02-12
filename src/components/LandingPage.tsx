@@ -811,56 +811,59 @@ function HeroVariantF() {
 
 	return (
 		<>
-		<section
-			className="flex flex-col items-center justify-center px-6 gap-5 -mt-10"
-			style={{ height: "calc(87dvh - 64px)", maxHeight: "calc(100vh - 64px)" }}
-		>
-			{/* Top: Title + Subtitle */}
-			<div className="text-center space-y-4 pb-4">
-				<h1 className="text-2xl md:text-3xl font-bold text-black leading-[1.1] tracking-tight">
-					Machine Payments Protocol
-				</h1>
-				<p className="text-sm text-gray-600 leading-relaxed max-w-[500px] mx-auto">
-					Accept payments from humans, software, or AI agents using standard
-					HTTP. No billing accounts or manual signup required.
-				</p>
-			</div>
-
-			{/* Middle: Demo with chrome */}
-			<div className="w-full max-w-xl">
-				{demoAddress && (
-					<Cli.DemoSimple
-						title="Try it out"
-						token={pathUsd}
-						height={280}
-						restartStep={1}
-					>
-						<Cli.Startup />
-						<Cli.SilentDemoSetup demoAddress={demoAddress} />
-						<DemoSelectQuery />
-					</Cli.DemoSimple>
-				)}
-			</div>
-
-			{/* Agent Tabs */}
-			<div className="w-full max-w-xl flex flex-col items-center">
-				<span className="text-sm text-gray-400 pb-4">
-					or, start using it with your agent
-				</span>
-				<div className="w-full">
-					<AgentTabsWrapped />
+			<section
+				className="flex flex-col items-center justify-center px-6 gap-5 -mt-10"
+				style={{
+					height: "calc(87dvh - 64px)",
+					maxHeight: "calc(100vh - 64px)",
+				}}
+			>
+				{/* Top: Title + Subtitle */}
+				<div className="text-center space-y-4 pb-4">
+					<h1 className="text-2xl md:text-3xl font-bold text-black leading-[1.1] tracking-tight">
+						Machine Payments Protocol
+					</h1>
+					<p className="text-sm text-gray-600 leading-relaxed max-w-[500px] mx-auto">
+						Accept payments from humans, software, or AI agents using standard
+						HTTP. No billing accounts or manual signup required.
+					</p>
 				</div>
-			</div>
 
-			{/* CTAs */}
-			<CTAButtons />
-		</section>
+				{/* Middle: Demo with chrome */}
+				<div className="w-full max-w-xl">
+					{demoAddress && (
+						<Cli.DemoSimple
+							title="Try it out"
+							token={pathUsd}
+							height={280}
+							restartStep={1}
+						>
+							<Cli.Startup />
+							<Cli.SilentDemoSetup demoAddress={demoAddress} />
+							<DemoSelectQuery />
+						</Cli.DemoSimple>
+					)}
+				</div>
+
+				{/* Agent Tabs */}
+				<div className="w-full max-w-xl flex flex-col items-center">
+					<span className="text-sm text-gray-400 pb-4">
+						or, start using it with your agent
+					</span>
+					<div className="w-full">
+						<AgentTabsWrapped />
+					</div>
+				</div>
+
+				{/* CTAs */}
+				<CTAButtons />
+			</section>
 
 		{/* Fixed bottom services */}
-		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30">
+		<div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30">
 			<ServiceCardsCompact />
 		</div>
-	</>
+		</>
 	);
 }
 
