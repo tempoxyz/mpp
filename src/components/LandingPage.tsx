@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
+import { demoAccount, demoFetch } from "../mpay.demo";
 import { fetch } from "../mpay.client";
 import { pathUsd } from "../wagmi.config";
 import { AgentTabs } from "./AgentTabs";
@@ -766,9 +767,8 @@ function HeroVariantF() {
 					restartStep={1}
 				>
 					<Cli.Startup />
-					<Cli.SilentConnectWallet />
-					<Cli.SilentFaucet />
-					<SelectQuery />
+					<Cli.SilentDemoSetup demoAddress={demoAccount.address} />
+					<DemoSelectQuery />
 				</Cli.DemoSimple>
 			</div>
 
@@ -1560,6 +1560,99 @@ function SelectQuery() {
 
 				const response = await fetch(url.toString(), {
 					context: { account: client?.account },
+				});
+
+				// Extract transaction hash from response header
+				const txHash = response.headers.get("x-payment-tx") || undefined;
+
+				// Update the call with the txHash
+				setResults((r) =>
+					r.map((item, i) =>
+						i === index
+							? {
+									...item,
+									calls: item.calls.map((c, ci) =>
+										ci === item.calls.length - 1 ? { ...c, txHash } : c,
+									),
+								}
+							: item,
+					),
+				);
+
+				await new Promise((r) => setTimeout(r, 800));
+			}
+
+			setResults((r) =>
+				r.map((item, i) => (i === index ? { ...item, status: "done" } : item)),
+			);
+
+			await new Promise((r) => setTimeout(r, 1000));
+		},
+		onError: () => {
+			setResults((r) => {
+				const last = r.length - 1;
+				return r.map((item, i) =>
+					i === last ? { ...item, status: "error" } : item,
+				);
+			});
+		},
+	});
+
+	return (
+		<>
+			{results.map((result, i) => (
+				// biome-ignore lint/suspicious/noArrayIndexKey: stable list
+				<QueryResult key={i} {...result} />
+			))}
+			{!isPending && (
+				<Cli.Block>
+					<Cli.Line variant="info">Select a query to run:</Cli.Line>
+					<Cli.Select autoFocus onSubmit={(v) => mutate(v)}>
+						{presets.map((query) => (
+							<Cli.Select.Option key={query.id} value={query.id}>
+								{query.prompt}
+							</Cli.Select.Option>
+						))}
+					</Cli.Select>
+				</Cli.Block>
+			)}
+		</>
+	);
+}
+
+// Demo version that uses a pre-funded local wallet (no user interaction required)
+function DemoSelectQuery() {
+	const [results, setResults] = useState<
+		{
+			calls: CompletedCall[];
+			query: QueryPreset;
+			status: "pending" | "done" | "error";
+		}[]
+	>([]);
+
+	const { mutate, isPending } = useMutation({
+		mutationFn: async (queryId: string) => {
+			const query = presets.find((q) => q.id === queryId);
+			if (!query) throw new Error("Unknown query");
+
+			const index = results.length;
+			setResults((r) => [...r, { calls: [], query, status: "pending" }]);
+
+			for (const call of query.calls) {
+				const url = new URL(call.endpoint, window.location.origin);
+				if (call.params)
+					for (const [key, value] of Object.entries(call.params))
+						url.searchParams.set(key, value);
+
+				setResults((r) =>
+					r.map((item, i) =>
+						i === index ? { ...item, calls: [...item.calls, call] } : item,
+					),
+				);
+
+				// Use demo fetch with pre-funded account
+				const response = await demoFetch(url.toString(), {
+					context: { account: demoAccount },
 				});
 
 				// Extract transaction hash from response header

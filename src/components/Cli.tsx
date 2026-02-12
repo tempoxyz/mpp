@@ -40,6 +40,7 @@ export namespace Store {
 	export type ViewType = "main" | "network";
 
 	export type State = {
+		demoAddress: Address | undefined;
 		initialBalance: bigint | undefined;
 		interaction: InteractionType;
 		restartStep: number;
@@ -50,6 +51,7 @@ export namespace Store {
 }
 
 export const store = new ts_Store<Store.State>({
+	demoAddress: undefined,
 	initialBalance: undefined,
 	interaction: null,
 	restartStep: 0,
@@ -341,7 +343,9 @@ export namespace FooterBar {
 
 export function Balance({ className, label = "Balance" }: Balance.Props) {
 	const token = useStore(store, (s) => s.token);
-	const { address } = useConnection();
+	const demoAddress = useStore(store, (s) => s.demoAddress);
+	const { address: connectedAddress } = useConnection();
+	const address = demoAddress ?? connectedAddress;
 
 	const { data: balance } = Hooks.token.useGetBalance({
 		account: address,
@@ -377,7 +381,9 @@ export namespace Balance {
 export function Spent({ className, label = "Spent" }: Spent.Props) {
 	const initial = useStore(store, (s) => s.initialBalance);
 	const token = useStore(store, (s) => s.token);
-	const { address } = useConnection();
+	const demoAddress = useStore(store, (s) => s.demoAddress);
+	const { address: connectedAddress } = useConnection();
+	const address = demoAddress ?? connectedAddress;
 
 	const { data: balance } = Hooks.token.useGetBalance({
 		account: address,
@@ -1203,46 +1209,25 @@ export function AutoConnect() {
 	);
 }
 
-// Silent wallet connection - does the work but shows no output
-export function SilentConnectWallet() {
-	const { address } = useConnection();
-	const connectors = useConnectors();
-	const { connect } = useConnect();
-
-	const connector = connectors[0];
-
-	// Auto-connect on mount if not already connected
-	useEffect(() => {
-		if (!address && connector) {
-			connect({
-				connector,
-				capabilities: { type: "sign-up" },
-			});
-		}
-	}, [address, connector, connect]);
-
-	useEffect(() => {
-		if (address) {
-			const timer = setTimeout(
-				() => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
-				300,
-			);
-			return () => clearTimeout(timer);
-		}
-	}, [address]);
-
-	return null;
-}
-
-// Silent faucet - funds wallet but shows no output
-export function SilentFaucet() {
-	const initialBalance = useStore(store, (s) => s.initialBalance);
-	const { address } = useConnection();
-	const [alreadyFunded, setAlreadyFunded] = useState(false);
-
+// Silent setup - funds demo account and advances without showing UI
+export function SilentDemoSetup({
+	demoAddress,
+}: {
+	demoAddress: `0x${string}`;
+}) {
 	const token = useStore(store, (s) => s.token);
-	const { data: currentBalance, refetch } = Hooks.token.useGetBalance({
-		account: address,
+	const [funded, setFunded] = useState(false);
+
+	// Set demo address in store so Balance/Spent can use it
+	useEffect(() => {
+		store.setState((s) => ({ ...s, demoAddress }));
+		return () => {
+			store.setState((s) => ({ ...s, demoAddress: undefined }));
+		};
+	}, [demoAddress]);
+
+	const { data: balance, refetch } = Hooks.token.useGetBalance({
+		account: demoAddress,
 		token,
 		blockTag: "latest",
 	});
@@ -1260,30 +1245,25 @@ export function SilentFaucet() {
 		},
 	});
 
+	// Check if already funded or need to fund
 	useEffect(() => {
-		if (!address) return;
-		if (isPending) return;
-		if (isSuccess) return;
-		if (alreadyFunded) return;
-		if (initialBalance === undefined) return;
-		if (initialBalance > 0n) {
-			setAlreadyFunded(true);
-			return;
-		}
+		if (isPending || isSuccess || funded) return;
+		if (balance === undefined) return;
 
-		mutate({ account: address });
-	}, [address, alreadyFunded, initialBalance, isPending, isSuccess, mutate]);
-
-	useEffect(() => {
-		if (alreadyFunded) {
-			store.setState((s) => ({ ...s, initialBalance: currentBalance }));
+		if (balance > 0n) {
+			// Already has funds, skip faucet
+			setFunded(true);
+			store.setState((s) => ({ ...s, initialBalance: balance }));
 			const timer = setTimeout(
 				() => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
-				300,
+				100,
 			);
 			return () => clearTimeout(timer);
 		}
-	}, [alreadyFunded, currentBalance]);
+
+		// Need to fund
+		mutate({ account: demoAddress });
+	}, [balance, demoAddress, funded, isPending, isSuccess, mutate]);
 
 	return null;
 }
