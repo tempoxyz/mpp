@@ -37,8 +37,8 @@ export default defineConfig({
 	checkDeadlinks: "warn",
 	iconUrl: "/favicon-dollar.svg",
 	logoUrl: {
-		light: "/mpp-logo-light.png",
-		dark: "/mpp-logo-dark.png",
+		light: "/mpp-logo.svg",
+		dark: "/mpp-logo-dark.svg",
 	},
 	mcp: {
 		enabled: true,
