@@ -810,12 +810,13 @@ function HeroVariantF() {
 	}, []);
 
 	return (
+		<>
 		<section
-			className="flex flex-col items-center justify-center px-6 gap-3 -mt-6 -mb-6"
-			style={{ height: "calc(100dvh - 64px)", maxHeight: "calc(100vh - 64px)" }}
+			className="flex flex-col items-center justify-center px-6 gap-5 -mt-10"
+			style={{ height: "calc(87dvh - 64px)", maxHeight: "calc(100vh - 64px)" }}
 		>
 			{/* Top: Title + Subtitle */}
-			<div className="text-center space-y-1">
+			<div className="text-center space-y-4 pb-4">
 				<h1 className="text-2xl md:text-3xl font-bold text-black leading-[1.1] tracking-tight">
 					Machine Payments Protocol
 				</h1>
@@ -843,7 +844,7 @@ function HeroVariantF() {
 
 			{/* Agent Tabs */}
 			<div className="w-full max-w-xl flex flex-col items-center">
-				<span className="text-sm text-gray-400 pb-3">
+				<span className="text-sm text-gray-400 pb-4">
 					or, start using it with your agent
 				</span>
 				<div className="w-full">
@@ -853,10 +854,13 @@ function HeroVariantF() {
 
 			{/* CTAs */}
 			<CTAButtons />
-
-			{/* Compact Services */}
-			<ServiceCardsCompact />
 		</section>
+
+		{/* Fixed bottom services */}
+		<div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30">
+			<ServiceCardsCompact />
+		</div>
+	</>
 	);
 }
 
