@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
@@ -1692,6 +1692,7 @@ function SelectQuery() {
 
 // Demo version that uses a pre-funded local wallet (no user interaction required)
 function DemoSelectQuery() {
+	const queryClient = useQueryClient();
 	const [results, setResults] = useState<
 		{
 			calls: CompletedCall[];
@@ -1738,6 +1739,14 @@ function DemoSelectQuery() {
 					"txHash:",
 					txHash,
 				);
+
+				// Invalidate balance queries to force refetch after payment
+				if (txHash) {
+					await queryClient.invalidateQueries({ queryKey: ["balance"] });
+					await queryClient.invalidateQueries({ queryKey: ["getBalance"] });
+					// Give the RPC a moment to update
+					await new Promise((r) => setTimeout(r, 500));
+				}
 
 				// Update the call with the txHash
 				setResults((r) =>
