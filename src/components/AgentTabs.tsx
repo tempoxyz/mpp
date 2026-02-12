@@ -125,7 +125,7 @@ export function AgentTabs() {
 	const cmd = AGENT_COMMANDS[active];
 
 	return (
-		<div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
+		<div className="max-w-xl border border-gray-200 rounded-md overflow-clip">
 			<div className="flex bg-gray-50 border-b border-gray-200">
 				{AGENT_COMMANDS.map((a, i) => {
 					const Icon = a.icon;

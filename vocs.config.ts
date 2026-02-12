@@ -60,355 +60,374 @@ export default defineConfig({
 			: `${base}/api/og?title=%title&description=%description`,
 	sidebar: {
 		"/": [
+			{ text: "For humans", link: "/for-humans" },
 			{
-				text: "Introduction",
+				text: "For agents",
 				items: [
-					{ text: "For Humans", link: "/for-humans" },
-					{ text: "Overview", link: "/overview" },
-					{ text: "Specifications", link: "/specs" },
-					{ text: "FAQ", link: "/faq" },
-				],
-			},
-			{
-				text: "Quick Start",
-				items: [
-					{ text: "Overview", link: "/quickstart" },
-					{ text: "Client", link: "/quickstart/client" },
-					{ text: "Server", link: "/quickstart/server" },
-					{ text: "tempoctl CLI", link: "/quickstart/tempoctl" },
-				],
-			},
-			{
-				text: "Guides",
-				items: [
-					{ text: "Build with AI", link: "/guides/building-with-ai" },
-					{ text: "Accept One-Time Payments 🚧", disabled: true },
-					{ text: "Accept Pay-As-You-Go Payments 🚧", disabled: true },
-				],
-			},
-			{
-				text: "Protocol",
-				items: [
-					{ text: "Overview", link: "/protocol" },
-					{ text: "HTTP 402", link: "/protocol/http-402" },
-					{ text: "Challenges", link: "/protocol/challenges" },
-					{ text: "Credentials", link: "/protocol/credentials" },
-					{ text: "Receipts", link: "/protocol/receipts" },
 					{
-						text: "Transports",
-						link: "/protocol/transports",
+						text: "Introduction",
 						items: [
-							{ text: "HTTP", link: "/protocol/transports/http" },
-							{ text: "MCP", link: "/protocol/transports/mcp" },
-						],
-					},
-				],
-			},
-
-			{
-				text: "Payment Methods & Intents",
-				items: [
-					{ text: "Overview", link: "/payment-methods" },
-					{
-						text: "Intents",
-						collapsed: true,
-						items: [{ text: "Charge", link: "/intents/charge" }],
-					},
-					{
-						text: "Tempo",
-						collapsed: true,
-						items: [
-							{ text: "Overview", link: "/payment-methods/tempo" },
-							{ text: "Session", link: "/payment-methods/tempo/session" },
-							{ text: "Charge", link: "/payment-methods/tempo/charge" },
+							{ text: "Overview", link: "/overview" },
+							{ text: "Specifications", link: "/specs" },
+							{ text: "FAQ", link: "/faq" },
 						],
 					},
 					{
-						text: "Stripe",
-						collapsed: true,
+						text: "Quick Start",
 						items: [
-							{ text: "Overview", link: "/payment-methods/stripe" },
-							{ text: "Charge 🚧", disabled: true },
+							{ text: "Overview", link: "/quickstart" },
+							{ text: "Client", link: "/quickstart/client" },
+							{ text: "Server", link: "/quickstart/server" },
+							{ text: "tempoctl CLI", link: "/quickstart/tempoctl" },
 						],
 					},
-					{ text: "Custom", link: "/payment-methods/custom" },
-				],
-			},
-			{
-				text: "SDKs & Tools",
-				items: [
-					{ text: "Overview", link: "/sdk" },
 					{
-						text: "TypeScript",
-						collapsed: true,
+						text: "Guides",
 						items: [
-							{ text: "Getting Started", link: "/sdk/typescript" },
+							{ text: "Build with AI", link: "/guides/building-with-ai" },
+							{ text: "Accept One-Time Payments 🚧", disabled: true },
+							{ text: "Accept Pay-As-You-Go Payments 🚧", disabled: true },
+						],
+					},
+					{
+						text: "Protocol",
+						items: [
+							{ text: "Overview", link: "/protocol" },
+							{ text: "HTTP 402", link: "/protocol/http-402" },
+							{ text: "Challenges", link: "/protocol/challenges" },
+							{ text: "Credentials", link: "/protocol/credentials" },
+							{ text: "Receipts", link: "/protocol/receipts" },
 							{
-								text: "Client Reference",
+								text: "Transports",
+								link: "/protocol/transports",
+								items: [
+									{ text: "HTTP", link: "/protocol/transports/http" },
+									{ text: "MCP", link: "/protocol/transports/mcp" },
+								],
+							},
+						],
+					},
+					{
+						text: "Payment Methods & Intents",
+						items: [
+							{ text: "Overview", link: "/payment-methods" },
+							{
+								text: "Intents",
+								collapsed: true,
+								items: [{ text: "Charge", link: "/intents/charge" }],
+							},
+							{
+								text: "Tempo",
+								collapsed: true,
+								items: [
+									{ text: "Overview", link: "/payment-methods/tempo" },
+									{
+										text: "Session",
+										link: "/payment-methods/tempo/session",
+									},
+									{
+										text: "Charge",
+										link: "/payment-methods/tempo/charge",
+									},
+								],
+							},
+							{
+								text: "Stripe",
+								collapsed: true,
+								items: [
+									{ text: "Overview", link: "/payment-methods/stripe" },
+									{ text: "Charge 🚧", disabled: true },
+								],
+							},
+							{ text: "Custom", link: "/payment-methods/custom" },
+						],
+					},
+					{
+						text: "SDKs & Tools",
+						items: [
+							{ text: "Overview", link: "/sdk" },
+							{
+								text: "TypeScript",
+								collapsed: true,
 								items: [
 									{
-										text: "Mpay",
-										collapsed: true,
+										text: "Getting Started",
+										link: "/sdk/typescript",
+									},
+									{
+										text: "Client Reference",
 										items: [
 											{
-												text: ".create",
-												link: "/sdk/typescript/client/Mpay.create",
+												text: "Mpay",
+												collapsed: true,
+												items: [
+													{
+														text: ".create",
+														link: "/sdk/typescript/client/Mpay.create",
+													},
+													{
+														text: ".restore",
+														link: "/sdk/typescript/client/Mpay.restore",
+													},
+												],
 											},
 											{
-												text: ".restore",
-												link: "/sdk/typescript/client/Mpay.restore",
+												text: "Transport",
+												collapsed: true,
+												items: [
+													{
+														text: ".from",
+														link: "/sdk/typescript/client/Transport.from",
+													},
+													{
+														text: ".http",
+														link: "/sdk/typescript/client/Transport.http",
+													},
+													{
+														text: ".mcp",
+														link: "/sdk/typescript/client/Transport.mcp",
+													},
+												],
+											},
+											{
+												text: "Method",
+												collapsed: true,
+												items: [
+													{
+														text: "tempo.charge",
+														link: "/sdk/typescript/client/Method.tempo.charge",
+													},
+													{
+														text: "tempo.session",
+														link: "/sdk/typescript/client/Method.tempo.session",
+													},
+												],
 											},
 										],
 									},
 									{
-										text: "Transport",
-										collapsed: true,
+										text: "Server Reference",
 										items: [
 											{
-												text: ".from",
-												link: "/sdk/typescript/client/Transport.from",
+												text: "Mpay",
+												collapsed: true,
+												items: [
+													{
+														text: ".create",
+														link: "/sdk/typescript/server/Mpay.create",
+													},
+													{
+														text: ".toNodeListener",
+														link: "/sdk/typescript/server/Mpay.toNodeListener",
+													},
+												],
 											},
 											{
-												text: ".http",
-												link: "/sdk/typescript/client/Transport.http",
+												text: "Transport",
+												collapsed: true,
+												items: [
+													{
+														text: ".from",
+														link: "/sdk/typescript/server/Transport.from",
+													},
+													{
+														text: ".http",
+														link: "/sdk/typescript/server/Transport.http",
+													},
+													{
+														text: ".mcp",
+														link: "/sdk/typescript/server/Transport.mcp",
+													},
+													{
+														text: ".mcpSdk",
+														link: "/sdk/typescript/server/Transport.mcpSdk",
+													},
+												],
 											},
 											{
-												text: ".mcp",
-												link: "/sdk/typescript/client/Transport.mcp",
+												text: "Method",
+												collapsed: true,
+												items: [
+													{
+														text: "tempo.charge",
+														link: "/sdk/typescript/server/Method.tempo.charge",
+													},
+													{
+														text: "tempo.session",
+														link: "/sdk/typescript/server/Method.tempo.session",
+													},
+												],
 											},
 										],
 									},
 									{
-										text: "Method",
-										collapsed: true,
+										text: "Middleware Reference",
 										items: [
 											{
-												text: "tempo.charge",
-												link: "/sdk/typescript/client/Method.tempo.charge",
+												text: "Elysia",
+												link: "/sdk/typescript/middlewares/elysia",
 											},
 											{
-												text: "tempo.session",
-												link: "/sdk/typescript/client/Method.tempo.session",
+												text: "Express",
+												link: "/sdk/typescript/middlewares/express",
+											},
+											{
+												text: "Hono",
+												link: "/sdk/typescript/middlewares/hono",
+											},
+											{
+												text: "Next.js",
+												link: "/sdk/typescript/middlewares/nextjs",
+											},
+										],
+									},
+									{
+										text: "Core Reference",
+										items: [
+											{
+												text: "Challenge",
+												collapsed: true,
+												items: [
+													{
+														text: ".deserialize",
+														link: "/sdk/typescript/core/Challenge.deserialize",
+													},
+													{
+														text: ".from",
+														link: "/sdk/typescript/core/Challenge.from",
+													},
+													{
+														text: ".fromHeaders",
+														link: "/sdk/typescript/core/Challenge.fromHeaders",
+													},
+													{
+														text: ".fromResponse",
+														link: "/sdk/typescript/core/Challenge.fromResponse",
+													},
+													{
+														text: ".serialize",
+														link: "/sdk/typescript/core/Challenge.serialize",
+													},
+													{
+														text: ".verify",
+														link: "/sdk/typescript/core/Challenge.verify",
+													},
+												],
+											},
+											{
+												text: "Credential",
+												collapsed: true,
+												items: [
+													{
+														text: ".deserialize",
+														link: "/sdk/typescript/core/Credential.deserialize",
+													},
+													{
+														text: ".from",
+														link: "/sdk/typescript/core/Credential.from",
+													},
+													{
+														text: ".fromRequest",
+														link: "/sdk/typescript/core/Credential.fromRequest",
+													},
+													{
+														text: ".serialize",
+														link: "/sdk/typescript/core/Credential.serialize",
+													},
+												],
+											},
+											{
+												text: "Receipt",
+												collapsed: true,
+												items: [
+													{
+														text: ".deserialize",
+														link: "/sdk/typescript/core/Receipt.deserialize",
+													},
+													{
+														text: ".from",
+														link: "/sdk/typescript/core/Receipt.from",
+													},
+													{
+														text: ".fromResponse",
+														link: "/sdk/typescript/core/Receipt.fromResponse",
+													},
+													{
+														text: ".serialize",
+														link: "/sdk/typescript/core/Receipt.serialize",
+													},
+												],
+											},
+											{
+												text: "PaymentRequest",
+												collapsed: true,
+												items: [
+													{
+														text: ".deserialize",
+														link: "/sdk/typescript/core/PaymentRequest.deserialize",
+													},
+													{
+														text: ".from",
+														link: "/sdk/typescript/core/PaymentRequest.from",
+													},
+													{
+														text: ".serialize",
+														link: "/sdk/typescript/core/PaymentRequest.serialize",
+													},
+												],
+											},
+											{
+												text: "BodyDigest",
+												collapsed: true,
+												items: [
+													{
+														text: ".compute",
+														link: "/sdk/typescript/core/BodyDigest.compute",
+													},
+													{
+														text: ".verify",
+														link: "/sdk/typescript/core/BodyDigest.verify",
+													},
+												],
+											},
+											{
+												text: "Expires",
+												link: "/sdk/typescript/core/Expires",
 											},
 										],
 									},
 								],
 							},
 							{
-								text: "Server Reference",
+								text: "Python",
+								collapsed: true,
 								items: [
-									{
-										text: "Mpay",
-										collapsed: true,
-										items: [
-											{
-												text: ".create",
-												link: "/sdk/typescript/server/Mpay.create",
-											},
-											{
-												text: ".toNodeListener",
-												link: "/sdk/typescript/server/Mpay.toNodeListener",
-											},
-										],
-									},
-									{
-										text: "Transport",
-										collapsed: true,
-										items: [
-											{
-												text: ".from",
-												link: "/sdk/typescript/server/Transport.from",
-											},
-											{
-												text: ".http",
-												link: "/sdk/typescript/server/Transport.http",
-											},
-											{
-												text: ".mcp",
-												link: "/sdk/typescript/server/Transport.mcp",
-											},
-											{
-												text: ".mcpSdk",
-												link: "/sdk/typescript/server/Transport.mcpSdk",
-											},
-										],
-									},
-									{
-										text: "Method",
-										collapsed: true,
-										items: [
-											{
-												text: "tempo.charge",
-												link: "/sdk/typescript/server/Method.tempo.charge",
-											},
-											{
-												text: "tempo.session",
-												link: "/sdk/typescript/server/Method.tempo.session",
-											},
-										],
-									},
+									{ text: "Overview", link: "/sdk/python" },
+									{ text: "Core Types", link: "/sdk/python/core" },
+									{ text: "Client", link: "/sdk/python/client" },
+									{ text: "Server", link: "/sdk/python/server" },
 								],
 							},
 							{
-								text: "Middleware Reference",
+								text: "Rust",
+								collapsed: true,
 								items: [
-									{
-										text: "Elysia",
-										link: "/sdk/typescript/middlewares/elysia",
-									},
-									{
-										text: "Express",
-										link: "/sdk/typescript/middlewares/express",
-									},
-									{
-										text: "Hono",
-										link: "/sdk/typescript/middlewares/hono",
-									},
-									{
-										text: "Next.js",
-										link: "/sdk/typescript/middlewares/nextjs",
-									},
+									{ text: "Overview", link: "/sdk/rust" },
+									{ text: "Client", link: "/sdk/rust/client" },
+									{ text: "Server", link: "/sdk/rust/server" },
 								],
 							},
 							{
-								text: "Core Reference",
+								text: "tempoctl CLI",
+								collapsed: true,
 								items: [
+									{ text: "Reference", link: "/tools/tempoctl" },
 									{
-										text: "Challenge",
-										collapsed: true,
-										items: [
-											{
-												text: ".deserialize",
-												link: "/sdk/typescript/core/Challenge.deserialize",
-											},
-											{
-												text: ".from",
-												link: "/sdk/typescript/core/Challenge.from",
-											},
-											{
-												text: ".fromHeaders",
-												link: "/sdk/typescript/core/Challenge.fromHeaders",
-											},
-											{
-												text: ".fromResponse",
-												link: "/sdk/typescript/core/Challenge.fromResponse",
-											},
-											{
-												text: ".serialize",
-												link: "/sdk/typescript/core/Challenge.serialize",
-											},
-											{
-												text: ".verify",
-												link: "/sdk/typescript/core/Challenge.verify",
-											},
-										],
+										text: "Examples",
+										link: "/tools/tempoctl/examples",
 									},
-									{
-										text: "Credential",
-										collapsed: true,
-										items: [
-											{
-												text: ".deserialize",
-												link: "/sdk/typescript/core/Credential.deserialize",
-											},
-											{
-												text: ".from",
-												link: "/sdk/typescript/core/Credential.from",
-											},
-											{
-												text: ".fromRequest",
-												link: "/sdk/typescript/core/Credential.fromRequest",
-											},
-											{
-												text: ".serialize",
-												link: "/sdk/typescript/core/Credential.serialize",
-											},
-										],
-									},
-									{
-										text: "Receipt",
-										collapsed: true,
-										items: [
-											{
-												text: ".deserialize",
-												link: "/sdk/typescript/core/Receipt.deserialize",
-											},
-											{
-												text: ".from",
-												link: "/sdk/typescript/core/Receipt.from",
-											},
-											{
-												text: ".fromResponse",
-												link: "/sdk/typescript/core/Receipt.fromResponse",
-											},
-											{
-												text: ".serialize",
-												link: "/sdk/typescript/core/Receipt.serialize",
-											},
-										],
-									},
-									{
-										text: "PaymentRequest",
-										collapsed: true,
-										items: [
-											{
-												text: ".deserialize",
-												link: "/sdk/typescript/core/PaymentRequest.deserialize",
-											},
-											{
-												text: ".from",
-												link: "/sdk/typescript/core/PaymentRequest.from",
-											},
-											{
-												text: ".serialize",
-												link: "/sdk/typescript/core/PaymentRequest.serialize",
-											},
-										],
-									},
-									{
-										text: "BodyDigest",
-										collapsed: true,
-										items: [
-											{
-												text: ".compute",
-												link: "/sdk/typescript/core/BodyDigest.compute",
-											},
-											{
-												text: ".verify",
-												link: "/sdk/typescript/core/BodyDigest.verify",
-											},
-										],
-									},
-									{ text: "Expires", link: "/sdk/typescript/core/Expires" },
 								],
 							},
-						],
-					},
-					{
-						text: "Python",
-						collapsed: true,
-						items: [
-							{ text: "Overview", link: "/sdk/python" },
-							{ text: "Core Types", link: "/sdk/python/core" },
-							{ text: "Client", link: "/sdk/python/client" },
-							{ text: "Server", link: "/sdk/python/server" },
-						],
-					},
-					{
-						text: "Rust",
-						collapsed: true,
-						items: [
-							{ text: "Overview", link: "/sdk/rust" },
-							{ text: "Client", link: "/sdk/rust/client" },
-							{ text: "Server", link: "/sdk/rust/server" },
-						],
-					},
-					{
-						text: "tempoctl CLI",
-						collapsed: true,
-						items: [
-							{ text: "Reference", link: "/tools/tempoctl" },
-							{ text: "Examples", link: "/tools/tempoctl/examples" },
 						],
 					},
 				],

@@ -831,13 +831,13 @@ function HeroVariantF() {
 
 				{/* Middle: Demo with chrome */}
 				<div className="w-full max-w-xl">
-				{demoAddress && (
-					<Cli.DemoSimple
-						title="Try it out"
-						token={pathUsd}
-						height={330}
-						restartStep={1}
-					>
+					{demoAddress && (
+						<Cli.DemoSimple
+							title="Try it out"
+							token={pathUsd}
+							height={330}
+							restartStep={1}
+						>
 							<Cli.Startup />
 							<Cli.SilentDemoSetup demoAddress={demoAddress} />
 							<DemoSelectQuery />

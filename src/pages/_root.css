@@ -123,6 +123,11 @@ aside,
 
 h1 {
 	letter-spacing: -0.08em;
+	font-weight: 700;
+}
+
+h2 {
+	font-weight: 600;
 }
 
 body,
@@ -209,6 +214,21 @@ pre[data-v] {
 	text-decoration: underline;
 }
 
+/* Left-align tables with other content */
+[data-v-content] table {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	width: 100% !important;
+	max-width: 100% !important;
+}
+
+[data-v-content] .vocs_Table,
+[data-v-content] [data-v-table] {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	overflow-x: auto;
+}
+
 /* No underline on service cards */
 a.group {
 	text-decoration: none !important;
@@ -220,23 +240,11 @@ a.group * {
 	text-decoration: none !important;
 }
 
-/* Ensure header has solid background for scroll snap variants */
-[data-v-gutter-top],
-[data-v-header],
-[data-v-layout] > header,
-[data-layout] > header,
-header:first-of-type {
+/* Ensure header is sticky with solid background */
+[data-v-gutter-top] {
 	background: light-dark(#f9fafb, var(--vocs-color-bg)) !important;
 	background-color: light-dark(#f9fafb, var(--vocs-color-bg)) !important;
-	position: relative;
-	z-index: 50 !important;
-}
-
-/* Force the top bar/navigation wrapper to have background */
-body > div:first-child > header,
-#__next > header,
-[data-v] > header {
-	background: light-dark(#f9fafb, var(--vocs-color-bg)) !important;
-	background-color: light-dark(#f9fafb, var(--vocs-color-bg)) !important;
+	position: sticky !important;
+	top: 0 !important;
 	z-index: 50 !important;
 }

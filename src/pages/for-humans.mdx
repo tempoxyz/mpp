@@ -1,35 +1,23 @@
-# For Humans [Let your AI agents pay for what they need]
+import { Card, Cards } from "vocs";
+import { AgentTabs } from "../components/AgentTabs";
 
-MPP (Machine Payments Protocol) lets your AI agents autonomously pay for services—no API keys, no billing dashboards, no manual signup. Just fund a wallet and let your agents work.
+# For humans [MPP lets AI agents autonomously pay for services—no API keys, no billing dashboards, no manual signup.]
 
-## How it works
+## Use with an agent
 
-```
-┌─────────────┐     1. Request      ┌─────────────┐
-│   Your AI   │ ─────────────────▶  │   Service   │
-│   Agent     │                     │   (API)     │
-│             │  ◀───────────────── │             │
-│             │   2. 402 + price    │             │
-│             │                     │             │
-│             │   3. Pay + retry    │             │
-│             │ ─────────────────▶  │             │
-│             │                     │             │
-│             │  ◀───────────────── │             │
-└─────────────┘   4. Response       └─────────────┘
-```
+Already using Claude, Codex, or another AI agent? Just run this command:
 
-1. **Your agent requests a resource**—just a normal HTTP request
-2. **Server responds with 402 Payment Required**—includes the price and payment details
-3. **Agent pays and retries**—automatic with MPP SDK
-4. **Server returns the resource**—with a receipt for the payment
+<AgentTabs />
 
-No API keys to manage. No rate limits to worry about. Pay only for what you use.
+The agent will set itself up with `tempoctl` and start using paid services automatically.
 
-## Get started in 2 minutes
+## Integrate into your app
+
+Building an application that needs to make paid API calls? Use the SDK.
 
 ::::steps
 
-### Install the SDK
+### Install
 
 :::code-group
 
@@ -47,39 +35,42 @@ bun add mpay viem
 
 :::
 
-### Create a payment handler
+### Set up payments
 
 ```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-import { Mpay, tempo } from 'mpay/client'
+import { privateKeyToAccount } from "viem/accounts";
+import { Mpay, tempo } from "mpay/client";
 
-const account = privateKeyToAccount('0xabc…123')
+const account = privateKeyToAccount("0xabc…123");
 
 Mpay.create({
   methods: [tempo({ account })],
-})
+});
 ```
-
-This polyfills the global `fetch` to automatically handle `402` payment challenges.
 
 ### Use fetch as normal
 
 ```ts
-const response = await fetch('https://openrouter.payments.tempo.xyz/v1/chat/completions', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    model: 'anthropic/claude-3.5-sonnet',
-    messages: [{ role: 'user', content: 'Hello!' }],
-  }),
-})
+const response = await fetch(
+  "https://openrouter.payments.tempo.xyz/v1/chat/completions",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "anthropic/claude-3.5-sonnet",
+      messages: [{ role: "user", content: "Hello!" }],
+    }),
+  },
+);
 ```
 
-That's it. Payments happen automatically when services return `402`.
+Payments happen automatically when services return `402`.
 
 ::::
 
----
+:::tip[Full documentation]
+See the [Client quickstart](/quickstart/client) for more options like Wagmi integration and manual payment handling.
+:::
 
 ## Services available today
 
@@ -87,80 +78,78 @@ These services accept MPP payments right now. No API keys needed—just pay per 
 
 ### AI & LLMs
 
-| Service | Description | Price | Endpoint |
-|---------|-------------|-------|----------|
-| [OpenRouter](https://openrouter.payments.tempo.xyz) | Access 100+ LLM models (Claude, GPT-4, Llama, etc.) | ~$0.01/req | `openrouter.payments.tempo.xyz` |
-| [Anthropic](https://anthropic.payments.tempo.xyz) | Claude models directly | ~$0.01/req | `anthropic.payments.tempo.xyz` |
-| [OpenAI](https://openai.payments.tempo.xyz) | GPT-4, GPT-3.5, embeddings | ~$0.01/req | `openai.payments.tempo.xyz` |
-| [fal.ai](https://fal.payments.tempo.xyz) | Image generation, video, audio models | ~$0.05/req | `fal.payments.tempo.xyz` |
-| [ElevenLabs](https://elevenlabs.payments.tempo.xyz) | Text-to-speech, voice cloning | ~$0.03/req | `elevenlabs.payments.tempo.xyz` |
+| Service                                             | Description                                  | Price      | Endpoint                        |
+| --------------------------------------------------- | -------------------------------------------- | ---------- | ------------------------------- |
+| [OpenRouter](https://openrouter.payments.tempo.xyz) | 100+ LLM models (Claude, GPT-4, Llama, etc.) | ~$0.01/req | `openrouter.payments.tempo.xyz` |
+| [Anthropic](https://anthropic.payments.tempo.xyz)   | Claude models directly                       | ~$0.01/req | `anthropic.payments.tempo.xyz`  |
+| [OpenAI](https://openai.payments.tempo.xyz)         | GPT-4, GPT-3.5, embeddings                   | ~$0.01/req | `openai.payments.tempo.xyz`     |
+| [fal.ai](https://fal.payments.tempo.xyz)            | Image generation, video, audio               | ~$0.05/req | `fal.payments.tempo.xyz`        |
+| [ElevenLabs](https://elevenlabs.payments.tempo.xyz) | Text-to-speech, voice cloning                | ~$0.03/req | `elevenlabs.payments.tempo.xyz` |
 
 ### Web & Data
 
-| Service | Description | Price | Endpoint |
-|---------|-------------|-------|----------|
-| [Firecrawl](https://firecrawl.payments.tempo.xyz) | Web scraping and crawling | ~$0.01/req | `firecrawl.payments.tempo.xyz` |
-| [Browserbase](https://browserbase.payments.tempo.xyz) | Headless browser automation | ~$0.12/req | `browserbase.payments.tempo.xyz` |
-| [Exa](https://exa.payments.tempo.xyz) | AI-native search engine | ~$0.005/req | `exa.payments.tempo.xyz` |
+| Service                                               | Description                 | Price       | Endpoint                         |
+| ----------------------------------------------------- | --------------------------- | ----------- | -------------------------------- |
+| [Firecrawl](https://firecrawl.payments.tempo.xyz)     | Web scraping and crawling   | ~$0.01/req  | `firecrawl.payments.tempo.xyz`   |
+| [Browserbase](https://browserbase.payments.tempo.xyz) | Headless browser automation | ~$0.12/req  | `browserbase.payments.tempo.xyz` |
+| [Exa](https://exa.payments.tempo.xyz)                 | AI-native search engine     | ~$0.005/req | `exa.payments.tempo.xyz`         |
 
 ### Blockchain & Crypto
 
-| Service | Description | Price | Endpoint |
-|---------|-------------|-------|----------|
-| [Codex](https://codex.payments.tempo.xyz) | Blockchain data indexing | ~$0.0003/req | `codex.payments.tempo.xyz` |
-| [Alchemy](https://alchemy.payments.tempo.xyz) | Ethereum node access | ~$0.001/req | `alchemy.payments.tempo.xyz` |
-| [Tempo RPC](https://rpc.payments.tempo.xyz) | Tempo network RPC | ~$0.01/req | `rpc.payments.tempo.xyz` |
+| Service                                       | Description              | Price        | Endpoint                     |
+| --------------------------------------------- | ------------------------ | ------------ | ---------------------------- |
+| [Codex](https://codex.payments.tempo.xyz)     | Blockchain data indexing | ~$0.0003/req | `codex.payments.tempo.xyz`   |
+| [Alchemy](https://alchemy.payments.tempo.xyz) | Ethereum node access     | ~$0.001/req  | `alchemy.payments.tempo.xyz` |
+| [Tempo RPC](https://rpc.payments.tempo.xyz)   | Tempo network RPC        | ~$0.01/req   | `rpc.payments.tempo.xyz`     |
 
 ### Infrastructure
 
-| Service | Description | Price | Endpoint |
-|---------|-------------|-------|----------|
-| [Modal](https://modal.payments.tempo.xyz) | Serverless compute | ~$0.10/req | `modal.payments.tempo.xyz` |
-| [Object Storage](https://storage.payments.tempo.xyz) | File storage | ~$0.001/req | `storage.payments.tempo.xyz` |
+| Service                                              | Description        | Price       | Endpoint                     |
+| ---------------------------------------------------- | ------------------ | ----------- | ---------------------------- |
+| [Modal](https://modal.payments.tempo.xyz)            | Serverless compute | ~$0.10/req  | `modal.payments.tempo.xyz`   |
+| [Object Storage](https://storage.payments.tempo.xyz) | File storage       | ~$0.001/req | `storage.payments.tempo.xyz` |
 
 :::tip[Browse all services]
 See all available services at [payments.tempo.xyz](https://payments.tempo.xyz)
 :::
 
----
-
 ## Coming soon
 
-These services are being integrated and will support MPP payments soon.
-
-| Service | Category | Status |
-|---------|----------|--------|
-| [Neynar](https://neynar.com) | Farcaster APIs | In progress |
-| [x402scan](https://x402scan.com) | MPP service discovery | In progress |
-| [code.storage](https://x.com/gill_kyle) | Code storage | Planned |
-| [CoinGecko](https://coingecko.com) | Crypto data | Exploring |
-| [Pinata](https://pinata.cloud) | IPFS pinning | Exploring |
-| [QuickNode](https://quicknode.com) | Multi-chain RPC | Exploring |
-| [Cloudflare](https://cloudflare.com) | CDN & edge compute | Exploring |
-
----
-
-## Why MPP?
-
-### For agent developers
-
-- **No API key management**—agents pay per request, no signup needed
-- **No rate limits**—pay for what you use, use what you pay for
-- **Works everywhere**—any service that supports MPP
-- **Transparent pricing**—see the price before you pay
-
-### For service providers
-
-- **Instant revenue**—get paid immediately in USDC
-- **No billing infrastructure**—MPP handles payments
-- **Usage-based pricing**—charge exactly what each request costs
-- **Global by default**—accept payments from anywhere
-
----
+| Service                                 | Category              | Status      |
+| --------------------------------------- | --------------------- | ----------- |
+| [Neynar](https://neynar.com)            | Farcaster APIs        | In progress |
+| [x402scan](https://x402scan.com)        | MPP service discovery | In progress |
+| [code.storage](https://x.com/gill_kyle) | Code storage          | Planned     |
+| [CoinGecko](https://coingecko.com)      | Crypto data           | Exploring   |
+| [Pinata](https://pinata.cloud)          | IPFS pinning          | Exploring   |
+| [QuickNode](https://quicknode.com)      | Multi-chain RPC       | Exploring   |
+| [Cloudflare](https://cloudflare.com)    | CDN & edge compute    | Exploring   |
 
 ## Learn more
 
-- [Overview](/overview)—understand the MPP protocol
-- [Client quickstart](/quickstart/client)—build payment-enabled clients
-- [Server quickstart](/quickstart/server)—accept MPP payments
-- [tempoctl CLI](/quickstart/tempoctl)—test services from the command line
+<Cards>
+  <Card
+    description="Understand the MPP protocol"
+    icon="lucide:book-open"
+    title="Overview"
+    to="/overview"
+  />
+  <Card
+    description="Build payment-enabled clients"
+    icon="lucide:rocket"
+    title="Client quickstart"
+    to="/quickstart/client"
+  />
+  <Card
+    description="Accept MPP payments"
+    icon="lucide:server"
+    title="Server quickstart"
+    to="/quickstart/server"
+  />
+  <Card
+    description="Test services from the command line"
+    icon="lucide:terminal"
+    title="tempoctl CLI"
+    to="/quickstart/tempoctl"
+  />
+</Cards>
