@@ -685,10 +685,11 @@ export namespace Toggle {
 			// biome-ignore lint/a11y/noLabelWithoutControl: Radio.Root renders an input
 			<label
 				className={cx(
-					"flex items-center px-3 py-1 rounded cursor-pointer transition-colors",
-					"text-secondary",
+					"flex items-center px-4 py-2 rounded-md cursor-pointer transition-colors text-sm font-medium",
+					"text-secondary border border-transparent",
 					"has-[[data-checked]]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
 					"has-[[data-checked]]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					"has-[[data-checked]]:border-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/30",
 					"has-[:focus-visible]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
 					"has-[:focus-visible]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
 					className,
@@ -1102,7 +1103,7 @@ export function ConnectWallet() {
 	}, [address]);
 
 	return (
-		<Block>
+		<Block className="flex-1">
 			<Line variant="info">
 				Use <span className="text-accent">Tempo Wallet</span> and{" "}
 				<span className="text-accent">authorize $5</span> to get started:
@@ -1114,20 +1115,22 @@ export function ConnectWallet() {
 			) : isPending ? (
 				<Line variant="loading">Connecting...</Line>
 			) : (
-				<Toggle
-					autoFocus
-					onSubmit={(type) => {
-						if (connector) {
-							connect({
-								connector,
-								capabilities: { type: type as "sign-in" | "sign-up" },
-							});
-						}
-					}}
-				>
-					<Toggle.Option value="sign-up">Sign Up</Toggle.Option>
-					<Toggle.Option value="sign-in">Sign In</Toggle.Option>
-				</Toggle>
+				<div className="mt-auto pt-4">
+					<Toggle
+						autoFocus
+						onSubmit={(type) => {
+							if (connector) {
+								connect({
+									connector,
+									capabilities: { type: type as "sign-in" | "sign-up" },
+								});
+							}
+						}}
+					>
+						<Toggle.Option value="sign-up">Sign Up</Toggle.Option>
+						<Toggle.Option value="sign-in">Sign In</Toggle.Option>
+					</Toggle>
+				</div>
 			)}
 		</Block>
 	);
