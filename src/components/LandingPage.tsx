@@ -50,29 +50,6 @@ export function LandingPage() {
 			{variant === "B" && <HeroVariantB />}
 			{variant === "C" && <HeroVariantC />}
 			{variant === "D" && <HeroVariantD />}
-
-			{/* Footer - only shown for non-C variants (C has its own footer in each section) */}
-			{variant !== "C" && (
-				<>
-					<div className="border-t border-gray-100" />
-					<footer className="px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-						<div className="flex items-center gap-4">
-							<a
-								href="https://github.com/tempoxyz/payment-auth-spec"
-								className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
-							>
-								GitHub
-							</a>
-							<a
-								href="https://x.com/mpp"
-								className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
-							>
-								X
-							</a>
-						</div>
-					</footer>
-				</>
-			)}
 		</div>
 	);
 }
@@ -226,7 +203,7 @@ function HeroVariantD() {
 				style={{ minHeight: "calc(100vh - 64px)" }}
 			>
 				<div className="max-w-3xl space-y-8">
-					<h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-[1.1] tracking-tight">
+					<h1 className="text-3xl md:text-4xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
 					<p className="text-base text-gray-500 max-w-md mx-auto">

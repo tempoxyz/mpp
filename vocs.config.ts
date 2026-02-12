@@ -443,5 +443,6 @@ export default defineConfig({
 				},
 			],
 		},
+		{ text: "X", link: "https://x.com/mpp" },
 	],
 });
