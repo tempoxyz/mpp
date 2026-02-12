@@ -1009,6 +1009,32 @@ export function Demo({
 	);
 }
 
+// Simplified demo without account, tabs, or hint
+export function DemoSimple({
+	children,
+	className,
+	height = 280,
+	restartStep = 0,
+	title,
+	token,
+}: Demo.Props) {
+	useEffect(() => {
+		store.setState((s) => ({ ...s, restartStep }));
+	}, [restartStep]);
+
+	return (
+		<Window className={className} token={token}>
+			<TitleBar title={title}>
+				<Balance />
+				<Spent />
+				<Refresh />
+			</TitleBar>
+
+			<Demo.Content height={height}>{children}</Demo.Content>
+		</Window>
+	);
+}
+
 export namespace Demo {
 	export type Props = {
 		className?: string;
@@ -1076,7 +1102,7 @@ export function Startup() {
 	return (
 		<Block>
 			<div className="hidden sm:block">
-				<AsciiLogo morph={false} color="var(--vocs-color-gray10)" />
+				<AsciiLogo />
 			</div>
 			<Line variant="info">
 				mpp.sh@{__COMMIT_SHA__} (released {timeAgo(__COMMIT_TIMESTAMP__)})

@@ -284,10 +284,11 @@ const SERVICES = [
 ];
 
 // Service provider logos
-function FalLogo({ className }: { className?: string }) {
+function FalLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 202 200"
 			fill="currentColor"
 			aria-hidden="true"
@@ -301,10 +302,11 @@ function FalLogo({ className }: { className?: string }) {
 	);
 }
 
-function CodexLogo({ className }: { className?: string }) {
+function CodexLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 202 200"
 			fill="currentColor"
 			aria-hidden="true"
@@ -314,10 +316,11 @@ function CodexLogo({ className }: { className?: string }) {
 	);
 }
 
-function CloudflareLogo({ className }: { className?: string }) {
+function CloudflareLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 202 200"
 			fill="currentColor"
 			aria-hidden="true"
@@ -328,10 +331,11 @@ function CloudflareLogo({ className }: { className?: string }) {
 	);
 }
 
-function OpenRouterLogo({ className }: { className?: string }) {
+function OpenRouterLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
 	return (
 		<svg
 			className={className}
+			style={style}
 			viewBox="0 0 202 200"
 			fill="currentColor"
 			aria-hidden="true"
@@ -715,7 +719,7 @@ function HeroVariantE() {
 function HeroVariantF() {
 	return (
 		<section
-			className="flex flex-col items-center justify-between px-6"
+			className="flex flex-col items-center px-6 gap-6"
 			style={{ height: "calc(100vh - 64px)" }}
 		>
 			{/* Top: Title + Subtitle */}
@@ -723,42 +727,45 @@ function HeroVariantF() {
 				<h1 className="text-2xl md:text-3xl font-bold text-black leading-[1.1] tracking-tight">
 					Machine Payments Protocol
 				</h1>
-				<p className="text-sm text-gray-600 leading-relaxed max-w-lg mx-auto">
-					Accept payments from humans, software, or AI agents using standard
-					HTTP. No billing accounts or manual signup required.
+				<p className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto">
+					Accept payments from humans, software, or AI agents
+					<br />
+					using standard HTTP. No billing accounts or manual signup required.
 				</p>
 			</div>
 
 			{/* Middle: Demo with chrome */}
-			<div className="w-full max-w-xl flex-1 flex flex-col justify-center py-4">
-				<Cli.Demo
-					title="agent-demo"
+			<div className="w-full max-w-xl">
+				<Cli.DemoSimple
+					title="Try it out"
 					token={pathUsd}
-					height={280}
+					height={260}
 					restartStep={0}
 				>
 					<Cli.Startup />
-					<Cli.AutoConnect />
-					<Cli.Faucet />
 					<SelectQuery />
-				</Cli.Demo>
+				</Cli.DemoSimple>
 			</div>
 
-			{/* Bottom: Tabs + CTAs + Services */}
-			<div className="w-full max-w-2xl space-y-4 pb-6">
-				{/* Agent Tabs */}
-				<div className="flex justify-center">
+			{/* Agent Tabs */}
+			<div className="w-full max-w-xl flex flex-col items-center">
+				<span className="text-xs text-gray-400 pb-6">
+					or, start using it locally
+				</span>
+				<div className="w-full">
 					<AgentTabsWrapped />
 				</div>
-
-				{/* CTAs */}
-				<div className="flex justify-center">
-					<CTAButtons />
-				</div>
-
-				{/* Compact Services */}
-				<ServiceCardsCompact />
 			</div>
+
+			{/* CTAs */}
+			<div className="flex justify-center">
+				<CTAButtons />
+			</div>
+
+			{/* Compact Services */}
+			<ServiceCardsCompact />
+
+			<div className="flex-1" />
 		</section>
 	);
 }
@@ -770,7 +777,7 @@ function ServiceCardsCompact() {
 			<span className="text-xs text-gray-400 uppercase tracking-wide">
 				Works with
 			</span>
-			<div className="flex items-center gap-4">
+			<div className="flex items-center gap-5">
 				{SERVICES.slice(0, 4).map((service) => {
 					const Logo = service.logo;
 					return (
@@ -782,7 +789,7 @@ function ServiceCardsCompact() {
 							className="text-gray-400 hover:text-gray-600 transition-colors"
 							title={service.name}
 						>
-							<Logo className="w-5 h-5" />
+							<Logo style={{ width: 28, height: 28 }} />
 						</a>
 					);
 				})}
@@ -790,7 +797,6 @@ function ServiceCardsCompact() {
 		</div>
 	);
 }
-
 
 // ============================================================
 // Shared Components
