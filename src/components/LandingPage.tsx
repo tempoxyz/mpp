@@ -10,7 +10,16 @@ import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";
 import * as Cli from "./Cli";
 
+// Variant titles for A/B/C testing
+const VARIANT_TITLES: Record<"A" | "B" | "C", string> = {
+	A: "The Machine Payments Protocol",
+	B: "Internet-Native Payments Protocol",
+	C: "HTTP 402: Payments for the Internet",
+};
+
 export function LandingPage() {
+	const [variant, setVariant] = useState<"A" | "B" | "C">("A");
+
 	return (
 		<div
 			className="not-prose"
@@ -20,6 +29,27 @@ export function LandingPage() {
 					'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
 			}}
 		>
+			{/* Variant Toggle */}
+			<div
+				className="fixed left-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1"
+				style={{ opacity: 0.6 }}
+			>
+				{(["A", "B", "C"] as const).map((v) => (
+					<button
+						key={v}
+						type="button"
+						onClick={() => setVariant(v)}
+						className={`w-6 h-6 text-[10px] font-medium rounded transition-all ${
+							variant === v
+								? "bg-[#0166FF] text-white"
+								: "bg-gray-200 text-gray-500 hover:bg-gray-300"
+						}`}
+					>
+						{v}
+					</button>
+				))}
+			</div>
+
 			{/* Hero */}
 			<section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
 				<div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
@@ -30,7 +60,7 @@ export function LandingPage() {
 						</div>
 						{/* Title */}
 						<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
-							The Machine Payments Protocol
+							{VARIANT_TITLES[variant]}
 						</h1>
 
 						{/* Description */}
