@@ -177,7 +177,9 @@ function HeroVariantC() {
 					<div className="flex items-center justify-center">
 						<CoAuthoredBy />
 					</div>
-					<AgentTabs />
+					<div className="flex justify-center">
+						<AgentTabs />
+					</div>
 					<div className="flex justify-center">
 						<CTAButtons />
 					</div>
@@ -210,7 +212,7 @@ function HeroVariantC() {
 					scrollSnapAlign: "start",
 				}}
 			>
-				<div className="max-w-[574px] w-full">
+				<div className="max-w-[574px] w-full mx-auto">
 					<Cli.Demo
 						title="agent-demo"
 						token={pathUsd}
