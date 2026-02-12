@@ -166,7 +166,7 @@ function HeroVariantC() {
 					scrollSnapAlign: "start",
 				}}
 			>
-				<div className="max-w-2xl space-y-8">
+				<div className="max-w-2xl space-y-6 -mt-16">
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
