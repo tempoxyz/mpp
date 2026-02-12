@@ -729,9 +729,19 @@ function HeroVariantF() {
 				</p>
 			</div>
 
-			{/* Middle: Demo (no chrome) */}
+			{/* Middle: Demo with chrome */}
 			<div className="w-full max-w-xl flex-1 flex flex-col justify-center py-4">
-				<SimulatedDemoF />
+				<Cli.Demo
+					title="agent-demo"
+					token={pathUsd}
+					height={280}
+					restartStep={0}
+				>
+					<Cli.Startup />
+					<Cli.AutoConnect />
+					<Cli.Faucet />
+					<SelectQuery />
+				</Cli.Demo>
 			</div>
 
 			{/* Bottom: Tabs + CTAs + Services */}
@@ -776,107 +786,6 @@ function ServiceCardsCompact() {
 						</a>
 					);
 				})}
-			</div>
-		</div>
-	);
-}
-
-// Simulated demo for variant F (no chrome, compelling output)
-function SimulatedDemoF() {
-	const [phase, setPhase] = useState<
-		"typing" | "sending" | "challenge" | "paying" | "success"
-	>("typing");
-	const [typedText, setTypedText] = useState("");
-	const fullPrompt = "Find the best coffee shop nearby";
-
-	// Typing animation
-	useEffect(() => {
-		if (phase !== "typing") return;
-		if (typedText.length < fullPrompt.length) {
-			const timer = setTimeout(() => {
-				setTypedText(fullPrompt.slice(0, typedText.length + 1));
-			}, 60);
-			return () => clearTimeout(timer);
-		}
-		// Done typing, move to next phase
-		const timer = setTimeout(() => setPhase("sending"), 500);
-		return () => clearTimeout(timer);
-	}, [phase, typedText]);
-
-	// Phase transitions
-	useEffect(() => {
-		if (phase === "sending") {
-			const timer = setTimeout(() => setPhase("challenge"), 600);
-			return () => clearTimeout(timer);
-		}
-		if (phase === "challenge") {
-			const timer = setTimeout(() => setPhase("paying"), 500);
-			return () => clearTimeout(timer);
-		}
-		if (phase === "paying") {
-			const timer = setTimeout(() => setPhase("success"), 600);
-			return () => clearTimeout(timer);
-		}
-		if (phase === "success") {
-			// Loop after showing result
-			const timer = setTimeout(() => {
-				setTypedText("");
-				setPhase("typing");
-			}, 4000);
-			return () => clearTimeout(timer);
-		}
-	}, [phase]);
-
-	return (
-		<div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-			{/* Terminal content - no title bar */}
-			<div className="p-4 font-mono text-sm space-y-2 min-h-[200px]">
-				{/* User prompt */}
-				<div className="flex items-start gap-2">
-					<span className="text-gray-400">$</span>
-					<span className="text-gray-700">claude -p "</span>
-					<span className="text-green-700">{typedText}</span>
-					{phase === "typing" && (
-						<span className="inline-block w-0.5 h-4 bg-green-600 animate-pulse" />
-					)}
-					<span className="text-gray-700">"</span>
-				</div>
-
-				{/* Sending request */}
-				{phase !== "typing" && (
-					<div className="text-gray-500 pl-4">
-						→ Querying openrouter.ai/chat/completions...
-					</div>
-				)}
-
-				{/* 402 response */}
-				{(phase === "challenge" ||
-					phase === "paying" ||
-					phase === "success") && (
-					<div className="text-amber-600 pl-4">← 402 Payment Required</div>
-				)}
-
-				{/* Payment flow */}
-				{(phase === "paying" || phase === "success") && (
-					<>
-						<div className="text-blue-600 pl-4">
-							→ Signing credential with Tempo wallet...
-						</div>
-						<div className="text-blue-600 pl-4">→ Paying $0.002 via MPP</div>
-					</>
-				)}
-
-				{/* Success + result */}
-				{phase === "success" && (
-					<>
-						<div className="text-green-600 pl-4">← 200 OK</div>
-						<div className="mt-3 p-3 bg-gray-50 rounded text-gray-700 text-xs leading-relaxed">
-							Based on your location, I found <strong>Blue Bottle Coffee</strong>{" "}
-							(0.2 mi) with 4.8★ rating, known for their single-origin pour-overs.
-							Open until 6pm.
-						</div>
-					</>
-				)}
 			</div>
 		</div>
 	);
