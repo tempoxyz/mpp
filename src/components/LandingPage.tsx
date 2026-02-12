@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
-import { demoAccount, demoFetch } from "../mpay.demo";
 import { fetch } from "../mpay.client";
 import { pathUsd } from "../wagmi.config";
 import { AgentTabs } from "./AgentTabs";
@@ -674,13 +673,13 @@ function HeroVariantE() {
 							to="/quickstart"
 							className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
 						>
-							Get started →
+							For humans →
 						</Link>
 						<Link
 							to="/specs"
 							className="inline-flex items-center gap-2 px-6 py-3 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
 						>
-							Read the specs
+							For agents
 						</Link>
 					</div>
 
@@ -741,7 +740,46 @@ function HeroVariantE() {
 // ============================================================
 // VARIANT F: Single-page layout (100vh, no passkey)
 // ============================================================
+
+const DEMO_STORAGE_KEY = "mpp-demo-private-key";
+
+// Lazy-initialized demo wallet state (client-only)
+let _demoAccount: import("viem/accounts").PrivateKeyAccount | null = null;
+
+async function initDemoAccount() {
+	if (_demoAccount) return _demoAccount;
+
+	const { generatePrivateKey, privateKeyToAccount } = await import(
+		"viem/accounts"
+	);
+
+	const stored = localStorage.getItem(DEMO_STORAGE_KEY);
+	let privateKey: string;
+	if (stored && stored.startsWith("0x") && stored.length === 66) {
+		privateKey = stored;
+	} else {
+		privateKey = generatePrivateKey();
+		localStorage.setItem(DEMO_STORAGE_KEY, privateKey);
+	}
+
+	_demoAccount = privateKeyToAccount(privateKey as `0x${string}`);
+	return _demoAccount;
+}
+
+// Use the main mpay client - wagmi connector handles signing
+async function getDemoFetch() {
+	const { fetch } = await import("../mpay.client");
+	return fetch;
+}
+
 function HeroVariantF() {
+	const [demoAddress, setDemoAddress] = useState<`0x${string}` | null>(null);
+
+	useEffect(() => {
+		// Only initialize on client
+		initDemoAccount().then((account) => setDemoAddress(account.address));
+	}, []);
+
 	return (
 		<section
 			className="flex flex-col items-center px-6 gap-6"
@@ -760,16 +798,18 @@ function HeroVariantF() {
 
 			{/* Middle: Demo with chrome */}
 			<div className="w-full max-w-xl">
+				{demoAddress && (
 				<Cli.DemoSimple
 					title="Try it out"
 					token={pathUsd}
-					height={280}
+					height={330}
 					restartStep={1}
 				>
-					<Cli.Startup />
-					<Cli.SilentDemoSetup demoAddress={demoAccount.address} />
-					<DemoSelectQuery />
-				</Cli.DemoSimple>
+						<Cli.Startup />
+						<Cli.SilentDemoSetup demoAddress={demoAddress} />
+						<DemoSelectQuery />
+					</Cli.DemoSimple>
+				)}
 			</div>
 
 			{/* Agent Tabs */}
@@ -858,7 +898,7 @@ function CTAButtons() {
 				to="/quickstart"
 				className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
 			>
-				Get started
+				For humans
 				<svg
 					width="14"
 					height="14"
@@ -877,7 +917,7 @@ function CTAButtons() {
 				to="/specs"
 				className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
 			>
-				Read the specs
+				For agents
 			</Link>
 		</div>
 	);
@@ -1650,13 +1690,22 @@ function DemoSelectQuery() {
 					),
 				);
 
-				// Use demo fetch with pre-funded account
-				const response = await demoFetch(url.toString(), {
-					context: { account: demoAccount },
-				});
+				// Use demo fetch with account passed via context
+				const demoFetch = await getDemoFetch();
+				const account = await initDemoAccount();
+				let response: Response;
+				try {
+					response = await demoFetch(url.toString(), {
+						context: { account },
+					});
+				} catch (err) {
+					console.error("Demo fetch error:", err);
+					throw err;
+				}
 
 				// Extract transaction hash from response header
 				const txHash = response.headers.get("x-payment-tx") || undefined;
+				console.log("[DemoSelectQuery] Response:", response.status, "txHash:", txHash);
 
 				// Update the call with the txHash
 				setResults((r) =>

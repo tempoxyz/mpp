@@ -388,10 +388,16 @@ export function Spent({ className, label = "Spent" }: Spent.Props) {
 	const { data: balance } = Hooks.token.useGetBalance({
 		account: address,
 		token,
+		blockTag: "latest",
+		query: {
+			enabled: !!address && !!token,
+			refetchInterval: 2_000,
+		},
 	});
 
 	if (!address) return null;
 
+	// Calculate spent: if balance went down from initial, show the difference
 	const spent =
 		initial !== undefined && balance !== undefined && initial > balance
 			? initial - balance
@@ -1024,8 +1030,19 @@ export function DemoSimple({
 	title,
 	token,
 }: Demo.Props) {
+	const hasInitialized = useRef(false);
+
 	useEffect(() => {
-		store.setState((s) => ({ ...s, restartStep }));
+		// Only reset state once on first mount
+		if (hasInitialized.current) return;
+		hasInitialized.current = true;
+
+		store.setState((s) => ({
+			...s,
+			restartStep,
+			stepIndex: 0,
+			// Don't reset demoAddress or initialBalance - let SilentDemoSetup handle those
+		}));
 	}, [restartStep]);
 
 	return (
@@ -1209,6 +1226,8 @@ export function AutoConnect() {
 	);
 }
 
+const INITIAL_BALANCE_KEY = "mpp-demo-initial-balance";
+
 // Silent setup - funds demo account and advances without showing UI
 export function SilentDemoSetup({
 	demoAddress,
@@ -1216,7 +1235,7 @@ export function SilentDemoSetup({
 	demoAddress: `0x${string}`;
 }) {
 	const token = useStore(store, (s) => s.token);
-	const [funded, setFunded] = useState(false);
+	const [hasAdvanced, setHasAdvanced] = useState(false);
 
 	// Set demo address in store so Balance/Spent can use it
 	useEffect(() => {
@@ -1230,40 +1249,61 @@ export function SilentDemoSetup({
 		account: demoAddress,
 		token,
 		blockTag: "latest",
+		query: {
+			enabled: !!token,
+		},
 	});
 
 	const { mutate, isPending, isSuccess } = Hooks.faucet.useFundSync({
 		mutation: {
 			onSuccess: async () => {
-				const { data } = await refetch();
+				// Refetch balance after funding
+				const { data: newBalance } = await refetch();
+				const initial = newBalance ?? balance ?? 1_000_000_000_000n;
+				// Save to localStorage for persistence
+				localStorage.setItem(INITIAL_BALANCE_KEY, initial.toString());
 				store.setState((s) => ({
 					...s,
-					initialBalance: data,
+					initialBalance: initial,
 					stepIndex: s.stepIndex + 1,
 				}));
+				setHasAdvanced(true);
 			},
 		},
 	});
 
-	// Check if already funded or need to fund
+	// Fund or advance
 	useEffect(() => {
-		if (isPending || isSuccess || funded) return;
-		if (balance === undefined) return;
+		if (!token) return;
+		if (hasAdvanced || isPending || isSuccess) return;
 
-		if (balance > 0n) {
-			// Already has funds, skip faucet
-			setFunded(true);
-			store.setState((s) => ({ ...s, initialBalance: balance }));
-			const timer = setTimeout(
-				() => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
-				100,
-			);
-			return () => clearTimeout(timer);
+		if (balance !== undefined && balance > 0n) {
+			// Check for persisted initial balance
+			const stored = localStorage.getItem(INITIAL_BALANCE_KEY);
+			const initial = stored ? BigInt(stored) : balance;
+			
+			// Only update stored initial if current balance is higher (refunded)
+			if (balance > initial) {
+				localStorage.setItem(INITIAL_BALANCE_KEY, balance.toString());
+			}
+			
+			store.setState((s) => ({
+				...s,
+				initialBalance: stored ? initial : balance,
+				stepIndex: s.stepIndex + 1,
+			}));
+			setHasAdvanced(true);
+			return;
 		}
 
 		// Need to fund
-		mutate({ account: demoAddress });
-	}, [balance, demoAddress, funded, isPending, isSuccess, mutate]);
+		if (balance !== undefined && balance === 0n) {
+			mutate({ account: demoAddress });
+			return;
+		}
+
+		// Balance query still loading - wait for it
+	}, [balance, demoAddress, hasAdvanced, isPending, isSuccess, mutate, token]);
 
 	return null;
 }
