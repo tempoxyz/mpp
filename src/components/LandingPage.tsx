@@ -174,104 +174,33 @@ function HeroVariantB() {
 // ============================================================
 function HeroVariantC() {
 	return (
-		<div
-			className="h-screen overflow-y-auto"
-			style={{ scrollSnapType: "y mandatory" }}
-		>
-			{/* Section 1: Centered hero content */}
+		<>
+			{/* Section 1: Hero content - full viewport height */}
 			<section
-				className="h-screen flex flex-col items-center justify-center px-6 relative"
-				style={{ scrollSnapAlign: "start" }}
+				className="flex flex-col justify-center px-6"
+				style={{ minHeight: "calc(100vh - 64px)" }}
 			>
-				<div className="max-w-2xl text-center space-y-8">
-					<h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-[1.1] tracking-tight">
+				<div className="max-w-3xl space-y-8">
+					<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-[1.1] tracking-tight">
 						The Machine Payments Protocol
 					</h1>
-					<p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl mx-auto">
+					<p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
 						Accept payments from humans, software, or AI agents using standard
 						HTTP. No billing accounts or manual signup required.
 					</p>
-					<div className="flex items-center justify-center gap-5">
-						<span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
-							Co-authored by
-						</span>
-						<div className="flex items-center gap-5">
-							<a
-								href="https://tempo.xyz"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
-							>
-								<TempoLogo style={{ width: "70px" }} />
-							</a>
-							<a
-								href="https://stripe.com"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
-							>
-								<StripeLogo style={{ width: "55px" }} />
-							</a>
-						</div>
-					</div>
+					<CoAuthoredBy />
 					<AgentTabs />
-					<div className="flex flex-wrap gap-3 justify-center">
-						<Link
-							to="/quickstart"
-							className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
-						>
-							Get started
-							<svg
-								width="14"
-								height="14"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								aria-hidden="true"
-							>
-								<path d="M5 12h14M12 5l7 7-7 7" />
-							</svg>
-						</Link>
-						<Link
-							to="/specs"
-							className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
-						>
-							Read the specs
-						</Link>
-					</div>
-				</div>
-				{/* Bouncing scroll indicator */}
-				<div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-					<svg
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						className="text-gray-400"
-						aria-hidden="true"
-					>
-						<path d="M12 5v14M5 12l7 7 7-7" />
-					</svg>
+					<CTAButtons />
 				</div>
 			</section>
 
 			{/* Section 2: CLI Demo */}
-			<section
-				className="h-screen flex items-center justify-center px-6"
-				style={{ scrollSnapAlign: "start" }}
-			>
-				<div className="w-full max-w-3xl">
+			<section className="py-16 px-6">
+				<div className="max-w-[574px]">
 					<Cli.Demo
 						title="agent-demo"
 						token={pathUsd}
-						height={500}
+						height={337}
 						restartStep={1}
 					>
 						<Cli.Startup />
@@ -281,7 +210,7 @@ function HeroVariantC() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</div>
+		</>
 	);
 }
 
@@ -342,12 +271,12 @@ function HeroVariantD() {
 				</div>
 			</div>
 
-			{/* CLI Demo below - more compact */}
-			<div className="mt-16 max-w-2xl mx-auto px-6">
+			{/* CLI Demo below */}
+			<div className="mt-16 max-w-[574px] mx-auto px-6">
 				<Cli.Demo
 					title="agent-demo"
 					token={pathUsd}
-					height={300}
+					height={337}
 					restartStep={1}
 				>
 					<Cli.Startup />
