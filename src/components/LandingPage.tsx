@@ -150,20 +150,11 @@ function HeroVariantB() {
 // ============================================================
 function HeroVariantC() {
 	return (
-		<div
-			className="overflow-y-auto"
-			style={{
-				height: "calc(100vh - 64px)",
-				scrollSnapType: "y mandatory",
-			}}
-		>
+		<>
 			{/* Section 1: Hero content */}
 			<section
 				className="flex flex-col items-center text-center px-6"
-				style={{
-					height: "calc(100vh - 64px)",
-					scrollSnapAlign: "start",
-				}}
+				style={{ minHeight: "calc(100vh - 64px)" }}
 			>
 				{/* Spacer */}
 				<div className="flex-1" />
@@ -210,11 +201,8 @@ function HeroVariantC() {
 
 			{/* Section 2: CLI Demo */}
 			<section
-				className="flex items-center justify-center px-6"
-				style={{
-					height: "calc(100vh - 64px)",
-					scrollSnapAlign: "start",
-				}}
+				className="flex items-center justify-center px-6 py-16"
+				style={{ minHeight: "calc(100vh - 64px)" }}
 			>
 				<div className="max-w-[574px] w-full mx-auto">
 					<Cli.Demo
@@ -230,7 +218,7 @@ function HeroVariantC() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</div>
+		</>
 	);
 }
 
@@ -239,20 +227,11 @@ function HeroVariantC() {
 // ============================================================
 function HeroVariantD() {
 	return (
-		<div
-			className="overflow-y-auto"
-			style={{
-				height: "calc(100vh - 64px)",
-				scrollSnapType: "y mandatory",
-			}}
-		>
+		<>
 			{/* Hero section */}
 			<section
 				className="flex flex-col items-center text-center px-6"
-				style={{
-					height: "calc(100vh - 64px)",
-					scrollSnapAlign: "start",
-				}}
+				style={{ minHeight: "calc(100vh - 64px)" }}
 			>
 				{/* Spacer */}
 				<div className="flex-1" />
@@ -334,13 +313,10 @@ function HeroVariantD() {
 
 			{/* CLI Demo section */}
 			<section
-				className="flex items-center justify-center px-6"
-				style={{
-					height: "calc(100vh - 64px)",
-					scrollSnapAlign: "start",
-				}}
+				className="flex items-center justify-center px-6 py-16"
+				style={{ minHeight: "calc(100vh - 64px)" }}
 			>
-				<div className="max-w-[574px] w-full">
+				<div className="max-w-[574px] w-full mx-auto">
 					<Cli.Demo
 						title="agent-demo"
 						token={pathUsd}
@@ -354,7 +330,7 @@ function HeroVariantD() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</div>
+		</>
 	);
 }
 
