@@ -1203,6 +1203,91 @@ export function AutoConnect() {
 	);
 }
 
+// Silent wallet connection - does the work but shows no output
+export function SilentConnectWallet() {
+	const { address } = useConnection();
+	const connectors = useConnectors();
+	const { connect } = useConnect();
+
+	const connector = connectors[0];
+
+	// Auto-connect on mount if not already connected
+	useEffect(() => {
+		if (!address && connector) {
+			connect({
+				connector,
+				capabilities: { type: "sign-up" },
+			});
+		}
+	}, [address, connector, connect]);
+
+	useEffect(() => {
+		if (address) {
+			const timer = setTimeout(
+				() => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
+				300,
+			);
+			return () => clearTimeout(timer);
+		}
+	}, [address]);
+
+	return null;
+}
+
+// Silent faucet - funds wallet but shows no output
+export function SilentFaucet() {
+	const initialBalance = useStore(store, (s) => s.initialBalance);
+	const { address } = useConnection();
+	const [alreadyFunded, setAlreadyFunded] = useState(false);
+
+	const token = useStore(store, (s) => s.token);
+	const { data: currentBalance, refetch } = Hooks.token.useGetBalance({
+		account: address,
+		token,
+		blockTag: "latest",
+	});
+
+	const { mutate, isPending, isSuccess } = Hooks.faucet.useFundSync({
+		mutation: {
+			onSuccess: async () => {
+				const { data } = await refetch();
+				store.setState((s) => ({
+					...s,
+					initialBalance: data,
+					stepIndex: s.stepIndex + 1,
+				}));
+			},
+		},
+	});
+
+	useEffect(() => {
+		if (!address) return;
+		if (isPending) return;
+		if (isSuccess) return;
+		if (alreadyFunded) return;
+		if (initialBalance === undefined) return;
+		if (initialBalance > 0n) {
+			setAlreadyFunded(true);
+			return;
+		}
+
+		mutate({ account: address });
+	}, [address, alreadyFunded, initialBalance, isPending, isSuccess, mutate]);
+
+	useEffect(() => {
+		if (alreadyFunded) {
+			store.setState((s) => ({ ...s, initialBalance: currentBalance }));
+			const timer = setTimeout(
+				() => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
+				300,
+			);
+			return () => clearTimeout(timer);
+		}
+	}, [alreadyFunded, currentBalance]);
+
+	return null;
+}
+
 export function Faucet() {
 	const initialBalance = useStore(store, (s) => s.initialBalance);
 	const { address } = useConnection();

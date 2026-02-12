@@ -762,12 +762,12 @@ function HeroVariantF() {
 				<Cli.DemoSimple
 					title="Try it out"
 					token={pathUsd}
-					height={320}
+					height={280}
 					restartStep={1}
 				>
 					<Cli.Startup />
-					<Cli.ConnectWallet />
-					<Cli.Faucet />
+					<Cli.SilentConnectWallet />
+					<Cli.SilentFaucet />
 					<SelectQuery />
 				</Cli.DemoSimple>
 			</div>
