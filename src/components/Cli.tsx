@@ -1281,12 +1281,12 @@ export function SilentDemoSetup({
 			// Check for persisted initial balance
 			const stored = localStorage.getItem(INITIAL_BALANCE_KEY);
 			const initial = stored ? BigInt(stored) : balance;
-			
+
 			// Only update stored initial if current balance is higher (refunded)
 			if (balance > initial) {
 				localStorage.setItem(INITIAL_BALANCE_KEY, balance.toString());
 			}
-			
+
 			store.setState((s) => ({
 				...s,
 				initialBalance: stored ? initial : balance,

@@ -745,6 +745,8 @@ const DEMO_STORAGE_KEY = "mpp-demo-private-key";
 
 // Lazy-initialized demo wallet state (client-only)
 let _demoAccount: import("viem/accounts").PrivateKeyAccount | null = null;
+// biome-ignore lint/suspicious/noExplicitAny: complex mpay generic type
+let _demoMpay: any = null;
 
 async function initDemoAccount() {
 	if (_demoAccount) return _demoAccount;
@@ -755,7 +757,7 @@ async function initDemoAccount() {
 
 	const stored = localStorage.getItem(DEMO_STORAGE_KEY);
 	let privateKey: string;
-	if (stored && stored.startsWith("0x") && stored.length === 66) {
+	if (stored?.startsWith("0x") && stored.length === 66) {
 		privateKey = stored;
 	} else {
 		privateKey = generatePrivateKey();
@@ -766,10 +768,35 @@ async function initDemoAccount() {
 	return _demoAccount;
 }
 
-// Use the main mpay client - wagmi connector handles signing
+// Create a dedicated mpay client for demo that works with local accounts
 async function getDemoFetch() {
-	const { fetch } = await import("../mpay.client");
-	return fetch;
+	if (_demoMpay) return _demoMpay.fetch;
+
+	const account = await initDemoAccount();
+	const { Mpay, tempo } = await import("mpay/client");
+	const { wrapFetch } = await import("../lib/network-store");
+	const { createWalletClient, http } = await import("viem");
+	const { tempoModerato } = await import("viem/chains");
+
+	// Create a wallet client with proper chain config
+	const client = createWalletClient({
+		account,
+		chain: tempoModerato,
+		transport: http(),
+	});
+
+	const trackedFetch = wrapFetch(globalThis.fetch);
+	_demoMpay = Mpay.create({
+		fetch: trackedFetch,
+		methods: [
+			tempo.charge({
+				getClient: () => client,
+			}),
+		],
+		polyfill: false,
+	});
+
+	return _demoMpay.fetch;
 }
 
 function HeroVariantF() {
@@ -799,12 +826,12 @@ function HeroVariantF() {
 			{/* Middle: Demo with chrome */}
 			<div className="w-full max-w-xl">
 				{demoAddress && (
-				<Cli.DemoSimple
-					title="Try it out"
-					token={pathUsd}
-					height={330}
-					restartStep={1}
-				>
+					<Cli.DemoSimple
+						title="Try it out"
+						token={pathUsd}
+						height={330}
+						restartStep={1}
+					>
 						<Cli.Startup />
 						<Cli.SilentDemoSetup demoAddress={demoAddress} />
 						<DemoSelectQuery />
@@ -1690,14 +1717,11 @@ function DemoSelectQuery() {
 					),
 				);
 
-				// Use demo fetch with account passed via context
+				// Use demo fetch (account baked into dedicated mpay client)
 				const demoFetch = await getDemoFetch();
-				const account = await initDemoAccount();
 				let response: Response;
 				try {
-					response = await demoFetch(url.toString(), {
-						context: { account },
-					});
+					response = await demoFetch(url.toString());
 				} catch (err) {
 					console.error("Demo fetch error:", err);
 					throw err;
@@ -1705,7 +1729,12 @@ function DemoSelectQuery() {
 
 				// Extract transaction hash from response header
 				const txHash = response.headers.get("x-payment-tx") || undefined;
-				console.log("[DemoSelectQuery] Response:", response.status, "txHash:", txHash);
+				console.log(
+					"[DemoSelectQuery] Response:",
+					response.status,
+					"txHash:",
+					txHash,
+				);
 
 				// Update the call with the txHash
 				setResults((r) =>
