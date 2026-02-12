@@ -60,15 +60,15 @@ export default defineConfig({
 			: `${base}/api/og?title=%title&description=%description`,
 	sidebar: {
 		"/": [
-		{
-			text: "Introduction",
-			items: [
-				{ text: "For Humans", link: "/for-humans" },
-				{ text: "Overview", link: "/overview" },
-				{ text: "Specifications", link: "/specs" },
-				{ text: "FAQ", link: "/faq" },
-			],
-		},
+			{
+				text: "Introduction",
+				items: [
+					{ text: "For Humans", link: "/for-humans" },
+					{ text: "Overview", link: "/overview" },
+					{ text: "Specifications", link: "/specs" },
+					{ text: "FAQ", link: "/faq" },
+				],
+			},
 			{
 				text: "Quick Start",
 				items: [

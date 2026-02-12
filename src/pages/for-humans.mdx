@@ -27,58 +27,57 @@ No API keys to manage. No rate limits to worry about. Pay only for what you use.
 
 ## Get started in 2 minutes
 
-### 1. Install the SDK
+::::steps
 
-::::code-group
+### Install the SDK
+
+:::code-group
 
 ```bash [npm]
-$ npm install mpay
+npm install mpay viem
 ```
 
 ```bash [pnpm]
-$ pnpm add mpay
+pnpm add mpay viem
 ```
 
 ```bash [bun]
-$ bun add mpay
+bun add mpay viem
 ```
+
+:::
+
+### Create a payment handler
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { Mpay, tempo } from 'mpay/client'
+
+const account = privateKeyToAccount('0xabc…123')
+
+Mpay.create({
+  methods: [tempo({ account })],
+})
+```
+
+This polyfills the global `fetch` to automatically handle `402` payment challenges.
+
+### Use fetch as normal
+
+```ts
+const response = await fetch('https://openrouter.payments.tempo.xyz/v1/chat/completions', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    model: 'anthropic/claude-3.5-sonnet',
+    messages: [{ role: 'user', content: 'Hello!' }],
+  }),
+})
+```
+
+That's it. Payments happen automatically when services return `402`.
 
 ::::
-
-### 2. Fund your agent's wallet
-
-Your agent needs a wallet with USDC on the Tempo network. You can:
-
-- **Transfer from an exchange**: Send USDC to your agent's wallet address on Tempo
-- **Bridge from Ethereum**: Use the [Tempo Bridge](https://tempo.xyz/bridge) to move funds
-- **Get testnet funds**: Use the [Tempo Faucet](https://tempo.xyz/faucet) for testing
-
-### 3. Enable payments in your agent
-
-```ts twoslash [agent.ts]
-import { Fetch, tempo } from "mpay/client";
-import { privateKeyToAccount } from "viem/accounts";
-
-// Your agent's wallet
-const account = privateKeyToAccount(process.env.AGENT_PRIVATE_KEY as `0x${string}`);
-
-// Polyfill fetch to handle payments automatically
-Fetch.polyfill({
-  methods: [tempo({ account })],
-});
-
-// Now your agent can use any MPP-enabled service
-const response = await fetch("https://openrouter.payments.tempo.xyz/v1/chat/completions", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    model: "anthropic/claude-3.5-sonnet",
-    messages: [{ role: "user", content: "Hello!" }],
-  }),
-});
-```
-
-That's it. Your agent will automatically pay for API calls when services require payment.
 
 ---
 
