@@ -811,8 +811,8 @@ function HeroVariantF() {
 
 	return (
 		<section
-			className="flex flex-col items-center justify-center px-6 gap-4 py-6"
-			style={{ height: "calc(100vh - 64px)" }}
+			className="flex flex-col items-center justify-center px-6 gap-3 -mt-6 -mb-6"
+			style={{ height: "calc(100dvh - 64px)", maxHeight: "calc(100vh - 64px)" }}
 		>
 			{/* Top: Title + Subtitle */}
 			<div className="text-center space-y-1">
@@ -831,7 +831,7 @@ function HeroVariantF() {
 					<Cli.DemoSimple
 						title="Try it out"
 						token={pathUsd}
-						height={300}
+						height={280}
 						restartStep={1}
 					>
 						<Cli.Startup />
@@ -843,7 +843,7 @@ function HeroVariantF() {
 
 			{/* Agent Tabs */}
 			<div className="w-full max-w-xl flex flex-col items-center">
-				<span className="text-sm text-gray-400 pb-4">
+				<span className="text-sm text-gray-400 pb-3">
 					or, start using it with your agent
 				</span>
 				<div className="w-full">
@@ -1294,29 +1294,29 @@ function CliPromptAnimated() {
 					);
 				})}
 			</div>
-		<div
-			className="relative px-4 py-3 pr-10 bg-white font-mono text-sm leading-relaxed"
-			style={{ minHeight: "56px" }}
-		>
-			<span className="text-gray-400">$ </span>
-			<span className="text-gray-600">
-				{currentAgent.bin}
-				{currentAgent.args ? ` ${currentAgent.args}` : ""}
-			</span>
-			<span className="text-green-700"> "{displayText}</span>
-			<span className="inline-block w-0.5 h-4 bg-green-600 mx-0.5 align-middle animate-pulse" />
-			<span className="text-green-700">"</span>
-			{/* Copy button - positioned top right */}
-			<button
-				type="button"
-				onClick={handleCopy}
-				className={`absolute top-3 right-3 transition-all ${
-					phase === "pausing"
-						? "opacity-100 text-gray-400 hover:text-[#0166FF]"
-						: "opacity-0 pointer-events-none"
-				}`}
-				aria-label="Copy prompt"
+			<div
+				className="relative px-4 py-3 pr-10 bg-white font-mono text-sm leading-relaxed"
+				style={{ minHeight: "56px" }}
 			>
+				<span className="text-gray-400">$ </span>
+				<span className="text-gray-600">
+					{currentAgent.bin}
+					{currentAgent.args ? ` ${currentAgent.args}` : ""}
+				</span>
+				<span className="text-green-700"> "{displayText}</span>
+				<span className="inline-block w-0.5 h-4 bg-green-600 mx-0.5 align-middle animate-pulse" />
+				<span className="text-green-700">"</span>
+				{/* Copy button - positioned top right */}
+				<button
+					type="button"
+					onClick={handleCopy}
+					className={`absolute top-3 right-3 transition-all ${
+						phase === "pausing"
+							? "opacity-100 text-gray-400 hover:text-[#0166FF]"
+							: "opacity-0 pointer-events-none"
+					}`}
+					aria-label="Copy prompt"
+				>
 					{copied ? (
 						<svg
 							width="18"
