@@ -234,8 +234,9 @@ function HeroVariantD() {
 					<h1 className="text-3xl md:text-4xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
-					<p className="text-base text-gray-500 max-w-md mx-auto">
-						HTTP 402 payments for humans, software, and AI agents.
+					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
+						Accept payments from humans, software, or AI agents using standard
+						HTTP. No billing accounts or manual signup required.
 					</p>
 
 					{/* Google-style search input with typing animation */}
@@ -422,7 +423,12 @@ function AgentTabsWrapped() {
 			{/* Wrapped text with copy button */}
 			<div className="bg-white px-4 py-3 flex items-start justify-between gap-3">
 				<pre className="text-sm m-0 p-0 bg-transparent font-mono whitespace-pre-wrap wrap-break-word text-left">
-					<code><span className="text-gray-400">$ </span><span className="text-gray-800">{cmd.bin}</span>{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}<span className="text-green-700"> {cmd.str}</span></code>
+					<code>
+						<span className="text-gray-400">$ </span>
+						<span className="text-gray-800">{cmd.bin}</span>
+						{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
+						<span className="text-green-700"> {cmd.str}</span>
+					</code>
 				</pre>
 				<button
 					type="button"
