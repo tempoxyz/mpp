@@ -103,12 +103,7 @@ function HeroVariantA() {
 // ============================================================
 function HeroVariantB() {
 	return (
-		<section className="pt-4 pb-12 lg:pt-12 lg:pb-16">
-			{/* Co-authored by - top left */}
-			<div className="mb-8">
-				<CoAuthoredBy />
-			</div>
-
+		<section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
 			<div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
 				{/* Right pane */}
 				<div className="flex-9 space-y-6 min-w-0 order-first lg:order-last">
@@ -140,6 +135,10 @@ function HeroVariantB() {
 						<Cli.Faucet />
 						<SelectQuery />
 					</Cli.Demo>
+					{/* Co-authored by - under CLI demo */}
+					<div className="mt-6">
+						<CoAuthoredBy />
+					</div>
 				</div>
 			</div>
 		</section>
