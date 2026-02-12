@@ -284,7 +284,13 @@ const SERVICES = [
 ];
 
 // Service provider logos
-function FalLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
+function FalLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
@@ -302,7 +308,13 @@ function FalLogo({ className, style }: { className?: string; style?: React.CSSPr
 	);
 }
 
-function CodexLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
+function CodexLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
@@ -316,7 +328,13 @@ function CodexLogo({ className, style }: { className?: string; style?: React.CSS
 	);
 }
 
-function CloudflareLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
+function CloudflareLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
@@ -331,7 +349,13 @@ function CloudflareLogo({ className, style }: { className?: string; style?: Reac
 	);
 }
 
-function OpenRouterLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
+function OpenRouterLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
 		<svg
 			className={className}
@@ -720,17 +744,16 @@ function HeroVariantF() {
 	return (
 		<section
 			className="flex flex-col items-center px-6 gap-6"
-			style={{ height: "calc(100vh - 64px)" }}
+			style={{ height: "calc(86vh - 64px)" }}
 		>
 			{/* Top: Title + Subtitle */}
-			<div className="text-center pt-6 space-y-2">
+			<div className="text-center space-y-2">
 				<h1 className="text-2xl md:text-3xl font-bold text-black leading-[1.1] tracking-tight">
 					Machine Payments Protocol
 				</h1>
-				<p className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto">
-					Accept payments from humans, software, or AI agents
-					<br />
-					using standard HTTP. No billing accounts or manual signup required.
+				<p className="text-sm text-gray-600 leading-relaxed max-w-[500px] mx-auto">
+					Accept payments from humans, software, or AI agents using standard
+					HTTP. No billing accounts or manual signup required.
 				</p>
 			</div>
 
@@ -739,7 +762,7 @@ function HeroVariantF() {
 				<Cli.DemoSimple
 					title="Try it out"
 					token={pathUsd}
-					height={260}
+					height={320}
 					restartStep={0}
 				>
 					<Cli.Startup />
@@ -749,8 +772,8 @@ function HeroVariantF() {
 
 			{/* Agent Tabs */}
 			<div className="w-full max-w-xl flex flex-col items-center">
-				<span className="text-xs text-gray-400 pb-6">
-					or, start using it locally
+				<span className="text-sm text-gray-400 pb-6">
+					or, start using it with your agent
 				</span>
 				<div className="w-full">
 					<AgentTabsWrapped />
@@ -773,27 +796,23 @@ function HeroVariantF() {
 // Compact services for variant F (horizontal, minimal)
 function ServiceCardsCompact() {
 	return (
-		<div className="flex items-center justify-center gap-6 pt-2">
-			<span className="text-xs text-gray-400 uppercase tracking-wide">
-				Works with
-			</span>
-			<div className="flex items-center gap-5">
-				{SERVICES.slice(0, 4).map((service) => {
-					const Logo = service.logo;
-					return (
-						<a
-							key={service.name}
-							href={service.url}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-gray-400 hover:text-gray-600 transition-colors"
-							title={service.name}
-						>
-							<Logo style={{ width: 28, height: 28 }} />
-						</a>
-					);
-				})}
-			</div>
+		<div className="flex flex-wrap items-center justify-center gap-3 mt-3">
+			<span className="text-sm text-gray-400">Works with</span>
+			{SERVICES.slice(0, 4).map((service) => {
+				const Logo = service.logo;
+				return (
+					<a
+						key={service.name}
+						href={service.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-800 transition-colors text-sm"
+					>
+						<Logo style={{ width: 18, height: 18 }} />
+						{service.name}
+					</a>
+				);
+			})}
 		</div>
 	);
 }
@@ -872,6 +891,7 @@ function AgentTabsWrapped() {
 			bin: "claude",
 			args: "-p",
 			str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
+			displayStr: `"Log in, and create an image saying 'welcome to MPP $(whoami)' using this MCP server."`,
 			icon: ClaudeLogoSmall,
 		},
 		{
@@ -879,6 +899,7 @@ function AgentTabsWrapped() {
 			bin: "codex",
 			args: "--full-auto",
 			str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
+			displayStr: `"Log in, and create an image saying 'welcome to MPP $(whoami)' using this MCP server."`,
 			icon: CodexLogoSmall,
 		},
 		{
@@ -886,6 +907,7 @@ function AgentTabsWrapped() {
 			bin: "amp",
 			args: null,
 			str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
+			displayStr: `"Log in, and create an image saying 'welcome to MPP $(whoami)' using this MCP server."`,
 			icon: AmpLogoSmall,
 		},
 	];
@@ -920,8 +942,12 @@ function AgentTabsWrapped() {
 					);
 				})}
 			</div>
-			{/* Wrapped text with copy button */}
-			<div className="bg-white px-4 py-3 flex items-start justify-between gap-3">
+			{/* Wrapped text with copy button - entire area clickable */}
+			<button
+				type="button"
+				onClick={handleCopy}
+				className="bg-white px-4 py-3 flex items-start justify-between gap-3 w-full text-left cursor-pointer hover:bg-gray-50 transition-colors"
+			>
 				<span
 					className="text-sm font-mono whitespace-pre-wrap break-words text-left"
 					style={{ margin: 0, padding: 0 }}
@@ -929,14 +955,9 @@ function AgentTabsWrapped() {
 					<span className="text-gray-400">$</span>
 					<span className="text-gray-800"> {cmd.bin}</span>
 					{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
-					<span className="text-green-700"> {cmd.str}</span>
+					<span className="text-green-700"> {cmd.displayStr}</span>
 				</span>
-				<button
-					type="button"
-					onClick={handleCopy}
-					className="text-gray-400 hover:text-[#0166FF] transition-colors shrink-0"
-					aria-label="Copy to clipboard"
-				>
+				<span className="text-gray-400 hover:text-[#0166FF] transition-colors shrink-0">
 					{copied ? (
 						<svg
 							width="16"
@@ -967,8 +988,8 @@ function AgentTabsWrapped() {
 							<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
 						</svg>
 					)}
-				</button>
-			</div>
+				</span>
+			</button>
 		</div>
 	);
 }
@@ -1345,6 +1366,10 @@ type ApiCall = {
 	price: string;
 };
 
+type CompletedCall = ApiCall & {
+	txHash?: string;
+};
+
 type QueryPreset = {
 	calls: ApiCall[];
 	id: string;
@@ -1505,7 +1530,7 @@ function SelectQuery() {
 
 	const [results, setResults] = useState<
 		{
-			calls: ApiCall[];
+			calls: CompletedCall[];
 			query: QueryPreset;
 			status: "pending" | "done" | "error";
 		}[]
@@ -1531,9 +1556,26 @@ function SelectQuery() {
 					),
 				);
 
-				await fetch(url.toString(), {
+				const response = await fetch(url.toString(), {
 					context: { account: client?.account },
 				});
+
+				// Extract transaction hash from response header
+				const txHash = response.headers.get("x-payment-tx") || undefined;
+
+				// Update the call with the txHash
+				setResults((r) =>
+					r.map((item, i) =>
+						i === index
+							? {
+									...item,
+									calls: item.calls.map((c, ci) =>
+										ci === item.calls.length - 1 ? { ...c, txHash } : c,
+									),
+								}
+							: item,
+					),
+				);
 
 				await new Promise((r) => setTimeout(r, 800));
 			}
@@ -1581,7 +1623,7 @@ function QueryResult({
 	query,
 	status,
 }: {
-	calls: ApiCall[];
+	calls: CompletedCall[];
 	query: QueryPreset;
 	status: "pending" | "done" | "error";
 }) {
@@ -1606,9 +1648,24 @@ function QueryResult({
 					{i === calls.length - 1 && status === "pending" ? (
 						<Cli.Line variant="loading">{call.description}...</Cli.Line>
 					) : (
-						<Cli.Line variant="success" prefix="✓">
-							{call.description}
-						</Cli.Line>
+						<>
+							<Cli.Line variant="success" prefix="✓">
+								{call.description}
+							</Cli.Line>
+							{call.txHash && (
+								<Cli.Line variant="info">
+									tx:{" "}
+									<a
+										href={`https://explorer.tempo.xyz/tx/${call.txHash}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-accent hover:underline"
+									>
+										{call.txHash.slice(0, 10)}…{call.txHash.slice(-8)}
+									</a>
+								</Cli.Line>
+							)}
+						</>
 					)}
 				</div>
 			))}

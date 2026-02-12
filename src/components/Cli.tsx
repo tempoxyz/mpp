@@ -112,9 +112,9 @@ export function TitleBar({ title, children, className }: TitleBar.Props) {
 		>
 			<div className="flex items-center gap-2 min-w-0">
 				<div className="flex gap-1.5 shrink-0">
-					<span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-					<span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-					<span className="w-3 h-3 rounded-full bg-[#27c93f]" />
+					<span className="w-3 h-3 rounded-full bg-gray-300" />
+					<span className="w-3 h-3 rounded-full bg-gray-300" />
+					<span className="w-3 h-3 rounded-full bg-gray-300" />
 				</div>
 				{title && (
 					<span className="text-[13px] tracking-tight ml-2 mt-[2px] truncate">
@@ -362,7 +362,7 @@ export function Balance({ className, label = "Balance" }: Balance.Props) {
 
 	return (
 		<span className={cx("text-secondary", className)}>
-			{label}: <span className="text-success">${display}</span>
+			{label}: <span className="text-primary">${display}</span>
 		</span>
 	);
 }
@@ -399,7 +399,7 @@ export function Spent({ className, label = "Spent" }: Spent.Props) {
 
 	return (
 		<span className={cx("text-secondary hidden sm:inline", className)}>
-			{label}: <span className="text-warning">${display}</span>
+			{label}: <span className="text-primary">${display}</span>
 		</span>
 	);
 }
