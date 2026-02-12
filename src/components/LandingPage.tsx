@@ -504,24 +504,24 @@ function AgentTabsWrapped() {
 // Variant B: Multiple prompts with numbers and comments
 const MULTI_PROMPTS = [
 	{
-		comment: "Monetize your API instantly",
-		prompt: "charge $0.01 per api call with MPP",
+		comment: "Find the best option nearby",
+		prompt: "find me the highest-rated coffee shop within walking distance",
 	},
 	{
-		comment: "Let agents pay for premium features",
-		prompt: "add MPP payments to my /premium endpoint",
+		comment: "Book reservations automatically",
+		prompt: "book a table for 4 at a nice Italian restaurant tonight",
 	},
 	{
-		comment: "Metered usage billing",
-		prompt: "charge $0.001 per token for my LLM proxy",
+		comment: "Get premium data on demand",
+		prompt: "get me the 10-day weather forecast for my trip to Tokyo",
 	},
 	{
-		comment: "Subscription-style access",
-		prompt: "require $5/month payment for /pro routes",
+		comment: "Compare prices across services",
+		prompt: "find the cheapest flight to NYC next weekend",
 	},
 	{
-		comment: "Pay-per-result pricing",
-		prompt: "charge $0.10 per successful search result",
+		comment: "Run complex research tasks",
+		prompt: "research competitor pricing and summarize the key differences",
 	},
 ];
 
