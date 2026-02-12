@@ -361,6 +361,7 @@ export function Balance({ className, label = "Balance" }: Balance.Props) {
 		query: {
 			enabled: !!address && !!token,
 			refetchInterval: 1_000,
+			staleTime: 0,
 		},
 	});
 
@@ -400,6 +401,7 @@ export function Spent({ className, label = "Spent" }: Spent.Props) {
 		query: {
 			enabled: !!address && !!token,
 			refetchInterval: 2_000,
+			staleTime: 0,
 		},
 	});
 
@@ -1259,6 +1261,7 @@ export function SilentDemoSetup({
 		blockTag: "latest",
 		query: {
 			enabled: !!token,
+			staleTime: 0,
 		},
 	});
 
