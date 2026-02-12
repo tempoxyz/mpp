@@ -10,6 +10,7 @@ type Page =
 | { path: '/_cli'; render: 'static' }
 | { path: '/brand'; render: 'static' }
 | { path: '/faq'; render: 'static' }
+| { path: '/for-humans'; render: 'static' }
 | { path: '/'; render: 'static' }
 | { path: '/overview'; render: 'static' }
 | { path: '/tools/tempoctl'; render: 'static' }

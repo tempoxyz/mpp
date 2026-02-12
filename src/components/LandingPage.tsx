@@ -670,7 +670,7 @@ function HeroVariantE() {
 					{/* Minimal CTA */}
 					<div className="flex gap-3 justify-center pt-2">
 						<Link
-							to="/quickstart"
+							to="/for-humans"
 							className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
 						>
 							For humans →
@@ -920,7 +920,7 @@ function CTAButtons() {
 	return (
 		<div className="flex flex-wrap gap-3">
 			<Link
-				to="/quickstart"
+				to="/for-humans"
 				className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
 			>
 				For humans
