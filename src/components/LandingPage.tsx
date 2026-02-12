@@ -126,10 +126,15 @@ function HeroVariantA() {
 // ============================================================
 function HeroVariantB() {
 	return (
-		<section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
+		<section className="pt-4 pb-12 lg:pt-12 lg:pb-16">
+			{/* Co-authored by - top left */}
+			<div className="mb-8">
+				<CoAuthoredBy />
+			</div>
+
 			<div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
 				{/* Right pane */}
-				<div className="flex-9 space-y-8 min-w-0 order-first lg:order-last">
+				<div className="flex-9 space-y-6 min-w-0 order-first lg:order-last">
 					<div className="lg:hidden">
 						<AsciiLogo />
 					</div>
@@ -142,7 +147,6 @@ function HeroVariantB() {
 							HTTP. No billing accounts or manual signup required.
 						</p>
 					</div>
-					<CoAuthoredBy />
 					<MultiPromptBox />
 					<CTAButtons />
 				</div>
