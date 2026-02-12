@@ -84,6 +84,8 @@ export function Window({ children, className, token }: Window.Props) {
 			store.setState((s) => ({ ...s, initialBalance: undefined }));
 			return;
 		}
+		// Don't set initialBalance if demoAddress is set - let SilentDemoSetup handle it
+		if (demoAddress) return;
 		if (balance !== undefined && initialBalance === undefined) {
 			store.setState((s) => ({ ...s, initialBalance: balance }));
 		}
