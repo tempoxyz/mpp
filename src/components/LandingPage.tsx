@@ -219,73 +219,83 @@ function HeroVariantC() {
 // ============================================================
 function HeroVariantD() {
 	return (
-		<section className="pt-8 pb-12 lg:pt-32 lg:pb-16">
-			<div className="flex flex-col items-center text-center max-w-3xl mx-auto px-6">
-				<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight mb-4">
-					The Machine Payments Protocol
-				</h1>
-				<p className="text-sm text-gray-500 mb-10 max-w-md">
-					HTTP 402 payments for humans, software, and AI agents.
-				</p>
+		<>
+			{/* Hero section - full viewport height */}
+			<section
+				className="flex flex-col items-center justify-center text-center px-6"
+				style={{ minHeight: "calc(100vh - 64px)" }}
+			>
+				<div className="max-w-3xl space-y-8">
+					<h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-[1.1] tracking-tight">
+						The Machine Payments Protocol
+					</h1>
+					<p className="text-base text-gray-500 max-w-md mx-auto">
+						HTTP 402 payments for humans, software, and AI agents.
+					</p>
 
-				{/* Google-style search input with typing animation */}
-				<SearchInputAnimated />
+					{/* Google-style search input with typing animation */}
+					<div className="pt-4">
+						<SearchInputAnimated />
+					</div>
 
-				{/* Minimal CTA */}
-				<div className="flex gap-3 mt-8">
-					<Link
-						to="/quickstart"
-						className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-full hover:bg-[#0052CC] transition-colors no-underline!"
-					>
-						Get started
-					</Link>
-					<Link
-						to="/specs"
-						className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-200 transition-colors no-underline"
-					>
-						Read specs
-					</Link>
+					{/* Minimal CTA */}
+					<div className="flex gap-3 justify-center pt-4">
+						<Link
+							to="/quickstart"
+							className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-full hover:bg-[#0052CC] transition-colors no-underline!"
+						>
+							Get started
+						</Link>
+						<Link
+							to="/specs"
+							className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-200 transition-colors no-underline"
+						>
+							Read specs
+						</Link>
+					</div>
+
+					{/* Co-authored by - subtle */}
+					<div className="flex items-center gap-4 justify-center pt-4 opacity-50">
+						<span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">
+							Co-authored by
+						</span>
+						<a
+							href="https://tempo.xyz"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
+						>
+							<TempoLogo style={{ width: "50px" }} />
+						</a>
+						<a
+							href="https://stripe.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
+						>
+							<StripeLogo style={{ width: "40px" }} />
+						</a>
+					</div>
 				</div>
+			</section>
 
-				{/* Co-authored by - subtle */}
-				<div className="flex items-center gap-4 mt-12 opacity-50">
-					<span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">
-						Co-authored by
-					</span>
-					<a
-						href="https://tempo.xyz"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
+			{/* CLI Demo section */}
+			<section className="py-16 px-6">
+				<div className="max-w-[574px] mx-auto">
+					<Cli.Demo
+						title="agent-demo"
+						token={pathUsd}
+						height={337}
+						restartStep={1}
 					>
-						<TempoLogo style={{ width: "50px" }} />
-					</a>
-					<a
-						href="https://stripe.com"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
-					>
-						<StripeLogo style={{ width: "40px" }} />
-					</a>
+						<Cli.Startup />
+						<Cli.ConnectWallet />
+						<Cli.Faucet />
+						<SelectQuery />
+					</Cli.Demo>
 				</div>
-			</div>
-
-			{/* CLI Demo below */}
-			<div className="mt-16 max-w-[574px] mx-auto px-6">
-				<Cli.Demo
-					title="agent-demo"
-					token={pathUsd}
-					height={337}
-					restartStep={1}
-				>
-					<Cli.Startup />
-					<Cli.ConnectWallet />
-					<Cli.Faucet />
-					<SelectQuery />
-				</Cli.Demo>
-			</div>
-		</section>
+			</section>
+		</>
 	);
 }
 
