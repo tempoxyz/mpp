@@ -136,7 +136,7 @@ function HeroVariantB() {
 						<SelectQuery />
 					</Cli.Demo>
 					{/* Co-authored by - under CLI demo */}
-					<div className="mt-6">
+					<div className="mt-12">
 						<CoAuthoredBy />
 					</div>
 				</div>
