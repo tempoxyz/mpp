@@ -362,8 +362,12 @@ export function Balance({ className, label = "Balance" }: Balance.Props) {
 			enabled: !!address && !!token,
 			refetchInterval: 1_000,
 			staleTime: 0,
+			gcTime: 0,
 		},
 	});
+
+	// Debug logging
+	console.log("[Balance] address:", address, "token:", token, "balance:", balance?.toString());
 
 	if (balance === undefined) return null;
 
@@ -402,8 +406,12 @@ export function Spent({ className, label = "Spent" }: Spent.Props) {
 			enabled: !!address && !!token,
 			refetchInterval: 2_000,
 			staleTime: 0,
+			gcTime: 0,
 		},
 	});
+
+	// Debug logging
+	console.log("[Spent] initial:", initial?.toString(), "balance:", balance?.toString());
 
 	if (!address) return null;
 

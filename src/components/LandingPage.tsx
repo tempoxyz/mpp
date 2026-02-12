@@ -1740,12 +1740,11 @@ function DemoSelectQuery() {
 					txHash,
 				);
 
-				// Invalidate balance queries to force refetch after payment
+				// Invalidate ALL queries to force refetch after payment
 				if (txHash) {
-					await queryClient.invalidateQueries({ queryKey: ["balance"] });
-					await queryClient.invalidateQueries({ queryKey: ["getBalance"] });
+					await queryClient.invalidateQueries();
 					// Give the RPC a moment to update
-					await new Promise((r) => setTimeout(r, 500));
+					await new Promise((r) => setTimeout(r, 1000));
 				}
 
 				// Update the call with the txHash
