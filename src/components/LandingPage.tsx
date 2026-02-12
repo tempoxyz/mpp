@@ -151,29 +151,57 @@ function HeroVariantB() {
 // ============================================================
 function HeroVariantC() {
 	return (
-		<>
+		<div
+			className="h-screen overflow-y-auto"
+			style={{ scrollSnapType: "y mandatory" }}
+		>
 			{/* Section 1: Hero content - full viewport height */}
 			<section
-				className="flex flex-col justify-center px-6"
-				style={{ minHeight: "calc(100vh - 64px)" }}
+				className="flex flex-col items-center justify-center text-center px-6 relative"
+				style={{ height: "100vh", scrollSnapAlign: "start" }}
 			>
-				<div className="max-w-3xl space-y-8">
-					<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-[1.1] tracking-tight">
+				<div className="max-w-2xl space-y-8">
+					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
-					<p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
+					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
 						Accept payments from humans, software, or AI agents using standard
 						HTTP. No billing accounts or manual signup required.
 					</p>
-					<CoAuthoredBy />
+					<div className="flex items-center justify-center">
+						<CoAuthoredBy />
+					</div>
 					<AgentTabs />
-					<CTAButtons />
+					<div className="flex justify-center">
+						<CTAButtons />
+					</div>
+				</div>
+				{/* Bouncing scroll indicator */}
+				<div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+					<span className="text-xs text-gray-400">Scroll to try demo</span>
+					<svg
+						width="20"
+						height="20"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						className="text-gray-400"
+						aria-hidden="true"
+					>
+						<path d="M12 5v14M5 12l7 7 7-7" />
+					</svg>
 				</div>
 			</section>
 
 			{/* Section 2: CLI Demo */}
-			<section className="py-16 px-6">
-				<div className="max-w-[574px]">
+			<section
+				className="flex items-center justify-center px-6"
+				style={{ height: "100vh", scrollSnapAlign: "start" }}
+			>
+				<div className="max-w-[574px] w-full">
 					<Cli.Demo
 						title="agent-demo"
 						token={pathUsd}
@@ -187,7 +215,7 @@ function HeroVariantC() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</>
+		</div>
 	);
 }
 
@@ -394,12 +422,7 @@ function AgentTabsWrapped() {
 			{/* Wrapped text with copy button */}
 			<div className="bg-white px-4 py-3 flex items-start justify-between gap-3">
 				<pre className="text-sm m-0 p-0 bg-transparent font-mono whitespace-pre-wrap wrap-break-word text-left">
-					<code>
-						<span className="text-gray-400">$ </span>
-						<span className="text-gray-800">{cmd.bin}</span>
-						{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
-						<span className="text-green-700"> {cmd.str}</span>
-					</code>
+					<code><span className="text-gray-400">$ </span><span className="text-gray-800">{cmd.bin}</span>{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}<span className="text-green-700"> {cmd.str}</span></code>
 				</pre>
 				<button
 					type="button"

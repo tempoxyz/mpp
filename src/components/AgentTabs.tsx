@@ -148,12 +148,7 @@ export function AgentTabs() {
 			</div>
 			<div className="flex items-center gap-3 bg-white px-4 py-3">
 				<pre className="text-sm select-none flex-1 truncate m-0 p-0 bg-transparent font-mono">
-					<code>
-						<span className="text-gray-400">$ </span>
-						<span className="text-gray-800">{cmd.bin}</span>
-						{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
-						<span className="text-green-700"> {cmd.str}</span>
-					</code>
+					<code><span className="text-gray-400">$ </span><span className="text-gray-800">{cmd.bin}</span>{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}<span className="text-green-700"> {cmd.str}</span></code>
 				</pre>
 				<CopyButton
 					text={[cmd.bin, cmd.args, cmd.str].filter(Boolean).join(" ")}
