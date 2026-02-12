@@ -62,10 +62,14 @@ export const store = new ts_Store<Store.State>({
 
 export function Window({ children, className, token }: Window.Props) {
 	const { address } = useConnection();
+	const demoAddress = useStore(store, (s) => s.demoAddress);
 	const initialBalance = useStore(store, (s) => s.initialBalance);
 
+	// Use demo address if available, otherwise connected wallet
+	const balanceAddress = demoAddress ?? address;
+
 	const { data: balance } = Hooks.token.useGetBalance({
-		account: address,
+		account: balanceAddress,
 		token,
 		blockTag: "latest",
 	});
@@ -75,14 +79,15 @@ export function Window({ children, className, token }: Window.Props) {
 	}, [token]);
 
 	useEffect(() => {
-		if (!address) {
+		// Only reset initialBalance if there's no address AND no demo address
+		if (!address && !demoAddress) {
 			store.setState((s) => ({ ...s, initialBalance: undefined }));
 			return;
 		}
 		if (balance !== undefined && initialBalance === undefined) {
 			store.setState((s) => ({ ...s, initialBalance: balance }));
 		}
-	}, [address, balance, initialBalance]);
+	}, [address, demoAddress, balance, initialBalance]);
 
 	return (
 		<div
@@ -350,6 +355,7 @@ export function Balance({ className, label = "Balance" }: Balance.Props) {
 	const { data: balance } = Hooks.token.useGetBalance({
 		account: address,
 		token,
+		blockTag: "latest",
 		query: {
 			enabled: !!address && !!token,
 			refetchInterval: 1_000,
