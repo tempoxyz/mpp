@@ -101,21 +101,21 @@ const AGENT_COMMANDS = [
 		label: "Claude",
 		bin: "claude",
 		args: "-p",
-		str: '"charge $0.01 per api call with MPP"',
+		str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
 		icon: ClaudeLogo,
 	},
 	{
 		label: "Codex",
 		bin: "codex",
 		args: "--full-auto",
-		str: '"charge $0.01 per api call with MPP"',
+		str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
 		icon: CodexLogo,
 	},
 	{
 		label: "Amp",
 		bin: "amp",
 		args: null,
-		str: '"charge $0.01 per api call with MPP"',
+		str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
 		icon: AmpLogo,
 	},
 ];
@@ -148,7 +148,7 @@ export function AgentTabs() {
 			</div>
 			<div className="flex items-center gap-3 bg-white pl-4 pr-4 py-3">
 				<span
-					className="text-sm select-none flex-1 font-mono whitespace-pre-wrap"
+					className="text-sm select-none flex-1 font-mono whitespace-pre-wrap text-left"
 					style={{ margin: 0, padding: 0 }}
 				>
 					<span className="text-gray-400">$</span>

@@ -226,8 +226,8 @@ a.group * {
 [data-v-layout] > header,
 [data-layout] > header,
 header:first-of-type {
-	background: light-dark(#ffffff, var(--vocs-color-bg)) !important;
-	background-color: light-dark(#ffffff, var(--vocs-color-bg)) !important;
+	background: light-dark(#f9fafb, var(--vocs-color-bg)) !important;
+	background-color: light-dark(#f9fafb, var(--vocs-color-bg)) !important;
 	position: relative;
 	z-index: 50 !important;
 }
@@ -236,7 +236,7 @@ header:first-of-type {
 body > div:first-child > header,
 #__next > header,
 [data-v] > header {
-	background: light-dark(#ffffff, var(--vocs-color-bg)) !important;
-	background-color: light-dark(#ffffff, var(--vocs-color-bg)) !important;
+	background: light-dark(#f9fafb, var(--vocs-color-bg)) !important;
+	background-color: light-dark(#f9fafb, var(--vocs-color-bg)) !important;
 	z-index: 50 !important;
 }

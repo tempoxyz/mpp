@@ -65,11 +65,11 @@ function ScrollSnapContainer({
 
 	return (
 		<>
-			{/* White background layer behind header */}
+			{/* Background layer behind header */}
 			<div
 				className="fixed inset-x-0 top-0 h-[64px] z-5"
 				style={{
-					background: "light-dark(#ffffff, var(--vocs-color-bg, #1a1a1a))",
+					background: "light-dark(#f9fafb, var(--vocs-color-bg, #1a1a1a))",
 				}}
 			/>
 			<div
@@ -80,19 +80,19 @@ function ScrollSnapContainer({
 					scrollBehavior: "smooth",
 					msOverflowStyle: "none",
 					scrollbarWidth: "none",
-					background: "light-dark(#ffffff, var(--vocs-color-bg, #1a1a1a))",
+					background: "light-dark(#f9fafb, var(--vocs-color-bg, #1a1a1a))",
 				}}
 			>
 				<style>
 					{`
 						.scroll-snap-container::-webkit-scrollbar { display: none; }
 						body, html, [data-layout], [data-v-layout], main, article {
-							background: #ffffff !important;
-							background-color: #ffffff !important;
+							background: #f9fafb !important;
+							background-color: #f9fafb !important;
 						}
 						[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child {
-							background: #ffffff !important;
-							background-color: #ffffff !important;
+							background: #f9fafb !important;
+							background-color: #f9fafb !important;
 							position: relative !important;
 							z-index: 50 !important;
 						}
@@ -781,21 +781,21 @@ function AgentTabsWrapped() {
 			label: "Claude",
 			bin: "claude",
 			args: "-p",
-			str: '"charge $0.01 per api call with MPP"',
+			str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
 			icon: ClaudeLogoSmall,
 		},
 		{
 			label: "Codex",
 			bin: "codex",
 			args: "--full-auto",
-			str: '"charge $0.01 per api call with MPP"',
+			str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
 			icon: CodexLogoSmall,
 		},
 		{
 			label: "Amp",
 			bin: "amp",
 			args: null,
-			str: '"charge $0.01 per api call with MPP"',
+			str: `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover)."`,
 			icon: AmpLogoSmall,
 		},
 	];
@@ -987,11 +987,9 @@ function MultiPromptBox() {
 
 // Variant D/E: CLI-style animated prompts
 const CLI_PROMPTS = [
-	"charge $0.01 per api call with MPP",
-	"add payments to my REST API",
-	"monetize my AI agent's tools",
-	"require payment for /premium routes",
-	"let machines pay for my service",
+	"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and create an image saying 'welcome to MPP $(whoami)' using this MCP server (https://payments.tempo.xyz/discover).",
+	"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and get the current price and liquidity data for WETH, USDC, and ARB on Ethereum, then generate a visual summary image using this MCP server (https://payments.tempo.xyz/discover).",
+	"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and search for recent AI research papers, scrape and summarize the top 3, write a 2-minute podcast script, and convert it to speech using this MCP server (https://payments.tempo.xyz/discover).",
 ];
 
 // Agent logos for CliPromptAnimated
