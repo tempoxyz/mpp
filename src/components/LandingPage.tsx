@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
 import { fetch } from "../mpay.client";
@@ -10,15 +10,10 @@ import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";
 import * as Cli from "./Cli";
 
-// Variant titles for A/B/C testing
-const VARIANT_TITLES: Record<"A" | "B" | "C", string> = {
-	A: "The Machine Payments Protocol",
-	B: "Internet-Native Payments Protocol",
-	C: "HTTP 402: Payments for the Internet",
-};
+type Variant = "A" | "B" | "C" | "D";
 
 export function LandingPage() {
-	const [variant, setVariant] = useState<"A" | "B" | "C">("A");
+	const [variant, setVariant] = useState<Variant>("A");
 
 	return (
 		<div
@@ -34,7 +29,7 @@ export function LandingPage() {
 				className="fixed left-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1"
 				style={{ opacity: 0.6 }}
 			>
-				{(["A", "B", "C"] as const).map((v) => (
+				{(["A", "B", "C", "D"] as const).map((v) => (
 					<button
 						key={v}
 						type="button"
@@ -50,120 +45,559 @@ export function LandingPage() {
 				))}
 			</div>
 
-			{/* Hero */}
-			<section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
-				<div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
-					{/* Right pane */}
-					<div className="flex-9 space-y-8 min-w-0 order-first lg:order-last">
-						<div className="lg:hidden">
-							<AsciiLogo morph={false} color="#9ca3af" />
-						</div>
-						{/* Title */}
-						<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
-							{VARIANT_TITLES[variant]}
-						</h1>
+			{/* Render variant-specific hero */}
+			{variant === "A" && <HeroVariantA />}
+			{variant === "B" && <HeroVariantB />}
+			{variant === "C" && <HeroVariantC />}
+			{variant === "D" && <HeroVariantD />}
 
-						{/* Description */}
-						<div className="space-y-1.5 max-w-xl">
-							<p className="text-sm md:text-base text-gray-600 leading-relaxed">
-								Accept payments from humans, software, or AI agents using
-								standard HTTP. No billing accounts or manual signup required.
-							</p>
+			{/* Footer - only shown for non-C variants (C has its own footer in each section) */}
+			{variant !== "C" && (
+				<>
+					<div className="border-t border-gray-100" />
+					<footer className="px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+						<div className="flex items-center gap-4">
+							<a
+								href="https://github.com/tempoxyz/payment-auth-spec"
+								className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
+							>
+								GitHub
+							</a>
+							<a
+								href="https://x.com/mpp"
+								className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
+							>
+								X
+							</a>
 						</div>
+					</footer>
+				</>
+			)}
+		</div>
+	);
+}
 
-						{/* Co-authored by */}
+// ============================================================
+// VARIANT A: Wrapped prompt text (full prompt visible)
+// ============================================================
+function HeroVariantA() {
+	return (
+		<section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
+			<div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
+				{/* Right pane */}
+				<div className="flex-9 space-y-8 min-w-0 order-first lg:order-last">
+					<div className="lg:hidden">
+						<AsciiLogo />
+					</div>
+					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+						The Machine Payments Protocol
+					</h1>
+					<div className="space-y-1.5 max-w-xl">
+						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
+							Accept payments from humans, software, or AI agents using
+							standard HTTP. No billing accounts or manual signup required.
+						</p>
+					</div>
+					<CoAuthoredBy />
+					<AgentTabsWrapped />
+					<CTAButtons />
+				</div>
+				{/* Left pane — interactive demo */}
+				<div className="flex-11 w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none">
+					<Cli.Demo
+						title="agent-demo"
+						token={pathUsd}
+						height={337}
+						restartStep={1}
+					>
+						<Cli.Startup />
+						<Cli.ConnectWallet />
+						<Cli.Faucet />
+						<SelectQuery />
+					</Cli.Demo>
+				</div>
+			</div>
+		</section>
+	);
+}
+
+// ============================================================
+// VARIANT B: Multiple prompts with numbers and comments
+// ============================================================
+function HeroVariantB() {
+	return (
+		<section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
+			<div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
+				{/* Right pane */}
+				<div className="flex-9 space-y-8 min-w-0 order-first lg:order-last">
+					<div className="lg:hidden">
+						<AsciiLogo />
+					</div>
+					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+						The Machine Payments Protocol
+					</h1>
+					<div className="space-y-1.5 max-w-xl">
+						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
+							Accept payments from humans, software, or AI agents using
+							standard HTTP. No billing accounts or manual signup required.
+						</p>
+					</div>
+					<CoAuthoredBy />
+					<MultiPromptBox />
+					<CTAButtons />
+				</div>
+				{/* Left pane — interactive demo */}
+				<div className="flex-11 w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none">
+					<Cli.Demo
+						title="agent-demo"
+						token={pathUsd}
+						height={337}
+						restartStep={1}
+					>
+						<Cli.Startup />
+						<Cli.ConnectWallet />
+						<Cli.Faucet />
+						<SelectQuery />
+					</Cli.Demo>
+				</div>
+			</div>
+		</section>
+	);
+}
+
+// ============================================================
+// VARIANT C: Split sections with scroll snap
+// ============================================================
+function HeroVariantC() {
+	return (
+		<div
+			className="h-screen overflow-y-auto"
+			style={{ scrollSnapType: "y mandatory" }}
+		>
+			{/* Section 1: Centered hero content */}
+			<section
+				className="h-screen flex flex-col items-center justify-center px-6 relative"
+				style={{ scrollSnapAlign: "start" }}
+			>
+				<div className="max-w-2xl text-center space-y-8">
+					<h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-[1.1] tracking-tight">
+						The Machine Payments Protocol
+					</h1>
+					<p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl mx-auto">
+						Accept payments from humans, software, or AI agents using
+						standard HTTP. No billing accounts or manual signup required.
+					</p>
+					<div className="flex items-center justify-center gap-5">
+						<span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
+							Co-authored by
+						</span>
 						<div className="flex items-center gap-5">
-							<span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
-								Co-authored by
-							</span>
-							<div className="flex items-center gap-5">
-								<a
-									href="https://tempo.xyz"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
-								>
-									<TempoLogo style={{ width: "70px" }} />
-								</a>
-								<a
-									href="https://stripe.com"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
-								>
-									<StripeLogo style={{ width: "55px" }} />
-								</a>
-							</div>
-						</div>
-
-						{/* Copy-to-agent line */}
-						<AgentTabs />
-
-						{/* CTA buttons */}
-						<div className="flex flex-wrap gap-3">
-							<Link
-								to="/quickstart"
-								className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
+							<a
+								href="https://tempo.xyz"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
 							>
-								Get started
-								<svg
-									width="14"
-									height="14"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									aria-hidden="true"
-								>
-									<path d="M5 12h14M12 5l7 7-7 7" />
-								</svg>
-							</Link>
-							<Link
-								to="/specs"
-								className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
+								<TempoLogo style={{ width: "70px" }} />
+							</a>
+							<a
+								href="https://stripe.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
 							>
-								Read the specs
-							</Link>
+								<StripeLogo style={{ width: "55px" }} />
+							</a>
 						</div>
 					</div>
-
-					{/* Left pane — interactive demo */}
-					<div className="flex-11 w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none">
-						<Cli.Demo
-							title="agent-demo"
-							token={pathUsd}
-							height={337}
-							restartStep={1}
+					<AgentTabs />
+					<div className="flex flex-wrap gap-3 justify-center">
+						<Link
+							to="/quickstart"
+							className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
 						>
-							<Cli.Startup />
-							<Cli.ConnectWallet />
-							<Cli.Faucet />
-							<SelectQuery />
-						</Cli.Demo>
+							Get started
+							<svg
+								width="14"
+								height="14"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								aria-hidden="true"
+							>
+								<path d="M5 12h14M12 5l7 7-7 7" />
+							</svg>
+						</Link>
+						<Link
+							to="/specs"
+							className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
+						>
+							Read the specs
+						</Link>
 					</div>
+				</div>
+				{/* Bouncing scroll indicator */}
+				<div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+					<svg
+						width="24"
+						height="24"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						className="text-gray-400"
+						aria-hidden="true"
+					>
+						<path d="M12 5v14M5 12l7 7 7-7" />
+					</svg>
 				</div>
 			</section>
 
-			{/* Footer */}
-			<div className="border-t border-gray-100" />
-			<footer className="px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-				<div className="flex items-center gap-4">
-					<a
-						href="https://github.com/tempoxyz/payment-auth-spec"
-						className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
+			{/* Section 2: CLI Demo */}
+			<section
+				className="h-screen flex items-center justify-center px-6"
+				style={{ scrollSnapAlign: "start" }}
+			>
+				<div className="w-full max-w-3xl">
+					<Cli.Demo
+						title="agent-demo"
+						token={pathUsd}
+						height={500}
+						restartStep={1}
 					>
-						GitHub
+						<Cli.Startup />
+						<Cli.ConnectWallet />
+						<Cli.Faucet />
+						<SelectQuery />
+					</Cli.Demo>
+				</div>
+			</section>
+		</div>
+	);
+}
+
+// ============================================================
+// VARIANT D: Google search-style with typing animation
+// ============================================================
+function HeroVariantD() {
+	return (
+		<section className="pt-8 pb-12 lg:pt-32 lg:pb-16">
+			<div className="flex flex-col items-center text-center max-w-3xl mx-auto px-6">
+				<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight mb-4">
+					The Machine Payments Protocol
+				</h1>
+				<p className="text-sm text-gray-500 mb-10 max-w-md">
+					HTTP 402 payments for humans, software, and AI agents.
+				</p>
+
+				{/* Google-style search input with typing animation */}
+				<SearchInputAnimated />
+
+				{/* Minimal CTA */}
+				<div className="flex gap-3 mt-8">
+					<Link
+						to="/quickstart"
+						className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-full hover:bg-[#0052CC] transition-colors no-underline!"
+					>
+						Get started
+					</Link>
+					<Link
+						to="/specs"
+						className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-200 transition-colors no-underline"
+					>
+						Read specs
+					</Link>
+				</div>
+
+				{/* Co-authored by - subtle */}
+				<div className="flex items-center gap-4 mt-12 opacity-50">
+					<span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">
+						Co-authored by
+					</span>
+					<a
+						href="https://tempo.xyz"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
+					>
+						<TempoLogo style={{ width: "50px" }} />
 					</a>
 					<a
-						href="https://x.com/mpp"
-						className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
+						href="https://stripe.com"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
 					>
-						X
+						<StripeLogo style={{ width: "40px" }} />
 					</a>
 				</div>
-			</footer>
+			</div>
+
+			{/* CLI Demo below - more compact */}
+			<div className="mt-16 max-w-2xl mx-auto px-6">
+				<Cli.Demo
+					title="agent-demo"
+					token={pathUsd}
+					height={300}
+					restartStep={1}
+				>
+					<Cli.Startup />
+					<Cli.ConnectWallet />
+					<Cli.Faucet />
+					<SelectQuery />
+				</Cli.Demo>
+			</div>
+		</section>
+	);
+}
+
+// ============================================================
+// Shared Components
+// ============================================================
+
+function CoAuthoredBy() {
+	return (
+		<div className="flex items-center gap-5">
+			<span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
+				Co-authored by
+			</span>
+			<div className="flex items-center gap-5">
+				<a
+					href="https://tempo.xyz"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
+				>
+					<TempoLogo style={{ width: "70px" }} />
+				</a>
+				<a
+					href="https://stripe.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
+				>
+					<StripeLogo style={{ width: "55px" }} />
+				</a>
+			</div>
+		</div>
+	);
+}
+
+function CTAButtons() {
+	return (
+		<div className="flex flex-wrap gap-3">
+			<Link
+				to="/quickstart"
+				className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
+			>
+				Get started
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M5 12h14M12 5l7 7-7 7" />
+				</svg>
+			</Link>
+			<Link
+				to="/specs"
+				className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
+			>
+				Read the specs
+			</Link>
+		</div>
+	);
+}
+
+// Variant A: AgentTabs but with wrapped text
+function AgentTabsWrapped() {
+	const [active, setActive] = useState(0);
+	const commands = [
+		{
+			label: "Claude",
+			bin: "claude",
+			args: "-p",
+			str: '"charge $0.01 per api call with MPP"',
+		},
+		{
+			label: "Codex",
+			bin: "codex",
+			args: "--full-auto",
+			str: '"charge $0.01 per api call with MPP"',
+		},
+		{
+			label: "Amp",
+			bin: "amp",
+			args: null,
+			str: '"charge $0.01 per api call with MPP"',
+		},
+	];
+	const cmd = commands[active];
+
+	return (
+		<div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
+			<div className="flex bg-gray-50 border-b border-gray-200">
+				{commands.map((a, i) => (
+					<button
+						key={a.label}
+						type="button"
+						onClick={() => setActive(i)}
+						className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+							i === active
+								? "text-gray-900 bg-white border-b-2 border-gray-900 -mb-px"
+								: "text-gray-400 hover:text-gray-600"
+						}`}
+					>
+						{a.label}
+					</button>
+				))}
+			</div>
+			{/* Wrapped text instead of truncated */}
+			<div className="bg-white px-4 py-3">
+				<pre className="text-sm m-0 p-0 bg-transparent font-mono whitespace-pre-wrap wrap-break-word">
+					<code>
+						<span className="text-gray-400">$ </span>
+						<span className="text-gray-800">{cmd.bin}</span>
+						{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
+						<span className="text-green-700"> {cmd.str}</span>
+					</code>
+				</pre>
+			</div>
+		</div>
+	);
+}
+
+// Variant B: Multiple prompts with numbers and comments
+const MULTI_PROMPTS = [
+	{
+		comment: "Monetize your API instantly",
+		prompt: "charge $0.01 per api call with MPP",
+	},
+	{
+		comment: "Let agents pay for premium features",
+		prompt: "add MPP payments to my /premium endpoint",
+	},
+	{
+		comment: "Metered usage billing",
+		prompt: "charge $0.001 per token for my LLM proxy",
+	},
+	{
+		comment: "Subscription-style access",
+		prompt: "require $5/month payment for /pro routes",
+	},
+	{
+		comment: "Pay-per-result pricing",
+		prompt: "charge $0.10 per successful search result",
+	},
+];
+
+function MultiPromptBox() {
+	return (
+		<div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
+			<div className="bg-gray-50 border-b border-gray-200 px-4 py-2">
+				<span className="text-xs font-medium text-gray-500">
+					Example prompts for your AI agent
+				</span>
+			</div>
+			<div className="bg-white px-4 py-3 space-y-3">
+				{MULTI_PROMPTS.map((item, i) => (
+					<div key={item.prompt} className="font-mono text-sm">
+						<div className="text-gray-400 text-xs mb-0.5">
+							# {item.comment}
+						</div>
+						<div>
+							<span className="text-gray-400">({i + 1}) </span>
+							<span className="text-gray-800">claude -p </span>
+							<span className="text-green-700">"{item.prompt}"</span>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
+// Variant D: Google search-style input with typing animation
+const SEARCH_PROMPTS = [
+	"charge $0.01 per api call with MPP",
+	"add payments to my REST API",
+	"monetize my AI agent's tools",
+	"require payment for /premium routes",
+	"let machines pay for my service",
+];
+
+function SearchInputAnimated() {
+	const [displayText, setDisplayText] = useState("");
+	const [promptIndex, setPromptIndex] = useState(0);
+	const [phase, setPhase] = useState<"typing" | "pausing" | "deleting">(
+		"typing",
+	);
+
+	useEffect(() => {
+		const currentPrompt = SEARCH_PROMPTS[promptIndex];
+		let timeout: ReturnType<typeof setTimeout>;
+
+		if (phase === "typing") {
+			if (displayText.length < currentPrompt.length) {
+				timeout = setTimeout(() => {
+					setDisplayText(currentPrompt.slice(0, displayText.length + 1));
+				}, 50 + Math.random() * 30);
+			} else {
+				setPhase("pausing");
+			}
+		} else if (phase === "pausing") {
+			timeout = setTimeout(() => setPhase("deleting"), 2000);
+		} else if (phase === "deleting") {
+			if (displayText.length > 0) {
+				timeout = setTimeout(() => {
+					setDisplayText(displayText.slice(0, -1));
+				}, 30);
+			} else {
+				setPromptIndex((i) => (i + 1) % SEARCH_PROMPTS.length);
+				setPhase("typing");
+			}
+		}
+
+		return () => clearTimeout(timeout);
+	}, [displayText, phase, promptIndex]);
+
+	return (
+		<div className="w-full max-w-lg">
+			<div
+				className="flex items-center gap-3 px-5 py-4 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-shadow"
+				style={{ minHeight: "56px" }}
+			>
+				<svg
+					width="20"
+					height="20"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					className="text-gray-400 shrink-0"
+					aria-hidden="true"
+				>
+					<circle cx="11" cy="11" r="8" />
+					<path d="m21 21-4.3-4.3" />
+				</svg>
+				<div className="flex-1 text-left">
+					<span className="text-gray-800 text-sm">{displayText}</span>
+					<span className="inline-block w-0.5 h-4 bg-[#0166FF] ml-0.5 animate-pulse" />
+				</div>
+			</div>
 		</div>
 	);
 }
