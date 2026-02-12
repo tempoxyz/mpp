@@ -10,7 +10,7 @@ import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";
 import * as Cli from "./Cli";
 
-type Variant = "A" | "B" | "C" | "D" | "E";
+type Variant = "A" | "B" | "C" | "D" | "E" | "F";
 
 // Hook for scroll-based variants - applies scroll snap to body/html
 // Scroll snap container component - uses a fixed overlay to bypass Vocs scroll containers
@@ -169,7 +169,7 @@ export function LandingPage() {
 				className="fixed left-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1"
 				style={{ opacity: 0.6 }}
 			>
-				{(["A", "B", "C", "D", "E"] as const).map((v) => (
+				{(["A", "B", "C", "D", "E", "F"] as const).map((v) => (
 					<button
 						key={v}
 						type="button"
@@ -191,6 +191,7 @@ export function LandingPage() {
 			{variant === "C" && <HeroVariantC />}
 			{variant === "D" && <HeroVariantD />}
 			{variant === "E" && <HeroVariantE />}
+			{variant === "F" && <HeroVariantF />}
 		</div>
 	);
 }
@@ -705,6 +706,143 @@ function HeroVariantE() {
 				</div>
 			</section>
 		</ScrollSnapContainer>
+	);
+}
+
+// ============================================================
+// VARIANT F: One-column version of A (simplified demo, no passkey)
+// ============================================================
+function HeroVariantF() {
+	return (
+		<>
+			<section className="pt-8 pb-8">
+				<div className="flex flex-col items-center text-center max-w-2xl mx-auto space-y-6">
+					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+						Machine Payments Protocol
+					</h1>
+					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl">
+						Accept payments from humans, software, or AI agents using standard
+						HTTP. No billing accounts or manual signup required.
+					</p>
+					<AgentTabsWrapped />
+					<CTAButtons />
+					{/* Simplified CLI Demo - no wallet steps */}
+					<div className="w-full max-w-[500px] pt-4">
+						<Cli.Demo
+							title="agent-demo"
+							token={pathUsd}
+							height={280}
+							restartStep={0}
+						>
+							<Cli.Startup />
+							<SimulatedPing />
+						</Cli.Demo>
+					</div>
+					<CoAuthoredBy />
+				</div>
+			</section>
+			<ServiceCards />
+		</>
+	);
+}
+
+// Simulated ping demo for variant F (no wallet required)
+function SimulatedPing() {
+	const [phase, setPhase] = useState<
+		"idle" | "pinging" | "challenge" | "paying" | "success"
+	>("idle");
+	const [showResult, setShowResult] = useState(false);
+
+	useEffect(() => {
+		// Auto-start the demo after a brief delay
+		const startTimer = setTimeout(() => {
+			setPhase("pinging");
+		}, 1000);
+
+		return () => clearTimeout(startTimer);
+	}, []);
+
+	useEffect(() => {
+		if (phase === "pinging") {
+			const timer = setTimeout(() => setPhase("challenge"), 800);
+			return () => clearTimeout(timer);
+		}
+		if (phase === "challenge") {
+			const timer = setTimeout(() => setPhase("paying"), 600);
+			return () => clearTimeout(timer);
+		}
+		if (phase === "paying") {
+			const timer = setTimeout(() => {
+				setPhase("success");
+				setShowResult(true);
+			}, 700);
+			return () => clearTimeout(timer);
+		}
+		if (phase === "success" && showResult) {
+			// Loop the demo
+			const timer = setTimeout(() => {
+				setShowResult(false);
+				setPhase("idle");
+				setTimeout(() => setPhase("pinging"), 500);
+			}, 3000);
+			return () => clearTimeout(timer);
+		}
+	}, [phase, showResult]);
+
+	return (
+		<Cli.Block className="flex-1">
+			<Cli.Line variant="info">
+				Pinging <span className="text-accent">payments.tempo.xyz</span>...
+			</Cli.Line>
+
+			{phase === "idle" && (
+				<Cli.Line variant="loading">Initializing...</Cli.Line>
+			)}
+
+			{phase === "pinging" && (
+				<Cli.Line variant="loading">GET /ping → 402 Payment Required</Cli.Line>
+			)}
+
+			{phase === "challenge" && (
+				<>
+					<Cli.Line variant="success" prefix="✓">
+						Challenge received
+					</Cli.Line>
+					<Cli.Line variant="loading">Signing payment credential...</Cli.Line>
+				</>
+			)}
+
+			{phase === "paying" && (
+				<>
+					<Cli.Line variant="success" prefix="✓">
+						Challenge received
+					</Cli.Line>
+					<Cli.Line variant="success" prefix="→">
+						Credential sent
+					</Cli.Line>
+					<Cli.Line variant="loading">Awaiting response...</Cli.Line>
+				</>
+			)}
+
+			{phase === "success" && (
+				<>
+					<Cli.Line variant="success" prefix="✓">
+						Challenge received
+					</Cli.Line>
+					<Cli.Line variant="success" prefix="→">
+						Credential sent
+					</Cli.Line>
+					<Cli.Line variant="success" prefix="✓">
+						200 OK — Paid $0.001
+					</Cli.Line>
+					{showResult && (
+						<Cli.Line className="text-gray-500 mt-2">
+							Response: {"{"}"pong": true{"}"}
+						</Cli.Line>
+					)}
+				</>
+			)}
+		</Cli.Block>
 	);
 }
 

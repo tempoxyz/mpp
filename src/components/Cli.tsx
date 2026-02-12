@@ -1136,6 +1136,47 @@ export function ConnectWallet() {
 	);
 }
 
+// Simulated auto-connect for simplified demo (skips passkey)
+export function AutoConnect() {
+	const [phase, setPhase] = useState<"connecting" | "connected">("connecting");
+	// Generate a consistent fake address for the demo
+	const demoAddress = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf";
+
+	useEffect(() => {
+		// Simulate connection delay
+		const connectTimer = setTimeout(() => {
+			setPhase("connected");
+		}, 800);
+
+		return () => clearTimeout(connectTimer);
+	}, []);
+
+	useEffect(() => {
+		if (phase === "connected") {
+			const advanceTimer = setTimeout(
+				() => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
+				500,
+			);
+			return () => clearTimeout(advanceTimer);
+		}
+	}, [phase]);
+
+	return (
+		<Block className="flex-1">
+			<Line variant="info">
+				Setting up <span className="text-accent">demo wallet</span>...
+			</Line>
+			{phase === "connected" ? (
+				<Line variant="success" prefix="✓">
+					Connected: {demoAddress.slice(0, 10)}…{demoAddress.slice(-8)}
+				</Line>
+			) : (
+				<Line variant="loading">Connecting...</Line>
+			)}
+		</Block>
+	);
+}
+
 export function Faucet() {
 	const initialBalance = useStore(store, (s) => s.initialBalance);
 	const { address } = useConnection();
