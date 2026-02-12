@@ -90,7 +90,7 @@ function HeroVariantA() {
 						<AsciiLogo />
 					</div>
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
-						The Machine Payments Protocol
+						Machine Payments Protocol
 					</h1>
 					<div className="space-y-1.5 max-w-xl">
 						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
@@ -139,7 +139,7 @@ function HeroVariantB() {
 						<AsciiLogo />
 					</div>
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
-						The Machine Payments Protocol
+						Machine Payments Protocol
 					</h1>
 					<div className="space-y-1.5 max-w-xl">
 						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
@@ -182,7 +182,7 @@ function HeroVariantC() {
 			>
 				<div className="max-w-3xl space-y-8">
 					<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-[1.1] tracking-tight">
-						The Machine Payments Protocol
+						Machine Payments Protocol
 					</h1>
 					<p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl">
 						Accept payments from humans, software, or AI agents using standard
@@ -227,7 +227,7 @@ function HeroVariantD() {
 			>
 				<div className="max-w-3xl space-y-8">
 					<h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black leading-[1.1] tracking-tight">
-						The Machine Payments Protocol
+						Machine Payments Protocol
 					</h1>
 					<p className="text-base text-gray-500 max-w-md mx-auto">
 						HTTP 402 payments for humans, software, and AI agents.
@@ -366,6 +366,7 @@ function CTAButtons() {
 // Variant A: AgentTabs but with wrapped text
 function AgentTabsWrapped() {
 	const [active, setActive] = useState(0);
+	const [copied, setCopied] = useState(false);
 	const commands = [
 		{
 			label: "Claude",
@@ -387,6 +388,13 @@ function AgentTabsWrapped() {
 		},
 	];
 	const cmd = commands[active];
+	const fullCommand = [cmd.bin, cmd.args, cmd.str].filter(Boolean).join(" ");
+
+	const handleCopy = () => {
+		navigator.clipboard.writeText(fullCommand);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
 
 	return (
 		<div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
@@ -406,9 +414,9 @@ function AgentTabsWrapped() {
 					</button>
 				))}
 			</div>
-			{/* Wrapped text instead of truncated */}
-			<div className="bg-white px-4 py-3">
-				<pre className="text-sm m-0 p-0 bg-transparent font-mono whitespace-pre-wrap wrap-break-word">
+			{/* Wrapped text with copy button */}
+			<div className="bg-white px-4 py-3 flex items-start justify-between gap-3">
+				<pre className="text-sm m-0 p-0 bg-transparent font-mono whitespace-pre-wrap wrap-break-word text-left">
 					<code>
 						<span className="text-gray-400">$ </span>
 						<span className="text-gray-800">{cmd.bin}</span>
@@ -416,6 +424,43 @@ function AgentTabsWrapped() {
 						<span className="text-green-700"> {cmd.str}</span>
 					</code>
 				</pre>
+				<button
+					type="button"
+					onClick={handleCopy}
+					className="text-gray-400 hover:text-[#0166FF] transition-colors shrink-0"
+					aria-label="Copy to clipboard"
+				>
+					{copied ? (
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
+							<path d="M20 6 9 17l-5-5" />
+						</svg>
+					) : (
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
+							<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+							<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+						</svg>
+					)}
+				</button>
 			</div>
 		</div>
 	);
