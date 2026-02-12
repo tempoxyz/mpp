@@ -159,13 +159,16 @@ function HeroVariantC() {
 		>
 			{/* Section 1: Hero content */}
 			<section
-				className="flex flex-col items-center justify-center text-center px-6 relative"
+				className="flex flex-col items-center text-center px-6"
 				style={{
 					height: "calc(100vh - 64px)",
 					scrollSnapAlign: "start",
 				}}
 			>
-				<div className="max-w-2xl space-y-6 -mt-16">
+				{/* Spacer */}
+				<div className="flex-1" />
+				{/* Content */}
+				<div className="max-w-2xl space-y-6">
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
@@ -183,23 +186,25 @@ function HeroVariantC() {
 						<CTAButtons />
 					</div>
 				</div>
-				{/* Bouncing scroll indicator */}
-				<div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-					<span className="text-xs text-gray-400">Scroll to try demo</span>
-					<svg
-						width="20"
-						height="20"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						className="text-gray-400"
-						aria-hidden="true"
-					>
-						<path d="M12 5v14M5 12l7 7 7-7" />
-					</svg>
+				{/* Spacer + scroll indicator */}
+				<div className="flex-1 flex flex-col justify-end pb-8">
+					<div className="flex flex-col items-center gap-2 animate-bounce">
+						<span className="text-xs text-gray-400">Scroll to try demo</span>
+						<svg
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							className="text-gray-400"
+							aria-hidden="true"
+						>
+							<path d="M12 5v14M5 12l7 7 7-7" />
+						</svg>
+					</div>
 				</div>
 			</section>
 
@@ -243,13 +248,16 @@ function HeroVariantD() {
 		>
 			{/* Hero section */}
 			<section
-				className="flex flex-col items-center justify-center text-center px-6 relative"
+				className="flex flex-col items-center text-center px-6"
 				style={{
 					height: "calc(100vh - 64px)",
 					scrollSnapAlign: "start",
 				}}
 			>
-				<div className="max-w-3xl space-y-8">
+				{/* Spacer */}
+				<div className="flex-1" />
+				{/* Content */}
+				<div className="max-w-3xl space-y-6">
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
@@ -259,12 +267,12 @@ function HeroVariantD() {
 					</p>
 
 					{/* Google-style search input with typing animation */}
-					<div className="pt-4">
+					<div className="pt-2">
 						<SearchInputAnimated />
 					</div>
 
 					{/* Minimal CTA */}
-					<div className="flex gap-3 justify-center pt-4">
+					<div className="flex gap-3 justify-center pt-2">
 						<Link
 							to="/quickstart"
 							className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-full hover:bg-[#0052CC] transition-colors no-underline!"
@@ -280,7 +288,7 @@ function HeroVariantD() {
 					</div>
 
 					{/* Co-authored by - subtle */}
-					<div className="flex items-center gap-4 justify-center pt-4 opacity-50">
+					<div className="flex items-center gap-4 justify-center pt-2 opacity-50">
 						<span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">
 							Co-authored by
 						</span>
@@ -302,23 +310,25 @@ function HeroVariantD() {
 						</a>
 					</div>
 				</div>
-				{/* Bouncing scroll indicator */}
-				<div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-					<span className="text-xs text-gray-400">Scroll to try demo</span>
-					<svg
-						width="20"
-						height="20"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						className="text-gray-400"
-						aria-hidden="true"
-					>
-						<path d="M12 5v14M5 12l7 7 7-7" />
-					</svg>
+				{/* Spacer + scroll indicator */}
+				<div className="flex-1 flex flex-col justify-end pb-8">
+					<div className="flex flex-col items-center gap-2 animate-bounce">
+						<span className="text-xs text-gray-400">Scroll to try demo</span>
+						<svg
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							className="text-gray-400"
+							aria-hidden="true"
+						>
+							<path d="M12 5v14M5 12l7 7 7-7" />
+						</svg>
+					</div>
 				</div>
 			</section>
 
