@@ -809,11 +809,11 @@ function HeroVariantF() {
 
 	return (
 		<section
-			className="flex flex-col items-center justify-center px-6 gap-6"
-			style={{ minHeight: "calc(100vh - 64px)" }}
+			className="flex flex-col items-center justify-center px-6 gap-4 py-6"
+			style={{ height: "calc(100vh - 64px)" }}
 		>
 			{/* Top: Title + Subtitle */}
-			<div className="text-center space-y-2">
+			<div className="text-center space-y-1">
 				<h1 className="text-2xl md:text-3xl font-bold text-black leading-[1.1] tracking-tight">
 					Machine Payments Protocol
 				</h1>
@@ -829,7 +829,7 @@ function HeroVariantF() {
 					<Cli.DemoSimple
 						title="Try it out"
 						token={pathUsd}
-						height={330}
+						height={300}
 						restartStep={1}
 					>
 						<Cli.Startup />
@@ -841,7 +841,7 @@ function HeroVariantF() {
 
 			{/* Agent Tabs */}
 			<div className="w-full max-w-xl flex flex-col items-center">
-				<span className="text-sm text-gray-400 pb-6">
+				<span className="text-sm text-gray-400 pb-4">
 					or, start using it with your agent
 				</span>
 				<div className="w-full">
@@ -850,9 +850,7 @@ function HeroVariantF() {
 			</div>
 
 			{/* CTAs */}
-			<div className="flex justify-center">
-				<CTAButtons />
-			</div>
+			<CTAButtons />
 
 			{/* Compact Services */}
 			<ServiceCardsCompact />
@@ -863,7 +861,7 @@ function HeroVariantF() {
 // Compact services for variant F (horizontal, minimal)
 function ServiceCardsCompact() {
 	return (
-		<div className="flex flex-wrap items-center justify-center gap-3 mt-3">
+		<div className="flex flex-wrap items-center justify-center gap-3">
 			<span className="text-sm text-gray-400">Works with</span>
 			{SERVICES.slice(0, 4).map((service) => {
 				const Logo = service.logo;
