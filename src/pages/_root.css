@@ -208,3 +208,35 @@ pre[data-v] {
 	color: #0166ff;
 	text-decoration: underline;
 }
+
+/* No underline on service cards */
+a.group {
+	text-decoration: none !important;
+}
+a.group:hover {
+	text-decoration: none !important;
+}
+a.group * {
+	text-decoration: none !important;
+}
+
+/* Ensure header has solid background for scroll snap variants */
+[data-v-gutter-top],
+[data-v-header],
+[data-v-layout] > header,
+[data-layout] > header,
+header:first-of-type {
+	background: light-dark(#ffffff, var(--vocs-color-bg)) !important;
+	background-color: light-dark(#ffffff, var(--vocs-color-bg)) !important;
+	position: relative;
+	z-index: 50 !important;
+}
+
+/* Force the top bar/navigation wrapper to have background */
+body > div:first-child > header,
+#__next > header,
+[data-v] > header {
+	background: light-dark(#ffffff, var(--vocs-color-bg)) !important;
+	background-color: light-dark(#ffffff, var(--vocs-color-bg)) !important;
+	z-index: 50 !important;
+}

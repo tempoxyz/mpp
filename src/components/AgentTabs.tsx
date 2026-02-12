@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ text, className }: { text: string; className?: string }) {
 	const [copied, setCopied] = useState(false);
 	const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -17,7 +17,7 @@ function CopyButton({ text }: { text: string }) {
 		<button
 			type="button"
 			onClick={handleCopy}
-			className="text-[#0166FF] hover:text-[#0052CC] transition-colors shrink-0"
+			className={`text-[#0166FF] hover:text-[#0052CC] transition-colors shrink-0 ${className ?? ""}`}
 			aria-label="Copy to clipboard"
 		>
 			{copied ? (
@@ -146,10 +146,16 @@ export function AgentTabs() {
 					);
 				})}
 			</div>
-			<div className="flex items-center gap-3 bg-white px-4 py-3">
-				<pre className="text-sm select-none flex-1 m-0 p-0 bg-transparent font-mono whitespace-pre-wrap">
-					<code><span className="text-gray-400">$ </span><span className="text-gray-800">{cmd.bin}</span>{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}<span className="text-green-700"> {cmd.str}</span></code>
-				</pre>
+			<div className="flex items-center gap-3 bg-white pl-4 pr-4 py-3">
+				<span
+					className="text-sm select-none flex-1 font-mono whitespace-pre-wrap"
+					style={{ margin: 0, padding: 0 }}
+				>
+					<span className="text-gray-400">$</span>
+					<span className="text-gray-800"> {cmd.bin}</span>
+					{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
+					<span className="text-green-700"> {cmd.str}</span>
+				</span>
 				<CopyButton
 					text={[cmd.bin, cmd.args, cmd.str].filter(Boolean).join(" ")}
 				/>

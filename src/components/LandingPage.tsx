@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
 import { fetch } from "../mpay.client";
@@ -10,7 +10,147 @@ import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";
 import * as Cli from "./Cli";
 
-type Variant = "A" | "B" | "C" | "D";
+type Variant = "A" | "B" | "C" | "D" | "E";
+
+// Hook for scroll-based variants - applies scroll snap to body/html
+// Scroll snap container component - uses a fixed overlay to bypass Vocs scroll containers
+function ScrollSnapContainer({
+	children,
+	scrollOpacity,
+	setScrollOpacity,
+}: {
+	children: React.ReactNode;
+	scrollOpacity: number;
+	setScrollOpacity: (v: number) => void;
+}) {
+	const containerRef = React.useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container) return;
+
+		const handleScroll = () => {
+			const scrollY = container.scrollTop;
+			const fadeStart = 50;
+			const fadeEnd = 150;
+			if (scrollY <= fadeStart) {
+				setScrollOpacity(1);
+			} else if (scrollY >= fadeEnd) {
+				setScrollOpacity(0);
+			} else {
+				setScrollOpacity(1 - (scrollY - fadeStart) / (fadeEnd - fadeStart));
+			}
+		};
+
+		container.addEventListener("scroll", handleScroll);
+		return () => container.removeEventListener("scroll", handleScroll);
+	}, [setScrollOpacity]);
+
+	// Hide the parent page's scrollbar and content
+	useEffect(() => {
+		const html = document.documentElement;
+		const body = document.body;
+
+		const originalHtmlOverflow = html.style.overflow;
+		const originalBodyOverflow = body.style.overflow;
+
+		html.style.overflow = "hidden";
+		body.style.overflow = "hidden";
+
+		return () => {
+			html.style.overflow = originalHtmlOverflow;
+			body.style.overflow = originalBodyOverflow;
+		};
+	}, []);
+
+	return (
+		<>
+			{/* White background layer behind header */}
+			<div
+				className="fixed inset-x-0 top-0 h-[64px] z-5"
+				style={{
+					background: "light-dark(#ffffff, var(--vocs-color-bg, #1a1a1a))",
+				}}
+			/>
+			<div
+				ref={containerRef}
+				className="scroll-snap-container fixed inset-0 top-[64px] overflow-y-auto z-10"
+				style={{
+					scrollSnapType: "y mandatory",
+					scrollBehavior: "smooth",
+					msOverflowStyle: "none",
+					scrollbarWidth: "none",
+					background: "light-dark(#ffffff, var(--vocs-color-bg, #1a1a1a))",
+				}}
+			>
+				<style>
+					{`
+						.scroll-snap-container::-webkit-scrollbar { display: none; }
+						body, html, [data-layout], [data-v-layout], main, article {
+							background: #ffffff !important;
+							background-color: #ffffff !important;
+						}
+						[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child {
+							background: #ffffff !important;
+							background-color: #ffffff !important;
+							position: relative !important;
+							z-index: 50 !important;
+						}
+						@media (prefers-color-scheme: dark) {
+							body, html, [data-layout], [data-v-layout], main, article {
+								background: var(--vocs-color-bg, #1a1a1a) !important;
+								background-color: var(--vocs-color-bg, #1a1a1a) !important;
+							}
+							[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child {
+								background: var(--vocs-color-bg, #1a1a1a) !important;
+								background-color: var(--vocs-color-bg, #1a1a1a) !important;
+							}
+						}
+					`}
+				</style>
+				{children}
+				<ScrollIndicator opacity={scrollOpacity} />
+			</div>
+		</>
+	);
+}
+
+function useScrollSnap() {
+	const [scrollOpacity, setScrollOpacity] = useState(1);
+	return { scrollOpacity, setScrollOpacity };
+}
+
+// Scroll indicator component
+function ScrollIndicator({
+	opacity,
+	text = "Scroll to try demo",
+}: {
+	opacity: number;
+	text?: string;
+}) {
+	return (
+		<div
+			className="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce pointer-events-none transition-opacity duration-200 z-50"
+			style={{ opacity }}
+		>
+			<span className="text-xs text-gray-400">{text}</span>
+			<svg
+				width="20"
+				height="20"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className="text-gray-400"
+				aria-hidden="true"
+			>
+				<path d="M12 5v14M5 12l7 7 7-7" />
+			</svg>
+		</div>
+	);
+}
 
 export function LandingPage() {
 	const [variant, setVariant] = useState<Variant>("A");
@@ -29,7 +169,7 @@ export function LandingPage() {
 				className="fixed left-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1"
 				style={{ opacity: 0.6 }}
 			>
-				{(["A", "B", "C", "D"] as const).map((v) => (
+				{(["A", "B", "C", "D", "E"] as const).map((v) => (
 					<button
 						key={v}
 						type="button"
@@ -50,6 +190,7 @@ export function LandingPage() {
 			{variant === "B" && <HeroVariantB />}
 			{variant === "C" && <HeroVariantC />}
 			{variant === "D" && <HeroVariantD />}
+			{variant === "E" && <HeroVariantE />}
 		</div>
 	);
 }
@@ -59,40 +200,221 @@ export function LandingPage() {
 // ============================================================
 function HeroVariantA() {
 	return (
-		<section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
-			<div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
-				{/* Right pane */}
-				<div className="flex-9 space-y-8 min-w-0 order-first lg:order-last">
-					<div className="lg:hidden">
-						<AsciiLogo />
+		<>
+			<section className="pt-4 pb-8">
+				<div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch">
+					{/* Right pane */}
+					<div className="flex-9 space-y-6 min-w-0 order-first lg:order-last">
+						<div className="lg:hidden">
+							<AsciiLogo />
+						</div>
+						<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+							Machine Payments Protocol
+						</h1>
+						<div className="space-y-1.5 max-w-xl">
+							<p className="text-sm md:text-base text-gray-600 leading-relaxed">
+								Accept payments from humans, software, or AI agents using
+								standard HTTP. No billing accounts or manual signup required.
+							</p>
+						</div>
+						<AgentTabsWrapped />
+						<CTAButtons />
+						<CoAuthoredBy />
 					</div>
-					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
-						Machine Payments Protocol
-					</h1>
-					<div className="space-y-1.5 max-w-xl">
-						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
-							Accept payments from humans, software, or AI agents using standard
-							HTTP. No billing accounts or manual signup required.
-						</p>
+					{/* Left pane — interactive demo */}
+					<div className="flex-11 w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none">
+						<Cli.Demo
+							title="agent-demo"
+							token={pathUsd}
+							height={320}
+							restartStep={1}
+						>
+							<Cli.Startup />
+							<Cli.ConnectWallet />
+							<Cli.Faucet />
+							<SelectQuery />
+						</Cli.Demo>
 					</div>
-					<CoAuthoredBy />
-					<AgentTabsWrapped />
-					<CTAButtons />
 				</div>
-				{/* Left pane — interactive demo */}
-				<div className="flex-11 w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none">
-					<Cli.Demo
-						title="agent-demo"
-						token={pathUsd}
-						height={337}
-						restartStep={1}
+			</section>
+			<ServiceCards />
+		</>
+	);
+}
+
+// Service cards for available integrations
+const SERVICES = [
+	{
+		name: "fal.ai",
+		description: "Run generative AI models for images, video, and audio",
+		url: "https://fal.payments.tempo.xyz/",
+		price: "$0.05",
+		thirdParty: true,
+		streaming: false,
+		logo: FalLogo,
+	},
+	{
+		name: "Codex",
+		description: "Decentralized storage and data availability network",
+		url: "https://codex.payments.tempo.xyz/",
+		price: "$0.0003",
+		thirdParty: true,
+		streaming: false,
+		logo: CodexLogo,
+	},
+	{
+		name: "Cloudflare",
+		description: "Edge compute, AI inference, and global CDN services",
+		url: "https://payments.tempo.xyz/",
+		price: "$0.02",
+		thirdParty: true,
+		streaming: false,
+		logo: CloudflareLogo,
+	},
+	{
+		name: "OpenRouter",
+		description: "Unified API for 200+ LLMs from OpenAI, Anthropic, and more",
+		url: "https://openrouter.payments.tempo.xyz/",
+		price: "$0.01",
+		thirdParty: true,
+		streaming: true,
+		logo: OpenRouterLogo,
+	},
+];
+
+// Service provider logos
+function FalLogo({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			viewBox="0 0 202 200"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M124.46 19C127.267 19 129.515 21.282 129.783 24.0755C132.176 48.9932 152.007 68.8231 176.924 71.2162C179.719 71.4845 182 73.7336 182 76.54V123.46C182 126.266 179.719 128.515 176.924 128.784C152.007 131.177 132.176 151.007 129.783 175.924C129.515 178.718 127.267 181 124.46 181H77.5404C74.734 181 72.4849 178.718 72.2165 175.924C69.8235 151.007 49.9933 131.177 25.0755 128.784C22.282 128.515 20 126.266 20 123.46V76.54C20 73.7336 22.282 71.4845 25.0755 71.2162C49.9933 68.8231 69.8235 48.9932 72.2165 24.0755C72.4849 21.282 74.734 19 77.5404 19H124.46ZM52.5273 99.8627C52.5273 126.817 74.3534 148.667 101.277 148.667C128.201 148.667 150.028 126.817 150.028 99.8627C150.028 72.9087 128.201 51.058 101.277 51.058C74.3534 51.058 52.5273 72.9087 52.5273 99.8627Z"
+			/>
+		</svg>
+	);
+}
+
+function CodexLogo({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			viewBox="0 0 202 200"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M81.9546 77.7824V62.2028C81.9546 60.8901 82.446 59.906 83.5903 59.2505L114.824 41.2108C119.076 38.7509 124.146 37.6035 129.378 37.6035C149.001 37.6035 161.43 52.8558 161.43 69.0915C161.43 70.2391 161.43 71.5509 161.266 72.8628L128.887 53.8388C126.926 52.6914 124.962 52.6914 123 53.8388L81.9546 77.7824ZM154.888 138.463V101.234C154.888 98.9381 153.906 97.2976 151.944 96.1501L110.899 72.2064L124.309 64.4979C125.453 63.8424 126.434 63.8424 127.579 64.4979L158.813 82.5378C167.808 87.7861 173.857 98.9381 173.857 109.761C173.857 122.225 166.499 133.705 154.888 138.461V138.463ZM72.3066 105.663L58.8975 97.7913C57.7534 97.1366 57.2623 96.1517 57.2623 94.8398V58.7599C57.2623 41.2125 70.6717 27.9275 88.8234 27.9275C95.6923 27.9275 102.069 30.2241 107.467 34.3239L75.252 53.0206C73.2903 54.168 72.3083 55.8079 72.3083 58.1048V105.665L72.3066 105.663ZM101.169 122.39L81.9546 111.567V88.6083L101.169 77.7841L120.383 88.6083V111.567L101.169 122.39ZM113.515 172.248C106.647 172.248 100.271 169.951 94.8732 165.852L127.088 147.155C129.049 146.007 130.031 144.368 130.031 142.071V94.5104L143.604 102.382C144.749 103.037 145.24 104.022 145.24 105.334V141.414C145.24 158.961 131.666 172.246 113.515 172.246V172.248ZM74.7598 135.676L43.5249 117.636C34.5302 112.387 28.4805 101.236 28.4805 90.4122C28.4805 77.7841 36.0028 66.4686 47.6126 61.7124V99.104C47.6126 101.401 48.5944 103.04 50.5561 104.188L91.4388 127.967L78.0296 135.676C76.8853 136.331 75.904 136.331 74.7598 135.676ZM72.9619 162.572C54.483 162.572 40.9099 148.632 40.9099 131.412C40.9099 130.099 41.0738 128.787 41.2364 127.475L73.4509 146.171C75.4126 147.319 77.3759 147.319 79.3376 146.171L120.383 122.392V137.973C120.383 139.284 119.893 140.269 118.748 140.924L87.5137 158.965C83.2619 161.424 78.1925 162.572 72.9602 162.572H72.9619ZM113.515 182.087C133.303 182.087 149.818 167.983 153.581 149.286C171.896 144.53 183.67 127.31 183.67 109.763C183.67 98.2825 178.764 87.1314 169.934 79.0951C170.751 75.6508 171.242 72.2064 171.242 68.7637C171.242 45.312 152.273 27.7628 130.359 27.7628C125.945 27.7628 121.693 28.418 117.441 29.8949C110.082 22.6786 99.9425 18.0869 88.8234 18.0869C69.0368 18.0869 52.5213 32.1901 48.7587 50.8867C30.4439 55.6431 18.6699 72.8628 18.6699 90.4106C18.6699 101.891 23.5751 113.042 32.4059 121.079C31.5883 124.523 31.0976 127.967 31.0976 131.41C31.0976 154.862 50.0671 172.411 71.9798 172.411C76.3947 172.411 80.6465 171.756 84.8984 170.279C92.2562 177.495 102.396 182.087 113.515 182.087Z" />
+		</svg>
+	);
+}
+
+function CloudflareLogo({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			viewBox="0 0 202 200"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M137.698 138.284C138.356 136.546 138.587 134.675 138.374 132.828C138.161 130.982 137.509 129.213 136.472 127.67C135.407 126.394 134.101 125.341 132.629 124.571C131.156 123.8 129.546 123.327 127.89 123.179L56.7796 122.362C56.3709 122.362 55.9622 121.954 55.5535 121.954C55.4583 121.883 55.3811 121.79 55.3279 121.684C55.2747 121.578 55.247 121.461 55.247 121.342C55.247 121.223 55.2747 121.106 55.3279 120.999C55.3811 120.893 55.4583 120.801 55.5535 120.729C55.9622 119.913 56.3709 119.505 57.1882 119.505L128.707 118.688C133.248 118.185 137.572 116.482 141.235 113.756C144.898 111.029 147.768 107.377 149.55 103.174L153.637 92.5597C153.637 92.1514 154.045 91.7432 153.637 91.3349C151.415 81.4486 146.023 72.5572 138.281 66.0116C130.538 59.466 120.869 55.6241 110.741 55.0697C100.613 54.5154 90.5814 57.2788 82.1695 62.9402C73.7576 68.6015 67.4256 76.8513 64.1358 86.4358C59.8649 83.3887 54.6555 81.9432 49.4233 82.3533C44.6216 82.8881 40.1449 85.0386 36.7285 88.4514C33.3122 91.8642 31.1595 96.3363 30.6241 101.133C30.3519 103.588 30.4901 106.072 31.0327 108.482C23.2635 108.696 15.8846 111.93 10.4657 117.496C5.04675 123.062 2.01543 130.52 2.01651 138.284C1.94944 139.793 2.08691 141.304 2.42518 142.775C2.44395 143.094 2.57915 143.395 2.80514 143.62C3.03113 143.846 3.33219 143.981 3.65123 144H134.837C135.655 144 136.472 143.592 136.472 142.775L137.698 138.284Z" />
+			<path d="M160.175 92.5597H158.132C157.723 92.5597 157.315 92.9679 156.906 93.3762L154.045 103.174C153.388 104.913 153.156 106.784 153.369 108.63C153.583 110.477 154.235 112.246 155.271 113.789C156.336 115.064 157.642 116.117 159.115 116.888C160.587 117.659 162.198 118.132 163.854 118.28L178.975 119.096C179.383 119.096 179.792 119.505 180.201 119.505C180.296 119.576 180.373 119.668 180.426 119.775C180.48 119.881 180.507 119.998 180.507 120.117C180.507 120.236 180.48 120.353 180.426 120.459C180.373 120.566 180.296 120.658 180.201 120.729C179.792 121.546 179.383 121.954 178.566 121.954L163.036 122.771C158.496 123.274 154.172 124.977 150.508 127.703C146.845 130.43 143.975 134.082 142.194 138.284L141.376 141.959C140.968 142.367 141.376 143.183 142.194 143.183H196.139C196.306 143.207 196.476 143.192 196.635 143.139C196.795 143.086 196.94 142.996 197.059 142.877C197.178 142.758 197.267 142.614 197.321 142.454C197.374 142.295 197.389 142.125 197.365 141.959C198.338 138.5 198.887 134.935 199 131.344C198.935 121.078 194.824 111.25 187.557 103.991C180.29 96.7314 170.452 92.6244 160.175 92.5597Z" />
+		</svg>
+	);
+}
+
+function OpenRouterLogo({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			viewBox="0 0 202 200"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M11.0968 99.4902C16.428 99.4902 37.0417 94.9289 47.7039 88.9388C58.3662 82.9486 58.3662 82.9486 80.4016 67.4447C108.3 47.8157 128.026 54.3879 160.369 54.3879" />
+			<path d="M71.1457 54.5138C104.459 31.0751 132.161 38.5316 160.369 38.5316V70.2441C123.892 70.2441 112.142 64.5564 89.6578 80.3755C67.576 95.9121 67.0111 96.3169 55.5889 102.734C48.4606 106.739 39.0677 109.789 31.5183 111.783C24.3264 113.682 16.0521 115.346 11.0968 115.346V83.6338C10.8661 83.6338 11.9296 83.5911 14.6641 83.0908C17.0682 82.651 20.0716 81.9872 23.2842 81.1387C30.0399 79.3545 36.285 77.1288 39.819 75.1434C49.7213 69.5802 49.1569 69.9849 71.1457 54.5138Z" />
+			<path d="M191.645 54.5835L137 85.8619V23.3052L191.645 54.5835Z" />
+			<path d="M192 54.5835L136.823 86.167V23L192 54.5835ZM137.178 85.5565L191.289 54.5835L137.178 23.6101V85.5565Z" />
+			<path d="M10.0306 99.5096C15.3617 99.5096 35.9754 104.071 46.6377 110.061C57.3 116.051 57.3 116.051 79.3353 131.555C107.234 151.184 126.96 144.612 159.302 144.612" />
+			<path d="M10.0306 83.6533C14.9859 83.6533 23.2602 85.3177 30.452 87.2172C38.0015 89.2111 47.3944 92.261 54.5227 96.2657C65.9449 102.683 66.5097 103.088 88.5916 118.624C111.075 134.443 122.826 128.756 159.302 128.756V160.468C131.095 160.468 103.393 167.925 70.0794 144.486C48.0907 129.015 48.6551 129.419 38.7528 123.856C35.2188 121.871 28.9736 119.645 22.2179 117.861C19.0053 117.012 16.0019 116.349 13.5979 115.909C10.8633 115.409 9.79985 115.366 10.0306 115.366V83.6533Z" />
+			<path d="M190.578 144.416L135.934 113.138V175.695L190.578 144.416Z" />
+			<path d="M190.934 144.416L135.757 176V112.833L190.934 144.416ZM136.112 175.389L190.223 144.416L136.112 113.443V175.389Z" />
+		</svg>
+	);
+}
+
+function ServiceCards() {
+	return (
+		<section className="pt-10 pb-6">
+			<div className="flex items-start justify-between align-middle mb-6">
+				<div>
+					<h2
+						style={{ fontSize: "1.25rem" }}
+						className="font-semibold text-gray-900"
 					>
-						<Cli.Startup />
-						<Cli.ConnectWallet />
-						<Cli.Faucet />
-						<SelectQuery />
-					</Cli.Demo>
+						Available services
+					</h2>
+					<p className="text-sm text-gray-500 mt-1">
+						Pay-per-call APIs ready to use with MPP
+					</p>
 				</div>
+				<a
+					href="https://payments.tempo.xyz"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
+				>
+					View more →
+				</a>
+			</div>
+			<div className="flex gap-3 overflow-x-auto pb-2">
+				{SERVICES.map((service) => {
+					const Logo = service.logo;
+					return (
+						<a
+							key={service.name}
+							href={service.url}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="group flex-1 min-w-[200px] p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors flex flex-col"
+							style={{ textDecoration: "none" }}
+						>
+							<div className="flex items-center gap-2 mb-2">
+								<Logo className="w-5 h-5 text-gray-600" />
+								<span
+									style={{ fontSize: "1rem" }}
+									className="font-semibold text-gray-900 group-hover:text-[#0166FF] transition-colors"
+								>
+									{service.name}
+								</span>
+								{service.streaming && (
+									<span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-50 text-green-700 rounded">
+										Streaming
+									</span>
+								)}
+							</div>
+							<p className="text-xs text-gray-500 leading-relaxed flex-1">
+								{service.description}
+							</p>
+							<div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+								<div className="text-sm font-mono text-gray-900">
+									{service.price}
+									<span className="text-gray-400 text-xs font-sans">
+										{" "}
+										/ call
+									</span>
+								</div>
+								<span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500 rounded">
+									{service.thirdParty ? "Third-party" : "First-party"}
+								</span>
+							</div>
+						</a>
+					);
+				})}
 			</div>
 		</section>
 	);
@@ -103,45 +425,46 @@ function HeroVariantA() {
 // ============================================================
 function HeroVariantB() {
 	return (
-		<section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
-			<div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
-				{/* Right pane */}
-				<div className="flex-9 space-y-6 min-w-0 order-first lg:order-last">
-					<div className="lg:hidden">
-						<AsciiLogo />
-					</div>
-					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
-						Machine Payments Protocol
-					</h1>
-					<div className="space-y-1.5 max-w-xl">
+		<>
+			<section className="pt-4 lg:pt-6">
+				{/* Two column layout */}
+				<div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+					{/* Left pane — title, subheading, demo */}
+					<div className="flex-1 w-full min-w-0 max-w-[574px] space-y-5">
+						<div className="lg:hidden">
+							<AsciiLogo />
+						</div>
+						<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+							Machine Payments Protocol
+						</h1>
 						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
 							Accept payments from humans, software, or AI agents using standard
 							HTTP. No billing accounts or manual signup required.
 						</p>
+						<Cli.Demo
+							title="agent-demo"
+							token={pathUsd}
+							height={320}
+							restartStep={1}
+						>
+							<Cli.Startup />
+							<Cli.ConnectWallet />
+							<Cli.Faucet />
+							<SelectQuery />
+						</Cli.Demo>
 					</div>
-					<MultiPromptBox />
-					<CTAButtons />
-				</div>
-				{/* Left pane — interactive demo */}
-				<div className="flex-11 w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none">
-					<Cli.Demo
-						title="agent-demo"
-						token={pathUsd}
-						height={337}
-						restartStep={1}
-					>
-						<Cli.Startup />
-						<Cli.ConnectWallet />
-						<Cli.Faucet />
-						<SelectQuery />
-					</Cli.Demo>
-					{/* Co-authored by - under CLI demo */}
-					<div className="mt-12">
-						<CoAuthoredBy />
+					{/* Right pane — prompts and buttons */}
+					<div className="flex-1 space-y-5 min-w-0">
+						<MultiPromptBox />
+						<CTAButtons />
 					</div>
 				</div>
+			</section>
+			{/* Co-authored by - fixed bottom center */}
+			<div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
+				<CoAuthoredBy />
 			</div>
-		</section>
+		</>
 	);
 }
 
@@ -149,15 +472,18 @@ function HeroVariantB() {
 // VARIANT C: Split sections with scroll snap
 // ============================================================
 function HeroVariantC() {
+	const { scrollOpacity, setScrollOpacity } = useScrollSnap();
+
 	return (
-		<>
+		<ScrollSnapContainer
+			scrollOpacity={scrollOpacity}
+			setScrollOpacity={setScrollOpacity}
+		>
 			{/* Section 1: Hero content */}
 			<section
-				className="flex flex-col items-center text-center px-6"
-				style={{ minHeight: "calc(100vh - 64px)" }}
+				className="relative flex flex-col items-center justify-center text-center px-6"
+				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
 			>
-				{/* Spacer */}
-				<div className="flex-1" />
 				{/* Content */}
 				<div className="max-w-2xl space-y-6">
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
@@ -167,44 +493,30 @@ function HeroVariantC() {
 						Accept payments from humans, software, or AI agents using standard
 						HTTP. No billing accounts or manual signup required.
 					</p>
-					<div className="flex items-center justify-center">
-						<CoAuthoredBy />
-					</div>
 					<div className="flex justify-center">
 						<AgentTabs />
 					</div>
 					<div className="flex justify-center">
 						<CTAButtons />
 					</div>
-				</div>
-				{/* Spacer + scroll indicator */}
-				<div className="flex-1 flex flex-col justify-end pb-8">
-					<div className="flex flex-col items-center gap-2 animate-bounce">
-						<span className="text-xs text-gray-400">Scroll to try demo</span>
-						<svg
-							width="20"
-							height="20"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							className="text-gray-400"
-							aria-hidden="true"
-						>
-							<path d="M12 5v14M5 12l7 7 7-7" />
-						</svg>
+					<div className="flex items-center justify-center pt-2">
+						<CoAuthoredBy />
 					</div>
 				</div>
 			</section>
 
 			{/* Section 2: CLI Demo */}
 			<section
-				className="flex items-center justify-center px-6 py-16"
-				style={{ minHeight: "calc(100vh - 64px)" }}
+				className="flex flex-col items-center justify-center px-6 py-16"
+				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
 			>
-				<div className="max-w-[574px] w-full mx-auto">
+				<div className="max-w-[574px] w-full mx-auto space-y-6">
+					<div className="text-center space-y-2">
+						<h2 className="text-2xl font-semibold text-gray-900">Try it out</h2>
+						<p className="text-sm text-gray-500">
+							Connect a wallet and run paid API calls
+						</p>
+					</div>
 					<Cli.Demo
 						title="agent-demo"
 						token={pathUsd}
@@ -218,23 +530,99 @@ function HeroVariantC() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</>
+		</ScrollSnapContainer>
 	);
 }
 
 // ============================================================
-// VARIANT D: Google search-style with typing animation
+// VARIANT D: CLI demo first, then animated prompts
 // ============================================================
 function HeroVariantD() {
+	const { scrollOpacity, setScrollOpacity } = useScrollSnap();
+
 	return (
-		<>
+		<ScrollSnapContainer
+			scrollOpacity={scrollOpacity}
+			setScrollOpacity={setScrollOpacity}
+		>
+			{/* Section 1: Hero with CLI Demo */}
+			<section
+				className="relative flex flex-col items-center justify-center text-center px-6"
+				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
+			>
+				{/* Content */}
+				<div className="max-w-2xl space-y-6">
+					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+						Machine Payments Protocol
+					</h1>
+					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
+						Accept payments from humans, software, or AI agents using standard
+						HTTP. No billing accounts or manual signup required.
+					</p>
+					{/* CLI Demo inline */}
+					<div className="flex justify-center pt-2">
+						<div className="w-full max-w-[500px]">
+							<Cli.Demo
+								title="agent-demo"
+								token={pathUsd}
+								height={280}
+								restartStep={1}
+							>
+								<Cli.Startup />
+								<Cli.ConnectWallet />
+								<Cli.Faucet />
+								<SelectQuery />
+							</Cli.Demo>
+						</div>
+					</div>
+					<div className="flex items-center justify-center pt-2">
+						<CoAuthoredBy />
+					</div>
+				</div>
+			</section>
+
+			{/* Section 2: Run locally with agent prompts */}
+			<section
+				className="flex flex-col items-center justify-center px-6 py-16"
+				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
+			>
+				<div className="max-w-xl w-full mx-auto text-center space-y-8">
+					<div className="space-y-2">
+						<h2 className="text-2xl font-semibold text-gray-900">
+							Run locally
+						</h2>
+						<p className="text-sm text-gray-500">
+							Use your favorite AI agent CLI to get started
+						</p>
+					</div>
+					<div className="flex justify-center">
+						<AgentTabs />
+					</div>
+					<div className="flex justify-center pt-2">
+						<CTAButtons />
+					</div>
+				</div>
+			</section>
+		</ScrollSnapContainer>
+	);
+}
+
+// ============================================================
+// VARIANT E: Animated CLI prompts hero with demo below
+// ============================================================
+function HeroVariantE() {
+	const { scrollOpacity, setScrollOpacity } = useScrollSnap();
+
+	return (
+		<ScrollSnapContainer
+			scrollOpacity={scrollOpacity}
+			setScrollOpacity={setScrollOpacity}
+		>
 			{/* Hero section */}
 			<section
-				className="flex flex-col items-center text-center px-6"
-				style={{ minHeight: "calc(100vh - 64px)" }}
+				className="relative flex flex-col items-center justify-center text-center px-6"
+				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
 			>
-				{/* Spacer */}
-				<div className="flex-1" />
 				{/* Content */}
 				<div className="max-w-3xl space-y-6">
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
@@ -245,30 +633,30 @@ function HeroVariantD() {
 						HTTP. No billing accounts or manual signup required.
 					</p>
 
-					{/* Google-style search input with typing animation */}
+					{/* CLI-style animated prompt */}
 					<div className="pt-2">
-						<SearchInputAnimated />
+						<CliPromptAnimated />
 					</div>
 
 					{/* Minimal CTA */}
 					<div className="flex gap-3 justify-center pt-2">
 						<Link
 							to="/quickstart"
-							className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-full hover:bg-[#0052CC] transition-colors no-underline!"
+							className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
 						>
-							Get started
+							Get started →
 						</Link>
 						<Link
 							to="/specs"
-							className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-200 transition-colors no-underline"
+							className="inline-flex items-center gap-2 px-6 py-3 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
 						>
-							Read specs
+							Read the specs
 						</Link>
 					</div>
 
-					{/* Co-authored by - subtle */}
-					<div className="flex items-center gap-4 justify-center pt-2 opacity-50">
-						<span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">
+					{/* Co-authored by */}
+					<div className="flex items-center gap-5 justify-center pt-4">
+						<span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
 							Co-authored by
 						</span>
 						<a
@@ -277,7 +665,7 @@ function HeroVariantD() {
 							rel="noopener noreferrer"
 							className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
 						>
-							<TempoLogo style={{ width: "50px" }} />
+							<TempoLogo style={{ width: "70px" }} />
 						</a>
 						<a
 							href="https://stripe.com"
@@ -285,38 +673,24 @@ function HeroVariantD() {
 							rel="noopener noreferrer"
 							className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
 						>
-							<StripeLogo style={{ width: "40px" }} />
+							<StripeLogo style={{ width: "55px" }} />
 						</a>
-					</div>
-				</div>
-				{/* Spacer + scroll indicator */}
-				<div className="flex-1 flex flex-col justify-end pb-8">
-					<div className="flex flex-col items-center gap-2 animate-bounce">
-						<span className="text-xs text-gray-400">Scroll to try demo</span>
-						<svg
-							width="20"
-							height="20"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							className="text-gray-400"
-							aria-hidden="true"
-						>
-							<path d="M12 5v14M5 12l7 7 7-7" />
-						</svg>
 					</div>
 				</div>
 			</section>
 
 			{/* CLI Demo section */}
 			<section
-				className="flex items-center justify-center px-6 py-16"
-				style={{ minHeight: "calc(100vh - 64px)" }}
+				className="flex flex-col items-center justify-center px-6 py-16"
+				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
 			>
-				<div className="max-w-[574px] w-full mx-auto">
+				<div className="max-w-[574px] w-full mx-auto space-y-6">
+					<div className="text-center space-y-2">
+						<h2 className="text-2xl font-semibold text-gray-900">Try it out</h2>
+						<p className="text-sm text-gray-500">
+							Connect a wallet and run paid API calls
+						</p>
+					</div>
 					<Cli.Demo
 						title="agent-demo"
 						token={pathUsd}
@@ -330,7 +704,7 @@ function HeroVariantD() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</>
+		</ScrollSnapContainer>
 	);
 }
 
@@ -504,24 +878,24 @@ function AgentTabsWrapped() {
 // Variant B: Multiple prompts with numbers and comments
 const MULTI_PROMPTS = [
 	{
-		comment: "Find the best option nearby",
-		prompt: "find me the highest-rated coffee shop within walking distance",
+		comment: "Generate images with fal.ai",
+		prompt: "use fal to generate a logo for my coffee shop startup",
 	},
 	{
-		comment: "Book reservations automatically",
-		prompt: "book a table for 4 at a nice Italian restaurant tonight",
+		comment: "Query LLMs via OpenRouter",
+		prompt: "use openrouter to compare GPT-4 and Claude on this code review",
 	},
 	{
-		comment: "Get premium data on demand",
-		prompt: "get me the 10-day weather forecast for my trip to Tokyo",
+		comment: "Run AI inference on Cloudflare",
+		prompt: "use cloudflare ai to summarize this PDF and extract key points",
 	},
 	{
-		comment: "Compare prices across services",
-		prompt: "find the cheapest flight to NYC next weekend",
+		comment: "Create video content with fal.ai",
+		prompt: "use fal to generate a 5-second product demo video from this image",
 	},
 	{
-		comment: "Run complex research tasks",
-		prompt: "research competitor pricing and summarize the key differences",
+		comment: "Access premium models instantly",
+		prompt: "use openrouter to run claude-3-opus on my research paper",
 	},
 ];
 
@@ -603,8 +977,8 @@ function MultiPromptBox() {
 	);
 }
 
-// Variant D: Google search-style input with typing animation
-const SEARCH_PROMPTS = [
+// Variant D/E: CLI-style animated prompts
+const CLI_PROMPTS = [
 	"charge $0.01 per api call with MPP",
 	"add payments to my REST API",
 	"monetize my AI agent's tools",
@@ -612,15 +986,25 @@ const SEARCH_PROMPTS = [
 	"let machines pay for my service",
 ];
 
-function SearchInputAnimated() {
+const CLI_AGENTS = [
+	{ label: "Claude", bin: "claude", args: "-p" },
+	{ label: "Codex", bin: "codex", args: "--full-auto" },
+	{ label: "Amp", bin: "amp", args: null },
+];
+
+function CliPromptAnimated() {
 	const [displayText, setDisplayText] = useState("");
 	const [promptIndex, setPromptIndex] = useState(0);
+	const [agentIndex, setAgentIndex] = useState(0);
 	const [phase, setPhase] = useState<"typing" | "pausing" | "deleting">(
 		"typing",
 	);
+	const [copied, setCopied] = useState(false);
+
+	const currentPrompt = CLI_PROMPTS[promptIndex];
+	const currentAgent = CLI_AGENTS[agentIndex];
 
 	useEffect(() => {
-		const currentPrompt = SEARCH_PROMPTS[promptIndex];
 		let timeout: ReturnType<typeof setTimeout>;
 
 		if (phase === "typing") {
@@ -635,46 +1019,103 @@ function SearchInputAnimated() {
 				setPhase("pausing");
 			}
 		} else if (phase === "pausing") {
-			timeout = setTimeout(() => setPhase("deleting"), 2000);
+			// Longer pause (4s) so users can read and copy
+			timeout = setTimeout(() => setPhase("deleting"), 4000);
 		} else if (phase === "deleting") {
 			if (displayText.length > 0) {
 				timeout = setTimeout(() => {
 					setDisplayText(displayText.slice(0, -1));
 				}, 30);
 			} else {
-				setPromptIndex((i) => (i + 1) % SEARCH_PROMPTS.length);
+				setPromptIndex((i) => (i + 1) % CLI_PROMPTS.length);
 				setPhase("typing");
 			}
 		}
 
 		return () => clearTimeout(timeout);
-	}, [displayText, phase, promptIndex]);
+	}, [displayText, phase, currentPrompt]);
+
+	const handleCopy = () => {
+		const cmd = currentAgent.args
+			? `${currentAgent.bin} ${currentAgent.args} "${currentPrompt}"`
+			: `${currentAgent.bin} "${currentPrompt}"`;
+		navigator.clipboard.writeText(cmd);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
 
 	return (
-		<div className="w-full max-w-lg">
+		<div className="w-full max-w-xl mx-auto">
+			{/* Agent tabs */}
+			<div className="flex border-b border-gray-200 mb-0">
+				{CLI_AGENTS.map((agent, i) => (
+					<button
+						key={agent.label}
+						type="button"
+						onClick={() => setAgentIndex(i)}
+						className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+							i === agentIndex
+								? "text-gray-900 border-b-2 border-gray-900 -mb-px"
+								: "text-gray-400 hover:text-gray-600"
+						}`}
+					>
+						{agent.label}
+					</button>
+				))}
+			</div>
 			<div
-				className="flex items-center gap-3 px-5 py-4 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-shadow"
-				style={{ minHeight: "56px" }}
+				className="flex items-center gap-2 px-4 py-3 bg-gray-50 border border-gray-200 border-t-0 rounded-b-md font-mono transition-colors"
+				style={{ minHeight: "48px" }}
 			>
-				<svg
-					width="20"
-					height="20"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="2"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					className="text-gray-400 shrink-0"
-					aria-hidden="true"
-				>
-					<circle cx="11" cy="11" r="8" />
-					<path d="m21 21-4.3-4.3" />
-				</svg>
+				<span className="text-gray-400 shrink-0 text-sm">$</span>
+				<span className="text-gray-600 shrink-0 text-sm">{currentAgent.bin}{currentAgent.args ? ` ${currentAgent.args}` : ""}</span>
 				<div className="flex-1 text-left">
-					<span className="text-gray-800 text-sm">{displayText}</span>
-					<span className="inline-block w-0.5 h-4 bg-[#0166FF] ml-0.5 animate-pulse" />
+					<span className="text-green-700 text-sm">"{displayText}</span>
+					<span className="inline-block w-0.5 h-4 bg-green-600 ml-0.5 animate-pulse" />
+					<span className="text-green-700 text-sm">"</span>
 				</div>
+				{/* Copy button - visible when paused */}
+				<button
+					type="button"
+					onClick={handleCopy}
+					className={`shrink-0 transition-all ${
+						phase === "pausing"
+							? "opacity-100 text-gray-400 hover:text-[#0166FF]"
+							: "opacity-0 pointer-events-none"
+					}`}
+					aria-label="Copy prompt"
+				>
+					{copied ? (
+						<svg
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
+							<path d="M20 6 9 17l-5-5" />
+						</svg>
+					) : (
+						<svg
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
+							<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+							<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+						</svg>
+					)}
+				</button>
 			</div>
 		</div>
 	);

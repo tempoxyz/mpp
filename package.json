@@ -30,6 +30,7 @@
 		"mpay": "https://pkg.pr.new/wevm/mpay@2eae67a",
 		"react": "^19",
 		"react-dom": "^19",
+		"scroll-snap": "^5.0.2",
 		"tailwindcss": "^4.1.18",
 		"tempo.ts": "~0.14.0",
 		"viem": "latest",
