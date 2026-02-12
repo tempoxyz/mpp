@@ -90,7 +90,8 @@ function ScrollSnapContainer({
 							background: #f9fafb !important;
 							background-color: #f9fafb !important;
 						}
-						[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child {
+						[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child,
+						[data-v-sidebar], aside, nav, [data-sidebar], [role="navigation"] {
 							background: #f9fafb !important;
 							background-color: #f9fafb !important;
 							position: relative !important;
@@ -101,7 +102,8 @@ function ScrollSnapContainer({
 								background: var(--vocs-color-bg, #1a1a1a) !important;
 								background-color: var(--vocs-color-bg, #1a1a1a) !important;
 							}
-							[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child {
+							[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child,
+							[data-v-sidebar], aside, nav, [data-sidebar], [role="navigation"] {
 								background: var(--vocs-color-bg, #1a1a1a) !important;
 								background-color: var(--vocs-color-bg, #1a1a1a) !important;
 							}
@@ -1292,31 +1294,29 @@ function CliPromptAnimated() {
 					);
 				})}
 			</div>
-			<div
-				className="flex items-center gap-2 px-4 py-3 bg-white font-mono"
-				style={{ minHeight: "48px" }}
+		<div
+			className="relative px-4 py-3 pr-10 bg-white font-mono text-sm leading-relaxed"
+			style={{ minHeight: "56px" }}
+		>
+			<span className="text-gray-400">$ </span>
+			<span className="text-gray-600">
+				{currentAgent.bin}
+				{currentAgent.args ? ` ${currentAgent.args}` : ""}
+			</span>
+			<span className="text-green-700"> "{displayText}</span>
+			<span className="inline-block w-0.5 h-4 bg-green-600 mx-0.5 align-middle animate-pulse" />
+			<span className="text-green-700">"</span>
+			{/* Copy button - positioned top right */}
+			<button
+				type="button"
+				onClick={handleCopy}
+				className={`absolute top-3 right-3 transition-all ${
+					phase === "pausing"
+						? "opacity-100 text-gray-400 hover:text-[#0166FF]"
+						: "opacity-0 pointer-events-none"
+				}`}
+				aria-label="Copy prompt"
 			>
-				<span className="text-gray-400 shrink-0 text-sm">$</span>
-				<span className="text-gray-600 shrink-0 text-sm">
-					{currentAgent.bin}
-					{currentAgent.args ? ` ${currentAgent.args}` : ""}
-				</span>
-				<div className="flex-1 text-left">
-					<span className="text-green-700 text-sm">"{displayText}</span>
-					<span className="inline-block w-0.5 h-4 bg-green-600 ml-0.5 animate-pulse" />
-					<span className="text-green-700 text-sm">"</span>
-				</div>
-				{/* Copy button - visible when paused */}
-				<button
-					type="button"
-					onClick={handleCopy}
-					className={`shrink-0 transition-all ${
-						phase === "pausing"
-							? "opacity-100 text-gray-400 hover:text-[#0166FF]"
-							: "opacity-0 pointer-events-none"
-					}`}
-					aria-label="Copy prompt"
-				>
 					{copied ? (
 						<svg
 							width="18"
