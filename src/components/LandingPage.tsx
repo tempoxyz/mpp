@@ -151,13 +151,22 @@ function HeroVariantB() {
 // ============================================================
 function HeroVariantC() {
 	return (
-		<>
-			{/* Section 1: Hero content - full viewport height */}
+		<div
+			className="overflow-y-auto"
+			style={{
+				height: "calc(100vh - 64px)",
+				scrollSnapType: "y mandatory",
+			}}
+		>
+			{/* Section 1: Hero content */}
 			<section
 				className="flex flex-col items-center justify-center text-center px-6 relative"
-				style={{ minHeight: "calc(100vh - 64px)" }}
+				style={{
+					height: "calc(100vh - 64px)",
+					scrollSnapAlign: "start",
+				}}
 			>
-				<div className="max-w-2xl space-y-8 pb-20">
+				<div className="max-w-2xl space-y-8">
 					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
@@ -173,8 +182,8 @@ function HeroVariantC() {
 						<CTAButtons />
 					</div>
 				</div>
-				{/* Bouncing scroll indicator - fixed to bottom of viewport */}
-				<div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-10">
+				{/* Bouncing scroll indicator */}
+				<div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
 					<span className="text-xs text-gray-400">Scroll to try demo</span>
 					<svg
 						width="20"
@@ -196,7 +205,10 @@ function HeroVariantC() {
 			{/* Section 2: CLI Demo */}
 			<section
 				className="flex items-center justify-center px-6"
-				style={{ minHeight: "calc(100vh - 64px)" }}
+				style={{
+					height: "calc(100vh - 64px)",
+					scrollSnapAlign: "start",
+				}}
 			>
 				<div className="max-w-[574px] w-full">
 					<Cli.Demo
@@ -212,7 +224,7 @@ function HeroVariantC() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</>
+		</div>
 	);
 }
 
@@ -221,14 +233,23 @@ function HeroVariantC() {
 // ============================================================
 function HeroVariantD() {
 	return (
-		<>
-			{/* Hero section - full viewport height */}
+		<div
+			className="overflow-y-auto"
+			style={{
+				height: "calc(100vh - 64px)",
+				scrollSnapType: "y mandatory",
+			}}
+		>
+			{/* Hero section */}
 			<section
-				className="flex flex-col items-center justify-center text-center px-6"
-				style={{ minHeight: "calc(100vh - 64px)" }}
+				className="flex flex-col items-center justify-center text-center px-6 relative"
+				style={{
+					height: "calc(100vh - 64px)",
+					scrollSnapAlign: "start",
+				}}
 			>
 				<div className="max-w-3xl space-y-8">
-					<h1 className="text-3xl md:text-4xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
 					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
@@ -280,11 +301,35 @@ function HeroVariantD() {
 						</a>
 					</div>
 				</div>
+				{/* Bouncing scroll indicator */}
+				<div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+					<span className="text-xs text-gray-400">Scroll to try demo</span>
+					<svg
+						width="20"
+						height="20"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						className="text-gray-400"
+						aria-hidden="true"
+					>
+						<path d="M12 5v14M5 12l7 7 7-7" />
+					</svg>
+				</div>
 			</section>
 
 			{/* CLI Demo section */}
-			<section className="py-16 px-6">
-				<div className="max-w-[574px] mx-auto">
+			<section
+				className="flex items-center justify-center px-6"
+				style={{
+					height: "calc(100vh - 64px)",
+					scrollSnapAlign: "start",
+				}}
+			>
+				<div className="max-w-[574px] w-full">
 					<Cli.Demo
 						title="agent-demo"
 						token={pathUsd}
@@ -298,7 +343,7 @@ function HeroVariantD() {
 					</Cli.Demo>
 				</div>
 			</section>
-		</>
+		</div>
 	);
 }
 
