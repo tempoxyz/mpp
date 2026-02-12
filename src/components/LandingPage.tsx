@@ -809,8 +809,8 @@ function HeroVariantF() {
 
 	return (
 		<section
-			className="flex flex-col items-center px-6 gap-6"
-			style={{ height: "calc(86vh - 64px)" }}
+			className="flex flex-col items-center justify-center px-6 gap-6"
+			style={{ minHeight: "calc(100vh - 64px)" }}
 		>
 			{/* Top: Title + Subtitle */}
 			<div className="text-center space-y-2">
@@ -856,8 +856,6 @@ function HeroVariantF() {
 
 			{/* Compact Services */}
 			<ServiceCardsCompact />
-
-			<div className="flex-1" />
 		</section>
 	);
 }
