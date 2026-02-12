@@ -94,8 +94,8 @@ function HeroVariantA() {
 					</h1>
 					<div className="space-y-1.5 max-w-xl">
 						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
-							Accept payments from humans, software, or AI agents using
-							standard HTTP. No billing accounts or manual signup required.
+							Accept payments from humans, software, or AI agents using standard
+							HTTP. No billing accounts or manual signup required.
 						</p>
 					</div>
 					<CoAuthoredBy />
@@ -138,8 +138,8 @@ function HeroVariantB() {
 					</h1>
 					<div className="space-y-1.5 max-w-xl">
 						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
-							Accept payments from humans, software, or AI agents using
-							standard HTTP. No billing accounts or manual signup required.
+							Accept payments from humans, software, or AI agents using standard
+							HTTP. No billing accounts or manual signup required.
 						</p>
 					</div>
 					<CoAuthoredBy />
@@ -184,8 +184,8 @@ function HeroVariantC() {
 						The Machine Payments Protocol
 					</h1>
 					<p className="text-base md:text-lg text-gray-600 leading-relaxed max-w-xl mx-auto">
-						Accept payments from humans, software, or AI agents using
-						standard HTTP. No billing accounts or manual signup required.
+						Accept payments from humans, software, or AI agents using standard
+						HTTP. No billing accounts or manual signup required.
 					</p>
 					<div className="flex items-center justify-center gap-5">
 						<span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
@@ -503,6 +503,14 @@ const MULTI_PROMPTS = [
 ];
 
 function MultiPromptBox() {
+	const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+	const handleCopy = (text: string, index: number) => {
+		navigator.clipboard.writeText(text);
+		setCopiedIndex(index);
+		setTimeout(() => setCopiedIndex(null), 2000);
+	};
+
 	return (
 		<div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
 			<div className="bg-gray-50 border-b border-gray-200 px-4 py-2">
@@ -510,19 +518,63 @@ function MultiPromptBox() {
 					Example prompts for your AI agent
 				</span>
 			</div>
-			<div className="bg-white px-4 py-3 space-y-3">
-				{MULTI_PROMPTS.map((item, i) => (
-					<div key={item.prompt} className="font-mono text-sm">
-						<div className="text-gray-400 text-xs mb-0.5">
-							# {item.comment}
+			<div className="bg-white divide-y divide-gray-100">
+				{MULTI_PROMPTS.map((item, i) => {
+					const fullCommand = `claude -p "${item.prompt}"`;
+					return (
+						<div
+							key={item.prompt}
+							className="px-4 py-3 flex items-start justify-between gap-3"
+						>
+							<div className="font-mono text-sm min-w-0">
+								<div className="text-gray-400 text-xs mb-0.5">
+									# {item.comment}
+								</div>
+								<div>
+									<span className="text-gray-800">claude -p </span>
+									<span className="text-green-700">"{item.prompt}"</span>
+								</div>
+							</div>
+							<button
+								type="button"
+								onClick={() => handleCopy(fullCommand, i)}
+								className="text-gray-400 hover:text-[#0166FF] transition-colors shrink-0 mt-4"
+								aria-label="Copy to clipboard"
+							>
+								{copiedIndex === i ? (
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M20 6 9 17l-5-5" />
+									</svg>
+								) : (
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										aria-hidden="true"
+									>
+										<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+										<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+									</svg>
+								)}
+							</button>
 						</div>
-						<div>
-							<span className="text-gray-400">({i + 1}) </span>
-							<span className="text-gray-800">claude -p </span>
-							<span className="text-green-700">"{item.prompt}"</span>
-						</div>
-					</div>
-				))}
+					);
+				})}
 			</div>
 		</div>
 	);
@@ -550,9 +602,12 @@ function SearchInputAnimated() {
 
 		if (phase === "typing") {
 			if (displayText.length < currentPrompt.length) {
-				timeout = setTimeout(() => {
-					setDisplayText(currentPrompt.slice(0, displayText.length + 1));
-				}, 50 + Math.random() * 30);
+				timeout = setTimeout(
+					() => {
+						setDisplayText(currentPrompt.slice(0, displayText.length + 1));
+					},
+					50 + Math.random() * 30,
+				);
 			} else {
 				setPhase("pausing");
 			}
