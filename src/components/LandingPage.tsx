@@ -710,141 +710,178 @@ function HeroVariantE() {
 }
 
 // ============================================================
-// VARIANT F: One-column version of A (simplified demo, no passkey)
+// VARIANT F: Single-page layout (100vh, no passkey)
 // ============================================================
 function HeroVariantF() {
 	return (
-		<>
-			<section className="pt-8 pb-8">
-				<div className="flex flex-col items-center text-center max-w-2xl mx-auto space-y-6">
-					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
-						Machine Payments Protocol
-					</h1>
-					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl">
-						Accept payments from humans, software, or AI agents using standard
-						HTTP. No billing accounts or manual signup required.
-					</p>
+		<section
+			className="flex flex-col items-center justify-between px-6"
+			style={{ height: "calc(100vh - 64px)" }}
+		>
+			{/* Top: Title + Subtitle */}
+			<div className="text-center pt-6 space-y-2">
+				<h1 className="text-2xl md:text-3xl font-bold text-black leading-[1.1] tracking-tight">
+					Machine Payments Protocol
+				</h1>
+				<p className="text-sm text-gray-600 leading-relaxed max-w-lg mx-auto">
+					Accept payments from humans, software, or AI agents using standard
+					HTTP. No billing accounts or manual signup required.
+				</p>
+			</div>
+
+			{/* Middle: Demo (no chrome) */}
+			<div className="w-full max-w-xl flex-1 flex flex-col justify-center py-4">
+				<SimulatedDemoF />
+			</div>
+
+			{/* Bottom: Tabs + CTAs + Services */}
+			<div className="w-full max-w-2xl space-y-4 pb-6">
+				{/* Agent Tabs */}
+				<div className="flex justify-center">
 					<AgentTabsWrapped />
-					<CTAButtons />
-					{/* Simplified CLI Demo - no wallet steps */}
-					<div className="w-full max-w-[500px] pt-4">
-						<Cli.Demo
-							title="agent-demo"
-							token={pathUsd}
-							height={280}
-							restartStep={0}
-						>
-							<Cli.Startup />
-							<SimulatedPing />
-						</Cli.Demo>
-					</div>
-					<CoAuthoredBy />
 				</div>
-			</section>
-			<ServiceCards />
-		</>
+
+				{/* CTAs */}
+				<div className="flex justify-center">
+					<CTAButtons />
+				</div>
+
+				{/* Compact Services */}
+				<ServiceCardsCompact />
+			</div>
+		</section>
 	);
 }
 
-// Simulated ping demo for variant F (no wallet required)
-function SimulatedPing() {
+// Compact services for variant F (horizontal, minimal)
+function ServiceCardsCompact() {
+	return (
+		<div className="flex items-center justify-center gap-6 pt-2">
+			<span className="text-xs text-gray-400 uppercase tracking-wide">
+				Works with
+			</span>
+			<div className="flex items-center gap-4">
+				{SERVICES.slice(0, 4).map((service) => {
+					const Logo = service.logo;
+					return (
+						<a
+							key={service.name}
+							href={service.url}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-gray-400 hover:text-gray-600 transition-colors"
+							title={service.name}
+						>
+							<Logo className="w-5 h-5" />
+						</a>
+					);
+				})}
+			</div>
+		</div>
+	);
+}
+
+// Simulated demo for variant F (no chrome, compelling output)
+function SimulatedDemoF() {
 	const [phase, setPhase] = useState<
-		"idle" | "pinging" | "challenge" | "paying" | "success"
-	>("idle");
-	const [showResult, setShowResult] = useState(false);
+		"typing" | "sending" | "challenge" | "paying" | "success"
+	>("typing");
+	const [typedText, setTypedText] = useState("");
+	const fullPrompt = "Find the best coffee shop nearby";
 
+	// Typing animation
 	useEffect(() => {
-		// Auto-start the demo after a brief delay
-		const startTimer = setTimeout(() => {
-			setPhase("pinging");
-		}, 1000);
+		if (phase !== "typing") return;
+		if (typedText.length < fullPrompt.length) {
+			const timer = setTimeout(() => {
+				setTypedText(fullPrompt.slice(0, typedText.length + 1));
+			}, 60);
+			return () => clearTimeout(timer);
+		}
+		// Done typing, move to next phase
+		const timer = setTimeout(() => setPhase("sending"), 500);
+		return () => clearTimeout(timer);
+	}, [phase, typedText]);
 
-		return () => clearTimeout(startTimer);
-	}, []);
-
+	// Phase transitions
 	useEffect(() => {
-		if (phase === "pinging") {
-			const timer = setTimeout(() => setPhase("challenge"), 800);
+		if (phase === "sending") {
+			const timer = setTimeout(() => setPhase("challenge"), 600);
 			return () => clearTimeout(timer);
 		}
 		if (phase === "challenge") {
-			const timer = setTimeout(() => setPhase("paying"), 600);
+			const timer = setTimeout(() => setPhase("paying"), 500);
 			return () => clearTimeout(timer);
 		}
 		if (phase === "paying") {
-			const timer = setTimeout(() => {
-				setPhase("success");
-				setShowResult(true);
-			}, 700);
+			const timer = setTimeout(() => setPhase("success"), 600);
 			return () => clearTimeout(timer);
 		}
-		if (phase === "success" && showResult) {
-			// Loop the demo
+		if (phase === "success") {
+			// Loop after showing result
 			const timer = setTimeout(() => {
-				setShowResult(false);
-				setPhase("idle");
-				setTimeout(() => setPhase("pinging"), 500);
-			}, 3000);
+				setTypedText("");
+				setPhase("typing");
+			}, 4000);
 			return () => clearTimeout(timer);
 		}
-	}, [phase, showResult]);
+	}, [phase]);
 
 	return (
-		<Cli.Block className="flex-1">
-			<Cli.Line variant="info">
-				Pinging <span className="text-accent">payments.tempo.xyz</span>...
-			</Cli.Line>
-
-			{phase === "idle" && (
-				<Cli.Line variant="loading">Initializing...</Cli.Line>
-			)}
-
-			{phase === "pinging" && (
-				<Cli.Line variant="loading">GET /ping → 402 Payment Required</Cli.Line>
-			)}
-
-			{phase === "challenge" && (
-				<>
-					<Cli.Line variant="success" prefix="✓">
-						Challenge received
-					</Cli.Line>
-					<Cli.Line variant="loading">Signing payment credential...</Cli.Line>
-				</>
-			)}
-
-			{phase === "paying" && (
-				<>
-					<Cli.Line variant="success" prefix="✓">
-						Challenge received
-					</Cli.Line>
-					<Cli.Line variant="success" prefix="→">
-						Credential sent
-					</Cli.Line>
-					<Cli.Line variant="loading">Awaiting response...</Cli.Line>
-				</>
-			)}
-
-			{phase === "success" && (
-				<>
-					<Cli.Line variant="success" prefix="✓">
-						Challenge received
-					</Cli.Line>
-					<Cli.Line variant="success" prefix="→">
-						Credential sent
-					</Cli.Line>
-					<Cli.Line variant="success" prefix="✓">
-						200 OK — Paid $0.001
-					</Cli.Line>
-					{showResult && (
-						<Cli.Line className="text-gray-500 mt-2">
-							Response: {"{"}"pong": true{"}"}
-						</Cli.Line>
+		<div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+			{/* Terminal content - no title bar */}
+			<div className="p-4 font-mono text-sm space-y-2 min-h-[200px]">
+				{/* User prompt */}
+				<div className="flex items-start gap-2">
+					<span className="text-gray-400">$</span>
+					<span className="text-gray-700">claude -p "</span>
+					<span className="text-green-700">{typedText}</span>
+					{phase === "typing" && (
+						<span className="inline-block w-0.5 h-4 bg-green-600 animate-pulse" />
 					)}
-				</>
-			)}
-		</Cli.Block>
+					<span className="text-gray-700">"</span>
+				</div>
+
+				{/* Sending request */}
+				{phase !== "typing" && (
+					<div className="text-gray-500 pl-4">
+						→ Querying openrouter.ai/chat/completions...
+					</div>
+				)}
+
+				{/* 402 response */}
+				{(phase === "challenge" ||
+					phase === "paying" ||
+					phase === "success") && (
+					<div className="text-amber-600 pl-4">← 402 Payment Required</div>
+				)}
+
+				{/* Payment flow */}
+				{(phase === "paying" || phase === "success") && (
+					<>
+						<div className="text-blue-600 pl-4">
+							→ Signing credential with Tempo wallet...
+						</div>
+						<div className="text-blue-600 pl-4">→ Paying $0.002 via MPP</div>
+					</>
+				)}
+
+				{/* Success + result */}
+				{phase === "success" && (
+					<>
+						<div className="text-green-600 pl-4">← 200 OK</div>
+						<div className="mt-3 p-3 bg-gray-50 rounded text-gray-700 text-xs leading-relaxed">
+							Based on your location, I found <strong>Blue Bottle Coffee</strong>{" "}
+							(0.2 mi) with 4.8★ rating, known for their single-origin pour-overs.
+							Open until 6pm.
+						</div>
+					</>
+				)}
+			</div>
+		</div>
 	);
 }
+
 
 // ============================================================
 // Shared Components
