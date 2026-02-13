@@ -62,16 +62,18 @@
 	text-decoration: underline;
 }
 
-/* Links inside callouts - keep default purple color, just add underline */
+/* Links inside callouts - purple with underline, darker purple on hover */
 [data-v-callout] a,
 [data-v-callout] a:link,
 [data-v-callout] a:visited,
 [data-v-content] [data-v-callout] a,
 article [data-v-callout] a {
+	color: var(--vocs-color-accent) !important;
 	text-decoration: underline !important;
 }
 
 [data-v-callout] a:hover {
+	color: var(--vocs-color-accent-dark, #5b21b6) !important; /* darker purple */
 	text-decoration: underline !important;
 }
 
