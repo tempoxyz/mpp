@@ -1836,19 +1836,23 @@ function QueryResult({
 							<Cli.Line variant="success" prefix="✓">
 								{call.description}
 							</Cli.Line>
-							{call.txHash && (
-								<Cli.Line variant="info">
-									tx:{" "}
-									<a
-										href={`https://explorer.tempo.xyz/tx/${call.txHash}`}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="text-accent hover:underline"
-									>
-										{call.txHash.slice(0, 10)}…{call.txHash.slice(-8)}
-									</a>
-								</Cli.Line>
-							)}
+							<Cli.Line variant="info">
+								{call.txHash ? (
+									<>
+										tx:{" "}
+										<a
+											href={`https://explorer.tempo.xyz/tx/${call.txHash}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-[#0166FF] hover:underline"
+										>
+											{call.txHash.slice(0, 10)}…{call.txHash.slice(-8)}
+										</a>
+									</>
+								) : (
+									<span className="text-red-500">no tx hash (payment may have failed)</span>
+								)}
+							</Cli.Line>
 						</>
 					)}
 				</div>
