@@ -248,14 +248,30 @@ pre[data-v] {
 	margin-top: 0.5rem;
 }
 
-/* No underline on service cards */
-a.group {
+/* No underline on cards, buttons, and interactive elements */
+a.group,
+a.group:hover,
+a.group *,
+[data-v-card] a,
+[data-v-card] a:hover,
+[data-v-cards] a,
+[data-v-cards] a:hover,
+.vocs_Card a,
+.vocs_Card a:hover,
+button a,
+button a:hover,
+a[class*="card"],
+a[class*="card"]:hover,
+a[class*="Card"],
+a[class*="Card"]:hover {
 	text-decoration: none !important;
 }
-a.group:hover {
-	text-decoration: none !important;
-}
-a.group * {
+
+/* Remove underline from links inside cards */
+[data-v-content] [data-v-card] a,
+[data-v-content] [data-v-card] a:hover,
+[data-v-content] [data-v-cards] a,
+[data-v-content] [data-v-cards] a:hover {
 	text-decoration: none !important;
 }
 
