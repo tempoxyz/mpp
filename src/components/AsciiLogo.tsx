@@ -154,21 +154,29 @@ export function AsciiLogo() {
 
 	// Node positions at the vertices/endpoints of the M, P, P letterforms
 	const nodesRef = useRef<NetNode[]>([
-		// M — left stroke top, left stroke bottom, V-valley, right diagonal top
+		// M — outer strokes and diagonals
 		{ x: 0, y: 0 },
 		{ x: 0, y: 20 },
-		{ x: 16, y: 20 },
 		{ x: 8, y: 10 },
-		// First P — stem top, stem bottom, bowl top-right, bowl bottom-right
+		{ x: 16, y: 20 },
+		{ x: 24, y: 0 },
+		{ x: 24, y: 9 },
+		// First P — stem + bowl outline
 		{ x: 41, y: 0 },
+		{ x: 41, y: 9 },
 		{ x: 41, y: 20 },
 		{ x: 55, y: 0 },
+		{ x: 55, y: 5 },
 		{ x: 55, y: 9 },
-		// Second P — stem top, stem bottom, bowl top-right, bowl bottom-right
+		{ x: 48, y: 9 },
+		// Second P — stem + bowl outline
 		{ x: 77, y: 0 },
+		{ x: 77, y: 9 },
 		{ x: 77, y: 20 },
 		{ x: 112, y: 0 },
+		{ x: 112, y: 5 },
 		{ x: 112, y: 9 },
+		{ x: 95, y: 9 },
 	]);
 
 	// Dynamic network grid — updated each frame
@@ -387,7 +395,7 @@ export function AsciiLogo() {
 					letterSpacing: "1px",
 					color: "var(--vocs-color-accent)",
 					opacity: 0.85,
-					textShadow: "0 0 20px rgba(1, 102, 255, 0.3)",
+					textShadow: "0 0 20px rgba(249, 115, 22, 0.3)",
 					cursor: "pointer",
 					margin: "0 auto",
 					overflow: "visible",

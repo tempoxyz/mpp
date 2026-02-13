@@ -121,15 +121,13 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 	margin-bottom: 0 !important;
 }
 
-/* TOC active item - translucent blue bg with blue text (NOT solid blue) */
+/* TOC active item - translucent accent bg with accent text */
 [data-v-outline-items] a[data-active="true"],
 [data-v-outline-items] a[data-active="true"] *,
 [data-v-outline-items] a[data-active="true"] span {
-	background-color: light-dark(
-		rgba(1, 102, 255, 0.08),
-		rgba(96, 165, 250, 0.1)
-	) !important;
+	background-color: oklch(from var(--vocs-color-accent) l c h / 0.08) !important;
 	color: var(--vocs-color-accent) !important;
+	-webkit-text-fill-color: var(--vocs-color-accent) !important;
 	border-radius: 4px;
 }
 
@@ -291,6 +289,11 @@ pre[data-v] {
 	margin-top: 0.5rem;
 }
 
+/* Service logo hover — icon turns accent orange */
+.service-logo-item:hover .service-logo-icon {
+	color: var(--vocs-color-accent) !important;
+}
+
 /* No underline on cards, buttons, and interactive elements */
 a.group,
 a.group:hover,
@@ -390,24 +393,37 @@ article hr {
 	overflow: clip;
 }
 
-/* Links inside callouts only - tip color (purple/iris) with underline */
+/* Callouts — use accent (orange) color scheme */
+aside[data-v-callout] {
+	--color-tip: var(--vocs-color-accent) !important;
+	--color-tip-tint: oklch(from var(--vocs-color-accent) l c h / 0.08) !important;
+	--vocs-color-tip: var(--vocs-color-accent) !important;
+	border-color: var(--vocs-color-accent) !important;
+}
+
+aside[data-v-callout] [data-v-callout-icon] {
+	color: var(--vocs-color-accent) !important;
+}
+
+aside[data-v-callout] [data-v-callout-title],
+aside[data-v-callout] [data-v-callout-title] strong {
+	color: var(--vocs-color-accent) !important;
+	-webkit-text-fill-color: var(--vocs-color-accent) !important;
+}
+
+/* Links inside callouts — accent color with underline */
 [data-v-callout] a,
 [data-v-callout] a:link,
 [data-v-callout] a:visited,
-[data-v-content] [class*="Callout"] a,
-[data-v-content] div[class*="callout"] a,
-[data-v-content] aside a,
-article aside a {
-	color: var(--vocs-color-tip) !important;
+aside[data-v-callout] a {
+	color: var(--vocs-color-accent) !important;
+	-webkit-text-fill-color: var(--vocs-color-accent) !important;
 	text-decoration: underline !important;
 }
 
 [data-v-callout] a:hover,
-[data-v-content] [class*="Callout"] a:hover,
-[data-v-content] div[class*="callout"] a:hover,
-[data-v-content] aside a:hover,
-article aside a:hover {
-	color: var(--vocs-color-tip-hover) !important;
+aside[data-v-callout] a:hover {
+	opacity: 0.8;
 	text-decoration: underline !important;
 }
 

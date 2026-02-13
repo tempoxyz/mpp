@@ -331,10 +331,17 @@ function ServiceLogos() {
 					return (
 						<div
 							key={service.name}
-							className="flex flex-col items-center gap-2"
+							className="service-logo-item flex flex-col items-center gap-2"
 							style={{ color: "var(--vocs-text-color-primary)" }}
 						>
-							<Logo style={{ width: 36, height: 36 }} />
+							<div
+								className="service-logo-icon"
+								style={{
+									transition: "color 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+								}}
+							>
+								<Logo style={{ width: 36, height: 36 }} />
+							</div>
 							<span
 								className="text-sm"
 								style={{ color: "var(--vocs-text-color-muted)" }}
@@ -358,10 +365,10 @@ function CTAButtons() {
 		<div className="flex flex-wrap gap-3">
 			<Link
 				to="/for-humans/agents"
-				className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-sm font-medium rounded-md hover:bg-accent6 transition-colors no-underline!"
+				className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-sm font-medium rounded-md hover:opacity-90 transition-opacity no-underline!"
 				style={{ color: "var(--accent-button-text)" }}
 			>
-				For humans
+				Setup & use
 			</Link>
 			<Link
 				to="/specs"
@@ -372,7 +379,7 @@ function CTAButtons() {
 					color: "var(--vocs-text-color-primary)",
 				}}
 			>
-				For agents
+				Integrate now
 			</Link>
 		</div>
 	);
@@ -381,7 +388,7 @@ function CTAButtons() {
 function AgentTabsWrapped() {
 	const [active, setActive] = useState(0);
 	const [copied, setCopied] = useState(false);
-	const prompt = `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed - using this MCP server (https://payments.tempo.xyz/discover)."`;
+	const prompt = `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed. Available services: https://payments.tempo.xyz/llms.txt and https://payments.tempo.xyz/services"`;
 	const displayPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
 	const commands = [
 		{
@@ -420,7 +427,7 @@ function AgentTabsWrapped() {
 
 	return (
 		<div
-			className="max-w-xl rounded-md overflow-hidden text-left"
+			className="w-full max-w-xl rounded-md overflow-hidden text-left"
 			style={{ border: "1px solid var(--vocs-border-color-secondary)" }}
 		>
 			<div
@@ -437,7 +444,7 @@ function AgentTabsWrapped() {
 							key={a.label}
 							type="button"
 							onClick={() => setActive(i)}
-							className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+							className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
 							style={{
 								color:
 									i === active
@@ -454,7 +461,7 @@ function AgentTabsWrapped() {
 								marginBottom: i === active ? "-1px" : "0",
 							}}
 						>
-							<Icon className="w-3.5 h-3.5" />
+							<Icon className="w-4.5 h-4.5" />
 							{a.label}
 						</button>
 					);
