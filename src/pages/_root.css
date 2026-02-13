@@ -312,51 +312,35 @@ article a[data-v-card]:hover {
 	text-decoration: none !important;
 }
 
-/* Vocs card hover state - mimic service cards */
-[data-v-card],
-.vocs_Card,
-[class*="Card_card"],
-[data-v-content] a[href] > div {
-	transition:
-		border-color 0.15s ease,
-		box-shadow 0.15s ease !important;
+/* Vocs card hover state - card border darkens */
+[data-v-card] {
+	transition: border-color 0.15s ease !important;
 }
 
-[data-v-card]:hover,
-.vocs_Card:hover,
-[class*="Card_card"]:hover,
-[data-v-content] a[href]:hover > div {
-	border-color: #9ca3af !important; /* gray-400 for more visible change */
+[data-v-card]:hover {
+	border-color: #9ca3af !important; /* gray-400 */
 }
 
-/* Card title turns blue on hover */
-[data-v-card]:hover [data-v-card-title],
-[data-v-card]:hover h3,
-[data-v-card]:hover p:first-of-type,
-[data-v-card]:hover strong:first-child,
-.vocs_Card:hover [class*="title"],
-.vocs_Card:hover h3,
-.vocs_Card:hover p:first-of-type,
-[data-v-content] a[href]:hover > div p:first-of-type,
-[data-v-content] a[href]:hover > div strong {
+/* Card title (strong element) turns blue on hover - NOT description */
+[data-v-card]:hover strong {
 	color: #0166ff !important;
 }
 
-/* Card description - smaller font and tighter line height */
-[data-v-card] p:last-of-type,
-[data-v-card] [class*="description"],
-.vocs_Card p:last-of-type,
-.vocs_Card [class*="description"],
-[data-v-content] a[href] > div p:last-of-type {
+/* Card description - smaller font and tighter line height, gray color */
+[data-v-card] p {
 	font-size: 12px !important;
-	line-height: 1.35 !important;
+	line-height: 1.4 !important;
+	color: #6b7280 !important; /* gray-500 */
 }
 
-/* Remove divider after h1 tagline */
+/* Remove all dividers/borders above cards */
 [data-v-content] h1 + hr,
-[data-v-content] > hr:first-of-type,
-article > hr:first-of-type {
+[data-v-content] > hr,
+[data-v-content] hr,
+article > hr,
+[data-v-cards]::before {
 	display: none !important;
+	border: none !important;
 }
 
 /* Ensure header covers scrolling content */
