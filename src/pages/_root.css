@@ -252,12 +252,15 @@ pre[data-v] {
 a.group,
 a.group:hover,
 a.group *,
-[data-v-card] a,
-[data-v-card] a:hover,
+[data-v-card],
+[data-v-card]:hover,
+[data-v-card] *,
 [data-v-cards] a,
 [data-v-cards] a:hover,
-.vocs_Card a,
-.vocs_Card a:hover,
+[data-v-cards] a *,
+.vocs_Card,
+.vocs_Card:hover,
+.vocs_Card *,
 button a,
 button a:hover,
 a[class*="card"],
@@ -267,11 +270,19 @@ a[class*="Card"]:hover {
 	text-decoration: none !important;
 }
 
-/* Remove underline from links inside cards */
-[data-v-content] [data-v-card] a,
-[data-v-content] [data-v-card] a:hover,
+/* Remove underline from Vocs cards - more specific */
+[data-v-content] [data-v-card],
+[data-v-content] [data-v-card]:hover,
+[data-v-content] [data-v-card] *,
+[data-v-content] [data-v-card] *:hover,
 [data-v-content] [data-v-cards] a,
-[data-v-content] [data-v-cards] a:hover {
+[data-v-content] [data-v-cards] a:hover,
+[data-v-content] [data-v-cards] a *,
+article [data-v-card],
+article [data-v-card]:hover,
+article [data-v-card] *,
+article a[data-v-card],
+article a[data-v-card]:hover {
 	text-decoration: none !important;
 }
 
