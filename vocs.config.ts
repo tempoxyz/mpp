@@ -43,7 +43,7 @@ export default defineConfig({
 	mcp: {
 		enabled: true,
 		sources: [
-			McpSource.github({ name: "mpay", repo: "wevm/mpay" }),
+			McpSource.github({ name: "mppx", repo: "wevm/mppx" }),
 			McpSource.github({ name: "mpay-rs", repo: "tempoxyz/mpay-rs" }),
 			McpSource.github({ name: "mpay-sdks", repo: "tempoxyz/mpay-sdks" }),
 			McpSource.github({ name: "pympay", repo: "tempoxyz/pympay" }),
@@ -146,16 +146,16 @@ export default defineConfig({
 								text: "Client Reference",
 								items: [
 									{
-										text: "Mpay",
+										text: "Mppx",
 										collapsed: true,
 										items: [
 											{
 												text: ".create",
-												link: "/sdk/typescript/client/Mpay.create",
+												link: "/sdk/typescript/client/Mppx.create",
 											},
 											{
 												text: ".restore",
-												link: "/sdk/typescript/client/Mpay.restore",
+												link: "/sdk/typescript/client/Mppx.restore",
 											},
 										],
 									},
@@ -197,16 +197,16 @@ export default defineConfig({
 								text: "Server Reference",
 								items: [
 									{
-										text: "Mpay",
+										text: "Mppx",
 										collapsed: true,
 										items: [
 											{
 												text: ".create",
-												link: "/sdk/typescript/server/Mpay.create",
+												link: "/sdk/typescript/server/Mppx.create",
 											},
 											{
 												text: ".toNodeListener",
-												link: "/sdk/typescript/server/Mpay.toNodeListener",
+												link: "/sdk/typescript/server/Mppx.toNodeListener",
 											},
 										],
 									},
@@ -434,7 +434,7 @@ export default defineConfig({
 		{
 			text: "GitHub",
 			items: [
-				{ text: "mpay [TypeScript]", link: "https://github.com/wevm/mpay" },
+				{ text: "mppx [TypeScript]", link: "https://github.com/wevm/mppx" },
 				{ text: "mpay-rs [Rust]", link: "https://github.com/tempoxyz/mpay-rs" },
 				{ text: "pympay [Python]", link: "https://github.com/tempoxyz/pympay" },
 				{

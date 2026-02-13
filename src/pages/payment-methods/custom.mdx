@@ -1,6 +1,6 @@
 # Custom [Build your own payment method]
 
-The mpay SDK supports extensibility. You can implement custom payment methods to integrate any payment rails—Lightning Network, other blockchains, card processors, or proprietary systems.
+The mppx SDK supports extensibility. You can implement custom payment methods to integrate any payment rails—Lightning Network, other blockchains, card processors, or proprietary systems.
 
 ## Overview
 
@@ -16,7 +16,7 @@ A custom payment method requires:
 Start by defining the schema for your payment intent. The schema specifies what parameters the server requests and what the client provides.
 
 ```ts twoslash
-import { Intent, z } from 'mpay'
+import { Intent, z } from 'mppx'
 
 const charge = Intent.from({
   name: 'charge',
@@ -35,7 +35,7 @@ const charge = Intent.from({
 Extend the base Intent with method-specific request fields and Credential payload schemas. The following example uses Lightning Network:
 
 ```ts twoslash
-import { Intent, MethodIntent, z } from 'mpay'
+import { Intent, MethodIntent, z } from 'mppx'
 
 const charge = Intent.from({
   name: 'charge',
@@ -71,7 +71,7 @@ const lightningCharge = MethodIntent.fromIntent(charge, {
 Extend the method intent with Credential creation logic. The `createCredential` function runs when the client gets a `402` response:
 
 ```ts twoslash
-import { Credential, Intent, MethodIntent, z } from 'mpay'
+import { Credential, Intent, MethodIntent, z } from 'mppx'
 
 const charge = Intent.from({
   name: 'charge',
@@ -123,7 +123,7 @@ const clientMethod = MethodIntent.toClient(lightningCharge, {
 Extend the method intent with verification logic. For Lightning Network, verify that the preimage hashes to the payment hash:
 
 ```ts twoslash
-import { Intent, MethodIntent, Receipt, z } from 'mpay'
+import { Intent, MethodIntent, Receipt, z } from 'mppx'
 
 const charge = Intent.from({
   name: 'charge',
@@ -179,11 +179,11 @@ const serverMethod = MethodIntent.toServer(lightningCharge, {
 
 ### Client
 
-Pass the client method intent to `Mpay.create`:
+Pass the client method intent to `Mppx.create`:
 
 ```ts twoslash
-import { Credential, Intent, MethodIntent, z } from 'mpay'
-import { Mpay } from 'mpay/client'
+import { Credential, Intent, MethodIntent, z } from 'mppx'
+import { Mppx } from 'mppx/client'
 
 const charge = Intent.from({
   name: 'charge',
@@ -229,7 +229,7 @@ const clientMethod = MethodIntent.toClient(lightningCharge, {
   },
 })
 // ---cut---
-const { fetch } = Mpay.create({
+const { fetch } = Mppx.create({
   polyfill: false,
   methods: [clientMethod],
 })
@@ -239,11 +239,11 @@ const response = await fetch('https://api.example.com/premium')
 
 ### Server
 
-Pass the server method intent to `Mpay.create`:
+Pass the server method intent to `Mppx.create`:
 
 ```ts twoslash
-import { Intent, MethodIntent, Receipt, z } from 'mpay'
-import { Mpay } from 'mpay/server'
+import { Intent, MethodIntent, Receipt, z } from 'mppx'
+import { Mppx } from 'mppx/server'
 
 const charge = Intent.from({
   name: 'charge',
@@ -294,7 +294,7 @@ const serverMethod = MethodIntent.toServer(lightningCharge, {
   },
 })
 // ---cut---
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [serverMethod],
 })
 ```

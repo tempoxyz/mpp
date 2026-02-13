@@ -1,10 +1,10 @@
 import { env } from "cloudflare:workers";
-import { Mpay, tempo } from "mpay/server";
+import { Mppx, tempo } from "mppx/server";
 import { createClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { tempoModerato } from "viem/chains";
 
-export const mpay = Mpay.create({
+export const mppx = Mppx.create({
 	methods: [
 		tempo.charge({
 			...(env.FEE_PAYER_PRIVATE_KEY

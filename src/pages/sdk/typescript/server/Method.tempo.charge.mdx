@@ -5,13 +5,13 @@ The `charge` intent for the Tempo payment method. Requests a one-time payment fr
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 export async function handler(request: Request) {
   // [!code focus:start]
-  const response = await mpay.charge({
+  const response = await mppx.charge({
     amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -28,14 +28,14 @@ export async function handler(request: Request) {
 Set a custom expiration time for the charge using the `expires` option.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 // ---cut---
-import { Expires } from 'mpay'
+import { Expires } from 'mppx'
 
 export async function handler(request: Request) {
-  const response = await mpay.charge({
+  const response = await mppx.charge({
     amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000000',
     expires: Expires.minutes(10), // [!code focus]
@@ -52,12 +52,12 @@ export async function handler(request: Request) {
 Add a human-readable description for the payment request.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 // ---cut---
 export async function handler(request: Request) {
-  const response = await mpay.charge({
+  const response = await mppx.charge({
     amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000000',
     description: 'API access for /resource', // [!code focus]

@@ -5,9 +5,9 @@ MCP transport for server-side payment handling with raw JSON-RPC.
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo, Transport } from 'mpay/server'
+import { Mppx, tempo, Transport } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge()],
   transport: Transport.mcp(),
 })
@@ -24,7 +24,7 @@ Use this transport when handling raw JSON-RPC messages directly. For use with [`
 ## Return type
 
 ```ts
-import type { Mcp } from 'mpay'
+import type { Mcp } from 'mppx'
 
 type ReturnType = Transport<Mcp.JsonRpcRequest, Mcp.Response>
 ```

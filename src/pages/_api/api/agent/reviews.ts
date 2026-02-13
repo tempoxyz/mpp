@@ -1,12 +1,12 @@
 import { env } from "cloudflare:workers";
-import { Expires } from "mpay/server";
-import { mpay } from "../../../../mpay.server";
+import { Expires } from "mppx/server";
+import { mppx } from "../../../../mppx.server";
 
 export async function GET(request: Request) {
 	const url = new URL(request.url);
 	const placeId = url.searchParams.get("place") || "place_001";
 
-	const result = await mpay.charge({
+	const result = await mppx.charge({
 		amount: "0.003",
 		currency: env.DEFAULT_CURRENCY!,
 		recipient: env.DEFAULT_RECIPIENT!,

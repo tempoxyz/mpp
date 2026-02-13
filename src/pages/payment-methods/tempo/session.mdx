@@ -99,9 +99,9 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
 Use [`tempo`](/sdk/typescript/server/Method.tempo) to accept payment sessions. The server needs an RPC URL for on-chain verification during channel open/close, and a storage backend for channel state.
 
 ```ts twoslash
-import { Mpay, Store, tempo } from 'mpay/server'
+import { Mppx, Store, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [
     tempo({
       currency: '0x20c0000000000000000000000000000000000000',
@@ -114,12 +114,12 @@ const mpay = Mpay.create({
 
 During a session, the server verifies each voucher with a single `ecrecover`—no RPC calls, no database writes in the hot path. On-chain interaction only happens during open, settlement, and close.
 
-Use `mpay.session` in your request handler to meter access:
+Use `mppx.session` in your request handler to meter access:
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [
     tempo.session({
       currency: '0x20c0000000000000000000000000000000000000',
@@ -129,7 +129,7 @@ const mpay = Mpay.create({
 })
 // ---cut---
 export async function handler(request: Request) {
-  const result = await mpay.session({
+  const result = await mppx.session({
     amount: '25',
     unitType: 'llm_token',
   })(request)
@@ -147,9 +147,9 @@ Register multiple methods to accept multiple payment methods on the same server.
 For example, to accept both charge and payment sessions:
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [
     tempo.charge(),
     tempo.session(),
@@ -166,15 +166,15 @@ See [`tempo.session` server reference](/sdk/typescript/server/Method.tempo.sessi
   <Tab title="Client">
   <div className="space-y-4">
 
-Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mpay.create` to sign vouchers automatically when the server requests payment sessions.
+Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mppx.create` to sign vouchers automatically when the server requests payment sessions.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({
+Mppx.create({
   methods: [tempo({ account })],
 })
 
@@ -184,20 +184,20 @@ const response = await fetch('https://api.example.com/v1/chat/completions')
 
 ### Without polyfill
 
-If you don't want to patch `globalThis.fetch`, use `mpay.fetch` directly:
+If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   polyfill: false,
   methods: [tempo.session({ account })],
 })
 
-const response = await mpay.fetch('https://api.example.com/v1/chat/completions')
+const response = await mppx.fetch('https://api.example.com/v1/chat/completions')
 ```
 
 ### With multiple methods
@@ -207,12 +207,12 @@ Register multiple methods so the client can handle servers that offer multiple p
 For example, to accept both charge and payment sessions:
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({
+Mppx.create({
   methods: [
     tempo.charge({ account }),
     tempo.session({ account }),

@@ -1,16 +1,16 @@
-# `Mpay.create`
+# `Mppx.create`
 
 Creates a client-side payment handler. Returns a payment handler with a `fetch` function that automatically handles `402` Payment Required responses. By default, also polyfills `globalThis.fetch`.
 
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
-Mpay.create({
+Mppx.create({
   methods: [tempo({ account })],
 })
 
@@ -23,18 +23,18 @@ const res = await fetch('https://mpp.dev/api/ping/paid')
 Set `polyfill: false` to get a scoped fetch without modifying the global:
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   polyfill: false, // [!code hl]
   methods: [tempo({ account })],
 })
 
 // Use the returned fetch // [!code hl]
-const res = await mpay.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
+const res = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 ```
 
 ### Manual credential handling
@@ -42,10 +42,10 @@ const res = await mpay.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 For full control over the payment flow:
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   polyfill: false, // [!code hl]
   methods: [tempo()],
 })
@@ -54,7 +54,7 @@ const mpay = Mpay.create({
 const response = await fetch('https://mpp.dev/api/ping/paid')
 
 if (response.status === 402) {
-  const credential = await mpay.createCredential(response, {
+  const credential = await mppx.createCredential(response, {
     account: privateKeyToAccount('0x...'),
   })
 
@@ -68,7 +68,7 @@ if (response.status === 402) {
 ## Return type
 
 ```ts
-type Mpay = {
+type Mppx = {
   /** Payment-aware fetch function that automatically handles 402 responses. */
   fetch: Fetch
   /** The configured payment methods. */
@@ -92,12 +92,12 @@ type Mpay = {
 Array of payment methods to use.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   // [!code focus:start]
   methods: [tempo({ account })],
   // [!code focus:end]
@@ -112,12 +112,12 @@ const mpay = Mpay.create({
 Whether to polyfill `globalThis.fetch` with the payment-aware wrapper.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   polyfill: false, // [!code focus]
   methods: [tempo({ account })],
 })
@@ -131,14 +131,14 @@ const mpay = Mpay.create({
 Custom fetch function to wrap.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const customFetch = globalThis.fetch
 
 const account = privateKeyToAccount('0x...')
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   fetch: customFetch, // [!code focus]
   methods: [tempo({ account })],
 })
@@ -152,12 +152,12 @@ const mpay = Mpay.create({
 Transport to use for extracting challenges and attaching credentials.
 
 ```ts twoslash
-import { Mpay, Transport, tempo } from 'mpay/client'
+import { Mppx, Transport, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo({ account })],
   transport: Transport.mcp(), // [!code focus]
 })

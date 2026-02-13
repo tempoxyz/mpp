@@ -5,7 +5,7 @@ Extracts the challenge from a Headers object.
 ## Usage
 
 ```ts twoslash
-import { Challenge } from 'mpay'
+import { Challenge } from 'mppx'
 
 const response = await fetch('/resource')
 const challenge = Challenge.fromHeaders(response.headers)
@@ -16,8 +16,8 @@ const challenge = Challenge.fromHeaders(response.headers)
 Use a method definition to get type-safe access to method-specific request fields.
 
 ```ts twoslash
-import { Challenge } from 'mpay'
-import { MethodIntents } from 'mpay/tempo'
+import { Challenge } from 'mppx'
+import { MethodIntents } from 'mppx/tempo'
 
 const response = await fetch('/resource')
 const challenge = Challenge.fromHeaders(response.headers, { methods: [MethodIntents.charge] })

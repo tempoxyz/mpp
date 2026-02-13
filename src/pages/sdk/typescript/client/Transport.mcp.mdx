@@ -5,12 +5,12 @@ MCP transport for client-side payment handling.
 ## Usage
 
 ```ts twoslash
-import { Mpay, Transport, tempo } from 'mpay/client'
+import { Mppx, Transport, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo({ account })],
   transport: Transport.mcp(), // [!code focus]
 })

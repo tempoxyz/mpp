@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
-import { fetch } from "../mpay.client";
+import { fetch } from "../mppx.client";
 import { pathUsd } from "../wagmi.config";
 import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";

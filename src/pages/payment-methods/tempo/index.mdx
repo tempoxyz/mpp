@@ -51,13 +51,13 @@ Tempo supports server-paid transaction fees for both charge and session intents.
 Set `feePayer: true` in the Challenge request to enable this:
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 declare const request: Request
 // ---cut---
-const response = await mpay.charge({
+const response = await mppx.charge({
   amount: '0.1',
   currency: '0x20c0000000000000000000000000000000000000',
   feePayer: true, // [!code hl]

@@ -7,7 +7,7 @@ If `secretKey` option is provided, the challenge ID is computed as HMAC-SHA256 o
 ## Usage
 
 ```ts twoslash
-import { Challenge } from 'mpay'
+import { Challenge } from 'mppx'
 
 // With HMAC-bound ID (recommended for servers)
 const challenge = Challenge.from(
@@ -26,7 +26,7 @@ const challenge = Challenge.from(
 Use an explicit ID when you don't need HMAC-bound challenge verification.
 
 ```ts twoslash
-import { Challenge } from 'mpay'
+import { Challenge } from 'mppx'
 
 const challenge = Challenge.from({
   id: 'abc123',

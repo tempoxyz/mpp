@@ -1,22 +1,22 @@
-# `Mpay.restore`
+# `Mppx.restore`
 
-Restores the original `fetch` after `Mpay.create()` polyfilled it.
+Restores the original `fetch` after `Mppx.create()` polyfilled it.
 
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
-Mpay.create({
+Mppx.create({
   methods: [tempo({ account })],
 })
 
 // ... use payment-aware fetch ...
 
-Mpay.restore()
+Mppx.restore()
 ```
 
 ## Return type

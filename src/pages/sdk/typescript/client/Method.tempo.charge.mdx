@@ -5,12 +5,12 @@ Creates a Tempo charge payment method for client-side transaction signing.
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({
+Mppx.create({
   methods: [
     // [!code focus:start]
     tempo.charge({ account }),
@@ -24,7 +24,7 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 ## Return type
 
 ```ts
-import type { MethodIntent } from 'mpay'
+import type { MethodIntent } from 'mppx'
 
 type ReturnType = MethodIntent.Client
 ```
@@ -38,7 +38,7 @@ type ReturnType = MethodIntent.Client
 Account to sign transactions with. You can override this per call using the context.
 
 ```ts twoslash
-import { tempo } from 'mpay/client'
+import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.charge({

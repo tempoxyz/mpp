@@ -1,5 +1,5 @@
 // [!region imports]
-import { Mpay, tempo } from "mpay/client";
+import { Mppx, tempo } from "mppx/client";
 import { privateKeyToAccount } from "viem/accounts";
 
 // [!endregion imports]
@@ -9,12 +9,12 @@ const account = privateKeyToAccount("0x...");
 // [!endregion account]
 
 // [!region fetch]
-const mpay = Mpay.create({
+const mppx = Mppx.create({
 	polyfill: false,
 	methods: [tempo.charge({ account })],
 });
 // [!endregion fetch]
 
 // [!region usage]
-const _response = await mpay.fetch("https://api.example.com/resource");
+const _response = await mppx.fetch("https://api.example.com/resource");
 // [!endregion usage]
