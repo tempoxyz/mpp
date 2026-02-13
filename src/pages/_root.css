@@ -125,7 +125,10 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 [data-v-outline-items] a[data-active="true"],
 [data-v-outline-items] a[data-active="true"] *,
 [data-v-outline-items] a[data-active="true"] span {
-	background-color: oklch(from var(--vocs-color-accent) l c h / 0.08) !important;
+	background-color: oklch(
+		from var(--vocs-color-accent) l c h /
+		0.08
+	) !important;
 	color: var(--vocs-color-accent) !important;
 	-webkit-text-fill-color: var(--vocs-color-accent) !important;
 	border-radius: 4px;
@@ -396,7 +399,10 @@ article hr {
 /* Callouts — use accent (orange) color scheme */
 aside[data-v-callout] {
 	--color-tip: var(--vocs-color-accent) !important;
-	--color-tip-tint: oklch(from var(--vocs-color-accent) l c h / 0.08) !important;
+	--color-tip-tint: oklch(
+		from var(--vocs-color-accent) l c h /
+		0.08
+	) !important;
 	--vocs-color-tip: var(--vocs-color-accent) !important;
 	border-color: var(--vocs-color-accent) !important;
 }

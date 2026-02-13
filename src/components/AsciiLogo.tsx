@@ -395,7 +395,7 @@ export function AsciiLogo() {
 					letterSpacing: "1px",
 					color: "var(--vocs-color-accent)",
 					opacity: 0.85,
-					textShadow: "0 0 20px rgba(249, 115, 22, 0.3)",
+					textShadow: "0 0 20px rgba(255, 125, 60, 0.3)",
 					cursor: "pointer",
 					margin: "0 auto",
 					overflow: "visible",

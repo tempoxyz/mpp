@@ -10,7 +10,7 @@ const baseUrl = (() => {
 })();
 
 export default defineConfig({
-	accentColor: "#F97316",
+	accentColor: "#FF7D3C",
 	colorScheme: "light dark",
 	baseUrl,
 	redirects: [
@@ -61,15 +61,15 @@ export default defineConfig({
 	sidebar: {
 		"/": [
 			{
-			text: "Setup & use",
-			items: [
-				{ text: "Use with agents", link: "/for-humans/agents" },
-				{ text: "Integrate into apps", link: "/for-humans/integrate" },
-				{ text: "Frequently asked", link: "/for-humans/faq" },
-			],
-		},
-		{
-			text: "Integrate now",
+				text: "Setup & use",
+				items: [
+					{ text: "Use with agents", link: "/for-humans/agents" },
+					{ text: "Integrate into apps", link: "/for-humans/integrate" },
+					{ text: "Frequently asked", link: "/for-humans/faq" },
+				],
+			},
+			{
+				text: "Integrate now",
 				items: [
 					{
 						text: "Introduction",
