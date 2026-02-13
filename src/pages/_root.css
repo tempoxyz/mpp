@@ -52,10 +52,22 @@
 }
 
 [data-v-sidebar] a:hover,
-[data-v-outline-items] a:hover,
+[data-v-outline-items] a:hover {
+	color: #0166ff;
+	text-decoration: none;
+}
+
 [data-v-content] a:hover {
 	color: #0166ff;
 	text-decoration: underline;
+}
+
+/* No underline on sidebar items */
+[data-v-sidebar] a,
+[data-v-sidebar] a:hover,
+[data-v-sidebar] [data-v-sidebar-item],
+[data-v-sidebar] [data-v-sidebar-item]:hover {
+	text-decoration: none !important;
 }
 
 [data-v-sidebar] [data-v-sidebar-item][data-active="true"] {
