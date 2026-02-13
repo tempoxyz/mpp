@@ -314,8 +314,12 @@ article a[data-v-card]:hover {
 	text-decoration: none !important;
 }
 
-/* Vocs card hover state - card border darkens */
+/* Vocs card layout - icon at top, text at bottom */
 [data-v-card] {
+	display: flex !important;
+	flex-direction: column !important;
+	justify-content: space-between !important;
+	min-height: 160px !important;
 	transition: border-color 0.15s ease !important;
 }
 
@@ -330,19 +334,30 @@ article a[data-v-card]:hover {
 
 /* Card description - smaller font and tighter line height, gray color */
 [data-v-card] p {
-	font-size: 12px !important;
-	line-height: 1.4 !important;
+	font-size: 11px !important;
+	line-height: 1.35 !important;
 	color: #6b7280 !important; /* gray-500 */
+	margin-top: 0.25rem !important;
 }
 
-/* Remove all dividers/borders above cards */
-[data-v-content] h1 + hr,
-[data-v-content] > hr,
+/* Card title */
+[data-v-card] strong {
+	font-size: 14px !important;
+}
+
+/* Remove ALL dividers/borders/lines above cards */
 [data-v-content] hr,
-article > hr,
-[data-v-cards]::before {
+[data-v-content] > hr,
+article hr,
+[data-v-cards]::before,
+[data-v-card]::before,
+h1 + hr,
+.vocs_Heading + hr {
 	display: none !important;
 	border: none !important;
+	height: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
 /* Ensure header covers scrolling content */
