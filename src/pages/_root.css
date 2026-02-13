@@ -94,12 +94,14 @@ a[class*="rounded-md"][class*="border"]:hover {
 	text-decoration: none !important;
 }
 
-/* Active sidebar item - white text on accent background (scoped to sidebar only) */
-/* Must override Vocs's vocs:data-active:text-accent8! and vocs:data-active:bg-accenta3 */
-a[data-v-sidebar-item][data-active="true"] {
+/* Active sidebar item - white text on accent background */
+/* -webkit-text-fill-color is needed to override Tailwind v4 @layer utilities */
+a[data-v-sidebar-item][data-active="true"],
+a[data-v-sidebar-item][data-active="true"]:link,
+a[data-v-sidebar-item][data-active="true"]:visited {
 	background-color: var(--vocs-color-accent) !important;
 	color: #fff !important;
-	--tw-text-opacity: 1 !important;
+	-webkit-text-fill-color: #fff !important;
 }
 
 /* Sidebar section headings - bolder */
