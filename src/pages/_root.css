@@ -45,7 +45,7 @@
 }
 
 [data-v-logo] img {
-	height: 28px;
+	height: 20px;
 }
 
 [data-v-gutter-top] nav a[data-v-active="true"] {
@@ -55,6 +55,23 @@
 
 [data-v-gutter-top] nav a:hover {
 	text-decoration: underline;
+}
+
+/* More spacing between top nav links */
+[data-v-gutter-top] nav a {
+	margin-inline: 0.25rem;
+}
+
+/* No underline on hover inside buttons or button-like links */
+a[class*="bg-accent"]:hover,
+a[class*="bg-accent"]:hover *,
+a[class*="rounded-md"][class*="border"]:hover {
+	text-decoration: none !important;
+}
+
+/* Secondary CTA button hover */
+.cta-secondary:hover {
+	background-color: var(--vocs-background-color-surfaceMuted) !important;
 }
 
 [data-v-sidebar] a:hover,
@@ -77,12 +94,12 @@
 	text-decoration: none !important;
 }
 
-/* Active sidebar item - white text on accent background */
-[data-v-sidebar-container] [data-v-sidebar-item][data-active="true"],
-[data-v-sidebar-container] [data-v-sidebar-item][data-active="true"] span,
-[data-v-sidebar-container] [data-v-sidebar-item][data-active="true"] * {
+/* Active sidebar item - white text on accent background (scoped to sidebar only) */
+/* Must override Vocs's vocs:data-active:text-accent8! and vocs:data-active:bg-accenta3 */
+a[data-v-sidebar-item][data-active="true"] {
 	background-color: var(--vocs-color-accent) !important;
-	color: var(--vocs-color-accentInvert) !important;
+	color: #fff !important;
+	--tw-text-opacity: 1 !important;
 }
 
 /* Sidebar section headings - bolder */
@@ -102,10 +119,20 @@
 	margin-bottom: 0 !important;
 }
 
+/* TOC active item - translucent blue bg with blue text (NOT solid blue) */
 [data-v-outline-items] a[data-active="true"],
-[data-v-outline-items] a[data-active="true"] * {
-	background-color: transparent !important;
+[data-v-outline-items] a[data-active="true"] *,
+[data-v-outline-items] a[data-active="true"] span {
+	background-color: light-dark(
+		rgba(1, 102, 255, 0.08),
+		rgba(96, 165, 250, 0.1)
+	) !important;
 	color: var(--vocs-color-accent) !important;
+	border-radius: 4px;
+}
+
+[data-v-outline-items] a[data-active="true"] span {
+	background-color: transparent !important;
 }
 
 [data-v-outline-indicator] {
@@ -150,7 +177,7 @@
 	/* Lighter inline code background for better visibility */
 	--background-color-inline-code: light-dark(
 		var(--vocs-color-gray12),
-		var(--vocs-color-gray5)
+		var(--vocs-color-gray7)
 	);
 
 	--font-mono:
@@ -382,26 +409,34 @@ article aside a:hover {
 	text-decoration: underline !important;
 }
 
-/* Move Ask AI spotlight to bottom right under table of contents */
+/* Move Ask AI spotlight to right gutter area, out of content flow */
+[data-v-spotlight],
 [data-v-spotlight-trigger],
-[data-v-ai-trigger],
-button[aria-label*="AI"],
-button[aria-label*="Ask"] {
+[data-v-search],
+[data-v-search-trigger],
+[class*="Spotlight"],
+[class*="spotlight"],
+[class*="SearchTrigger"],
+[class*="search-trigger"] {
 	position: fixed !important;
-	bottom: 1rem !important;
-	right: 1rem !important;
+	bottom: 1.5rem !important;
+	right: 1.5rem !important;
 	top: auto !important;
 	left: auto !important;
 	z-index: 40 !important;
 }
 
-/* On larger screens, position in the outline column area */
+/* On larger screens, align with the outline/TOC column */
 @media (min-width: 1280px) {
+	[data-v-spotlight],
 	[data-v-spotlight-trigger],
-	[data-v-ai-trigger],
-	button[aria-label*="AI"],
-	button[aria-label*="Ask"] {
-		right: calc((100vw - 1280px) / 2 + 1rem) !important;
+	[data-v-search],
+	[data-v-search-trigger],
+	[class*="Spotlight"],
+	[class*="spotlight"],
+	[class*="SearchTrigger"],
+	[class*="search-trigger"] {
+		right: 2rem !important;
 		bottom: 2rem !important;
 	}
 }

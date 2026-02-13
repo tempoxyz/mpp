@@ -33,7 +33,7 @@ export default defineConfig({
 		},
 	],
 	description:
-		"Machine Payments Protocol - Machine-native payments for machine-to-machine transactions",
+		"Machine Payment Protocol: internet-native payments for machine-to-machine transactions",
 	checkDeadlinks: "warn",
 	iconUrl: "/favicon-dollar.svg",
 	logoUrl: {
@@ -63,8 +63,8 @@ export default defineConfig({
 			{
 				text: "For humans",
 				items: [
-					{ text: "Use with an agent", link: "/for-humans/agents" },
-					{ text: "Integrate into your app", link: "/for-humans/integrate" },
+					{ text: "Use with agents", link: "/for-humans/agents" },
+					{ text: "Integrate into apps", link: "/for-humans/integrate" },
 					{ text: "Frequently asked", link: "/for-humans/faq" },
 				],
 			},
@@ -73,14 +73,16 @@ export default defineConfig({
 				items: [
 					{
 						text: "Introduction",
+						collapsed: true,
 						items: [
 							{ text: "Overview", link: "/overview" },
 							{ text: "Specifications", link: "/specs" },
-							{ text: "Frequently asked", link: "/faq" },
+							{ text: "FAQ 🚧", disabled: true },
 						],
 					},
 					{
 						text: "Quick Start",
+						collapsed: true,
 						items: [
 							{ text: "Overview", link: "/quickstart" },
 							{ text: "Client", link: "/quickstart/client" },
@@ -90,14 +92,16 @@ export default defineConfig({
 					},
 					{
 						text: "Guides",
+						collapsed: true,
 						items: [
 							{ text: "Build with AI", link: "/guides/building-with-ai" },
-							{ text: "Accept One-Time Payments 🚧", disabled: true },
-							{ text: "Accept Pay-As-You-Go Payments 🚧", disabled: true },
+							{ text: "One-time payments 🚧", disabled: true },
+							{ text: "Pay-as-you-go 🚧", disabled: true },
 						],
 					},
 					{
 						text: "Protocol",
+						collapsed: true,
 						items: [
 							{ text: "Overview", link: "/protocol" },
 							{ text: "HTTP 402", link: "/protocol/http-402" },
@@ -115,7 +119,8 @@ export default defineConfig({
 						],
 					},
 					{
-						text: "Payment Methods & Intents",
+						text: "Payment methods & intents",
+						collapsed: true,
 						items: [
 							{ text: "Overview", link: "/payment-methods" },
 							{
@@ -150,7 +155,8 @@ export default defineConfig({
 						],
 					},
 					{
-						text: "SDKs & Tools",
+						text: "SDKs & tools",
+						collapsed: true,
 						items: [
 							{ text: "Overview", link: "/sdk" },
 							{
@@ -158,11 +164,11 @@ export default defineConfig({
 								collapsed: true,
 								items: [
 									{
-										text: "Getting Started",
+										text: "Getting started",
 										link: "/sdk/typescript",
 									},
 									{
-										text: "Client Reference",
+										text: "Client reference",
 										items: [
 											{
 												text: "Mpay",
@@ -213,7 +219,7 @@ export default defineConfig({
 										],
 									},
 									{
-										text: "Server Reference",
+										text: "Server reference",
 										items: [
 											{
 												text: "Mpay",
@@ -268,7 +274,7 @@ export default defineConfig({
 										],
 									},
 									{
-										text: "Middleware Reference",
+										text: "Middleware reference",
 										items: [
 											{
 												text: "Elysia",
@@ -289,7 +295,7 @@ export default defineConfig({
 										],
 									},
 									{
-										text: "Core Reference",
+										text: "Core reference",
 										items: [
 											{
 												text: "Challenge",
@@ -455,9 +461,9 @@ export default defineConfig({
 		},
 	},
 	topNav: [
-		{ text: "Docs", link: "/overview", match: (path) => path !== "/" },
+		{ text: "Documentation", link: "/overview", match: (path) => path !== "/" },
 		{ text: "SDKs & Tools", link: "/sdk" },
-		{ text: "Specs", link: "/specs" },
+		{ text: "Specifications", link: "/specs" },
 		{
 			text: "GitHub",
 			items: [

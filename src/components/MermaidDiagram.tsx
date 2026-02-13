@@ -12,24 +12,24 @@ const LAYOUT = {
 	actorGap2: 360,
 	actorBoxH: 36,
 	actorPadX: 24,
-	headerGap: 50,
-	rowHeight: 60,
+	headerGap: 72,
+	rowHeight: 72,
 	blockPadX: 12,
 	blockPadTop: 28,
 	blockPadBottom: 10,
-	labelLineGap: 14,
+	labelLineGap: 22,
 	arrowSize: 8,
 	badgeR: 10,
 	noteBoxPadX: 16,
 	noteBoxPadY: 8,
-	noteExtraMargin: 12,
+	noteExtraMargin: 28,
 	fontFamily:
 		'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
 	actorFontSize: 14,
 	actorFontWeight: 600,
-	labelFontSize: 13,
+	labelFontSize: 14,
 	labelFontWeight: 400,
-	noteFontSize: 12,
+	noteFontSize: 13,
 	noteFontWeight: 500,
 	badgeFontSize: 10,
 	blockLabelFontSize: 11,
@@ -57,7 +57,7 @@ interface ThemeColors {
 const THEMES: Record<"light" | "dark", ThemeColors> = {
 	light: {
 		text: "#27272a",
-		textMuted: "#71717a",
+		textMuted: "#3f3f46",
 		line: "#a1a1aa",
 		lifeline: "#d4d4d8",
 		arrow: "#0166ff",
@@ -72,7 +72,7 @@ const THEMES: Record<"light" | "dark", ThemeColors> = {
 	},
 	dark: {
 		text: "#e4e4e7",
-		textMuted: "#a1a1aa",
+		textMuted: "#e4e4e7",
 		line: "#71717a",
 		lifeline: "#3f3f46",
 		arrow: "#60a5fa",
@@ -349,14 +349,14 @@ function doLayout(p: ParsedDiagram): Layout {
 		}
 	}
 
-	const llBot = y - L.rowHeight / 3;
+	const llBot = y - L.rowHeight / 2;
 	const lifelines: LLifeline[] = cx.map((lx) => ({
 		x: lx,
 		y1: bY + L.actorBoxH,
 		y2: llBot,
 	}));
 	const totalW = rightEdge + L.padding;
-	const totalH = llBot + 8;
+	const totalH = llBot + L.padding;
 
 	return {
 		w: totalW,
@@ -379,7 +379,7 @@ function wrapText(text: string, maxW: number, fontSize: number): string[] {
 	const lines: string[] = [];
 	let cur = "";
 	for (const word of words) {
-		const test = cur ? cur + " " + word : word;
+		const test = cur ? `${cur} ${word}` : word;
 		if (estW(test, fontSize) > maxW && cur) {
 			lines.push(cur);
 			cur = word;
@@ -412,10 +412,24 @@ function render(lo: Layout, th: ThemeColors): string {
 			lo.h +
 			'">',
 	);
-	o.push("<style>text{font-family:" + L.fontFamily + "}</style>");
+	o.push(`<style>text{font-family:${L.fontFamily}}</style>`);
 
-	// Gradient for last (success) message line
-	o.push('<defs><linearGradient id="grad-success" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="' + th.line + '"/><stop offset="85%" stop-color="' + th.successArrow + '"/></linearGradient></defs>');
+	// Gradient for last (success) message line — use userSpaceOnUse to avoid
+	// zero-height bounding box issues on horizontal <line> elements.
+	const lastMsg = lo.messages.find((m) => m.isLast);
+	if (lastMsg) {
+		o.push(
+			'<defs><linearGradient id="grad-success" gradientUnits="userSpaceOnUse" x1="' +
+				lastMsg.x1 +
+				'" y1="0" x2="' +
+				lastMsg.x2 +
+				'" y2="0"><stop offset="0%" stop-color="' +
+				th.line +
+				'"/><stop offset="85%" stop-color="' +
+				th.successArrow +
+				'"/></linearGradient></defs>',
+		);
+	}
 
 	// Lifelines
 	for (const ll of lo.lifelines) {
@@ -522,16 +536,61 @@ function render(lo: Layout, th: ThemeColors): string {
 		const goingRight = m.x2 > m.x1;
 		const lineEndX = goingRight ? m.x2 - sz : m.x2 + sz;
 		const lineStroke = m.isLast ? "url(#grad-success)" : th.line;
-		const arrowFill = m.isLast ? th.successArrow : th.actorFill;
+		// Solid arrows (->>): filled triangle; dashed arrows (-->>): outline triangle
+		const arrowFill = m.isLast
+			? m.dashed
+				? th.actorFill
+				: th.successArrow
+			: m.dashed
+				? th.actorFill
+				: th.line;
 		const arrowStroke = m.isLast ? th.successArrow : th.line;
 
 		// Line
-		o.push('<line data-step="' + m.si + '" x1="' + m.x1 + '" y1="' + m.y + '" x2="' + lineEndX + '" y2="' + m.y + '" stroke="' + lineStroke + '" stroke-width="' + L.messageStroke + '"' + da + "/>");
+		o.push(
+			'<line data-step="' +
+				m.si +
+				'" x1="' +
+				m.x1 +
+				'" y1="' +
+				m.y +
+				'" x2="' +
+				lineEndX +
+				'" y2="' +
+				m.y +
+				'" stroke="' +
+				lineStroke +
+				'" stroke-width="' +
+				L.messageStroke +
+				'"' +
+				da +
+				"/>",
+		);
 
 		// Arrow
 		const tipX = m.x2;
 		const baseX = goingRight ? tipX - sz : tipX + sz;
-		o.push('<polygon data-step-arrow="' + m.si + '" points="' + tipX + "," + m.y + " " + baseX + "," + (m.y - sz / 2) + " " + baseX + "," + (m.y + sz / 2) + '" fill="' + arrowFill + '" stroke="' + arrowStroke + '" stroke-width="1.2" stroke-linejoin="round"/>');
+		o.push(
+			'<polygon data-step-arrow="' +
+				m.si +
+				'" points="' +
+				tipX +
+				"," +
+				m.y +
+				" " +
+				baseX +
+				"," +
+				(m.y - sz / 2) +
+				" " +
+				baseX +
+				"," +
+				(m.y + sz / 2) +
+				'" fill="' +
+				arrowFill +
+				'" stroke="' +
+				arrowStroke +
+				'" stroke-width="1.2" stroke-linejoin="round"/>',
+		);
 
 		// Compute label text width to place badge to its left
 		const labelW = estW(m.label, L.labelFontSize);
@@ -542,13 +601,55 @@ function render(lo: Layout, th: ThemeColors): string {
 		if (m.num) {
 			const bcx = groupLeft + br;
 			const bcy = m.labelY;
-			o.push('<circle data-step-label="' + m.si + '" cx="' + bcx + '" cy="' + bcy + '" r="' + br + '" fill="' + th.badgeBg + '"/>');
-			o.push('<text data-step-label="' + m.si + '" x="' + bcx + '" y="' + bcy + '" text-anchor="middle" dy="0.35em" font-size="' + L.badgeFontSize + '" font-weight="600" fill="' + th.badgeText + '">' + m.num + "</text>");
+			o.push(
+				'<circle data-step-label="' +
+					m.si +
+					'" cx="' +
+					bcx +
+					'" cy="' +
+					bcy +
+					'" r="' +
+					br +
+					'" fill="' +
+					th.badgeBg +
+					'"/>',
+			);
+			o.push(
+				'<text data-step-label="' +
+					m.si +
+					'" x="' +
+					bcx +
+					'" y="' +
+					bcy +
+					'" text-anchor="middle" dy="0.35em" font-size="' +
+					L.badgeFontSize +
+					'" font-weight="600" fill="' +
+					th.badgeText +
+					'">' +
+					m.num +
+					"</text>",
+			);
 		}
 
 		// Label text (to the right of badge)
 		const textX = m.num ? groupLeft + br * 2 + 6 + labelW / 2 : m.labelX;
-		o.push('<text data-step-label="' + m.si + '" x="' + textX + '" y="' + m.labelY + '" text-anchor="middle" font-size="' + L.labelFontSize + '" font-weight="' + L.labelFontWeight + '" fill="' + th.textMuted + '">' + highlightLabel(m.label, th) + "</text>");
+		o.push(
+			'<text data-step-label="' +
+				m.si +
+				'" x="' +
+				textX +
+				'" y="' +
+				m.labelY +
+				'" text-anchor="middle" dy="0.35em" font-size="' +
+				L.labelFontSize +
+				'" font-weight="' +
+				L.labelFontWeight +
+				'" fill="' +
+				th.textMuted +
+				'">' +
+				highlightLabel(m.label, th) +
+				"</text>",
+		);
 	}
 
 	// Notes — rounded box with wrapped text, no italic
@@ -558,18 +659,78 @@ function render(lo: Layout, th: ThemeColors): string {
 		const centeredBoxX = nt.x - nt.boxW / 2;
 		const textStartY = nt.boxY + L.noteBoxPadY + L.noteFontSize;
 
-		o.push('<rect data-step-note="' + nt.si + '" x="' + centeredBoxX + '" y="' + nt.boxY + '" width="' + nt.boxW + '" height="' + nt.boxH + '" rx="6" fill="' + th.actorFill + '" stroke="' + th.actorStroke + '" stroke-width="1"/>');
+		o.push(
+			'<rect data-step-note="' +
+				nt.si +
+				'" x="' +
+				centeredBoxX +
+				'" y="' +
+				nt.boxY +
+				'" width="' +
+				nt.boxW +
+				'" height="' +
+				nt.boxH +
+				'" rx="6" fill="' +
+				th.actorFill +
+				'" stroke="' +
+				th.actorStroke +
+				'" stroke-width="1"/>',
+		);
 
 		if (nt.num) {
 			const bx = centeredBoxX + L.noteBoxPadX + br;
 			const by = nt.boxY + nt.boxH / 2;
-			o.push('<circle data-step-note="' + nt.si + '" cx="' + bx + '" cy="' + by + '" r="' + br + '" fill="' + th.badgeBg + '"/>');
-			o.push('<text data-step-note="' + nt.si + '" x="' + bx + '" y="' + by + '" text-anchor="middle" dy="0.35em" font-size="' + L.badgeFontSize + '" font-weight="600" fill="' + th.badgeText + '">' + nt.num + "</text>");
+			o.push(
+				'<circle data-step-note="' +
+					nt.si +
+					'" cx="' +
+					bx +
+					'" cy="' +
+					by +
+					'" r="' +
+					br +
+					'" fill="' +
+					th.badgeBg +
+					'"/>',
+			);
+			o.push(
+				'<text data-step-note="' +
+					nt.si +
+					'" x="' +
+					bx +
+					'" y="' +
+					by +
+					'" text-anchor="middle" dy="0.35em" font-size="' +
+					L.badgeFontSize +
+					'" font-weight="600" fill="' +
+					th.badgeText +
+					'">' +
+					nt.num +
+					"</text>",
+			);
 		}
 
-		const textX = nt.num ? centeredBoxX + L.noteBoxPadX + br * 2 + 6 : centeredBoxX + L.noteBoxPadX;
+		const textX = nt.num
+			? centeredBoxX + L.noteBoxPadX + br * 2 + 6
+			: centeredBoxX + L.noteBoxPadX;
 		for (let li = 0; li < nt.lines.length; li++) {
-			o.push('<text data-step-note="' + nt.si + '" x="' + textX + '" y="' + (textStartY + li * lineH) + '" font-size="' + L.noteFontSize + '" font-weight="' + L.noteFontWeight + '" fill="' + th.textMuted + '">' + esc(nt.lines[li]) + "</text>");
+			o.push(
+				'<text data-step-note="' +
+					nt.si +
+					'" x="' +
+					textX +
+					'" y="' +
+					(textStartY + li * lineH) +
+					'" font-size="' +
+					L.noteFontSize +
+					'" font-weight="' +
+					L.noteFontWeight +
+					'" fill="' +
+					th.textMuted +
+					'">' +
+					esc(nt.lines[li]) +
+					"</text>",
+			);
 		}
 	}
 
@@ -580,7 +741,8 @@ function render(lo: Layout, th: ThemeColors): string {
 // Syntax highlight HTTP codes and methods in labels
 function highlightLabel(label: string, th: ThemeColors): string {
 	// Tokenize: split label into segments with optional color overrides
-	const re = /(GET|POST|PUT|DELETE|PATCH|\b[45]\d{2}\b|\b2\d{2}\s*OK\b|\b2\d{2}\b)/g;
+	const re =
+		/(GET|POST|PUT|DELETE|PATCH|\b[45]\d{2}\b|\b2\d{2}\s*OK\b|\b2\d{2}\b)/g;
 	let lastIdx = 0;
 	let result = "";
 	let match: RegExpExecArray | null = re.exec(label);
@@ -594,7 +756,7 @@ function highlightLabel(label: string, th: ThemeColors): string {
 		if (/^(GET|POST|PUT|DELETE|PATCH)$/.test(tok)) color = th.arrow;
 		else if (/^[45]\d{2}$/.test(tok)) color = th.errorCode;
 		else if (/^2\d{2}/.test(tok)) color = th.successArrow;
-		result += '<tspan fill="' + color + '">' + esc(tok) + "</tspan>";
+		result += `<tspan fill="${color}">${esc(tok)}</tspan>`;
 		lastIdx = match.index + tok.length;
 		match = re.exec(label);
 	}
@@ -657,8 +819,8 @@ function animate(svg: SVGSVGElement, onComplete: () => void) {
 	for (const item of timeline) {
 		if (item.draw) {
 			const len = lineLen(item.draw);
-			item.draw.style.strokeDasharray = "" + len;
-			item.draw.style.strokeDashoffset = "" + len;
+			item.draw.style.strokeDasharray = `${len}`;
+			item.draw.style.strokeDashoffset = `${len}`;
 			item.draw.style.opacity = "0";
 		}
 		if (item.arrow) item.arrow.style.opacity = "0";
@@ -670,34 +832,36 @@ function animate(svg: SVGSVGElement, onComplete: () => void) {
 			if (!e.isIntersecting) return;
 			obs.disconnect();
 			let lastDelay = 0;
+			let cumDelay = 800;
 			for (let i = 0; i < timeline.length; i++) {
 				const item = timeline[i];
-				const extraNoteDelay = item.isNote ? 400 : 0;
-				const delay = 800 + i * 1200 + extraNoteDelay;
+				const delay = cumDelay;
 				if (delay > lastDelay) lastDelay = delay;
+				// Notes need more time to fade in before next step starts
+				cumDelay += item.isNote ? 2000 : 1200;
 
 				setTimeout(() => {
+					// Line draws and label fades in together
 					if (item.draw) {
 						item.draw.style.transition =
 							"opacity 0.3s ease, stroke-dashoffset 1.2s ease-out";
 						item.draw.style.opacity = "1";
 						item.draw.style.strokeDashoffset = "0";
 					}
+					// Label text appears alongside the line draw
+					for (const el of item.fade) {
+						el.style.transition = item.draw
+							? "opacity 0.6s ease"
+							: "opacity 0.8s ease";
+						el.style.opacity = "1";
+					}
+					// Arrow tip appears after line finishes
 					if (item.arrow) {
 						setTimeout(() => {
 							item.arrow!.style.transition = "opacity 0.3s ease";
 							item.arrow!.style.opacity = "1";
 						}, 1000);
 					}
-					setTimeout(
-						() => {
-							for (const el of item.fade) {
-								el.style.transition = "opacity 0.8s ease";
-								el.style.opacity = "1";
-							}
-						},
-						item.draw ? 1200 : 0,
-					);
 				}, delay);
 			}
 			// Signal completion after last item fully visible
@@ -810,7 +974,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
 						width: 28,
 						height: 28,
 						borderRadius: "50%",
-						border: "1px solid " + th.actorStroke,
+						border: `1px solid ${th.actorStroke}`,
 						background: th.actorFill,
 						color: th.textMuted,
 						display: "flex",

@@ -24,28 +24,6 @@ const ASCII_MPP = `
 @@@@@@@@=              %@@@$              %@@@@@@@%                          %@@@@@@@$                                  
 %%%%%%%%=               $%$               $%%%%%%%$                          $%%%%%%%$`;
 
-const ASCII_402 = `
-                        .+&&&&&&&&&&&*             :=*$&%8#@@@@@@@##8%&*+-.         .:=+*$&%%8###@@@@@@@@##88%&*+-.     
-                      :$@@@@@@@@@@@@@8         :*%#@@@@@@@@@@@@@@@@@@@@@@@@8&=.   +#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@8*:  
-                      :$@@@@@@@@@@@@@8         :*%#@@@@@@@@@@@@@@@@@@@@@@@@8&=.   +#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@8*:  
-                    -&@@@@@@@&%@@@@@@8      .*8@@@@@@@@@@@@#888888#@@@@@@@@@@@@%- $@@@@@@@@@@@@###8888###@@@@@@@@@@@@@$.
-                 .+8@@@@@@#*: $@@@@@@8    .*@@@@@@@@@%*=:.          .-+$8@@@@@@@@8&@#%&*+=-:..            .:=*8@@@@@@@@&
-               :*#@@@@@@8+.   $@@@@@@8   :8@@@@@@@%=.                    :*#@@@@@@@$.                          -@@@@@@@@
-             -&@@@@@@@&-      $@@@@@@8  .#@@@@@@#-                         .$@@@@@@@*                          :#@@@@@@8
-          .=%@@@@@@@$:        $@@@@@@8  $@@@@@@@:                            *@@@@@@@-                      .-*#@@@@@@@:
-          .=%@@@@@@@$:        $@@@@@@8  $@@@@@@@:                            *@@@@@@@-                      .-*#@@@@@@@:
-        .*#@@@@@@8+.          $@@@@@@8  #@@@@@@*                             .#@@@@@@$                 .-+$%@@@@@@@@@&: 
-      :$@@@@@@@%=.            $@@@@@@8 .@@@@@@@=                              %@@@@@@%          .:=*&%#@@@@@@@@@@@%*:   
-   .=%@@@@@@@$:               $@@@@@@8  #@@@@@@*                             .#@@@@@@$    .:+$%#@@@@@@@@@@@@@#%*=.      
-	.+#@@@@@@#*:.................&@@@@@@8..&@@@@@@@:                            *@@@@@@@-.-*%@@@@@@@@@@@@@8&$+-.           
-$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#-                         .$@@@@@@@&&@@@@@@@@@#%&*=-.                  
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%=.                    :*#@@@@@@@#@@@@@@@%*=.                         
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#@@@@@@@%%%%8$@@@@@@@@@%$=:.         .:-+$8@@@@@@@@8@@@@@@@%-::::::::::::::::::::::::::::.
-                              $@@@@@@8      .*8@@@@@@@@@@@@##8888##@@@@@@@@@@@@%-$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
-                              $@@@@@@8      .*8@@@@@@@@@@@@##8888##@@@@@@@@@@@@%-$@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
-                              $@@@@@@8         :*%#@@@@@@@@@@@@@@@@@@@@@@@@8&=.  &@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
-                              +&&&&&&*             :=*$&%8#@@@@@@@##8%&*+-.      +&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&:`;
-
 // Characters to cycle through for "filled" positions
 const FILL_CHARS = [
 	"@",
@@ -62,6 +40,47 @@ const FILL_CHARS = [
 	"●",
 	"◆",
 	"★",
+];
+
+// ---------------------------------------------------------------------------
+// Network simulation types & constants
+// ---------------------------------------------------------------------------
+
+interface NetNode {
+	x: number;
+	y: number;
+}
+
+interface Packet {
+	x: number;
+	y: number;
+	targetIdx: number;
+	trail: { x: number; y: number }[];
+}
+
+const PACKET_SPEED = 0.8;
+const TRAIL_LENGTH = 15;
+const NUM_PACKETS = 8;
+
+// Node characters (rendered as small 3×3 clusters)
+const NODE_CHAR = "█";
+// Trail characters by recency: head → tail
+const TRAIL_CHARS = [
+	"●",
+	"●",
+	"•",
+	"•",
+	"·",
+	"·",
+	"·",
+	"·",
+	":",
+	":",
+	".",
+	".",
+	".",
+	" ",
+	" ",
 ];
 
 interface CharState {
@@ -115,34 +134,78 @@ export function AsciiLogo() {
 	}, [contextMenu, closeMenu]);
 
 	const mppLines = useMemo(() => ASCII_MPP.split("\n"), []);
-	const lines402 = useMemo(() => ASCII_402.split("\n"), []);
 
-	// Initialize each character with its own state - use max dimensions
-	const maxLines = Math.max(mppLines.length, lines402.length);
-	const maxWidth = Math.max(
-		...mppLines.map((l) => l.length),
-		...lines402.map((l) => l.length),
+	const maxLines = mppLines.length;
+	const maxWidth = useMemo(
+		() => Math.max(...mppLines.map((l) => l.length)),
+		[mppLines],
 	);
 
 	// Pre-compute random transition order for each character (stable across renders)
-	// Each value is 0-1, determining when that character transitions during the morph
 	const charTransitionOrder = useMemo(() => {
 		return Array.from({ length: maxLines }, () =>
 			Array.from({ length: maxWidth }, () => Math.random()),
 		);
 	}, [maxLines, maxWidth]);
 
+	// ---------------------------------------------------------------------------
+	// Network simulation refs (no React state — updated in rAF, read during render)
+	// ---------------------------------------------------------------------------
+
+	// Node positions at the vertices/endpoints of the M, P, P letterforms
+	const nodesRef = useRef<NetNode[]>([
+		// M — left stroke top, left stroke bottom, V-valley, right diagonal top
+		{ x: 0, y: 0 },
+		{ x: 0, y: 20 },
+		{ x: 16, y: 20 },
+		{ x: 8, y: 10 },
+		// First P — stem top, stem bottom, bowl top-right, bowl bottom-right
+		{ x: 41, y: 0 },
+		{ x: 41, y: 20 },
+		{ x: 55, y: 0 },
+		{ x: 55, y: 9 },
+		// Second P — stem top, stem bottom, bowl top-right, bowl bottom-right
+		{ x: 77, y: 0 },
+		{ x: 77, y: 20 },
+		{ x: 112, y: 0 },
+		{ x: 112, y: 9 },
+	]);
+
+	// Dynamic network grid — updated each frame
+	const networkGridRef = useRef<string[][]>(
+		Array.from({ length: maxLines }, () =>
+			Array.from({ length: maxWidth }, () => " "),
+		),
+	);
+
+	// Active packets
+	const nodeCount = nodesRef.current.length;
+	const packetsRef = useRef<Packet[]>(
+		Array.from({ length: NUM_PACKETS }, () => {
+			const startIdx = Math.floor(Math.random() * nodeCount);
+			let endIdx = Math.floor(Math.random() * nodeCount);
+			while (endIdx === startIdx)
+				endIdx = Math.floor(Math.random() * nodeCount);
+			const node = nodesRef.current[startIdx];
+			return {
+				x: node.x,
+				y: node.y,
+				targetIdx: endIdx,
+				trail: [],
+			};
+		}),
+	);
+
 	// Compute which character to show at a given position
 	const getCharAt = (lineIdx: number, charIdx: number): string => {
 		const mppChar = mppLines[lineIdx]?.[charIdx] || " ";
-		const char402 = lines402[lineIdx]?.[charIdx] || " ";
+		const netChar = networkGridRef.current[lineIdx]?.[charIdx] || " ";
 
 		if (morphProgress === 0) return mppChar;
-		if (morphProgress === 1) return char402;
+		if (morphProgress === 1) return netChar;
 
-		// Each character has a random threshold determining when it flips
 		const threshold = charTransitionOrder[lineIdx]?.[charIdx] ?? 0.5;
-		return morphProgress > threshold ? char402 : mppChar;
+		return morphProgress > threshold ? netChar : mppChar;
 	};
 
 	const [charStates, setCharStates] = useState<CharState[][]>(() => {
@@ -166,15 +229,12 @@ export function AsciiLogo() {
 	const lastVisibleTime = useRef<number>(Date.now());
 	const isTransitioning = useRef(false);
 
-	// Handle visibility changes to prevent rapid state updates when tab becomes active
 	useEffect(() => {
 		const handleVisibilityChange = () => {
 			if (document.hidden) {
 				isTransitioning.current = true;
 			} else {
-				// Tab became visible - reset timing to prevent accumulated updates
 				lastVisibleTime.current = Date.now();
-				// Give React time to settle before resuming animations
 				setTimeout(() => {
 					isTransitioning.current = false;
 				}, 100);
@@ -188,10 +248,9 @@ export function AsciiLogo() {
 
 	useEffect(() => {
 		let animationId: number;
-		const MORPH_DURATION = 600; // ms
+		const MORPH_DURATION = 600;
 
 		const animate = () => {
-			// Skip updates during tab transition to prevent Base UI conflicts
 			if (isTransitioning.current) {
 				animationId = requestAnimationFrame(animate);
 				return;
@@ -203,16 +262,86 @@ export function AsciiLogo() {
 			if (morphStartTime.current !== null) {
 				const elapsed = now - morphStartTime.current;
 				const t = Math.min(elapsed / MORPH_DURATION, 1);
-
-				// Interpolate from start progress to target
 				const start = morphStartProgress.current;
 				const target = morphTarget.current;
 				const newProgress = start + (target - start) * t;
-
 				setMorphProgress(newProgress);
-
 				if (t >= 1) {
 					morphStartTime.current = null;
+				}
+			}
+
+			// --- Network simulation (runs every frame, cheap) ---
+			const nodes = nodesRef.current;
+			const packets = packetsRef.current;
+			const grid = networkGridRef.current;
+
+			// Clear grid
+			for (let li = 0; li < maxLines; li++) {
+				for (let ci = 0; ci < maxWidth; ci++) {
+					grid[li][ci] = " ";
+				}
+			}
+
+			// Stamp node clusters (3×3 blocks)
+			for (const node of nodes) {
+				for (let dy = -1; dy <= 1; dy++) {
+					for (let dx = -1; dx <= 1; dx++) {
+						const ny = node.y + dy;
+						const nx = node.x + dx;
+						if (ny >= 0 && ny < maxLines && nx >= 0 && nx < maxWidth) {
+							grid[ny][nx] = NODE_CHAR;
+						}
+					}
+				}
+			}
+
+			// Move packets and stamp trails (Manhattan movement: horizontal then vertical)
+			for (const pkt of packets) {
+				const target = nodes[pkt.targetIdx];
+				const dx = target.x - pkt.x;
+				const dy = target.y - pkt.y;
+				const adx = Math.abs(dx);
+				const ady = Math.abs(dy);
+
+				if (adx < 1 && ady < 1) {
+					// Arrived — pick a new random target
+					let newTarget = Math.floor(Math.random() * nodes.length);
+					while (newTarget === pkt.targetIdx)
+						newTarget = Math.floor(Math.random() * nodes.length);
+					pkt.targetIdx = newTarget;
+				} else {
+					// Record trail
+					pkt.trail.unshift({ x: Math.round(pkt.x), y: Math.round(pkt.y) });
+					if (pkt.trail.length > TRAIL_LENGTH) pkt.trail.length = TRAIL_LENGTH;
+					// Move horizontally first, then vertically
+					if (adx > 0.5) {
+						pkt.x += Math.sign(dx) * Math.min(PACKET_SPEED, adx);
+					} else {
+						pkt.y += Math.sign(dy) * Math.min(PACKET_SPEED, ady);
+					}
+				}
+
+				// Stamp trail (oldest first so newer overwrites)
+				for (let i = pkt.trail.length - 1; i >= 0; i--) {
+					const ty = Math.round(pkt.trail[i].y);
+					const tx = Math.round(pkt.trail[i].x);
+					if (ty >= 0 && ty < maxLines && tx >= 0 && tx < maxWidth) {
+						const trailChar = TRAIL_CHARS[Math.min(i, TRAIL_CHARS.length - 1)];
+						// Don't overwrite nodes
+						if (grid[ty][tx] !== NODE_CHAR) {
+							grid[ty][tx] = trailChar;
+						}
+					}
+				}
+
+				// Stamp packet head
+				const hy = Math.round(pkt.y);
+				const hx = Math.round(pkt.x);
+				if (hy >= 0 && hy < maxLines && hx >= 0 && hx < maxWidth) {
+					if (grid[hy][hx] !== NODE_CHAR) {
+						grid[hy][hx] = "█";
+					}
 				}
 			}
 
@@ -241,7 +370,7 @@ export function AsciiLogo() {
 
 		animationId = requestAnimationFrame(animate);
 		return () => cancelAnimationFrame(animationId);
-	}, []);
+	}, [maxLines, maxWidth]);
 
 	return (
 		<>
@@ -250,25 +379,23 @@ export function AsciiLogo() {
 				onMouseEnter={() => startMorph(1)}
 				onMouseLeave={() => startMorph(0)}
 				onContextMenu={handleContextMenu}
-				className="overflow-x-auto max-w-full -mx-4 px-4 sm:mx-0 sm:px-0"
+				className="max-w-full"
 				style={{
 					fontFamily: "monospace",
-					lineHeight: 1.15,
+					lineHeight: 1,
 					whiteSpace: "pre",
 					letterSpacing: "1px",
 					color: "var(--vocs-color-accent)",
 					opacity: 0.85,
 					textShadow: "0 0 20px rgba(1, 102, 255, 0.3)",
 					cursor: "pointer",
+					margin: "0 auto",
+					overflow: "visible",
 				}}
 			>
-				<div
-					className="text-[4px] sm:text-[5px] md:text-[6px]"
-					style={{ minWidth: "fit-content" }}
-				>
+				<div className="text-[3.5px] sm:text-[4px] md:text-[5px]">
 					{mppLines.map((mppLine, lineIdx) => {
-						const line402 = lines402[lineIdx] || "";
-						const lineLen = Math.max(mppLine.length, line402.length);
+						const lineLen = Math.max(mppLine.length, maxWidth);
 						return (
 							// biome-ignore lint/suspicious/noArrayIndexKey: static ASCII art lines don't reorder
 							<div key={lineIdx}>
