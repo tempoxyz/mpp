@@ -161,6 +161,37 @@ function ScrollIndicator({
 export function LandingPage() {
 	const [variant, setVariant] = useState<Variant>("A");
 
+	// Apply header background fix for scroll snap variants
+	useEffect(() => {
+		if (!["C", "D", "E", "F"].includes(variant)) return;
+
+		const bgColor = "#f9fafb";
+		const selectors = [
+			"header",
+			"[data-v-header]",
+			"[data-v-gutter-top]",
+			"[data-v-gutter-left]",
+			"[data-v-gutter-right]",
+			"nav",
+		];
+
+		const elements: HTMLElement[] = [];
+		for (const selector of selectors) {
+			document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
+				el.style.setProperty("background", bgColor, "important");
+				el.style.setProperty("background-color", bgColor, "important");
+				elements.push(el);
+			});
+		}
+
+		return () => {
+			for (const el of elements) {
+				el.style.removeProperty("background");
+				el.style.removeProperty("background-color");
+			}
+		};
+	}, [variant]);
+
 	return (
 		<div
 			className="not-prose"
