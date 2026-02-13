@@ -298,6 +298,22 @@ article a[data-v-card]:hover {
 	text-decoration: none !important;
 }
 
+/* Vocs card hover state - mimic service cards */
+[data-v-card] {
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-v-card]:hover {
+	border-color: #d1d5db !important; /* gray-300 */
+}
+
+/* Card title turns blue on hover */
+[data-v-card]:hover [data-v-card-title],
+[data-v-card]:hover h3,
+[data-v-card]:hover strong:first-child {
+	color: #0166ff !important;
+}
+
 /* Ensure header covers scrolling content */
 [data-v-gutter-top] {
 	z-index: 50 !important;
