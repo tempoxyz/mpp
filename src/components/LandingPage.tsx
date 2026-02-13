@@ -90,8 +90,10 @@ function ScrollSnapContainer({
 							background: #f9fafb !important;
 							background-color: #f9fafb !important;
 						}
-						[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child,
-						[data-v-sidebar], aside, nav, [data-sidebar], [role="navigation"] {
+						[data-v-gutter-top], [data-v-gutter-left], [data-v-gutter-right],
+						[data-v-header], header, [data-layout] > div:first-child,
+						[data-v-sidebar], [data-gutter], aside, nav, [data-sidebar], [role="navigation"],
+						[class*="Gutter"], [class*="gutter"], [class*="Sidebar"], [class*="sidebar"] {
 							background: #f9fafb !important;
 							background-color: #f9fafb !important;
 							position: relative !important;
@@ -102,8 +104,10 @@ function ScrollSnapContainer({
 								background: var(--vocs-color-bg, #1a1a1a) !important;
 								background-color: var(--vocs-color-bg, #1a1a1a) !important;
 							}
-							[data-v-gutter-top], [data-v-header], header, [data-layout] > div:first-child,
-							[data-v-sidebar], aside, nav, [data-sidebar], [role="navigation"] {
+							[data-v-gutter-top], [data-v-gutter-left], [data-v-gutter-right],
+							[data-v-header], header, [data-layout] > div:first-child,
+							[data-v-sidebar], [data-gutter], aside, nav, [data-sidebar], [role="navigation"],
+							[class*="Gutter"], [class*="gutter"], [class*="Sidebar"], [class*="sidebar"] {
 								background: var(--vocs-color-bg, #1a1a1a) !important;
 								background-color: var(--vocs-color-bg, #1a1a1a) !important;
 							}
