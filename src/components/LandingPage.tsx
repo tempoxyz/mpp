@@ -69,7 +69,7 @@ function ScrollSnapContainer({
 			<div
 				className="fixed inset-x-0 top-0 h-[64px] z-5"
 				style={{
-					background: "light-dark(#f9fafb, var(--vocs-color-bg, #1a1a1a))",
+					background: "var(--vocs-background-color-primary)",
 				}}
 			/>
 			<div
@@ -80,37 +80,24 @@ function ScrollSnapContainer({
 					scrollBehavior: "smooth",
 					msOverflowStyle: "none",
 					scrollbarWidth: "none",
-					background: "light-dark(#f9fafb, var(--vocs-color-bg, #1a1a1a))",
+					background: "var(--vocs-background-color-primary)",
 				}}
 			>
 				<style>
 					{`
 						.scroll-snap-container::-webkit-scrollbar { display: none; }
 						body, html, [data-layout], [data-v-layout], main, article {
-							background: #f9fafb !important;
-							background-color: #f9fafb !important;
+							background: var(--vocs-background-color-primary) !important;
+							background-color: var(--vocs-background-color-primary) !important;
 						}
 						[data-v-gutter-top], [data-v-gutter-left], [data-v-gutter-right],
 						[data-v-header], header, [data-layout] > div:first-child,
 						[data-v-sidebar], [data-gutter], aside, nav, [data-sidebar], [role="navigation"],
 						[class*="Gutter"], [class*="gutter"], [class*="Sidebar"], [class*="sidebar"] {
-							background: #f9fafb !important;
-							background-color: #f9fafb !important;
+							background: var(--vocs-background-color-primary) !important;
+							background-color: var(--vocs-background-color-primary) !important;
 							position: relative !important;
 							z-index: 50 !important;
-						}
-						@media (prefers-color-scheme: dark) {
-							body, html, [data-layout], [data-v-layout], main, article {
-								background: var(--vocs-color-bg, #1a1a1a) !important;
-								background-color: var(--vocs-color-bg, #1a1a1a) !important;
-							}
-							[data-v-gutter-top], [data-v-gutter-left], [data-v-gutter-right],
-							[data-v-header], header, [data-layout] > div:first-child,
-							[data-v-sidebar], [data-gutter], aside, nav, [data-sidebar], [role="navigation"],
-							[class*="Gutter"], [class*="gutter"], [class*="Sidebar"], [class*="sidebar"] {
-								background: var(--vocs-color-bg, #1a1a1a) !important;
-								background-color: var(--vocs-color-bg, #1a1a1a) !important;
-							}
 						}
 					`}
 				</style>
@@ -139,7 +126,12 @@ function ScrollIndicator({
 			className="fixed bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce pointer-events-none transition-opacity duration-200 z-50"
 			style={{ opacity }}
 		>
-			<span className="text-xs text-gray-400">{text}</span>
+			<span
+				className="text-xs"
+				style={{ color: "var(--vocs-text-color-muted)" }}
+			>
+				{text}
+			</span>
 			<svg
 				width="20"
 				height="20"
@@ -149,7 +141,7 @@ function ScrollIndicator({
 				strokeWidth="2"
 				strokeLinecap="round"
 				strokeLinejoin="round"
-				className="text-gray-400"
+				style={{ color: "var(--vocs-text-color-muted)" }}
 				aria-hidden="true"
 			>
 				<path d="M12 5v14M5 12l7 7 7-7" />
@@ -165,7 +157,7 @@ export function LandingPage() {
 	useEffect(() => {
 		if (!["C", "D", "E", "F"].includes(variant)) return;
 
-		const bgColor = "#f9fafb";
+		const bgColor = "var(--vocs-background-color-primary)";
 		const selectors = [
 			"header",
 			"[data-v-header]",
@@ -196,7 +188,7 @@ export function LandingPage() {
 		<div
 			className="not-prose"
 			style={{
-				color: "#111",
+				color: "var(--vocs-text-color-heading)",
 				fontFamily:
 					'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
 			}}
@@ -211,11 +203,18 @@ export function LandingPage() {
 						key={v}
 						type="button"
 						onClick={() => setVariant(v)}
-						className={`w-6 h-6 text-[10px] font-medium rounded transition-all ${
+						className="w-6 h-6 text-[10px] font-medium rounded transition-all"
+						style={
 							variant === v
-								? "bg-[#0166FF] text-white"
-								: "bg-gray-200 text-gray-500 hover:bg-gray-300"
-						}`}
+								? {
+										background: "var(--vocs-color-accent)",
+										color: "var(--vocs-color-accentInvert)",
+									}
+								: {
+										background: "var(--vocs-background-color-surfaceMuted)",
+										color: "var(--vocs-text-color-muted)",
+									}
+						}
 					>
 						{v}
 					</button>
@@ -246,11 +245,17 @@ function HeroVariantA() {
 						<div className="lg:hidden">
 							<AsciiLogo />
 						</div>
-						<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+						<h1
+							className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
+							style={{ color: "var(--vocs-text-color-heading)" }}
+						>
 							Machine Payments Protocol
 						</h1>
 						<div className="space-y-1.5 max-w-xl">
-							<p className="text-sm md:text-base text-gray-600 leading-relaxed">
+							<p
+								className="text-sm md:text-base leading-relaxed"
+								style={{ color: "var(--vocs-text-color-secondary)" }}
+							>
 								Accept payments from humans, software, or AI agents using
 								standard HTTP. No billing accounts or manual signup required.
 							</p>
@@ -419,12 +424,18 @@ function ServiceCards() {
 			<div className="flex items-start justify-between align-middle mb-6">
 				<div>
 					<h2
-						style={{ fontSize: "1.25rem" }}
-						className="font-semibold text-gray-900"
+						className="font-semibold"
+						style={{
+							fontSize: "1.25rem",
+							color: "var(--vocs-text-color-heading)",
+						}}
 					>
 						Available services
 					</h2>
-					<p className="text-sm text-gray-500 mt-1">
+					<p
+						className="text-sm mt-1"
+						style={{ color: "var(--vocs-text-color-muted)" }}
+					>
 						Pay-per-call APIs ready to use with MPP
 					</p>
 				</div>
@@ -432,7 +443,12 @@ function ServiceCards() {
 					href="https://payments.tempo.xyz"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
+					className="inline-flex items-center gap-2 px-4 py-2 border text-sm font-medium rounded-md transition-colors no-underline"
+					style={{
+						borderColor: "var(--vocs-border-color-secondary)",
+						backgroundColor: "var(--vocs-background-color-surface)",
+						color: "var(--vocs-text-color-primary)",
+					}}
 				>
 					View more →
 				</a>
@@ -446,35 +462,71 @@ function ServiceCards() {
 							href={service.url}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="group flex-1 min-w-[200px] p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors flex flex-col"
-							style={{ textDecoration: "none" }}
+							className="group flex-1 min-w-[200px] p-4 rounded-lg transition-colors flex flex-col"
+							style={{
+								textDecoration: "none",
+								background: "var(--vocs-background-color-surface)",
+								border: "1px solid var(--vocs-border-color-secondary)",
+							}}
 						>
 							<div className="flex items-center gap-2 mb-2">
-								<Logo className="w-5 h-5 text-gray-600" />
+								<Logo
+									className="w-5 h-5"
+									style={{ color: "var(--vocs-text-color-secondary)" }}
+								/>
 								<span
-									style={{ fontSize: "1rem" }}
-									className="font-semibold text-gray-900 group-hover:text-[#0166FF] transition-colors"
+									className="font-semibold group-hover:text-accent transition-colors"
+									style={{
+										fontSize: "1rem",
+										color: "var(--vocs-text-color-heading)",
+									}}
 								>
 									{service.name}
 								</span>
 								{service.streaming && (
-									<span className="px-1.5 py-0.5 text-[10px] font-medium bg-green-50 text-green-700 rounded">
+									<span
+										className="px-1.5 py-0.5 text-[10px] font-medium rounded"
+										style={{
+											background: "var(--vocs-background-color-success-tint)",
+											color: "var(--vocs-color-success)",
+										}}
+									>
 										Streaming
 									</span>
 								)}
 							</div>
-							<p className="text-xs text-gray-500 leading-relaxed flex-1">
+							<p
+								className="text-xs leading-relaxed flex-1"
+								style={{ color: "var(--vocs-text-color-secondary)" }}
+							>
 								{service.description}
 							</p>
-							<div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-								<div className="text-sm font-mono text-gray-900">
+							<div
+								className="flex items-center justify-between mt-3 pt-3"
+								style={{
+									borderTop: "1px solid var(--vocs-border-color-secondary)",
+								}}
+							>
+								<div
+									className="text-sm font-mono"
+									style={{ color: "var(--vocs-text-color-heading)" }}
+								>
 									{service.price}
-									<span className="text-gray-400 text-xs font-sans">
+									<span
+										className="text-xs font-sans"
+										style={{ color: "var(--vocs-text-color-muted)" }}
+									>
 										{" "}
 										/ call
 									</span>
 								</div>
-								<span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500 rounded">
+								<span
+									className="px-1.5 py-0.5 text-[10px] font-medium rounded"
+									style={{
+										background: "var(--vocs-background-color-surfaceMuted)",
+										color: "var(--vocs-text-color-secondary)",
+									}}
+								>
 									{service.thirdParty ? "Third-party" : "First-party"}
 								</span>
 							</div>
@@ -500,10 +552,16 @@ function HeroVariantB() {
 						<div className="lg:hidden">
 							<AsciiLogo />
 						</div>
-						<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+						<h1
+							className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
+							style={{ color: "var(--vocs-text-color-heading)" }}
+						>
 							Machine Payments Protocol
 						</h1>
-						<p className="text-sm md:text-base text-gray-600 leading-relaxed">
+						<p
+							className="text-sm md:text-base leading-relaxed"
+							style={{ color: "var(--vocs-text-color-secondary)" }}
+						>
 							Accept payments from humans, software, or AI agents using standard
 							HTTP. No billing accounts or manual signup required.
 						</p>
@@ -552,10 +610,16 @@ function HeroVariantC() {
 			>
 				{/* Content */}
 				<div className="max-w-2xl space-y-6">
-					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+					<h1
+						className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
+						style={{ color: "var(--vocs-text-color-heading)" }}
+					>
 						Machine Payments Protocol
 					</h1>
-					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
+					<p
+						className="text-sm md:text-base leading-relaxed max-w-xl mx-auto"
+						style={{ color: "var(--vocs-text-color-secondary)" }}
+					>
 						Accept payments from humans, software, or AI agents using standard
 						HTTP. No billing accounts or manual signup required.
 					</p>
@@ -578,8 +642,16 @@ function HeroVariantC() {
 			>
 				<div className="max-w-[574px] w-full mx-auto space-y-6">
 					<div className="text-center space-y-2">
-						<h2 className="text-2xl font-semibold text-gray-900">Try it out</h2>
-						<p className="text-sm text-gray-500">
+						<h2
+							className="text-2xl font-semibold"
+							style={{ color: "var(--vocs-text-color-heading)" }}
+						>
+							Try it out
+						</h2>
+						<p
+							className="text-sm"
+							style={{ color: "var(--vocs-text-color-muted)" }}
+						>
 							Connect a wallet and run paid API calls
 						</p>
 					</div>
@@ -618,10 +690,16 @@ function HeroVariantD() {
 			>
 				{/* Content */}
 				<div className="max-w-2xl space-y-6">
-					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+					<h1
+						className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
+						style={{ color: "var(--vocs-text-color-heading)" }}
+					>
 						Machine Payments Protocol
 					</h1>
-					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
+					<p
+						className="text-sm md:text-base leading-relaxed max-w-xl mx-auto"
+						style={{ color: "var(--vocs-text-color-secondary)" }}
+					>
 						Accept payments from humans, software, or AI agents using standard
 						HTTP. No billing accounts or manual signup required.
 					</p>
@@ -654,10 +732,16 @@ function HeroVariantD() {
 			>
 				<div className="max-w-xl w-full mx-auto text-center space-y-8">
 					<div className="space-y-2">
-						<h2 className="text-2xl font-semibold text-gray-900">
+						<h2
+							className="text-2xl font-semibold"
+							style={{ color: "var(--vocs-text-color-heading)" }}
+						>
 							Run locally
 						</h2>
-						<p className="text-sm text-gray-500">
+						<p
+							className="text-sm"
+							style={{ color: "var(--vocs-text-color-muted)" }}
+						>
 							Use your favorite AI agent CLI to get started
 						</p>
 					</div>
@@ -691,10 +775,16 @@ function HeroVariantE() {
 			>
 				{/* Content */}
 				<div className="max-w-3xl space-y-6">
-					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+					<h1
+						className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
+						style={{ color: "var(--vocs-text-color-heading)" }}
+					>
 						Machine Payments Protocol
 					</h1>
-					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
+					<p
+						className="text-sm md:text-base leading-relaxed max-w-xl mx-auto"
+						style={{ color: "var(--vocs-text-color-secondary)" }}
+					>
 						Accept payments from humans, software, or AI agents using standard
 						HTTP. No billing accounts or manual signup required.
 					</p>
@@ -708,13 +798,19 @@ function HeroVariantE() {
 					<div className="flex gap-3 justify-center pt-2">
 						<Link
 							to="/for-humans"
-							className="inline-flex items-center gap-2 px-6 py-3 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
+							className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-sm font-medium rounded-md hover:bg-accent6 transition-colors no-underline!"
+							style={{ color: "var(--accent-button-text)" }}
 						>
 							For humans →
 						</Link>
 						<Link
 							to="/specs"
-							className="inline-flex items-center gap-2 px-6 py-3 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
+							className="inline-flex items-center gap-2 px-6 py-3 border text-sm font-medium rounded-md transition-colors no-underline"
+							style={{
+								borderColor: "var(--vocs-border-color-secondary)",
+								backgroundColor: "var(--vocs-background-color-surface)",
+								color: "var(--vocs-text-color-primary)",
+							}}
 						>
 							For agents
 						</Link>
@@ -722,14 +818,18 @@ function HeroVariantE() {
 
 					{/* Co-authored by */}
 					<div className="flex items-center gap-5 justify-center pt-4">
-						<span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
+						<span
+							className="text-xs font-medium tracking-widest uppercase"
+							style={{ color: "var(--vocs-text-color-muted)" }}
+						>
 							Co-authored by
 						</span>
 						<a
 							href="https://tempo.xyz"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
+							className="no-underline transition-colors"
+							style={{ color: "var(--vocs-text-color-muted)" }}
 						>
 							<TempoLogo style={{ width: "70px" }} />
 						</a>
@@ -737,7 +837,8 @@ function HeroVariantE() {
 							href="https://stripe.com"
 							target="_blank"
 							rel="noopener noreferrer"
-							className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
+							className="no-underline transition-colors"
+							style={{ color: "var(--vocs-text-color-muted)" }}
 						>
 							<StripeLogo style={{ width: "55px" }} />
 						</a>
@@ -752,8 +853,16 @@ function HeroVariantE() {
 			>
 				<div className="max-w-[574px] w-full mx-auto space-y-6">
 					<div className="text-center space-y-2">
-						<h2 className="text-2xl font-semibold text-gray-900">Try it out</h2>
-						<p className="text-sm text-gray-500">
+						<h2
+							className="text-2xl font-semibold"
+							style={{ color: "var(--vocs-text-color-heading)" }}
+						>
+							Try it out
+						</h2>
+						<p
+							className="text-sm"
+							style={{ color: "var(--vocs-text-color-muted)" }}
+						>
 							Connect a wallet and run paid API calls
 						</p>
 					</div>
@@ -856,11 +965,18 @@ function HeroVariantF() {
 				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
 			>
 				<div className="max-w-2xl space-y-6">
-					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+					<h1
+						className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
+						style={{ color: "var(--vocs-text-color-heading)" }}
+					>
 						Machine Payments Protocol
 					</h1>
-					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
-						Supercharge your agent with seamless paid API calls. No more manually creating accounts, or copy-pasting keys. 
+					<p
+						className="text-sm md:text-base leading-relaxed max-w-xl mx-auto"
+						style={{ color: "var(--vocs-text-color-secondary)" }}
+					>
+						Supercharge your agent with seamless paid API calls. No more
+						manually creating accounts, or copy-pasting keys.
 					</p>
 					<div className="flex justify-center">
 						<AgentTabsWrapped />
@@ -880,8 +996,16 @@ function HeroVariantF() {
 			>
 				<div className="max-w-[574px] w-full mx-auto space-y-6">
 					<div className="text-center space-y-2">
-						<h2 className="text-2xl font-semibold text-gray-900">Try it out</h2>
-						<p className="text-sm text-gray-500">
+						<h2
+							className="text-2xl font-semibold"
+							style={{ color: "var(--vocs-text-color-heading)" }}
+						>
+							Try it out
+						</h2>
+						<p
+							className="text-sm"
+							style={{ color: "var(--vocs-text-color-muted)" }}
+						>
 							Watch an ephemeral wallet make paid API calls
 						</p>
 					</div>
@@ -907,7 +1031,12 @@ function HeroVariantF() {
 function ServiceCardsCompact() {
 	return (
 		<div className="flex flex-wrap items-center justify-center gap-3">
-			<span className="text-sm text-gray-400">Works with</span>
+			<span
+				className="text-sm"
+				style={{ color: "var(--vocs-text-color-muted)" }}
+			>
+				Works with
+			</span>
 			{SERVICES.slice(0, 4).map((service) => {
 				const Logo = service.logo;
 				return (
@@ -916,7 +1045,12 @@ function ServiceCardsCompact() {
 						href={service.url}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-800 transition-colors text-sm"
+						className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors text-sm"
+						style={{
+							borderColor: "var(--vocs-border-color-secondary)",
+							backgroundColor: "var(--vocs-background-color-surface)",
+							color: "var(--vocs-text-color-secondary)",
+						}}
 					>
 						<Logo style={{ width: 18, height: 18 }} />
 						{service.name}
@@ -934,7 +1068,10 @@ function ServiceCardsCompact() {
 function CoAuthoredBy() {
 	return (
 		<div className="flex items-center gap-5">
-			<span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
+			<span
+				className="text-xs font-medium tracking-widest uppercase"
+				style={{ color: "var(--vocs-text-color-muted)" }}
+			>
 				Co-authored by
 			</span>
 			<div className="flex items-center gap-5">
@@ -942,7 +1079,8 @@ function CoAuthoredBy() {
 					href="https://tempo.xyz"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
+					className="no-underline transition-colors"
+					style={{ color: "var(--vocs-text-color-muted)" }}
 				>
 					<TempoLogo style={{ width: "70px" }} />
 				</a>
@@ -950,7 +1088,8 @@ function CoAuthoredBy() {
 					href="https://stripe.com"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
+					className="no-underline transition-colors"
+					style={{ color: "var(--vocs-text-color-muted)" }}
 				>
 					<StripeLogo style={{ width: "55px" }} />
 				</a>
@@ -964,7 +1103,8 @@ function CTAButtons() {
 		<div className="flex flex-wrap gap-3">
 			<Link
 				to="/for-humans"
-				className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
+				className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-sm font-medium rounded-md hover:bg-accent6 transition-colors no-underline!"
+				style={{ color: "var(--accent-button-text)" }}
 			>
 				For humans
 				<svg
@@ -983,7 +1123,12 @@ function CTAButtons() {
 			</Link>
 			<Link
 				to="/specs"
-				className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
+				className="inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md transition-colors no-underline"
+				style={{
+					borderColor: "var(--vocs-border-color-secondary)",
+					backgroundColor: "var(--vocs-background-color-surface)",
+					color: "var(--vocs-text-color-primary)",
+				}}
 			>
 				For agents
 			</Link>
@@ -1031,8 +1176,17 @@ function AgentTabsWrapped() {
 	};
 
 	return (
-		<div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
-			<div className="flex bg-gray-50 border-b border-gray-200">
+		<div
+			className="max-w-xl rounded-md overflow-hidden text-left"
+			style={{ border: "1px solid var(--vocs-border-color-secondary)" }}
+		>
+			<div
+				className="flex"
+				style={{
+					background: "var(--vocs-background-color-surfaceMuted)",
+					borderBottom: "1px solid var(--vocs-border-color-secondary)",
+				}}
+			>
 				{commands.map((a, i) => {
 					const Icon = a.icon;
 					return (
@@ -1040,11 +1194,22 @@ function AgentTabsWrapped() {
 							key={a.label}
 							type="button"
 							onClick={() => setActive(i)}
-							className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-								i === active
-									? "text-gray-900 bg-white border-b-2 border-gray-900 -mb-px"
-									: "text-gray-400 hover:text-gray-600"
-							}`}
+							className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+							style={{
+								color:
+									i === active
+										? "var(--vocs-text-color-heading)"
+										: "var(--vocs-text-color-muted)",
+								background:
+									i === active
+										? "var(--vocs-background-color-surface)"
+										: "transparent",
+								borderBottom:
+									i === active
+										? "2px solid var(--vocs-text-color-heading)"
+										: "none",
+								marginBottom: i === active ? "-1px" : "0",
+							}}
 						>
 							<Icon className="w-3.5 h-3.5" />
 							{a.label}
@@ -1056,18 +1221,33 @@ function AgentTabsWrapped() {
 			<button
 				type="button"
 				onClick={handleCopy}
-				className="bg-white px-4 py-3 flex items-start justify-between gap-3 w-full text-left cursor-pointer hover:bg-gray-50 transition-colors"
+				className="px-4 py-3 flex items-start justify-between gap-3 w-full text-left cursor-pointer transition-colors"
+				style={{ background: "var(--vocs-background-color-surface)" }}
 			>
 				<span
 					className="text-sm font-mono whitespace-pre-wrap break-words text-left"
 					style={{ margin: 0, padding: 0 }}
 				>
-					<span className="text-gray-400">$</span>
-					<span className="text-gray-800"> {cmd.bin}</span>
-					{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
-					<span className="text-green-700"> {cmd.displayStr}</span>
+					<span style={{ color: "var(--vocs-text-color-muted)" }}>$</span>
+					<span style={{ color: "var(--vocs-text-color-primary)" }}>
+						{" "}
+						{cmd.bin}
+					</span>
+					{cmd.args && (
+						<span style={{ color: "var(--vocs-text-color-secondary)" }}>
+							{" "}
+							{cmd.args}
+						</span>
+					)}
+					<span style={{ color: "var(--vocs-color-success)" }}>
+						{" "}
+						{cmd.displayStr}
+					</span>
 				</span>
-				<span className="text-gray-400 hover:text-[#0166FF] transition-colors shrink-0">
+				<span
+					className="hover:text-accent transition-colors shrink-0"
+					style={{ color: "var(--vocs-text-color-muted)" }}
+				>
 					{copied ? (
 						<svg
 							width="16"
@@ -1138,33 +1318,59 @@ function MultiPromptBox() {
 	};
 
 	return (
-		<div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
-			<div className="bg-gray-50 border-b border-gray-200 px-4 py-2">
-				<span className="text-xs font-medium text-gray-500">
+		<div
+			className="max-w-xl rounded-md overflow-hidden"
+			style={{ border: "1px solid var(--vocs-border-color-secondary)" }}
+		>
+			<div
+				className="px-4 py-2"
+				style={{
+					background: "var(--vocs-background-color-surfaceMuted)",
+					borderBottom: "1px solid var(--vocs-border-color-secondary)",
+				}}
+			>
+				<span
+					className="text-xs font-medium"
+					style={{ color: "var(--vocs-text-color-secondary)" }}
+				>
 					Example prompts for your AI agent
 				</span>
 			</div>
-			<div className="bg-white divide-y divide-gray-100">
+			<div style={{ background: "var(--vocs-background-color-surface)" }}>
 				{MULTI_PROMPTS.map((item, i) => {
 					const fullCommand = `claude -p "${item.prompt}"`;
 					return (
 						<div
 							key={item.prompt}
 							className="px-4 py-3 flex items-start justify-between gap-3"
+							style={{
+								borderBottom:
+									i < MULTI_PROMPTS.length - 1
+										? "1px solid var(--vocs-border-color-secondary)"
+										: "none",
+							}}
 						>
 							<div className="font-mono text-sm min-w-0">
-								<div className="text-gray-400 text-xs mb-0.5">
+								<div
+									className="text-xs mb-0.5"
+									style={{ color: "var(--vocs-text-color-muted)" }}
+								>
 									# {item.comment}
 								</div>
 								<div>
-									<span className="text-gray-800">claude -p </span>
-									<span className="text-green-700">"{item.prompt}"</span>
+									<span style={{ color: "var(--vocs-text-color-primary)" }}>
+										claude -p{" "}
+									</span>
+									<span style={{ color: "var(--vocs-color-success)" }}>
+										"{item.prompt}"
+									</span>
 								</div>
 							</div>
 							<button
 								type="button"
 								onClick={() => handleCopy(fullCommand, i)}
-								className="text-gray-400 hover:text-[#0166FF] transition-colors shrink-0 mt-4"
+								className="hover:text-accent transition-colors shrink-0 mt-4"
+								style={{ color: "var(--vocs-text-color-muted)" }}
 								aria-label="Copy to clipboard"
 							>
 								{copiedIndex === i ? (
@@ -1283,7 +1489,7 @@ function CliPromptAnimated() {
 					() => {
 						setDisplayText(currentPrompt.slice(0, displayText.length + 1));
 					},
-					50 + Math.random() * 30,
+					18 + Math.random() * 12,
 				);
 			} else {
 				setPhase("pausing");
@@ -1295,7 +1501,7 @@ function CliPromptAnimated() {
 			if (displayText.length > 0) {
 				timeout = setTimeout(() => {
 					setDisplayText(displayText.slice(0, -1));
-				}, 30);
+				}, 8);
 			} else {
 				setPromptIndex((i) => (i + 1) % CLI_PROMPTS.length);
 				setPhase("typing");
@@ -1315,9 +1521,18 @@ function CliPromptAnimated() {
 	};
 
 	return (
-		<div className="w-full max-w-xl mx-auto border border-gray-200 rounded-md overflow-hidden">
+		<div
+			className="w-full max-w-xl rounded-md overflow-hidden text-left"
+			style={{ border: "1px solid var(--vocs-border-color-secondary)" }}
+		>
 			{/* Agent tabs */}
-			<div className="flex bg-gray-50 border-b border-gray-200">
+			<div
+				className="flex"
+				style={{
+					background: "var(--vocs-background-color-surfaceMuted)",
+					borderBottom: "1px solid var(--vocs-border-color-secondary)",
+				}}
+			>
 				{CLI_AGENTS.map((agent, i) => {
 					const AgentIcon = agent.icon;
 					return (
@@ -1325,11 +1540,22 @@ function CliPromptAnimated() {
 							key={agent.label}
 							type="button"
 							onClick={() => setAgentIndex(i)}
-							className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-								i === agentIndex
-									? "text-gray-900 bg-white border-b-2 border-gray-900 -mb-px"
-									: "text-gray-400 hover:text-gray-600"
-							}`}
+							className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+							style={{
+								color:
+									i === agentIndex
+										? "var(--vocs-text-color-heading)"
+										: "var(--vocs-text-color-muted)",
+								background:
+									i === agentIndex
+										? "var(--vocs-background-color-surface)"
+										: "transparent",
+								borderBottom:
+									i === agentIndex
+										? "2px solid var(--vocs-text-color-heading)"
+										: "none",
+								marginBottom: i === agentIndex ? "-1px" : "0",
+							}}
 						>
 							<AgentIcon className="w-3.5 h-3.5" />
 							{agent.label}
@@ -1338,26 +1564,32 @@ function CliPromptAnimated() {
 				})}
 			</div>
 			<div
-				className="relative px-4 py-3 pr-10 bg-white font-mono text-sm leading-relaxed"
-				style={{ minHeight: "56px" }}
+				className="relative px-4 py-3 pr-10 font-mono text-sm leading-relaxed"
+				style={{
+					minHeight: "56px",
+					background: "var(--vocs-background-color-surface)",
+				}}
 			>
-				<span className="text-gray-400">$ </span>
-				<span className="text-gray-600">
+				<span style={{ color: "var(--vocs-text-color-muted)" }}>$ </span>
+				<span style={{ color: "var(--vocs-text-color-secondary)" }}>
 					{currentAgent.bin}
 					{currentAgent.args ? ` ${currentAgent.args}` : ""}
 				</span>
-				<span className="text-green-700"> "{displayText}</span>
-				<span className="inline-block w-0.5 h-4 bg-green-600 mx-0.5 align-middle animate-pulse" />
-				<span className="text-green-700">"</span>
+				<span style={{ color: "var(--vocs-color-success)" }}>
+					{" "}
+					"{displayText}
+				</span>
+				<span
+					className="inline-block w-0.5 h-4 mx-0.5 align-middle animate-pulse"
+					style={{ background: "var(--vocs-color-success)" }}
+				/>
+				<span style={{ color: "var(--vocs-color-success)" }}>"</span>
 				{/* Copy button - positioned top right */}
 				<button
 					type="button"
 					onClick={handleCopy}
-					className={`absolute top-3 right-3 transition-all ${
-						phase === "pausing"
-							? "opacity-100 text-gray-400 hover:text-[#0166FF]"
-							: "opacity-0 pointer-events-none"
-					}`}
+					className="absolute top-3 right-3 hover:text-accent transition-colors"
+					style={{ color: "var(--vocs-text-color-muted)" }}
 					aria-label="Copy prompt"
 				>
 					{copied ? (
@@ -1880,13 +2112,13 @@ function QueryResult({
 											href={`https://explorer.tempo.xyz/tx/${call.txHash}`}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="text-[#0166FF] hover:underline"
+											className="text-accent hover:underline"
 										>
 											{call.txHash.slice(0, 10)}…{call.txHash.slice(-8)}
 										</a>
 									</>
 								) : (
-									<span className="text-red-500">
+									<span style={{ color: "var(--vocs-color-destructive)" }}>
 										no tx hash (payment may have failed)
 									</span>
 								)}

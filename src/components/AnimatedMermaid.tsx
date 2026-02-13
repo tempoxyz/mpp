@@ -25,18 +25,13 @@ export function AnimatedMermaid({
 	const [svgContent, setSvgContent] = useState<string | null>(null);
 	const [isDark, setIsDark] = useState(false);
 
-	// Detect dark mode
+	// Detect dark mode using media query
 	useEffect(() => {
-		const checkDark = () => {
-			setIsDark(document.documentElement.classList.contains("dark"));
-		};
+		const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+		const checkDark = () => setIsDark(mediaQuery.matches);
 		checkDark();
-		const observer = new MutationObserver(checkDark);
-		observer.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ["class"],
-		});
-		return () => observer.disconnect();
+		mediaQuery.addEventListener("change", checkDark);
+		return () => mediaQuery.removeEventListener("change", checkDark);
 	}, []);
 
 	useEffect(() => {
@@ -62,11 +57,18 @@ export function AnimatedMermaid({
 		if (!svg) return;
 
 		const messageTexts = svg.querySelectorAll("text.messageText");
+		const styles = getComputedStyle(document.documentElement);
+		const destructiveColor =
+			styles.getPropertyValue("--vocs-color-destructive").trim() ||
+			(isDark ? "#e39a9a" : "#b97676");
+		const successColor =
+			styles.getPropertyValue("--vocs-color-success").trim() ||
+			(isDark ? "#7bcf9a" : "#5b9a76");
 		messageTexts.forEach((el, i) => {
 			if (i === 1 || i === 2) {
-				(el as HTMLElement).style.fill = isDark ? "#e39a9a" : "#b97676";
+				(el as HTMLElement).style.fill = destructiveColor;
 			} else if (i === 5 || i === 6) {
-				(el as HTMLElement).style.fill = isDark ? "#7bcf9a" : "#5b9a76";
+				(el as HTMLElement).style.fill = successColor;
 			}
 		});
 	}, [svgContent, isDark]);
@@ -180,7 +182,7 @@ export function AnimatedMermaid({
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "center",
-					color: "#9ca3af",
+					color: "var(--vocs-text-color-muted)",
 				}}
 			>
 				Loading diagram...
@@ -393,10 +395,10 @@ export function AnimatedMermaid({
 								border: "none",
 								background:
 									i === currentStep
-										? "#3b82f6"
+										? "var(--vocs-color-accent)"
 										: i < currentStep
-											? "#93c5fd"
-											: "var(--vocs-color_border)",
+											? "var(--vocs-color-accent3)"
+											: "var(--vocs-border-color-primary)",
 								cursor: "pointer",
 								padding: 0,
 							}}
@@ -428,8 +430,8 @@ const primaryBtnStyle: React.CSSProperties = {
 	height: "44px",
 	border: "none",
 	borderRadius: "50%",
-	background: "#3b82f6",
-	color: "#fff",
+	background: "var(--vocs-color-accent)",
+	color: "var(--vocs-color-accentInvert, #fff)",
 	cursor: "pointer",
 	padding: 0,
 };

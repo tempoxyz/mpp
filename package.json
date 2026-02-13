@@ -24,6 +24,7 @@
 		"@fontsource/commit-mono": "^5.2.5",
 		"@tanstack/react-query": "^5.90.20",
 		"@tanstack/react-store": "^0.8.0",
+		"beautiful-mermaid": "^0.1.3",
 		"class-variance-authority": "^0.7.1",
 		"dayjs": "^1.11.19",
 		"mermaid": "^11.12.2",

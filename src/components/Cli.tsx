@@ -94,7 +94,7 @@ export function Window({ children, className, token }: Window.Props) {
 	return (
 		<div
 			className={cx(
-				"bg-gray2 rounded-xl overflow-hidden font-mono text-sm border border-primary",
+				"bg-surfaceMuted rounded-xl overflow-hidden font-mono text-sm border border-primary",
 				className,
 			)}
 		>
@@ -121,9 +121,18 @@ export function TitleBar({ title, children, className }: TitleBar.Props) {
 		>
 			<div className="flex items-center gap-2 min-w-0">
 				<div className="flex gap-1.5 shrink-0">
-					<span className="w-3 h-3 rounded-full bg-gray-300" />
-					<span className="w-3 h-3 rounded-full bg-gray-300" />
-					<span className="w-3 h-3 rounded-full bg-gray-300" />
+					<span
+						className="w-3 h-3 rounded-full"
+						style={{ backgroundColor: "var(--vocs-border-color-secondary)" }}
+					/>
+					<span
+						className="w-3 h-3 rounded-full"
+						style={{ backgroundColor: "var(--vocs-border-color-secondary)" }}
+					/>
+					<span
+						className="w-3 h-3 rounded-full"
+						style={{ backgroundColor: "var(--vocs-border-color-secondary)" }}
+					/>
 				</div>
 				{title && (
 					<span className="text-[13px] tracking-tight ml-2 mt-[2px] truncate">
@@ -203,7 +212,7 @@ export function Line({ variant, prefix, children, className }: Line.Props) {
 				variants: {
 					variant: {
 						default: "text-primary",
-						info: "text-gray8",
+						info: "text-muted",
 						success: "text-success",
 						error: "text-destructive",
 						input: "text-primary",
@@ -223,7 +232,7 @@ export function Line({ variant, prefix, children, className }: Line.Props) {
 						variants: {
 							variant: {
 								default: "text-primary",
-								info: "text-gray8",
+								info: "text-muted",
 								success: "text-success",
 								error: "text-destructive",
 								input: "text-accent8",
@@ -463,8 +472,8 @@ export function Status({ children, className, variant }: Status.Props) {
 						variant: {
 							complete: "bg-success/20 text-success",
 							error: "bg-destructive/20 text-destructive",
-							idle: "bg-gray8/20 text-gray8",
-							ready: "bg-gray8/20 text-gray8",
+							idle: "bg-note/20 text-muted",
+							ready: "bg-note/20 text-muted",
 							running: "bg-warning/20 text-warning",
 						},
 					},
@@ -497,7 +506,7 @@ export function StatusDot({ children, className, variant }: StatusDot.Props) {
 					variants: {
 						variant: {
 							error: "bg-destructive",
-							offline: "bg-gray8",
+							offline: "bg-note",
 							success: "bg-success",
 							warning: "bg-warning",
 						},
@@ -631,7 +640,7 @@ export namespace Select {
 				<span className="w-3 invisible peer-data-[checked]:visible peer-focus-visible:visible">
 					▸
 				</span>
-				<span className="text-gray8 w-5 before:content-[counter(option)'.']" />
+				<span className="text-muted w-5 before:content-[counter(option)'.']" />
 				<span>{children}</span>
 			</label>
 		);
@@ -779,7 +788,7 @@ export function Hint({ className }: Hint.Props) {
 	};
 
 	return (
-		<span className={cx("text-gray8", className)}>
+		<span className={cx("text-muted", className)}>
 			<span className="hidden sm:inline">{hints[interaction]}</span>
 			<span className="sm:hidden">{mobileHints[interaction]}</span>
 		</span>
@@ -883,7 +892,7 @@ export function Tabs({ className }: Tabs.Props) {
 			>
 				Network
 				{requests.length > 0 && (
-					<span className="bg-gray12 text-primary rounded-full px-1.5 py-px text-[10px] leading-tight tabular-nums">
+					<span className="bg-surface text-primary rounded-full px-1.5 py-px text-[10px] leading-tight tabular-nums">
 						{requests.length}
 					</span>
 				)}
@@ -937,7 +946,7 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
 			className={cx("flex flex-col text-xs bg-surface", className)}
 			style={style}
 		>
-			<div className="flex items-center border-b border-primary px-3 py-1.5 text-gray8 shrink-0">
+			<div className="flex items-center border-b border-primary px-3 py-1.5 text-muted shrink-0">
 				<div className="min-w-0 basis-0 grow-4 flex items-center gap-2">
 					<div className="w-3.5 shrink-0" />
 					<div>URL</div>
@@ -948,7 +957,7 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
 			</div>
 			<div ref={bodyRef} className="flex-1 overflow-y-auto min-h-0">
 				{requests.length === 0 ? (
-					<div className="px-2 py-3 text-gray8">No network activity</div>
+					<div className="px-2 py-3 text-muted">No network activity</div>
 				) : (
 					requests.map((request) => {
 						const urlPath = (() => {
@@ -962,7 +971,7 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
 						return (
 							<div
 								key={request.id}
-								className="flex items-center border-b border-primary/50 px-3 py-1.5 hover:bg-gray13 transition-colors"
+								className="flex items-center border-b border-primary/50 px-3 py-1.5 hover:bg-surfaceTint transition-colors"
 							>
 								<div className="min-w-0 basis-0 grow-4 flex items-center gap-2">
 									{request.status === "pending" ? (
@@ -974,14 +983,14 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
 									)}
 									<div className="text-primary truncate">{urlPath}</div>
 								</div>
-								<div className="min-w-0 basis-0 grow-10 text-gray8 truncate">
+								<div className="min-w-0 basis-0 grow-10 text-muted truncate">
 									{request.description ?? "—"}
 								</div>
 								<div
 									className={cx(
 										"min-w-0 basis-0 grow-3 text-right tabular-nums",
 										request.status === "pending"
-											? "text-gray8"
+											? "text-muted"
 											: request.statusCode && request.statusCode >= 400
 												? "text-destructive"
 												: "text-success",
@@ -991,7 +1000,7 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
 										? "..."
 										: (request.statusCode ?? "—")}
 								</div>
-								<div className="min-w-0 basis-0 grow-3 text-right tabular-nums text-gray8">
+								<div className="min-w-0 basis-0 grow-3 text-right tabular-nums text-muted">
 									{new Date(request.timestamp).toLocaleTimeString("en-US", {
 										hour12: false,
 									})}
@@ -1335,6 +1344,21 @@ export function SilentDemoSetup({
 
 		// Balance query still loading - wait for it
 	}, [balance, demoAddress, hasAdvanced, isPending, isSuccess, mutate, token]);
+
+	// Timeout fallback - always advance after 3s even if balance query hangs
+	useEffect(() => {
+		if (hasAdvanced) return;
+		const timeout = setTimeout(() => {
+			if (hasAdvanced) return;
+			store.setState((s) => ({
+				...s,
+				initialBalance: 1_000_000_000_000n,
+				stepIndex: s.stepIndex + 1,
+			}));
+			setHasAdvanced(true);
+		}, 3000);
+		return () => clearTimeout(timeout);
+	}, [hasAdvanced]);
 
 	return null;
 }

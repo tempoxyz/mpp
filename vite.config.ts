@@ -20,7 +20,12 @@ export default defineConfig({
 		__COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
 	},
 	optimizeDeps: {
-		include: ["@braintree/sanitize-url", "dayjs", "mermaid"],
+		include: [
+			"@braintree/sanitize-url",
+			"beautiful-mermaid",
+			"dayjs",
+			"mermaid",
+		],
 	},
 	plugins: [
 		Icons({ compiler: "jsx", jsx: "react" }),

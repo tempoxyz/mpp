@@ -17,7 +17,7 @@ function CopyButton({ text, className }: { text: string; className?: string }) {
 		<button
 			type="button"
 			onClick={handleCopy}
-			className={`text-[#0166FF] hover:text-[#0052CC] transition-colors shrink-0 ${className ?? ""}`}
+			className={`text-accent hover:text-accent6 transition-colors shrink-0 ${className ?? ""}`}
 			aria-label="Copy to clipboard"
 		>
 			{copied ? (
@@ -125,8 +125,17 @@ export function AgentTabs() {
 	const cmd = AGENT_COMMANDS[active];
 
 	return (
-		<div className="max-w-xl border border-gray-200 rounded-md overflow-clip">
-			<div className="flex bg-gray-50 border-b border-gray-200">
+		<div
+			className="max-w-xl rounded-md overflow-clip text-left"
+			style={{ border: "1px solid var(--vocs-border-color-secondary)" }}
+		>
+			<div
+				className="flex"
+				style={{
+					background: "var(--vocs-background-color-surfaceMuted)",
+					borderBottom: "1px solid var(--vocs-border-color-secondary)",
+				}}
+			>
 				{AGENT_COMMANDS.map((a, i) => {
 					const Icon = a.icon;
 					return (
@@ -134,11 +143,22 @@ export function AgentTabs() {
 							key={a.label}
 							type="button"
 							onClick={() => setActive(i)}
-							className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-								i === active
-									? "text-gray-900 bg-white border-b-2 border-gray-900 -mb-px"
-									: "text-gray-400 hover:text-gray-600"
-							}`}
+							className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+							style={{
+								color:
+									i === active
+										? "var(--vocs-text-color-heading)"
+										: "var(--vocs-text-color-muted)",
+								background:
+									i === active
+										? "var(--vocs-background-color-surface)"
+										: "transparent",
+								borderBottom:
+									i === active
+										? "2px solid var(--vocs-text-color-heading)"
+										: "none",
+								marginBottom: i === active ? "-1px" : "0",
+							}}
 						>
 							<Icon className="w-3.5 h-3.5" />
 							{a.label}
@@ -146,15 +166,26 @@ export function AgentTabs() {
 					);
 				})}
 			</div>
-			<div className="flex items-center gap-3 bg-white pl-4 pr-4 py-3">
+			<div
+				className="flex items-center gap-3 pl-4 pr-4 py-3"
+				style={{ background: "var(--vocs-background-color-surface)" }}
+			>
 				<span
 					className="text-sm select-none flex-1 font-mono whitespace-pre-wrap text-left"
 					style={{ margin: 0, padding: 0 }}
 				>
-					<span className="text-gray-400">$</span>
-					<span className="text-gray-800"> {cmd.bin}</span>
-					{cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
-					<span className="text-green-700"> {cmd.str}</span>
+					<span style={{ color: "var(--vocs-text-color-muted)" }}>$</span>
+					<span style={{ color: "var(--vocs-text-color-primary)" }}>
+						{" "}
+						{cmd.bin}
+					</span>
+					{cmd.args && (
+						<span style={{ color: "var(--vocs-text-color-secondary)" }}>
+							{" "}
+							{cmd.args}
+						</span>
+					)}
+					<span style={{ color: "var(--vocs-color-success)" }}> {cmd.str}</span>
 				</span>
 				<CopyButton
 					text={[cmd.bin, cmd.args, cmd.str].filter(Boolean).join(" ")}

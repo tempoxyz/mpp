@@ -11,7 +11,7 @@ const baseUrl = (() => {
 
 export default defineConfig({
 	accentColor: "#0166FF",
-	colorScheme: "light",
+	colorScheme: "light dark",
 	baseUrl,
 	redirects: [
 		{ source: "/docs", destination: "/overview" },
@@ -37,8 +37,8 @@ export default defineConfig({
 	checkDeadlinks: "warn",
 	iconUrl: "/favicon-dollar.svg",
 	logoUrl: {
-		light: "/mpp-logo.svg",
-		dark: "/mpp-logo-dark.svg",
+		light: "/mpp-logo-dark.svg",
+		dark: "/mpp-logo-light.svg",
 	},
 	mcp: {
 		enabled: true,
@@ -65,7 +65,7 @@ export default defineConfig({
 				items: [
 					{ text: "Use with an agent", link: "/for-humans/agents" },
 					{ text: "Integrate into your app", link: "/for-humans/integrate" },
-					{ text: "FAQ", link: "/for-humans/faq" },
+					{ text: "Frequently asked", link: "/for-humans/faq" },
 				],
 			},
 			{
@@ -76,7 +76,7 @@ export default defineConfig({
 						items: [
 							{ text: "Overview", link: "/overview" },
 							{ text: "Specifications", link: "/specs" },
-							{ text: "FAQ", link: "/faq" },
+							{ text: "Frequently asked", link: "/faq" },
 						],
 					},
 					{

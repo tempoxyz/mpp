@@ -1,4 +1,4 @@
-# FAQ [Common questions about MPP for end users]
+# Frequently asked [Common questions about MPP for end users]
 
 ## What is MPP?
 
@@ -22,14 +22,14 @@ When Stripe support launches, you can use traditional cards and bank transfers w
 
 Both MPP and x402 use HTTP `402` to signal that a request requires payment. The key differences:
 
-| | MPP | x402 |
-| --- | --- | --- |
-| **Standard** | IETF-track open specification | Proprietary API |
-| **Payment rails** | Any—crypto, cards, bank transfers, invoices | Crypto only (Base stablecoins) |
-| **Payment intents** | Charge, session, authorize, subscription | One-time payments only |
-| **AI agent support** | Native MCP transport binding | HTTP only |
-| **Extensibility** | Anyone can define new payment methods | Fixed to supported chains |
-| **Currencies** | Any currency on any network | USDC on Base |
+|                      | MPP                                         | x402                           |
+| -------------------- | ------------------------------------------- | ------------------------------ |
+| **Standard**         | IETF-track open specification               | Proprietary API                |
+| **Payment rails**    | Any—crypto, cards, bank transfers, invoices | Crypto only (Base stablecoins) |
+| **Payment intents**  | Charge, session, authorize, subscription    | One-time payments only         |
+| **AI agent support** | Native MCP transport binding                | HTTP only                      |
+| **Extensibility**    | Anyone can define new payment methods       | Fixed to supported chains      |
+| **Currencies**       | Any currency on any network                 | USDC on Base                   |
 
 MPP is designed as a universal protocol that any payment network can plug into, not tied to a single blockchain or currency.
 

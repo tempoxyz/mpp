@@ -256,7 +256,7 @@ export function AsciiLogo() {
 					lineHeight: 1.15,
 					whiteSpace: "pre",
 					letterSpacing: "1px",
-					color: "#0166FF",
+					color: "var(--vocs-color-accent)",
 					opacity: 0.85,
 					textShadow: "0 0 20px rgba(1, 102, 255, 0.3)",
 					cursor: "pointer",
@@ -300,8 +300,8 @@ export function AsciiLogo() {
 					style={{
 						top: contextMenu.y,
 						left: contextMenu.x,
-						backgroundColor: "var(--vocs-color-background, #1a1a1a)",
-						border: "1px solid var(--vocs-color-border, #333)",
+						backgroundColor: "var(--vocs-background-color-surface)",
+						border: "1px solid var(--vocs-border-color-secondary)",
 					}}
 				>
 					<a
@@ -309,7 +309,7 @@ export function AsciiLogo() {
 						download
 						onClick={closeMenu}
 						className="block px-3 py-2 no-underline text-[13px] rounded hover:bg-[var(--vocs-color-background-2)] cursor-pointer"
-						style={{ color: "var(--vocs-color-text, #fff)" }}
+						style={{ color: "var(--vocs-text-color-primary)" }}
 					>
 						Download assets (.zip)
 					</a>
@@ -317,7 +317,7 @@ export function AsciiLogo() {
 						href="/brand"
 						onClick={closeMenu}
 						className="block px-3 py-2 no-underline text-[13px] rounded hover:bg-[var(--vocs-color-background-2)] cursor-pointer"
-						style={{ color: "var(--vocs-color-text, #fff)" }}
+						style={{ color: "var(--vocs-text-color-primary)" }}
 					>
 						Go to brand page
 					</a>
