@@ -62,29 +62,17 @@
 	text-decoration: underline;
 }
 
-/* Links inside callouts - blue and underlined */
+/* Links inside callouts only - blue and underlined */
 [data-v-callout] a,
 [data-v-callout] a:link,
 [data-v-callout] a:visited,
-.vocs_Callout a,
-.vocs_Callout a:link,
-.vocs_Callout a:visited,
-[class*="Callout"] a,
-[class*="Callout"] a:link,
-[class*="Callout"] a:visited,
 [data-v-content] [data-v-callout] a,
-article [data-v-callout] a,
-aside a,
-aside a:link,
-aside a:visited {
+article [data-v-callout] a {
 	color: #0166ff !important;
 	text-decoration: underline !important;
 }
 
-[data-v-callout] a:hover,
-.vocs_Callout a:hover,
-[class*="Callout"] a:hover,
-aside a:hover {
+[data-v-callout] a:hover {
 	color: #0052cc !important;
 	text-decoration: underline !important;
 }
@@ -331,7 +319,9 @@ article a[data-v-card]:hover {
 .vocs_Card,
 [class*="Card_card"],
 [data-v-content] a[href] > div {
-	transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease !important;
 }
 
 [data-v-card]:hover,
