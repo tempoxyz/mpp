@@ -50,8 +50,8 @@ dependencies:
     specifier: latest
     version: 2.45.3(typescript@5.9.3)(zod@4.3.6)
   vocs:
-    specifier: https://pkg.pr.new/wevm/vocs@73614e1
-    version: '@pkg.pr.new/wevm/vocs@73614e1(patch_hash=u5pkuhpryfgneqorcaswiow55m)(@types/react@19.2.14)(mermaid@11.12.2)(react-dom@19.2.4)(react-server-dom-webpack@19.2.4)(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1)(waku@1.0.0-alpha.3)'
+    specifier: https://pkg.pr.new/wevm/vocs@f365626
+    version: '@pkg.pr.new/wevm/vocs@f365626(patch_hash=u5pkuhpryfgneqorcaswiow55m)(@types/react@19.2.14)(mermaid@11.12.2)(react-dom@19.2.4)(react-server-dom-webpack@19.2.4)(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1)(waku@1.0.0-alpha.3)'
   wagmi:
     specifier: ^3.4.2
     version: 3.4.3(@tanstack/react-query@5.90.21)(@types/react@19.2.14)(react@19.2.4)(typescript@5.9.3)(viem@2.45.3)
@@ -7043,9 +7043,9 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
 
-  '@pkg.pr.new/wevm/vocs@73614e1(patch_hash=u5pkuhpryfgneqorcaswiow55m)(@types/react@19.2.14)(mermaid@11.12.2)(react-dom@19.2.4)(react-server-dom-webpack@19.2.4)(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1)(waku@1.0.0-alpha.3)':
-    resolution: {tarball: https://pkg.pr.new/wevm/vocs@73614e1}
-    id: '@pkg.pr.new/wevm/vocs@73614e1'
+  '@pkg.pr.new/wevm/vocs@f365626(patch_hash=u5pkuhpryfgneqorcaswiow55m)(@types/react@19.2.14)(mermaid@11.12.2)(react-dom@19.2.4)(react-server-dom-webpack@19.2.4)(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1)(waku@1.0.0-alpha.3)':
+    resolution: {tarball: https://pkg.pr.new/wevm/vocs@f365626}
+    id: '@pkg.pr.new/wevm/vocs@f365626'
     name: vocs
     version: 0.0.0
     hasBin: true
