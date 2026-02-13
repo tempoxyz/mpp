@@ -62,18 +62,16 @@
 	text-decoration: underline;
 }
 
-/* Links inside callouts only - blue and underlined */
+/* Links inside callouts - keep default purple color, just add underline */
 [data-v-callout] a,
 [data-v-callout] a:link,
 [data-v-callout] a:visited,
 [data-v-content] [data-v-callout] a,
 article [data-v-callout] a {
-	color: #0166ff !important;
 	text-decoration: underline !important;
 }
 
 [data-v-callout] a:hover {
-	color: #0052cc !important;
 	text-decoration: underline !important;
 }
 
