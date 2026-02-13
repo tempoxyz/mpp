@@ -241,19 +241,10 @@ export function LandingPage() {
 			});
 		}
 
-		// Make the header logo muted on the landing page
-		const logos = document.querySelectorAll<HTMLElement>("[data-v-logo]");
-		for (const logo of logos) {
-			logo.style.setProperty("opacity", "0.4");
-		}
-
 		return () => {
 			for (const el of elements) {
 				el.style.removeProperty("background");
 				el.style.removeProperty("background-color");
-			}
-			for (const logo of logos) {
-				logo.style.removeProperty("opacity");
 			}
 		};
 	}, []);
