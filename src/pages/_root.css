@@ -2,19 +2,19 @@
 @import "@fontsource/commit-mono/700.css";
 
 @font-face {
-  font-family: "Berkeley Mono";
-  src: url("/fonts/BerkeleyMono-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+	font-family: "Berkeley Mono";
+	src: url("/fonts/BerkeleyMono-Regular.woff2") format("woff2");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
 }
 
 @font-face {
-  font-family: "Berkeley Mono";
-  src: url("/fonts/BerkeleyMono-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
+	font-family: "Berkeley Mono";
+	src: url("/fonts/BerkeleyMono-Bold.woff2") format("woff2");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
 }
 
 @import "tailwindcss";
@@ -29,37 +29,37 @@
 	));
 
 [data-v-callout-icon] {
-  margin-top: 0.2rem;
+	margin-top: 0.2rem;
 }
 
 [data-v-main] {
-  padding-bottom: 0;
+	padding-bottom: 0;
 }
 
 /* Smaller header logo */
 [data-v-logo] img {
-  height: 28px;
+	height: 28px;
 }
 
 [data-v-gutter-top] nav a[data-v-active="true"] {
-  border-color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
-  color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
+	border-color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
+	color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
 }
 
 [data-v-gutter-top] nav a:hover {
-  color: #0166ff;
-  text-decoration: underline;
+	color: #0166ff;
+	text-decoration: underline;
 }
 
 [data-v-sidebar] a:hover,
 [data-v-outline-items] a:hover {
-  color: #0166ff;
-  text-decoration: none;
+	color: #0166ff;
+	text-decoration: none;
 }
 
 [data-v-content] a:hover {
-  color: #0166ff;
-  text-decoration: underline;
+	color: #0166ff;
+	text-decoration: underline;
 }
 
 /* Links inside callouts - purple with underline */
@@ -86,196 +86,198 @@ div[class*="callout"] a:hover {
 [data-v-sidebar] a:hover,
 [data-v-sidebar] [data-v-sidebar-item],
 [data-v-sidebar] [data-v-sidebar-item]:hover {
-  text-decoration: none !important;
+	text-decoration: none !important;
 }
 
 [data-v-sidebar] [data-v-sidebar-item][data-active="true"] {
-  background-color: #0166ff !important;
-  color: #ffffff !important;
-  --vocs-color-accent8: #ffffff;
-  --color-accent8: #ffffff;
+	background-color: #0166ff !important;
+	color: #ffffff !important;
+	--vocs-color-accent8: #ffffff;
+	--color-accent8: #ffffff;
 }
 
 [data-v-outline-items] a[data-active="true"],
 [data-v-outline-items] a[data-active="true"] * {
-  background-color: transparent !important;
-  color: #0166ff !important;
+	background-color: transparent !important;
+	color: #0166ff !important;
 }
 
 [data-v-outline-indicator] {
-  background-color: light-dark(
-    var(--vocs-color-accent),
-    var(--vocs-color-accent8)
-  );
+	background-color: light-dark(
+		var(--vocs-color-accent),
+		var(--vocs-color-accent8)
+	);
 }
 
 [data-v-step-content] {
-  :where(& > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(
-      calc(var(--vocs-spacing) * 4) * var(--tw-space-y-reverse)
-    );
-    margin-block-end: calc(
-      calc(var(--vocs-spacing) * 4) * calc(1 - var(--tw-space-y-reverse))
-    );
-  }
+	:where(& > :not(:last-child)) {
+		--tw-space-y-reverse: 0;
+		margin-block-start: calc(
+			calc(var(--vocs-spacing) * 4) *
+			var(--tw-space-y-reverse)
+		);
+		margin-block-end: calc(
+			calc(var(--vocs-spacing) * 4) *
+			calc(1 - var(--tw-space-y-reverse))
+		);
+	}
 }
 
 [data-layout="minimal"] main > article {
-  max-width: 1200px;
+	max-width: 1200px;
 }
 
 @media (max-width: 1079px) {
-  [data-layout="minimal"] main > article {
-    max-width: 768px;
-  }
+	[data-layout="minimal"] main > article {
+		max-width: 768px;
+	}
 }
 
 /* Berkeley Mono as primary monospace + body font */
 :root {
-  --font-mono:
-    "Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, monospace;
+	--font-mono:
+		"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+		Consolas, monospace;
 
-  --vocs-leading-code: 1.6em;
-  --vocs-spacing-code-block-px: 1rem;
-  --vocs-tracking-tight: -0.05em;
-  --vocs-tracking-normal: -0.03em;
+	--vocs-leading-code: 1.6em;
+	--vocs-spacing-code-block-px: 1rem;
+	--vocs-tracking-tight: -0.05em;
+	--vocs-tracking-normal: -0.03em;
 
-  letter-spacing: var(--vocs-tracking-normal);
+	letter-spacing: var(--vocs-tracking-normal);
 }
 
 aside,
 [data-v-outline-nav] {
-  letter-spacing: var(--vocs-tracking-tight);
+	letter-spacing: var(--vocs-tracking-tight);
 }
 
 h1 {
-  letter-spacing: -0.08em;
-  font-weight: 700;
-  margin-bottom: 0.8rem !important;
+	letter-spacing: -0.08em;
+	font-weight: 700;
+	margin-bottom: 0.8rem !important;
 }
 
 h2 {
-  font-weight: 600;
+	font-weight: 600;
 }
 
 body,
 [data-v-content],
 [data-layout] {
-  font-family: var(--font-mono);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	font-family: var(--font-mono);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 [data-v-content] {
-  font-size: 14px;
+	font-size: 14px;
 }
 
 pre,
 code,
 .vocs_Code,
 [data-v-code] {
-  letter-spacing: 0;
-  font-family: var(--font-mono) !important;
+	letter-spacing: 0;
+	font-family: var(--font-mono) !important;
 }
 
 [data-empty-line] {
-  max-height: 0.9em;
+	max-height: 0.9em;
 }
 
 pre[data-v] {
-  padding-block: calc(var(--vocs-spacing) * 3) !important;
+	padding-block: calc(var(--vocs-spacing) * 3) !important;
 }
 
 /* Force mermaid diagrams to black and white */
 [data-v-mermaid] .note {
-  fill: #ffffff !important;
-  stroke: #000000 !important;
+	fill: #ffffff !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] .noteText {
-  fill: #000000 !important;
+	fill: #000000 !important;
 }
 
 [data-v-mermaid] .messageText {
-  fill: #000000 !important;
+	fill: #000000 !important;
 }
 
 [data-v-mermaid] .messageLine0,
 [data-v-mermaid] .messageLine1 {
-  stroke: #000000 !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] text.actor {
-  fill: #000000 !important;
+	fill: #000000 !important;
 }
 
 [data-v-mermaid] rect.actor {
-  fill: #ffffff !important;
-  stroke: #000000 !important;
+	fill: #ffffff !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] .actor-line {
-  stroke: #000000 !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] #arrowhead path {
-  fill: #000000 !important;
-  stroke: #000000 !important;
+	fill: #000000 !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] .loopLine {
-  stroke: #000000 !important;
+	stroke: #000000 !important;
 }
 
 [data-v-mermaid] .loopText {
-  fill: #000000 !important;
+	fill: #000000 !important;
 }
 
 [data-v-footer] a,
 [data-v-socials] a {
-  text-decoration: none;
+	text-decoration: none;
 }
 
 [data-v-footer] a:hover,
 [data-v-socials] a:hover {
-  color: #0166ff;
-  text-decoration: underline;
+	color: #0166ff;
+	text-decoration: underline;
 }
 
 /* Align table wrapper with content and reduce wrapping */
 [data-v-content] div[data-v-table-wrapper] {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
 }
 
 [data-v-content] table {
-  width: 100% !important;
+	width: 100% !important;
 }
 
 [data-v-content] table td,
 [data-v-content] table th {
-  white-space: nowrap;
+	white-space: nowrap;
 }
 
 /* Fixed width for service name column */
 [data-v-content] table td:first-child,
 [data-v-content] table th:first-child {
-  width: 9rem;
-  min-width: 9rem;
+	width: 9rem;
+	min-width: 9rem;
 }
 
 /* Description column wraps, with gap between text and endpoint */
 [data-v-content] table td:nth-child(2) {
-  white-space: normal;
-  padding-top: 0.7rem;
-  padding-bottom: 0.7rem;
+	white-space: normal;
+	padding-top: 0.7rem;
+	padding-bottom: 0.7rem;
 }
 
 [data-v-content] table td:nth-child(2) code {
-  display: inline-block;
-  margin-top: 0.5rem;
+	display: inline-block;
+	margin-top: 0.5rem;
 }
 
 /* No underline on cards, buttons, and interactive elements */
@@ -297,7 +299,7 @@ a[class*="card"],
 a[class*="card"]:hover,
 a[class*="Card"],
 a[class*="Card"]:hover {
-  text-decoration: none !important;
+	text-decoration: none !important;
 }
 
 /* Remove underline from Vocs cards - more specific */
@@ -313,55 +315,66 @@ article [data-v-card]:hover,
 article [data-v-card] *,
 article a[data-v-card],
 article a[data-v-card]:hover {
-  text-decoration: none !important;
+	text-decoration: none !important;
 }
 
 /* Vocs v2 Cards - target by vocs: prefixed classes */
 a[class*="vocs:rounded-md"][class*="vocs:border"] {
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
-  min-height: 160px !important;
-  transition: border-color 0.15s ease !important;
+	display: flex !important;
+	flex-direction: column !important;
+	justify-content: flex-start !important;
+	min-height: 160px !important;
+	transition: border-color 0.15s ease !important;
+}
+
+/* Icon wrapper - push to top with margin-bottom auto */
+a[class*="vocs:rounded-md"][class*="vocs:border"] > div:first-child {
+	margin-bottom: auto !important;
+}
+
+/* Title and description stay grouped at bottom */
+a[class*="vocs:rounded-md"][class*="vocs:border"] > strong,
+a[class*="vocs:rounded-md"][class*="vocs:border"] > p {
+	margin-bottom: 0 !important;
 }
 
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover {
-  border-color: #9ca3af !important; /* gray-400 */
+	border-color: #9ca3af !important; /* gray-400 */
 }
 
 /* Card title turns blue on hover */
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover strong,
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover [class*="font-medium"] {
-  color: #0166ff !important;
+	color: #0166ff !important;
 }
 
 /* Card description - smaller font */
 a[class*="vocs:rounded-md"][class*="vocs:border"] [class*="text-secondary"],
 a[class*="vocs:rounded-md"][class*="vocs:border"] p:last-of-type {
-  font-size: 13px !important;
-  line-height: 1.35 !important;
-  color: #6b7280 !important;
+	font-size: 13px !important;
+	line-height: 1.35 !important;
+	color: #6b7280 !important;
 }
 
 /* Card title size */
 a[class*="vocs:rounded-md"][class*="vocs:border"] strong,
 a[class*="vocs:rounded-md"][class*="vocs:border"]
-  [class*="font-medium"]:first-of-type {
-  font-size: 14px !important;
+	[class*="font-medium"]:first-of-type {
+	font-size: 14px !important;
 }
 
 /* Remove ALL dividers/borders/lines */
 [data-v-content] hr,
 article hr {
-  display: none !important;
+	display: none !important;
 }
 
 /* Ensure header covers scrolling content */
 [data-v-gutter-top] {
-  z-index: 50 !important;
+	z-index: 50 !important;
 }
 
 /* Clip main so article content never renders above the header area */
 [data-v-main] {
-  overflow: clip;
+	overflow: clip;
 }
