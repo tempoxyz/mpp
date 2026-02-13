@@ -802,6 +802,7 @@ async function getDemoFetch() {
 }
 
 function HeroVariantF() {
+	const { scrollOpacity, setScrollOpacity } = useScrollSnap();
 	const [demoAddress, setDemoAddress] = useState<`0x${string}` | null>(null);
 
 	useEffect(() => {
@@ -810,32 +811,51 @@ function HeroVariantF() {
 	}, []);
 
 	return (
-		<>
+		<ScrollSnapContainer
+			scrollOpacity={scrollOpacity}
+			setScrollOpacity={setScrollOpacity}
+		>
+			{/* Section 1: Hero content */}
 			<section
-				className="flex flex-col items-center justify-center px-6 gap-5 -mt-10"
-				style={{
-					height: "calc(87dvh - 64px)",
-					maxHeight: "calc(100vh - 64px)",
-				}}
+				className="relative flex flex-col items-center justify-center text-center px-6"
+				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
 			>
-				{/* Top: Title + Subtitle */}
-				<div className="text-center space-y-4 pb-4">
-					<h1 className="text-2xl md:text-3xl font-bold text-black leading-[1.1] tracking-tight">
+				<div className="max-w-2xl space-y-6">
+					<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
 						Machine Payments Protocol
 					</h1>
-					<p className="text-sm text-gray-600 leading-relaxed max-w-[500px] mx-auto">
+					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
 						Accept payments from humans, software, or AI agents using standard
 						HTTP. No billing accounts or manual signup required.
 					</p>
+					<div className="flex justify-center">
+						<AgentTabsWrapped />
+					</div>
+					{/* Works with */}
+					<ServiceCardsCompact />
+					<div className="flex justify-center">
+						<CTAButtons />
+					</div>
 				</div>
+			</section>
 
-				{/* Middle: Demo with chrome */}
-				<div className="w-full max-w-xl">
+			{/* Section 2: CLI Demo */}
+			<section
+				className="flex flex-col items-center justify-center px-6 py-16"
+				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
+			>
+				<div className="max-w-[574px] w-full mx-auto space-y-6">
+					<div className="text-center space-y-2">
+						<h2 className="text-2xl font-semibold text-gray-900">Try it out</h2>
+						<p className="text-sm text-gray-500">
+							Watch an ephemeral wallet make paid API calls
+						</p>
+					</div>
 					{demoAddress && (
 						<Cli.DemoSimple
 							title="Try it out"
 							token={pathUsd}
-							height={330}
+							height={380}
 							restartStep={1}
 						>
 							<Cli.Startup />
@@ -844,26 +864,8 @@ function HeroVariantF() {
 						</Cli.DemoSimple>
 					)}
 				</div>
-
-				{/* Agent Tabs */}
-				<div className="w-full max-w-xl flex flex-col items-center">
-					<span className="text-sm text-gray-400 pb-4">
-						or, start using it with your agent
-					</span>
-					<div className="w-full">
-						<AgentTabsWrapped />
-					</div>
-				</div>
-
-				{/* CTAs */}
-				<CTAButtons />
 			</section>
-
-			{/* Fixed bottom services */}
-			<div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30">
-				<ServiceCardsCompact />
-			</div>
-		</>
+		</ScrollSnapContainer>
 	);
 }
 
@@ -1850,7 +1852,9 @@ function QueryResult({
 										</a>
 									</>
 								) : (
-									<span className="text-red-500">no tx hash (payment may have failed)</span>
+									<span className="text-red-500">
+										no tx hash (payment may have failed)
+									</span>
 								)}
 							</Cli.Line>
 						</>
