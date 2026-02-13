@@ -136,6 +136,8 @@ aside,
 h1 {
 	letter-spacing: -0.08em;
 	font-weight: 700;
+	margin-bottom: 1.5rem !important;
+	padding-bottom: 0.5rem;
 }
 
 h2 {
@@ -302,7 +304,9 @@ article a[data-v-card]:hover {
 [data-v-card],
 .vocs_Card,
 [class*="Card_card"] {
-	transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease !important;
 }
 
 [data-v-card]:hover,
