@@ -60,7 +60,14 @@ export default defineConfig({
 			: `${base}/api/og?title=%title&description=%description`,
 	sidebar: {
 		"/": [
-			{ text: "For humans", link: "/for-humans" },
+			{
+				text: "For humans",
+				items: [
+					{ text: "Use with an agent", link: "/for-humans/agents" },
+					{ text: "Integrate into your app", link: "/for-humans/integrate" },
+					{ text: "FAQ", link: "/for-humans/faq" },
+				],
+			},
 			{
 				text: "For agents",
 				items: [

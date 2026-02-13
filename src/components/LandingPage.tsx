@@ -860,8 +860,7 @@ function HeroVariantF() {
 						Machine Payments Protocol
 					</h1>
 					<p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
-						Accept payments from humans, software, or AI agents using standard
-						HTTP. No billing accounts or manual signup required.
+						Supercharge your agent with seamless paid API calls. No more manually creating accounts, or copy-pasting keys. 
 					</p>
 					<div className="flex justify-center">
 						<AgentTabsWrapped />

@@ -1,155 +1,24 @@
 import { Card, Cards } from "vocs";
-import { AgentTabs } from "../components/AgentTabs";
 
 # For humans [MPP lets AI agents autonomously pay for services—no API keys, no billing dashboards, no manual signup.]
 
-## Use with an agent
-
-Already using Claude, Codex, or another AI agent? Just run this command:
-
-<AgentTabs />
-
-The agent will set itself up with `tempoctl` and start using paid services automatically.
-
-## Integrate into your app
-
-Building an application that needs to make paid API calls? Use the SDK.
-
-::::steps
-
-### Install
-
-:::code-group
-
-```bash [npm]
-npm install mpay viem
-```
-
-```bash [pnpm]
-pnpm add mpay viem
-```
-
-```bash [bun]
-bun add mpay viem
-```
-
-:::
-
-### Set up payments
-
-```ts twoslash
-import { privateKeyToAccount } from "viem/accounts";
-import { Mpay, tempo } from "mpay/client";
-
-const account = privateKeyToAccount("0xabc…123");
-
-Mpay.create({
-  methods: [tempo({ account })],
-});
-```
-
-### Use fetch as normal
-
-```ts
-const response = await fetch(
-  "https://openrouter.payments.tempo.xyz/v1/chat/completions",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "anthropic/claude-3.5-sonnet",
-      messages: [{ role: "user", content: "Hello!" }],
-    }),
-  },
-);
-```
-
-Payments happen automatically when services return `402`.
-
-::::
-
-:::tip[Full documentation]
-See the [Client quickstart](/quickstart/client) for more options like Wagmi integration and manual payment handling.
-:::
-
-## Services available today
-
-These services accept MPP payments right now. No API keys needed—just pay per request.
-
-### AI & LLMs
-
-| Service                                             | Description                                                                 | Price      |
-| --------------------------------------------------- | --------------------------------------------------------------------------- | ---------- |
-| [OpenRouter](https://openrouter.payments.tempo.xyz) | 100+ LLM models (Claude, GPT-5, etc.) <br/> `openrouter.payments.tempo.xyz` | ~$0.01/req |
-| [Anthropic](https://anthropic.payments.tempo.xyz)   | Claude models directly <br/> `anthropic.payments.tempo.xyz`                 | ~$0.01/req |
-| [OpenAI](https://openai.payments.tempo.xyz)         | GPT-4, GPT-3.5, embeddings <br/> `openai.payments.tempo.xyz`                | ~$0.01/req |
-| [fal.ai](https://fal.payments.tempo.xyz)            | Image generation, video, audio <br/> `fal.payments.tempo.xyz`               | ~$0.05/req |
-| [ElevenLabs](https://elevenlabs.payments.tempo.xyz) | Text-to-speech, voice cloning <br/> `elevenlabs.payments.tempo.xyz`         | ~$0.03/req |
-
-### Web & Data
-
-| Service                                               | Description                                                        | Price       |
-| ----------------------------------------------------- | ------------------------------------------------------------------ | ----------- |
-| [Firecrawl](https://firecrawl.payments.tempo.xyz)     | Web scraping and crawling <br/> `firecrawl.payments.tempo.xyz`     | ~$0.01/req  |
-| [Browserbase](https://browserbase.payments.tempo.xyz) | Headless browser automation <br/> `browserbase.payments.tempo.xyz` | ~$0.12/req  |
-| [Exa](https://exa.payments.tempo.xyz)                 | AI-native search engine <br/> `exa.payments.tempo.xyz`             | ~$0.005/req |
-
-### Blockchain & Crypto
-
-| Service                                       | Description                                               | Price        |
-| --------------------------------------------- | --------------------------------------------------------- | ------------ |
-| [Codex](https://codex.payments.tempo.xyz)     | Blockchain data indexing <br/> `codex.payments.tempo.xyz` | ~$0.0003/req |
-| [Alchemy](https://alchemy.payments.tempo.xyz) | Ethereum node access <br/> `alchemy.payments.tempo.xyz`   | ~$0.001/req  |
-| [Tempo RPC](https://rpc.payments.tempo.xyz)   | Tempo network RPC <br/> `rpc.payments.tempo.xyz`          | ~$0.01/req   |
-
-### Infrastructure
-
-| Service                                              | Description                                         | Price       |
-| ---------------------------------------------------- | --------------------------------------------------- | ----------- |
-| [Modal](https://modal.payments.tempo.xyz)            | Serverless compute <br/> `modal.payments.tempo.xyz` | ~$0.10/req  |
-| [Object Storage](https://storage.payments.tempo.xyz) | File storage <br/> `storage.payments.tempo.xyz`     | ~$0.001/req |
-
-:::tip[Browse all services]
-See all available services at [payments.tempo.xyz](https://payments.tempo.xyz)
-:::
-
-## Coming soon
-
-| Service                                 | Category              | Status      |
-| --------------------------------------- | --------------------- | ----------- |
-| [Neynar](https://neynar.com)            | Farcaster APIs        | In progress |
-| [x402scan](https://x402scan.com)        | MPP service discovery | In progress |
-| [code.storage](https://x.com/gill_kyle) | Code storage          | Planned     |
-| [CoinGecko](https://coingecko.com)      | Crypto data           | Exploring   |
-| [Pinata](https://pinata.cloud)          | IPFS pinning          | Exploring   |
-| [QuickNode](https://quicknode.com)      | Multi-chain RPC       | Exploring   |
-| [Cloudflare](https://cloudflare.com)    | CDN & edge compute    | Exploring   |
-
-## Learn more
-
 <Cards>
   <Card
-    description="Understand the MPP protocol"
-    icon="lucide:book-open"
-    title="Overview"
-    to="/overview"
+    description="Point your AI agent at paid services—no setup required"
+    icon="lucide:bot"
+    title="Use with an agent"
+    to="/for-humans/agents"
   />
   <Card
-    description="Build payment-enabled clients"
-    icon="lucide:rocket"
-    title="Client quickstart"
-    to="/quickstart/client"
+    description="Add payments to your application with a few lines of code"
+    icon="lucide:code"
+    title="Integrate into your app"
+    to="/for-humans/integrate"
   />
   <Card
-    description="Accept MPP payments"
-    icon="lucide:server"
-    title="Server quickstart"
-    to="/quickstart/server"
-  />
-  <Card
-    description="Test services from the command line"
-    icon="lucide:terminal"
-    title="tempoctl CLI"
-    to="/quickstart/tempoctl"
+    description="Is it only crypto? How does it compare to x402?"
+    icon="lucide:help-circle"
+    title="FAQ"
+    to="/for-humans/faq"
   />
 </Cards>

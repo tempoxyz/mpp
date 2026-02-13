@@ -96,6 +96,9 @@ type Page =
 | { path: '/payment-methods/tempo/session'; render: 'static' }
 | { path: '/intents/charge'; render: 'static' }
 | { path: '/guides/building-with-ai'; render: 'static' }
+| { path: '/for-humans/agents'; render: 'static' }
+| { path: '/for-humans/faq'; render: 'static' }
+| { path: '/for-humans/integrate'; render: 'static' }
 | { path: '/_api/api/og'; render: 'static' };
 
 // prettier-ignore

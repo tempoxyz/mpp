@@ -367,7 +367,14 @@ export function Balance({ className, label = "Balance" }: Balance.Props) {
 	});
 
 	// Debug logging
-	console.log("[Balance] address:", address, "token:", token, "balance:", balance?.toString());
+	console.log(
+		"[Balance] address:",
+		address,
+		"token:",
+		token,
+		"balance:",
+		balance?.toString(),
+	);
 
 	if (balance === undefined) return null;
 
@@ -411,7 +418,12 @@ export function Spent({ className, label = "Spent" }: Spent.Props) {
 	});
 
 	// Debug logging
-	console.log("[Spent] initial:", initial?.toString(), "balance:", balance?.toString());
+	console.log(
+		"[Spent] initial:",
+		initial?.toString(),
+		"balance:",
+		balance?.toString(),
+	);
 
 	if (!address) return null;
 
