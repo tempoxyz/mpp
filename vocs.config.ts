@@ -461,19 +461,13 @@ export default defineConfig({
 		},
 	},
 	topNav: [
-		{ text: "Documentation", link: "/overview", match: (path) => path !== "/" },
-		{ text: "SDKs & Tools", link: "/sdk" },
-		{ text: "Specifications", link: "/specs" },
+		{ text: "Docs", link: "/for-humans/agents", match: (path) => path !== "/" },
 		{
-			text: "GitHub",
+			text: "SDKs",
 			items: [
 				{ text: "mppx [TypeScript]", link: "https://github.com/wevm/mppx" },
 				{ text: "mpay-rs [Rust]", link: "https://github.com/tempoxyz/mpay-rs" },
 				{ text: "pympay [Python]", link: "https://github.com/tempoxyz/pympay" },
-				{
-					text: "Specifications",
-					link: "https://github.com/tempoxyz/payment-auth-spec",
-				},
 			],
 		},
 		{ text: "X", link: "https://x.com/mpp" },
