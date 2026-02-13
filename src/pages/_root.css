@@ -381,3 +381,27 @@ article aside a:hover {
 	color: var(--vocs-color-tip-hover) !important;
 	text-decoration: underline !important;
 }
+
+/* Move Ask AI spotlight to bottom right under table of contents */
+[data-v-spotlight-trigger],
+[data-v-ai-trigger],
+button[aria-label*="AI"],
+button[aria-label*="Ask"] {
+	position: fixed !important;
+	bottom: 1rem !important;
+	right: 1rem !important;
+	top: auto !important;
+	left: auto !important;
+	z-index: 40 !important;
+}
+
+/* On larger screens, position in the outline column area */
+@media (min-width: 1280px) {
+	[data-v-spotlight-trigger],
+	[data-v-ai-trigger],
+	button[aria-label*="AI"],
+	button[aria-label*="Ask"] {
+		right: calc((100vw - 1280px) / 2 + 1rem) !important;
+		bottom: 2rem !important;
+	}
+}

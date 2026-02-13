@@ -194,10 +194,7 @@ export function LandingPage() {
 			}}
 		>
 			{/* Variant Toggle */}
-			<div
-				className="fixed left-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1"
-				style={{ opacity: 0.6 }}
-			>
+			<div className="fixed left-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1">
 				{(["A", "B", "C", "D", "E", "F"] as const).map((v) => (
 					<button
 						key={v}
@@ -208,11 +205,12 @@ export function LandingPage() {
 							variant === v
 								? {
 										background: "var(--vocs-color-accent)",
-										color: "var(--vocs-color-accentInvert)",
+										color: "#ffffff",
 									}
 								: {
 										background: "var(--vocs-background-color-surfaceMuted)",
-										color: "var(--vocs-text-color-muted)",
+										color: "var(--vocs-text-color-secondary)",
+										opacity: 0.7,
 									}
 						}
 					>
@@ -964,20 +962,25 @@ function HeroVariantF() {
 				className="relative flex flex-col items-center justify-center text-center px-6"
 				style={{ height: "calc(100vh - 64px)", scrollSnapAlign: "start" }}
 			>
-				<div className="max-w-2xl space-y-6">
-					<h1
-						className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
-						style={{ color: "var(--vocs-text-color-heading)" }}
-					>
-						Machine Payments Protocol
-					</h1>
-					<p
-						className="text-sm md:text-base leading-relaxed max-w-xl mx-auto"
-						style={{ color: "var(--vocs-text-color-secondary)" }}
-					>
-						Supercharge your agent with seamless paid API calls. No more
-						manually creating accounts, or copy-pasting keys.
-					</p>
+				<div
+					className="max-w-2xl"
+					style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
+				>
+					<div>
+						<h1
+							className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight"
+							style={{ color: "var(--vocs-text-color-heading)" }}
+						>
+							Machine Payments Protocol
+						</h1>
+						<p
+							className="text-sm md:text-base leading-relaxed max-w-xl mx-auto"
+							style={{ color: "var(--vocs-text-color-secondary)" }}
+						>
+							Supercharge your agent with seamless paid API calls. No more
+							manually creating accounts, or copy-pasting keys.
+						</p>
+					</div>
 					<div className="flex justify-center">
 						<AgentTabsWrapped />
 					</div>
