@@ -147,6 +147,12 @@
 	/* Accent button text - always white since accent bg is always blue */
 	--accent-button-text: white;
 
+	/* Lighter inline code background for better visibility */
+	--background-color-inline-code: light-dark(
+		var(--vocs-color-gray12),
+		var(--vocs-color-gray5)
+	);
+
 	--font-mono:
 		"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
 		Consolas, monospace;

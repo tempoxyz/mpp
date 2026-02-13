@@ -151,7 +151,7 @@ function ScrollIndicator({
 }
 
 export function LandingPage() {
-	const [variant, setVariant] = useState<Variant>("A");
+	const [variant, setVariant] = useState<Variant>("F");
 
 	// Apply header background fix for scroll snap variants
 	useEffect(() => {
