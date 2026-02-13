@@ -64,16 +64,29 @@
 
 /* Links inside callouts - blue and underlined */
 [data-v-callout] a,
+[data-v-callout] a:link,
+[data-v-callout] a:visited,
 .vocs_Callout a,
-[class*="Callout"] a {
+.vocs_Callout a:link,
+.vocs_Callout a:visited,
+[class*="Callout"] a,
+[class*="Callout"] a:link,
+[class*="Callout"] a:visited,
+[data-v-content] [data-v-callout] a,
+article [data-v-callout] a,
+aside a,
+aside a:link,
+aside a:visited {
 	color: #0166ff !important;
 	text-decoration: underline !important;
 }
 
 [data-v-callout] a:hover,
 .vocs_Callout a:hover,
-[class*="Callout"] a:hover {
+[class*="Callout"] a:hover,
+aside a:hover {
 	color: #0052cc !important;
+	text-decoration: underline !important;
 }
 
 /* No underline on sidebar items */
@@ -316,36 +329,46 @@ article a[data-v-card]:hover {
 /* Vocs card hover state - mimic service cards */
 [data-v-card],
 .vocs_Card,
-[class*="Card_card"] {
-	transition:
-		border-color 0.15s ease,
-		box-shadow 0.15s ease !important;
+[class*="Card_card"],
+[data-v-content] a[href] > div {
+	transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 [data-v-card]:hover,
 .vocs_Card:hover,
-[class*="Card_card"]:hover {
+[class*="Card_card"]:hover,
+[data-v-content] a[href]:hover > div {
 	border-color: #9ca3af !important; /* gray-400 for more visible change */
 }
 
 /* Card title turns blue on hover */
 [data-v-card]:hover [data-v-card-title],
 [data-v-card]:hover h3,
-[data-v-card]:hover p:first-child,
+[data-v-card]:hover p:first-of-type,
 [data-v-card]:hover strong:first-child,
 .vocs_Card:hover [class*="title"],
 .vocs_Card:hover h3,
-.vocs_Card:hover p:first-child {
+.vocs_Card:hover p:first-of-type,
+[data-v-content] a[href]:hover > div p:first-of-type,
+[data-v-content] a[href]:hover > div strong {
 	color: #0166ff !important;
 }
 
 /* Card description - smaller font and tighter line height */
-[data-v-card] p:last-child,
+[data-v-card] p:last-of-type,
 [data-v-card] [class*="description"],
-.vocs_Card p:last-child,
-.vocs_Card [class*="description"] {
+.vocs_Card p:last-of-type,
+.vocs_Card [class*="description"],
+[data-v-content] a[href] > div p:last-of-type {
 	font-size: 12px !important;
 	line-height: 1.35 !important;
+}
+
+/* Remove divider after h1 tagline */
+[data-v-content] h1 + hr,
+[data-v-content] > hr:first-of-type,
+article > hr:first-of-type {
+	display: none !important;
 }
 
 /* Ensure header covers scrolling content */
