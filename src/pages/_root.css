@@ -314,8 +314,14 @@ article a[data-v-card]:hover {
 	text-decoration: none !important;
 }
 
+/* Vocs Cards container */
+[data-v-content] [class*="Cards"] {
+	gap: 1rem !important;
+}
+
 /* Vocs card layout - icon at top, text at bottom */
-[data-v-card] {
+[data-v-content] [class*="Cards"] > a,
+[data-v-content] [class*="Card_card"] {
 	display: flex !important;
 	flex-direction: column !important;
 	justify-content: space-between !important;
@@ -323,41 +329,35 @@ article a[data-v-card]:hover {
 	transition: border-color 0.15s ease !important;
 }
 
-[data-v-card]:hover {
+[data-v-content] [class*="Cards"] > a:hover,
+[data-v-content] [class*="Card_card"]:hover {
 	border-color: #9ca3af !important; /* gray-400 */
 }
 
-/* Card title (strong element) turns blue on hover - NOT description */
-[data-v-card]:hover strong {
+/* Card title turns blue on hover */
+[data-v-content] [class*="Cards"] > a:hover [class*="title"],
+[data-v-content] [class*="Cards"] > a:hover strong {
 	color: #0166ff !important;
 }
 
-/* Card description - smaller font and tighter line height, gray color */
-[data-v-card] p {
+/* Card description - smaller font */
+[data-v-content] [class*="Cards"] > a [class*="description"],
+[data-v-content] [class*="Card"] [class*="description"] {
 	font-size: 11px !important;
 	line-height: 1.35 !important;
-	color: #6b7280 !important; /* gray-500 */
-	margin-top: 0.25rem !important;
+	color: #6b7280 !important;
 }
 
-/* Card title */
-[data-v-card] strong {
+/* Card title size */
+[data-v-content] [class*="Cards"] > a [class*="title"],
+[data-v-content] [class*="Card"] [class*="title"] {
 	font-size: 14px !important;
 }
 
-/* Remove ALL dividers/borders/lines above cards */
+/* Remove ALL dividers/borders/lines */
 [data-v-content] hr,
-[data-v-content] > hr,
-article hr,
-[data-v-cards]::before,
-[data-v-card]::before,
-h1 + hr,
-.vocs_Heading + hr {
+article hr {
 	display: none !important;
-	border: none !important;
-	height: 0 !important;
-	margin: 0 !important;
-	padding: 0 !important;
 }
 
 /* Ensure header covers scrolling content */
