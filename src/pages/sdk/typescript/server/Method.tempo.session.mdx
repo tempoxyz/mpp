@@ -5,9 +5,9 @@ Creates a Tempo payment session method for server-side voucher verification and 
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   // [!code focus:start]
   methods: [
     tempo.session({
@@ -24,9 +24,9 @@ const mpay = Mpay.create({
 Register both intents on a single server.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [
     tempo.charge(),
     tempo.session(),
@@ -37,7 +37,7 @@ const mpay = Mpay.create({
 ## Return type
 
 ```ts
-import type { MethodIntent } from 'mpay'
+import type { MethodIntent } from 'mppx'
 
 type ReturnType = MethodIntent.Server
 ```
@@ -107,7 +107,7 @@ Default recipient address for payments.
 Storage backend for persisting channel and session state. Implements atomic read-modify-write operations for concurrency safety.
 
 ```ts twoslash
-import { Store, tempo } from 'mpay/server'
+import { Store, tempo } from 'mppx/server'
 
 const method = tempo({
   store: Store.memory(), // [!code focus]

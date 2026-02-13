@@ -5,12 +5,12 @@ Creates a Tempo payment session method for client-side voucher signing.
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({
+Mppx.create({
   methods: [
     // [!code focus:start]
     tempo.session({ account }),
@@ -24,12 +24,12 @@ Mpay.create({
 Register both intents on a single client.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({
+Mppx.create({
   methods: [
     tempo.charge({ account }),
     tempo.session({ account }),
@@ -40,7 +40,7 @@ Mpay.create({
 ## Return type
 
 ```ts
-import type { MethodIntent } from 'mpay'
+import type { MethodIntent } from 'mppx'
 
 type ReturnType = MethodIntent.Client
 ```
@@ -54,7 +54,7 @@ type ReturnType = MethodIntent.Client
 Account to sign vouchers with. You can override this per call using the context.
 
 ```ts twoslash
-import { tempo } from 'mpay/client'
+import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({

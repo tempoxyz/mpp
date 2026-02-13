@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useConnectorClient } from "wagmi";
-import { fetch } from "../mpay.client";
+import { fetch } from "../mppx.client";
 import { pathUsd } from "../wagmi.config";
 import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";

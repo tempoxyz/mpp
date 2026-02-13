@@ -51,7 +51,7 @@ When editing Python or Rust pages, keep the structure aligned with the existing 
 
 ## SDK References
 
-- Typescript: <https://github.com/wevm/mpay>
+- Typescript: <https://github.com/wevm/mppx>
 - Python: <https://github.com/tempoxyz/pympay>
 - Rust: <<https://github.com/tempoxyz/mpay-rs>
 
@@ -66,7 +66,7 @@ When multiple approaches exist, recommend one as the default. Don't present opti
 
 **Examples:**
 
-- Client SDK: Lead with `Fetch.polyfill`, move `Fetch.from` and `Mpay.create` to Advanced options
+- Client SDK: Lead with `Fetch.polyfill`, move `Fetch.from` and `Mppx.create` to Advanced options
 - Building with AI: Lead with `llms-full.txt`, move MCP/skills/markdown to Advanced options
 - Installation: Show npm first in a code-group, not a table of choices
 
@@ -87,8 +87,8 @@ Brief one-line description of what this function does.
 ## Usage
 
 ```ts twoslash [example.ts]
-import { Module } from 'mpay'
-// or 'mpay/client' or 'mpay/server'
+import { Module } from 'mppx'
+// or 'mppx/client' or 'mppx/server'
 
 const result = Module.method({
   param1: 'value1',
@@ -104,7 +104,7 @@ console.log(result)
 Description of what this variant does and when to use it.
 
 ```ts twoslash [example.ts]
-import { Module, Transport } from 'mpay'
+import { Module, Transport } from 'mppx'
 
 const result = Module.method({
   param1: 'value1',
@@ -148,7 +148,7 @@ Creates a fetch wrapper that automatically handles 402 Payment Required response
 ::::code-group
 
 ```ts twoslash [example.ts]
-import { Fetch, tempo } from 'mpay/client'
+import { Fetch, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const fetch = Fetch.from({
@@ -234,7 +234,7 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 ## Rules
 
 1. **Alphabetize everything** - Object properties in code examples and ### parameter headings must be alphabetically ordered
-12. **No `// @noErrors` in twoslash** - NEVER use `// @noErrors` in twoslash code blocks. All snippets must typecheck against the installed mpay types. If a snippet fails, fix the snippet or bump the mpay version — do not suppress the error.
+12. **No `// @noErrors` in twoslash** - NEVER use `// @noErrors` in twoslash code blocks. All snippets must typecheck against the installed mppx types. If a snippet fails, fix the snippet or bump the mppx version — do not suppress the error.
 2. **No code-groups for variants** - Use separate ### sections under ## Usage for different usage patterns (e.g., `### With MCP Transport`), not `:::code-group`
 3. **Keep descriptions concise** - One line for the intro, brief explanations for parameters
 4. **Show realistic examples** - Use actual values that make sense

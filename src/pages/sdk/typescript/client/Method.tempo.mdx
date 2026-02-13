@@ -5,12 +5,12 @@ Convenience function that creates both `tempo.charge` and `tempo.session` method
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({
+Mppx.create({
   methods: [
     // [!code focus:start]
     tempo({ account }),
@@ -22,12 +22,12 @@ Mpay.create({
 This is equivalent to:
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({
+Mppx.create({
   methods: [
     tempo.charge({ account }),
     tempo.session({ account }),
@@ -41,7 +41,7 @@ Mpay.create({
 type ReturnType = readonly [MethodIntent.Client, MethodIntent.Client]
 ```
 
-A tuple of `[chargeIntent, sessionIntent]`. `Mpay.create` accepts tuples in the `methods` array and flattens them automatically.
+A tuple of `[chargeIntent, sessionIntent]`. `Mppx.create` accepts tuples in the `methods` array and flattens them automatically.
 
 ## Parameters
 

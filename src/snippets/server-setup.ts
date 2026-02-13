@@ -1,15 +1,15 @@
 // [!region imports]
-import { Mpay, tempo } from "mpay/server";
+import { Mppx, tempo } from "mppx/server";
 
 // [!endregion imports]
 
-// [!region mpay]
-const mpay = Mpay.create({ methods: [tempo.charge()] });
-// [!endregion mpay]
+// [!region mppx]
+const mppx = Mppx.create({ methods: [tempo.charge()] });
+// [!endregion mppx]
 
 // [!region handler]
 export async function handler(request: Request) {
-	const response = await mpay.charge({
+	const response = await mppx.charge({
 		amount: "0.1",
 		currency: "0x20c0000000000000000000000000000000000000",
 		recipient: "0x742d35Cc6634c0532925a3b844bC9e7595F8fE00",

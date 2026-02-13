@@ -7,32 +7,32 @@ Native [Elysia](https://elysiajs.com) middleware that gates routes behind paymen
 :::code-group
 
 ```bash [npm]
-npm install mpay elysia
+npm install mppx elysia
 ```
 
 ```bash [pnpm]
-pnpm add mpay elysia
+pnpm add mppx elysia
 ```
 
 ```bash [bun]
-bun add mpay elysia
+bun add mppx elysia
 ```
 
 :::
 
 ## Usage
 
-Import `Mpay` and `tempo` from `mpay/elysia` to create an Elysia-aware payment handler. Each intent (for example, `charge`) returns an Elysia `beforeHandle` hook you can use with `.guard()` to scope payment to specific routes.
+Import `Mppx` and `tempo` from `mppx/elysia` to create an Elysia-aware payment handler. Each intent (for example, `charge`) returns an Elysia `beforeHandle` hook you can use with `.guard()` to scope payment to specific routes.
 
 ```ts [server.ts]
 import { Elysia } from 'elysia'
-import { Mpay, tempo } from 'mpay/elysia'
+import { Mppx, tempo } from 'mppx/elysia'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const app = new Elysia()
   .guard(
-    { beforeHandle: mpay.charge({ amount: '1' }) },
+    { beforeHandle: mppx.charge({ amount: '1' }) },
     (app) => app.get('/premium', () => ({ data: 'paid content' })),
   )
 ```
@@ -43,12 +43,12 @@ Use `.onBeforeHandle()` to apply payment to all routes.
 
 ```ts [server.ts]
 import { Elysia } from 'elysia'
-import { Mpay, tempo } from 'mpay/elysia'
+import { Mppx, tempo } from 'mppx/elysia'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 const app = new Elysia()
-  .onBeforeHandle(mpay.charge({ amount: '1' })) // [!code hl]
+  .onBeforeHandle(mppx.charge({ amount: '1' })) // [!code hl]
   .get('/premium', () => ({ data: 'paid content' }))
   .get('/another', () => ({ data: 'also paid' }))
 ```

@@ -7,33 +7,33 @@ Native [Hono](https://hono.dev) middleware that gates routes behind payment inte
 :::code-group
 
 ```bash [npm]
-npm install mpay hono
+npm install mppx hono
 ```
 
 ```bash [pnpm]
-pnpm add mpay hono
+pnpm add mppx hono
 ```
 
 ```bash [bun]
-bun add mpay hono
+bun add mppx hono
 ```
 
 :::
 
 ## Usage
 
-Import `Mpay` and `tempo` from `mpay/hono` to create a Hono-aware payment handler. Each intent (for example, `charge`) returns a Hono `MiddlewareHandler` you can slot directly into your route.
+Import `Mppx` and `tempo` from `mppx/hono` to create a Hono-aware payment handler. Each intent (for example, `charge`) returns a Hono `MiddlewareHandler` you can slot directly into your route.
 
 ```ts [server.ts]
 import { Hono } from 'hono'
-import { Mpay, tempo } from 'mpay/hono'
+import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
-const mpay = Mpay.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 app.get(
   '/premium', 
-  mpay.charge({ amount: '1' }), // [!code hl]
+  mppx.charge({ amount: '1' }), // [!code hl]
   (c) => c.json({ data: 'paid content' }),
 )
 ```

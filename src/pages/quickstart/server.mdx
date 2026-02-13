@@ -8,15 +8,15 @@ This quickstart demonstrates how to plug MPP into any server framework to accept
 
 ## Framework mode
 
-Use the framework-specific middleware from `mpay` to integrate payment into your server. Each middleware handles the `402` challenge/credential flow and attaches receipts automatically.
+Use the framework-specific middleware from `mppx` to integrate payment into your server. Each middleware handles the `402` challenge/credential flow and attaches receipts automatically.
 
 ::::code-group
 
 ```ts [Next.js]
-import { Mpay, tempo } from 'mpay/nextjs'
+import { Mppx, tempo } from 'mppx/nextjs'
 
 // [!code hl:start]
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -25,18 +25,18 @@ const mpay = Mpay.create({
 // [!code hl:end]
 
 export const GET = 
-  mpay.charge({ amount: '0.1' }) // [!code hl]
+  mppx.charge({ amount: '0.1' }) // [!code hl]
   (() => Response.json({ data: '...' }))
 ```
 
 ```ts [Hono]
 import { Hono } from 'hono'
-import { Mpay, tempo } from 'mpay/hono'
+import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
 
 // [!code hl:start]
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -46,17 +46,17 @@ const mpay = Mpay.create({
 
 app.get(
   '/resource', 
-  mpay.charge({ amount: '0.1' }), // [!code hl]
+  mppx.charge({ amount: '0.1' }), // [!code hl]
   (c) => c.json({ data: '...' }),
 )
 ```
 
 ```ts [Elysia]
 import { Elysia } from 'elysia'
-import { Mpay, tempo } from 'mpay/elysia'
+import { Mppx, tempo } from 'mppx/elysia'
 
 // [!code hl:start]
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -66,19 +66,19 @@ const mpay = Mpay.create({
 
 const app = new Elysia()
   .guard(
-    { beforeHandle: mpay.charge({ amount: '0.1' }) }, // [!code hl]
+    { beforeHandle: mppx.charge({ amount: '0.1' }) }, // [!code hl]
     (app) => app.get('/resource', () => ({ data: '...' })),
   )
 ```
 
 ```ts [Express]
 import express from 'express'
-import { Mpay, tempo } from 'mpay/express'
+import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
 
 // [!code hl:start]
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -88,7 +88,7 @@ const mpay = Mpay.create({
 
 app.get(
   '/resource', 
-  mpay.charge({ amount: '0.1' }), // [!code hl]
+  mppx.charge({ amount: '0.1' }), // [!code hl]
   (req, res) => res.json({ data: '...' }))
 ```
 
@@ -98,7 +98,7 @@ app.get(
 You can also override `currency` and `recipient` per call if different routes need different payment configurations.
 
 ```ts
-mpay.charge({ 
+mppx.charge({ 
   amount: '0.1', 
   currency: '0x…', // [!code ++]
   recipient: '0x…', // [!code ++]
@@ -107,17 +107,17 @@ mpay.charge({
 :::
 
 :::note
-Don't see your framework? `mpay` is designed to be framework-agnostic. See [Manual mode](#manual-mode) below.
+Don't see your framework? `mppx` is designed to be framework-agnostic. See [Manual mode](#manual-mode) below.
 :::
 
 ## Manual mode
 
-If you prefer full control over the payment flow, use `mpay/server` directly with the Fetch API.
+If you prefer full control over the payment flow, use `mppx/server` directly with the Fetch API.
 
 ```ts
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -126,7 +126,7 @@ const mpay = Mpay.create({
 
 // [!code focus:start]
 export async function handler(request: Request) { 
-  const response = await mpay.charge({ amount: '0.1' })(request) 
+  const response = await mppx.charge({ amount: '0.1' })(request) 
   // [!code focus:end]
 
   // Payment required: send 402 response with challenge 
@@ -150,7 +150,7 @@ The Fetch API is compatible with most server frameworks, including: [Hono](https
 You can also override `currency` and `recipient` per call if different routes need different payment configurations.
 
 ```ts
-const response = await mpay.charge({ 
+const response = await mppx.charge({ 
   amount: '0.1', 
   currency: '0x…', // [!code ++]
   recipient: '0x…', // [!code ++]
@@ -164,12 +164,12 @@ const response = await mpay.charge({
 
 If your framework doesn't support the **Fetch API** (for example, Express or Node.js), you're likely interfacing with the [Node.js Request Listener API](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener).
 
-Use the `Mpay.toNodeListener` helper to transform the handler into a Node.js-compatible listener.
+Use the `Mppx.toNodeListener` helper to transform the handler into a Node.js-compatible listener.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -180,8 +180,8 @@ type IncomingMessage = import('node:http').IncomingMessage
 type ServerResponse = import('node:http').ServerResponse
 // ---cut---
 export async function handler(req: IncomingMessage, res: ServerResponse) { 
-  const response = await Mpay.toNodeListener( // [!code ++]
-    mpay.charge({ amount: '0.1' })
+  const response = await Mppx.toNodeListener( // [!code ++]
+    mppx.charge({ amount: '0.1' })
   )(req, res) // [!code ++]
 
   // Payment required: send 402 response with challenge 
@@ -232,8 +232,8 @@ Use `tempoctl inspect` to debug your server's challenge response without making 
   />
   <Card
     icon="lucide:book-open"
-    title="Mpay.create reference"
+    title="Mppx.create reference"
     description="Full API documentation"
-    to="/sdk/typescript/server/Mpay.create"
+    to="/sdk/typescript/server/Mppx.create"
   />
 </Cards>

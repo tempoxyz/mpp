@@ -1,0 +1,25 @@
+import { Card, Cards } from 'vocs'
+
+# Stripe [Cards, wallets, and other Stripe supported payment methods]
+
+The Stripe payment method enables payments using [Stripe Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens)—single-use tokens that represent payment authorization. SPTs abstract payment method details (cards, wallets) and provide a unified interface for payment acceptance.
+
+Both the client and server need a Stripe account. The client creates an SPT using the Stripe API or Stripe.js, and the server consumes it to create a Stripe `PaymentIntent`.
+
+## How it works
+
+1. The server responds with `402` and a Challenge containing the amount, currency, and Stripe method details (Business Network profile, allowed payment method types).
+2. The client creates an SPT with Stripe and sends a Credential containing the SPT.
+3. The server creates a Stripe `PaymentIntent` using the SPT.
+4. The server returns the resource with a Receipt referencing the `PaymentIntent`.
+
+## Intents
+
+<Cards>
+  <Card
+    icon="lucide:credit-card"
+    title="Charge"
+    description="One-time card or bank payment using Stripe Payment Tokens"
+    to="/payment-methods/stripe/charge"
+  />
+</Cards>

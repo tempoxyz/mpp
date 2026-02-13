@@ -1,4 +1,4 @@
-# `Mpay.toNodeListener`
+# `Mppx.toNodeListener`
 
 Wraps a payment handler to create a Node.js HTTP listener.
 
@@ -6,15 +6,15 @@ Wraps a payment handler to create a Node.js HTTP listener.
 
 ```ts twoslash
 import * as http from 'node:http'
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge()],
 })
 
 http.createServer(async (req, res) => {
-  const result = await Mpay.toNodeListener(
-    mpay.charge({
+  const result = await Mppx.toNodeListener(
+    mppx.charge({
       amount: '0.1', 
       currency: '0x...', 
       recipient: '0x...',
@@ -51,16 +51,16 @@ The payment handler function returned by calling an intent on the payment object
 
 ```ts twoslash
 import * as http from 'node:http'
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge()],
 })
 
 http.createServer(async (req, res) => {
-  const result = await Mpay.toNodeListener(
+  const result = await Mppx.toNodeListener(
     // [!code focus:start]
-    mpay.charge({
+    mppx.charge({
       amount: '0.1',
       currency: '0x...',
       recipient: '0x...',

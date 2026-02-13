@@ -5,8 +5,8 @@ Creates a validated payment request from a method intent.
 ## Usage
 
 ```ts twoslash
-import { PaymentRequest } from 'mpay'
-import { MethodIntents } from 'mpay/tempo'
+import { PaymentRequest } from 'mppx'
+import { MethodIntents } from 'mppx/tempo'
 
 const request = PaymentRequest.fromIntent(MethodIntents.charge, {
   amount: '0.1',

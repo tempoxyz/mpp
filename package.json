@@ -28,14 +28,14 @@
 		"class-variance-authority": "^0.7.1",
 		"dayjs": "^1.11.19",
 		"mermaid": "^11.12.2",
-		"mpay": "^0.2.4",
+		"mppx": "~0.1.0",
 		"react": "^19",
 		"react-dom": "^19",
 		"scroll-snap": "^5.0.2",
 		"tailwindcss": "^4.1.18",
 		"tempo.ts": "~0.14.0",
 		"viem": "latest",
-		"vocs": "https://pkg.pr.new/wevm/vocs@5647cea",
+		"vocs": "https://pkg.pr.new/wevm/vocs@f365626",
 		"wagmi": "^3.4.2",
 		"waku": "^1.0.0-alpha.2"
 	},
@@ -43,7 +43,7 @@
 		"pre-commit": "pnpm check"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.3.13",
+		"@biomejs/biome": "^2.3.15",
 		"@hiogawa/node-loader-cloudflare": "^0.0.2",
 		"@iconify/json": "^2.2.433",
 		"@types/node": "^22",

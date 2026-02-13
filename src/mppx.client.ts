@@ -1,10 +1,10 @@
-import { Mpay, tempo } from "mpay/client";
+import { Mppx, tempo } from "mppx/client";
 import { wrapFetch } from "./lib/network-store";
 import { config } from "./wagmi.config";
 
 const trackedFetch = wrapFetch(globalThis.fetch);
 
-export const { fetch } = Mpay.create({
+export const { fetch } = Mppx.create({
 	fetch: trackedFetch,
 	methods: [tempo.charge(config.connectors.at(0))],
 	polyfill: false,

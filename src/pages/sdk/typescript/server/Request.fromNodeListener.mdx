@@ -6,7 +6,7 @@ Converts a Node.js HTTP listener request to a Fetch API `Request`.
 
 ```ts twoslash
 import * as http from 'node:http'
-import { Request } from 'mpay/server'
+import { Request } from 'mppx/server'
 
 http.createServer((req, res) => {
   const request = Request.fromNodeListener(req, res)

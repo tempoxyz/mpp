@@ -7,33 +7,33 @@ Native [Express](https://expressjs.com) middleware that gates routes behind paym
 :::code-group
 
 ```bash [npm]
-npm install mpay express
+npm install mppx express
 ```
 
 ```bash [pnpm]
-pnpm add mpay express
+pnpm add mppx express
 ```
 
 ```bash [bun]
-bun add mpay express
+bun add mppx express
 ```
 
 :::
 
 ## Usage
 
-Import `Mpay` and `tempo` from `mpay/express` to create an Express-aware payment handler. Each intent (for example, `charge`) returns an Express `RequestHandler` you can slot directly into your route.
+Import `Mppx` and `tempo` from `mppx/express` to create an Express-aware payment handler. Each intent (for example, `charge`) returns an Express `RequestHandler` you can slot directly into your route.
 
 ```ts [server.ts]
 import express from 'express'
-import { Mpay, tempo } from 'mpay/express'
+import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
-const mpay = Mpay.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 app.get(
   '/premium', 
-  mpay.charge({ amount: '1' }), // [!code hl]
+  mppx.charge({ amount: '1' }), // [!code hl]
   (req, res) => res.json({ data: 'paid content' }),
 )
 ```

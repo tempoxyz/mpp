@@ -5,7 +5,7 @@ Extracts the challenge from a Response's WWW-Authenticate header.
 ## Usage
 
 ```ts twoslash
-import { Challenge } from 'mpay'
+import { Challenge } from 'mppx'
 
 const response = await fetch('/resource')
 if (response.status === 402) {
@@ -18,8 +18,8 @@ if (response.status === 402) {
 Use a method definition to get type-safe access to method-specific request fields.
 
 ```ts twoslash
-import { Challenge } from 'mpay'
-import { MethodIntents } from 'mpay/tempo'
+import { Challenge } from 'mppx'
+import { MethodIntents } from 'mppx/tempo'
 
 const response = await fetch('/resource')
 if (response.status === 402) {

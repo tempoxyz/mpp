@@ -1,13 +1,13 @@
-# `Mpay.create`
+# `Mppx.create`
 
 Creates a server-side payment handler from a method.
 
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const payment = Mpay.create({
+const payment = Mppx.create({
   methods: [tempo.charge()],
 })
 ```
@@ -17,9 +17,9 @@ const payment = Mpay.create({
 Use a custom transport for non-HTTP environments like MCP servers.
 
 ```ts twoslash
-import { Mpay, tempo, Transport } from 'mpay/server'
+import { Mppx, tempo, Transport } from 'mppx/server'
 
-const payment = Mpay.create({
+const payment = Mppx.create({
   methods: [tempo.charge()],
   transport: Transport.mcpSdk(),
 })
@@ -28,10 +28,10 @@ const payment = Mpay.create({
 ## Return type
 
 ```ts
-import type { MethodIntent } from 'mpay'
-import type { Mpay, Transport } from 'mpay/server'
+import type { MethodIntent } from 'mppx'
+import type { Mppx, Transport } from 'mppx/server'
 
-type ReturnType = Mpay<[MethodIntent.Server], Transport.Http>
+type ReturnType = Mppx<[MethodIntent.Server], Transport.Http>
 ```
 
 The returned object includes the method's intent functions (for example, `charge`) which you call to handle payment requests.
@@ -45,9 +45,9 @@ The returned object includes the method's intent functions (for example, `charge
 Array of payment methods (for example, `[tempo.charge()]`).
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const payment = Mpay.create({
+const payment = Mppx.create({
   // [!code focus:start]
   methods: [tempo.charge()],
   // [!code focus:end]
@@ -62,9 +62,9 @@ const payment = Mpay.create({
 Server realm (for example, hostname). Used to identify the server in payment challenges.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const payment = Mpay.create({
+const payment = Mppx.create({
   methods: [tempo.charge()],
   realm: 'mpp.dev', // [!code focus]
 })
@@ -77,11 +77,11 @@ const payment = Mpay.create({
 Secret key for HMAC-bound challenge IDs. Enables stateless verification—allows the server to verify that a challenge was issued by itself without storing state. Defaults to `'tmp'`.
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const payment = Mpay.create({
+const payment = Mppx.create({
   methods: [tempo.charge()],
-  secretKey: process.env.MPAY_SECRET_KEY!, // [!code focus]
+  secretKey: process.env.MPPX_SECRET_KEY!, // [!code focus]
 })
 ```
 
@@ -93,9 +93,9 @@ const payment = Mpay.create({
 Transport to use for handling payment requests. Defaults to HTTP transport.
 
 ```ts twoslash
-import { Mpay, tempo, Transport } from 'mpay/server'
+import { Mppx, tempo, Transport } from 'mppx/server'
 
-const payment = Mpay.create({
+const payment = Mppx.create({
   methods: [tempo.charge()],
   transport: Transport.mcp(), // [!code focus]
 })

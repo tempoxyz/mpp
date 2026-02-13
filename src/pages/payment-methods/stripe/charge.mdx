@@ -1,0 +1,249 @@
+import { Cards } from 'vocs'
+import { SpecCard } from '../../../components/SpecCard'
+
+# Stripe charge [One-time payments using Stripe Payment Tokens]
+
+The Stripe implementation of the [charge](/intents/charge) intent.
+
+The client creates a [Stripe Payment Token (SPT)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) and sends it as a Credential. The server creates a Stripe `PaymentIntent` using the SPT, and settlement completes through Stripe's payment rails.
+
+Use this method for single API calls, content access, or one-off purchases where you want to accept cards, wallets, or other Stripe-supported payment methods.
+
+## Server
+
+Use `stripe.charge` to require a one-time Stripe payment before returning a response. The method handles Challenge generation, Credential verification, PaymentIntent creation, and Receipt generation.
+
+```ts twoslash
+import { Mppx, stripe } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    stripe.charge({
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({
+    amount: '1',
+    currency: 'usd',
+    decimals: 2,
+    description: 'Premium API access',
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### With metadata
+
+Include `metadata` in the `stripe.charge` configuration to forward key-value pairs to Stripe. The metadata appears in the Challenge and attaches to the Stripe `PaymentIntent`.
+
+```ts twoslash
+import { Mppx, stripe } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    stripe.charge({
+      metadata: { plan: 'pro' }, // [!code hl]
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({
+    amount: '1',
+    currency: 'usd',
+    decimals: 2,
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### With multiple payment method types
+
+Allow multiple payment methods, like cards and Link, by specifying them in `paymentMethodTypes`.
+
+```ts twoslash
+import { Mppx, stripe } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    stripe.charge({
+      networkId: 'internal',
+      paymentMethodTypes: ['card', 'link'], // [!code hl]
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+    }),
+  ],
+})
+```
+
+### Server parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `metadata` | `Record<string, string>` | Optional | Key-value pairs forwarded to Stripe |
+| `networkId` | `string` | Required | Stripe [Business Network](https://docs.stripe.com/get-started/account/profile) profile ID |
+| `paymentMethodTypes` | `string[]` | Required | Allowed Stripe payment method types |
+| `secretKey` | `string` | Required | Stripe secret API key |
+
+## Client
+
+Use `stripe` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, creates an SPT through the `createSpt` callback, and retries with the Credential.
+
+SPT creation requires a Stripe secret key, so the client accepts a `createSpt` callback that proxies through a server endpoint.
+
+```ts twoslash
+import { Mppx, stripe } from 'mppx/client'
+
+Mppx.create({
+  methods: [
+    stripe({
+      createSpt: async (params) => {
+        const res = await fetch('/api/create-spt', {
+          body: JSON.stringify(params),
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        })
+        if (!res.ok) throw new Error('Failed to create SPT')
+        return (await res.json()).spt
+      },
+    }),
+  ],
+})
+
+const response = await fetch('https://api.example.com/resource')
+// @log: Response { status: 200, ... }
+```
+
+### With Stripe Elements
+
+Collect the payment method from the user using Stripe Elements, then pass it at credential-creation time through `context`.
+
+```ts twoslash
+import { Challenge } from 'mppx'
+import { stripe } from 'mppx/client'
+
+declare const stripeClient: {
+  createPaymentMethod(opts: any): Promise<{ paymentMethod: { id: string } | null; error: any }>
+}
+declare const elements: any
+// ---cut---
+const charge = stripe.charge({
+  createSpt: async (params) => {
+    const res = await fetch('/api/create-spt', {
+      body: JSON.stringify(params),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+    return (await res.json()).spt
+  },
+})
+
+// 1. Get the 402 challenge
+const response = await fetch('/api/resource')
+const challenge = Challenge.fromResponse(response, { methods: [charge] })
+
+// 2. Collect payment method from Stripe Elements
+const { paymentMethod } = await stripeClient.createPaymentMethod({ elements })
+
+// 3. Create credential with the collected payment method
+const credential = await charge.createCredential({
+  challenge,
+  context: { paymentMethod: paymentMethod!.id },
+})
+
+// 4. Retry with credential
+const paid = await fetch('/api/resource', {
+  headers: { Authorization: credential },
+})
+```
+
+### Without polyfill
+
+If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
+
+```ts twoslash
+import { Mppx, stripe } from 'mppx/client'
+
+const mppx = Mppx.create({
+  polyfill: false,
+  methods: [
+    stripe({
+      createSpt: async (params) => {
+        const res = await fetch('/api/create-spt', {
+          body: JSON.stringify(params),
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        })
+        return (await res.json()).spt
+      },
+    }),
+  ],
+})
+
+const response = await mppx.fetch('https://api.example.com/resource')
+```
+
+### Client parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `createSpt` | `(params) => Promise<string>` | Required | Callback to create an SPT (proxied through a server endpoint) |
+| `externalId` | `string` | Optional | Client reference ID included in the Credential payload |
+| `paymentMethod` | `string` | Optional | Default Stripe payment method ID (overridden by `context.paymentMethod`) |
+
+### `createSpt` callback parameters
+
+The `createSpt` callback receives a single object with the following fields:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `amount` | `string` | Payment amount in smallest currency unit |
+| `currency` | `string` | Three-letter ISO currency code |
+| `expiresAt` | `number` | SPT expiration as a Unix timestamp (seconds) |
+| `metadata` | `Record<string, string>` | Optional metadata from the Challenge |
+| `networkId` | `string \| undefined` | Stripe Business Network profile ID |
+| `paymentMethod` | `string` | Stripe payment method ID |
+
+## Request fields
+
+The Challenge request includes the base charge fields plus Stripe method details.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `amount` | `string` | Required | Amount in the smallest currency unit |
+| `currency` | `string` | Required | ISO currency code |
+| `decimals` | `number` | Required | Number of decimal places in the amount (for example, `2` for cents) |
+| `description` | `string` | Optional | Human-readable payment description |
+| `expires` | `string` | Optional | ISO 8601 expiration timestamp (defaults to 5 minutes) |
+| `externalId` | `string` | Optional | Merchant reference ID |
+| `methodDetails.metadata` | `Record<string, string>` | Optional | Metadata forwarded to Stripe |
+| `methodDetails.networkId` | `string` | Required | Stripe Business Network profile ID |
+| `methodDetails.paymentMethodTypes` | `string[]` | Required | Allowed Stripe payment method types |
+
+## Credential payload
+
+The Credential payload contains the SPT and an optional client reference ID.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `externalId` | `string` | Optional | Client reference ID |
+| `spt` | `string` | Required | Stripe Payment Token ID (starts with `spt_`) |
+
+## Specification
+
+<Cards>
+  <SpecCard to="/specs/draft-stripe-charge-00" />
+</Cards>

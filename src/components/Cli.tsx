@@ -32,7 +32,7 @@ import IconLoader from "~icons/lucide/loader";
 import IconLogOut from "~icons/lucide/log-out";
 import IconRefresh from "~icons/lucide/refresh-cw";
 import { useRequests } from "../lib/network-store";
-import { fetch } from "../mpay.client";
+import { fetch } from "../mppx.client";
 import { AsciiLogo } from "./AsciiLogo";
 
 export namespace Store {
@@ -258,6 +258,7 @@ function Spinner() {
 	const [frame, setFrame] = useState(0);
 	const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: todo
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setFrame((f) => (f + 1) % frames.length);

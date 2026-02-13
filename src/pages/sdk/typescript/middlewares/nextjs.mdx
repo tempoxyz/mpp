@@ -7,29 +7,29 @@ Native [Next.js](https://nextjs.org) route handler wrapper that gates routes beh
 :::code-group
 
 ```bash [npm]
-npm install mpay
+npm install mppx
 ```
 
 ```bash [pnpm]
-pnpm add mpay
+pnpm add mppx
 ```
 
 ```bash [bun]
-bun add mpay
+bun add mppx
 ```
 
 :::
 
 ## Usage
 
-Import `Mpay` and `tempo` from `mpay/nextjs` to create a Next.js-aware payment handler. Each intent (for example, `charge`) returns a wrapper that accepts a route handler.
+Import `Mppx` and `tempo` from `mppx/nextjs` to create a Next.js-aware payment handler. Each intent (for example, `charge`) returns a wrapper that accepts a route handler.
 
 ```ts [app/api/premium/route.ts]
-import { Mpay, tempo } from 'mpay/nextjs'
+import { Mppx, tempo } from 'mppx/nextjs'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 export const GET = 
-  mpay.charge({ amount: '1' }) // [!code hl]
+  mppx.charge({ amount: '1' }) // [!code hl]
   (() => Response.json({ data: 'paid content' }))
 ```

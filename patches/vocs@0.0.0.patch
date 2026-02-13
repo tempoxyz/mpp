@@ -1,3 +1,16 @@
+diff --git a/package.json b/package.json
+index 1234567..abcdefg 100644
+--- a/package.json
++++ b/package.json
+@@ -221,8 +221,7 @@
+     "docs:dev": "pnpm --filter site dev",
+     "docs:preview": "pnpm --filter site preview",
+     "docs:twoslash": "cd site && tsx ../src/cli.ts twoslash",
+-    "postinstall": "pnpm dev",
+     "test": "vitest ./src",
+     "test:twoslash-rust": "cargo test --manifest-path twoslash-rust/Cargo.toml"
+   }
+ }
 diff --git a/dist/internal/config.js b/dist/internal/config.js
 index d82a6451fff200ca2271a946ca044754b1127280..a6eaff24ab51c4688d52be9487237d7b1940f453 100644
 --- a/dist/internal/config.js

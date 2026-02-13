@@ -1,13 +1,13 @@
 import * as SdkBadge from '../../../components/SdkBadge'
 
-# Getting started [The mpay TypeScript library]
+# Getting started [The mppx TypeScript library]
 
 ## Overview
 
-The `mpay` TypeScript library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+The `mppx` TypeScript library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
 
 <div className="flex gap-2">
-  <SdkBadge.GitHub repo="wevm/mpay" />
+  <SdkBadge.GitHub repo="wevm/mppx" />
   <SdkBadge.Maintainer name="Wevm" href="https://github.com/wevm" />
 </div>
 
@@ -16,22 +16,22 @@ The `mpay` TypeScript library provides a typed interface over the Machine Paymen
 :::code-group
 
 ```bash [npm]
-npm install mpay
+npm install mppx
 ```
 
 ```bash [pnpm]
-pnpm add mpay
+pnpm add mppx
 ```
 
 ```bash [bun]
-bun add mpay
+bun add mppx
 ```
 
 :::
 
 ## Quick start
 
-This quick start guide shows you how to use `mpay` with the [`tempo` payment method](/payment-methods/tempo).
+This quick start guide shows you how to use `mppx` with the [`tempo` payment method](/payment-methods/tempo).
 
 You can apply the same patterns to [other payment methods](/payment-methods).
 
@@ -74,15 +74,15 @@ When using Tempo, you can also use [Passkey or WebCrypto accounts](https://viem.
 
 #### Create payment handler
 
-Call `Mpay.create` at startup. This polyfills the global `fetch` to automatically handle `402` payment challenges.
+Call `Mppx.create` at startup. This polyfills the global `fetch` to automatically handle `402` payment challenges.
 
 ```ts twoslash [create-paid-fetch.ts]
 import { privateKeyToAccount } from 'viem/accounts'
-import { Mpay, tempo } from 'mpay/client' // [!code hl]
+import { Mppx, tempo } from 'mppx/client' // [!code hl]
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({ // [!code hl]
+Mppx.create({ // [!code hl]
   methods: [tempo({ account })], // [!code hl]
 }) // [!code hl]
 ```
@@ -91,12 +91,12 @@ Mpay.create({ // [!code hl]
 If you want to avoid polyfilling, use the returned `fetch` instead.
 
 ```ts 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   polyfill: false, // [!code hl]
   methods: [tempo({ account })]
 })
 
-const response = await mpay.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
+const response = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 ```
 :::
 
@@ -114,14 +114,14 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 
 ::::steps
 
-#### Create an `Mpay` instance
+#### Create an `Mppx` instance
 
-Create an `Mpay` instance to request payment for protected resources.
+Create an `Mppx` instance to request payment for protected resources.
 
-```ts twoslash [create-mpay.ts]
-import { Mpay, tempo } from 'mpay/server'
+```ts twoslash [create-mppx.ts]
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 ```
 
 :::tip
@@ -130,19 +130,19 @@ and allow the server to verify that incoming credentials match challenges it iss
 
 ```ts
 // .env // [!code focus]
-MPAY_SECRET_KEY="random-secret-key" // [!code focus]
+MPPX_SECRET_KEY="random-secret-key" // [!code focus]
 
 // config.ts // [!code focus]
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge()],
-  secretKey: process.env.MPAY_SECRET_KEY!, // [!code focus]
+  secretKey: process.env.MPPX_SECRET_KEY!, // [!code focus]
 })
 ```
 :::
 
 #### Use in request handlers
 
-Use the `mpay` instance to request payment from the client.
+Use the `mppx` instance to request payment from the client.
 
 The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.
 
@@ -155,12 +155,12 @@ The Fetch API is compatible with most server frameworks, including:
 - other Fetch API-compatible frameworks
 
 ```ts twoslash [charge-handler.ts]
-import { Mpay, tempo } from 'mpay/server' // [!code collapse:8 collapsed]
+import { Mppx, tempo } from 'mppx/server' // [!code collapse:8 collapsed]
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 export async function handler(request: Request) { 
-  const response = await mpay.charge({ 
+  const response = await mppx.charge({ 
     amount: '0.1', 
     currency: '0x20c0000000000000000000000000000000000000', 
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
@@ -177,18 +177,18 @@ export async function handler(request: Request) {
 :::tip
 If your framework doesn't support the Fetch API (for example, Express or Node.js), you're likely interfacing with the [Node.js Request Listener API](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener).
 
-Use the `Mpay.toNodeListener` helper to transform the handler into a Node.js-compatible listener.
+Use the `Mppx.toNodeListener` helper to transform the handler into a Node.js-compatible listener.
 
 ```ts  twoslash
-import { Mpay, tempo } from 'mpay/server' // [!code collapse:8]
+import { Mppx, tempo } from 'mppx/server' // [!code collapse:8]
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 type IncomingMessage = import('node:http').IncomingMessage
 type ServerResponse = import('node:http').ServerResponse
 // ---cut---
 export async function handler(req: IncomingMessage, res: ServerResponse) { 
-  const response = await Mpay.toNodeListener(mpay.charge({ // [!code ++]
+  const response = await Mppx.toNodeListener(mppx.charge({ // [!code ++]
     amount: '0.1', 
     currency: '0x20c0000000000000000000000000000000000000', 
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', 
@@ -210,14 +210,14 @@ Plug the handler into your framework of choice, like [Hono](https://hono.dev).
 
 ```ts [hono-server.ts]
 import { Hono } from 'hono' // [!code focus]
-import { Mpay, tempo } from 'mpay/server'
+import { Mppx, tempo } from 'mppx/server'
 
-const mpay = Mpay.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const app = new Hono() // [!code focus]
 
 app.get('/resource', async (c) => { // [!code focus:99]
-  const r = await mpay.charge({
+  const r = await mppx.charge({
     amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
@@ -233,30 +233,30 @@ app.get('/resource', async (c) => { // [!code focus:99]
 
 ## Skills
 
-Get up and running by using your coding agent (Claude Code, Cursor, Amp, and similar tools) with [Agent Skills](https://skills.sh). After you install it, your agent has context on how to properly integrate `mpay` with your chosen framework.
+Get up and running by using your coding agent (Claude Code, Cursor, Amp, and similar tools) with [Agent Skills](https://skills.sh). After you install it, your agent has context on how to properly integrate `mppx` with your chosen framework.
 
 Use the [`skills` CLI](https://github.com/vercel-labs/skills) to install skills for your coding agent:
 
 ```bash [install-skills.sh]
-# Install all mpay skills
-$ npx skills install wevm/mpay
+# Install all mppx skills
+$ npx skills install wevm/mppx
 
 # Install a specific skill
-$ npx skills install wevm/mpay --skill mpay-hono
+$ npx skills install wevm/mppx --skill mppx-hono
 
 # Install globally (available across all projects)
-$ npx skills install wevm/mpay -g
+$ npx skills install wevm/mppx -g
 ```
 
 :::note[Available skills]
-- [`mpay-bun`](https://github.com/wevm/mpay/tree/main/skills/mpay-bun) - [Bun](https://bun.sh) HTTP server integration
-- [`mpay-client`](https://github.com/wevm/mpay/tree/main/skills/mpay-client) - Client-side payment integration
-- [`mpay-cloudflare`](https://github.com/wevm/mpay/tree/main/skills/mpay-cloudflare) - [Cloudflare Workers](https://workers.cloudflare.com) integration
-- [`mpay-deno`](https://github.com/wevm/mpay/tree/main/skills/mpay-deno) - [Deno](https://deno.com) server integration
-- [`mpay-ts-docs-reference`](https://github.com/wevm/mpp/tree/main/skills/mpay-ts-docs-reference) - Writing TypeScript API reference documentation
-- [`mpay-elysia`](https://github.com/wevm/mpay/tree/main/skills/mpay-elysia) - [Elysia](https://elysiajs.com) framework integration
-- [`mpay-express`](https://github.com/wevm/mpay/tree/main/skills/mpay-express) - [Express.js](https://expressjs.com) integration
-- [`mpay-hono`](https://github.com/wevm/mpay/tree/main/skills/mpay-hono) - [Hono](https://hono.dev) framework integration
-- [`mpay-nextjs`](https://github.com/wevm/mpay/tree/main/skills/mpay-nextjs) - [Next.js](https://nextjs.org) integration
-- [`mpay-node-http`](https://github.com/wevm/mpay/tree/main/skills/mpay-node-http) - [Node.js](https://nodejs.org) HTTP server integration
+- [`mppx-bun`](https://github.com/wevm/mppx/tree/main/skills/mppx-bun) - [Bun](https://bun.sh) HTTP server integration
+- [`mppx-client`](https://github.com/wevm/mppx/tree/main/skills/mppx-client) - Client-side payment integration
+- [`mppx-cloudflare`](https://github.com/wevm/mppx/tree/main/skills/mppx-cloudflare) - [Cloudflare Workers](https://workers.cloudflare.com) integration
+- [`mppx-deno`](https://github.com/wevm/mppx/tree/main/skills/mppx-deno) - [Deno](https://deno.com) server integration
+- [`mppx-ts-docs-reference`](https://github.com/wevm/mpp/tree/main/skills/mppx-ts-docs-reference) - Writing TypeScript API reference documentation
+- [`mppx-elysia`](https://github.com/wevm/mppx/tree/main/skills/mppx-elysia) - [Elysia](https://elysiajs.com) framework integration
+- [`mppx-express`](https://github.com/wevm/mppx/tree/main/skills/mppx-express) - [Express.js](https://expressjs.com) integration
+- [`mppx-hono`](https://github.com/wevm/mppx/tree/main/skills/mppx-hono) - [Hono](https://hono.dev) framework integration
+- [`mppx-nextjs`](https://github.com/wevm/mppx/tree/main/skills/mppx-nextjs) - [Next.js](https://nextjs.org) integration
+- [`mppx-node-http`](https://github.com/wevm/mppx/tree/main/skills/mppx-node-http) - [Node.js](https://nodejs.org) HTTP server integration
 :::

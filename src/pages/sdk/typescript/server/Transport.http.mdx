@@ -5,9 +5,9 @@ HTTP transport for server-side payment handling.
 ## Usage
 
 ```ts twoslash
-import { Mpay, tempo, Transport } from 'mpay/server'
+import { Mppx, tempo, Transport } from 'mppx/server'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   methods: [tempo.charge()],
   transport: Transport.http(),
 })

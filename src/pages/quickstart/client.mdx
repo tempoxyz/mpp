@@ -12,13 +12,13 @@ Polyfill the global `fetch` to handle `402` responses. Your existing code works 
 
 :::code-group
 ```bash [npm]
-npm install mpay viem
+npm install mppx viem
 ```
 ```bash [pnpm]
-pnpm add mpay viem
+pnpm add mppx viem
 ```
 ```bash [bun]
-bun add mpay viem
+bun add mppx viem
 ```
 :::
 
@@ -36,15 +36,15 @@ With Tempo, you can also use [Passkey or WebCrypto accounts](https://viem.sh/tem
 
 ### Create payment handler
 
-Call `Mpay.create` at startup. This polyfills the global `fetch` to automatically handle `402` payment challenges.
+Call `Mppx.create` at startup. This polyfills the global `fetch` to automatically handle `402` payment challenges.
 
 ```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'
-import { Mpay, tempo } from 'mpay/client' // [!code hl]
+import { Mppx, tempo } from 'mppx/client' // [!code hl]
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mpay.create({ // [!code hl]
+Mppx.create({ // [!code hl]
   methods: [tempo({ account })], // [!code hl] 
 }) // [!code hl]
 ```
@@ -53,12 +53,12 @@ Mpay.create({ // [!code hl]
 If you want to avoid polyfilling, use the returned `fetch` instead.
 
 ```ts
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   polyfill: false, // [!code hl]
   methods: [tempo({ account })]
 })
 
-const response = await mpay.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
+const response = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 ```
 :::
 
@@ -76,17 +76,17 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 
 ### Wagmi
 
-You can inject a Wagmi connector into Mpay by passing the `getConnectorClient` function.
+You can inject a Wagmi connector into Mppx by passing the `getConnectorClient` function.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 // @noErrors
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { getConnectorClient } from 'wagmi/actions'
 import { config } from './config'
 
-Mpay.create({
+Mppx.create({
   methods: [tempo({
     getClient: (parameters) => getConnectorClient(config, parameters), // 
   })],
@@ -118,14 +118,14 @@ Pass accounts on individual requests instead of at setup:
 
 ```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   polyfill: false,
   methods: [tempo()]
 })
 
-const response = await mpay.fetch('https://mpp.dev/api/ping/paid', {
+const response = await mppx.fetch('https://mpp.dev/api/ping/paid', {
   // [!code hl:start]
   context: {
     account: privateKeyToAccount('0xabc…123'),
@@ -136,17 +136,17 @@ const response = await mpay.fetch('https://mpp.dev/api/ping/paid', {
 
 ### Manual payment handling
 
-Use `Mpay.create` for full control over the payment flow:
+Use `Mppx.create` for full control over the payment flow:
 
 - Present payment UI before paying
 - Implement custom retry logic
 - Handle credentials manually
 
 ```ts twoslash
-import { Mpay, tempo } from 'mpay/client'
+import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const mpay = Mpay.create({
+const mppx = Mppx.create({
   // [!code hl:start]
   polyfill: false,
   // [!code hl:end]
@@ -157,7 +157,7 @@ const mpay = Mpay.create({
 const response = await fetch('https://mpp.dev/api/ping/paid')
 
 if (response.status === 402) {
-  const credential = await mpay.createCredential(response, {
+  const credential = await mppx.createCredential(response, {
     account: privateKeyToAccount('0x...'),
   })
 
@@ -173,7 +173,7 @@ if (response.status === 402) {
 On success, the server returns a `Payment-Receipt` header:
 
 ```ts
-import { Receipt } from 'mpay'
+import { Receipt } from 'mppx'
 
 const response = await fetch('https://mpp.dev/api/ping/paid')
 
@@ -204,8 +204,8 @@ console.log(receipt.timestamp)
   />
   <Card
     icon="lucide:book-open"
-    title="Mpay.create reference"
+    title="Mppx.create reference"
     description="Full API documentation"
-    to="/sdk/typescript/client/Mpay.create"
+    to="/sdk/typescript/client/Mppx.create"
   />
 </Cards>
