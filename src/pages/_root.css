@@ -314,14 +314,8 @@ article a[data-v-card]:hover {
 	text-decoration: none !important;
 }
 
-/* Vocs Cards container */
-[data-v-content] [class*="Cards"] {
-	gap: 1rem !important;
-}
-
-/* Vocs card layout - icon at top, text at bottom */
-[data-v-content] [class*="Cards"] > a,
-[data-v-content] [class*="Card_card"] {
+/* Vocs v2 Cards - target by vocs: prefixed classes */
+a[class*="vocs:rounded-md"][class*="vocs:border"] {
 	display: flex !important;
 	flex-direction: column !important;
 	justify-content: space-between !important;
@@ -329,28 +323,27 @@ article a[data-v-card]:hover {
 	transition: border-color 0.15s ease !important;
 }
 
-[data-v-content] [class*="Cards"] > a:hover,
-[data-v-content] [class*="Card_card"]:hover {
+a[class*="vocs:rounded-md"][class*="vocs:border"]:hover {
 	border-color: #9ca3af !important; /* gray-400 */
 }
 
 /* Card title turns blue on hover */
-[data-v-content] [class*="Cards"] > a:hover [class*="title"],
-[data-v-content] [class*="Cards"] > a:hover strong {
+a[class*="vocs:rounded-md"][class*="vocs:border"]:hover strong,
+a[class*="vocs:rounded-md"][class*="vocs:border"]:hover [class*="font-medium"] {
 	color: #0166ff !important;
 }
 
 /* Card description - smaller font */
-[data-v-content] [class*="Cards"] > a [class*="description"],
-[data-v-content] [class*="Card"] [class*="description"] {
+a[class*="vocs:rounded-md"][class*="vocs:border"] [class*="text-secondary"],
+a[class*="vocs:rounded-md"][class*="vocs:border"] p:last-of-type {
 	font-size: 11px !important;
 	line-height: 1.35 !important;
 	color: #6b7280 !important;
 }
 
 /* Card title size */
-[data-v-content] [class*="Cards"] > a [class*="title"],
-[data-v-content] [class*="Card"] [class*="title"] {
+a[class*="vocs:rounded-md"][class*="vocs:border"] strong,
+a[class*="vocs:rounded-md"][class*="vocs:border"] [class*="font-medium"]:first-of-type {
 	font-size: 14px !important;
 }
 
