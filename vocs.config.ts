@@ -10,7 +10,7 @@ const baseUrl = (() => {
 })();
 
 export default defineConfig({
-	accentColor: "#FF7D3C",
+	accentColor: "#D66331",
 	colorScheme: "light dark",
 	baseUrl,
 	redirects: [
@@ -63,9 +63,9 @@ export default defineConfig({
 			{
 				text: "Setup & use",
 				items: [
-					{ text: "Use with agents", link: "/for-humans/agents" },
-					{ text: "Integrate into apps", link: "/for-humans/integrate" },
-					{ text: "Frequently asked", link: "/for-humans/faq" },
+					{ text: "Use with agents", link: "/setup/agents" },
+					{ text: "Integrate into apps", link: "/setup/integrate" },
+					{ text: "Frequently asked", link: "/setup/faq" },
 				],
 			},
 			{
@@ -461,15 +461,15 @@ export default defineConfig({
 		},
 	},
 	topNav: [
-		{ text: "Docs", link: "/for-humans/agents", match: (path) => path !== "/" },
+		{ text: "Docs", link: "/setup/agents", match: (path) => path !== "/" },
 		{
 			text: "SDKs",
 			items: [
-				{ text: "mppx [TypeScript]", link: "https://github.com/wevm/mppx" },
-				{ text: "mpay-rs [Rust]", link: "https://github.com/tempoxyz/mpay-rs" },
-				{ text: "pympay [Python]", link: "https://github.com/tempoxyz/pympay" },
+				{ text: "TypeScript — mppx", link: "https://github.com/wevm/mppx" },
+				{ text: "Rust — mpay-rs", link: "https://github.com/tempoxyz/mpay-rs" },
+				{ text: "Python — pympay", link: "https://github.com/tempoxyz/pympay" },
 			],
 		},
-		{ text: "X", link: "https://x.com/mpp" },
+		{ text: "Updates", link: "https://x.com/mpp" },
 	],
 });

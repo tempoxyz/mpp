@@ -10,12 +10,15 @@ type Page =
 | { path: '/_cli'; render: 'static' }
 | { path: '/brand'; render: 'static' }
 | { path: '/faq'; render: 'static' }
-| { path: '/for-humans'; render: 'static' }
+| { path: '/get-started'; render: 'static' }
 | { path: '/'; render: 'static' }
 | { path: '/overview'; render: 'static' }
 | { path: '/tools/tempoctl'; render: 'static' }
 | { path: '/tools/tempoctl/examples'; render: 'static' }
 | { path: '/specs'; render: 'static' }
+| { path: '/setup/agents'; render: 'static' }
+| { path: '/setup/faq'; render: 'static' }
+| { path: '/setup/integrate'; render: 'static' }
 | { path: '/sdk'; render: 'static' }
 | { path: '/sdk/typescript/Challenge.fromIntent'; render: 'static' }
 | { path: '/sdk/typescript/Intent.from'; render: 'static' }
@@ -97,9 +100,6 @@ type Page =
 | { path: '/payment-methods/stripe'; render: 'static' }
 | { path: '/intents/charge'; render: 'static' }
 | { path: '/guides/building-with-ai'; render: 'static' }
-| { path: '/for-humans/agents'; render: 'static' }
-| { path: '/for-humans/faq'; render: 'static' }
-| { path: '/for-humans/integrate'; render: 'static' }
 | { path: '/_api/api/og'; render: 'static' };
 
 // prettier-ignore

@@ -49,6 +49,7 @@ const FILL_CHARS = [
 interface NetNode {
 	x: number;
 	y: number;
+	radius: number;
 }
 
 interface Packet {
@@ -58,7 +59,7 @@ interface Packet {
 	trail: { x: number; y: number }[];
 }
 
-const PACKET_SPEED = 0.8;
+const PACKET_SPEED = 0.55;
 const TRAIL_LENGTH = 15;
 const NUM_PACKETS = 8;
 
@@ -68,19 +69,19 @@ const NODE_CHAR = "█";
 const TRAIL_CHARS = [
 	"●",
 	"●",
+	"●",
 	"•",
 	"•",
-	"·",
+	"•",
 	"·",
 	"·",
 	"·",
 	":",
 	":",
+	":",
 	".",
 	".",
 	".",
-	" ",
-	" ",
 ];
 
 interface CharState {
@@ -89,8 +90,16 @@ interface CharState {
 	cycleDuration: number;
 }
 
-export function AsciiLogo() {
-	const [morphProgress, setMorphProgress] = useState(0);
+export function AsciiLogo({
+	forceNetwork = false,
+	fillHeight = false,
+	fullscreen = false,
+}: {
+	forceNetwork?: boolean;
+	fillHeight?: boolean;
+	fullscreen?: boolean;
+} = {}) {
+	const [morphProgress, setMorphProgress] = useState(forceNetwork ? 1 : 0);
 	const morphStartTime = useRef<number | null>(null);
 	const morphStartProgress = useRef(0);
 	const morphTarget = useRef<0 | 1>(0);
@@ -133,12 +142,53 @@ export function AsciiLogo() {
 		};
 	}, [contextMenu, closeMenu]);
 
-	const mppLines = useMemo(() => ASCII_MPP.split("\n"), []);
+	const baseMppLines = useMemo(() => ASCII_MPP.split("\n"), []);
 
-	const maxLines = mppLines.length;
+	// When fillHeight, repeat the pattern ~30 times vertically with blank line gaps
+	const mppLines = useMemo(() => {
+		if (!fillHeight) return baseMppLines;
+		const repeats = 8;
+		const gap = Array.from({ length: 3 }, () =>
+			" ".repeat(baseMppLines[0]?.length || 1),
+		);
+		const result: string[] = [];
+		for (let i = 0; i < repeats; i++) {
+			if (i > 0) result.push(...gap);
+			result.push(...baseMppLines);
+		}
+		return result;
+	}, [baseMppLines, fillHeight]);
+
+	// Fullscreen: dynamically compute rows/cols from viewport, re-measure on resize
+
+	const [fsDims, setFsDims] = useState({ rows: 200, cols: 300 }); // generous default
+	useEffect(() => {
+		if (!fullscreen) return;
+		const measure = () => {
+			const probe = document.createElement("div");
+			probe.style.cssText =
+				"position:absolute;top:-9999px;left:-9999px;font-family:monospace;font-size:10px;line-height:1;white-space:pre;letter-spacing:0";
+			probe.textContent = "X\nX";
+			document.body.appendChild(probe);
+			const lh = probe.offsetHeight / 2 || 10;
+			probe.textContent = "X";
+			const cw = probe.offsetWidth || 6;
+			document.body.removeChild(probe);
+			setFsDims({
+				rows: Math.ceil(window.innerHeight / lh) + 5,
+				cols: Math.ceil(window.innerWidth / cw) + 5,
+			});
+		};
+		measure();
+		window.addEventListener("resize", measure);
+		return () => window.removeEventListener("resize", measure);
+	}, [fullscreen]);
+	const fsRows = fullscreen ? fsDims.rows : 0;
+	const fsCols = fullscreen ? fsDims.cols : 0;
+	const maxLines = fullscreen ? fsRows : mppLines.length;
 	const maxWidth = useMemo(
-		() => Math.max(...mppLines.map((l) => l.length)),
-		[mppLines],
+		() => (fullscreen ? fsCols : Math.max(...mppLines.map((l) => l.length))),
+		[mppLines, fullscreen, fsCols],
 	);
 
 	// Pre-compute random transition order for each character (stable across renders)
@@ -152,32 +202,40 @@ export function AsciiLogo() {
 	// Network simulation refs (no React state — updated in rAF, read during render)
 	// ---------------------------------------------------------------------------
 
-	// Node positions at the vertices/endpoints of the M, P, P letterforms
-	const nodesRef = useRef<NetNode[]>([
-		// M — outer strokes and diagonals
-		{ x: 0, y: 0 },
-		{ x: 0, y: 20 },
-		{ x: 8, y: 10 },
-		{ x: 16, y: 20 },
-		{ x: 24, y: 0 },
-		{ x: 24, y: 9 },
-		// First P — stem + bowl outline
-		{ x: 41, y: 0 },
-		{ x: 41, y: 9 },
-		{ x: 41, y: 20 },
-		{ x: 55, y: 0 },
-		{ x: 55, y: 5 },
-		{ x: 55, y: 9 },
-		{ x: 48, y: 9 },
-		// Second P — stem + bowl outline
-		{ x: 77, y: 0 },
-		{ x: 77, y: 9 },
-		{ x: 77, y: 20 },
-		{ x: 112, y: 0 },
-		{ x: 112, y: 5 },
-		{ x: 112, y: 9 },
-		{ x: 95, y: 9 },
-	]);
+	// Node positions — letter vertices in normal mode, random in fullscreen
+	const nodesRef = useRef<NetNode[]>(
+		fullscreen
+			? Array.from({ length: 20 }, (_, i) => ({
+					x: Math.floor(Math.random() * fsCols),
+					y: Math.floor(Math.random() * fsRows),
+					radius: (i % 2) + 1,
+				}))
+			: [
+					// M — outer strokes and diagonals
+					{ x: 0, y: 0, radius: 1 },
+					{ x: 0, y: 20, radius: 1 },
+					{ x: 8, y: 10, radius: 1 },
+					{ x: 16, y: 20, radius: 1 },
+					{ x: 24, y: 0, radius: 1 },
+					{ x: 24, y: 9, radius: 1 },
+					// First P — stem + bowl outline
+					{ x: 41, y: 0, radius: 1 },
+					{ x: 41, y: 9, radius: 1 },
+					{ x: 41, y: 20, radius: 1 },
+					{ x: 55, y: 0, radius: 1 },
+					{ x: 55, y: 5, radius: 1 },
+					{ x: 55, y: 9, radius: 1 },
+					{ x: 48, y: 9, radius: 1 },
+					// Second P — stem + bowl outline
+					{ x: 77, y: 0, radius: 1 },
+					{ x: 77, y: 9, radius: 1 },
+					{ x: 77, y: 20, radius: 1 },
+					{ x: 112, y: 0, radius: 1 },
+					{ x: 112, y: 5, radius: 1 },
+					{ x: 112, y: 9, radius: 1 },
+					{ x: 95, y: 9, radius: 1 },
+				],
+	);
 
 	// Dynamic network grid — updated each frame
 	const networkGridRef = useRef<string[][]>(
@@ -188,8 +246,9 @@ export function AsciiLogo() {
 
 	// Active packets
 	const nodeCount = nodesRef.current.length;
+	const packetCount = fullscreen ? 30 : NUM_PACKETS;
 	const packetsRef = useRef<Packet[]>(
-		Array.from({ length: NUM_PACKETS }, () => {
+		Array.from({ length: packetCount }, () => {
 			const startIdx = Math.floor(Math.random() * nodeCount);
 			let endIdx = Math.floor(Math.random() * nodeCount);
 			while (endIdx === startIdx)
@@ -291,10 +350,15 @@ export function AsciiLogo() {
 				}
 			}
 
-			// Stamp node clusters (3×3 blocks)
+			// Stamp node clusters (variable size, irregular edges)
 			for (const node of nodes) {
-				for (let dy = -1; dy <= 1; dy++) {
-					for (let dx = -1; dx <= 1; dx++) {
+				const r = node.radius || 1;
+				for (let dy = -r; dy <= r; dy++) {
+					for (let dx = -r; dx <= r; dx++) {
+						// Skip some edge cells for irregular shape
+						const dist = Math.abs(dy) + Math.abs(dx);
+						if (dist >= r * 2 && Math.random() < 0.5) continue;
+						if (dist >= r && Math.random() < 0.2) continue;
 						const ny = node.y + dy;
 						const nx = node.x + dx;
 						if (ny >= 0 && ny < maxLines && nx >= 0 && nx < maxWidth) {
@@ -305,7 +369,10 @@ export function AsciiLogo() {
 			}
 
 			// Move packets and stamp trails (Manhattan movement: horizontal then vertical)
-			for (const pkt of packets) {
+			for (let pi = packets.length - 1; pi >= 0; pi--) {
+				const pkt = packets[pi];
+				if (pkt.targetIdx >= nodes.length)
+					pkt.targetIdx = Math.floor(Math.random() * nodes.length);
 				const target = nodes[pkt.targetIdx];
 				const dx = target.x - pkt.x;
 				const dy = target.y - pkt.y;
@@ -313,7 +380,26 @@ export function AsciiLogo() {
 				const ady = Math.abs(dy);
 
 				if (adx < 1 && ady < 1) {
-					// Arrived — pick a new random target
+					// Arrived at target node — snap to it, clear trail
+					pkt.x = target.x;
+					pkt.y = target.y;
+					pkt.trail = [];
+					// 40% chance consumed (removed), 60% redirected to new target
+					if (Math.random() < 0.4) {
+						packets.splice(pi, 1);
+						// Spawn a replacement packet from a random node after a delay
+						const srcIdx = Math.floor(Math.random() * nodes.length);
+						let destIdx = Math.floor(Math.random() * nodes.length);
+						while (destIdx === srcIdx)
+							destIdx = Math.floor(Math.random() * nodes.length);
+						packets.push({
+							x: nodes[srcIdx].x,
+							y: nodes[srcIdx].y,
+							targetIdx: destIdx,
+							trail: [],
+						});
+						continue;
+					}
 					let newTarget = Math.floor(Math.random() * nodes.length);
 					while (newTarget === pkt.targetIdx)
 						newTarget = Math.floor(Math.random() * nodes.length);
@@ -321,12 +407,14 @@ export function AsciiLogo() {
 				} else {
 					// Record trail
 					pkt.trail.unshift({ x: Math.round(pkt.x), y: Math.round(pkt.y) });
-					if (pkt.trail.length > TRAIL_LENGTH) pkt.trail.length = TRAIL_LENGTH;
+					const maxTrail = fullscreen ? 30 : TRAIL_LENGTH;
+					if (pkt.trail.length > maxTrail) pkt.trail.length = maxTrail;
 					// Move horizontally first, then vertically
+					const speed = fullscreen ? 0.3 : PACKET_SPEED;
 					if (adx > 0.5) {
-						pkt.x += Math.sign(dx) * Math.min(PACKET_SPEED, adx);
+						pkt.x += Math.sign(dx) * Math.min(speed, adx);
 					} else {
-						pkt.y += Math.sign(dy) * Math.min(PACKET_SPEED, ady);
+						pkt.y += Math.sign(dy) * Math.min(speed, ady);
 					}
 				}
 
@@ -378,30 +466,198 @@ export function AsciiLogo() {
 
 		animationId = requestAnimationFrame(animate);
 		return () => cancelAnimationFrame(animationId);
-	}, [maxLines, maxWidth]);
+	}, [maxLines, maxWidth, fullscreen]);
+
+	// Canvas rendering for fullscreen mode — avoids 60k DOM nodes
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	useEffect(() => {
+		if (!fullscreen) return;
+		const cvs = canvasRef.current;
+		if (!cvs) return;
+		const ctx = cvs.getContext("2d");
+		if (!ctx) return;
+		const dpr = window.devicePixelRatio || 1;
+		const accent =
+			getComputedStyle(document.documentElement)
+				.getPropertyValue("--vocs-color-accent")
+				.trim() || "#D66331";
+		let rafId: number;
+
+		const w = window.innerWidth;
+		const h = window.innerHeight;
+		cvs.width = w * dpr;
+		cvs.height = h * dpr;
+		cvs.style.width = `${w}px`;
+		cvs.style.height = `${h}px`;
+		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+		// Match ASCII logo proportions: each cell = fontSize tall, ~0.6*fontSize wide
+		const cellH = h / maxLines;
+		const fontSize = cellH;
+		const cellW = w / maxWidth;
+
+		const draw = () => {
+			const now = Date.now();
+			ctx.clearRect(0, 0, w, h);
+			ctx.font = `${fontSize}px monospace`;
+			ctx.textBaseline = "top";
+			const grid = networkGridRef.current;
+
+			for (let row = 0; row < maxLines; row++) {
+				const rowData = grid[row];
+				if (!rowData) continue;
+				for (let col = 0; col < maxWidth; col++) {
+					const ch = rowData[col];
+					if (!ch || ch === " ") continue;
+
+					const x = col * cellW;
+					const y = row * cellH;
+
+					if (ch === NODE_CHAR) {
+						// Node cells: cycle through FILL_CHARS slowly (every 2-4s per cell)
+						const idx =
+							Math.floor(
+								now / (2000 + ((row * 7 + col * 13) % 2000)) + row + col,
+							) % FILL_CHARS.length;
+						ctx.globalAlpha = 0.85;
+						ctx.fillStyle = accent;
+						ctx.fillText(FILL_CHARS[idx], x, y);
+					} else {
+						// Trail cells: map character to opacity (head=bright, tail=faint)
+						const trailIdx = TRAIL_CHARS.indexOf(ch);
+						const alpha =
+							trailIdx >= 0
+								? 0.8 - (trailIdx / TRAIL_CHARS.length) * 0.65
+								: 0.4;
+						ctx.globalAlpha = alpha;
+						ctx.fillStyle = accent;
+						ctx.fillText(ch, x, y);
+					}
+				}
+			}
+			ctx.globalAlpha = 1;
+			rafId = requestAnimationFrame(draw);
+		};
+		rafId = requestAnimationFrame(draw);
+		return () => cancelAnimationFrame(rafId);
+	}, [fullscreen, maxLines, maxWidth]);
+
+	// Click to spawn nodes in fullscreen mode
+	const handleBgClick = useCallback(
+		(e: React.MouseEvent) => {
+			if (!fullscreen) return;
+			const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+			const gridX = Math.round(((e.clientX - rect.left) / rect.width) * fsCols);
+			const gridY = Math.round(((e.clientY - rect.top) / rect.height) * fsRows);
+			// Cap at 20 nodes — FIFO remove oldest
+			if (nodesRef.current.length >= 20) {
+				nodesRef.current.shift();
+				// Fix packet targetIdx references after shift
+				for (const pkt of packetsRef.current) {
+					if (pkt.targetIdx > 0) pkt.targetIdx--;
+					else
+						pkt.targetIdx = Math.floor(Math.random() * nodesRef.current.length);
+				}
+			}
+			nodesRef.current.push({
+				x: gridX,
+				y: gridY,
+				radius: 1 + Math.floor(Math.random() * 2),
+			});
+			const newIdx = nodesRef.current.length - 1;
+			const spawnCount = 1 + Math.floor(Math.random() * 3);
+			for (let i = 0; i < spawnCount; i++) {
+				let t = Math.floor(Math.random() * nodesRef.current.length);
+				while (t === newIdx)
+					t = Math.floor(Math.random() * nodesRef.current.length);
+				packetsRef.current.push({
+					x: gridX,
+					y: gridY,
+					targetIdx: t,
+					trail: [],
+				});
+			}
+		},
+		[fullscreen, fsCols, fsRows],
+	);
+
+	// Fullscreen: render canvas instead of DOM spans
+	if (fullscreen) {
+		return (
+			// biome-ignore lint/a11y/useKeyWithClickEvents: decorative background, no keyboard interaction needed
+			// biome-ignore lint/a11y/noStaticElementInteractions: decorative background click
+			<div
+				onClick={handleBgClick}
+				style={{
+					position: "fixed",
+					top: 0,
+					left: 0,
+					width: "100vw",
+					height: "100vh",
+					zIndex: 0,
+					opacity: 0.22,
+					cursor: "default",
+				}}
+			>
+				<canvas ref={canvasRef} style={{ position: "absolute", inset: 0 }} />
+			</div>
+		);
+	}
 
 	return (
 		<>
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: decorative animation, no keyboard interaction needed */}
 			<div
-				onMouseEnter={() => startMorph(1)}
-				onMouseLeave={() => startMorph(0)}
-				onContextMenu={handleContextMenu}
-				className="max-w-full"
-				style={{
-					fontFamily: "monospace",
-					lineHeight: 1,
-					whiteSpace: "pre",
-					letterSpacing: "1px",
-					color: "var(--vocs-color-accent)",
-					opacity: 0.85,
-					textShadow: "0 0 20px rgba(255, 125, 60, 0.3)",
-					cursor: "pointer",
-					margin: "0 auto",
-					overflow: "visible",
-				}}
+				onMouseEnter={forceNetwork ? undefined : () => startMorph(1)}
+				onMouseLeave={forceNetwork ? undefined : () => startMorph(0)}
+				onContextMenu={forceNetwork ? undefined : handleContextMenu}
+				className={fullscreen ? undefined : "max-w-full"}
+				style={
+					fullscreen
+						? {
+								fontFamily: "monospace",
+								whiteSpace: "pre",
+								color: "var(--vocs-color-accent)",
+								opacity: 0.22,
+								position: "fixed" as const,
+								top: 0,
+								left: 0,
+								width: "100vw",
+								height: "100vh",
+								overflow: "hidden",
+								zIndex: 0,
+								pointerEvents: "none" as const,
+							}
+						: {
+								fontFamily: "monospace",
+								lineHeight: 1,
+								whiteSpace: "pre",
+								letterSpacing: "1px",
+								color: "var(--vocs-color-accent)",
+								opacity: 0.85,
+								textShadow: forceNetwork
+									? "none"
+									: "0 0 20px rgba(214, 99, 49, 0.3)",
+								cursor: forceNetwork ? "default" : "pointer",
+								margin: "0 auto",
+								overflow: "visible",
+							}
+				}
 			>
-				<div className="text-[3.5px] sm:text-[4px] md:text-[5px]">
+				<div
+					className={
+						fullscreen || fillHeight
+							? undefined
+							: "text-[3.5px] sm:text-[4px] md:text-[5px]"
+					}
+					style={
+						fullscreen
+							? { fontSize: 10, lineHeight: 1, letterSpacing: 0 }
+							: fillHeight
+								? { fontSize: "7px" }
+								: undefined
+					}
+				>
 					{mppLines.map((mppLine, lineIdx) => {
 						const lineLen = Math.max(mppLine.length, maxWidth);
 						return (
@@ -428,7 +684,7 @@ export function AsciiLogo() {
 			</div>
 
 			{/* Context Menu */}
-			{contextMenu && (
+			{!forceNetwork && contextMenu && (
 				<div
 					ref={menuRef}
 					className="fixed rounded-lg p-1 shadow-lg z-[9999] min-w-[180px]"

@@ -13,6 +13,7 @@ const LAYOUT = {
 	actorBoxH: 36,
 	actorPadX: 24,
 	headerGap: 72,
+
 	rowHeight: 72,
 	blockPadX: 12,
 	blockPadTop: 28,
@@ -24,7 +25,7 @@ const LAYOUT = {
 	noteBoxPadY: 8,
 	noteExtraMargin: 28,
 	fontFamily:
-		'"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+		'"Geist Pixel Square", "Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
 	actorFontSize: 14,
 	actorFontWeight: 600,
 	labelFontSize: 14,

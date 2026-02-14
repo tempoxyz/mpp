@@ -9,15 +9,15 @@ import { Card, Cards } from "vocs";
 :::code-group
 
 ```bash [npm]
-npm install mpay viem
+npm install mppx viem
 ```
 
 ```bash [pnpm]
-pnpm add mpay viem
+pnpm add mppx viem
 ```
 
 ```bash [bun]
-bun add mpay viem
+bun add mppx viem
 ```
 
 :::
@@ -26,11 +26,11 @@ bun add mpay viem
 
 ```ts twoslash
 import { privateKeyToAccount } from "viem/accounts";
-import { Mpay, tempo } from "mpay/client";
+import { Mppx, tempo } from "mppx/client";
 
 const account = privateKeyToAccount("0xabc…123");
 
-Mpay.create({
+Mppx.create({
   methods: [tempo({ account })],
 });
 ```

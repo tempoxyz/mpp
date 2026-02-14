@@ -143,7 +143,7 @@ export function AgentTabs() {
 							key={a.label}
 							type="button"
 							onClick={() => setActive(i)}
-							className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors"
+							className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer"
 							style={{
 								color:
 									i === active

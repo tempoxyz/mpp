@@ -2,6 +2,14 @@
 @import "@fontsource/commit-mono/700.css";
 
 @font-face {
+	font-family: "Geist Pixel Square";
+	src: url("/fonts/GeistPixel-Square.woff2") format("woff2");
+	font-weight: 400 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
 	font-family: "Berkeley Mono";
 	src: url("/fonts/BerkeleyMono-Regular.woff2") format("woff2");
 	font-weight: 400;
@@ -23,8 +31,31 @@
 
 @source "../";
 
-/* Support system color scheme preference */
-@custom-variant dark (@media (prefers-color-scheme: dark));
+/*
+ * Fix header logo flash: Vocs toggles logo via JS-set inline `color-scheme`,
+ * but there's a brief window before the blocking script runs where the wrong
+ * logo can flash. These media-query rules kick in before any JS.
+ *
+ * Config mapping:
+ *   logoUrl.light → /mpp-logo-dark.svg  (dark fill, for light backgrounds)
+ *   logoUrl.dark  → /mpp-logo-light.svg (white fill, for dark backgrounds)
+ */
+@media (prefers-color-scheme: dark) {
+	[data-v-logo] [data-v-logo-image][src$="dark.svg"] {
+		display: none !important;
+	}
+	[data-v-logo] [data-v-logo-image][src$="light.svg"] {
+		display: block !important;
+	}
+}
+@media (prefers-color-scheme: light) {
+	[data-v-logo] [data-v-logo-image][src$="light.svg"] {
+		display: none !important;
+	}
+	[data-v-logo] [data-v-logo-image][src$="dark.svg"] {
+		display: block !important;
+	}
+}
 
 /* Custom utility for muted text */
 .text-muted {
@@ -184,13 +215,13 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 	);
 
 	--font-mono:
-		"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-		Consolas, monospace;
+		"Geist Pixel Square", "Berkeley Mono", "Commit Mono", ui-monospace,
+		SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
 	--vocs-leading-code: 1.6em;
 	--vocs-spacing-code-block-px: 1rem;
-	--vocs-tracking-tight: -0.05em;
-	--vocs-tracking-normal: -0.03em;
+	--vocs-tracking-tight: -0.03em;
+	--vocs-tracking-normal: -0.01em;
 
 	letter-spacing: var(--vocs-tracking-normal);
 }
@@ -201,25 +232,26 @@ aside,
 }
 
 h1 {
-	letter-spacing: -0.08em;
-	font-weight: 700;
+	letter-spacing: -0.06em;
+	font-weight: 800;
 	margin-bottom: 0.8rem !important;
 }
 
 h2 {
-	font-weight: 600;
+	font-weight: 700;
 }
 
 body,
 [data-v-content],
 [data-layout] {
 	font-family: var(--font-mono);
+	font-weight: 500;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
 [data-v-content] {
-	font-size: 14px;
+	font-size: 15px;
 }
 
 pre,
@@ -463,4 +495,19 @@ aside[data-v-callout] a:hover {
 		right: 2rem !important;
 		bottom: 2rem !important;
 	}
+}
+
+/* Let clicks pass through hero to background animation, but keep interactive elements clickable */
+.hero-clickthrough {
+	pointer-events: none;
+}
+.hero-clickthrough a,
+.hero-clickthrough button,
+.hero-clickthrough [role="button"],
+.hero-clickthrough input,
+.hero-clickthrough .relative,
+.hero-clickthrough .service-logo-item,
+.hero-clickthrough div[style*="border"],
+.hero-clickthrough span[class*="rounded-full"] {
+	pointer-events: auto;
 }
