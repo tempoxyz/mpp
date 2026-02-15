@@ -280,7 +280,7 @@ export function AsciiLogo({
 			Array.from({ length: maxWidth }, () => ({
 				charIndex: Math.floor(Math.random() * FILL_CHARS.length),
 				nextChangeTime: Date.now() + Math.random() * 1000,
-				cycleDuration: 300 + Math.random() * 700,
+				cycleDuration: 600 + Math.random() * 1200,
 			})),
 		);
 	});
@@ -637,7 +637,7 @@ export function AsciiLogo({
 								opacity: 0.85,
 								textShadow: forceNetwork
 									? "none"
-									: "0 0 20px rgba(214, 99, 49, 0.3)",
+									: "0 0 20px rgba(0, 0, 0, 0.15)",
 								cursor: forceNetwork ? "default" : "pointer",
 								margin: "0 auto",
 								overflow: "visible",
