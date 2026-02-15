@@ -1,8 +1,8 @@
 import { Card, Cards } from 'vocs'
 
-# tempoctl [Make paid HTTP requests from the command line]
+# presto [Make paid HTTP requests from the command line]
 
-`tempoctl` is a command-line tool for making HTTP requests with automatic payment support. It handles `402 Payment Required` responses with built-in payment methods and spending controls. Works from scripts, cron jobs, and AI agents.
+`presto` is a command-line tool for making HTTP requests with automatic payment support. It handles `402 Payment Required` responses with built-in payment methods and spending controls. Works from scripts, cron jobs, and AI agents.
 
 ## Quickstart
 
@@ -19,16 +19,16 @@ $ curl -fsSL https://tempo.xyz/ctl/install.sh | bash
 Run the login wizard to set up your wallet:
 
 ```bash [login.sh]
-$ tempoctl login
+$ presto login
 ```
 
-This creates a new encrypted keystore and saves your configuration to `~/.tempoctl/config.toml`.
+This creates a new encrypted keystore and saves your configuration to `~/.presto/config.toml`.
 
 :::tip[Quick setup for testing]
 For quick testing without a keystore, set your private key directly:
 
 ```bash [set-key.sh]
-$ export TEMPOCTL_PRIVATE_KEY="0x..."
+$ export PRESTO_PRIVATE_KEY="0x..."
 ```
 
 :::
@@ -36,14 +36,14 @@ $ export TEMPOCTL_PRIVATE_KEY="0x..."
 ### Make your first paid request
 
 ```bash [paid-request.sh]
-$ tempoctl query -vv https://mpp.tempo.xyz/api/ping/paid
+$ presto query -vv https://mpp.tempo.xyz/api/ping/paid
 ```
 
 :::tip[Live demo server]
 We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use `/api/ping` for free requests and `/api/ping/paid` for paid requests. Get testnet funds at [faucet.tempo.xyz](https://faucet.tempo.xyz).
 :::
 
-`tempoctl` automatically:
+`presto` automatically:
 
 1. Makes the initial request
 2. Detects the `402` Payment Required response
@@ -61,13 +61,13 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use 
 Use dry-run mode to see what would happen without actually paying:
 
 ```bash [dry-run.sh]
-$ tempoctl query -D https://mpp.tempo.xyz/api/ping/paid
+$ presto query -D https://mpp.tempo.xyz/api/ping/paid
 ```
 
 Or inspect the payment requirements before paying:
 
 ```bash [inspect.sh]
-$ tempoctl inspect https://mpp.tempo.xyz/api/ping/paid
+$ presto inspect https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ### Set spending limits
@@ -76,7 +76,7 @@ Protect yourself with a maximum payment amount:
 
 ```bash [max-payment.sh]
 # Reject payments over 1 USD
-$ tempoctl query -M 1000000 https://mpp.tempo.xyz/api/ping/paid
+$ presto query -M 1000000 https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ### Common flags
@@ -95,31 +95,31 @@ $ tempoctl query -M 1000000 https://mpp.tempo.xyz/api/ping/paid
 
 ## Built-in skills
 
-tempoctl ships with built-in support for common AI agents. When used as a skill by AI assistants like Claude, tempoctl enables agents to interact with paid APIs autonomously.
+presto ships with built-in support for common AI agents. When used as a skill by AI assistants like Claude, presto enables agents to interact with paid APIs autonomously.
 
 ### How it works
 
-AI agents can use `tempoctl` to:
+AI agents can use `presto` to:
 
 - **Access paid APIs**—Make requests to services that charge per-call
 - **Query premium data**—Fetch information from paid data providers
 - **Use commercial tools**—Interact with paid developer services
 
-The agent calls tempoctl like any other commandline tool when it detects a `402` Payment Required response. Payment is handled transparently.
+The agent calls presto like any other commandline tool when it detects a `402` Payment Required response. Payment is handled transparently.
 
 ### Example: Agent making a paid request
 
 When an AI agent needs to access a paid resource, it runs:
 
 ```bash [agent-request.sh]
-$ tempoctl query https://api.example.com/premium-data
+$ presto query https://api.example.com/premium-data
 ```
 
 The agent receives the response data directly—no manual payment handling required.
 
 ## Safety controls
 
-tempoctl includes safeguards for autonomous agent use:
+presto includes safeguards for autonomous agent use:
 
 ### Spending limits
 
@@ -127,7 +127,7 @@ Set a maximum amount the agent can spend per request:
 
 ```bash [spending-limit.sh]
 # Limit to 0.50 USDC per request
-$ tempoctl query -M 500000 https://api.example.com/data
+$ presto query -M 500000 https://api.example.com/data
 ```
 
 ### Dry run mode
@@ -135,7 +135,7 @@ $ tempoctl query -M 500000 https://api.example.com/data
 Agents can preview costs before committing:
 
 ```bash [preview-cost.sh]
-$ tempoctl query -D https://api.example.com/expensive-endpoint
+$ presto query -D https://api.example.com/expensive-endpoint
 ```
 
 ### Network filtering
@@ -143,16 +143,16 @@ $ tempoctl query -D https://api.example.com/expensive-endpoint
 Restrict payments to specific networks:
 
 ```bash
-tempoctl query -n tempo-moderato https://api.example.com/data
+presto query -n tempo-moderato https://api.example.com/data
 ```
 
 ### Skill configuration
 
-For AI agent frameworks that support skills, tempoctl can be configured as a tool:
+For AI agent frameworks that support skills, presto can be configured as a tool:
 
 ```json
 {
-  "name": "tempoctl",
+  "name": "presto",
   "description": "Make HTTP requests with automatic payment support",
   "parameters": {
     "url": {
@@ -173,14 +173,14 @@ For AI agent frameworks that support skills, tempoctl can be configured as a too
 
 ```bash [query-api.sh]
 # Query a paid data API
-$ tempoctl query https://api.data-provider.com/market-data?symbol=BTC
+$ presto query https://api.data-provider.com/market-data?symbol=BTC
 ```
 
 ### Paid compute
 
 ```bash [inference.sh]
 # Run inference on a paid model
-$ tempoctl query -X POST \
+$ presto query -X POST \
   --json '{"prompt": "Explain quantum computing"}' \
   https://api.ai-provider.com/generate
 ```
@@ -189,7 +189,7 @@ $ tempoctl query -X POST \
 
 ```bash [analyze-repo.sh]
 # Use a paid developer tool
-$ tempoctl query https://api.dev-tools.com/analyze?repo=myorg/myrepo
+$ presto query https://api.dev-tools.com/analyze?repo=myorg/myrepo
 ```
 
 ## Next steps
@@ -199,12 +199,12 @@ $ tempoctl query https://api.dev-tools.com/analyze?repo=myorg/myrepo
     icon="lucide:code"
     title="Examples"
     description="More usage patterns and real endpoints"
-    to="/tools/tempoctl/examples"
+    to="/tools/presto/examples"
   />
   <Card
     icon="lucide:book-open"
     title="Reference"
     description="Full command reference and configuration"
-    to="/tools/tempoctl"
+    to="/tools/presto"
   />
 </Cards>

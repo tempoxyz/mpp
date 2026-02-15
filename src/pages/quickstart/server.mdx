@@ -193,26 +193,26 @@ export async function handler(req: IncomingMessage, res: ServerResponse) {
 ```
 
 
-## Testing with tempoctl
+## Testing with presto
 
-After your server is running, test it with [tempoctl](/tools/tempoctl):
+After your server is running, test it with [presto](/tools/presto):
 
 ```bash [test-server.sh]
 # See the payment challenge
-$ tempoctl inspect <your-server>/resource
+$ presto inspect <your-server>/resource
 
 # Make a paid request (requires funded wallet)
-$ tempoctl query <your-server>/resource
+$ presto query <your-server>/resource
 
 # Verbose output to see the full 402 flow
-$ tempoctl query -vi <your-server>/resource
+$ presto query -vi <your-server>/resource
 
 # Dry run to preview payment without executing
-$ tempoctl query -D <your-server>/resource
+$ presto query -D <your-server>/resource
 ```
 
 :::tip
-Use `tempoctl inspect` to debug your server's challenge response without making any payments.
+Use `presto inspect` to debug your server's challenge response without making any payments.
 :::
 
 ## Next steps

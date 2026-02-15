@@ -1,0 +1,95 @@
+# presto [wget for payments]
+
+`presto` is a non-interactive commandline tool for making HTTP requests with automatic payment support.
+
+When you request a resource that requires payment, `presto` automatically detects the `402` response, fulfills the payment, and retries—all in a single command.
+
+## Installation
+
+**Quick install:**
+
+```bash [install.sh]
+$ curl -fsSL https://tempo.xyz/ctl/install.sh | bash
+```
+
+**From source:**
+
+```bash [build-from-source.sh]
+$ git clone https://github.com/tempoxyz/presto.git
+$ cd presto
+$ cargo install --path .
+```
+
+## Quick start
+
+```bash [quickstart.sh]
+# Log in (first time only)
+$ presto login
+
+# Make a paid request
+$ presto query https://mpp.tempo.xyz/api/ping/paid
+```
+
+:::tip[Live demo server]
+We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use `/api/ping` for free requests and `/api/ping/paid` for paid requests. Get testnet funds at [faucet.tempo.xyz](https://faucet.tempo.xyz).
+:::
+
+## Configuration
+
+`presto` uses encrypted keystores for secure wallet management.
+
+### Example config
+
+```toml
+[evm]
+keystore = "/Users/you/.presto/keystores/my-wallet.json"
+
+# Override RPC URLs
+[rpc]
+tempo = "https://my-private-rpc.com"
+```
+
+## Key management
+
+```bash [key-management.sh]
+# List all access keys
+$ presto keys list
+
+# Switch to a different access key
+$ presto keys switch 1
+
+# Delete an access key
+$ presto keys delete 2
+```
+
+## Command reference
+
+| Command | Description |
+|---------|-------------|
+| `presto query <url>` | Make an HTTP request with automatic payment |
+| `presto login` | Log in and set up your wallet |
+| `presto logout` | Log out and clear credentials |
+| `presto whoami` | Show the current authenticated identity |
+| `presto inspect <url>` | Inspect payment requirements |
+| `presto balance` | Check wallet balance |
+| `presto config` | View/manage configuration |
+| `presto networks` | List supported networks |
+
+## Learn more
+
+import { Card, Cards } from 'vocs'
+
+<Cards>
+  <Card
+    description="Complete command reference and options"
+    icon="lucide:book-open"
+    title="Full Reference"
+    to="/tools/presto/examples"
+  />
+  <Card
+    description="Download presto for your platform"
+    icon="lucide:download"
+    title="Download presto"
+    to="https://tempo.xyz/ctl"
+  />
+</Cards>

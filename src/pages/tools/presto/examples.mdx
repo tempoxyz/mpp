@@ -1,4 +1,4 @@
-# tempoctl examples [Test against live endpoints]
+# presto examples [Test against live endpoints]
 
 ## Try it now
 
@@ -6,19 +6,19 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet** that 
 
 ```bash [try-demo.sh]
 # Free endpoint - no payment required
-$ tempoctl query https://mpp.tempo.xyz/api/ping
+$ presto query https://mpp.tempo.xyz/api/ping
 
 # Paid endpoint - requires 0.10 pathUSD payment
-$ tempoctl query https://mpp.tempo.xyz/api/ping/paid
+$ presto query https://mpp.tempo.xyz/api/ping/paid
 
 # Inspect the payment requirements first
-$ tempoctl inspect https://mpp.tempo.xyz/api/ping/paid
+$ presto inspect https://mpp.tempo.xyz/api/ping/paid
 
 # Dry run to preview what happens
-$ tempoctl query -D https://mpp.tempo.xyz/api/ping/paid
+$ presto query -D https://mpp.tempo.xyz/api/ping/paid
 
 # Verbose output to see the full 402 flow
-$ tempoctl query -vi https://mpp.tempo.xyz/api/ping/paid
+$ presto query -vi https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ### Set up with a private key
@@ -27,10 +27,10 @@ For testing, you can use a private key directly using an environment variable:
 
 ```bash [set-key.sh]
 # Set your private key (funded on Tempo testnet)
-$ export TEMPOCTL_PRIVATE_KEY="0x..."
+$ export PRESTO_PRIVATE_KEY="0x..."
 
 # Make paid requests
-$ tempoctl query https://mpp.tempo.xyz/api/ping/paid
+$ presto query https://mpp.tempo.xyz/api/ping/paid
 ```
 
 :::tip[Get testnet funds]
@@ -41,91 +41,91 @@ The demo server runs on Tempo testnet. Fund your wallet at [faucet.tempo.xyz](ht
 
 ```bash [basic-requests.sh]
 # Make a payment request
-$ tempoctl query https://mpp.tempo.xyz/api/ping/paid
+$ presto query https://mpp.tempo.xyz/api/ping/paid
 
 # Verbose output with headers
-$ tempoctl query -vi https://mpp.tempo.xyz/api/ping/paid
+$ presto query -vi https://mpp.tempo.xyz/api/ping/paid
 
 # Save output to file
-$ tempoctl query -o output.json https://mpp.tempo.xyz/api/ping/paid
+$ presto query -o output.json https://mpp.tempo.xyz/api/ping/paid
 
 # JSON output format
-$ tempoctl query --json-output https://mpp.tempo.xyz/api/ping/paid
+$ presto query --json-output https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ## Payment controls
 
 ```bash [payment-controls.sh]
 # Preview payment without executing (dry run)
-$ tempoctl query -D https://mpp.tempo.xyz/api/ping/paid
+$ presto query -D https://mpp.tempo.xyz/api/ping/paid
 
 # Require confirmation before payment
-$ tempoctl query -y https://mpp.tempo.xyz/api/ping/paid
+$ presto query -y https://mpp.tempo.xyz/api/ping/paid
 
 # Set maximum payment amount (in atomic units)
-$ tempoctl query -M 10000 https://mpp.tempo.xyz/api/ping/paid
+$ presto query -M 10000 https://mpp.tempo.xyz/api/ping/paid
 
 # Filter to specific networks
-$ tempoctl query -n tempo-moderato https://mpp.tempo.xyz/api/ping/paid
+$ presto query -n tempo-moderato https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ## Wallet management
 
 ```bash [wallet-management.sh]
 # Check wallet balance
-$ tempoctl balance
+$ presto balance
 
 # Check balance on specific network
-$ tempoctl balance -n tempo-moderato
+$ presto balance -n tempo-moderato
 
 # Use specific account by name
-$ tempoctl query -a my-wallet https://mpp.tempo.xyz/api/ping/paid
+$ presto query -a my-wallet https://mpp.tempo.xyz/api/ping/paid
 
 # Use specific sender address
-$ tempoctl query --from 0x1234... https://mpp.tempo.xyz/api/ping/paid
+$ presto query --from 0x1234... https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ## Inspecting payments
 
 ```bash [inspect-payments.sh]
 # Inspect payment requirements without paying
-$ tempoctl inspect https://mpp.tempo.xyz/api/ping/paid
+$ presto inspect https://mpp.tempo.xyz/api/ping/paid
 
 # View configuration
-$ tempoctl config
+$ presto config
 
 # View config as JSON
-$ tempoctl config --output-format json
+$ presto config --output-format json
 ```
 
 ## HTTP options
 
 ```bash [http-options.sh]
 # Custom headers
-$ tempoctl query -H "X-Custom: value" https://mpp.tempo.xyz/api/ping/paid
+$ presto query -H "X-Custom: value" https://mpp.tempo.xyz/api/ping/paid
 
 # POST with data
-$ tempoctl query -X POST -d '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
+$ presto query -X POST -d '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
 
 # POST with JSON (sets Content-Type automatically)
-$ tempoctl query --json '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
+$ presto query --json '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
 
 # Follow redirects
-$ tempoctl query -L https://mpp.tempo.xyz/api/ping/paid
+$ presto query -L https://mpp.tempo.xyz/api/ping/paid
 
 # Set timeout
-$ tempoctl query -m 30 https://mpp.tempo.xyz/api/ping/paid
+$ presto query -m 30 https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ## Output control
 
 ```bash [output-control.sh]
 # Quiet mode (suppress non-essential output)
-$ tempoctl query -q https://mpp.tempo.xyz/api/ping/paid
+$ presto query -q https://mpp.tempo.xyz/api/ping/paid
 
 # Show only HTTP headers
-$ tempoctl query -I https://mpp.tempo.xyz/api/ping/paid
+$ presto query -I https://mpp.tempo.xyz/api/ping/paid
 
 # Disable colors
-$ tempoctl query --color never https://mpp.tempo.xyz/api/ping/paid
+$ presto query --color never https://mpp.tempo.xyz/api/ping/paid
 ```
