@@ -1,4 +1,4 @@
-name: Deploy 
+name: Deploy
 
 on:
   push:
@@ -15,23 +15,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "24"
+          cache: "pnpm"
 
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install
 
       - name: Check code
         run: pnpm check
@@ -39,8 +37,41 @@ jobs:
       - name: Check types
         run: pnpm check:types
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - run: pnpm install
+
       - name: Tests
         run: pnpm test
+
+  build-and-deploy:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - run: pnpm install
 
       - name: Build
         run: pnpm build
@@ -49,23 +80,10 @@ jobs:
 
       - name: Smoke test (wrangler dev)
         run: |
-          # ──────────────────────────────────────────────────────────
-          # To reproduce locally:
-          #   pnpm build
-          #   pnpm wrangler:dev &
-          #   curl -s -o /dev/null -w '%{http_code}' http://localhost:8788/quickstart/tempoctl -H 'Accept: text/html'
-          #   curl -s -o /dev/null -w '%{http_code}' http://localhost:8788/ -H 'Accept: text/html'
-          #   curl -s -o /dev/null -w '%{http_code}' http://localhost:8788/ -H 'Accept: text/markdown'
-          # All three should return 200. If any return 500, check wrangler
-          # logs for the error — usually a missing module or unsupported
-          # Node.js API. Fix in scripts/patch-cf.ts.
-          # ──────────────────────────────────────────────────────────
-
           WRANGLER_LOG=$(mktemp)
           npx wrangler dev --port 8788 > "$WRANGLER_LOG" 2>&1 &
           WRANGLER_PID=$!
 
-          # Wait for wrangler to be ready (up to 30s)
           for i in $(seq 1 30); do
             if curl -sf http://localhost:8788/ -o /dev/null 2>/dev/null; then
               break
@@ -115,34 +133,6 @@ jobs:
       - name: Prune server bundle
         run: node --experimental-strip-types scripts/prune-server.ts
 
-      - name: Upload build
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-  deploy:
-    needs: ci
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Download build
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
       - name: Sanitize branch name
         if: github.event_name == 'pull_request'
         id: branch
@@ -166,7 +156,7 @@ jobs:
           script: |
             const alias = "${{ steps.branch.outputs.alias }}"
             const url = `https://${alias}-mpp-docs.porto.workers.dev`
-            const body = `MPP Docs preview: ${url}`
+            const body = `docs preview: ${url}`
             const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -174,7 +164,7 @@ jobs:
             })
             let existing = null
             for (const comment of comments) {
-              if (comment.body && comment.body.startsWith('MPP Docs preview:')) {
+              if (comment.body && comment.body.startsWith('docs preview:')) {
                 existing = comment
                 break
               }
