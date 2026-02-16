@@ -2,7 +2,7 @@
 
 ## What is MPP?
 
-MPP (Machine Payments Protocol) is an open standard that lets software—especially AI agents—pay for services automatically over HTTP. When a service requires payment, it returns a `402` Payment Required response with a Challenge. The client responds with a Credential (proof of payment), and the server grants access and returns a Receipt.
+MPP (Machine Payments Protocol) lets any client—humans, software, or AI agents—pay for services inline over HTTP. Servers return `402 Payment Required` with a Challenge describing what to pay. Clients fulfill the payment and retry with a Credential. The server verifies payment before delivering the response and returns a Receipt. The protocol is payment-method agnostic, standards-track at the IETF, and designed for extension.
 
 ## Is MPP only for crypto?
 
