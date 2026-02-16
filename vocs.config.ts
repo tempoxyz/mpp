@@ -15,7 +15,11 @@ export default defineConfig({
   baseUrl,
   redirects: [
     { source: "/docs", destination: "/overview" },
-    { source: "/specifications", destination: "/specs" },
+    {
+      source: "/specifications",
+      destination: "https://tempoxyz.github.io/mpp-specs/",
+    },
+    { source: "/specs", destination: "https://tempoxyz.github.io/mpp-specs/" },
     { source: "/quickstart/pget", destination: "/quickstart/presto" },
     { source: "/quickstart/tempoctl", destination: "/quickstart/presto" },
     { source: "/tools/pget", destination: "/tools/presto" },
@@ -74,7 +78,10 @@ export default defineConfig({
         text: "Introduction",
         items: [
           { text: "Overview", link: "/overview" },
-          { text: "Specifications", link: "/specs" },
+          {
+            text: "Specifications",
+            link: "https://tempoxyz.github.io/mpp-specs/",
+          },
           { text: "FAQ", link: "/faq" },
         ],
       },
@@ -440,7 +447,7 @@ export default defineConfig({
   topNav: [
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
     { text: "SDKs & Tools", link: "/sdk" },
-    { text: "Specs", link: "/specs" },
+    { text: "Specs", link: "https://tempoxyz.github.io/mpp-specs/" },
     {
       text: "GitHub",
       items: [

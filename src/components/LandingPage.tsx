@@ -90,7 +90,7 @@ export function LandingPage() {
                 </svg>
               </Link>
               <Link
-                to="/specs"
+                to="https://tempoxyz.github.io/mpp-specs/"
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md transition-colors no-underline border border-primary text-secondary"
               >
                 Read the specs
