@@ -405,7 +405,7 @@ export function LandingPage() {
 					}
 				`}</style>
 				{/* ASCII logo in header — portaled to body to escape overflow:clip on [data-v-main] */}
-				<AsciiHeaderMark accentColor={accentColor} />
+				<AsciiHeaderMark />
 				{/* Variant toggle — pinned to very bottom center */}
 				<div
 					className="fixed left-1/2 -translate-x-1/2 flex flex-row gap-1"
@@ -456,7 +456,7 @@ function anim(shouldAnimate: boolean, delayMs: number, durationMs = 900) {
 	} as React.CSSProperties;
 }
 
-function AsciiHeaderMark({ accentColor }: { accentColor: string | undefined }) {
+function AsciiHeaderMark() {
 	const [mounted, setMounted] = useState(false);
 	useEffect(() => setMounted(true), []);
 	if (!mounted) return null;
@@ -491,7 +491,7 @@ function AsciiHeaderMark({ accentColor }: { accentColor: string | undefined }) {
 						padding: 20,
 					}}
 				>
-					<AsciiLogo color={accentColor} />
+					<AsciiLogo />
 				</div>
 			</div>
 		</div>,
