@@ -79,7 +79,7 @@ export default defineConfig({
         items: [
           { text: "Overview", link: "/overview" },
           {
-            text: "Specifications",
+            text: "IETF Specs",
             link: "https://tempoxyz.github.io/mpp-specs/",
           },
           { text: "FAQ", link: "/faq" },
@@ -455,7 +455,7 @@ export default defineConfig({
         { text: "mpay-rs [Rust]", link: "https://github.com/tempoxyz/mpay-rs" },
         { text: "pympay [Python]", link: "https://github.com/tempoxyz/pympay" },
         {
-          text: "Specifications",
+          text: "IETF Specs",
           link: "https://github.com/tempoxyz/payment-auth-spec",
         },
       ],
