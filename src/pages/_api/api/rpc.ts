@@ -1,13 +1,11 @@
-import { env } from "cloudflare:workers";
-
 const RPC_URL = "https://rpc.moderato.tempo.xyz";
 
 function getRpcHeaders(): Record<string, string> {
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
 	};
-	const user = env.RPC_AUTH_USER;
-	const pass = env.RPC_AUTH_PASS;
+	const user = process.env.RPC_AUTH_USER;
+	const pass = process.env.RPC_AUTH_PASS;
 	if (user && pass) {
 		headers.Authorization = `Basic ${btoa(`${user}:${pass}`)}`;
 	}

@@ -1,4 +1,3 @@
-import { env } from "cloudflare:workers";
 import { Mppx, tempo } from "mppx/server";
 import { createClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -7,10 +6,10 @@ import { tempoModerato } from "viem/chains";
 export const mppx = Mppx.create({
 	methods: [
 		tempo.charge({
-			...(env.FEE_PAYER_PRIVATE_KEY
+			...(process.env.FEE_PAYER_PRIVATE_KEY
 				? {
 						feePayer: privateKeyToAccount(
-							env.FEE_PAYER_PRIVATE_KEY as `0x${string}`,
+							process.env.FEE_PAYER_PRIVATE_KEY as `0x${string}`,
 						),
 					}
 				: {}),
@@ -30,6 +29,4 @@ export const mppx = Mppx.create({
 			testnet: true,
 		}),
 	],
-	realm: "mpp.dev",
-	secretKey: env.SECRET_KEY! ?? "top-secret",
 });

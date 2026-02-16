@@ -1,8 +1,8 @@
 dist
 node_modules
 .vocs
-src/pages.gen.ts
 .wrangler
+src/pages.gen.ts
 .dev.vars*
 .env
 worker-configuration.d.ts

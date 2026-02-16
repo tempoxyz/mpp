@@ -1,12 +1,11 @@
-import { env } from "cloudflare:workers";
 import { Expires } from "mppx/server";
 import { mppx } from "../../../../mppx.server";
 
 export async function GET(request: Request) {
 	const result = await mppx.charge({
 		amount: "0.1",
-		currency: env.DEFAULT_CURRENCY!,
-		recipient: env.DEFAULT_RECIPIENT!,
+		currency: process.env.DEFAULT_CURRENCY!,
+		recipient: process.env.DEFAULT_RECIPIENT!,
 		expires: Expires.minutes(5),
 		description: "Ping endpoint access",
 	})(request);

@@ -21,7 +21,10 @@ export default defineConfig({
 		{ source: "/tools/pget", destination: "/tools/presto" },
 		{ source: "/tools/pget/examples", destination: "/tools/presto/examples" },
 		{ source: "/tools/tempoctl", destination: "/tools/presto" },
-		{ source: "/tools/tempoctl/examples", destination: "/tools/presto/examples" },
+		{
+			source: "/tools/tempoctl/examples",
+			destination: "/tools/presto/examples",
+		},
 		{
 			source: "/payment-methods/tempo/stream",
 			destination: "/payment-methods/tempo/session",
@@ -407,10 +410,10 @@ export default defineConfig({
 					},
 					{
 						text: "presto CLI",
-							collapsed: true,
-							items: [
-								{ text: "Reference", link: "/tools/presto" },
-								{ text: "Examples", link: "/tools/presto/examples" },
+						collapsed: true,
+						items: [
+							{ text: "Reference", link: "/tools/presto" },
+							{ text: "Examples", link: "/tools/presto/examples" },
 						],
 					},
 				],

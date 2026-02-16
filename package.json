@@ -5,19 +5,16 @@
 	"type": "module",
 	"scripts": {
 		"prebuild": "bash scripts/fetch-specs.sh",
-		"build": "vite build && node scripts/patch-cf.ts",
+		"build": "vite build",
 		"check": "biome check --write",
 		"check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
 		"check:types": "tsc --noEmit",
-		"deploy": "wrangler deploy",
 		"dev": "vite dev",
-		"gen:types": "wrangler types",
-		"postinstall": "pnpm gen:types && simple-git-hooks",
+		"postinstall": "simple-git-hooks",
 		"preview": "vite preview",
 		"sync:vocs": "node scripts/copy-vocs-theme.ts && pnpm check",
 		"test": "vitest run",
-		"test:watch": "vitest",
-		"wrangler:dev": "wrangler dev"
+		"test:watch": "viest"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.1.0",
@@ -42,7 +39,6 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.15",
-		"@hiogawa/node-loader-cloudflare": "^0.0.2",
 		"@iconify/json": "^2.2.433",
 		"@types/node": "^22",
 		"@types/react": "^19",
@@ -52,12 +48,6 @@
 		"typescript": "^5",
 		"unplugin-icons": "^23.0.1",
 		"vite": "^7",
-		"vitest": "^4.0.18",
-		"wrangler": "^4.61.1"
-	},
-	"pnpm": {
-		"patchedDependencies": {
-			"vocs@0.0.0": "patches/vocs@0.0.0.patch"
-		}
+		"vitest": "^4.0.18"
 	}
 }
