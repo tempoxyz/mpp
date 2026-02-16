@@ -9,9 +9,9 @@ const themePath = resolve(root, "node_modules/vocs/src/styles/theme.css");
 const outputPath = resolve(root, "src/pages/_vocs.generated.css");
 
 const content = readFileSync(themePath, "utf-8")
-	.split("\n")
-	.filter((line) => !line.match(/--color-\*:\s*initial;/))
-	.join("\n");
+  .split("\n")
+  .filter((line) => !line.match(/--color-\*:\s*initial;/))
+  .join("\n");
 
 const output = `/* THIS FILE IS AUTO-GENERATED. DO NOT EDIT. */
 /* Source: node_modules/vocs/src/styles/theme.css */

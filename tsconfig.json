@@ -1,28 +1,28 @@
 {
-	"compilerOptions": {
-		"types": ["unplugin-icons/types/react", "node"],
-		"target": "ESNext",
-		"lib": ["DOM", "DOM.Iterable", "ESNext"],
-		"module": "ESNext",
-		"skipLibCheck": true,
-		"moduleResolution": "bundler",
-		"allowImportingTsExtensions": true,
-		"isolatedModules": true,
-		"moduleDetection": "force",
-		"noEmit": true,
-		"jsx": "react-jsx",
-		"strict": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUncheckedSideEffectImports": true
-	},
-	"include": [
-		"src",
-		"vocs.config.ts",
-		"worker/src",
-		"secrets.d.ts",
-		"worker-configuration.d.ts"
-	],
-	"exclude": ["src/pages.gen.ts", "src/snippets"]
+  "compilerOptions": {
+    "types": ["unplugin-icons/types/react", "node"],
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": [
+    "src",
+    "vocs.config.ts",
+    "worker/src",
+    "secrets.d.ts",
+    "worker-configuration.d.ts"
+  ],
+  "exclude": ["src/pages.gen.ts", "src/snippets"]
 }

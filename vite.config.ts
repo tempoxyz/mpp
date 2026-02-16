@@ -5,21 +5,21 @@ import { defineConfig } from "vite";
 import { vocs } from "vocs/vite";
 
 const commitSha = child_process
-	.execSync("git rev-parse --short HEAD")
-	.toString()
-	.trim();
+  .execSync("git rev-parse --short HEAD")
+  .toString()
+  .trim();
 const commitTimestamp = child_process
-	.execSync("git log -1 --format=%cI")
-	.toString()
-	.trim();
+  .execSync("git log -1 --format=%cI")
+  .toString()
+  .trim();
 
 export default defineConfig({
-	define: {
-		__COMMIT_SHA__: JSON.stringify(commitSha),
-		__COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
-	},
-	optimizeDeps: {
-		include: ["@braintree/sanitize-url", "dayjs", "mermaid"],
-	},
-	plugins: [Icons({ compiler: "jsx", jsx: "react" }), react(), vocs()],
+  define: {
+    __COMMIT_SHA__: JSON.stringify(commitSha),
+    __COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
+  },
+  optimizeDeps: {
+    include: ["@braintree/sanitize-url", "dayjs", "mermaid"],
+  },
+  plugins: [Icons({ compiler: "jsx", jsx: "react" }), react(), vocs()],
 });

@@ -10,8 +10,8 @@ const account = privateKeyToAccount("0x...");
 
 // [!region fetch]
 const mppx = Mppx.create({
-	polyfill: false,
-	methods: [tempo.charge({ account })],
+  polyfill: false,
+  methods: [tempo.charge({ account })],
 });
 // [!endregion fetch]
 

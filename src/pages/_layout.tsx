@@ -8,11 +8,11 @@ import { config } from "../wagmi.config";
 const queryClient = new QueryClient();
 
 export default function Layout(props: React.PropsWithChildren) {
-	return (
-		<WagmiProvider config={config}>
-			<QueryClientProvider client={queryClient}>
-				{props.children}
-			</QueryClientProvider>
-		</WagmiProvider>
-	);
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        {props.children}
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
 }
