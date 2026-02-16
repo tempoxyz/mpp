@@ -1,13 +1,34 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+
 import { Link } from "vocs";
 import { AsciiLogo } from "./AsciiLogo";
+
+// Context for sharing active agent tab + accent color across components
+const ActiveAgentContext = createContext<{
+	activeAgent: number;
+	setActiveAgent: (i: number) => void;
+	accent: string;
+	isMonochrome: boolean;
+}>({
+	activeAgent: 0,
+	setActiveAgent: () => {},
+	accent: "var(--vocs-text-color-heading)",
+	isMonochrome: true,
+});
 
 // ---------------------------------------------------------------------------
 // Service logos & data
 // ---------------------------------------------------------------------------
+
+const AGENT_COMMANDS = [
+	{ bin: "claude", args: "-p" },
+	{ bin: "codex", args: "--full-auto" },
+	{ bin: "amp", args: null },
+];
 
 const SERVICES = [
 	{
@@ -18,8 +39,7 @@ const SERVICES = [
 		thirdParty: true,
 		streaming: false,
 		logo: FalLogo,
-		prompt:
-			'claude -p "Generate 3 hero image variations for a landing page — dark theme, abstract geometric, 1200x630"',
+		task: '"Generate 3 hero image variations for a landing page — dark theme, abstract geometric, 1200x630"',
 	},
 	{
 		name: "Codex",
@@ -29,8 +49,7 @@ const SERVICES = [
 		thirdParty: true,
 		streaming: false,
 		logo: CodexLogo,
-		prompt:
-			'claude -p "Back up my project docs to Codex and return the content IDs for each file"',
+		task: '"Back up my project docs to Codex and return the content IDs for each file"',
 	},
 	{
 		name: "Cloudflare",
@@ -40,8 +59,7 @@ const SERVICES = [
 		thirdParty: true,
 		streaming: false,
 		logo: CloudflareLogo,
-		prompt:
-			'claude -p "Classify the sentiment of these 50 customer reviews using Cloudflare AI"',
+		task: '"Classify the sentiment of these 50 customer reviews using Cloudflare AI"',
 	},
 	{
 		name: "OpenRouter",
@@ -51,8 +69,7 @@ const SERVICES = [
 		thirdParty: true,
 		streaming: true,
 		logo: OpenRouterLogo,
-		prompt:
-			'claude -p "Run this prompt through GPT-4o, Claude, and Gemini via OpenRouter and compare the outputs"',
+		task: '"Run this prompt through GPT-4o, Claude, and Gemini via OpenRouter and compare the outputs"',
 	},
 	{
 		name: "ElevenLabs",
@@ -62,8 +79,7 @@ const SERVICES = [
 		thirdParty: true,
 		streaming: false,
 		logo: ElevenLabsLogo,
-		prompt:
-			'claude -p "Read my changelog aloud as a narrated audio update using ElevenLabs"',
+		task: '"Read my changelog aloud as a narrated audio update using ElevenLabs"',
 	},
 ];
 
@@ -197,15 +213,15 @@ function ClaudeLogoSmall({ className }: { className?: string }) {
 	);
 }
 
-function CodexLogoSmall({ className }: { className?: string }) {
+function OpenAILogoSmall({ className }: { className?: string }) {
 	return (
 		<svg
 			className={className}
-			viewBox="0 0 76 86"
+			viewBox="0 0 24 24"
 			fill="currentColor"
 			aria-hidden="true"
 		>
-			<path d="M62.3047 52.9227L62.2831 53.6195C62.0605 60.7171 60.9542 66.6365 58.9858 71.2341C53.3466 73.6478 46.5723 74.8763 38.8497 74.8763C31.1272 74.8763 23.9578 73.5329 18.2324 70.8893C14.9063 64.1006 13.2181 54.4888 13.2181 42.3123C13.2181 30.1358 15.014 20.4234 18.5628 13.6348C24.044 11.2857 30.8614 10.1004 38.8426 10.1004C46.3137 10.1004 52.815 11.1707 58.1812 13.2899C59.8694 17.083 61.0116 21.9679 61.5863 27.8227L61.651 28.4692H75.099L74.7613 27.5138C72.3835 20.7395 67.0244 15.4451 59.2516 12.1765C55.4227 3.98698 48.749 0 38.8497 0C28.9505 0 22.0038 4.21686 17.5355 12.5285C5.89786 17.7295 0 27.7508 0 42.3195C0 56.8881 5.94096 66.5718 17.1764 71.9812C21.6662 80.6879 28.9577 85.0987 38.8497 85.0987C48.7418 85.0987 56.0836 80.8029 60.0706 72.326C68.2816 68.4899 73.6479 62.0892 75.6018 53.8063L75.8102 52.9227H62.3047Z" />
+			<path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.998 5.998 0 0 0-3.998 2.9 6.042 6.042 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" />
 		</svg>
 	);
 }
@@ -230,31 +246,43 @@ function AmpLogoSmall({ className }: { className?: string }) {
 // Lockup SVGs
 // ---------------------------------------------------------------------------
 
-function Lockup1Svg({ maxWidth = 240 }: { maxWidth?: number } = {}) {
+function Lockup2Svg({ color }: { color?: string }) {
+	const fill = color || "var(--vocs-text-color-heading)";
+	const style: React.CSSProperties = {
+		width: "100%",
+		opacity: 0.85,
+		height: "auto",
+		display: "block",
+		color: fill,
+	};
 	return (
-		<svg
-			viewBox="0 -1 160 37"
-			fill="currentColor"
-			style={{
-				width: "100%",
-				maxWidth,
-				height: "auto",
-				margin: "0 auto",
-				display: "block",
-				color: "var(--vocs-text-color-heading)",
-			}}
-			aria-label="Machine Payments Protocol"
-		>
-			<title>Machine Payments Protocol</title>
-			<path d="M0 20.4776V0.457599H4.1756L12.6126 14.5288L21.0496 0.457599H25.2252V20.4776H21.164V6.9212L12.9844 20.4776H12.2122L4.0612 7.007V20.4776H0Z" />
-			<path d="M26.2807 20.4776L38.4643 0.457599H43.3835L55.5957 20.4776H50.9053L48.4171 16.2448H33.4307L30.9711 20.4776H26.2807ZM35.4041 12.8128H46.4437L40.9525 3.289L35.4041 12.8128Z" />
-			<path d="M66.4637 20.9352C59.2279 20.9352 54.3945 16.7596 54.3945 10.4676C54.3945 4.1756 59.2279 0 66.4637 0C73.7281 0 78.5329 3.6608 78.5329 9.1806H74.4145C74.2429 5.6056 71.0683 3.4034 66.4637 3.4034C61.6589 3.4034 58.4557 6.1204 58.4557 10.4676C58.4557 14.8148 61.6589 17.5032 66.4637 17.5032C71.0969 17.5032 74.2715 15.3296 74.4145 11.7546H78.5329C78.5329 17.2744 73.7281 20.9352 66.4637 20.9352Z" />
-			<path d="M81.1592 20.4776V0.457599H85.2204V8.1224H98.691V0.457599H102.752V20.4776H98.691V11.5544H85.2204V20.4776H81.1592Z" />
-			<path d="M106.388 20.4776V0.457599H110.449V20.4776H106.388Z" />
-			<path d="M114.104 20.4776V0.457599H117.793L132.78 14.872V0.457599H136.841V20.4776H133.123L118.165 6.0632V20.4776H114.104Z" />
-			<path d="M140.505 20.4776V0.457599H159.81V3.861H144.567V8.2368H158.123V11.3828H144.567V17.0456H159.81V20.4776H140.505Z" />
-			<g transform="translate(0,-5)">
-				<path d="M0 40.2809V31.6743H1.64953V35.4858H5.55692C6.51622 35.4858 6.93738 35.1415 6.93738 34.3055C6.93738 33.4694 6.51622 33.1128 5.55692 33.1128H1.64953V31.6743H5.84939C7.54571 31.6743 8.5986 32.8669 8.5986 34.3055C8.5986 36.0514 7.42873 36.9243 5.84939 36.9243H1.66123V40.2809H0Z" />
+		<>
+			{/* Wide single-line lockup — desktop only */}
+			<svg
+				viewBox="0 0 555 24"
+				fill="currentColor"
+				className="hidden md:block"
+				style={style}
+				aria-label="Machine Payments Protocol"
+			>
+				<path d="M-4.54701e-05 20.4776V0.457598H4.17555L12.6126 14.5288L21.0496 0.457598H25.2252V20.4776H21.164V6.9212L12.9844 20.4776H12.2122L4.06115 7.007V20.4776H-4.54701e-05ZM26.2807 20.4776L38.4643 0.457598H43.3835L55.5957 20.4776H50.9053L48.4171 16.2448H33.4307L30.9711 20.4776H26.2807ZM35.4041 12.8128H46.4437L40.9525 3.289L35.4041 12.8128ZM66.4637 20.9352C59.2279 20.9352 54.3945 16.7596 54.3945 10.4676C54.3945 4.1756 59.2279 -7.6189e-07 66.4637 -7.6189e-07C73.7281 -7.6189e-07 78.5329 3.6608 78.5329 9.1806H74.4145C74.2429 5.6056 71.0683 3.4034 66.4637 3.4034C61.6589 3.4034 58.4557 6.1204 58.4557 10.4676C58.4557 14.8148 61.6589 17.5032 66.4637 17.5032C71.0969 17.5032 74.2715 15.3296 74.4145 11.7546H78.5329C78.5329 17.2744 73.7281 20.9352 66.4637 20.9352ZM81.1592 20.4776V0.457598H85.2204V8.1224H98.691V0.457598H102.752V20.4776H98.691V11.5544H85.2204V20.4776H81.1592ZM106.387 20.4776V0.457598H110.449V20.4776H106.387ZM114.104 20.4776V0.457598H117.793L132.78 14.872V0.457598H136.841V20.4776H133.123L118.165 6.0632V20.4776H114.104ZM140.505 20.4776V0.457598H159.81V3.861H144.566V8.2368H158.123V11.3828H144.566V17.0456H159.81V20.4776H140.505ZM171.383 20.4776V0.457598H185.683C189.83 0.457598 192.404 3.2318 192.404 6.578C192.404 10.6392 189.544 12.6698 185.683 12.6698H175.444V20.4776H171.383ZM175.416 9.3236H184.968C187.313 9.3236 188.343 8.5228 188.343 6.578C188.343 4.6332 187.313 3.8038 184.968 3.8038H175.416V9.3236ZM188.671 20.4776L200.854 0.457598H205.773L217.986 20.4776H213.295L210.807 16.2448H195.821L193.361 20.4776H188.671ZM197.794 12.8128H208.834L203.342 3.289L197.794 12.8128ZM221.572 20.4776V14.014L210.933 0.457598H215.909L223.603 10.439L231.268 0.457598H236.244L225.633 13.9854V20.4776H221.572ZM237.041 20.4776V0.457598H241.217L249.654 14.5288L258.091 0.457598H262.267V20.4776H258.205V6.9212L250.026 20.4776H249.254L241.103 7.007V20.4776H237.041ZM265.901 20.4776V0.457598H285.206V3.861H269.962V8.2368H283.518V11.3828H269.962V17.0456H285.206V20.4776H265.901ZM288.252 20.4776V0.457598H291.942L306.928 14.872V0.457598H310.989V20.4776H307.271L292.313 6.0632V20.4776H288.252ZM321.36 20.4776V3.861H312.494V0.457598H334.316V3.861H325.421V20.4776H321.36ZM345.307 20.9352C338.472 20.9352 334.153 18.1324 334.211 14.0426H338.443C338.415 16.1304 340.96 17.5032 345.136 17.5032C349.855 17.5032 352.457 16.6452 352.457 14.7576C352.457 9.3522 334.754 15.6156 334.754 6.3206C334.754 2.2308 339.073 -7.6189e-07 345.279 -7.6189e-07C351.8 -7.6189e-07 356.09 2.7456 356.118 6.8926H351.971C351.971 4.7762 349.454 3.4034 345.393 3.4034C341.246 3.4034 338.872 4.2614 338.872 5.9774C338.872 11.011 356.547 5.1766 356.547 14.586C356.547 18.7616 352.114 20.9352 345.307 20.9352ZM367.185 20.4776V0.457598H381.485C385.632 0.457598 388.206 3.2318 388.206 6.578C388.206 10.6392 385.346 12.6698 381.485 12.6698H371.246V20.4776H367.185ZM371.217 9.3236H380.77C383.115 9.3236 384.145 8.5228 384.145 6.578C384.145 4.6332 383.115 3.8038 380.77 3.8038H371.217V9.3236ZM390.151 20.4776V0.457598H405.881C410.028 0.457598 412.316 2.6884 412.316 5.7486C412.316 8.9518 409.656 10.7822 405.881 10.7822L403.764 10.8108V10.868C408.483 11.1826 410.428 13.9568 413.832 20.4776H409.113C405.395 13.8138 404.422 11.9834 400.847 11.9834H394.183L394.212 20.4776H390.151ZM394.183 8.6658H404.88C407.254 8.6658 408.255 7.8078 408.255 6.3492C408.255 4.576 407.225 3.8038 404.88 3.8038H394.155L394.183 8.6658ZM425.883 20.9352C418.618 20.9352 413.814 16.7596 413.814 10.4676C413.814 4.1756 418.618 -7.6189e-07 425.883 -7.6189e-07C433.119 -7.6189e-07 437.952 4.1756 437.952 10.4676C437.952 16.7596 433.119 20.9352 425.883 20.9352ZM425.883 17.5032C430.688 17.5032 433.891 14.8148 433.891 10.4676C433.891 6.1204 430.688 3.4034 425.883 3.4034C421.078 3.4034 417.875 6.1204 417.875 10.4676C417.875 14.8148 421.078 17.5032 425.883 17.5032ZM445.862 20.4776V3.861H436.996V0.457598H458.817V3.861H449.923V20.4776H445.862ZM469.916 20.9352C462.651 20.9352 457.846 16.7596 457.846 10.4676C457.846 4.1756 462.651 -7.6189e-07 469.916 -7.6189e-07C477.151 -7.6189e-07 481.985 4.1756 481.985 10.4676C481.985 16.7596 477.151 20.9352 469.916 20.9352ZM469.916 17.5032C474.72 17.5032 477.924 14.8148 477.924 10.4676C477.924 6.1204 474.72 3.4034 469.916 3.4034C465.111 3.4034 461.908 6.1204 461.908 10.4676C461.908 14.8148 465.111 17.5032 469.916 17.5032ZM496.039 20.9352C488.803 20.9352 483.97 16.7596 483.97 10.4676C483.97 4.1756 488.803 -7.6189e-07 496.039 -7.6189e-07C503.303 -7.6189e-07 508.108 3.6608 508.108 9.1806H503.99C503.818 5.6056 500.644 3.4034 496.039 3.4034C491.234 3.4034 488.031 6.1204 488.031 10.4676C488.031 14.8148 491.234 17.5032 496.039 17.5032C500.672 17.5032 503.847 15.3296 503.99 11.7546H508.108C508.108 17.2744 503.303 20.9352 496.039 20.9352ZM522.104 20.9352C514.84 20.9352 510.035 16.7596 510.035 10.4676C510.035 4.1756 514.84 -7.6189e-07 522.104 -7.6189e-07C529.34 -7.6189e-07 534.173 4.1756 534.173 10.4676C534.173 16.7596 529.34 20.9352 522.104 20.9352ZM522.104 17.5032C526.909 17.5032 530.112 14.8148 530.112 10.4676C530.112 6.1204 526.909 3.4034 522.104 3.4034C517.299 3.4034 514.096 6.1204 514.096 10.4676C514.096 14.8148 517.299 17.5032 522.104 17.5032ZM536.801 20.4776V0.457598H540.862V17.0456H554.819V20.4776H536.801Z" />
+			</svg>
+			{/* Stacked lockup — mobile only (MACHINE on top, PAYMENTS PROTOCOL below) */}
+			<svg
+				viewBox="0 0 160 41"
+				fill="currentColor"
+				className="md:hidden"
+				style={style}
+				aria-label="Machine Payments Protocol"
+			>
+				<path d="M0 20.4776V0.457599H4.1756L12.6126 14.5288L21.0496 0.457599H25.2252V20.4776H21.164V6.9212L12.9844 20.4776H12.2122L4.0612 7.007V20.4776H0Z" />
+				<path d="M26.2807 20.4776L38.4643 0.457599H43.3835L55.5957 20.4776H50.9053L48.4171 16.2448H33.4307L30.9711 20.4776H26.2807ZM35.4041 12.8128H46.4437L40.9525 3.289L35.4041 12.8128Z" />
+				<path d="M66.4637 20.9352C59.2279 20.9352 54.3945 16.7596 54.3945 10.4676C54.3945 4.1756 59.2279 0 66.4637 0C73.7281 0 78.5329 3.6608 78.5329 9.1806H74.4145C74.2429 5.6056 71.0683 3.4034 66.4637 3.4034C61.6589 3.4034 58.4557 6.1204 58.4557 10.4676C58.4557 14.8148 61.6589 17.5032 66.4637 17.5032C71.0969 17.5032 74.2715 15.3296 74.4145 11.7546H78.5329C78.5329 17.2744 73.7281 20.9352 66.4637 20.9352Z" />
+				<path d="M81.1592 20.4776V0.457599H85.2204V8.1224H98.691V0.457599H102.752V20.4776H98.691V11.5544H85.2204V20.4776H81.1592Z" />
+				<path d="M106.388 20.4776V0.457599H110.449V20.4776H106.388Z" />
+				<path d="M114.104 20.4776V0.457599H117.793L132.78 14.872V0.457599H136.841V20.4776H133.123L118.165 6.0632V20.4776H114.104Z" />
+				<path d="M140.505 20.4776V0.457599H159.81V3.861H144.567V8.2368H158.123V11.3828H144.567V17.0456H159.81V20.4776H140.505Z" />
+				<path d="M0 40.2809V31.6743H5.84939C7.54571 31.6743 8.5986 32.8669 8.5986 34.3055C8.5986 36.0514 7.42873 36.9243 5.84939 36.9243H1.66123V40.2809H0ZM1.64953 35.4858H5.55692C6.51622 35.4858 6.93738 35.1415 6.93738 34.3055C6.93738 33.4694 6.51622 33.1128 5.55692 33.1128H1.64953V35.4858Z" />
 				<path d="M7.07136 40.2809L12.055 31.6743H14.0672L19.0626 40.2809H17.144L16.1262 38.4612H9.99606L8.98996 40.2809H7.07136ZM10.8033 36.9858H15.319L13.0728 32.8915L10.8033 36.9858Z" />
 				<path d="M20.5297 40.2809V37.5022L16.1778 31.6743H18.2134L21.3603 35.9653L24.4956 31.6743H26.5312L22.1909 37.4899V40.2809H20.5297Z" />
 				<path d="M26.8574 40.2809V31.6743H28.5654L32.0165 37.7235L35.4677 31.6743H37.1757V40.2809H35.5145V34.453L32.1686 40.2809H31.8528L28.5186 34.4899V40.2809H26.8574Z" />
@@ -262,84 +290,15 @@ function Lockup1Svg({ maxWidth = 240 }: { maxWidth?: number } = {}) {
 				<path d="M47.8051 40.2809V31.6743H49.3142L55.4444 37.871V31.6743H57.1056V40.2809H55.5847L49.4663 34.0842V40.2809H47.8051Z" />
 				<path d="M61.3478 40.2809V33.1374H57.7211V31.6743H66.6473V33.1374H63.009V40.2809H61.3478Z" />
 				<path d="M71.1434 40.4776C68.3474 40.4776 66.5809 39.2727 66.6043 37.5145H68.3357C68.324 38.412 69.3652 39.0022 71.0732 39.0022C73.0035 39.0022 74.0681 38.6333 74.0681 37.8219C74.0681 35.4981 66.8265 38.1907 66.8265 34.1948C66.8265 32.4366 68.593 31.4776 71.1317 31.4776C73.799 31.4776 75.5538 32.6579 75.5655 34.4407H73.8692C73.8692 33.5309 72.8397 32.9407 71.1785 32.9407C69.4822 32.9407 68.5112 33.3096 68.5112 34.0473C68.5112 36.2112 75.741 33.703 75.741 37.7481C75.741 39.5432 73.9277 40.4776 71.1434 40.4776Z" />
-				<path d="M83.2487 40.2809V31.6743H84.8982V35.4858H88.8056C89.7649 35.4858 90.1861 35.1415 90.1861 34.3055C90.1861 33.4694 89.7649 33.1128 88.8056 33.1128H84.8982V31.6743H89.0981C90.7944 31.6743 91.8473 32.8669 91.8473 34.3055C91.8473 36.0514 90.6774 36.9243 89.0981 36.9243H84.9099V40.2809H83.2487Z" />
-				<path d="M92.6429 40.2809V31.6743H94.2924V35.203H98.6678C99.6388 35.203 100.048 34.8342 100.048 34.2071C100.048 33.4448 99.6271 33.1128 98.6678 33.1128H94.2807V31.6743H99.0772C100.774 31.6743 101.709 32.6333 101.709 33.9489C101.709 35.326 100.621 36.1128 99.0772 36.1128L98.2115 36.1251V36.1497C100.142 36.285 100.937 37.4776 102.329 40.2809H100.399C98.8784 37.4161 98.4806 36.6292 97.0182 36.6292H94.2924V40.2809H92.6429Z" />
+				<path d="M83.2487 40.2809V31.6743H89.0981C90.7944 31.6743 91.8473 32.8669 91.8473 34.3055C91.8473 36.0514 90.6774 36.9243 89.0981 36.9243H84.9099V40.2809H83.2487ZM84.8982 35.4858H88.8056C89.7649 35.4858 90.1861 35.1415 90.1861 34.3055C90.1861 33.4694 89.7649 33.1128 88.8056 33.1128H84.8982V35.4858Z" />
+				<path d="M92.6429 40.2809V31.6743H99.0772C100.774 31.6743 101.709 32.6333 101.709 33.9489C101.709 35.326 100.621 36.1128 99.0772 36.1128L98.2115 36.1251V36.1497C100.142 36.285 100.937 37.4776 102.329 40.2809H100.399C98.8784 37.4161 98.4806 36.6292 97.0182 36.6292H94.2924L94.3041 40.2809H92.6429ZM94.2924 35.203H98.6678C99.6388 35.203 100.048 34.8342 100.048 34.2071C100.048 33.4448 99.6271 33.1128 98.6678 33.1128H94.2807L94.2924 35.203Z" />
 				<path d="M107.259 40.4776C104.287 40.4776 102.322 38.6825 102.322 35.9776C102.322 33.2727 104.287 31.4776 107.259 31.4776C110.219 31.4776 112.196 33.2727 112.196 35.9776C112.196 38.6825 110.219 40.4776 107.259 40.4776ZM107.259 39.0022C109.224 39.0022 110.535 37.8465 110.535 35.9776C110.535 34.1087 109.224 32.9407 107.259 32.9407C105.294 32.9407 103.983 34.1087 103.983 35.9776C103.983 37.8465 105.294 39.0022 107.259 39.0022Z" />
 				<path d="M115.431 40.2809V33.1374H111.805V31.6743H120.731V33.1374H117.093V40.2809H115.431Z" />
 				<path d="M125.271 40.4776C122.299 40.4776 120.334 38.6825 120.334 35.9776C120.334 33.2727 122.299 31.4776 125.271 31.4776C128.23 31.4776 130.207 33.2727 130.207 35.9776C130.207 38.6825 128.23 40.4776 125.271 40.4776ZM125.271 39.0022C127.236 39.0022 128.546 37.8465 128.546 35.9776C128.546 34.1087 127.236 32.9407 125.271 32.9407C123.305 32.9407 121.995 34.1087 121.995 35.9776C121.995 37.8465 123.305 39.0022 125.271 39.0022Z" />
 				<path d="M135.956 40.4776C132.996 40.4776 131.019 38.6825 131.019 35.9776C131.019 33.2727 132.996 31.4776 135.956 31.4776C138.928 31.4776 140.893 33.0514 140.893 35.4243H139.209C139.138 33.8874 137.84 32.9407 135.956 32.9407C133.991 32.9407 132.681 34.1087 132.681 35.9776C132.681 37.8465 133.991 39.0022 135.956 39.0022C137.851 39.0022 139.15 38.0678 139.209 36.5309H140.893C140.893 38.9038 138.928 40.4776 135.956 40.4776Z" />
 				<path d="M146.618 40.4776C143.647 40.4776 141.681 38.6825 141.681 35.9776C141.681 33.2727 143.647 31.4776 146.618 31.4776C149.578 31.4776 151.555 33.2727 151.555 35.9776C151.555 38.6825 149.578 40.4776 146.618 40.4776ZM146.618 39.0022C148.583 39.0022 149.894 37.8465 149.894 35.9776C149.894 34.1087 148.583 32.9407 146.618 32.9407C144.653 32.9407 143.342 34.1087 143.342 35.9776C143.342 37.8465 144.653 39.0022 146.618 39.0022Z" />
 				<path d="M152.63 40.2809V31.6743H154.291V38.8055H160V40.2809H152.63Z" />
-			</g>
-		</svg>
-	);
-}
-
-function Lockup2Svg({ color }: { color?: string }) {
-	return (
-		// biome-ignore lint/a11y/noSvgWithoutTitle: decorative SVG
-		<svg
-			viewBox="0 0 555 21"
-			fill="currentColor"
-			style={{
-				width: "100%",
-				opacity: 0.8,
-				height: "auto",
-				display: "block",
-				color: color || "var(--vocs-color-accent)",
-			}}
-			aria-label="Machine Payments Protocol"
-		>
-			<path d="M-4.54701e-05 20.4776V0.457598H4.17555L12.6126 14.5288L21.0496 0.457598H25.2252V20.4776H21.164V6.9212L12.9844 20.4776H12.2122L4.06115 7.007V20.4776H-4.54701e-05ZM26.2807 20.4776L38.4643 0.457598H43.3835L55.5957 20.4776H50.9053L48.4171 16.2448H33.4307L30.9711 20.4776H26.2807ZM35.4041 12.8128H46.4437L40.9525 3.289L35.4041 12.8128ZM66.4637 20.9352C59.2279 20.9352 54.3945 16.7596 54.3945 10.4676C54.3945 4.1756 59.2279 -7.6189e-07 66.4637 -7.6189e-07C73.7281 -7.6189e-07 78.5329 3.6608 78.5329 9.1806H74.4145C74.2429 5.6056 71.0683 3.4034 66.4637 3.4034C61.6589 3.4034 58.4557 6.1204 58.4557 10.4676C58.4557 14.8148 61.6589 17.5032 66.4637 17.5032C71.0969 17.5032 74.2715 15.3296 74.4145 11.7546H78.5329C78.5329 17.2744 73.7281 20.9352 66.4637 20.9352ZM81.1592 20.4776V0.457598H85.2204V8.1224H98.691V0.457598H102.752V20.4776H98.691V11.5544H85.2204V20.4776H81.1592ZM106.387 20.4776V0.457598H110.449V20.4776H106.387ZM114.104 20.4776V0.457598H117.793L132.78 14.872V0.457598H136.841V20.4776H133.123L118.165 6.0632V20.4776H114.104ZM140.505 20.4776V0.457598H159.81V3.861H144.566V8.2368H158.123V11.3828H144.566V17.0456H159.81V20.4776H140.505ZM171.383 20.4776V0.457598H185.683C189.83 0.457598 192.404 3.2318 192.404 6.578C192.404 10.6392 189.544 12.6698 185.683 12.6698H175.444V20.4776H171.383ZM175.416 9.3236H184.968C187.313 9.3236 188.343 8.5228 188.343 6.578C188.343 4.6332 187.313 3.8038 184.968 3.8038H175.416V9.3236ZM188.671 20.4776L200.854 0.457598H205.773L217.986 20.4776H213.295L210.807 16.2448H195.821L193.361 20.4776H188.671ZM197.794 12.8128H208.834L203.342 3.289L197.794 12.8128ZM221.572 20.4776V14.014L210.933 0.457598H215.909L223.603 10.439L231.268 0.457598H236.244L225.633 13.9854V20.4776H221.572ZM237.041 20.4776V0.457598H241.217L249.654 14.5288L258.091 0.457598H262.267V20.4776H258.205V6.9212L250.026 20.4776H249.254L241.103 7.007V20.4776H237.041ZM265.901 20.4776V0.457598H285.206V3.861H269.962V8.2368H283.518V11.3828H269.962V17.0456H285.206V20.4776H265.901ZM288.252 20.4776V0.457598H291.942L306.928 14.872V0.457598H310.989V20.4776H307.271L292.313 6.0632V20.4776H288.252ZM321.36 20.4776V3.861H312.494V0.457598H334.316V3.861H325.421V20.4776H321.36ZM345.307 20.9352C338.472 20.9352 334.153 18.1324 334.211 14.0426H338.443C338.415 16.1304 340.96 17.5032 345.136 17.5032C349.855 17.5032 352.457 16.6452 352.457 14.7576C352.457 9.3522 334.754 15.6156 334.754 6.3206C334.754 2.2308 339.073 -7.6189e-07 345.279 -7.6189e-07C351.8 -7.6189e-07 356.09 2.7456 356.118 6.8926H351.971C351.971 4.7762 349.454 3.4034 345.393 3.4034C341.246 3.4034 338.872 4.2614 338.872 5.9774C338.872 11.011 356.547 5.1766 356.547 14.586C356.547 18.7616 352.114 20.9352 345.307 20.9352ZM367.185 20.4776V0.457598H381.485C385.632 0.457598 388.206 3.2318 388.206 6.578C388.206 10.6392 385.346 12.6698 381.485 12.6698H371.246V20.4776H367.185ZM371.217 9.3236H380.77C383.115 9.3236 384.145 8.5228 384.145 6.578C384.145 4.6332 383.115 3.8038 380.77 3.8038H371.217V9.3236ZM390.151 20.4776V0.457598H405.881C410.028 0.457598 412.316 2.6884 412.316 5.7486C412.316 8.9518 409.656 10.7822 405.881 10.7822L403.764 10.8108V10.868C408.483 11.1826 410.428 13.9568 413.832 20.4776H409.113C405.395 13.8138 404.422 11.9834 400.847 11.9834H394.183L394.212 20.4776H390.151ZM394.183 8.6658H404.88C407.254 8.6658 408.255 7.8078 408.255 6.3492C408.255 4.576 407.225 3.8038 404.88 3.8038H394.155L394.183 8.6658ZM425.883 20.9352C418.618 20.9352 413.814 16.7596 413.814 10.4676C413.814 4.1756 418.618 -7.6189e-07 425.883 -7.6189e-07C433.119 -7.6189e-07 437.952 4.1756 437.952 10.4676C437.952 16.7596 433.119 20.9352 425.883 20.9352ZM425.883 17.5032C430.688 17.5032 433.891 14.8148 433.891 10.4676C433.891 6.1204 430.688 3.4034 425.883 3.4034C421.078 3.4034 417.875 6.1204 417.875 10.4676C417.875 14.8148 421.078 17.5032 425.883 17.5032ZM445.862 20.4776V3.861H436.996V0.457598H458.817V3.861H449.923V20.4776H445.862ZM469.916 20.9352C462.651 20.9352 457.846 16.7596 457.846 10.4676C457.846 4.1756 462.651 -7.6189e-07 469.916 -7.6189e-07C477.151 -7.6189e-07 481.985 4.1756 481.985 10.4676C481.985 16.7596 477.151 20.9352 469.916 20.9352ZM469.916 17.5032C474.72 17.5032 477.924 14.8148 477.924 10.4676C477.924 6.1204 474.72 3.4034 469.916 3.4034C465.111 3.4034 461.908 6.1204 461.908 10.4676C461.908 14.8148 465.111 17.5032 469.916 17.5032ZM496.039 20.9352C488.803 20.9352 483.97 16.7596 483.97 10.4676C483.97 4.1756 488.803 -7.6189e-07 496.039 -7.6189e-07C503.303 -7.6189e-07 508.108 3.6608 508.108 9.1806H503.99C503.818 5.6056 500.644 3.4034 496.039 3.4034C491.234 3.4034 488.031 6.1204 488.031 10.4676C488.031 14.8148 491.234 17.5032 496.039 17.5032C500.672 17.5032 503.847 15.3296 503.99 11.7546H508.108C508.108 17.2744 503.303 20.9352 496.039 20.9352ZM522.104 20.9352C514.84 20.9352 510.035 16.7596 510.035 10.4676C510.035 4.1756 514.84 -7.6189e-07 522.104 -7.6189e-07C529.34 -7.6189e-07 534.173 4.1756 534.173 10.4676C534.173 16.7596 529.34 20.9352 522.104 20.9352ZM522.104 17.5032C526.909 17.5032 530.112 14.8148 530.112 10.4676C530.112 6.1204 526.909 3.4034 522.104 3.4034C517.299 3.4034 514.096 6.1204 514.096 10.4676C514.096 14.8148 517.299 17.5032 522.104 17.5032ZM536.801 20.4776V0.457598H540.862V17.0456H554.819V20.4776H536.801Z" />
-		</svg>
-	);
-}
-
-// ---------------------------------------------------------------------------
-// Network canvas background (variant C)
-// ---------------------------------------------------------------------------
-
-function NetworkCanvas() {
-	return (
-		<>
-			<AsciiLogo forceNetwork fullscreen />
-			{/* Gradient overlays — must be fixed + above the animation */}
-			<div
-				style={{
-					position: "fixed",
-					top: 0,
-					left: 0,
-					width: "100vw",
-					height: "100vh",
-					zIndex: 1,
-					pointerEvents: "none",
-				}}
-			>
-				<div
-					style={{
-						position: "absolute",
-						inset: 0,
-						background:
-							"linear-gradient(to bottom, var(--vocs-background-color-primary) 0%, transparent 12%)",
-					}}
-				/>
-				<div
-					style={{
-						position: "absolute",
-						inset: 0,
-						background:
-							"linear-gradient(to right, var(--vocs-background-color-primary) 0%, transparent 18%, transparent 82%, var(--vocs-background-color-primary) 100%)",
-					}}
-				/>
-				<div
-					style={{
-						position: "absolute",
-						inset: 0,
-						background:
-							"radial-gradient(ellipse 40% 30% at 50% 45%, var(--vocs-background-color-primary) 0%, transparent 100%)",
-					}}
-				/>
-			</div>
+			</svg>
 		</>
 	);
 }
@@ -350,6 +309,17 @@ function NetworkCanvas() {
 
 type HeroVariant = "A" | "B" | "C" | "D" | "E";
 
+const VARIANT_COLORS: Record<HeroVariant, string | undefined> = {
+	A: undefined, // monochrome — uses theme heading color (dark on light, light on dark)
+	B: "#d946a8", // pink — ≥4.5:1 on dark surfaces
+	C: "#8b7cf6", // purple — ≥4.5:1 on dark surfaces
+	D: "#34c88a", // green — ≥4.5:1 on dark surfaces
+	E: "#22b8cf", // teal — ≥4.5:1 on dark surfaces
+};
+
+// Session key — persists across soft navigations, cleared on hard refresh
+const ANIM_SESSION_KEY = "mpp-landing-animated";
+
 export function LandingPage() {
 	const [variant, setVariantState] = useState<HeroVariant>(() => {
 		if (typeof window === "undefined") return "A";
@@ -359,6 +329,29 @@ export function LandingPage() {
 		return "A";
 	});
 
+	const [activeAgent, setActiveAgent] = useState(0);
+
+	// Animate on hard refresh / first visit only (not soft navigation)
+	const [shouldAnimate] = useState(() => {
+		if (typeof window === "undefined") return false;
+		const alreadyAnimated = sessionStorage.getItem(ANIM_SESSION_KEY);
+		// Always set the key so next soft nav skips animation
+		sessionStorage.setItem(ANIM_SESSION_KEY, "1");
+		// Animate if this is a fresh page load (performance.navigation or no key yet)
+		if (alreadyAnimated) {
+			// Check if this is a hard refresh (type 1) vs soft nav
+			const navType = (performance as any).navigation?.type;
+			if (navType === 1) return true; // hard refresh
+			// Also animate if navigationType is "reload"
+			const entries = performance.getEntriesByType?.(
+				"navigation",
+			) as PerformanceNavigationTiming[];
+			if (entries?.[0]?.type === "reload") return true;
+			return false;
+		}
+		return true; // first visit
+	});
+
 	const setVariant = (v: HeroVariant) => {
 		setVariantState(v);
 		const url = new URL(window.location.href);
@@ -366,395 +359,664 @@ export function LandingPage() {
 		window.history.replaceState({}, "", url.toString());
 	};
 
-	useEffect(() => {
-		const bgColor = "var(--vocs-background-color-primary)";
-		const selectors = [
-			"header",
-			"[data-v-header]",
-			"[data-v-gutter-top]",
-			"[data-v-gutter-left]",
-			"[data-v-gutter-right]",
-			"nav",
-		];
+	// Header/nav background is handled by CSS — no JS override needed
 
-		const elements: HTMLElement[] = [];
-		for (const selector of selectors) {
-			document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
-				el.style.setProperty("background", bgColor, "important");
-				el.style.setProperty("background-color", bgColor, "important");
-				elements.push(el);
-			});
-		}
-
-		return () => {
-			for (const el of elements) {
-				el.style.removeProperty("background");
-				el.style.removeProperty("background-color");
-			}
-		};
-	}, []);
+	const accentColor = VARIANT_COLORS[variant];
 
 	return (
-		<div
-			className="not-prose"
-			style={{
-				color: "var(--vocs-text-color-heading)",
-				fontFamily: '"HB Set", "Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-				userSelect: "none",
-				WebkitUserSelect: "none",
+		<ActiveAgentContext.Provider
+			value={{
+				activeAgent,
+				setActiveAgent,
+				accent: accentColor || "var(--vocs-text-color-heading)",
+				isMonochrome: !accentColor,
 			}}
 		>
-			{/* Landing page overrides: lock scroll, replace logo with text */}
-			<style>{`
-				html, body, [data-v-main], main, article { overflow: clip !important; height: 100vh !important; }
-				[data-v-logo] img { display: none !important; }
-				[data-v-logo]::after {
-					content: "Machine Payments Protocol";
-					font-family: "HB Set", sans-serif;
-					font-size: 14px;
-					font-weight: 400;
-					white-space: nowrap;
-					color: var(--vocs-text-color-heading);
-				}
-			`}</style>
-			{/* Variant toggle */}
-			<div className="fixed left-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1">
-				{(["A", "B", "C", "D", "E"] as const).map((v) => (
-					<button
-						key={v}
-						type="button"
-						onClick={() => setVariant(v)}
-						className="w-6 h-6 text-[10px] font-medium rounded transition-all"
-						style={
-							variant === v
-								? {
-										background: "var(--vocs-color-accent)",
-										color: "#ffffff",
-									}
-								: {
-										background: "var(--vocs-background-color-surfaceMuted)",
-										color: "var(--vocs-text-color-secondary)",
-										opacity: 0.7,
-									}
-						}
-					>
-						{v}
-					</button>
-				))}
+			<div
+				className="not-prose"
+				style={{
+					color: "var(--vocs-text-color-heading)",
+					fontFamily: "var(--font-pilat)",
+					userSelect: "none",
+					WebkitUserSelect: "none",
+				}}
+			>
+				{/* Lock page scroll + hide default logo + variant accent override */}
+				<style>{`
+					html, body { overflow: hidden !important; height: 100vh !important; }
+					[data-v-main], main, article { overflow: hidden !important; height: 100vh !important; }
+					@media (max-height: 740px) {
+						[data-v-main], main, article { overflow-y: auto !important; }
+					}
+					[data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
+					${
+						variant !== "A"
+							? `
+					:root {
+						--vocs-color-accent: ${accentColor} !important;
+					}
+					`
+							: ""
+					}
+
+					@keyframes reveal {
+						from { opacity: 0; transform: translateY(12px); }
+						to { opacity: 1; transform: translateY(0); }
+					}
+				`}</style>
+				{/* ASCII logo in header — portaled to body to escape overflow:clip on [data-v-main] */}
+				<AsciiHeaderMark accentColor={accentColor} />
+				{/* Variant toggle — pinned to very bottom center */}
+				<div
+					className="fixed left-1/2 -translate-x-1/2 flex flex-row gap-1"
+					style={{ bottom: 32, zIndex: 9999 }}
+				>
+					{(["A", "B", "C", "D", "E"] as const).map((v) => (
+						<button
+							key={v}
+							type="button"
+							onClick={() => setVariant(v)}
+							className="w-6 h-6 text-[10px] font-medium rounded transition-all"
+							style={
+								variant === v
+									? {
+											background:
+												VARIANT_COLORS[v] || "var(--vocs-text-color-heading)",
+											color: VARIANT_COLORS[v]
+												? "#ffffff"
+												: "var(--vocs-background-color-primary)",
+										}
+									: {
+											background: "var(--vocs-background-color-surfaceMuted)",
+											color: "var(--vocs-text-color-secondary)",
+											opacity: 0.7,
+										}
+							}
+						>
+							{v}
+						</button>
+					))}
+				</div>
+				<HeroVariantF shouldAnimate={shouldAnimate} accentColor={accentColor} />
 			</div>
-			<HeroVariantF variant={variant} />
-			{variant === "C" && <NetworkCanvas />}
-		</div>
+		</ActiveAgentContext.Provider>
 	);
 }
 
 // ---------------------------------------------------------------------------
-// Variant F: Single-page layout (100vh hero + scrollable demo)
+// Hero layout
 // ---------------------------------------------------------------------------
 
-function HeroVariantF({ variant }: { variant: HeroVariant }) {
+function anim(shouldAnimate: boolean, delayMs: number, durationMs = 900) {
+	if (!shouldAnimate) return {};
+	return {
+		opacity: 0,
+		transform: "translateY(12px)",
+		animation: `reveal ${durationMs}ms cubic-bezier(0.16, 1, 0.3, 1) ${delayMs}ms forwards`,
+	} as React.CSSProperties;
+}
+
+function AsciiHeaderMark({ accentColor }: { accentColor: string | undefined }) {
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => setMounted(true), []);
+	if (!mounted) return null;
+
+	return createPortal(
+		<div
+			style={{
+				position: "fixed",
+				top: 0,
+				left: 16,
+				height: 48,
+				zIndex: 99999,
+				display: "flex",
+				alignItems: "center",
+				pointerEvents: "none",
+			}}
+		>
+			<div
+				style={{
+					width: 200,
+					height: 36,
+					position: "relative",
+				}}
+			>
+				<div
+					style={{
+						position: "absolute",
+						top: 0,
+						left: 0,
+						transform: "scaleX(0.3) scaleY(0.35)",
+						transformOrigin: "top left",
+						padding: 20,
+					}}
+				>
+					<AsciiLogo color={accentColor} />
+				</div>
+			</div>
+		</div>,
+		document.body,
+	);
+}
+
+function HeroVariantF({
+	shouldAnimate,
+	accentColor,
+}: {
+	shouldAnimate: boolean;
+	accentColor: string | undefined;
+}) {
 	return (
 		<section
 			className="flex flex-col items-center text-center px-6"
 			style={{
 				height: "calc(100vh - 64px)",
-				maxHeight: "calc(100vh - 64px)",
-				overflow: "hidden",
 				position: "relative",
 				zIndex: 2,
 				pointerEvents: "none",
 			}}
 		>
-			{/* Main content — centered vertically, falls back to top-align on small viewports */}
+			{/* Main content — upper portion of viewport */}
 			<div
-				className="max-w-2xl flex-1 flex flex-col items-center justify-center min-h-0"
+				className="max-w-2xl flex flex-col items-center min-h-0"
 				style={{
 					gap: "2.5rem",
-					paddingTop: "2rem",
-					paddingBottom: "2rem",
 					pointerEvents: "auto",
+					paddingTop: "10vh",
 				}}
 			>
-				<div>
-					{variant === "A" && (
-						<div style={{ marginBottom: "1.2rem" }}>
-							<AsciiLogo />
-						</div>
-					)}
-					{variant === "B" && (
-						<>
-							<AsciiLogo />
-							<div
-								style={{
-									color: "var(--vocs-color-accent)",
-									marginTop: "1rem",
-									marginBottom: "1.5rem",
-									maxWidth: "93%",
-									marginLeft: "auto",
-									marginRight: "auto",
-								}}
-							>
-								<Lockup2Svg />
-							</div>
-						</>
-					)}
-					{variant === "C" && (
-						<div
+				<div className="inline-flex flex-col items-center gap-2">
+					{/* Co-designed by Tempo × Stripe */}
+					<div
+						className="flex items-center gap-3 mb-6"
+						style={{
+							fontFamily: "var(--font-mono)",
+							...anim(shouldAnimate, 300, 800),
+						}}
+					>
+						<span
+							className="font-medium font-mono uppercase"
 							style={{
-								color: "var(--vocs-text-color-heading)",
-								marginBottom: "1rem",
+								color: "var(--vocs-text-color-muted)",
+								letterSpacing: "0.06em",
+								fontSize: "12px",
 							}}
 						>
-							<Lockup1Svg maxWidth={276} />
-						</div>
-					)}
-					{variant === "D" && (
-						<div style={{ marginBottom: "1rem" }}>
-							<Lockup1Svg maxWidth={276} />
-						</div>
-					)}
-					{variant === "E" && (
-						<div
-							style={{
-								color: "var(--vocs-text-color-heading)",
-								fontWeight: "900",
-								fontSize: 32,
-							}}
+							Co-designed by
+						</span>
+						<a
+							href="https://tempo.xyz"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="no-underline"
+							style={{ color: "var(--vocs-text-color-muted)" }}
 						>
-							Machine Payments Protocol
-						</div>
-					)}
+							<TempoLogo style={{ height: 14, width: "auto" }} />
+						</a>
+						<span
+							className="text-[10px]"
+							style={{ color: "var(--vocs-text-color-muted)", opacity: 0.4 }}
+						>
+							&times;
+						</span>
+						<a
+							href="https://stripe.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="no-underline"
+							style={{ color: "var(--vocs-text-color-muted)" }}
+						>
+							<StripeLogo style={{ height: 22, width: "auto" }} />
+						</a>
+					</div>
+					{/* Lockup — "Machine Payments Protocol" */}
+					<div
+						className="self-center"
+						style={{
+							width: "min(648px, 88vw)",
+							maxWidth: "none",
+							overflow: "visible",
+							...anim(shouldAnimate, 600, 900),
+						}}
+					>
+						<Lockup2Svg color={accentColor} />
+					</div>
+					{/* Tagline */}
 					<p
-						className="text-sm md:text-base leading-relaxed max-w-xl mx-auto pt-2"
-						style={{ color: "var(--vocs-text-color-secondary)" }}
+						className="text-base leading-relaxed max-w-xl mx-auto pt-6 font-normal"
+						style={{
+							color: "var(--vocs-text-color-secondary)",
+							...anim(shouldAnimate, 1100, 700),
+						}}
 					>
 						Supercharge your agent with seamless paid API calls.
 						<br className="hidden md:block" />
 						No more manually creating accounts, or copy-pasting keys.
 					</p>
 				</div>
-				<div className="flex justify-center">
+				<div
+					className="flex justify-center w-full"
+					style={anim(shouldAnimate, 1500, 700)}
+				>
 					<AgentTabsWrapped />
 				</div>
-				<div className="flex justify-center">
+				<div
+					className="flex flex-col items-center gap-4"
+					style={anim(shouldAnimate, 1800, 700)}
+				>
 					<CTAButtons />
 				</div>
-				<CoAuthoredBy />
 			</div>
-			{/* Service logos at bottom */}
-			<div className="pb-8" style={{ pointerEvents: "auto" }}>
-				<ServiceLogos />
+			{/* Service logos — pinned to bottom of viewport */}
+			<div
+				className="fixed bottom-0 left-0 right-0 pb-32"
+				style={{ pointerEvents: "auto", zIndex: 2, overflowX: "clip" }}
+			>
+				<ServiceLogos shouldAnimate={shouldAnimate} />
 			</div>
 		</section>
 	);
 }
 
-// Service logos row with prompt tooltips
-function ServiceLogos() {
-	const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
-	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+// ---------------------------------------------------------------------------
+// Co-authored by section
+// ---------------------------------------------------------------------------
 
-	const showTooltip = (name: string) => {
-		if (timeoutRef.current) clearTimeout(timeoutRef.current);
-		setActiveTooltip(name);
-	};
-
-	const hideTooltip = () => {
-		timeoutRef.current = setTimeout(() => setActiveTooltip(null), 150);
-	};
-
+function TempoLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
 	return (
-		<div>
-			<div
-				className="flex items-center justify-center gap-4 pb-8 transition-opacity duration-200"
-				style={{ opacity: activeTooltip ? 0 : 1 }}
-			>
-				<div style={{ flex: 1, height: 1, background: "var(--vocs-border-color-secondary)" }} />
-				<span
-					className="text-xs tracking-wide uppercase"
-					style={{ color: "var(--vocs-text-color-muted)", whiteSpace: "nowrap" }}
-				>
-					works with powerful apis
-				</span>
-				<div style={{ flex: 1, height: 1, background: "var(--vocs-border-color-secondary)" }} />
-			</div>
-			<div
-				className="flex items-center justify-center pb-24"
-				style={{ gap: "3rem" }}
-			>
-				{SERVICES.map((service) => (
-					<ServiceLogoWithTooltip
-						key={service.name}
-						service={service}
-						isOpen={activeTooltip === service.name}
-						onShow={() => showTooltip(service.name)}
-						onHide={hideTooltip}
-					/>
-				))}
-			</div>
-		</div>
+		<svg
+			className={className}
+			style={style}
+			viewBox="0 0 830 185"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			role="img"
+			aria-label="Tempo"
+		>
+			<title>Tempo</title>
+			<path
+				d="M61.5297 181.489H12.6398L57.9524 43.1662H0L12.6398 2.62335H174.096L161.456 43.1662H106.604L61.5297 181.489Z"
+				fill="currentColor"
+			/>
+			<path
+				d="M243.464 181.489H127.559L185.75 2.62335H301.178L290.207 36.727H223.192L211.029 75.1235H275.898L264.928 108.75H199.821L187.658 147.385H254.196L243.464 181.489Z"
+				fill="currentColor"
+			/>
+			<path
+				d="M295.923 181.489H257.05L315.479 2.62335H380.348L378.202 99.2107L441.401 2.62335H512.47L454.279 181.489H405.628L444.262 61.2912H443.547L364.131 181.489H335.274L336.466 59.8603H335.989L295.923 181.489Z"
+				fill="currentColor"
+			/>
+			<path
+				d="M567.193 35.7731L548.353 93.487H553.6C565.524 93.487 575.461 90.7046 583.411 85.1399C591.36 79.4162 596.527 71.3077 598.912 60.8142C600.979 51.7517 599.866 45.3126 595.573 41.4968C591.281 37.681 584.126 35.7731 574.109 35.7731H567.193ZM519.973 181.489H471.083L529.274 2.62335H588.657C602.331 2.62335 614.096 4.84923 623.953 9.30099C633.97 13.5938 641.283 19.7944 645.894 27.903C650.664 35.8526 652.254 45.1536 650.664 55.806C648.597 69.7973 643.191 82.1191 634.447 92.7715C625.702 103.424 614.334 111.692 600.343 117.574C586.511 123.298 571.009 126.16 553.838 126.16H537.859L519.973 181.489Z"
+				fill="currentColor"
+			/>
+			<path
+				d="M767.195 170.041C750.977 179.581 733.727 184.351 715.443 184.351H714.966C698.749 184.351 685.076 180.773 673.946 173.619C662.976 166.305 655.106 156.448 650.336 144.046C645.725 131.645 644.612 118.051 646.997 103.265C650.018 84.6629 656.934 67.4919 667.745 51.7517C678.557 36.0116 692.071 23.4512 708.288 14.0707C724.505 4.69025 741.836 0 760.279 0H760.755C777.609 0 791.52 3.57731 802.491 10.7319C813.62 17.8865 821.331 27.6645 825.624 40.0658C830.076 52.3082 831.03 66.061 828.486 81.3241C825.465 99.2902 818.549 116.223 807.737 132.122C796.926 147.862 783.412 160.502 767.195 170.041ZM699.703 139.277C703.995 147.385 711.468 151.439 722.121 151.439H722.597C731.342 151.439 739.451 148.18 746.923 141.661C754.555 134.984 760.994 126.08 766.241 114.951C771.646 103.821 775.621 91.4201 778.165 77.7468C780.55 64.3915 779.596 53.6596 775.303 45.551C771.01 37.2835 763.617 33.1497 753.124 33.1497H752.647C744.538 33.1497 736.668 36.4885 729.037 43.1662C721.564 49.8438 715.045 58.8268 709.481 70.1152C703.916 81.4036 699.862 93.646 697.318 106.842C694.774 120.198 695.569 131.009 699.703 139.277Z"
+				fill="currentColor"
+			/>
+		</svg>
 	);
 }
 
-function ServiceLogoWithTooltip({
+function StripeLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
+	return (
+		<svg
+			className={className}
+			style={style}
+			viewBox="0 0 452 188"
+			xmlns="http://www.w3.org/2000/svg"
+			role="img"
+			aria-label="Stripe"
+			fill="currentColor"
+		>
+			<title>Stripe</title>
+			<path d="M47.2 84.934c-9.733-3.6-15.067-6.4-15.067-10.8 0-3.734 3.067-5.867 8.534-5.867 10 0 20.266 3.867 27.333 7.333l4-24.666c-5.6-2.667-17.067-7.067-32.933-7.067-11.2 0-20.534 2.933-27.2 8.4-6.934 5.733-10.534 14-10.534 24 0 18.133 11.067 25.867 29.067 32.4 11.6 4.133 15.467 7.067 15.467 11.6 0 4.4-3.734 6.933-10.534 6.933-8.4 0-22.266-4.133-31.333-9.466l-4 24.933c7.733 4.4 22.133 8.933 37.067 8.933 11.866 0 21.733-2.8 28.4-8.133C72.933 137.6 76.8 128.934 76.8 117.734c0-18.534-11.333-26.267-29.6-32.8zM141.917 70.4l4-24.533H124.8V16.085l-28.392 4.672-4.1 25.11-9.986 1.62L78.584 70.4h13.683v48.134c0 12.533 3.2 21.2 9.733 26.533 5.467 4.4 13.333 6.533 24.4 6.533 8.533 0 13.733-1.466 17.333-2.4v-26c-2 .534-6.533 1.467-9.6 1.467-6.533 0-9.333-3.333-9.333-10.933V70.4h17.117zm63.416-25.966c-9.333 0-16.8 4.9-19.733 13.7l-2-12.267h-28.933V149.6h33.066V82.267c4.134-5.067 10-6.899 18-6.899 1.734 0 3.6 0 5.867.4V45.234c-2.267-.533-4.267-.8-6.267-.8zm30.934-8.834c9.6 0 17.333-7.866 17.333-17.466C253.6 8.4 245.867.667 236.267.667 226.533.667 218.8 8.4 218.8 18.134c0 9.6 7.733 17.466 17.467 17.466zM219.6 45.867h33.2V149.6h-33.2V45.867zM346.883 55.2c-5.867-7.6-14-11.333-24.4-11.333-9.6 0-18 4-25.867 12.4l-1.733-10.4h-29.067V188l33.067-5.466V149.2c5.066 1.6 10.266 2.4 14.933 2.4 8.267 0 20.267-2.133 29.6-12.266 8.933-9.734 13.467-24.8 13.467-44.667 0-17.6-3.334-30.933-10-39.467zm-27.467 64c-2.667 5.067-6.8 7.734-11.6 7.734-3.333 0-6.267-.667-8.933-2V75.6c5.6-5.866 10.666-6.533 12.533-6.533 8.4 0 12.533 9.067 12.533 26.8 0 10.133-1.466 18-4.533 23.333zm132.267-22.4c0-16.533-3.6-29.6-10.667-38.8-7.2-9.333-18-14.133-31.733-14.133-28.134 0-45.6 20.8-45.6 54.133 0 18.667 4.666 32.667 13.866 41.6 8.267 8 20.134 12 35.467 12 14.133 0 27.2-3.333 35.467-8.8l-3.6-22.666c-8.134 4.4-17.6 6.8-28.267 6.8-6.4 0-10.8-1.334-14-4.134-3.467-2.933-5.467-7.733-6.133-14.533h54.8c.133-1.6.4-9.067.4-11.467zM396.216 88c.933-14.8 4.933-21.733 12.533-21.733 7.467 0 11.334 7.067 11.867 21.733h-24.4z" />
+		</svg>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Header branding — replaces default logo with co-designed Tempo & Stripe
+// ---------------------------------------------------------------------------
+
+// Service logos row — desktop: hover tooltip above; mobile: tap for bottom card
+function ServiceLogos({ shouldAnimate }: { shouldAnimate: boolean }) {
+	const [active, setActive] = useState<string | null>(null);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const isTouchRef = useRef(false);
+
+	useEffect(() => {
+		const onTouch = () => {
+			isTouchRef.current = true;
+		};
+		window.addEventListener("touchstart", onTouch, { once: true });
+		return () => window.removeEventListener("touchstart", onTouch);
+	}, []);
+
+	const showDesktop = (name: string) => {
+		if (isTouchRef.current) return;
+		if (timeoutRef.current) clearTimeout(timeoutRef.current);
+		setActive(name);
+	};
+	const hideDesktop = () => {
+		if (isTouchRef.current) return;
+		timeoutRef.current = setTimeout(() => setActive(null), 150);
+	};
+	const toggleMobile = (name: string) => {
+		if (!isTouchRef.current) return;
+		setActive((prev) => (prev === name ? null : name));
+	};
+	const dismiss = () => setActive(null);
+
+	const baseDelay = 2200;
+	const activeService = SERVICES.find((s) => s.name === active) ?? null;
+
+	return (
+		<>
+			<div className="max-w-2xl mx-auto px-4">
+				<div
+					className="flex items-center justify-center gap-4 pb-8 transition-opacity duration-200"
+					style={{
+						opacity: active ? 0 : 1,
+						...anim(shouldAnimate, baseDelay, 600),
+					}}
+				>
+					<div
+						className="flex-1 h-px"
+						style={{ background: "var(--vocs-border-color-secondary)" }}
+					/>
+					<span
+						className="text-sm shrink-0"
+						style={{ color: "var(--vocs-text-color-muted)" }}
+					>
+						Works instantly with powerful APIs
+					</span>
+					<div
+						className="flex-1 h-px"
+						style={{ background: "var(--vocs-border-color-secondary)" }}
+					/>
+				</div>
+				{/* Desktop: single row; Mobile: wrap (3 + 2) */}
+				<div
+					className="flex flex-wrap items-center justify-center"
+					style={{ gap: "1.5rem 2.5rem" }}
+				>
+					{SERVICES.map((service, i) => (
+						// biome-ignore lint/a11y/noStaticElementInteractions: desktop hover trigger
+						<div
+							key={service.name}
+							className="relative"
+							onMouseEnter={() => showDesktop(service.name)}
+							onMouseLeave={hideDesktop}
+							style={anim(shouldAnimate, baseDelay + 200 + i * 120, 600)}
+						>
+							<ServiceLogoButton
+								service={service}
+								isActive={active === service.name}
+								onTap={() => toggleMobile(service.name)}
+							/>
+							{/* Desktop-only hover tooltip */}
+							<DesktopTooltip
+								service={service}
+								isOpen={active === service.name}
+								onMouseEnter={() => showDesktop(service.name)}
+								onMouseLeave={hideDesktop}
+							/>
+						</div>
+					))}
+				</div>
+			</div>
+			{/* Mobile bottom card overlay */}
+			{activeService && (
+				<MobileServiceCard service={activeService} onDismiss={dismiss} />
+			)}
+		</>
+	);
+}
+
+function ServiceLogoButton({
+	service,
+	isActive,
+	onTap,
+}: {
+	service: (typeof SERVICES)[number];
+	isActive: boolean;
+	onTap: () => void;
+}) {
+	const { accent } = useContext(ActiveAgentContext);
+	const Logo = service.logo;
+	return (
+		<button
+			type="button"
+			onClick={onTap}
+			className="service-logo-item flex flex-col items-center gap-2 cursor-pointer"
+			style={
+				{
+					"--service-accent": accent,
+					color: isActive ? accent : "var(--vocs-text-color-primary)",
+					background: "none",
+					border: "none",
+					padding: 0,
+				} as React.CSSProperties
+			}
+		>
+			<div
+				className="service-logo-icon"
+				style={{ transition: "color 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}
+			>
+				<Logo style={{ width: 36, height: 36 }} />
+			</div>
+			<span
+				className="text-sm"
+				style={{ color: "var(--vocs-text-color-muted)" }}
+			>
+				{service.name}
+			</span>
+		</button>
+	);
+}
+
+function DesktopTooltip({
 	service,
 	isOpen,
-	onShow,
-	onHide,
+	onMouseEnter,
+	onMouseLeave,
 }: {
 	service: (typeof SERVICES)[number];
 	isOpen: boolean;
-	onShow: () => void;
-	onHide: () => void;
+	onMouseEnter: () => void;
+	onMouseLeave: () => void;
 }) {
 	const [copied, setCopied] = useState(false);
-	const Logo = service.logo;
+	const { activeAgent, accent } = useContext(ActiveAgentContext);
+	const agent = AGENT_COMMANDS[activeAgent];
+	const fullPrompt = [agent.bin, agent.args, service.task]
+		.filter(Boolean)
+		.join(" ");
+	const prefix = [agent.bin, agent.args].filter(Boolean).join(" ");
 
 	const handleCopy = () => {
-		navigator.clipboard.writeText(service.prompt);
+		navigator.clipboard.writeText(fullPrompt);
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2000);
 	};
 
-	// Parse the prompt to highlight syntax
-	const renderPrompt = () => {
-		const prompt = service.prompt;
-		// Match: claude -p "..." or codex ...
-		const claudeMatch = prompt.match(/^(claude -p )(".*")$/);
-		if (claudeMatch) {
-			return (
-				<>
-					<span style={{ color: "var(--vocs-color-accent)" }}>
-						{claudeMatch[1]}
-					</span>
-					<span style={{ color: "var(--vocs-text-color-secondary)" }}>
-						{claudeMatch[2]}
-					</span>
-				</>
-			);
-		}
-		const codexMatch = prompt.match(/^(codex )(.*)$/);
-		if (codexMatch) {
-			return (
-				<>
-					<span style={{ color: "var(--vocs-color-accent)" }}>
-						{codexMatch[1]}
-					</span>
-					<span style={{ color: "var(--vocs-text-color-secondary)" }}>
-						{codexMatch[2]}
-					</span>
-				</>
-			);
-		}
-		return prompt;
+	return (
+		<button
+			type="button"
+			onClick={handleCopy}
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave}
+			className="hidden md:flex items-center justify-between gap-3 w-full text-left cursor-pointer"
+			style={{
+				position: "absolute",
+				bottom: "100%",
+				left: "50%",
+				transform: isOpen
+					? "translateX(-50%) translateY(0)"
+					: "translateX(-50%) translateY(4px)",
+				marginBottom: 10,
+				width: 300,
+				padding: "12px 16px",
+				borderRadius: 6,
+				border: "1px solid var(--vocs-border-color-secondary)",
+				background: "var(--vocs-background-color-surface)",
+				zIndex: 100,
+				opacity: isOpen ? 1 : 0,
+				pointerEvents: isOpen ? "auto" : "none",
+				transition: "opacity 0.2s ease, transform 0.2s ease",
+			}}
+		>
+			<span
+				className="text-sm font-mono whitespace-pre-wrap break-words text-left"
+				style={{
+					margin: 0,
+					padding: 0,
+					userSelect: "text",
+					WebkitUserSelect: "text",
+				}}
+			>
+				<span style={{ color: accent }}>{prefix} </span>
+				<span style={{ color: "var(--vocs-text-color-heading)" }}>
+					{service.task}
+				</span>
+			</span>
+			<span
+				className="shrink-0"
+				style={{
+					color: copied ? accent : "var(--vocs-text-color-muted)",
+					transition: "color 0.15s",
+				}}
+			>
+				{copied ? (
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M20 6 9 17l-5-5" />
+					</svg>
+				) : (
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						aria-hidden="true"
+					>
+						<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+						<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+					</svg>
+				)}
+			</span>
+		</button>
+	);
+}
+
+function MobileServiceCard({
+	service,
+	onDismiss,
+}: {
+	service: (typeof SERVICES)[number];
+	onDismiss: () => void;
+}) {
+	const [copied, setCopied] = useState(false);
+	const { activeAgent, accent } = useContext(ActiveAgentContext);
+	const agent = AGENT_COMMANDS[activeAgent];
+	const fullPrompt = [agent.bin, agent.args, service.task]
+		.filter(Boolean)
+		.join(" ");
+	const prefix = [agent.bin, agent.args].filter(Boolean).join(" ");
+
+	const handleCopy = () => {
+		navigator.clipboard.writeText(fullPrompt);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
 	};
 
 	return (
-		// biome-ignore lint/a11y/noStaticElementInteractions: hover tooltip trigger
-		<div className="relative" onMouseEnter={onShow} onMouseLeave={onHide}>
-			<button
-				type="button"
-				onClick={handleCopy}
-				className="service-logo-item flex flex-col items-center gap-2 cursor-pointer"
+		// biome-ignore lint/a11y/useKeyWithClickEvents: dismiss overlay
+		// biome-ignore lint/a11y/noStaticElementInteractions: dismiss overlay
+		<div
+			className="md:hidden fixed inset-0"
+			style={{ zIndex: 9998 }}
+			onClick={onDismiss}
+		>
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: card body */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: card body */}
+			<div
+				className="absolute bottom-0 left-0 right-0 p-4"
+				onClick={(e) => e.stopPropagation()}
 				style={{
-					color: "var(--vocs-text-color-primary)",
-					background: "none",
-					border: "none",
-					padding: 0,
+					paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
 				}}
 			>
 				<div
-					className="service-logo-icon"
 					style={{
-						transition: "color 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+						borderRadius: 12,
+						border: "1px solid var(--vocs-border-color-primary)",
+						background: "light-dark(#fff, oklch(0.22 0 0))",
+						padding: 16,
+						boxShadow: "0 -4px 24px rgba(0,0,0,0.15)",
 					}}
 				>
-					<Logo style={{ width: 36, height: 36 }} />
+					<div
+						className="font-mono text-sm whitespace-pre-wrap break-words mb-4 text-left"
+						style={{ userSelect: "text", WebkitUserSelect: "text" }}
+					>
+						<span style={{ color: accent }}>{prefix} </span>
+						<span style={{ color: "var(--vocs-text-color-heading)" }}>
+							{service.task}
+						</span>
+					</div>
+					<div className="flex gap-2">
+						<a
+							href="/services"
+							className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md no-underline transition-colors"
+							style={{
+								border: "1px solid var(--vocs-border-color-primary)",
+								color: "var(--vocs-text-color-heading)",
+							}}
+							onClick={onDismiss}
+						>
+							View all services
+						</a>
+						<button
+							type="button"
+							onClick={handleCopy}
+							className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors"
+							style={{
+								background: accent,
+								color: "#000",
+							}}
+						>
+							{copied ? "Copied!" : "Copy prompt"}
+						</button>
+					</div>
 				</div>
-				<span
-					className="text-sm"
-					style={{ color: "var(--vocs-text-color-muted)" }}
-				>
-					{service.name}
-				</span>
-			</button>
-			<button
-				type="button"
-				onClick={handleCopy}
-				onMouseEnter={onShow}
-				onMouseLeave={onHide}
-				className="flex items-center justify-between gap-3 w-full text-left cursor-pointer"
-				style={{
-					position: "absolute",
-					bottom: "100%",
-					left: "50%",
-					transform: isOpen
-						? "translateX(-50%) translateY(0)"
-						: "translateX(-50%) translateY(4px)",
-					marginBottom: 10,
-					width: 300,
-					padding: "12px 16px",
-					borderRadius: 6,
-					border: "1px solid var(--vocs-border-color-secondary)",
-					background: "var(--vocs-background-color-surface)",
-					zIndex: 100,
-					opacity: isOpen ? 1 : 0,
-					pointerEvents: isOpen ? "auto" : "none",
-					transition: "opacity 0.2s ease, transform 0.2s ease",
-				}}
-			>
-				<span
-					className="text-sm font-mono whitespace-pre-wrap break-words text-left"
-					style={{
-						margin: 0,
-						padding: 0,
-						userSelect: "text",
-						WebkitUserSelect: "text",
-					}}
-				>
-					{renderPrompt()}
-				</span>
-				<span
-					className="shrink-0"
-					style={{
-						color: copied
-							? "var(--vocs-color-accent)"
-							: "var(--vocs-text-color-muted)",
-						transition: "color 0.15s",
-					}}
-				>
-					{copied ? (
-						<svg
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							aria-hidden="true"
-						>
-							<path d="M20 6 9 17l-5-5" />
-						</svg>
-					) : (
-						<svg
-							width="16"
-							height="16"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							aria-hidden="true"
-						>
-							<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-							<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-						</svg>
-					)}
-				</span>
-			</button>
+			</div>
 		</div>
 	);
 }
@@ -763,68 +1025,22 @@ function ServiceLogoWithTooltip({
 // Shared components
 // ---------------------------------------------------------------------------
 
-function CoAuthoredBy() {
-	return (
-		<div className="flex items-center gap-5 justify-center">
-			<span
-				className="text-xs font-medium tracking-widest uppercase"
-				style={{ color: "var(--vocs-text-color-muted)" }}
-			>
-				Co-designed by
-			</span>
-			<a
-				href="https://tempo.xyz"
-				target="_blank"
-				rel="noopener noreferrer"
-				className="no-underline transition-colors"
-				style={{ color: "var(--vocs-text-color-muted)" }}
-			>
-				<TempoLogo style={{ width: "70px" }} />
-			</a>
-			<a
-				href="https://stripe.com"
-				target="_blank"
-				rel="noopener noreferrer"
-				className="no-underline transition-colors"
-				style={{ color: "var(--vocs-text-color-muted)" }}
-			>
-				<StripeLogo style={{ width: "55px" }} />
-			</a>
-		</div>
-	);
-}
-
-function TempoLogo({ style }: { style?: React.CSSProperties }) {
-	return (
-		<svg style={style} viewBox="0 0 830 185" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tempo">
-			<title>Tempo</title>
-			<path d="M61.5297 181.489H12.6398L57.9524 43.1662H0L12.6398 2.62335H174.096L161.456 43.1662H106.604L61.5297 181.489Z" fill="currentColor" />
-			<path d="M243.464 181.489H127.559L185.75 2.62335H301.178L290.207 36.727H223.192L211.029 75.1235H275.898L264.928 108.75H199.821L187.658 147.385H254.196L243.464 181.489Z" fill="currentColor" />
-			<path d="M295.923 181.489H257.05L315.479 2.62335H380.348L378.202 99.2107L441.401 2.62335H512.47L454.279 181.489H405.628L444.262 61.2912H443.547L364.131 181.489H335.274L336.466 59.8603H335.989L295.923 181.489Z" fill="currentColor" />
-			<path d="M567.193 35.7731L548.353 93.487H553.6C565.524 93.487 575.461 90.7046 583.411 85.1399C591.36 79.4162 596.527 71.3077 598.912 60.8142C600.979 51.7517 599.866 45.3126 595.573 41.4968C591.281 37.681 584.126 35.7731 574.109 35.7731H567.193ZM519.973 181.489H471.083L529.274 2.62335H588.657C602.331 2.62335 614.096 4.84923 623.953 9.30099C633.97 13.5938 641.283 19.7944 645.894 27.903C650.664 35.8526 652.254 45.1536 650.664 55.806C648.597 69.7973 643.191 82.1191 634.447 92.7715C625.702 103.424 614.334 111.692 600.343 117.574C586.511 123.298 571.009 126.16 553.838 126.16H537.859L519.973 181.489Z" fill="currentColor" />
-			<path d="M767.195 170.041C750.977 179.581 733.727 184.351 715.443 184.351H714.966C698.749 184.351 685.076 180.773 673.946 173.619C662.976 166.305 655.106 156.448 650.336 144.046C645.725 131.645 644.612 118.051 646.997 103.265C650.018 84.6629 656.934 67.4919 667.745 51.7517C678.557 36.0116 692.071 23.4512 708.288 14.0707C724.505 4.69025 741.836 0 760.279 0H760.755C777.609 0 791.52 3.57731 802.491 10.7319C813.62 17.8865 821.331 27.6645 825.624 40.0658C830.076 52.3082 831.03 66.061 828.486 81.3241C825.465 99.2902 818.549 116.223 807.737 132.122C796.926 147.862 783.412 160.502 767.195 170.041ZM699.703 139.277C703.995 147.385 711.468 151.439 722.121 151.439H722.597C731.342 151.439 739.451 148.18 746.923 141.661C754.555 134.984 760.994 126.08 766.241 114.951C771.646 103.821 775.621 91.4201 778.165 77.7468C780.55 64.3915 779.596 53.6596 775.303 45.551C771.01 37.2835 763.617 33.1497 753.124 33.1497H752.647C744.538 33.1497 736.668 36.4885 729.037 43.1662C721.564 49.8438 715.045 58.8268 709.481 70.1152C703.916 81.4036 699.862 93.646 697.318 106.842C694.774 120.198 695.569 131.009 699.703 139.277Z" fill="currentColor" />
-		</svg>
-	);
-}
-
-function StripeLogo({ style }: { style?: React.CSSProperties }) {
-	return (
-		<svg style={style} viewBox="0 0 640 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stripe">
-			<title>Stripe</title>
-			<path d="M165 144.7l-43.3 9.2-.2 142.4c0 26.3 19.8 43.3 46.1 43.3 14.6 0 25.3-2.7 31.2-5.9v-33.8c-5.7 2.3-33.7 10.5-33.7-15.7V221h33.7v-37.8h-33.7zm89.1 51.6l-2.7-13.1H213v153.2h44.3V233.3c10.5-13.8 28.2-11.1 33.9-9.3v-40.8c-6-2.1-26.7-6-37.1 13.1zm92.3-72.3l-44.6 9.5v36.2l44.6-9.5zM44.9 228.3c0-6.9 5.8-9.6 15.1-9.7 13.5 0 30.7 4.1 44.2 11.4v-41.8c-14.7-5.8-29.4-8.1-44.1-8.1-36 0-60 18.8-60 50.2 0 49.2 67.5 41.2 67.5 62.4 0 8.2-7.1 10.9-17 10.9-14.7 0-33.7-6.1-48.6-14.2v40c16.5 7.1 33.2 10.1 48.5 10.1 36.9 0 62.3-15.8 62.3-47.8 0-52.9-67.9-43.4-67.9-63.4zM640 261.6c0-45.5-22-81.4-64.2-81.4s-67.9 35.9-67.9 81.1c0 53.5 30.3 78.2 73.5 78.2 21.2 0 37.1-4.8 49.2-11.5v-33.4c-12.1 6.1-26 9.8-43.6 9.8-17.3 0-32.5-6.1-34.5-26.9h86.9c.2-2.3.6-11.6.6-15.9zm-87.9-16.8c0-20 12.3-28.4 23.4-28.4 10.9 0 22.5 8.4 22.5 28.4zm-112.9-64.6c-17.4 0-28.6 8.2-34.8 13.9l-2.3-11H363v204.8l44.4-9.4.1-50.2c6.4 4.7 15.9 11.2 31.4 11.2 31.8 0 60.8-23.2 60.8-79.6.1-51.6-29.3-79.7-60.5-79.7zm-10.6 122.5c-10.4 0-16.6-3.8-20.9-8.4l-.3-66c4.6-5.1 11-8.8 21.2-8.8 16.2 0 27.4 18.2 27.4 41.4.1 23.9-10.9 41.8-27.4 41.8zm-126.7 33.7h44.6V183.2h-44.6z" fill="currentColor" />
-		</svg>
-	);
-}
-
 function CTAButtons() {
 	const [hovered, setHovered] = useState<"primary" | "secondary" | null>(null);
+	const { accent, isMonochrome } = useContext(ActiveAgentContext);
 	return (
 		<div className="flex flex-col items-center gap-2">
 			<div className="flex flex-wrap gap-3">
 				<Link
 					to="/setup/agents"
-					className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-sm font-medium rounded-md hover:opacity-90 transition-opacity no-underline!"
-					style={{ color: "var(--accent-button-text)" }}
+					className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150"
+					style={{
+						backgroundColor: isMonochrome
+							? "var(--vocs-text-color-heading)"
+							: accent,
+						color: "#000",
+						opacity: hovered === "primary" ? 0.85 : 1,
+					}}
 					onMouseEnter={() => setHovered("primary")}
 					onMouseLeave={() => setHovered(null)}
 				>
@@ -832,11 +1048,15 @@ function CTAButtons() {
 				</Link>
 				<Link
 					to="/specs"
-					className="cta-secondary inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md transition-colors no-underline"
+					className="cta-secondary inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md no-underline transition-all duration-150"
 					style={{
-						borderColor: "var(--vocs-border-color-secondary)",
-						backgroundColor: "var(--vocs-background-color-surface)",
-						color: "var(--vocs-text-color-primary)",
+						borderColor: "var(--vocs-border-color-primary)",
+						backgroundColor:
+							"light-dark(var(--vocs-background-color-surface), oklch(0.28 0 0))",
+						color:
+							hovered === "secondary"
+								? accent
+								: "var(--vocs-text-color-heading)",
 					}}
 					onMouseEnter={() => setHovered("secondary")}
 					onMouseLeave={() => setHovered(null)}
@@ -861,7 +1081,11 @@ function CTAButtons() {
 }
 
 function AgentTabsWrapped() {
-	const [active, setActive] = useState(0);
+	const {
+		activeAgent: active,
+		setActiveAgent: setActive,
+		accent,
+	} = useContext(ActiveAgentContext);
 	const [copied, setCopied] = useState(false);
 	const prompt = `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed. Available services: https://payments.tempo.xyz/llms.txt and https://payments.tempo.xyz/services"`;
 	const displayPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
@@ -880,7 +1104,7 @@ function AgentTabsWrapped() {
 			args: "--full-auto",
 			str: prompt,
 			displayStr: displayPrompt,
-			icon: CodexLogoSmall,
+			icon: OpenAILogoSmall,
 		},
 		{
 			label: "Amp",
@@ -903,13 +1127,18 @@ function AgentTabsWrapped() {
 	return (
 		<div
 			className="w-full max-w-xl rounded-md overflow-hidden text-left"
-			style={{ border: "1px solid var(--vocs-border-color-secondary)" }}
+			style={{
+				border: "1px solid var(--vocs-border-color-primary)",
+				boxShadow:
+					"light-dark(0 0 40px rgba(0,0,0,0.04), 0 0 40px rgba(255,255,255,0.03)), 0 1px 3px light-dark(rgba(0,0,0,0.08), rgba(0,0,0,0.2))",
+			}}
 		>
 			<div
 				className="flex"
 				style={{
-					background: "var(--vocs-background-color-surfaceMuted)",
-					borderBottom: "1px solid var(--vocs-border-color-secondary)",
+					background:
+						"light-dark(var(--vocs-background-color-surfaceMuted), oklch(0.22 0 0))",
+					borderBottom: "1px solid var(--vocs-border-color-primary)",
 				}}
 			>
 				{commands.map((a, i) => {
@@ -921,23 +1150,15 @@ function AgentTabsWrapped() {
 							onClick={() => setActive(i)}
 							className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer"
 							style={{
-								color:
-									i === active
-										? "var(--vocs-text-color-heading)"
-										: "var(--vocs-text-color-muted)",
+								color: i === active ? accent : "var(--vocs-text-color-muted)",
 								background:
 									i === active
 										? "var(--vocs-background-color-surface)"
 										: "transparent",
-								borderBottom:
-									i === active
-										? "2px solid var(--vocs-text-color-heading)"
-										: "none",
 								borderRight:
 									i < commands.length - 1
 										? "1px solid var(--vocs-border-color-secondary)"
 										: "none",
-								marginBottom: i === active ? "-1px" : "0",
 							}}
 						>
 							<Icon className="w-4.5 h-4.5" />
@@ -950,36 +1171,37 @@ function AgentTabsWrapped() {
 				type="button"
 				onClick={handleCopy}
 				className="px-4 py-3 flex items-center justify-between gap-3 w-full text-left cursor-pointer transition-colors"
-				style={{ background: "var(--vocs-background-color-surface)" }}
+				style={{
+					color: "var(--vocs-background-color-surface)",
+				}}
 			>
-				<div
-					className="font-mono text-left"
+				<span
+					className="font-mono whitespace-pre-wrap break-words text-left"
 					style={{
-						fontSize: 14,
+						fontSize: 15,
 						margin: 0,
 						padding: 0,
 						userSelect: "text",
 						WebkitUserSelect: "text",
-						display: "grid",
-						gridTemplateColumns: "auto 1fr",
-						gap: "0 0.5em",
 					}}
 				>
-					<span style={{ whiteSpace: "nowrap" }}>
-						<span style={{ color: "var(--vocs-text-color-muted)" }}>$</span>
-						<span style={{ color: "var(--vocs-text-color-primary)" }}>
-							{" "}{cmd.bin}
-						</span>
-						{cmd.args && (
-							<span style={{ color: "var(--vocs-text-color-secondary)" }}>
-								{" "}{cmd.args}
-							</span>
-						)}
+					<span style={{ color: "var(--vocs-text-color-muted)", opacity: 0.4 }}>
+						$
 					</span>
-					<span style={{ color: "var(--vocs-color-success)", wordBreak: "break-word" }}>
+					<span style={{ color: accent }}> {cmd.bin}</span>
+					{cmd.args && (
+						<span
+							style={{ color: "var(--vocs-text-color-heading)", opacity: 0.6 }}
+						>
+							{" "}
+							{cmd.args}
+						</span>
+					)}
+					<span style={{ color: "var(--vocs-text-color-heading)" }}>
+						{" "}
 						{cmd.displayStr}
 					</span>
-				</div>
+				</span>
 				<span
 					className="hover:text-accent transition-colors shrink-0"
 					style={{ color: "var(--vocs-text-color-muted)" }}

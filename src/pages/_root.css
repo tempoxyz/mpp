@@ -18,33 +18,79 @@
 }
 
 @font-face {
-	font-family: "HB Set";
-	src: url("/fonts/HBSetv0.96-Light.woff2") format("woff2");
+	font-family: "Berkeley Mono";
+	src: url("/fonts/BerkeleyMono-Bold.woff2") format("woff2");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Pilat";
+	src:
+		url("/fonts/Pilat-Light.woff2") format("woff2"),
+		url("/fonts/Pilat-Light.woff") format("woff");
 	font-weight: 300;
 	font-style: normal;
 	font-display: swap;
 }
 
 @font-face {
-	font-family: "HB Set";
-	src: url("/fonts/HBSetv0.96-Regular2.woff2") format("woff2");
+	font-family: "Pilat";
+	src:
+		url("/fonts/Pilat-Regular.woff2") format("woff2"),
+		url("/fonts/Pilat-Regular.woff") format("woff");
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
 }
 
 @font-face {
-	font-family: "HB Set";
-	src: url("/fonts/HBSetv0.96-Medium.woff2") format("woff2");
+	font-family: "Pilat";
+	src:
+		url("/fonts/Pilat-Book.woff2") format("woff2"),
+		url("/fonts/Pilat-Book.woff") format("woff");
+	font-weight: 450;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Pilat";
+	src:
+		url("/fonts/Pilat-Demi.woff2") format("woff2"),
+		url("/fonts/Pilat-Demi.woff") format("woff");
 	font-weight: 500;
 	font-style: normal;
 	font-display: swap;
 }
 
 @font-face {
-	font-family: "Berkeley Mono";
-	src: url("/fonts/BerkeleyMono-Bold.woff2") format("woff2");
+	font-family: "Pilat";
+	src:
+		url("/fonts/Pilat-Bold.woff2") format("woff2"),
+		url("/fonts/Pilat-Bold.woff") format("woff");
 	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Pilat";
+	src:
+		url("/fonts/Pilat-Heavy.woff2") format("woff2"),
+		url("/fonts/Pilat-Heavy.woff") format("woff");
+	font-weight: 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Pilat";
+	src:
+		url("/fonts/Pilat-Black.woff2") format("woff2"),
+		url("/fonts/Pilat-Black.woff") format("woff");
+	font-weight: 900;
 	font-style: normal;
 	font-display: swap;
 }
@@ -56,30 +102,10 @@
 @source "../";
 
 /*
- * Fix header logo flash: Vocs toggles logo via JS-set inline `color-scheme`,
- * but there's a brief window before the blocking script runs where the wrong
- * logo can flash. These media-query rules kick in before any JS.
- *
- * Config mapping:
- *   logoUrl.light → /mpp-logo-dark.svg  (dark fill, for light backgrounds)
- *   logoUrl.dark  → /mpp-logo-light.svg (white fill, for dark backgrounds)
+ * Logo visibility is handled by Vocs via vocs:dark:hidden / vocs:dark:block
+ * classes which react to the inline color-scheme set by the blocking script
+ * in Head.tsx. No manual overrides needed.
  */
-@media (prefers-color-scheme: dark) {
-	[data-v-logo] [data-v-logo-image][src$="dark.svg"] {
-		display: none !important;
-	}
-	[data-v-logo] [data-v-logo-image][src$="light.svg"] {
-		display: block !important;
-	}
-}
-@media (prefers-color-scheme: light) {
-	[data-v-logo] [data-v-logo-image][src$="light.svg"] {
-		display: none !important;
-	}
-	[data-v-logo] [data-v-logo-image][src$="dark.svg"] {
-		display: block !important;
-	}
-}
 
 /* Custom utility for muted text */
 .text-muted {
@@ -109,7 +135,8 @@
 }
 
 [data-v-gutter-top] nav a:hover {
-	text-decoration: underline;
+	text-decoration: none !important;
+	color: var(--vocs-text-color-heading) !important;
 }
 
 /* More spacing between top nav links */
@@ -159,11 +186,11 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 	-webkit-text-fill-color: #fff !important;
 }
 
-/* Sidebar section headings - bolder */
+/* Sidebar section headings */
 [data-v-sidebar] [data-v-sidebar-group] > span,
 [data-v-sidebar] [class*="font-medium"],
 [data-v-sidebar] > div > span {
-	font-weight: 600 !important;
+	font-weight: 500 !important;
 }
 
 /* Spacing between sidebar sections */
@@ -176,10 +203,13 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 	margin-bottom: 0 !important;
 }
 
+/* Add bottom padding to sidebar so items don't sit flush against viewport edge */
+[data-v-sidebar] {
+	padding-bottom: 4rem !important;
+}
+
 /* TOC active item - translucent accent bg with accent text */
-[data-v-outline-items] a[data-active="true"],
-[data-v-outline-items] a[data-active="true"] *,
-[data-v-outline-items] a[data-active="true"] span {
+[data-v-outline-items] a[data-active="true"] {
 	background-color: oklch(
 		from var(--vocs-color-accent) l c h /
 		0.08
@@ -189,8 +219,14 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 	border-radius: 4px;
 }
 
-[data-v-outline-items] a[data-active="true"] span {
+[data-v-outline-items] a[data-active="true"] *,
+[data-v-outline-items] a[data-active="true"] span,
+[data-v-outline-items] a[data-active="true"] div {
+	color: var(--vocs-color-accent) !important;
+	-webkit-text-fill-color: var(--vocs-color-accent) !important;
 	background-color: transparent !important;
+	opacity: 1 !important;
+	visibility: visible !important;
 }
 
 [data-v-outline-indicator] {
@@ -224,12 +260,12 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 	}
 }
 
-/* Berkeley Mono as primary monospace + body font */
+/* Pilat + Berkeley Mono as primary font stack */
 :root {
 	/* Enable system theme detection */
 	color-scheme: light dark;
 
-	/* Accent button text - always white since accent bg is always blue */
+	/* Accent button text - always white since accent bg is near-black */
 	--accent-button-text: white;
 
 	/* Lighter inline code background for better visibility */
@@ -238,14 +274,18 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 		var(--vocs-color-gray7)
 	);
 
+	--font-pilat:
+		"Pilat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+		Arial, sans-serif;
+
 	--font-mono:
 		"Geist Pixel Square", "Berkeley Mono", "Commit Mono", ui-monospace,
 		SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
 	--vocs-leading-code: 1.6em;
 	--vocs-spacing-code-block-px: 1rem;
-	--vocs-tracking-tight: -0.03em;
-	--vocs-tracking-normal: -0.01em;
+	--vocs-tracking-tight: 0em;
+	--vocs-tracking-normal: 0.01em;
 
 	letter-spacing: var(--vocs-tracking-normal);
 }
@@ -256,20 +296,27 @@ aside,
 }
 
 h1 {
-	letter-spacing: -0.06em;
-	font-weight: 800;
+	letter-spacing: -0.02em;
+	font-weight: 500;
 	margin-bottom: 0.8rem !important;
 }
 
 h2 {
-	font-weight: 700;
+	font-weight: 450;
+}
+
+h3,
+h4,
+h5,
+h6 {
+	font-weight: 450;
 }
 
 body,
 [data-v-content],
 [data-layout] {
-	font-family: var(--font-mono);
-	font-weight: 500;
+	font-family: var(--font-pilat);
+	font-weight: 400;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
@@ -348,9 +395,9 @@ pre[data-v] {
 	margin-top: 0.5rem;
 }
 
-/* Service logo hover — icon turns accent orange */
+/* Service logo hover — icon turns accent color (set via --accent inline) */
 .service-logo-item:hover .service-logo-icon {
-	color: var(--vocs-color-accent) !important;
+	color: var(--service-accent, var(--vocs-text-color-heading)) !important;
 }
 
 /* No underline on cards, buttons, and interactive elements */
@@ -447,12 +494,23 @@ article hr {
 	z-index: 50 !important;
 }
 
+/* Force mobile nav / header / root background to match primary background.
+   Vocs applies vocs:max-md:bg-surface on :root which switches mobile to a
+   different surface color. Override it everywhere. */
+:root,
+[data-v-gutter-top],
+[data-v-header],
+header {
+	background: var(--vocs-background-color-primary) !important;
+	background-color: var(--vocs-background-color-primary) !important;
+}
+
 /* Clip main so article content never renders above the header area */
 [data-v-main] {
 	overflow: clip;
 }
 
-/* Callouts — use accent (orange) color scheme */
+/* Callouts — use accent color scheme */
 aside[data-v-callout] {
 	--color-tip: var(--vocs-color-accent) !important;
 	--color-tip-tint: oklch(
@@ -489,33 +547,16 @@ aside[data-v-callout] a:hover {
 	text-decoration: underline !important;
 }
 
-/* Move Ask AI spotlight to right gutter area, out of content flow */
-[data-v-spotlight],
-[data-v-spotlight-trigger],
-[data-v-search],
-[data-v-search-trigger],
-[class*="Spotlight"],
-[class*="spotlight"],
-[class*="SearchTrigger"],
-[class*="search-trigger"] {
-	position: fixed !important;
-	bottom: 1.5rem !important;
-	right: 1.5rem !important;
-	top: auto !important;
+/* Move Ask AI to bottom-right corner instead of centered over content */
+[data-v-ask-ai-container] {
 	left: auto !important;
-	z-index: 40 !important;
+	right: 1.5rem !important;
+	bottom: 1.5rem !important;
+	transform: none !important;
 }
 
-/* On larger screens, align with the outline/TOC column */
 @media (min-width: 1280px) {
-	[data-v-spotlight],
-	[data-v-spotlight-trigger],
-	[data-v-search],
-	[data-v-search-trigger],
-	[class*="Spotlight"],
-	[class*="spotlight"],
-	[class*="SearchTrigger"],
-	[class*="search-trigger"] {
+	[data-v-ask-ai-container] {
 		right: 2rem !important;
 		bottom: 2rem !important;
 	}
