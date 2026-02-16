@@ -63,7 +63,7 @@ function parseXml(file: string): Spec {
 const specs = xmlFiles.map(parseXml);
 
 const categories: [string, (b: string) => boolean, string | null][] = [
-	["Core", (b) => b.startsWith("draft-httpauth-"), null],
+	["Core", (b) => b.startsWith("draft-httpauth-") || b.startsWith("draft-ryan-httpauth-"), null],
 	["Intents", (b) => b.startsWith("draft-payment-intent"), null],
 	["Tempo", (b) => b.startsWith("draft-tempo-"), "Payment Methods"],
 	["Stripe", (b) => b.startsWith("draft-stripe-"), "Payment Methods"],
