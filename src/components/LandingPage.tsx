@@ -73,7 +73,11 @@ export function LandingPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/quickstart"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0166FF] text-white! text-sm font-medium rounded-md hover:bg-[#0052CC] transition-colors no-underline!"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-white! text-sm font-medium rounded-md transition-colors no-underline!"
+                style={{
+                  backgroundColor:
+                    "light-dark(var(--vocs-color-accent), var(--vocs-color-accent8))",
+                }}
               >
                 Get started
                 <svg
@@ -122,13 +126,13 @@ export function LandingPage() {
         <div className="flex items-center gap-4">
           <a
             href="https://github.com/tempoxyz/payment-auth-spec"
-            className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
+            className="text-gray-400 no-underline hover:underline transition-colors landing-footer-link"
           >
             GitHub
           </a>
           <a
             href="https://x.com/mpp"
-            className="text-gray-400 no-underline hover:text-[#0166ff] hover:underline transition-colors"
+            className="text-gray-400 no-underline hover:underline transition-colors landing-footer-link"
           >
             X
           </a>

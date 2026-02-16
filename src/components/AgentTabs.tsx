@@ -17,7 +17,11 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className="text-[#0166FF] hover:text-[#0052CC] transition-colors shrink-0"
+      className="transition-colors shrink-0"
+      style={{
+        color:
+          "light-dark(var(--vocs-color-accent), var(--vocs-color-accent8))",
+      }}
       aria-label="Copy to clipboard"
     >
       {copied ? (

@@ -47,28 +47,31 @@
 }
 
 [data-v-gutter-top] nav a:hover {
-  color: #0166ff;
+  color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
   text-decoration: underline;
 }
 
 [data-v-sidebar] a:hover,
 [data-v-outline-items] a:hover,
 [data-v-content] a:hover {
-  color: #0166ff;
+  color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
   text-decoration: underline;
 }
 
 [data-v-sidebar] [data-v-sidebar-item][data-active="true"] {
-  background-color: #0166ff !important;
-  color: #ffffff !important;
-  --vocs-color-accent8: #ffffff;
-  --color-accent8: #ffffff;
+  background-color: light-dark(#000000, #ffffff) !important;
+  color: light-dark(#ffffff, #000000) !important;
+  --vocs-color-accent8: light-dark(#ffffff, #000000);
+  --color-accent8: light-dark(#ffffff, #000000);
 }
 
 [data-v-outline-items] a[data-active="true"],
 [data-v-outline-items] a[data-active="true"] * {
   background-color: transparent !important;
-  color: #0166ff !important;
+  color: light-dark(
+    var(--vocs-color-accent),
+    var(--vocs-color-accent8)
+  ) !important;
 }
 
 [data-v-outline-indicator] {
@@ -155,47 +158,49 @@ pre[data-v] {
 
 /* Force mermaid diagrams to black and white */
 [data-v-mermaid] .note {
-  fill: #ffffff !important;
-  stroke: #000000 !important;
+  fill: light-dark(#ffffff, #1a1a1a) !important;
+  stroke: light-dark(#000000, #ffffff) !important;
 }
 
 [data-v-mermaid] .noteText {
-  fill: #000000 !important;
+  fill: light-dark(#000000, #ffffff) !important;
 }
 
 [data-v-mermaid] .messageText {
-  fill: #000000 !important;
+  fill: light-dark(#000000, #ffffff) !important;
 }
 
 [data-v-mermaid] .messageLine0,
 [data-v-mermaid] .messageLine1 {
-  stroke: #000000 !important;
+  stroke: light-dark(#000000, #ffffff) !important;
 }
 
-[data-v-mermaid] text.actor {
-  fill: #000000 !important;
+[data-v-mermaid] text,
+[data-v-mermaid] tspan {
+  fill: light-dark(#000000, #ffffff) !important;
 }
 
-[data-v-mermaid] rect.actor {
-  fill: #ffffff !important;
-  stroke: #000000 !important;
+[data-v-mermaid] rect.actor,
+[data-v-mermaid] .actor-bottom {
+  fill: light-dark(#ffffff, #1a1a1a) !important;
+  stroke: light-dark(#000000, #ffffff) !important;
 }
 
 [data-v-mermaid] .actor-line {
-  stroke: #000000 !important;
+  stroke: light-dark(#000000, #ffffff) !important;
 }
 
 [data-v-mermaid] #arrowhead path {
-  fill: #000000 !important;
-  stroke: #000000 !important;
+  fill: light-dark(#000000, #ffffff) !important;
+  stroke: light-dark(#000000, #ffffff) !important;
 }
 
 [data-v-mermaid] .loopLine {
-  stroke: #000000 !important;
+  stroke: light-dark(#000000, #ffffff) !important;
 }
 
 [data-v-mermaid] .loopText {
-  fill: #000000 !important;
+  fill: light-dark(#000000, #ffffff) !important;
 }
 
 [data-v-footer] a,
@@ -205,6 +210,10 @@ pre[data-v] {
 
 [data-v-footer] a:hover,
 [data-v-socials] a:hover {
-  color: #0166ff;
+  color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
   text-decoration: underline;
+}
+
+.landing-footer-link:hover {
+  color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
 }
