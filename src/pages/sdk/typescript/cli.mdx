@@ -1,0 +1,57 @@
+# CLI Reference [Built-in command-line tool for paid HTTP requests]
+
+The `mppx` package includes a basic CLI for making HTTP requests with automatic payment handling.
+
+## Usage
+
+The `mppx` CLI is bundled with the package so no need to install anything separately.
+
+:::code-group
+```bash [npm]
+$ npx mppx example.com
+```
+```bash [pnpm]
+$ pnpm mppx example.com
+```
+```bash [bun]
+$ bun mppx example
+```
+:::
+
+### Global Install
+
+If you want to use `mppx` CLI outside of your project, you can install globally.
+
+:::code-group
+```bash [npm]
+$ npm install -g mppx
+$ mppx example.com
+```
+```bash [pnpm]
+$ pnpm add -g mppx
+$ mppx example.com
+```
+```bash [bun]
+$ bun add -g mppx
+$ mppx example.com
+```
+:::
+
+## Commands & Options
+
+:::terminal
+```bash
+$ mppx --help
+```
+```txt
+// [!include ~/snippets/cli-help.txt]
+```
+:::
+
+## Environment variables
+
+| Variable | Description |
+|----------|-------------|
+| `MPPX_ACCOUNT` | Default account name |
+| `MPPX_PRIVATE_KEY` | Use a private key directly instead of the keychain |
+| `MPPX_RPC_URL` | Default RPC endpoint |

@@ -1079,7 +1079,15 @@ export function Startup() {
         <AsciiLogo morph={false} color="var(--vocs-color-gray10)" />
       </div>
       <Line variant="info">
-        mpp.sh@{__COMMIT_SHA__} (released {timeAgo(__COMMIT_TIMESTAMP__)})
+        mpp.dev@
+        <a
+          href={`https://github.com/tempoxyz/mpp/commit/${__COMMIT_SHA__}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {__COMMIT_SHA__}
+        </a>{" "}
+        (released {timeAgo(__COMMIT_TIMESTAMP__)})
       </Line>
     </Block>
   );

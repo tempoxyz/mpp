@@ -145,6 +145,11 @@ async function buildDiagrams() {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   }
 
+  if (!fs.existsSync(DIAGRAMS_DIR)) {
+    console.log("No diagrams/ directory found, skipping.");
+    return;
+  }
+
   // Find all .mmd files
   const files = fs.readdirSync(DIAGRAMS_DIR).filter((f) => f.endsWith(".mmd"));
 

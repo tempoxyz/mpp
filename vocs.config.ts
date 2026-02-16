@@ -398,6 +398,7 @@ export default defineConfig({
                   { text: "Expires", link: "/sdk/typescript/core/Expires" },
                 ],
               },
+              { text: "CLI Reference", link: "/sdk/typescript/cli" },
             ],
           },
           {

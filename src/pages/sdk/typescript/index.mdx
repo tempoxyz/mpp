@@ -155,11 +155,11 @@ The Fetch API is compatible with most server frameworks, including:
 - other Fetch API-compatible frameworks
 
 ```ts twoslash [charge-handler.ts]
-import { Mppx, tempo } from 'mppx/server' // [!code collapse:8 collapsed]
+import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({ methods: [tempo.charge()] })
 
-export async function handler(request: Request) { 
+export async function handler(request: Request) {  // [!code focus:16]
   const response = await mppx.charge({ 
     amount: '0.1', 
     currency: '0x20c0000000000000000000000000000000000000', 
@@ -228,6 +228,46 @@ app.get('/resource', async (c) => { // [!code focus:99]
   return r.withReceipt(c.json({ data: '...' }))
 })
 ```
+
+::::
+
+### CLI
+
+The `mppx` package install automatically includes a [CLI tool](/sdk/typescript/cli) you can use to make the same request from the command line.
+
+::::steps
+
+#### Create an account
+
+Create a Tempo account to sign payments. The account is auto-funded on testnet and key is stored in your system keychain.
+
+:::code-group
+```bash [npm]
+$ npx mppx account create
+```
+```bash [pnpm]
+$ pnpm mppx account create
+```
+```bash [bun]
+$ bun mppx account create
+```
+:::
+
+#### Make a paid request
+
+Run the CLI with a URL to make a paid request. Payment is handled automatically when the server returns `402`.
+
+:::code-group
+```bash [npm]
+$ npx mppx https://mpp.dev/api/ping/paid
+```
+```bash [pnpm]
+$ pnpm mppx https://mpp.dev/api/ping/paid
+```
+```bash [bun]
+$ bun mppx https://mpp.dev/api/ping/paid
+```
+:::
 
 ::::
 

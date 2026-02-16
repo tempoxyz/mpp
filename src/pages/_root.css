@@ -217,3 +217,7 @@ pre[data-v] {
 .landing-footer-link:hover {
   color: light-dark(var(--vocs-color-accent), var(--vocs-color-accent8));
 }
+
+[data-v-content] table tr:last-child td {
+  border-bottom: none;
+}
