@@ -841,7 +841,7 @@ export function Tabs({ className }: Tabs.Props) {
       >
         Network
         {requests.length > 0 && (
-          <span className="bg-gray12 text-primary rounded-full px-1.5 py-px text-[10px] leading-tight tabular-nums">
+          <span className="bg-[var(--text-color-muted)] text-primary rounded-full px-1.5 py-px text-[10px] leading-tight tabular-nums">
             {requests.length}
           </span>
         )}
@@ -920,7 +920,7 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
             return (
               <div
                 key={request.id}
-                className="flex items-center border-b border-primary/50 px-3 py-1.5 hover:bg-gray13 transition-colors"
+                className="flex items-center border-b border-primary/50 px-3 py-1.5 hover:bg-surfaceTint transition-colors"
               >
                 <div className="min-w-0 basis-0 grow-4 flex items-center gap-2">
                   {request.status === "pending" ? (

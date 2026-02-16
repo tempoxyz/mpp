@@ -129,8 +129,8 @@ export function AgentTabs() {
   const cmd = AGENT_COMMANDS[active];
 
   return (
-    <div className="max-w-xl border border-gray-200 rounded-md overflow-hidden">
-      <div className="flex bg-gray-50 border-b border-gray-200">
+    <div className="max-w-xl rounded-md overflow-hidden border border-primary">
+      <div className="flex bg-surfaceMuted border-b border-primary">
         {AGENT_COMMANDS.map((a, i) => {
           const Icon = a.icon;
           return (
@@ -140,8 +140,8 @@ export function AgentTabs() {
               onClick={() => setActive(i)}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
                 i === active
-                  ? "text-gray-900 bg-white border-b-2 border-gray-900 -mb-px"
-                  : "text-gray-400 hover:text-gray-600"
+                  ? "text-heading bg-surface border-b-2 border-[var(--text-color-heading)] -mb-px"
+                  : "text-muted"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -150,13 +150,13 @@ export function AgentTabs() {
           );
         })}
       </div>
-      <div className="flex items-center gap-3 bg-white px-4 py-3">
+      <div className="flex items-center gap-3 px-4 py-3 bg-surface">
         <pre className="text-sm select-none flex-1 truncate m-0 p-0 bg-transparent font-mono">
-          <code>
-            <span className="text-gray-400">$ </span>
-            <span className="text-gray-800">{cmd.bin}</span>
-            {cmd.args && <span className="text-gray-500"> {cmd.args}</span>}
-            <span className="text-green-700"> {cmd.str}</span>
+          <code className="pl-0">
+            <span className="text-muted">$ </span>
+            <span className="text-primary">{cmd.bin}</span>
+            {cmd.args && <span className="text-secondary"> {cmd.args}</span>}
+            <span className="text-green"> {cmd.str}</span>
           </code>
         </pre>
         <CopyButton

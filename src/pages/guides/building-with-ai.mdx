@@ -7,11 +7,11 @@ import { Card, Cards } from 'vocs'
 
 # Building with AI [Give your agent MPP context]
 
-Point your coding agent at <a href="/llms-full.txt" target="_self">`llms-full.txt`</a>—a single file containing the complete documentation.
+Point your coding agent at <a href="/llms-full.txt" target="_self">`llms-full.txt`</a>, a single file containing the complete documentation.
 
 ## Get started
 
-Copy this URL and paste it into your agent (Claude Code, Cursor, Amp, or similar):
+Copy this URL and paste it into your agent (Claude Code, Codex, Amp, or similar):
 
 ```
 https://mpp.tempo.xyz/llms-full.txt
@@ -39,6 +39,15 @@ npx skills install wevm/mppx -g
 ```
 
 After installing, your agent knows how to integrate `mppx` with your chosen framework.
+
+### llms.txt
+
+The docs automatically generate [`llms.txt`](https://llmstxt.org) files for LLM consumption:
+
+- <a href="/llms.txt" target="_self">`llms.txt`</a> – A concise index of all pages with titles and descriptions
+- <a href="/llms-full.txt" target="_self">`llms-full.txt`</a> – Complete documentation content in a single file
+
+These files are generated at build time and served at the root of the site.
 
 ### MCP server
 

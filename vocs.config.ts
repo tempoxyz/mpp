@@ -41,6 +41,10 @@ export default defineConfig({
   description:
     "Machine Payments Protocol - Machine-native payments for machine-to-machine transactions",
   checkDeadlinks: "warn",
+  editLink: {
+    link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",
+    text: "Suggest changes to this page",
+  },
   iconUrl: "/favicon-dollar.svg",
   logoUrl: {
     light: "/mpp-logo-light.png",

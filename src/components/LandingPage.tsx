@@ -13,9 +13,8 @@ import * as Cli from "./Cli";
 export function LandingPage() {
   return (
     <div
-      className="not-prose"
+      className="not-prose text-primary"
       style={{
-        color: "#111",
         fontFamily:
           '"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
       }}
@@ -29,13 +28,13 @@ export function LandingPage() {
               <AsciiLogo morph={false} color="#9ca3af" />
             </div>
             {/* Title */}
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black leading-[1.1] tracking-tight">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight text-heading">
               The Machine Payments Protocol
             </h1>
 
             {/* Description */}
             <div className="space-y-1.5 max-w-xl">
-              <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+              <p className="text-sm md:text-base leading-relaxed text-muted">
                 Accept payments from humans, software, or AI agents using
                 standard HTTP. No billing accounts or manual signup required.
               </p>
@@ -43,7 +42,7 @@ export function LandingPage() {
 
             {/* Co-authored by */}
             <div className="flex items-center gap-5">
-              <span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
+              <span className="text-xs font-medium tracking-widest uppercase text-muted">
                 Co-authored by
               </span>
               <div className="flex items-center gap-5">
@@ -51,7 +50,7 @@ export function LandingPage() {
                   href="https://tempo.xyz"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="no-underline text-gray-400 hover:text-gray-600 transition-colors"
+                  className="no-underline transition-colors text-muted"
                 >
                   <TempoLogo style={{ width: "70px" }} />
                 </a>
@@ -59,7 +58,7 @@ export function LandingPage() {
                   href="https://stripe.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="no-underline text-gray-400 hover:text-[#635BFF] transition-colors"
+                  className="no-underline transition-colors text-muted"
                 >
                   <StripeLogo style={{ width: "55px" }} />
                 </a>
@@ -73,11 +72,7 @@ export function LandingPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/quickstart"
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-white! text-sm font-medium rounded-md transition-colors no-underline!"
-                style={{
-                  backgroundColor:
-                    "light-dark(var(--vocs-color-accent), var(--vocs-color-accent8))",
-                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md transition-colors no-underline! hover:underline bg-[var(--text-color-heading)] text-[var(--background-color-primary)] hover:text-[var(--background-color-primary)]!"
               >
                 Get started
                 <svg
@@ -96,7 +91,7 @@ export function LandingPage() {
               </Link>
               <Link
                 to="/specs"
-                className="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors no-underline"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md transition-colors no-underline border border-primary text-secondary"
               >
                 Read the specs
               </Link>
@@ -121,18 +116,18 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <div className="border-t border-gray-100" />
-      <footer className="px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+      <div className="border-t border-secondary" />
+      <footer className="px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
         <div className="flex items-center gap-4">
           <a
             href="https://github.com/tempoxyz/payment-auth-spec"
-            className="text-gray-400 no-underline hover:underline transition-colors landing-footer-link"
+            className="text-muted no-underline hover:underline transition-colors landing-footer-link"
           >
             GitHub
           </a>
           <a
             href="https://x.com/mpp"
-            className="text-gray-400 no-underline hover:underline transition-colors landing-footer-link"
+            className="text-muted no-underline hover:underline transition-colors landing-footer-link"
           >
             X
           </a>
