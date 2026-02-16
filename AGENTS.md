@@ -247,7 +247,7 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 8. **Bash terminal blocks** - Use ` ```bash [test.sh] ` with `$` prefixes for shell commands
 9. **TypeScript twoslash** - Always use ` ```ts twoslash ` for TypeScript code blocks, never bare ` ```ts `
 10. **Spec link Cards** - When linking to specs, use title `"Protocol spec"` and description `"See the normative definition"`
-11. **Plural "specifications"** - Use "specifications" (plural) when referring to multiple specs collectively
+11. **"IETF Specs"** - Use "IETF Specs" when referring to the specifications collectively, not "Specifications"
 
 ## Vocs Framework Reference
 

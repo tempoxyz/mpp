@@ -2,7 +2,7 @@ import { Card, Cards } from 'vocs'
 
 # Payment methods [Available methods and how to choose one]
 
-Payment methods define how clients pay for resources protected by the Machine Payments Protocol. Each method specifies its payment rails, credential format, and verification logic.
+Payment methods define how clients pay for resources protected by the Machine Payments Protocol. Each method specifies its payment rails, Credential format, and verification logic.
 
 ## Overview
 
@@ -13,7 +13,7 @@ HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment method="tempo", intent="charge", ...
 ```
 
-If supported, the client can then use the corresponding payment method to generate a credential and retry the request.
+If supported, the client can then use the corresponding payment method to generate a Credential and retry the request.
 
 ## Available methods
 

@@ -30,7 +30,7 @@ http.createServer(async (req, res) => {
 ## Behavior
 
 - **On `402`:** Writes the challenge response headers and body, then ends the connection.
-- **On `200`:** Sets the `Payment-Receipt` header; caller should write the response body.
+- **On `200`:** Sets the `Payment-Receipt` header; the caller writes the response body.
 
 ## Return type
 

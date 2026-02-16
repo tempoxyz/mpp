@@ -4,7 +4,7 @@ import { Badge } from 'vocs'
 
 The Machine Payments Protocol (MPP) is a machine-native protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
 
-These docs provide a developer-friendly overview. For the full specification, see [the specifications](https://tempoxyz.github.io/mpp-specs/).
+These docs provide a developer-friendly overview. For the full specification, see the [IETF Specs](https://tempoxyz.github.io/mpp-specs/).
 
 ## Flow
 
@@ -22,11 +22,11 @@ sequenceDiagram
 ```
 
 1. **Request a resource**—Standard HTTP request (`GET`, `POST`, and others)
-2. **Respond with `402`**—Include a **challenge** in `WWW-Authenticate` describing the payment required
-3. **Fulfill the challenge**—Sign a transaction, pay an invoice, or perform method-specific payment
-4. **Retry with credential**—Include an `Authorization` header with payment proof
-5. **Verify and settle**—Validate the credential and process payment
-6. **Return resource**—Respond with `200` OK and optional **receipt** in `Payment-Receipt` header
+2. **Respond with `402`**—Include a **Challenge** in `WWW-Authenticate` describing the payment required
+3. **Fulfill the Challenge**—Sign a transaction, pay an invoice, or perform method-specific payment
+4. **Retry with Credential**—Include an `Authorization` header with payment proof
+5. **Verify and settle**—Validate the Credential and process payment
+6. **Return resource**—Respond with `200` OK and optional **Receipt** in `Payment-Receipt` header
 
 ## Core concepts
 
@@ -104,7 +104,7 @@ Each payment method specifies its own `request` and `payload` schemas while shar
 
 ### Payment method requirements
 
-Payment method specifications must define:
+Payment method IETF Specs must define:
 
 1. **Method identifier**—Unique lowercase ASCII string (for example, `tempo` or `stripe`)
 2. **Request schema**—JSON structure for the `request` parameter in challenges
@@ -120,7 +120,7 @@ Payment intents describe the type of payment being requested. Common intents inc
 - **`authorize`**—Authorization that can be captured later
 - **`subscription`**—Recurring payment authorization
 
-Intent specifications define:
+Intent IETF Specs define:
 - Required and optional `request` fields
 - `payload` requirements
 - Verification and settlement semantics
@@ -237,9 +237,9 @@ Implementations may define additional parameters in challenges:
 
 ## Full specification
 
-These docs provide a practical overview. For the full specifications:
+These docs provide a practical overview. For the full IETF Specs:
 
-:::note[Read the full specifications]
+:::note[Read the full IETF Specs]
 - <a href="https://tempoxyz.github.io/mpp-specs/draft-httpauth-payment-00" data-v="true">Payment HTTP Authentication Scheme</a>—Core protocol spec (draft-httpauth-payment-00)
 - [Payment Methods](https://tempoxyz.github.io/mpp-specs/)—Payment method definitions
 - [Payment Intents](https://tempoxyz.github.io/mpp-specs/)—Intent types (charge, authorize, subscription)
