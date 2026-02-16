@@ -447,7 +447,7 @@ export default defineConfig({
   topNav: [
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
     { text: "SDKs & Tools", link: "/sdk" },
-    { text: "Specs", link: "https://tempoxyz.github.io/mpp-specs/" },
+    { text: "IETF Specs", link: "https://tempoxyz.github.io/mpp-specs/" },
     {
       text: "GitHub",
       items: [
