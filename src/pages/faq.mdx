@@ -58,12 +58,6 @@ MPP requires TLS 1.2+ for all connections. Challenge IDs are cryptographically b
 
 Payments use the same security model as the underlying payment method. For Tempo, that means cryptographic signatures over every transaction. For Stripe, it means Stripe's existing fraud and dispute infrastructure.
 
-## What services can I use?
-
-Over a dozen services accept MPP payments today, including OpenRouter, Anthropic, OpenAI, fal.ai, ElevenLabs, Firecrawl, and more. New services are added regularly.
-
-You can browse all available services at [payments.tempo.xyz](https://payments.tempo.xyz).
-
 ## Can any AI agent use MPP?
 
 Yes. Any agent that can run shell commands can use MPP—point it at `presto` and a paid service endpoint. The [`presto` quickstart](/quickstart/presto) has copy-paste instructions for Claude, Codex, and Amp.
@@ -73,10 +67,6 @@ For programmatic integration, the [TypeScript](/sdk/typescript), [Python](/sdk/p
 ## What happens if a payment fails?
 
 The service returns an error with details following RFC 9457 (Problem Details for HTTP APIs). Your client can retry with a different payment method or surface the error. No money is deducted for failed requests.
-
-## What happens if the service fails after I pay?
-
-For session-based payments, you pay only for what you consumed—unspent funds remain in the escrow contract. For individual charges, the per-request cost is low enough that agents route away from unreliable providers rather than requiring refund infrastructure. The protocol's composable design allows dispute and refund extensions to be introduced as separate specifications.
 
 ## Can I accept MPP payments for my own service?
 
