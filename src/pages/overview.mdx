@@ -43,7 +43,7 @@ This documentation site is itself an MPP server. Create an account, fund it with
 
 ## Payment flow
 
-When a client requests a paid resource, the server returns a `402` response with the payment options they support. The client chooses a payment method, fulfills the request and retries with a credential. The server verifies the payment and returns the resource with a receipt.
+When a client requests a paid resource, the server returns a `402` response with the payment options they support. The client chooses a payment method, fulfills the request and retries with a Credential. The server verifies the payment and returns the resource with a Receipt.
 
 ```mermaid
 sequenceDiagram
