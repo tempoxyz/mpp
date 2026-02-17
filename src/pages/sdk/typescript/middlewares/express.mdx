@@ -29,7 +29,7 @@ import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
-const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
 
 app.get(
   '/premium', 

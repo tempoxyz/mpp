@@ -8,7 +8,7 @@ Creates a server-side payment handler from a method.
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
 })
 ```
 
@@ -20,7 +20,7 @@ Use a custom transport for non-HTTP environments like MCP servers.
 import { Mppx, tempo, Transport } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
   transport: Transport.mcpSdk(),
 })
 ```
@@ -42,14 +42,14 @@ The returned object includes the method's intent functions (for example, `charge
 
 - **Type:** `readonly Method.Server[]`
 
-Array of payment methods (for example, `[tempo.charge()]`).
+Array of payment methods (for example, `[tempo()]`).
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
   // [!code focus:start]
-  methods: [tempo.charge()],
+  methods: [tempo()],
   // [!code focus:end]
 })
 ```
@@ -65,7 +65,7 @@ Server realm (for example, hostname). Used to identify the server in payment cha
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
   realm: 'mpp.dev', // [!code focus]
 })
 ```
@@ -80,7 +80,7 @@ Secret key for HMAC-bound challenge IDs. Enables stateless verification—allows
 import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
   secretKey: process.env.MPPX_SECRET_KEY!, // [!code focus]
 })
 ```
@@ -96,7 +96,7 @@ Transport to use for handling payment requests. Defaults to HTTP transport.
 import { Mppx, tempo, Transport } from 'mppx/server'
 
 const payment = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
   transport: Transport.mcp(), // [!code focus]
 })
 ```

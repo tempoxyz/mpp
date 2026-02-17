@@ -1,0 +1,82 @@
+# `Method.toClient`
+
+Extends a payment method with client-side Credential creation logic.
+
+## Usage
+
+::::code-group
+
+```ts twoslash [methods.client.ts]
+import { Mppx } from 'mppx/client'
+import { Credential, Method } from 'mppx' // [!code focus]
+import * as Methods from './methods' // [!code focus]
+
+// [!code focus:start]
+// Create client-configured method.
+const charge = Method.toClient(Methods.charge, {
+  async createCredential({ challenge }) {
+    const payload = { signature: '0x...', type: 'transaction' as const }
+    return Credential.serialize({ challenge, payload })
+  },
+})
+// [!code focus:end]
+
+// Create Mppx client with the method configured.
+Mppx.create({
+  methods: [charge],
+})
+```
+
+```ts twoslash [methods.ts] filename="methods.ts"
+import { Method, z } from 'mppx'
+
+export const charge = Method.from({
+  intent: 'charge',
+  name: 'tempo',
+  schema: {
+    credential: {
+      payload: z.object({
+        signature: z.string(),
+        type: z.literal('transaction'),
+      }),
+    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      recipient: z.string(),
+    }),
+  },
+})
+```
+
+::::
+
+## Return type
+
+```ts
+type ReturnType = Method.Client<method, context>
+```
+
+A client-configured method that can be passed to `Mppx.create`.
+
+## Parameters
+
+### method
+
+- **Type:** `Method`
+
+The base payment method definition (created with `Method.from`).
+
+### options
+
+#### context (optional)
+
+- **Type:** `ZodMiniType`
+
+Zod schema for additional context passed to `createCredential`.
+
+#### createCredential
+
+- **Type:** `(parameters: { challenge: Challenge; context?: context }) => Promise<string>`
+
+Function that creates a serialized Credential string from a Challenge.

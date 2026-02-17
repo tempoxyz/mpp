@@ -140,27 +140,6 @@ export async function handler(request: Request) {
 }
 ```
 
-### With multiple methods
-
-Register multiple methods to accept multiple payment methods on the same server. 
-
-For example, to accept both charge and payment sessions:
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
-
-const mppx = Mppx.create({
-  methods: [
-    tempo.charge(),
-    tempo.session(),
-  ],
-})
-```
-
-:::info
-See [`tempo.session` server reference](/sdk/typescript/server/Method.tempo.session) for the full parameter list.
-:::
-
   </div>
   </Tab>
   <Tab title="Client">

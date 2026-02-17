@@ -1,0 +1,59 @@
+# `Method.from`
+
+Creates a payment method definition.
+
+## Usage
+
+```ts twoslash [tempo/methods.ts]
+import { Method, z } from 'mppx'
+
+const charge = Method.from({
+  intent: 'charge',
+  name: 'tempo',
+  schema: {
+    credential: {
+      payload: z.object({
+        signature: z.string(),
+        type: z.literal('transaction'),
+      }),
+    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      recipient: z.string(),
+    }),
+  },
+})
+```
+
+## Return type
+
+```ts
+type ReturnType = method
+```
+
+The method object passed in (identity function for type inference).
+
+## Parameters
+
+### method
+
+Payment method definition.
+
+#### intent
+
+- **Type:** `string`
+
+Intent type (for example, `"charge"`, `"authorize"`).
+
+#### name
+
+- **Type:** `string`
+
+Payment method name (for example, `"tempo"`, `"stripe"`).
+
+#### schema
+
+- **Type:** `{ credential: { payload: ZodMiniType }, request: ZodMiniType }`
+
+Zod schemas for validating Credential payloads and request parameters.

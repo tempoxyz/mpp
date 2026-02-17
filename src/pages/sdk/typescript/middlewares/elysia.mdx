@@ -28,7 +28,7 @@ Import `Mppx` and `tempo` from `mppx/elysia` to create an Elysia-aware payment h
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo()] })
 
 const app = new Elysia()
   .guard(
@@ -45,7 +45,7 @@ Use `.onBeforeHandle()` to apply payment to all routes.
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
 
 const app = new Elysia()
   .onBeforeHandle(mppx.charge({ amount: '1' })) // [!code hl]

@@ -27,7 +27,7 @@ Import `Mppx` and `tempo` from `mppx/nextjs` to create a Next.js-aware payment h
 ```ts [app/api/premium/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
 
 export const GET = 
   mppx.charge({ amount: '1' }) // [!code hl]

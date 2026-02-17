@@ -53,7 +53,7 @@ Set `feePayer: true` in the Challenge request to enable this:
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo()] })
 
 declare const request: Request
 // ---cut---

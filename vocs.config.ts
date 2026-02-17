@@ -163,6 +163,20 @@ export default defineConfig({
                 text: "Client Reference",
                 items: [
                   {
+                    text: "Methods",
+                    collapsed: true,
+                    items: [
+                      {
+                        text: "tempo.charge",
+                        link: "/sdk/typescript/client/Method.tempo.charge",
+                      },
+                      {
+                        text: "tempo.session",
+                        link: "/sdk/typescript/client/Method.tempo.session",
+                      },
+                    ],
+                  },
+                  {
                     text: "Mppx",
                     collapsed: true,
                     items: [
@@ -194,25 +208,25 @@ export default defineConfig({
                       },
                     ],
                   },
-                  {
-                    text: "Method",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: "tempo.charge",
-                        link: "/sdk/typescript/client/Method.tempo.charge",
-                      },
-                      {
-                        text: "tempo.session",
-                        link: "/sdk/typescript/client/Method.tempo.session",
-                      },
-                    ],
-                  },
                 ],
               },
               {
                 text: "Server Reference",
                 items: [
+                  {
+                    text: "Methods",
+                    collapsed: true,
+                    items: [
+                      {
+                        text: "tempo.charge",
+                        link: "/sdk/typescript/server/Method.tempo.charge",
+                      },
+                      {
+                        text: "tempo.session",
+                        link: "/sdk/typescript/server/Method.tempo.session",
+                      },
+                    ],
+                  },
                   {
                     text: "Mppx",
                     collapsed: true,
@@ -249,20 +263,6 @@ export default defineConfig({
                       },
                     ],
                   },
-                  {
-                    text: "Method",
-                    collapsed: true,
-                    items: [
-                      {
-                        text: "tempo.charge",
-                        link: "/sdk/typescript/server/Method.tempo.charge",
-                      },
-                      {
-                        text: "tempo.session",
-                        link: "/sdk/typescript/server/Method.tempo.session",
-                      },
-                    ],
-                  },
                 ],
               },
               {
@@ -289,6 +289,20 @@ export default defineConfig({
               {
                 text: "Core Reference",
                 items: [
+                  {
+                    text: "BodyDigest",
+                    collapsed: true,
+                    items: [
+                      {
+                        text: ".compute",
+                        link: "/sdk/typescript/core/BodyDigest.compute",
+                      },
+                      {
+                        text: ".verify",
+                        link: "/sdk/typescript/core/BodyDigest.verify",
+                      },
+                    ],
+                  },
                   {
                     text: "Challenge",
                     collapsed: true,
@@ -341,25 +355,22 @@ export default defineConfig({
                       },
                     ],
                   },
+                  { text: "Expires", link: "/sdk/typescript/core/Expires" },
                   {
-                    text: "Receipt",
+                    text: "Method",
                     collapsed: true,
                     items: [
                       {
-                        text: ".deserialize",
-                        link: "/sdk/typescript/core/Receipt.deserialize",
-                      },
-                      {
                         text: ".from",
-                        link: "/sdk/typescript/core/Receipt.from",
+                        link: "/sdk/typescript/core/Method.from",
                       },
                       {
-                        text: ".fromResponse",
-                        link: "/sdk/typescript/core/Receipt.fromResponse",
+                        text: ".toClient",
+                        link: "/sdk/typescript/core/Method.toClient",
                       },
                       {
-                        text: ".serialize",
-                        link: "/sdk/typescript/core/Receipt.serialize",
+                        text: ".toServer",
+                        link: "/sdk/typescript/core/Method.toServer",
                       },
                     ],
                   },
@@ -382,20 +393,27 @@ export default defineConfig({
                     ],
                   },
                   {
-                    text: "BodyDigest",
+                    text: "Receipt",
                     collapsed: true,
                     items: [
                       {
-                        text: ".compute",
-                        link: "/sdk/typescript/core/BodyDigest.compute",
+                        text: ".deserialize",
+                        link: "/sdk/typescript/core/Receipt.deserialize",
                       },
                       {
-                        text: ".verify",
-                        link: "/sdk/typescript/core/BodyDigest.verify",
+                        text: ".from",
+                        link: "/sdk/typescript/core/Receipt.from",
+                      },
+                      {
+                        text: ".fromResponse",
+                        link: "/sdk/typescript/core/Receipt.fromResponse",
+                      },
+                      {
+                        text: ".serialize",
+                        link: "/sdk/typescript/core/Receipt.serialize",
                       },
                     ],
                   },
-                  { text: "Expires", link: "/sdk/typescript/core/Expires" },
                 ],
               },
               { text: "CLI Reference", link: "/sdk/typescript/cli" },

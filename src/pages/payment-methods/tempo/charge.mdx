@@ -17,7 +17,7 @@ Use [`mppx.charge`](/sdk/typescript/server/Method.tempo.charge) to gate any endp
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
 })
 
 export async function handler(request: Request) {
@@ -38,7 +38,7 @@ export async function handler(request: Request) {
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo()] })
 // ---cut---
 import { Expires } from 'mppx'
 
@@ -60,7 +60,7 @@ export async function handler(request: Request) {
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const mppx = Mppx.create({ methods: [tempo()] })
 
 declare const request: Request
 // ---cut---

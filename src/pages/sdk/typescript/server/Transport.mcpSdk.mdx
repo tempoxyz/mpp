@@ -9,7 +9,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { Mppx, tempo, Transport } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
   transport: Transport.mcpSdk(),
 })
 

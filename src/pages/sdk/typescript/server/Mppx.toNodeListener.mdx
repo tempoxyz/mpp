@@ -9,7 +9,7 @@ import * as http from 'node:http'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
 })
 
 http.createServer(async (req, res) => {
@@ -54,7 +54,7 @@ import * as http from 'node:http'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo.charge()],
+  methods: [tempo()],
 })
 
 http.createServer(async (req, res) => {

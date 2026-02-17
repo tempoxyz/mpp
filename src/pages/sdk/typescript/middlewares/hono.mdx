@@ -29,7 +29,7 @@ import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
-const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
 
 app.get(
   '/premium', 

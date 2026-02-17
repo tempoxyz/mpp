@@ -1,0 +1,104 @@
+# `Method.toServer`
+
+Extends a payment method with server-side verification logic.
+
+## Usage
+
+::::code-group
+
+```ts twoslash [methods.server.ts]
+import { Mppx } from 'mppx/server'
+import { Method, Receipt } from 'mppx' // [!code focus]
+import * as Methods from './methods' // [!code focus]
+
+// [!code focus:start]
+// Create server-configured method.
+const charge = Method.toServer(Methods.charge, {
+  async verify({ credential, request }) {
+    return Receipt.from({
+      method: 'tempo',
+      reference: '0x...',
+      status: 'success',
+      timestamp: new Date().toISOString(),
+    })
+  },
+})
+// [!code focus:end]
+
+// Create Mppx server with the method configured.
+const mppx = Mppx.create({
+  methods: [charge],
+})
+```
+
+```ts twoslash [methods.ts] filename="methods.ts"
+import { Method, z } from 'mppx'
+
+export const charge = Method.from({
+  intent: 'charge',
+  name: 'tempo',
+  schema: {
+    credential: {
+      payload: z.object({
+        signature: z.string(),
+        type: z.literal('transaction'),
+      }),
+    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      recipient: z.string(),
+    }),
+  },
+})
+```
+
+::::
+
+## Return type
+
+```ts
+type ReturnType = Method.Server<method, defaults, transportOverride>
+```
+
+A server-configured method that can be passed to `Mppx.create`.
+
+## Parameters
+
+### method
+
+- **Type:** `Method`
+
+The base payment method definition (created with `Method.from`).
+
+### options
+
+#### defaults (optional)
+
+- **Type:** `Partial<request>`
+
+Default request parameters merged into every Challenge issued for this method.
+
+#### request (optional)
+
+- **Type:** `(options: { credential?: Credential; request: request }) => request`
+
+Transform function called before Challenge creation. Use to modify or enrich request parameters.
+
+#### respond (optional)
+
+- **Type:** `(parameters: { credential: Credential; input: Request; receipt: Receipt; request: request }) => Response | undefined`
+
+Called after `verify` succeeds. Return a `Response` to short-circuit the handler (for example, for channel open/close management responses). Return `undefined` to let the server handler serve content via `withReceipt(response)`. HTTP-only—MCP transports do not invoke this hook.
+
+#### transport (optional)
+
+- **Type:** `Transport`
+
+Override the transport for this method.
+
+#### verify
+
+- **Type:** `(parameters: { credential: Credential; request: request }) => Promise<Receipt>`
+
+Function that verifies a Credential and returns a Receipt.
