@@ -1,4 +1,4 @@
-mppx/0.1.1
+mppx/0.2.0
 
 Usage:
   $ mppx [url]
@@ -33,9 +33,9 @@ Options:
   -L, --location         Follow redirects 
   -X, --method <method>  HTTP method 
   --channel <id>         Reuse existing stream channel ID 
+  --confirm              Show confirmation prompts 
   --deposit <amount>     Deposit amount for stream payments (human-readable units) 
   --json <json>          Send JSON body (sets Content-Type and Accept, implies POST) 
-  --yes                  Skip confirmation prompts 
   -V, --version          Display version number 
   -h, --help             Display this message 
 

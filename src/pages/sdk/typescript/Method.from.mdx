@@ -1,15 +1,15 @@
-# `MethodIntent.from`
+# `Method.from`
 
-Creates a method-specific intent.
+Creates a payment method.
 
 ## Usage
 
 ```ts twoslash
-import { MethodIntent, z } from 'mppx'
+import { Method, z } from 'mppx'
 
-const tempoCharge = MethodIntent.from({
-  method: 'tempo',
-  name: 'charge',
+const tempoCharge = Method.from({
+  intent: 'charge',
+  name: 'tempo',
   schema: {
     credential: {
       payload: z.object({
@@ -29,26 +29,26 @@ const tempoCharge = MethodIntent.from({
 ## Return type
 
 ```ts
-type ReturnType = intent
+type ReturnType = method
 ```
 
-The method intent object passed in (identity function for type inference).
+The method object passed in (identity function for type inference).
 
 ## Parameters
 
-### intent
+### method
 
-#### method
+#### intent
 
 - **Type:** `string`
 
-Payment method name (for example, "tempo", "stripe").
+Intent name (for example, `"charge"`, `"authorize"`).
 
 #### name
 
 - **Type:** `string`
 
-Intent name (for example, "charge", "authorize").
+Payment method name (for example, `"tempo"`, `"stripe"`).
 
 #### schema
 
@@ -56,10 +56,10 @@ Intent name (for example, "charge", "authorize").
 
 - **Type:** `z.ZodMiniType`
 
-Zod schema for the credential payload.
+Zod schema for the Credential payload.
 
 ##### request
 
-- **Type:** `z.ZodMiniObject`
+- **Type:** `z.ZodMiniType`
 
 Zod schema for the request parameters.

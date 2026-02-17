@@ -38,10 +38,10 @@ Mppx.create({
 ## Return type
 
 ```ts
-type ReturnType = readonly [MethodIntent.Client, MethodIntent.Client]
+type ReturnType = readonly [Method.Client, Method.Client]
 ```
 
-A tuple of `[chargeIntent, sessionIntent]`. `Mppx.create` accepts tuples in the `methods` array and flattens them automatically.
+A tuple of `[charge, session]` methods. `Mppx.create` accepts tuples in the `methods` array and flattens them automatically.
 
 ## Parameters
 

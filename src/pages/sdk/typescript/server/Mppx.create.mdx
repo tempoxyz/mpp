@@ -28,10 +28,10 @@ const payment = Mppx.create({
 ## Return type
 
 ```ts
-import type { MethodIntent } from 'mppx'
+import type { Method } from 'mppx'
 import type { Mppx, Transport } from 'mppx/server'
 
-type ReturnType = Mppx<[MethodIntent.Server], Transport.Http>
+type ReturnType = Mppx<[Method.Server], Transport.Http>
 ```
 
 The returned object includes the method's intent functions (for example, `charge`) which you call to handle payment requests.
@@ -40,7 +40,7 @@ The returned object includes the method's intent functions (for example, `charge
 
 ### methods
 
-- **Type:** `readonly MethodIntent.Server[]`
+- **Type:** `readonly Method.Server[]`
 
 Array of payment methods (for example, `[tempo.charge()]`).
 

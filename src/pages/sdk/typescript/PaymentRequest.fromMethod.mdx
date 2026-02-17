@@ -1,4 +1,4 @@
-# `PaymentRequest.fromIntent`
+# `PaymentRequest.fromMethod`
 
 Creates a validated payment request from a method intent.
 
@@ -6,9 +6,9 @@ Creates a validated payment request from a method intent.
 
 ```ts twoslash
 import { PaymentRequest } from 'mppx'
-import { MethodIntents } from 'mppx/tempo'
+import { Methods } from 'mppx/tempo'
 
-const request = PaymentRequest.fromIntent(MethodIntents.charge, {
+const request = PaymentRequest.fromMethod(Methods.charge, {
   amount: '0.1',
   currency: '0x20c0000000000000000000000000000000000000',
   decimals: 6,
@@ -28,7 +28,7 @@ A validated request object with type inferred from the intent.
 
 ### intent
 
-- **Type:** `MethodIntent`
+- **Type:** `Method`
 
 The method intent to validate against.
 

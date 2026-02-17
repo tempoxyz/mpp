@@ -6,107 +6,68 @@ The mppx SDK supports extensibility. You can implement custom payment methods to
 
 A custom payment method requires:
 
-1. **Intent definition:** Schema for request parameters and Credential payloads
-2. **Method Intent:** Extend a base Intent with method-specific schemas
-3. **Client logic:** Create Credentials when the client gets a `402` response
-4. **Server logic:** Verify Credentials and return Receipts
+1. **Method definition:** Define the method name, intent, and schemas for request parameters and Credential payloads
+2. **Client logic:** Create Credentials when the client gets a `402` response
+3. **Server logic:** Verify Credentials and return Receipts
 
-## Define an intent
+## Define a method
 
-Start by defining the schema for your payment intent. The schema specifies what parameters the server requests and what the client provides.
-
-```ts twoslash
-import { Intent, z } from 'mppx'
-
-const charge = Intent.from({
-  name: 'charge',
-  schema: {
-    request: z.object({
-      amount: z.string(),
-      currency: z.string(),
-      recipient: z.string(),
-    }),
-  },
-})
-```
-
-## Create a method intent
-
-Extend the base Intent with method-specific request fields and Credential payload schemas. The following example uses Lightning Network:
+Start by defining your payment method with `Method.from`. The definition includes the method name, intent type, and schemas for request parameters and Credential payloads.
 
 ```ts twoslash
-import { Intent, MethodIntent, z } from 'mppx'
+import { Method, z } from 'mppx'
 
-const charge = Intent.from({
-  name: 'charge',
-  schema: {
-    request: z.object({
-      amount: z.string(),
-      currency: z.string(),
-      recipient: z.string(),
-    }),
-  },
-})
-// ---cut---
-const lightningCharge = MethodIntent.fromIntent(charge, {
-  method: 'lightning',
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
   schema: {
     credential: {
       payload: z.object({
         preimage: z.string(),
       }),
     },
-    request: {
-      methodDetails: z.object({
-        invoice: z.string(),
-        paymentHash: z.string(),
-      }),
-    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      invoice: z.string(),
+      paymentHash: z.string(),
+      recipient: z.string(),
+    }),
   },
 })
 ```
 
 ## Client implementation
 
-Extend the method intent with Credential creation logic. The `createCredential` function runs when the client gets a `402` response:
+Extend the method with Credential creation logic using `Method.toClient`. The `createCredential` function runs when the client gets a `402` response:
 
 ```ts twoslash
-import { Credential, Intent, MethodIntent, z } from 'mppx'
+import { Credential, Method, z } from 'mppx'
 
-const charge = Intent.from({
-  name: 'charge',
-  schema: {
-    request: z.object({
-      amount: z.string(),
-      currency: z.string(),
-      recipient: z.string(),
-    }),
-  },
-})
-
-const lightningCharge = MethodIntent.fromIntent(charge, {
-  method: 'lightning',
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
   schema: {
     credential: {
       payload: z.object({
         preimage: z.string(),
       }),
     },
-    request: {
-      methodDetails: z.object({
-        invoice: z.string(),
-        paymentHash: z.string(),
-      }),
-    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      invoice: z.string(),
+      paymentHash: z.string(),
+      recipient: z.string(),
+    }),
   },
 })
 
 declare function payInvoice(invoice: string): Promise<{ preimage: string }>
 // ---cut---
-const clientMethod = MethodIntent.toClient(lightningCharge, {
+const clientMethod = Method.toClient(lightning, {
   async createCredential({ challenge }) {
-    const bolt11 = challenge.request.methodDetails!.invoice;
-    const result = await payInvoice(bolt11)
+    const result = await payInvoice(challenge.request.invoice)
 
     return Credential.serialize({
       challenge,
@@ -120,47 +81,38 @@ const clientMethod = MethodIntent.toClient(lightningCharge, {
 
 ## Server implementation
 
-Extend the method intent with verification logic. For Lightning Network, verify that the preimage hashes to the payment hash:
+Extend the method with verification logic using `Method.toServer`. For Lightning Network, verify that the preimage hashes to the payment hash:
 
 ```ts twoslash
-import { Intent, MethodIntent, Receipt, z } from 'mppx'
+import { Method, Receipt, z } from 'mppx'
 
-const charge = Intent.from({
-  name: 'charge',
-  schema: {
-    request: z.object({
-      amount: z.string(),
-      currency: z.string(),
-      recipient: z.string(),
-    }),
-  },
-})
-
-const lightningCharge = MethodIntent.fromIntent(charge, {
-  method: 'lightning',
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
   schema: {
     credential: {
       payload: z.object({
         preimage: z.string(),
       }),
     },
-    request: {
-      methodDetails: z.object({
-        invoice: z.string(),
-        paymentHash: z.string(),
-      }),
-    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      invoice: z.string(),
+      paymentHash: z.string(),
+      recipient: z.string(),
+    }),
   },
 })
 
-declare function sha256(data: Uint8Array): Uint8Array
-declare function hexToBytes(hex: string): Uint8Array
 declare function bytesToHex(bytes: Uint8Array): string
+declare function hexToBytes(hex: string): Uint8Array
+declare function sha256(data: Uint8Array): Uint8Array
 // ---cut---
-const serverMethod = MethodIntent.toServer(lightningCharge, {
-  async verify({ credential, request }) {
+const serverMethod = Method.toServer(lightning, {
+  async verify({ credential }) {
     const preimage = credential.payload.preimage
-    const expectedHash = credential.challenge.request.methodDetails!.paymentHash
+    const expectedHash = credential.challenge.request.paymentHash
 
     const actualHash = bytesToHex(sha256(hexToBytes(preimage)))
     const isValid = actualHash === expectedHash
@@ -179,46 +131,36 @@ const serverMethod = MethodIntent.toServer(lightningCharge, {
 
 ### Client
 
-Pass the client method intent to `Mppx.create`:
+Pass the client method to `Mppx.create`:
 
 ```ts twoslash
-import { Credential, Intent, MethodIntent, z } from 'mppx'
+import { Credential, Method, z } from 'mppx'
 import { Mppx } from 'mppx/client'
 
-const charge = Intent.from({
-  name: 'charge',
-  schema: {
-    request: z.object({
-      amount: z.string(),
-      currency: z.string(),
-      recipient: z.string(),
-    }),
-  },
-})
-
-const lightningCharge = MethodIntent.fromIntent(charge, {
-  method: 'lightning',
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
   schema: {
     credential: {
       payload: z.object({
         preimage: z.string(),
       }),
     },
-    request: {
-      methodDetails: z.object({
-        invoice: z.string(),
-        paymentHash: z.string(),
-      }),
-    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      invoice: z.string(),
+      paymentHash: z.string(),
+      recipient: z.string(),
+    }),
   },
 })
 
 declare function payInvoice(invoice: string): Promise<{ preimage: string }>
 
-const clientMethod = MethodIntent.toClient(lightningCharge, {
+const clientMethod = Method.toClient(lightning, {
   async createCredential({ challenge }) {
-    const bolt11 = challenge.request.methodDetails!.invoice;
-    const result = await payInvoice(bolt11)
+    const result = await payInvoice(challenge.request.invoice)
 
     return Credential.serialize({
       challenge,
@@ -230,8 +172,8 @@ const clientMethod = MethodIntent.toClient(lightningCharge, {
 })
 // ---cut---
 const { fetch } = Mppx.create({
-  polyfill: false,
   methods: [clientMethod],
+  polyfill: false,
 })
 
 const response = await fetch('https://api.example.com/premium')
@@ -239,48 +181,39 @@ const response = await fetch('https://api.example.com/premium')
 
 ### Server
 
-Pass the server method intent to `Mppx.create`:
+Pass the server method to `Mppx.create`:
 
 ```ts twoslash
-import { Intent, MethodIntent, Receipt, z } from 'mppx'
+import { Method, Receipt, z } from 'mppx'
 import { Mppx } from 'mppx/server'
 
-const charge = Intent.from({
-  name: 'charge',
-  schema: {
-    request: z.object({
-      amount: z.string(),
-      currency: z.string(),
-      recipient: z.string(),
-    }),
-  },
-})
-
-const lightningCharge = MethodIntent.fromIntent(charge, {
-  method: 'lightning',
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
   schema: {
     credential: {
       payload: z.object({
         preimage: z.string(),
       }),
     },
-    request: {
-      methodDetails: z.object({
-        invoice: z.string(),
-        paymentHash: z.string(),
-      }),
-    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      invoice: z.string(),
+      paymentHash: z.string(),
+      recipient: z.string(),
+    }),
   },
 })
 
-declare function sha256(data: Uint8Array): Uint8Array
-declare function hexToBytes(hex: string): Uint8Array
 declare function bytesToHex(bytes: Uint8Array): string
+declare function hexToBytes(hex: string): Uint8Array
+declare function sha256(data: Uint8Array): Uint8Array
 
-const serverMethod = MethodIntent.toServer(lightningCharge, {
+const serverMethod = Method.toServer(lightning, {
   async verify({ credential }) {
     const preimage = credential.payload.preimage
-    const expectedHash = credential.challenge.request.methodDetails!.paymentHash
+    const expectedHash = credential.challenge.request.paymentHash
 
     const actualHash = bytesToHex(sha256(hexToBytes(preimage)))
     const isValid = actualHash === expectedHash
@@ -301,7 +234,6 @@ const mppx = Mppx.create({
 
 ## SDK references
 
-- [`Intent.from`](/sdk/typescript/Intent.from)—Create a base intent
-- [`MethodIntent.fromIntent`](/sdk/typescript/MethodIntent.fromIntent)—Extend a base intent with method-specific schemas
-- `MethodIntent.toClient`—Extend an intent with client-side Credential creation logic
-- `MethodIntent.toServer`—Extend an intent with server-side verification logic
+- [`Method.from`](/sdk/typescript/Method.from)—Define a payment method with schemas
+- `Method.toClient`—Extend a method with client-side Credential creation logic
+- `Method.toServer`—Extend a method with server-side verification logic

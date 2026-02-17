@@ -1,4 +1,4 @@
-# `Challenge.fromIntent`
+# `Challenge.fromMethod`
 
 Creates a validated challenge from a method intent.
 
@@ -8,11 +8,11 @@ If `secretKey` option is provided, the challenge ID is computed as HMAC-SHA256 o
 
 ```ts twoslash
 import { Challenge } from 'mppx'
-import { MethodIntents } from 'mppx/tempo'
+import { Methods } from 'mppx/tempo'
 
 // With HMAC-bound ID (recommended for servers)
-const challenge = Challenge.fromIntent(
-  MethodIntents.charge,
+const challenge = Challenge.fromMethod(
+  Methods.charge,
   {
     realm: 'mpp.dev',
     request: {
@@ -36,11 +36,11 @@ A validated challenge object with request type inferred from the intent.
 
 ## Parameters
 
-### intent
+### method
 
-- **Type:** `MethodIntent`
+- **Type:** `Method`
 
-The method intent to validate against.
+The method to validate against.
 
 ### parameters
 

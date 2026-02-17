@@ -72,7 +72,7 @@ type Mppx = {
   /** Payment-aware fetch function that automatically handles 402 responses. */
   fetch: Fetch
   /** The configured payment methods. */
-  methods: readonly MethodIntent.Client[]
+  methods: readonly Method.Client[]
   /** The transport used. */
   transport: Transport
   /** Creates a credential from a payment-required response. */
@@ -87,7 +87,7 @@ type Mppx = {
 
 ### methods
 
-- **Type:** `readonly MethodIntent.Client[]`
+- **Type:** `readonly Method.Client[]`
 
 Array of payment methods to use.
 

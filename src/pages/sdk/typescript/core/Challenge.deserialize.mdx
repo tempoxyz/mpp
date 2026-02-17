@@ -17,10 +17,10 @@ Use a method definition to get type-safe access to method-specific request field
 
 ```ts twoslash
 import { Challenge } from 'mppx'
-import { MethodIntents } from 'mppx/tempo'
+import { Methods } from 'mppx/tempo'
 
 const header = 'Payment id="abc123", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOi..."'
-const challenge = Challenge.deserialize(header, { methods: [MethodIntents.charge] })
+const challenge = Challenge.deserialize(header, { methods: [Methods.charge] })
 ```
 
 ## Return type
@@ -41,6 +41,6 @@ The WWW-Authenticate header value.
 
 ### options (optional)
 
-- **Type:** `{ methods?: readonly MethodIntent[] }`
+- **Type:** `{ methods?: readonly Method.Method[] }`
 
 Optional settings to narrow the Challenge type using method intents.

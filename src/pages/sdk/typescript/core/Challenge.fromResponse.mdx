@@ -19,11 +19,11 @@ Use a method definition to get type-safe access to method-specific request field
 
 ```ts twoslash
 import { Challenge } from 'mppx'
-import { MethodIntents } from 'mppx/tempo'
+import { Methods } from 'mppx/tempo'
 
 const response = await fetch('/resource')
 if (response.status === 402) {
-  const challenge = Challenge.fromResponse(response, { methods: [MethodIntents.charge] })
+  const challenge = Challenge.fromResponse(response, { methods: [Methods.charge] })
 }
 ```
 
@@ -45,6 +45,6 @@ The HTTP response (must be `402` status).
 
 ### options (optional)
 
-- **Type:** `{ methods?: readonly MethodIntent[] }`
+- **Type:** `{ methods?: readonly Method.Method[] }`
 
 Optional settings to narrow the Challenge type using method intents.

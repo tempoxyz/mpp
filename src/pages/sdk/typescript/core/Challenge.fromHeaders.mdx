@@ -17,10 +17,10 @@ Use a method definition to get type-safe access to method-specific request field
 
 ```ts twoslash
 import { Challenge } from 'mppx'
-import { MethodIntents } from 'mppx/tempo'
+import { Methods } from 'mppx/tempo'
 
 const response = await fetch('/resource')
-const challenge = Challenge.fromHeaders(response.headers, { methods: [MethodIntents.charge] })
+const challenge = Challenge.fromHeaders(response.headers, { methods: [Methods.charge] })
 ```
 
 ## Return type
@@ -41,6 +41,6 @@ The HTTP headers object.
 
 ### options (optional)
 
-- **Type:** `{ methods?: readonly MethodIntent[] }`
+- **Type:** `{ methods?: readonly Method.Method[] }`
 
 Optional settings to narrow the Challenge type using method intents.
