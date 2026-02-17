@@ -19,28 +19,7 @@ export default defineConfig({
     __COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
   },
   optimizeDeps: {
-    include: [
-      "@braintree/sanitize-url",
-      "beautiful-mermaid",
-      "dayjs",
-      "mermaid",
-    ],
+    include: ["@braintree/sanitize-url", "dayjs", "mermaid"],
   },
-  plugins: [
-    Icons({ compiler: "jsx", jsx: "react" }),
-    nodeLoaderCloudflare({
-      environments: ["rsc"],
-      build: true,
-      // https://developers.cloudflare.com/workers/wrangler/api/#getplatformproxy
-      getPlatformProxyOptions: {
-        persist: {
-          path: ".wrangler/state/v3",
-        },
-      },
-    }),
-    react(),
-    vocs({
-      unstable_adapter: "waku/adapters/cloudflare",
-    }),
-  ],
+  plugins: [Icons({ compiler: "jsx", jsx: "react" }), react(), vocs()],
 });
