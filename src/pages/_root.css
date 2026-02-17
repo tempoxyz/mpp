@@ -2,19 +2,19 @@
 @import "@fontsource/commit-mono/700.css";
 
 @font-face {
-	font-family: "Geist Pixel Square";
-	src: url("/fonts/GeistPixel-Square.woff2") format("woff2");
-	font-weight: 400 700;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Geist Pixel Square";
+  src: url("/fonts/GeistPixel-Square.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Berkeley Mono";
-	src: url("/fonts/BerkeleyMono-Regular.woff2") format("woff2");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Berkeley Mono";
+  src: url("/fonts/BerkeleyMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -26,73 +26,73 @@
 }
 
 @font-face {
-	font-family: "Pilat";
-	src:
-		url("/fonts/Pilat-Light.woff2") format("woff2"),
-		url("/fonts/Pilat-Light.woff") format("woff");
-	font-weight: 300;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Pilat";
+  src:
+    url("/fonts/Pilat-Light.woff2") format("woff2"),
+    url("/fonts/Pilat-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Pilat";
-	src:
-		url("/fonts/Pilat-Regular.woff2") format("woff2"),
-		url("/fonts/Pilat-Regular.woff") format("woff");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Pilat";
+  src:
+    url("/fonts/Pilat-Regular.woff2") format("woff2"),
+    url("/fonts/Pilat-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Pilat";
-	src:
-		url("/fonts/Pilat-Book.woff2") format("woff2"),
-		url("/fonts/Pilat-Book.woff") format("woff");
-	font-weight: 450;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Pilat";
+  src:
+    url("/fonts/Pilat-Book.woff2") format("woff2"),
+    url("/fonts/Pilat-Book.woff") format("woff");
+  font-weight: 450;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Pilat";
-	src:
-		url("/fonts/Pilat-Demi.woff2") format("woff2"),
-		url("/fonts/Pilat-Demi.woff") format("woff");
-	font-weight: 500;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Pilat";
+  src:
+    url("/fonts/Pilat-Demi.woff2") format("woff2"),
+    url("/fonts/Pilat-Demi.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Pilat";
-	src:
-		url("/fonts/Pilat-Bold.woff2") format("woff2"),
-		url("/fonts/Pilat-Bold.woff") format("woff");
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Pilat";
+  src:
+    url("/fonts/Pilat-Bold.woff2") format("woff2"),
+    url("/fonts/Pilat-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Pilat";
-	src:
-		url("/fonts/Pilat-Heavy.woff2") format("woff2"),
-		url("/fonts/Pilat-Heavy.woff") format("woff");
-	font-weight: 800;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Pilat";
+  src:
+    url("/fonts/Pilat-Heavy.woff2") format("woff2"),
+    url("/fonts/Pilat-Heavy.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Pilat";
-	src:
-		url("/fonts/Pilat-Black.woff2") format("woff2"),
-		url("/fonts/Pilat-Black.woff") format("woff");
-	font-weight: 900;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Pilat";
+  src:
+    url("/fonts/Pilat-Black.woff2") format("woff2"),
+    url("/fonts/Pilat-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
 }
 
 @import "tailwindcss";
@@ -109,7 +109,7 @@
 
 /* Custom utility for muted text */
 .text-muted {
-	color: var(--vocs-text-color-muted);
+  color: var(--vocs-text-color-muted);
 }
 
 [data-v-callout-icon] {
@@ -122,11 +122,11 @@
 
 /* Header logo - themed color */
 [data-v-logo] {
-	color: var(--vocs-text-color-heading);
+  color: var(--vocs-text-color-heading);
 }
 
 [data-v-logo] img {
-	height: 20px;
+  height: 20px;
 }
 
 [data-v-gutter-top] nav a[data-v-active="true"] {
@@ -135,34 +135,34 @@
 }
 
 [data-v-gutter-top] nav a:hover {
-	text-decoration: none !important;
-	color: var(--vocs-text-color-heading) !important;
+  text-decoration: none !important;
+  color: var(--vocs-text-color-heading) !important;
 }
 
 /* More spacing between top nav links */
 [data-v-gutter-top] nav a {
-	margin-inline: 0.25rem;
+  margin-inline: 0.25rem;
 }
 
 /* No underline on hover inside buttons or button-like links */
 a[class*="bg-accent"]:hover,
 a[class*="bg-accent"]:hover *,
 a[class*="rounded-md"][class*="border"]:hover {
-	text-decoration: none !important;
+  text-decoration: none !important;
 }
 
 /* Secondary CTA button hover */
 .cta-secondary:hover {
-	background-color: var(--vocs-background-color-surfaceMuted) !important;
+  background-color: var(--vocs-background-color-surfaceMuted) !important;
 }
 
 [data-v-sidebar] a:hover,
 [data-v-outline-items] a:hover {
-	text-decoration: none;
+  text-decoration: none;
 }
 
 [data-v-content] a:hover {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* Sidebar links - default color, no underline */
@@ -172,8 +172,8 @@ a[class*="rounded-md"][class*="border"]:hover {
 [data-v-sidebar] a:hover:not([data-active="true"]),
 [data-v-sidebar] [data-v-sidebar-item]:not([data-active="true"]),
 [data-v-sidebar] [data-v-sidebar-item]:hover:not([data-active="true"]) {
-	color: inherit !important;
-	text-decoration: none !important;
+  color: inherit !important;
+  text-decoration: none !important;
 }
 
 /* Active sidebar item - white text on accent background */
@@ -181,52 +181,70 @@ a[class*="rounded-md"][class*="border"]:hover {
 a[data-v-sidebar-item][data-active="true"],
 a[data-v-sidebar-item][data-active="true"]:link,
 a[data-v-sidebar-item][data-active="true"]:visited {
-	background-color: var(--vocs-color-accent) !important;
-	color: #fff !important;
-	-webkit-text-fill-color: #fff !important;
+  background-color: var(--vocs-color-accent) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 /* Sidebar section headings */
 [data-v-sidebar] [data-v-sidebar-group] > span,
 [data-v-sidebar] [class*="font-medium"],
 [data-v-sidebar] > div > span {
-	font-weight: 500 !important;
+  font-weight: 500 !important;
 }
 
 /* Spacing between sidebar sections */
 [data-v-sidebar] [data-v-sidebar-group] {
-	margin-bottom: 1.75rem !important;
-	padding-bottom: 0.75rem !important;
+  margin-bottom: 1.75rem !important;
+  padding-bottom: 0.75rem !important;
 }
 
 [data-v-sidebar] [data-v-sidebar-group]:last-child {
-	margin-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 /* Add bottom padding to sidebar so items don't sit flush against viewport edge */
 [data-v-sidebar] {
-	padding-bottom: 4rem !important;
+  padding-bottom: 4rem !important;
+}
+
+/* More breathing room under the social icons / theme toggle at the sidebar bottom */
+[data-v-sidebar-footer-content] {
+  padding-bottom: 1.5rem !important;
 }
 
 /* TOC active item - translucent accent bg with accent text */
+/* Use accent8 in dark mode so the text is visible against the dark background */
 [data-v-outline-items] a[data-active="true"] {
-	background-color: oklch(
-		from var(--vocs-color-accent) l c h /
-		0.08
-	) !important;
-	color: var(--vocs-color-accent) !important;
-	-webkit-text-fill-color: var(--vocs-color-accent) !important;
-	border-radius: 4px;
+  background-color: oklch(
+    from light-dark(var(--vocs-color-accent), var(--vocs-color-accent8)) l c h /
+    0.08
+  ) !important;
+  color: light-dark(
+    var(--vocs-color-accent),
+    var(--vocs-color-accent8)
+  ) !important;
+  -webkit-text-fill-color: light-dark(
+    var(--vocs-color-accent),
+    var(--vocs-color-accent8)
+  ) !important;
+  border-radius: 4px;
 }
 
 [data-v-outline-items] a[data-active="true"] *,
 [data-v-outline-items] a[data-active="true"] span,
 [data-v-outline-items] a[data-active="true"] div {
-	color: var(--vocs-color-accent) !important;
-	-webkit-text-fill-color: var(--vocs-color-accent) !important;
-	background-color: transparent !important;
-	opacity: 1 !important;
-	visibility: visible !important;
+  color: light-dark(
+    var(--vocs-color-accent),
+    var(--vocs-color-accent8)
+  ) !important;
+  -webkit-text-fill-color: light-dark(
+    var(--vocs-color-accent),
+    var(--vocs-color-accent8)
+  ) !important;
+  background-color: transparent !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 [data-v-outline-indicator] {
@@ -262,30 +280,30 @@ a[data-v-sidebar-item][data-active="true"]:visited {
 
 /* Pilat + Berkeley Mono as primary font stack */
 :root {
-	/* Enable system theme detection */
-	color-scheme: light dark;
+  /* Enable system theme detection */
+  color-scheme: light dark;
 
-	/* Accent button text - always white since accent bg is near-black */
-	--accent-button-text: white;
+  /* Accent button text - always white since accent bg is near-black */
+  --accent-button-text: white;
 
-	/* Lighter inline code background for better visibility */
-	--background-color-inline-code: light-dark(
-		var(--vocs-color-gray12),
-		var(--vocs-color-gray7)
-	);
+  /* Lighter inline code background for better visibility */
+  --background-color-inline-code: light-dark(
+    var(--vocs-color-gray12),
+    var(--vocs-color-gray7)
+  );
 
-	--font-pilat:
-		"Pilat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-		Arial, sans-serif;
+  --font-pilat:
+    "Pilat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
 
-	--font-mono:
-		"Geist Pixel Square", "Berkeley Mono", "Commit Mono", ui-monospace,
-		SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-mono:
+    "Geist Pixel Square", "Berkeley Mono", "Commit Mono", ui-monospace,
+    SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-	--vocs-leading-code: 1.6em;
-	--vocs-spacing-code-block-px: 1rem;
-	--vocs-tracking-tight: 0em;
-	--vocs-tracking-normal: 0.01em;
+  --vocs-leading-code: 1.6em;
+  --vocs-spacing-code-block-px: 1rem;
+  --vocs-tracking-tight: 0em;
+  --vocs-tracking-normal: 0.01em;
 
   letter-spacing: var(--vocs-tracking-normal);
 }
@@ -296,33 +314,33 @@ aside,
 }
 
 h1 {
-	letter-spacing: -0.02em;
-	font-weight: 500;
-	margin-bottom: 0.8rem !important;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  margin-bottom: 0.8rem !important;
 }
 
 h2 {
-	font-weight: 450;
+  font-weight: 450;
 }
 
 h3,
 h4,
 h5,
 h6 {
-	font-weight: 450;
+  font-weight: 450;
 }
 
 body,
 [data-v-content],
 [data-layout] {
-	font-family: var(--font-pilat);
-	font-weight: 400;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-pilat);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 [data-v-content] {
-	font-size: 15px;
+  font-size: 15px;
 }
 
 pre,
@@ -343,11 +361,11 @@ pre[data-v] {
 
 /* Beautiful mermaid diagram container */
 .mermaid-diagram {
-	background: light-dark(#fafafa, rgba(255, 255, 255, 0.03));
-	border: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
-	transition:
-		background 0.3s ease,
-		border-color 0.3s ease;
+  background: light-dark(#fafafa, rgba(255, 255, 255, 0.03));
+  border: 1px solid light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.06));
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
 }
 
 [data-v-footer] a,
@@ -357,47 +375,47 @@ pre[data-v] {
 
 [data-v-footer] a:hover,
 [data-v-socials] a:hover {
-	color: var(--vocs-color-accent);
-	text-decoration: underline;
+  color: var(--vocs-color-accent);
+  text-decoration: underline;
 }
 
 /* Align table wrapper with content and reduce wrapping */
 [data-v-content] div[data-v-table-wrapper] {
-	margin-left: 0 !important;
-	margin-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 [data-v-content] table {
-	width: 100% !important;
+  width: 100% !important;
 }
 
 [data-v-content] table td,
 [data-v-content] table th {
-	white-space: nowrap;
+  white-space: nowrap;
 }
 
 /* Fixed width for service name column */
 [data-v-content] table td:first-child,
 [data-v-content] table th:first-child {
-	width: 9rem;
-	min-width: 9rem;
+  width: 9rem;
+  min-width: 9rem;
 }
 
 /* Description column wraps, with gap between text and endpoint */
 [data-v-content] table td:nth-child(2) {
-	white-space: normal;
-	padding-top: 0.7rem;
-	padding-bottom: 0.7rem;
+  white-space: normal;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
 }
 
 [data-v-content] table td:nth-child(2) code {
-	display: inline-block;
-	margin-top: 0.5rem;
+  display: inline-block;
+  margin-top: 0.5rem;
 }
 
 /* Service logo hover — icon turns accent color (set via --accent inline) */
 .service-logo-item:hover .service-logo-icon {
-	color: var(--service-accent, var(--vocs-text-color-heading)) !important;
+  color: var(--service-accent, var(--vocs-text-color-heading)) !important;
 }
 
 /* No underline on cards, buttons, and interactive elements */
@@ -419,7 +437,7 @@ a[class*="card"],
 a[class*="card"]:hover,
 a[class*="Card"],
 a[class*="Card"]:hover {
-	text-decoration: none !important;
+  text-decoration: none !important;
 }
 
 /* Remove underline from Vocs cards - more specific */
@@ -435,63 +453,63 @@ article [data-v-card]:hover,
 article [data-v-card] *,
 article a[data-v-card],
 article a[data-v-card]:hover {
-	text-decoration: none !important;
+  text-decoration: none !important;
 }
 
 /* Vocs v2 Cards - target by vocs: prefixed classes */
 a[class*="vocs:rounded-md"][class*="vocs:border"] {
-	display: flex !important;
-	flex-direction: column !important;
-	justify-content: flex-start !important;
-	min-height: 160px !important;
-	transition: border-color 0.15s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  min-height: 160px !important;
+  transition: border-color 0.15s ease !important;
 }
 
 /* Icon wrapper - push to top with margin-bottom auto */
 a[class*="vocs:rounded-md"][class*="vocs:border"] > div:first-child {
-	margin-bottom: auto !important;
+  margin-bottom: auto !important;
 }
 
 /* Title and description stay grouped at bottom */
 a[class*="vocs:rounded-md"][class*="vocs:border"] > strong,
 a[class*="vocs:rounded-md"][class*="vocs:border"] > p {
-	margin-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover {
-	border-color: var(--vocs-border-color-primary) !important;
+  border-color: var(--vocs-border-color-primary) !important;
 }
 
 /* Card title turns accent color on hover */
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover strong,
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover [class*="font-medium"] {
-	color: var(--vocs-color-accent) !important;
+  color: var(--vocs-color-accent) !important;
 }
 
 /* Card description - smaller font */
 a[class*="vocs:rounded-md"][class*="vocs:border"] [class*="text-secondary"],
 a[class*="vocs:rounded-md"][class*="vocs:border"] p:last-of-type {
-	font-size: 13px !important;
-	line-height: 1.35 !important;
-	color: var(--vocs-text-color-secondary) !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  color: var(--vocs-text-color-secondary) !important;
 }
 
 /* Card title size */
 a[class*="vocs:rounded-md"][class*="vocs:border"] strong,
 a[class*="vocs:rounded-md"][class*="vocs:border"]
-	[class*="font-medium"]:first-of-type {
-	font-size: 15px !important;
+  [class*="font-medium"]:first-of-type {
+  font-size: 15px !important;
 }
 
 /* Remove ALL dividers/borders/lines */
 [data-v-content] hr,
 article hr {
-	display: none !important;
+  display: none !important;
 }
 
 /* Ensure header covers scrolling content */
 [data-v-gutter-top] {
-	z-index: 50 !important;
+  z-index: 50 !important;
 }
 
 /* Force mobile nav / header / root background to match primary background.
@@ -501,34 +519,31 @@ article hr {
 [data-v-gutter-top],
 [data-v-header],
 header {
-	background: var(--vocs-background-color-primary) !important;
-	background-color: var(--vocs-background-color-primary) !important;
+  background: var(--vocs-background-color-primary) !important;
+  background-color: var(--vocs-background-color-primary) !important;
 }
 
-/* Clip main so article content never renders above the header area */
-[data-v-main] {
-	overflow: clip;
-}
+/* Header z-index handles content layering — no overflow clip needed */
 
 /* Callouts — use accent color scheme */
 aside[data-v-callout] {
-	--color-tip: var(--vocs-color-accent) !important;
-	--color-tip-tint: oklch(
-		from var(--vocs-color-accent) l c h /
-		0.08
-	) !important;
-	--vocs-color-tip: var(--vocs-color-accent) !important;
-	border-color: var(--vocs-color-accent) !important;
+  --color-tip: var(--vocs-color-accent) !important;
+  --color-tip-tint: oklch(
+    from var(--vocs-color-accent) l c h /
+    0.08
+  ) !important;
+  --vocs-color-tip: var(--vocs-color-accent) !important;
+  border-color: var(--vocs-color-accent) !important;
 }
 
 aside[data-v-callout] [data-v-callout-icon] {
-	color: var(--vocs-color-accent) !important;
+  color: var(--vocs-color-accent) !important;
 }
 
 aside[data-v-callout] [data-v-callout-title],
 aside[data-v-callout] [data-v-callout-title] strong {
-	color: var(--vocs-color-accent) !important;
-	-webkit-text-fill-color: var(--vocs-color-accent) !important;
+  color: var(--vocs-color-accent) !important;
+  -webkit-text-fill-color: var(--vocs-color-accent) !important;
 }
 
 /* Links inside callouts — accent color with underline */
@@ -536,35 +551,35 @@ aside[data-v-callout] [data-v-callout-title] strong {
 [data-v-callout] a:link,
 [data-v-callout] a:visited,
 aside[data-v-callout] a {
-	color: var(--vocs-color-accent) !important;
-	-webkit-text-fill-color: var(--vocs-color-accent) !important;
-	text-decoration: underline !important;
+  color: var(--vocs-color-accent) !important;
+  -webkit-text-fill-color: var(--vocs-color-accent) !important;
+  text-decoration: underline !important;
 }
 
 [data-v-callout] a:hover,
 aside[data-v-callout] a:hover {
-	opacity: 0.8;
-	text-decoration: underline !important;
+  opacity: 0.8;
+  text-decoration: underline !important;
 }
 
 /* Move Ask AI to bottom-right corner instead of centered over content */
 [data-v-ask-ai-container] {
-	left: auto !important;
-	right: 1.5rem !important;
-	bottom: 1.5rem !important;
-	transform: none !important;
+  left: auto !important;
+  right: 1.5rem !important;
+  bottom: 1.5rem !important;
+  transform: none !important;
 }
 
 @media (min-width: 1280px) {
-	[data-v-ask-ai-container] {
-		right: 2rem !important;
-		bottom: 2rem !important;
-	}
+  [data-v-ask-ai-container] {
+    right: 2rem !important;
+    bottom: 2rem !important;
+  }
 }
 
 /* Let clicks pass through hero to background animation, but keep interactive elements clickable */
 .hero-clickthrough {
-	pointer-events: none;
+  pointer-events: none;
 }
 .hero-clickthrough a,
 .hero-clickthrough button,
@@ -574,5 +589,5 @@ aside[data-v-callout] a:hover {
 .hero-clickthrough .service-logo-item,
 .hero-clickthrough div[style*="border"],
 .hero-clickthrough span[class*="rounded-full"] {
-	pointer-events: auto;
+  pointer-events: auto;
 }
