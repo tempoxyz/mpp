@@ -109,9 +109,18 @@
 
 /* Prevent layout shift when scrollbar appears/disappears between routes */
 html,
-body {
+body,
+[data-v-main],
+[data-v-main] > * {
   scrollbar-gutter: stable;
   overflow-x: hidden;
+}
+
+/* Force content area to fill available width so it doesn't shift on load */
+[data-v-content] article,
+article[data-v-content] {
+  width: 100%;
+  min-width: 0;
 }
 
 /* Pagination: hide "Next" / "Previous" label text, keep only shortcut (Shift → / ←) */
