@@ -14,7 +14,7 @@ Today, [Tempo](/payment-methods/tempo/) stablecoin payments are in production. [
 
 ## Do I need a crypto wallet?
 
-For now, yes—the production payment method uses stablecoin payments on the [Tempo](https://tempo.xyz) blockchain. You need an account (a private key) to sign transactions. The SDK and `tempoctl` CLI handle this for you.
+For now, yes—the production payment method uses stablecoin payments on the [Tempo](https://tempo.xyz) blockchain. You need an account (a private key) to sign transactions. The SDK and `presto` CLI handle this for you.
 
 When Stripe support launches, you can use traditional cards and bank transfers without any crypto.
 
@@ -47,13 +47,11 @@ Payments use the same security model as the underlying payment method. For Tempo
 
 ## What services can I use?
 
-Over a dozen services accept MPP payments today, including OpenRouter, Anthropic, OpenAI, fal.ai, ElevenLabs, Firecrawl, and more. See the full list on the [agents page](/setup/agents#services-available-today).
-
-New services are being added regularly. You can browse all available services at [payments.tempo.xyz](https://payments.tempo.xyz).
+Over a dozen services accept MPP payments today, including OpenRouter, Anthropic, OpenAI, fal.ai, ElevenLabs, Firecrawl, and more. New services are being added regularly. See the full list on [Use with Agents](/setup/agents#services-available-today).
 
 ## Can any AI agent use MPP?
 
-Yes. Any agent that can run shell commands can use MPP—just point it at `tempoctl` and a paid service endpoint. The [agents page](/setup/agents) has copy-paste commands for Claude, Codex, and Amp.
+Yes. Any agent that can run shell commands can use MPP—just point it at `presto` and a paid service endpoint. The [Use with Agents](/setup/agents) page has copy-paste commands for Claude, Codex, and Amp.
 
 For programmatic integration, the [TypeScript](/sdk/typescript/), [Python](/sdk/python/), and [Rust](/sdk/rust/) SDKs handle the payment flow automatically.
 

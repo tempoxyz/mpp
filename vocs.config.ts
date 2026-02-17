@@ -16,9 +16,12 @@ export default defineConfig({
   redirects: [
     { source: "/docs", destination: "/overview" },
     { source: "/specifications", destination: "/specs" },
-    { source: "/quickstart/pget", destination: "/quickstart/tempoctl" },
-    { source: "/tools/pget", destination: "/tools/tempoctl" },
-    { source: "/tools/pget/examples", destination: "/tools/tempoctl/examples" },
+    { source: "/quickstart/pget", destination: "/quickstart/presto" },
+    { source: "/quickstart/tempoctl", destination: "/quickstart/presto" },
+    { source: "/tools/pget", destination: "/tools/presto" },
+    { source: "/tools/pget/examples", destination: "/tools/presto/examples" },
+    { source: "/tools/tempoctl", destination: "/tools/presto" },
+    { source: "/tools/tempoctl/examples", destination: "/tools/presto/examples" },
     {
       source: "/payment-methods/tempo/stream",
       destination: "/payment-methods/tempo/session",
@@ -87,7 +90,7 @@ export default defineConfig({
               { text: "Overview", link: "/quickstart" },
               { text: "Client", link: "/quickstart/client" },
               { text: "Server", link: "/quickstart/server" },
-              { text: "tempoctl CLI", link: "/quickstart/tempoctl" },
+              { text: "presto CLI", link: "/quickstart/presto" },
             ],
           },
           {
@@ -431,13 +434,13 @@ export default defineConfig({
                 ],
               },
               {
-                text: "tempoctl CLI",
+                text: "presto CLI",
                 collapsed: true,
                 items: [
-                  { text: "Reference", link: "/tools/tempoctl" },
+                  { text: "Reference", link: "/tools/presto" },
                   {
                     text: "Examples",
-                    link: "/tools/tempoctl/examples",
+                    link: "/tools/presto/examples",
                   },
                 ],
               },
