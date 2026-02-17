@@ -1,0 +1,66 @@
+# Frequently asked [Common questions about MPP for end users]
+
+## What is MPP?
+
+MPP (Machine Payments Protocol) is an open standard that lets software—especially AI agents—pay for services automatically over HTTP. When a service requires payment, it returns a `402 Payment Required` response with a Challenge. The client responds with a Credential (proof of payment), and the service returns a Receipt confirming success.
+
+No API keys. No billing dashboards. No manual signup. Your agent pays per request, on demand.
+
+## Is MPP only for crypto?
+
+No. MPP is payment-method agnostic—the protocol works with any payment rail.
+
+Today, [Tempo](/payment-methods/tempo/) stablecoin payments are in production. [Stripe](/payment-methods/stripe) support (credit cards, bank transfers, invoices) is coming soon. Anyone can build a [custom payment method](/payment-methods/custom) for any rail: Lightning Network, other blockchains, card processors, or proprietary systems.
+
+## Do I need a crypto wallet?
+
+For now, yes—the production payment method uses stablecoin payments on the [Tempo](https://tempo.xyz) blockchain. You need an account (a private key) to sign transactions. The SDK and `tempoctl` CLI handle this for you.
+
+When Stripe support launches, you can use traditional cards and bank transfers without any crypto.
+
+## How is MPP different from x402?
+
+Both MPP and x402 use HTTP `402` to signal that a request requires payment. The key differences:
+
+|                      | MPP                                         | x402                           |
+| -------------------- | ------------------------------------------- | ------------------------------ |
+| **Standard**         | IETF-track open specification               | Proprietary API                |
+| **Payment rails**    | Any—crypto, cards, bank transfers, invoices | Crypto only (Base stablecoins) |
+| **Payment intents**  | Charge, session, authorize, subscription    | One-time payments only         |
+| **AI agent support** | Native MCP transport binding                | HTTP only                      |
+| **Extensibility**    | Anyone can define new payment methods       | Fixed to supported chains      |
+| **Currencies**       | Any currency on any network                 | USDC on Base                   |
+
+MPP is designed as a universal protocol that any payment network can plug into, not tied to a single blockchain or currency.
+
+## How much does it cost?
+
+Pricing is set per service—typically fractions of a cent to a few cents per request. See the [services page](/setup/agents#services-available-today) for current pricing.
+
+There are no platform fees from MPP itself. You pay only for the services you use, plus network transaction costs (negligible on Tempo).
+
+## Is it safe?
+
+MPP requires TLS 1.2+ for all connections. Challenge IDs are cryptographically bound to prevent replay attacks. The protocol never performs side effects on unpaid requests—your agent only pays after verifying what it is paying for.
+
+Payments use the same security model as the underlying payment method. For Tempo, that means on-chain transactions with cryptographic signatures. For Stripe (coming soon), that means Stripe's PCI-compliant infrastructure.
+
+## What services can I use?
+
+Over a dozen services accept MPP payments today, including OpenRouter, Anthropic, OpenAI, fal.ai, ElevenLabs, Firecrawl, and more. See the full list on the [agents page](/setup/agents#services-available-today).
+
+New services are being added regularly. You can browse all available services at [payments.tempo.xyz](https://payments.tempo.xyz).
+
+## Can any AI agent use MPP?
+
+Yes. Any agent that can run shell commands can use MPP—just point it at `tempoctl` and a paid service endpoint. The [agents page](/setup/agents) has copy-paste commands for Claude, Codex, and Amp.
+
+For programmatic integration, the [TypeScript](/sdk/typescript/), [Python](/sdk/python/), and [Rust](/sdk/rust/) SDKs handle the payment flow automatically.
+
+## What happens if a payment fails?
+
+The service returns an error with details following [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) (Problem Details for HTTP APIs). Your client can retry with a different payment method or surface the error. No money is deducted for failed requests.
+
+## Can I accept MPP payments for my own service?
+
+Yes. See the [server quickstart](/quickstart/server) to start accepting payments in a few lines of code. MPP has middleware for [Hono](/sdk/typescript/middlewares/hono), [Express](/sdk/typescript/middlewares/express), [Next.js](/sdk/typescript/middlewares/nextjs), and [Elysia](/sdk/typescript/middlewares/elysia).

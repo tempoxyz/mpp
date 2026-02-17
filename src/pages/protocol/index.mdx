@@ -1,4 +1,5 @@
 import { Badge } from 'vocs'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 # Protocol overview [Standardizing HTTP 402 for machine-to-machine payments]
 
@@ -8,18 +9,16 @@ These docs provide a developer-friendly overview. For the full specification, se
 
 ## Flow
 
-```mermaid
-sequenceDiagram
+<MermaidDiagram chart={`sequenceDiagram
     participant Client
     participant Server
-
     Client->>Server: (1) GET /resource
-    Server-->>Client: (2) 402 Payment Required<br/>WWW-Authenticate: Payment <challenge>
-    Note over Client: (3) Client fulfills payment challenge<br/>(signs transaction, pays invoice, or similar)
-    Client->>Server: (4) GET /resource<br/>Authorization: Payment <credential>
+    Server-->>Client: (2) 402 Payment Required + Challenge
+    Note over Client: (3) Client fulfills payment challenge
+    Client->>Server: (4) GET /resource + Credential
     Note over Server: (5) Server verifies and settles
-    Server-->>Client: (6) 200 OK<br/>Payment-Receipt: <receipt>
-```
+    Server-->>Client: (6) 200 OK + Receipt
+`} />
 
 1. **Request a resource**—Standard HTTP request (`GET`, `POST`, and others)
 2. **Respond with `402`**—Include a **Challenge** in `WWW-Authenticate` describing the payment required

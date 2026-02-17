@@ -39,59 +39,68 @@ export namespace Store {
   export type InteractionType = "select" | "toggle" | null;
   export type ViewType = "main" | "network";
 
-  export type State = {
-    initialBalance: bigint | undefined;
-    interaction: InteractionType;
-    restartStep: number;
-    stepIndex: number;
-    token: Address | undefined;
-    view: ViewType;
-  };
+	export type State = {
+		demoAddress: Address | undefined;
+		initialBalance: bigint | undefined;
+		interaction: InteractionType;
+		restartStep: number;
+		stepIndex: number;
+		token: Address | undefined;
+		view: ViewType;
+	};
 }
 
 export const store = new ts_Store<Store.State>({
-  initialBalance: undefined,
-  interaction: null,
-  restartStep: 0,
-  stepIndex: 0,
-  token: undefined,
-  view: "main",
+	demoAddress: undefined,
+	initialBalance: undefined,
+	interaction: null,
+	restartStep: 0,
+	stepIndex: 0,
+	token: undefined,
+	view: "main",
 });
 
 export function Window({ children, className, token }: Window.Props) {
-  const { address } = useConnection();
-  const initialBalance = useStore(store, (s) => s.initialBalance);
+	const { address } = useConnection();
+	const demoAddress = useStore(store, (s) => s.demoAddress);
+	const initialBalance = useStore(store, (s) => s.initialBalance);
 
-  const { data: balance } = Hooks.token.useGetBalance({
-    account: address,
-    token,
-    blockTag: "latest",
-  });
+	// Use demo address if available, otherwise connected wallet
+	const balanceAddress = demoAddress ?? address;
+
+	const { data: balance } = Hooks.token.useGetBalance({
+		account: balanceAddress,
+		token,
+		blockTag: "latest",
+	});
 
   useEffect(() => {
     store.setState((s) => ({ ...s, token }));
   }, [token]);
 
-  useEffect(() => {
-    if (!address) {
-      store.setState((s) => ({ ...s, initialBalance: undefined }));
-      return;
-    }
-    if (balance !== undefined && initialBalance === undefined) {
-      store.setState((s) => ({ ...s, initialBalance: balance }));
-    }
-  }, [address, balance, initialBalance]);
+	useEffect(() => {
+		// Only reset initialBalance if there's no address AND no demo address
+		if (!address && !demoAddress) {
+			store.setState((s) => ({ ...s, initialBalance: undefined }));
+			return;
+		}
+		// Don't set initialBalance if demoAddress is set - let SilentDemoSetup handle it
+		if (demoAddress) return;
+		if (balance !== undefined && initialBalance === undefined) {
+			store.setState((s) => ({ ...s, initialBalance: balance }));
+		}
+	}, [address, demoAddress, balance, initialBalance]);
 
-  return (
-    <div
-      className={cx(
-        "bg-gray2 rounded-xl overflow-hidden font-mono text-sm border border-primary",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
+	return (
+		<div
+			className={cx(
+				"bg-surfaceMuted rounded-xl overflow-hidden font-mono text-sm border border-primary",
+				className,
+			)}
+		>
+			{children}
+		</div>
+	);
 }
 
 export namespace Window {
@@ -103,30 +112,39 @@ export namespace Window {
 }
 
 export function TitleBar({ title, children, className }: TitleBar.Props) {
-  return (
-    <div
-      className={cx(
-        "flex items-center justify-between px-4 h-9 border-b border-primary bg-primary text-secondary gap-3",
-        className,
-      )}
-    >
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="flex gap-1.5 shrink-0">
-          <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-          <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-          <span className="w-3 h-3 rounded-full bg-[#27c93f]" />
-        </div>
-        {title && (
-          <span className="text-[13px] tracking-tight ml-2 mt-[2px] truncate">
-            {title}
-          </span>
-        )}
-      </div>
-      {children && (
-        <div className="flex items-center gap-3 text-xs">{children}</div>
-      )}
-    </div>
-  );
+	return (
+		<div
+			className={cx(
+				"flex items-center justify-between px-4 h-9 border-b border-primary bg-primary text-secondary gap-3",
+				className,
+			)}
+		>
+			<div className="flex items-center gap-2 min-w-0">
+				<div className="flex gap-1.5 shrink-0">
+					<span
+						className="w-3 h-3 rounded-full"
+						style={{ backgroundColor: "var(--vocs-border-color-secondary)" }}
+					/>
+					<span
+						className="w-3 h-3 rounded-full"
+						style={{ backgroundColor: "var(--vocs-border-color-secondary)" }}
+					/>
+					<span
+						className="w-3 h-3 rounded-full"
+						style={{ backgroundColor: "var(--vocs-border-color-secondary)" }}
+					/>
+				</div>
+				{title && (
+					<span className="text-[13px] tracking-tight ml-2 mt-[2px] truncate">
+						{title}
+					</span>
+				)}
+			</div>
+			{children && (
+				<div className="flex items-center gap-3 text-xs">{children}</div>
+			)}
+		</div>
+	);
 }
 
 export namespace TitleBar {
@@ -188,52 +206,52 @@ export namespace Panel {
 }
 
 export function Line({ variant, prefix, children, className }: Line.Props) {
-  return (
-    <div
-      className={cva("leading-normal", {
-        variants: {
-          variant: {
-            default: "text-primary",
-            info: "text-gray8",
-            success: "text-success",
-            error: "text-destructive",
-            input: "text-primary",
-            warning: "text-warning",
-            loading: "text-secondary",
-          },
-        },
-        defaultVariants: {
-          variant: "default",
-        },
-      })({ variant, className })}
-    >
-      {variant === "loading" && <Spinner />}
-      {prefix && (
-        <span
-          className={cva("", {
-            variants: {
-              variant: {
-                default: "text-primary",
-                info: "text-gray8",
-                success: "text-success",
-                error: "text-destructive",
-                input: "text-accent8",
-                warning: "text-warning",
-                loading:
-                  "text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
-              },
-            },
-            defaultVariants: {
-              variant: "default",
-            },
-          })({ variant })}
-        >
-          {prefix}{" "}
-        </span>
-      )}
-      {children}
-    </div>
-  );
+	return (
+		<div
+			className={cva("leading-normal", {
+				variants: {
+					variant: {
+						default: "text-primary",
+						info: "text-muted",
+						success: "text-success",
+						error: "text-destructive",
+						input: "text-primary",
+						warning: "text-warning",
+						loading: "text-secondary",
+					},
+				},
+				defaultVariants: {
+					variant: "default",
+				},
+			})({ variant, className })}
+		>
+			{variant === "loading" && <Spinner />}
+			{prefix && (
+				<span
+					className={cva("", {
+						variants: {
+							variant: {
+								default: "text-primary",
+								info: "text-muted",
+								success: "text-success",
+								error: "text-destructive",
+								input: "text-accent8",
+								warning: "text-warning",
+								loading:
+									"text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+							},
+						},
+						defaultVariants: {
+							variant: "default",
+						},
+					})({ variant })}
+				>
+					{prefix}{" "}
+				</span>
+			)}
+			{children}
+		</div>
+	);
 }
 
 function Spinner() {
@@ -341,19 +359,34 @@ export namespace FooterBar {
 }
 
 export function Balance({ className, label = "Balance" }: Balance.Props) {
-  const token = useStore(store, (s) => s.token);
-  const { address } = useConnection();
+	const token = useStore(store, (s) => s.token);
+	const demoAddress = useStore(store, (s) => s.demoAddress);
+	const { address: connectedAddress } = useConnection();
+	const address = demoAddress ?? connectedAddress;
 
-  const { data: balance } = Hooks.token.useGetBalance({
-    account: address,
-    token,
-    query: {
-      enabled: !!address && !!token,
-      refetchInterval: 1_000,
-    },
-  });
+	const { data: balance } = Hooks.token.useGetBalance({
+		account: address,
+		token,
+		blockTag: "latest",
+		query: {
+			enabled: !!address && !!token,
+			refetchInterval: 1_000,
+			staleTime: 0,
+			gcTime: 0,
+		},
+	});
 
-  if (balance === undefined) return null;
+	// Debug logging
+	console.log(
+		"[Balance] address:",
+		address,
+		"token:",
+		token,
+		"balance:",
+		balance?.toString(),
+	);
+
+	if (balance === undefined) return null;
 
   const formatted = formatUnits(balance, 6);
   const display = Number(formatted).toLocaleString("en-US", {
@@ -361,11 +394,11 @@ export function Balance({ className, label = "Balance" }: Balance.Props) {
     minimumFractionDigits: 2,
   });
 
-  return (
-    <span className={cx("text-secondary", className)}>
-      {label}: <span className="text-success">${display}</span>
-    </span>
-  );
+	return (
+		<span className={cx("text-secondary", className)}>
+			{label}: <span className="text-primary">${display}</span>
+		</span>
+	);
 }
 
 export namespace Balance {
@@ -376,21 +409,39 @@ export namespace Balance {
 }
 
 export function Spent({ className, label = "Spent" }: Spent.Props) {
-  const initial = useStore(store, (s) => s.initialBalance);
-  const token = useStore(store, (s) => s.token);
-  const { address } = useConnection();
+	const initial = useStore(store, (s) => s.initialBalance);
+	const token = useStore(store, (s) => s.token);
+	const demoAddress = useStore(store, (s) => s.demoAddress);
+	const { address: connectedAddress } = useConnection();
+	const address = demoAddress ?? connectedAddress;
 
-  const { data: balance } = Hooks.token.useGetBalance({
-    account: address,
-    token,
-  });
+	const { data: balance } = Hooks.token.useGetBalance({
+		account: address,
+		token,
+		blockTag: "latest",
+		query: {
+			enabled: !!address && !!token,
+			refetchInterval: 2_000,
+			staleTime: 0,
+			gcTime: 0,
+		},
+	});
 
-  if (!address) return null;
+	// Debug logging
+	console.log(
+		"[Spent] initial:",
+		initial?.toString(),
+		"balance:",
+		balance?.toString(),
+	);
 
-  const spent =
-    initial !== undefined && balance !== undefined && initial > balance
-      ? initial - balance
-      : 0n;
+	if (!address) return null;
+
+	// Calculate spent: if balance went down from initial, show the difference
+	const spent =
+		initial !== undefined && balance !== undefined && initial > balance
+			? initial - balance
+			: 0n;
 
   const formatted = formatUnits(spent, 6);
   const display = Number(formatted).toLocaleString("en-US", {
@@ -398,11 +449,11 @@ export function Spent({ className, label = "Spent" }: Spent.Props) {
     minimumFractionDigits: 2,
   });
 
-  return (
-    <span className={cx("text-secondary hidden sm:inline", className)}>
-      {label}: <span className="text-warning">${display}</span>
-    </span>
-  );
+	return (
+		<span className={cx("text-secondary hidden sm:inline", className)}>
+			{label}: <span className="text-primary">${display}</span>
+		</span>
+	);
 }
 
 export namespace Spent {
@@ -413,29 +464,29 @@ export namespace Spent {
 }
 
 export function Status({ children, className, variant }: Status.Props) {
-  return (
-    <span
-      className={cva(
-        "px-2 py-0.5 rounded text-[10px] uppercase tracking-wider",
-        {
-          variants: {
-            variant: {
-              complete: "bg-success/20 text-success",
-              error: "bg-destructive/20 text-destructive",
-              idle: "bg-gray8/20 text-gray8",
-              ready: "bg-gray8/20 text-gray8",
-              running: "bg-warning/20 text-warning",
-            },
-          },
-          defaultVariants: {
-            variant: "idle",
-          },
-        },
-      )({ variant, className })}
-    >
-      {children}
-    </span>
-  );
+	return (
+		<span
+			className={cva(
+				"px-2 py-0.5 rounded text-[10px] uppercase tracking-wider",
+				{
+					variants: {
+						variant: {
+							complete: "bg-success/20 text-success",
+							error: "bg-destructive/20 text-destructive",
+							idle: "bg-note/20 text-muted",
+							ready: "bg-note/20 text-muted",
+							running: "bg-warning/20 text-warning",
+						},
+					},
+					defaultVariants: {
+						variant: "idle",
+					},
+				},
+			)({ variant, className })}
+		>
+			{children}
+		</span>
+	);
 }
 
 export namespace Status {
@@ -449,26 +500,26 @@ export namespace Status {
 }
 
 export function StatusDot({ children, className, variant }: StatusDot.Props) {
-  return (
-    <span className={cx("flex items-center gap-2 text-secondary", className)}>
-      <span
-        className={cva("w-2 h-2 rounded-full", {
-          variants: {
-            variant: {
-              error: "bg-destructive",
-              offline: "bg-gray8",
-              success: "bg-success",
-              warning: "bg-warning",
-            },
-          },
-          defaultVariants: {
-            variant: "success",
-          },
-        })({ variant })}
-      />
-      {children}
-    </span>
-  );
+	return (
+		<span className={cx("flex items-center gap-2 text-secondary", className)}>
+			<span
+				className={cva("w-2 h-2 rounded-full", {
+					variants: {
+						variant: {
+							error: "bg-destructive",
+							offline: "bg-note",
+							success: "bg-success",
+							warning: "bg-warning",
+						},
+					},
+					defaultVariants: {
+						variant: "success",
+					},
+				})({ variant })}
+			/>
+			{children}
+		</span>
+	);
 }
 
 export namespace StatusDot {
@@ -571,30 +622,30 @@ export namespace Select {
   export function Option({ children, className, value }: Option.Props) {
     const { onSubmit } = useContext(SelectContext);
 
-    return (
-      // biome-ignore lint/a11y/noLabelWithoutControl: Radio.Root renders an input
-      <label
-        className={cx(
-          "flex items-center text-left py-0.5 px-1.5 -mx-1.5 rounded transition-colors cursor-pointer",
-          "text-primary",
-          "has-[[data-checked]]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
-          "has-[[data-checked]]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
-          "has-[:focus-visible]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
-          "has-[:focus-visible]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
-          "[counter-increment:option]",
-          className,
-        )}
-        onPointerUp={() => onSubmit?.(value)}
-      >
-        <Radio.Root value={value} className="peer sr-only" />
-        <span className="w-3 invisible peer-data-[checked]:visible peer-focus-visible:visible">
-          ▸
-        </span>
-        <span className="text-gray8 w-5 before:content-[counter(option)'.']" />
-        <span>{children}</span>
-      </label>
-    );
-  }
+		return (
+			// biome-ignore lint/a11y/noLabelWithoutControl: Radio.Root renders an input
+			<label
+				className={cx(
+					"flex items-center text-left py-0.5 px-1.5 -mx-1.5 rounded transition-colors cursor-pointer",
+					"text-primary",
+					"has-[[data-checked]]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
+					"has-[[data-checked]]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					"has-[:focus-visible]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
+					"has-[:focus-visible]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					"[counter-increment:option]",
+					className,
+				)}
+				onPointerUp={() => onSubmit?.(value)}
+			>
+				<Radio.Root value={value} className="peer sr-only" />
+				<span className="w-3 invisible peer-data-[checked]:visible peer-focus-visible:visible">
+					▸
+				</span>
+				<span className="text-muted w-5 before:content-[counter(option)'.']" />
+				<span>{children}</span>
+			</label>
+		);
+	}
 
   export namespace Option {
     export type Props = {
@@ -682,25 +733,26 @@ export namespace Toggle {
   export function Option({ children, className, value }: Option.Props) {
     const { onSubmit } = useContext(ToggleContext);
 
-    return (
-      // biome-ignore lint/a11y/noLabelWithoutControl: Radio.Root renders an input
-      <label
-        className={cx(
-          "flex items-center px-3 py-1 rounded cursor-pointer transition-colors",
-          "text-secondary",
-          "has-[[data-checked]]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
-          "has-[[data-checked]]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
-          "has-[:focus-visible]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
-          "has-[:focus-visible]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
-          className,
-        )}
-        onPointerUp={() => onSubmit?.(value)}
-      >
-        <Radio.Root value={value} className="sr-only" />
-        <span>{children}</span>
-      </label>
-    );
-  }
+		return (
+			// biome-ignore lint/a11y/noLabelWithoutControl: Radio.Root renders an input
+			<label
+				className={cx(
+					"flex items-center px-4 py-2 rounded-md cursor-pointer transition-colors text-sm font-medium",
+					"text-secondary border border-transparent",
+					"has-[[data-checked]]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
+					"has-[[data-checked]]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					"has-[[data-checked]]:border-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/30",
+					"has-[:focus-visible]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
+					"has-[:focus-visible]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					className,
+				)}
+				onPointerUp={() => onSubmit?.(value)}
+			>
+				<Radio.Root value={value} className="sr-only" />
+				<span>{children}</span>
+			</label>
+		);
+	}
 
   export namespace Option {
     export type Props = {
@@ -736,12 +788,12 @@ export function Hint({ className }: Hint.Props) {
     toggle: "Tap to select",
   };
 
-  return (
-    <span className={cx("text-gray8", className)}>
-      <span className="hidden sm:inline">{hints[interaction]}</span>
-      <span className="sm:hidden">{mobileHints[interaction]}</span>
-    </span>
-  );
+	return (
+		<span className={cx("text-muted", className)}>
+			<span className="hidden sm:inline">{hints[interaction]}</span>
+			<span className="sm:hidden">{mobileHints[interaction]}</span>
+		</span>
+	);
 }
 
 export namespace Hint {
@@ -810,44 +862,44 @@ export function Tabs({ className }: Tabs.Props) {
   const view = useStore(store, (s) => s.view);
   const requests = useRequests();
 
-  return (
-    <div
-      className={cx(
-        "flex items-center border-b border-primary bg-primary text-xs",
-        className,
-      )}
-    >
-      <button
-        type="button"
-        onClick={() => store.setState((s) => ({ ...s, view: "main" }))}
-        className={cx(
-          "px-3 py-1.5 transition-colors",
-          view === "main"
-            ? "text-primary border-b border-current"
-            : "text-secondary hover:text-primary",
-        )}
-      >
-        Terminal
-      </button>
-      <button
-        type="button"
-        onClick={() => store.setState((s) => ({ ...s, view: "network" }))}
-        className={cx(
-          "px-3 py-1.5 transition-colors flex items-center gap-1.5",
-          view === "network"
-            ? "text-primary border-b border-current"
-            : "text-secondary hover:text-primary",
-        )}
-      >
-        Network
-        {requests.length > 0 && (
-          <span className="bg-[var(--text-color-muted)] text-primary rounded-full px-1.5 py-px text-[10px] leading-tight tabular-nums">
-            {requests.length}
-          </span>
-        )}
-      </button>
-    </div>
-  );
+	return (
+		<div
+			className={cx(
+				"flex items-center border-b border-primary bg-primary text-xs",
+				className,
+			)}
+		>
+			<button
+				type="button"
+				onClick={() => store.setState((s) => ({ ...s, view: "main" }))}
+				className={cx(
+					"px-3 py-1.5 transition-colors",
+					view === "main"
+						? "text-primary border-b border-current"
+						: "text-secondary hover:text-primary",
+				)}
+			>
+				Terminal
+			</button>
+			<button
+				type="button"
+				onClick={() => store.setState((s) => ({ ...s, view: "network" }))}
+				className={cx(
+					"px-3 py-1.5 transition-colors flex items-center gap-1.5",
+					view === "network"
+						? "text-primary border-b border-current"
+						: "text-secondary hover:text-primary",
+				)}
+			>
+				Network
+				{requests.length > 0 && (
+					<span className="bg-surface text-primary rounded-full px-1.5 py-px text-[10px] leading-tight tabular-nums">
+						{requests.length}
+					</span>
+				)}
+			</button>
+		</div>
+	);
 }
 
 export namespace Tabs {
@@ -890,77 +942,77 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
       bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
   }, [requests, view]);
 
-  return (
-    <div
-      className={cx("flex flex-col text-xs bg-surface", className)}
-      style={style}
-    >
-      <div className="flex items-center border-b border-primary px-3 py-1.5 text-gray8 shrink-0">
-        <div className="min-w-0 basis-0 grow-4 flex items-center gap-2">
-          <div className="w-3.5 shrink-0" />
-          <div>URL</div>
-        </div>
-        <div className="min-w-0 basis-0 grow-10">Description</div>
-        <div className="min-w-0 basis-0 grow-3 text-right">Status</div>
-        <div className="min-w-0 basis-0 grow-3 text-right">Time</div>
-      </div>
-      <div ref={bodyRef} className="flex-1 overflow-y-auto min-h-0">
-        {requests.length === 0 ? (
-          <div className="px-2 py-3 text-gray8">No network activity</div>
-        ) : (
-          requests.map((request) => {
-            const urlPath = (() => {
-              try {
-                return new URL(request.url).pathname;
-              } catch {
-                return request.url;
-              }
-            })();
+	return (
+		<div
+			className={cx("flex flex-col text-xs bg-surface", className)}
+			style={style}
+		>
+			<div className="flex items-center border-b border-primary px-3 py-1.5 text-muted shrink-0">
+				<div className="min-w-0 basis-0 grow-4 flex items-center gap-2">
+					<div className="w-3.5 shrink-0" />
+					<div>URL</div>
+				</div>
+				<div className="min-w-0 basis-0 grow-10">Description</div>
+				<div className="min-w-0 basis-0 grow-3 text-right">Status</div>
+				<div className="min-w-0 basis-0 grow-3 text-right">Time</div>
+			</div>
+			<div ref={bodyRef} className="flex-1 overflow-y-auto min-h-0">
+				{requests.length === 0 ? (
+					<div className="px-2 py-3 text-muted">No network activity</div>
+				) : (
+					requests.map((request) => {
+						const urlPath = (() => {
+							try {
+								return new URL(request.url).pathname;
+							} catch {
+								return request.url;
+							}
+						})();
 
-            return (
-              <div
-                key={request.id}
-                className="flex items-center border-b border-primary/50 px-3 py-1.5 hover:bg-surfaceTint transition-colors"
-              >
-                <div className="min-w-0 basis-0 grow-4 flex items-center gap-2">
-                  {request.status === "pending" ? (
-                    <IconLoader className="w-3.5 h-3.5 shrink-0 text-warning animate-spin" />
-                  ) : request.status === "success" ? (
-                    <IconCheck className="w-3.5 h-3.5 shrink-0 text-success" />
-                  ) : (
-                    <IconAlertHexagon className="w-3.5 h-3.5 shrink-0 text-destructive" />
-                  )}
-                  <div className="text-primary truncate">{urlPath}</div>
-                </div>
-                <div className="min-w-0 basis-0 grow-10 text-gray8 truncate">
-                  {request.description ?? "—"}
-                </div>
-                <div
-                  className={cx(
-                    "min-w-0 basis-0 grow-3 text-right tabular-nums",
-                    request.status === "pending"
-                      ? "text-gray8"
-                      : request.statusCode && request.statusCode >= 400
-                        ? "text-destructive"
-                        : "text-success",
-                  )}
-                >
-                  {request.status === "pending"
-                    ? "..."
-                    : (request.statusCode ?? "—")}
-                </div>
-                <div className="min-w-0 basis-0 grow-3 text-right tabular-nums text-gray8">
-                  {new Date(request.timestamp).toLocaleTimeString("en-US", {
-                    hour12: false,
-                  })}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
+						return (
+							<div
+								key={request.id}
+								className="flex items-center border-b border-primary/50 px-3 py-1.5 hover:bg-surfaceTint transition-colors"
+							>
+								<div className="min-w-0 basis-0 grow-4 flex items-center gap-2">
+									{request.status === "pending" ? (
+										<IconLoader className="w-3.5 h-3.5 shrink-0 text-warning animate-spin" />
+									) : request.status === "success" ? (
+										<IconCheck className="w-3.5 h-3.5 shrink-0 text-success" />
+									) : (
+										<IconAlertHexagon className="w-3.5 h-3.5 shrink-0 text-destructive" />
+									)}
+									<div className="text-primary truncate">{urlPath}</div>
+								</div>
+								<div className="min-w-0 basis-0 grow-10 text-muted truncate">
+									{request.description ?? "—"}
+								</div>
+								<div
+									className={cx(
+										"min-w-0 basis-0 grow-3 text-right tabular-nums",
+										request.status === "pending"
+											? "text-muted"
+											: request.statusCode && request.statusCode >= 400
+												? "text-destructive"
+												: "text-success",
+									)}
+								>
+									{request.status === "pending"
+										? "..."
+										: (request.statusCode ?? "—")}
+								</div>
+								<div className="min-w-0 basis-0 grow-3 text-right tabular-nums text-muted">
+									{new Date(request.timestamp).toLocaleTimeString("en-US", {
+										hour12: false,
+									})}
+								</div>
+							</div>
+						);
+					})
+				)}
+			</div>
+		</div>
+	);
 }
 
 export namespace NetworkPanel {
@@ -1007,6 +1059,43 @@ export function Demo({
       />
     </Window>
   );
+}
+
+// Simplified demo without account, tabs, or hint
+export function DemoSimple({
+	children,
+	className,
+	height = 280,
+	restartStep = 0,
+	title,
+	token,
+}: Demo.Props) {
+	const hasInitialized = useRef(false);
+
+	useEffect(() => {
+		// Only reset state once on first mount
+		if (hasInitialized.current) return;
+		hasInitialized.current = true;
+
+		store.setState((s) => ({
+			...s,
+			restartStep,
+			stepIndex: 0,
+			// Don't reset demoAddress or initialBalance - let SilentDemoSetup handle those
+		}));
+	}, [restartStep]);
+
+	return (
+		<Window className={className} token={token}>
+			<TitleBar title={title}>
+				<Balance />
+				<Spent />
+				<Refresh />
+			</TitleBar>
+
+			<Demo.Content height={height}>{children}</Demo.Content>
+		</Window>
+	);
 }
 
 export namespace Demo {
@@ -1073,24 +1162,16 @@ export function Startup() {
     store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 }));
   }, [stepIndex]);
 
-  return (
-    <Block>
-      <div className="hidden sm:block">
-        <AsciiLogo morph={false} color="var(--vocs-color-gray10)" />
-      </div>
-      <Line variant="info">
-        mpp.dev@
-        <a
-          href={`https://github.com/tempoxyz/mpp/commit/${__COMMIT_SHA__}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {__COMMIT_SHA__}
-        </a>{" "}
-        (released {timeAgo(__COMMIT_TIMESTAMP__)})
-      </Line>
-    </Block>
-  );
+	return (
+		<Block>
+			<div className="hidden sm:block">
+				<AsciiLogo />
+			</div>
+			<Line variant="info">
+				mpp.sh@{__COMMIT_SHA__} (released {timeAgo(__COMMIT_TIMESTAMP__)})
+			</Line>
+		</Block>
+	);
 }
 
 export function ConnectWallet() {
@@ -1110,36 +1191,177 @@ export function ConnectWallet() {
     }
   }, [address]);
 
-  return (
-    <Block>
-      <Line variant="info">
-        Use <span className="text-accent">Tempo Wallet</span> and{" "}
-        <span className="text-accent">authorize $5</span> to get started:
-      </Line>
-      {address ? (
-        <Line variant="success" prefix="✓">
-          Connected: {address.slice(0, 10)}…{address.slice(-8)}
-        </Line>
-      ) : isPending ? (
-        <Line variant="loading">Connecting...</Line>
-      ) : (
-        <Toggle
-          autoFocus
-          onSubmit={(type) => {
-            if (connector) {
-              connect({
-                connector,
-                capabilities: { type: type as "sign-in" | "sign-up" },
-              });
-            }
-          }}
-        >
-          <Toggle.Option value="sign-up">Sign Up</Toggle.Option>
-          <Toggle.Option value="sign-in">Sign In</Toggle.Option>
-        </Toggle>
-      )}
-    </Block>
-  );
+	return (
+		<Block className="flex-1">
+			<Line variant="info">
+				Use <span className="text-accent">Tempo Wallet</span> and{" "}
+				<span className="text-accent">authorize $5</span> to get started:
+			</Line>
+			{address ? (
+				<Line variant="success" prefix="✓">
+					Connected: {address.slice(0, 10)}…{address.slice(-8)}
+				</Line>
+			) : isPending ? (
+				<Line variant="loading">Connecting...</Line>
+			) : (
+				<div className="mt-auto pt-4">
+					<Toggle
+						autoFocus
+						onSubmit={(type) => {
+							if (connector) {
+								connect({
+									connector,
+									capabilities: { type: type as "sign-in" | "sign-up" },
+								});
+							}
+						}}
+					>
+						<Toggle.Option value="sign-up">Sign Up</Toggle.Option>
+						<Toggle.Option value="sign-in">Sign In</Toggle.Option>
+					</Toggle>
+				</div>
+			)}
+		</Block>
+	);
+}
+
+// Simulated auto-connect for simplified demo (skips passkey)
+export function AutoConnect() {
+	const [phase, setPhase] = useState<"connecting" | "connected">("connecting");
+	// Generate a consistent fake address for the demo
+	const demoAddress = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf";
+
+	useEffect(() => {
+		// Simulate connection delay
+		const connectTimer = setTimeout(() => {
+			setPhase("connected");
+		}, 800);
+
+		return () => clearTimeout(connectTimer);
+	}, []);
+
+	useEffect(() => {
+		if (phase === "connected") {
+			const advanceTimer = setTimeout(
+				() => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
+				500,
+			);
+			return () => clearTimeout(advanceTimer);
+		}
+	}, [phase]);
+
+	return (
+		<Block className="flex-1">
+			<Line variant="info">
+				Setting up <span className="text-accent">demo wallet</span>...
+			</Line>
+			{phase === "connected" ? (
+				<Line variant="success" prefix="✓">
+					Connected: {demoAddress.slice(0, 10)}…{demoAddress.slice(-8)}
+				</Line>
+			) : (
+				<Line variant="loading">Connecting...</Line>
+			)}
+		</Block>
+	);
+}
+
+const INITIAL_BALANCE_KEY = "mpp-demo-initial-balance";
+
+// Silent setup - funds demo account and advances without showing UI
+export function SilentDemoSetup({
+	demoAddress,
+}: {
+	demoAddress: `0x${string}`;
+}) {
+	const token = useStore(store, (s) => s.token);
+	const [hasAdvanced, setHasAdvanced] = useState(false);
+
+	// Set demo address in store so Balance/Spent can use it
+	useEffect(() => {
+		store.setState((s) => ({ ...s, demoAddress }));
+		return () => {
+			store.setState((s) => ({ ...s, demoAddress: undefined }));
+		};
+	}, [demoAddress]);
+
+	const { data: balance, refetch } = Hooks.token.useGetBalance({
+		account: demoAddress,
+		token,
+		blockTag: "latest",
+		query: {
+			enabled: !!token,
+			staleTime: 0,
+		},
+	});
+
+	const { mutate, isPending, isSuccess } = Hooks.faucet.useFundSync({
+		mutation: {
+			onSuccess: async () => {
+				// Refetch balance after funding
+				const { data: newBalance } = await refetch();
+				const initial = newBalance ?? balance ?? 1_000_000_000_000n;
+				// Save to localStorage for persistence
+				localStorage.setItem(INITIAL_BALANCE_KEY, initial.toString());
+				store.setState((s) => ({
+					...s,
+					initialBalance: initial,
+					stepIndex: s.stepIndex + 1,
+				}));
+				setHasAdvanced(true);
+			},
+		},
+	});
+
+	// Fund or advance
+	useEffect(() => {
+		if (!token) return;
+		if (hasAdvanced || isPending || isSuccess) return;
+
+		if (balance !== undefined && balance > 0n) {
+			// Check for persisted initial balance
+			const stored = localStorage.getItem(INITIAL_BALANCE_KEY);
+			const initial = stored ? BigInt(stored) : balance;
+
+			// Only update stored initial if current balance is higher (refunded)
+			if (balance > initial) {
+				localStorage.setItem(INITIAL_BALANCE_KEY, balance.toString());
+			}
+
+			store.setState((s) => ({
+				...s,
+				initialBalance: stored ? initial : balance,
+				stepIndex: s.stepIndex + 1,
+			}));
+			setHasAdvanced(true);
+			return;
+		}
+
+		// Need to fund
+		if (balance !== undefined && balance === 0n) {
+			mutate({ account: demoAddress });
+			return;
+		}
+
+		// Balance query still loading - wait for it
+	}, [balance, demoAddress, hasAdvanced, isPending, isSuccess, mutate, token]);
+
+	// Timeout fallback - always advance after 3s even if balance query hangs
+	useEffect(() => {
+		if (hasAdvanced) return;
+		const timeout = setTimeout(() => {
+			if (hasAdvanced) return;
+			store.setState((s) => ({
+				...s,
+				initialBalance: 1_000_000_000_000n,
+				stepIndex: s.stepIndex + 1,
+			}));
+			setHasAdvanced(true);
+		}, 3000);
+		return () => clearTimeout(timeout);
+	}, [hasAdvanced]);
+
+	return null;
 }
 
 export function Faucet() {

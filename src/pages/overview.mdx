@@ -1,5 +1,6 @@
 import { Card, Cards } from 'vocs'
 import * as Cli from '../components/Cli'
+import { MermaidDiagram } from '../components/MermaidDiagram'
 import { pathUsd } from '../wagmi.config'
 
 # Machine Payments Protocol [The internet-native payments protocol]
@@ -8,11 +9,11 @@ The Machine Payments Protocol (MPP) lets you accept payments from any client—h
 
 MPP is built around a simple core and is designed to be neutral to the implementation of underlying payment flows and methods.
 
-- **Open standard built for the internet**—Built on an [open specification](https://tempoxyz.github.io/mpp-specs/), not a proprietary API
-- **Designed for payments**—Idempotency, security, and receipts as first-class primitives
-- **Composable and designed for extension**—A core allows advanced flows like disputes or additional primitives like identity to be gradually introduced
-- **Multi rail**—Stablecoins, cards, bank transfers, invoices. All payment methods can be supported through one protocol and flexible control flow
-- **Multi currency**—The protocol is currency agnostic, allowing for transactions in USD, EUR, BRL, USDC, BTC, or any other asset
+- **Open standard built for the internet:** Built on an IETF-track specification, not a proprietary API
+- **Designed for payments:** Idempotency, security, and receipts as first-class primitives
+- **Composable and designed for extension:** A core allows advanced flows like disputes or additional primitives like identity to be gradually introduced
+- **Multi rail:** Crypto, cards, bank transfers, invoices. All payment methods can be supported through one protocol and flexible control flow
+- **Multi currency:** The protocol is currency agnostic, allowing for transactions in USD, EUR, BRL, USDC, BTC, or any other asset
 
 ## The problem with payments on the internet
 
@@ -45,18 +46,16 @@ This documentation site is itself an MPP server. Create an account, fund it with
 
 When a client requests a paid resource, the server returns a `402` response with the payment options they support. The client chooses a payment method, fulfills the request and retries with a Credential. The server verifies the payment and returns the resource with a Receipt.
 
-```mermaid
-sequenceDiagram
+<MermaidDiagram chart={`sequenceDiagram
     participant Client
     participant Server
-
     Client->>Server: (1) GET /resource
-    Server-->>Client: (2) 402 Payment Required<br/>WWW-Authenticate: Payment <challenge>
+    Server-->>Client: (2) 402 Payment Required + Challenge
     Note over Client: (3) Client fulfills payment
-    Client->>Server: (4) GET /resource<br/>Authorization: Payment <credential>
+    Client->>Server: (4) GET /resource + Credential
     Note over Server: (5) Server verifies payment
-    Server-->>Client: (6) 200 OK<br/>Payment-Receipt: <receipt>
-```
+    Server-->>Client: (6) 200 OK + Receipt
+`} />
 
 1. **Request the resource**—`GET /resource`
 2. **Return a payment challenge**—`402` Payment Required with `WWW-Authenticate: Payment` header

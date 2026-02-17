@@ -1,4 +1,5 @@
 import { Badge, Card, Cards } from 'vocs'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
 import { SpecCard } from '../../components/SpecCard'
 
 # Charge [Immediate one-time payments]
@@ -7,20 +8,18 @@ The `charge` intent requests an immediate one-time payment. The client pays a fi
 
 ## How it works
 
-```mermaid
-sequenceDiagram
+<MermaidDiagram chart={`sequenceDiagram
     participant Client
     participant Server
     participant Network as Payment Network
-
     Client->>Server: (1) GET /resource
-    Server-->>Client: (2) 402 + Challenge (amount, currency, recipient)
-    Note over Client: (3) Fulfill payment (sign tx, pay invoice)
-    Client->>Server: (4) GET /resource + Credential (payment proof)
+    Server-->>Client: (2) 402 + Challenge
+    Note over Client: (3) Fulfill payment
+    Client->>Server: (4) GET /resource + Credential
     Server->>Network: (5) Settle payment
     Network-->>Server: (6) Confirmed
     Server-->>Client: (7) 200 OK + Receipt
-```
+`} />
 
 1. Client requests a paid resource
 2. Server responds with `402` and a Challenge specifying the payment requirements—`amount`, `currency`, and `recipient`

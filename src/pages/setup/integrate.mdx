@@ -1,0 +1,89 @@
+import { Card, Cards } from "vocs";
+
+# Integrate into your app [Add payments to your application with a few lines of code]
+
+::::steps
+
+### Install
+
+:::code-group
+
+```bash [npm]
+npm install mppx viem
+```
+
+```bash [pnpm]
+pnpm add mppx viem
+```
+
+```bash [bun]
+bun add mppx viem
+```
+
+:::
+
+### Set up payments
+
+```ts twoslash
+import { privateKeyToAccount } from "viem/accounts";
+import { Mppx, tempo } from "mppx/client";
+
+const account = privateKeyToAccount("0xabc…123");
+
+Mppx.create({
+  methods: [tempo({ account })],
+});
+```
+
+### Use fetch as normal
+
+```ts
+const response = await fetch(
+  "https://openrouter.payments.tempo.xyz/v1/chat/completions",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "anthropic/claude-3.5-sonnet",
+      messages: [{ role: "user", content: "Hello!" }],
+    }),
+  },
+);
+```
+
+Payments happen automatically when services return `402`.
+
+::::
+
+:::tip[Full documentation]
+See the [Client quickstart](/quickstart/client) for more options like Wagmi integration and manual payment handling.
+:::
+
+## Learn more
+
+<Cards>
+  <Card
+    description="Understand the MPP protocol"
+    icon="lucide:book-open"
+    title="Overview"
+    to="/overview"
+  />
+  <Card
+    description="Build payment-enabled clients"
+    icon="lucide:rocket"
+    title="Client quickstart"
+    to="/quickstart/client"
+  />
+  <Card
+    description="Accept MPP payments"
+    icon="lucide:server"
+    title="Server quickstart"
+    to="/quickstart/server"
+  />
+  <Card
+    description="Test services from the command line"
+    icon="lucide:terminal"
+    title="tempoctl CLI"
+    to="/quickstart/tempoctl"
+  />
+</Cards>

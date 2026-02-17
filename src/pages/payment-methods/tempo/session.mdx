@@ -1,4 +1,5 @@
 import { Cards, Tab, Tabs } from 'vocs'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
 import { SpecCard } from '../../../components/SpecCard'
 
 # Session [Low-cost high-throughput payments]
@@ -19,31 +20,26 @@ MPP Sessions on Tempo solve this by making payment a continuous, inline part of 
 
 ### Overview
 
-```mermaid
-sequenceDiagram
+<MermaidDiagram chart={`sequenceDiagram
     participant Client
     participant Server
     participant Tempo
-
-    Client->>Tempo: (1) Deposit tokens (open channel)
+    Client->>Tempo: (1) Deposit tokens
     Tempo-->>Client: Channel created
-    Client->>Server: (2) Open credential (channelId + initial voucher)
+    Client->>Server: (2) Open credential
     Note over Server: Verify on-chain deposit
     Server-->>Client: 200 OK (session established)
-
     loop Per request
-        Client->>Server: (3) Request + voucher (cumulative amount)
-        Note over Server: ecrecover only — no I/O
-        Server-->>Client: 200 OK + Receipt (units consumed)
+        Client->>Server: (3) Request + voucher
+        Note over Server: ecrecover only
+        Server-->>Client: 200 OK + Receipt
     end
-
-    Note over Server: (4) Periodic settlement (batched)
-    Server->>Tempo: settle(channelId, highestVoucher)
-
+    Note over Server: (4) Periodic settlement
+    Server->>Tempo: settle(channelId, voucher)
     Client->>Server: (5) Close
-    Server->>Tempo: close(channelId, finalVoucher)
+    Server->>Tempo: close(channelId, voucher)
     Tempo-->>Client: Refund remaining deposit
-```
+`} />
 
 A payment session has four phases:
 

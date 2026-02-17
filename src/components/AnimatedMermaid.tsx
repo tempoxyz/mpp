@@ -25,19 +25,14 @@ export function AnimatedMermaid({
   const [svgContent, setSvgContent] = useState<string | null>(null);
   const [isDark, setIsDark] = useState(false);
 
-  // Detect dark mode
-  useEffect(() => {
-    const checkDark = () => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    };
-    checkDark();
-    const observer = new MutationObserver(checkDark);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
+	// Detect dark mode using media query
+	useEffect(() => {
+		const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+		const checkDark = () => setIsDark(mediaQuery.matches);
+		checkDark();
+		mediaQuery.addEventListener("change", checkDark);
+		return () => mediaQuery.removeEventListener("change", checkDark);
+	}, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -61,15 +56,22 @@ export function AnimatedMermaid({
     const svg = containerRef.current.querySelector("svg");
     if (!svg) return;
 
-    const messageTexts = svg.querySelectorAll("text.messageText");
-    messageTexts.forEach((el, i) => {
-      if (i === 1 || i === 2) {
-        (el as HTMLElement).style.fill = isDark ? "#e39a9a" : "#b97676";
-      } else if (i === 5 || i === 6) {
-        (el as HTMLElement).style.fill = isDark ? "#7bcf9a" : "#5b9a76";
-      }
-    });
-  }, [svgContent, isDark]);
+		const messageTexts = svg.querySelectorAll("text.messageText");
+		const styles = getComputedStyle(document.documentElement);
+		const destructiveColor =
+			styles.getPropertyValue("--vocs-color-destructive").trim() ||
+			(isDark ? "#e39a9a" : "#b97676");
+		const successColor =
+			styles.getPropertyValue("--vocs-color-success").trim() ||
+			(isDark ? "#7bcf9a" : "#5b9a76");
+		messageTexts.forEach((el, i) => {
+			if (i === 1 || i === 2) {
+				(el as HTMLElement).style.fill = destructiveColor;
+			} else if (i === 5 || i === 6) {
+				(el as HTMLElement).style.fill = successColor;
+			}
+		});
+	}, [svgContent, isDark]);
 
   const getStepElements = useCallback(
     (svg: SVGElement, step: AnimationStep): Element[] => {
@@ -172,21 +174,21 @@ export function AnimatedMermaid({
     setCurrentStep(-1);
   }, []);
 
-  if (!svgContent) {
-    return (
-      <div
-        style={{
-          minHeight: "200px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#9ca3af",
-        }}
-      >
-        Loading diagram...
-      </div>
-    );
-  }
+	if (!svgContent) {
+		return (
+			<div
+				style={{
+					minHeight: "200px",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					color: "var(--vocs-text-color-muted)",
+				}}
+			>
+				Loading diagram...
+			</div>
+		);
+	}
 
   const isAnimating = currentStep >= 0;
 
@@ -366,46 +368,46 @@ export function AnimatedMermaid({
         )}
       </div>
 
-      {isAnimating && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "6px",
-            marginTop: "0.75rem",
-          }}
-        >
-          {steps.map((step, i) => (
-            <button
-              type="button"
-              // biome-ignore lint/suspicious/noArrayIndexKey: steps are static animation frames
-              key={`dot-${i}`}
-              onClick={() => {
-                setIsPlaying(false);
-                setCurrentStep(i);
-              }}
-              aria-label={`Go to step ${i + 1}: ${step.description}`}
-              aria-current={i === currentStep ? "step" : undefined}
-              style={{
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                border: "none",
-                background:
-                  i === currentStep
-                    ? "#3b82f6"
-                    : i < currentStep
-                      ? "#93c5fd"
-                      : "var(--vocs-color_border)",
-                cursor: "pointer",
-                padding: 0,
-              }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+			{isAnimating && (
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "center",
+						gap: "6px",
+						marginTop: "0.75rem",
+					}}
+				>
+					{steps.map((step, i) => (
+						<button
+							type="button"
+							// biome-ignore lint/suspicious/noArrayIndexKey: steps are static animation frames
+							key={`dot-${i}`}
+							onClick={() => {
+								setIsPlaying(false);
+								setCurrentStep(i);
+							}}
+							aria-label={`Go to step ${i + 1}: ${step.description}`}
+							aria-current={i === currentStep ? "step" : undefined}
+							style={{
+								width: "6px",
+								height: "6px",
+								borderRadius: "50%",
+								border: "none",
+								background:
+									i === currentStep
+										? "var(--vocs-color-accent)"
+										: i < currentStep
+											? "var(--vocs-color-accent3)"
+											: "var(--vocs-border-color-primary)",
+								cursor: "pointer",
+								padding: 0,
+							}}
+						/>
+					))}
+				</div>
+			)}
+		</div>
+	);
 }
 
 const btnStyle: React.CSSProperties = {
@@ -421,15 +423,15 @@ const btnStyle: React.CSSProperties = {
 };
 
 const primaryBtnStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "44px",
-  height: "44px",
-  border: "none",
-  borderRadius: "50%",
-  background: "#3b82f6",
-  color: "#fff",
-  cursor: "pointer",
-  padding: 0,
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+	width: "44px",
+	height: "44px",
+	border: "none",
+	borderRadius: "50%",
+	background: "var(--vocs-color-accent)",
+	color: "var(--vocs-color-accentInvert, #fff)",
+	cursor: "pointer",
+	padding: 0,
 };

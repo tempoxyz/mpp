@@ -1,141 +1,626 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import type React from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+
 import { Link } from "vocs";
-import { useConnectorClient } from "wagmi";
-import { fetch } from "../mppx.client";
-import { pathUsd } from "../wagmi.config";
-import { AgentTabs } from "./AgentTabs";
 import { AsciiLogo } from "./AsciiLogo";
-import * as Cli from "./Cli";
+
+// Context for sharing active agent tab + accent color across components
+const ActiveAgentContext = createContext<{
+	activeAgent: number;
+	setActiveAgent: (i: number) => void;
+	accent: string;
+	isMonochrome: boolean;
+}>({
+	activeAgent: 0,
+	setActiveAgent: () => {},
+	accent: "var(--vocs-text-color-heading)",
+	isMonochrome: true,
+});
+
+// ---------------------------------------------------------------------------
+// Service logos & data
+// ---------------------------------------------------------------------------
+
+const AGENT_COMMANDS = [
+	{ bin: "claude", args: "-p" },
+	{ bin: "codex", args: "--full-auto" },
+	{ bin: "amp", args: null },
+];
+
+const SERVICES = [
+	{
+		name: "fal.ai",
+		description: "Run generative AI models for images, video, and audio",
+		url: "https://fal.payments.tempo.xyz/",
+		price: "$0.05",
+		thirdParty: true,
+		streaming: false,
+		logo: FalLogo,
+		task: '"Generate 3 hero image variations for a landing page — dark theme, abstract geometric, 1200x630"',
+	},
+	{
+		name: "Codex",
+		description: "Decentralized storage and data availability network",
+		url: "https://codex.payments.tempo.xyz/",
+		price: "$0.0003",
+		thirdParty: true,
+		streaming: false,
+		logo: CodexLogo,
+		task: '"Back up my project docs to Codex and return the content IDs for each file"',
+	},
+	{
+		name: "Cloudflare",
+		description: "Edge compute, AI inference, and global CDN services",
+		url: "https://payments.tempo.xyz/",
+		price: "$0.02",
+		thirdParty: true,
+		streaming: false,
+		logo: CloudflareLogo,
+		task: '"Classify the sentiment of these 50 customer reviews using Cloudflare AI"',
+	},
+	{
+		name: "OpenRouter",
+		description: "Unified API for 200+ LLMs from OpenAI, Anthropic, and more",
+		url: "https://openrouter.payments.tempo.xyz/",
+		price: "$0.01",
+		thirdParty: true,
+		streaming: true,
+		logo: OpenRouterLogo,
+		task: '"Run this prompt through GPT-4o, Claude, and Gemini via OpenRouter and compare the outputs"',
+	},
+	{
+		name: "ElevenLabs",
+		description: "Text-to-speech, voice cloning, and audio AI",
+		url: "https://elevenlabs.payments.tempo.xyz/",
+		price: "$0.03",
+		thirdParty: true,
+		streaming: false,
+		logo: ElevenLabsLogo,
+		task: '"Read my changelog aloud as a narrated audio update using ElevenLabs"',
+	},
+];
+
+function FalLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
+	return (
+		<svg
+			className={className}
+			style={style}
+			viewBox="0 0 202 200"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M124.46 19C127.267 19 129.515 21.282 129.783 24.0755C132.176 48.9932 152.007 68.8231 176.924 71.2162C179.719 71.4845 182 73.7336 182 76.54V123.46C182 126.266 179.719 128.515 176.924 128.784C152.007 131.177 132.176 151.007 129.783 175.924C129.515 178.718 127.267 181 124.46 181H77.5404C74.734 181 72.4849 178.718 72.2165 175.924C69.8235 151.007 49.9933 131.177 25.0755 128.784C22.282 128.515 20 126.266 20 123.46V76.54C20 73.7336 22.282 71.4845 25.0755 71.2162C49.9933 68.8231 69.8235 48.9932 72.2165 24.0755C72.4849 21.282 74.734 19 77.5404 19H124.46ZM52.5273 99.8627C52.5273 126.817 74.3534 148.667 101.277 148.667C128.201 148.667 150.028 126.817 150.028 99.8627C150.028 72.9087 128.201 51.058 101.277 51.058C74.3534 51.058 52.5273 72.9087 52.5273 99.8627Z"
+			/>
+		</svg>
+	);
+}
+
+function CodexLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
+	return (
+		<svg
+			className={className}
+			style={style}
+			viewBox="0 0 76 86"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M62.3047 52.9227L62.2831 53.6195C62.0605 60.7171 60.9542 66.6365 58.9858 71.2341C53.3466 73.6478 46.5723 74.8763 38.8497 74.8763C31.1272 74.8763 23.9578 73.5329 18.2324 70.8893C14.9063 64.1006 13.2181 54.4888 13.2181 42.3123C13.2181 30.1358 15.014 20.4234 18.5628 13.6348C24.044 11.2857 30.8614 10.1004 38.8426 10.1004C46.3137 10.1004 52.815 11.1707 58.1812 13.2899C59.8694 17.083 61.0116 21.9679 61.5863 27.8227L61.651 28.4692H75.099L74.7613 27.5138C72.3835 20.7395 67.0244 15.4451 59.2516 12.1765C55.4227 3.98698 48.749 0 38.8497 0C28.9505 0 22.0038 4.21686 17.5355 12.5285C5.89786 17.7295 0 27.7508 0 42.3195C0 56.8881 5.94096 66.5718 17.1764 71.9812C21.6662 80.6879 28.9577 85.0987 38.8497 85.0987C48.7418 85.0987 56.0836 80.8029 60.0706 72.326C68.2816 68.4899 73.6479 62.0892 75.6018 53.8063L75.8102 52.9227H62.3047Z" />
+		</svg>
+	);
+}
+
+function CloudflareLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
+	return (
+		<svg
+			className={className}
+			style={style}
+			viewBox="0 0 202 200"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M137.698 138.284C138.356 136.546 138.587 134.675 138.374 132.828C138.161 130.982 137.509 129.213 136.472 127.67C135.407 126.394 134.101 125.341 132.629 124.571C131.156 123.8 129.546 123.327 127.89 123.179L56.7796 122.362C56.3709 122.362 55.9622 121.954 55.5535 121.954C55.4583 121.883 55.3811 121.79 55.3279 121.684C55.2747 121.578 55.247 121.461 55.247 121.342C55.247 121.223 55.2747 121.106 55.3279 120.999C55.3811 120.893 55.4583 120.801 55.5535 120.729C55.9622 119.913 56.3709 119.505 57.1882 119.505L128.707 118.688C133.248 118.185 137.572 116.482 141.235 113.756C144.898 111.029 147.768 107.377 149.55 103.174L153.637 92.5597C153.637 92.1514 154.045 91.7432 153.637 91.3349C151.415 81.4486 146.023 72.5572 138.281 66.0116C130.538 59.466 120.869 55.6241 110.741 55.0697C100.613 54.5154 90.5814 57.2788 82.1695 62.9402C73.7576 68.6015 67.4256 76.8513 64.1358 86.4358C59.8649 83.3887 54.6555 81.9432 49.4233 82.3533C44.6216 82.8881 40.1449 85.0386 36.7285 88.4514C33.3122 91.8642 31.1595 96.3363 30.6241 101.133C30.3519 103.588 30.4901 106.072 31.0327 108.482C23.2635 108.696 15.8846 111.93 10.4657 117.496C5.04675 123.062 2.01543 130.52 2.01651 138.284C1.94944 139.793 2.08691 141.304 2.42518 142.775C2.44395 143.094 2.57915 143.395 2.80514 143.62C3.03113 143.846 3.33219 143.981 3.65123 144H134.837C135.655 144 136.472 143.592 136.472 142.775L137.698 138.284Z" />
+			<path d="M160.175 92.5597H158.132C157.723 92.5597 157.315 92.9679 156.906 93.3762L154.045 103.174C153.388 104.913 153.156 106.784 153.369 108.63C153.583 110.477 154.235 112.246 155.271 113.789C156.336 115.064 157.642 116.117 159.115 116.888C160.587 117.659 162.198 118.132 163.854 118.28L178.975 119.096C179.383 119.096 179.792 119.505 180.201 119.505C180.296 119.576 180.373 119.668 180.426 119.775C180.48 119.881 180.507 119.998 180.507 120.117C180.507 120.236 180.48 120.353 180.426 120.459C180.373 120.566 180.296 120.658 180.201 120.729C179.792 121.546 179.383 121.954 178.566 121.954L163.036 122.771C158.496 123.274 154.172 124.977 150.508 127.703C146.845 130.43 143.975 134.082 142.194 138.284L141.376 141.959C140.968 142.367 141.376 143.183 142.194 143.183H196.139C196.306 143.207 196.476 143.192 196.635 143.139C196.795 143.086 196.94 142.996 197.059 142.877C197.178 142.758 197.267 142.614 197.321 142.454C197.374 142.295 197.389 142.125 197.365 141.959C198.338 138.5 198.887 134.935 199 131.344C198.935 121.078 194.824 111.25 187.557 103.991C180.29 96.7314 170.452 92.6244 160.175 92.5597Z" />
+		</svg>
+	);
+}
+
+function OpenRouterLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
+	return (
+		<svg
+			className={className}
+			style={style}
+			viewBox="0 0 202 200"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M11.0968 99.4902C16.428 99.4902 37.0417 94.9289 47.7039 88.9388C58.3662 82.9486 58.3662 82.9486 80.4016 67.4447C108.3 47.8157 128.026 54.3879 160.369 54.3879" />
+			<path d="M71.1457 54.5138C104.459 31.0751 132.161 38.5316 160.369 38.5316V70.2441C123.892 70.2441 112.142 64.5564 89.6578 80.3755C67.576 95.9121 67.0111 96.3169 55.5889 102.734C48.4606 106.739 39.0677 109.789 31.5183 111.783C24.3264 113.682 16.0521 115.346 11.0968 115.346V83.6338C10.8661 83.6338 11.9296 83.5911 14.6641 83.0908C17.0682 82.651 20.0716 81.9872 23.2842 81.1387C30.0399 79.3545 36.285 77.1288 39.819 75.1434C49.7213 69.5802 49.1569 69.9849 71.1457 54.5138Z" />
+			<path d="M191.645 54.5835L137 85.8619V23.3052L191.645 54.5835Z" />
+			<path d="M192 54.5835L136.823 86.167V23L192 54.5835ZM137.178 85.5565L191.289 54.5835L137.178 23.6101V85.5565Z" />
+			<path d="M10.0306 99.5096C15.3617 99.5096 35.9754 104.071 46.6377 110.061C57.3 116.051 57.3 116.051 79.3353 131.555C107.234 151.184 126.96 144.612 159.302 144.612" />
+			<path d="M10.0306 83.6533C14.9859 83.6533 23.2602 85.3177 30.452 87.2172C38.0015 89.2111 47.3944 92.261 54.5227 96.2657C65.9449 102.683 66.5097 103.088 88.5916 118.624C111.075 134.443 122.826 128.756 159.302 128.756V160.468C131.095 160.468 103.393 167.925 70.0794 144.486C48.0907 129.015 48.6551 129.419 38.7528 123.856C35.2188 121.871 28.9736 119.645 22.2179 117.861C19.0053 117.012 16.0019 116.349 13.5979 115.909C10.8633 115.409 9.79985 115.366 10.0306 115.366V83.6533Z" />
+			<path d="M190.578 144.416L135.934 113.138V175.695L190.578 144.416Z" />
+			<path d="M190.934 144.416L135.757 176V112.833L190.934 144.416ZM136.112 175.389L190.223 144.416L136.112 113.443V175.389Z" />
+		</svg>
+	);
+}
+
+function ElevenLabsLogo({
+	className,
+	style,
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+}) {
+	return (
+		<svg
+			className={className}
+			style={style}
+			viewBox="310 250 256 376"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M468 292H528V584H468V292Z" />
+			<path d="M348 292H408V584H348V292Z" />
+		</svg>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Agent tab logos
+// ---------------------------------------------------------------------------
+
+function ClaudeLogoSmall({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			viewBox="0 0 16 16"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M3.127 10.604l3.135-1.76.053-.153-.053-.085H6.11l-.525-.032-1.791-.048-1.554-.065-1.505-.08-.38-.081L0 7.832l.036-.234.32-.214.455.04 1.009.069 1.513.105 1.097.064 1.626.17h.259l.036-.105-.089-.065-.068-.064-1.566-1.062-1.695-1.121-.887-.646-.48-.327-.243-.306-.104-.67.435-.48.585.04.15.04.593.456 1.267.981 1.654 1.218.242.202.097-.068.012-.049-.109-.181-.9-1.626-.96-1.655-.428-.686-.113-.411a2 2 0 0 1-.068-.484l.496-.674L4.446 0l.662.089.279.242.411.94.666 1.48 1.033 2.014.302.597.162.553.06.17h.105v-.097l.085-1.134.157-1.392.154-1.792.052-.504.25-.605.497-.327.387.186.319.456-.045.294-.19 1.23-.37 1.93-.243 1.29h.142l.161-.16.654-.868 1.097-1.372.484-.545.565-.601.363-.287h.686l.505.751-.226.775-.707.895-.585.759-.839 1.13-.524.904.048.072.125-.012 1.897-.403 1.024-.186 1.223-.21.553.258.06.263-.218.536-1.307.323-1.533.307-2.284.54-.028.02.032.04 1.029.098.44.024h1.077l2.005.15.525.346.315.424-.053.323-.807.411-3.631-.863-.872-.218h-.12v.073l.726.71 1.331 1.202 1.667 1.55.084.383-.214.302-.226-.032-1.464-1.101-.565-.497-1.28-1.077h-.084v.113l.295.432 1.557 2.34.08.718-.112.234-.404.141-.444-.08-.911-1.28-.94-1.44-.759-1.291-.093.053-.448 4.821-.21.246-.484.186-.403-.307-.214-.496.214-.98.258-1.28.21-1.016.19-1.263.112-.42-.008-.028-.092.012-.953 1.307-1.448 1.957-1.146 1.227-.274.109-.477-.247.045-.44.266-.39 1.586-2.018.956-1.25.617-.723-.004-.105h-.036l-4.212 2.736-.75.096-.324-.302.04-.496.154-.162 1.267-.871z" />
+		</svg>
+	);
+}
+
+function OpenAILogoSmall({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			viewBox="0 0 24 24"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.998 5.998 0 0 0-3.998 2.9 6.042 6.042 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" />
+		</svg>
+	);
+}
+
+function AmpLogoSmall({ className }: { className?: string }) {
+	return (
+		<svg
+			className={className}
+			viewBox="0 0 28 28"
+			fill="currentColor"
+			aria-hidden="true"
+		>
+			<path d="M13.9197 13.61L17.3816 26.566L14.242 27.4049L11.2645 16.2643L0.119926 13.2906L0.957817 10.15L13.9197 13.61Z" />
+			<path d="M13.7391 16.0892L4.88169 24.9056L2.58872 22.6019L11.4461 13.7865L13.7391 16.0892Z" />
+			<path d="M18.9386 8.58315L22.4005 21.5392L19.2609 22.3781L16.2833 11.2374L5.13879 8.26381L5.97668 5.12318L18.9386 8.58315Z" />
+			<path d="M23.9803 3.55632L27.4422 16.5124L24.3025 17.3512L21.325 6.21062L10.1805 3.23698L11.0183 0.0963593L23.9803 3.55632Z" />
+		</svg>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Lockup SVGs
+// ---------------------------------------------------------------------------
+
+function Lockup2Svg({ color }: { color?: string }) {
+	const fill = color || "var(--vocs-text-color-heading)";
+	const style: React.CSSProperties = {
+		width: "100%",
+		opacity: 0.85,
+		height: "auto",
+		display: "block",
+		color: fill,
+	};
+	return (
+		<>
+			{/* Wide single-line lockup — desktop only */}
+			<svg
+				viewBox="0 0 555 24"
+				fill="currentColor"
+				className="hidden md:block"
+				style={style}
+				aria-label="Machine Payments Protocol"
+			>
+				<path d="M-4.54701e-05 20.4776V0.457598H4.17555L12.6126 14.5288L21.0496 0.457598H25.2252V20.4776H21.164V6.9212L12.9844 20.4776H12.2122L4.06115 7.007V20.4776H-4.54701e-05ZM26.2807 20.4776L38.4643 0.457598H43.3835L55.5957 20.4776H50.9053L48.4171 16.2448H33.4307L30.9711 20.4776H26.2807ZM35.4041 12.8128H46.4437L40.9525 3.289L35.4041 12.8128ZM66.4637 20.9352C59.2279 20.9352 54.3945 16.7596 54.3945 10.4676C54.3945 4.1756 59.2279 -7.6189e-07 66.4637 -7.6189e-07C73.7281 -7.6189e-07 78.5329 3.6608 78.5329 9.1806H74.4145C74.2429 5.6056 71.0683 3.4034 66.4637 3.4034C61.6589 3.4034 58.4557 6.1204 58.4557 10.4676C58.4557 14.8148 61.6589 17.5032 66.4637 17.5032C71.0969 17.5032 74.2715 15.3296 74.4145 11.7546H78.5329C78.5329 17.2744 73.7281 20.9352 66.4637 20.9352ZM81.1592 20.4776V0.457598H85.2204V8.1224H98.691V0.457598H102.752V20.4776H98.691V11.5544H85.2204V20.4776H81.1592ZM106.387 20.4776V0.457598H110.449V20.4776H106.387ZM114.104 20.4776V0.457598H117.793L132.78 14.872V0.457598H136.841V20.4776H133.123L118.165 6.0632V20.4776H114.104ZM140.505 20.4776V0.457598H159.81V3.861H144.566V8.2368H158.123V11.3828H144.566V17.0456H159.81V20.4776H140.505ZM171.383 20.4776V0.457598H185.683C189.83 0.457598 192.404 3.2318 192.404 6.578C192.404 10.6392 189.544 12.6698 185.683 12.6698H175.444V20.4776H171.383ZM175.416 9.3236H184.968C187.313 9.3236 188.343 8.5228 188.343 6.578C188.343 4.6332 187.313 3.8038 184.968 3.8038H175.416V9.3236ZM188.671 20.4776L200.854 0.457598H205.773L217.986 20.4776H213.295L210.807 16.2448H195.821L193.361 20.4776H188.671ZM197.794 12.8128H208.834L203.342 3.289L197.794 12.8128ZM221.572 20.4776V14.014L210.933 0.457598H215.909L223.603 10.439L231.268 0.457598H236.244L225.633 13.9854V20.4776H221.572ZM237.041 20.4776V0.457598H241.217L249.654 14.5288L258.091 0.457598H262.267V20.4776H258.205V6.9212L250.026 20.4776H249.254L241.103 7.007V20.4776H237.041ZM265.901 20.4776V0.457598H285.206V3.861H269.962V8.2368H283.518V11.3828H269.962V17.0456H285.206V20.4776H265.901ZM288.252 20.4776V0.457598H291.942L306.928 14.872V0.457598H310.989V20.4776H307.271L292.313 6.0632V20.4776H288.252ZM321.36 20.4776V3.861H312.494V0.457598H334.316V3.861H325.421V20.4776H321.36ZM345.307 20.9352C338.472 20.9352 334.153 18.1324 334.211 14.0426H338.443C338.415 16.1304 340.96 17.5032 345.136 17.5032C349.855 17.5032 352.457 16.6452 352.457 14.7576C352.457 9.3522 334.754 15.6156 334.754 6.3206C334.754 2.2308 339.073 -7.6189e-07 345.279 -7.6189e-07C351.8 -7.6189e-07 356.09 2.7456 356.118 6.8926H351.971C351.971 4.7762 349.454 3.4034 345.393 3.4034C341.246 3.4034 338.872 4.2614 338.872 5.9774C338.872 11.011 356.547 5.1766 356.547 14.586C356.547 18.7616 352.114 20.9352 345.307 20.9352ZM367.185 20.4776V0.457598H381.485C385.632 0.457598 388.206 3.2318 388.206 6.578C388.206 10.6392 385.346 12.6698 381.485 12.6698H371.246V20.4776H367.185ZM371.217 9.3236H380.77C383.115 9.3236 384.145 8.5228 384.145 6.578C384.145 4.6332 383.115 3.8038 380.77 3.8038H371.217V9.3236ZM390.151 20.4776V0.457598H405.881C410.028 0.457598 412.316 2.6884 412.316 5.7486C412.316 8.9518 409.656 10.7822 405.881 10.7822L403.764 10.8108V10.868C408.483 11.1826 410.428 13.9568 413.832 20.4776H409.113C405.395 13.8138 404.422 11.9834 400.847 11.9834H394.183L394.212 20.4776H390.151ZM394.183 8.6658H404.88C407.254 8.6658 408.255 7.8078 408.255 6.3492C408.255 4.576 407.225 3.8038 404.88 3.8038H394.155L394.183 8.6658ZM425.883 20.9352C418.618 20.9352 413.814 16.7596 413.814 10.4676C413.814 4.1756 418.618 -7.6189e-07 425.883 -7.6189e-07C433.119 -7.6189e-07 437.952 4.1756 437.952 10.4676C437.952 16.7596 433.119 20.9352 425.883 20.9352ZM425.883 17.5032C430.688 17.5032 433.891 14.8148 433.891 10.4676C433.891 6.1204 430.688 3.4034 425.883 3.4034C421.078 3.4034 417.875 6.1204 417.875 10.4676C417.875 14.8148 421.078 17.5032 425.883 17.5032ZM445.862 20.4776V3.861H436.996V0.457598H458.817V3.861H449.923V20.4776H445.862ZM469.916 20.9352C462.651 20.9352 457.846 16.7596 457.846 10.4676C457.846 4.1756 462.651 -7.6189e-07 469.916 -7.6189e-07C477.151 -7.6189e-07 481.985 4.1756 481.985 10.4676C481.985 16.7596 477.151 20.9352 469.916 20.9352ZM469.916 17.5032C474.72 17.5032 477.924 14.8148 477.924 10.4676C477.924 6.1204 474.72 3.4034 469.916 3.4034C465.111 3.4034 461.908 6.1204 461.908 10.4676C461.908 14.8148 465.111 17.5032 469.916 17.5032ZM496.039 20.9352C488.803 20.9352 483.97 16.7596 483.97 10.4676C483.97 4.1756 488.803 -7.6189e-07 496.039 -7.6189e-07C503.303 -7.6189e-07 508.108 3.6608 508.108 9.1806H503.99C503.818 5.6056 500.644 3.4034 496.039 3.4034C491.234 3.4034 488.031 6.1204 488.031 10.4676C488.031 14.8148 491.234 17.5032 496.039 17.5032C500.672 17.5032 503.847 15.3296 503.99 11.7546H508.108C508.108 17.2744 503.303 20.9352 496.039 20.9352ZM522.104 20.9352C514.84 20.9352 510.035 16.7596 510.035 10.4676C510.035 4.1756 514.84 -7.6189e-07 522.104 -7.6189e-07C529.34 -7.6189e-07 534.173 4.1756 534.173 10.4676C534.173 16.7596 529.34 20.9352 522.104 20.9352ZM522.104 17.5032C526.909 17.5032 530.112 14.8148 530.112 10.4676C530.112 6.1204 526.909 3.4034 522.104 3.4034C517.299 3.4034 514.096 6.1204 514.096 10.4676C514.096 14.8148 517.299 17.5032 522.104 17.5032ZM536.801 20.4776V0.457598H540.862V17.0456H554.819V20.4776H536.801Z" />
+			</svg>
+			{/* Stacked lockup — mobile only (MACHINE on top, PAYMENTS PROTOCOL below) */}
+			<svg
+				viewBox="0 0 160 41"
+				fill="currentColor"
+				className="md:hidden"
+				style={style}
+				aria-label="Machine Payments Protocol"
+			>
+				<path d="M0 20.4776V0.457599H4.1756L12.6126 14.5288L21.0496 0.457599H25.2252V20.4776H21.164V6.9212L12.9844 20.4776H12.2122L4.0612 7.007V20.4776H0Z" />
+				<path d="M26.2807 20.4776L38.4643 0.457599H43.3835L55.5957 20.4776H50.9053L48.4171 16.2448H33.4307L30.9711 20.4776H26.2807ZM35.4041 12.8128H46.4437L40.9525 3.289L35.4041 12.8128Z" />
+				<path d="M66.4637 20.9352C59.2279 20.9352 54.3945 16.7596 54.3945 10.4676C54.3945 4.1756 59.2279 0 66.4637 0C73.7281 0 78.5329 3.6608 78.5329 9.1806H74.4145C74.2429 5.6056 71.0683 3.4034 66.4637 3.4034C61.6589 3.4034 58.4557 6.1204 58.4557 10.4676C58.4557 14.8148 61.6589 17.5032 66.4637 17.5032C71.0969 17.5032 74.2715 15.3296 74.4145 11.7546H78.5329C78.5329 17.2744 73.7281 20.9352 66.4637 20.9352Z" />
+				<path d="M81.1592 20.4776V0.457599H85.2204V8.1224H98.691V0.457599H102.752V20.4776H98.691V11.5544H85.2204V20.4776H81.1592Z" />
+				<path d="M106.388 20.4776V0.457599H110.449V20.4776H106.388Z" />
+				<path d="M114.104 20.4776V0.457599H117.793L132.78 14.872V0.457599H136.841V20.4776H133.123L118.165 6.0632V20.4776H114.104Z" />
+				<path d="M140.505 20.4776V0.457599H159.81V3.861H144.567V8.2368H158.123V11.3828H144.567V17.0456H159.81V20.4776H140.505Z" />
+				<path d="M0 40.2809V31.6743H5.84939C7.54571 31.6743 8.5986 32.8669 8.5986 34.3055C8.5986 36.0514 7.42873 36.9243 5.84939 36.9243H1.66123V40.2809H0ZM1.64953 35.4858H5.55692C6.51622 35.4858 6.93738 35.1415 6.93738 34.3055C6.93738 33.4694 6.51622 33.1128 5.55692 33.1128H1.64953V35.4858Z" />
+				<path d="M7.07136 40.2809L12.055 31.6743H14.0672L19.0626 40.2809H17.144L16.1262 38.4612H9.99606L8.98996 40.2809H7.07136ZM10.8033 36.9858H15.319L13.0728 32.8915L10.8033 36.9858Z" />
+				<path d="M20.5297 40.2809V37.5022L16.1778 31.6743H18.2134L21.3603 35.9653L24.4956 31.6743H26.5312L22.1909 37.4899V40.2809H20.5297Z" />
+				<path d="M26.8574 40.2809V31.6743H28.5654L32.0165 37.7235L35.4677 31.6743H37.1757V40.2809H35.5145V34.453L32.1686 40.2809H31.8528L28.5186 34.4899V40.2809H26.8574Z" />
+				<path d="M38.6622 40.2809V31.6743H46.5589V33.1374H40.3234V35.0186H45.8686V36.371H40.3234V38.8055H46.5589V40.2809H38.6622Z" />
+				<path d="M47.8051 40.2809V31.6743H49.3142L55.4444 37.871V31.6743H57.1056V40.2809H55.5847L49.4663 34.0842V40.2809H47.8051Z" />
+				<path d="M61.3478 40.2809V33.1374H57.7211V31.6743H66.6473V33.1374H63.009V40.2809H61.3478Z" />
+				<path d="M71.1434 40.4776C68.3474 40.4776 66.5809 39.2727 66.6043 37.5145H68.3357C68.324 38.412 69.3652 39.0022 71.0732 39.0022C73.0035 39.0022 74.0681 38.6333 74.0681 37.8219C74.0681 35.4981 66.8265 38.1907 66.8265 34.1948C66.8265 32.4366 68.593 31.4776 71.1317 31.4776C73.799 31.4776 75.5538 32.6579 75.5655 34.4407H73.8692C73.8692 33.5309 72.8397 32.9407 71.1785 32.9407C69.4822 32.9407 68.5112 33.3096 68.5112 34.0473C68.5112 36.2112 75.741 33.703 75.741 37.7481C75.741 39.5432 73.9277 40.4776 71.1434 40.4776Z" />
+				<path d="M83.2487 40.2809V31.6743H89.0981C90.7944 31.6743 91.8473 32.8669 91.8473 34.3055C91.8473 36.0514 90.6774 36.9243 89.0981 36.9243H84.9099V40.2809H83.2487ZM84.8982 35.4858H88.8056C89.7649 35.4858 90.1861 35.1415 90.1861 34.3055C90.1861 33.4694 89.7649 33.1128 88.8056 33.1128H84.8982V35.4858Z" />
+				<path d="M92.6429 40.2809V31.6743H99.0772C100.774 31.6743 101.709 32.6333 101.709 33.9489C101.709 35.326 100.621 36.1128 99.0772 36.1128L98.2115 36.1251V36.1497C100.142 36.285 100.937 37.4776 102.329 40.2809H100.399C98.8784 37.4161 98.4806 36.6292 97.0182 36.6292H94.2924L94.3041 40.2809H92.6429ZM94.2924 35.203H98.6678C99.6388 35.203 100.048 34.8342 100.048 34.2071C100.048 33.4448 99.6271 33.1128 98.6678 33.1128H94.2807L94.2924 35.203Z" />
+				<path d="M107.259 40.4776C104.287 40.4776 102.322 38.6825 102.322 35.9776C102.322 33.2727 104.287 31.4776 107.259 31.4776C110.219 31.4776 112.196 33.2727 112.196 35.9776C112.196 38.6825 110.219 40.4776 107.259 40.4776ZM107.259 39.0022C109.224 39.0022 110.535 37.8465 110.535 35.9776C110.535 34.1087 109.224 32.9407 107.259 32.9407C105.294 32.9407 103.983 34.1087 103.983 35.9776C103.983 37.8465 105.294 39.0022 107.259 39.0022Z" />
+				<path d="M115.431 40.2809V33.1374H111.805V31.6743H120.731V33.1374H117.093V40.2809H115.431Z" />
+				<path d="M125.271 40.4776C122.299 40.4776 120.334 38.6825 120.334 35.9776C120.334 33.2727 122.299 31.4776 125.271 31.4776C128.23 31.4776 130.207 33.2727 130.207 35.9776C130.207 38.6825 128.23 40.4776 125.271 40.4776ZM125.271 39.0022C127.236 39.0022 128.546 37.8465 128.546 35.9776C128.546 34.1087 127.236 32.9407 125.271 32.9407C123.305 32.9407 121.995 34.1087 121.995 35.9776C121.995 37.8465 123.305 39.0022 125.271 39.0022Z" />
+				<path d="M135.956 40.4776C132.996 40.4776 131.019 38.6825 131.019 35.9776C131.019 33.2727 132.996 31.4776 135.956 31.4776C138.928 31.4776 140.893 33.0514 140.893 35.4243H139.209C139.138 33.8874 137.84 32.9407 135.956 32.9407C133.991 32.9407 132.681 34.1087 132.681 35.9776C132.681 37.8465 133.991 39.0022 135.956 39.0022C137.851 39.0022 139.15 38.0678 139.209 36.5309H140.893C140.893 38.9038 138.928 40.4776 135.956 40.4776Z" />
+				<path d="M146.618 40.4776C143.647 40.4776 141.681 38.6825 141.681 35.9776C141.681 33.2727 143.647 31.4776 146.618 31.4776C149.578 31.4776 151.555 33.2727 151.555 35.9776C151.555 38.6825 149.578 40.4776 146.618 40.4776ZM146.618 39.0022C148.583 39.0022 149.894 37.8465 149.894 35.9776C149.894 34.1087 148.583 32.9407 146.618 32.9407C144.653 32.9407 143.342 34.1087 143.342 35.9776C143.342 37.8465 144.653 39.0022 146.618 39.0022Z" />
+				<path d="M152.63 40.2809V31.6743H154.291V38.8055H160V40.2809H152.63Z" />
+			</svg>
+		</>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Landing page
+// ---------------------------------------------------------------------------
+
+type HeroVariant = "A" | "B" | "C" | "D" | "E";
+
+const VARIANT_COLORS: Record<HeroVariant, string | undefined> = {
+	A: undefined, // monochrome — uses theme heading color (dark on light, light on dark)
+	B: "#d946a8", // pink — ≥4.5:1 on dark surfaces
+	C: "#8b7cf6", // purple — ≥4.5:1 on dark surfaces
+	D: "#34c88a", // green — ≥4.5:1 on dark surfaces
+	E: "#22b8cf", // teal — ≥4.5:1 on dark surfaces
+};
+
+// Session key — persists across soft navigations, cleared on hard refresh
+const ANIM_SESSION_KEY = "mpp-landing-animated";
 
 export function LandingPage() {
-  return (
-    <div
-      className="not-prose text-primary"
-      style={{
-        fontFamily:
-          '"Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-      }}
-    >
-      {/* Hero */}
-      <section className="pt-4 pb-12 lg:pt-24 lg:pb-16">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
-          {/* Right pane */}
-          <div className="flex-9 space-y-8 min-w-0 order-first lg:order-last">
-            <div className="lg:hidden">
-              <AsciiLogo morph={false} color="#9ca3af" />
-            </div>
-            {/* Title */}
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-[1.1] tracking-tight text-heading">
-              The Machine Payments Protocol
-            </h1>
+	const [variant, setVariantState] = useState<HeroVariant>(() => {
+		if (typeof window === "undefined") return "A";
+		const params = new URLSearchParams(window.location.search);
+		const v = params.get("v");
+		if (v && ["A", "B", "C", "D", "E"].includes(v)) return v as HeroVariant;
+		return "A";
+	});
 
-            {/* Description */}
-            <div className="space-y-1.5 max-w-xl">
-              <p className="text-sm md:text-base leading-relaxed text-muted">
-                Accept payments from humans, software, or AI agents using
-                standard HTTP. No billing accounts or manual signup required.
-              </p>
-            </div>
+	const [activeAgent, setActiveAgent] = useState(0);
 
-            {/* Co-authored by */}
-            <div className="flex items-center gap-5">
-              <span className="text-xs font-medium tracking-widest uppercase text-muted">
-                Co-authored by
-              </span>
-              <div className="flex items-center gap-5">
-                <a
-                  href="https://tempo.xyz"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="no-underline transition-colors text-muted"
-                >
-                  <TempoLogo style={{ width: "70px" }} />
-                </a>
-                <a
-                  href="https://stripe.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="no-underline transition-colors text-muted"
-                >
-                  <StripeLogo style={{ width: "55px" }} />
-                </a>
-              </div>
-            </div>
+	// Animate on hard refresh / first visit only (not soft navigation)
+	const [shouldAnimate] = useState(() => {
+		if (typeof window === "undefined") return false;
+		const alreadyAnimated = sessionStorage.getItem(ANIM_SESSION_KEY);
+		// Always set the key so next soft nav skips animation
+		sessionStorage.setItem(ANIM_SESSION_KEY, "1");
+		// Animate if this is a fresh page load (performance.navigation or no key yet)
+		if (alreadyAnimated) {
+			// Check if this is a hard refresh (type 1) vs soft nav
+			const navType = (performance as any).navigation?.type;
+			if (navType === 1) return true; // hard refresh
+			// Also animate if navigationType is "reload"
+			const entries = performance.getEntriesByType?.(
+				"navigation",
+			) as PerformanceNavigationTiming[];
+			if (entries?.[0]?.type === "reload") return true;
+			return false;
+		}
+		return true; // first visit
+	});
 
-            {/* Copy-to-agent line */}
-            <AgentTabs />
+	const setVariant = (v: HeroVariant) => {
+		setVariantState(v);
+		const url = new URL(window.location.href);
+		url.searchParams.set("v", v);
+		window.history.replaceState({}, "", url.toString());
+	};
 
-            {/* CTA buttons */}
-            <div className="flex flex-wrap gap-3">
-              <Link
-                to="/quickstart"
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md transition-colors no-underline! hover:underline bg-[var(--text-color-heading)] text-[var(--background-color-primary)] hover:text-[var(--background-color-primary)]!"
-              >
-                Get started
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </Link>
-              <Link
-                to="https://tempoxyz.github.io/mpp-specs/"
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md transition-colors no-underline border border-primary text-secondary"
-              >
-                Read the specs
-              </Link>
-            </div>
-          </div>
+	// Header/nav background is handled by CSS — no JS override needed
 
-          {/* Left pane — interactive demo */}
-          <div className="flex-11 w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none">
-            <Cli.Demo
-              title="agent-demo"
-              token={pathUsd}
-              height={337}
-              restartStep={1}
-            >
-              <Cli.Startup />
-              <Cli.ConnectWallet />
-              <Cli.Faucet />
-              <SelectQuery />
-            </Cli.Demo>
-          </div>
-        </div>
-      </section>
+	const accentColor = VARIANT_COLORS[variant];
 
-      {/* Footer */}
-      <div className="border-t border-secondary" />
-      <footer className="px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
-        <div className="flex items-center gap-4">
-          <a
-            href="https://github.com/tempoxyz/payment-auth-spec"
-            className="text-muted no-underline hover:underline transition-colors landing-footer-link"
-          >
-            GitHub
-          </a>
-          <a
-            href="https://x.com/mpp"
-            className="text-muted no-underline hover:underline transition-colors landing-footer-link"
-          >
-            X
-          </a>
-        </div>
-      </footer>
-    </div>
-  );
+	return (
+		<ActiveAgentContext.Provider
+			value={{
+				activeAgent,
+				setActiveAgent,
+				accent: accentColor || "var(--vocs-text-color-heading)",
+				isMonochrome: !accentColor,
+			}}
+		>
+			<div
+				className="not-prose"
+				style={{
+					color: "var(--vocs-text-color-heading)",
+					fontFamily: "var(--font-pilat)",
+					userSelect: "none",
+					WebkitUserSelect: "none",
+				}}
+			>
+				{/* Lock page scroll + hide default logo + variant accent override */}
+				<style>{`
+					html, body { overflow: hidden !important; height: 100vh !important; }
+					[data-v-main], main, article { overflow: hidden !important; height: 100vh !important; }
+					@media (max-height: 740px) {
+						[data-v-main], main, article { overflow-y: auto !important; }
+					}
+					[data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
+					${
+						variant !== "A"
+							? `
+					:root {
+						--vocs-color-accent: ${accentColor} !important;
+					}
+					`
+							: ""
+					}
+
+					@keyframes reveal {
+						from { opacity: 0; transform: translateY(12px); }
+						to { opacity: 1; transform: translateY(0); }
+					}
+				`}</style>
+				{/* ASCII logo in header — portaled to body to escape overflow:clip on [data-v-main] */}
+				<AsciiHeaderMark accentColor={accentColor} />
+				{/* Variant toggle — pinned to very bottom center */}
+				<div
+					className="fixed left-1/2 -translate-x-1/2 flex flex-row gap-1"
+					style={{ bottom: 32, zIndex: 9999 }}
+				>
+					{(["A", "B", "C", "D", "E"] as const).map((v) => (
+						<button
+							key={v}
+							type="button"
+							onClick={() => setVariant(v)}
+							className="w-6 h-6 text-[10px] font-medium rounded transition-all"
+							style={
+								variant === v
+									? {
+											background:
+												VARIANT_COLORS[v] || "var(--vocs-text-color-heading)",
+											color: VARIANT_COLORS[v]
+												? "#ffffff"
+												: "var(--vocs-background-color-primary)",
+										}
+									: {
+											background: "var(--vocs-background-color-surfaceMuted)",
+											color: "var(--vocs-text-color-secondary)",
+											opacity: 0.7,
+										}
+							}
+						>
+							{v}
+						</button>
+					))}
+				</div>
+				<HeroVariantF shouldAnimate={shouldAnimate} accentColor={accentColor} />
+			</div>
+		</ActiveAgentContext.Provider>
+	);
 }
+
+// ---------------------------------------------------------------------------
+// Hero layout
+// ---------------------------------------------------------------------------
+
+function anim(shouldAnimate: boolean, delayMs: number, durationMs = 900) {
+	if (!shouldAnimate) return {};
+	return {
+		opacity: 0,
+		transform: "translateY(12px)",
+		animation: `reveal ${durationMs}ms cubic-bezier(0.16, 1, 0.3, 1) ${delayMs}ms forwards`,
+	} as React.CSSProperties;
+}
+
+function AsciiHeaderMark({ accentColor }: { accentColor: string | undefined }) {
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => setMounted(true), []);
+	if (!mounted) return null;
+
+	return createPortal(
+		<div
+			style={{
+				position: "fixed",
+				top: 0,
+				left: 16,
+				height: 48,
+				zIndex: 99999,
+				display: "flex",
+				alignItems: "center",
+				pointerEvents: "none",
+			}}
+		>
+			<div
+				style={{
+					width: 200,
+					height: 36,
+					position: "relative",
+				}}
+			>
+				<div
+					style={{
+						position: "absolute",
+						top: 0,
+						left: 0,
+						transform: "scaleX(0.3) scaleY(0.35)",
+						transformOrigin: "top left",
+						padding: 20,
+					}}
+				>
+					<AsciiLogo color={accentColor} />
+				</div>
+			</div>
+		</div>,
+		document.body,
+	);
+}
+
+function HeroVariantF({
+	shouldAnimate,
+	accentColor,
+}: {
+	shouldAnimate: boolean;
+	accentColor: string | undefined;
+}) {
+	return (
+		<section
+			className="flex flex-col items-center text-center px-6"
+			style={{
+				height: "calc(100vh - 64px)",
+				position: "relative",
+				zIndex: 2,
+				pointerEvents: "none",
+			}}
+		>
+			{/* Main content — upper portion of viewport */}
+			<div
+				className="max-w-2xl flex flex-col items-center min-h-0"
+				style={{
+					gap: "2.5rem",
+					pointerEvents: "auto",
+					paddingTop: "10vh",
+				}}
+			>
+				<div className="inline-flex flex-col items-center gap-2">
+					{/* Co-designed by Tempo × Stripe */}
+					<div
+						className="flex items-center gap-3 mb-6"
+						style={{
+							fontFamily: "var(--font-mono)",
+							...anim(shouldAnimate, 300, 800),
+						}}
+					>
+						<span
+							className="font-medium font-mono uppercase"
+							style={{
+								color: "var(--vocs-text-color-muted)",
+								letterSpacing: "0.06em",
+								fontSize: "12px",
+							}}
+						>
+							Co-designed by
+						</span>
+						<a
+							href="https://tempo.xyz"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="no-underline"
+							style={{ color: "var(--vocs-text-color-muted)" }}
+						>
+							<TempoLogo style={{ height: 14, width: "auto" }} />
+						</a>
+						<span
+							className="text-[10px]"
+							style={{ color: "var(--vocs-text-color-muted)", opacity: 0.4 }}
+						>
+							&times;
+						</span>
+						<a
+							href="https://stripe.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="no-underline"
+							style={{ color: "var(--vocs-text-color-muted)" }}
+						>
+							<StripeLogo style={{ height: 22, width: "auto" }} />
+						</a>
+					</div>
+					{/* Lockup — "Machine Payments Protocol" */}
+					<div
+						className="self-center"
+						style={{
+							width: "min(648px, 88vw)",
+							maxWidth: "none",
+							overflow: "visible",
+							...anim(shouldAnimate, 600, 900),
+						}}
+					>
+						<Lockup2Svg color={accentColor} />
+					</div>
+					{/* Tagline */}
+					<p
+						className="text-base leading-relaxed max-w-xl mx-auto pt-6 font-normal"
+						style={{
+							color: "var(--vocs-text-color-secondary)",
+							...anim(shouldAnimate, 1100, 700),
+						}}
+					>
+						Supercharge your agent with seamless paid API calls.
+						<br className="hidden md:block" />
+						No more manually creating accounts, or copy-pasting keys.
+					</p>
+				</div>
+				<div
+					className="flex justify-center w-full"
+					style={anim(shouldAnimate, 1500, 700)}
+				>
+					<AgentTabsWrapped />
+				</div>
+				<div
+					className="flex flex-col items-center gap-4"
+					style={anim(shouldAnimate, 1800, 700)}
+				>
+					<CTAButtons />
+				</div>
+			</div>
+			{/* Service logos — pinned to bottom of viewport */}
+			<div
+				className="fixed bottom-0 left-0 right-0 pb-32"
+				style={{ pointerEvents: "auto", zIndex: 2, overflowX: "clip" }}
+			>
+				<ServiceLogos shouldAnimate={shouldAnimate} />
+			</div>
+		</section>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Co-authored by section
+// ---------------------------------------------------------------------------
 
 function TempoLogo({
   className,
@@ -186,320 +671,573 @@ function StripeLogo({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  return (
-    <svg
-      className={className}
-      style={style}
-      viewBox="0 0 640 512"
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label="Stripe"
-    >
-      <title>Stripe</title>
-      <path
-        d="M165 144.7l-43.3 9.2-.2 142.4c0 26.3 19.8 43.3 46.1 43.3 14.6 0 25.3-2.7 31.2-5.9v-33.8c-5.7 2.3-33.7 10.5-33.7-15.7V221h33.7v-37.8h-33.7zm89.1 51.6l-2.7-13.1H213v153.2h44.3V233.3c10.5-13.8 28.2-11.1 33.9-9.3v-40.8c-6-2.1-26.7-6-37.1 13.1zm92.3-72.3l-44.6 9.5v36.2l44.6-9.5zM44.9 228.3c0-6.9 5.8-9.6 15.1-9.7 13.5 0 30.7 4.1 44.2 11.4v-41.8c-14.7-5.8-29.4-8.1-44.1-8.1-36 0-60 18.8-60 50.2 0 49.2 67.5 41.2 67.5 62.4 0 8.2-7.1 10.9-17 10.9-14.7 0-33.7-6.1-48.6-14.2v40c16.5 7.1 33.2 10.1 48.5 10.1 36.9 0 62.3-15.8 62.3-47.8 0-52.9-67.9-43.4-67.9-63.4zM640 261.6c0-45.5-22-81.4-64.2-81.4s-67.9 35.9-67.9 81.1c0 53.5 30.3 78.2 73.5 78.2 21.2 0 37.1-4.8 49.2-11.5v-33.4c-12.1 6.1-26 9.8-43.6 9.8-17.3 0-32.5-6.1-34.5-26.9h86.9c.2-2.3.6-11.6.6-15.9zm-87.9-16.8c0-20 12.3-28.4 23.4-28.4 10.9 0 22.5 8.4 22.5 28.4zm-112.9-64.6c-17.4 0-28.6 8.2-34.8 13.9l-2.3-11H363v204.8l44.4-9.4.1-50.2c6.4 4.7 15.9 11.2 31.4 11.2 31.8 0 60.8-23.2 60.8-79.6.1-51.6-29.3-79.7-60.5-79.7zm-10.6 122.5c-10.4 0-16.6-3.8-20.9-8.4l-.3-66c4.6-5.1 11-8.8 21.2-8.8 16.2 0 27.4 18.2 27.4 41.4.1 23.9-10.9 41.8-27.4 41.8zm-126.7 33.7h44.6V183.2h-44.6z"
-        fill="currentColor"
-      />
-    </svg>
-  );
+	return (
+		<svg
+			className={className}
+			style={style}
+			viewBox="0 0 452 188"
+			xmlns="http://www.w3.org/2000/svg"
+			role="img"
+			aria-label="Stripe"
+			fill="currentColor"
+		>
+			<title>Stripe</title>
+			<path d="M47.2 84.934c-9.733-3.6-15.067-6.4-15.067-10.8 0-3.734 3.067-5.867 8.534-5.867 10 0 20.266 3.867 27.333 7.333l4-24.666c-5.6-2.667-17.067-7.067-32.933-7.067-11.2 0-20.534 2.933-27.2 8.4-6.934 5.733-10.534 14-10.534 24 0 18.133 11.067 25.867 29.067 32.4 11.6 4.133 15.467 7.067 15.467 11.6 0 4.4-3.734 6.933-10.534 6.933-8.4 0-22.266-4.133-31.333-9.466l-4 24.933c7.733 4.4 22.133 8.933 37.067 8.933 11.866 0 21.733-2.8 28.4-8.133C72.933 137.6 76.8 128.934 76.8 117.734c0-18.534-11.333-26.267-29.6-32.8zM141.917 70.4l4-24.533H124.8V16.085l-28.392 4.672-4.1 25.11-9.986 1.62L78.584 70.4h13.683v48.134c0 12.533 3.2 21.2 9.733 26.533 5.467 4.4 13.333 6.533 24.4 6.533 8.533 0 13.733-1.466 17.333-2.4v-26c-2 .534-6.533 1.467-9.6 1.467-6.533 0-9.333-3.333-9.333-10.933V70.4h17.117zm63.416-25.966c-9.333 0-16.8 4.9-19.733 13.7l-2-12.267h-28.933V149.6h33.066V82.267c4.134-5.067 10-6.899 18-6.899 1.734 0 3.6 0 5.867.4V45.234c-2.267-.533-4.267-.8-6.267-.8zm30.934-8.834c9.6 0 17.333-7.866 17.333-17.466C253.6 8.4 245.867.667 236.267.667 226.533.667 218.8 8.4 218.8 18.134c0 9.6 7.733 17.466 17.467 17.466zM219.6 45.867h33.2V149.6h-33.2V45.867zM346.883 55.2c-5.867-7.6-14-11.333-24.4-11.333-9.6 0-18 4-25.867 12.4l-1.733-10.4h-29.067V188l33.067-5.466V149.2c5.066 1.6 10.266 2.4 14.933 2.4 8.267 0 20.267-2.133 29.6-12.266 8.933-9.734 13.467-24.8 13.467-44.667 0-17.6-3.334-30.933-10-39.467zm-27.467 64c-2.667 5.067-6.8 7.734-11.6 7.734-3.333 0-6.267-.667-8.933-2V75.6c5.6-5.866 10.666-6.533 12.533-6.533 8.4 0 12.533 9.067 12.533 26.8 0 10.133-1.466 18-4.533 23.333zm132.267-22.4c0-16.533-3.6-29.6-10.667-38.8-7.2-9.333-18-14.133-31.733-14.133-28.134 0-45.6 20.8-45.6 54.133 0 18.667 4.666 32.667 13.866 41.6 8.267 8 20.134 12 35.467 12 14.133 0 27.2-3.333 35.467-8.8l-3.6-22.666c-8.134 4.4-17.6 6.8-28.267 6.8-6.4 0-10.8-1.334-14-4.134-3.467-2.933-5.467-7.733-6.133-14.533h54.8c.133-1.6.4-9.067.4-11.467zM396.216 88c.933-14.8 4.933-21.733 12.533-21.733 7.467 0 11.334 7.067 11.867 21.733h-24.4z" />
+		</svg>
+	);
 }
 
-///////////////////////////////////////////////////////////////
-// CLI
+// ---------------------------------------------------------------------------
+// Header branding — replaces default logo with co-designed Tempo & Stripe
+// ---------------------------------------------------------------------------
 
-type ApiCall = {
-  description: string;
-  endpoint: string;
-  name: string;
-  params?: Record<string, string>;
-  price: string;
-};
+// Service logos row — desktop: hover tooltip above; mobile: tap for bottom card
+function ServiceLogos({ shouldAnimate }: { shouldAnimate: boolean }) {
+	const [active, setActive] = useState<string | null>(null);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const isTouchRef = useRef(false);
 
-type QueryPreset = {
-  calls: ApiCall[];
-  id: string;
-  label: string;
-  prompt: string;
-  response: string;
-};
+	useEffect(() => {
+		const onTouch = () => {
+			isTouchRef.current = true;
+		};
+		window.addEventListener("touchstart", onTouch, { once: true });
+		return () => window.removeEventListener("touchstart", onTouch);
+	}, []);
 
-const presets: QueryPreset[] = [
-  {
-    calls: [
-      {
-        description: "Get current location",
-        endpoint: "/api/agent/location",
-        name: "location.lookup",
-        price: "$0.001",
-      },
-      {
-        description: "Search nearby coffee shops",
-        endpoint: "/api/agent/search",
-        name: "places.search",
-        params: { q: "coffee" },
-        price: "$0.002",
-      },
-      {
-        description: "Aggregate reviews for top result",
-        endpoint: "/api/agent/reviews",
-        name: "reviews.aggregate",
-        params: { place: "place_001" },
-        price: "$0.003",
-      },
-      {
-        description: "Get walking directions",
-        endpoint: "/api/agent/directions",
-        name: "directions.get",
-        params: { to: "The Coffee Movement" },
-        price: "$0.002",
-      },
-    ],
-    id: "coffee",
-    label: "Coffee Shop",
-    prompt: "Find the best coffee shop nearby",
-    response:
-      '"The Coffee Movement is the top-rated coffee shop nearby (4.6★, 0.4mi). Known for specialty pour-overs and single-origin beans. It\'s an 8 minute walk — head north on Market St to Nob Hill, 1030 Washington St."',
-  },
-  {
-    calls: [
-      {
-        description: "Get current location",
-        endpoint: "/api/agent/location",
-        name: "location.lookup",
-        price: "$0.001",
-      },
-      {
-        description: "Search Italian restaurants",
-        endpoint: "/api/agent/search",
-        name: "places.search",
-        params: { q: "italian restaurant" },
-        price: "$0.002",
-      },
-      {
-        description: "Check ratings and availability",
-        endpoint: "/api/agent/reviews",
-        name: "reviews.aggregate",
-        params: { place: "place_002" },
-        price: "$0.003",
-      },
-      {
-        description: "Get directions to restaurant",
-        endpoint: "/api/agent/directions",
-        name: "directions.get",
-        params: { to: "Flour + Water" },
-        price: "$0.002",
-      },
-    ],
-    id: "restaurant",
-    label: "Restaurant",
-    prompt: "Find a highly-rated Italian restaurant",
-    response:
-      '"Flour + Water is an excellent choice — 4.7★ with 2,400+ reviews. Known for house-made pasta. It\'s 0.8mi away, about 15 min walk or 5 min drive."',
-  },
-  {
-    calls: [
-      {
-        description: "Get current location",
-        endpoint: "/api/agent/location",
-        name: "location.lookup",
-        price: "$0.001",
-      },
-      {
-        description: "Search parking garages",
-        endpoint: "/api/agent/search",
-        name: "places.search",
-        params: { q: "parking garage Union Square" },
-        price: "$0.002",
-      },
-      {
-        description: "Check availability and rates",
-        endpoint: "/api/agent/reviews",
-        name: "reviews.aggregate",
-        params: { place: "place_003" },
-        price: "$0.003",
-      },
-      {
-        description: "Get driving directions",
-        endpoint: "/api/agent/directions",
-        name: "directions.get",
-        params: { to: "Union Square Garage" },
-        price: "$0.002",
-      },
-    ],
-    id: "parking",
-    label: "Parking",
-    prompt: "Find available parking near Union Square",
-    response:
-      '"Union Square Garage has spots available — $8/hr or $32 max daily. 450 Post St entrance. Turn right on Geary, 2 blocks, garage on left. ~3 min drive."',
-  },
-  {
-    calls: [
-      {
-        description: "Get current location",
-        endpoint: "/api/agent/location",
-        name: "location.lookup",
-        price: "$0.001",
-      },
-      {
-        description: "Get weather data",
-        endpoint: "/api/agent/search",
-        name: "places.search",
-        params: { q: "weather forecast" },
-        price: "$0.002",
-      },
-      {
-        description: "Aggregate hourly forecast",
-        endpoint: "/api/agent/reviews",
-        name: "reviews.aggregate",
-        params: { place: "weather_001" },
-        price: "$0.003",
-      },
-      {
-        description: "Check precipitation timing",
-        endpoint: "/api/agent/directions",
-        name: "directions.get",
-        params: { to: "forecast" },
-        price: "$0.002",
-      },
-    ],
-    id: "weather",
-    label: "Weather",
-    prompt: "What's the weather today?",
-    response:
-      '"Currently 62°F and partly cloudy in San Francisco. 20% chance of light rain after 4pm. I\'d suggest bringing a light jacket — umbrella optional."',
-  },
-];
+	const showDesktop = (name: string) => {
+		if (isTouchRef.current) return;
+		if (timeoutRef.current) clearTimeout(timeoutRef.current);
+		setActive(name);
+	};
+	const hideDesktop = () => {
+		if (isTouchRef.current) return;
+		timeoutRef.current = setTimeout(() => setActive(null), 150);
+	};
+	const toggleMobile = (name: string) => {
+		if (!isTouchRef.current) return;
+		setActive((prev) => (prev === name ? null : name));
+	};
+	const dismiss = () => setActive(null);
 
-function SelectQuery() {
-  const { data: client } = useConnectorClient();
+	const baseDelay = 2200;
+	const activeService = SERVICES.find((s) => s.name === active) ?? null;
 
-  const [results, setResults] = useState<
-    {
-      calls: ApiCall[];
-      query: QueryPreset;
-      status: "pending" | "done" | "error";
-    }[]
-  >([]);
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (queryId: string) => {
-      const query = presets.find((q) => q.id === queryId);
-      if (!query) throw new Error("Unknown query");
-
-      const index = results.length;
-      setResults((r) => [...r, { calls: [], query, status: "pending" }]);
-
-      for (const call of query.calls) {
-        const url = new URL(call.endpoint, window.location.origin);
-        if (call.params)
-          for (const [key, value] of Object.entries(call.params))
-            url.searchParams.set(key, value);
-
-        setResults((r) =>
-          r.map((item, i) =>
-            i === index ? { ...item, calls: [...item.calls, call] } : item,
-          ),
-        );
-
-        await fetch(url.toString(), {
-          context: { account: client?.account },
-        });
-
-        await new Promise((r) => setTimeout(r, 800));
-      }
-
-      setResults((r) =>
-        r.map((item, i) => (i === index ? { ...item, status: "done" } : item)),
-      );
-
-      await new Promise((r) => setTimeout(r, 1000));
-    },
-    onError: () => {
-      setResults((r) => {
-        const last = r.length - 1;
-        return r.map((item, i) =>
-          i === last ? { ...item, status: "error" } : item,
-        );
-      });
-    },
-  });
-
-  return (
-    <>
-      {results.map((result, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: stable list
-        <QueryResult key={i} {...result} />
-      ))}
-      {!isPending && (
-        <Cli.Block>
-          <Cli.Line variant="info">Select a query to run:</Cli.Line>
-          <Cli.Select autoFocus onSubmit={(v) => mutate(v)}>
-            {presets.map((query) => (
-              <Cli.Select.Option key={query.id} value={query.id}>
-                {query.prompt}
-              </Cli.Select.Option>
-            ))}
-          </Cli.Select>
-        </Cli.Block>
-      )}
-    </>
-  );
+	return (
+		<>
+			<div className="max-w-2xl mx-auto px-4">
+				<div
+					className="flex items-center justify-center gap-4 pb-8 transition-opacity duration-200"
+					style={{
+						opacity: active ? 0 : 1,
+						...anim(shouldAnimate, baseDelay, 600),
+					}}
+				>
+					<div
+						className="flex-1 h-px"
+						style={{ background: "var(--vocs-border-color-secondary)" }}
+					/>
+					<span
+						className="text-sm shrink-0"
+						style={{ color: "var(--vocs-text-color-muted)" }}
+					>
+						Works instantly with powerful APIs
+					</span>
+					<div
+						className="flex-1 h-px"
+						style={{ background: "var(--vocs-border-color-secondary)" }}
+					/>
+				</div>
+				{/* Desktop: single row; Mobile: wrap (3 + 2) */}
+				<div
+					className="flex flex-wrap items-center justify-center"
+					style={{ gap: "1.5rem 2.5rem" }}
+				>
+					{SERVICES.map((service, i) => (
+						// biome-ignore lint/a11y/noStaticElementInteractions: desktop hover trigger
+						<div
+							key={service.name}
+							className="relative"
+							onMouseEnter={() => showDesktop(service.name)}
+							onMouseLeave={hideDesktop}
+							style={anim(shouldAnimate, baseDelay + 200 + i * 120, 600)}
+						>
+							<ServiceLogoButton
+								service={service}
+								isActive={active === service.name}
+								onTap={() => toggleMobile(service.name)}
+							/>
+							{/* Desktop-only hover tooltip */}
+							<DesktopTooltip
+								service={service}
+								isOpen={active === service.name}
+								onMouseEnter={() => showDesktop(service.name)}
+								onMouseLeave={hideDesktop}
+							/>
+						</div>
+					))}
+				</div>
+			</div>
+			{/* Mobile bottom card overlay */}
+			{activeService && (
+				<MobileServiceCard service={activeService} onDismiss={dismiss} />
+			)}
+		</>
+	);
 }
 
-function QueryResult({
-  calls,
-  query,
-  status,
+function ServiceLogoButton({
+	service,
+	isActive,
+	onTap,
 }: {
-  calls: ApiCall[];
-  query: QueryPreset;
-  status: "pending" | "done" | "error";
+	service: (typeof SERVICES)[number];
+	isActive: boolean;
+	onTap: () => void;
 }) {
-  return (
-    <Cli.Block>
-      <Cli.Line variant="input" prefix="❯">
-        agent.query("{query.prompt}")
-      </Cli.Line>
-      <Cli.Line variant="info">
-        Planning: {query.calls.length} API calls, ~$
-        {query.calls
-          .reduce((sum, c) => sum + Number.parseFloat(c.price.slice(1)), 0)
-          .toFixed(3)}{" "}
-        total
-      </Cli.Line>
-      <Cli.Blank />
-      {calls.map((call, i) => (
-        <div key={call.name}>
-          <Cli.Line variant="warning" prefix="→">
-            [{i + 1}/{query.calls.length}] {call.name} — {call.price}
-          </Cli.Line>
-          {i === calls.length - 1 && status === "pending" ? (
-            <Cli.Line variant="loading">{call.description}...</Cli.Line>
-          ) : (
-            <Cli.Line variant="success" prefix="✓">
-              {call.description}
-            </Cli.Line>
-          )}
-        </div>
-      ))}
-      {status === "done" && (
-        <>
-          <Cli.Blank />
-          <Cli.Line variant="success" prefix="✓">
-            Complete — {query.calls.length} calls
-          </Cli.Line>
-          <Cli.Blank />
-          <Cli.Line>{query.response}</Cli.Line>
-        </>
-      )}
-      {status === "error" && (
-        <>
-          <Cli.Blank />
-          <Cli.Line variant="error" prefix="✗">
-            Query failed
-          </Cli.Line>
-        </>
-      )}
-    </Cli.Block>
-  );
+	const { accent } = useContext(ActiveAgentContext);
+	const Logo = service.logo;
+	return (
+		<button
+			type="button"
+			onClick={onTap}
+			className="service-logo-item flex flex-col items-center gap-2 cursor-pointer"
+			style={
+				{
+					"--service-accent": accent,
+					color: isActive ? accent : "var(--vocs-text-color-primary)",
+					background: "none",
+					border: "none",
+					padding: 0,
+				} as React.CSSProperties
+			}
+		>
+			<div
+				className="service-logo-icon"
+				style={{ transition: "color 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}
+			>
+				<Logo style={{ width: 36, height: 36 }} />
+			</div>
+			<span
+				className="text-sm"
+				style={{ color: "var(--vocs-text-color-muted)" }}
+			>
+				{service.name}
+			</span>
+		</button>
+	);
+}
+
+function DesktopTooltip({
+	service,
+	isOpen,
+	onMouseEnter,
+	onMouseLeave,
+}: {
+	service: (typeof SERVICES)[number];
+	isOpen: boolean;
+	onMouseEnter: () => void;
+	onMouseLeave: () => void;
+}) {
+	const [copied, setCopied] = useState(false);
+	const { activeAgent, accent } = useContext(ActiveAgentContext);
+	const agent = AGENT_COMMANDS[activeAgent];
+	const fullPrompt = [agent.bin, agent.args, service.task]
+		.filter(Boolean)
+		.join(" ");
+	const prefix = [agent.bin, agent.args].filter(Boolean).join(" ");
+
+	const handleCopy = () => {
+		navigator.clipboard.writeText(fullPrompt);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
+	return (
+		<button
+			type="button"
+			onClick={handleCopy}
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave}
+			className="hidden md:flex items-center justify-between gap-3 w-full text-left cursor-pointer"
+			style={{
+				position: "absolute",
+				bottom: "100%",
+				left: "50%",
+				transform: isOpen
+					? "translateX(-50%) translateY(0)"
+					: "translateX(-50%) translateY(4px)",
+				marginBottom: 10,
+				width: 300,
+				padding: "12px 16px",
+				borderRadius: 6,
+				border: "1px solid var(--vocs-border-color-secondary)",
+				background: "var(--vocs-background-color-surface)",
+				zIndex: 100,
+				opacity: isOpen ? 1 : 0,
+				pointerEvents: isOpen ? "auto" : "none",
+				transition: "opacity 0.2s ease, transform 0.2s ease",
+			}}
+		>
+			<span
+				className="text-sm font-mono whitespace-pre-wrap break-words text-left"
+				style={{
+					margin: 0,
+					padding: 0,
+					userSelect: "text",
+					WebkitUserSelect: "text",
+				}}
+			>
+				<span style={{ color: accent }}>{prefix} </span>
+				<span style={{ color: "var(--vocs-text-color-heading)" }}>
+					{service.task}
+				</span>
+			</span>
+			<span
+				className="shrink-0"
+				style={{
+					color: copied ? accent : "var(--vocs-text-color-muted)",
+					transition: "color 0.15s",
+				}}
+			>
+				{copied ? (
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M20 6 9 17l-5-5" />
+					</svg>
+				) : (
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						aria-hidden="true"
+					>
+						<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+						<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+					</svg>
+				)}
+			</span>
+		</button>
+	);
+}
+
+function MobileServiceCard({
+	service,
+	onDismiss,
+}: {
+	service: (typeof SERVICES)[number];
+	onDismiss: () => void;
+}) {
+	const [copied, setCopied] = useState(false);
+	const { activeAgent, accent } = useContext(ActiveAgentContext);
+	const agent = AGENT_COMMANDS[activeAgent];
+	const fullPrompt = [agent.bin, agent.args, service.task]
+		.filter(Boolean)
+		.join(" ");
+	const prefix = [agent.bin, agent.args].filter(Boolean).join(" ");
+
+	const handleCopy = () => {
+		navigator.clipboard.writeText(fullPrompt);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
+	return (
+		// biome-ignore lint/a11y/useKeyWithClickEvents: dismiss overlay
+		// biome-ignore lint/a11y/noStaticElementInteractions: dismiss overlay
+		<div
+			className="md:hidden fixed inset-0"
+			style={{ zIndex: 9998 }}
+			onClick={onDismiss}
+		>
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: card body */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: card body */}
+			<div
+				className="absolute bottom-0 left-0 right-0 p-4"
+				onClick={(e) => e.stopPropagation()}
+				style={{
+					paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+				}}
+			>
+				<div
+					style={{
+						borderRadius: 12,
+						border: "1px solid var(--vocs-border-color-primary)",
+						background: "light-dark(#fff, oklch(0.22 0 0))",
+						padding: 16,
+						boxShadow: "0 -4px 24px rgba(0,0,0,0.15)",
+					}}
+				>
+					<div
+						className="font-mono text-sm whitespace-pre-wrap break-words mb-4 text-left"
+						style={{ userSelect: "text", WebkitUserSelect: "text" }}
+					>
+						<span style={{ color: accent }}>{prefix} </span>
+						<span style={{ color: "var(--vocs-text-color-heading)" }}>
+							{service.task}
+						</span>
+					</div>
+					<div className="flex gap-2">
+						<a
+							href="/services"
+							className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md no-underline transition-colors"
+							style={{
+								border: "1px solid var(--vocs-border-color-primary)",
+								color: "var(--vocs-text-color-heading)",
+							}}
+							onClick={onDismiss}
+						>
+							View all services
+						</a>
+						<button
+							type="button"
+							onClick={handleCopy}
+							className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors"
+							style={{
+								background: accent,
+								color: "#000",
+							}}
+						>
+							{copied ? "Copied!" : "Copy prompt"}
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// ---------------------------------------------------------------------------
+// Shared components
+// ---------------------------------------------------------------------------
+
+function CTAButtons() {
+	const [hovered, setHovered] = useState<"primary" | "secondary" | null>(null);
+	const { accent, isMonochrome } = useContext(ActiveAgentContext);
+	return (
+		<div className="flex flex-col items-center gap-2">
+			<div className="flex flex-wrap gap-3">
+				<Link
+					to="/setup/agents"
+					className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150"
+					style={{
+						backgroundColor: isMonochrome
+							? "var(--vocs-text-color-heading)"
+							: accent,
+						color: "#000",
+						opacity: hovered === "primary" ? 0.85 : 1,
+					}}
+					onMouseEnter={() => setHovered("primary")}
+					onMouseLeave={() => setHovered(null)}
+				>
+					Set up your agent
+				</Link>
+				<Link
+					to="/specs"
+					className="cta-secondary inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md no-underline transition-all duration-150"
+					style={{
+						borderColor: "var(--vocs-border-color-primary)",
+						backgroundColor:
+							"light-dark(var(--vocs-background-color-surface), oklch(0.28 0 0))",
+						color:
+							hovered === "secondary"
+								? accent
+								: "var(--vocs-text-color-heading)",
+					}}
+					onMouseEnter={() => setHovered("secondary")}
+					onMouseLeave={() => setHovered(null)}
+				>
+					Integrate your API
+				</Link>
+			</div>
+			<div
+				className="text-sm transition-opacity duration-200"
+				style={{
+					color: "var(--vocs-text-color-muted)",
+					opacity: hovered ? 1 : 0,
+					height: 20,
+					marginTop: 8,
+				}}
+			>
+				{hovered === "primary" && "Let your agent use paid APIs instantly"}
+				{hovered === "secondary" && "Accept payments from any client or agent"}
+			</div>
+		</div>
+	);
+}
+
+function AgentTabsWrapped() {
+	const {
+		activeAgent: active,
+		setActiveAgent: setActive,
+		accent,
+	} = useContext(ActiveAgentContext);
+	const [copied, setCopied] = useState(false);
+	const prompt = `"Log in (https://mpp.tempo.xyz/quickstart/tempoctl), and use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed. Available services: https://payments.tempo.xyz/llms.txt and https://payments.tempo.xyz/services"`;
+	const displayPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
+	const commands = [
+		{
+			label: "Claude",
+			bin: "claude",
+			args: "-p",
+			str: prompt,
+			displayStr: displayPrompt,
+			icon: ClaudeLogoSmall,
+		},
+		{
+			label: "Codex",
+			bin: "codex",
+			args: "--full-auto",
+			str: prompt,
+			displayStr: displayPrompt,
+			icon: OpenAILogoSmall,
+		},
+		{
+			label: "Amp",
+			bin: "amp",
+			args: null,
+			str: prompt,
+			displayStr: displayPrompt,
+			icon: AmpLogoSmall,
+		},
+	];
+	const cmd = commands[active];
+	const fullCommand = [cmd.bin, cmd.args, cmd.str].filter(Boolean).join(" ");
+
+	const handleCopy = () => {
+		navigator.clipboard.writeText(fullCommand);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
+	return (
+		<div
+			className="w-full max-w-xl rounded-md overflow-hidden text-left"
+			style={{
+				border: "1px solid var(--vocs-border-color-primary)",
+				boxShadow:
+					"light-dark(0 0 40px rgba(0,0,0,0.04), 0 0 40px rgba(255,255,255,0.03)), 0 1px 3px light-dark(rgba(0,0,0,0.08), rgba(0,0,0,0.2))",
+			}}
+		>
+			<div
+				className="flex"
+				style={{
+					background:
+						"light-dark(var(--vocs-background-color-surfaceMuted), oklch(0.22 0 0))",
+					borderBottom: "1px solid var(--vocs-border-color-primary)",
+				}}
+			>
+				{commands.map((a, i) => {
+					const Icon = a.icon;
+					return (
+						<button
+							key={a.label}
+							type="button"
+							onClick={() => setActive(i)}
+							className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer"
+							style={{
+								color: i === active ? accent : "var(--vocs-text-color-muted)",
+								background:
+									i === active
+										? "var(--vocs-background-color-surface)"
+										: "transparent",
+								borderRight:
+									i < commands.length - 1
+										? "1px solid var(--vocs-border-color-secondary)"
+										: "none",
+							}}
+						>
+							<Icon className="w-4.5 h-4.5" />
+							{a.label}
+						</button>
+					);
+				})}
+			</div>
+			<button
+				type="button"
+				onClick={handleCopy}
+				className="px-4 py-3 flex items-center justify-between gap-3 w-full text-left cursor-pointer transition-colors"
+				style={{
+					color: "var(--vocs-background-color-surface)",
+				}}
+			>
+				<span
+					className="font-mono whitespace-pre-wrap break-words text-left"
+					style={{
+						fontSize: 15,
+						margin: 0,
+						padding: 0,
+						userSelect: "text",
+						WebkitUserSelect: "text",
+					}}
+				>
+					<span style={{ color: "var(--vocs-text-color-muted)", opacity: 0.4 }}>
+						$
+					</span>
+					<span style={{ color: accent }}> {cmd.bin}</span>
+					{cmd.args && (
+						<span
+							style={{ color: "var(--vocs-text-color-heading)", opacity: 0.6 }}
+						>
+							{" "}
+							{cmd.args}
+						</span>
+					)}
+					<span style={{ color: "var(--vocs-text-color-heading)" }}>
+						{" "}
+						{cmd.displayStr}
+					</span>
+				</span>
+				<span
+					className="hover:text-accent transition-colors shrink-0"
+					style={{ color: "var(--vocs-text-color-muted)" }}
+				>
+					{copied ? (
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
+							<path d="M20 6 9 17l-5-5" />
+						</svg>
+					) : (
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
+							<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+							<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+						</svg>
+					)}
+				</span>
+			</button>
+		</div>
+	);
 }
