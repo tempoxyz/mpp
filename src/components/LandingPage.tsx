@@ -306,7 +306,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         </div>
 
         {/* Service logos */}
-        <div className="w-full">
+        <div className="w-full" style={{ marginTop: "0.75rem" }}>
           <ServiceLogos shouldAnimate={shouldAnimate} />
         </div>
       </div>
@@ -1066,7 +1066,7 @@ function MobileServiceCard({
               type="button"
               onClick={handleCopy}
               className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium rounded-md cursor-pointer transition-colors"
-              style={{ background: ACCENT, color: "#000" }}
+              style={{ background: ACCENT, color: "var(--vocs-background-color-primary)" }}
             >
               {copied ? "Copied!" : "Copy prompt"}
             </button>
@@ -1091,7 +1091,7 @@ function CTAButtons() {
           className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150"
           style={{
             backgroundColor: ACCENT,
-            color: "#000",
+            color: "var(--vocs-background-color-primary)",
             opacity: hovered === "primary" ? 0.85 : 1,
           }}
           onMouseEnter={() => setHovered("primary")}
