@@ -169,7 +169,7 @@ function LandingStyles() {
 					grid-column: span 2;
 					display: flex !important;
 					justify-content: center !important;
-					background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.05));
+					border: 1px solid var(--vocs-border-color-secondary);
 					border-radius: 10px;
 					padding: 12px 8px 10px;
 				}

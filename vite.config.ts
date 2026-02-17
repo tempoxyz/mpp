@@ -14,33 +14,33 @@ const commitTimestamp = child_process
   .trim();
 
 export default defineConfig({
-	define: {
-		__COMMIT_SHA__: JSON.stringify(commitSha),
-		__COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
-	},
-	optimizeDeps: {
-		include: [
-			"@braintree/sanitize-url",
-			"beautiful-mermaid",
-			"dayjs",
-			"mermaid",
-		],
-	},
-	plugins: [
-		Icons({ compiler: "jsx", jsx: "react" }),
-		nodeLoaderCloudflare({
-			environments: ["rsc"],
-			build: true,
-			// https://developers.cloudflare.com/workers/wrangler/api/#getplatformproxy
-			getPlatformProxyOptions: {
-				persist: {
-					path: ".wrangler/state/v3",
-				},
-			},
-		}),
-		react(),
-		vocs({
-			unstable_adapter: "waku/adapters/cloudflare",
-		}),
-	],
+  define: {
+    __COMMIT_SHA__: JSON.stringify(commitSha),
+    __COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
+  },
+  optimizeDeps: {
+    include: [
+      "@braintree/sanitize-url",
+      "beautiful-mermaid",
+      "dayjs",
+      "mermaid",
+    ],
+  },
+  plugins: [
+    Icons({ compiler: "jsx", jsx: "react" }),
+    nodeLoaderCloudflare({
+      environments: ["rsc"],
+      build: true,
+      // https://developers.cloudflare.com/workers/wrangler/api/#getplatformproxy
+      getPlatformProxyOptions: {
+        persist: {
+          path: ".wrangler/state/v3",
+        },
+      },
+    }),
+    react(),
+    vocs({
+      unstable_adapter: "waku/adapters/cloudflare",
+    }),
+  ],
 });
