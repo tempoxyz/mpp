@@ -108,8 +108,9 @@
  */
 
 /* Prevent layout shift when scrollbar appears/disappears between routes */
-html {
+html, body {
   scrollbar-gutter: stable;
+  overflow-x: hidden;
 }
 
 /* Custom utility for muted text */
@@ -170,14 +171,8 @@ a[class*="rounded-md"][class*="border"]:hover {
   text-decoration: underline;
 }
 
-/* Sidebar links - default color, no underline */
-[data-v-sidebar] a:not([data-active="true"]),
-[data-v-sidebar] a:link:not([data-active="true"]),
-[data-v-sidebar] a:visited:not([data-active="true"]),
-[data-v-sidebar] a:hover:not([data-active="true"]),
-[data-v-sidebar] [data-v-sidebar-item]:not([data-active="true"]),
-[data-v-sidebar] [data-v-sidebar-item]:hover:not([data-active="true"]) {
-  color: inherit !important;
+/* Sidebar — no underlines anywhere */
+[data-v-sidebar] a {
   text-decoration: none !important;
 }
 
@@ -191,22 +186,22 @@ a[data-v-sidebar-item][data-active="true"]:visited {
   font-weight: 500 !important;
 }
 
-/* Sidebar hover — subtle bg, keep text visible */
-[data-v-sidebar] a:hover,
-[data-v-sidebar] [data-v-sidebar-item]:hover {
-  background-color: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.05)) !important;
+/* Sidebar item hover — subtle bg, heading color text */
+a[data-v-sidebar-item]:hover {
+  background-color: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06)) !important;
   color: var(--vocs-text-color-heading) !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
 }
 
-/* Inactive sidebar links — slightly muted */
-[data-v-sidebar] a[data-v-sidebar-item]:not([data-active="true"]) {
+/* Inactive sidebar items — muted */
+a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
   color: var(--vocs-text-color-secondary) !important;
   -webkit-text-fill-color: var(--vocs-text-color-secondary) !important;
 }
 
-/* Section headings same color as subsections */
-[data-v-sidebar] [data-v-sidebar-group] > span {
+/* Section/group headings — heading color, same as subsections */
+[data-v-sidebar] [data-v-sidebar-group] > span,
+[data-v-sidebar] [data-v-sidebar-group] > button {
   color: var(--vocs-text-color-heading) !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
 }
@@ -591,7 +586,9 @@ aside[data-v-callout] a:hover {
 [data-v-code-group] button:not([data-v-active="true"]) svg {
   filter: grayscale(1);
   opacity: 0.6;
-  transition: filter 0.15s, opacity 0.15s;
+  transition:
+    filter 0.15s,
+    opacity 0.15s;
 }
 [data-v-code-group] button[data-v-active="true"] img,
 [data-v-code-group] button[data-v-active="true"] svg {
