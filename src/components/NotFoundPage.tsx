@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 const ASCII_MPP = `@@@@@@@@%                                $@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%$$$=       
 @@@@@@@@@@$                             $@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$=    
@@ -184,9 +185,11 @@ export function NotFoundPage() {
       }}
     >
       <style>{`
+				[data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
 				[data-v-main] article[data-v-content] { padding-top: 0 !important; padding-bottom: 0 !important; }
 				[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
 			`}</style>
+      <NotFoundHeaderLogo />
 
       {/* biome-ignore lint/a11y/noStaticElementInteractions: decorative animation */}
       <div
@@ -258,5 +261,39 @@ export function NotFoundPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+function NotFoundHeaderLogo() {
+  const [target, setTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = document.querySelector<HTMLElement>("[data-v-gutter-top]");
+    if (el) setTarget(el);
+  }, []);
+  if (!target) return null;
+
+  return createPortal(
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 16,
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    >
+      <picture>
+        <source srcSet="/logo-dark.svg" media="(prefers-color-scheme: dark)" />
+        <img
+          src="/logo-light.svg"
+          alt="MPP"
+          style={{ height: 20, width: "auto" }}
+        />
+      </picture>
+    </div>,
+    target,
   );
 }

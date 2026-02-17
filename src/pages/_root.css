@@ -662,7 +662,7 @@ aside[data-v-callout] a:hover {
   margin-left: 1.5rem !important;
 }
 
-/* Move Ask AI to bottom-right corner instead of centered over content */
+/* Move Ask AI to bottom-right, aligned with TOC left edge on desktop */
 [data-v-ask-ai-container] {
   left: auto !important;
   right: 1rem !important;
@@ -672,7 +672,8 @@ aside[data-v-callout] a:hover {
 
 @media (min-width: 1280px) {
   [data-v-ask-ai-container] {
-    right: 0.75rem !important;
+    left: calc(100vw - var(--spacing-gutter) + 1.5rem) !important;
+    right: auto !important;
     bottom: 2rem !important;
   }
 }
