@@ -744,7 +744,7 @@ function ServiceLogos({ shouldAnimate }: { shouldAnimate: boolean }) {
           ))}
         </div>
       </div>
-      {activeService && (
+      {activeService && isMobile() && (
         <MobileServiceCard
           service={activeService}
           onDismiss={dismiss}
