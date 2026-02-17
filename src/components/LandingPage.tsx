@@ -253,11 +253,10 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
       <div
         className="max-w-2xl w-full flex flex-col items-center"
         style={{
-          gap: "1.25rem",
           marginTop: "auto",
           marginBottom: "auto",
-          paddingTop: "1.5rem",
-          paddingBottom: "1.5rem",
+          paddingTop: "1rem",
+          paddingBottom: "1rem",
         }}
       >
         {/* Co-designed by */}
@@ -270,6 +269,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
             width: "min(648px, 88vw)",
             maxWidth: "none",
             overflow: "visible",
+            marginTop: 16,
             ...anim(shouldAnimate, 600, 900),
           }}
         >
@@ -278,9 +278,10 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 
         {/* Tagline */}
         <p
-          className="text-base leading-relaxed max-w-xl mx-auto pt-3 font-normal"
+          className="text-base leading-relaxed max-w-xl mx-auto font-normal"
           style={{
             color: "var(--vocs-text-color-secondary)",
+            marginTop: 16,
             ...anim(shouldAnimate, 1100, 700),
           }}
         >
@@ -292,7 +293,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         {/* Agent prompt tabs */}
         <div
           className="flex justify-center w-full"
-          style={anim(shouldAnimate, 1500, 700)}
+          style={{ marginTop: 16, ...anim(shouldAnimate, 1500, 700) }}
         >
           <AgentTabs />
         </div>
@@ -300,13 +301,13 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         {/* CTA buttons */}
         <div
           className="flex flex-col items-center gap-4"
-          style={anim(shouldAnimate, 1800, 700)}
+          style={{ marginTop: 16, ...anim(shouldAnimate, 1800, 700) }}
         >
           <CTAButtons />
         </div>
 
         {/* Service logos */}
-        <div className="w-full" style={{ marginTop: "0.75rem" }}>
+        <div className="w-full" style={{ marginTop: 24 }}>
           <ServiceLogos shouldAnimate={shouldAnimate} />
         </div>
       </div>
@@ -322,7 +323,7 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
   return (
     <div className="inline-flex flex-col items-center gap-2">
       <div
-        className="flex items-center gap-3 mb-6"
+        className="flex items-center gap-3"
         style={{
           fontFamily: "var(--font-mono)",
           ...anim(shouldAnimate, 300, 800),
@@ -344,7 +345,7 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
           target="_blank"
           rel="noopener noreferrer"
           className="no-underline"
-          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.7 }}
+          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.5 }}
         >
           <TempoLogo style={{ height: 14, width: "auto" }} />
         </a>
@@ -359,7 +360,7 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
           target="_blank"
           rel="noopener noreferrer"
           className="no-underline"
-          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.7 }}
+          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.5 }}
         >
           <StripeLogo style={{ height: 22, width: "auto" }} />
         </a>
@@ -1066,7 +1067,10 @@ function MobileServiceCard({
               type="button"
               onClick={handleCopy}
               className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium rounded-md cursor-pointer transition-colors"
-              style={{ background: ACCENT, color: "var(--vocs-background-color-primary)" }}
+              style={{
+                background: ACCENT,
+                color: "var(--vocs-background-color-primary)",
+              }}
             >
               {copied ? "Copied!" : "Copy prompt"}
             </button>
