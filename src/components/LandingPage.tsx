@@ -12,6 +12,7 @@ import { AsciiLogo } from "./AsciiLogo";
 // ---------------------------------------------------------------------------
 
 const ACCENT = "var(--vocs-text-color-heading)";
+const AGENT_COLOR = "#e8873a";
 const ANIM_SESSION_KEY = "mpp-landing-animated";
 
 // ---------------------------------------------------------------------------
@@ -349,7 +350,7 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
           <TempoLogo style={{ height: 14, width: "auto" }} />
         </a>
         <span
-          className="text-[10px]"
+          className="text-[12px]"
           style={{ color: "var(--vocs-text-color-muted)", opacity: 1 }}
         >
           &times;
@@ -861,7 +862,7 @@ function DesktopTooltip({
           WebkitUserSelect: "text",
         }}
       >
-        <span style={{ color: ACCENT }}>{prefix} </span>
+        <span style={{ color: AGENT_COLOR }}>{prefix} </span>
         <span style={{ color: "var(--vocs-text-color-heading)" }}>
           {service.task}
         </span>
@@ -1044,7 +1045,7 @@ function MobileServiceCard({
             className="font-mono text-sm whitespace-pre-wrap break-words mb-4 text-left"
             style={{ userSelect: "text", WebkitUserSelect: "text" }}
           >
-            <span style={{ color: ACCENT }}>{prefix} </span>
+            <span style={{ color: AGENT_COLOR }}>{prefix} </span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {service.task}
             </span>
@@ -1242,7 +1243,7 @@ function AgentTabs() {
           <span style={{ color: "var(--vocs-text-color-muted)", opacity: 0.4 }}>
             $
           </span>
-          <span style={{ color: ACCENT }}> {cmd.bin}</span>
+          <span style={{ color: AGENT_COLOR }}> {cmd.bin}</span>
           {cmd.args && (
             <span
               style={{ color: "var(--vocs-text-color-heading)", opacity: 0.6 }}
