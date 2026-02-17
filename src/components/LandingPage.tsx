@@ -253,7 +253,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
       <div
         className="max-w-2xl w-full flex flex-col items-center"
         style={{
-          gap: "1.75rem",
+          gap: "1.25rem",
           marginTop: "auto",
           marginBottom: "auto",
           paddingTop: "1.5rem",
@@ -278,7 +278,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 
         {/* Tagline */}
         <p
-          className="text-base leading-relaxed max-w-xl mx-auto pt-6 font-normal"
+          className="text-base leading-relaxed max-w-xl mx-auto pt-3 font-normal"
           style={{
             color: "var(--vocs-text-color-secondary)",
             ...anim(shouldAnimate, 1100, 700),
