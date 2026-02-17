@@ -82,32 +82,32 @@ export function NotFoundPage() {
     ...lines404.map((l) => l.length),
   );
 
-  const charTransitionOrder = useMemo(() => {
-    return Array.from({ length: maxLines }, () =>
-      Array.from({ length: maxWidth }, () => Math.random()),
-    );
-  }, [maxLines, maxWidth]);
+  const charTransitionOrder = useMemo(
+    () =>
+      Array.from({ length: maxLines }, () =>
+        Array.from({ length: maxWidth }, () => Math.random()),
+      ),
+    [maxLines, maxWidth],
+  );
 
   const getCharAt = (lineIdx: number, charIdx: number): string => {
     const mppChar = mppLines[lineIdx]?.[charIdx] || " ";
     const char404 = lines404[lineIdx]?.[charIdx] || " ";
-
     if (morphProgress === 0) return mppChar;
     if (morphProgress === 1) return char404;
-
     const threshold = charTransitionOrder[lineIdx]?.[charIdx] ?? 0.5;
     return morphProgress > threshold ? char404 : mppChar;
   };
 
-  const [charStates, setCharStates] = useState<CharState[][]>(() => {
-    return Array.from({ length: maxLines }, () =>
+  const [charStates, setCharStates] = useState<CharState[][]>(() =>
+    Array.from({ length: maxLines }, () =>
       Array.from({ length: maxWidth }, () => ({
         charIndex: Math.floor(Math.random() * FILL_CHARS.length),
         nextChangeTime: Date.now() + Math.random() * 1000,
         cycleDuration: 300 + Math.random() * 700,
       })),
-    );
-  });
+    ),
+  );
 
   const startMorph = useCallback(
     (target: 0 | 1) => {
@@ -126,54 +126,69 @@ export function NotFoundPage() {
   useEffect(() => {
     let animationId: number;
     const MORPH_DURATION = 3000;
-
     const animate = () => {
       const now = Date.now();
-
       if (morphStartTime.current !== null) {
         const elapsed = now - morphStartTime.current;
         const t = Math.min(elapsed / MORPH_DURATION, 1);
-
         const start = morphStartProgress.current;
         const target = morphTarget.current;
-        const newProgress = start + (target - start) * t;
-
-        setMorphProgress(newProgress);
-
-        if (t >= 1) {
-          morphStartTime.current = null;
-        }
+        setMorphProgress(start + (target - start) * t);
+        if (t >= 1) morphStartTime.current = null;
       }
-
-      setCharStates((prevStates) => {
-        let hasChanges = false;
-        const newStates = prevStates.map((lineStates) =>
-          lineStates.map((state) => {
-            if (now >= state.nextChangeTime) {
-              hasChanges = true;
+      setCharStates((prev) => {
+        let changed = false;
+        const next = prev.map((line) =>
+          line.map((s) => {
+            if (now >= s.nextChangeTime) {
+              changed = true;
               return {
-                charIndex: (state.charIndex + 1) % FILL_CHARS.length,
+                charIndex: (s.charIndex + 1) % FILL_CHARS.length,
                 nextChangeTime:
-                  now + state.cycleDuration + (Math.random() - 0.5) * 200,
-                cycleDuration: state.cycleDuration,
+                  now + s.cycleDuration + (Math.random() - 0.5) * 200,
+                cycleDuration: s.cycleDuration,
               };
             }
-            return state;
+            return s;
           }),
         );
-        return hasChanges ? newStates : prevStates;
+        return changed ? next : prev;
       });
-
       animationId = requestAnimationFrame(animate);
     };
-
     animationId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationId);
   }, []);
 
+  const handleGoBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = "/";
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-[var(--vocs-color-background)]">
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: decorative animation, no keyboard interaction needed */}
+    <div
+      className="not-prose"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "calc(100dvh - var(--vocs-spacing-topNav, 64px))",
+        overflow: "hidden",
+        fontFamily: "var(--font-pilat)",
+        userSelect: "none",
+        WebkitUserSelect: "none",
+      }}
+    >
+      <style>{`
+				[data-v-main] article[data-v-content] { padding-top: 0 !important; padding-bottom: 0 !important; }
+				[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
+			`}</style>
+
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: decorative animation */}
       <div
         onMouseEnter={() => startMorph(1)}
         onMouseLeave={() => startMorph(0)}
@@ -183,10 +198,8 @@ export function NotFoundPage() {
           lineHeight: 1.15,
           whiteSpace: "pre",
           letterSpacing: "1px",
-          color: "var(--vocs-color-accent)",
+          color: "var(--vocs-text-color-heading)",
           opacity: 0.85,
-          textShadow:
-            "0 0 20px color-mix(in srgb, var(--vocs-color-accent) 30%, transparent)",
           cursor: "pointer",
         }}
       >
@@ -198,19 +211,18 @@ export function NotFoundPage() {
             const line404 = lines404[lineIdx] || "";
             const lineLen = Math.max(mppLine.length, line404.length);
             return (
-              // biome-ignore lint/suspicious/noArrayIndexKey: static ASCII art lines don't reorder
+              // biome-ignore lint/suspicious/noArrayIndexKey: static ASCII art
               <div key={lineIdx}>
                 {Array.from({ length: lineLen }, (_, charIdx) => {
                   const baseChar = getCharAt(lineIdx, charIdx);
-                  if (baseChar === " ") {
-                    // biome-ignore lint/suspicious/noArrayIndexKey: static chars don't reorder
+                  if (baseChar === " ")
+                    // biome-ignore lint/suspicious/noArrayIndexKey: static chars
                     return <span key={charIdx}>{baseChar}</span>;
-                  }
                   const state = charStates[lineIdx]?.[charIdx];
                   const displayChar = state
                     ? FILL_CHARS[state.charIndex]
                     : baseChar;
-                  // biome-ignore lint/suspicious/noArrayIndexKey: static chars don't reorder
+                  // biome-ignore lint/suspicious/noArrayIndexKey: static chars
                   return <span key={charIdx}>{displayChar}</span>;
                 })}
               </div>
@@ -222,23 +234,28 @@ export function NotFoundPage() {
       <div className="text-center">
         <h1
           className="text-2xl font-medium mb-4"
-          style={{ color: "var(--vocs-color-text)" }}
+          style={{ color: "var(--vocs-text-color-heading)" }}
         >
           Page not found
         </h1>
         <p
           className="text-base mb-6"
-          style={{ color: "var(--vocs-color-text-2)" }}
+          style={{ color: "var(--vocs-text-color-secondary)" }}
         >
           The page you're looking for doesn't exist or has been moved.
         </p>
-        <a
-          href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-accent font-medium rounded-lg transition-all hover:bg-accent6 no-underline"
-          style={{ color: "var(--accent-button-text)" }}
+        <button
+          type="button"
+          onClick={handleGoBack}
+          className="inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg transition-all no-underline cursor-pointer"
+          style={{
+            backgroundColor: "var(--vocs-text-color-heading)",
+            color: "var(--vocs-background-color-primary)",
+            border: "none",
+          }}
         >
-          ← Back to Home
-        </a>
+          ← Go back
+        </button>
       </div>
     </div>
   );
