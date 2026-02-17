@@ -155,7 +155,7 @@ function LandingStyles() {
 				}
 				.lockup-wide { display: none; }
 				.lockup-stacked { display: block; max-width: 320px; margin: 0 auto; }
-				.co-designed-by { padding-top: 48px; }
+				.co-designed-by { padding-top: 64px; }
 				.not-prose p { font-size: 17px; }
 				.not-prose .text-sm { font-size: 15px; }
 				.not-prose .font-mono { font-size: 15px; }
@@ -350,6 +350,8 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
             color: "var(--vocs-text-color-primary)",
             opacity: 0.5,
             transition: "opacity 0.15s",
+            display: "inline-flex",
+            willChange: "opacity",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.opacity = "1";
@@ -375,6 +377,8 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
             color: "var(--vocs-text-color-primary)",
             opacity: 0.5,
             transition: "opacity 0.15s",
+            display: "inline-flex",
+            willChange: "opacity",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.opacity = "1";
@@ -743,13 +747,15 @@ function ServiceLogos({ shouldAnimate }: { shouldAnimate: boolean }) {
           style={{ gap: "1.5rem 2.5rem" }}
         >
           {SERVICES.map((service, i) => (
-            // biome-ignore lint/a11y/noStaticElementInteractions: desktop hover
+            // biome-ignore lint/a11y/noStaticElementInteractions: desktop hover + mobile tap
+            // biome-ignore lint/a11y/useKeyWithClickEvents: mobile tap target
             <div
               key={service.name}
               className="relative"
               onMouseEnter={() => showDesktop(i)}
               onMouseLeave={hideDesktop}
-              style={anim(shouldAnimate, baseDelay + 200 + i * 120, 600)}
+              onClick={() => handleTap(i)}
+              style={{ cursor: isMobile() ? "pointer" : undefined, ...anim(shouldAnimate, baseDelay + 200 + i * 120, 600) }}
             >
               <ServiceLogoButton
                 service={service}
