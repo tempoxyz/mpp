@@ -256,8 +256,6 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         style={{
           marginTop: "auto",
           marginBottom: "auto",
-          paddingTop: "1rem",
-          paddingBottom: "1rem",
         }}
       >
         {/* Co-designed by */}
@@ -270,7 +268,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
             width: "min(648px, 88vw)",
             maxWidth: "none",
             overflow: "visible",
-            marginTop: 28,
+            marginTop: 44,
             ...anim(shouldAnimate, 600, 900),
           }}
         >
@@ -294,7 +292,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         {/* Agent prompt tabs */}
         <div
           className="flex justify-center w-full"
-          style={{ marginTop: 28, ...anim(shouldAnimate, 1500, 700) }}
+          style={{ marginTop: 44, ...anim(shouldAnimate, 1500, 700) }}
         >
           <AgentTabs />
         </div>
@@ -302,13 +300,13 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         {/* CTA buttons */}
         <div
           className="flex flex-col items-center gap-4"
-          style={{ marginTop: 28, ...anim(shouldAnimate, 1800, 700) }}
+          style={{ marginTop: 44, ...anim(shouldAnimate, 1800, 700) }}
         >
           <CTAButtons />
         </div>
 
         {/* Service logos */}
-        <div className="w-full" style={{ marginTop: 32 }}>
+        <div className="w-full" style={{ marginTop: 32, paddingBottom: 96 }}>
           <ServiceLogos shouldAnimate={shouldAnimate} />
         </div>
       </div>
