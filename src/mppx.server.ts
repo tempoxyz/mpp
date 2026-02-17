@@ -3,7 +3,10 @@ import { createClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { tempoModerato } from "viem/chains";
 
+const realm = import.meta.env.VITE_REALM ?? "mpp.tempo.xyz";
+
 export const mppx = Mppx.create({
+  realm,
   methods: [
     tempo.charge({
       ...(import.meta.env.VITE_FEE_PAYER_PRIVATE_KEY
