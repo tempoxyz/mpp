@@ -128,7 +128,7 @@ function LandingStyles() {
 			[data-v-main] { padding-bottom: 0 !important; }
 			[data-v-main] article[data-v-content] { padding-top: 0 !important; padding-bottom: 0 !important; }
 			[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
-			[data-v-gutter-top] { position: fixed !important; z-index: 50 !important; }
+			[data-v-gutter-top] { position: fixed !important; z-index: 50 !important; user-select: none !important; -webkit-user-select: none !important; }
 
 			.lockup-wide { display: block; }
 			.lockup-stacked { display: none; }
@@ -155,7 +155,7 @@ function LandingStyles() {
 				}
 				.lockup-wide { display: none; }
 				.lockup-stacked { display: block; max-width: 320px; margin: 0 auto; }
-				.co-designed-by { padding-top: 24px; }
+				.co-designed-by { padding-top: 48px; }
 				.not-prose p { font-size: 17px; }
 				.not-prose .text-sm { font-size: 15px; }
 				.not-prose .font-mono { font-size: 15px; }
@@ -346,9 +346,17 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
           target="_blank"
           rel="noopener noreferrer"
           className="no-underline"
-          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.5, transition: "opacity 0.15s" }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.5"; }}
+          style={{
+            color: "var(--vocs-text-color-primary)",
+            opacity: 0.5,
+            transition: "opacity 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.5";
+          }}
         >
           <TempoLogo style={{ height: 14, width: "auto" }} />
         </a>
@@ -363,9 +371,17 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
           target="_blank"
           rel="noopener noreferrer"
           className="no-underline"
-          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.5, transition: "opacity 0.15s" }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.5"; }}
+          style={{
+            color: "var(--vocs-text-color-primary)",
+            opacity: 0.5,
+            transition: "opacity 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.5";
+          }}
         >
           <StripeLogo style={{ height: 22, width: "auto" }} />
         </a>
