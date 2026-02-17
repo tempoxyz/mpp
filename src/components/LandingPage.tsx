@@ -155,6 +155,7 @@ function LandingStyles() {
 				}
 				.lockup-wide { display: none; }
 				.lockup-stacked { display: block; max-width: 320px; margin: 0 auto; }
+				.co-designed-by { padding-top: 24px; }
 				.not-prose p { font-size: 17px; }
 				.not-prose .text-sm { font-size: 15px; }
 				.not-prose .font-mono { font-size: 15px; }
@@ -321,7 +322,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 
 function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
   return (
-    <div className="inline-flex flex-col items-center gap-2">
+    <div className="co-designed-by inline-flex flex-col items-center gap-2">
       <div
         className="flex items-center gap-3"
         style={{
@@ -345,7 +346,9 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
           target="_blank"
           rel="noopener noreferrer"
           className="no-underline"
-          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.5 }}
+          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.5, transition: "opacity 0.15s" }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.5"; }}
         >
           <TempoLogo style={{ height: 14, width: "auto" }} />
         </a>
@@ -360,7 +363,9 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
           target="_blank"
           rel="noopener noreferrer"
           className="no-underline"
-          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.5 }}
+          style={{ color: "var(--vocs-text-color-primary)", opacity: 0.5, transition: "opacity 0.15s" }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.5"; }}
         >
           <StripeLogo style={{ height: 22, width: "auto" }} />
         </a>
