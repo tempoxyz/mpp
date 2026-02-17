@@ -1122,7 +1122,7 @@ function MobileServiceCard({
           {/* Actions */}
           <div className="flex gap-2">
             <Link
-              to="/setup/agents#services-available-today"
+              to="/guides/building-with-ai"
               className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium rounded-md no-underline transition-colors"
               style={{
                 border: "1px solid var(--vocs-border-color-primary)",
@@ -1160,7 +1160,7 @@ function CTAButtons() {
     <div className="flex flex-col items-center gap-2">
       <div className="flex flex-wrap gap-3">
         <Link
-          to="/setup/agents"
+          to="/guides/building-with-ai"
           className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150"
           style={{
             backgroundColor: ACCENT,
@@ -1173,7 +1173,7 @@ function CTAButtons() {
           Set up your agent
         </Link>
         <Link
-          to="/specs"
+          to="/protocol"
           className="cta-secondary inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md no-underline transition-all duration-150"
           style={{
             borderColor: "var(--vocs-border-color-primary)",
@@ -1187,7 +1187,7 @@ function CTAButtons() {
           onMouseEnter={() => setHovered("secondary")}
           onMouseLeave={() => setHovered(null)}
         >
-          Integrate your API
+          Learn more
         </Link>
       </div>
       <div
@@ -1200,7 +1200,7 @@ function CTAButtons() {
         }}
       >
         {hovered === "primary" && "Let your agent use paid APIs instantly"}
-        {hovered === "secondary" && "Accept payments from any client or agent"}
+        {hovered === "secondary" && "How MPP works under the hood"}
       </div>
     </div>
   );
