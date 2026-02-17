@@ -755,7 +755,10 @@ function ServiceLogos({ shouldAnimate }: { shouldAnimate: boolean }) {
               onMouseEnter={() => showDesktop(i)}
               onMouseLeave={hideDesktop}
               onClick={() => handleTap(i)}
-              style={{ cursor: isMobile() ? "pointer" : undefined, ...anim(shouldAnimate, baseDelay + 200 + i * 120, 600) }}
+              style={{
+                cursor: isMobile() ? "pointer" : undefined,
+                ...anim(shouldAnimate, baseDelay + 200 + i * 120, 600),
+              }}
             >
               <ServiceLogoButton
                 service={service}
