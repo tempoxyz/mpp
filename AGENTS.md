@@ -52,8 +52,8 @@ When editing Python or Rust pages, keep the structure aligned with the existing 
 ## SDK References
 
 - Typescript: <https://github.com/wevm/mppx>
-- Python: <https://github.com/tempoxyz/pympay>
-- Rust: <<https://github.com/tempoxyz/mpay-rs>
+- Python: <https://github.com/tempoxyz/pympp>
+- Rust: <https://github.com/tempoxyz/mpp-rs>
 
 ## Be Opinionated
 

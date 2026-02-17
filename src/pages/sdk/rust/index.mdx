@@ -1,26 +1,26 @@
 import * as SdkBadge from '../../../components/SdkBadge'
 
-# Rust SDK [The mpay Rust library]
+# Rust SDK [The mpp Rust library]
 
 ## Overview
 
-The `mpay` Rust library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+The `mpp` Rust library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
 
 <div className="flex gap-2">
-  <SdkBadge.GitHub repo="tempoxyz/mpay-rs" />
+  <SdkBadge.GitHub repo="tempoxyz/mpp-rs" />
   <SdkBadge.Maintainer name="Tempo" href="https://github.com/tempoxyz" />
 </div>
 
 ## Install
 
 ```bash [install.sh]
-$ cargo add mpay
+$ cargo add mpp
 ```
 
 With Tempo blockchain support:
 
 ```bash [install-with-tempo.sh]
-$ cargo add mpay --features tempo,client,server
+$ cargo add mpp --features tempo,client,server
 ```
 
 ## Quick start
@@ -28,7 +28,7 @@ $ cargo add mpay --features tempo,client,server
 ### Parse a Challenge
 
 ```rust
-use mpay::parse_www_authenticate;
+use mpp::parse_www_authenticate;
 
 let header = r#"Payment id="abc", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOiIxMDAwIn0""#;
 let challenge = parse_www_authenticate(header)?;
@@ -40,7 +40,7 @@ println!("Intent: {}", challenge.intent);
 ### Create a Credential
 
 ```rust
-use mpay::{PaymentCredential, PaymentPayload, ChallengeEcho};
+use mpp::{PaymentCredential, PaymentPayload, ChallengeEcho};
 
 let credential = PaymentCredential::with_source(
     ChallengeEcho::new("challenge-id", "tempo", "charge"),
@@ -48,13 +48,13 @@ let credential = PaymentCredential::with_source(
     PaymentPayload::transaction("0xf86c..."),
 );
 
-let header = mpay::format_authorization(&credential)?;
+let header = mpp::format_authorization(&credential)?;
 ```
 
 ### Parse a Receipt
 
 ```rust
-use mpay::parse_receipt;
+use mpp::parse_receipt;
 
 let receipt = parse_receipt(receipt_header)?;
 println!("Status: {:?}", receipt.status);
@@ -74,16 +74,16 @@ println!("Reference: {}", receipt.reference);
 
 ```toml
 # Client only
-mpay = { version = "0.1", features = ["tempo", "client"] }
+mpp = { version = "0.1", features = ["tempo", "client"] }
 
 # Server only
-mpay = { version = "0.1", features = ["tempo", "server"] }
+mpp = { version = "0.1", features = ["tempo", "server"] }
 
 # Both
-mpay = { version = "0.1", features = ["tempo", "client", "server"] }
+mpp = { version = "0.1", features = ["tempo", "client", "server"] }
 
 # With middleware
-mpay = { version = "0.1", features = ["tempo", "client", "middleware"] }
+mpp = { version = "0.1", features = ["tempo", "client", "middleware"] }
 ```
 
 ## Next steps

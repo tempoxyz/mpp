@@ -4,18 +4,18 @@ Protect endpoints with payment requirements.
 
 ## Quick start
 
-Create an `Mpay` instance with `Mpay.create()` and call `charge()` with a human-readable amount. The `tempo()` factory creates a Tempo payment method—configure `currency` and `recipient` once, then every `charge()` call uses those defaults.
+Create an `Mpp` instance with `Mpp.create()` and call `charge()` with a human-readable amount. The `tempo()` factory creates a Tempo payment method—configure `currency` and `recipient` once, then every `charge()` call uses those defaults.
 
 ```python [server.py]
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from mpay import Challenge
-from mpay.server import Mpay
-from mpay.methods.tempo import tempo, ChargeIntent
+from mpp import Challenge
+from mpp.server import Mpp
+from mpp.methods.tempo import tempo, ChargeIntent
 
 app = FastAPI()
 
-mpay = Mpay.create(
+mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
@@ -25,7 +25,7 @@ mpay = Mpay.create(
 
 @app.get("/resource")
 async def get_resource(request: Request):
-    result = await mpay.charge(
+    result = await mpp.charge(
         authorization=request.headers.get("Authorization"),
         amount="0.50",
     )
@@ -34,17 +34,17 @@ async def get_resource(request: Request):
         return JSONResponse(
             status_code=402,
             content={"error": "Payment required"},
-            headers={"WWW-Authenticate": result.to_www_authenticate(mpay.realm)},
+            headers={"WWW-Authenticate": result.to_www_authenticate(mpp.realm)},
         )
 
     credential, receipt = result
     return {"data": "paid content", "payer": credential.source}
 ```
 
-`Mpay.create()` auto-detects `realm` from environment variables (`VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others) and auto-generates a `secret_key` persisted to `.env`. Pass explicit values to override:
+`Mpp.create()` auto-detects `realm` from environment variables (`VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others) and auto-generates a `secret_key` persisted to `.env`. Pass explicit values to override:
 
 ```python [server.py]
-mpay = Mpay.create(
+mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
@@ -60,7 +60,7 @@ mpay = Mpay.create(
 `tempo()` creates a `TempoMethod` that bundles a payment network, its intents, and default parameters together. Each intent must be explicitly registered via the `intents` parameter.
 
 ```python [server.py]
-from mpay.methods.tempo import tempo, ChargeIntent
+from mpp.methods.tempo import tempo, ChargeIntent
 
 method = tempo(
     currency="0x20c0000000000000000000000000000000000000",
@@ -74,10 +74,10 @@ method = tempo(
 Register both intents on a single method:
 
 ```python [server.py]
-from mpay.methods.tempo import tempo, ChargeIntent, StreamIntent
-from mpay.methods.tempo.stream.storage import MemoryStorage
+from mpp.methods.tempo import tempo, ChargeIntent, StreamIntent
+from mpp.methods.tempo.stream.storage import MemoryStorage
 
-mpay = Mpay.create(
+mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
@@ -126,7 +126,7 @@ Default recipient address for charges.
 
 Tempo RPC endpoint URL.
 
-## `Mpay.create()` parameters
+## `Mpp.create()` parameters
 
 ### method
 
@@ -242,14 +242,14 @@ import json
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse
-from mpay import Challenge
-from mpay.methods.tempo import StreamIntent, tempo
-from mpay.methods.tempo.stream.storage import MemoryStorage
-from mpay.server import Mpay
+from mpp import Challenge
+from mpp.methods.tempo import StreamIntent, tempo
+from mpp.methods.tempo.stream.storage import MemoryStorage
+from mpp.server import Mpp
 
 app = FastAPI()
 
-mpay = Mpay.create(
+mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
@@ -264,7 +264,7 @@ mpay = Mpay.create(
 
 @app.get("/api/chat")
 async def chat(request: Request, prompt: str = "Hello!"):
-    result = await mpay.stream(
+    result = await mpp.stream(
         authorization=request.headers.get("Authorization"),
         amount="0.000075",
         unit_type="token",
@@ -274,7 +274,7 @@ async def chat(request: Request, prompt: str = "Hello!"):
         return JSONResponse(
             status_code=402,
             content={"error": "Payment required"},
-            headers={"WWW-Authenticate": result.to_www_authenticate(mpay.realm)},
+            headers={"WWW-Authenticate": result.to_www_authenticate(mpp.realm)},
         )
 
     credential, receipt = result
@@ -298,9 +298,9 @@ For the lower-level decorator API, use `@requires_payment` with an explicit inte
 
 ```python [server.py]
 from fastapi import FastAPI, Request
-from mpay import Credential, Receipt
-from mpay.server import requires_payment
-from mpay.methods.tempo import ChargeIntent
+from mpp import Credential, Receipt
+from mpp.server import requires_payment
+from mpp.methods.tempo import ChargeIntent
 
 app = FastAPI()
 intent = ChargeIntent(rpc_url="https://rpc.tempo.xyz")

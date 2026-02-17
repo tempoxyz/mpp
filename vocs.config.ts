@@ -58,9 +58,9 @@ export default defineConfig({
     enabled: true,
     sources: [
       McpSource.github({ name: "mppx", repo: "wevm/mppx" }),
-      McpSource.github({ name: "mpay-rs", repo: "tempoxyz/mpay-rs" }),
-      McpSource.github({ name: "mpay-sdks", repo: "tempoxyz/mpay-sdks" }),
-      McpSource.github({ name: "pympay", repo: "tempoxyz/pympay" }),
+      McpSource.github({ name: "mpp-rs", repo: "tempoxyz/mpp-rs" }),
+      McpSource.github({ name: "mpp-tools", repo: "tempoxyz/mpp-tools" }),
+      McpSource.github({ name: "pympp", repo: "tempoxyz/pympp" }),
       McpSource.github({
         name: "payment-auth-spec",
         repo: "tempoxyz/payment-auth-spec",
@@ -471,8 +471,8 @@ export default defineConfig({
       text: "GitHub",
       items: [
         { text: "mppx [TypeScript]", link: "https://github.com/wevm/mppx" },
-        { text: "mpay-rs [Rust]", link: "https://github.com/tempoxyz/mpay-rs" },
-        { text: "pympay [Python]", link: "https://github.com/tempoxyz/pympay" },
+        { text: "mpp-rs [Rust]", link: "https://github.com/tempoxyz/mpp-rs" },
+        { text: "pympp [Python]", link: "https://github.com/tempoxyz/pympp" },
         {
           text: "IETF Specs",
           link: "https://github.com/tempoxyz/payment-auth-spec",

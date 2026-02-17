@@ -5,8 +5,8 @@ Handle `402` Payment Required responses automatically.
 ## Quick start
 
 ```python [client.py]
-from mpay.client import Client
-from mpay.methods.tempo import tempo, TempoAccount, ChargeIntent
+from mpp.client import Client
+from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
 
 account = TempoAccount.from_key("0x...")
 
@@ -28,8 +28,8 @@ async with Client(methods=[tempo(account=account, intents={"charge": ChargeInten
 ## One-off requests
 
 ```python [client.py]
-from mpay.client import get
-from mpay.methods.tempo import tempo, TempoAccount, ChargeIntent
+from mpp.client import get
+from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
 
 response = await get(
     "https://api.example.com/resource",
@@ -43,8 +43,8 @@ For payment session channels, use `StreamMethod` instead of `tempo()`. The clien
 
 ```python [stream.py]
 import httpx
-from mpay.client import PaymentTransport
-from mpay.methods.tempo import StreamMethod, TempoAccount
+from mpp.client import PaymentTransport
+from mpp.methods.tempo import StreamMethod, TempoAccount
 
 account = TempoAccount.from_key("0x...")
 
@@ -72,8 +72,8 @@ async with httpx.AsyncClient(transport=transport, timeout=60.0) as client:
 
 ```python [transport.py]
 import httpx
-from mpay.client import PaymentTransport
-from mpay.methods.tempo import tempo, TempoAccount, ChargeIntent
+from mpp.client import PaymentTransport
+from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
 
 account = TempoAccount.from_key("0x...")
 transport = PaymentTransport(

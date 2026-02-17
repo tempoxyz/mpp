@@ -1,26 +1,26 @@
 import * as SdkBadge from '../../../components/SdkBadge'
 
-# Python SDK [The pympay Python library]
+# Python SDK [The pympp Python library]
 
 ## Overview
 
-The `mpay` Python library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+The `mpp` Python library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
 
 <div className="flex gap-2">
-  <SdkBadge.GitHub repo="tempoxyz/pympay" />
+  <SdkBadge.GitHub repo="tempoxyz/pympp" />
   <SdkBadge.Maintainer name="Tempo" href="https://github.com/tempoxyz" />
 </div>
 
 ## Install
 
 ```bash [install.sh]
-$ pip install pympay
+$ pip install pympp
 ```
 
 With Tempo blockchain support:
 
 ```bash [install-with-tempo.sh]
-$ pip install "pympay[tempo]"
+$ pip install "pympp[tempo]"
 ```
 
 ## Requirements
@@ -36,13 +36,13 @@ $ pip install "pympay[tempo]"
 ```python [server.py]
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from mpay import Challenge
-from mpay.server import Mpay
-from mpay.methods.tempo import tempo, ChargeIntent
+from mpp import Challenge
+from mpp.server import Mpp
+from mpp.methods.tempo import tempo, ChargeIntent
 
 app = FastAPI()
 
-mpay = Mpay.create(
+mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
         recipient="0xa726a1CD723409074DF9108A2187cfA19899aCF8",
@@ -52,7 +52,7 @@ mpay = Mpay.create(
 
 @app.get("/resource")
 async def get_resource(request: Request):
-    result = await mpay.charge(
+    result = await mpp.charge(
         authorization=request.headers.get("Authorization"),
         amount="0.50",
     )
@@ -61,7 +61,7 @@ async def get_resource(request: Request):
         return JSONResponse(
             status_code=402,
             content={"error": "Payment required"},
-            headers={"WWW-Authenticate": result.to_www_authenticate(mpay.realm)},
+            headers={"WWW-Authenticate": result.to_www_authenticate(mpp.realm)},
         )
 
     credential, receipt = result
@@ -72,8 +72,8 @@ async def get_resource(request: Request):
 
 ```python [client.py]
 import asyncio
-from mpay.client import Client
-from mpay.methods.tempo import tempo, TempoAccount, ChargeIntent
+from mpp.client import Client
+from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
 
 async def main():
     account = TempoAccount.from_env()

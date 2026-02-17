@@ -7,7 +7,7 @@ Handle `402` Payment Required responses automatically.
 Add `.send_with_payment()` to any `reqwest::RequestBuilder`.
 
 ```rust
-use mpay::client::{PaymentExt, TempoProvider};
+use mpp::client::{PaymentExt, TempoProvider};
 use alloy::signers::local::PrivateKeySigner;
 
 let signer = PrivateKeySigner::random();
@@ -32,7 +32,7 @@ let response = reqwest::Client::new()
 All requests automatically handle 402. Requires the `middleware` feature.
 
 ```rust
-use mpay::client::{PaymentMiddleware, TempoProvider};
+use mpp::client::{PaymentMiddleware, TempoProvider};
 use reqwest_middleware::ClientBuilder;
 
 let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;

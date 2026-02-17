@@ -7,18 +7,18 @@ Protect endpoints with payment requirements.
 Bind method, realm, and secret_key for stateless verification.
 
 ```rust
-use mpay::server::{Mpay, tempo_provider, TempoChargeMethod};
+use mpp::server::{Mpp, tempo_provider, TempoChargeMethod};
 
 let provider = tempo_provider("https://rpc.tempo.xyz")?;
 let method = TempoChargeMethod::new(provider);
-let payment = Mpay::new(method, "mpp.dev", "my-secret");
+let payment = Mpp::new(method, "mpp.dev", "my-secret");
 ```
 
 ## Key types
 
 | Type | Description |
 |------|-------------|
-| `Mpay` | Server helper for challenges and verification |
+| `Mpp` | Server helper for challenges and verification |
 | `TempoChargeMethod` | Built-in Tempo verification logic |
 | `ChargeMethod` | Trait for custom verification |
 
@@ -39,4 +39,4 @@ let receipt = payment.verify(&credential, &request).await?;
 println!("Payment verified: {}", receipt.reference);
 ```
 
-For custom verification, implement `ChargeMethod` and pass it to `Mpay::new`.
+For custom verification, implement `ChargeMethod` and pass it to `Mpp::new`.
