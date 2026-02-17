@@ -40,7 +40,6 @@ export namespace Store {
   export type ViewType = "main" | "network";
 
   export type State = {
-    demoAddress: Address | undefined;
     initialBalance: bigint | undefined;
     interaction: InteractionType;
     restartStep: number;
@@ -51,7 +50,6 @@ export namespace Store {
 }
 
 export const store = new ts_Store<Store.State>({
-  demoAddress: undefined,
   initialBalance: undefined,
   interaction: null,
   restartStep: 0,
@@ -62,14 +60,10 @@ export const store = new ts_Store<Store.State>({
 
 export function Window({ children, className, token }: Window.Props) {
   const { address } = useConnection();
-  const demoAddress = useStore(store, (s) => s.demoAddress);
   const initialBalance = useStore(store, (s) => s.initialBalance);
 
-  // Use demo address if available, otherwise connected wallet
-  const balanceAddress = demoAddress ?? address;
-
   const { data: balance } = Hooks.token.useGetBalance({
-    account: balanceAddress,
+    account: address,
     token,
     blockTag: "latest",
   });
@@ -80,16 +74,14 @@ export function Window({ children, className, token }: Window.Props) {
 
   useEffect(() => {
     // Only reset initialBalance if there's no address AND no demo address
-    if (!address && !demoAddress) {
+    if (!address) {
       store.setState((s) => ({ ...s, initialBalance: undefined }));
       return;
     }
-    // Don't set initialBalance if demoAddress is set - let SilentDemoSetup handle it
-    if (demoAddress) return;
     if (balance !== undefined && initialBalance === undefined) {
       store.setState((s) => ({ ...s, initialBalance: balance }));
     }
-  }, [address, demoAddress, balance, initialBalance]);
+  }, [address, balance, initialBalance]);
 
   return (
     <div
@@ -360,19 +352,14 @@ export namespace FooterBar {
 
 export function Balance({ className, label = "Balance" }: Balance.Props) {
   const token = useStore(store, (s) => s.token);
-  const demoAddress = useStore(store, (s) => s.demoAddress);
-  const { address: connectedAddress } = useConnection();
-  const address = demoAddress ?? connectedAddress;
+  const { address } = useConnection();
 
   const { data: balance } = Hooks.token.useGetBalance({
     account: address,
     token,
-    blockTag: "latest",
     query: {
       enabled: !!address && !!token,
       refetchInterval: 1_000,
-      staleTime: 0,
-      gcTime: 0,
     },
   });
 
@@ -401,25 +388,15 @@ export namespace Balance {
 export function Spent({ className, label = "Spent" }: Spent.Props) {
   const initial = useStore(store, (s) => s.initialBalance);
   const token = useStore(store, (s) => s.token);
-  const demoAddress = useStore(store, (s) => s.demoAddress);
-  const { address: connectedAddress } = useConnection();
-  const address = demoAddress ?? connectedAddress;
+  const { address } = useConnection();
 
   const { data: balance } = Hooks.token.useGetBalance({
     account: address,
     token,
-    blockTag: "latest",
-    query: {
-      enabled: !!address && !!token,
-      refetchInterval: 2_000,
-      staleTime: 0,
-      gcTime: 0,
-    },
   });
 
   if (!address) return null;
 
-  // Calculate spent: if balance went down from initial, show the difference
   const spent =
     initial !== undefined && balance !== undefined && initial > balance
       ? initial - balance
@@ -1203,145 +1180,6 @@ export function ConnectWallet() {
       )}
     </Block>
   );
-}
-
-// Simulated auto-connect for simplified demo (skips passkey)
-export function AutoConnect() {
-  const [phase, setPhase] = useState<"connecting" | "connected">("connecting");
-  // Generate a consistent fake address for the demo
-  const demoAddress = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf";
-
-  useEffect(() => {
-    // Simulate connection delay
-    const connectTimer = setTimeout(() => {
-      setPhase("connected");
-    }, 800);
-
-    return () => clearTimeout(connectTimer);
-  }, []);
-
-  useEffect(() => {
-    if (phase === "connected") {
-      const advanceTimer = setTimeout(
-        () => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
-        500,
-      );
-      return () => clearTimeout(advanceTimer);
-    }
-  }, [phase]);
-
-  return (
-    <Block className="flex-1">
-      <Line variant="info">
-        Setting up <span className="text-accent">demo wallet</span>...
-      </Line>
-      {phase === "connected" ? (
-        <Line variant="success" prefix="✓">
-          Connected: {demoAddress.slice(0, 10)}…{demoAddress.slice(-8)}
-        </Line>
-      ) : (
-        <Line variant="loading">Connecting...</Line>
-      )}
-    </Block>
-  );
-}
-
-const INITIAL_BALANCE_KEY = "mpp-demo-initial-balance";
-
-// Silent setup - funds demo account and advances without showing UI
-export function SilentDemoSetup({
-  demoAddress,
-}: {
-  demoAddress: `0x${string}`;
-}) {
-  const token = useStore(store, (s) => s.token);
-  const [hasAdvanced, setHasAdvanced] = useState(false);
-
-  // Set demo address in store so Balance/Spent can use it
-  useEffect(() => {
-    store.setState((s) => ({ ...s, demoAddress }));
-    return () => {
-      store.setState((s) => ({ ...s, demoAddress: undefined }));
-    };
-  }, [demoAddress]);
-
-  const { data: balance, refetch } = Hooks.token.useGetBalance({
-    account: demoAddress,
-    token,
-    blockTag: "latest",
-    query: {
-      enabled: !!token,
-      staleTime: 0,
-    },
-  });
-
-  const { mutate, isPending, isSuccess } = Hooks.faucet.useFundSync({
-    mutation: {
-      onSuccess: async () => {
-        // Refetch balance after funding
-        const { data: newBalance } = await refetch();
-        const initial = newBalance ?? balance ?? 1_000_000_000_000n;
-        // Save to localStorage for persistence
-        localStorage.setItem(INITIAL_BALANCE_KEY, initial.toString());
-        store.setState((s) => ({
-          ...s,
-          initialBalance: initial,
-          stepIndex: s.stepIndex + 1,
-        }));
-        setHasAdvanced(true);
-      },
-    },
-  });
-
-  // Fund or advance
-  useEffect(() => {
-    if (!token) return;
-    if (hasAdvanced || isPending || isSuccess) return;
-
-    if (balance !== undefined && balance > 0n) {
-      // Check for persisted initial balance
-      const stored = localStorage.getItem(INITIAL_BALANCE_KEY);
-      const initial = stored ? BigInt(stored) : balance;
-
-      // Only update stored initial if current balance is higher (refunded)
-      if (balance > initial) {
-        localStorage.setItem(INITIAL_BALANCE_KEY, balance.toString());
-      }
-
-      store.setState((s) => ({
-        ...s,
-        initialBalance: stored ? initial : balance,
-        stepIndex: s.stepIndex + 1,
-      }));
-      setHasAdvanced(true);
-      return;
-    }
-
-    // Need to fund
-    if (balance !== undefined && balance === 0n) {
-      mutate({ account: demoAddress });
-      return;
-    }
-
-    // Balance query still loading - wait for it
-  }, [balance, demoAddress, hasAdvanced, isPending, isSuccess, mutate, token]);
-
-  // Timeout fallback - always advance after 3s even if balance query hangs
-  useEffect(() => {
-    if (hasAdvanced) return;
-    const timeout = setTimeout(() => {
-      if (hasAdvanced) return;
-      store.setState((s) => ({
-        ...s,
-        initialBalance: 1_000_000_000_000n,
-        stepIndex: s.stepIndex + 1,
-      }));
-      setHasAdvanced(true);
-    }, 3000);
-    return () => clearTimeout(timeout);
-  }, [hasAdvanced]);
-
-  return null;
 }
 
 export function Faucet() {
