@@ -108,19 +108,9 @@
  */
 
 /* Prevent layout shift when scrollbar appears/disappears between routes */
-html,
-body,
-[data-v-main],
-[data-v-main] > * {
+html {
   scrollbar-gutter: stable;
-  overflow-x: hidden;
-}
-
-/* Force content area to fill available width so it doesn't shift on load */
-[data-v-content] article,
-article[data-v-content] {
-  width: 100%;
-  min-width: 0;
+  overflow-y: scroll;
 }
 
 /* Pagination: hide "Next" / "Previous" label text, keep only shortcut (Shift → / ←) */
@@ -668,7 +658,7 @@ aside[data-v-callout] a:hover {
   margin-left: 1.5rem !important;
 }
 
-/* Move Ask AI to bottom-right, aligned with TOC left edge on desktop */
+/* Ask AI — aligned with TOC left edge on desktop */
 [data-v-ask-ai-container] {
   left: auto !important;
   right: 1rem !important;
@@ -676,9 +666,17 @@ aside[data-v-callout] a:hover {
   transform: none !important;
 }
 
-@media (min-width: 1280px) {
+/* Inline TOC mode (tablet/mobile): hide Ask AI to avoid overlap */
+@media (max-width: 1376px) {
   [data-v-ask-ai-container] {
-    left: calc(100vw - var(--spacing-gutter) + 1.5rem) !important;
+    display: none !important;
+  }
+}
+
+/* Desktop TOC mode: position Ask AI using TOC width, not gutter width */
+@media (min-width: 1377px) {
+  [data-v-ask-ai-container] {
+    left: calc(100vw - (var(--spacing-gutter) * 0.8) + 5rem) !important;
     right: auto !important;
     bottom: 2rem !important;
   }

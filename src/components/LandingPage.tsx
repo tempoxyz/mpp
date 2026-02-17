@@ -1,11 +1,14 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import type React from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-
 import { Link } from "vocs";
-import { AsciiLogo } from "./AsciiLogo";
+import { useConnectorClient } from "wagmi";
+import { fetch } from "../mppx.client";
+import { pathUsd } from "../wagmi.config";
+import * as Cli from "./Cli";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -134,8 +137,8 @@ function LandingStyles() {
 			[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
 			[data-v-gutter-top] { position: fixed !important; z-index: 50 !important; user-select: none !important; -webkit-user-select: none !important; }
 
-			.lockup-wide { display: block; }
-			.lockup-stacked { display: none; }
+			.lockup-wide { display: none; }
+			.lockup-stacked { display: block; }
 
 			@media (min-width: 768px) {
 				[data-v-gutter-top] {
@@ -157,8 +160,8 @@ function LandingStyles() {
 					background: var(--vocs-background-color-primary) !important;
 					background-color: var(--vocs-background-color-primary) !important;
 				}
-				.lockup-wide { display: none; }
-				.lockup-stacked { display: block; max-width: 320px; margin: 0 auto; }
+				.lockup-stacked { max-width: 320px; margin: 0 auto; }
+				.hero-right { align-items: center !important; }
 				.co-designed-by { padding-top: 64px; }
 				.not-prose p { font-size: 17px; }
 				.not-prose .text-sm { font-size: 15px; }
@@ -223,20 +226,14 @@ function HeaderLogo() {
         zIndex: 1,
       }}
     >
-      <div style={{ width: 200, height: 36, position: "relative" }}>
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            transform: "scaleX(0.3) scaleY(0.35)",
-            transformOrigin: "top left",
-            padding: 20,
-          }}
-        >
-          <AsciiLogo />
-        </div>
-      </div>
+      <picture>
+        <source srcSet="/logo-dark.svg" media="(prefers-color-scheme: dark)" />
+        <img
+          src="/logo-light.svg"
+          alt="MPP"
+          style={{ height: 20, width: "auto" }}
+        />
+      </picture>
     </div>,
     target,
   );
@@ -249,7 +246,7 @@ function HeaderLogo() {
 function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
   return (
     <section
-      className="flex flex-col items-center text-center px-6"
+      className="flex flex-col items-center px-6"
       style={{
         minHeight:
           "calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px))",
@@ -258,61 +255,81 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
       }}
     >
       <div
-        className="max-w-2xl w-full flex flex-col items-center"
+        className="w-full flex flex-col items-center"
         style={{
+          maxWidth: 1200,
           marginTop: "auto",
           marginBottom: "auto",
         }}
       >
-        {/* Co-designed by */}
-        <CoDesignedBy shouldAnimate={shouldAnimate} />
+        {/* Two-column layout: CLI left, hero right */}
+        <div className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
+          {/* Left pane — interactive CLI demo (animates in first) */}
+          <div
+            className="flex-[11] w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none"
+            style={anim(shouldAnimate, 200, 900)}
+          >
+            <Cli.Demo
+              title="agent-demo"
+              token={pathUsd}
+              height={337}
+              restartStep={1}
+            >
+              <Cli.Startup />
+              <Cli.ConnectWallet />
+              <Cli.Faucet />
+              <SelectQuery />
+            </Cli.Demo>
+          </div>
 
-        {/* Lockup */}
-        <div
-          className="self-center"
-          style={{
-            width: "min(648px, 88vw)",
-            maxWidth: "none",
-            overflow: "visible",
-            marginTop: 44,
-            ...anim(shouldAnimate, 600, 900),
-          }}
-        >
-          <Lockup />
+          {/* Right pane — hero content (staggers in after CLI) */}
+          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-center lg:text-left flex flex-col items-start justify-center gap-6">
+            {/* Co-designed by */}
+            <div style={anim(shouldAnimate, 800, 800)}>
+              <CoDesignedBy shouldAnimate={false} />
+            </div>
+
+            {/* Lockup */}
+            <div
+              className=""
+              style={{
+                width: "min(300px, 88vw)",
+                ...anim(shouldAnimate, 1000, 900),
+              }}
+            >
+              <Lockup />
+            </div>
+
+            {/* Tagline */}
+            <p
+              className="text-base leading-relaxed max-w-xl font-normal"
+              style={{
+                color: "var(--vocs-text-color-secondary)",
+                ...anim(shouldAnimate, 1400, 700),
+              }}
+            >
+              Supercharge your agent with seamless paid API calls.
+              <br className="hidden md:block" />
+              No more manually creating accounts, or copy-pasting keys.
+            </p>
+
+            {/* Agent prompt tabs */}
+            <div className="w-full" style={anim(shouldAnimate, 1800, 700)}>
+              <AgentTabs />
+            </div>
+
+            {/* CTA buttons */}
+            <div
+              className="flex flex-col lg:items-start items-center gap-4"
+              style={anim(shouldAnimate, 2100, 700)}
+            >
+              <CTAButtons />
+            </div>
+          </div>
         </div>
 
-        {/* Tagline */}
-        <p
-          className="text-base leading-relaxed max-w-xl mx-auto font-normal"
-          style={{
-            color: "var(--vocs-text-color-secondary)",
-            marginTop: 28,
-            ...anim(shouldAnimate, 1100, 700),
-          }}
-        >
-          Supercharge your agent with seamless paid API calls.
-          <br className="hidden md:block" />
-          No more manually creating accounts, or copy-pasting keys.
-        </p>
-
-        {/* Agent prompt tabs */}
-        <div
-          className="flex justify-center w-full"
-          style={{ marginTop: 44, ...anim(shouldAnimate, 1500, 700) }}
-        >
-          <AgentTabs />
-        </div>
-
-        {/* CTA buttons */}
-        <div
-          className="flex flex-col items-center gap-4"
-          style={{ marginTop: 44, ...anim(shouldAnimate, 1800, 700) }}
-        >
-          <CTAButtons />
-        </div>
-
-        {/* Service logos */}
-        <div className="w-full" style={{ marginTop: 32, paddingBottom: 96 }}>
+        {/* Service logos — full width below both columns */}
+        <div className="w-full" style={{ marginTop: 72, paddingBottom: 96 }}>
           <ServiceLogos shouldAnimate={shouldAnimate} />
         </div>
       </div>
@@ -1105,7 +1122,7 @@ function MobileServiceCard({
           {/* Actions */}
           <div className="flex gap-2">
             <Link
-              to="/setup/agents#services-available-today"
+              to="/guides/building-with-ai"
               className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium rounded-md no-underline transition-colors"
               style={{
                 border: "1px solid var(--vocs-border-color-primary)",
@@ -1143,7 +1160,7 @@ function CTAButtons() {
     <div className="flex flex-col items-center gap-2">
       <div className="flex flex-wrap gap-3">
         <Link
-          to="/setup/agents"
+          to="/guides/building-with-ai"
           className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150"
           style={{
             backgroundColor: ACCENT,
@@ -1156,7 +1173,7 @@ function CTAButtons() {
           Set up your agent
         </Link>
         <Link
-          to="/specs"
+          to="/protocol"
           className="cta-secondary inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md no-underline transition-all duration-150"
           style={{
             borderColor: "var(--vocs-border-color-primary)",
@@ -1170,7 +1187,7 @@ function CTAButtons() {
           onMouseEnter={() => setHovered("secondary")}
           onMouseLeave={() => setHovered(null)}
         >
-          Integrate your API
+          Learn more
         </Link>
       </div>
       <div
@@ -1183,7 +1200,7 @@ function CTAButtons() {
         }}
       >
         {hovered === "primary" && "Let your agent use paid APIs instantly"}
-        {hovered === "secondary" && "Accept payments from any client or agent"}
+        {hovered === "secondary" && "How MPP works under the hood"}
       </div>
     </div>
   );
@@ -1344,5 +1361,306 @@ function AgentTabs() {
         </span>
       </button>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// CLI Demo: query presets & interactive select
+// ---------------------------------------------------------------------------
+
+type ApiCall = {
+  description: string;
+  endpoint: string;
+  name: string;
+  params?: Record<string, string>;
+  price: string;
+};
+
+type QueryPreset = {
+  calls: ApiCall[];
+  id: string;
+  label: string;
+  prompt: string;
+  response: string;
+};
+
+const presets: QueryPreset[] = [
+  {
+    calls: [
+      {
+        description: "Get current location",
+        endpoint: "/api/agent/location",
+        name: "location.lookup",
+        price: "$0.001",
+      },
+      {
+        description: "Search nearby coffee shops",
+        endpoint: "/api/agent/search",
+        name: "places.search",
+        params: { q: "coffee" },
+        price: "$0.002",
+      },
+      {
+        description: "Aggregate reviews for top result",
+        endpoint: "/api/agent/reviews",
+        name: "reviews.aggregate",
+        params: { place: "place_001" },
+        price: "$0.003",
+      },
+      {
+        description: "Get walking directions",
+        endpoint: "/api/agent/directions",
+        name: "directions.get",
+        params: { to: "The Coffee Movement" },
+        price: "$0.002",
+      },
+    ],
+    id: "coffee",
+    label: "Coffee Shop",
+    prompt: "Find the best coffee shop nearby",
+    response:
+      '"The Coffee Movement is the top-rated coffee shop nearby (4.6★, 0.4mi). Known for specialty pour-overs and single-origin beans. It\'s an 8 minute walk — head north on Market St to Nob Hill, 1030 Washington St."',
+  },
+  {
+    calls: [
+      {
+        description: "Get current location",
+        endpoint: "/api/agent/location",
+        name: "location.lookup",
+        price: "$0.001",
+      },
+      {
+        description: "Search Italian restaurants",
+        endpoint: "/api/agent/search",
+        name: "places.search",
+        params: { q: "italian restaurant" },
+        price: "$0.002",
+      },
+      {
+        description: "Check ratings and availability",
+        endpoint: "/api/agent/reviews",
+        name: "reviews.aggregate",
+        params: { place: "place_002" },
+        price: "$0.003",
+      },
+      {
+        description: "Get directions to restaurant",
+        endpoint: "/api/agent/directions",
+        name: "directions.get",
+        params: { to: "Flour + Water" },
+        price: "$0.002",
+      },
+    ],
+    id: "restaurant",
+    label: "Restaurant",
+    prompt: "Find a highly-rated Italian restaurant",
+    response:
+      '"Flour + Water is an excellent choice — 4.7★ with 2,400+ reviews. Known for house-made pasta. It\'s 0.8mi away, about 15 min walk or 5 min drive."',
+  },
+  {
+    calls: [
+      {
+        description: "Get current location",
+        endpoint: "/api/agent/location",
+        name: "location.lookup",
+        price: "$0.001",
+      },
+      {
+        description: "Search parking garages",
+        endpoint: "/api/agent/search",
+        name: "places.search",
+        params: { q: "parking garage Union Square" },
+        price: "$0.002",
+      },
+      {
+        description: "Check availability and rates",
+        endpoint: "/api/agent/reviews",
+        name: "reviews.aggregate",
+        params: { place: "place_003" },
+        price: "$0.003",
+      },
+      {
+        description: "Get driving directions",
+        endpoint: "/api/agent/directions",
+        name: "directions.get",
+        params: { to: "Union Square Garage" },
+        price: "$0.002",
+      },
+    ],
+    id: "parking",
+    label: "Parking",
+    prompt: "Find available parking near Union Square",
+    response:
+      '"Union Square Garage has spots available — $8/hr or $32 max daily. 450 Post St entrance. Turn right on Geary, 2 blocks, garage on left. ~3 min drive."',
+  },
+  {
+    calls: [
+      {
+        description: "Get current location",
+        endpoint: "/api/agent/location",
+        name: "location.lookup",
+        price: "$0.001",
+      },
+      {
+        description: "Get weather data",
+        endpoint: "/api/agent/search",
+        name: "places.search",
+        params: { q: "weather forecast" },
+        price: "$0.002",
+      },
+      {
+        description: "Aggregate hourly forecast",
+        endpoint: "/api/agent/reviews",
+        name: "reviews.aggregate",
+        params: { place: "weather_001" },
+        price: "$0.003",
+      },
+      {
+        description: "Check precipitation timing",
+        endpoint: "/api/agent/directions",
+        name: "directions.get",
+        params: { to: "forecast" },
+        price: "$0.002",
+      },
+    ],
+    id: "weather",
+    label: "Weather",
+    prompt: "What's the weather today?",
+    response:
+      '"Currently 62°F and partly cloudy in San Francisco. 20% chance of light rain after 4pm. I\'d suggest bringing a light jacket — umbrella optional."',
+  },
+];
+
+function SelectQuery() {
+  const { data: client } = useConnectorClient();
+
+  const [results, setResults] = useState<
+    {
+      calls: ApiCall[];
+      query: QueryPreset;
+      status: "pending" | "done" | "error";
+    }[]
+  >([]);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (queryId: string) => {
+      const query = presets.find((q) => q.id === queryId);
+      if (!query) throw new Error("Unknown query");
+
+      const index = results.length;
+      setResults((r) => [...r, { calls: [], query, status: "pending" }]);
+
+      for (const call of query.calls) {
+        const url = new URL(call.endpoint, window.location.origin);
+        if (call.params)
+          for (const [key, value] of Object.entries(call.params))
+            url.searchParams.set(key, value);
+
+        setResults((r) =>
+          r.map((item, i) =>
+            i === index ? { ...item, calls: [...item.calls, call] } : item,
+          ),
+        );
+
+        await fetch(url.toString(), {
+          context: { account: client?.account },
+        });
+
+        await new Promise((r) => setTimeout(r, 800));
+      }
+
+      setResults((r) =>
+        r.map((item, i) => (i === index ? { ...item, status: "done" } : item)),
+      );
+
+      await new Promise((r) => setTimeout(r, 1000));
+    },
+    onError: () => {
+      setResults((r) => {
+        const last = r.length - 1;
+        return r.map((item, i) =>
+          i === last ? { ...item, status: "error" } : item,
+        );
+      });
+    },
+  });
+
+  return (
+    <>
+      {results.map((result, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: stable list
+        <QueryResult key={i} {...result} />
+      ))}
+      {!isPending && (
+        <Cli.Block>
+          <Cli.Line variant="info">Select a query to run:</Cli.Line>
+          <Cli.Select autoFocus onSubmit={(v) => mutate(v)}>
+            {presets.map((query) => (
+              <Cli.Select.Option key={query.id} value={query.id}>
+                {query.prompt}
+              </Cli.Select.Option>
+            ))}
+          </Cli.Select>
+        </Cli.Block>
+      )}
+    </>
+  );
+}
+
+function QueryResult({
+  calls,
+  query,
+  status,
+}: {
+  calls: ApiCall[];
+  query: QueryPreset;
+  status: "pending" | "done" | "error";
+}) {
+  return (
+    <Cli.Block>
+      <Cli.Line variant="input" prefix="❯">
+        agent.query("{query.prompt}")
+      </Cli.Line>
+      <Cli.Line variant="info">
+        Planning: {query.calls.length} API calls, ~$
+        {query.calls
+          .reduce((sum, c) => sum + Number.parseFloat(c.price.slice(1)), 0)
+          .toFixed(3)}{" "}
+        total
+      </Cli.Line>
+      <Cli.Blank />
+      {calls.map((call, i) => (
+        <div key={call.name}>
+          <Cli.Line variant="warning" prefix="→">
+            [{i + 1}/{query.calls.length}] {call.name} — {call.price}
+          </Cli.Line>
+          {i === calls.length - 1 && status === "pending" ? (
+            <Cli.Line variant="loading">{call.description}...</Cli.Line>
+          ) : (
+            <Cli.Line variant="success" prefix="✓">
+              {call.description}
+            </Cli.Line>
+          )}
+        </div>
+      ))}
+      {status === "done" && (
+        <>
+          <Cli.Blank />
+          <Cli.Line variant="success" prefix="✓">
+            Complete — {query.calls.length} calls
+          </Cli.Line>
+          <Cli.Blank />
+          <Cli.Line>{query.response}</Cli.Line>
+        </>
+      )}
+      {status === "error" && (
+        <>
+          <Cli.Blank />
+          <Cli.Line variant="error" prefix="✗">
+            Query failed
+          </Cli.Line>
+        </>
+      )}
+    </Cli.Block>
   );
 }
