@@ -126,6 +126,7 @@ function LandingStyles() {
 			[data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
 			[data-v-main] { padding-bottom: 0 !important; }
 			[data-v-main] article[data-v-content] { padding-top: 0 !important; padding-bottom: 0 !important; }
+			[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
 			[data-v-gutter-top] { position: fixed !important; z-index: 50 !important; }
 
 			.lockup-wide { display: block; }
@@ -269,7 +270,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
             width: "min(648px, 88vw)",
             maxWidth: "none",
             overflow: "visible",
-            marginTop: 16,
+            marginTop: 28,
             ...anim(shouldAnimate, 600, 900),
           }}
         >
@@ -281,7 +282,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
           className="text-base leading-relaxed max-w-xl mx-auto font-normal"
           style={{
             color: "var(--vocs-text-color-secondary)",
-            marginTop: 16,
+            marginTop: 28,
             ...anim(shouldAnimate, 1100, 700),
           }}
         >
@@ -293,7 +294,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         {/* Agent prompt tabs */}
         <div
           className="flex justify-center w-full"
-          style={{ marginTop: 16, ...anim(shouldAnimate, 1500, 700) }}
+          style={{ marginTop: 28, ...anim(shouldAnimate, 1500, 700) }}
         >
           <AgentTabs />
         </div>
@@ -301,13 +302,13 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         {/* CTA buttons */}
         <div
           className="flex flex-col items-center gap-4"
-          style={{ marginTop: 16, ...anim(shouldAnimate, 1800, 700) }}
+          style={{ marginTop: 28, ...anim(shouldAnimate, 1800, 700) }}
         >
           <CTAButtons />
         </div>
 
         {/* Service logos */}
-        <div className="w-full" style={{ marginTop: 24 }}>
+        <div className="w-full" style={{ marginTop: 32 }}>
           <ServiceLogos shouldAnimate={shouldAnimate} />
         </div>
       </div>
