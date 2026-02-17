@@ -676,7 +676,7 @@ aside[data-v-callout] a:hover {
 /* Desktop TOC mode: position Ask AI using TOC width, not gutter width */
 @media (min-width: 1377px) {
   [data-v-ask-ai-container] {
-    left: calc(100vw - (var(--spacing-gutter) * 0.8) + 1.5rem) !important;
+    left: calc(100vw - (var(--spacing-gutter) * 0.8) + 5rem) !important;
     right: auto !important;
     bottom: 2rem !important;
   }
