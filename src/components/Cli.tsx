@@ -376,16 +376,6 @@ export function Balance({ className, label = "Balance" }: Balance.Props) {
     },
   });
 
-  // Debug logging
-  console.log(
-    "[Balance] address:",
-    address,
-    "token:",
-    token,
-    "balance:",
-    balance?.toString(),
-  );
-
   if (balance === undefined) return null;
 
   const formatted = formatUnits(balance, 6);
@@ -426,14 +416,6 @@ export function Spent({ className, label = "Spent" }: Spent.Props) {
       gcTime: 0,
     },
   });
-
-  // Debug logging
-  console.log(
-    "[Spent] initial:",
-    initial?.toString(),
-    "balance:",
-    balance?.toString(),
-  );
 
   if (!address) return null;
 

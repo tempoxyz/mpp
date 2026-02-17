@@ -108,19 +108,9 @@
  */
 
 /* Prevent layout shift when scrollbar appears/disappears between routes */
-html,
-body,
-[data-v-main],
-[data-v-main] > * {
+html {
   scrollbar-gutter: stable;
-  overflow-x: hidden;
-}
-
-/* Force content area to fill available width so it doesn't shift on load */
-[data-v-content] article,
-article[data-v-content] {
-  width: 100%;
-  min-width: 0;
+  overflow-y: scroll;
 }
 
 /* Pagination: hide "Next" / "Previous" label text, keep only shortcut (Shift → / ←) */
@@ -285,8 +275,7 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 /* TOC active item — heading color so it is visible on dark backgrounds */
 [data-v-outline-items] a[data-active="true"] {
   background-color: oklch(
-    from var(--vocs-text-color-heading) l c h /
-    0.08
+    from var(--vocs-text-color-heading) l c h / 0.08
   ) !important;
   color: var(--vocs-text-color-heading) !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
@@ -311,12 +300,10 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
   :where(& > :not(:last-child)) {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(
-      calc(var(--vocs-spacing) * 4) *
-      var(--tw-space-y-reverse)
+      calc(var(--vocs-spacing) * 4) * var(--tw-space-y-reverse)
     );
     margin-block-end: calc(
-      calc(var(--vocs-spacing) * 4) *
-      calc(1 - var(--tw-space-y-reverse))
+      calc(var(--vocs-spacing) * 4) * calc(1 - var(--tw-space-y-reverse))
     );
   }
 }
@@ -671,7 +658,7 @@ aside[data-v-callout] a:hover {
   margin-left: 1.5rem !important;
 }
 
-/* Move Ask AI to bottom-right under the TOC */
+/* Ask AI — aligned with TOC left edge on desktop */
 [data-v-ask-ai-container] {
   left: auto !important;
   right: 1rem !important;
@@ -679,9 +666,18 @@ aside[data-v-callout] a:hover {
   transform: none !important;
 }
 
-@media (min-width: 1280px) {
+/* Inline TOC mode (tablet/mobile): hide Ask AI to avoid overlap */
+@media (max-width: 1376px) {
   [data-v-ask-ai-container] {
-    right: 2rem !important;
+    display: none !important;
+  }
+}
+
+/* Desktop TOC mode: position Ask AI using TOC width, not gutter width */
+@media (min-width: 1377px) {
+  [data-v-ask-ai-container] {
+    left: calc(100vw - (var(--spacing-gutter) * 0.8) + 1.5rem) !important;
+    right: auto !important;
     bottom: 2rem !important;
   }
 }
