@@ -1,4 +1,4 @@
-mppx/0.2.2
+mppx/0.2.4
 
 Usage:
   $ mppx [url]
