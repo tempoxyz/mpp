@@ -64,7 +64,7 @@ const THEMES: Record<"light" | "dark", ThemeColors> = {
     arrow: "#0166ff",
     successArrow: "#16a34a",
     errorCode: "#dc2626",
-    actorFill: "#fafafa",
+    actorFill: "#ffffff",
     actorStroke: "#e4e4e7",
     blockStroke: "#e4e4e7",
     blockHeaderBg: "#f4f4f5",

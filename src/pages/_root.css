@@ -561,15 +561,9 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] {
   transition: border-color 0.15s ease !important;
 }
 
-/* Icon wrapper - push to top with margin-bottom auto */
-a[class*="vocs:rounded-md"][class*="vocs:border"] > div:first-child {
-  margin-bottom: auto !important;
-}
-
-/* Title and description stay grouped at bottom */
-a[class*="vocs:rounded-md"][class*="vocs:border"] > strong,
-a[class*="vocs:rounded-md"][class*="vocs:border"] > p {
-  margin-bottom: 0 !important;
+/* Description absorbs extra vertical space so titles align across cards */
+a[class*="vocs:rounded-md"][class*="vocs:border"] > div:last-child {
+  flex: 1 !important;
 }
 
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover {

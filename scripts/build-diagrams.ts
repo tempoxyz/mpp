@@ -72,9 +72,9 @@ function postProcessSvg(svgContent: string): string {
 
   // Muted color palette for clean documentation look
   const colors = {
-    boxFill: "#fafafa",
+    boxFill: "#ffffff",
     boxStroke: "#d4d4d4",
-    noteFill: "#fafafa",
+    noteFill: "#ffffff",
     noteStroke: "#e5e5e5",
     text: "#525252",
     textMuted: "#737373",
