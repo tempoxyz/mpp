@@ -13,11 +13,12 @@ import {
   type ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import type { Address } from "viem";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import {
   useConnect,
   useConnection,
@@ -34,6 +35,8 @@ import IconRefresh from "~icons/lucide/refresh-cw";
 import { useRequests } from "../lib/network-store";
 import * as mppx from "../mppx.client";
 import { AsciiLogo } from "./AsciiLogo";
+
+type PoemResult = { title: string; author: string; text: string };
 
 export namespace Store {
   export type InteractionType = "select" | "toggle" | null;
@@ -1540,6 +1543,156 @@ export namespace Gallery {
           )}
         />
       </a>
+    );
+  }
+}
+
+function joinWords(words: string[]) {
+  let result = "";
+  for (const word of words) {
+    if (word === "\\n") result += "\n";
+    else result += (result && !result.endsWith("\n") ? " " : "") + word;
+  }
+  return result;
+}
+
+export function Poem() {
+  const [history, setHistory] = useState<PoemResult[]>([]);
+  const [current, setCurrent] = useState<{
+    title?: string;
+    author?: string;
+    words: string[];
+  } | null>(null);
+  const [opening, setOpening] = useState(false);
+
+  const { data: client } = useConnectorClient();
+
+  const session = useMemo(() => {
+    if (!client?.account) return undefined;
+    return mppx.session({ account: client.account });
+  }, [client?.account]);
+
+  const sessionDeposit = useStore(store, (s) => s.sessionDeposit);
+
+  const { mutate: generate, isPending } = useMutation({
+    async mutationFn() {
+      if (!session) throw new Error("No session available");
+      if (sessionDeposit === 0n) setOpening(true);
+      setCurrent({ words: [] });
+
+      const stream = await session.sse("/api/sessions/poem");
+
+      let title: string | undefined;
+      let author: string | undefined;
+      const words: string[] = [];
+
+      for await (const chunk of stream) {
+        setOpening(false);
+        store.setState((s) => ({
+          ...s,
+          sessionDeposit: session.opened
+            ? parseUnits(mppx.maxDeposit, 6)
+            : 0n,
+          sessionSpent: session.cumulative,
+        }));
+        if (!title) {
+          try {
+            const meta = JSON.parse(chunk) as {
+              title: string;
+              author: string;
+            };
+            title = meta.title;
+            author = meta.author;
+            setCurrent({ title, author, words: [] });
+            continue;
+          } catch {
+            // not metadata, treat as word
+          }
+        }
+        words.push(chunk);
+        setCurrent({ title, author, words: [...words] });
+      }
+
+      return {
+        title: title ?? "Untitled",
+        author: author ?? "Unknown",
+        text: joinWords(words),
+      };
+    },
+    onSuccess(result) {
+      setHistory((h) => [...h, result]);
+      setCurrent(null);
+      setOpening(false);
+    },
+    onError() {
+      setCurrent(null);
+      setOpening(false);
+    },
+  });
+
+  const isIdle = !isPending;
+
+  return (
+    <>
+      {history.map((result, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: _
+        <Block key={i}>
+          <Line variant="info">Stream poem from /api/sessions/poem:</Line>
+          <Poem.Display
+            title={result.title}
+            author={result.author}
+            text={result.text}
+          />
+        </Block>
+      ))}
+      <Block>
+        <Line variant="info">Stream poem from /api/sessions/poem:</Line>
+        {isIdle && !current && (
+          <Toggle autoFocus onSubmit={() => generate()}>
+            <Toggle.Option value="generate">Generate poem</Toggle.Option>
+          </Toggle>
+        )}
+        {opening && <Line variant="loading">Opening session...</Line>}
+        {!opening && current && (
+          <Poem.Display
+            title={current.title}
+            author={current.author}
+            text={joinWords(current.words)}
+            streaming={isPending}
+          />
+        )}
+      </Block>
+    </>
+  );
+}
+
+export namespace Poem {
+  export function Display({
+    title,
+    author,
+    text,
+    streaming,
+  }: {
+    title?: string;
+    author?: string;
+    text: string;
+    streaming?: boolean;
+  }) {
+    return (
+      <div className="flex flex-col gap-1">
+        {title && (
+          <span className="text-primary font-bold">
+            {title}
+            {author && (
+              <span className="text-secondary font-normal"> — {author}</span>
+            )}
+          </span>
+        )}
+        <div className="text-primary whitespace-pre-wrap leading-relaxed">
+          {text}
+          {streaming && <span className="animate-pulse">▌</span>}
+        </div>
+      </div>
     );
   }
 }
