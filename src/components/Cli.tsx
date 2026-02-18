@@ -1547,15 +1547,6 @@ export namespace Gallery {
   }
 }
 
-function joinWords(words: string[]) {
-  let result = "";
-  for (const word of words) {
-    if (word === "\\n") result += "\n";
-    else result += (result && !result.endsWith("\n") ? " " : "") + word;
-  }
-  return result;
-}
-
 export function Poem() {
   const [history, setHistory] = useState<PoemResult[]>([]);
   const [current, setCurrent] = useState<{
@@ -1614,7 +1605,7 @@ export function Poem() {
       return {
         title: title ?? "Untitled",
         author: author ?? "Unknown",
-        text: joinWords(words),
+        text: Poem.joinWords(words),
       };
     },
     onSuccess(result) {
@@ -1655,7 +1646,7 @@ export function Poem() {
           <Poem.Display
             title={current.title}
             author={current.author}
-            text={joinWords(current.words)}
+            text={Poem.joinWords(current.words)}
             streaming={isPending}
           />
         )}
@@ -1665,6 +1656,15 @@ export function Poem() {
 }
 
 export namespace Poem {
+  export function joinWords(words: string[]) {
+    let result = "";
+    for (const word of words) {
+      if (word === "\\n") result += "\n";
+      else result += (result && !result.endsWith("\n") ? " " : "") + word;
+    }
+    return result;
+  }
+
   export function Display({
     title,
     author,
