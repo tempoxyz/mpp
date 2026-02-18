@@ -386,7 +386,6 @@ body,
   font-size: 15px;
   /* Prevent content area from growing after load (avoids jitter) */
   max-width: var(--spacing-content);
-  overflow-x: hidden;
 }
 
 pre,
