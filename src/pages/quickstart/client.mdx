@@ -2,9 +2,24 @@ import { Card, Cards } from 'vocs'
 
 # Client quickstart [Handle payment-gated resources automatically]
 
-Polyfill the global `fetch` to handle `402` responses. Your existing code works unchanged—payments happen in the background.
+## Overview
 
-## Steps
+Polyfill the global `fetch` to handle `402` responses. Your existing code works unchanged—payments happen in the background. Pick the path that suits you:
+
+- [**Prompt mode**](#prompt-mode): paste a prompt into your AI coding agent and one shot
+- [**Manual mode**](#manual-mode): step-by-step setup with `mppx/client`
+
+## Prompt mode
+
+Paste this into your AI coding agent to set up your client with `mppx` in one shot:
+
+```txt
+Use https://mpp.sh/quickstart/client.md as reference.
+Add mppx to my app as a client. Polyfill the global fetch to automatically 
+handle 402 Payment Required responses using the Tempo payment method.
+```
+
+## Manual mode
 
 ::::steps
 

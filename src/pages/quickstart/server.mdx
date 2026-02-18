@@ -4,7 +4,21 @@ import { Badge, Card, Cards } from 'vocs'
 
 ## Overview
 
-This quickstart demonstrates how to plug MPP into any server framework to accept payments for protected resources.
+This quickstart demonstrates how to plug MPP into any server framework to accept payments for protected resources. Pick the path that suits you:
+
+- [**Prompt mode**](#prompt-mode): paste a prompt into your AI coding agent and one shot
+- [**Framework mode**](#framework-mode): use `mppx` middleware for Next.js, Hono, Elysia, or Express
+- [**Manual mode**](#manual-mode): call `mppx/server` directly with the Fetch API
+
+## Prompt mode
+
+Paste this into your AI coding agent to set up a server with `mppx` in one shot:
+
+```txt
+Use https://mpp.sh/quickstart/server.md as reference.
+Add mppx to my server with a /api/test route that charges $0.01 per 
+request using the Tempo payment method with PathUSD.
+```
 
 ## Framework mode
 

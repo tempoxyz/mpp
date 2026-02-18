@@ -1,0 +1,576 @@
+import { Card, Cards, Tabs, Tab } from 'vocs'
+import * as Cli from '../../components/Cli'
+import { pathUsd } from '../../wagmi.config'
+
+# Accept one-time payments [Charge per request with a payment-gated API]
+
+Build a payment-gated image generation API that charges $0.01 per request using `mppx`. 
+The server returns a random photo from [Picsum](https://picsum.photos) behind a paywall, 
+but you could imagine generating images with an AI model instead like [OpenAI Image Generation](https://developers.openai.com/api/reference/resources/images) instead.
+
+## Demo
+
+Try the live payment-gated image generation API running in this command line interface.
+
+<Cli.Demo token={pathUsd} restartStep={1}>
+  <Cli.Startup />
+  <Cli.ConnectWallet />
+  <Cli.Faucet />
+  <Cli.Photo />
+</Cli.Demo>
+
+## Prompt mode
+
+Paste this into your AI coding agent to build the entire guide in one shot:
+
+```txt
+Use https://mpp.sh/guides/one-time-payments.md as reference.
+Add mppx to my app with a payment-gated photo endpoint 
+that charges $0.01 per request using the Tempo payment method with 
+PathUSD. When payment is verified, fetch a random photo from 
+https://picsum.photos/1024/1024 and return the URL as JSON.
+```
+
+## Manual mode
+
+Select your framework to follow a step-by-step guide. If your framework isn't listed, choose **Other** for a generic [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) approach compatible with most TypeScript server frameworks.
+
+<Tabs>
+  <Tab title="Next.js">
+::::steps
+
+#### Install `mppx`
+
+:::code-group
+```bash [npm]
+npm install mppx viem
+```
+```bash [pnpm]
+pnpm add mppx viem
+```
+```bash [bun]
+bun add mppx viem
+```
+:::
+
+#### Set up `Mppx` instance
+
+Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+
+- We will set our `recipient` to the address of where we want to receive payments.
+- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+
+```ts [app/api/photo/route.ts]
+import { Mppx, tempo } from 'mppx/nextjs'
+
+export const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+```
+
+#### Create the `/api/photo` route
+
+Next, we will create the photo route. This route is **currently unpaid**.
+
+```ts [app/api/photo/route.ts]
+import { Mppx, tempo } from 'mppx/nextjs'
+
+export const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+export const GET = async () => {
+  const res = await fetch('https://picsum.photos/1024/1024')
+  return Response.json({ url: res.url })
+}
+// [!code focus:end]
+```
+
+#### Add `.charge` to the route handler
+
+Next, we will add payment verification using `mppx.charge` as route middleware. 
+The handler runs only after payment is verified.
+
+```ts [app/api/photo/route.ts]
+import { Mppx, tempo } from 'mppx/nextjs'
+
+export const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+export const GET =
+  mppx.charge({ amount: '0.01', description: 'Random stock photo' }) // [!code ++]
+  (async () => {
+    const res = await fetch('https://picsum.photos/1024/1024')
+    return Response.json({ url: res.url })
+  })
+// [!code focus:end]
+```
+
+#### Test via the `mppx` CLI
+
+```bash
+# Create account funded with testnet tokens
+$ npx mppx account create
+
+# Make a paid request
+$ npx mppx http://localhost:3000/api/photo 
+```
+
+::::
+  </Tab>
+  <Tab title="Hono">
+::::steps
+
+#### Install `mppx` and `hono`
+
+:::code-group
+```bash [npm]
+npm install mppx hono viem
+```
+```bash [pnpm]
+pnpm add mppx hono viem
+```
+```bash [bun]
+bun add mppx hono viem
+```
+:::
+
+#### Set up `Mppx` instance
+
+Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+
+- We will set our `recipient` to the address of where we want to receive payments.
+- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Mppx, tempo } from 'mppx/hono'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+```
+
+#### Create the `/api/photo` route
+
+Next, we will create the photo route. This route is **currently unpaid**.
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Mppx, tempo } from 'mppx/hono'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+app.get('/api/photo', async (c) => {
+  const res = await fetch('https://picsum.photos/1024/1024')
+  return c.json({ url: res.url })
+})
+// [!code focus:end]
+```
+
+#### Add `.charge` to the route handler
+
+Next, we will add payment verification using `mppx.charge` as route middleware.
+The handler runs only after payment is verified.
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Mppx, tempo } from 'mppx/hono'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+app.get(
+  '/api/photo',
+  mppx.charge({ amount: '0.01', description: 'Random stock photo' }), // [!code ++]
+  async (c) => {
+    const res = await fetch('https://picsum.photos/1024/1024')
+    return c.json({ url: res.url })
+  },
+)
+// [!code focus:end]
+```
+
+#### Test via the `mppx` CLI
+
+```bash
+# Create account funded with testnet tokens
+$ npx mppx account create
+
+# Make a paid request
+$ npx mppx http://localhost:3000/api/photo 
+```
+
+::::
+  </Tab>
+  <Tab title="Workers">
+::::steps
+
+#### Install `mppx`
+
+:::code-group
+```bash [npm]
+npm install mppx viem
+```
+```bash [pnpm]
+pnpm add mppx viem
+```
+```bash [bun]
+bun add mppx viem
+```
+:::
+
+#### Set up `Mppx` instance
+
+Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+
+- We will set our `recipient` to the address of where we want to receive payments.
+- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+
+```ts [src/index.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+```
+
+#### Create the `/api/photo` route
+
+Next, we will create the photo route. This route is **currently unpaid**.
+
+```ts [src/index.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+export default {
+  async fetch(request: Request) {
+    const res = await fetch('https://picsum.photos/1024/1024')
+    return Response.json({ url: res.url })
+  },
+}
+// [!code focus:end]
+```
+
+#### Add `.charge` to the route handler
+
+Next, we will add payment verification using `mppx.charge`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
+
+```ts [src/index.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+export default {
+  async fetch(request: Request) {
+    const result = await mppx.charge({ // [!code ++]
+      amount: '0.01', // [!code ++]
+      description: 'Random stock photo', // [!code ++]
+    })(request) // [!code ++]
+
+    if (result.status === 402) return result.challenge // [!code ++]
+
+    const res = await fetch('https://picsum.photos/1024/1024')
+    return result.withReceipt(Response.json({ url: res.url })) // [!code ++]
+  },
+}
+// [!code focus:end]
+```
+
+#### Test via the `mppx` CLI
+
+```bash
+# Create account funded with testnet tokens
+$ npx mppx account create
+
+# Make a paid request
+$ npx mppx http://localhost:8787 
+```
+
+::::
+  </Tab>
+  <Tab title="Express">
+::::steps
+
+#### Install `mppx` and `express`
+
+:::code-group
+```bash [npm]
+npm install mppx express viem
+```
+```bash [pnpm]
+pnpm add mppx express viem
+```
+```bash [bun]
+bun add mppx express viem
+```
+:::
+
+#### Set up `Mppx` instance
+
+Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+
+- We will set our `recipient` to the address of where we want to receive payments.
+- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+
+```ts [server.ts]
+import express from 'express'
+import { Mppx, tempo } from 'mppx/express'
+
+const app = express()
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+```
+
+#### Create the `/api/photo` route
+
+Next, we will create the photo route. This route is **currently unpaid**.
+
+```ts [server.ts]
+import express from 'express'
+import { Mppx, tempo } from 'mppx/express'
+
+const app = express()
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+app.get('/api/photo', async (req, res) => {
+  const response = await fetch('https://picsum.photos/1024/1024')
+  res.json({ url: response.url })
+})
+// [!code focus:end]
+```
+
+#### Add `.charge` to the route handler
+
+Next, we will add payment verification using `mppx.charge` as route middleware.
+The handler runs only after payment is verified.
+
+```ts [server.ts]
+import express from 'express'
+import { Mppx, tempo } from 'mppx/express'
+
+const app = express()
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+app.get(
+  '/api/photo',
+  mppx.charge({ amount: '0.01', description: 'Random stock photo' }), // [!code ++]
+  async (req, res) => {
+    const response = await fetch('https://picsum.photos/1024/1024')
+    res.json({ url: response.url })
+  },
+)
+// [!code focus:end]
+```
+
+#### Test via the `mppx` CLI
+
+```bash
+# Create account funded with testnet tokens
+$ npx mppx account create
+
+# Make a paid request
+$ npx mppx http://localhost:3000/api/photo 
+```
+
+::::
+  </Tab>
+  <Tab title="Other">
+
+This guide walks through using `mppx/server` directly with any [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible framework: [Bun](https://bun.sh), [Deno](https://deno.com), [Cloudflare Workers](https://workers.dev), and others.
+
+<div className="h-6" />
+
+::::steps
+
+#### Install `mppx`
+
+:::code-group
+```bash [npm]
+npm install mppx viem
+```
+```bash [pnpm]
+pnpm add mppx viem
+```
+```bash [bun]
+bun add mppx viem
+```
+:::
+
+#### Set up `Mppx` instance
+
+Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+
+- We will set our `recipient` to the address of where we want to receive payments.
+- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+
+```ts [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+```
+
+#### Create the `/api/photo` route
+
+Next, we will create the photo route. This route is **currently unpaid**.
+
+```ts [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+Bun.serve({
+  async fetch(request) {
+    const res = await fetch('https://picsum.photos/1024/1024')
+    return Response.json({ url: res.url })
+  },
+})
+// [!code focus:end]
+```
+
+#### Add `.charge` to the route handler
+
+Next, we will add payment verification using `mppx.charge`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
+
+```ts [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+
+// [!code focus:start]
+Bun.serve({
+  async fetch(request) {
+    const result = await mppx.charge({ // [!code ++]
+      amount: '0.01', // [!code ++]
+      description: 'Random stock photo', // [!code ++]
+    })(request) // [!code ++]
+
+    if (result.status === 402) return result.challenge // [!code ++]
+
+    const res = await fetch('https://picsum.photos/1024/1024')
+    return result.withReceipt(Response.json({ url: res.url })) // [!code ++]
+  },
+})
+// [!code focus:end]
+```
+
+#### Test via the `mppx` CLI
+
+```bash
+# Create account funded with testnet tokens
+$ npx mppx account create
+
+# Make a paid request
+$ npx mppx http://localhost:3000
+```
+
+::::
+
+  </Tab>
+</Tabs>
+
+## Next steps
+
+<Cards>
+  <Card
+    icon="lucide:repeat"
+    title="Accept pay-as-you-go payments"
+    description="Stream payments with session-based billing"
+    to="/payment-methods/tempo/session"
+  />
+  <Card
+    icon="lucide:code"
+    title="Server quickstart"
+    description="Framework middleware reference"
+    to="/quickstart/server"
+  />
+  <Card
+    icon="lucide:terminal"
+    title="mppx CLI reference"
+    description="Full command reference and options"
+    to="/tools/presto"
+  />
+</Cards>

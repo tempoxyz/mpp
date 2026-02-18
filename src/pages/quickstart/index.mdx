@@ -4,6 +4,28 @@ import { Card, Cards } from 'vocs'
 
 MPP enables machine-to-machine payments over HTTP using the `402 Payment Required` status code. Servers issue payment Challenges, and clients respond with Credentials. [Learn more](/overview).
 
+## Start prompting
+
+Paste one of these into your AI coding agent to one shot an MPP app or service:
+
+:::code-group
+
+```txt [Client]
+Use https://mpp.sh/quickstart/client.md as reference.
+Add mppx to my app as a client. Polyfill the global fetch to automatically 
+handle 402 Payment Required responses using the Tempo payment method.
+```
+
+```txt [Server]
+Use https://mpp.sh/quickstart/server.md as reference.
+Add mppx to my server with a /api/test route that charges $0.01 per 
+request using the Tempo payment method with PathUSD.
+```
+
+:::
+
+## Start building
+
 Pick a starting point based on your role:
 
 <Cards>
