@@ -28,7 +28,7 @@
     "react-dom": "^19",
     "tailwindcss": "^4.1.18",
     "tempo.ts": "~0.14.0",
-    "viem": "latest",
+    "viem": "^2.46.2",
     "vocs": "https://pkg.pr.new/wevm/vocs@95a659e",
     "wagmi": "^3.4.2",
     "waku": "^1.0.0-alpha.2"

@@ -2,21 +2,26 @@ import { Card, Cards, Tabs, Tab } from 'vocs'
 import * as Cli from '../../components/Cli'
 import { pathUsd } from '../../wagmi.config'
 
-# Accept one-time payments [Charge per request with a payment-gated API]
+# Accept pay-as-you-go payments [Session-based billing with payment channels]
 
-Build a payment-gated image generation API that charges $0.01 per request using `mppx`. 
-The server returns a random photo from [Picsum](https://picsum.photos) behind a paywall, 
-but you could imagine generating images with an AI model instead like [OpenAI Image Generation](https://developers.openai.com/api/reference/resources/images) instead.
+Build a payment-gated photo gallery API that charges $0.01 per photo using `mppx` sessions.
+The server returns random photos from [Picsum](https://picsum.photos) behind a paywall,
+but you could imagine generating images with an AI model instead like [OpenAI Image Generation](https://developers.openai.com/api/reference/resources/images).
+
+:::info
+Unlike [one-time payments](/guides/one-time-payments), sessions open a payment channel once and
+use offchain vouchers for each subsequent request—vouchers are **not bottlenecked by blockchain throughput**, they are processed in pure CPU-bound signature checks.
+:::
 
 ## Demo
 
-Try the live payment-gated image generation API running in this command line interface.
+Try the live payment-gated photo gallery API running in this command line interface.
 
 <Cli.Demo token={pathUsd} restartStep={1}>
   <Cli.Startup />
   <Cli.ConnectWallet />
   <Cli.Faucet />
-  <Cli.Photo />
+  <Cli.Gallery />
 </Cli.Demo>
 
 ## Prompt mode
@@ -24,11 +29,11 @@ Try the live payment-gated image generation API running in this command line int
 Paste this into your AI coding agent to build the entire guide in one shot:
 
 ```txt
-Use https://mpp.sh/guides/one-time-payments.md as reference.
-Add mppx to my app with a payment-gated photo endpoint 
-that charges $0.01 per request using the Tempo payment method with 
-PathUSD. When payment is verified, fetch a random photo from 
-https://picsum.photos/1024/1024 and return the URL as JSON.
+Use https://mpp.sh/guides/pay-as-you-go.md as reference.
+Add mppx to my app with a payment-gated gallery endpoint
+that charges $0.01 per photo using the Tempo session payment method with
+PathUSD. When payment is verified, fetch a random photo from
+https://picsum.photos/200/200 and return the URL as JSON.
 ```
 
 ## Manual mode
@@ -60,7 +65,7 @@ Next, we will set up an `Mppx` instance. This instance will be set up with the `
 - We will set our `recipient` to the address of where we want to receive payments.
 - We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
 
-```ts [app/api/photo/route.ts]
+```ts [app/api/sessions/photo/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
 export const mppx = Mppx.create({
@@ -71,11 +76,11 @@ export const mppx = Mppx.create({
 })
 ```
 
-#### Create the `/api/photo` route
+#### Create the `/api/sessions/photo` route
 
-Next, we will create the photo route. This route is **currently unpaid**.
+Next, we will create the gallery route. This route is **currently unpaid**.
 
-```ts [app/api/photo/route.ts]
+```ts [app/api/sessions/photo/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
 export const mppx = Mppx.create({
@@ -87,18 +92,18 @@ export const mppx = Mppx.create({
 
 // [!code focus:start]
 export const GET = async () => {
-  const res = await fetch('https://picsum.photos/1024/1024')
+  const res = await fetch('https://picsum.photos/200/200')
   return Response.json({ url: res.url })
 }
 // [!code focus:end]
 ```
 
-#### Add `.charge` to the route handler
+#### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.charge` as route middleware. 
+Next, we will add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
-```ts [app/api/photo/route.ts]
+```ts [app/api/sessions/photo/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
 export const mppx = Mppx.create({
@@ -110,9 +115,9 @@ export const mppx = Mppx.create({
 
 // [!code focus:start]
 export const GET =
-  mppx.charge({ amount: '0.01', description: 'Random stock photo' }) // [!code ++]
+  mppx.session({ amount: '0.01', unitType: 'photo' }) // [!code ++]
   (async () => {
-    const res = await fetch('https://picsum.photos/1024/1024')
+    const res = await fetch('https://picsum.photos/200/200')
     return Response.json({ url: res.url })
   })
 // [!code focus:end]
@@ -125,7 +130,7 @@ export const GET =
 $ npx mppx account create
 
 # Make a paid request
-$ npx mppx http://localhost:3000/api/photo 
+$ npx mppx http://localhost:3000/api/sessions/photo 
 ```
 
 ::::
@@ -168,9 +173,9 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Create the `/api/photo` route
+#### Create the `/api/sessions/photo` route
 
-Next, we will create the photo route. This route is **currently unpaid**.
+Next, we will create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
 import { Hono } from 'hono'
@@ -186,16 +191,16 @@ const mppx = Mppx.create({
 })
 
 // [!code focus:start]
-app.get('/api/photo', async (c) => {
-  const res = await fetch('https://picsum.photos/1024/1024')
+app.get('/api/sessions/photo', async (c) => {
+  const res = await fetch('https://picsum.photos/200/200')
   return c.json({ url: res.url })
 })
 // [!code focus:end]
 ```
 
-#### Add `.charge` to the route handler
+#### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.charge` as route middleware.
+Next, we will add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [server.ts]
@@ -213,10 +218,10 @@ const mppx = Mppx.create({
 
 // [!code focus:start]
 app.get(
-  '/api/photo',
-  mppx.charge({ amount: '0.01', description: 'Random stock photo' }), // [!code ++]
+  '/api/sessions/photo',
+  mppx.session({ amount: '0.01', unitType: 'photo' }), // [!code ++]
   async (c) => {
-    const res = await fetch('https://picsum.photos/1024/1024')
+    const res = await fetch('https://picsum.photos/200/200')
     return c.json({ url: res.url })
   },
 )
@@ -230,7 +235,7 @@ app.get(
 $ npx mppx account create
 
 # Make a paid request
-$ npx mppx http://localhost:3000/api/photo 
+$ npx mppx http://localhost:3000/api/sessions/photo 
 ```
 
 ::::
@@ -270,9 +275,9 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Create the `/api/photo` route
+#### Create the gallery route
 
-Next, we will create the photo route. This route is **currently unpaid**.
+Next, we will create the gallery route. This route is **currently unpaid**.
 
 ```ts [src/index.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -287,16 +292,16 @@ const mppx = Mppx.create({
 // [!code focus:start]
 export default {
   async fetch(request: Request) {
-    const res = await fetch('https://picsum.photos/1024/1024')
+    const res = await fetch('https://picsum.photos/200/200')
     return Response.json({ url: res.url })
   },
 }
 // [!code focus:end]
 ```
 
-#### Add `.charge` to the route handler
+#### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.charge`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
+Next, we will add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [src/index.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -311,14 +316,14 @@ const mppx = Mppx.create({
 // [!code focus:start]
 export default {
   async fetch(request: Request) {
-    const result = await mppx.charge({ // [!code ++]
+    const result = await mppx.session({ // [!code ++]
       amount: '0.01', // [!code ++]
-      description: 'Random stock photo', // [!code ++]
+      unitType: 'photo', // [!code ++]
     })(request) // [!code ++]
 
     if (result.status === 402) return result.challenge // [!code ++]
 
-    const res = await fetch('https://picsum.photos/1024/1024')
+    const res = await fetch('https://picsum.photos/200/200')
     return result.withReceipt(Response.json({ url: res.url })) // [!code ++]
   },
 }
@@ -375,9 +380,9 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Create the `/api/photo` route
+#### Create the `/api/sessions/photo` route
 
-Next, we will create the photo route. This route is **currently unpaid**.
+Next, we will create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
 import express from 'express'
@@ -393,16 +398,16 @@ const mppx = Mppx.create({
 })
 
 // [!code focus:start]
-app.get('/api/photo', async (req, res) => {
-  const response = await fetch('https://picsum.photos/1024/1024')
+app.get('/api/sessions/photo', async (req, res) => {
+  const response = await fetch('https://picsum.photos/200/200')
   res.json({ url: response.url })
 })
 // [!code focus:end]
 ```
 
-#### Add `.charge` to the route handler
+#### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.charge` as route middleware.
+Next, we will add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [server.ts]
@@ -420,10 +425,10 @@ const mppx = Mppx.create({
 
 // [!code focus:start]
 app.get(
-  '/api/photo',
-  mppx.charge({ amount: '0.01', description: 'Random stock photo' }), // [!code ++]
+  '/api/sessions/photo',
+  mppx.session({ amount: '0.01', unitType: 'photo' }), // [!code ++]
   async (req, res) => {
-    const response = await fetch('https://picsum.photos/1024/1024')
+    const response = await fetch('https://picsum.photos/200/200')
     res.json({ url: response.url })
   },
 )
@@ -437,7 +442,7 @@ app.get(
 $ npx mppx account create
 
 # Make a paid request
-$ npx mppx http://localhost:3000/api/photo 
+$ npx mppx http://localhost:3000/api/sessions/photo 
 ```
 
 ::::
@@ -482,9 +487,9 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Create the `/api/photo` route
+#### Create the `/api/sessions/photo` route
 
-Next, we will create the photo route. This route is **currently unpaid**.
+Next, we will create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -499,16 +504,16 @@ const mppx = Mppx.create({
 // [!code focus:start]
 Bun.serve({
   async fetch(request) {
-    const res = await fetch('https://picsum.photos/1024/1024')
+    const res = await fetch('https://picsum.photos/200/200')
     return Response.json({ url: res.url })
   },
 })
 // [!code focus:end]
 ```
 
-#### Add `.charge` to the route handler
+#### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.charge`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
+Next, we will add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [server.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -523,14 +528,14 @@ const mppx = Mppx.create({
 // [!code focus:start]
 Bun.serve({
   async fetch(request) {
-    const result = await mppx.charge({ // [!code ++]
+    const result = await mppx.session({ // [!code ++]
       amount: '0.01', // [!code ++]
-      description: 'Random stock photo', // [!code ++]
+      unitType: 'photo', // [!code ++]
     })(request) // [!code ++]
 
     if (result.status === 402) return result.challenge // [!code ++]
 
-    const res = await fetch('https://picsum.photos/1024/1024')
+    const res = await fetch('https://picsum.photos/200/200')
     return result.withReceipt(Response.json({ url: res.url })) // [!code ++]
   },
 })
@@ -552,14 +557,39 @@ $ npx mppx http://localhost:3000
   </Tab>
 </Tabs>
 
+## Client setup
+
+When using sessions from a client, set `maxDeposit` to enable automatic channel management. This is the maximum amount of tokens the client locks into the payment channel's escrow contract. Any unspent deposit is refunded when the channel closes.
+
+```ts [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    account: privateKeyToAccount('0x...'),
+    maxDeposit: '1', // Lock up to 1 pathUSD per channel
+  })],
+})
+
+// Each fetch automatically manages the session lifecycle:
+// 1st request: opens channel on-chain, sends initial voucher
+// 2nd+ requests: sends off-chain vouchers (no on-chain tx)
+const res = await fetch('http://localhost:3000/api/sessions/photo')
+```
+
+- **`maxDeposit: '1'`** — Locks up to 1 pathUSD into the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
+- The client handles the full session lifecycle automatically: channel open, voucher signing, and retry after `402` responses.
+- If the server sets `suggestedDeposit`, the client uses `min(suggestedDeposit, maxDeposit)`.
+
 ## Next steps
 
 <Cards>
   <Card
-    icon="lucide:repeat"
-    title="Accept pay-as-you-go payments"
-    description="Session-based billing with payment channels"
-    to="/guides/pay-as-you-go"
+    icon="lucide:zap"
+    title="Accept one-time payments"
+    description="Charge per request with a payment-gated API"
+    to="/guides/one-time-payments"
   />
   <Card
     icon="lucide:code"

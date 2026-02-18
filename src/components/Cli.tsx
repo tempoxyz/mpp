@@ -43,6 +43,8 @@ export namespace Store {
     initialBalance: bigint | undefined;
     interaction: InteractionType;
     restartStep: number;
+    sessionDeposit: bigint;
+    sessionSpent: bigint;
     stepIndex: number;
     token: Address | undefined;
     view: ViewType;
@@ -53,6 +55,8 @@ export const store = new ts_Store<Store.State>({
   initialBalance: undefined,
   interaction: null,
   restartStep: 0,
+  sessionDeposit: 0n,
+  sessionSpent: 0n,
   stepIndex: 0,
   token: undefined,
   view: "main",
@@ -352,6 +356,8 @@ export namespace FooterBar {
 
 export function Balance({ className, label = "Balance" }: Balance.Props) {
   const token = useStore(store, (s) => s.token);
+  const sessionSpent = useStore(store, (s) => s.sessionSpent);
+  const sessionDeposit = useStore(store, (s) => s.sessionDeposit);
   const { address } = useConnection();
 
   const { data: balance } = Hooks.token.useGetBalance({
@@ -365,7 +371,12 @@ export function Balance({ className, label = "Balance" }: Balance.Props) {
 
   if (balance === undefined) return null;
 
-  const formatted = formatUnits(balance, 6);
+  // Add back the unspent portion of any session deposit
+  const unspent =
+    sessionDeposit > sessionSpent ? sessionDeposit - sessionSpent : 0n;
+  const effective = balance + unspent;
+
+  const formatted = formatUnits(effective, 6);
   const display = Number(formatted).toLocaleString("en-US", {
     maximumFractionDigits: 4,
     minimumFractionDigits: 2,
@@ -388,6 +399,8 @@ export namespace Balance {
 export function Spent({ className, label = "Spent" }: Spent.Props) {
   const initial = useStore(store, (s) => s.initialBalance);
   const token = useStore(store, (s) => s.token);
+  const sessionSpent = useStore(store, (s) => s.sessionSpent);
+  const sessionDeposit = useStore(store, (s) => s.sessionDeposit);
   const { address } = useConnection();
 
   const { data: balance } = Hooks.token.useGetBalance({
@@ -397,10 +410,14 @@ export function Spent({ className, label = "Spent" }: Spent.Props) {
 
   if (!address) return null;
 
-  const spent =
+  // On-chain balance drop minus unspent deposit = actual spend
+  const drop =
     initial !== undefined && balance !== undefined && initial > balance
       ? initial - balance
       : 0n;
+  const unspent =
+    sessionDeposit > sessionSpent ? sessionDeposit - sessionSpent : 0n;
+  const spent = drop > unspent ? drop - unspent : 0n;
 
   const formatted = formatUnits(spent, 6);
   const display = Number(formatted).toLocaleString("en-US", {
@@ -1396,6 +1413,126 @@ export namespace Photo {
         <img
           src={url}
           alt="Random"
+          onLoad={() => setLoaded(true)}
+          className={cx(
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+            loaded ? "opacity-100" : "opacity-0",
+          )}
+        />
+      </a>
+    );
+  }
+}
+
+export function Gallery() {
+  const [history, setHistory] = useState<
+    { status: "success"; urls: string[] }[]
+  >([]);
+  const [current, setCurrent] = useState<string[]>([]);
+  const [opening, setOpening] = useState(false);
+  const { data: client } = useConnectorClient();
+
+  const sessionDeposit = useStore(store, (s) => s.sessionDeposit);
+
+  const { mutate: generate, isPending } = useMutation({
+    async mutationFn(count: number) {
+      if (sessionDeposit === 0n) setOpening(true);
+      setCurrent([]);
+
+      const urls: string[] = [];
+      for (let i = 0; i < count; i++) {
+        const res = await mppx.fetch("/api/sessions/photo", {
+          context: { account: client?.account },
+        });
+        if (!res.ok) break;
+        const data = (await res.json()) as { url: string };
+        urls.push(data.url);
+        setOpening(false);
+        setCurrent([...urls]);
+      }
+
+      return urls;
+    },
+    onSuccess(urls) {
+      setHistory((h) => [...h, { status: "success", urls }]);
+      setCurrent([]);
+      setOpening(false);
+    },
+    onError() {
+      setCurrent([]);
+      setOpening(false);
+    },
+  });
+
+  const isIdle = !isPending;
+
+  return (
+    <>
+      {history.map((result, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: _
+        <Block key={i}>
+          <Line variant="info">Generate gallery from /api/sessions/photo:</Line>
+          <Gallery.Grid urls={result.urls} />
+        </Block>
+      ))}
+      <Block>
+        <Line variant="info">Generate gallery from /api/sessions/photo:</Line>
+        {isIdle && !current.length && (
+          <Toggle autoFocus onSubmit={(v) => generate(Number(v))}>
+            {[3, 5, 10].map((n) => (
+              <Toggle.Option key={n} value={String(n)}>
+                {n} photos (${(n * 0.01).toFixed(2)})
+              </Toggle.Option>
+            ))}
+          </Toggle>
+        )}
+        {opening && <Line variant="loading">Opening session...</Line>}
+        {!opening && (isPending || current.length > 0) && (
+          <Gallery.Grid
+            urls={current}
+            loading={isPending ? current.length : undefined}
+          />
+        )}
+      </Block>
+    </>
+  );
+}
+
+export namespace Gallery {
+  export function Grid({
+    urls,
+    loading,
+  }: {
+    urls: string[];
+    loading?: number;
+  }) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {urls.map((url, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: _
+          <Thumb key={i} url={url} />
+        ))}
+        {loading !== undefined && (
+          <div className="relative rounded border border-primary w-[80px] h-[80px] shimmer" />
+        )}
+      </div>
+    );
+  }
+
+  export function Thumb({ url }: { url: string }) {
+    const [loaded, setLoaded] = useState(false);
+
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block relative rounded border border-primary w-[80px] h-[80px] overflow-hidden"
+      >
+        {!loaded && <div className="absolute inset-0 shimmer" />}
+        <img
+          src={url}
+          alt="Gallery"
           onLoad={() => setLoaded(true)}
           className={cx(
             "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",

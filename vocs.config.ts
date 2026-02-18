@@ -102,7 +102,15 @@ export default defineConfig({
             text: "Accept One-Time Payments",
             link: "/guides/one-time-payments",
           },
-          { text: "Accept Pay-As-You-Go Payments 🚧", disabled: true },
+          {
+            text: "Accept Pay-As-You-Go Payments",
+            link: "/guides/pay-as-you-go",
+          },
+          {
+            text: "🚧 Accept Streamed Payments",
+            link: "/guides/streamed-payments",
+            disabled: true,
+          },
         ],
       },
       {
