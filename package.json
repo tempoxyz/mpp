@@ -24,7 +24,7 @@
     "class-variance-authority": "^0.7.1",
     "dayjs": "^1.11.19",
     "mermaid": "^11.12.2",
-    "mppx": "~0.2.4",
+    "mppx": "~0.2.5",
     "react": "^19",
     "react-dom": "^19",
     "tailwindcss": "^4.1.18",
