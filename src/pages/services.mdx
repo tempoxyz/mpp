@@ -1,0 +1,54 @@
+import { AgentTabs } from "../components/AgentTabs";
+
+# Services [MPP-enabled APIs your agent can pay for]
+
+These services accept MPP payments today. Your agent pays per request with stablecoins—no API keys, no accounts, no manual setup.
+
+Every endpoint below is a proxy that handles payment via the MPP `402` Challenge-Credential-Receipt flow. Point your agent at any of them and it pays automatically through [Presto](https://github.com/tempoxyz/presto).
+
+## Get started
+
+Install Presto, connect a wallet, and your agent handles the rest.
+
+<AgentTabs />
+
+The **Connect wallet** step (`presto login`) is the only one that needs you—complete it once in your browser. After that, your agent uses Presto for payments automatically. For a full reference you can give your agent, see [setup.md](/setup.md).
+
+## AI & LLMs
+
+| Service                             | Description                            | Endpoint                        |
+| ----------------------------------- | -------------------------------------- | ------------------------------- |
+| [OpenRouter](https://openrouter.ai) | 100+ LLM models (Claude, GPT-4o, etc.) | `openrouter.payments.tempo.xyz` |
+| [Anthropic](https://anthropic.com)  | Claude models directly                 | `anthropic.payments.tempo.xyz`  |
+| [OpenAI](https://openai.com)        | GPT-4, embeddings, image generation    | `openai.payments.tempo.xyz`     |
+| [fal.ai](https://fal.ai)            | Image generation, video, audio         | `fal.payments.tempo.xyz`        |
+| [ElevenLabs](https://elevenlabs.io) | Text-to-speech, voice cloning          | `elevenlabs.payments.tempo.xyz` |
+
+## Web & Data
+
+| Service                                | Description                 | Endpoint                         |
+| -------------------------------------- | --------------------------- | -------------------------------- |
+| [Firecrawl](https://firecrawl.dev)     | Web scraping and crawling   | `firecrawl.payments.tempo.xyz`   |
+| [Browserbase](https://browserbase.com) | Headless browser automation | `browserbase.payments.tempo.xyz` |
+| [Exa](https://exa.ai)                  | AI-native search engine     | `exa.payments.tempo.xyz`         |
+
+## Blockchain & Data
+
+| Service                        | Description              | Endpoint                     |
+| ------------------------------ | ------------------------ | ---------------------------- |
+| [Codex](https://codex.so)      | Blockchain data indexing | `codex.payments.tempo.xyz`   |
+| [Alchemy](https://alchemy.com) | Multi-chain node access  | `alchemy.payments.tempo.xyz` |
+| [Tempo RPC](https://tempo.xyz) | Tempo network RPC        | `rpc.payments.tempo.xyz`     |
+
+## Communications
+
+| Service                      | Description              | Endpoint                     |
+| ---------------------------- | ------------------------ | ---------------------------- |
+| [Twilio](https://twilio.com) | SMS and MMS messaging    | `twilio.payments.tempo.xyz`  |
+| [X (Twitter)](https://x.com) | Posts, users, and search | `twitter.payments.tempo.xyz` |
+
+## Infrastructure
+
+| Service                             | Description           | Endpoint                     |
+| ----------------------------------- | --------------------- | ---------------------------- |
+| [Object Storage](https://tempo.xyz) | S3-compatible storage | `storage.payments.tempo.xyz` |

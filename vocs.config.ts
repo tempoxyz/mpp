@@ -78,6 +78,7 @@ export default defineConfig({
         text: "Introduction",
         items: [
           { text: "Overview", link: "/overview" },
+          { text: "Services", link: "/services" },
           {
             text: "IETF Specs",
             link: "https://tempoxyz.github.io/mpp-specs/",
@@ -476,6 +477,7 @@ export default defineConfig({
   },
   topNav: [
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
+    { text: "Services", link: "/services" },
     { text: "SDKs & Tools", link: "/sdk" },
     { text: "IETF Specs", link: "https://tempoxyz.github.io/mpp-specs/" },
     {

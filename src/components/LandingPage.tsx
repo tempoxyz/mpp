@@ -134,7 +134,9 @@ function LandingStyles() {
 
 			@media (min-width: 768px) {
 				[data-v-gutter-top] {
-					background: linear-gradient(to bottom, oklch(from var(--vocs-background-color-primary) l c h / 0.8) 0%, transparent 100%) !important;
+					background: linear-gradient(to bottom, oklch(from var(--vocs-background-color-primary) l c h / 0.97) 0%, oklch(from var(--vocs-background-color-primary) l c h / 0.7) 60%, transparent 100%) !important;
+					backdrop-filter: blur(12px) !important;
+					-webkit-backdrop-filter: blur(12px) !important;
 				}
 				[data-v-main]::after {
 					content: '';
@@ -147,14 +149,19 @@ function LandingStyles() {
 				}
 			}
 
+			@media (max-width: 1023px) {
+				.lockup-stacked { max-width: 320px; margin: 0 auto; }
+				.hero-right { align-items: center !important; }
+				.co-designed-by { padding-top: 64px; }
+			}
+
 			@media (max-width: 767px) {
 				[data-v-gutter-top] {
 					background: var(--vocs-background-color-primary) !important;
 					background-color: var(--vocs-background-color-primary) !important;
+					backdrop-filter: none !important;
+					-webkit-backdrop-filter: none !important;
 				}
-				.lockup-stacked { max-width: 320px; margin: 0 auto; }
-				.hero-right { align-items: center !important; }
-				.co-designed-by { padding-top: 64px; }
 				.not-prose p { font-size: 17px; }
 				.not-prose .text-sm { font-size: 15px; }
 				.not-prose .font-mono { font-size: 15px; }
