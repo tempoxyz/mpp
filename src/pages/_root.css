@@ -730,3 +730,22 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] img {
 .hero-clickthrough span[class*="rounded-full"] {
   pointer-events: auto;
 }
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.shimmer {
+  background: radial-gradient(
+    circle at 50% 50%,
+    light-dark(#ebebeb, #333) 0%,
+    light-dark(#e0e0e0, #252525) 100%
+  );
+  animation: shimmer 2s ease-in-out infinite;
+}

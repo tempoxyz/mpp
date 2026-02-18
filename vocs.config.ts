@@ -98,7 +98,10 @@ export default defineConfig({
         text: "Guides",
         items: [
           { text: "Build with AI", link: "/guides/building-with-ai" },
-          { text: "Accept One-Time Payments 🚧", disabled: true },
+          {
+            text: "Accept One-Time Payments",
+            link: "/guides/one-time-payments",
+          },
           { text: "Accept Pay-As-You-Go Payments 🚧", disabled: true },
         ],
       },

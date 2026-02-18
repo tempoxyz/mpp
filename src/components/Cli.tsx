@@ -931,7 +931,7 @@ export function NetworkPanel({ className, style }: NetworkPanel.Props) {
             return (
               <div
                 key={request.id}
-                className="flex items-center border-b border-primary/50 px-3 py-1.5 hover:bg-surfaceTint transition-colors"
+                className="flex items-center border-b border-primary/50 px-3 py-1.5 hover:bg-gray13 transition-colors"
               >
                 <div className="min-w-0 basis-0 grow-4 flex items-center gap-2">
                   {request.status === "pending" ? (
@@ -1303,4 +1303,106 @@ export function Ping() {
       </Block>
     </>
   );
+}
+
+export function Photo() {
+  const [history, setHistory] = useState<
+    ({ status: "success"; url: string } | { status: "error" })[]
+  >([]);
+  const [showResult, setShowResult] = useState(false);
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const { data: client } = useConnectorClient();
+
+  const { mutate, isPending, isSuccess, isError, reset } = useMutation({
+    mutationFn: async () => {
+      const res = await mppx.fetch("/api/photo", {
+        context: { account: client?.account },
+      });
+      if (!res.ok) throw new Error("Request failed");
+      return res.json() as Promise<{ url: string }>;
+    },
+    onSuccess: (data) => {
+      setResultUrl(data.url);
+      setShowResult(true);
+      setTimeout(() => {
+        setHistory((h) => [...h, { status: "success", url: data.url }]);
+        setShowResult(false);
+        setResultUrl(null);
+        reset();
+      }, 500);
+    },
+    onError: () => {
+      setShowResult(true);
+      setTimeout(() => {
+        setHistory((h) => [...h, { status: "error" }]);
+        setShowResult(false);
+        reset();
+      }, 500);
+    },
+  });
+
+  const isIdle = !isPending && !showResult;
+
+  return (
+    <>
+      {history.map((result, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: _
+        <Block key={i}>
+          <Line variant="info">Generate photo from /api/photo:</Line>
+          {result.status === "success" ? (
+            <Photo.Image url={result.url} />
+          ) : (
+            <Line variant="error" prefix="✗">
+              Request failed
+            </Line>
+          )}
+        </Block>
+      ))}
+      <Block>
+        <Line variant="info">Generate photo from /api/photo:</Line>
+        {isIdle && (
+          <Toggle autoFocus onSubmit={() => mutate()}>
+            <Toggle.Option value="request">Generate ($0.01)</Toggle.Option>
+          </Toggle>
+        )}
+        {isPending && (
+          <div className="rounded border border-primary w-[140px] h-[140px] shimmer" />
+        )}
+        {showResult && isSuccess && resultUrl && (
+          <Photo.Image url={resultUrl} />
+        )}
+        {showResult && isError && (
+          <Line variant="error" prefix="✗">
+            Request failed
+          </Line>
+        )}
+      </Block>
+    </>
+  );
+}
+
+export namespace Photo {
+  export function Image({ url }: { url: string }) {
+    const [loaded, setLoaded] = useState(false);
+
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block relative rounded border border-primary w-[140px] h-[140px] overflow-hidden"
+      >
+        {!loaded && <div className="absolute inset-0 shimmer" />}
+        <img
+          src={url}
+          alt="Random"
+          onLoad={() => setLoaded(true)}
+          className={cx(
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+            loaded ? "opacity-100" : "opacity-0",
+          )}
+        />
+      </a>
+    );
+  }
 }

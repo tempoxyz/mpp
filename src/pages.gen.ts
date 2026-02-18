@@ -96,6 +96,7 @@ type Page =
 | { path: '/payment-methods/stripe'; render: 'static' }
 | { path: '/intents/charge'; render: 'static' }
 | { path: '/guides/building-with-ai'; render: 'static' }
+| { path: '/guides/one-time-payments'; render: 'static' }
 | { path: '/_api/api/og'; render: 'static' };
 
 // prettier-ignore

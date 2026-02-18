@@ -16,7 +16,7 @@ import * as Cli from "./Cli";
 
 const ACCENT = "var(--vocs-text-color-heading)";
 const AGENT_COLOR = "#e8873a";
-const ANIM_SESSION_KEY = "mpp-landing-animated";
+const ANIM_STORAGE_KEY = "mpp-landing-animated";
 const PRESTO_INSTALL =
   "curl -fsSL https://raw.githubusercontent.com/tempoxyz/presto/main/install.sh | bash";
 const PRESTO_LOGIN = "presto login";
@@ -91,17 +91,9 @@ export function LandingPage() {
 
   const [shouldAnimate] = useState(() => {
     if (typeof window === "undefined") return false;
-    const already = sessionStorage.getItem(ANIM_SESSION_KEY);
-    sessionStorage.setItem(ANIM_SESSION_KEY, "1");
-    if (already) {
-      const navType = (performance as any).navigation?.type;
-      if (navType === 1) return true;
-      const entries = performance.getEntriesByType?.(
-        "navigation",
-      ) as PerformanceNavigationTiming[];
-      if (entries?.[0]?.type === "reload") return true;
-      return false;
-    }
+    const already = localStorage.getItem(ANIM_STORAGE_KEY);
+    if (already) return false;
+    localStorage.setItem(ANIM_STORAGE_KEY, "1");
     return true;
   });
 
@@ -1160,7 +1152,7 @@ function CTAButtons() {
     <div className="flex flex-col items-center gap-2">
       <div className="flex flex-wrap gap-3">
         <Link
-          to="/guides/building-with-ai"
+          to="/quickstart"
           className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150"
           style={{
             backgroundColor: ACCENT,
@@ -1170,7 +1162,7 @@ function CTAButtons() {
           onMouseEnter={() => setHovered("primary")}
           onMouseLeave={() => setHovered(null)}
         >
-          Set up your agent
+          Get started
         </Link>
         <Link
           to="/protocol"

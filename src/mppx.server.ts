@@ -8,7 +8,9 @@ const realm = import.meta.env.VITE_REALM ?? "mpp.tempo.xyz";
 export const mppx = Mppx.create({
   realm,
   methods: [
-    tempo.charge({
+    tempo({
+      currency: import.meta.env.VITE_DEFAULT_CURRENCY!,
+      recipient: import.meta.env.VITE_DEFAULT_RECIPIENT!,
       ...(import.meta.env.VITE_FEE_PAYER_PRIVATE_KEY
         ? {
             feePayer: privateKeyToAccount(
