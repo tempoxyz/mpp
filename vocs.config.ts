@@ -107,9 +107,8 @@ export default defineConfig({
             link: "/guides/pay-as-you-go",
           },
           {
-            text: "🚧 Accept Streamed Payments",
+            text: "Accept Streamed Payments",
             link: "/guides/streamed-payments",
-            disabled: true,
           },
         ],
       },

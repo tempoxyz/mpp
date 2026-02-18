@@ -1590,9 +1590,7 @@ export function Poem() {
         setOpening(false);
         store.setState((s) => ({
           ...s,
-          sessionDeposit: session.opened
-            ? parseUnits(mppx.maxDeposit, 6)
-            : 0n,
+          sessionDeposit: session.opened ? parseUnits(mppx.maxDeposit, 6) : 0n,
           sessionSpent: session.cumulative,
         }));
         if (!title) {

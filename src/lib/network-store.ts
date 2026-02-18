@@ -54,11 +54,20 @@ export function wrapFetch<
 
     try {
       const response = await fetch(...args);
+
+      const contentType = response.headers.get("content-type") ?? "";
+      if (contentType.includes("text/event-stream")) {
+        update(id, {
+          status: response.ok ? "success" : "error",
+          statusCode: response.status,
+        });
+        return response;
+      }
+
       const cloned = response.clone();
 
       let description: string | undefined;
       try {
-        const contentType = cloned.headers.get("content-type") ?? "";
         if (contentType.includes("json")) {
           const json = (await cloned.json()) as { detail?: string };
           description =

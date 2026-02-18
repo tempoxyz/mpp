@@ -98,6 +98,7 @@ type Page =
 | { path: '/guides/building-with-ai'; render: 'static' }
 | { path: '/guides/one-time-payments'; render: 'static' }
 | { path: '/guides/pay-as-you-go'; render: 'static' }
+| { path: '/guides/streamed-payments'; render: 'static' }
 | { path: '/_api/api/og'; render: 'static' };
 
 // prettier-ignore
