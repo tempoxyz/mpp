@@ -170,6 +170,7 @@ export default defineConfig({
             collapsed: true,
             items: [
               { text: "Getting Started", link: "/sdk/typescript" },
+              { text: "Installation", link: "/sdk/installation" },
               {
                 text: "Client Reference",
                 items: [
