@@ -1,20 +1,46 @@
 import { AgentTabs } from "../components/AgentTabs";
+import { Cards, Card } from "vocs";
 
-# Services [MPP-enabled APIs your agent can pay for]
+<style>{`
+  [data-v-content] table {
+    table-layout: fixed;
+    width: 100%;
+  }
+  [data-v-content] table th:nth-child(1),
+  [data-v-content] table td:nth-child(1) { width: 24%; }
+  [data-v-content] table th:nth-child(2),
+  [data-v-content] table td:nth-child(2) { width: 44%; }
+`}</style>
 
-These services accept MPP payments today. Your agent pays per request with stablecoins—no API keys, no accounts, no manual setup.
+# Services [Use MPP-enabled APIs your agent or application can pay for]
 
-Every endpoint below is a proxy that handles payment via the MPP `402` Challenge-Credential-Receipt flow. Point your agent at any of them and it pays automatically through [Presto](https://github.com/tempoxyz/presto).
+Discover MPP services that are now live, and how to use them via the examples below. Once you've funded a supported payment method, you can begin using MPP services from your agent or application for seamless, real-time, and programmable payments.
 
-## Get started
+:::tip
+Examples use [Tempo](/payment-methods/tempo) for payments, where [stablecoins](/payment-methods/tempo#stablecoins) enable low cost, instant, and secure payments. Services could also offer [Stripe](/payment-methods/stripe), with more payment methods on the way.
+:::
 
-Install Presto, connect a wallet, and your agent handles the rest.
+## Setup
+
+### ⚙️ Developers
+
+Try using a MPP-enabled service from an application or server with the `mppx` SDKs, which interact with the Tempo network. These SDKs are available in [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust).
+
+### 🤖 Agents
+
+Supercharge your agent with paid services. Use [presto](/tools/presto) to create or sign into a wallet, and deposit funds via supported methods to start leveraging MPP with your agent.
 
 <AgentTabs />
 
-The **Connect wallet** step (`presto login`) is the only one that needs you—complete it once in your browser. After that, your agent uses Presto for payments automatically. For a full reference you can give your agent, see [setup.md](/setup.md).
+:::note
+When using `presto` to sign in or create a Tempo account, your browser will prompt to save or use your passkey — no passwords required. From the [dashboard](https://app.tempo.xyz), you can add funds via Apple Pay, credit card, or crypto at any time.
+:::
 
-## AI & LLMs
+## Live Services
+
+You can use the MPP-enabled services below via the Tempo network. More services and supported payment methods are added regularly. To add MPP support to your API, start integrating [here](/quickstart/server).
+
+### AI & LLMs
 
 | Service                             | Description                            | Endpoint                        |
 | ----------------------------------- | -------------------------------------- | ------------------------------- |
@@ -24,7 +50,7 @@ The **Connect wallet** step (`presto login`) is the only one that needs you—co
 | [fal.ai](https://fal.ai)            | Image generation, video, audio         | `fal.payments.tempo.xyz`        |
 | [ElevenLabs](https://elevenlabs.io) | Text-to-speech, voice cloning          | `elevenlabs.payments.tempo.xyz` |
 
-## Web & Data
+### Web & Data
 
 | Service                                | Description                 | Endpoint                         |
 | -------------------------------------- | --------------------------- | -------------------------------- |
@@ -32,7 +58,7 @@ The **Connect wallet** step (`presto login`) is the only one that needs you—co
 | [Browserbase](https://browserbase.com) | Headless browser automation | `browserbase.payments.tempo.xyz` |
 | [Exa](https://exa.ai)                  | AI-native search engine     | `exa.payments.tempo.xyz`         |
 
-## Blockchain & Data
+### Blockchain & Data
 
 | Service                        | Description              | Endpoint                     |
 | ------------------------------ | ------------------------ | ---------------------------- |
@@ -40,14 +66,14 @@ The **Connect wallet** step (`presto login`) is the only one that needs you—co
 | [Alchemy](https://alchemy.com) | Multi-chain node access  | `alchemy.payments.tempo.xyz` |
 | [Tempo RPC](https://tempo.xyz) | Tempo network RPC        | `rpc.payments.tempo.xyz`     |
 
-## Communications
+### Communications
 
 | Service                      | Description              | Endpoint                     |
 | ---------------------------- | ------------------------ | ---------------------------- |
 | [Twilio](https://twilio.com) | SMS and MMS messaging    | `twilio.payments.tempo.xyz`  |
 | [X (Twitter)](https://x.com) | Posts, users, and search | `twitter.payments.tempo.xyz` |
 
-## Infrastructure
+### Infrastructure
 
 | Service                             | Description           | Endpoint                     |
 | ----------------------------------- | --------------------- | ---------------------------- |

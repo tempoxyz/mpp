@@ -119,7 +119,7 @@ export function AgentTabs() {
   }, [allSteps]);
 
   return (
-    <div className="not-prose flex flex-col gap-3" style={{ maxWidth: 620 }}>
+    <div className="not-prose flex flex-col gap-3">
       <div
         className="rounded-md overflow-hidden text-left"
         style={{
@@ -180,7 +180,7 @@ export function AgentTabs() {
             background: "var(--vocs-background-color-primary)",
           }}
         >
-          <div style={{ color: "var(--vocs-text-color-muted)", opacity: 0.7 }}>
+          <div style={{ color: "var(--vocs-text-color-muted)" }}>
             # Install presto
           </div>
           <div>
@@ -196,7 +196,6 @@ export function AgentTabs() {
           <div
             style={{
               color: "var(--vocs-text-color-muted)",
-              opacity: 0.7,
               marginTop: 8,
             }}
           >
@@ -212,7 +211,6 @@ export function AgentTabs() {
           <div
             style={{
               color: "var(--vocs-text-color-muted)",
-              opacity: 0.7,
               marginTop: 8,
             }}
           >
@@ -231,7 +229,6 @@ export function AgentTabs() {
           <div
             style={{
               color: "var(--vocs-text-color-muted)",
-              opacity: 0.7,
               marginTop: 8,
             }}
           >
