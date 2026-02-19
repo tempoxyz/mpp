@@ -20,7 +20,8 @@ const ANIM_STORAGE_KEY = "mpp-landing-animated";
 const PRESTO_INSTALL =
   "curl -fsSL https://raw.githubusercontent.com/tempoxyz/presto/main/install.sh | bash";
 const PRESTO_LOGIN = "presto login";
-const SETUP_URL = "https://mpp.tempo.xyz/setup.md";
+const QUICKSTART_URL = "https://mpp.sh/quickstart/client.md";
+const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
 
 // ---------------------------------------------------------------------------
 // Context — shares active agent tab index across components
@@ -873,7 +874,7 @@ function DesktopTooltip({
   const setupCmd = [
     agent.bin,
     agent.args,
-    `"Add ${SETUP_URL} to my SKILLS.md for future reference."`,
+    `"Add ${QUICKSTART_URL} (MPP quickstart) & ${SERVICES_URL} (MPP service endpoints) to my SKILLS.md for future reference."`,
   ]
     .filter(Boolean)
     .join(" ");
@@ -994,7 +995,7 @@ function MobileServiceCard({
   const setupCmd = [
     agent.bin,
     agent.args,
-    `"Add ${SETUP_URL} to my SKILLS.md for future reference."`,
+    `"Add ${QUICKSTART_URL} (MPP quickstart) & ${SERVICES_URL} (MPP service endpoints) to my SKILLS.md for future reference."`,
   ]
     .filter(Boolean)
     .join(" ");
@@ -1213,7 +1214,7 @@ function AgentTabs() {
   const { activeAgent: active, setActiveAgent: setActive } =
     useContext(AgentContext);
   const [copied, setCopied] = useState(false);
-  const setupPrompt = `"Add ${SETUP_URL} to my SKILLS.md for future reference."`;
+  const setupPrompt = `"Add ${QUICKSTART_URL} (MPP quickstart) & ${SERVICES_URL} (MPP service endpoints) to my SKILLS.md for future reference."`;
   const taskPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
   const displayPrompt = taskPrompt;
   const commands = [
