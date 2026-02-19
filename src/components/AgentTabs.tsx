@@ -256,7 +256,7 @@ export function AgentTabs() {
             <CopyIcon copied={copied} />
             <span
               className="text-xs"
-              style={{ color: "var(--vocs-text-color-muted)", opacity: 0.6 }}
+              style={{ color: "var(--vocs-text-color-muted)" }}
             >
               {copied ? "Copied!" : "Click to copy"}
             </span>
