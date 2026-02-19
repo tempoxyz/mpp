@@ -51,7 +51,7 @@ const SERVICES = [
   {
     name: "Codex",
     logo: CodexLogo,
-    task: '"Back up my project docs to Codex and return the content IDs for each file"',
+    task: '"Use Codex to look up the top 5 tokens on Base by 24h volume and summarize the price action"',
   },
   {
     name: "Cloudflare",
