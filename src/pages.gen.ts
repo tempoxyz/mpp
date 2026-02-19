@@ -13,6 +13,7 @@ type Page =
 | { path: '/faq'; render: 'static' }
 | { path: '/'; render: 'static' }
 | { path: '/overview'; render: 'static' }
+| { path: '/services'; render: 'static' }
 | { path: '/tools/presto'; render: 'static' }
 | { path: '/tools/presto/examples'; render: 'static' }
 | { path: '/sdk'; render: 'static' }

@@ -53,14 +53,14 @@ importers:
         specifier: ^2.46.2
         version: 2.46.2(typescript@5.9.3)(zod@4.3.6)
       vocs:
-        specifier: https://pkg.pr.new/wevm/vocs@95a659e
-        version: https://pkg.pr.new/wevm/vocs@95a659e(@types/react@19.2.14)(mermaid@11.12.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.3(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: https://pkg.pr.new/wevm/vocs@6641be0
+        version: https://pkg.pr.new/wevm/vocs@6641be0(@types/react@19.2.14)(mermaid@11.12.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.4(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       wagmi:
         specifier: ^3.4.2
         version: 3.4.4(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.21(react@19.2.4))(@types/react@19.2.14)(ox@0.12.4(typescript@5.9.3)(zod@4.3.6))(react@19.2.4)(typescript@5.9.3)(viem@2.46.2(typescript@5.9.3)(zod@4.3.6))
       waku:
-        specifier: ^1.0.0-alpha.2
-        version: 1.0.0-alpha.3(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: ^1.0.0-alpha.4
+        version: 1.0.0-alpha.4(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.4.1
@@ -3472,8 +3472,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@https://pkg.pr.new/wevm/vocs@95a659e:
-    resolution: {tarball: https://pkg.pr.new/wevm/vocs@95a659e}
+  vocs@https://pkg.pr.new/wevm/vocs@6641be0:
+    resolution: {tarball: https://pkg.pr.new/wevm/vocs@6641be0}
     version: 0.0.0
     hasBin: true
     peerDependencies:
@@ -3527,8 +3527,8 @@ packages:
       typescript:
         optional: true
 
-  waku@1.0.0-alpha.3:
-    resolution: {integrity: sha512-tbqZwmBI70KrUcsYTc5Emsur0BD0wUrg8jXKlOaTrcZjZGh4dvEvgAvX2wffv1V5bToMiV8jwagug52aJFyw+A==}
+  waku@1.0.0-alpha.4:
+    resolution: {integrity: sha512-gZFEaaAL0YWEE55Z5GAggaDkwgpEmkL/ok9uUzq8exykNbXEDAuVd+H/ctXfQqW6VZGZb1aEyEMvjIamDv9igQ==}
     engines: {node: ^24.0.0 || ^22.12.0 || ^20.19.0}
     hasBin: true
     peerDependencies:
@@ -7394,7 +7394,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@https://pkg.pr.new/wevm/vocs@95a659e(@types/react@19.2.14)(mermaid@11.12.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.3(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)):
+  vocs@https://pkg.pr.new/wevm/vocs@6641be0(@types/react@19.2.14)(mermaid@11.12.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.4(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@base-ui/react': 1.2.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -7470,7 +7470,7 @@ snapshots:
     optionalDependencies:
       mermaid: 11.12.2
       vite: 7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
-      waku: 1.0.0-alpha.3(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+      waku: 1.0.0-alpha.4(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@remix-run/react'
@@ -7531,7 +7531,7 @@ snapshots:
       - ox
       - porto
 
-  waku@1.0.0-alpha.3(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2):
+  waku@1.0.0-alpha.4(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.2))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@hono/node-server': 1.19.9(hono@4.11.9)
       '@vitejs/plugin-react': 5.1.4(vite@7.3.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))

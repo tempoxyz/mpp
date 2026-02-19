@@ -30,9 +30,9 @@
     "tailwindcss": "^4.1.18",
     "tempo.ts": "~0.14.0",
     "viem": "^2.46.2",
-    "vocs": "https://pkg.pr.new/wevm/vocs@95a659e",
+    "vocs": "https://pkg.pr.new/wevm/vocs@6641be0",
     "wagmi": "^3.4.2",
-    "waku": "^1.0.0-alpha.2"
+    "waku": "^1.0.0-alpha.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.1",

@@ -92,7 +92,7 @@ export default defineConfig({
           { text: "Overview", link: "/quickstart" },
           { text: "Client", link: "/quickstart/client" },
           { text: "Server", link: "/quickstart/server" },
-          { text: "presto CLI", link: "/quickstart/presto" },
+          { text: "CLI (presto)", link: "/quickstart/presto" },
         ],
       },
       {
@@ -450,7 +450,7 @@ export default defineConfig({
             ],
           },
           {
-            text: "presto CLI",
+            text: "CLI (presto)",
             collapsed: true,
             items: [
               { text: "Reference", link: "/tools/presto" },
