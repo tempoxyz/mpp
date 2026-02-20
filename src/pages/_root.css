@@ -487,11 +487,6 @@ pre[data-v] {
   padding-right: calc(0.375rem - 1px) !important;
 }
 
-/* Service logo hover — icon turns accent color (set via --accent inline) */
-.service-logo-item:hover .service-logo-icon {
-  color: var(--service-accent, var(--vocs-text-color-heading)) !important;
-}
-
 /* No underline on cards, buttons, and interactive elements */
 a.group,
 a.group:hover,
@@ -704,7 +699,6 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] img {
 .hero-clickthrough [role="button"],
 .hero-clickthrough input,
 .hero-clickthrough .relative,
-.hero-clickthrough .service-logo-item,
 .hero-clickthrough div[style*="border"],
 .hero-clickthrough span[class*="rounded-full"] {
   pointer-events: auto;
