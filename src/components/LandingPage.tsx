@@ -561,31 +561,32 @@ function AgentTabs() {
     useContext(AgentContext);
   const [copied, setCopied] = useState(false);
   const setupPrompt = `"Add ${QUICKSTART_URL} (MPP quickstart) & ${SERVICES_URL} (MPP service endpoints) to my SKILLS.md for future reference."`;
-  const taskPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs'"`;
-  const displayPrompt = taskPrompt;
   const commands = [
     {
       label: "Claude",
       bin: "claude",
       args: "-p",
       icon: ClaudeLogo,
+      prompt: `"Read https://mpp.sh/overview.md and charge agents 0.01 USD for using my API"`,
     },
     {
       label: "Codex",
       bin: "codex",
       args: null,
       icon: OpenAILogo,
+      prompt: `"Read https://mpp.sh/overview.md and charge agents 0.01 USD for reading my site"`,
     },
     {
       label: "Amp",
       bin: "amp",
       args: null,
       icon: AmpLogo,
+      prompt: `"Read https://mpp.sh/overview.md and charge agents 0.01 USD per MCP tool call"`,
     },
   ];
   const cmd = commands[active];
   const setupCmd = [cmd.bin, cmd.args, setupPrompt].filter(Boolean).join(" ");
-  const taskCmd = [cmd.bin, cmd.args, taskPrompt].filter(Boolean).join(" ");
+  const taskCmd = [cmd.bin, cmd.args, cmd.prompt].filter(Boolean).join(" ");
   const handleCopy = () => {
     navigator.clipboard.writeText(
       `${PRESTO_INSTALL} && ${PRESTO_LOGIN} && ${setupCmd} && ${taskCmd}`,
@@ -668,7 +669,7 @@ function AgentTabs() {
               {cmd.args}
             </span>
           )}
-          <span style={{ color: AGENT_COLOR }}> {displayPrompt}</span>
+          <span style={{ color: AGENT_COLOR }}> {cmd.prompt}</span>
         </span>
         <span
           className="hover:text-accent transition-colors shrink-0"
