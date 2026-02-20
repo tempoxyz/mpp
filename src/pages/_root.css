@@ -2,6 +2,22 @@
 @import "@fontsource/commit-mono/700.css";
 
 @font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Geist Pixel Square";
   src: url("/fonts/GeistPixel-Square.woff2") format("woff2");
   font-weight: 400 700;
@@ -26,71 +42,33 @@
 }
 
 @font-face {
-  font-family: "Pilat";
-  src:
-    url("/fonts/Pilat-Light.woff2") format("woff2"),
-    url("/fonts/Pilat-Light.woff") format("woff");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Pilat";
-  src:
-    url("/fonts/Pilat-Regular.woff2") format("woff2"),
-    url("/fonts/Pilat-Regular.woff") format("woff");
+  font-family: "Geist";
+  src: url("/fonts/Geist-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Pilat";
-  src:
-    url("/fonts/Pilat-Book.woff2") format("woff2"),
-    url("/fonts/Pilat-Book.woff") format("woff");
-  font-weight: 450;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Pilat";
-  src:
-    url("/fonts/Pilat-Demi.woff2") format("woff2"),
-    url("/fonts/Pilat-Demi.woff") format("woff");
+  font-family: "Geist";
+  src: url("/fonts/Geist-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Pilat";
-  src:
-    url("/fonts/Pilat-Bold.woff2") format("woff2"),
-    url("/fonts/Pilat-Bold.woff") format("woff");
+  font-family: "Geist";
+  src: url("/fonts/Geist-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Bold.woff2") format("woff2");
   font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Pilat";
-  src:
-    url("/fonts/Pilat-Heavy.woff2") format("woff2"),
-    url("/fonts/Pilat-Heavy.woff") format("woff");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Pilat";
-  src:
-    url("/fonts/Pilat-Black.woff2") format("woff2"),
-    url("/fonts/Pilat-Black.woff") format("woff");
-  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -321,7 +299,7 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
   }
 }
 
-/* Pilat + Berkeley Mono as primary font stack */
+/* Geist + Geist Mono as primary font stack */
 :root {
   /* Enable system theme detection */
   color-scheme: light dark;
@@ -335,12 +313,12 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
     var(--vocs-color-gray5)
   );
 
-  --font-pilat:
-    "Pilat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+  --font-header:
+    "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
 
   --font-mono:
-    "Geist Pixel Square", "Berkeley Mono", "Commit Mono", ui-monospace,
+    "Geist Mono", "Geist Pixel Square", "Berkeley Mono", "Commit Mono", ui-monospace,
     SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --vocs-leading-code: 1.6em;
@@ -376,7 +354,7 @@ h6 {
 body,
 [data-v-content],
 [data-layout] {
-  font-family: var(--font-pilat);
+  font-family: var(--font-header);
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

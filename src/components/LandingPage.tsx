@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import type React from "react";
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
 import { fetch } from "../mppx.client";
@@ -89,13 +89,13 @@ function anim(active: boolean, delayMs: number, durationMs = 900) {
 export function LandingPage() {
   const [activeAgent, setActiveAgent] = useState(0);
 
-  const [shouldAnimate] = useState(() => {
-    if (typeof window === "undefined") return false;
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+  useEffect(() => {
     const already = localStorage.getItem(ANIM_STORAGE_KEY);
-    if (already) return false;
+    if (already) return;
     localStorage.setItem(ANIM_STORAGE_KEY, "1");
-    return true;
-  });
+    setShouldAnimate(true);
+  }, []);
 
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
@@ -189,24 +189,27 @@ function LandingStyles() {
 				.service-logos-grid {
 					display: grid !important;
 					grid-template-columns: repeat(6, 1fr) !important;
-					max-width: 340px !important;
+					max-width: 300px !important;
 					margin-left: auto !important;
 					margin-right: auto !important;
-					gap: 12px !important;
+					gap: 8px !important;
 				}
 				.service-logos-grid > * {
 					grid-column: span 2;
 					display: flex !important;
 					justify-content: center !important;
 					border: 1px solid var(--vocs-border-color-secondary);
-					border-radius: 10px;
-					padding: 12px 8px 10px;
+					border-radius: 8px;
+					padding: 8px 6px 6px;
 				}
 				.service-logos-grid > :nth-child(4) { grid-column: 2 / 4; }
 				.service-logos-grid > :nth-child(5) { grid-column: 4 / 6; }
 				.service-logos-grid .service-logo-icon svg {
-					width: 44px !important;
-					height: 44px !important;
+					width: 28px !important;
+					height: 28px !important;
+				}
+				.service-logos-grid .service-logo-label {
+					font-size: 11px !important;
 				}
 
 				section { padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem)) !important; }
@@ -323,7 +326,10 @@ function Tagline({ shouldAnimate }: { shouldAnimate: boolean }) {
         ...anim(shouldAnimate, 1400, 700),
       }}
     >
-      <div>The open protocol for internet-native payments. Charge for API calls, tool calls, or content. Agents, apps, and humans securely pay per call.</div>
+      <div>
+        The open protocol for internet-native payments. Charge for API calls,
+        tool calls, or content. Agents, apps, and humans securely pay per call.
+      </div>
     </div>
   );
 }
@@ -413,7 +419,7 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
 // ---------------------------------------------------------------------------
 
 function Lockup() {
-  const lockupSize = "clamp(1.6rem, 3.8vw, 2.75rem)";
+  const lockupSize = "clamp(2rem, 5.5vw, 2.85rem)";
 
   return (
     <div
@@ -432,21 +438,9 @@ function Lockup() {
           fontSize: lockupSize,
           fontWeight: 550,
           letterSpacing: "-0.055em",
-          whiteSpace: "nowrap",
         }}
       >
-        MACHINE
-      </span>
-      <span
-        style={{
-          fontFamily: "var(--font-header)",
-          fontSize: lockupSize,
-          fontWeight: 550,
-          letterSpacing: "-0.055em",
-          whiteSpace: "nowrap",
-        }}
-      >
-        PAYMENTS PROTOCOL
+        MACHINE PAYMENTS PROTOCOL
       </span>
     </div>
   );
@@ -824,7 +818,7 @@ function ServiceLogoButton({
         <Logo style={{ width: 36, height: 36 }} />
       </div>
       <span
-        className="text-sm"
+        className="service-logo-label text-sm"
         style={{ color: "var(--vocs-text-color-muted)" }}
       >
         {service.name}

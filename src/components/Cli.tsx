@@ -718,11 +718,10 @@ export namespace Toggle {
         className={cx(
           "flex items-center px-4 py-2 rounded-md cursor-pointer transition-colors text-sm font-medium",
           "text-secondary border border-transparent",
-          "has-[[data-checked]]:bg-[#e8873a]/10",
-          "has-[[data-checked]]:text-[#e8873a]",
-          "has-[[data-checked]]:border-[#e8873a]/30",
-          "has-[:focus-visible]:bg-[#e8873a]/10",
-          "has-[:focus-visible]:text-[#e8873a]",
+          "has-[[data-checked]]:bg-neutral-100 has-[[data-checked]]:text-neutral-800",
+          "has-[[data-checked]]:border-neutral-300",
+          "has-[:focus-visible]:bg-neutral-100 has-[:focus-visible]:text-neutral-800",
+          "has-[:focus-visible]:border-neutral-300",
           className,
         )}
         onPointerUp={() => onSubmit?.(value)}
