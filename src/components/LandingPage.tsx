@@ -270,7 +270,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         }}
       >
         {/* Two-column layout: CLI left, hero right */}
-        <div className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
+        <div className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16 items-center lg:items-stretch">
           {/* Left pane — interactive CLI demo (animates in first) */}
           <div
             className="flex-[11] w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none"
@@ -322,7 +322,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
             </p>
 
             {/* Agent prompt tabs */}
-            <div className="w-full" style={anim(shouldAnimate, 1800, 700)}>
+            <div className="w-full max-w-xl mx-auto lg:mx-0" style={anim(shouldAnimate, 1800, 700)}>
               <AgentTabs />
             </div>
 
