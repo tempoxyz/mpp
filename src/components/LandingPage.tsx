@@ -130,6 +130,10 @@ function LandingStyles() {
 			[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
 			[data-v-gutter-top] { position: fixed !important; z-index: 50 !important; user-select: none !important; -webkit-user-select: none !important; }
 
+			.landing-hero {
+				min-height: calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px));
+			}
+
 			.lockup-wide { display: none; }
 			.lockup-stacked { display: block; }
 
@@ -147,6 +151,14 @@ function LandingStyles() {
 					background: linear-gradient(to top, oklch(from var(--vocs-background-color-primary) l c h / 0.8) 0%, transparent 100%);
 					pointer-events: none;
 					z-index: 49;
+				}
+			}
+
+			@media (min-width: 1024px) {
+				.landing-hero {
+					height: calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px));
+					min-height: auto;
+					overflow: hidden;
 				}
 			}
 
@@ -251,11 +263,8 @@ function HeaderLogo() {
 function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
   return (
     <section
-      className="flex flex-col items-center px-6"
+      className="landing-hero flex flex-col items-center px-6"
       style={{
-        height:
-          "calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px))",
-        overflow: "hidden",
         position: "relative",
         zIndex: 2,
       }}
