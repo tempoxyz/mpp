@@ -248,8 +248,9 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
     <section
       className="flex flex-col items-center px-6"
       style={{
-        minHeight:
+        height:
           "calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px))",
+        overflow: "hidden",
         position: "relative",
         zIndex: 2,
       }}
