@@ -2,8 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import type React from "react";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { createContext, useContext, useRef, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
 import { fetch } from "../mppx.client";
@@ -15,7 +14,7 @@ import * as Cli from "./Cli";
 // ---------------------------------------------------------------------------
 
 const ACCENT = "var(--vocs-text-color-heading)";
-const AGENT_COLOR = "#e8873a";
+const AGENT_COLOR = "#16A34A";
 const ANIM_STORAGE_KEY = "mpp-landing-animated";
 const PRESTO_INSTALL =
   "curl -fsSL https://raw.githubusercontent.com/tempoxyz/presto/main/install.sh | bash";
@@ -38,7 +37,7 @@ const AgentContext = createContext<{
 
 const AGENT_COMMANDS = [
   { bin: "claude", args: "-p" },
-  { bin: "codex", args: "--full-auto" },
+  { bin: "codex", args: null },
   { bin: "amp", args: null },
 ];
 
@@ -104,13 +103,12 @@ export function LandingPage() {
         className="not-prose"
         style={{
           color: ACCENT,
-          fontFamily: "var(--font-pilat)",
+          fontFamily: "var(--font-copy)",
           userSelect: "none",
           WebkitUserSelect: "none",
         }}
       >
         <LandingStyles />
-        <HeaderLogo />
         <Hero shouldAnimate={shouldAnimate} />
       </div>
     </AgentContext.Provider>
@@ -181,6 +179,9 @@ function LandingStyles() {
 					backdrop-filter: none !important;
 					-webkit-backdrop-filter: none !important;
 				}
+				.lockup-stacked { max-width: 320px; }
+				.hero-right { align-items: flex-start !important; text-align: left !important; }
+				.co-designed-by { padding-top: 32px; }
 				.not-prose p { font-size: 17px; }
 				.not-prose .text-sm { font-size: 15px; }
 				.not-prose .font-mono { font-size: 15px; }
@@ -216,44 +217,6 @@ function LandingStyles() {
 				to { opacity: 1; transform: translateY(0); }
 			}
 		`}</style>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// ASCII logo portaled into the Vocs nav bar
-// ---------------------------------------------------------------------------
-
-function HeaderLogo() {
-  const [target, setTarget] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    const el = document.querySelector<HTMLElement>("[data-v-gutter-top]");
-    if (el) setTarget(el);
-  }, []);
-  if (!target) return null;
-
-  return createPortal(
-    <div
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 16,
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        pointerEvents: "none",
-        zIndex: 1,
-      }}
-    >
-      <picture>
-        <source srcSet="/logo-dark.svg" media="(prefers-color-scheme: dark)" />
-        <img
-          src="/logo-light.svg"
-          alt="MPP"
-          style={{ height: 20, width: "auto" }}
-        />
-      </picture>
-    </div>,
-    target,
   );
 }
 
@@ -300,21 +263,21 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
           </div>
 
           {/* Right pane — hero content (staggers in after CLI) */}
-          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-center md:text-left flex flex-col items-center md:items-start justify-center gap-6">
-            {/* Co-designed by */}
-            <div style={anim(shouldAnimate, 800, 800)}>
-              <CoDesignedBy shouldAnimate={false} />
-            </div>
-
+          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-left flex flex-col items-start justify-between gap-4">
             {/* Lockup */}
             <div
               className=""
               style={{
-                width: "min(300px, 88vw)",
-                ...anim(shouldAnimate, 1000, 900),
+                width: "min(560px, 92vw)",
+                ...anim(shouldAnimate, 800, 900),
               }}
             >
               <Lockup />
+            </div>
+
+            {/* Co-designed by */}
+            <div style={anim(shouldAnimate, 1100, 700)}>
+              <CoDesignedBy shouldAnimate={false} />
             </div>
 
             {/* Tagline */}
@@ -322,15 +285,15 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 
             {/* Agent prompt tabs */}
             <div
-              className="w-full max-w-xl mx-auto md:mx-0"
+              className="w-full max-w-xl"
               style={anim(shouldAnimate, 1800, 700)}
             >
               <AgentTabs />
             </div>
 
-            {/* CTA buttons */}
+            {/* CTA buttons — mt-auto pushes to bottom edge of CLI demo */}
             <div
-              className="flex flex-col items-center md:items-start gap-4"
+              className="flex flex-col items-start gap-4 lg:mt-auto"
               style={anim(shouldAnimate, 2100, 700)}
             >
               <CTAButtons />
@@ -360,8 +323,7 @@ function Tagline({ shouldAnimate }: { shouldAnimate: boolean }) {
         ...anim(shouldAnimate, 1400, 700),
       }}
     >
-      <div>Supercharge your agent with seamless paid API calls.</div>
-      <div>No more manually creating accounts, or copy-pasting keys.</div>
+      <div>The open protocol for internet-native payments. Charge for API calls, tool calls, or content. Agents, apps, and humans securely pay per call.</div>
     </div>
   );
 }
@@ -426,15 +388,17 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
           style={{
             color: "var(--vocs-text-color-primary)",
             opacity: 0.5,
-            transition: "opacity 0.15s",
+            transition: "opacity 0.15s, color 0.15s",
             display: "inline-flex",
             willChange: "opacity",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.color = "#635BFF";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.opacity = "0.5";
+            e.currentTarget.style.color = "var(--vocs-text-color-primary)";
           }}
         >
           <StripeLogo style={{ height: 22, width: "auto" }} />
@@ -445,59 +409,46 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
 }
 
 // ---------------------------------------------------------------------------
-// Lockup SVGs (wide for desktop, stacked for mobile)
+// Lockup wordmark
 // ---------------------------------------------------------------------------
 
 function Lockup() {
-  const style: React.CSSProperties = {
-    width: "100%",
-    opacity: 0.85,
-    height: "auto",
-    color: ACCENT,
-  };
+  const lockupSize = "clamp(1.6rem, 3.8vw, 2.75rem)";
+
   return (
-    <>
-      <svg
-        viewBox="0 0 555 24"
-        fill="currentColor"
-        className="lockup-wide"
-        style={style}
+    <div
+      style={{
+        color: ACCENT,
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+        lineHeight: 1,
+        opacity: 0.9,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "var(--font-header)",
+          fontSize: lockupSize,
+          fontWeight: 550,
+          letterSpacing: "-0.055em",
+          whiteSpace: "nowrap",
+        }}
       >
-        <title>Machine Payments Protocol</title>
-        <path d="M-4.54701e-05 20.4776V0.457598H4.17555L12.6126 14.5288L21.0496 0.457598H25.2252V20.4776H21.164V6.9212L12.9844 20.4776H12.2122L4.06115 7.007V20.4776H-4.54701e-05ZM26.2807 20.4776L38.4643 0.457598H43.3835L55.5957 20.4776H50.9053L48.4171 16.2448H33.4307L30.9711 20.4776H26.2807ZM35.4041 12.8128H46.4437L40.9525 3.289L35.4041 12.8128ZM66.4637 20.9352C59.2279 20.9352 54.3945 16.7596 54.3945 10.4676C54.3945 4.1756 59.2279 -7.6189e-07 66.4637 -7.6189e-07C73.7281 -7.6189e-07 78.5329 3.6608 78.5329 9.1806H74.4145C74.2429 5.6056 71.0683 3.4034 66.4637 3.4034C61.6589 3.4034 58.4557 6.1204 58.4557 10.4676C58.4557 14.8148 61.6589 17.5032 66.4637 17.5032C71.0969 17.5032 74.2715 15.3296 74.4145 11.7546H78.5329C78.5329 17.2744 73.7281 20.9352 66.4637 20.9352ZM81.1592 20.4776V0.457598H85.2204V8.1224H98.691V0.457598H102.752V20.4776H98.691V11.5544H85.2204V20.4776H81.1592ZM106.387 20.4776V0.457598H110.449V20.4776H106.387ZM114.104 20.4776V0.457598H117.793L132.78 14.872V0.457598H136.841V20.4776H133.123L118.165 6.0632V20.4776H114.104ZM140.505 20.4776V0.457598H159.81V3.861H144.566V8.2368H158.123V11.3828H144.566V17.0456H159.81V20.4776H140.505ZM171.383 20.4776V0.457598H185.683C189.83 0.457598 192.404 3.2318 192.404 6.578C192.404 10.6392 189.544 12.6698 185.683 12.6698H175.444V20.4776H171.383ZM175.416 9.3236H184.968C187.313 9.3236 188.343 8.5228 188.343 6.578C188.343 4.6332 187.313 3.8038 184.968 3.8038H175.416V9.3236ZM188.671 20.4776L200.854 0.457598H205.773L217.986 20.4776H213.295L210.807 16.2448H195.821L193.361 20.4776H188.671ZM197.794 12.8128H208.834L203.342 3.289L197.794 12.8128ZM221.572 20.4776V14.014L210.933 0.457598H215.909L223.603 10.439L231.268 0.457598H236.244L225.633 13.9854V20.4776H221.572ZM237.041 20.4776V0.457598H241.217L249.654 14.5288L258.091 0.457598H262.267V20.4776H258.205V6.9212L250.026 20.4776H249.254L241.103 7.007V20.4776H237.041ZM265.901 20.4776V0.457598H285.206V3.861H269.962V8.2368H283.518V11.3828H269.962V17.0456H285.206V20.4776H265.901ZM288.252 20.4776V0.457598H291.942L306.928 14.872V0.457598H310.989V20.4776H307.271L292.313 6.0632V20.4776H288.252ZM321.36 20.4776V3.861H312.494V0.457598H334.316V3.861H325.421V20.4776H321.36ZM345.307 20.9352C338.472 20.9352 334.153 18.1324 334.211 14.0426H338.443C338.415 16.1304 340.96 17.5032 345.136 17.5032C349.855 17.5032 352.457 16.6452 352.457 14.7576C352.457 9.3522 334.754 15.6156 334.754 6.3206C334.754 2.2308 339.073 -7.6189e-07 345.279 -7.6189e-07C351.8 -7.6189e-07 356.09 2.7456 356.118 6.8926H351.971C351.971 4.7762 349.454 3.4034 345.393 3.4034C341.246 3.4034 338.872 4.2614 338.872 5.9774C338.872 11.011 356.547 5.1766 356.547 14.586C356.547 18.7616 352.114 20.9352 345.307 20.9352ZM367.185 20.4776V0.457598H381.485C385.632 0.457598 388.206 3.2318 388.206 6.578C388.206 10.6392 385.346 12.6698 381.485 12.6698H371.246V20.4776H367.185ZM371.217 9.3236H380.77C383.115 9.3236 384.145 8.5228 384.145 6.578C384.145 4.6332 383.115 3.8038 380.77 3.8038H371.217V9.3236ZM390.151 20.4776V0.457598H405.881C410.028 0.457598 412.316 2.6884 412.316 5.7486C412.316 8.9518 409.656 10.7822 405.881 10.7822L403.764 10.8108V10.868C408.483 11.1826 410.428 13.9568 413.832 20.4776H409.113C405.395 13.8138 404.422 11.9834 400.847 11.9834H394.183L394.212 20.4776H390.151ZM394.183 8.6658H404.88C407.254 8.6658 408.255 7.8078 408.255 6.3492C408.255 4.576 407.225 3.8038 404.88 3.8038H394.155L394.183 8.6658ZM425.883 20.9352C418.618 20.9352 413.814 16.7596 413.814 10.4676C413.814 4.1756 418.618 -7.6189e-07 425.883 -7.6189e-07C433.119 -7.6189e-07 437.952 4.1756 437.952 10.4676C437.952 16.7596 433.119 20.9352 425.883 20.9352ZM425.883 17.5032C430.688 17.5032 433.891 14.8148 433.891 10.4676C433.891 6.1204 430.688 3.4034 425.883 3.4034C421.078 3.4034 417.875 6.1204 417.875 10.4676C417.875 14.8148 421.078 17.5032 425.883 17.5032ZM445.862 20.4776V3.861H436.996V0.457598H458.817V3.861H449.923V20.4776H445.862ZM469.916 20.9352C462.651 20.9352 457.846 16.7596 457.846 10.4676C457.846 4.1756 462.651 -7.6189e-07 469.916 -7.6189e-07C477.151 -7.6189e-07 481.985 4.1756 481.985 10.4676C481.985 16.7596 477.151 20.9352 469.916 20.9352ZM469.916 17.5032C474.72 17.5032 477.924 14.8148 477.924 10.4676C477.924 6.1204 474.72 3.4034 469.916 3.4034C465.111 3.4034 461.908 6.1204 461.908 10.4676C461.908 14.8148 465.111 17.5032 469.916 17.5032ZM496.039 20.9352C488.803 20.9352 483.97 16.7596 483.97 10.4676C483.97 4.1756 488.803 -7.6189e-07 496.039 -7.6189e-07C503.303 -7.6189e-07 508.108 3.6608 508.108 9.1806H503.99C503.818 5.6056 500.644 3.4034 496.039 3.4034C491.234 3.4034 488.031 6.1204 488.031 10.4676C488.031 14.8148 491.234 17.5032 496.039 17.5032C500.672 17.5032 503.847 15.3296 503.99 11.7546H508.108C508.108 17.2744 503.303 20.9352 496.039 20.9352ZM522.104 20.9352C514.84 20.9352 510.035 16.7596 510.035 10.4676C510.035 4.1756 514.84 -7.6189e-07 522.104 -7.6189e-07C529.34 -7.6189e-07 534.173 4.1756 534.173 10.4676C534.173 16.7596 529.34 20.9352 522.104 20.9352ZM522.104 17.5032C526.909 17.5032 530.112 14.8148 530.112 10.4676C530.112 6.1204 526.909 3.4034 522.104 3.4034C517.299 3.4034 514.096 6.1204 514.096 10.4676C514.096 14.8148 517.299 17.5032 522.104 17.5032ZM536.801 20.4776V0.457598H540.862V17.0456H554.819V20.4776H536.801Z" />
-      </svg>
-      <svg
-        viewBox="0 0 160 41"
-        fill="currentColor"
-        className="lockup-stacked"
-        style={style}
+        MACHINE
+      </span>
+      <span
+        style={{
+          fontFamily: "var(--font-header)",
+          fontSize: lockupSize,
+          fontWeight: 550,
+          letterSpacing: "-0.055em",
+          whiteSpace: "nowrap",
+        }}
       >
-        <title>Machine Payments Protocol</title>
-        <path d="M0 20.4776V0.457599H4.1756L12.6126 14.5288L21.0496 0.457599H25.2252V20.4776H21.164V6.9212L12.9844 20.4776H12.2122L4.0612 7.007V20.4776H0Z" />
-        <path d="M26.2807 20.4776L38.4643 0.457599H43.3835L55.5957 20.4776H50.9053L48.4171 16.2448H33.4307L30.9711 20.4776H26.2807ZM35.4041 12.8128H46.4437L40.9525 3.289L35.4041 12.8128Z" />
-        <path d="M66.4637 20.9352C59.2279 20.9352 54.3945 16.7596 54.3945 10.4676C54.3945 4.1756 59.2279 0 66.4637 0C73.7281 0 78.5329 3.6608 78.5329 9.1806H74.4145C74.2429 5.6056 71.0683 3.4034 66.4637 3.4034C61.6589 3.4034 58.4557 6.1204 58.4557 10.4676C58.4557 14.8148 61.6589 17.5032 66.4637 17.5032C71.0969 17.5032 74.2715 15.3296 74.4145 11.7546H78.5329C78.5329 17.2744 73.7281 20.9352 66.4637 20.9352Z" />
-        <path d="M81.1592 20.4776V0.457599H85.2204V8.1224H98.691V0.457599H102.752V20.4776H98.691V11.5544H85.2204V20.4776H81.1592Z" />
-        <path d="M106.388 20.4776V0.457599H110.449V20.4776H106.388Z" />
-        <path d="M114.104 20.4776V0.457599H117.793L132.78 14.872V0.457599H136.841V20.4776H133.123L118.165 6.0632V20.4776H114.104Z" />
-        <path d="M140.505 20.4776V0.457599H159.81V3.861H144.567V8.2368H158.123V11.3828H144.567V17.0456H159.81V20.4776H140.505Z" />
-        <path d="M0 40.2809V31.6743H5.84939C7.54571 31.6743 8.5986 32.8669 8.5986 34.3055C8.5986 36.0514 7.42873 36.9243 5.84939 36.9243H1.66123V40.2809H0ZM1.64953 35.4858H5.55692C6.51622 35.4858 6.93738 35.1415 6.93738 34.3055C6.93738 33.4694 6.51622 33.1128 5.55692 33.1128H1.64953V35.4858Z" />
-        <path d="M7.07136 40.2809L12.055 31.6743H14.0672L19.0626 40.2809H17.144L16.1262 38.4612H9.99606L8.98996 40.2809H7.07136ZM10.8033 36.9858H15.319L13.0728 32.8915L10.8033 36.9858Z" />
-        <path d="M20.5297 40.2809V37.5022L16.1778 31.6743H18.2134L21.3603 35.9653L24.4956 31.6743H26.5312L22.1909 37.4899V40.2809H20.5297Z" />
-        <path d="M26.8574 40.2809V31.6743H28.5654L32.0165 37.7235L35.4677 31.6743H37.1757V40.2809H35.5145V34.453L32.1686 40.2809H31.8528L28.5186 34.4899V40.2809H26.8574Z" />
-        <path d="M38.6622 40.2809V31.6743H46.5589V33.1374H40.3234V35.0186H45.8686V36.371H40.3234V38.8055H46.5589V40.2809H38.6622Z" />
-        <path d="M47.8051 40.2809V31.6743H49.3142L55.4444 37.871V31.6743H57.1056V40.2809H55.5847L49.4663 34.0842V40.2809H47.8051Z" />
-        <path d="M61.3478 40.2809V33.1374H57.7211V31.6743H66.6473V33.1374H63.009V40.2809H61.3478Z" />
-        <path d="M71.1434 40.4776C68.3474 40.4776 66.5809 39.2727 66.6043 37.5145H68.3357C68.324 38.412 69.3652 39.0022 71.0732 39.0022C73.0035 39.0022 74.0681 38.6333 74.0681 37.8219C74.0681 35.4981 66.8265 38.1907 66.8265 34.1948C66.8265 32.4366 68.593 31.4776 71.1317 31.4776C73.799 31.4776 75.5538 32.6579 75.5655 34.4407H73.8692C73.8692 33.5309 72.8397 32.9407 71.1785 32.9407C69.4822 32.9407 68.5112 33.3096 68.5112 34.0473C68.5112 36.2112 75.741 33.703 75.741 37.7481C75.741 39.5432 73.9277 40.4776 71.1434 40.4776Z" />
-        <path d="M83.2487 40.2809V31.6743H89.0981C90.7944 31.6743 91.8473 32.8669 91.8473 34.3055C91.8473 36.0514 90.6774 36.9243 89.0981 36.9243H84.9099V40.2809H83.2487ZM84.8982 35.4858H88.8056C89.7649 35.4858 90.1861 35.1415 90.1861 34.3055C90.1861 33.4694 89.7649 33.1128 88.8056 33.1128H84.8982V35.4858Z" />
-        <path d="M92.6429 40.2809V31.6743H99.0772C100.774 31.6743 101.709 32.6333 101.709 33.9489C101.709 35.326 100.621 36.1128 99.0772 36.1128L98.2115 36.1251V36.1497C100.142 36.285 100.937 37.4776 102.329 40.2809H100.399C98.8784 37.4161 98.4806 36.6292 97.0182 36.6292H94.2924L94.3041 40.2809H92.6429ZM94.2924 35.203H98.6678C99.6388 35.203 100.048 34.8342 100.048 34.2071C100.048 33.4448 99.6271 33.1128 98.6678 33.1128H94.2807L94.2924 35.203Z" />
-        <path d="M107.259 40.4776C104.287 40.4776 102.322 38.6825 102.322 35.9776C102.322 33.2727 104.287 31.4776 107.259 31.4776C110.219 31.4776 112.196 33.2727 112.196 35.9776C112.196 38.6825 110.219 40.4776 107.259 40.4776ZM107.259 39.0022C109.224 39.0022 110.535 37.8465 110.535 35.9776C110.535 34.1087 109.224 32.9407 107.259 32.9407C105.294 32.9407 103.983 34.1087 103.983 35.9776C103.983 37.8465 105.294 39.0022 107.259 39.0022Z" />
-        <path d="M115.431 40.2809V33.1374H111.805V31.6743H120.731V33.1374H117.093V40.2809H115.431Z" />
-        <path d="M125.271 40.4776C122.299 40.4776 120.334 38.6825 120.334 35.9776C120.334 33.2727 122.299 31.4776 125.271 31.4776C128.23 31.4776 130.207 33.2727 130.207 35.9776C130.207 38.6825 128.23 40.4776 125.271 40.4776ZM125.271 39.0022C127.236 39.0022 128.546 37.8465 128.546 35.9776C128.546 34.1087 127.236 32.9407 125.271 32.9407C123.305 32.9407 121.995 34.1087 121.995 35.9776C121.995 37.8465 123.305 39.0022 125.271 39.0022Z" />
-        <path d="M135.956 40.4776C132.996 40.4776 131.019 38.6825 131.019 35.9776C131.019 33.2727 132.996 31.4776 135.956 31.4776C138.928 31.4776 140.893 33.0514 140.893 35.4243H139.209C139.138 33.8874 137.84 32.9407 135.956 32.9407C133.991 32.9407 132.681 34.1087 132.681 35.9776C132.681 37.8465 133.991 39.0022 135.956 39.0022C137.851 39.0022 139.15 38.0678 139.209 36.5309H140.893C140.893 38.9038 138.928 40.4776 135.956 40.4776Z" />
-        <path d="M146.618 40.4776C143.647 40.4776 141.681 38.6825 141.681 35.9776C141.681 33.2727 143.647 31.4776 146.618 31.4776C149.578 31.4776 151.555 33.2727 151.555 35.9776C151.555 38.6825 149.578 40.4776 146.618 40.4776ZM146.618 39.0022C148.583 39.0022 149.894 37.8465 149.894 35.9776C149.894 34.1087 148.583 32.9407 146.618 32.9407C144.653 32.9407 143.342 34.1087 143.342 35.9776C143.342 37.8465 144.653 39.0022 146.618 39.0022Z" />
-        <path d="M152.63 40.2809V31.6743H154.291V38.8055H160V40.2809H152.63Z" />
-      </svg>
-    </>
+        PAYMENTS PROTOCOL
+      </span>
+    </div>
   );
 }
 
@@ -955,10 +906,10 @@ function DesktopTooltip({
           WebkitUserSelect: "text",
         }}
       >
-        <span style={{ color: AGENT_COLOR }}>{prefix} </span>
         <span style={{ color: "var(--vocs-text-color-heading)" }}>
-          {service.task}
+          {prefix}{" "}
         </span>
+        <span style={{ color: AGENT_COLOR }}>{service.task}</span>
       </span>
       <span
         className="shrink-0"
@@ -1147,10 +1098,10 @@ function MobileServiceCard({
             className="font-mono text-sm whitespace-pre-wrap break-words mb-4 text-left"
             style={{ userSelect: "text", WebkitUserSelect: "text" }}
           >
-            <span style={{ color: AGENT_COLOR }}>{prefix} </span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
-              {service.task}
+              {prefix}{" "}
             </span>
+            <span style={{ color: AGENT_COLOR }}>{service.task}</span>
           </div>
           {/* Actions */}
           <div className="flex gap-2">
@@ -1248,7 +1199,7 @@ function AgentTabs() {
     useContext(AgentContext);
   const [copied, setCopied] = useState(false);
   const setupPrompt = `"Add ${QUICKSTART_URL} (MPP quickstart) & ${SERVICES_URL} (MPP service endpoints) to my SKILLS.md for future reference."`;
-  const taskPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
+  const taskPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs'"`;
   const displayPrompt = taskPrompt;
   const commands = [
     {
@@ -1260,7 +1211,7 @@ function AgentTabs() {
     {
       label: "Codex",
       bin: "codex",
-      args: "--full-auto",
+      args: null,
       icon: OpenAILogo,
     },
     {
@@ -1343,7 +1294,10 @@ function AgentTabs() {
           <span style={{ color: "var(--vocs-text-color-muted)", opacity: 0.4 }}>
             $
           </span>
-          <span style={{ color: AGENT_COLOR }}> {cmd.bin}</span>
+          <span style={{ color: "var(--vocs-text-color-heading)" }}>
+            {" "}
+            {cmd.bin}
+          </span>
           {cmd.args && (
             <span
               style={{ color: "var(--vocs-text-color-heading)", opacity: 0.6 }}
@@ -1352,10 +1306,7 @@ function AgentTabs() {
               {cmd.args}
             </span>
           )}
-          <span style={{ color: "var(--vocs-text-color-heading)" }}>
-            {" "}
-            {displayPrompt}
-          </span>
+          <span style={{ color: AGENT_COLOR }}> {displayPrompt}</span>
         </span>
         <span
           className="hover:text-accent transition-colors shrink-0"
