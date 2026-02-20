@@ -163,18 +163,18 @@ function LandingStyles() {
 			}
 
 			@media (max-width: 1023px) {
+				.hero-right .lockup-wide { display: none !important; }
+				.hero-right .lockup-stacked { display: block !important; }
+				.co-designed-by { padding-top: 64px; }
+			}
+
+			@media (max-width: 767px) {
 				.lockup-stacked { max-width: 320px; margin: 0 auto; }
 				.hero-right {
 					align-items: center !important;
 					text-align: center !important;
 				}
-				.hero-right .lockup-wide { display: none !important; }
-				.hero-right .lockup-stacked { display: block !important; }
-				.co-designed-by { padding-top: 64px; }
 				.cli-demo-pane { margin: 0 auto; }
-			}
-
-			@media (max-width: 767px) {
 				[data-v-gutter-top] {
 					background: var(--vocs-background-color-primary) !important;
 					background-color: var(--vocs-background-color-primary) !important;
@@ -300,7 +300,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
           </div>
 
           {/* Right pane — hero content (staggers in after CLI) */}
-          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-center lg:text-left flex flex-col items-center lg:items-start justify-center gap-6">
+          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-center md:text-left flex flex-col items-center md:items-start justify-center gap-6">
             {/* Co-designed by */}
             <div style={anim(shouldAnimate, 800, 800)}>
               <CoDesignedBy shouldAnimate={false} />
@@ -322,7 +322,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 
             {/* Agent prompt tabs */}
             <div
-              className="w-full max-w-xl mx-auto lg:mx-0"
+              className="w-full max-w-xl mx-auto md:mx-0"
               style={anim(shouldAnimate, 1800, 700)}
             >
               <AgentTabs />
@@ -330,7 +330,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 
             {/* CTA buttons */}
             <div
-              className="flex flex-col items-center lg:items-start gap-4"
+              className="flex flex-col items-center md:items-start gap-4"
               style={anim(shouldAnimate, 2100, 700)}
             >
               <CTAButtons />
