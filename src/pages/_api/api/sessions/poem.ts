@@ -54,10 +54,6 @@ const poems = [
   },
 ];
 
-function _delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export default async function handler(request: Request) {
   const result = await mppx.session({
     amount: "0.001",
