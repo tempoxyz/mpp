@@ -179,7 +179,7 @@ export function NotFoundPage() {
         justifyContent: "center",
         height: "calc(100dvh - var(--vocs-spacing-topNav, 64px))",
         overflow: "hidden",
-        fontFamily: "var(--font-header)",
+        fontFamily: "var(--font-sans)",
         userSelect: "none",
         WebkitUserSelect: "none",
       }}

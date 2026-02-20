@@ -434,7 +434,7 @@ function Lockup() {
     >
       <span
         style={{
-          fontFamily: "var(--font-header)",
+          fontFamily: "var(--font-sans)",
           fontSize: lockupSize,
           fontWeight: 550,
           letterSpacing: "-0.055em",
