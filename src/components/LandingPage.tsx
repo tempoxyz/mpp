@@ -154,7 +154,7 @@ function LandingStyles() {
 				}
 			}
 
-			@media (min-width: 1024px) {
+			@media (min-width: 1280px) {
 				.landing-hero {
 					height: calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px));
 					min-height: auto;
@@ -171,6 +171,7 @@ function LandingStyles() {
 				.hero-right .lockup-wide { display: none !important; }
 				.hero-right .lockup-stacked { display: block !important; }
 				.co-designed-by { padding-top: 64px; }
+				.cli-demo-pane { margin: 0 auto; }
 			}
 
 			@media (max-width: 767px) {
@@ -279,10 +280,10 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         }}
       >
         {/* Two-column layout: CLI left, hero right */}
-        <div className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16 items-center lg:items-stretch">
+        <div className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
           {/* Left pane — interactive CLI demo (animates in first) */}
           <div
-            className="flex-[11] w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none"
+            className="cli-demo-pane flex-[11] w-full min-w-0 flex flex-col order-last lg:order-first max-w-[574px] lg:max-w-none"
             style={anim(shouldAnimate, 200, 900)}
           >
             <Cli.Demo
@@ -317,19 +318,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
             </div>
 
             {/* Tagline */}
-            <p
-              className="text-base leading-relaxed max-w-xl font-normal"
-              style={{
-                color: "var(--vocs-text-color-secondary)",
-                ...anim(shouldAnimate, 1400, 700),
-              }}
-            >
-              <span>Supercharge your agent with seamless paid API calls.</span>{" "}
-              <br className="hidden md:block" />
-              <span>
-                No more manually creating accounts, or copy-pasting keys.
-              </span>
-            </p>
+            <Tagline shouldAnimate={shouldAnimate} />
 
             {/* Agent prompt tabs */}
             <div
@@ -355,6 +344,25 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         </div>
       </div>
     </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Tagline — extracted to avoid JSX whitespace indent issues
+// ---------------------------------------------------------------------------
+
+function Tagline({ shouldAnimate }: { shouldAnimate: boolean }) {
+  return (
+    <div
+      className="text-base leading-relaxed max-w-xl font-normal"
+      style={{
+        color: "var(--vocs-text-color-secondary)",
+        ...anim(shouldAnimate, 1400, 700),
+      }}
+    >
+      <div>Supercharge your agent with seamless paid API calls.</div>
+      <div>No more manually creating accounts, or copy-pasting keys.</div>
+    </div>
   );
 }
 
