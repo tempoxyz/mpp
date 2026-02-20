@@ -152,7 +152,12 @@ function LandingStyles() {
 
 			@media (max-width: 1023px) {
 				.lockup-stacked { max-width: 320px; margin: 0 auto; }
-				.hero-right { align-items: center !important; }
+				.hero-right {
+					align-items: center !important;
+					text-align: center !important;
+				}
+				.hero-right .lockup-wide { display: none !important; }
+				.hero-right .lockup-stacked { display: block !important; }
 				.co-designed-by { padding-top: 64px; }
 			}
 
@@ -261,6 +266,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
           maxWidth: 1200,
           marginTop: "auto",
           marginBottom: "auto",
+          paddingTop: 48,
         }}
       >
         {/* Two-column layout: CLI left, hero right */}
@@ -306,12 +312,13 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
               className="text-base leading-relaxed max-w-xl font-normal"
               style={{
                 color: "var(--vocs-text-color-secondary)",
+                textIndent: 0,
                 ...anim(shouldAnimate, 1400, 700),
               }}
             >
-              Supercharge your agent with seamless paid API calls.
+              {"Supercharge your agent with seamless paid API calls."}
               <br className="hidden md:block" />
-              No more manually creating accounts, or copy-pasting keys.
+              {"No more manually creating accounts, or copy-pasting keys."}
             </p>
 
             {/* Agent prompt tabs */}
