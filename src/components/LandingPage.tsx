@@ -266,7 +266,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
           maxWidth: 1200,
           marginTop: "auto",
           marginBottom: "auto",
-          paddingTop: 48,
+          paddingTop: 24,
         }}
       >
         {/* Two-column layout: CLI left, hero right */}
@@ -337,7 +337,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         </div>
 
         {/* Service logos — full width below both columns */}
-        <div className="w-full" style={{ marginTop: 72, paddingBottom: 96 }}>
+        <div className="w-full" style={{ marginTop: 40, paddingBottom: 24 }}>
           <ServiceLogos shouldAnimate={shouldAnimate} />
         </div>
       </div>
