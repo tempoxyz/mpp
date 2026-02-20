@@ -312,17 +312,21 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
               className="text-base leading-relaxed max-w-xl font-normal"
               style={{
                 color: "var(--vocs-text-color-secondary)",
-                textIndent: 0,
                 ...anim(shouldAnimate, 1400, 700),
               }}
             >
-              {"Supercharge your agent with seamless paid API calls."}
+              <span>Supercharge your agent with seamless paid API calls.</span>{" "}
               <br className="hidden md:block" />
-              {"No more manually creating accounts, or copy-pasting keys."}
+              <span>
+                No more manually creating accounts, or copy-pasting keys.
+              </span>
             </p>
 
             {/* Agent prompt tabs */}
-            <div className="w-full max-w-xl mx-auto lg:mx-0" style={anim(shouldAnimate, 1800, 700)}>
+            <div
+              className="w-full max-w-xl mx-auto lg:mx-0"
+              style={anim(shouldAnimate, 1800, 700)}
+            >
               <AgentTabs />
             </div>
 
