@@ -11,7 +11,7 @@ export const mppx = Mppx.create({
     tempo({
       currency: import.meta.env.VITE_DEFAULT_CURRENCY!,
       recipient: import.meta.env.VITE_DEFAULT_RECIPIENT!,
-      stream: true,
+      sse: true,
       ...(import.meta.env.VITE_FEE_PAYER_PRIVATE_KEY
         ? {
             feePayer: privateKeyToAccount(
