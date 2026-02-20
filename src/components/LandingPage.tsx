@@ -202,7 +202,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
           </div>
 
           {/* Right pane — hero content (staggers in after CLI) */}
-          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-left flex flex-col items-start justify-between gap-4">
+          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-left flex flex-col items-start justify-between gap-5">
             {/* Lockup */}
             <div
               className=""
@@ -222,25 +222,23 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
             {/* Tagline */}
             <Tagline shouldAnimate={shouldAnimate} />
 
-            {/* Agent prompt tabs */}
-            <div
-              className="w-full max-w-xl"
-              style={anim(shouldAnimate, 1800, 700)}
-            >
-              <AgentTabs />
-            </div>
-
-            {/* CTA buttons — mt-auto pushes to bottom edge of CLI demo */}
-            <div
-              className="flex flex-col items-start gap-4 lg:mt-auto"
-              style={anim(shouldAnimate, 2100, 700)}
-            >
-              <CTAButtons />
+            {/* Agent prompt tabs + CTA — centered in remaining space */}
+            <div className="w-full flex flex-col items-start gap-5 lg:my-auto">
+              <div
+                className="w-full max-w-xl"
+                style={anim(shouldAnimate, 1800, 700)}
+              >
+                <AgentTabs />
+              </div>
+              <div
+                className="flex flex-col items-start gap-3"
+                style={anim(shouldAnimate, 2100, 700)}
+              >
+                <CTAButtons />
+              </div>
             </div>
           </div>
         </div>
-
-
       </div>
     </section>
   );
@@ -620,7 +618,7 @@ function AgentTabs() {
               key={a.label}
               type="button"
               onClick={() => setActive(i)}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[13px] font-medium transition-colors cursor-pointer"
               style={{
                 color: i === active ? ACCENT : "var(--vocs-text-color-muted)",
                 background:
@@ -633,7 +631,7 @@ function AgentTabs() {
                     : "none",
               }}
             >
-              <Icon className="w-4.5 h-4.5" />
+              <Icon className="w-3.5 h-3.5" />
               {a.label}
             </button>
           );
@@ -642,13 +640,13 @@ function AgentTabs() {
       <button
         type="button"
         onClick={handleCopy}
-        className="px-4 py-3 flex items-center justify-between gap-3 w-full text-left cursor-pointer transition-colors"
+        className="px-3 py-2 flex items-center justify-between gap-3 w-full text-left cursor-pointer transition-colors"
         style={{ color: "var(--vocs-background-color-surface)" }}
       >
         <span
           className="font-mono whitespace-pre-wrap break-words text-left"
           style={{
-            fontSize: 15,
+            fontSize: 13,
             margin: 0,
             padding: 0,
             userSelect: "text",
