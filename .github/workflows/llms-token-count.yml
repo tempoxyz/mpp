@@ -1,0 +1,132 @@
+name: LLMs Token Count
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # Every Monday at 9am UTC
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: "Token threshold for creating an issue"
+        default: "100000"
+
+env:
+  TOKEN_THRESHOLD: ${{ inputs.threshold || '100000' }}
+
+jobs:
+  count-tokens:
+    name: Count llms-full.txt tokens
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      # TODO: Once the site is public, replace the build steps with:
+      #   curl -fsSL https://mpp.sh/llms-full.txt -o dist/public/llms-full.txt
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm add tiktoken
+
+      - name: Count tokens
+        id: count
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            const { get_encoding } = require('tiktoken');
+            const enc = get_encoding('o200k_base');
+            const count = enc.encode(fs.readFileSync('dist/public/llms-full.txt', 'utf-8')).length;
+            enc.free();
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'token_count=' + count + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'over_threshold=' + (count > Number(process.env.TOKEN_THRESHOLD)) + '\n');
+            console.log('Tokens: ' + count.toLocaleString());
+          "
+
+      - name: Job summary
+        run: |
+          COUNT=${{ steps.count.outputs.token_count }}
+          THRESHOLD=$TOKEN_THRESHOLD
+          STATUS=$( [ "$COUNT" -gt "$THRESHOLD" ] && echo "⚠️ Over" || echo "✅ Under" )
+          echo "### 📊 llms-full.txt token count" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Tokens** | $(printf "%'d" $COUNT) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Threshold** | $(printf "%'d" $THRESHOLD) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Status** | $STATUS |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create or update issue
+        if: steps.count.outputs.over_threshold == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tokenCount = Number('${{ steps.count.outputs.token_count }}');
+            const threshold = Number('${{ env.TOKEN_THRESHOLD }}');
+            const title = `llms-full.txt exceeds ${threshold.toLocaleString()} token threshold`;
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'llms-token-count',
+            });
+
+            const existing = issues.find(i => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: `Updated count: **${tokenCount.toLocaleString()}** tokens (threshold: ${threshold.toLocaleString()})`,
+              });
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body: [
+                `\`llms-full.txt\` has **${tokenCount.toLocaleString()}** tokens (threshold: ${threshold.toLocaleString()}).`,
+                '',
+                'Large context files degrade LLM performance and increase costs. Consider:',
+                '- Removing redundant or templated content',
+                '- Splitting into focused `llms.txt` sections',
+                '- Trimming verbose code examples',
+              ].join('\n'),
+              labels: ['llms-token-count'],
+            });
+
+      - name: Close issue if back under threshold
+        if: steps.count.outputs.over_threshold == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tokenCount = Number('${{ steps.count.outputs.token_count }}');
+            const threshold = Number('${{ env.TOKEN_THRESHOLD }}');
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'llms-token-count',
+            });
+
+            for (const issue of issues) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `Resolved: **${tokenCount.toLocaleString()}** tokens (under ${threshold.toLocaleString()} threshold). Closing.`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+              });
+            }
