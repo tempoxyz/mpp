@@ -40,8 +40,8 @@ jobs:
         run: |
           COUNT=${{ steps.count.outputs.token_count }}
           THRESHOLD=$TOKEN_THRESHOLD
-          STATUS=$( [ "$COUNT" -gt "$THRESHOLD" ] && echo "⚠️ Over" || echo "✅ Under" )
-          echo "### 📊 llms-full.txt token count" >> "$GITHUB_STEP_SUMMARY"
+          STATUS=$( [ "$COUNT" -gt "$THRESHOLD" ] && echo "Over" || echo "Under" )
+          echo "### llms-full.txt token count" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
