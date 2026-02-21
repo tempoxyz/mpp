@@ -34,17 +34,7 @@ jobs:
 
       - name: Count tokens
         id: count
-        run: |
-          node -e "
-            const fs = require('node:fs');
-            const { get_encoding } = require('tiktoken');
-            const enc = get_encoding('o200k_base');
-            const count = enc.encode(fs.readFileSync('dist/public/llms-full.txt', 'utf-8')).length;
-            enc.free();
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'token_count=' + count + '\n');
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'over_threshold=' + (count > Number(process.env.TOKEN_THRESHOLD)) + '\n');
-            console.log('Tokens: ' + count.toLocaleString());
-          "
+        run: node scripts/count-tokens.ts
 
       - name: Job summary
         run: |
