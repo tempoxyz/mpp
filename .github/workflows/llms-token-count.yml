@@ -30,7 +30,6 @@ jobs:
       #   curl -fsSL https://mpp.sh/llms-full.txt -o dist/public/llms-full.txt
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm add tiktoken
 
       - name: Count tokens
         id: count
