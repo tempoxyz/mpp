@@ -687,8 +687,11 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] img {
 }
 
 /* Tempo card — larger icon */
-a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"] [class*="vocs:size-8"] svg,
-a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"] [class*="vocs:size-8"] img {
+a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"] [class*="vocs:size-8"]
+  svg,
+a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
+  [class*="vocs:size-8"]
+  img {
   width: 20px !important;
   height: 20px !important;
 }
