@@ -260,8 +260,9 @@ function Tagline({ shouldAnimate }: { shouldAnimate: boolean }) {
       }}
     >
       <div>
-        The open protocol for internet-native payments. Charge for API calls,
-        tool calls, or content. Agents, apps, and humans securely pay per call.
+        The open protocol for internet-native payments. Charge for API requests,
+        tool calls, or content. Agents, apps, and humans securely pay per
+        request.
       </div>
     </div>
   );
@@ -369,11 +370,12 @@ function Lockup() {
         style={{
           fontFamily: "var(--font-sans)",
           fontSize: lockupSize,
-          fontWeight: 550,
-          letterSpacing: "-0.055em",
+          fontWeight: 700,
+          letterSpacing: "-0.025em",
+          textTransform: "uppercase",
         }}
       >
-        MACHINE PAYMENTS PROTOCOL
+        Machine Payments Protocol
       </span>
     </div>
   );
@@ -503,53 +505,30 @@ function StripeLogo({
 // ---------------------------------------------------------------------------
 
 function CTAButtons() {
-  const [hovered, setHovered] = useState<"primary" | "secondary" | null>(null);
   return (
-    <div className="flex flex-col items-start gap-2">
-      <div className="flex flex-wrap gap-3">
-        <Link
-          to="/quickstart"
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150"
-          style={{
-            backgroundColor: ACCENT,
-            color: "var(--vocs-background-color-primary)",
-            opacity: hovered === "primary" ? 0.85 : 1,
-          }}
-          onMouseEnter={() => setHovered("primary")}
-          onMouseLeave={() => setHovered(null)}
-        >
-          Get started
-        </Link>
-        <Link
-          to="/protocol"
-          className="cta-secondary inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md no-underline transition-all duration-150"
-          style={{
-            borderColor: "var(--vocs-border-color-primary)",
-            backgroundColor:
-              "light-dark(var(--vocs-background-color-surface), oklch(0.28 0 0))",
-            color:
-              hovered === "secondary"
-                ? ACCENT
-                : "var(--vocs-text-color-heading)",
-          }}
-          onMouseEnter={() => setHovered("secondary")}
-          onMouseLeave={() => setHovered(null)}
-        >
-          Learn more
-        </Link>
-      </div>
-      <div
-        className="text-sm transition-opacity duration-200"
+    <div className="flex flex-wrap gap-3 mt-4">
+      <Link
+        to="/quickstart"
+        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150 hover:opacity-85"
         style={{
-          color: "var(--vocs-text-color-muted)",
-          opacity: hovered ? 1 : 0,
-          height: 20,
-          marginTop: 8,
+          backgroundColor: ACCENT,
+          color: "var(--vocs-background-color-primary)",
         }}
       >
-        {hovered === "primary" && "Let your agent use paid APIs instantly"}
-        {hovered === "secondary" && "How MPP works under the hood"}
-      </div>
+        Get started
+      </Link>
+      <Link
+        to="/protocol"
+        className="cta-secondary inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md no-underline transition-all duration-150 hover:text-[var(--accent)]"
+        style={{
+          borderColor: "var(--vocs-border-color-primary)",
+          backgroundColor:
+            "light-dark(var(--vocs-background-color-surface), oklch(0.28 0 0))",
+          color: "var(--vocs-text-color-heading)",
+        }}
+      >
+        Learn more
+      </Link>
     </div>
   );
 }
