@@ -85,6 +85,27 @@ type Mppx = {
 
 ## Parameters
 
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Custom fetch function to wrap.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const customFetch = globalThis.fetch
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  fetch: customFetch, // [!code focus]
+  methods: [tempo({ account })],
+})
+```
+
 ### methods
 
 - **Type:** `readonly Method.Client[]`
@@ -104,6 +125,27 @@ const mppx = Mppx.create({
 })
 ```
 
+### onChallenge (optional)
+
+- **Type:** `(challenge: Challenge, helpers: { createCredential: (context?) => Promise<string> }) => Promise<string | undefined>`
+
+Called when a `402` challenge is received, before credential creation. Return a credential string to use it directly, or `undefined` to fall back to the default credential flow.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  onChallenge: async (challenge, { createCredential }) => { // [!code focus:start]
+    console.log('Challenge received:', challenge.method)
+    return createCredential()
+  }, // [!code focus:end]
+})
+```
+
 ### polyfill (optional)
 
 - **Type:** `boolean`
@@ -119,27 +161,6 @@ const account = privateKeyToAccount('0x...')
 
 const mppx = Mppx.create({
   polyfill: false, // [!code focus]
-  methods: [tempo({ account })],
-})
-```
-
-### fetch (optional)
-
-- **Type:** `typeof globalThis.fetch`
-- **Default:** `globalThis.fetch`
-
-Custom fetch function to wrap.
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const customFetch = globalThis.fetch
-
-const account = privateKeyToAccount('0x...')
-
-const mppx = Mppx.create({
-  fetch: customFetch, // [!code focus]
   methods: [tempo({ account })],
 })
 ```

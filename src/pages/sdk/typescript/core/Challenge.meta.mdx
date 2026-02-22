@@ -1,0 +1,29 @@
+# `Challenge.meta`
+
+Extracts server-defined correlation data from a Challenge.
+
+## Usage
+
+```ts twoslash
+import { Challenge } from 'mppx'
+
+declare const challenge: Challenge.Challenge
+// ---cut---
+const data = Challenge.meta(challenge)
+```
+
+## Return type
+
+```ts
+type ReturnType = Record<string, string> | undefined
+```
+
+The `opaque` field from the Challenge, or `undefined` if not set.
+
+## Parameters
+
+### challenge
+
+- **Type:** `Challenge`
+
+The Challenge to extract correlation data from.

@@ -45,14 +45,28 @@ A tuple of `[charge, session]` methods. `Mppx.create` accepts tuples in the `met
 
 ## Parameters
 
+Accepts the union of [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) and [`tempo.session`](/sdk/typescript/client/Method.tempo.session) parameters. The most common are listed below.
+
 ### account (optional)
 
 - **Type:** `Account`
 
 Account to sign transactions and vouchers with.
 
+### deposit (optional)
+
+- **Type:** `string`
+
+Initial deposit amount in human-readable units (for example `"10"` for 10 tokens). Enables automatic session channel management.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
+
+### maxDeposit (optional)
+
+- **Type:** `string`
+
+Maximum deposit in human-readable units. Caps the server's `suggestedDeposit`. Enables auto-management like `deposit`.

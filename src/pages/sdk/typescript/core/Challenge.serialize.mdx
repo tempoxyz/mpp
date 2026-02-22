@@ -16,7 +16,7 @@ const challenge = Challenge.from({
 })
 
 const header = Challenge.serialize(challenge)
-// => 'Payment id="abc123", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOi..."'
+// @log: 'Payment id="abc123", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOi..."'
 ```
 
 ## Return type
@@ -26,6 +26,8 @@ type ReturnType = string
 ```
 
 A string suitable for the WWW-Authenticate header value.
+
+The serialized string includes optional fields when present: `description`, `digest`, `expires`, and `opaque` (server-defined correlation data set via `meta` in `Challenge.from`).
 
 ## Parameters
 

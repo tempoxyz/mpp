@@ -37,3 +37,21 @@ app.get(
   (req, res) => res.json({ data: 'paid content' }),
 )
 ```
+
+### Session payments
+
+Use `mppx.session()` to gate routes behind session-based payment intents.
+
+```ts [server.ts]
+import express from 'express'
+import { Mppx, tempo } from 'mppx/express'
+
+const app = express()
+const mppx = Mppx.create({ methods: [tempo()] })
+
+app.get(
+  '/content',
+  mppx.session({ amount: '1', unitType: 'token' }),
+  (req, res) => res.json({ data: 'session content' }),
+)
+```

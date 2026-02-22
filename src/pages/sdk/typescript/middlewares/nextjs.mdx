@@ -33,3 +33,17 @@ export const GET =
   mppx.charge({ amount: '1' }) // [!code hl]
   (() => Response.json({ data: 'paid content' }))
 ```
+
+### Session payments
+
+Use `mppx.session()` to gate routes behind session-based payment intents.
+
+```ts [app/api/content/route.ts]
+import { Mppx, tempo } from 'mppx/nextjs'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+export const GET =
+  mppx.session({ amount: '1', unitType: 'token' })
+  (() => Response.json({ data: 'session content' }))
+```

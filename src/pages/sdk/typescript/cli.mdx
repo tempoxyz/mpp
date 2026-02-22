@@ -1,10 +1,10 @@
 # CLI Reference [Built-in command-line tool for paid HTTP requests]
 
-The `mppx` package includes a basic CLI for making HTTP requests with automatic payment handling.
+The `mppx` package includes a CLI for making HTTP requests with automatic payment handling.
 
 ## Usage
 
-The `mppx` CLI is bundled with the package so no need to install anything separately.
+The `mppx` CLI is bundled with the package.
 
 :::code-group
 ```bash [npm]
@@ -18,9 +18,9 @@ $ bun mppx example
 ```
 :::
 
-### Global Install
+### Global install
 
-If you want to use `mppx` CLI outside of your project, you can install globally.
+To use the `mppx` CLI outside of a project, install globally.
 
 :::code-group
 ```bash [npm]
@@ -37,7 +37,7 @@ $ mppx example.com
 ```
 :::
 
-## Commands & Options
+## Commands and options
 
 :::terminal
 ```bash
@@ -55,3 +55,30 @@ $ mppx --help
 | `MPPX_ACCOUNT` | Default account name |
 | `MPPX_PRIVATE_KEY` | Use a private key directly instead of the keychain |
 | `MPPX_RPC_URL` | Default RPC endpoint |
+| `MPPX_STRIPE_SECRET_KEY` | Stripe secret key for Stripe payment methods (test mode only: `sk_test_...`) |
+| `MPPX_STRIPE_SPT_URL` | Custom Stripe shared payment token endpoint (advanced) |
+
+## Method options
+
+Pass method-specific key-value pairs with `-M` (repeatable):
+
+```bash [terminal]
+$ mppx example.com/content -M channel=0x123 -M deposit=1000000
+```
+
+For Tempo session payments, use `channel` and `deposit`. For Stripe, use `paymentMethod`.
+
+## Stripe payments
+
+The CLI supports Stripe payment methods. Set your Stripe test-mode secret key and make requests to Stripe-enabled endpoints.
+
+```bash [terminal]
+$ export MPPX_STRIPE_SECRET_KEY=sk_test_...
+$ mppx https://example.com/content
+```
+
+Pass method-specific options with `-M`:
+
+```bash [terminal]
+$ mppx https://example.com/content -M paymentMethod=pm_card_visa
+```

@@ -23,7 +23,7 @@
     "@tanstack/react-store": "^0.8.0",
     "class-variance-authority": "^0.7.1",
     "mermaid": "^11.12.2",
-    "mppx": "~0.3.4",
+    "mppx": "~0.3.5",
     "react": "^19",
     "react-dom": "^19",
     "tailwindcss": "^4.1.18",

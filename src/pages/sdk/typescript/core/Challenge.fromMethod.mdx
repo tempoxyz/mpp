@@ -1,0 +1,92 @@
+# `Challenge.fromMethod`
+
+Creates a validated Challenge from a method definition.
+
+## Usage
+
+```ts twoslash
+import { Challenge } from 'mppx'
+import { Methods } from 'mppx/tempo'
+
+const challenge = Challenge.fromMethod(
+  Methods.charge,
+  {
+    realm: 'mpp.dev',
+    request: {
+      amount: '1',
+      currency: '0x20c0000000000000000000000000000000000001',
+      decimals: 6,
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
+    },
+    secretKey: 'my-secret',
+  },
+)
+```
+
+## Return type
+
+```ts
+type ReturnType = Challenge<RequestOutput>
+```
+
+A Challenge typed to the method's request schema output.
+
+## Parameters
+
+### method
+
+- **Type:** `Method`
+
+The method definition to validate against (for example, `Methods.charge`).
+
+### parameters
+
+Challenge parameters. Must include either `id` or `secretKey`.
+
+#### description (optional)
+
+- **Type:** `string`
+
+Human-readable description of the payment.
+
+#### digest (optional)
+
+- **Type:** `string`
+
+Digest of the request body.
+
+#### expires (optional)
+
+- **Type:** `string`
+
+Expiration timestamp (ISO 8601).
+
+#### id (when not using secretKey)
+
+- **Type:** `string`
+
+Explicit challenge ID.
+
+#### meta (optional)
+
+- **Type:** `Record<string, string>`
+
+Server-defined correlation data. Serialized as `opaque` on the Challenge.
+
+#### realm
+
+- **Type:** `string`
+
+Server realm (for example, hostname).
+
+#### request
+
+- **Type:** `z.input<method['schema']['request']>`
+
+Method-specific request data, validated against the method's schema.
+
+#### secretKey (when not using id)
+
+- **Type:** `string`
+
+Secret key for HMAC-bound challenge ID.

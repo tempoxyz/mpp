@@ -89,10 +89,10 @@ Function that returns a viem client for the given chain ID.
 
 ### minVoucherDelta (optional)
 
-- **Type:** `bigint`
-- **Default:** `0n`
+- **Type:** `string`
+- **Default:** `"0"`
 
-Minimum voucher delta to accept. Rejects vouchers where the increment over the previous highest voucher is below this threshold.
+Minimum voucher delta to accept as a numeric string. Rejects vouchers where the increment over the previous highest voucher is below this threshold.
 
 ### recipient (optional)
 
@@ -100,16 +100,23 @@ Minimum voucher delta to accept. Rejects vouchers where the increment over the p
 
 Default recipient address for payments.
 
-### store
+### sse (optional)
+
+- **Type:** `boolean | { poll?: boolean; pollingInterval?: number }`
+
+Enable SSE streaming. Pass `true` to enable with defaults, or an options object to configure SSE (for example, `{ poll: true }` for Cloudflare Workers compatibility).
+
+### store (optional)
 
 - **Type:** `Store`
+- **Default:** `Store.memory()`
 
 Storage backend for persisting channel and session state. Implements atomic read-modify-write operations for concurrency safety.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
 
-const method = tempo({
+const method = tempo.session({
   store: Store.memory(), // [!code focus]
 })
 ```

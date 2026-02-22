@@ -103,17 +103,17 @@ External identifier for the payment.
 
 Account for sponsoring transaction fees.
 
-### memo (optional)
-
-- **Type:** `string`
-
-On-chain memo for the transaction.
-
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID. Overrides the default RPC configuration.
+
+### memo (optional)
+
+- **Type:** `string`
+
+On-chain memo for the transaction.
 
 ### testnet (optional)
 
@@ -123,13 +123,13 @@ Testnet mode. Defaults the chain ID to `42431` (Tempo testnet).
 
 ## Request parameters
 
-### request.amount
+### amount
 
 - **Type:** `string`
 
 Payment amount in human-readable units. For example, `'0.1'` represents $0.10 USD.
 
-### request.currency
+### currency
 
 - **Type:** `string`
 
@@ -141,14 +141,20 @@ TIP-20 token address for the payment currency.
 
 Human-readable description of the payment request.
 
-### request.expires (optional)
+### expires (optional)
 
 - **Type:** `string`
 - **Default:** 5 minutes from now
 
 ISO 8601 timestamp for when the payment challenge expires.
 
-### request.recipient
+### meta (optional)
+
+- **Type:** `Record<string, string>`
+
+Server-defined correlation data, serialized as `opaque` on the Challenge.
+
+### recipient
 
 - **Type:** `string`
 
