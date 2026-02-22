@@ -66,6 +66,8 @@ export function LandingPage() {
         style={{
           color: ACCENT,
           fontFamily: "var(--font-copy)",
+          marginTop: "calc(var(--vocs-spacing-topNav) / 2 * -1) !important",
+          minHeight: "100vh",
           userSelect: "none",
           WebkitUserSelect: "none",
         }}
@@ -180,7 +182,6 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
           maxWidth: 1200,
           marginTop: "auto",
           marginBottom: "auto",
-          paddingTop: 24,
         }}
       >
         {/* Two-column layout: CLI left, hero right */}
