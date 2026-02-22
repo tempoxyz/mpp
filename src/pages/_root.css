@@ -376,6 +376,20 @@ pre[data-v] {
   padding-block: calc(var(--vocs-spacing) * 3) !important;
 }
 
+/* Payment flow step list — matches markdown list styling in content */
+.payment-flow-steps {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin: 1rem 0 1.5rem;
+}
+.payment-flow-steps li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+}
+.payment-flow-steps li:last-child {
+  margin-bottom: 0;
+}
+
 /* Beautiful mermaid diagram container */
 .mermaid-diagram {
   background: light-dark(#fafafa, rgba(255, 255, 255, 0.03));
@@ -670,6 +684,13 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] [class*="vocs:size-8"] svg {
 }
 a[class*="vocs:rounded-md"][class*="vocs:border"] img {
   opacity: 0.7;
+}
+
+/* Tempo card — larger icon */
+a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"] [class*="vocs:size-8"] svg,
+a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"] [class*="vocs:size-8"] img {
+  width: 20px !important;
+  height: 20px !important;
 }
 
 /* Let clicks pass through hero to background animation, but keep interactive elements clickable */

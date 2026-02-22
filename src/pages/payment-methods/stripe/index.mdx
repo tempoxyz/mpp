@@ -8,10 +8,10 @@ Both the client and server need a Stripe account. The client creates an SPT usin
 
 ## How it works
 
-1. The server responds with `402` and a Challenge containing the amount, currency, and Stripe method details (Business Network profile, allowed payment method types).
-2. The client creates an SPT with Stripe and sends a Credential containing the SPT.
-3. The server creates a Stripe `PaymentIntent` using the SPT.
-4. The server returns the resource with a Receipt referencing the `PaymentIntent`.
+1. **Server:** responds with `402` and a Challenge containing the amount, currency, and Stripe method details (Business Network profile, allowed payment method types).
+2. **Client:** creates an SPT with Stripe and sends a Credential containing the SPT.
+3. **Server:** creates a Stripe `PaymentIntent` using the SPT.
+4. **Server:** returns the resource with a Receipt referencing the `PaymentIntent`.
 
 ## Intents
 
@@ -19,7 +19,7 @@ Both the client and server need a Stripe account. The client creates an SPT usin
   <Card
     icon="lucide:credit-card"
     title="Charge"
-    description="One-time card or bank payment using Stripe Payment Tokens"
+    description="One-time payment using Shared Payment Tokens (SPTs)"
     to="/payment-methods/stripe/charge"
   />
 </Cards>

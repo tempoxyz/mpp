@@ -2,7 +2,7 @@ import { Badge, Card, Cards } from 'vocs'
 
 # Tempo [Stablecoin payments on the Tempo blockchain]
 
-The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain. It supports two intents—**charge** for one-time payments and **session** for pay-as-you-go payment channels—covering everything from simple API access to high-frequency metered billing.
+The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain. Tempo supports multiple intents—**charge** for one-time payments and **session** for pay-as-you-go payment channels—covering everything from simple API access to high-frequency metered billing.
 
 ## Payments on Tempo
 
@@ -17,30 +17,30 @@ Tempo is purpose-built for the payment patterns MPP enables:
 
 ## Choosing a payment method 
 
-| | **Session** <Badge variant="info">Recommended</Badge> | **Charge** |
+| | **Charge** | **Session** <Badge variant="info">Recommended</Badge> |
 |---|---|---|
-| **Pattern** | Continuous pay-as-you-go | One-time payment per request |
-| **Latency overhead** | Near-zero | ~500ms (on-chain confirmation) |
-| **Throughput** | Hundreds of vouchers per second per channel | One transaction per request |
-| **Best for** | LLM APIs, metered services, usage-based billing | Single API calls, content access, one-off purchases |
-| **On-chain cost** | Amortized across many requests (0.001 USD total) | Per request (0.001 USD per request) |
-| **Settlement** | Off-chain vouchers, periodic on-chain settlement | Immediate on-chain transaction |
+| **Pattern** | One-time payment per request | Continuous pay-as-you-go |
+| **Latency overhead** | ~500ms (on-chain confirmation) | Near-zero |
+| **Throughput** | One transaction per request | Hundreds of vouchers per second per channel |
+| **Best for** | Single API calls, content access, one-off purchases | LLM APIs, metered services, usage-based billing |
+| **On-chain cost** | Per request (0.001 USD per request) | Amortized across many requests (0.001 USD total) |
+| **Settlement** | Immediate on-chain transaction | Off-chain vouchers, periodic on-chain settlement |
 
 ## Intents
 
 <Cards>
+  <Card
+    icon="lucide:credit-card"
+    title="Charge"
+    description="Immediate one-time payments settled on-chain"
+    to="/payment-methods/tempo/charge"
+  />
   <Card
     topRight={<Badge variant="info">Recommended</Badge>}
     icon="lucide:waves"
     title="Session"
     description="Pay-as-you-go payment sessions over payment channels"
     to="/payment-methods/tempo/session"
-  />
-  <Card
-    icon="lucide:credit-card"
-    title="Charge"
-    description="Immediate one-time payments settled on-chain"
-    to="/payment-methods/tempo/charge"
   />
 </Cards>
 

@@ -1,6 +1,6 @@
 # Custom [Build your own payment method]
 
-The mppx SDK supports extensibility. You can implement custom payment methods to integrate any payment rails—Lightning Network, other blockchains, card processors, or proprietary systems.
+The `mppx` SDK supports dynamic extensibility for new payment methods. You can implement custom payment methods to integrate any payment rails such as other blockchains, card processors, or proprietary systems.
 
 ## Overview
 
@@ -235,5 +235,5 @@ const mppx = Mppx.create({
 ## SDK references
 
 - [`Method.from`](/sdk/typescript/Method.from)—Define a payment method with schemas
-- `Method.toClient`—Extend a method with client-side Credential creation logic
-- `Method.toServer`—Extend a method with server-side verification logic
+- [`Method.toClient`](/sdk/typescript/core/Method.toClient)—Extend a method with client-side Credential creation logic
+- [`Method.toServer`](/sdk/typescript/core/Method.toServer)—Extend a method with server-side verification logic

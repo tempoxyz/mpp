@@ -246,7 +246,7 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 7. **Include type information** - Always show the Type for each parameter
 8. **Bash terminal blocks** - Use ` ```bash [test.sh] ` with `$` prefixes for shell commands
 9. **TypeScript twoslash** - Always use ` ```ts twoslash ` for TypeScript code blocks, never bare ` ```ts `
-10. **Spec link Cards** - When linking to specs, use title `"Protocol spec"` and description `"See the normative definition"`
+10. **Spec link Cards** - Use the shared `<SpecCard to="..." />` component. Defaults to title `"IETF Specs"` and description `"Read the full specification"`. Override with `title` and `description` props when linking to a specific draft.
 11. **"IETF Specs"** - Use "IETF Specs" when referring to the specifications collectively, not "Specifications"
 
 ## Vocs Framework Reference

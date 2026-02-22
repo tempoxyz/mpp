@@ -1,28 +1,15 @@
 import { Card, Cards } from 'vocs'
+import { QuickstartPrompts } from '../../components/QuickstartPrompt'
 
 # Quickstart [Get started with MPP in minutes]
 
-MPP enables machine-to-machine payments over HTTP using the `402 Payment Required` status code. Servers issue payment Challenges, and clients respond with Credentials. [Learn more](/overview).
+MPP lets APIs charge for access. Servers request payment when you hit a paid endpoint; clients pay; servers verify and return the resource. [Learn more](/protocol).
 
 ## Start prompting
 
-Paste one of these into your AI coding agent to one shot an MPP app or service:
+Paste one of these into your AI coding agent to build your first MPP app or service:
 
-:::code-group
-
-```txt [Client]
-Use https://mpp.sh/quickstart/client.md as reference.
-Add mppx to my app as a client. Polyfill the global fetch to automatically 
-handle 402 Payment Required responses using the Tempo payment method.
-```
-
-```txt [Server]
-Use https://mpp.sh/quickstart/server.md as reference.
-Add mppx to my server with a /api/test route that charges $0.01 per 
-request using the Tempo payment method with PathUSD.
-```
-
-:::
+<QuickstartPrompts />
 
 ## Start building
 
@@ -38,13 +25,13 @@ Pick a starting point based on your role:
   <Card
     icon="lucide:server"
     title="Server"
-    description="Charge for resources and verify payment credentials"
+    description="Charge for resource access"
     to="/quickstart/server"
   />
   <Card
     icon="lucide:terminal"
     title="presto CLI"
-    description="wget for payments"
+    description="Command-line interface for mpp"
     to="/quickstart/presto"
   />
 </Cards>

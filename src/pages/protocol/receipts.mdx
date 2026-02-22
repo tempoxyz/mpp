@@ -3,7 +3,7 @@
 A **Receipt** is the server's acknowledgment of successful payment. Return receipts in the `Payment-Receipt` header on successful responses.
 
 :::info
-The `Payment-Receipt` header is optional. Include it for auditability, but clients don't need it for correct operation.
+The `Payment-Receipt` header is optional. Servers should include it for auditability, but clients should not need it for correct operation.
 :::
 
 ## Header
@@ -62,13 +62,9 @@ Receipts enable:
 
 ## Learn more
 
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { SpecCard } from '../../components/SpecCard'
 
 <Cards>
-  <Card
-    description="See the normative definition"
-    icon="lucide:file-text"
-    title="Protocol spec"
-    to="https://tempoxyz.github.io/mpp-specs/"
-  />
+  <SpecCard to="https://tempoxyz.github.io/mpp-specs/" />
 </Cards>

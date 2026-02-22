@@ -20,7 +20,6 @@ type Page =
 | { path: '/sdk/typescript/Method.from'; render: 'static' }
 | { path: '/sdk/typescript/cli'; render: 'static' }
 | { path: '/sdk/typescript'; render: 'static' }
-| { path: '/sdk/typescript/installation'; render: 'static' }
 | { path: '/sdk/typescript/server/Method.tempo.charge'; render: 'static' }
 | { path: '/sdk/typescript/server/Method.tempo.session'; render: 'static' }
 | { path: '/sdk/typescript/server/Mppx.create'; render: 'static' }

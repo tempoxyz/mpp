@@ -4,7 +4,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 # Session [Low-cost high-throughput payments]
 
-The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Clients deposit funds into an on-chain escrow and sign off-chain vouchers as they consume resources. The server verifies vouchers with pure CPU-bound signature checks—no I/O, no on-chain calls, no latency—and settles periodically in batches.
+The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Clients deposit funds into an on-chain escrow and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls -- and settles periodically in batches.
 
 Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
@@ -12,9 +12,9 @@ Payment sessions reduce payment verification to near constant time, making it po
 
 Traditional payment rails target human purchase flows: a buyer decides, pays, and receives goods. Usage-based billing—the model that powers cloud infrastructure, LLM APIs, and metered services—requires something fundamentally different. It needs payment verification that can keep pace with the service itself.
 
-Consider an LLM API: a single inference request can generate hundreds of tokens over several seconds. Each token has a known cost. The total cost isn't known when the request begins. Card-based billing handles this by accumulating usage and charging after the fact, introducing credit risk, reconciliation complexity, and billing disputes. Prepaid credit systems require the client to guess consumption upfront and lose unused funds.
+Consider an LLM API: a single inference request can generate hundreds of tokens over several seconds. Each token has a known cost, but the total cost isn't known when the request begins. Standard billing models handle this by accumulating usage and charging after the fact, introducing credit risk, reconciliation complexity, and billing disputes. Prepaid credit systems require the client to guess consumption upfront and lose unused funds.
 
-MPP Sessions on Tempo solve this by making payment a continuous, inline part of the HTTP request. The client signs a cumulative voucher for each increment of service consumed, and the server verifies it in microseconds. No network round-trips. No database writes. No settlement latency in the hot path. The server delays on-chain settlement to whenever it chooses—batching hundreds or thousands of vouchers into a single on-chain transaction.
+Sessions on Tempo solve this by making payment a continuous, inline part of the HTTP request. The client signs a cumulative voucher for each increment of service consumed, and the server verifies it in microseconds. The server delays on-chain settlement to whenever it chooses, batching hundreds or thousands of vouchers into a single on-chain transaction. This reduces both the latency and the cost of payment verification to near zero.
 
 ## How it works
 
@@ -31,7 +31,7 @@ MPP Sessions on Tempo solve this by making payment a continuous, inline part of 
     Server-->>Client: 200 OK (session established)
     loop Per request
         Client->>Server: (3) Request + voucher
-        Note over Server: ecrecover only
+        Note over Server: recover signature (ecrecover) 
         Server-->>Client: 200 OK + Receipt
     end
     Note over Server: (4) Periodic settlement
@@ -43,36 +43,40 @@ MPP Sessions on Tempo solve this by making payment a continuous, inline part of 
 
 A payment session has four phases:
 
-### 1. Open
+::::steps
+
+### Open
 
 The client deposits funds into an on-chain escrow contract, creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and holds the deposited TIP-20 tokens.
 
-### 2. Session
+### Session
 
 The client signs EIP-712 vouchers with increasing cumulative amounts as service is consumed. Each voucher authorizes "I have now consumed up to X total." The server verifies the signature, checks that the cumulative amount is higher than the previous voucher, and grants access based on the delta.
 
 Voucher verification is CPU-bound: a single `ecrecover` call against the EIP-712 typed data. No RPC calls. No database lookups in the critical path. This is what enables per-token LLM billing without adding network latency.
 
-### 3. Top up
+### Top up
 
 If the channel runs low on funds, the client deposits additional tokens without closing the channel. The session continues uninterrupted.
 
-### 4. Close
+### Close
 
 Either party can close the channel. The server calls `close()` on the escrow contract with the highest voucher, settling the final balance on-chain and refunding any unused deposit to the client.
+
+::::
 
 ## High volume API billing
 
 Payment sessions match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
 
-A typical flow for a high-volume LLM API:
+A typical flow for a high-volume large language model API:
 
-1. Client opens a channel with a 10 USDC deposit
-2. Client sends a prompt to the LLM API
-3. As the model generates tokens, the server issues Challenges requesting payment for each chunk (for example, 0.000025 USDC per token)
-4. The client signs a voucher for each chunk—the cumulative amount increases by the cost of tokens received
-5. The server verifies the voucher signature (~microseconds) and sends the next chunk
-6. After the session, the server settles on-chain and the client gets the unused deposit back
+1. **Client:** opens a channel with a 10 USDC deposit
+2. **Client:** sends a prompt to the API
+3. **Server:** issues Challenges requesting payment for each chunk (for example, 0.000025 USDC per token)
+4. **Client:** signs a voucher for each chunk—the cumulative amount increases by the cost of tokens received
+5. **Server:** verifies the voucher signature (~microseconds) and sends the next chunk
+6. **Server:** settles on-chain and the client gets the unused deposit back
 
 The server never touches the chain during inference. Payment verification adds microseconds of CPU overhead per chunk, not hundreds of milliseconds of network latency. 
 
@@ -100,7 +104,6 @@ import { Mppx, Store, tempo } from 'mppx/server'
 const mppx = Mppx.create({
   methods: [
     tempo({
-      currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
       store: Store.memory(),
     }),

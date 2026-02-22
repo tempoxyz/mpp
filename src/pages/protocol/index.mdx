@@ -1,31 +1,15 @@
 import { Badge } from 'vocs'
-import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { PaymentFlowDiagram } from '../../components/PaymentFlowDiagram'
 
 # Protocol overview [Standardizing HTTP 402 for machine-to-machine payments]
 
-The Machine Payments Protocol (MPP) is a machine-native protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
+The Machine Payments Protocol (MPP) is an internet-native protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
 
-These docs provide a developer-friendly overview. For the full specification, see the [IETF Specs](https://tempoxyz.github.io/mpp-specs/).
+These docs provide a developer-friendly overview. For the full specification, see the full [IETF Specs](https://tempoxyz.github.io/mpp-specs/).
 
 ## Flow
 
-<MermaidDiagram chart={`sequenceDiagram
-    participant Client
-    participant Server
-    Client->>Server: (1) GET /resource
-    Server-->>Client: (2) 402 Payment Required + Challenge
-    Note over Client: (3) Client fulfills payment challenge
-    Client->>Server: (4) GET /resource + Credential
-    Note over Server: (5) Server verifies and settles
-    Server-->>Client: (6) 200 OK + Receipt
-`} />
-
-1. **Request a resource**—Standard HTTP request (`GET`, `POST`, and others)
-2. **Respond with `402`**—Include a **Challenge** in `WWW-Authenticate` describing the payment required
-3. **Fulfill the Challenge**—Sign a transaction, pay an invoice, or perform method-specific payment
-4. **Retry with Credential**—Include an `Authorization` header with payment proof
-5. **Verify and settle**—Validate the Credential and process payment
-6. **Return resource**—Respond with `200` OK and optional **Receipt** in `Payment-Receipt` header
+<PaymentFlowDiagram />
 
 ## Core concepts
 
@@ -103,7 +87,7 @@ Each payment method specifies its own `request` and `payload` schemas while shar
 
 ### Payment method requirements
 
-Payment method IETF Specs must define:
+Payment method specifications must define:
 
 1. **Method identifier**—Unique lowercase ASCII string (for example, `tempo` or `stripe`)
 2. **Request schema**—JSON structure for the `request` parameter in challenges
@@ -153,23 +137,24 @@ Failed payment attempts return `402` with a fresh challenge and a Problem Detail
 
 ```json
 {
-  "type": "https://ietf.org/payment/problems/verification-failed",
+  "type": "https://paymentauth.org/problems/verification-failed",
   "title": "Payment Verification Failed",
   "status": 402,
   "detail": "Invalid payment proof."
 }
 ```
 
-Common error codes:
+Common error codes (full type URI: `https://paymentauth.org/problems/{code}`):
 
 | Code | Description |
 |------|-------------|
-| `payment_required` | Resource requires payment |
-| `payment_insufficient` | Amount too low |
-| `payment_expired` | Challenge or authorization expired |
-| `payment_verification_failed` | Proof invalid |
-| `payment_method_unsupported` | Method not accepted |
-| `malformed_proof` | Invalid proof format |
+| `payment-required` | Resource requires payment |
+| `payment-insufficient` | Amount too low |
+| `payment-expired` | Challenge or authorization expired |
+| `verification-failed` | Proof invalid |
+| `method-unsupported` | Method not accepted |
+| `malformed-credential` | Invalid credential format |
+| `invalid-challenge` | Challenge ID unknown, expired, or already used |
 
 Use the `Retry-After` header to indicate when clients can retry failed payments.
 

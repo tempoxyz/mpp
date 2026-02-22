@@ -1,4 +1,5 @@
 import { Badge, Card, Cards } from 'vocs'
+import { ServerPrompt } from '../../components/QuickstartPrompt'
 
 # Server quickstart [Charge for resources and verify payment credentials]
 
@@ -14,11 +15,7 @@ This quickstart demonstrates how to plug MPP into any server framework to accept
 
 Paste this into your AI coding agent to set up a server with `mppx` in one shot:
 
-```txt
-Use https://mpp.sh/quickstart/server.md as reference.
-Add mppx to my server with a /api/test route that charges $0.01 per 
-request using the Tempo payment method with PathUSD.
-```
+<ServerPrompt />
 
 ## Framework mode
 
@@ -152,7 +149,7 @@ export async function handler(request: Request) {
 ```
 
 :::info[Currency and recipient values]
-`currency` is the TIP-20 token contract address—`0x20c0…` is PathUSD on Tempo. `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
+`currency` is the TIP-20 token contract address—[`0x20c0…`](https://explore.tempo.xyz/address/0x20c0000000000000000000000000000000000000?live=false) is pathUSD on Tempo. `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
 :::
 
 The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.
@@ -205,11 +202,13 @@ export async function handler(req: IncomingMessage, res: ServerResponse) {
 ```
 
 
-## Testing with presto
+## Testing your server
 
-After your server is running, test it with [presto](/tools/presto):
+After your server is running, test it with [presto](/tools/presto) or the `mppx` CLI:
 
-```bash [test-server.sh]
+::::code-group
+
+```bash [presto]
 # See the payment challenge
 $ presto inspect <your-server>/resource
 
@@ -223,8 +222,18 @@ $ presto query -vi <your-server>/resource
 $ presto query -D <your-server>/resource
 ```
 
+```bash [mppx]
+# Create an account funded with testnet tokens
+$ npx mppx account create
+
+# Make a paid request
+$ npx mppx <your-server>/resource
+```
+
+::::
+
 :::tip
-Use `presto inspect` to debug your server's challenge response without making any payments.
+Use `presto inspect` or `npx mppx --inspect` to debug your server's Challenge response without making any payments.
 :::
 
 ## Next steps

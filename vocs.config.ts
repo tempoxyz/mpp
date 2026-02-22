@@ -144,8 +144,8 @@ export default defineConfig({
             collapsed: true,
             items: [
               { text: "Overview", link: "/payment-methods/tempo" },
-              { text: "Session", link: "/payment-methods/tempo/session" },
               { text: "Charge", link: "/payment-methods/tempo/charge" },
+              { text: "Session", link: "/payment-methods/tempo/session" },
             ],
           },
           {
@@ -168,7 +168,6 @@ export default defineConfig({
             collapsed: true,
             items: [
               { text: "Getting Started", link: "/sdk/typescript" },
-              { text: "Installation", link: "/sdk/installation" },
               {
                 text: "Client Reference",
                 items: [

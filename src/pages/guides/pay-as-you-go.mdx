@@ -60,10 +60,10 @@ bun add mppx viem
 
 #### Set up `Mppx` instance
 
-Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+Set up an `Mppx` instance with the `tempo` method.
 
-- We will set our `recipient` to the address of where we want to receive payments.
-- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+- `recipient` is the address where you receive payments.
+- `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [app/api/sessions/photo/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
@@ -78,7 +78,7 @@ export const mppx = Mppx.create({
 
 #### Create the `/api/sessions/photo` route
 
-Next, we will create the gallery route. This route is **currently unpaid**.
+Create the gallery route. This route is **currently unpaid**.
 
 ```ts [app/api/sessions/photo/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
@@ -100,7 +100,7 @@ export const GET = async () => {
 
 #### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.session` as route middleware.
+Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [app/api/sessions/photo/route.ts]
@@ -154,10 +154,10 @@ bun add mppx hono viem
 
 #### Set up `Mppx` instance
 
-Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+Set up an `Mppx` instance with the `tempo` method.
 
-- We will set our `recipient` to the address of where we want to receive payments.
-- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+- `recipient` is the address where you receive payments.
+- `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [server.ts]
 import { Hono } from 'hono'
@@ -175,7 +175,7 @@ const mppx = Mppx.create({
 
 #### Create the `/api/sessions/photo` route
 
-Next, we will create the gallery route. This route is **currently unpaid**.
+Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
 import { Hono } from 'hono'
@@ -200,7 +200,7 @@ app.get('/api/sessions/photo', async (c) => {
 
 #### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.session` as route middleware.
+Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [server.ts]
@@ -259,10 +259,10 @@ bun add mppx viem
 
 #### Set up `Mppx` instance
 
-Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+Set up an `Mppx` instance with the `tempo` method.
 
-- We will set our `recipient` to the address of where we want to receive payments.
-- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+- `recipient` is the address where you receive payments.
+- `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [src/index.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -277,7 +277,7 @@ const mppx = Mppx.create({
 
 #### Create the gallery route
 
-Next, we will create the gallery route. This route is **currently unpaid**.
+Create the gallery route. This route is **currently unpaid**.
 
 ```ts [src/index.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -301,7 +301,7 @@ export default {
 
 #### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
+Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [src/index.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -361,10 +361,10 @@ bun add mppx express viem
 
 #### Set up `Mppx` instance
 
-Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+Set up an `Mppx` instance with the `tempo` method.
 
-- We will set our `recipient` to the address of where we want to receive payments.
-- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+- `recipient` is the address where you receive payments.
+- `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [server.ts]
 import express from 'express'
@@ -382,7 +382,7 @@ const mppx = Mppx.create({
 
 #### Create the `/api/sessions/photo` route
 
-Next, we will create the gallery route. This route is **currently unpaid**.
+Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
 import express from 'express'
@@ -407,7 +407,7 @@ app.get('/api/sessions/photo', async (req, res) => {
 
 #### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.session` as route middleware.
+Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [server.ts]
@@ -471,10 +471,10 @@ bun add mppx viem
 
 #### Set up `Mppx` instance
 
-Next, we will set up an `Mppx` instance. This instance will be set up with the `tempo` method.
+Set up an `Mppx` instance with the `tempo` method.
 
-- We will set our `recipient` to the address of where we want to receive payments.
-- We will set our `currency` to the address of the token we want to use for payments (in this case, `pathUSD`).
+- `recipient` is the address where you receive payments.
+- `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [server.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -489,7 +489,7 @@ const mppx = Mppx.create({
 
 #### Create the `/api/sessions/photo` route
 
-Next, we will create the gallery route. This route is **currently unpaid**.
+Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -513,7 +513,7 @@ Bun.serve({
 
 #### Add `.session` to the route handler
 
-Next, we will add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
+Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [server.ts]
 import { Mppx, tempo } from 'mppx/server'

@@ -50,11 +50,12 @@ Failed payment attempts return `402` with a fresh challenge and a Problem Detail
 
 ```http
 HTTP/1.1 402 Payment Required
+Cache-Control: no-store
 Content-Type: application/problem+json
 WWW-Authenticate: Payment id="new456", ...
 
 {
-  "type": "https://ietf.org/payment/problems/verification-failed",
+  "type": "https://paymentauth.org/problems/verification-failed",
   "title": "Payment Verification Failed",
   "status": 402,
   "detail": "Invalid payment proof."
@@ -62,19 +63,19 @@ WWW-Authenticate: Payment id="new456", ...
 ```
 
 Error types include:
-- `malformed-credential`—Invalid base64url or bad JSON
 - `invalid-challenge`—Unknown, expired, or already-used challenge
+- `malformed-credential`—Invalid base64url or bad JSON
+- `method-unsupported`—Method not accepted (400)
+- `payment-expired`—Challenge or authorization expired
+- `payment-insufficient`—Amount too low
+- `payment-required`—Resource requires payment
 - `verification-failed`—Payment proof invalid
 
 ## Learn more
 
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { SpecCard } from '../../components/SpecCard'
 
 <Cards>
-  <Card
-    description="See the normative definition"
-    icon="lucide:file-text"
-    title="Protocol spec"
-    to="https://tempoxyz.github.io/mpp-specs/"
-  />
+  <SpecCard to="https://tempoxyz.github.io/mpp-specs/" />
 </Cards>

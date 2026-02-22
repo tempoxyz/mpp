@@ -62,13 +62,9 @@ Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#s
 
 ## Full specification
 
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { SpecCard } from '../../../components/SpecCard'
 
 <Cards>
-  <Card
-    description="See the normative definition"
-    icon="lucide:file-text"
-    title="Protocol spec"
-    to="https://tempoxyz.github.io/mpp-specs/"
-  />
+  <SpecCard to="https://tempoxyz.github.io/mpp-specs/" />
 </Cards>

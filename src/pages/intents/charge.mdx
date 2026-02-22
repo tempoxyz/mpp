@@ -21,24 +21,24 @@ The `charge` intent requests an immediate one-time payment. The client pays a fi
     Server-->>Client: (7) 200 OK + Receipt
 `} />
 
-1. Client requests a paid resource
-2. Server responds with `402` and a Challenge specifying the payment requirements—`amount`, `currency`, and `recipient`
-3. Client fulfills the payment using the method specified in the Challenge
-4. Client retries the request with the payment proof as a Credential
-5. Server verifies the Credential and settles the payment on the underlying network
-6. Payment confirms on the network
-7. Server returns the resource with a Receipt
+1. **Client:** requests a paid resource
+2. **Server:** responds with `402` and a Challenge specifying the payment requirements—`amount`, `currency`, and `recipient`
+3. **Client:** fulfills the payment using the method specified in the Challenge
+4. **Client:** retries the request with the payment proof as a Credential
+5. **Server:** verifies the Credential and settles the payment on the underlying network
+6. **Network:** confirms the payment
+7. **Server:** returns the resource with a Receipt
 
 ## When to use charge
 
-Charge is the right intent when each request maps to a single payment with a known cost:
+Charge is the best intent when each request maps to a single payment with a known cost:
 
 - **Paid API endpoints**—Charge per request for data, compute, or content
 - **Content access**—Pay-per-article, pay-per-query, or pay-per-download
 - **Tool calls**—MCP tool invocations where each call has a fixed price
 - **Simple integrations**—No channel setup, no state management, no storage backend
 
-For metered or usage-based billing where the total cost isn't known upfront, use the session intent instead.
+For metered billing, high volume flows such as scraping, or usage-based billing where the total cost isn't known upfront, use the session intent instead.
 
 ## Request schema
 
@@ -63,11 +63,10 @@ Each payment method defines how charge is fulfilled, verified, and settled on it
   <Card
     icon='<svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.55 17h-2.73l2.53-7.73h-3.24l.71-2.27h9.03l-.71 2.27h-3.07L10.55 17Z"/></svg>'
     title="Tempo"
-    description="One-time TIP-20 token transfers with ~500ms finality and optional fee sponsorship"
+    description="One-time TIP-20 token transfers with sub second settlement and optional fee sponsorship"
     to="/payment-methods/tempo/charge"
   />
   <Card
-    topRight={<Badge variant="warning">Coming soon</Badge>}
     icon="simple-icons:stripe"
     title="Stripe"
     description="One-time card or bank payment"
