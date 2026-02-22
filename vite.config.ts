@@ -24,8 +24,28 @@ function preloadFonts(): Plugin {
     name: "preload-fonts",
     transformIndexHtml() {
       return [
-        { tag: "link", attrs: { rel: "preload", as: "font", type: "font/woff2", href: "/fonts/Geist-Regular.woff2", crossorigin: "anonymous" }, injectTo: "head" },
-        { tag: "link", attrs: { rel: "preload", as: "font", type: "font/woff2", href: "/fonts/Geist-Medium.woff2", crossorigin: "anonymous" }, injectTo: "head" },
+        {
+          tag: "link",
+          attrs: {
+            rel: "preload",
+            as: "font",
+            type: "font/woff2",
+            href: "/fonts/Geist-Regular.woff2",
+            crossorigin: "anonymous",
+          },
+          injectTo: "head",
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "preload",
+            as: "font",
+            type: "font/woff2",
+            href: "/fonts/Geist-Medium.woff2",
+            crossorigin: "anonymous",
+          },
+          injectTo: "head",
+        },
       ];
     },
   };

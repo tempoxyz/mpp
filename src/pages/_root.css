@@ -300,8 +300,8 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
     Arial, sans-serif;
 
   --font-mono:
-    "Geist Mono", "Geist Pixel Square",
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    "Geist Mono", "Geist Pixel Square", ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
 
   --vocs-leading-code: 1.6em;
   --vocs-spacing-code-block-px: 1rem;
