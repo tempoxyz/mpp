@@ -682,8 +682,8 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] svg {
 
 /* Card icon SVGs — fill the 32×32 container properly */
 a[class*="vocs:rounded-md"][class*="vocs:border"] [class*="vocs:size-8"] svg {
-  width: 20px !important;
-  height: 20px !important;
+  width: 14px !important;
+  height: 14px !important;
   margin-bottom: 0 !important;
 }
 a[class*="vocs:rounded-md"][class*="vocs:border"] img {
