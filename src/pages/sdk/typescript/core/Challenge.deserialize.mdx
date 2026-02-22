@@ -29,18 +29,18 @@ const challenge = Challenge.deserialize(header, { methods: [Methods.charge] })
 type ReturnType = Challenge
 ```
 
-The deserialized challenge object.
+The deserialized Challenge object. If the serialized header contains an `opaque` parameter, it is deserialized and stored as `opaque` on the Challenge (accessible via `Challenge.meta`).
 
 ## Parameters
-
-### value
-
-- **Type:** `string`
-
-The WWW-Authenticate header value.
 
 ### options (optional)
 
 - **Type:** `{ methods?: readonly Method.Method[] }`
 
 Optional settings to narrow the Challenge type using method intents.
+
+### value
+
+- **Type:** `string`
+
+The WWW-Authenticate header value.

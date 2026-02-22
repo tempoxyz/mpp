@@ -62,20 +62,45 @@ const method = tempo.session({
 })
 ```
 
+### authorizedSigner (optional)
+
+- **Type:** `Address`
+
+Address authorized to sign vouchers. Defaults to the account address. Use when a separate access key (for example, secp256k1) signs vouchers while the root account funds the channel.
+
+### decimals (optional)
+
+- **Type:** `number`
+- **Default:** `6`
+
+Token decimals for parsing human-readable amounts.
+
 ### deposit (optional)
 
-- **Type:** `bigint`
+- **Type:** `string`
 
-Initial deposit amount for auto-managed channels. When set, the client handles the full channel lifecycle (open, voucher, cumulative tracking) automatically.
+Initial deposit amount in human-readable units (for example `"10"` for 10 tokens). When set, the client handles the full channel lifecycle (open, voucher, cumulative tracking) automatically.
 
 ### escrowContract (optional)
 
 - **Type:** `Address`
 
-Escrow contract address override. Derived from the server Challenge if not provided.
+Escrow contract address override. Derived from the server challenge if not provided.
 
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
+
+### maxDeposit (optional)
+
+- **Type:** `string`
+
+Maximum deposit in human-readable units (for example `"10"`). Caps the server's `suggestedDeposit`. Enables auto-management like `deposit`.
+
+### onChannelUpdate (optional)
+
+- **Type:** `(entry: ChannelEntry) => void`
+
+Called whenever channel state changes (open, voucher, close, recovery).

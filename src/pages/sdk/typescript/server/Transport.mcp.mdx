@@ -16,7 +16,7 @@ const mppx = Mppx.create({
 ## Behavior
 
 - Reads credentials from `_meta["org.paymentauth/credential"]`
-- Issues challenges in a JSON-RPC error with code `-32042`
+- Issues challenges in a JSON-RPC error with code `-32042`/`-32043`
 - Attaches receipts in `_meta["org.paymentauth/receipt"]`
 
 Use this transport when handling raw JSON-RPC messages directly. For use with [`@modelcontextprotocol/sdk`](https://github.com/modelcontextprotocol/typescript-sdk), use [`Transport.mcpSdk()`](/sdk/typescript/server/Transport.mcpSdk) instead.

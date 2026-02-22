@@ -57,9 +57,9 @@ const payment = Mppx.create({
 ### realm (optional)
 
 - **Type:** `string`
-- **Default:** `"MPP Payment"`
+- **Default:** Auto-detected from environment variables (`MPP_REALM`, `FLY_APP_NAME`, `HEROKU_APP_NAME`, `HOST`, `HOSTNAME`, `RAILWAY_PUBLIC_DOMAIN`, `RENDER_EXTERNAL_HOSTNAME`, `VERCEL_URL`, `WEBSITE_HOSTNAME`), falling back to `"MPP Payment"`.
 
-Server realm (for example, hostname). Used to identify the server in payment challenges.
+Server realm (for example, hostname). Auto-detected from common platform environment variables. Set explicitly to override.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -70,11 +70,12 @@ const payment = Mppx.create({
 })
 ```
 
-### secretKey
+### secretKey (optional)
 
 - **Type:** `string`
+- **Default:** Auto-detected from `MPP_SECRET_KEY` environment variable, falling back to a random key.
 
-Secret key for HMAC-bound challenge IDs. Enables stateless verification—allows the server to verify that a challenge was issued by itself without storing state. Defaults to `'tmp'`.
+Secret key for HMAC-bound challenge IDs. Enables stateless verification—the server verifies that a Challenge was issued by itself without storing state.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -90,7 +91,7 @@ const payment = Mppx.create({
 - **Type:** `Transport`
 - **Default:** `Transport.http()`
 
-Transport to use for handling payment requests. Defaults to HTTP transport.
+Transport to use for handling payment requests.
 
 ```ts twoslash
 import { Mppx, tempo, Transport } from 'mppx/server'

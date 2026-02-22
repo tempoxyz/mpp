@@ -52,3 +52,20 @@ const app = new Elysia()
   .get('/premium', () => ({ data: 'paid content' }))
   .get('/another', () => ({ data: 'also paid' }))
 ```
+
+### Session payments
+
+Use `mppx.session()` to gate routes behind session-based payment intents.
+
+```ts [server.ts]
+import { Elysia } from 'elysia'
+import { Mppx, tempo } from 'mppx/elysia'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const app = new Elysia()
+  .guard(
+    { beforeHandle: mppx.session({ amount: '1', unitType: 'token' }) },
+    (app) => app.get('/content', () => ({ data: 'session content' })),
+  )
+```

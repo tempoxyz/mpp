@@ -329,8 +329,16 @@ export default defineConfig({
                         link: "/sdk/typescript/core/Challenge.fromHeaders",
                       },
                       {
+                        text: ".fromMethod",
+                        link: "/sdk/typescript/core/Challenge.fromMethod",
+                      },
+                      {
                         text: ".fromResponse",
                         link: "/sdk/typescript/core/Challenge.fromResponse",
+                      },
+                      {
+                        text: ".meta",
+                        link: "/sdk/typescript/core/Challenge.meta",
                       },
                       {
                         text: ".serialize",

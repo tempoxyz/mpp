@@ -38,14 +38,14 @@ http.createServer(async (req, res) => {
 type ReturnType = (
   req: IncomingMessage,
   res: ServerResponse,
-) => Promise<IntentFn.Response<Transport.Http>>
+) => Promise<MethodFn.Response<Transport.Http>>
 ```
 
 ## Parameters
 
 ### handler
 
-- **Type:** `(input: Request) => Promise<IntentFn.Response<Transport.Http>>`
+- **Type:** `(input: Request) => Promise<MethodFn.Response<Transport.Http>>`
 
 The payment handler function returned by calling an intent on the payment object.
 
