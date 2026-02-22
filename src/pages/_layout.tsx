@@ -1,19 +1,18 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Suspense, lazy } from "react";
 import type React from "react";
-
-const WagmiSetup = lazy(() => import("../lib/wagmi-provider"));
+import { WagmiProvider } from "wagmi";
+import { config } from "../wagmi.config";
 
 const queryClient = new QueryClient();
 
 export default function Layout(props: React.PropsWithChildren) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Suspense fallback={props.children}>
-        <WagmiSetup>{props.children}</WagmiSetup>
-      </Suspense>
-    </QueryClientProvider>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        {props.children}
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
