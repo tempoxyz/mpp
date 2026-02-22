@@ -58,11 +58,10 @@ export default defineConfig({
     sources: [
       McpSource.github({ name: "mppx", repo: "wevm/mppx" }),
       McpSource.github({ name: "mpp-rs", repo: "tempoxyz/mpp-rs" }),
-      McpSource.github({ name: "mpp-tools", repo: "tempoxyz/mpp-tools" }),
       McpSource.github({ name: "pympp", repo: "tempoxyz/pympp" }),
       McpSource.github({
-        name: "payment-auth-spec",
-        repo: "tempoxyz/payment-auth-spec",
+        name: "mpp-specs",
+        repo: "tempoxyz/mpp-specs",
       }),
       McpSource.github({ name: "tempo", repo: "tempoxyz/tempo" }),
     ],
@@ -463,7 +462,7 @@ export default defineConfig({
   },
   socials: [
     { icon: "x", link: "https://x.com/mpp" },
-    { icon: "github", link: "https://github.com/tempoxyz/payment-auth-spec" },
+    { icon: "github", link: "https://github.com/tempoxyz/mpp-specs" },
   ],
   title: "MPP: The Internet Payments Protocol",
   titleTemplate: "%s | MPP",
@@ -487,7 +486,7 @@ export default defineConfig({
         { text: "pympp [Python]", link: "https://github.com/tempoxyz/pympp" },
         {
           text: "IETF Specs",
-          link: "https://github.com/tempoxyz/payment-auth-spec",
+          link: "https://github.com/tempoxyz/mpp-specs",
         },
       ],
     },
