@@ -25,7 +25,7 @@ const LAYOUT = {
   noteBoxPadY: 8,
   noteExtraMargin: 28,
   fontFamily:
-    '"Geist Pixel Square", "Berkeley Mono", "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+    '"Geist Pixel Square", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
   actorFontSize: 14,
   actorFontWeight: 600,
   labelFontSize: 14,
