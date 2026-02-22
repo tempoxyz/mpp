@@ -20,9 +20,7 @@
   "include": [
     "src",
     "vocs.config.ts",
-    "worker/src",
-    "secrets.d.ts",
-    "worker-configuration.d.ts"
+    "secrets.d.ts"
   ],
   "exclude": ["src/pages.gen.ts", "src/snippets"]
 }
