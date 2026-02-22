@@ -43,7 +43,7 @@ export default defineConfig({
     },
   ],
   description:
-    "Machine Payments Protocol - Machine-native payments for machine-to-machine transactions",
+    "The open protocol for internet-native payments. Pay for any HTTP resource with stablecoins—no API keys, no accounts, no middlemen.",
   checkDeadlinks: "warn",
   editLink: {
     link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",
@@ -466,7 +466,7 @@ export default defineConfig({
     { icon: "x", link: "https://x.com/mpp" },
     { icon: "github", link: "https://github.com/tempoxyz/payment-auth-spec" },
   ],
-  title: "Machine Payments Protocol",
+  title: "MPP: The Internet Payments Protocol",
   titleTemplate: "%s | MPP",
   twoslash: {
     twoslashOptions: {
