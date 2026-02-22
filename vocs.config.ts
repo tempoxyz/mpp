@@ -43,7 +43,7 @@ export default defineConfig({
     },
   ],
   description:
-    "The open protocol for internet-native payments. Pay for any HTTP resource with stablecoins—no API keys, no accounts, no middlemen.",
+    "The open protocol for internet payments.",
   checkDeadlinks: "warn",
   editLink: {
     link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",
