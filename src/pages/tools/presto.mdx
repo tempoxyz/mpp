@@ -1,4 +1,4 @@
-# presto [Command-line interface for mpp]
+# presto [Command-line HTTP client for MPP]
 
 `presto` is a non-interactive command-line tool for making HTTP requests with automatic payment support.
 
@@ -9,7 +9,7 @@ When you request a resource that requires payment, `presto` automatically detect
 **Quick install:**
 
 ```bash [install.sh]
-$ curl -fsSL https://tempo.xyz/ctl/install.sh | bash
+$ curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash
 ```
 
 **From source:**
@@ -23,11 +23,12 @@ $ cargo install --path .
 ## Quick start
 
 ```bash [quickstart.sh]
-# Log in (first time only)
+# Log in (first time only — opens browser to authenticate with your Tempo wallet)
 $ presto login
 
 # Make a paid request
-$ presto query https://mpp.tempo.xyz/api/ping/paid
+$ presto https://openrouter.mpp.tempo.xyz/v1/chat/completions \
+  -X POST --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello!"}]}'
 ```
 
 :::tip[Live demo server]
@@ -36,44 +37,65 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use 
 
 ## Configuration
 
-`presto` uses encrypted keystores for secure wallet management.
+`presto login` authenticates via your browser and stores wallet credentials securely.
+
+### File locations
+
+| Platform | Config | Wallet |
+|----------|--------|--------|
+| **macOS** | `~/Library/Application Support/presto/config.toml` | `~/Library/Application Support/presto/wallet.toml` |
+| **Linux** | `~/.config/presto/config.toml` | `~/.local/share/presto/wallet.toml` |
 
 ### Example config
 
 ```toml
-[evm]
-keystore = "/Users/you/.presto/keystores/my-wallet.json"
-
-# Override RPC URLs
-[rpc]
-tempo = "https://my-private-rpc.com"
-```
-
-## Key management
-
-```bash [key-management.sh]
-# List all access keys
-$ presto keys list
-
-# Switch to a different access key
-$ presto keys switch 1
-
-# Delete an access key
-$ presto keys delete 2
+# RPC overrides for built-in networks
+tempo_rpc = "https://my-custom-tempo-rpc.com"
+moderato_rpc = "https://my-custom-moderato-rpc.com"
 ```
 
 ## Command reference
 
 | Command | Description |
 |---------|-------------|
-| `presto query <url>` | Make an HTTP request with automatic payment |
-| `presto login` | Log in and set up your wallet |
-| `presto logout` | Log out and clear credentials |
-| `presto whoami` | Show the current authenticated identity |
-| `presto inspect <url>` | Inspect payment requirements |
-| `presto balance` | Check wallet balance |
-| `presto config` | View/manage configuration |
-| `presto networks` | List supported networks |
+| `presto <url>` | Make an HTTP request with automatic payment |
+| `presto login` | Log in to your Tempo wallet |
+| `presto logout [--yes]` | Log out and disconnect your wallet |
+| `presto whoami` | Show wallet address, balances, and access keys |
+| `presto session list` | List active payment sessions |
+| `presto session close [url] [--all]` | Close a payment session by URL, or all sessions |
+| `presto session recover <url>` | Recover a session from on-chain state |
+| `presto completions <shell>` | Generate shell completions (bash, zsh, fish, powershell) |
+
+### Global options
+
+| Flag | Description |
+|------|-------------|
+| `-c, --config <PATH>` | Configuration file path |
+| `-v, --verbose` | Verbosity level (repeatable: `-v`, `-vv`, `-vvv`) |
+| `-q, --quiet` | Suppress log messages |
+| `--color <MODE>` | Color output: `auto`, `always`, `never` (default: `auto`) |
+| `--output-format <FORMAT>` | Output format: `text`, `json` (default: `text`) |
+
+### Query options
+
+| Flag | Description |
+|------|-------------|
+| `--dry-run` | Preview payment without executing |
+| `-i, --include` | Include HTTP response headers in output |
+| `-o, --output <FILE>` | Write response to file |
+| `-X, --request <METHOD>` | HTTP method (GET, POST, etc.) |
+| `-H, --header <HEADER>` | Add custom header (repeatable) |
+| `--json <DATA>` | Send JSON data (sets Content-Type automatically) |
+| `-d, --data <DATA>` | POST data (use `@filename` to read from file, `@-` for stdin) |
+| `--no-redirect` | Disable following redirects |
+| `-m, --timeout <SECONDS>` | Request timeout in seconds |
+
+### Environment variables
+
+| Variable | Description |
+|----------|-------------|
+| `PRESTO_RPC_URL` | Override RPC endpoint for all networks |
 
 ## Learn more
 
@@ -90,6 +112,6 @@ import { Card, Cards } from 'vocs'
     description="Download presto for your platform"
     icon="lucide:download"
     title="Download presto"
-    to="https://tempo.xyz/ctl"
+    to="https://github.com/tempoxyz/presto"
   />
 </Cards>

@@ -17,7 +17,7 @@ const ACCENT = "var(--vocs-text-color-heading)";
 const AGENT_COLOR = "#16A34A";
 const ANIM_STORAGE_KEY = "mpp-landing-animated";
 const PRESTO_INSTALL =
-  "curl -fsSL https://raw.githubusercontent.com/tempoxyz/presto/main/install.sh | bash";
+  "curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash";
 const PRESTO_LOGIN = "presto login";
 const QUICKSTART_URL = "https://mpp.sh/quickstart/client.md";
 const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
