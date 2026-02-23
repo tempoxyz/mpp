@@ -7,7 +7,7 @@ const CMD_PURPLE = "#c084fc";
 const PRESTO_GREEN = "#4ade80";
 const FLAG_GREY = "var(--vocs-text-color-muted)";
 const PRESTO_INSTALL =
-  "curl -fsSL https://raw.githubusercontent.com/tempoxyz/presto/main/install.sh | bash";
+  "curl -fsSLhttps://presto-binaries.tempo.xyz/install.sh | bash";
 const PRESTO_LOGIN = "presto login";
 const QUICKSTART_URL = "https://mpp.sh/quickstart/client.md";
 const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
@@ -189,7 +189,7 @@ export function AgentTabs() {
             <span style={{ color: FLAG_GREY }}> -fsSL</span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {" "}
-              https://raw.githubusercontent.com/tempoxyz/presto/main/install.sh
+             https://presto-binaries.tempo.xyz/install.sh
             </span>
             <span style={{ color: FLAG_GREY }}> |</span>
             <span style={{ color: CMD_PURPLE }}> bash</span>
