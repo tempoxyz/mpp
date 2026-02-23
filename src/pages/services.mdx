@@ -1,82 +1,10 @@
-import { AgentTabs } from "../components/AgentTabs";
-import { Cards, Card } from "vocs";
+---
+layout: minimal
+showAskAi: false
+showOutline: false
+showSearch: false
+---
 
-<style>{`
-  [data-v-content] table {
-    table-layout: fixed;
-    width: 100%;
-  }
-  [data-v-content] table th:nth-child(1),
-  [data-v-content] table td:nth-child(1) { width: 24%; }
-  [data-v-content] table th:nth-child(2),
-  [data-v-content] table td:nth-child(2) { width: 44%; }
-`}</style>
+import { ServicesPage } from "../components/ServicesPage";
 
-# Services [Use MPP-enabled APIs your client or application can pay for]
-
-Discover MPP services that are live, and how to use them via the examples below. After you fund a supported payment method, you can start using MPP services from your client or application for real-time, programmable payments.
-
-:::tip
-Examples use [Tempo](/payment-methods/tempo) for payments, where [stablecoins](/payment-methods/tempo#stablecoins) enable low-cost, instant, and secure payments. Services also offer [Stripe](/payment-methods/stripe), with more payment methods on the way.
-:::
-
-## Setup
-
-### ⚙️ Developers
-
-Try using a MPP-enabled service from an application or server with the `mppx` SDKs, which interact with the Tempo network. These SDKs are available in [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust).
-
-### 🤖 Agents
-
-Give your agent access to paid services. Use [presto](/tools/presto) to create or sign into a wallet, then deposit funds via supported methods to start using MPP with your agent.
-
-<AgentTabs />
-
-:::note
-When using `presto` to sign in or create a Tempo account, your browser prompts you to save or use your passkey — no passwords required. From the [dashboard](https://app.tempo.xyz), you can add funds via Apple Pay, credit card, or stablecoins at any time.
-
-After setup, your agent discovers available services automatically via [`llms.txt`](https://mpp.tempo.xyz/llms.txt).
-:::
-
-## Live Services
-
-You can use the MPP-enabled services below via the Tempo network. More services and supported payment methods are added regularly. To add MPP support to your API, start integrating [here](/quickstart/server).
-
-### AI & LLMs
-
-| Service                             | Description                            | Endpoint                        |
-| ----------------------------------- | -------------------------------------- | ------------------------------- |
-| [OpenRouter](https://openrouter.ai) | 100+ LLM models (Claude, GPT-4o, etc.) | `openrouter.payments.tempo.xyz` |
-| [Anthropic](https://anthropic.com)  | Claude models directly                 | `anthropic.payments.tempo.xyz`  |
-| [OpenAI](https://openai.com)        | GPT-4, embeddings, image generation    | `openai.payments.tempo.xyz`     |
-| [fal.ai](https://fal.ai)            | Image generation, video, audio         | `fal.payments.tempo.xyz`        |
-| [ElevenLabs](https://elevenlabs.io) | Text-to-speech, voice cloning          | `elevenlabs.payments.tempo.xyz` |
-
-### Web & Data
-
-| Service                                | Description                 | Endpoint                         |
-| -------------------------------------- | --------------------------- | -------------------------------- |
-| [Firecrawl](https://firecrawl.dev)     | Web scraping and crawling   | `firecrawl.payments.tempo.xyz`   |
-| [Browserbase](https://browserbase.com) | Headless browser automation | `browserbase.payments.tempo.xyz` |
-| [Exa](https://exa.ai)                  | AI-native search engine     | `exa.payments.tempo.xyz`         |
-
-### Blockchain & Data
-
-| Service                        | Description              | Endpoint                     |
-| ------------------------------ | ------------------------ | ---------------------------- |
-| [Codex](https://codex.io)      | Blockchain data indexing | `codex.payments.tempo.xyz`   |
-| [Alchemy](https://alchemy.com) | Multi-chain node access  | `alchemy.payments.tempo.xyz` |
-| [Tempo RPC](https://tempo.xyz) | Tempo network RPC        | `rpc.payments.tempo.xyz`     |
-
-### Communications
-
-| Service                      | Description              | Endpoint                     |
-| ---------------------------- | ------------------------ | ---------------------------- |
-| [Twilio](https://twilio.com) | SMS and MMS messaging    | `twilio.payments.tempo.xyz`  |
-| [X (Twitter)](https://x.com) | Posts, users, and search | `twitter.payments.tempo.xyz` |
-
-### Infrastructure
-
-| Service                             | Description           | Endpoint                     |
-| ----------------------------------- | --------------------- | ---------------------------- |
-| [Object Storage](https://tempo.xyz) | S3-compatible storage | `storage.payments.tempo.xyz` |
+<ServicesPage />
