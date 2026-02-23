@@ -734,3 +734,64 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   );
   animation: shimmer 2s ease-in-out infinite;
 }
+
+/* ---------------------------------------------------------------------------
+ * Terminal theme — scoped color variables for the embedded terminal demo.
+ * Uses oklch grays aligned with the Vocs theme scale for visual harmony.
+ * Namespaced with --term- to avoid collisions with Vocs variables.
+ * --------------------------------------------------------------------------- */
+
+.terminal-theme {
+  /* Backgrounds */
+  --term-bg1: light-dark(oklch(0.985 0 0), oklch(0.162 0 0));
+  --term-bg2: light-dark(oklch(1 0 0), oklch(0.195 0 0));
+
+  /* Gray Scale */
+  --term-gray1: light-dark(oklch(0.955 0 0), oklch(0.21 0 0));
+  --term-gray2: light-dark(oklch(0.933 0 0), oklch(0.223 0 0));
+  --term-gray3: light-dark(oklch(0.933 0 0), oklch(0.25 0 0));
+  --term-gray4: light-dark(oklch(0.933 0 0), oklch(0.29 0 0));
+  --term-gray5: light-dark(oklch(0.863 0 0), oklch(0.5 0 0));
+  --term-gray6: light-dark(oklch(0.72 0 0), oklch(0.649 0 0));
+  --term-gray7: light-dark(oklch(0.649 0 0), oklch(0.649 0 0));
+  --term-gray8: light-dark(oklch(0.549 0 0), oklch(0.549 0 0));
+  --term-gray9: light-dark(oklch(0.5 0 0), oklch(0.72 0 0));
+  --term-gray10: light-dark(oklch(0.21 0 0), oklch(0.933 0 0));
+
+  /* Blue */
+  --term-blue9: light-dark(hsl(211 100% 42%), hsl(210 100% 66%));
+
+  /* Red */
+  --term-red7: light-dark(hsl(358 75% 59%), hsl(358 75% 59%));
+
+  /* Amber */
+  --term-amber7: light-dark(hsl(39 100% 57%), hsl(39 100% 57%));
+  --term-amber9: light-dark(hsl(30 100% 32%), hsl(39 90% 50%));
+
+  /* Green */
+  --term-green7: light-dark(hsl(131 41% 46%), hsl(131 41% 46%));
+  --term-green9: light-dark(hsl(133 50% 32%), hsl(131 43% 57%));
+
+  /* Teal */
+  --term-teal9: light-dark(hsl(174 91% 25%), hsl(174 90% 41%));
+
+  /* Pink */
+  --term-pink9: light-dark(hsl(336 65% 45%), hsl(341 90% 67%));
+
+  color-scheme: light dark;
+}
+
+/* Terminal-scoped utility overrides — map tailwind-like classes to --term- vars */
+.terminal-theme .term-url-input {
+  caret-shape: block;
+  caret-color: var(--term-pink9);
+}
+
+.terminal-theme .term-url-input::placeholder {
+  color: var(--term-gray5);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
