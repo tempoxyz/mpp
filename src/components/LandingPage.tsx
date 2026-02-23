@@ -150,7 +150,7 @@ function LandingStyles() {
 				.not-prose .text-sm { font-size: 15px; }
 				.not-prose .font-mono { font-size: 15px; }
 
-
+				.landing-hero { padding-top: var(--vocs-spacing-topNav, 64px); }
 
 				section { padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem)) !important; }
 			}
