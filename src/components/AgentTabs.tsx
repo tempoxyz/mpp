@@ -7,7 +7,7 @@ const CMD_PURPLE = "#c084fc";
 const PRESTO_GREEN = "#4ade80";
 const FLAG_GREY = "var(--vocs-text-color-muted)";
 const PRESTO_INSTALL =
-  "curl -fsSLhttps://presto-binaries.tempo.xyz/install.sh | bash";
+  "curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash";
 const PRESTO_LOGIN = "presto login";
 const QUICKSTART_URL = "https://mpp.sh/quickstart/client.md";
 const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
