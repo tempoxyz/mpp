@@ -39,6 +39,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5",
+    "ajv": "8",
+    "ajv-formats": "^3.0.1",
     "simple-git-hooks": "^2.13.1",
     "tiktoken": "^1.0.22",
     "typescript": "^5",

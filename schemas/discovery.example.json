@@ -1,0 +1,264 @@
+{
+  "version": 1,
+  "services": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "url": "https://mpp.tempo.xyz/openai",
+      "serviceUrl": "https://api.openai.com",
+      "description": "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
+      "icon": "https://mpp.tempo.xyz/icons/openai.svg",
+      "category": "ai",
+      "categories": ["ai", "media"],
+      "integration": "third-party",
+      "tags": ["llm", "gpt-4o", "dall-e", "whisper", "tts", "embeddings", "chat"],
+      "status": "active",
+      "docs": {
+        "homepage": "https://platform.openai.com/docs",
+        "llmsTxt": "https://developers.openai.com/api/docs/llms.txt",
+        "apiReference": "https://platform.openai.com/docs/api-reference"
+      },
+      "methods": {
+        "tempo": {
+          "intents": ["charge", "session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "OpenAI",
+        "url": "https://openai.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/responses",
+          "description": "Create model responses (streaming supported).",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "amount": "500",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "unitType": "request",
+            "description": "Model response - price varies by model"
+          },
+          "docs": "https://platform.openai.com/docs/api-reference/responses"
+        },
+        {
+          "method": "POST",
+          "path": "/v1/chat/completions",
+          "description": "Chat completions with GPT models.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "amount": "500",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "unitType": "request",
+            "description": "Chat completion - price varies by model"
+          },
+          "docs": "https://platform.openai.com/docs/api-reference/chat"
+        },
+        {
+          "method": "POST",
+          "path": "/v1/embeddings",
+          "description": "Create text embeddings.",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "amount": "100",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Create embeddings"
+          },
+          "docs": "https://platform.openai.com/docs/api-reference/embeddings"
+        },
+        {
+          "method": "POST",
+          "path": "/v1/images/generations",
+          "description": "Generate images with DALL-E.",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "amount": "50000",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Generate images with DALL-E"
+          },
+          "docs": "https://platform.openai.com/docs/api-reference/images"
+        }
+      ]
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "url": "https://mpp.tempo.xyz/anthropic",
+      "serviceUrl": "https://api.anthropic.com",
+      "description": "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
+      "category": "ai",
+      "integration": "third-party",
+      "tags": ["llm", "claude", "sonnet", "opus", "haiku", "chat"],
+      "status": "active",
+      "methods": {
+        "tempo": {
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+        }
+      },
+      "provider": {
+        "name": "Anthropic",
+        "url": "https://anthropic.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/messages",
+          "description": "Create Claude messages.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "amount": "500",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/v1/chat/completions",
+          "description": "OpenAI-compatible chat completions.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "amount": "500",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rpc",
+      "name": "Tempo RPC",
+      "url": "https://mpp.tempo.xyz/rpc",
+      "serviceUrl": "https://rpc.tempo.xyz",
+      "description": "Tempo blockchain JSON-RPC access (mainnet and testnet).",
+      "category": "blockchain",
+      "integration": "first-party",
+      "tags": ["rpc", "json-rpc", "evm", "tempo", "node"],
+      "status": "active",
+      "docs": {
+        "llmsTxt": "https://docs.tempo.xyz/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+        }
+      },
+      "provider": {
+        "name": "Tempo",
+        "url": "https://tempo.xyz"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/",
+          "description": "JSON-RPC calls.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "amount": "1000",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "unitType": "request",
+            "description": "JSON-RPC calls - $0.001 per call"
+          }
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "name": "Object Storage",
+      "url": "https://mpp.tempo.xyz/storage",
+      "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
+      "category": "storage",
+      "integration": "first-party",
+      "tags": ["s3", "r2", "objects", "blobs", "files"],
+      "status": "active",
+      "methods": {
+        "tempo": {
+          "intents": ["charge", "session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+        }
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/:bucket/:key",
+          "description": "Download an object.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "amount": "100",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/:bucket/:key",
+          "description": "Upload an object.",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "amount": "1000",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Upload object - price scales with size"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/:bucket/:key",
+          "description": "Delete an object.",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "amount": "100",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Delete object"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/:bucket",
+          "description": "List objects in a bucket.",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "amount": "100",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "List objects in bucket"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mpp.tempo.xyz/schemas/discovery.schema.json",
+  "title": "MPP Service Discovery",
+  "description": "Schema for the Machine Payments Protocol service discovery registry. Describes services, their endpoints, pricing, and payment capabilities for marketplace/directory views.",
+  "type": "object",
+  "required": ["version", "services"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version. Currently must be 1."
+    },
+    "services": {
+      "type": "array",
+      "description": "List of registered services.",
+      "items": { "$ref": "#/$defs/Service" }
+    }
+  },
+  "additionalProperties": false,
+
+  "$defs": {
+    "Service": {
+      "type": "object",
+      "required": ["id", "name", "url", "endpoints", "methods"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "URL-safe unique identifier (e.g. 'openai', 'tempo-rpc')."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name (e.g. 'OpenAI', 'Google Gemini')."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "MPP proxy URL for this service (e.g. 'https://mpp.tempo.xyz/openai')."
+        },
+        "serviceUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "The upstream service's own URL (e.g. 'https://api.openai.com')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short description of what the service offers."
+        },
+        "icon": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to service icon/logo (square, recommended 256x256+)."
+        },
+        "category": {
+          "$ref": "#/$defs/Category",
+          "description": "Primary service category for directory grouping."
+        },
+        "categories": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Category" },
+          "uniqueItems": true,
+          "description": "All applicable categories (when a service spans multiple)."
+        },
+        "integration": {
+          "type": "string",
+          "enum": ["first-party", "third-party"],
+          "description": "Whether the service is operated by the proxy owner (first-party) or proxied from an external provider (third-party)."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "description": "Freeform tags for search and filtering (e.g. 'llm', 'gpt-4', 'embeddings', 'video')."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "beta", "deprecated", "maintenance"],
+          "default": "active",
+          "description": "Operational status of the service."
+        },
+        "docs": {
+          "$ref": "#/$defs/Docs",
+          "description": "Documentation and reference links."
+        },
+        "methods": {
+          "type": "object",
+          "description": "Supported payment methods, keyed by method identifier (aligns with /.well-known/payment spec).",
+          "additionalProperties": { "$ref": "#/$defs/PaymentMethod" }
+        },
+        "realm": {
+          "type": "string",
+          "description": "Default realm for payment challenges (typically the proxy host)."
+        },
+        "endpoints": {
+          "type": "array",
+          "description": "List of available API endpoints.",
+          "items": { "$ref": "#/$defs/Endpoint" }
+        },
+        "provider": {
+          "$ref": "#/$defs/Provider",
+          "description": "Upstream provider metadata."
+        },
+        "rateLimit": {
+          "$ref": "#/$defs/RateLimit",
+          "description": "Service-level rate limit (can be overridden per-endpoint)."
+        },
+        "addedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the service was added to the registry."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the service listing was last updated."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "Endpoint": {
+      "type": "object",
+      "required": ["method", "path"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
+          "description": "HTTP method."
+        },
+        "path": {
+          "type": "string",
+          "description": "URL path pattern with :param placeholders (e.g. '/v1/chat/completions')."
+        },
+        "description": {
+          "type": "string",
+          "description": "What this endpoint does."
+        },
+        "payment": {
+          "oneOf": [
+            { "$ref": "#/$defs/EndpointPayment" },
+            { "type": "null" }
+          ],
+          "description": "Payment requirement. null = free, object = paid."
+        },
+        "docs": {
+          "type": "string",
+          "format": "uri",
+          "description": "Documentation URL for this specific endpoint."
+        },
+        "rateLimit": {
+          "$ref": "#/$defs/RateLimit",
+          "description": "Per-endpoint rate limit override."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "EndpointPayment": {
+      "type": "object",
+      "required": ["intent", "method"],
+      "properties": {
+        "intent": {
+          "type": "string",
+          "enum": ["charge", "session"],
+          "description": "Payment intent type. 'charge' = one-time per-request, 'session' = pay-as-you-go streaming."
+        },
+        "method": {
+          "type": "string",
+          "description": "Payment method identifier (e.g. 'tempo', 'stripe')."
+        },
+        "amount": {
+          "type": "string",
+          "description": "Cost in base units of the currency (before decimal scaling)."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency identifier. For Tempo: TIP-20 token address. For fiat: ISO 4217 code."
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18,
+          "description": "Decimal places for the currency (e.g. 6 for USDC). Used to derive human-readable price: amount / 10^decimals."
+        },
+        "recipient": {
+          "type": "string",
+          "description": "Payment recipient address or identifier."
+        },
+        "unitType": {
+          "type": "string",
+          "description": "What one unit of payment covers (e.g. 'request', 'token', 'minute', 'byte')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable pricing note."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "PaymentMethod": {
+      "type": "object",
+      "required": ["intents"],
+      "properties": {
+        "intents": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Supported intent types for this method (e.g. ['charge', 'session'])."
+        },
+        "assets": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Accepted asset identifiers (e.g. TIP-20 addresses, 'BTC')."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "Category": {
+      "type": "string",
+      "enum": [
+        "ai",
+        "blockchain",
+        "compute",
+        "data",
+        "media",
+        "search",
+        "social",
+        "storage",
+        "web"
+      ],
+      "description": "Service category."
+    },
+
+    "Provider": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Upstream provider name (e.g. 'OpenAI, Inc.')."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Provider's website."
+        },
+        "icon": {
+          "type": "string",
+          "format": "uri",
+          "description": "Provider's logo URL."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "Docs": {
+      "type": "object",
+      "properties": {
+        "homepage": {
+          "type": "string",
+          "format": "uri",
+          "description": "Main documentation page."
+        },
+        "llmsTxt": {
+          "type": "string",
+          "format": "uri",
+          "description": "LLM-friendly documentation URL (llms.txt)."
+        },
+        "openapi": {
+          "type": "string",
+          "format": "uri",
+          "description": "OpenAPI/Swagger spec URL."
+        },
+        "apiReference": {
+          "type": "string",
+          "format": "uri",
+          "description": "API reference documentation URL."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "RateLimit": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "integer",
+          "description": "Max requests allowed in the window."
+        },
+        "window": {
+          "type": "string",
+          "description": "Time window (e.g. '1m', '1h', '1d')."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
