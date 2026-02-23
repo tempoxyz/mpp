@@ -1,0 +1,274 @@
+# Proposal: MPP base currency settlement
+
+**Brendan Ryan / Feb 23, 2026**
+
+## Motivation
+
+Sellers should just be able to say "pay me USD", and agents should be able to pay in any TIP-20 which is USD equivalent.
+
+## Problem
+
+Today, the MPP charge intent requires servers to declare a specific TIP-20 token address as the currency:
+
+```json
+{
+  "amount": "1000000",
+  "currency": "0x20c0000000000000000000000000000000000000",
+  "recipient": "0x742d..."
+}
+```
+
+This creates friction:
+
+- **For sellers:** They must pick one token (pathUSD? USDC.e?) and hope clients hold it.
+- **For buyers:** If they hold a different USD stablecoin, they must manually swap before paying—two transactions, non-atomic.
+- **For partners:** New stablecoin issuers (Klarna, AllUnity, etc.) can't be used for MPP payments unless every seller explicitly adds their token address.
+
+## Design
+
+The core idea: separate what denomination the server accepts from what token it settles in.
+
+```json
+{
+  "amount": "1000000",
+  "currency": "USD",
+  "settlement": "0x20c0000000000000000000000000000000000000",
+  "recipient": "0x742d..."
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `currency` | An ISO 4217 code (for example, `"USD"`, `"EUR"`). Tells the client: "I accept any TIP-20 whose on-chain `currency()` field matches this code." |
+| `settlement` | The exact TIP-20 address the server receives. Non-negotiable. The `amount` is denominated in this token's base units. |
+
+### Client action
+
+The client figures out how to get there. If they already hold the settlement token, it's a plain transfer. If they hold a different USD token, they swap and transfer atomically.
+
+## Control flow
+
+### Happy path: client holds the settlement token
+
+```
+Client                              Server                    Network
+  |                                   |                          |
+  |  GET /api/resource                |                          |
+  |---------------------------------->|                          |
+  |                                   |                          |
+  |  402 Payment Required             |                          |
+  |  currency="USD"                   |                          |
+  |  settlement="0x20c0...00"         |                          |
+  |  amount="1000000"                 |                          |
+  |<----------------------------------|                          |
+  |                                   |                          |
+  |  Client holds pathUSD (0x20c0..)  |                          |
+  |  → sign transfer(recipient, 1M)   |                          |
+  |                                   |                          |
+  |  Authorization: Payment <cred>    |                          |
+  |---------------------------------->|                          |
+  |                                   |  co-sign + broadcast     |
+  |                                   |------------------------->|
+  |                                   |  confirmed               |
+  |                                   |<-------------------------|
+  |  200 OK + Payment-Receipt         |                          |
+  |<----------------------------------|                          |
+```
+
+This path is identical to today. No behavioral change.
+
+### Swap path: client holds a different USD token
+
+```
+Client                              Server                    Network
+  |                                   |                          |
+  |  GET /api/resource                |                          |
+  |---------------------------------->|                          |
+  |                                   |                          |
+  |  402 Payment Required             |                          |
+  |  currency="USD"                   |                          |
+  |  settlement="0x20c0...00"         |                          |
+  |  amount="1000000"                 |                          |
+  |<----------------------------------|                          |
+  |                                   |                          |
+  |  Client holds USDC.e, not pathUSD |                          |
+  |  → sign batch tx:                 |                          |
+  |    1. swap(USDC.e → pathUSD, 1M)  |                          |
+  |    2. transfer(pathUSD, 1M, recip)|                          |
+  |  (single atomic tx via 7702)      |                          |
+  |                                   |                          |
+  |  Authorization: Payment <cred>    |                          |
+  |---------------------------------->|                          |
+  |                                   |  simulate tx             |
+  |                                   |  verify: recipient gets  |
+  |                                   |  1M pathUSD ✓            |
+  |                                   |  co-sign + broadcast     |
+  |                                   |------------------------->|
+  |                                   |  confirmed               |
+  |                                   |<-------------------------|
+  |  200 OK + Payment-Receipt         |                          |
+  |<----------------------------------|                          |
+```
+
+The server doesn't need to understand the swap. It simulates the transaction and verifies the outcome: did `recipient` receive `amount` of `settlement`?
+
+### Failure: client holds no matching currency
+
+```
+Client                              Server
+  |                                   |
+  |  402: currency="USD"              |
+  |<----------------------------------|
+  |                                   |
+  |  Client holds only EUR tokens     |
+  |  → no TIP-20 with currency()="USD"|
+  |  → cannot fulfill                 |
+  |  (SDK returns error to caller)    |
+```
+
+Cross-currency swaps (EUR → USD) are out of scope for this proposal.
+
+## Protocol (spec changes)
+
+### Request schema
+
+New fields in the `request` parameter of the `WWW-Authenticate` Challenge:
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `amount` | string | Y | Amount in settlement token base units |
+| `currency` | string | Y | ISO 4217 code (for example, `"USD"`) OR a TIP-20 address (`0x...`) for backwards compatibility |
+| `recipient` | string | N | Recipient address |
+| `expires` | string | N | Expiry timestamp (RFC 3339) |
+| `settlement` | string | Y | TIP-20 address the server receives. REQUIRED when `currency` is an ISO 4217 code. MUST NOT be present when `currency` is a token address. |
+
+### Backwards compatibility
+
+When `currency` is a `0x`-prefixed address, behavior is identical to today:
+
+- `settlement` MUST NOT be present.
+- The client MUST transfer the exact token specified.
+- No swap logic is triggered.
+
+Detection rule: if `currency` starts with `0x`, it's a token address. Otherwise, it's an ISO 4217 code.
+
+### Validation rules
+
+**Client MUST:**
+
+- Verify `TIP20(settlement).currency()` matches the declared `currency` code.
+- If client's token ≠ `settlement`, perform an atomic swap-and-transfer ensuring exactly `amount` of `settlement` arrives at `recipient`.
+
+**Server MUST:**
+
+- Validate that `settlement` token was received by simulating or inspecting the transaction outcome—not by pattern-matching on calldata.
+- Verify `amount` of `settlement` was transferred to `recipient`.
+
+### Server validation (outcome-based)
+
+Today, servers decode the signed transaction and pattern-match:
+
+```python
+assert tx.to == currency_address
+assert tx.calldata == transfer(recipient, amount)
+```
+
+With currency abstraction, the server validates the effect instead:
+
+```python
+result = simulate(signed_tx)
+transfers = result.events.filter(
+  event == Transfer &&
+  token == request.settlement &&
+  to == request.recipient &&
+  value >= request.amount
+)
+assert transfers.length > 0
+```
+
+This works for both direct transfers and swap+transfer batches.
+
+### Example Challenges
+
+**Server accepts any USD, settles in pathUSD:**
+
+```json
+{
+  "amount": "1000000",
+  "currency": "USD",
+  "settlement": "0x20c0000000000000000000000000000000000000",
+  "recipient": "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00",
+  "expires": "2026-02-24T12:00:00Z",
+  "methodDetails": { "chainId": 42431, "feePayer": true }
+}
+```
+
+**Legacy—exact token (backwards compatible):**
+
+```json
+{
+  "amount": "1000000",
+  "currency": "0x20c0000000000000000000000000000000000000",
+  "recipient": "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00",
+  "expires": "2026-02-24T12:00:00Z",
+  "methodDetails": { "chainId": 42431, "feePayer": true }
+}
+```
+
+## Alternatives considered
+
+### Naive "USD" (server-side accumulation)
+
+Server says `currency: "USD"`, client sends any USD token it holds. The server accumulates whatever arrives.
+
+**Reasons to not do:** The server ends up with a "bag" of N different tokens, creating complex accounting and treasury management. Every seller becomes a multi-token treasury.
+
+### Server-side atomic swap
+
+Server receives the client's signature and injects a swap instruction before broadcasting.
+
+**Reasons to not do:** The client's signature cryptographically commits to the exact calldata. The server cannot modify the operation without invalidating the signature.
+
+### Server swaps after Receipt
+
+Server receives whatever USD token the client sends and performs a separate swap transaction afterward.
+
+**Reasons to not do:** Feasible but strictly worse than atomic client-side batching. Requires the server to manage its own treasury, bear a second transaction cost, and accept settlement delay.
+
+### Token whitelist (`accept` field)
+
+Add an optional `accept` field to the request schema—an array of TIP-20 addresses the server is willing to accept as swap input. This lets servers restrict which tokens can be used.
+
+**Reasons to not do:** Adds complexity without clear benefit at this stage. The outcome-based validation already ensures the server receives the correct settlement token. If a client swaps through a low-quality intermediate token that fails, the transaction reverts. Servers concerned about specific token exposure can enforce this at the application layer. May be revisited if real-world usage reveals a need.
+
+## Security considerations
+
+### Currency field validation
+
+Clients MUST verify that `TIP20(settlement).currency()` matches the declared `currency` code before signing. A malicious server could declare `currency: "USD"` with a settlement token that is not USD-denominated, tricking the client into swapping real USD for a worthless token.
+
+### Swap slippage
+
+For same-currency swaps on the Stablecoin DEX (for example, USDC.e → pathUSD), slippage is expected to be zero under normal conditions since all USD tokens are pegged 1:1 through the protocol-level DEX. Clients MUST ensure the output amount equals or exceeds the requested amount. If not, the transaction MUST revert.
+
+### Input token risk
+
+Without an explicit token whitelist, any TIP-20 with a matching `currency()` field could be used as swap input. A low-quality or depegged token declaring `currency: "USD"` could be swapped through the DEX. Servers SHOULD monitor the on-chain `currency()` field of settlement-incoming tokens and MAY reject transactions originating from unknown issuers at the application layer.
+
+### Outcome-based validation
+
+Switching from calldata pattern-matching to outcome simulation introduces a broader validation surface. Servers MUST use a trusted RPC endpoint for simulation and SHOULD validate that no unexpected side effects (additional transfers, approvals) occur in the simulated transaction.
+
+### DEX tick bounds / depeg failure mode
+
+The Stablecoin DEX enforces tick bounds of ±2000 (`MIN_TICK` / `MAX_TICK`), which at `PRICE_SCALE = 100,000` maps to a ±2% price range. If the client's input token depegs beyond 2% from the settlement token, `swapExactAmountOut` reverts with `INSUFFICIENT_LIQUIDITY` or `TICK_OUT_OF_BOUNDS`—even if there's technically a willing counterparty outside the range. The MPP payment fails with no recourse.
+
+Additionally, multi-hop swaps (when `tokenIn` and `tokenOut` aren't directly paired in the quote-token tree) compound this risk—each hop must independently have sufficient liquidity within the ±2% band. Clients SHOULD call `quoteSwapExactAmountOut` before constructing the batch tx and surface an explicit error ("insufficient DEX liquidity") rather than letting the swap revert opaquely inside the batch.
+
+### Fee payer gas cost for swap+transfer batches
+
+When `feePayer: true`, the server co-signs and pays gas. A simple `transfer()` is cheap (~30-40k gas). A `swapExactAmountOut` + `transfer` batch via 7702 is significantly more expensive—the swap walks the orderbook (cost scales with number of ticks consumed), multi-hop paths multiply this, and the 7702 delegation itself adds overhead.
+
+This proposal does not address whether the server should (a) account for this gas delta in the `amount` charged, (b) cap the gas it's willing to co-sign for, or (c) reject swap-path transactions entirely if gas exceeds a threshold. Without guardrails, a client could construct a pathological multi-hop swap that burns excessive gas at the server's expense.
+
+Recommendation: the server SHOULD set a `gasLimit` on co-signed transactions and MAY inflate the charged `amount` to cover expected swap gas. The Challenge schema could include an optional `maxGas` field so clients know the budget upfront.
