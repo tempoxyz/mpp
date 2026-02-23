@@ -6,31 +6,16 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet** that 
 
 ```bash [try-demo.sh]
 # Free endpoint - no payment required
-$ presto query https://mpp.tempo.xyz/api/ping
+$ presto https://mpp.tempo.xyz/api/ping
 
 # Paid endpoint - requires 0.10 pathUSD payment
-$ presto query https://mpp.tempo.xyz/api/ping/paid
-
-# Inspect the payment requirements first
-$ presto inspect https://mpp.tempo.xyz/api/ping/paid
+$ presto https://mpp.tempo.xyz/api/ping/paid
 
 # Dry run to preview what happens
-$ presto query -D https://mpp.tempo.xyz/api/ping/paid
+$ presto --dry-run https://mpp.tempo.xyz/api/ping/paid
 
 # Verbose output to see the full 402 flow
-$ presto query -vi https://mpp.tempo.xyz/api/ping/paid
-```
-
-### Set up with a private key
-
-For testing, you can use a private key directly using an environment variable:
-
-```bash [set-key.sh]
-# Set your private key (funded on Tempo testnet)
-$ export PRESTO_PRIVATE_KEY="0x..."
-
-# Make paid requests
-$ presto query https://mpp.tempo.xyz/api/ping/paid
+$ presto -vi https://mpp.tempo.xyz/api/ping/paid
 ```
 
 :::tip[Get testnet funds]
@@ -41,91 +26,85 @@ The demo server runs on Tempo testnet. Fund your wallet at [faucet.tempo.xyz](ht
 
 ```bash [basic-requests.sh]
 # Make a payment request
-$ presto query https://mpp.tempo.xyz/api/ping/paid
+$ presto https://mpp.tempo.xyz/api/ping/paid
 
 # Verbose output with headers
-$ presto query -vi https://mpp.tempo.xyz/api/ping/paid
+$ presto -vi https://mpp.tempo.xyz/api/ping/paid
 
 # Save output to file
-$ presto query -o output.json https://mpp.tempo.xyz/api/ping/paid
+$ presto -o output.json https://mpp.tempo.xyz/api/ping/paid
 
 # JSON output format
-$ presto query --json-output https://mpp.tempo.xyz/api/ping/paid
+$ presto --output-format json https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ## Payment controls
 
 ```bash [payment-controls.sh]
 # Preview payment without executing (dry run)
-$ presto query -D https://mpp.tempo.xyz/api/ping/paid
+$ presto --dry-run https://mpp.tempo.xyz/api/ping/paid
+```
 
-# Require confirmation before payment
-$ presto query -y https://mpp.tempo.xyz/api/ping/paid
+## Session management
 
-# Set maximum payment amount (in atomic units)
-$ presto query -M 10000 https://mpp.tempo.xyz/api/ping/paid
+```bash [session-management.sh]
+# List active payment sessions
+$ presto session list
 
-# Filter to specific networks
-$ presto query -n tempo-moderato https://mpp.tempo.xyz/api/ping/paid
+# Close a specific session
+$ presto session close https://mpp.tempo.xyz
+
+# Close all sessions
+$ presto session close --all
+
+# Recover a session from on-chain state
+$ presto session recover https://mpp.tempo.xyz
 ```
 
 ## Wallet management
 
 ```bash [wallet-management.sh]
-# Check wallet balance
+# Show wallet address and balances
+$ presto whoami
+
+# Same as whoami
 $ presto balance
 
-# Check balance on specific network
-$ presto balance -n tempo-moderato
-
-# Use specific account by name
-$ presto query -a my-wallet https://mpp.tempo.xyz/api/ping/paid
-
-# Use specific sender address
-$ presto query --from 0x1234... https://mpp.tempo.xyz/api/ping/paid
-```
-
-## Inspecting payments
-
-```bash [inspect-payments.sh]
-# Inspect payment requirements without paying
-$ presto inspect https://mpp.tempo.xyz/api/ping/paid
-
-# View configuration
-$ presto config
-
-# View config as JSON
-$ presto config --output-format json
+# JSON output
+$ presto whoami --output-format json
 ```
 
 ## HTTP options
 
 ```bash [http-options.sh]
 # Custom headers
-$ presto query -H "X-Custom: value" https://mpp.tempo.xyz/api/ping/paid
+$ presto -H "X-Custom: value" https://mpp.tempo.xyz/api/ping/paid
 
 # POST with data
-$ presto query -X POST -d '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
+$ presto -d '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
 
 # POST with JSON (sets Content-Type automatically)
-$ presto query --json '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
+$ presto --json '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
 
-# Follow redirects
-$ presto query -L https://mpp.tempo.xyz/api/ping/paid
+# POST data from file
+$ presto -d @data.json https://mpp.tempo.xyz/api/ping/paid
+
+# Disable following redirects
+$ presto --no-redirect https://mpp.tempo.xyz/api/ping/paid
 
 # Set timeout
-$ presto query -m 30 https://mpp.tempo.xyz/api/ping/paid
+$ presto -m 30 https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ## Output control
 
 ```bash [output-control.sh]
 # Quiet mode (suppress non-essential output)
-$ presto query -q https://mpp.tempo.xyz/api/ping/paid
+$ presto -q https://mpp.tempo.xyz/api/ping/paid
 
-# Show only HTTP headers
-$ presto query -I https://mpp.tempo.xyz/api/ping/paid
+# Include HTTP headers in output
+$ presto -i https://mpp.tempo.xyz/api/ping/paid
 
 # Disable colors
-$ presto query --color never https://mpp.tempo.xyz/api/ping/paid
+$ presto --color never https://mpp.tempo.xyz/api/ping/paid
 ```

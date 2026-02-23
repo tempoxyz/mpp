@@ -2,7 +2,7 @@ import { Card, Cards } from 'vocs'
 
 # presto [Make paid HTTP requests from the command line]
 
-`presto` is a command-line tool for making HTTP requests with automatic payment support. It handles `402 Payment Required` responses with built-in payment methods and spending controls. It can be used from scripts, cron jobs, and AI agents.
+`presto` is a command-line tool for making HTTP requests with automatic payment support. It handles `402 Payment Required` responses with built-in payment methods. It can be used from scripts, cron jobs, and AI agents.
 
 ## Quickstart
 
@@ -11,32 +11,23 @@ import { Card, Cards } from 'vocs'
 ### Install
 
 ```bash [install.sh]
-$ curl -fsSL https://tempo.xyz/ctl/install.sh | bash
+$ curl -fsSL https://raw.githubusercontent.com/tempoxyz/presto/main/install.sh | bash
 ```
 
 ### Log in
 
-Run the login wizard to set up your wallet:
+Run the login command to set up your wallet:
 
 ```bash [login.sh]
 $ presto login
 ```
 
-This creates a new encrypted keystore and saves your configuration to `~/.presto/config.toml`.
-
-:::tip[Quick setup for testing]
-For quick testing without a keystore, set your private key directly:
-
-```bash [set-key.sh]
-$ export PRESTO_PRIVATE_KEY="0x..."
-```
-
-:::
+This opens your browser to authenticate with your Tempo wallet. Credentials are stored in your platform's native data directory.
 
 ### Make your first paid request
 
 ```bash [paid-request.sh]
-$ presto query -vv https://mpp.tempo.xyz/api/ping/paid
+$ presto -vv https://mpp.tempo.xyz/api/ping/paid
 ```
 
 :::tip[Live demo server]
@@ -61,35 +52,25 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use 
 Use dry-run mode to see what would happen without actually paying:
 
 ```bash [dry-run.sh]
-$ presto query -D https://mpp.tempo.xyz/api/ping/paid
-```
-
-Or inspect the payment requirements before paying:
-
-```bash [inspect.sh]
-$ presto inspect https://mpp.tempo.xyz/api/ping/paid
-```
-
-### Set spending limits
-
-Protect yourself with a maximum payment amount:
-
-```bash [max-payment.sh]
-# Reject payments over 1 USD
-$ presto query -M 1000000 https://mpp.tempo.xyz/api/ping/paid
+$ presto --dry-run https://mpp.tempo.xyz/api/ping/paid
 ```
 
 ### Common flags
 
 | Flag | Description |
 |------|-------------|
-| `-D` | Dry run - preview without paying |
-| `-y` | Require confirmation before payment |
-| `-M <amount>` | Maximum payment amount (atomic units) |
+| `--dry-run` | Preview without paying |
 | `-v` | Verbose output |
 | `-i` | Include response headers |
 | `-o <file>` | Save response to file |
-| `-n <network>` | Filter to specific network |
+| `-q` | Quiet mode (suppress logs) |
+| `--output-format json` | Output in JSON format |
+| `-X <METHOD>` | Custom HTTP method |
+| `--json <DATA>` | Send JSON data (sets Content-Type automatically) |
+| `-d <DATA>` | POST data (use `@filename` to read from file) |
+| `-H <HEADER>` | Add custom header |
+| `--no-redirect` | Disable following redirects |
+| `-m <SECONDS>` | Request timeout |
 
 ---
 
@@ -112,7 +93,7 @@ The agent calls `presto` like any other command-line tool when it detects a `402
 When an AI agent needs to access a paid resource, it runs:
 
 ```bash [agent-request.sh]
-$ presto query https://api.example.com/premium-data
+$ presto https://api.example.com/premium-data
 ```
 
 The agent receives the response data directly—no manual payment handling required.
@@ -121,21 +102,12 @@ The agent receives the response data directly—no manual payment handling requi
 
 presto includes safeguards for autonomous agent use:
 
-### Spending limits
-
-Set a maximum amount the agent can spend per request:
-
-```bash [spending-limit.sh]
-# Limit to 0.50 USDC per request
-$ presto query -M 500000 https://api.example.com/data
-```
-
 ### Dry run mode
 
 Agents can preview costs before committing:
 
 ```bash [preview-cost.sh]
-$ presto query -D https://api.example.com/expensive-endpoint
+$ presto --dry-run https://api.example.com/expensive-endpoint
 ```
 
 ### Network filtering
@@ -143,7 +115,7 @@ $ presto query -D https://api.example.com/expensive-endpoint
 Restrict payments to specific networks:
 
 ```bash
-presto query -n tempo-moderato https://api.example.com/data
+presto -n tempo-moderato https://api.example.com/data
 ```
 
 ### Skill configuration
@@ -158,10 +130,6 @@ For AI agent frameworks that support skills, presto can be configured as a tool:
     "url": {
       "type": "string",
       "description": "The URL to request"
-    },
-    "max_payment": {
-      "type": "integer",
-      "description": "Maximum payment in atomic units (optional)"
     }
   }
 }
@@ -173,14 +141,14 @@ For AI agent frameworks that support skills, presto can be configured as a tool:
 
 ```bash [query-api.sh]
 # Query a paid data API
-$ presto query https://api.data-provider.com/market-data?symbol=BTC
+$ presto https://api.data-provider.com/market-data?symbol=BTC
 ```
 
 ### Paid compute
 
 ```bash [inference.sh]
 # Run inference on a paid model
-$ presto query -X POST \
+$ presto -X POST \
   --json '{"prompt": "Explain quantum computing"}' \
   https://api.ai-provider.com/generate
 ```
@@ -189,7 +157,7 @@ $ presto query -X POST \
 
 ```bash [analyze-repo.sh]
 # Use a paid developer tool
-$ presto query https://api.dev-tools.com/analyze?repo=myorg/myrepo
+$ presto https://api.dev-tools.com/analyze?repo=myorg/myrepo
 ```
 
 ## Next steps
