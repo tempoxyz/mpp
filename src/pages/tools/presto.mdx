@@ -60,12 +60,42 @@ moderato_rpc = "https://my-custom-moderato-rpc.com"
 |---------|-------------|
 | `presto <url>` | Make an HTTP request with automatic payment |
 | `presto login` | Log in to your Tempo wallet |
-| `presto logout` | Log out and disconnect your wallet |
+| `presto logout [--yes]` | Log out and disconnect your wallet |
 | `presto whoami` | Show wallet address, balances, and access keys |
-| `presto balance` | Alias for `whoami` |
 | `presto session list` | List active payment sessions |
-| `presto session close` | Close a payment session |
-| `presto session recover` | Recover a session from on-chain state |
+| `presto session close [url] [--all]` | Close a payment session by URL, or all sessions |
+| `presto session recover <url>` | Recover a session from on-chain state |
+| `presto completions <shell>` | Generate shell completions (bash, zsh, fish, powershell) |
+
+### Global options
+
+| Flag | Description |
+|------|-------------|
+| `-c, --config <PATH>` | Configuration file path |
+| `-v, --verbose` | Verbosity level (repeatable: `-v`, `-vv`, `-vvv`) |
+| `-q, --quiet` | Suppress log messages |
+| `--color <MODE>` | Color output: `auto`, `always`, `never` (default: `auto`) |
+| `--output-format <FORMAT>` | Output format: `text`, `json` (default: `text`) |
+
+### Query options
+
+| Flag | Description |
+|------|-------------|
+| `--dry-run` | Preview payment without executing |
+| `-i, --include` | Include HTTP response headers in output |
+| `-o, --output <FILE>` | Write response to file |
+| `-X, --request <METHOD>` | HTTP method (GET, POST, etc.) |
+| `-H, --header <HEADER>` | Add custom header (repeatable) |
+| `--json <DATA>` | Send JSON data (sets Content-Type automatically) |
+| `-d, --data <DATA>` | POST data (use `@filename` to read from file, `@-` for stdin) |
+| `--no-redirect` | Disable following redirects |
+| `-m, --timeout <SECONDS>` | Request timeout in seconds |
+
+### Environment variables
+
+| Variable | Description |
+|----------|-------------|
+| `PRESTO_RPC_URL` | Override RPC endpoint for all networks |
 
 ## Learn more
 

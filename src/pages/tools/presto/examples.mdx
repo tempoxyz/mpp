@@ -8,7 +8,7 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet** that 
 # Free endpoint - no payment required
 $ presto https://mpp.tempo.xyz/api/ping
 
-# Paid endpoint - requires 0.10 pathUSD payment
+# Paid endpoint - requires payment
 $ presto https://mpp.tempo.xyz/api/ping/paid
 
 # Dry run to preview what happens
@@ -88,6 +88,9 @@ $ presto --json '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
 
 # POST data from file
 $ presto -d @data.json https://mpp.tempo.xyz/api/ping/paid
+
+# POST data from stdin
+$ echo '{"key":"value"}' | presto -d @- https://mpp.tempo.xyz/api/ping/paid
 
 # Disable following redirects
 $ presto --no-redirect https://mpp.tempo.xyz/api/ping/paid

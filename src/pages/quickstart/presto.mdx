@@ -37,9 +37,9 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use 
 `presto` automatically:
 
 1. Makes the initial request
-2. Detects the `402` Payment Required response
-3. Parses the payment challenge from `WWW-Authenticate`
-4. Signs and submits the payment
+2. Detects the `402 Payment Required` response
+3. Parses the payment challenge
+4. Signs a payment credential
 5. Retries with the payment credential
 6. Returns the response
 
@@ -67,8 +67,8 @@ $ presto --dry-run https://mpp.tempo.xyz/api/ping/paid
 | `--output-format json` | Output in JSON format |
 | `-X <METHOD>` | Custom HTTP method |
 | `--json <DATA>` | Send JSON data (sets Content-Type automatically) |
-| `-d <DATA>` | POST data (use `@filename` to read from file) |
-| `-H <HEADER>` | Add custom header |
+| `-d <DATA>` | POST data (use `@filename` to read from file, `@-` for stdin) |
+| `-H <HEADER>` | Add custom header (repeatable) |
 | `--no-redirect` | Disable following redirects |
 | `-m <SECONDS>` | Request timeout |
 
