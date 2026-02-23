@@ -751,7 +751,7 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   --term-gray2: light-dark(oklch(0.933 0 0), oklch(0.223 0 0));
   --term-gray3: light-dark(oklch(0.933 0 0), oklch(0.25 0 0));
   --term-gray4: light-dark(oklch(0.933 0 0), oklch(0.29 0 0));
-  --term-gray5: light-dark(oklch(0.863 0 0), oklch(0.5 0 0));
+  --term-gray5: light-dark(oklch(0.549 0 0), oklch(0.5 0 0));
   --term-gray6: light-dark(oklch(0.72 0 0), oklch(0.649 0 0));
   --term-gray7: light-dark(oklch(0.649 0 0), oklch(0.649 0 0));
   --term-gray8: light-dark(oklch(0.549 0 0), oklch(0.549 0 0));
