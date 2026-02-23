@@ -278,12 +278,28 @@ export function AsciiLogo({
   const [charStates, setCharStates] = useState<CharState[][]>(() => {
     return Array.from({ length: maxLines }, () =>
       Array.from({ length: maxWidth }, () => ({
-        charIndex: Math.floor(Math.random() * FILL_CHARS.length),
-        nextChangeTime: Date.now() + Math.random() * 1000,
-        cycleDuration: 600 + Math.random() * 1200,
+        charIndex: 0,
+        nextChangeTime: 0,
+        cycleDuration: 1000,
       })),
     );
   });
+
+  // Randomize after mount to avoid hydration mismatch
+  const hasRandomized = useRef(false);
+  useEffect(() => {
+    if (hasRandomized.current) return;
+    hasRandomized.current = true;
+    setCharStates(
+      Array.from({ length: maxLines }, () =>
+        Array.from({ length: maxWidth }, () => ({
+          charIndex: Math.floor(Math.random() * FILL_CHARS.length),
+          nextChangeTime: Date.now() + Math.random() * 1000,
+          cycleDuration: 600 + Math.random() * 1200,
+        })),
+      ),
+    );
+  }, [maxLines, maxWidth]);
 
   const startMorph = (target: 0 | 1) => {
     if (morphTarget.current === target) return;
