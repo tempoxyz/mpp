@@ -189,7 +189,7 @@ export function AgentTabs() {
             <span style={{ color: FLAG_GREY }}> -fsSL</span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {" "}
-             https://presto-binaries.tempo.xyz/install.sh
+              https://presto-binaries.tempo.xyz/install.sh
             </span>
             <span style={{ color: FLAG_GREY }}> |</span>
             <span style={{ color: CMD_PURPLE }}> bash</span>

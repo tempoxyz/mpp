@@ -132,7 +132,7 @@ function LandingStyles() {
 					align-items: center !important;
 					text-align: center !important;
 				}
-				.cli-demo-pane { margin: 0 auto; }
+				.cli-demo-pane { margin: 0 auto; aspect-ratio: 3/4; }
 				[data-v-gutter-top] {
 					background: var(--vocs-background-color-primary) !important;
 					background-color: var(--vocs-background-color-primary) !important;
@@ -145,6 +145,9 @@ function LandingStyles() {
 				.not-prose p { font-size: 17px; }
 				.not-prose .text-sm { font-size: 15px; }
 				.not-prose .font-mono { font-size: 15px; }
+				[data-terminal] p,
+				[data-terminal] .text-sm,
+				[data-terminal] .font-mono { font-size: inherit !important; }
 
 				.landing-hero { padding-top: var(--vocs-spacing-topNav, 64px); }
 
@@ -181,7 +184,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
         }}
       >
         {/* Two-column layout: terminal left, hero right */}
-        <div className="w-full flex flex-col lg:flex-row gap-12 lg:gap-16 items-stretch">
+        <div className="w-full flex flex-col lg:flex-row gap-4 lg:gap-16 items-stretch">
           {/* Right pane — hero content */}
           <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-left flex flex-col items-start justify-between gap-5">
             {/* Lockup */}
@@ -678,5 +681,3 @@ function AgentTabs() {
     </div>
   );
 }
-
-
