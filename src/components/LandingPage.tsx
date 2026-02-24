@@ -5,7 +5,7 @@ import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
-import { captureEvent, MppEvents } from "../lib/posthog";
+import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { fetch } from "../mppx.client";
 import { pathUsd } from "../wagmi.config";
 import * as Cli from "./Cli";
@@ -508,7 +508,7 @@ function StripeLogo({
 
 function CTAButtons() {
   const handleCta = (label: string, href: string) => {
-    captureEvent(MppEvents.LANDING_CTA_CLICKED, {
+    captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
       cta_label: label,
       href,
     });
@@ -612,7 +612,7 @@ function AgentTabs() {
               type="button"
               onClick={() => {
                 setActive(i);
-                captureEvent(MppEvents.LANDING_AGENT_TAB_SELECTED, {
+                captureEvent(AnalyticsEvents.LANDING_AGENT_TAB_SELECTED, {
                   tab_index: i,
                   tab_label: a.label,
                 });
@@ -893,7 +893,7 @@ function SelectQuery() {
       if (!query) throw new Error("Unknown query");
 
       const start = Date.now();
-      captureEvent(MppEvents.DEMO_QUERY_SELECTED, {
+      captureEvent(AnalyticsEvents.DEMO_QUERY_SELECTED, {
         query_id: queryId,
         query_prompt: query.prompt,
       });
@@ -924,7 +924,7 @@ function SelectQuery() {
         r.map((item, i) => (i === index ? { ...item, status: "done" } : item)),
       );
 
-      captureEvent(MppEvents.DEMO_QUERY_COMPLETED, {
+      captureEvent(AnalyticsEvents.DEMO_QUERY_COMPLETED, {
         duration_ms: Date.now() - start,
         query_id: queryId,
         status: "done",
@@ -939,7 +939,7 @@ function SelectQuery() {
           i === last ? { ...item, status: "error" } : item,
         );
       });
-      captureEvent(MppEvents.DEMO_QUERY_COMPLETED, {
+      captureEvent(AnalyticsEvents.DEMO_QUERY_COMPLETED, {
         query_id: queryId,
         status: "error",
       });

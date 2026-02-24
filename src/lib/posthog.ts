@@ -61,7 +61,7 @@ function processQueue() {
   checkAndProcess();
 }
 
-export const MppEvents = {
+export const AnalyticsEvents = {
   DEMO_FAUCET_CLAIMED: "mpp.demo.faucet_claimed",
   DEMO_QUERY_COMPLETED: "mpp.demo.query_completed",
   DEMO_QUERY_SELECTED: "mpp.demo.query_selected",
