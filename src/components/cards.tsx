@@ -121,11 +121,7 @@ export function RustSdkCard() {
   );
 }
 
-export function MppxCreateReferenceCard({
-  to,
-}: {
-  to: string;
-}) {
+export function MppxCreateReferenceCard({ to }: { to: string }) {
   return (
     <Card
       description="Full API documentation"

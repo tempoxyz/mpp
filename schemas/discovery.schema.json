@@ -137,10 +137,7 @@
           "description": "What this endpoint does."
         },
         "payment": {
-          "oneOf": [
-            { "$ref": "#/$defs/EndpointPayment" },
-            { "type": "null" }
-          ],
+          "oneOf": [{ "$ref": "#/$defs/EndpointPayment" }, { "type": "null" }],
           "description": "Payment requirement. null = free, object = paid."
         },
         "docs": {

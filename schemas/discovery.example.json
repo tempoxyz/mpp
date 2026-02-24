@@ -11,7 +11,15 @@
       "category": "ai",
       "categories": ["ai", "media"],
       "integration": "third-party",
-      "tags": ["llm", "gpt-4o", "dall-e", "whisper", "tts", "embeddings", "chat"],
+      "tags": [
+        "llm",
+        "gpt-4o",
+        "dall-e",
+        "whisper",
+        "tts",
+        "embeddings",
+        "chat"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://platform.openai.com/docs",

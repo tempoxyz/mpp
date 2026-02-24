@@ -5,6 +5,7 @@ import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Link } from "vocs";
 import { useConnectorClient } from "wagmi";
+import { captureEvent, MppEvents } from "../lib/posthog";
 import { fetch } from "../mppx.client";
 import { pathUsd } from "../wagmi.config";
 import * as Cli from "./Cli";
@@ -506,6 +507,13 @@ function StripeLogo({
 // ---------------------------------------------------------------------------
 
 function CTAButtons() {
+  const handleCta = (label: string, href: string) => {
+    captureEvent(MppEvents.LANDING_CTA_CLICKED, {
+      cta_label: label,
+      href,
+    });
+  };
+
   return (
     <div className="flex flex-wrap gap-3 mt-4">
       <Link
@@ -515,6 +523,7 @@ function CTAButtons() {
           backgroundColor: ACCENT,
           color: "var(--vocs-background-color-primary)",
         }}
+        onClick={() => handleCta("Get started", "/quickstart")}
       >
         Get started
       </Link>
@@ -527,6 +536,7 @@ function CTAButtons() {
             "light-dark(var(--vocs-background-color-surface), oklch(0.28 0 0))",
           color: "var(--vocs-text-color-heading)",
         }}
+        onClick={() => handleCta("Learn more", "/protocol")}
       >
         Learn more
       </Link>
@@ -600,7 +610,13 @@ function AgentTabs() {
             <button
               key={a.label}
               type="button"
-              onClick={() => setActive(i)}
+              onClick={() => {
+                setActive(i);
+                captureEvent(MppEvents.LANDING_AGENT_TAB_SELECTED, {
+                  tab_index: i,
+                  tab_label: a.label,
+                });
+              }}
               className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[13px] font-medium transition-colors cursor-pointer"
               style={{
                 color: i === active ? ACCENT : "var(--vocs-text-color-muted)",
@@ -876,6 +892,12 @@ function SelectQuery() {
       const query = presets.find((q) => q.id === queryId);
       if (!query) throw new Error("Unknown query");
 
+      const start = Date.now();
+      captureEvent(MppEvents.DEMO_QUERY_SELECTED, {
+        query_id: queryId,
+        query_prompt: query.prompt,
+      });
+
       const index = results.length;
       setResults((r) => [...r, { calls: [], query, status: "pending" }]);
 
@@ -902,14 +924,24 @@ function SelectQuery() {
         r.map((item, i) => (i === index ? { ...item, status: "done" } : item)),
       );
 
+      captureEvent(MppEvents.DEMO_QUERY_COMPLETED, {
+        duration_ms: Date.now() - start,
+        query_id: queryId,
+        status: "done",
+      });
+
       await new Promise((r) => setTimeout(r, 1000));
     },
-    onError: () => {
+    onError: (_error, queryId) => {
       setResults((r) => {
         const last = r.length - 1;
         return r.map((item, i) =>
           i === last ? { ...item, status: "error" } : item,
         );
+      });
+      captureEvent(MppEvents.DEMO_QUERY_COMPLETED, {
+        query_id: queryId,
+        status: "error",
       });
     },
   });
