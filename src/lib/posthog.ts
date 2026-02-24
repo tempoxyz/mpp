@@ -67,6 +67,7 @@ export const AnalyticsEvents = {
   DEMO_QUERY_SELECTED: "mpp.demo.query_selected",
   DEMO_VARIANT_SELECTED: "mpp.demo.variant_selected",
   DEMO_WALLET_CONNECTED: "mpp.demo.wallet_connected",
+  LANDING_AGENT_CMD_COPIED: "mpp.landing.agent_cmd_copied",
   LANDING_AGENT_TAB_SELECTED: "mpp.landing.agent_tab_selected",
   LANDING_CTA_CLICKED: "mpp.landing.cta_clicked",
   OUTBOUND_CLICK: "mpp.outbound_click",

@@ -585,6 +585,9 @@ function AgentTabs() {
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    captureEvent(AnalyticsEvents.LANDING_AGENT_CMD_COPIED, {
+      agent: cmd.label,
+    });
   };
 
   return (
