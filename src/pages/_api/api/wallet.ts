@@ -1,35 +1,16 @@
-const RPC_URL = "https://rpc.moderato.tempo.xyz";
+import { createClient, http } from "viem";
+import { tempoModerato } from "viem/chains";
+import { Actions } from "viem/tempo";
+
 const DEFAULT_CURRENCY = "0x20c0000000000000000000000000000000000000";
 
-function getRpcHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  const user = import.meta.env.VITE_RPC_AUTH_USER;
-  const pass = import.meta.env.VITE_RPC_AUTH_PASS;
-  if (user && pass) {
-    headers.Authorization = `Basic ${btoa(`${user}:${pass}`)}`;
-  }
-  return headers;
-}
-
-interface RpcResult {
-  result?: string;
-  error?: { message?: string };
-}
-
-async function rpcCall(method: string, params: unknown[]): Promise<RpcResult> {
-  const response = await fetch(RPC_URL, {
-    method: "POST",
-    headers: getRpcHeaders(),
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      method,
-      params,
-      id: 1,
-    }),
+function getClient() {
+  return createClient({
+    chain: tempoModerato,
+    transport: http(
+      import.meta.env.RPC_URL ?? "https://rpc.moderato.tempo.xyz",
+    ),
   });
-  return response.json() as Promise<RpcResult>;
 }
 
 export async function POST(request: Request) {
@@ -42,14 +23,12 @@ export async function POST(request: Request) {
         return Response.json({ error: "Invalid address" }, { status: 400 });
       }
 
-      const result = await rpcCall("tempo_fundAddress", [address]);
+      const client = getClient();
+      const hashes = await Actions.faucet.fund(client, {
+        account: address as `0x${string}`,
+      });
 
-      if (result.error) {
-        console.error("[Wallet API] Faucet error:", result.error);
-        return Response.json({ error: result.error.message }, { status: 500 });
-      }
-
-      return Response.json({ success: true, txHash: result.result });
+      return Response.json({ success: true, txHash: hashes[0] });
     }
 
     if (action === "balance") {
@@ -57,23 +36,22 @@ export async function POST(request: Request) {
         return Response.json({ error: "Invalid address" }, { status: 400 });
       }
 
-      const result = await rpcCall("eth_call", [
-        {
-          to: DEFAULT_CURRENCY,
-          data: `0x70a08231000000000000000000000000${address.slice(2)}`,
-        },
-        "latest",
-      ]);
-
-      if (result.error) {
-        if (result.error.message?.includes("Uninitialized")) {
+      const client = getClient();
+      try {
+        const balance = await Actions.token.getBalance(client, {
+          account: address as `0x${string}`,
+          token: DEFAULT_CURRENCY as `0x${string}`,
+        });
+        return Response.json({ balance: balance.toString() });
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message?.includes("Uninitialized")
+        ) {
           return Response.json({ balance: "0" });
         }
-        return Response.json({ error: result.error.message }, { status: 500 });
+        throw error;
       }
-
-      const balance = BigInt(result.result || "0x0");
-      return Response.json({ balance: balance.toString() });
     }
 
     return Response.json({ error: "Invalid action" }, { status: 400 });

@@ -1,9 +1,39 @@
 "use client";
 
+import { Receipt } from "mppx";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AsciiLogo } from "./AsciiLogo";
 import { BlockCursorInput } from "./BlockCursorInput";
+import { ASCII_ARTS, POEMS, SPINNER_FRAMES } from "./terminal-data";
+
+// ---------------------------------------------------------------------------
+// Demo client hook
+// ---------------------------------------------------------------------------
+
+type DemoClient = Awaited<
+  ReturnType<typeof import("../demo-client").createDemoClient>
+>;
+
+function useDemoClient() {
+  const [client, setClient] = useState<DemoClient | null>(null);
+  const [isLive] = useState(() => import.meta.env.VITE_DEMO_LIVE !== "false");
+
+  useEffect(() => {
+    if (!isLive) return;
+    let cancelled = false;
+    import("../demo-client").then(({ createDemoClient }) =>
+      createDemoClient().then((c) => {
+        if (!cancelled) setClient(c);
+      }),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [isLive]);
+
+  return { client, isLive };
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -59,6 +89,7 @@ function TruncatedHex({
 }) {
   return (
     <>
+      {/* biome-ignore format: contains unicode … */}
       <span className="md:hidden">
         {hash.slice(0, 6)}…{hash.slice(-4)}
       </span>
@@ -155,8 +186,6 @@ function useTypewriter() {
 // Spinner
 // ---------------------------------------------------------------------------
 
-const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-
 function Spinner() {
   const [frame, setFrame] = useState(0);
   useEffect(() => {
@@ -187,119 +216,6 @@ function randomTxHash() {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   return `0x${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
-
-// ---------------------------------------------------------------------------
-// Content data
-// ---------------------------------------------------------------------------
-
-const POEMS = [
-  [
-    "In circuits deep where data streams,",
-    "A payment flows like whispered dreams,",
-    "No card, no form, no human hand—",
-    "Just code that speaks, and coins that land.",
-  ],
-  [
-    "A merchant waits behind a gate,",
-    "Four-oh-two, the price of fate.",
-    "A coin slides through the wire thin,",
-    "The door swings wide — the stream begins.",
-  ],
-  [
-    "Ones and zeros, wallets hum,",
-    "Micro-pennies, here they come.",
-    "Each token spent, a verse returned,",
-    "A fair exchange, autonomously earned.",
-  ],
-  [
-    "No invoice sent, no bill to pay,",
-    "The protocol knows the way.",
-    "A handshake signed in cryptic light,",
-    "Two machines agree: the price is right.",
-  ],
-  [
-    "From wallet A to wallet B,",
-    "A fraction of a cent runs free.",
-    "The API responds in kind,",
-    "A paid-for thought, from mind to mind.",
-  ],
-  [
-    "The ledger hums beneath the wire,",
-    "A thousand calls, they never tire.",
-    "Each micropayment, signed and sealed,",
-    "A trustless bond the chain revealed.",
-    "No middleman to slow the trade,",
-    "No paper trail, no debt unpaid.",
-    "The protocol speaks clear and true—",
-    "A cent for me, a byte for you.",
-  ],
-  [
-    "A key was born at half past three,",
-    "Derived from entropy and sea.",
-    "It signed a channel, locked a bond,",
-    "And whispered to the world beyond.",
-    "The service answered, line by line,",
-    "Each response worth a fraction fine.",
-    "When all was spent, the channel closed,",
-    "And both sides settled, well-disposed.",
-    "No court, no clerk, no arbiter—",
-    "Just math, and trust in what they were.",
-  ],
-];
-
-const ASCII_ARTS = [
-  [
-    "       ╔══════════╗",
-    "       ║  WALLET  ║",
-    "       ╚════╤═════╝",
-    "            │ sign",
-    "       ╔════╧═════╗",
-    "       ║ CHANNEL  ║",
-    "       ╚════╤═════╝",
-    "            │ stream",
-    "       ╔════╧═════╗",
-    "       ║ SERVICE  ║",
-    "       ╚══════════╝",
-  ],
-  [
-    "  ╭──────────────────────╮",
-    "  │ MPP v1.0             │",
-    "  │ ──────────────────── │",
-    "  │ requests   1,204,891 │",
-    "  │ payments   1,204,891 │",
-    "  │ failures           0 │",
-    "  │ avg cost    $0.00010 │",
-    "  ╰──────────────────────╯",
-  ],
-  [
-    "        ┌─┐",
-    "       ╱│$│╲        ♪ cha-ching! ♪",
-    "      ╱ └─┘ ╲",
-    "     ╱  ╱ ╲  ╲",
-    "    ▼  ▼   ▼  ▼",
-    "   🅰  🅱  🅲  🅳",
-    "   ok  ok  ok  ok",
-  ],
-  [
-    "  ┌──────────────────────────────┐",
-    "  │  ░░░░░░░░░░░░░░░░░░░░  100% │",
-    "  │  ████████████████████        │",
-    "  │                              │",
-    "  │  payments:  ✔ ✔ ✔ ✔ ✔ ✔ ✔ ✔  │",
-    "  │  refunds:   (none)           │",
-    "  │  vibe:      immaculate       │",
-    "  └──────────────────────────────┘",
-  ],
-  [
-    "      $ 0 . 0 0 1",
-    "     ┌─┬─┬─┬─┬─┬─┐",
-    "     │ │ │ │ │ │ │ │  ← per request",
-    "     └─┴─┴─┴─┴─┴─┘",
-    "         │",
-    "    ─────┼───── the cost of a thought",
-    "         │",
-  ],
-];
 
 const COMPANIES: Record<string, { title: string; description: string }> = {
   "stripe.com": {
@@ -401,9 +317,10 @@ const pickAscii = createCyclicPicker(ASCII_ARTS);
 
 const STREAM_DELAY = 30;
 
+// biome-ignore format: contains unicode ✔︎
 function StepIcon({
   spinning,
-  icon = "✔",
+  icon = "✔︎",
 }: {
   spinning: boolean;
   icon?: string;
@@ -428,6 +345,10 @@ function AsyncSteps({
   paymentChannel = false,
   onDone,
   completed = false,
+  demoClient,
+  onContentReceived,
+  initialTxHash,
+  onTxHash,
 }: {
   endpoint: string;
   output: string[];
@@ -435,18 +356,23 @@ function AsyncSteps({
   paymentChannel?: boolean;
   onDone?: () => void;
   completed?: boolean;
+  demoClient?: DemoClient | null;
+  onContentReceived?: (content: string[]) => void;
+  initialTxHash?: string;
+  onTxHash?: (hash: string) => void;
 }) {
   const { address, funded, setFunded } = walletState;
-  const [txHash] = useState(() => randomTxHash());
-  const [channelTxHash] = useState(() => randomTxHash());
+  const [txHash, setTxHash] = useState(() => initialTxHash ?? randomTxHash());
+  const [channelTxHash, setChannelTxHash] = useState(() => randomTxHash());
   const doneCalled = useRef(false);
+  const liveStarted = useRef(false);
 
   const outputText = output.join("\n");
 
   const [steps] = useState(() => {
     const s: { key: string; delay: number }[] = [];
     if (!walletState.created) s.push({ key: "wallet", delay: 600 });
-    if (!funded) s.push({ key: "fund", delay: 1500 });
+    if (!funded) s.push({ key: "fund", delay: demoClient ? 0 : 1500 });
     s.push({ key: "req402", delay: 1200 });
     if (paymentChannel) {
       s.push({ key: "channel", delay: 1200 });
@@ -479,7 +405,151 @@ function AsyncSteps({
   };
   const atStep = (key: string) => currentKey === key;
 
+  // Live mode: run real operations
   useEffect(() => {
+    if (!demoClient || completed || liveStarted.current) return;
+    liveStarted.current = true;
+
+    (async () => {
+      try {
+        // Wallet step
+        const walletIdx = steps.findIndex((s) => s.key === "wallet");
+        if (walletIdx !== -1) {
+          walletState.setCreated(true);
+          setStep(walletIdx + 1);
+          await new Promise((r) => setTimeout(r, 400));
+        }
+
+        // Fund step
+        const fundIdx = steps.findIndex((s) => s.key === "fund");
+        if (fundIdx !== -1) {
+          setStep(fundIdx);
+          try {
+            await demoClient.fundWallet();
+          } catch (e) {
+            console.error("Live funding failed, continuing:", e);
+          }
+          setFunded(true);
+          setStep(fundIdx + 1);
+          await new Promise((r) => setTimeout(r, 400));
+        }
+
+        // 402 step (visual)
+        const req402Idx = steps.findIndex((s) => s.key === "req402");
+        setStep(req402Idx);
+        await new Promise((r) => setTimeout(r, 800));
+        setStep(req402Idx + 1);
+
+        // Pay/channel step — fire real fetch
+        const payIdx = steps.findIndex(
+          (s) => s.key === "pay" || s.key === "channel",
+        );
+        setStep(payIdx);
+
+        let liveContent: string[] = [];
+        try {
+          const demoEndpoint = paymentChannel
+            ? "/api/demo/poem"
+            : "/api/demo/ascii";
+
+          if (paymentChannel) {
+            // Use session SSE for bidirectional voucher flow
+            let sseReceipt: { txHash?: string } | undefined;
+            const stream = await demoClient.session.sse(demoEndpoint, {
+              onReceipt: (r) => {
+                sseReceipt = r;
+              },
+            });
+
+            // Capture channel ID after SSE opens the channel
+            if (demoClient.session.channelId) {
+              setChannelTxHash(demoClient.session.channelId);
+            }
+
+            // Move to stream step — channel is open
+            setStep(payIdx + 1);
+            await new Promise((r) => setTimeout(r, 200));
+
+            // Stream chunks in real-time as they arrive from the server
+            let text = "";
+            let chunks = 0;
+            for await (const chunk of stream) {
+              text += chunk;
+              chunks++;
+              const decoded = text.replaceAll("\t", "\n").replace(/\n+$/, "");
+              onContentReceived?.(decoded.split("\n"));
+              setStreamChars(decoded.length);
+              setTokenCount(chunks);
+            }
+            liveContent = text
+              .replaceAll("\t", "\n")
+              .replace(/\n+$/, "")
+              .split("\n");
+
+            // Close channel and capture the real close tx hash
+            try {
+              const closeReceipt = await demoClient.session.close();
+              const hash =
+                closeReceipt?.txHash ?? sseReceipt?.txHash ?? undefined;
+              if (hash) {
+                setTxHash(hash);
+                onTxHash?.(hash);
+              }
+            } catch {
+              // Channel close failed — keep random hash
+            }
+          } else {
+            const res = await demoClient.fetch(demoEndpoint);
+
+            // Extract real tx hash from Payment-Receipt header
+            try {
+              const receipt = Receipt.fromResponse(res);
+              if (receipt.reference) {
+                setTxHash(receipt.reference);
+                onTxHash?.(receipt.reference);
+              }
+            } catch {
+              // No receipt header — keep random hash
+            }
+
+            const data = (await res.json()) as { lines: string[] };
+            liveContent = data.lines;
+            onContentReceived?.(liveContent);
+          }
+        } catch (e) {
+          console.error("Live fetch failed, using simulated content:", e);
+        }
+
+        if (!paymentChannel) {
+          setStep(payIdx + 1);
+          await new Promise((r) => setTimeout(r, 400));
+        }
+
+        // Remaining steps
+        for (let i = payIdx + 2; i <= steps.length; i++) {
+          setStep(i);
+          if (i < steps.length) {
+            await new Promise((r) => setTimeout(r, 600));
+          }
+        }
+      } catch (e) {
+        console.error("Live demo error:", e);
+      }
+    })();
+  }, [
+    demoClient,
+    completed,
+    steps,
+    paymentChannel,
+    walletState.setCreated,
+    setFunded,
+    onContentReceived,
+    onTxHash,
+  ]);
+
+  // Simulated mode: timed step progression
+  useEffect(() => {
+    if (demoClient) return;
     if (currentKey === "done") {
       if (!doneCalled.current) {
         doneCalled.current = true;
@@ -508,6 +578,7 @@ function AsyncSteps({
     }, delay);
     return () => clearTimeout(timer);
   }, [
+    demoClient,
     step,
     streamChars,
     outputText.length,
@@ -518,6 +589,15 @@ function AsyncSteps({
     onDone,
     setFunded,
   ]);
+
+  // Live mode: call onDone when steps complete
+  useEffect(() => {
+    if (!demoClient) return;
+    if (currentKey === "done" && !doneCalled.current) {
+      doneCalled.current = true;
+      onDone?.();
+    }
+  }, [demoClient, currentKey, onDone]);
 
   return (
     <div className="flex flex-col">
@@ -541,6 +621,7 @@ function AsyncSteps({
           <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
         </p>
       )}
+      {/* biome-ignore format: contains unicode → */}
       {atOrPast("req402") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
@@ -581,7 +662,7 @@ function AsyncSteps({
             >
               channel{" "}
               <a
-                href={`https://explore.tempo.xyz/tx/${channelTxHash}`}
+                href={`https://explore.tempo.xyz/receipt/${channelTxHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -619,7 +700,7 @@ function AsyncSteps({
             >
               tx{" "}
               <a
-                href={`https://explore.tempo.xyz/tx/${txHash}`}
+                href={`https://explore.tempo.xyz/receipt/${txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -641,6 +722,7 @@ function AsyncSteps({
           )}
         </>
       )}
+      {/* biome-ignore format: contains unicode → */}
       {atOrPast("req200") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
@@ -677,12 +759,13 @@ function AsyncSteps({
           >
             {outputText.slice(0, streamChars)}
           </pre>
+          {/* biome-ignore format: contains unicode ✔︎ */}
           {tokenCount > 0 && (
             <p style={{ color: "var(--term-gray6)" }}>
               {streamChars < outputText.length ? (
                 <Spinner />
               ) : (
-                <span style={{ color: "var(--term-green9)" }}>✔</span>
+                <span style={{ color: "var(--term-green9)" }}>✔︎</span>
               )}{" "}
               {tokenCount} tokens streamed —{" "}
               <span style={{ color: "var(--term-amber9)" }}>
@@ -707,7 +790,7 @@ function AsyncSteps({
             >
               tx{" "}
               <a
-                href={`https://explore.tempo.xyz/tx/${txHash}`}
+                href={`https://explore.tempo.xyz/receipt/${txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -959,6 +1042,7 @@ function StripeSteps({
   return (
     <div className="flex flex-col">
       <BlankLine />
+      {/* biome-ignore format: contains unicode → */}
       {atOrPast("req402") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
@@ -1026,6 +1110,7 @@ function StripeSteps({
           )}
         </>
       )}
+      {/* biome-ignore format: contains unicode → */}
       {atOrPast("confirmPI") && (
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("confirmPI")} /> Confirming payment
@@ -1037,6 +1122,7 @@ function StripeSteps({
           )}
         </p>
       )}
+      {/* biome-ignore format: contains unicode → */}
       {atOrPast("req200") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
@@ -1106,7 +1192,13 @@ type WalletState = {
 
 const INITIAL_BALANCE = 100;
 
-type Run = { chosen: string; output: string[]; url?: string; key: number };
+type Run = {
+  chosen: string;
+  output: string[];
+  url?: string;
+  key: number;
+  txHash?: string;
+};
 
 function runCost(run: Run): number {
   if (run.chosen === "Write poem") {
@@ -1134,7 +1226,13 @@ function scrollTerminalIntoView() {
   }
 }
 
-function Wizard({ options }: { options: string[] }) {
+function Wizard({
+  options,
+  demoClient,
+}: {
+  options: string[];
+  demoClient?: DemoClient | null;
+}) {
   const [selected, setSelected] = useState(0);
   const [chosen, setChosen] = useState<string | null>(null);
   const [chosenOutput, setChosenOutput] = useState<string[]>([]);
@@ -1142,6 +1240,7 @@ function Wizard({ options }: { options: string[] }) {
   const [urlInput, setUrlInput] = useState("");
   const [chosenUrl, setChosenUrl] = useState<string | undefined>();
   const urlRef = useRef<HTMLInputElement>(null);
+  const currentTxHashRef = useRef<string | undefined>(undefined);
   const [quit, setQuit] = useState(false);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runKey, setRunKey] = useState(0);
@@ -1151,8 +1250,12 @@ function Wizard({ options }: { options: string[] }) {
   const [savedCard, setSavedCard] = useState<SavedCard | undefined>();
 
   useEffect(() => {
-    randomAddress().then(setAddress);
-  }, []);
+    if (demoClient) {
+      setAddress(demoClient.address);
+    } else {
+      randomAddress().then(setAddress);
+    }
+  }, [demoClient]);
 
   const walletState: WalletState = {
     address,
@@ -1163,6 +1266,10 @@ function Wizard({ options }: { options: string[] }) {
   };
 
   const currentOptions = runs.length > 0 ? [...options, "Quit"] : options;
+
+  const handleContentReceived = (content: string[]) => {
+    setChosenOutput(content);
+  };
 
   const confirm = () => {
     const opt = currentOptions[selected];
@@ -1176,8 +1283,12 @@ function Wizard({ options }: { options: string[] }) {
       setTimeout(() => urlRef.current?.focus(), 0);
       return;
     }
-    const output = opt === "Write poem" ? pickPoem() : pickAscii();
-    setChosenOutput(output);
+    if (demoClient) {
+      setChosenOutput([]);
+    } else {
+      const output = opt === "Write poem" ? pickPoem() : pickAscii();
+      setChosenOutput(output);
+    }
     setChosen(opt);
     scrollTerminalIntoView();
   };
@@ -1195,9 +1306,16 @@ function Wizard({ options }: { options: string[] }) {
   const handleDone = () => {
     setRuns((prev) => [
       ...prev,
-      { chosen: chosen!, output: chosenOutput, url: chosenUrl, key: runKey },
+      {
+        chosen: chosen!,
+        output: chosenOutput,
+        url: chosenUrl,
+        key: runKey,
+        txHash: currentTxHashRef.current,
+      },
     ]);
     setChosenUrl(undefined);
+    currentTxHashRef.current = undefined;
     setRunKey((k) => k + 1);
     setChosen(null);
     setSelected(0);
@@ -1226,8 +1344,14 @@ function Wizard({ options }: { options: string[] }) {
     choice: string,
     output: string[],
     key: number,
-    opts?: { onDone?: () => void; completed?: boolean; url?: string },
+    opts?: {
+      onDone?: () => void;
+      completed?: boolean;
+      url?: string;
+      txHash?: string;
+    },
   ) => {
+    const isActive = !opts?.completed;
     if (choice === "Write poem")
       return (
         <AsyncSteps
@@ -1238,6 +1362,16 @@ function Wizard({ options }: { options: string[] }) {
           paymentChannel
           onDone={opts?.onDone}
           completed={opts?.completed}
+          demoClient={isActive ? demoClient : undefined}
+          onContentReceived={isActive ? handleContentReceived : undefined}
+          initialTxHash={opts?.txHash}
+          onTxHash={
+            isActive
+              ? (hash) => {
+                  currentTxHashRef.current = hash;
+                }
+              : undefined
+          }
         />
       );
     if (choice === "Create ASCII art")
@@ -1249,6 +1383,16 @@ function Wizard({ options }: { options: string[] }) {
           walletState={walletState}
           onDone={opts?.onDone}
           completed={opts?.completed}
+          demoClient={isActive ? demoClient : undefined}
+          onContentReceived={isActive ? handleContentReceived : undefined}
+          initialTxHash={opts?.txHash}
+          onTxHash={
+            isActive
+              ? (hash) => {
+                  currentTxHashRef.current = hash;
+                }
+              : undefined
+          }
         />
       );
     if (choice === "Lookup company")
@@ -1275,6 +1419,7 @@ function Wizard({ options }: { options: string[] }) {
             <p style={{ color: "var(--term-gray10)" }}>
               What would you like to do?
             </p>
+            {/* biome-ignore format: contains unicode ▸ */}
             <div className="flex flex-col" style={{ paddingLeft: "1rem" }}>
               {runOptions.map((option) => (
                 <p
@@ -1303,6 +1448,7 @@ function Wizard({ options }: { options: string[] }) {
             {renderSteps(run.chosen, run.output, run.key, {
               completed: true,
               url: run.url,
+              txHash: run.txHash,
             })}
             <BlankLine />
           </div>
@@ -1314,6 +1460,7 @@ function Wizard({ options }: { options: string[] }) {
           <p style={{ color: "var(--term-gray10)" }}>
             What would you like to do?
           </p>
+          {/* biome-ignore format: contains unicode ▸ */}
           <div className="flex flex-col" style={{ paddingLeft: "1rem" }}>
             {currentOptions.map((option, i) => (
               <button
@@ -1335,6 +1482,7 @@ function Wizard({ options }: { options: string[] }) {
               </button>
             ))}
           </div>
+          {/* biome-ignore format: contains unicode ↑↓ */}
           {!chosen && !waitingForUrl && (
             <p style={{ color: "var(--term-gray5)" }}>
               Use ↑↓ arrows and Enter to select
@@ -1394,20 +1542,16 @@ function Wizard({ options }: { options: string[] }) {
                   ${(usdcSpent + usdSpent).toFixed(4)}
                 </span>
               </SummaryRow>
-              {usdcSpent > 0 && (
-                <SummaryRow label="Tempo">
-                  <span style={{ color: "var(--term-amber9)" }}>
-                    {usdcSpent.toFixed(4)} USDC
-                  </span>
-                </SummaryRow>
-              )}
-              {usdSpent > 0 && (
-                <SummaryRow label="Stripe">
-                  <span style={{ color: "var(--term-amber9)" }}>
-                    {usdSpent.toFixed(2)} USD
-                  </span>
-                </SummaryRow>
-              )}
+              <SummaryRow label="Tempo">
+                <span style={{ color: "var(--term-amber9)" }}>
+                  {usdcSpent.toFixed(4)} USDC
+                </span>
+              </SummaryRow>
+              <SummaryRow label="Stripe">
+                <span style={{ color: "var(--term-amber9)" }}>
+                  {usdSpent.toFixed(2)} USD
+                </span>
+              </SummaryRow>
               <BlankLine />
               <p style={{ color: "var(--term-gray10)" }}>Wallet</p>
               <SummaryRow label="Address">
@@ -1429,10 +1573,10 @@ function Wizard({ options }: { options: string[] }) {
               <p style={{ color: "var(--term-gray6)" }}>
                 <span style={{ color: "var(--term-gray10)" }}>$ ~ </span>
                 <span
-                  className="ml-0.5 inline-block h-[1em] w-[0.6em] align-text-bottom"
+                  className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
                   style={{
                     backgroundColor: "var(--term-pink9)",
-                    transform: "translateY(-3px)",
+                    transform: "translateY(-2px)",
                     animation: "blink 1.4s step-end infinite",
                   }}
                 />
@@ -1444,9 +1588,12 @@ function Wizard({ options }: { options: string[] }) {
   );
 }
 
-function DiscoverServices() {
+function DiscoverServices({ demoClient }: { demoClient?: DemoClient | null }) {
   return (
-    <Wizard options={["Write poem", "Create ASCII art", "Lookup company"]} />
+    <Wizard
+      options={["Write poem", "Create ASCII art", "Lookup company"]}
+      demoClient={demoClient}
+    />
   );
 }
 
@@ -1455,6 +1602,7 @@ function DiscoverServices() {
 // ---------------------------------------------------------------------------
 
 export function Terminal({ className }: { className?: string }) {
+  const { client: demoClient } = useDemoClient();
   const { showLogin, showPrompt, started, lineIndex, charIndex, done } =
     useTypewriter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1560,10 +1708,10 @@ export function Terminal({ className }: { className?: string }) {
               <p style={{ color: "var(--term-gray6)" }}>
                 <span style={{ color: "var(--term-gray10)" }}>$ ~ </span>
                 <span
-                  className="ml-0.5 inline-block h-[1em] w-[0.6em] align-text-bottom"
+                  className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
                   style={{
                     backgroundColor: "var(--term-pink9)",
-                    transform: "translateY(-3px)",
+                    transform: "translateY(-2px)",
                     animation: "blink 1.4s step-end infinite",
                   }}
                 />
@@ -1594,18 +1742,18 @@ export function Terminal({ className }: { className?: string }) {
                     <span style={{ color: "var(--term-gray10)" }}>$ ~ </span>
                     {renderText(visible)}
                     <span
-                      className="ml-0.5 inline-block h-[1em] w-[0.6em] align-text-bottom"
+                      className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
                       style={{
                         backgroundColor: "var(--term-pink9)",
                         visibility: isActive ? "visible" : "hidden",
-                        transform: "translateY(-3px)",
+                        transform: "translateY(-2px)",
                       }}
                     />
                   </p>
                 );
               })}
 
-            {done && <DiscoverServices />}
+            {done && <DiscoverServices demoClient={demoClient} />}
           </div>
         </div>
       </div>

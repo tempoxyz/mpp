@@ -1,24 +1,29 @@
-const RPC_URL = "https://rpc.moderato.tempo.xyz";
+const rpcUrl = import.meta.env.RPC_URL ?? "https://rpc.moderato.tempo.xyz";
 
-function getRpcHeaders(): Record<string, string> {
+function getRpcUrlAndHeaders(): {
+  url: string;
+  headers: Record<string, string>;
+} {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
-  const user = import.meta.env.VITE_RPC_AUTH_USER;
-  const pass = import.meta.env.VITE_RPC_AUTH_PASS;
-  if (user && pass) {
-    headers.Authorization = `Basic ${btoa(`${user}:${pass}`)}`;
+  const parsed = new URL(rpcUrl);
+  if (parsed.username) {
+    headers.Authorization = `Basic ${btoa(`${parsed.username}:${parsed.password}`)}`;
+    parsed.username = "";
+    parsed.password = "";
   }
-  return headers;
+  return { url: parsed.toString().replace(/\/$/, ""), headers };
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const { url, headers } = getRpcUrlAndHeaders();
 
-    const response = await fetch(RPC_URL, {
+    const response = await fetch(url, {
       method: "POST",
-      headers: getRpcHeaders(),
+      headers,
       body: JSON.stringify(body),
     });
 
