@@ -35,9 +35,12 @@ export function captureEvent(
   }
 }
 
+const MAX_QUEUE_RETRIES = 50;
+
 function processQueue() {
   if (isProcessingQueue) return;
   isProcessingQueue = true;
+  let retries = 0;
 
   const checkAndProcess = () => {
     if (window.posthog?.capture && eventQueue.length > 0) {
@@ -46,9 +49,11 @@ function processQueue() {
       }
       eventQueue.length = 0;
       isProcessingQueue = false;
-    } else if (eventQueue.length > 0) {
+    } else if (eventQueue.length > 0 && retries < MAX_QUEUE_RETRIES) {
+      retries++;
       setTimeout(checkAndProcess, 100);
     } else {
+      eventQueue.length = 0;
       isProcessingQueue = false;
     }
   };
