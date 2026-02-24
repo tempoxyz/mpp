@@ -13,39 +13,15 @@ These docs provide a developer-friendly overview. For the full specification, se
 
 ## Core concepts
 
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { Http402Card, ChallengesCard, CredentialsCard, ReceiptsCard, TransportsCard } from '../../components/cards'
 
 <Cards>
-  <Card
-    description="The 402 status code that signals payment is required"
-    icon="lucide:alert-circle"
-    title="HTTP 402"
-    to="/protocol/http-402"
-  />
-  <Card
-    description="Server-issued payment requirements in WWW-Authenticate"
-    icon="lucide:file-question"
-    title="Challenges"
-    to="/protocol/challenges"
-  />
-  <Card
-    description="Client-submitted payment proofs in Authorization"
-    icon="lucide:key"
-    title="Credentials"
-    to="/protocol/credentials"
-  />
-  <Card
-    description="Server acknowledgment of successful payment"
-    icon="lucide:receipt"
-    title="Receipts"
-    to="/protocol/receipts"
-  />
-  <Card
-    description="HTTP and MCP transport bindings"
-    icon="lucide:network"
-    title="Transports"
-    to="/protocol/transports"
-  />
+  <Http402Card />
+  <ChallengesCard />
+  <CredentialsCard />
+  <ReceiptsCard />
+  <TransportsCard />
 </Cards>
 
 ## Status codes

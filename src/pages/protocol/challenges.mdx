@@ -78,15 +78,11 @@ Use an [HMAC-bound](https://en.wikipedia.org/wiki/HMAC) challenge ID to prevent 
 
 ## Learn more
 
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
 import { SpecCard } from '../../components/SpecCard'
+import { PaymentMethodsCard } from '../../components/cards'
 
 <Cards>
   <SpecCard to="https://tempoxyz.github.io/mpp-specs/" />
-  <Card
-    description="Method-specific request schemas"
-    icon="lucide:credit-card"
-    title="Payment Methods"
-    to="/payment-methods"
-  />
+  <PaymentMethodsCard />
 </Cards>

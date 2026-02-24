@@ -1,5 +1,6 @@
-import { Badge, Card, Cards } from 'vocs'
+import { Badge, Cards } from 'vocs'
 import { ServerPrompt } from '../../components/QuickstartPrompt'
+import { ClientQuickstartCard, TempoMethodCard, MppxCreateReferenceCard } from '../../components/cards'
 
 # Server quickstart [Charge for resources and verify payment credentials]
 
@@ -239,22 +240,7 @@ Use `presto inspect` or `npx mppx --inspect` to debug your server's Challenge re
 ## Next steps
 
 <Cards>
-  <Card
-    icon="lucide:user"
-    title="Client quickstart"
-    description="Learn how to pay for resources"
-    to="/quickstart/client"
-  />
-  <Card
-    icon="lucide:credit-card"
-    title="Tempo payment method"
-    description="Configure Tempo blockchain payments"
-    to="/payment-methods/tempo"
-  />
-  <Card
-    icon="lucide:book-open"
-    title="Mppx.create reference"
-    description="Full API documentation"
-    to="/sdk/typescript/server/Mppx.create"
-  />
+  <ClientQuickstartCard />
+  <TempoMethodCard />
+  <MppxCreateReferenceCard to="/sdk/typescript/server/Mppx.create" />
 </Cards>

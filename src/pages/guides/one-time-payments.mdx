@@ -1,4 +1,5 @@
-import { Card, Cards, Tabs, Tab } from 'vocs'
+import { Cards, Tabs, Tab } from 'vocs'
+import { PayAsYouGoCard, ServerQuickstartCard, PrestoCliCard } from '../../components/cards'
 import * as Cli from '../../components/Cli'
 import { pathUsd } from '../../wagmi.config'
 
@@ -555,22 +556,7 @@ $ npx mppx http://localhost:3000
 ## Next steps
 
 <Cards>
-  <Card
-    icon="lucide:repeat"
-    title="Accept pay-as-you-go payments"
-    description="Session-based billing with payment channels"
-    to="/guides/pay-as-you-go"
-  />
-  <Card
-    icon="lucide:code"
-    title="Server quickstart"
-    description="Framework middleware reference"
-    to="/quickstart/server"
-  />
-  <Card
-    icon="lucide:terminal"
-    title="mppx CLI reference"
-    description="Full command reference and options"
-    to="/tools/presto"
-  />
+  <PayAsYouGoCard />
+  <ServerQuickstartCard />
+  <PrestoCliCard />
 </Cards>

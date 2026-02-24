@@ -1,4 +1,5 @@
-import { Card, Cards, Tab, Tabs } from 'vocs'
+import { Cards, Tab, Tabs } from 'vocs'
+import { TempoMethodCard, StripeMethodCard, CustomMethodCard } from '../../components/cards'
 
 # Payment methods [Available methods and how to choose one]
 
@@ -26,22 +27,7 @@ WWW-Authenticate: Payment method="stripe", intent="charge", ...
 ## Available methods
 
 <Cards>
-  <Card
-    icon='<svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.55 17h-2.73l2.53-7.73h-3.24l.71-2.27h9.03l-.71 2.27h-3.07L10.55 17Z"/></svg>'
-    title="Tempo"
-    description="Web scale payments with TIP-20 stablecoins on Tempo with sub second settlement."
-    to="/payment-methods/tempo"
-  />
-  <Card
-    icon="simple-icons:stripe"
-    title="Stripe"
-    description="Traditional card payment methods through Stripe."
-    to="/payment-methods/stripe"
-  />
-  <Card
-    icon="lucide:anvil"
-    title="Custom"
-    description="Build your own method or extend existing methods with the SDK."
-    to="/payment-methods/custom"
-  />
+  <TempoMethodCard />
+  <StripeMethodCard />
+  <CustomMethodCard />
 </Cards>

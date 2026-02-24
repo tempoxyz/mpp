@@ -1,5 +1,6 @@
-import { Badge, Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
 import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { TempoChargeCard, StripeMethodCard } from '../../components/cards'
 import { SpecCard } from '../../components/SpecCard'
 
 # Charge [Immediate one-time payments]
@@ -60,18 +61,8 @@ Payment methods extend this schema with method-specific fields through `methodDe
 Each payment method defines how charge is fulfilled, verified, and settled on its underlying network.
 
 <Cards>
-  <Card
-    icon='<svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.55 17h-2.73l2.53-7.73h-3.24l.71-2.27h9.03l-.71 2.27h-3.07L10.55 17Z"/></svg>'
-    title="Tempo"
-    description="One-time TIP-20 token transfers with sub second settlement and optional fee sponsorship"
-    to="/payment-methods/tempo/charge"
-  />
-  <Card
-    icon="simple-icons:stripe"
-    title="Stripe"
-    description="One-time card or bank payment"
-    to="/payment-methods/stripe"
-  />
+  <TempoChargeCard />
+  <StripeMethodCard />
 </Cards>
 
 ## Specification

@@ -1,4 +1,5 @@
-import { Badge, Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { TempoChargeCard, TempoSessionCard } from '../../../components/cards'
 
 # Tempo [Stablecoin payments on the Tempo blockchain]
 
@@ -29,19 +30,8 @@ Tempo is purpose-built for the payment patterns MPP enables:
 ## Intents
 
 <Cards>
-  <Card
-    icon="lucide:credit-card"
-    title="Charge"
-    description="Immediate one-time payments settled on-chain"
-    to="/payment-methods/tempo/charge"
-  />
-  <Card
-    topRight={<Badge variant="info">Recommended</Badge>}
-    icon="lucide:waves"
-    title="Session"
-    description="Pay-as-you-go payment sessions over payment channels"
-    to="/payment-methods/tempo/session"
-  />
+  <TempoChargeCard />
+  <TempoSessionCard />
 </Cards>
 
 ## Fee sponsorship

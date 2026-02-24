@@ -1,5 +1,6 @@
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
 import { QuickstartPrompts } from '../../components/QuickstartPrompt'
+import { ClientQuickstartCard, ServerQuickstartCard, PrestoCliCard } from '../../components/cards'
 
 # Quickstart [Get started with MPP in minutes]
 
@@ -16,22 +17,7 @@ Paste one of these into your AI coding agent to build your first MPP app or serv
 Pick a starting point based on your role:
 
 <Cards>
-  <Card
-    icon="lucide:user"
-    title="Client"
-    description="Handle payment-gated resources automatically"
-    to="/quickstart/client"
-  />
-  <Card
-    icon="lucide:server"
-    title="Server"
-    description="Charge for resource access"
-    to="/quickstart/server"
-  />
-  <Card
-    icon="lucide:terminal"
-    title="presto CLI"
-    description="Command-line interface for mpp"
-    to="/quickstart/presto"
-  />
+  <ClientQuickstartCard />
+  <ServerQuickstartCard />
+  <PrestoCliCard />
 </Cards>

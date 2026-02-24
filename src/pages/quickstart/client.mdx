@@ -1,5 +1,6 @@
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
 import { ClientPrompt } from '../../components/QuickstartPrompt'
+import { ServerQuickstartCard, TempoMethodCard, MppxCreateReferenceCard } from '../../components/cards'
 
 # Client quickstart [Handle payment-gated resources automatically]
 
@@ -202,22 +203,7 @@ console.log(receipt.timestamp)
 ## Next steps
 
 <Cards>
-  <Card
-    icon="lucide:server"
-    title="Server quickstart"
-    description="Learn how to charge for resources"
-    to="/quickstart/server"
-  />
-  <Card
-    icon="lucide:credit-card"
-    title="Tempo payment method"
-    description="Configure Tempo blockchain payments"
-    to="/payment-methods/tempo"
-  />
-  <Card
-    icon="lucide:book-open"
-    title="Mppx.create reference"
-    description="Full API documentation"
-    to="/sdk/typescript/client/Mppx.create"
-  />
+  <ServerQuickstartCard />
+  <TempoMethodCard />
+  <MppxCreateReferenceCard to="/sdk/typescript/client/Mppx.create" />
 </Cards>

@@ -1,4 +1,5 @@
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { StripeChargeCard } from '../../../components/cards'
 
 # Stripe [Cards, wallets, and other Stripe supported payment methods]
 
@@ -16,10 +17,5 @@ Both the client and server need a Stripe account. The client creates an SPT usin
 ## Intents
 
 <Cards>
-  <Card
-    icon="lucide:credit-card"
-    title="Charge"
-    description="One-time payment using Shared Payment Tokens (SPTs)"
-    to="/payment-methods/stripe/charge"
-  />
+  <StripeChargeCard />
 </Cards>

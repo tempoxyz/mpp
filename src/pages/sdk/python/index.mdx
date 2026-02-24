@@ -87,25 +87,11 @@ asyncio.run(main())
 
 ## Next steps
 
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { PythonCoreTypesCard, PythonClientCard, PythonServerCard } from '../../../components/cards'
 
 <Cards>
-  <Card
-    description="Challenge, Credential, Receipt types"
-    icon="lucide:box"
-    title="Core types"
-    to="/sdk/python/core"
-  />
-  <Card
-    description="Handle 402 responses automatically"
-    icon="lucide:send"
-    title="Client"
-    to="/sdk/python/client"
-  />
-  <Card
-    description="Protect endpoints with payments"
-    icon="lucide:server"
-    title="Server"
-    to="/sdk/python/server"
-  />
+  <PythonCoreTypesCard />
+  <PythonClientCard />
+  <PythonServerCard />
 </Cards>
