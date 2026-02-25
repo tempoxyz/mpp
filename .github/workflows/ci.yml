@@ -10,7 +10,7 @@ jobs:
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [lint, typecheck, test]
+    needs: [lint, typecheck, test, e2e]
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -57,3 +57,28 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium --with-deps
+
+      - run: pnpm test:e2e

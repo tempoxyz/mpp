@@ -1415,7 +1415,7 @@ function Wizard({
   const [chosenUrl, setChosenUrl] = useState<string | undefined>();
   const urlRef = useRef<HTMLInputElement>(null);
   const currentTxHashRef = useRef<string | undefined>(undefined);
-  const [isRestart] = useState(() => walletState.created);
+  const [walletExistedAtMount] = useState(() => walletState.created);
   const [quit, setQuit] = useState(false);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runKey, setRunKey] = useState(0);
@@ -1524,6 +1524,7 @@ function Wizard({
     output: string[],
     key: number,
     opts?: {
+      isRestart?: boolean;
       onDone?: () => void;
       completed?: boolean;
       url?: string;
@@ -1536,7 +1537,7 @@ function Wizard({
         <AsyncSteps
           key={key}
           endpoint="/api/poem"
-          isRestart={isRestart}
+          isRestart={opts?.isRestart}
           output={output}
           walletState={walletState}
           paymentChannel
@@ -1559,7 +1560,7 @@ function Wizard({
         <AsyncSteps
           key={key}
           endpoint="/api/ascii"
-          isRestart={isRestart}
+          isRestart={opts?.isRestart}
           output={output}
           walletState={walletState}
           onDone={opts?.onDone}
@@ -1634,6 +1635,7 @@ function Wizard({
               </p>
             )}
             {renderSteps(run.chosen, run.output, run.key, {
+              isRestart: walletExistedAtMount || runIndex > 0,
               completed: true,
               url: run.url,
               txHash: run.txHash,
@@ -1711,6 +1713,7 @@ function Wizard({
           )}
           {chosen &&
             renderSteps(chosen, chosenOutput, runKey, {
+              isRestart: walletExistedAtMount || runs.length > 0,
               onDone: handleDone,
               url: chosenUrl,
             })}

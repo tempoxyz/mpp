@@ -39,6 +39,8 @@ async function pressKey(page: Page, key: string) {
       ),
     key,
   );
+  // Allow React to process state updates and re-attach effects
+  await page.waitForTimeout(50);
 }
 
 async function waitForWizard(page: Page) {
@@ -215,9 +217,28 @@ describe("terminal", () => {
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
+    // First run should say "Creating wallet"
+    await playwrightExpect(
+      page.getByText("Creating wallet", { exact: false }),
+    ).toBeVisible({ timeout: 5_000 });
+
     await playwrightExpect(page.getByText("Quit")).toBeVisible({
       timeout: 15_000,
     });
+
+    // Second run: select "Create ASCII art" again
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "Enter");
+
+    // Second run should say "Using wallet" (not "Creating")
+    await playwrightExpect(
+      page.getByText("Using wallet", { exact: false }),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await playwrightExpect(page.getByText("Quit")).toBeVisible({
+      timeout: 15_000,
+    });
+    await page.waitForSelector("[data-wizard-ready]", { timeout: 5_000 });
 
     await pressKey(page, "ArrowDown");
     await pressKey(page, "ArrowDown");
