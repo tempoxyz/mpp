@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import Icons from "unplugin-icons/vite";
 import type { Plugin } from "vite";
 import { defineConfig } from "vite";
+import { configDefaults } from "vitest/config";
 import { vocs } from "vocs/vite";
 
 const commitSha = child_process
@@ -81,4 +82,7 @@ export default defineConfig({
     react(),
     vocs(),
   ],
+  test: {
+    exclude: [...configDefaults.exclude, "e2e/**"],
+  },
 });
