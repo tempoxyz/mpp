@@ -4,21 +4,18 @@ import { privateKeyToAccount } from "viem/accounts";
 import { tempoModerato } from "viem/chains";
 
 const realm = process.env.REALM ?? "mpp.tempo.xyz";
+const account = privateKeyToAccount(
+  process.env.FEE_PAYER_PRIVATE_KEY as `0x${string}`,
+);
 
 export const mppx = Mppx.create({
   realm,
   methods: [
     tempo({
+      account,
+      feePayer: true,
       currency: import.meta.env.VITE_DEFAULT_CURRENCY!,
-      recipient: import.meta.env.VITE_DEFAULT_RECIPIENT!,
       sse: true,
-      ...(process.env.FEE_PAYER_PRIVATE_KEY
-        ? {
-            feePayer: privateKeyToAccount(
-              process.env.FEE_PAYER_PRIVATE_KEY as `0x${string}`,
-            ),
-          }
-        : {}),
       getClient() {
         return createClient({
           chain: tempoModerato,

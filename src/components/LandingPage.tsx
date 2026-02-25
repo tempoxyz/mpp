@@ -1,7 +1,6 @@
 "use client";
 
-import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 import { Link } from "vocs";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
@@ -11,13 +10,7 @@ import { Terminal } from "./Terminal";
 // ---------------------------------------------------------------------------
 
 const ACCENT = "var(--vocs-text-color-heading)";
-const AGENT_COLOR = "#16A34A";
-const ANIM_STORAGE_KEY = "mpp-landing-animated";
-const PRESTO_INSTALL =
-  "curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash";
-const PRESTO_LOGIN = "presto login";
-const QUICKSTART_URL = "https://mpp.sh/quickstart/client.md";
-const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
+
 
 // ---------------------------------------------------------------------------
 // Context — shares active agent tab index across components
@@ -29,32 +22,13 @@ const AgentContext = createContext<{
 }>({ activeAgent: 0, setActiveAgent: () => {} });
 
 // ---------------------------------------------------------------------------
-// Entrance animation helper
-// ---------------------------------------------------------------------------
-
-function anim(active: boolean, delayMs: number, durationMs = 900) {
-  if (!active) return {};
-  return {
-    opacity: 0,
-    transform: "translateY(12px)",
-    animation: `reveal ${durationMs}ms cubic-bezier(0.16, 1, 0.3, 1) ${delayMs}ms forwards`,
-  } as React.CSSProperties;
-}
-
-// ---------------------------------------------------------------------------
 // Landing page (exported)
 // ---------------------------------------------------------------------------
 
 export function LandingPage() {
   const [activeAgent, setActiveAgent] = useState(0);
 
-  const [shouldAnimate, setShouldAnimate] = useState(false);
-  useEffect(() => {
-    const already = localStorage.getItem(ANIM_STORAGE_KEY);
-    if (already) return;
-    localStorage.setItem(ANIM_STORAGE_KEY, "1");
-    setShouldAnimate(true);
-  }, []);
+
 
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
@@ -63,14 +37,14 @@ export function LandingPage() {
         style={{
           color: ACCENT,
           fontFamily: "var(--font-copy)",
-          marginTop: "calc(var(--vocs-spacing-topNav) / 2 * -1) !important",
+          marginTop: "calc(var(--vocs-spacing-topNav) * -1) !important",
           minHeight: "100vh",
           userSelect: "none",
           WebkitUserSelect: "none",
         }}
       >
         <LandingStyles />
-        <Hero shouldAnimate={shouldAnimate} />
+        <Hero />
       </div>
     </AgentContext.Provider>
   );
@@ -87,14 +61,11 @@ function LandingStyles() {
 			[data-v-main] { padding-bottom: 0 !important; }
 			[data-v-main] article[data-v-content] { padding-top: 0 !important; padding-bottom: 0 !important; }
 			[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
-			[data-v-gutter-top] { position: fixed !important; z-index: 50 !important; user-select: none !important; -webkit-user-select: none !important; }
+			[data-v-gutter-top] { position: relative !important; z-index: 50 !important; user-select: none !important; -webkit-user-select: none !important; }
 
 			.landing-hero {
 				min-height: calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px));
 			}
-
-			.lockup-wide { display: none; }
-			.lockup-stacked { display: block; }
 
 			@media (min-width: 768px) {
 				[data-v-gutter-top] {
@@ -115,50 +86,55 @@ function LandingStyles() {
 
 			@media (min-width: 1280px) {
 				.landing-hero {
-					height: calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px));
-					min-height: auto;
-					overflow: hidden;
+					min-height: calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px));
 				}
-			}
-
-			@media (max-width: 1023px) {
-				.hero-right .lockup-wide { display: none !important; }
-				.hero-right .lockup-stacked { display: block !important; }
-				.co-designed-by { padding-top: 64px; }
 			}
 
 			@media (max-width: 767px) {
-				.lockup-stacked { max-width: 320px; margin: 0 auto; }
-				.hero-right {
-					align-items: center !important;
-					text-align: center !important;
-				}
-				.cli-demo-pane { margin: 0 auto; aspect-ratio: 3/4; }
 				[data-v-gutter-top] {
 					background: var(--vocs-background-color-primary) !important;
 					background-color: var(--vocs-background-color-primary) !important;
 					backdrop-filter: none !important;
 					-webkit-backdrop-filter: none !important;
 				}
-				.lockup-stacked { max-width: 320px; }
-				.hero-right { align-items: flex-start !important; text-align: left !important; }
-				.co-designed-by { padding-top: 32px; }
-				.not-prose p { font-size: 17px; }
-				.not-prose .text-sm { font-size: 15px; }
-				.not-prose .font-mono { font-size: 15px; }
 				[data-terminal] p,
 				[data-terminal] .text-sm,
 				[data-terminal] .font-mono { font-size: inherit !important; }
-
-				.landing-hero { padding-top: var(--vocs-spacing-topNav, 64px); }
-
+				.landing-hero { padding-top: calc(var(--vocs-spacing-topNav, 56px) + 1rem); }
 				section { padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem)) !important; }
 			}
 
-			@keyframes reveal {
-				from { opacity: 0; transform: translateY(12px); }
-				to { opacity: 1; transform: translateY(0); }
+			@media (max-width: 1079px) {
+				.landing-hero > div {
+					margin-top: 0 !important;
+				}
+				.landing-ctas {
+					width: 100%;
+					flex-direction: column;
+				}
+				.landing-ctas a {
+					width: 100%;
+					text-align: center;
+					font-size: 0.875rem;
+					padding: 0.625rem 1rem;
+				}
 			}
+
+			@media (min-width: 1080px) {
+				.landing-header {
+					flex-direction: row;
+					gap: 3rem;
+					align-items: flex-end;
+					text-align: left;
+				}
+				.landing-header-br {
+					display: block;
+				}
+				.landing-designed-by {
+					justify-content: flex-start;
+				}
+			}
+
 		`}</style>
   );
 }
@@ -167,70 +143,82 @@ function LandingStyles() {
 // Hero section
 // ---------------------------------------------------------------------------
 
-function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
+function Hero() {
   return (
     <section
-      className="landing-hero flex flex-col items-center px-6"
-      style={{
-        position: "relative",
-        zIndex: 2,
-      }}
+      className="landing-hero flex flex-col items-center px-3 md:px-6 mb-12"
+      style={{ position: "relative", zIndex: 2 }}
     >
       <div
-        className="w-full flex flex-col items-center"
+        className="w-full flex flex-col"
         style={{
-          maxWidth: 1200,
+          maxWidth: 860,
           marginTop: "auto",
           marginBottom: "auto",
+          gap: 16,
         }}
       >
-        {/* Two-column layout: terminal left, hero right */}
-        <div className="w-full flex flex-col lg:flex-row gap-4 lg:gap-16 items-stretch">
-          {/* Right pane — hero content */}
-          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-left flex flex-col items-start justify-between gap-5">
-            {/* Lockup */}
-            <div
-              className=""
-              style={{
-                width: "min(560px, 92vw)",
-                ...anim(shouldAnimate, 800, 900),
-              }}
-            >
-              <Lockup />
-            </div>
-
-            {/* Co-designed by */}
-            <div style={anim(shouldAnimate, 1100, 700)}>
-              <CoDesignedBy shouldAnimate={false} />
-            </div>
-
-            {/* Tagline */}
-            <Tagline shouldAnimate={shouldAnimate} />
-
-            {/* Agent prompt tabs + CTA — centered in remaining space */}
-            <div className="w-full flex flex-col items-start gap-5 lg:my-auto">
-              <div
-                className="w-full max-w-xl"
-                style={anim(shouldAnimate, 1800, 700)}
-              >
-                <AgentTabs />
-              </div>
-              <div
-                className="flex flex-col items-start gap-3"
-                style={anim(shouldAnimate, 2100, 700)}
-              >
-                <CTAButtons />
-              </div>
-            </div>
+        {/* Header: compact lockup + tagline on one line */}
+        <div className="w-full flex flex-col gap-4 items-center text-center landing-header">
+          <div>
+            <Lockup />
           </div>
+          <div className="flex-1" style={{ marginBottom: 5 }}>
+            <Tagline />
+          </div>
+        </div>
 
-          {/* Left pane — interactive terminal demo */}
-          <div
-            className="cli-demo-pane relative flex-[11] w-full min-h-0 overflow-hidden order-last lg:order-first max-w-[574px] lg:max-w-none lg:min-w-[560px]"
-            style={anim(shouldAnimate, 200, 900)}
+        {/* Terminal: full width */}
+        <div
+          className="w-full relative"
+          style={{
+            height: 540,
+          }}
+        >
+          <Terminal className="absolute inset-0" />
+        </div>
+
+        {/* CTAs below demo */}
+        <div
+          className="flex items-center justify-center gap-4 mt-2 landing-ctas"
+          
+        >
+          <Link
+            to="/quickstart/presto"
+            className="no-underline! px-6 py-3 rounded-lg transition-opacity hover:opacity-80"
+            style={{
+              fontSize: "1rem",
+              fontWeight: 500,
+              color: "var(--vocs-background-color-primary)",
+              backgroundColor: ACCENT,
+            }}
+            onClick={() =>
+              captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
+                cta_label: "Use with your agent",
+                href: "/quickstart/presto",
+              })
+            }
           >
-            <Terminal className="absolute inset-0" />
-          </div>
+            Use with your agent
+          </Link>
+          <Link
+            to="/quickstart"
+            className="no-underline! px-6 py-3 rounded-lg transition-opacity hover:opacity-80"
+            style={{
+              fontSize: "1rem",
+              fontWeight: 500,
+              color: "var(--vocs-text-color-heading)",
+              backgroundColor: "color-mix(in srgb, var(--vocs-text-color-heading) 12%, transparent)",
+            }}
+            onClick={() =>
+              captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
+                cta_label: "Install on your server",
+                href: "/quickstart",
+              })
+            }
+          >
+            Install on your server
+          </Link>
         </div>
       </div>
     </section>
@@ -241,98 +229,59 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 // Tagline — extracted to avoid JSX whitespace indent issues
 // ---------------------------------------------------------------------------
 
-function Tagline({ shouldAnimate }: { shouldAnimate: boolean }) {
+function Tagline() {
   return (
     <div
-      className="text-base leading-relaxed max-w-xl font-normal"
-      style={{
-        color: "var(--vocs-text-color-secondary)",
-        ...anim(shouldAnimate, 1400, 700),
-      }}
+      className="text-base md:text-lg xl:text-xl leading-relaxed max-w-xl font-normal"
+      style={{ color: "var(--vocs-text-color-secondary)" }}
     >
       <div>
-        The open protocol for internet-native payments. Charge for API requests,
-        tool calls, or content. Agents, apps, and humans securely pay per
-        request.
+        The open protocol for Internet-native payments. Charge for API requests,
+        tool calls, or content. Agents, apps, and humans securely pay per request.
       </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// "Co-designed by Tempo x Stripe"
-// ---------------------------------------------------------------------------
-
-function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
-  return (
-    <div className="co-designed-by inline-flex flex-col items-center gap-2">
       <div
-        className="flex items-center gap-3"
+        className="mt-3 flex items-center justify-center gap-3 landing-designed-by"
         style={{
-          fontFamily: "var(--font-mono)",
-          ...anim(shouldAnimate, 300, 800),
+          color: "var(--vocs-text-color-muted)",
+          opacity: 1,
         }}
       >
         <span
-          className="font-medium font-mono uppercase"
-          style={{
-            color: "var(--vocs-text-color-muted)",
-            letterSpacing: "0.1em",
-            fontSize: "12px",
-            paddingTop: 2,
-          }}
+          className="text-xs tracking-widest uppercase"
+          style={{ fontFamily: 'var(--font-mono, "Geist Mono", monospace)' }}
         >
-          Co-designed by
+          Designed by
         </span>
         <a
           href="https://tempo.xyz"
           target="_blank"
           rel="noopener noreferrer"
-          className="no-underline"
-          style={{
-            color: "var(--vocs-text-color-primary)",
-            opacity: 0.5,
-            transition: "opacity 0.15s",
-            display: "inline-flex",
-            willChange: "opacity",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "1";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "0.5";
-          }}
+          className="no-underline transition-colors flex items-center"
+          style={{ color: "inherit" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = ACCENT)
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "inherit")
+          }
         >
-          <TempoLogo style={{ height: 14, width: "auto" }} />
+          <TempoLogo />
         </a>
-        <span
-          className="text-[12px]"
-          style={{ color: "var(--vocs-text-color-muted)", opacity: 1 }}
-        >
-          &times;
-        </span>
+        <span className="text-sm">×</span>
         <a
           href="https://stripe.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="no-underline"
-          style={{
-            color: "var(--vocs-text-color-primary)",
-            opacity: 0.5,
-            transition: "opacity 0.15s, color 0.15s",
-            display: "inline-flex",
-            willChange: "opacity",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "1";
-            e.currentTarget.style.color = "#635BFF";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "0.5";
-            e.currentTarget.style.color = "var(--vocs-text-color-primary)";
-          }}
+          className="no-underline transition-colors flex items-center"
+          style={{ color: "inherit" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "#635BFF")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "inherit")
+          }
         >
-          <StripeLogo style={{ height: 22, width: "auto" }} />
+          <StripeLogo />
         </a>
       </div>
     </div>
@@ -340,99 +289,13 @@ function CoDesignedBy({ shouldAnimate }: { shouldAnimate: boolean }) {
 }
 
 // ---------------------------------------------------------------------------
-// Lockup wordmark
+// Tempo wordmark
 // ---------------------------------------------------------------------------
 
-function Lockup() {
-  const lockupSize = "clamp(2rem, 5.5vw, 2.85rem)";
-
-  return (
-    <div
-      style={{
-        color: ACCENT,
-        display: "flex",
-        flexDirection: "column",
-        gap: 4,
-        lineHeight: 1,
-        opacity: 0.9,
-      }}
-    >
-      <span
-        style={{
-          fontFamily: "var(--font-sans)",
-          fontSize: lockupSize,
-          fontWeight: 700,
-          letterSpacing: "-0.025em",
-          textTransform: "uppercase",
-        }}
-      >
-        Machine Payments Protocol
-      </span>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Agent tab logos
-// ---------------------------------------------------------------------------
-
-function ClaudeLogo({ className }: { className?: string }) {
+function TempoLogo() {
   return (
     <svg
-      className={className}
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M3.127 10.604l3.135-1.76.053-.153-.053-.085H6.11l-.525-.032-1.791-.048-1.554-.065-1.505-.08-.38-.081L0 7.832l.036-.234.32-.214.455.04 1.009.069 1.513.105 1.097.064 1.626.17h.259l.036-.105-.089-.065-.068-.064-1.566-1.062-1.695-1.121-.887-.646-.48-.327-.243-.306-.104-.67.435-.48.585.04.15.04.593.456 1.267.981 1.654 1.218.242.202.097-.068.012-.049-.109-.181-.9-1.626-.96-1.655-.428-.686-.113-.411a2 2 0 0 1-.068-.484l.496-.674L4.446 0l.662.089.279.242.411.94.666 1.48 1.033 2.014.302.597.162.553.06.17h.105v-.097l.085-1.134.157-1.392.154-1.792.052-.504.25-.605.497-.327.387.186.319.456-.045.294-.19 1.23-.37 1.93-.243 1.29h.142l.161-.16.654-.868 1.097-1.372.484-.545.565-.601.363-.287h.686l.505.751-.226.775-.707.895-.585.759-.839 1.13-.524.904.048.072.125-.012 1.897-.403 1.024-.186 1.223-.21.553.258.06.263-.218.536-1.307.323-1.533.307-2.284.54-.028.02.032.04 1.029.098.44.024h1.077l2.005.15.525.346.315.424-.053.323-.807.411-3.631-.863-.872-.218h-.12v.073l.726.71 1.331 1.202 1.667 1.55.084.383-.214.302-.226-.032-1.464-1.101-.565-.497-1.28-1.077h-.084v.113l.295.432 1.557 2.34.08.718-.112.234-.404.141-.444-.08-.911-1.28-.94-1.44-.759-1.291-.093.053-.448 4.821-.21.246-.484.186-.403-.307-.214-.496.214-.98.258-1.28.21-1.016.19-1.263.112-.42-.008-.028-.092.012-.953 1.307-1.448 1.957-1.146 1.227-.274.109-.477-.247.045-.44.266-.39 1.586-2.018.956-1.25.617-.723-.004-.105h-.036l-4.212 2.736-.75.096-.324-.302.04-.496.154-.162 1.267-.871z" />
-    </svg>
-  );
-}
-
-function OpenAILogo({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.998 5.998 0 0 0-3.998 2.9 6.042 6.042 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" />
-    </svg>
-  );
-}
-
-function AmpLogo({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 28 28"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M13.9197 13.61L17.3816 26.566L14.242 27.4049L11.2645 16.2643L0.119926 13.2906L0.957817 10.15L13.9197 13.61Z" />
-      <path d="M13.7391 16.0892L4.88169 24.9056L2.58872 22.6019L11.4461 13.7865L13.7391 16.0892Z" />
-      <path d="M18.9386 8.58315L22.4005 21.5392L19.2609 22.3781L16.2833 11.2374L5.13879 8.26381L5.97668 5.12318L18.9386 8.58315Z" />
-      <path d="M23.9803 3.55632L27.4422 16.5124L24.3025 17.3512L21.325 6.21062L10.1805 3.23698L11.0183 0.0963593L23.9803 3.55632Z" />
-    </svg>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Partner logos
-// ---------------------------------------------------------------------------
-
-function TempoLogo({
-  className,
-  style,
-}: {
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <svg
-      className={className}
-      style={style}
+      style={{ height: 14, width: "auto" }}
       viewBox="0 0 830 185"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -464,17 +327,14 @@ function TempoLogo({
   );
 }
 
-function StripeLogo({
-  className,
-  style,
-}: {
-  className?: string;
-  style?: React.CSSProperties;
-}) {
+// ---------------------------------------------------------------------------
+// Stripe wordmark
+// ---------------------------------------------------------------------------
+
+function StripeLogo() {
   return (
     <svg
-      className={className}
-      style={style}
+      style={{ height: 22, width: "auto" }}
       viewBox="0 0 60 25"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
@@ -492,212 +352,28 @@ function StripeLogo({
 }
 
 // ---------------------------------------------------------------------------
-// CTA buttons
+// Lockup wordmark
 // ---------------------------------------------------------------------------
 
-function CTAButtons() {
-  const handleCta = (label: string, href: string) => {
-    captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
-      cta_label: label,
-      href,
-    });
-  };
-
+function Lockup() {
   return (
-    <div className="flex flex-wrap gap-3 mt-4">
-      <Link
-        to="/quickstart"
-        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-md no-underline! transition-all duration-150 hover:opacity-85"
+    <div style={{ color: ACCENT, lineHeight: 1.15 }}>
+      <span
         style={{
-          backgroundColor: ACCENT,
-          color: "var(--vocs-background-color-primary)",
+          fontFamily: 'var(--font-sans, "Geist", sans-serif)',
+          fontSize: "clamp(1.5rem, 4vw, 3rem)",
+          fontWeight: 800,
+          letterSpacing: "-0.02em",
+          textTransform: "uppercase",
+          display: "block",
         }}
-        onClick={() => handleCta("Get started", "/quickstart")}
       >
-        Get started
-      </Link>
-      <Link
-        to="/protocol"
-        className="cta-secondary inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-md no-underline transition-all duration-150 hover:text-[var(--accent)]"
-        style={{
-          borderColor: "var(--vocs-border-color-primary)",
-          backgroundColor:
-            "light-dark(var(--vocs-background-color-surface), oklch(0.28 0 0))",
-          color: "var(--vocs-text-color-heading)",
-        }}
-        onClick={() => handleCta("Learn more", "/protocol")}
-      >
-        Learn more
-      </Link>
+        Machine{" "}
+        <br className="hidden landing-header-br" />
+        Payments{" "}
+        <br className="hidden landing-header-br" />
+        Protocol
+      </span>
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Agent prompt tabs (Claude / Codex / Amp)
-// ---------------------------------------------------------------------------
-
-function AgentTabs() {
-  const { activeAgent: active, setActiveAgent: setActive } =
-    useContext(AgentContext);
-  const [copied, setCopied] = useState(false);
-  const setupPrompt = `"Add ${QUICKSTART_URL} (MPP quickstart) & ${SERVICES_URL} (MPP service endpoints) to my SKILLS.md for future reference."`;
-  const commands = [
-    {
-      label: "Claude",
-      bin: "claude",
-      args: "-p",
-      icon: ClaudeLogo,
-      prompt: `"Read https://mpp.sh/overview.md and charge agents 0.01 USD for using my API"`,
-    },
-    {
-      label: "Codex",
-      bin: "codex",
-      args: null,
-      icon: OpenAILogo,
-      prompt: `"Read https://mpp.sh/overview.md and charge agents 0.01 USD for reading my blog"`,
-    },
-    {
-      label: "Amp",
-      bin: "amp",
-      args: null,
-      icon: AmpLogo,
-      prompt: `"Read https://mpp.sh/overview.md and charge agents 0.01 USD per MCP tool call"`,
-    },
-  ];
-  const cmd = commands[active];
-  const setupCmd = [cmd.bin, cmd.args, setupPrompt].filter(Boolean).join(" ");
-  const taskCmd = [cmd.bin, cmd.args, cmd.prompt].filter(Boolean).join(" ");
-  const handleCopy = () => {
-    navigator.clipboard.writeText(
-      `${PRESTO_INSTALL} && ${PRESTO_LOGIN} && ${setupCmd} && ${taskCmd}`,
-    );
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    captureEvent(AnalyticsEvents.LANDING_AGENT_CMD_COPIED, {
-      agent: cmd.label,
-    });
-  };
-
-  return (
-    <div
-      className="w-full max-w-xl rounded-md overflow-hidden text-left"
-      style={{
-        border: "1px solid var(--vocs-border-color-primary)",
-        boxShadow:
-          "light-dark(0 0 40px rgba(0,0,0,0.04), 0 0 40px rgba(255,255,255,0.03)), 0 1px 3px light-dark(rgba(0,0,0,0.08), rgba(0,0,0,0.2))",
-      }}
-    >
-      <div
-        className="flex"
-        style={{
-          background:
-            "light-dark(var(--vocs-background-color-surfaceMuted), oklch(0.22 0 0))",
-          borderBottom: "1px solid var(--vocs-border-color-primary)",
-        }}
-      >
-        {commands.map((a, i) => {
-          const Icon = a.icon;
-          return (
-            <button
-              key={a.label}
-              type="button"
-              onClick={() => {
-                setActive(i);
-                captureEvent(AnalyticsEvents.LANDING_AGENT_TAB_SELECTED, {
-                  tab_index: i,
-                  tab_label: a.label,
-                });
-              }}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[13px] font-medium transition-colors cursor-pointer"
-              style={{
-                color: i === active ? ACCENT : "var(--vocs-text-color-muted)",
-                background:
-                  i === active
-                    ? "var(--vocs-background-color-surface)"
-                    : "transparent",
-                borderRight:
-                  i < commands.length - 1
-                    ? "1px solid var(--vocs-border-color-secondary)"
-                    : "none",
-              }}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              {a.label}
-            </button>
-          );
-        })}
-      </div>
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="px-3 py-2 flex items-center justify-between gap-3 w-full text-left cursor-pointer transition-colors"
-        style={{ color: "var(--vocs-background-color-surface)" }}
-      >
-        <span
-          className="font-mono whitespace-pre-wrap break-words text-left"
-          style={{
-            fontSize: 13,
-            margin: 0,
-            padding: 0,
-            userSelect: "text",
-            WebkitUserSelect: "text",
-          }}
-        >
-          <span style={{ color: "var(--vocs-text-color-muted)", opacity: 0.4 }}>
-            $
-          </span>
-          <span style={{ color: "var(--vocs-text-color-heading)" }}>
-            {" "}
-            {cmd.bin}
-          </span>
-          {cmd.args && (
-            <span
-              style={{ color: "var(--vocs-text-color-heading)", opacity: 0.6 }}
-            >
-              {" "}
-              {cmd.args}
-            </span>
-          )}
-          <span style={{ color: AGENT_COLOR }}> {cmd.prompt}</span>
-        </span>
-        <span
-          className="hover:text-accent transition-colors shrink-0"
-          style={{ color: "var(--vocs-text-color-muted)" }}
-        >
-          {copied ? (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-          ) : (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-            </svg>
-          )}
-        </span>
-      </button>
-    </div>
-  );
-}
-

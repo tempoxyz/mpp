@@ -743,7 +743,7 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 
 .terminal-theme {
   /* Backgrounds */
-  --term-bg1: light-dark(oklch(0.985 0 0), oklch(0.162 0 0));
+  --term-bg1: light-dark(oklch(0.94 0 0), oklch(0.162 0 0));
   --term-bg2: light-dark(oklch(1 0 0), oklch(0.195 0 0));
 
   /* Gray Scale */
@@ -752,7 +752,7 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   --term-gray3: light-dark(oklch(0.933 0 0), oklch(0.25 0 0));
   --term-gray4: light-dark(oklch(0.933 0 0), oklch(0.29 0 0));
   --term-gray5: light-dark(oklch(0.549 0 0), oklch(0.5 0 0));
-  --term-gray6: light-dark(oklch(0.72 0 0), oklch(0.649 0 0));
+  --term-gray6: light-dark(oklch(0.45 0 0), oklch(0.649 0 0));
   --term-gray7: light-dark(oklch(0.649 0 0), oklch(0.649 0 0));
   --term-gray8: light-dark(oklch(0.549 0 0), oklch(0.549 0 0));
   --term-gray9: light-dark(oklch(0.5 0 0), oklch(0.72 0 0));
@@ -789,6 +789,11 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 
 .terminal-theme .term-url-input::placeholder {
   color: var(--term-gray5);
+}
+
+.terminal-theme ::selection {
+  background-color: var(--term-gray10);
+  color: var(--term-bg2);
 }
 
 @keyframes blink {

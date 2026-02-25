@@ -3,6 +3,7 @@
 import { Receipt } from "mppx";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment } from "react";
 import { AsciiLogo } from "./AsciiLogo";
 import { BlockCursorInput } from "./BlockCursorInput";
 import { ASCII_ARTS, POEMS, SPINNER_FRAMES } from "./terminal-data";
@@ -54,9 +55,10 @@ function timeAgo(iso: string) {
 // Link detection
 // ---------------------------------------------------------------------------
 
-const linkPattern = /(mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
+const linkPattern = /(mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
 
 const SUMMARY_LABEL_WIDTH = "5.5em";
+const QUICKSTART_LABEL_WIDTH = "13em";
 
 function BlankLine() {
   return <div className="h-6" />;
@@ -71,7 +73,7 @@ function SummaryRow({
 }) {
   return (
     <p style={{ color: "var(--term-gray6)" }}>
-      {"  "}
+      {"\u00a0\u00a0"}
       <span style={{ display: "inline-block", width: SUMMARY_LABEL_WIDTH }}>
         {label}
       </span>
@@ -128,13 +130,44 @@ function renderText(text: string): ReactNode {
 }
 
 // ---------------------------------------------------------------------------
+// Quickstart output (shown after `cat quickstart.txt`)
+// ---------------------------------------------------------------------------
+
+function QuickstartOutput() {
+  const rows = [
+    { label: "Connect your agent:", value: "mpp.dev/llms.txt" },
+    { label: "Discover services:", value: "mpp.dev/services" },
+    { label: "Read the docs:", value: "mpp.dev/overview" },
+  ];
+  return (
+    <div className="flex flex-col">
+      {rows.map((row) => (
+        <p key={row.label} style={{ color: "var(--term-gray6)" }}>
+          {"  "}
+          <span
+            style={{
+              display: "inline-block",
+              width: QUICKSTART_LABEL_WIDTH,
+            }}
+          >
+            {row.label}
+          </span>
+          {renderText(row.value)}
+        </p>
+      ))}
+      <BlankLine />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Typewriter commands
 // ---------------------------------------------------------------------------
 
-const lines = ["./demo.sh"];
+const lines = ["cat quickstart.txt", "./demo.sh"];
 
-const BASE_DELAY = 45;
-const JITTER = 50;
+const BASE_DELAY = 30;
+const JITTER = 35;
 const LINE_DELAY = 500;
 
 function useTypewriter() {
@@ -143,7 +176,7 @@ function useTypewriter() {
   const [started, setStarted] = useState(false);
   const [lineIndex, setLineIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
-  const [done, setDone] = useState(false);
+  const done = started && lineIndex >= lines.length;
 
   useEffect(() => {
     const t1 = setTimeout(() => setShowLogin(true), 500);
@@ -156,13 +189,15 @@ function useTypewriter() {
     };
   }, []);
 
+  const advance = () => {
+    if (done) return;
+    if (lineIndex >= lines.length) return;
+    setLineIndex((l) => l + 1);
+    setCharIndex(0);
+  };
+
   useEffect(() => {
     if (!started || done) return;
-
-    if (lineIndex >= lines.length) {
-      setDone(true);
-      return;
-    }
 
     const currentLine = lines[lineIndex];
 
@@ -172,12 +207,21 @@ function useTypewriter() {
       return () => clearTimeout(timer);
     }
 
+    const delay = lineIndex === 0 ? 800 : LINE_DELAY;
     const timer = setTimeout(() => {
       setLineIndex((l) => l + 1);
       setCharIndex(0);
-    }, LINE_DELAY);
+    }, delay);
     return () => clearTimeout(timer);
   }, [started, lineIndex, charIndex, done]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") advance();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   return { showLogin, showPrompt, started, lineIndex, charIndex, done };
 }
@@ -349,6 +393,7 @@ function AsyncSteps({
   onContentReceived,
   initialTxHash,
   onTxHash,
+  showWalletSteps = false,
 }: {
   endpoint: string;
   output: string[];
@@ -360,6 +405,7 @@ function AsyncSteps({
   onContentReceived?: (content: string[]) => void;
   initialTxHash?: string;
   onTxHash?: (hash: string) => void;
+  showWalletSteps?: boolean;
 }) {
   const { address, funded, setFunded } = walletState;
   const [txHash, setTxHash] = useState(() => initialTxHash ?? randomTxHash());
@@ -454,7 +500,7 @@ function AsyncSteps({
 
           if (paymentChannel) {
             // Use session SSE for bidirectional voucher flow
-            let sseReceipt: { txHash?: string } | undefined;
+            let sseReceipt: { txHash?: string; reference?: string } | undefined;
             const stream = await demoClient.session.sse(demoEndpoint, {
               onReceipt: (r) => {
                 sseReceipt = r;
@@ -488,14 +534,19 @@ function AsyncSteps({
 
             // Close channel and capture the real close tx hash
             try {
+              console.log('[DEBUG] before close - opened:', demoClient.session.opened, 'channelId:', demoClient.session.channelId);
               const closeReceipt = await demoClient.session.close();
+              console.log('[DEBUG] closeReceipt:', JSON.stringify(closeReceipt));
+              console.log('[DEBUG] sseReceipt:', JSON.stringify(sseReceipt));
               const hash =
                 closeReceipt?.txHash ?? sseReceipt?.txHash ?? undefined;
+              console.log('[DEBUG] resolved hash:', hash);
               if (hash) {
                 setTxHash(hash);
                 onTxHash?.(hash);
               }
-            } catch {
+            } catch (e) {
+              console.error('[DEBUG] session.close() error:', e);
               // Channel close failed — keep random hash
             }
           } else {
@@ -602,7 +653,7 @@ function AsyncSteps({
   return (
     <div className="flex flex-col">
       <BlankLine />
-      {atOrPast("wallet") && (
+      {(atOrPast("wallet") || showWalletSteps) && (
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("wallet")} /> Creating wallet{" "}
           <a
@@ -615,7 +666,7 @@ function AsyncSteps({
           </a>
         </p>
       )}
-      {atOrPast("fund") && (
+      {(atOrPast("fund") || showWalletSteps) && (
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("fund")} /> Funding wallet with{" "}
           <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
@@ -1229,9 +1280,19 @@ function scrollTerminalIntoView() {
 function Wizard({
   options,
   demoClient,
+  onRestart,
+  address,
+  walletState,
+  savedCard,
+  setSavedCard,
 }: {
   options: string[];
   demoClient?: DemoClient | null;
+  onRestart?: () => void;
+  address: string;
+  walletState: WalletState;
+  savedCard: SavedCard | undefined;
+  setSavedCard: (card: SavedCard | undefined) => void;
 }) {
   const [selected, setSelected] = useState(0);
   const [chosen, setChosen] = useState<string | null>(null);
@@ -1244,26 +1305,6 @@ function Wizard({
   const [quit, setQuit] = useState(false);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runKey, setRunKey] = useState(0);
-  const [address, setAddress] = useState("");
-  const [created, setCreated] = useState(false);
-  const [funded, setFunded] = useState(false);
-  const [savedCard, setSavedCard] = useState<SavedCard | undefined>();
-
-  useEffect(() => {
-    if (demoClient) {
-      setAddress(demoClient.address);
-    } else {
-      randomAddress().then(setAddress);
-    }
-  }, [demoClient]);
-
-  const walletState: WalletState = {
-    address,
-    created,
-    setCreated,
-    funded,
-    setFunded,
-  };
 
   const currentOptions = runs.length > 0 ? [...options, "Quit"] : options;
 
@@ -1275,6 +1316,9 @@ function Wizard({
     const opt = currentOptions[selected];
     if (opt === "Quit") {
       setQuit(true);
+      document
+        .querySelector(".landing-ctas")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     if (opt === "Lookup company") {
@@ -1322,6 +1366,15 @@ function Wizard({
   };
 
   useEffect(() => {
+    if (!quit) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") onRestart?.();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [quit, onRestart]);
+
+  useEffect(() => {
     if (chosen || quit || waitingForUrl) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") {
@@ -1349,6 +1402,7 @@ function Wizard({
       completed?: boolean;
       url?: string;
       txHash?: string;
+      showWalletSteps?: boolean;
     },
   ) => {
     const isActive = !opts?.completed;
@@ -1365,6 +1419,7 @@ function Wizard({
           demoClient={isActive ? demoClient : undefined}
           onContentReceived={isActive ? handleContentReceived : undefined}
           initialTxHash={opts?.txHash}
+          showWalletSteps={opts?.showWalletSteps}
           onTxHash={
             isActive
               ? (hash) => {
@@ -1386,6 +1441,7 @@ function Wizard({
           demoClient={isActive ? demoClient : undefined}
           onContentReceived={isActive ? handleContentReceived : undefined}
           initialTxHash={opts?.txHash}
+          showWalletSteps={opts?.showWalletSteps}
           onTxHash={
             isActive
               ? (hash) => {
@@ -1449,6 +1505,7 @@ function Wizard({
               completed: true,
               url: run.url,
               txHash: run.txHash,
+              showWalletSteps: runIndex === 0,
             })}
             <BlankLine />
           </div>
@@ -1530,13 +1587,11 @@ function Wizard({
           const balance = INITIAL_BALANCE - usdcSpent;
           return (
             <div className="flex flex-col">
-              <BlankLine />
               <p style={{ color: "var(--term-gray10)" }}>
-                Machine Payments Protocol — open, programmable, Internet-native
+                <strong>Machine Payments Protocol</strong> — open, programmable, Internet-native
                 payments.
               </p>
-              <BlankLine />
-              <p style={{ color: "var(--term-gray10)" }}>Spent</p>
+              <p style={{ color: "var(--term-gray10)" }}>{"\u00a0\u00a0"}Spent</p>
               <SummaryRow label="Total">
                 <span style={{ color: "var(--term-amber9)" }}>
                   ${(usdcSpent + usdSpent).toFixed(4)}
@@ -1552,8 +1607,7 @@ function Wizard({
                   {usdSpent.toFixed(2)} USD
                 </span>
               </SummaryRow>
-              <BlankLine />
-              <p style={{ color: "var(--term-gray10)" }}>Wallet</p>
+              <p style={{ color: "var(--term-gray10)" }}>{"\u00a0\u00a0"}Wallet</p>
               <SummaryRow label="Address">
                 <a
                   href={`https://explore.tempo.xyz/address/${address}`}
@@ -1569,17 +1623,8 @@ function Wizard({
                   {balance.toFixed(4)} USDC
                 </span>
               </SummaryRow>
-              <BlankLine />
               <p style={{ color: "var(--term-gray6)" }}>
-                <span style={{ color: "var(--term-gray10)" }}>$ ~ </span>
-                <span
-                  className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
-                  style={{
-                    backgroundColor: "var(--term-pink9)",
-                    transform: "translateY(-2px)",
-                    animation: "blink 1.4s step-end infinite",
-                  }}
-                />
+                [Exited — press Enter to restart]
               </p>
             </div>
           );
@@ -1588,11 +1633,30 @@ function Wizard({
   );
 }
 
-function DiscoverServices({ demoClient }: { demoClient?: DemoClient | null }) {
+function DiscoverServices({
+  demoClient,
+  onRestart,
+  address,
+  walletState,
+  savedCard,
+  setSavedCard,
+}: {
+  demoClient?: DemoClient | null;
+  onRestart?: () => void;
+  address: string;
+  walletState: WalletState;
+  savedCard: SavedCard | undefined;
+  setSavedCard: (card: SavedCard | undefined) => void;
+}) {
   return (
     <Wizard
       options={["Write poem", "Create ASCII art", "Lookup company"]}
       demoClient={demoClient}
+      onRestart={onRestart}
+      address={address}
+      walletState={walletState}
+      savedCard={savedCard}
+      setSavedCard={setSavedCard}
     />
   );
 }
@@ -1605,6 +1669,25 @@ export function Terminal({ className }: { className?: string }) {
   const { client: demoClient } = useDemoClient();
   const { showLogin, showPrompt, started, lineIndex, charIndex, done } =
     useTypewriter();
+  const [wizardKey, setWizardKey] = useState(0);
+  const [address, setAddress] = useState("");
+  const [created, setCreated] = useState(false);
+  const [funded, setFunded] = useState(false);
+  const [savedCard, setSavedCard] = useState<SavedCard | undefined>();
+  const walletState: WalletState = {
+    address,
+    created,
+    setCreated,
+    funded,
+    setFunded,
+  };
+  useEffect(() => {
+    if (demoClient) {
+      setAddress(demoClient.address);
+    } else {
+      randomAddress().then(setAddress);
+    }
+  }, [demoClient]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef(true);
@@ -1613,13 +1696,19 @@ export function Terminal({ className }: { className?: string }) {
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;
     const LINE_HEIGHT = 24;
-    const handleScroll = () => {
-      const distanceFromBottom =
-        scrollEl.scrollHeight - scrollEl.clientHeight - scrollEl.scrollTop;
-      autoScrollRef.current = distanceFromBottom < LINE_HEIGHT;
+    const checkScroll = () => {
+      requestAnimationFrame(() => {
+        const distanceFromBottom =
+          scrollEl.scrollHeight - scrollEl.clientHeight - scrollEl.scrollTop;
+        autoScrollRef.current = distanceFromBottom < LINE_HEIGHT;
+      });
     };
-    scrollEl.addEventListener("scroll", handleScroll);
-    return () => scrollEl.removeEventListener("scroll", handleScroll);
+    scrollEl.addEventListener("wheel", checkScroll, { passive: true });
+    scrollEl.addEventListener("touchmove", checkScroll, { passive: true });
+    return () => {
+      scrollEl.removeEventListener("wheel", checkScroll);
+      scrollEl.removeEventListener("touchmove", checkScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -1668,15 +1757,15 @@ export function Terminal({ className }: { className?: string }) {
         >
           <span
             className="size-3 rounded-full"
-            style={{ backgroundColor: "var(--term-gray3)" }}
+            style={{ backgroundColor: "var(--term-gray4)" }}
           />
           <span
             className="size-3 rounded-full"
-            style={{ backgroundColor: "var(--term-gray3)" }}
+            style={{ backgroundColor: "var(--term-gray4)" }}
           />
           <span
             className="size-3 rounded-full"
-            style={{ backgroundColor: "var(--term-gray3)" }}
+            style={{ backgroundColor: "var(--term-gray4)" }}
           />
         </div>
 
@@ -1729,31 +1818,48 @@ export function Terminal({ className }: { className?: string }) {
                 const isCommand = line !== "" && !line.startsWith("#");
 
                 return (
-                  <p
-                    // biome-ignore lint/suspicious/noArrayIndexKey: static lines never reorder
-                    key={i}
-                    style={{
-                      color: isCommand
-                        ? "var(--term-blue9)"
-                        : "var(--term-gray6)",
-                      visibility: i <= lineIndex ? "visible" : "hidden",
-                    }}
-                  >
-                    <span style={{ color: "var(--term-gray10)" }}>$ ~ </span>
-                    {renderText(visible)}
-                    <span
-                      className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
+                  // biome-ignore lint/suspicious/noArrayIndexKey: static lines never reorder
+                  <Fragment key={i}>
+                    <p
                       style={{
-                        backgroundColor: "var(--term-pink9)",
-                        visibility: isActive ? "visible" : "hidden",
-                        transform: "translateY(-2px)",
+                        color: "var(--term-gray6)",
+                        visibility: i <= lineIndex ? "visible" : "hidden",
                       }}
-                    />
-                  </p>
+                    >
+                      <span style={{ color: "var(--term-gray10)" }}>$ ~ </span>
+                      {isCommand ? (() => {
+                        const spaceIdx = visible.indexOf(" ");
+                        if (spaceIdx === -1) return <span style={{ color: "var(--term-blue9)" }}>{renderText(visible)}</span>;
+                        return <>
+                          <span style={{ color: "var(--term-blue9)" }}>{visible.slice(0, spaceIdx)}</span>
+                          {renderText(visible.slice(spaceIdx))}
+                        </>;
+                      })() : renderText(visible)}
+                      <span
+                        className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
+                        style={{
+                          backgroundColor: "var(--term-pink9)",
+                          visibility: isActive ? "visible" : "hidden",
+                          transform: "translateY(-2px)",
+                        }}
+                      />
+                    </p>
+                    {i === 0 && lineIndex > 0 && <QuickstartOutput />}
+                  </Fragment>
                 );
               })}
 
-            {done && <DiscoverServices demoClient={demoClient} />}
+            {done && (
+              <DiscoverServices
+                key={wizardKey}
+                demoClient={demoClient}
+                address={address}
+                walletState={walletState}
+                savedCard={savedCard}
+                setSavedCard={setSavedCard}
+                onRestart={() => setWizardKey((k) => k + 1)}
+              />
+            )}
           </div>
         </div>
       </div>
