@@ -789,6 +789,8 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 
 .terminal-theme .term-url-input::placeholder {
   color: var(--term-gray5);
+  font-style: normal;
+  opacity: 1;
 }
 
 .terminal-theme ::selection {

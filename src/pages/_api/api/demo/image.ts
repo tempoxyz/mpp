@@ -1,0 +1,89 @@
+import { mppx } from "../../../../mppx.server";
+import { getProxyFetch } from "../../../../mppx-proxy-client";
+
+const imageResults = [
+  {
+    id: "a1b2c3d4e5",
+    url: "https://fal.ai/outputs/a1b2c3d4e5.png",
+  },
+  {
+    id: "f6g7h8i9j0",
+    url: "https://fal.ai/outputs/f6g7h8i9j0.png",
+  },
+  {
+    id: "k1l2m3n4o5",
+    url: "https://fal.ai/outputs/k1l2m3n4o5.png",
+  },
+  {
+    id: "p6q7r8s9t0",
+    url: "https://fal.ai/outputs/p6q7r8s9t0.png",
+  },
+  {
+    id: "u1v2w3x4y5",
+    url: "https://fal.ai/outputs/u1v2w3x4y5.png",
+  },
+];
+
+export async function GET(request: Request) {
+  const result = await mppx.charge({
+    amount: "0.003",
+    description: "Image generation",
+  })(request);
+
+  if (result.status === 402) return result.challenge;
+
+  const proxyFetch = getProxyFetch();
+  const prompt = new URL(request.url).searchParams.get("prompt") ?? "untitled";
+
+  if (proxyFetch) {
+    try {
+      const res = await proxyFetch(
+        "https://fal.mpp.moderato.tempo.xyz/fal-ai/flux/schnell",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt,
+            image_size: "square_hd",
+            num_images: 1,
+          }),
+        },
+      );
+
+      if (res.ok) {
+        const data = (await res.json()) as {
+          images?: Array<{ url: string; width?: number; height?: number }>;
+        };
+        const img = data.images?.[0];
+        if (img) {
+          const size =
+            img.width && img.height
+              ? `${img.width}x${img.height}`
+              : "1024x1024";
+          const lines = [
+            "  model       flux-schnell",
+            `  prompt      "${prompt}"`,
+            `  url         ${img.url}`,
+            `  size        ${size}`,
+            "  cost        $0.003",
+          ];
+          return result.withReceipt(Response.json({ lines }));
+        }
+      }
+    } catch (e) {
+      console.error("mpp-proxy fal.ai error:", e);
+    }
+    // Fall through to canned response
+  }
+
+  const image = imageResults[Math.floor(Math.random() * imageResults.length)];
+  const lines = [
+    "  model       flux-schnell",
+    `  prompt      "${prompt}"`,
+    `  url         ${image.url}`,
+    "  size        1024x1024",
+    "  cost        $0.003",
+  ];
+
+  return result.withReceipt(Response.json({ lines }));
+}

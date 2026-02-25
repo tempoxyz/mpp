@@ -41,9 +41,13 @@ export const BlockCursorInput = forwardRef<
     [forwardedRef],
   );
 
+  const [paddingLeft, setPaddingLeft] = useState(0);
+
   const syncCursor = useCallback(() => {
     const el = innerRef.current;
-    if (el) setCursorPos(el.selectionStart ?? el.value.length);
+    if (!el) return;
+    setCursorPos(el.selectionStart ?? el.value.length);
+    setPaddingLeft(Number.parseFloat(getComputedStyle(el).paddingLeft) || 0);
   }, []);
 
   if (supportsCaretShape) {
@@ -64,10 +68,10 @@ export const BlockCursorInput = forwardRef<
   }
 
   return (
-    <span className="relative inline-block">
+    <span className="relative inline-block min-w-0 flex-1">
       <input
         ref={setRef}
-        className={`${className ?? ""} p-0`}
+        className={`${className ?? ""} w-full`}
         style={{ ...style, caretColor: "transparent" }}
         onFocus={(e) => {
           setFocused(true);
@@ -100,7 +104,7 @@ export const BlockCursorInput = forwardRef<
         <span
           className="pointer-events-none absolute top-[0.15em]"
           style={{
-            left: `${cursorPos}ch`,
+            left: `calc(${cursorPos}ch + ${paddingLeft}px)`,
             width: "1ch",
             height: "1.2em",
             backgroundColor: "var(--term-pink9)",

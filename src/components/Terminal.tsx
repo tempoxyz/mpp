@@ -4,7 +4,13 @@ import { Receipt } from "mppx";
 import type { ReactNode } from "react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { BlockCursorInput } from "./BlockCursorInput";
-import { ASCII_ARTS, POEMS, SPINNER_FRAMES } from "./terminal-data";
+import {
+  ARTICLE_SUMMARIES,
+  CHAT_RESPONSES,
+  IMAGE_RESULTS,
+  SEARCH_RESULTS,
+  SPINNER_FRAMES,
+} from "./terminal-data";
 
 // ---------------------------------------------------------------------------
 // Demo client hook
@@ -54,7 +60,7 @@ function timeAgo(iso: string) {
 // ---------------------------------------------------------------------------
 
 const linkPattern =
-  /(mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
+  /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
 
 function CssTriangle() {
   return (
@@ -121,8 +127,9 @@ function renderText(text: string): ReactNode {
   return parts.map((part, i) => {
     linkPattern.lastIndex = 0;
     if (!linkPattern.test(part)) return part;
-    const href =
-      part === "Tempo.xyz"
+    const href = part.startsWith("http")
+      ? part
+      : part === "Tempo.xyz"
         ? "https://tempo.xyz"
         : part === "Stripe.com"
           ? "https://stripe.com"
@@ -320,7 +327,8 @@ function normalizeUrl(input: string): string {
     .replace(/\/.*$/, "");
 }
 
-function lookupCompany(url: string): string[] {
+/** @internal kept for cleanup task */
+export function lookupCompany(url: string): string[] {
   const domain = normalizeUrl(url);
   const company = COMPANIES[domain];
   if (company) {
@@ -369,8 +377,10 @@ function createCyclicPicker<T>(items: T[], first?: T): () => T {
   };
 }
 
-const pickPoem = createCyclicPicker(POEMS, POEMS[POEMS.length - 1]);
-const pickAscii = createCyclicPicker(ASCII_ARTS);
+const pickChat = createCyclicPicker(CHAT_RESPONSES);
+const pickImage = createCyclicPicker(IMAGE_RESULTS);
+const pickSearch = createCyclicPicker(SEARCH_RESULTS);
+const pickArticle = createCyclicPicker(ARTICLE_SUMMARIES);
 
 // ---------------------------------------------------------------------------
 // Step components
@@ -402,6 +412,7 @@ const COST_PER_TOKEN = 0.0001;
 
 function AsyncSteps({
   endpoint,
+  liveEndpoint,
   isRestart = false,
   output,
   walletState,
@@ -414,6 +425,7 @@ function AsyncSteps({
   onTxHash,
 }: {
   endpoint: string;
+  liveEndpoint?: string;
   isRestart?: boolean;
   output: string[];
   walletState: WalletState;
@@ -516,9 +528,7 @@ function AsyncSteps({
 
         let liveContent: string[] = [];
         try {
-          const demoEndpoint = paymentChannel
-            ? "/api/demo/poem"
-            : "/api/demo/ascii";
+          const demoEndpoint = liveEndpoint ?? endpoint;
 
           if (paymentChannel) {
             // Use session SSE for bidirectional voucher flow
@@ -620,6 +630,8 @@ function AsyncSteps({
   }, [
     demoClient,
     completed,
+    endpoint,
+    liveEndpoint,
     steps,
     paymentChannel,
     walletState.setBalance,
@@ -833,7 +845,7 @@ function AsyncSteps({
             className="whitespace-pre-wrap"
             style={{ color: "var(--term-gray10)" }}
           >
-            {outputText}
+            {renderText(outputText)}
           </pre>
         </>
       )}
@@ -1319,7 +1331,7 @@ function StripeSteps({
                       textIndent: `-${indent}ch`,
                     }}
                   >
-                    {line}
+                    {renderText(line)}
                   </pre>
                 );
               }
@@ -1329,7 +1341,7 @@ function StripeSteps({
                   key={i}
                   className="whitespace-pre-wrap"
                 >
-                  {line}
+                  {renderText(line)}
                 </pre>
               );
             })}
@@ -1365,6 +1377,13 @@ type Run = {
 };
 
 function runCost(run: Run): number {
+  if (run.chosen === "Chat with AI") {
+    const tokens = Math.ceil(run.output.join("\n").length / 4);
+    return tokens * COST_PER_TOKEN;
+  }
+  if (run.chosen === "Generate image") return 0.003;
+  if (run.chosen === "Search the web") return 0.005;
+  if (run.chosen === "Summarize article") return LOOKUP_COST;
   if (run.chosen === "Write poem") {
     const tokens = Math.ceil(run.output.join("\n").length / 4);
     return tokens * COST_PER_TOKEN;
@@ -1375,6 +1394,10 @@ function runCost(run: Run): number {
 }
 
 const METHOD_LABELS: Record<string, string> = {
+  "Chat with AI": "Tempo session",
+  "Generate image": "Tempo charge",
+  "Search the web": "Tempo charge",
+  "Summarize article": "Stripe charge",
   "Write poem": "Tempo session",
   "Create ASCII art": "Tempo charge",
   "Lookup company": "Stripe charge",
@@ -1430,7 +1453,10 @@ function Wizard({
     const opt = currentOptions[index ?? selected];
     if (opt === "Quit") {
       const usdcSpent = runs
-        .filter((r) => r.chosen !== "Lookup company")
+        .filter(
+          (r) =>
+            r.chosen !== "Lookup company" && r.chosen !== "Summarize article",
+        )
         .reduce((sum, r) => sum + runCost(r), 0);
       walletState.setBalance(INITIAL_BALANCE - usdcSpent);
       setQuit(true);
@@ -1439,29 +1465,29 @@ function Wizard({
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    if (opt === "Lookup company") {
-      setWaitingForUrl(true);
-      setUrlInput("");
-      setTimeout(() => urlRef.current?.focus(), 0);
-      return;
-    }
-    if (demoClient) {
-      setChosenOutput([]);
-    } else {
-      const output = opt === "Write poem" ? pickPoem() : pickAscii();
-      setChosenOutput(output);
-    }
-    setChosen(opt);
-    scrollTerminalIntoView();
+    // All options now require user input
+    setWaitingForUrl(true);
+    setUrlInput("");
+    setTimeout(() => urlRef.current?.focus(), 0);
   };
 
   const submitUrl = () => {
     if (!urlInput.trim()) return;
-    const output = lookupCompany(urlInput);
-    setChosenOutput(output);
+    const opt = currentOptions[selected];
+
+    if (demoClient) {
+      setChosenOutput([]); // live mode — content comes from API
+    } else {
+      // simulated mode — pick from canned data
+      if (opt === "Chat with AI") setChosenOutput(pickChat());
+      else if (opt === "Generate image") setChosenOutput(pickImage());
+      else if (opt === "Search the web") setChosenOutput(pickSearch());
+      else if (opt === "Summarize article") setChosenOutput(pickArticle());
+    }
+
     setChosenUrl(urlInput.trim());
     setWaitingForUrl(false);
-    setChosen("Lookup company");
+    setChosen(opt);
     scrollTerminalIntoView();
   };
 
@@ -1532,11 +1558,12 @@ function Wizard({
     },
   ) => {
     const isActive = !opts?.completed;
-    if (choice === "Write poem")
+    if (choice === "Chat with AI" || choice === "Write poem")
       return (
         <AsyncSteps
           key={key}
-          endpoint="/api/poem"
+          endpoint="/api/chat"
+          liveEndpoint={`/api/demo/chat?prompt=${encodeURIComponent(opts?.url ?? "")}`}
           isRestart={opts?.isRestart}
           output={output}
           walletState={walletState}
@@ -1555,11 +1582,12 @@ function Wizard({
           }
         />
       );
-    if (choice === "Create ASCII art")
+    if (choice === "Generate image" || choice === "Create ASCII art")
       return (
         <AsyncSteps
           key={key}
-          endpoint="/api/ascii"
+          endpoint="/api/image"
+          liveEndpoint={`/api/demo/image?prompt=${encodeURIComponent(opts?.url ?? "")}`}
           isRestart={opts?.isRestart}
           output={output}
           walletState={walletState}
@@ -1577,11 +1605,34 @@ function Wizard({
           }
         />
       );
-    if (choice === "Lookup company")
+    if (choice === "Search the web")
+      return (
+        <AsyncSteps
+          key={key}
+          endpoint="/api/search"
+          liveEndpoint={`/api/demo/search?query=${encodeURIComponent(opts?.url ?? "")}`}
+          isRestart={opts?.isRestart}
+          output={output}
+          walletState={walletState}
+          onDone={opts?.onDone}
+          completed={opts?.completed}
+          demoClient={isActive ? demoClient : undefined}
+          onContentReceived={isActive ? handleContentReceived : undefined}
+          initialTxHash={opts?.txHash}
+          onTxHash={
+            isActive
+              ? (hash) => {
+                  currentTxHashRef.current = hash;
+                }
+              : undefined
+          }
+        />
+      );
+    if (choice === "Summarize article" || choice === "Lookup company")
       return (
         <StripeSteps
           key={key}
-          endpoint={`/api/demo/lookup?url=${encodeURIComponent(opts?.url ?? "")}`}
+          endpoint={`/api/demo/article?url=${encodeURIComponent(opts?.url ?? "")}`}
           output={output}
           onDone={opts?.onDone}
           completed={opts?.completed}
@@ -1630,7 +1681,12 @@ function Wizard({
             </div>
             {run.url && (
               <p style={{ color: "var(--term-gray6)" }}>
-                Enter URL:{" "}
+                {run.chosen === "Search the web"
+                  ? "Enter query: "
+                  : run.chosen === "Summarize article" ||
+                      run.chosen === "Lookup company"
+                    ? "Enter URL: "
+                    : "Enter prompt: "}
                 <span style={{ color: "var(--term-gray10)" }}>{run.url}</span>
               </p>
             )}
@@ -1689,8 +1745,15 @@ function Wizard({
             </p>
           )}
           {waitingForUrl && (
-            <p style={{ color: "var(--term-gray6)" }}>
-              Enter URL:{" "}
+            <p className="flex" style={{ color: "var(--term-gray6)" }}>
+              <span className="shrink-0 whitespace-pre">
+                {currentOptions[selected] === "Search the web"
+                  ? "Enter query: "
+                  : currentOptions[selected] === "Summarize article" ||
+                      currentOptions[selected] === "Lookup company"
+                    ? "Enter URL: "
+                    : "Enter prompt: "}
+              </span>
               <BlockCursorInput
                 ref={urlRef}
                 type="text"
@@ -1699,10 +1762,37 @@ function Wizard({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") submitUrl();
                 }}
-                className="term-url-input bg-transparent outline-none"
+                className="term-url-input min-w-0 flex-1 bg-transparent outline-none"
                 style={{ color: "var(--term-gray10)" }}
-                placeholder="stripe.com"
+                placeholder={
+                  currentOptions[selected] === "Chat with AI"
+                    ? "what are micropayments?"
+                    : currentOptions[selected] === "Generate image"
+                      ? "a neon cityscape at night"
+                      : currentOptions[selected] === "Search the web"
+                        ? "AI agent payments"
+                        : "stripe.com"
+                }
               />
+            </p>
+          )}
+          {chosen === "Summarize article" && chosenUrl && (
+            <p style={{ color: "var(--term-gray6)" }}>
+              Enter URL:{" "}
+              <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
+            </p>
+          )}
+          {(chosen === "Chat with AI" || chosen === "Generate image") &&
+            chosenUrl && (
+              <p style={{ color: "var(--term-gray6)" }}>
+                Enter prompt:{" "}
+                <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
+              </p>
+            )}
+          {chosen === "Search the web" && chosenUrl && (
+            <p style={{ color: "var(--term-gray6)" }}>
+              Enter query:{" "}
+              <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
             </p>
           )}
           {chosen === "Lookup company" && chosenUrl && (
@@ -1723,10 +1813,18 @@ function Wizard({
       {quit &&
         (() => {
           const usdcSpent = runs
-            .filter((r) => r.chosen !== "Lookup company")
+            .filter(
+              (r) =>
+                r.chosen !== "Lookup company" &&
+                r.chosen !== "Summarize article",
+            )
             .reduce((sum, r) => sum + runCost(r), 0);
           const usdSpent = runs
-            .filter((r) => r.chosen === "Lookup company")
+            .filter(
+              (r) =>
+                r.chosen === "Lookup company" ||
+                r.chosen === "Summarize article",
+            )
             .reduce((sum, r) => sum + runCost(r), 0);
           const balance = INITIAL_BALANCE - usdcSpent;
           return (
@@ -1803,7 +1901,12 @@ function DiscoverServices({
 }) {
   return (
     <Wizard
-      options={["Write poem", "Create ASCII art", "Lookup company"]}
+      options={[
+        "Chat with AI",
+        "Generate image",
+        "Search the web",
+        "Summarize article",
+      ]}
       demoClient={demoClient}
       onRestart={onRestart}
       address={address}

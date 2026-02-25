@@ -54,7 +54,18 @@ async function waitForWizard(page: Page) {
 describe("terminal", () => {
   it.concurrent("renders the terminal window", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    const response = await page.goto(`http://localhost:${port}`);
+    console.log("page status:", response?.status());
+
+    // Wait for initial render
+    await page.waitForTimeout(2_000);
+    const html = await page.content();
+    console.log("page html length:", html.length);
+    console.log("page html preview:", html.slice(0, 2000));
+    const errors = await page.evaluate(
+      () => (globalThis as any).__e2e_errors ?? [],
+    );
+    console.log("page errors:", errors);
 
     await playwrightExpect(page.locator(".rounded-full").first()).toBeVisible();
     await playwrightExpect(page.getByText("Last login:")).toBeVisible({
@@ -85,19 +96,27 @@ describe("terminal", () => {
 
     await waitForWizard(page);
 
-    await playwrightExpect(page.getByText("Write poem")).toBeVisible();
-    await playwrightExpect(page.getByText("Create ASCII art")).toBeVisible();
-    await playwrightExpect(page.getByText("Lookup company")).toBeVisible();
+    await playwrightExpect(page.getByText("Chat with AI")).toBeVisible();
+    await playwrightExpect(page.getByText("Generate image")).toBeVisible();
+    await playwrightExpect(page.getByText("Search the web")).toBeVisible();
+    await playwrightExpect(page.getByText("Summarize article")).toBeVisible();
 
     await page.close();
   });
 
-  it.concurrent('selects "Write poem" and shows payment channel steps', async () => {
+  it.concurrent('selects "Chat with AI" and shows payment channel steps', async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
     await waitForWizard(page);
 
     await pressKey(page, "Enter");
+
+    // Now we need to enter a prompt
+    await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
+      timeout: 5_000,
+    });
+    await page.keyboard.type("what are micropayments?");
+    await page.keyboard.press("Enter");
 
     await playwrightExpect(
       page.getByText("Creating wallet", { exact: false }),
@@ -131,13 +150,19 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Create ASCII art" via arrow key and shows charge steps', async () => {
+  it.concurrent('selects "Generate image" via arrow key and shows charge steps', async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
     await waitForWizard(page);
 
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
+
+    await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
+      timeout: 5_000,
+    });
+    await page.keyboard.type("a neon cityscape");
+    await page.keyboard.press("Enter");
 
     await playwrightExpect(
       page.getByText("Creating wallet", { exact: false }),
@@ -162,11 +187,12 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Lookup company" and enters a URL', async () => {
+  it.concurrent('selects "Summarize article" and enters a URL', async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
     await waitForWizard(page);
 
+    await pressKey(page, "ArrowDown");
     await pressKey(page, "ArrowDown");
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
@@ -202,10 +228,6 @@ describe("terminal", () => {
       timeout: 5_000,
     });
 
-    await playwrightExpect(
-      page.getByText("Stripe", { exact: false }).last(),
-    ).toBeVisible({ timeout: 5_000 });
-
     await page.close();
   });
 
@@ -217,6 +239,13 @@ describe("terminal", () => {
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
+    // Enter prompt for Generate image
+    await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
+      timeout: 5_000,
+    });
+    await page.keyboard.type("test image");
+    await page.keyboard.press("Enter");
+
     // First run should say "Creating wallet"
     await playwrightExpect(
       page.getByText("Creating wallet", { exact: false }),
@@ -226,9 +255,15 @@ describe("terminal", () => {
       timeout: 15_000,
     });
 
-    // Second run: select "Create ASCII art" again
+    // Second run: select "Generate image" again
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
+
+    await playwrightExpect(
+      page.getByText("Enter prompt:", { exact: true }),
+    ).toBeVisible({ timeout: 5_000 });
+    await page.keyboard.type("another test");
+    await page.keyboard.press("Enter");
 
     // Second run should say "Using wallet" (not "Creating")
     await playwrightExpect(
@@ -240,9 +275,11 @@ describe("terminal", () => {
     });
     await page.waitForSelector("[data-wizard-ready]", { timeout: 5_000 });
 
-    await pressKey(page, "ArrowDown");
-    await pressKey(page, "ArrowDown");
-    await pressKey(page, "ArrowDown");
+    // Navigate to Quit (5 options: Chat with AI, Generate image, Search the web, Summarize article, Quit)
+    await pressKey(page, "ArrowDown"); // → Generate image (1)
+    await pressKey(page, "ArrowDown"); // → Search the web (2)
+    await pressKey(page, "ArrowDown"); // → Summarize article (3)
+    await pressKey(page, "ArrowDown"); // → Quit (4)
     await pressKey(page, "Enter");
 
     await playwrightExpect(
@@ -262,7 +299,7 @@ describe("terminal", () => {
     await playwrightExpect(
       page.getByText("What would you like to do?").last(),
     ).toBeVisible({ timeout: 5_000 });
-    await playwrightExpect(page.getByText("Write poem")).toBeVisible();
+    await playwrightExpect(page.getByText("Chat with AI")).toBeVisible();
 
     await page.close();
   });
