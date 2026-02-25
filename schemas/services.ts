@@ -11,28 +11,34 @@ export const TEMPO_RECIPIENT = "0xB48141c3Da5030deF992bDc686f0e9A8729206b6";
 export const MPP_REALM = "mpp.tempo.xyz";
 
 // --- Types ---
-export type Category =
-  | "ai"
-  | "blockchain"
-  | "compute"
-  | "data"
-  | "media"
-  | "search"
-  | "social"
-  | "storage"
-  | "web";
-export type Integration = "first-party" | "third-party";
-export type Status = "active" | "beta" | "deprecated" | "maintenance";
-export type Intent = "charge" | "session";
-export type HttpMethod =
-  | "GET"
-  | "POST"
-  | "PUT"
-  | "PATCH"
-  | "DELETE"
-  | "HEAD"
-  | "OPTIONS";
-export const HTTP_METHODS: readonly HttpMethod[] = [
+export const CATEGORIES = [
+  "ai",
+  "blockchain",
+  "compute",
+  "data",
+  "media",
+  "search",
+  "social",
+  "storage",
+  "web",
+] as const;
+export type Category = (typeof CATEGORIES)[number];
+
+export const INTEGRATIONS = ["first-party", "third-party"] as const;
+export type Integration = (typeof INTEGRATIONS)[number];
+
+export const STATUSES = [
+  "active",
+  "beta",
+  "deprecated",
+  "maintenance",
+] as const;
+export type Status = (typeof STATUSES)[number];
+
+export const INTENTS = ["charge", "session"] as const;
+export type Intent = (typeof INTENTS)[number];
+
+export const HTTP_METHODS = [
   "GET",
   "POST",
   "PUT",
@@ -41,6 +47,7 @@ export const HTTP_METHODS: readonly HttpMethod[] = [
   "HEAD",
   "OPTIONS",
 ] as const;
+export type HttpMethod = (typeof HTTP_METHODS)[number];
 
 export interface PaymentDefaults {
   /** Payment method identifier (e.g. "tempo") */
