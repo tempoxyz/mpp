@@ -24,6 +24,23 @@ export type Category =
 export type Integration = "first-party" | "third-party";
 export type Status = "active" | "beta" | "deprecated" | "maintenance";
 export type Intent = "charge" | "session";
+export type HttpMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "HEAD"
+  | "OPTIONS";
+export const HTTP_METHODS: readonly HttpMethod[] = [
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "HEAD",
+  "OPTIONS",
+] as const;
 
 export interface PaymentDefaults {
   /** Payment method identifier (e.g. "tempo") */

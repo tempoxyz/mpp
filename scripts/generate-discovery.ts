@@ -9,6 +9,8 @@ import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   type EndpointDef,
+  HTTP_METHODS,
+  type HttpMethod,
   type ServiceDef,
   services,
 } from "../schemas/services.ts";
@@ -23,17 +25,12 @@ const EXAMPLE_IDS = new Set(["exa", "openrouter", "storage"]);
 const SERVICE_ID_RE = /^[a-z0-9-]+$/;
 const NUMERIC_RE = /^\d+$/;
 
-const VALID_METHODS = new Set([
-  "GET",
-  "POST",
-  "PUT",
-  "PATCH",
-  "DELETE",
-  "HEAD",
-  "OPTIONS",
-]);
+const VALID_METHODS: ReadonlySet<string> = new Set<string>(HTTP_METHODS);
 
-export function parseRoute(route: string): { method: string; path: string } {
+export function parseRoute(route: string): {
+  method: HttpMethod;
+  path: string;
+} {
   const spaceIdx = route.indexOf(" ");
   if (spaceIdx === -1) {
     throw new Error(`Invalid route "${route}": expected "METHOD /path"`);
@@ -42,7 +39,7 @@ export function parseRoute(route: string): { method: string; path: string } {
   const path = route.slice(spaceIdx + 1);
   if (!VALID_METHODS.has(method)) {
     throw new Error(
-      `Invalid HTTP method "${method}" in route "${route}". Valid: ${[...VALID_METHODS].join(", ")}`,
+      `Invalid HTTP method "${method}" in route "${route}". Valid: ${HTTP_METHODS.join(", ")}`,
     );
   }
   if (!path.startsWith("/")) {
@@ -50,7 +47,7 @@ export function parseRoute(route: string): { method: string; path: string } {
       `Invalid path "${path}" in route "${route}": must start with "/"`,
     );
   }
-  return { method, path };
+  return { method: method as HttpMethod, path };
 }
 
 export function buildEndpointDocs(
