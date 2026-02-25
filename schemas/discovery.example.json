@@ -4,8 +4,8 @@
     {
       "id": "exa",
       "name": "Exa",
-      "url": "https://mpp.tempo.xyz/exa",
-      "serviceUrl": "https://api.exa.ai",
+      "url": "https://api.exa.ai",
+      "serviceUrl": "https://mpp.tempo.xyz/exa",
       "description": "AI-powered web search, content retrieval, and answers.",
       "categories": ["search", "ai"],
       "integration": "third-party",
@@ -92,8 +92,8 @@
     {
       "id": "openrouter",
       "name": "OpenRouter",
-      "url": "https://mpp.tempo.xyz/openrouter",
-      "serviceUrl": "https://openrouter.ai/api",
+      "url": "https://openrouter.ai/api",
+      "serviceUrl": "https://mpp.tempo.xyz/openrouter",
       "description": "Unified API for 100+ LLMs with live per-model pricing.",
       "categories": ["ai"],
       "integration": "third-party",

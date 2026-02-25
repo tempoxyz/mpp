@@ -5,9 +5,10 @@
  * Run `node scripts/generate-discovery.ts` to regenerate discovery.json.
  */
 
-// --- Payment constants ---
+// --- Shared constants ---
 export const USDC = "0x20c000000000000000000000b9537d11c60e8b50";
-export const RECIPIENT = "0xB48141c3Da5030deF992bDc686f0e9A8729206b6";
+export const TEMPO_RECIPIENT = "0xB48141c3Da5030deF992bDc686f0e9A8729206b6";
+export const MPP_REALM = "mpp.tempo.xyz";
 
 // --- Types ---
 export type Category =
@@ -24,12 +25,31 @@ export type Integration = "first-party" | "third-party";
 export type Status = "active" | "beta" | "deprecated" | "maintenance";
 export type Intent = "charge" | "session";
 
+export interface PaymentDefaults {
+  /** Payment method identifier (e.g. "tempo") */
+  method: string;
+  /** Currency identifier (e.g. TIP-20 token address for Tempo, ISO 4217 for fiat) */
+  currency: string;
+  /** Decimal places for the currency (e.g. 6 for USDC) */
+  decimals: number;
+  /** Payment recipient address or identifier */
+  recipient: string;
+}
+
+/** Common payment defaults for Tempo USDC services */
+export const TEMPO_PAYMENT: PaymentDefaults = {
+  method: "tempo",
+  currency: USDC,
+  decimals: 6,
+  recipient: TEMPO_RECIPIENT,
+};
+
 export interface EndpointDef {
   /** Route string: "METHOD /path" (without service slug prefix) */
   route: string;
   /** Description of what this endpoint does */
   desc: string;
-  /** Price in base units (6 decimals). Omit for free or dynamic endpoints. */
+  /** Price in base units. Omit for free or dynamic endpoints. */
   amount?: string;
   /** Dynamic pricing — price computed at runtime based on model/tokens/size */
   dynamic?: true;
@@ -44,6 +64,9 @@ export interface EndpointDef {
 export interface ServiceDef {
   id: string;
   name: string;
+  /** Upstream provider URL (e.g. "https://api.openai.com") */
+  url: string;
+  /** MPP service URL — where this service is accessed through the proxy (e.g. "https://mpp.tempo.xyz/openai") */
   serviceUrl: string;
   description: string;
   icon?: string;
@@ -53,8 +76,12 @@ export interface ServiceDef {
   status?: Status;
   docs?: { homepage?: string; llmsTxt?: string; apiReference?: string };
   provider?: { name: string; url: string };
+  /** Payment realm (typically the proxy host) */
+  realm: string;
   /** Default payment intent for paid endpoints in this service */
   intent: Intent;
+  /** Payment method, currency, decimals, and recipient for this service's paid endpoints */
+  payment: PaymentDefaults;
   /** Base URL for auto-generating per-endpoint docs links */
   docsBase?: string;
   endpoints: EndpointDef[];
@@ -66,7 +93,8 @@ export const services: ServiceDef[] = [
   {
     id: "agentmail",
     name: "AgentMail",
-    serviceUrl: "https://api.agentmail.to",
+    url: "https://api.agentmail.to",
+    serviceUrl: `https://${MPP_REALM}/agentmail`,
     description:
       "Email inboxes for AI agents — create, send, receive, and manage email programmatically.",
     categories: ["ai", "social"],
@@ -77,7 +105,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://docs.agentmail.to/llms.txt",
     },
     provider: { name: "AgentMail", url: "https://agentmail.to" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://docs.agentmail.to/llms.txt",
     endpoints: [
       { route: "GET /v0/inboxes", desc: "List inboxes", amount: "5000" },
@@ -369,7 +399,8 @@ export const services: ServiceDef[] = [
   {
     id: "alchemy",
     name: "Alchemy",
-    serviceUrl: "https://eth-mainnet.g.alchemy.com",
+    url: "https://eth-mainnet.g.alchemy.com",
+    serviceUrl: `https://${MPP_REALM}/alchemy`,
     description:
       "Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.",
     categories: ["blockchain", "data"],
@@ -380,7 +411,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://www.alchemy.com/docs/llms.txt",
     },
     provider: { name: "Alchemy", url: "https://alchemy.com" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/alchemy/llms.txt",
     endpoints: [
       {
@@ -405,7 +438,8 @@ export const services: ServiceDef[] = [
   {
     id: "anthropic",
     name: "Anthropic",
-    serviceUrl: "https://api.anthropic.com",
+    url: "https://api.anthropic.com",
+    serviceUrl: `https://${MPP_REALM}/anthropic`,
     description:
       "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
     categories: ["ai"],
@@ -417,7 +451,9 @@ export const services: ServiceDef[] = [
       apiReference: "https://docs.anthropic.com/en/api",
     },
     provider: { name: "Anthropic", url: "https://anthropic.com" },
+    realm: MPP_REALM,
     intent: "session",
+    payment: TEMPO_PAYMENT,
     endpoints: [
       {
         route: "POST /v1/messages",
@@ -436,7 +472,8 @@ export const services: ServiceDef[] = [
   {
     id: "browserbase",
     name: "Browserbase",
-    serviceUrl: "https://api.browserbase.com",
+    url: "https://api.browserbase.com",
+    serviceUrl: `https://${MPP_REALM}/browserbase`,
     description: "Headless browser sessions for web scraping and automation.",
     categories: ["web", "compute"],
     integration: "third-party",
@@ -446,7 +483,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://docs.browserbase.com/llms.txt",
     },
     provider: { name: "Browserbase", url: "https://browserbase.com" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/browserbase/llms.txt",
     endpoints: [
       {
@@ -466,7 +505,8 @@ export const services: ServiceDef[] = [
   {
     id: "codex",
     name: "Codex",
-    serviceUrl: "https://graph.codex.io",
+    url: "https://graph.codex.io",
+    serviceUrl: `https://${MPP_REALM}/codex`,
     description:
       "GraphQL API for DeFi and blockchain data across 80+ networks.",
     categories: ["blockchain", "data"],
@@ -477,7 +517,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://docs.codex.io/llms.txt",
     },
     provider: { name: "Codex", url: "https://codex.io" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/codex_io/llms.txt",
     endpoints: [
       {
@@ -492,7 +534,8 @@ export const services: ServiceDef[] = [
   {
     id: "digitalocean",
     name: "DigitalOcean",
-    serviceUrl: "https://api.digitalocean.com",
+    url: "https://api.digitalocean.com",
+    serviceUrl: `https://${MPP_REALM}/digitalocean`,
     description:
       "Cloud infrastructure for 1-click deploy of hosted MPP Agents on DigitalOcean Droplets.",
     categories: ["compute"],
@@ -503,7 +546,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://docs.digitalocean.com/llms.txt",
     },
     provider: { name: "DigitalOcean", url: "https://digitalocean.com" },
+    realm: MPP_REALM,
     intent: "session",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/digitalocean/llms.txt",
     endpoints: [
       { route: "POST /v2/droplets", desc: "Create a Droplet", dynamic: true },
@@ -533,7 +578,8 @@ export const services: ServiceDef[] = [
   {
     id: "elevenlabs",
     name: "ElevenLabs",
-    serviceUrl: "https://api.elevenlabs.io",
+    url: "https://api.elevenlabs.io",
+    serviceUrl: `https://${MPP_REALM}/elevenlabs`,
     description: "Text-to-speech, speech-to-text, and voice cloning.",
     categories: ["ai", "media"],
     integration: "third-party",
@@ -544,7 +590,9 @@ export const services: ServiceDef[] = [
       apiReference: "https://elevenlabs.io/docs/api-reference",
     },
     provider: { name: "ElevenLabs", url: "https://elevenlabs.io" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/elevenlabs_io/llms.txt",
     endpoints: [
       {
@@ -574,7 +622,8 @@ export const services: ServiceDef[] = [
   {
     id: "exa",
     name: "Exa",
-    serviceUrl: "https://api.exa.ai",
+    url: "https://api.exa.ai",
+    serviceUrl: `https://${MPP_REALM}/exa`,
     description: "AI-powered web search, content retrieval, and answers.",
     categories: ["search", "ai"],
     integration: "third-party",
@@ -584,7 +633,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://docs.exa.ai/llms.txt",
     },
     provider: { name: "Exa", url: "https://exa.ai" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/exa_ai/llms.txt",
     endpoints: [
       { route: "POST /search", desc: "Search the web", amount: "5000" },
@@ -606,7 +657,8 @@ export const services: ServiceDef[] = [
   {
     id: "fal",
     name: "fal.ai",
-    serviceUrl: "https://fal.run",
+    url: "https://fal.run",
+    serviceUrl: `https://${MPP_REALM}/fal`,
     description:
       "Image, video, and audio generation with 600+ models (Flux, SD, Recraft, Grok).",
     categories: ["ai", "media"],
@@ -617,7 +669,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://fal.ai/docs/llms.txt",
     },
     provider: { name: "fal.ai", url: "https://fal.ai" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/fal_ai/llms.txt",
     endpoints: [
       {
@@ -707,7 +761,8 @@ export const services: ServiceDef[] = [
   {
     id: "firecrawl",
     name: "Firecrawl",
-    serviceUrl: "https://api.firecrawl.dev",
+    url: "https://api.firecrawl.dev",
+    serviceUrl: `https://${MPP_REALM}/firecrawl`,
     description:
       "Web scraping, crawling, and structured data extraction for LLMs.",
     categories: ["web", "data"],
@@ -718,7 +773,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://docs.firecrawl.dev/llms.txt",
     },
     provider: { name: "Firecrawl", url: "https://firecrawl.dev" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/firecrawl_dev/llms.txt",
     endpoints: [
       { route: "POST /v1/scrape", desc: "Scrape a URL", amount: "2000" },
@@ -737,7 +794,8 @@ export const services: ServiceDef[] = [
   {
     id: "gemini",
     name: "Google Gemini",
-    serviceUrl: "https://generativelanguage.googleapis.com",
+    url: "https://generativelanguage.googleapis.com",
+    serviceUrl: `https://${MPP_REALM}/gemini`,
     description:
       "Gemini text generation, Veo video, and Nano Banana image generation with model-tier pricing.",
     categories: ["ai", "media"],
@@ -745,7 +803,9 @@ export const services: ServiceDef[] = [
     tags: ["llm", "gemini", "veo", "imagen", "video", "multimodal"],
     docs: { homepage: "https://ai.google.dev/docs" },
     provider: { name: "Google", url: "https://ai.google.dev" },
+    realm: MPP_REALM,
     intent: "session",
+    payment: TEMPO_PAYMENT,
     endpoints: [
       {
         route: "POST /:version/models/*",
@@ -788,7 +848,8 @@ export const services: ServiceDef[] = [
   {
     id: "modal",
     name: "Modal",
-    serviceUrl: "https://api.modal.com",
+    url: "https://api.modal.com",
+    serviceUrl: `https://${MPP_REALM}/modal`,
     description:
       "Serverless GPU compute for sandboxed code execution and AI/ML workloads.",
     categories: ["compute"],
@@ -799,7 +860,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://modal.com/llms.txt",
     },
     provider: { name: "Modal", url: "https://modal.com" },
+    realm: MPP_REALM,
     intent: "session",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/modal/llms.txt",
     endpoints: [
       {
@@ -817,7 +880,8 @@ export const services: ServiceDef[] = [
   {
     id: "openai",
     name: "OpenAI",
-    serviceUrl: "https://api.openai.com",
+    url: "https://api.openai.com",
+    serviceUrl: `https://${MPP_REALM}/openai`,
     description:
       "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
     icon: "https://mpp.tempo.xyz/icons/openai.svg",
@@ -830,7 +894,9 @@ export const services: ServiceDef[] = [
       apiReference: "https://platform.openai.com/docs/api-reference",
     },
     provider: { name: "OpenAI", url: "https://openai.com" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/platform_openai/llms.txt",
     endpoints: [
       {
@@ -872,7 +938,8 @@ export const services: ServiceDef[] = [
   {
     id: "openrouter",
     name: "OpenRouter",
-    serviceUrl: "https://openrouter.ai/api",
+    url: "https://openrouter.ai/api",
+    serviceUrl: `https://${MPP_REALM}/openrouter`,
     description: "Unified API for 100+ LLMs with live per-model pricing.",
     categories: ["ai"],
     integration: "third-party",
@@ -882,7 +949,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://openrouter.ai/docs/llms.txt",
     },
     provider: { name: "OpenRouter", url: "https://openrouter.ai" },
+    realm: MPP_REALM,
     intent: "session",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/openrouter_ai/llms.txt",
     endpoints: [
       {
@@ -897,7 +966,8 @@ export const services: ServiceDef[] = [
   {
     id: "parallel",
     name: "Parallel",
-    serviceUrl: "https://api.parallel.ai",
+    url: "https://api.parallel.ai",
+    serviceUrl: `https://${MPP_REALM}/parallel`,
     description:
       "Web search, page extraction, and web-grounded chat completions.",
     categories: ["search", "ai"],
@@ -905,7 +975,9 @@ export const services: ServiceDef[] = [
     tags: ["search", "web", "extraction", "chat"],
     docs: { llmsTxt: "https://parallel.ai/llms.txt" },
     provider: { name: "Parallel", url: "https://parallel.ai" },
+    realm: MPP_REALM,
     intent: "session",
+    payment: TEMPO_PAYMENT,
     endpoints: [
       {
         route: "POST /v1beta/search",
@@ -931,7 +1003,8 @@ export const services: ServiceDef[] = [
   {
     id: "rpc",
     name: "Tempo RPC",
-    serviceUrl: "https://rpc.tempo.xyz",
+    url: "https://rpc.tempo.xyz",
+    serviceUrl: `https://${MPP_REALM}/rpc`,
     description: "Tempo blockchain JSON-RPC access (mainnet and testnet).",
     categories: ["blockchain"],
     integration: "first-party",
@@ -941,7 +1014,9 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://docs.tempo.xyz/llms.txt",
     },
     provider: { name: "Tempo", url: "https://tempo.xyz" },
+    realm: MPP_REALM,
     intent: "session",
+    payment: TEMPO_PAYMENT,
     endpoints: [
       {
         route: "POST /",
@@ -956,7 +1031,8 @@ export const services: ServiceDef[] = [
   {
     id: "storage",
     name: "Object Storage",
-    serviceUrl: "https://mpp.tempo.xyz/storage",
+    url: "https://mpp.tempo.xyz/storage",
+    serviceUrl: `https://${MPP_REALM}/storage`,
     description:
       "S3/R2-compatible object storage with dynamic per-size pricing.",
     categories: ["storage"],
@@ -964,7 +1040,9 @@ export const services: ServiceDef[] = [
     tags: ["s3", "r2", "objects", "blobs", "files"],
     docs: { homepage: "https://developers.cloudflare.com/r2/" },
     provider: { name: "Tempo", url: "https://tempo.xyz" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     endpoints: [
       {
         route: "GET /:key",
@@ -992,14 +1070,17 @@ export const services: ServiceDef[] = [
   {
     id: "twitter",
     name: "Twitter/X",
-    serviceUrl: "https://api.x.com",
+    url: "https://api.x.com",
+    serviceUrl: `https://${MPP_REALM}/twitter`,
     description: "X API v2 for tweets, users, and search.",
     categories: ["social", "data"],
     integration: "third-party",
     tags: ["twitter", "x", "tweets", "social", "search"],
     docs: { homepage: "https://developer.x.com/en/docs" },
     provider: { name: "X Corp", url: "https://x.com" },
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     docsBase: "https://context7.com/websites/x_x-api/llms.txt",
     endpoints: [
       { route: "GET /2/tweets", desc: "Look up tweets by ID", amount: "5000" },

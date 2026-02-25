@@ -1,5 +1,11 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { RECIPIENT, type ServiceDef, USDC } from "../schemas/services.ts";
+import {
+  MPP_REALM,
+  type ServiceDef,
+  TEMPO_PAYMENT,
+  TEMPO_RECIPIENT,
+  USDC,
+} from "../schemas/services.ts";
 import {
   buildEndpointDocs,
   buildPayment,
@@ -57,17 +63,36 @@ describe("parseRoute", () => {
 
 // --- buildPayment ---
 
+/** Minimal service for testing buildPayment */
+function paymentSvc(overrides: Partial<ServiceDef> = {}): ServiceDef {
+  return {
+    id: "test",
+    name: "Test",
+    url: "https://api.test.com",
+    serviceUrl: `https://${MPP_REALM}/test`,
+    description: "Test service",
+    categories: ["ai"],
+    integration: "first-party",
+    tags: [],
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [{ route: "GET /foo", desc: "test" }],
+    ...overrides,
+  };
+}
+
 describe("buildPayment", () => {
   it("returns null for free endpoints", () => {
     expect(
-      buildPayment({ route: "GET /foo", desc: "free" }, "charge"),
+      buildPayment({ route: "GET /foo", desc: "free" }, paymentSvc()),
     ).toBeNull();
   });
 
   it("builds fixed-price payment", () => {
     const result = buildPayment(
       { route: "GET /foo", desc: "test", amount: "5000" },
-      "charge",
+      paymentSvc(),
     );
     expect(result).toEqual({
       intent: "charge",
@@ -75,7 +100,7 @@ describe("buildPayment", () => {
       amount: "5000",
       currency: USDC,
       decimals: 6,
-      recipient: RECIPIENT,
+      recipient: TEMPO_RECIPIENT,
       description: "test",
     });
   });
@@ -83,7 +108,7 @@ describe("buildPayment", () => {
   it("builds dynamic payment", () => {
     const result = buildPayment(
       { route: "POST /bar", desc: "dynamic test", dynamic: true },
-      "session",
+      paymentSvc({ intent: "session" }),
     );
     expect(result).toEqual({
       intent: "session",
@@ -91,7 +116,7 @@ describe("buildPayment", () => {
       dynamic: true,
       currency: USDC,
       decimals: 6,
-      recipient: RECIPIENT,
+      recipient: TEMPO_RECIPIENT,
       description: "dynamic test",
     });
   });
@@ -104,7 +129,7 @@ describe("buildPayment", () => {
         amount: "100",
         intent: "session",
       },
-      "charge",
+      paymentSvc(),
     );
     expect(result?.intent).toBe("session");
   });
@@ -117,7 +142,7 @@ describe("buildPayment", () => {
         amount: "100",
         unitType: "request",
       },
-      "charge",
+      paymentSvc(),
     );
     expect(result?.unitType).toBe("request");
   });
@@ -178,12 +203,15 @@ function svc(overrides: Partial<ServiceDef> = {}): ServiceDef {
   return {
     id: "test",
     name: "Test",
-    serviceUrl: "https://api.test.com",
+    url: "https://api.test.com",
+    serviceUrl: `https://${MPP_REALM}/test`,
     description: "Test service",
     categories: ["ai"],
     integration: "first-party",
     tags: [],
+    realm: MPP_REALM,
     intent: "charge",
+    payment: TEMPO_PAYMENT,
     endpoints: [{ route: "GET /foo", desc: "test" }],
     ...overrides,
   };
@@ -258,6 +286,12 @@ describe("validateServices", () => {
         }),
       ]),
     ).toThrow("must be a numeric string");
+  });
+
+  it("rejects non-https url", () => {
+    expect(() =>
+      validateServices([svc({ url: "http://insecure.com" })]),
+    ).toThrow("must start with https://");
   });
 
   it("rejects non-https serviceUrl", () => {

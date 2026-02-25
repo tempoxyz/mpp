@@ -9,14 +9,10 @@ import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   type EndpointDef,
-  type Intent,
-  RECIPIENT,
   type ServiceDef,
   services,
-  USDC,
 } from "../schemas/services.ts";
 
-const REALM = "mpp.tempo.xyz";
 const SCHEMAS_DIR = resolve(import.meta.dirname, "../schemas");
 const OUTPUT_FULL = resolve(SCHEMAS_DIR, "discovery.json");
 const OUTPUT_EXAMPLE = resolve(SCHEMAS_DIR, "discovery.example.json");
@@ -74,16 +70,16 @@ export function buildEndpointDocs(
 // adding mirror interfaces here would be redundant maintenance.
 export function buildPayment(
   ep: EndpointDef,
-  defaultIntent: Intent,
+  svc: ServiceDef,
 ): Record<string, unknown> | null {
   if (!ep.amount && !ep.dynamic) return null;
 
   const base: Record<string, unknown> = {
-    intent: ep.intent ?? defaultIntent,
-    method: "tempo",
-    currency: USDC,
-    decimals: 6,
-    recipient: RECIPIENT,
+    intent: ep.intent ?? svc.intent,
+    method: svc.payment.method,
+    currency: svc.payment.currency,
+    decimals: svc.payment.decimals,
+    recipient: svc.payment.recipient,
     description: ep.desc,
   };
 
@@ -146,6 +142,11 @@ export function validateServices(svcs: ServiceDef[]): void {
       }
     }
 
+    // url must look like a URL
+    if (!svc.url.startsWith("https://")) {
+      throw new Error(`Service "${svc.id}" url must start with https://`);
+    }
+
     // serviceUrl must look like a URL
     if (!svc.serviceUrl.startsWith("https://")) {
       throw new Error(
@@ -168,7 +169,7 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   const entry: Record<string, unknown> = {
     id: svc.id,
     name: svc.name,
-    url: `https://${REALM}/${svc.id}`,
+    url: svc.url,
     serviceUrl: svc.serviceUrl,
     description: svc.description,
   };
@@ -179,12 +180,12 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   entry.status = svc.status ?? "active";
   if (svc.docs) entry.docs = svc.docs;
   entry.methods = {
-    tempo: {
+    [svc.payment.method]: {
       intents: [...intents].sort(),
-      assets: [USDC],
+      assets: [svc.payment.currency],
     },
   };
-  entry.realm = REALM;
+  entry.realm = svc.realm;
   if (svc.provider) entry.provider = svc.provider;
 
   entry.endpoints = svc.endpoints.map((ep) => {
@@ -194,7 +195,7 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
       method,
       path: routePath,
       description: ep.desc,
-      payment: buildPayment(ep, svc.intent),
+      payment: buildPayment(ep, svc),
     };
 
     const docs = buildEndpointDocs(svc.docsBase, method, routePath, ep.docs);

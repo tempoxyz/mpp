@@ -63,7 +63,7 @@ describe("discovery schema", () => {
         {
           id: "test",
           name: "Test Service",
-          url: "https://example.com",
+          serviceUrl: "https://example.com",
           endpoints: [],
           methods: {},
         },
