@@ -1,5 +1,6 @@
 /**
- * Generates schemas/discovery.example.json from schemas/services.ts.
+ * Generates schemas/discovery.json (full) and schemas/discovery.example.json (slim)
+ * from schemas/services.ts.
  *
  * Usage: node scripts/generate-discovery.ts
  */
@@ -16,10 +17,12 @@ import {
 } from "../schemas/services.ts";
 
 const REALM = "mpp.tempo.xyz";
-const OUTPUT = resolve(
-  import.meta.dirname,
-  "../schemas/discovery.example.json",
-);
+const SCHEMAS_DIR = resolve(import.meta.dirname, "../schemas");
+const OUTPUT_FULL = resolve(SCHEMAS_DIR, "discovery.json");
+const OUTPUT_EXAMPLE = resolve(SCHEMAS_DIR, "discovery.example.json");
+
+/** Services included in the slim example (covers fixed, dynamic, free, and mixed intents) */
+const EXAMPLE_IDS = new Set(["exa", "openrouter", "storage"]);
 
 const SERVICE_ID_RE = /^[a-z0-9-]+$/;
 const NUMERIC_RE = /^\d+$/;
@@ -104,8 +107,8 @@ export function validateServices(svcs: ServiceDef[]): void {
 
     // ID must match schema pattern (lowercase alphanumeric + hyphens)
     if (!SERVICE_ID_RE.test(svc.id)) {
-    	throw new Error(
-    		`Invalid service ID "${svc.id}": must match ${SERVICE_ID_RE}`,
+      throw new Error(
+        `Invalid service ID "${svc.id}": must match ${SERVICE_ID_RE}`,
       );
     }
 
@@ -152,7 +155,7 @@ export function validateServices(svcs: ServiceDef[]): void {
   }
 }
 
-function buildService(svc: ServiceDef): Record<string, unknown> {
+export function buildService(svc: ServiceDef): Record<string, unknown> {
   // Collect intents from paid endpoints
   const intents = new Set<string>();
   for (const ep of svc.endpoints) {
@@ -204,15 +207,23 @@ function buildService(svc: ServiceDef): Record<string, unknown> {
   return entry;
 }
 
+function writeJson(path: string, data: unknown): void {
+  writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
+}
+
 function generate(): void {
   validateServices(services);
 
-  const output = {
-    version: 1 as const,
-    services: services.map(buildService),
-  };
+  const allBuilt = services.map(buildService);
 
-  writeFileSync(OUTPUT, `${JSON.stringify(output, null, 2)}\n`);
+  // Full registry (checked in, used by API)
+  writeJson(OUTPUT_FULL, { version: 1, services: allBuilt });
+
+  // Slim example (checked in, used by schema tests)
+  const exampleServices = allBuilt.filter((s) =>
+    EXAMPLE_IDS.has(s.id as string),
+  );
+  writeJson(OUTPUT_EXAMPLE, { version: 1, services: exampleServices });
 
   // Summary
   let totalEps = 0;
@@ -227,10 +238,13 @@ function generate(): void {
       else paidEps++;
     }
   }
-  console.log(`Generated ${OUTPUT}`);
   console.log(
-    `  ${services.length} services, ${totalEps} endpoints (${paidEps} paid, ${dynamicEps} dynamic, ${freeEps} free)`,
+    `Generated ${OUTPUT_FULL} (${services.length} services, ${totalEps} endpoints)`,
   );
+  console.log(
+    `Generated ${OUTPUT_EXAMPLE} (${exampleServices.length} services)`,
+  );
+  console.log(`  ${paidEps} paid, ${dynamicEps} dynamic, ${freeEps} free`);
 }
 
 generate();

@@ -2,7 +2,7 @@
  * MPP Service Registry
  *
  * Edit this file to add or modify services.
- * Run `node scripts/generate-discovery.ts` to regenerate discovery.example.json.
+ * Run `node scripts/generate-discovery.ts` to regenerate discovery.json.
  */
 
 // --- Payment constants ---

@@ -10,12 +10,31 @@ jobs:
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [lint, typecheck, test]
+    needs: [generated-freshness, lint, typecheck, test]
     runs-on: ubuntu-latest
     steps:
       - run: |
           if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
             echo "One or more required jobs failed or were cancelled"
+            exit 1
+          fi
+
+  generated-freshness:
+    name: Generated files up-to-date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: node scripts/generate-discovery.ts
+      - name: Check for uncommitted changes
+        run: |
+          if ! git diff --exit-code schemas/discovery.json schemas/discovery.example.json; then
+            echo "::error::Generated discovery files are out of date. Run 'node scripts/generate-discovery.ts' and commit the result."
             exit 1
           fi
 

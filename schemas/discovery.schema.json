@@ -197,6 +197,10 @@
           "type": "string",
           "description": "What one unit of payment covers (e.g. 'request', 'token', 'minute', 'byte')."
         },
+        "dynamic": {
+          "type": "boolean",
+          "description": "When true, price is computed at runtime based on model, token count, or content size. The amount field is omitted or represents a base/minimum price."
+        },
         "description": {
           "type": "string",
           "description": "Human-readable pricing note."
