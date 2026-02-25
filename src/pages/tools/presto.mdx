@@ -1,106 +1,108 @@
+import { Cards } from 'vocs'
+import { PrestoExamplesCard, PrestoDownloadCard } from '../../components/cards'
+
 # presto [Command-line HTTP client for MPP]
 
-`presto` is a non-interactive command-line tool for making HTTP requests with automatic payment support.
+`presto` is a command-line HTTP client with automatic payment. On `402 Payment Required`, it handles payment and retries. No API keys needed.
 
-When you request a resource that requires payment, `presto` automatically detects the `402` response, fulfills the payment, and retries—all in a single command.
-
-## Installation
-
-**Quick install:**
+## Install
 
 ```bash [install.sh]
 $ curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash
 ```
 
-**From source:**
+## Setup
 
-```bash [build-from-source.sh]
-$ git clone https://github.com/tempoxyz/presto.git
-$ cd presto
-$ cargo install --path .
-```
-
-## Quick start
-
-```bash [quickstart.sh]
-# Log in (first time only — opens browser to authenticate with your Tempo wallet)
+```bash [login.sh]
 $ presto login
-
-# Make a paid request
-$ presto https://openrouter.mpp.tempo.xyz/v1/chat/completions \
-  -X POST --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello!"}]}'
 ```
 
-:::tip[Live demo server]
-We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use `/api/ping` for free requests and `/api/ping/paid` for paid requests. Get testnet funds at [faucet.tempo.xyz](https://faucet.tempo.xyz).
+This opens your browser to authenticate with your Tempo wallet. Verify readiness:
+
+```bash [preflight.sh]
+$ presto whoami
+```
+
+Check `ready` is `true` and `key.balance` is sufficient. If not, run `presto login`.
+
+:::tip[Agent config]
+Set `output_format = "json"` in config (`~/Library/Application Support/presto/config.toml` on macOS, `~/.config/presto/config.toml` on Linux) to avoid passing `--output-format json` on every call.
 :::
 
-## Configuration
+## Available services
 
-`presto login` authenticates via your browser and stores wallet credentials securely.
-
-### File locations
-
-| Platform | Config | Wallet |
-|----------|--------|--------|
-| **macOS** | `~/Library/Application Support/presto/config.toml` | `~/Library/Application Support/presto/wallet.toml` |
-| **Linux** | `~/.config/presto/config.toml` | `~/.local/share/presto/wallet.toml` |
-
-### Example config
-
-```toml
-# RPC overrides for built-in networks
-tempo_rpc = "https://my-custom-tempo-rpc.com"
-moderato_rpc = "https://my-custom-moderato-rpc.com"
+```bash [services.sh]
+$ curl -s https://mpp.tempo.xyz/services | jq '.[].id'
 ```
 
-## Command reference
+Pattern: `<service>.mpp.tempo.xyz`. Examples:
+- `https://openrouter.mpp.tempo.xyz/v1/chat/completions`
+- `https://openai.mpp.tempo.xyz/v1/chat/completions`
+- `https://anthropic.mpp.tempo.xyz/v1/messages`
+- `https://fal.mpp.tempo.xyz/fal-ai/flux/schnell`
+
+## Examples
+
+```bash [examples.sh]
+# LLM request
+$ presto -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
+
+# Image generation
+$ presto -X POST \
+  --json '{"prompt":"A sunset over mountains","image_size":"landscape_4_3","num_images":1}' \
+  https://fal.mpp.tempo.xyz/fal-ai/flux/schnell
+
+# Preview cost without paying
+$ presto --dry-run -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
+```
+
+## Error recovery
+
+| Exit code | Meaning | Action |
+|-----------|---------|--------|
+| 0 | Success | — |
+| 1 | General error | Retry |
+| 3 | Config error | `presto login` |
+| 4 | Network error | Retry |
+| 5 | Payment failed | Retry |
+| 6 | Insufficient funds | Tell user to fund wallet |
+| 8 | Auth error | `presto login` |
+| 10 | Timeout | Retry with `-m <secs>` |
+
+On `No wallet configured`, `Access key is not provisioned`, or exit 3/8: automatically run `presto login` then retry.
+On `Spending limit exceeded` or `Insufficient balance`: report to user.
+
+## Commands
 
 | Command | Description |
 |---------|-------------|
-| `presto <url>` | Make an HTTP request with automatic payment |
-| `presto login` | Log in to your Tempo wallet |
-| `presto logout [--yes]` | Log out and disconnect your wallet |
-| `presto whoami` | Show wallet address, balances, and access keys |
-| `presto session list` | List active payment sessions |
-| `presto session close [url] [--all]` | Close a payment session by URL, or all sessions |
-| `presto session recover <url>` | Recover a session from on-chain state |
-| `presto completions <shell>` | Generate shell completions (bash, zsh, fish, powershell) |
+| `presto <url>` | HTTP request with automatic payment |
+| `presto login` | Log in (opens browser) |
+| `presto logout [--yes]` | Log out |
+| `presto whoami` | Wallet status, balances, keys |
+| `presto session close --all` | Reclaim funds from all payment sessions |
 
-### Global options
+### Options
 
 | Flag | Description |
 |------|-------------|
-| `-c, --config <PATH>` | Configuration file path |
-| `-v, --verbose` | Verbosity level (repeatable: `-v`, `-vv`, `-vvv`) |
-| `-q, --quiet` | Suppress log messages |
-| `--color <MODE>` | Color output: `auto`, `always`, `never` (default: `auto`) |
-| `--output-format <FORMAT>` | Output format: `text`, `json` (default: `text`) |
-
-### Query options
-
-| Flag | Description |
-|------|-------------|
+| `-q` | Quiet (suppress logs, recommended for agents) |
+| `--output-format json` | JSON output |
+| `-X <METHOD>` | HTTP method |
+| `--json <DATA>` | JSON body (sets Content-Type) |
+| `-d <DATA>` | POST data (`@file` or `@-` for stdin) |
+| `-H <HEADER>` | Custom header (repeatable) |
 | `--dry-run` | Preview payment without executing |
-| `-i, --include` | Include HTTP response headers in output |
-| `-o, --output <FILE>` | Write response to file |
-| `-X, --request <METHOD>` | HTTP method (GET, POST, etc.) |
-| `-H, --header <HEADER>` | Add custom header (repeatable) |
-| `--json <DATA>` | Send JSON data (sets Content-Type automatically) |
-| `-d, --data <DATA>` | POST data (use `@filename` to read from file, `@-` for stdin) |
-| `--no-redirect` | Disable following redirects |
-| `-m, --timeout <SECONDS>` | Request timeout in seconds |
-
-### Environment variables
-
-| Variable | Description |
-|----------|-------------|
-| `PRESTO_RPC_URL` | Override RPC endpoint for all networks |
+| `-m <SECONDS>` | Timeout |
+| `-i` | Include response headers |
+| `-o <FILE>` | Write output to file |
+| `-v` | Verbose (`-vv` debug, `-vvv` trace) |
 
 ## Learn more
-
-import { Cards } from 'vocs'
-import { PrestoExamplesCard, PrestoDownloadCard } from '../../components/cards'
 
 <Cards>
   <PrestoExamplesCard />

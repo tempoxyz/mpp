@@ -1,113 +1,120 @@
-# presto examples [Test against live endpoints]
+# presto examples [Real-world usage patterns]
 
-## Try it now
+## LLM requests
 
-We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet** that you can test against:
+```bash [llm-requests.sh]
+# Chat completion via OpenRouter
+$ presto -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
-```bash [try-demo.sh]
-# Free endpoint - no payment required
-$ presto https://mpp.tempo.xyz/api/ping
+# Chat completion via OpenAI
+$ presto -X POST \
+  --json '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openai.mpp.tempo.xyz/v1/chat/completions
 
-# Paid endpoint - requires payment
-$ presto https://mpp.tempo.xyz/api/ping/paid
+# Chat completion via Anthropic
+$ presto -X POST \
+  --json '{"model":"claude-sonnet-4-20250514","max_tokens":256,"messages":[{"role":"user","content":"Hello"}]}' \
+  https://anthropic.mpp.tempo.xyz/v1/messages
 
-# Dry run to preview what happens
-$ presto --dry-run https://mpp.tempo.xyz/api/ping/paid
-
-# Verbose output to see the full 402 flow
-$ presto -vi https://mpp.tempo.xyz/api/ping/paid
+# Preview cost without paying
+$ presto --dry-run -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
 ```
 
-:::tip[Get testnet funds]
-The demo server runs on Tempo testnet. Fund your wallet at [faucet.tempo.xyz](https://faucet.tempo.xyz) with pathUSD before testing.
-:::
+## Image generation
 
-## Basic requests
+```bash [image-generation.sh]
+# Generate an image via fal
+$ presto -X POST \
+  --json '{"prompt":"A sunset over mountains","image_size":"landscape_4_3","num_images":1}' \
+  https://fal.mpp.tempo.xyz/fal-ai/flux/schnell
 
-```bash [basic-requests.sh]
-# Make a payment request
-$ presto https://mpp.tempo.xyz/api/ping/paid
-
-# Verbose output with headers
-$ presto -vi https://mpp.tempo.xyz/api/ping/paid
-
-# Save output to file
-$ presto -o output.json https://mpp.tempo.xyz/api/ping/paid
-
-# JSON output format
-$ presto --output-format json https://mpp.tempo.xyz/api/ping/paid
+# Save image response to file
+$ presto -o result.json -X POST \
+  --json '{"prompt":"A golden retriever in a sunny park","image_size":"square_hd","num_images":1}' \
+  https://fal.mpp.tempo.xyz/fal-ai/flux/schnell
 ```
 
-## Payment controls
+## Payment sessions
 
-```bash [payment-controls.sh]
-# Preview payment without executing (dry run)
-$ presto --dry-run https://mpp.tempo.xyz/api/ping/paid
-```
+Sessions open a payment channel once, then use off-chain vouchers for subsequent requests (no gas per request):
 
-## Session management
+```bash [sessions.sh]
+# First request opens a channel on-chain
+$ presto -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"First question"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
-```bash [session-management.sh]
-# List active payment sessions
+# Subsequent requests to the same origin reuse the session
+$ presto -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Second question"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
+
+# View active sessions
 $ presto session list
 
-# Close a specific session
-$ presto session close https://mpp.tempo.xyz
+# Close a session when done (reclaims unspent funds)
+$ presto session close https://openrouter.mpp.tempo.xyz
 
 # Close all sessions
 $ presto session close --all
-
-# Recover a session from on-chain state
-$ presto session recover https://mpp.tempo.xyz
-```
-
-## Wallet management
-
-```bash [wallet-management.sh]
-# Show wallet address and balances
-$ presto whoami
-
-# Same as whoami
-$ presto balance
-
-# JSON output
-$ presto whoami --output-format json
 ```
 
 ## HTTP options
 
 ```bash [http-options.sh]
 # Custom headers
-$ presto -H "X-Custom: value" https://mpp.tempo.xyz/api/ping/paid
-
-# POST with data
-$ presto -d '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
-
-# POST with JSON (sets Content-Type automatically)
-$ presto --json '{"key": "value"}' https://mpp.tempo.xyz/api/ping/paid
+$ presto -H "X-Custom: value" -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
 # POST data from file
-$ presto -d @data.json https://mpp.tempo.xyz/api/ping/paid
+$ presto -d @request.json -X POST \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
 # POST data from stdin
-$ echo '{"key":"value"}' | presto -d @- https://mpp.tempo.xyz/api/ping/paid
-
-# Disable following redirects
-$ presto --no-redirect https://mpp.tempo.xyz/api/ping/paid
+$ echo '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  | presto -d @- -X POST https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
 # Set timeout
-$ presto -m 30 https://mpp.tempo.xyz/api/ping/paid
+$ presto -m 30 -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
 ```
 
 ## Output control
 
 ```bash [output-control.sh]
-# Quiet mode (suppress non-essential output)
-$ presto -q https://mpp.tempo.xyz/api/ping/paid
+# Quiet mode (suppress logs, recommended for agents)
+$ presto -q -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
-# Include HTTP headers in output
-$ presto -i https://mpp.tempo.xyz/api/ping/paid
+# Include HTTP response headers
+$ presto -i -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
-# Disable colors
-$ presto --color never https://mpp.tempo.xyz/api/ping/paid
+# JSON output format
+$ presto --output-format json -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
+
+# Verbose to see the full 402 payment flow
+$ presto -v -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
+```
+
+## Wallet status
+
+```bash [wallet.sh]
+# Show wallet address, balances, and access keys
+$ presto whoami
+
+# JSON output (for agents)
+$ presto whoami --output-format json
 ```
