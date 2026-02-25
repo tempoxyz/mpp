@@ -189,11 +189,10 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
 
   entry.endpoints = svc.endpoints.map((ep) => {
     const { method, path: routePath } = parseRoute(ep.route);
-    const fullPath = `/${svc.id}${routePath}`;
 
     const endpoint: Record<string, unknown> = {
       method,
-      path: fullPath,
+      path: routePath,
       description: ep.desc,
       payment: buildPayment(ep, svc.intent),
     };

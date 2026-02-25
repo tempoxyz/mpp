@@ -7,17 +7,9 @@
       "url": "https://mpp.tempo.xyz/agentmail",
       "serviceUrl": "https://api.agentmail.to",
       "description": "Email inboxes for AI agents — create, send, receive, and manage email programmatically.",
-      "categories": [
-        "ai",
-        "social"
-      ],
+      "categories": ["ai", "social"],
       "integration": "third-party",
-      "tags": [
-        "email",
-        "inbox",
-        "agents",
-        "messaging"
-      ],
+      "tags": ["email", "inbox", "agents", "messaging"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.agentmail.to",
@@ -25,12 +17,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -41,7 +29,7 @@
       "endpoints": [
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes",
+          "path": "/v0/inboxes",
           "description": "List inboxes",
           "payment": {
             "intent": "charge",
@@ -56,7 +44,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/inboxes",
+          "path": "/v0/inboxes",
           "description": "Create an inbox",
           "payment": {
             "intent": "charge",
@@ -71,7 +59,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId",
+          "path": "/v0/inboxes/:inboxId",
           "description": "Get inbox details",
           "payment": {
             "intent": "charge",
@@ -86,7 +74,7 @@
         },
         {
           "method": "PATCH",
-          "path": "/agentmail/v0/inboxes/:inboxId",
+          "path": "/v0/inboxes/:inboxId",
           "description": "Update an inbox",
           "payment": {
             "intent": "charge",
@@ -101,7 +89,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/inboxes/:inboxId",
+          "path": "/v0/inboxes/:inboxId",
           "description": "Delete an inbox",
           "payment": {
             "intent": "charge",
@@ -116,7 +104,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/threads",
+          "path": "/v0/inboxes/:inboxId/threads",
           "description": "List threads in inbox",
           "payment": {
             "intent": "charge",
@@ -131,7 +119,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/threads/:threadId",
+          "path": "/v0/inboxes/:inboxId/threads/:threadId",
           "description": "Get thread details",
           "payment": {
             "intent": "charge",
@@ -146,7 +134,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/threads/:threadId/attachments/:attachmentId",
+          "path": "/v0/inboxes/:inboxId/threads/:threadId/attachments/:attachmentId",
           "description": "Get thread attachment",
           "payment": {
             "intent": "charge",
@@ -161,7 +149,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/inboxes/:inboxId/threads/:threadId",
+          "path": "/v0/inboxes/:inboxId/threads/:threadId",
           "description": "Delete a thread",
           "payment": {
             "intent": "charge",
@@ -176,7 +164,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages",
+          "path": "/v0/inboxes/:inboxId/messages",
           "description": "List messages in inbox",
           "payment": {
             "intent": "charge",
@@ -191,7 +179,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages/:messageId",
+          "path": "/v0/inboxes/:inboxId/messages/:messageId",
           "description": "Get message details",
           "payment": {
             "intent": "charge",
@@ -206,7 +194,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages/:messageId/attachments/:attachmentId",
+          "path": "/v0/inboxes/:inboxId/messages/:messageId/attachments/:attachmentId",
           "description": "Get message attachment",
           "payment": {
             "intent": "charge",
@@ -221,7 +209,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages/:messageId/raw",
+          "path": "/v0/inboxes/:inboxId/messages/:messageId/raw",
           "description": "Get raw message",
           "payment": {
             "intent": "charge",
@@ -236,7 +224,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages",
+          "path": "/v0/inboxes/:inboxId/messages",
           "description": "Send a message",
           "payment": {
             "intent": "charge",
@@ -251,7 +239,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages/send",
+          "path": "/v0/inboxes/:inboxId/messages/send",
           "description": "Send a message",
           "payment": {
             "intent": "charge",
@@ -266,7 +254,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages/:messageId/reply",
+          "path": "/v0/inboxes/:inboxId/messages/:messageId/reply",
           "description": "Reply to a message",
           "payment": {
             "intent": "charge",
@@ -281,7 +269,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages/:messageId/reply-all",
+          "path": "/v0/inboxes/:inboxId/messages/:messageId/reply-all",
           "description": "Reply all to a message",
           "payment": {
             "intent": "charge",
@@ -296,7 +284,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages/:messageId/forward",
+          "path": "/v0/inboxes/:inboxId/messages/:messageId/forward",
           "description": "Forward a message",
           "payment": {
             "intent": "charge",
@@ -311,7 +299,7 @@
         },
         {
           "method": "PATCH",
-          "path": "/agentmail/v0/inboxes/:inboxId/messages/:messageId",
+          "path": "/v0/inboxes/:inboxId/messages/:messageId",
           "description": "Update a message",
           "payment": {
             "intent": "charge",
@@ -326,7 +314,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/drafts",
+          "path": "/v0/inboxes/:inboxId/drafts",
           "description": "List drafts in inbox",
           "payment": {
             "intent": "charge",
@@ -341,7 +329,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/drafts/:draftId",
+          "path": "/v0/inboxes/:inboxId/drafts/:draftId",
           "description": "Get draft details",
           "payment": {
             "intent": "charge",
@@ -356,7 +344,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/drafts/:draftId/attachments/:attachmentId",
+          "path": "/v0/inboxes/:inboxId/drafts/:draftId/attachments/:attachmentId",
           "description": "Get draft attachment",
           "payment": {
             "intent": "charge",
@@ -371,7 +359,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/inboxes/:inboxId/drafts",
+          "path": "/v0/inboxes/:inboxId/drafts",
           "description": "Create a draft",
           "payment": {
             "intent": "charge",
@@ -386,7 +374,7 @@
         },
         {
           "method": "PATCH",
-          "path": "/agentmail/v0/inboxes/:inboxId/drafts/:draftId",
+          "path": "/v0/inboxes/:inboxId/drafts/:draftId",
           "description": "Update a draft",
           "payment": {
             "intent": "charge",
@@ -401,7 +389,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/inboxes/:inboxId/drafts/:draftId/send",
+          "path": "/v0/inboxes/:inboxId/drafts/:draftId/send",
           "description": "Send a draft",
           "payment": {
             "intent": "charge",
@@ -416,7 +404,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/inboxes/:inboxId/drafts/:draftId",
+          "path": "/v0/inboxes/:inboxId/drafts/:draftId",
           "description": "Delete a draft",
           "payment": {
             "intent": "charge",
@@ -431,7 +419,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/inboxes/:inboxId/metrics",
+          "path": "/v0/inboxes/:inboxId/metrics",
           "description": "Get inbox metrics",
           "payment": {
             "intent": "charge",
@@ -446,7 +434,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/threads",
+          "path": "/v0/threads",
           "description": "List threads across all inboxes",
           "payment": {
             "intent": "charge",
@@ -461,7 +449,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/threads/:threadId",
+          "path": "/v0/threads/:threadId",
           "description": "Get thread details",
           "payment": {
             "intent": "charge",
@@ -476,7 +464,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/threads/:threadId/attachments/:attachmentId",
+          "path": "/v0/threads/:threadId/attachments/:attachmentId",
           "description": "Get thread attachment",
           "payment": {
             "intent": "charge",
@@ -491,7 +479,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/drafts",
+          "path": "/v0/drafts",
           "description": "List drafts across all inboxes",
           "payment": {
             "intent": "charge",
@@ -506,7 +494,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/drafts/:draftId",
+          "path": "/v0/drafts/:draftId",
           "description": "Get draft details",
           "payment": {
             "intent": "charge",
@@ -521,7 +509,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/drafts/:draftId/attachments/:attachmentId",
+          "path": "/v0/drafts/:draftId/attachments/:attachmentId",
           "description": "Get draft attachment",
           "payment": {
             "intent": "charge",
@@ -536,7 +524,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/domains",
+          "path": "/v0/domains",
           "description": "List domains",
           "payment": {
             "intent": "charge",
@@ -551,7 +539,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/domains",
+          "path": "/v0/domains",
           "description": "Create a domain",
           "payment": {
             "intent": "charge",
@@ -566,7 +554,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/domains/:domainId",
+          "path": "/v0/domains/:domainId",
           "description": "Get domain details",
           "payment": {
             "intent": "charge",
@@ -581,7 +569,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/domains/:domainId/zone-file",
+          "path": "/v0/domains/:domainId/zone-file",
           "description": "Get domain zone file",
           "payment": {
             "intent": "charge",
@@ -596,7 +584,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/domains/:domainId",
+          "path": "/v0/domains/:domainId",
           "description": "Delete a domain",
           "payment": {
             "intent": "charge",
@@ -611,7 +599,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/domains/:domainId/verify",
+          "path": "/v0/domains/:domainId/verify",
           "description": "Verify a domain",
           "payment": {
             "intent": "charge",
@@ -626,7 +614,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/webhooks",
+          "path": "/v0/webhooks",
           "description": "List webhooks",
           "payment": {
             "intent": "charge",
@@ -641,7 +629,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/webhooks",
+          "path": "/v0/webhooks",
           "description": "Create a webhook",
           "payment": {
             "intent": "charge",
@@ -656,7 +644,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/webhooks/:webhookId",
+          "path": "/v0/webhooks/:webhookId",
           "description": "Get webhook details",
           "payment": {
             "intent": "charge",
@@ -671,7 +659,7 @@
         },
         {
           "method": "PATCH",
-          "path": "/agentmail/v0/webhooks/:webhookId",
+          "path": "/v0/webhooks/:webhookId",
           "description": "Update a webhook",
           "payment": {
             "intent": "charge",
@@ -686,7 +674,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/webhooks/:webhookId",
+          "path": "/v0/webhooks/:webhookId",
           "description": "Delete a webhook",
           "payment": {
             "intent": "charge",
@@ -701,7 +689,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/metrics",
+          "path": "/v0/metrics",
           "description": "List metrics",
           "payment": {
             "intent": "charge",
@@ -716,7 +704,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/api-keys",
+          "path": "/v0/api-keys",
           "description": "List API keys",
           "payment": {
             "intent": "charge",
@@ -731,7 +719,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/api-keys",
+          "path": "/v0/api-keys",
           "description": "Create an API key",
           "payment": {
             "intent": "charge",
@@ -746,7 +734,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/api-keys/:keyId",
+          "path": "/v0/api-keys/:keyId",
           "description": "Delete an API key",
           "payment": {
             "intent": "charge",
@@ -761,7 +749,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods",
+          "path": "/v0/pods",
           "description": "List pods",
           "payment": {
             "intent": "charge",
@@ -776,7 +764,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/pods",
+          "path": "/v0/pods",
           "description": "Create a pod",
           "payment": {
             "intent": "charge",
@@ -791,7 +779,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId",
+          "path": "/v0/pods/:podId",
           "description": "Get pod details",
           "payment": {
             "intent": "charge",
@@ -806,7 +794,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/pods/:podId",
+          "path": "/v0/pods/:podId",
           "description": "Delete a pod",
           "payment": {
             "intent": "charge",
@@ -821,7 +809,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/inboxes",
+          "path": "/v0/pods/:podId/inboxes",
           "description": "List pod inboxes",
           "payment": {
             "intent": "charge",
@@ -836,7 +824,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/pods/:podId/inboxes",
+          "path": "/v0/pods/:podId/inboxes",
           "description": "Create pod inbox",
           "payment": {
             "intent": "charge",
@@ -851,7 +839,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/inboxes/:inboxId",
+          "path": "/v0/pods/:podId/inboxes/:inboxId",
           "description": "Get pod inbox",
           "payment": {
             "intent": "charge",
@@ -866,7 +854,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/pods/:podId/inboxes/:inboxId",
+          "path": "/v0/pods/:podId/inboxes/:inboxId",
           "description": "Delete pod inbox",
           "payment": {
             "intent": "charge",
@@ -881,7 +869,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/threads",
+          "path": "/v0/pods/:podId/threads",
           "description": "List pod threads",
           "payment": {
             "intent": "charge",
@@ -896,7 +884,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/threads/:threadId",
+          "path": "/v0/pods/:podId/threads/:threadId",
           "description": "Get pod thread",
           "payment": {
             "intent": "charge",
@@ -911,7 +899,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/threads/:threadId/attachments/:attachmentId",
+          "path": "/v0/pods/:podId/threads/:threadId/attachments/:attachmentId",
           "description": "Get pod thread attachment",
           "payment": {
             "intent": "charge",
@@ -926,7 +914,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/drafts",
+          "path": "/v0/pods/:podId/drafts",
           "description": "List pod drafts",
           "payment": {
             "intent": "charge",
@@ -941,7 +929,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/drafts/:draftId",
+          "path": "/v0/pods/:podId/drafts/:draftId",
           "description": "Get pod draft",
           "payment": {
             "intent": "charge",
@@ -956,7 +944,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/drafts/:draftId/attachments/:attachmentId",
+          "path": "/v0/pods/:podId/drafts/:draftId/attachments/:attachmentId",
           "description": "Get pod draft attachment",
           "payment": {
             "intent": "charge",
@@ -971,7 +959,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/pods/:podId/domains",
+          "path": "/v0/pods/:podId/domains",
           "description": "List pod domains",
           "payment": {
             "intent": "charge",
@@ -986,7 +974,7 @@
         },
         {
           "method": "POST",
-          "path": "/agentmail/v0/pods/:podId/domains",
+          "path": "/v0/pods/:podId/domains",
           "description": "Create pod domain",
           "payment": {
             "intent": "charge",
@@ -1001,7 +989,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/agentmail/v0/pods/:podId/domains/:domainId",
+          "path": "/v0/pods/:podId/domains/:domainId",
           "description": "Delete pod domain",
           "payment": {
             "intent": "charge",
@@ -1016,7 +1004,7 @@
         },
         {
           "method": "GET",
-          "path": "/agentmail/v0/organizations",
+          "path": "/v0/organizations",
           "description": "Get organization details",
           "payment": {
             "intent": "charge",
@@ -1037,18 +1025,9 @@
       "url": "https://mpp.tempo.xyz/alchemy",
       "serviceUrl": "https://eth-mainnet.g.alchemy.com",
       "description": "Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.",
-      "categories": [
-        "blockchain",
-        "data"
-      ],
+      "categories": ["blockchain", "data"],
       "integration": "third-party",
-      "tags": [
-        "rpc",
-        "json-rpc",
-        "nft",
-        "evm",
-        "multichain"
-      ],
+      "tags": ["rpc", "json-rpc", "nft", "evm", "multichain"],
       "status": "active",
       "docs": {
         "homepage": "https://www.alchemy.com/docs",
@@ -1056,12 +1035,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1072,7 +1047,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/alchemy/:network/v2",
+          "path": "/:network/v2",
           "description": "JSON-RPC call (eth_*, alchemy_*)",
           "payment": {
             "intent": "charge",
@@ -1087,7 +1062,7 @@
         },
         {
           "method": "GET",
-          "path": "/alchemy/:network/nft/v3/:endpoint",
+          "path": "/:network/nft/v3/:endpoint",
           "description": "NFT API v3",
           "payment": {
             "intent": "charge",
@@ -1102,7 +1077,7 @@
         },
         {
           "method": "POST",
-          "path": "/alchemy/:network/nft/v3/:endpoint",
+          "path": "/:network/nft/v3/:endpoint",
           "description": "NFT API v3",
           "payment": {
             "intent": "charge",
@@ -1123,18 +1098,9 @@
       "url": "https://mpp.tempo.xyz/anthropic",
       "serviceUrl": "https://api.anthropic.com",
       "description": "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
-      "categories": [
-        "ai"
-      ],
+      "categories": ["ai"],
       "integration": "third-party",
-      "tags": [
-        "llm",
-        "claude",
-        "sonnet",
-        "opus",
-        "haiku",
-        "chat"
-      ],
+      "tags": ["llm", "claude", "sonnet", "opus", "haiku", "chat"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.anthropic.com",
@@ -1143,12 +1109,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1159,7 +1121,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/anthropic/v1/messages",
+          "path": "/v1/messages",
           "description": "Create messages with Claude (Sonnet, Opus, Haiku) - price varies by model",
           "payment": {
             "intent": "session",
@@ -1173,7 +1135,7 @@
         },
         {
           "method": "POST",
-          "path": "/anthropic/v1/chat/completions",
+          "path": "/v1/chat/completions",
           "description": "OpenAI-compatible chat completions (auto-converted to Anthropic format)",
           "payment": {
             "intent": "session",
@@ -1193,17 +1155,9 @@
       "url": "https://mpp.tempo.xyz/browserbase",
       "serviceUrl": "https://api.browserbase.com",
       "description": "Headless browser sessions for web scraping and automation.",
-      "categories": [
-        "web",
-        "compute"
-      ],
+      "categories": ["web", "compute"],
       "integration": "third-party",
-      "tags": [
-        "browser",
-        "scraping",
-        "automation",
-        "headless"
-      ],
+      "tags": ["browser", "scraping", "automation", "headless"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.browserbase.com",
@@ -1211,12 +1165,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1227,7 +1177,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/browserbase/v1/sessions",
+          "path": "/v1/sessions",
           "description": "Create a browser session",
           "payment": {
             "intent": "charge",
@@ -1242,7 +1192,7 @@
         },
         {
           "method": "POST",
-          "path": "/browserbase/v1/sessions/:id/extend",
+          "path": "/v1/sessions/:id/extend",
           "description": "Add more time to session",
           "payment": {
             "intent": "charge",
@@ -1263,18 +1213,9 @@
       "url": "https://mpp.tempo.xyz/codex",
       "serviceUrl": "https://graph.codex.io",
       "description": "GraphQL API for DeFi and blockchain data across 80+ networks.",
-      "categories": [
-        "blockchain",
-        "data"
-      ],
+      "categories": ["blockchain", "data"],
       "integration": "third-party",
-      "tags": [
-        "graphql",
-        "defi",
-        "tokens",
-        "trades",
-        "nft"
-      ],
+      "tags": ["graphql", "defi", "tokens", "trades", "nft"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.codex.io",
@@ -1282,12 +1223,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1298,7 +1235,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/codex/graphql",
+          "path": "/graphql",
           "description": "GraphQL query (token data, trades, liquidity, NFTs, wallets)",
           "payment": {
             "intent": "charge",
@@ -1319,16 +1256,9 @@
       "url": "https://mpp.tempo.xyz/digitalocean",
       "serviceUrl": "https://api.digitalocean.com",
       "description": "Cloud infrastructure for 1-click deploy of hosted MPP Agents on DigitalOcean Droplets.",
-      "categories": [
-        "compute"
-      ],
+      "categories": ["compute"],
       "integration": "third-party",
-      "tags": [
-        "cloud",
-        "droplets",
-        "vps",
-        "infrastructure"
-      ],
+      "tags": ["cloud", "droplets", "vps", "infrastructure"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.digitalocean.com",
@@ -1336,12 +1266,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1352,7 +1278,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/digitalocean/v2/droplets",
+          "path": "/v2/droplets",
           "description": "Create a Droplet",
           "payment": {
             "intent": "session",
@@ -1367,21 +1293,21 @@
         },
         {
           "method": "GET",
-          "path": "/digitalocean/v2/droplets",
+          "path": "/v2/droplets",
           "description": "List all Droplets",
           "payment": null,
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fdroplets"
         },
         {
           "method": "GET",
-          "path": "/digitalocean/v2/droplets/:id",
+          "path": "/v2/droplets/:id",
           "description": "Get Droplet details",
           "payment": null,
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fdroplets%2F%3Aid"
         },
         {
           "method": "DELETE",
-          "path": "/digitalocean/v2/droplets/:id",
+          "path": "/v2/droplets/:id",
           "description": "Delete a Droplet",
           "payment": {
             "intent": "session",
@@ -1396,7 +1322,7 @@
         },
         {
           "method": "POST",
-          "path": "/digitalocean/v2/droplets/:id/actions",
+          "path": "/v2/droplets/:id/actions",
           "description": "Run a Droplet action",
           "payment": {
             "intent": "session",
@@ -1411,7 +1337,7 @@
         },
         {
           "method": "POST",
-          "path": "/digitalocean/v2/account/keys",
+          "path": "/v2/account/keys",
           "description": "Add an SSH key",
           "payment": {
             "intent": "session",
@@ -1426,42 +1352,42 @@
         },
         {
           "method": "GET",
-          "path": "/digitalocean/v2/account/keys",
+          "path": "/v2/account/keys",
           "description": "List all SSH keys",
           "payment": null,
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Faccount%2Fkeys"
         },
         {
           "method": "GET",
-          "path": "/digitalocean/v2/account/keys/:id",
+          "path": "/v2/account/keys/:id",
           "description": "Get SSH key details",
           "payment": null,
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Faccount%2Fkeys%2F%3Aid"
         },
         {
           "method": "DELETE",
-          "path": "/digitalocean/v2/account/keys/:id",
+          "path": "/v2/account/keys/:id",
           "description": "Delete an SSH key",
           "payment": null,
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=DELETE%20%2Fv2%2Faccount%2Fkeys%2F%3Aid"
         },
         {
           "method": "GET",
-          "path": "/digitalocean/v2/regions",
+          "path": "/v2/regions",
           "description": "List available regions",
           "payment": null,
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fregions"
         },
         {
           "method": "GET",
-          "path": "/digitalocean/v2/sizes",
+          "path": "/v2/sizes",
           "description": "List available Droplet sizes",
           "payment": null,
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fsizes"
         },
         {
           "method": "GET",
-          "path": "/digitalocean/v2/images",
+          "path": "/v2/images",
           "description": "List available images",
           "payment": null,
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fimages"
@@ -1474,18 +1400,9 @@
       "url": "https://mpp.tempo.xyz/elevenlabs",
       "serviceUrl": "https://api.elevenlabs.io",
       "description": "Text-to-speech, speech-to-text, and voice cloning.",
-      "categories": [
-        "ai",
-        "media"
-      ],
+      "categories": ["ai", "media"],
       "integration": "third-party",
-      "tags": [
-        "tts",
-        "stt",
-        "voice",
-        "audio",
-        "speech"
-      ],
+      "tags": ["tts", "stt", "voice", "audio", "speech"],
       "status": "active",
       "docs": {
         "homepage": "https://elevenlabs.io/docs",
@@ -1494,12 +1411,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1510,7 +1423,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/elevenlabs/v1/text-to-speech/:voiceId",
+          "path": "/v1/text-to-speech/:voiceId",
           "description": "Convert text to speech audio",
           "payment": {
             "intent": "charge",
@@ -1525,7 +1438,7 @@
         },
         {
           "method": "POST",
-          "path": "/elevenlabs/v1/text-to-speech/:voiceId/stream",
+          "path": "/v1/text-to-speech/:voiceId/stream",
           "description": "Stream text-to-speech audio",
           "payment": {
             "intent": "charge",
@@ -1540,7 +1453,7 @@
         },
         {
           "method": "POST",
-          "path": "/elevenlabs/v1/speech-to-text",
+          "path": "/v1/speech-to-text",
           "description": "Transcribe audio to text (Scribe)",
           "payment": {
             "intent": "charge",
@@ -1555,14 +1468,14 @@
         },
         {
           "method": "GET",
-          "path": "/elevenlabs/v1/speech-to-text/transcripts/:transcriptionId",
+          "path": "/v1/speech-to-text/transcripts/:transcriptionId",
           "description": "Get a transcript by ID",
           "payment": null,
           "docs": "https://context7.com/websites/elevenlabs_io/llms.txt?topic=GET%20%2Fv1%2Fspeech-to-text%2Ftranscripts%2F%3AtranscriptionId"
         },
         {
           "method": "GET",
-          "path": "/elevenlabs/v1/voices",
+          "path": "/v1/voices",
           "description": "List available voices",
           "payment": null,
           "docs": "https://context7.com/websites/elevenlabs_io/llms.txt?topic=GET%20%2Fv1%2Fvoices"
@@ -1575,17 +1488,9 @@
       "url": "https://mpp.tempo.xyz/exa",
       "serviceUrl": "https://api.exa.ai",
       "description": "AI-powered web search, content retrieval, and answers.",
-      "categories": [
-        "search",
-        "ai"
-      ],
+      "categories": ["search", "ai"],
       "integration": "third-party",
-      "tags": [
-        "search",
-        "web",
-        "content",
-        "ai-search"
-      ],
+      "tags": ["search", "web", "content", "ai-search"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.exa.ai",
@@ -1593,12 +1498,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1609,7 +1510,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/exa/search",
+          "path": "/search",
           "description": "Search the web",
           "payment": {
             "intent": "charge",
@@ -1624,7 +1525,7 @@
         },
         {
           "method": "POST",
-          "path": "/exa/contents",
+          "path": "/contents",
           "description": "Get page contents",
           "payment": {
             "intent": "charge",
@@ -1639,7 +1540,7 @@
         },
         {
           "method": "POST",
-          "path": "/exa/findSimilar",
+          "path": "/findSimilar",
           "description": "Find similar pages",
           "payment": {
             "intent": "charge",
@@ -1654,7 +1555,7 @@
         },
         {
           "method": "POST",
-          "path": "/exa/answer",
+          "path": "/answer",
           "description": "Get AI-powered answers",
           "payment": {
             "intent": "charge",
@@ -1675,10 +1576,7 @@
       "url": "https://mpp.tempo.xyz/fal",
       "serviceUrl": "https://fal.run",
       "description": "Image, video, and audio generation with 600+ models (Flux, SD, Recraft, Grok).",
-      "categories": [
-        "ai",
-        "media"
-      ],
+      "categories": ["ai", "media"],
       "integration": "third-party",
       "tags": [
         "image",
@@ -1695,12 +1593,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1711,7 +1605,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/fal/fal-ai/flux/dev",
+          "path": "/fal-ai/flux/dev",
           "description": "FLUX.1 [dev] - High-quality text-to-image generation",
           "payment": {
             "intent": "charge",
@@ -1726,7 +1620,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/flux/schnell",
+          "path": "/fal-ai/flux/schnell",
           "description": "FLUX.1 [schnell] - Fast text-to-image (1-4 steps)",
           "payment": {
             "intent": "charge",
@@ -1741,7 +1635,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/flux-pro/v1.1",
+          "path": "/fal-ai/flux-pro/v1.1",
           "description": "FLUX1.1 [pro] - Professional-grade image generation",
           "payment": {
             "intent": "charge",
@@ -1756,7 +1650,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/flux-pro/v1.1-ultra",
+          "path": "/fal-ai/flux-pro/v1.1-ultra",
           "description": "FLUX1.1 [pro] ultra - Up to 2K resolution with improved realism",
           "payment": {
             "intent": "charge",
@@ -1771,7 +1665,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/stable-diffusion-v35-large",
+          "path": "/fal-ai/stable-diffusion-v35-large",
           "description": "Stable Diffusion 3.5 Large - MMDiT text-to-image",
           "payment": {
             "intent": "charge",
@@ -1786,7 +1680,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/fast-sdxl",
+          "path": "/fal-ai/fast-sdxl",
           "description": "Fast SDXL - Quick Stable Diffusion XL generation",
           "payment": {
             "intent": "charge",
@@ -1801,7 +1695,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/recraft-v3",
+          "path": "/fal-ai/recraft-v3",
           "description": "Recraft V3 - SOTA text-to-image with long text and vector art",
           "payment": {
             "intent": "charge",
@@ -1816,7 +1710,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/xai/grok-imagine-image",
+          "path": "/xai/grok-imagine-image",
           "description": "Grok Imagine - xAI image generation",
           "payment": {
             "intent": "charge",
@@ -1831,7 +1725,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/xai/grok-imagine-image/edit",
+          "path": "/xai/grok-imagine-image/edit",
           "description": "Grok Imagine Edit - xAI image editing",
           "payment": {
             "intent": "charge",
@@ -1846,7 +1740,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/stable-video",
+          "path": "/fal-ai/stable-video",
           "description": "Stable Video Diffusion - Image-to-video generation",
           "payment": {
             "intent": "charge",
@@ -1861,7 +1755,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/minimax/video-01",
+          "path": "/fal-ai/minimax/video-01",
           "description": "MiniMax Video-01 - Text/image to video generation",
           "payment": {
             "intent": "charge",
@@ -1876,7 +1770,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/minimax/video-01-live",
+          "path": "/fal-ai/minimax/video-01-live",
           "description": "MiniMax Video-01 Live - Real-time video generation",
           "payment": {
             "intent": "charge",
@@ -1891,7 +1785,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/xai/grok-imagine-video/text-to-video",
+          "path": "/xai/grok-imagine-video/text-to-video",
           "description": "Grok Imagine Video - xAI text-to-video generation",
           "payment": {
             "intent": "charge",
@@ -1906,7 +1800,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/xai/grok-imagine-video/image-to-video",
+          "path": "/xai/grok-imagine-video/image-to-video",
           "description": "Grok Imagine Video - xAI image-to-video generation",
           "payment": {
             "intent": "charge",
@@ -1921,7 +1815,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/:model",
+          "path": "/fal-ai/:model",
           "description": "fal.ai model generation",
           "payment": {
             "intent": "charge",
@@ -1936,7 +1830,7 @@
         },
         {
           "method": "POST",
-          "path": "/fal/fal-ai/:namespace/:model",
+          "path": "/fal-ai/:namespace/:model",
           "description": "fal.ai model generation (with namespace)",
           "payment": {
             "intent": "charge",
@@ -1957,17 +1851,9 @@
       "url": "https://mpp.tempo.xyz/firecrawl",
       "serviceUrl": "https://api.firecrawl.dev",
       "description": "Web scraping, crawling, and structured data extraction for LLMs.",
-      "categories": [
-        "web",
-        "data"
-      ],
+      "categories": ["web", "data"],
       "integration": "third-party",
-      "tags": [
-        "scraping",
-        "crawling",
-        "extraction",
-        "llm"
-      ],
+      "tags": ["scraping", "crawling", "extraction", "llm"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.firecrawl.dev",
@@ -1975,12 +1861,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1991,7 +1873,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/firecrawl/v1/scrape",
+          "path": "/v1/scrape",
           "description": "Scrape a URL",
           "payment": {
             "intent": "charge",
@@ -2006,7 +1888,7 @@
         },
         {
           "method": "POST",
-          "path": "/firecrawl/v1/crawl",
+          "path": "/v1/crawl",
           "description": "Crawl a website",
           "payment": {
             "intent": "charge",
@@ -2021,7 +1903,7 @@
         },
         {
           "method": "POST",
-          "path": "/firecrawl/v1/map",
+          "path": "/v1/map",
           "description": "Map website URLs",
           "payment": {
             "intent": "charge",
@@ -2036,7 +1918,7 @@
         },
         {
           "method": "POST",
-          "path": "/firecrawl/v1/search",
+          "path": "/v1/search",
           "description": "Search the web",
           "payment": {
             "intent": "charge",
@@ -2051,7 +1933,7 @@
         },
         {
           "method": "POST",
-          "path": "/firecrawl/v1/extract",
+          "path": "/v1/extract",
           "description": "Extract structured data",
           "payment": {
             "intent": "charge",
@@ -2072,31 +1954,17 @@
       "url": "https://mpp.tempo.xyz/gemini",
       "serviceUrl": "https://generativelanguage.googleapis.com",
       "description": "Gemini text generation, Veo video, and Nano Banana image generation with model-tier pricing.",
-      "categories": [
-        "ai",
-        "media"
-      ],
+      "categories": ["ai", "media"],
       "integration": "third-party",
-      "tags": [
-        "llm",
-        "gemini",
-        "veo",
-        "imagen",
-        "video",
-        "multimodal"
-      ],
+      "tags": ["llm", "gemini", "veo", "imagen", "video", "multimodal"],
       "status": "active",
       "docs": {
         "homepage": "https://ai.google.dev/docs"
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2107,7 +1975,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/gemini/:version/models/*",
+          "path": "/:version/models/*",
           "description": "Generate content (Gemini, Veo, Imagen, etc.) - price varies by model",
           "payment": {
             "intent": "session",
@@ -2122,7 +1990,7 @@
         },
         {
           "method": "GET",
-          "path": "/gemini/:version/operations/*",
+          "path": "/:version/operations/*",
           "description": "Poll async operation status",
           "payment": {
             "intent": "session",
@@ -2137,7 +2005,7 @@
         },
         {
           "method": "POST",
-          "path": "/gemini/:version/files",
+          "path": "/:version/files",
           "description": "Upload file for multimodal input",
           "payment": {
             "intent": "session",
@@ -2152,43 +2020,43 @@
         },
         {
           "method": "GET",
-          "path": "/gemini/:version/models",
+          "path": "/:version/models",
           "description": "List available models (free)",
           "payment": null
         },
         {
           "method": "GET",
-          "path": "/gemini/:version/models/*",
+          "path": "/:version/models/*",
           "description": "Get model details (free)",
           "payment": null
         },
         {
           "method": "GET",
-          "path": "/gemini/:version/files",
+          "path": "/:version/files",
           "description": "List uploaded files (free)",
           "payment": null
         },
         {
           "method": "GET",
-          "path": "/gemini/:version/files/*",
+          "path": "/:version/files/*",
           "description": "Get file details (free)",
           "payment": null
         },
         {
           "method": "DELETE",
-          "path": "/gemini/:version/files/*",
+          "path": "/:version/files/*",
           "description": "Delete an uploaded file (free)",
           "payment": null
         },
         {
           "method": "GET",
-          "path": "/gemini/:version/cachedContents",
+          "path": "/:version/cachedContents",
           "description": "List cached contents (free)",
           "payment": null
         },
         {
           "method": "GET",
-          "path": "/gemini/:version/cachedContents/*",
+          "path": "/:version/cachedContents/*",
           "description": "Get cached content details (free)",
           "payment": null
         }
@@ -2200,16 +2068,9 @@
       "url": "https://mpp.tempo.xyz/modal",
       "serviceUrl": "https://api.modal.com",
       "description": "Serverless GPU compute for sandboxed code execution and AI/ML workloads.",
-      "categories": [
-        "compute"
-      ],
+      "categories": ["compute"],
       "integration": "third-party",
-      "tags": [
-        "gpu",
-        "serverless",
-        "sandbox",
-        "compute"
-      ],
+      "tags": ["gpu", "serverless", "sandbox", "compute"],
       "status": "active",
       "docs": {
         "homepage": "https://modal.com/docs",
@@ -2217,12 +2078,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2233,7 +2090,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/modal/sandbox/create",
+          "path": "/sandbox/create",
           "description": "Create a sandbox for code execution",
           "payment": {
             "intent": "session",
@@ -2248,21 +2105,21 @@
         },
         {
           "method": "POST",
-          "path": "/modal/sandbox/exec",
+          "path": "/sandbox/exec",
           "description": "Execute command in sandbox",
           "payment": null,
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fexec"
         },
         {
           "method": "POST",
-          "path": "/modal/sandbox/status",
+          "path": "/sandbox/status",
           "description": "Get sandbox status",
           "payment": null,
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fstatus"
         },
         {
           "method": "POST",
-          "path": "/modal/sandbox/terminate",
+          "path": "/sandbox/terminate",
           "description": "Terminate a sandbox",
           "payment": null,
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fterminate"
@@ -2276,10 +2133,7 @@
       "serviceUrl": "https://api.openai.com",
       "description": "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
       "icon": "https://mpp.tempo.xyz/icons/openai.svg",
-      "categories": [
-        "ai",
-        "media"
-      ],
+      "categories": ["ai", "media"],
       "integration": "third-party",
       "tags": [
         "llm",
@@ -2298,13 +2152,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge",
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge", "session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2315,7 +2164,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/openai/v1/responses",
+          "path": "/v1/responses",
           "description": "Responses API (Codex, GPT-4o, etc.) - price varies by model",
           "payment": {
             "intent": "session",
@@ -2330,7 +2179,7 @@
         },
         {
           "method": "POST",
-          "path": "/openai/v1/chat/completions",
+          "path": "/v1/chat/completions",
           "description": "Chat completions (GPT-4o, GPT-4, o1, etc.) - price varies by model",
           "payment": {
             "intent": "session",
@@ -2345,7 +2194,7 @@
         },
         {
           "method": "POST",
-          "path": "/openai/v1/embeddings",
+          "path": "/v1/embeddings",
           "description": "Create embeddings",
           "payment": {
             "intent": "charge",
@@ -2360,7 +2209,7 @@
         },
         {
           "method": "POST",
-          "path": "/openai/v1/images/generations",
+          "path": "/v1/images/generations",
           "description": "Generate images with DALL-E",
           "payment": {
             "intent": "charge",
@@ -2375,7 +2224,7 @@
         },
         {
           "method": "POST",
-          "path": "/openai/v1/audio/transcriptions",
+          "path": "/v1/audio/transcriptions",
           "description": "Transcribe audio with Whisper",
           "payment": {
             "intent": "charge",
@@ -2390,7 +2239,7 @@
         },
         {
           "method": "POST",
-          "path": "/openai/v1/audio/speech",
+          "path": "/v1/audio/speech",
           "description": "Text-to-speech",
           "payment": {
             "intent": "charge",
@@ -2411,16 +2260,9 @@
       "url": "https://mpp.tempo.xyz/openrouter",
       "serviceUrl": "https://openrouter.ai/api",
       "description": "Unified API for 100+ LLMs with live per-model pricing.",
-      "categories": [
-        "ai"
-      ],
+      "categories": ["ai"],
       "integration": "third-party",
-      "tags": [
-        "llm",
-        "unified",
-        "multi-model",
-        "chat"
-      ],
+      "tags": ["llm", "unified", "multi-model", "chat"],
       "status": "active",
       "docs": {
         "homepage": "https://openrouter.ai/docs",
@@ -2428,12 +2270,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2444,7 +2282,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/openrouter/v1/chat/completions",
+          "path": "/v1/chat/completions",
           "description": "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
           "payment": {
             "intent": "session",
@@ -2465,29 +2303,17 @@
       "url": "https://mpp.tempo.xyz/parallel",
       "serviceUrl": "https://api.parallel.ai",
       "description": "Web search, page extraction, and web-grounded chat completions.",
-      "categories": [
-        "search",
-        "ai"
-      ],
+      "categories": ["search", "ai"],
       "integration": "third-party",
-      "tags": [
-        "search",
-        "web",
-        "extraction",
-        "chat"
-      ],
+      "tags": ["search", "web", "extraction", "chat"],
       "status": "active",
       "docs": {
         "llmsTxt": "https://parallel.ai/llms.txt"
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2498,7 +2324,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/parallel/v1beta/search",
+          "path": "/v1beta/search",
           "description": "Search the web",
           "payment": {
             "intent": "session",
@@ -2513,7 +2339,7 @@
         },
         {
           "method": "POST",
-          "path": "/parallel/v1beta/extract",
+          "path": "/v1beta/extract",
           "description": "Extract page content",
           "payment": {
             "intent": "session",
@@ -2528,7 +2354,7 @@
         },
         {
           "method": "POST",
-          "path": "/parallel/chat/completions",
+          "path": "/chat/completions",
           "description": "Web-grounded chat completions - price varies by model",
           "payment": {
             "intent": "session",
@@ -2548,17 +2374,9 @@
       "url": "https://mpp.tempo.xyz/rpc",
       "serviceUrl": "https://rpc.tempo.xyz",
       "description": "Tempo blockchain JSON-RPC access (mainnet and testnet).",
-      "categories": [
-        "blockchain"
-      ],
+      "categories": ["blockchain"],
       "integration": "first-party",
-      "tags": [
-        "rpc",
-        "json-rpc",
-        "evm",
-        "tempo",
-        "node"
-      ],
+      "tags": ["rpc", "json-rpc", "evm", "tempo", "node"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.tempo.xyz",
@@ -2566,12 +2384,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2582,7 +2396,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/rpc/",
+          "path": "/",
           "description": "JSON-RPC calls - $0.001 per call",
           "payment": {
             "intent": "session",
@@ -2603,30 +2417,17 @@
       "url": "https://mpp.tempo.xyz/storage",
       "serviceUrl": "https://mpp.tempo.xyz/storage",
       "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
-      "categories": [
-        "storage"
-      ],
+      "categories": ["storage"],
       "integration": "first-party",
-      "tags": [
-        "s3",
-        "r2",
-        "objects",
-        "blobs",
-        "files"
-      ],
+      "tags": ["s3", "r2", "objects", "blobs", "files"],
       "status": "active",
       "docs": {
         "homepage": "https://developers.cloudflare.com/r2/"
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge",
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge", "session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2637,7 +2438,7 @@
       "endpoints": [
         {
           "method": "GET",
-          "path": "/storage/:key",
+          "path": "/:key",
           "description": "Download object ($0.001 base + $0.01/MB)",
           "payment": {
             "intent": "session",
@@ -2651,7 +2452,7 @@
         },
         {
           "method": "PUT",
-          "path": "/storage/:key",
+          "path": "/:key",
           "description": "Upload object ($0.001 base + $0.01/MB, max 100MB)",
           "payment": {
             "intent": "session",
@@ -2665,7 +2466,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/storage/:key",
+          "path": "/:key",
           "description": "Delete object",
           "payment": {
             "intent": "charge",
@@ -2679,7 +2480,7 @@
         },
         {
           "method": "GET",
-          "path": "/storage/",
+          "path": "/",
           "description": "List objects",
           "payment": {
             "intent": "charge",
@@ -2693,7 +2494,7 @@
         },
         {
           "method": "POST",
-          "path": "/storage/:key",
+          "path": "/:key",
           "description": "Initiate/complete multipart upload",
           "payment": {
             "intent": "charge",
@@ -2713,30 +2514,17 @@
       "url": "https://mpp.tempo.xyz/twitter",
       "serviceUrl": "https://api.x.com",
       "description": "X API v2 for tweets, users, and search.",
-      "categories": [
-        "social",
-        "data"
-      ],
+      "categories": ["social", "data"],
       "integration": "third-party",
-      "tags": [
-        "twitter",
-        "x",
-        "tweets",
-        "social",
-        "search"
-      ],
+      "tags": ["twitter", "x", "tweets", "social", "search"],
       "status": "active",
       "docs": {
         "homepage": "https://developer.x.com/en/docs"
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2747,7 +2535,7 @@
       "endpoints": [
         {
           "method": "GET",
-          "path": "/twitter/2/tweets",
+          "path": "/2/tweets",
           "description": "Look up tweets by ID",
           "payment": {
             "intent": "charge",
@@ -2762,7 +2550,7 @@
         },
         {
           "method": "GET",
-          "path": "/twitter/2/tweets/:id",
+          "path": "/2/tweets/:id",
           "description": "Look up a single tweet",
           "payment": {
             "intent": "charge",
@@ -2777,7 +2565,7 @@
         },
         {
           "method": "POST",
-          "path": "/twitter/2/tweets",
+          "path": "/2/tweets",
           "description": "Create a new tweet",
           "payment": {
             "intent": "charge",
@@ -2792,7 +2580,7 @@
         },
         {
           "method": "GET",
-          "path": "/twitter/2/users/:id",
+          "path": "/2/users/:id",
           "description": "Look up a user by ID",
           "payment": {
             "intent": "charge",
@@ -2807,7 +2595,7 @@
         },
         {
           "method": "GET",
-          "path": "/twitter/2/users/by/username/:username",
+          "path": "/2/users/by/username/:username",
           "description": "Look up user by username",
           "payment": {
             "intent": "charge",
@@ -2822,7 +2610,7 @@
         },
         {
           "method": "GET",
-          "path": "/twitter/2/tweets/search/recent",
+          "path": "/2/tweets/search/recent",
           "description": "Search recent tweets",
           "payment": {
             "intent": "charge",
@@ -2837,7 +2625,7 @@
         },
         {
           "method": "GET",
-          "path": "/twitter/2/users/:id/tweets",
+          "path": "/2/users/:id/tweets",
           "description": "Get user tweet timeline",
           "payment": {
             "intent": "charge",

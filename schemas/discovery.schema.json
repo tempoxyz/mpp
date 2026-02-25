@@ -177,7 +177,7 @@
         },
         "amount": {
           "type": "string",
-          "description": "Cost in base units of the currency (before decimal scaling)."
+          "description": "Cost in base units of the currency (before decimal scaling). Required for fixed pricing; optional for dynamic pricing (serves as an estimate or minimum)."
         },
         "currency": {
           "type": "string",
@@ -198,15 +198,23 @@
           "description": "What one unit of payment covers (e.g. 'request', 'token', 'minute', 'byte')."
         },
         "dynamic": {
-          "type": "boolean",
-          "description": "When true, price is computed at runtime based on model, token count, or content size. The amount field is omitted or represents a base/minimum price."
+          "const": true,
+          "description": "When present (always true), indicates dynamic pricing — the price is determined at request time based on factors such as model, token count, or content size. The amount field may be omitted or may represent a base/minimum price."
         },
         "description": {
           "type": "string",
           "description": "Human-readable pricing note."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": {
+        "not": {
+          "required": ["dynamic"]
+        }
+      },
+      "then": {
+        "required": ["amount"]
+      }
     },
 
     "PaymentMethod": {

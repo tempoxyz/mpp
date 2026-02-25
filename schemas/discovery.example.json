@@ -7,17 +7,9 @@
       "url": "https://mpp.tempo.xyz/exa",
       "serviceUrl": "https://api.exa.ai",
       "description": "AI-powered web search, content retrieval, and answers.",
-      "categories": [
-        "search",
-        "ai"
-      ],
+      "categories": ["search", "ai"],
       "integration": "third-party",
-      "tags": [
-        "search",
-        "web",
-        "content",
-        "ai-search"
-      ],
+      "tags": ["search", "web", "content", "ai-search"],
       "status": "active",
       "docs": {
         "homepage": "https://docs.exa.ai",
@@ -25,12 +17,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -41,7 +29,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/exa/search",
+          "path": "/search",
           "description": "Search the web",
           "payment": {
             "intent": "charge",
@@ -56,7 +44,7 @@
         },
         {
           "method": "POST",
-          "path": "/exa/contents",
+          "path": "/contents",
           "description": "Get page contents",
           "payment": {
             "intent": "charge",
@@ -71,7 +59,7 @@
         },
         {
           "method": "POST",
-          "path": "/exa/findSimilar",
+          "path": "/findSimilar",
           "description": "Find similar pages",
           "payment": {
             "intent": "charge",
@@ -86,7 +74,7 @@
         },
         {
           "method": "POST",
-          "path": "/exa/answer",
+          "path": "/answer",
           "description": "Get AI-powered answers",
           "payment": {
             "intent": "charge",
@@ -107,16 +95,9 @@
       "url": "https://mpp.tempo.xyz/openrouter",
       "serviceUrl": "https://openrouter.ai/api",
       "description": "Unified API for 100+ LLMs with live per-model pricing.",
-      "categories": [
-        "ai"
-      ],
+      "categories": ["ai"],
       "integration": "third-party",
-      "tags": [
-        "llm",
-        "unified",
-        "multi-model",
-        "chat"
-      ],
+      "tags": ["llm", "unified", "multi-model", "chat"],
       "status": "active",
       "docs": {
         "homepage": "https://openrouter.ai/docs",
@@ -124,12 +105,8 @@
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -140,7 +117,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/openrouter/v1/chat/completions",
+          "path": "/v1/chat/completions",
           "description": "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
           "payment": {
             "intent": "session",
@@ -161,30 +138,17 @@
       "url": "https://mpp.tempo.xyz/storage",
       "serviceUrl": "https://mpp.tempo.xyz/storage",
       "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
-      "categories": [
-        "storage"
-      ],
+      "categories": ["storage"],
       "integration": "first-party",
-      "tags": [
-        "s3",
-        "r2",
-        "objects",
-        "blobs",
-        "files"
-      ],
+      "tags": ["s3", "r2", "objects", "blobs", "files"],
       "status": "active",
       "docs": {
         "homepage": "https://developers.cloudflare.com/r2/"
       },
       "methods": {
         "tempo": {
-          "intents": [
-            "charge",
-            "session"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
+          "intents": ["charge", "session"],
+          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -195,7 +159,7 @@
       "endpoints": [
         {
           "method": "GET",
-          "path": "/storage/:key",
+          "path": "/:key",
           "description": "Download object ($0.001 base + $0.01/MB)",
           "payment": {
             "intent": "session",
@@ -209,7 +173,7 @@
         },
         {
           "method": "PUT",
-          "path": "/storage/:key",
+          "path": "/:key",
           "description": "Upload object ($0.001 base + $0.01/MB, max 100MB)",
           "payment": {
             "intent": "session",
@@ -223,7 +187,7 @@
         },
         {
           "method": "DELETE",
-          "path": "/storage/:key",
+          "path": "/:key",
           "description": "Delete object",
           "payment": {
             "intent": "charge",
@@ -237,7 +201,7 @@
         },
         {
           "method": "GET",
-          "path": "/storage/",
+          "path": "/",
           "description": "List objects",
           "payment": {
             "intent": "charge",
@@ -251,7 +215,7 @@
         },
         {
           "method": "POST",
-          "path": "/storage/:key",
+          "path": "/:key",
           "description": "Initiate/complete multipart upload",
           "payment": {
             "intent": "charge",
