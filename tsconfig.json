@@ -17,6 +17,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "vocs.config.ts", "secrets.d.ts"],
+  "include": ["src", "schemas", "scripts", "vocs.config.ts", "secrets.d.ts"],
   "exclude": ["src/pages.gen.ts", "src/snippets"]
 }
