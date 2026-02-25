@@ -1,30 +1,11 @@
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, PrestoCliCard } from '../../components/cards'
 
 # SDKs & Tools [Official implementations in multiple languages]
 
 <Cards>
-  <Card
-    description="Get started with `mppx`, the reference implementation of the MPP SDKs"
-    icon="simple-icons:typescript"
-    title="TypeScript"
-    to="/sdk/typescript"
-  />
-  <Card
-    description="Get started with `pympp`, the official MPP SDK for Python"
-    icon="simple-icons:python"
-    title="Python"
-    to="/sdk/python"
-  />
-  <Card
-    description="Get started with `mpp-rs`, the official MPP SDK for Rust"
-    icon="simple-icons:rust"
-    title="Rust"
-    to="/sdk/rust"
-  />
-  <Card
-    description="A command-line tool for making paid HTTP requests"
-    icon="lucide:terminal"
-    title="presto CLI"
-    to="/tools/presto"
-  />
+  <TypeScriptSdkCard />
+  <PythonSdkCard />
+  <RustSdkCard />
+  <PrestoCliCard />
 </Cards>

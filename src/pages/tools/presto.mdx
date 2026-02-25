@@ -99,19 +99,10 @@ moderato_rpc = "https://my-custom-moderato-rpc.com"
 
 ## Learn more
 
-import { Card, Cards } from 'vocs'
+import { Cards } from 'vocs'
+import { PrestoExamplesCard, PrestoDownloadCard } from '../../components/cards'
 
 <Cards>
-  <Card
-    description="Complete command reference and options"
-    icon="lucide:book-open"
-    title="Full Reference"
-    to="/tools/presto/examples"
-  />
-  <Card
-    description="Download presto for your platform"
-    icon="lucide:download"
-    title="Download presto"
-    to="https://github.com/tempoxyz/presto"
-  />
+  <PrestoExamplesCard />
+  <PrestoDownloadCard />
 </Cards>

@@ -3,6 +3,7 @@
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Link } from "vocs";
+import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
 
 // ---------------------------------------------------------------------------
@@ -495,6 +496,13 @@ function StripeLogo({
 // ---------------------------------------------------------------------------
 
 function CTAButtons() {
+  const handleCta = (label: string, href: string) => {
+    captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
+      cta_label: label,
+      href,
+    });
+  };
+
   return (
     <div className="flex flex-wrap gap-3 mt-4">
       <Link
@@ -504,6 +512,7 @@ function CTAButtons() {
           backgroundColor: ACCENT,
           color: "var(--vocs-background-color-primary)",
         }}
+        onClick={() => handleCta("Get started", "/quickstart")}
       >
         Get started
       </Link>
@@ -516,6 +525,7 @@ function CTAButtons() {
             "light-dark(var(--vocs-background-color-surface), oklch(0.28 0 0))",
           color: "var(--vocs-text-color-heading)",
         }}
+        onClick={() => handleCta("Learn more", "/protocol")}
       >
         Learn more
       </Link>
@@ -564,6 +574,9 @@ function AgentTabs() {
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    captureEvent(AnalyticsEvents.LANDING_AGENT_CMD_COPIED, {
+      agent: cmd.label,
+    });
   };
 
   return (
@@ -589,7 +602,13 @@ function AgentTabs() {
             <button
               key={a.label}
               type="button"
-              onClick={() => setActive(i)}
+              onClick={() => {
+                setActive(i);
+                captureEvent(AnalyticsEvents.LANDING_AGENT_TAB_SELECTED, {
+                  tab_index: i,
+                  tab_label: a.label,
+                });
+              }}
               className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[13px] font-medium transition-colors cursor-pointer"
               style={{
                 color: i === active ? ACCENT : "var(--vocs-text-color-muted)",
@@ -681,3 +700,4 @@ function AgentTabs() {
     </div>
   );
 }
+

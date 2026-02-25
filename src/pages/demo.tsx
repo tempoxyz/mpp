@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AsciiLogo } from "../components/AsciiLogo";
 import * as Cli from "../components/Cli";
+import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { pathUsd } from "../wagmi.config";
 
 // ---------------------------------------------------------------------------
@@ -33,6 +34,7 @@ export function DemoPage() {
 
   const setVariant = (v: DemoVariant) => {
     setVariantState(v);
+    captureEvent(AnalyticsEvents.DEMO_VARIANT_SELECTED, { variant: v });
     const url = new URL(window.location.href);
     url.searchParams.set("v", v);
     window.history.replaceState({}, "", url.toString());

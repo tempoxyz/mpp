@@ -33,6 +33,7 @@ import IconLoader from "~icons/lucide/loader";
 import IconLogOut from "~icons/lucide/log-out";
 import IconRefresh from "~icons/lucide/refresh-cw";
 import { useRequests } from "../lib/network-store";
+import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import * as mppx from "../mppx.client";
 import { AsciiLogo } from "./AsciiLogo";
 
@@ -1161,6 +1162,7 @@ export function ConnectWallet() {
 
   useEffect(() => {
     if (address) {
+      captureEvent(AnalyticsEvents.DEMO_WALLET_CONNECTED);
       const timer = setTimeout(
         () => store.setState((s) => ({ ...s, stepIndex: s.stepIndex + 1 })),
         500,
@@ -1216,6 +1218,7 @@ export function Faucet() {
   const { mutate, isPending, isSuccess } = Hooks.faucet.useFundSync({
     mutation: {
       onSuccess: async () => {
+        captureEvent(AnalyticsEvents.DEMO_FAUCET_CLAIMED);
         const { data } = await refetch();
         store.setState((s) => ({
           ...s,

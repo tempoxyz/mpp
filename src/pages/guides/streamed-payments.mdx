@@ -1,4 +1,5 @@
-import { Card, Cards, Tabs, Tab } from 'vocs'
+import { Cards, Tabs, Tab } from 'vocs'
+import { OneTimePaymentsCard, PayAsYouGoCard, PrestoCliCard } from '../../components/cards'
 import * as Cli from '../../components/Cli'
 import { pathUsd } from '../../wagmi.config'
 
@@ -543,22 +544,7 @@ for await (const word of stream) {
 ## Next steps
 
 <Cards>
-  <Card
-    icon="lucide:zap"
-    title="Accept one-time payments"
-    description="Charge per request with a payment-gated API"
-    to="/guides/one-time-payments"
-  />
-  <Card
-    icon="lucide:repeat"
-    title="Accept pay-as-you-go payments"
-    description="Session-based billing with payment channels"
-    to="/guides/pay-as-you-go"
-  />
-  <Card
-    icon="lucide:terminal"
-    title="mppx CLI reference"
-    description="Full command reference and options"
-    to="/tools/presto"
-  />
+  <OneTimePaymentsCard />
+  <PayAsYouGoCard />
+  <PrestoCliCard />
 </Cards>

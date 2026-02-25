@@ -1,4 +1,5 @@
-import { Card, Cards, Tabs, Tab } from 'vocs'
+import { Cards, Tabs, Tab } from 'vocs'
+import { OneTimePaymentsCard, ServerQuickstartCard, PrestoCliCard } from '../../components/cards'
 import * as Cli from '../../components/Cli'
 import { pathUsd } from '../../wagmi.config'
 
@@ -585,22 +586,7 @@ const res = await fetch('http://localhost:3000/api/sessions/photo')
 ## Next steps
 
 <Cards>
-  <Card
-    icon="lucide:zap"
-    title="Accept one-time payments"
-    description="Charge per request with a payment-gated API"
-    to="/guides/one-time-payments"
-  />
-  <Card
-    icon="lucide:code"
-    title="Server quickstart"
-    description="Framework middleware reference"
-    to="/quickstart/server"
-  />
-  <Card
-    icon="lucide:terminal"
-    title="mppx CLI reference"
-    description="Full command reference and options"
-    to="/tools/presto"
-  />
+  <OneTimePaymentsCard />
+  <ServerQuickstartCard />
+  <PrestoCliCard />
 </Cards>
