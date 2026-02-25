@@ -2,8 +2,7 @@
 
 import { Receipt } from "mppx";
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Fragment } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AsciiLogo } from "./AsciiLogo";
 import { BlockCursorInput } from "./BlockCursorInput";
 import { ASCII_ARTS, POEMS, SPINNER_FRAMES } from "./terminal-data";
@@ -55,7 +54,8 @@ function timeAgo(iso: string) {
 // Link detection
 // ---------------------------------------------------------------------------
 
-const linkPattern = /(mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
+const linkPattern =
+  /(mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
 
 const SUMMARY_LABEL_WIDTH = "5.5em";
 const QUICKSTART_LABEL_WIDTH = "13em";
@@ -534,19 +534,27 @@ function AsyncSteps({
 
             // Close channel and capture the real close tx hash
             try {
-              console.log('[DEBUG] before close - opened:', demoClient.session.opened, 'channelId:', demoClient.session.channelId);
+              console.log(
+                "[DEBUG] before close - opened:",
+                demoClient.session.opened,
+                "channelId:",
+                demoClient.session.channelId,
+              );
               const closeReceipt = await demoClient.session.close();
-              console.log('[DEBUG] closeReceipt:', JSON.stringify(closeReceipt));
-              console.log('[DEBUG] sseReceipt:', JSON.stringify(sseReceipt));
+              console.log(
+                "[DEBUG] closeReceipt:",
+                JSON.stringify(closeReceipt),
+              );
+              console.log("[DEBUG] sseReceipt:", JSON.stringify(sseReceipt));
               const hash =
                 closeReceipt?.txHash ?? sseReceipt?.txHash ?? undefined;
-              console.log('[DEBUG] resolved hash:', hash);
+              console.log("[DEBUG] resolved hash:", hash);
               if (hash) {
                 setTxHash(hash);
                 onTxHash?.(hash);
               }
             } catch (e) {
-              console.error('[DEBUG] session.close() error:', e);
+              console.error("[DEBUG] session.close() error:", e);
               // Channel close failed — keep random hash
             }
           } else {
@@ -1588,10 +1596,12 @@ function Wizard({
           return (
             <div className="flex flex-col">
               <p style={{ color: "var(--term-gray10)" }}>
-                <strong>Machine Payments Protocol</strong> — open, programmable, Internet-native
-                payments.
+                <strong>Machine Payments Protocol</strong> — open, programmable,
+                Internet-native payments.
               </p>
-              <p style={{ color: "var(--term-gray10)" }}>{"\u00a0\u00a0"}Spent</p>
+              <p style={{ color: "var(--term-gray10)" }}>
+                {"\u00a0\u00a0"}Spent
+              </p>
               <SummaryRow label="Total">
                 <span style={{ color: "var(--term-amber9)" }}>
                   ${(usdcSpent + usdSpent).toFixed(4)}
@@ -1607,7 +1617,9 @@ function Wizard({
                   {usdSpent.toFixed(2)} USD
                 </span>
               </SummaryRow>
-              <p style={{ color: "var(--term-gray10)" }}>{"\u00a0\u00a0"}Wallet</p>
+              <p style={{ color: "var(--term-gray10)" }}>
+                {"\u00a0\u00a0"}Wallet
+              </p>
               <SummaryRow label="Address">
                 <a
                   href={`https://explore.tempo.xyz/address/${address}`}
@@ -1744,7 +1756,7 @@ export function Terminal({ className }: { className?: string }) {
         style={{
           height: "100%",
           minHeight: 0,
-          borderColor: "var(--term-gray3)",
+          borderColor: "var(--vocs-border-color-primary)",
           borderWidth: 1,
           borderStyle: "solid",
           backgroundColor: "var(--term-bg2)",
@@ -1827,14 +1839,27 @@ export function Terminal({ className }: { className?: string }) {
                       }}
                     >
                       <span style={{ color: "var(--term-gray10)" }}>$ ~ </span>
-                      {isCommand ? (() => {
-                        const spaceIdx = visible.indexOf(" ");
-                        if (spaceIdx === -1) return <span style={{ color: "var(--term-blue9)" }}>{renderText(visible)}</span>;
-                        return <>
-                          <span style={{ color: "var(--term-blue9)" }}>{visible.slice(0, spaceIdx)}</span>
-                          {renderText(visible.slice(spaceIdx))}
-                        </>;
-                      })() : renderText(visible)}
+                      {isCommand
+                        ? (() => {
+                            const spaceIdx = visible.indexOf(" ");
+                            if (spaceIdx === -1)
+                              return (
+                                <span style={{ color: "var(--term-blue9)" }}>
+                                  {renderText(visible)}
+                                </span>
+                              );
+                            return (
+                              <>
+                                <span style={{ color: "var(--term-blue9)" }}>
+                                  {visible.slice(0, spaceIdx)}
+                                </span>
+                                <span style={{ color: "var(--term-gray10)" }}>
+                                  {renderText(visible.slice(spaceIdx))}
+                                </span>
+                              </>
+                            );
+                          })()
+                        : renderText(visible)}
                       <span
                         className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
                         style={{

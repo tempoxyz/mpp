@@ -11,7 +11,6 @@ import { Terminal } from "./Terminal";
 
 const ACCENT = "var(--vocs-text-color-heading)";
 
-
 // ---------------------------------------------------------------------------
 // Context — shares active agent tab index across components
 // ---------------------------------------------------------------------------
@@ -27,8 +26,6 @@ const AgentContext = createContext<{
 
 export function LandingPage() {
   const [activeAgent, setActiveAgent] = useState(0);
-
-
 
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
@@ -179,10 +176,7 @@ function Hero() {
         </div>
 
         {/* CTAs below demo */}
-        <div
-          className="flex items-center justify-center gap-4 mt-2 landing-ctas"
-          
-        >
+        <div className="flex items-center justify-center gap-4 mt-2 landing-ctas">
           <Link
             to="/quickstart/presto"
             className="no-underline! px-6 py-3 rounded-lg transition-opacity hover:opacity-80"
@@ -208,7 +202,8 @@ function Hero() {
               fontSize: "1rem",
               fontWeight: 500,
               color: "var(--vocs-text-color-heading)",
-              backgroundColor: "color-mix(in srgb, var(--vocs-text-color-heading) 12%, transparent)",
+              backgroundColor:
+                "color-mix(in srgb, var(--vocs-text-color-heading) 12%, transparent)",
             }}
             onClick={() =>
               captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
@@ -237,7 +232,8 @@ function Tagline() {
     >
       <div>
         The open protocol for Internet-native payments. Charge for API requests,
-        tool calls, or content. Agents, apps, and humans securely pay per request.
+        tool calls, or content. Agents, apps, and humans securely pay per
+        request.
       </div>
       <div
         className="mt-3 flex items-center justify-center gap-3 landing-designed-by"
@@ -258,12 +254,8 @@ function Tagline() {
           rel="noopener noreferrer"
           className="no-underline transition-colors flex items-center"
           style={{ color: "inherit" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = ACCENT)
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "inherit")
-          }
+          onMouseEnter={(e) => (e.currentTarget.style.color = ACCENT)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
         >
           <TempoLogo />
         </a>
@@ -274,12 +266,8 @@ function Tagline() {
           rel="noopener noreferrer"
           className="no-underline transition-colors flex items-center"
           style={{ color: "inherit" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "#635BFF")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "inherit")
-          }
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#635BFF")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
         >
           <StripeLogo />
         </a>
@@ -368,10 +356,8 @@ function Lockup() {
           display: "block",
         }}
       >
-        Machine{" "}
-        <br className="hidden landing-header-br" />
-        Payments{" "}
-        <br className="hidden landing-header-br" />
+        Machine <br className="hidden landing-header-br" />
+        Payments <br className="hidden landing-header-br" />
         Protocol
       </span>
     </div>
