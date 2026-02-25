@@ -28,7 +28,8 @@ This opens your browser to authenticate with your Tempo wallet. Credentials are 
 ### Make your first paid request
 
 ```bash [paid-request.sh]
-$ presto -vv https://openrouter.payments.tempo.xyz/v1/chat/completions -d '{"model":"gpt-4o-mini","max_tokens":50,"messages":[{"role":"user","content":"Hello!"}]}'
+$ presto -vv https://openrouter.mpp.tempo.xyz/v1/chat/completions \
+  -X POST --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello!"}]}'
 ```
 
 :::tip[Live demo server]

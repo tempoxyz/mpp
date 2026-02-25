@@ -43,8 +43,8 @@ We host a live demo server at `mpp.tempo.xyz` running on **Tempo testnet**. Use 
 
 | Platform | Config | Wallet |
 |----------|--------|--------|
-| **macOS** | `~/Library/Application Support/presto/config.toml` | `~/Library/Application Support/presto/wallet.toml` |
-| **Linux** | `~/.config/presto/config.toml` | `~/.local/share/presto/wallet.toml` |
+| **macOS** | `~/Library/Application Support/presto/config.toml` | `~/Library/Application Support/presto/keys.toml` |
+| **Linux** | `~/.config/presto/config.toml` | `~/.local/share/presto/keys.toml` |
 
 ### Example config
 
@@ -63,8 +63,13 @@ moderato_rpc = "https://my-custom-moderato-rpc.com"
 | `presto logout [--yes]` | Log out and disconnect your wallet |
 | `presto whoami` | Show wallet address, balances, and access keys |
 | `presto session list` | List active payment sessions |
-| `presto session close [url] [--all]` | Close a payment session by URL, or all sessions |
-| `presto session recover <url>` | Recover a session from on-chain state |
+| `presto session list --all` | Show all channels: active, orphaned, and closing |
+| `presto session list --orphaned` | Scan on-chain for orphaned channels (no local session) |
+| `presto session list --closed` | Show channels pending finalization |
+| `presto session close [url]` | Close a payment session by URL or channel ID |
+| `presto session close --all` | Close all active sessions and on-chain channels |
+| `presto session close --orphaned` | Close only orphaned on-chain channels |
+| `presto session close --closed` | Finalize channels pending close (grace period elapsed) |
 | `presto completions <shell>` | Generate shell completions (bash, zsh, fish, powershell) |
 
 ### Global options
@@ -72,6 +77,9 @@ moderato_rpc = "https://my-custom-moderato-rpc.com"
 | Flag | Description |
 |------|-------------|
 | `-c, --config <PATH>` | Configuration file path |
+| `--key <NAME>` | Use a specific access key |
+| `--private-key <KEY>` | Use a private key directly for payment (bypasses wallet login) |
+| `-n, --network <NETWORKS>` | Filter to specific networks (comma-separated) |
 | `-v, --verbose` | Verbosity level (repeatable: `-v`, `-vv`, `-vvv`) |
 | `-q, --quiet` | Suppress log messages |
 | `--color <MODE>` | Color output: `auto`, `always`, `never` (default: `auto`) |
@@ -96,6 +104,9 @@ moderato_rpc = "https://my-custom-moderato-rpc.com"
 | Variable | Description |
 |----------|-------------|
 | `PRESTO_RPC_URL` | Override RPC endpoint for all networks |
+| `PRESTO_PRIVATE_KEY` | Provide a private key directly for payment (bypasses wallet login) |
+| `PRESTO_AUTH_URL` | Override auth server URL |
+| `PRESTO_NO_TELEMETRY` | Disable telemetry |
 
 ## Learn more
 

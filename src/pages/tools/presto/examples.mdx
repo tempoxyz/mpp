@@ -51,14 +51,26 @@ $ presto --dry-run https://mpp.tempo.xyz/api/ping/paid
 # List active payment sessions
 $ presto session list
 
-# Close a specific session
+# Show all channels: active, orphaned, and closing
+$ presto session list --all
+
+# Scan on-chain for orphaned channels (no local session)
+$ presto session list --orphaned
+
+# Show channels pending finalization
+$ presto session list --closed
+
+# Close a specific session by URL or channel ID
 $ presto session close https://mpp.tempo.xyz
 
 # Close all sessions
 $ presto session close --all
 
-# Recover a session from on-chain state
-$ presto session recover https://mpp.tempo.xyz
+# Close only orphaned on-chain channels
+$ presto session close --orphaned
+
+# Finalize channels pending close (grace period elapsed)
+$ presto session close --closed
 ```
 
 ## Wallet management
