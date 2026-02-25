@@ -52,15 +52,24 @@
           "format": "uri",
           "description": "URL to service icon/logo (square, recommended 256x256+)."
         },
-        "category": {
-          "$ref": "#/$defs/Category",
-          "description": "Primary service category for directory grouping."
-        },
         "categories": {
           "type": "array",
-          "items": { "$ref": "#/$defs/Category" },
+          "items": {
+            "type": "string",
+            "enum": [
+              "ai",
+              "blockchain",
+              "compute",
+              "data",
+              "media",
+              "search",
+              "social",
+              "storage",
+              "web"
+            ]
+          },
           "uniqueItems": true,
-          "description": "All applicable categories (when a service spans multiple)."
+          "description": "Categories for directory grouping."
         },
         "integration": {
           "type": "string",
@@ -212,22 +221,6 @@
         }
       },
       "additionalProperties": false
-    },
-
-    "Category": {
-      "type": "string",
-      "enum": [
-        "ai",
-        "blockchain",
-        "compute",
-        "data",
-        "media",
-        "search",
-        "social",
-        "storage",
-        "web"
-      ],
-      "description": "Service category."
     },
 
     "Provider": {
