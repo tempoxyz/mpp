@@ -13,6 +13,9 @@ const schema = JSON.parse(
 const example = JSON.parse(
   readFileSync(resolve(__dirname, "discovery.example.json"), "utf-8"),
 );
+const full = JSON.parse(
+  readFileSync(resolve(__dirname, "discovery.json"), "utf-8"),
+);
 
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
@@ -21,6 +24,12 @@ const validate = ajv.compile(schema);
 describe("discovery schema", () => {
   it("example validates against schema", () => {
     const valid = validate(example);
+    if (!valid) console.error(validate.errors);
+    expect(valid).toBe(true);
+  });
+
+  it("full registry validates against schema", () => {
+    const valid = validate(full);
     if (!valid) console.error(validate.errors);
     expect(valid).toBe(true);
   });
@@ -54,7 +63,7 @@ describe("discovery schema", () => {
         {
           id: "test",
           name: "Test Service",
-          url: "https://example.com",
+          serviceUrl: "https://example.com",
           endpoints: [],
           methods: {},
         },

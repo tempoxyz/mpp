@@ -22,7 +22,7 @@
   "$defs": {
     "Service": {
       "type": "object",
-      "required": ["id", "name", "url", "endpoints", "methods"],
+      "required": ["id", "name", "serviceUrl", "endpoints", "methods"],
       "properties": {
         "id": {
           "type": "string",
@@ -36,12 +36,12 @@
         "url": {
           "type": "string",
           "format": "uri",
-          "description": "MPP proxy URL for this service (e.g. 'https://mpp.tempo.xyz/openai')."
+          "description": "Upstream provider URL (e.g. 'https://api.openai.com')."
         },
         "serviceUrl": {
           "type": "string",
           "format": "uri",
-          "description": "The upstream service's own URL (e.g. 'https://api.openai.com')."
+          "description": "MPP service URL — where this service is accessed through the proxy (e.g. 'https://mpp.tempo.xyz/openai')."
         },
         "description": {
           "type": "string",
@@ -177,7 +177,7 @@
         },
         "amount": {
           "type": "string",
-          "description": "Cost in base units of the currency (before decimal scaling)."
+          "description": "Cost in base units of the currency (before decimal scaling). Required for fixed pricing; optional for dynamic pricing (serves as an estimate or minimum)."
         },
         "currency": {
           "type": "string",
@@ -197,12 +197,24 @@
           "type": "string",
           "description": "What one unit of payment covers (e.g. 'request', 'token', 'minute', 'byte')."
         },
+        "dynamic": {
+          "const": true,
+          "description": "When present (always true), indicates dynamic pricing — the price is determined at request time based on factors such as model, token count, or content size. The amount field may be omitted or may represent a base/minimum price."
+        },
         "description": {
           "type": "string",
           "description": "Human-readable pricing note."
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": {
+        "not": {
+          "required": ["dynamic"]
+        }
+      },
+      "then": {
+        "required": ["amount"]
+      }
     },
 
     "PaymentMethod": {

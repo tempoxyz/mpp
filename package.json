@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && vite build",
+    "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && vite build",
     "check": "biome check --write",
     "check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
     "check:types": "tsc --noEmit",

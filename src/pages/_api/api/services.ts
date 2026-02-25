@@ -1,4 +1,4 @@
-import discovery from "../../../../schemas/discovery.example.json";
+import discovery from "../../../../schemas/discovery.json";
 
 export function GET() {
   return Response.json(discovery, {

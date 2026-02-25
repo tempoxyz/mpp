@@ -2,194 +2,156 @@
   "version": 1,
   "services": [
     {
-      "id": "openai",
-      "name": "OpenAI",
-      "url": "https://mpp.tempo.xyz/openai",
-      "serviceUrl": "https://api.openai.com",
-      "description": "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
-      "icon": "https://mpp.tempo.xyz/icons/openai.svg",
-      "categories": ["ai", "media"],
+      "id": "exa",
+      "name": "Exa",
+      "url": "https://api.exa.ai",
+      "serviceUrl": "https://mpp.tempo.xyz/exa",
+      "description": "AI-powered web search, content retrieval, and answers.",
+      "categories": [
+        "search",
+        "ai"
+      ],
       "integration": "third-party",
       "tags": [
-        "llm",
-        "gpt-4o",
-        "dall-e",
-        "whisper",
-        "tts",
-        "embeddings",
-        "chat"
+        "search",
+        "web",
+        "content",
+        "ai-search"
       ],
       "status": "active",
       "docs": {
-        "homepage": "https://platform.openai.com/docs",
-        "llmsTxt": "https://developers.openai.com/api/docs/llms.txt",
-        "apiReference": "https://platform.openai.com/docs/api-reference"
+        "homepage": "https://docs.exa.ai",
+        "llmsTxt": "https://docs.exa.ai/llms.txt"
       },
       "methods": {
         "tempo": {
-          "intents": ["charge", "session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
       "provider": {
-        "name": "OpenAI",
-        "url": "https://openai.com"
+        "name": "Exa",
+        "url": "https://exa.ai"
       },
       "endpoints": [
         {
           "method": "POST",
-          "path": "/v1/responses",
-          "description": "Create model responses (streaming supported).",
-          "payment": {
-            "intent": "session",
-            "method": "tempo",
-            "amount": "500",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "unitType": "request",
-            "description": "Model response - price varies by model"
-          },
-          "docs": "https://platform.openai.com/docs/api-reference/responses"
-        },
-        {
-          "method": "POST",
-          "path": "/v1/chat/completions",
-          "description": "Chat completions with GPT models.",
-          "payment": {
-            "intent": "session",
-            "method": "tempo",
-            "amount": "500",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "unitType": "request",
-            "description": "Chat completion - price varies by model"
-          },
-          "docs": "https://platform.openai.com/docs/api-reference/chat"
-        },
-        {
-          "method": "POST",
-          "path": "/v1/embeddings",
-          "description": "Create text embeddings.",
+          "path": "/search",
+          "description": "Search the web",
           "payment": {
             "intent": "charge",
             "method": "tempo",
-            "amount": "100",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "description": "Create embeddings"
+            "description": "Search the web",
+            "amount": "5000"
           },
-          "docs": "https://platform.openai.com/docs/api-reference/embeddings"
+          "docs": "https://context7.com/websites/exa_ai/llms.txt?topic=POST%20%2Fsearch"
         },
         {
           "method": "POST",
-          "path": "/v1/images/generations",
-          "description": "Generate images with DALL-E.",
+          "path": "/contents",
+          "description": "Get page contents",
           "payment": {
             "intent": "charge",
             "method": "tempo",
-            "amount": "50000",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "description": "Generate images with DALL-E"
+            "description": "Get page contents",
+            "amount": "5000"
           },
-          "docs": "https://platform.openai.com/docs/api-reference/images"
+          "docs": "https://context7.com/websites/exa_ai/llms.txt?topic=POST%20%2Fcontents"
+        },
+        {
+          "method": "POST",
+          "path": "/findSimilar",
+          "description": "Find similar pages",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Find similar pages",
+            "amount": "5000"
+          },
+          "docs": "https://context7.com/websites/exa_ai/llms.txt?topic=POST%20%2FfindSimilar"
+        },
+        {
+          "method": "POST",
+          "path": "/answer",
+          "description": "Get AI-powered answers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get AI-powered answers",
+            "amount": "10000"
+          },
+          "docs": "https://context7.com/websites/exa_ai/llms.txt?topic=POST%20%2Fanswer"
         }
       ]
     },
     {
-      "id": "anthropic",
-      "name": "Anthropic",
-      "url": "https://mpp.tempo.xyz/anthropic",
-      "serviceUrl": "https://api.anthropic.com",
-      "description": "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
-      "categories": ["ai"],
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "url": "https://openrouter.ai/api",
+      "serviceUrl": "https://mpp.tempo.xyz/openrouter",
+      "description": "Unified API for 100+ LLMs with live per-model pricing.",
+      "categories": [
+        "ai"
+      ],
       "integration": "third-party",
-      "tags": ["llm", "claude", "sonnet", "opus", "haiku", "chat"],
-      "status": "active",
-      "methods": {
-        "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
-        }
-      },
-      "provider": {
-        "name": "Anthropic",
-        "url": "https://anthropic.com"
-      },
-      "endpoints": [
-        {
-          "method": "POST",
-          "path": "/v1/messages",
-          "description": "Create Claude messages.",
-          "payment": {
-            "intent": "session",
-            "method": "tempo",
-            "amount": "500",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "unitType": "request"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/v1/chat/completions",
-          "description": "OpenAI-compatible chat completions.",
-          "payment": {
-            "intent": "session",
-            "method": "tempo",
-            "amount": "500",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "unitType": "request"
-          }
-        }
-      ]
-    },
-    {
-      "id": "rpc",
-      "name": "Tempo RPC",
-      "url": "https://mpp.tempo.xyz/rpc",
-      "serviceUrl": "https://rpc.tempo.xyz",
-      "description": "Tempo blockchain JSON-RPC access (mainnet and testnet).",
-      "categories": ["blockchain"],
-      "integration": "first-party",
-      "tags": ["rpc", "json-rpc", "evm", "tempo", "node"],
+      "tags": [
+        "llm",
+        "unified",
+        "multi-model",
+        "chat"
+      ],
       "status": "active",
       "docs": {
-        "llmsTxt": "https://docs.tempo.xyz/llms.txt"
+        "homepage": "https://openrouter.ai/docs",
+        "llmsTxt": "https://openrouter.ai/docs/llms.txt"
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
+      "realm": "mpp.tempo.xyz",
       "provider": {
-        "name": "Tempo",
-        "url": "https://tempo.xyz"
+        "name": "OpenRouter",
+        "url": "https://openrouter.ai"
       },
       "endpoints": [
         {
           "method": "POST",
-          "path": "/",
-          "description": "JSON-RPC calls.",
+          "path": "/v1/chat/completions",
+          "description": "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
           "payment": {
             "intent": "session",
             "method": "tempo",
-            "amount": "1000",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "unitType": "request",
-            "description": "JSON-RPC calls - $0.001 per call"
-          }
+            "description": "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
+            "dynamic": true
+          },
+          "docs": "https://context7.com/websites/openrouter_ai/llms.txt?topic=POST%20%2Fv1%2Fchat%2Fcompletions"
         }
       ]
     },
@@ -197,72 +159,108 @@
       "id": "storage",
       "name": "Object Storage",
       "url": "https://mpp.tempo.xyz/storage",
+      "serviceUrl": "https://mpp.tempo.xyz/storage",
       "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
-      "categories": ["storage"],
+      "categories": [
+        "storage"
+      ],
       "integration": "first-party",
-      "tags": ["s3", "r2", "objects", "blobs", "files"],
+      "tags": [
+        "s3",
+        "r2",
+        "objects",
+        "blobs",
+        "files"
+      ],
       "status": "active",
+      "docs": {
+        "homepage": "https://developers.cloudflare.com/r2/"
+      },
       "methods": {
         "tempo": {
-          "intents": ["charge", "session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge",
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Tempo",
+        "url": "https://tempo.xyz"
       },
       "endpoints": [
         {
           "method": "GET",
-          "path": "/:bucket/:key",
-          "description": "Download an object.",
+          "path": "/:key",
+          "description": "Download object ($0.001 base + $0.01/MB)",
           "payment": {
             "intent": "session",
             "method": "tempo",
-            "amount": "100",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "unitType": "request"
+            "description": "Download object ($0.001 base + $0.01/MB)",
+            "dynamic": true
           }
         },
         {
           "method": "PUT",
-          "path": "/:bucket/:key",
-          "description": "Upload an object.",
+          "path": "/:key",
+          "description": "Upload object ($0.001 base + $0.01/MB, max 100MB)",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
-            "amount": "1000",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "description": "Upload object - price scales with size"
+            "description": "Upload object ($0.001 base + $0.01/MB, max 100MB)",
+            "dynamic": true
           }
         },
         {
           "method": "DELETE",
-          "path": "/:bucket/:key",
-          "description": "Delete an object.",
+          "path": "/:key",
+          "description": "Delete object",
           "payment": {
             "intent": "charge",
             "method": "tempo",
-            "amount": "100",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "description": "Delete object"
+            "description": "Delete object",
+            "amount": "100"
           }
         },
         {
           "method": "GET",
-          "path": "/:bucket",
-          "description": "List objects in a bucket.",
+          "path": "/",
+          "description": "List objects",
           "payment": {
             "intent": "charge",
             "method": "tempo",
-            "amount": "100",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
-            "description": "List objects in bucket"
+            "description": "List objects",
+            "amount": "100"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/:key",
+          "description": "Initiate/complete multipart upload",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Initiate/complete multipart upload",
+            "amount": "100"
           }
         }
       ]
