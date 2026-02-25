@@ -165,9 +165,9 @@ function Hero() {
           </div>
         </div>
 
-        {/* Terminal: full width */}
+        {/* Terminal: full width, bleeds past container padding on mobile */}
         <div
-          className="w-full relative"
+          className="relative -mx-3 md:mx-0 w-[calc(100%+1.5rem)] md:w-full"
           style={{
             height: 540,
           }}

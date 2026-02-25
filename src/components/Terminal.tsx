@@ -57,6 +57,22 @@ function timeAgo(iso: string) {
 const linkPattern =
   /(mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
 
+function CssTriangle() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        width: 0,
+        height: 0,
+        borderTop: "0.3em solid transparent",
+        borderBottom: "0.3em solid transparent",
+        borderLeft: "0.45em solid currentColor",
+        verticalAlign: "middle",
+      }}
+    />
+  );
+}
+
 const SUMMARY_LABEL_WIDTH = "5.5em";
 const QUICKSTART_LABEL_WIDTH = "13em";
 
@@ -384,6 +400,7 @@ const COST_PER_TOKEN = 0.0001;
 
 function AsyncSteps({
   endpoint,
+  isRestart = false,
   output,
   walletState,
   paymentChannel = false,
@@ -393,9 +410,9 @@ function AsyncSteps({
   onContentReceived,
   initialTxHash,
   onTxHash,
-  showWalletSteps = false,
 }: {
   endpoint: string;
+  isRestart?: boolean;
   output: string[];
   walletState: WalletState;
   paymentChannel?: boolean;
@@ -405,7 +422,6 @@ function AsyncSteps({
   onContentReceived?: (content: string[]) => void;
   initialTxHash?: string;
   onTxHash?: (hash: string) => void;
-  showWalletSteps?: boolean;
 }) {
   const { address, funded, setFunded } = walletState;
   const [txHash, setTxHash] = useState(() => initialTxHash ?? randomTxHash());
@@ -416,9 +432,11 @@ function AsyncSteps({
   const outputText = output.join("\n");
 
   const [steps] = useState(() => {
+    const needsFunding = !funded || walletState.balance <= 0;
     const s: { key: string; delay: number }[] = [];
-    if (!walletState.created) s.push({ key: "wallet", delay: 600 });
-    if (!funded) s.push({ key: "fund", delay: demoClient ? 0 : 1500 });
+    s.push({ key: "wallet", delay: isRestart ? 0 : 600 });
+    if (needsFunding || (completed && !isRestart))
+      s.push({ key: "fund", delay: demoClient ? 0 : 1500 });
     s.push({ key: "req402", delay: 1200 });
     if (paymentChannel) {
       s.push({ key: "channel", delay: 1200 });
@@ -476,6 +494,7 @@ function AsyncSteps({
             console.error("Live funding failed, continuing:", e);
           }
           setFunded(true);
+          walletState.setBalance(INITIAL_BALANCE);
           setStep(fundIdx + 1);
           await new Promise((r) => setTimeout(r, 400));
         }
@@ -600,6 +619,7 @@ function AsyncSteps({
     completed,
     steps,
     paymentChannel,
+    walletState.setBalance,
     walletState.setCreated,
     setFunded,
     onContentReceived,
@@ -632,7 +652,10 @@ function AsyncSteps({
     const delay = steps[step].delay;
     const timer = setTimeout(() => {
       if (currentKey === "wallet") walletState.setCreated(true);
-      if (currentKey === "fund") setFunded(true);
+      if (currentKey === "fund") {
+        setFunded(true);
+        walletState.setBalance(INITIAL_BALANCE);
+      }
       setStep((s) => s + 1);
     }, delay);
     return () => clearTimeout(timer);
@@ -643,6 +666,7 @@ function AsyncSteps({
     outputText.length,
     currentKey,
     paymentChannel,
+    walletState.setBalance,
     walletState.setCreated,
     steps,
     onDone,
@@ -661,9 +685,10 @@ function AsyncSteps({
   return (
     <div className="flex flex-col">
       <BlankLine />
-      {(atOrPast("wallet") || showWalletSteps) && (
+      {atOrPast("wallet") && (
         <p style={{ color: "var(--term-gray6)" }}>
-          <StepIcon spinning={atStep("wallet")} /> Creating wallet{" "}
+          <StepIcon spinning={atStep("wallet")} />{" "}
+          {isRestart ? "Using" : "Creating"} wallet{" "}
           <a
             href={`https://explore.tempo.xyz/address/${address}`}
             target="_blank"
@@ -674,7 +699,7 @@ function AsyncSteps({
           </a>
         </p>
       )}
-      {(atOrPast("fund") || showWalletSteps) && (
+      {atOrPast("fund") && (
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("fund")} /> Funding wallet with{" "}
           <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
@@ -1243,9 +1268,11 @@ function StripeSteps({
 
 type WalletState = {
   address: string;
+  balance: number;
   created: boolean;
-  setCreated: (v: boolean) => void;
   funded: boolean;
+  setBalance: (v: number) => void;
+  setCreated: (v: boolean) => void;
   setFunded: (v: boolean) => void;
 };
 
@@ -1310,6 +1337,7 @@ function Wizard({
   const [chosenUrl, setChosenUrl] = useState<string | undefined>();
   const urlRef = useRef<HTMLInputElement>(null);
   const currentTxHashRef = useRef<string | undefined>(undefined);
+  const [isRestart] = useState(() => walletState.created);
   const [quit, setQuit] = useState(false);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runKey, setRunKey] = useState(0);
@@ -1320,9 +1348,13 @@ function Wizard({
     setChosenOutput(content);
   };
 
-  const confirm = () => {
-    const opt = currentOptions[selected];
+  const confirm = (index?: number) => {
+    const opt = currentOptions[index ?? selected];
     if (opt === "Quit") {
+      const usdcSpent = runs
+        .filter((r) => r.chosen !== "Lookup company")
+        .reduce((sum, r) => sum + runCost(r), 0);
+      walletState.setBalance(INITIAL_BALANCE - usdcSpent);
       setQuit(true);
       document
         .querySelector(".landing-ctas")
@@ -1410,7 +1442,6 @@ function Wizard({
       completed?: boolean;
       url?: string;
       txHash?: string;
-      showWalletSteps?: boolean;
     },
   ) => {
     const isActive = !opts?.completed;
@@ -1419,6 +1450,7 @@ function Wizard({
         <AsyncSteps
           key={key}
           endpoint="/api/poem"
+          isRestart={isRestart}
           output={output}
           walletState={walletState}
           paymentChannel
@@ -1427,7 +1459,6 @@ function Wizard({
           demoClient={isActive ? demoClient : undefined}
           onContentReceived={isActive ? handleContentReceived : undefined}
           initialTxHash={opts?.txHash}
-          showWalletSteps={opts?.showWalletSteps}
           onTxHash={
             isActive
               ? (hash) => {
@@ -1442,6 +1473,7 @@ function Wizard({
         <AsyncSteps
           key={key}
           endpoint="/api/ascii"
+          isRestart={isRestart}
           output={output}
           walletState={walletState}
           onDone={opts?.onDone}
@@ -1449,7 +1481,6 @@ function Wizard({
           demoClient={isActive ? demoClient : undefined}
           onContentReceived={isActive ? handleContentReceived : undefined}
           initialTxHash={opts?.txHash}
-          showWalletSteps={opts?.showWalletSteps}
           onTxHash={
             isActive
               ? (hash) => {
@@ -1483,7 +1514,6 @@ function Wizard({
             <p style={{ color: "var(--term-gray10)" }}>
               What would you like to do?
             </p>
-            {/* biome-ignore format: contains unicode ▸ */}
             <div className="flex flex-col" style={{ paddingLeft: "1rem" }}>
               {runOptions.map((option) => (
                 <p
@@ -1495,7 +1525,13 @@ function Wizard({
                         : "var(--term-gray6)",
                   }}
                 >
-                  {option === run.chosen ? "▸ " : "  "}
+                  {option === run.chosen ? (
+                    <>
+                      <CssTriangle />{" "}
+                    </>
+                  ) : (
+                    "  "
+                  )}
                   {option}
                   {METHOD_LABELS[option] && (
                     <span className="ml-2">({METHOD_LABELS[option]})</span>
@@ -1513,7 +1549,6 @@ function Wizard({
               completed: true,
               url: run.url,
               txHash: run.txHash,
-              showWalletSteps: runIndex === 0,
             })}
             <BlankLine />
           </div>
@@ -1525,7 +1560,6 @@ function Wizard({
           <p style={{ color: "var(--term-gray10)" }}>
             What would you like to do?
           </p>
-          {/* biome-ignore format: contains unicode ▸ */}
           <div className="flex flex-col" style={{ paddingLeft: "1rem" }}>
             {currentOptions.map((option, i) => (
               <button
@@ -1537,9 +1571,20 @@ function Wizard({
                     selected === i ? "var(--term-pink9)" : "var(--term-gray6)",
                 }}
                 onMouseEnter={() => !chosen && !waitingForUrl && setSelected(i)}
-                onClick={() => !chosen && !waitingForUrl && confirm()}
+                onClick={() => {
+                  if (!chosen && !waitingForUrl) {
+                    setSelected(i);
+                    confirm(i);
+                  }
+                }}
               >
-                {selected === i ? "▸ " : "  "}
+                {selected === i ? (
+                  <>
+                    <CssTriangle />{" "}
+                  </>
+                ) : (
+                  "  "
+                )}
                 {option}
                 {METHOD_LABELS[option] && (
                   <span className="ml-2">({METHOD_LABELS[option]})</span>
@@ -1635,9 +1680,14 @@ function Wizard({
                   {balance.toFixed(4)} USDC
                 </span>
               </SummaryRow>
-              <p style={{ color: "var(--term-gray6)" }}>
+              <button
+                type="button"
+                className="cursor-pointer text-left"
+                style={{ color: "var(--term-gray6)" }}
+                onClick={() => onRestart?.()}
+              >
                 [Exited — press Enter to restart]
-              </p>
+              </button>
             </div>
           );
         })()}
@@ -1683,14 +1733,17 @@ export function Terminal({ className }: { className?: string }) {
     useTypewriter();
   const [wizardKey, setWizardKey] = useState(0);
   const [address, setAddress] = useState("");
+  const [balance, setBalance] = useState(0);
   const [created, setCreated] = useState(false);
   const [funded, setFunded] = useState(false);
   const [savedCard, setSavedCard] = useState<SavedCard | undefined>();
   const walletState: WalletState = {
     address,
+    balance,
     created,
-    setCreated,
     funded,
+    setBalance,
+    setCreated,
     setFunded,
   };
   useEffect(() => {
@@ -1784,14 +1837,23 @@ export function Terminal({ className }: { className?: string }) {
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
           style={{
             backgroundColor: "var(--term-bg2)",
-            fontSize: "0.9rem",
-            lineHeight: "1.5rem",
           }}
         >
           <div ref={contentRef}>
+            {/* Preload fallback fonts for unicode glyphs not in Geist Mono */}
+            <span
+              aria-hidden
+              style={{
+                position: "absolute",
+                opacity: 0,
+                pointerEvents: "none",
+              }}
+            >
+              ✔︎▸↑↓→
+            </span>
             <div className="hidden sm:block">
               <AsciiLogo />
             </div>
@@ -1801,7 +1863,10 @@ export function Terminal({ className }: { className?: string }) {
               {timeAgo(__COMMIT_TIMESTAMP__)})
             </p>
             {showLogin && (
-              <p style={{ color: "var(--term-gray6)" }}>
+              <p
+                className="hidden md:block"
+                style={{ color: "var(--term-gray6)" }}
+              >
                 Last login: Wed Oct 29 22:30:00 1969 on ttys000
               </p>
             )}
