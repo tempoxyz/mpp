@@ -14,6 +14,7 @@
     "preview": "vite preview",
     "sync:vocs": "node scripts/copy-vocs-theme.ts && pnpm check",
     "test": "vitest run",
+    "test:e2e": "VITE_SKIP_ANIMATION=true vitest run --config vitest.config.e2e.ts",
     "test:watch": "viest"
   },
   "dependencies": {
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.1",
+    "@playwright/test": "^1.58.2",
     "@iconify/json": "^2.2.433",
     "@types/node": "^22",
     "@types/react": "^19",
@@ -44,6 +46,7 @@
     "simple-git-hooks": "^2.13.1",
     "tiktoken": "^1.0.22",
     "typescript": "^5",
+    "playwright": "^1.58.2",
     "unplugin-icons": "^23.0.1",
     "vite": "^7",
     "vitest": "^4.0.18"

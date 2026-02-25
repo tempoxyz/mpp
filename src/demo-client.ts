@@ -1,6 +1,6 @@
 "use client";
 
-import { Mppx, tempo } from "mppx/client";
+import { Mppx, stripe, tempo } from "mppx/client";
 import { createClient, http } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { tempoModerato } from "viem/chains";
@@ -46,5 +46,47 @@ export async function createDemoClient() {
     throw new Error("Timed out waiting for funds");
   }
 
-  return { address: account.address, account, fetch, session, fundWallet };
+  const { fetch: _stripeFetch } = Mppx.create({
+    polyfill: false,
+    methods: [
+      stripe({
+        createToken: async (params) => {
+          const res = await globalThis.fetch("/api/demo/create-spt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              amount: params.amount,
+              currency: params.currency,
+              expiresAt: params.expiresAt,
+              metadata: params.metadata,
+              networkId: params.networkId,
+              paymentMethod: params.paymentMethod,
+            }),
+          });
+          if (!res.ok) {
+            const err = (await res.json()) as { error: string };
+            throw new Error(err.error);
+          }
+          const { spt } = (await res.json()) as { spt: string };
+          return spt;
+        },
+        paymentMethod: "pm_card_visa",
+      }),
+    ],
+  });
+
+  async function stripeFetch(url: string, paymentMethod?: string) {
+    return _stripeFetch(url, {
+      context: paymentMethod ? { paymentMethod } : undefined,
+    });
+  }
+
+  return {
+    address: account.address,
+    account,
+    fetch,
+    session,
+    fundWallet,
+    stripeFetch,
+  };
 }

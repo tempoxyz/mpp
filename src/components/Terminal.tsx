@@ -3,7 +3,6 @@
 import { Receipt } from "mppx";
 import type { ReactNode } from "react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { AsciiLogo } from "./AsciiLogo";
 import { BlockCursorInput } from "./BlockCursorInput";
 import { ASCII_ARTS, POEMS, SPINNER_FRAMES } from "./terminal-data";
 
@@ -187,14 +186,16 @@ const JITTER = 35;
 const LINE_DELAY = 500;
 
 function useTypewriter() {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [started, setStarted] = useState(false);
-  const [lineIndex, setLineIndex] = useState(0);
+  const skip = SKIP_ANIMATION;
+  const [showLogin, setShowLogin] = useState(skip);
+  const [showPrompt, setShowPrompt] = useState(skip);
+  const [started, setStarted] = useState(skip);
+  const [lineIndex, setLineIndex] = useState(skip ? lines.length : 0);
   const [charIndex, setCharIndex] = useState(0);
   const done = started && lineIndex >= lines.length;
 
   useEffect(() => {
+    if (skip) return;
     const t1 = setTimeout(() => setShowLogin(true), 500);
     const t2 = setTimeout(() => setShowPrompt(true), 700);
     const t3 = setTimeout(() => setStarted(true), 1500);
@@ -375,7 +376,8 @@ const pickAscii = createCyclicPicker(ASCII_ARTS);
 // Step components
 // ---------------------------------------------------------------------------
 
-const STREAM_DELAY = 30;
+const SKIP_ANIMATION = import.meta.env.VITE_SKIP_ANIMATION === "true";
+const STREAM_DELAY = SKIP_ANIMATION ? 0 : 30;
 
 // biome-ignore format: contains unicode ✔︎
 function StepIcon({
@@ -433,18 +435,19 @@ function AsyncSteps({
 
   const [steps] = useState(() => {
     const needsFunding = !funded || walletState.balance <= 0;
+    const d = (ms: number) => (SKIP_ANIMATION ? 0 : ms);
     const s: { key: string; delay: number }[] = [];
-    s.push({ key: "wallet", delay: isRestart ? 0 : 600 });
+    s.push({ key: "wallet", delay: isRestart ? 0 : d(600) });
     if (needsFunding || (completed && !isRestart))
-      s.push({ key: "fund", delay: demoClient ? 0 : 1500 });
-    s.push({ key: "req402", delay: 1200 });
+      s.push({ key: "fund", delay: demoClient ? 0 : d(1500) });
+    s.push({ key: "req402", delay: d(1200) });
     if (paymentChannel) {
-      s.push({ key: "channel", delay: 1200 });
+      s.push({ key: "channel", delay: d(1200) });
       s.push({ key: "stream", delay: 0 });
-      s.push({ key: "closeChannel", delay: 1000 });
+      s.push({ key: "closeChannel", delay: d(1000) });
     } else {
-      s.push({ key: "pay", delay: 1500 });
-      s.push({ key: "req200", delay: 1000 });
+      s.push({ key: "pay", delay: d(1500) });
+      s.push({ key: "req200", delay: d(1000) });
     }
     return s;
   });
@@ -919,7 +922,7 @@ function AsyncSteps({
 // Stripe card form
 // ---------------------------------------------------------------------------
 
-const LOOKUP_COST = 0.05;
+const LOOKUP_COST = 1.0;
 
 type SavedCard = { last4: string; expiry: string };
 
@@ -1073,6 +1076,8 @@ function StripeSteps({
   completed = false,
   savedCard,
   onCardSaved,
+  demoClient,
+  onContentReceived,
 }: {
   endpoint: string;
   output: string[];
@@ -1080,21 +1085,25 @@ function StripeSteps({
   completed?: boolean;
   savedCard?: SavedCard;
   onCardSaved?: (card: SavedCard) => void;
+  demoClient?: DemoClient | null;
+  onContentReceived?: (content: string[]) => void;
 }) {
-  const [piId] = useState(() => randomStripeId("pi_"));
+  const [piId, setPiId] = useState(() => randomStripeId("pi_"));
   const doneCalled = useRef(false);
   const [, setCardSubmitted] = useState(completed);
+  const liveStarted = useRef(false);
+  const [liveCardSubmitted, setLiveCardSubmitted] = useState(false);
 
-  const steps = useMemo<{ key: string; delay: number }[]>(
-    () => [
-      { key: "req402", delay: 1200 },
+  const steps = useMemo<{ key: string; delay: number }[]>(() => {
+    const d = (ms: number) => (SKIP_ANIMATION ? 0 : ms);
+    return [
+      { key: "req402", delay: d(1200) },
       { key: "cardInput", delay: 0 },
-      { key: "createPI", delay: 1500 },
-      { key: "confirmPI", delay: 1000 },
-      { key: "req200", delay: 1000 },
-    ],
-    [],
-  );
+      { key: "createPI", delay: d(1500) },
+      { key: "confirmPI", delay: d(1000) },
+      { key: "req200", delay: d(1000) },
+    ];
+  }, []);
 
   const [step, setStep] = useState(() => (completed ? steps.length : 0));
 
@@ -1109,7 +1118,9 @@ function StripeSteps({
   };
   const atStep = (key: string) => currentKey === key;
 
+  // Simulated mode: timed step progression
   useEffect(() => {
+    if (demoClient) return;
     if (currentKey === "done") {
       if (!doneCalled.current) {
         doneCalled.current = true;
@@ -1121,7 +1132,71 @@ function StripeSteps({
     const delay = steps[step].delay;
     const timer = setTimeout(() => setStep((s) => s + 1), delay);
     return () => clearTimeout(timer);
-  }, [step, currentKey, onDone, steps]);
+  }, [demoClient, step, currentKey, onDone, steps]);
+
+  // Live mode: visual req402, then wait for card, then real API call
+  useEffect(() => {
+    if (!demoClient || completed) return;
+    // Advance req402 visually
+    const timer = setTimeout(() => setStep(1), 800);
+    return () => clearTimeout(timer);
+  }, [demoClient, completed]);
+
+  useEffect(() => {
+    if (!demoClient || !liveCardSubmitted || liveStarted.current) return;
+    liveStarted.current = true;
+
+    (async () => {
+      try {
+        const createIdx = steps.findIndex((s) => s.key === "createPI");
+        setStep(createIdx);
+
+        const res = await demoClient.stripeFetch(endpoint);
+
+        try {
+          const receipt = Receipt.fromResponse(res);
+          if (receipt.reference) setPiId(receipt.reference);
+        } catch {
+          // No receipt — keep random ID
+        }
+
+        setStep(createIdx + 1);
+        await new Promise((r) => setTimeout(r, 600));
+
+        const confirmIdx = steps.findIndex((s) => s.key === "confirmPI");
+        setStep(confirmIdx + 1);
+        await new Promise((r) => setTimeout(r, 600));
+
+        const data = (await res.json()) as { lines: string[] };
+        onContentReceived?.(data.lines);
+
+        const req200Idx = steps.findIndex((s) => s.key === "req200");
+        setStep(req200Idx + 1);
+        await new Promise((r) => setTimeout(r, 400));
+
+        setStep(steps.length);
+      } catch (e) {
+        console.error("Live Stripe fetch failed, using simulated content:", e);
+        // Fall back to simulated steps
+        const createIdx = steps.findIndex((s) => s.key === "createPI");
+        setStep(createIdx);
+        for (let i = createIdx; i <= steps.length; i++) {
+          setStep(i);
+          if (i < steps.length)
+            await new Promise((r) => setTimeout(r, steps[i]?.delay ?? 600));
+        }
+      }
+    })();
+  }, [demoClient, liveCardSubmitted, steps, endpoint, onContentReceived]);
+
+  // Live mode: call onDone when steps complete
+  useEffect(() => {
+    if (!demoClient) return;
+    if (currentKey === "done" && !doneCalled.current) {
+      doneCalled.current = true;
+      onDone?.();
+    }
+  }, [demoClient, currentKey, onDone]);
 
   return (
     <div className="flex flex-col">
@@ -1160,6 +1235,9 @@ function StripeSteps({
           onSubmit={(card) => {
             setCardSubmitted(true);
             onCardSaved?.(card);
+            if (demoClient) {
+              setLiveCardSubmitted(true);
+            }
             setStep((s) => s + 1);
           }}
         />
@@ -1223,7 +1301,7 @@ function StripeSteps({
           </p>
         </>
       )}
-      {pastStep("req200") && (
+      {pastStep("req200") && output && output.length > 0 && (
         <>
           <BlankLine />
           <div style={{ color: "var(--term-gray10)" }}>
@@ -1429,8 +1507,16 @@ function Wizard({
         confirm();
       }
     };
+    document
+      .querySelector("[data-terminal]")
+      ?.setAttribute("data-wizard-ready", "");
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document
+        .querySelector("[data-terminal]")
+        ?.removeAttribute("data-wizard-ready");
+    };
   });
 
   const renderSteps = (
@@ -1494,12 +1580,14 @@ function Wizard({
       return (
         <StripeSteps
           key={key}
-          endpoint={`/api/lookup?url=${encodeURIComponent(opts?.url ?? "")}`}
+          endpoint={`/api/demo/lookup?url=${encodeURIComponent(opts?.url ?? "")}`}
           output={output}
           onDone={opts?.onDone}
           completed={opts?.completed}
           savedCard={savedCard}
           onCardSaved={setSavedCard}
+          demoClient={isActive ? demoClient : undefined}
+          onContentReceived={isActive ? handleContentReceived : undefined}
         />
       );
     return null;
@@ -1837,7 +1925,7 @@ export function Terminal({ className }: { className?: string }) {
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
           style={{
             backgroundColor: "var(--term-bg2)",
           }}
@@ -1854,9 +1942,6 @@ export function Terminal({ className }: { className?: string }) {
             >
               ✔︎▸↑↓→
             </span>
-            <div className="hidden sm:block">
-              <AsciiLogo />
-            </div>
             <div className="h-2" />
             <p style={{ color: "var(--term-gray6)" }}>
               mpp.sh@{__COMMIT_SHA__.slice(0, 7)} (released{" "}

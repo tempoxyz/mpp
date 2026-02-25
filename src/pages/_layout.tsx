@@ -1,7 +1,6 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type React from "react";
 import { useEffect } from "react";
 import { WagmiProvider } from "wagmi";
 import { config } from "../wagmi.config";
@@ -32,6 +31,10 @@ export default function Layout(props: React.PropsWithChildren) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1"
+        />
         {props.children}
       </QueryClientProvider>
     </WagmiProvider>
