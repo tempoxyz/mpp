@@ -7,9 +7,17 @@
       "url": "https://api.agentmail.to",
       "serviceUrl": "https://mpp.tempo.xyz/agentmail",
       "description": "Email inboxes for AI agents — create, send, receive, and manage email programmatically.",
-      "categories": ["ai", "social"],
+      "categories": [
+        "ai",
+        "social"
+      ],
       "integration": "third-party",
-      "tags": ["email", "inbox", "agents", "messaging"],
+      "tags": [
+        "email",
+        "inbox",
+        "agents",
+        "messaging"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.agentmail.to",
@@ -17,8 +25,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1025,9 +1037,18 @@
       "url": "https://eth-mainnet.g.alchemy.com",
       "serviceUrl": "https://mpp.tempo.xyz/alchemy",
       "description": "Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.",
-      "categories": ["blockchain", "data"],
+      "categories": [
+        "blockchain",
+        "data"
+      ],
       "integration": "third-party",
-      "tags": ["rpc", "json-rpc", "nft", "evm", "multichain"],
+      "tags": [
+        "rpc",
+        "json-rpc",
+        "nft",
+        "evm",
+        "multichain"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://www.alchemy.com/docs",
@@ -1035,8 +1056,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1098,9 +1123,18 @@
       "url": "https://api.anthropic.com",
       "serviceUrl": "https://mpp.tempo.xyz/anthropic",
       "description": "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
-      "categories": ["ai"],
+      "categories": [
+        "ai"
+      ],
       "integration": "third-party",
-      "tags": ["llm", "claude", "sonnet", "opus", "haiku", "chat"],
+      "tags": [
+        "llm",
+        "claude",
+        "sonnet",
+        "opus",
+        "haiku",
+        "chat"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.anthropic.com",
@@ -1109,8 +1143,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1155,9 +1193,17 @@
       "url": "https://api.browserbase.com",
       "serviceUrl": "https://mpp.tempo.xyz/browserbase",
       "description": "Headless browser sessions for web scraping and automation.",
-      "categories": ["web", "compute"],
+      "categories": [
+        "web",
+        "compute"
+      ],
       "integration": "third-party",
-      "tags": ["browser", "scraping", "automation", "headless"],
+      "tags": [
+        "browser",
+        "scraping",
+        "automation",
+        "headless"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.browserbase.com",
@@ -1165,8 +1211,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1213,9 +1263,18 @@
       "url": "https://graph.codex.io",
       "serviceUrl": "https://mpp.tempo.xyz/codex",
       "description": "GraphQL API for DeFi and blockchain data across 80+ networks.",
-      "categories": ["blockchain", "data"],
+      "categories": [
+        "blockchain",
+        "data"
+      ],
       "integration": "third-party",
-      "tags": ["graphql", "defi", "tokens", "trades", "nft"],
+      "tags": [
+        "graphql",
+        "defi",
+        "tokens",
+        "trades",
+        "nft"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.codex.io",
@@ -1223,8 +1282,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1256,9 +1319,16 @@
       "url": "https://api.digitalocean.com",
       "serviceUrl": "https://mpp.tempo.xyz/digitalocean",
       "description": "Cloud infrastructure for 1-click deploy of hosted MPP Agents on DigitalOcean Droplets.",
-      "categories": ["compute"],
+      "categories": [
+        "compute"
+      ],
       "integration": "third-party",
-      "tags": ["cloud", "droplets", "vps", "infrastructure"],
+      "tags": [
+        "cloud",
+        "droplets",
+        "vps",
+        "infrastructure"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.digitalocean.com",
@@ -1266,8 +1336,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1400,9 +1474,18 @@
       "url": "https://api.elevenlabs.io",
       "serviceUrl": "https://mpp.tempo.xyz/elevenlabs",
       "description": "Text-to-speech, speech-to-text, and voice cloning.",
-      "categories": ["ai", "media"],
+      "categories": [
+        "ai",
+        "media"
+      ],
       "integration": "third-party",
-      "tags": ["tts", "stt", "voice", "audio", "speech"],
+      "tags": [
+        "tts",
+        "stt",
+        "voice",
+        "audio",
+        "speech"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://elevenlabs.io/docs",
@@ -1411,8 +1494,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1488,9 +1575,17 @@
       "url": "https://api.exa.ai",
       "serviceUrl": "https://mpp.tempo.xyz/exa",
       "description": "AI-powered web search, content retrieval, and answers.",
-      "categories": ["search", "ai"],
+      "categories": [
+        "search",
+        "ai"
+      ],
       "integration": "third-party",
-      "tags": ["search", "web", "content", "ai-search"],
+      "tags": [
+        "search",
+        "web",
+        "content",
+        "ai-search"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.exa.ai",
@@ -1498,8 +1593,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1576,7 +1675,10 @@
       "url": "https://fal.run",
       "serviceUrl": "https://mpp.tempo.xyz/fal",
       "description": "Image, video, and audio generation with 600+ models (Flux, SD, Recraft, Grok).",
-      "categories": ["ai", "media"],
+      "categories": [
+        "ai",
+        "media"
+      ],
       "integration": "third-party",
       "tags": [
         "image",
@@ -1593,8 +1695,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1851,9 +1957,17 @@
       "url": "https://api.firecrawl.dev",
       "serviceUrl": "https://mpp.tempo.xyz/firecrawl",
       "description": "Web scraping, crawling, and structured data extraction for LLMs.",
-      "categories": ["web", "data"],
+      "categories": [
+        "web",
+        "data"
+      ],
       "integration": "third-party",
-      "tags": ["scraping", "crawling", "extraction", "llm"],
+      "tags": [
+        "scraping",
+        "crawling",
+        "extraction",
+        "llm"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.firecrawl.dev",
@@ -1861,8 +1975,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -1954,17 +2072,31 @@
       "url": "https://generativelanguage.googleapis.com",
       "serviceUrl": "https://mpp.tempo.xyz/gemini",
       "description": "Gemini text generation, Veo video, and Nano Banana image generation with model-tier pricing.",
-      "categories": ["ai", "media"],
+      "categories": [
+        "ai",
+        "media"
+      ],
       "integration": "third-party",
-      "tags": ["llm", "gemini", "veo", "imagen", "video", "multimodal"],
+      "tags": [
+        "llm",
+        "gemini",
+        "veo",
+        "imagen",
+        "video",
+        "multimodal"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://ai.google.dev/docs"
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2068,9 +2200,16 @@
       "url": "https://api.modal.com",
       "serviceUrl": "https://mpp.tempo.xyz/modal",
       "description": "Serverless GPU compute for sandboxed code execution and AI/ML workloads.",
-      "categories": ["compute"],
+      "categories": [
+        "compute"
+      ],
       "integration": "third-party",
-      "tags": ["gpu", "serverless", "sandbox", "compute"],
+      "tags": [
+        "gpu",
+        "serverless",
+        "sandbox",
+        "compute"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://modal.com/docs",
@@ -2078,8 +2217,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2133,7 +2276,10 @@
       "serviceUrl": "https://mpp.tempo.xyz/openai",
       "description": "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
       "icon": "https://mpp.tempo.xyz/icons/openai.svg",
-      "categories": ["ai", "media"],
+      "categories": [
+        "ai",
+        "media"
+      ],
       "integration": "third-party",
       "tags": [
         "llm",
@@ -2152,8 +2298,13 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge", "session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge",
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2260,9 +2411,16 @@
       "url": "https://openrouter.ai/api",
       "serviceUrl": "https://mpp.tempo.xyz/openrouter",
       "description": "Unified API for 100+ LLMs with live per-model pricing.",
-      "categories": ["ai"],
+      "categories": [
+        "ai"
+      ],
       "integration": "third-party",
-      "tags": ["llm", "unified", "multi-model", "chat"],
+      "tags": [
+        "llm",
+        "unified",
+        "multi-model",
+        "chat"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://openrouter.ai/docs",
@@ -2270,8 +2428,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2303,17 +2465,29 @@
       "url": "https://api.parallel.ai",
       "serviceUrl": "https://mpp.tempo.xyz/parallel",
       "description": "Web search, page extraction, and web-grounded chat completions.",
-      "categories": ["search", "ai"],
+      "categories": [
+        "search",
+        "ai"
+      ],
       "integration": "third-party",
-      "tags": ["search", "web", "extraction", "chat"],
+      "tags": [
+        "search",
+        "web",
+        "extraction",
+        "chat"
+      ],
       "status": "active",
       "docs": {
         "llmsTxt": "https://parallel.ai/llms.txt"
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2374,9 +2548,17 @@
       "url": "https://rpc.tempo.xyz",
       "serviceUrl": "https://mpp.tempo.xyz/rpc",
       "description": "Tempo blockchain JSON-RPC access (mainnet and testnet).",
-      "categories": ["blockchain"],
+      "categories": [
+        "blockchain"
+      ],
       "integration": "first-party",
-      "tags": ["rpc", "json-rpc", "evm", "tempo", "node"],
+      "tags": [
+        "rpc",
+        "json-rpc",
+        "evm",
+        "tempo",
+        "node"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.tempo.xyz",
@@ -2384,8 +2566,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2417,17 +2603,30 @@
       "url": "https://mpp.tempo.xyz/storage",
       "serviceUrl": "https://mpp.tempo.xyz/storage",
       "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
-      "categories": ["storage"],
+      "categories": [
+        "storage"
+      ],
       "integration": "first-party",
-      "tags": ["s3", "r2", "objects", "blobs", "files"],
+      "tags": [
+        "s3",
+        "r2",
+        "objects",
+        "blobs",
+        "files"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://developers.cloudflare.com/r2/"
       },
       "methods": {
         "tempo": {
-          "intents": ["charge", "session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge",
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -2514,17 +2713,30 @@
       "url": "https://api.x.com",
       "serviceUrl": "https://mpp.tempo.xyz/twitter",
       "description": "X API v2 for tweets, users, and search.",
-      "categories": ["social", "data"],
+      "categories": [
+        "social",
+        "data"
+      ],
       "integration": "third-party",
-      "tags": ["twitter", "x", "tweets", "social", "search"],
+      "tags": [
+        "twitter",
+        "x",
+        "tweets",
+        "social",
+        "search"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://developer.x.com/en/docs"
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",

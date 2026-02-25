@@ -7,9 +7,17 @@
       "url": "https://api.exa.ai",
       "serviceUrl": "https://mpp.tempo.xyz/exa",
       "description": "AI-powered web search, content retrieval, and answers.",
-      "categories": ["search", "ai"],
+      "categories": [
+        "search",
+        "ai"
+      ],
       "integration": "third-party",
-      "tags": ["search", "web", "content", "ai-search"],
+      "tags": [
+        "search",
+        "web",
+        "content",
+        "ai-search"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://docs.exa.ai",
@@ -17,8 +25,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["charge"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -95,9 +107,16 @@
       "url": "https://openrouter.ai/api",
       "serviceUrl": "https://mpp.tempo.xyz/openrouter",
       "description": "Unified API for 100+ LLMs with live per-model pricing.",
-      "categories": ["ai"],
+      "categories": [
+        "ai"
+      ],
       "integration": "third-party",
-      "tags": ["llm", "unified", "multi-model", "chat"],
+      "tags": [
+        "llm",
+        "unified",
+        "multi-model",
+        "chat"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://openrouter.ai/docs",
@@ -105,8 +124,12 @@
       },
       "methods": {
         "tempo": {
-          "intents": ["session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",
@@ -138,17 +161,30 @@
       "url": "https://mpp.tempo.xyz/storage",
       "serviceUrl": "https://mpp.tempo.xyz/storage",
       "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
-      "categories": ["storage"],
+      "categories": [
+        "storage"
+      ],
       "integration": "first-party",
-      "tags": ["s3", "r2", "objects", "blobs", "files"],
+      "tags": [
+        "s3",
+        "r2",
+        "objects",
+        "blobs",
+        "files"
+      ],
       "status": "active",
       "docs": {
         "homepage": "https://developers.cloudflare.com/r2/"
       },
       "methods": {
         "tempo": {
-          "intents": ["charge", "session"],
-          "assets": ["0x20c000000000000000000000b9537d11c60e8b50"]
+          "intents": [
+            "charge",
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
         }
       },
       "realm": "mpp.tempo.xyz",

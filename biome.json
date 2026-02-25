@@ -6,7 +6,12 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": false
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!schemas/discovery.json",
+      "!schemas/discovery.example.json"
+    ]
   },
   "css": {
     "parser": {
