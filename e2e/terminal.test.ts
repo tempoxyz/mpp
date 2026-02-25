@@ -1,6 +1,6 @@
 import { expect as playwrightExpect } from "@playwright/test";
-import type { Page } from "playwright";
 import { type Browser, chromium } from "playwright";
+import type { Page } from "playwright";
 import type { ViteDevServer } from "vite";
 import { createServer } from "vite";
 import { afterAll, beforeAll, describe, it } from "vitest";
@@ -33,10 +33,7 @@ function newPage() {
 // Dispatch via evaluate to ensure the event is received.
 async function pressKey(page: Page, key: string) {
   await page.evaluate(
-    (k) =>
-      window.dispatchEvent(
-        new KeyboardEvent("keydown", { key: k, bubbles: true }),
-      ),
+    (k) => window.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true })),
     key,
   );
   // Allow React to process state updates and re-attach effects
@@ -54,7 +51,18 @@ async function waitForWizard(page: Page) {
 describe("terminal", () => {
   it.concurrent("renders the terminal window", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    const response = await page.goto(`http://localhost:${port}`);
+    console.log("page status:", response?.status());
+
+    // Wait for initial render
+    await page.waitForTimeout(2_000);
+    const html = await page.content();
+    console.log("page html length:", html.length);
+    console.log("page html preview:", html.slice(0, 2000));
+    const errors = await page.evaluate(() =>
+      (globalThis as any).__e2e_errors ?? [],
+    );
+    console.log("page errors:", errors);
 
     await playwrightExpect(page.locator(".rounded-full").first()).toBeVisible();
     await playwrightExpect(page.getByText("Last login:")).toBeVisible({
