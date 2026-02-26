@@ -340,7 +340,7 @@ function Lockup() {
     <h1
       style={{
         color: ACCENT,
-        fontFamily: '"Geist", sans-serif',
+        fontFamily: '"Geist Mono", monospace',
         fontSize: "clamp(2.25rem, 6vw, 4rem)",
         fontWeight: 700,
         letterSpacing: "-0.03em",
