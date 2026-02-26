@@ -391,7 +391,7 @@ export function ServicesPage() {
               color: "var(--vocs-text-color-secondary)",
               fontSize: 17,
               lineHeight: 1.4,
-              marginBottom: "2.25rem",
+              marginBottom: "2.75rem",
               marginTop: "-0.5rem",
             }}
           >
@@ -451,7 +451,11 @@ export function ServicesPage() {
               <>
                 <div
                   className="search-mobile"
-                  style={{ display: "none", marginBottom: "0.75rem" }}
+                  style={{
+                    display: "none",
+                    marginBottom: "1rem",
+                    marginTop: "0.5rem",
+                  }}
                 >
                   <SearchInput
                     search={search}
@@ -1863,7 +1867,7 @@ function PageStyles() {
         .services-container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
         [data-services-table] table { margin-left: -0.5rem !important; margin-right: -0.5rem !important; width: calc(100% + 1rem) !important; }
         [data-services-table] thead { display: none !important; }
-        .filter-tags { justify-content: center !important; margin-bottom: 1.25rem !important; margin-left: 0.5rem !important; margin-right: 0.5rem !important; }
+        .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0.5rem !important; margin-right: 0.5rem !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 18% !important; justify-content: center !important; }
         .filter-tags .search-desktop { display: none !important; }
         .search-mobile { margin-bottom: 1rem !important; }
@@ -1876,14 +1880,17 @@ function PageStyles() {
       @media (max-width: 640px) {
         .services-container { padding-left: 0 !important; padding-right: 0 !important; }
         [data-services-table] table { margin-left: 0 !important; margin-right: 0 !important; width: 100% !important; }
+        [data-services-table] table td:first-child { padding-left: 0.75rem !important; }
+        [data-services-table] table td:last-child { padding-right: 0.75rem !important; }
+        .expanded-detail { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
         .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
         .svc-icon img { width: 34px !important; height: 34px !important; }
-        .sub-row { padding-left: 1rem !important; padding-right: 1rem !important; }
-        .header-cards { padding: 0 0.5rem !important; }
-        .filter-tags { padding: 0 0.5rem !important; margin-left: 0 !important; margin-right: 0 !important; }
+        .sub-row { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+        .header-cards { padding: 0 0.75rem !important; }
+        .filter-tags { padding: 0 0.75rem !important; margin-left: 0 !important; margin-right: 0 !important; }
         .filter-tags button { min-width: 0 !important; }
-        .search-mobile { padding: 0 0.5rem !important; }
-        h1, h1 + p { padding: 0 0.5rem !important; }
+        .search-mobile { padding: 0 0.75rem !important; }
+        h1, h1 + p { padding: 0 0.75rem !important; }
         .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
       }
     `}</style>
