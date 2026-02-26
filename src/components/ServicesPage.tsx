@@ -1927,7 +1927,6 @@ function ExpandedDetail({ service: s }: { service: Service }) {
 function PageStyles() {
   return (
     <style>{`
-      [data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
       [data-layout="minimal"] main > article { max-width: none !important; }
       @media (max-width: 900px) {
         [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
