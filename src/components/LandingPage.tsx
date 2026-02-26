@@ -101,36 +101,20 @@ function LandingStyles() {
 				section { padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem)) !important; }
 			}
 
+			@media (max-width: 767px) {
+				.landing-ctas a {
+					font-size: 0.8125rem !important;
+					padding: 0.4rem 0.75rem !important;
+				}
+			}
+
 			@media (max-width: 1079px) {
 				.landing-hero > div {
 					margin-top: 0 !important;
 				}
-				.landing-ctas {
-					width: 100%;
-					flex-direction: column;
-				}
-				.landing-ctas a {
-					width: 100%;
-					text-align: center;
-					font-size: 0.875rem;
-					padding: 0.625rem 1rem;
-				}
 			}
 
-			@media (min-width: 1080px) {
-				.landing-header {
-					flex-direction: row;
-					gap: 3rem;
-					align-items: flex-end;
-					text-align: left;
-				}
-				.landing-header-br {
-					display: block;
-				}
-				.landing-designed-by {
-					justify-content: flex-start;
-				}
-			}
+
 
 		`}</style>
   );
@@ -143,40 +127,27 @@ function LandingStyles() {
 function Hero() {
   return (
     <section
-      className="landing-hero flex flex-col items-center px-3 md:px-6 mb-12"
+      className="landing-hero flex flex-col items-center px-3 md:px-6 mb-12 pt-4 md:pt-7"
       style={{ position: "relative", zIndex: 2 }}
     >
       <div
         className="w-full flex flex-col"
         style={{
-          maxWidth: 860,
-          marginTop: "auto",
+          maxWidth: 960,
           marginBottom: "auto",
-          gap: 16,
+          gap: 0,
         }}
       >
-        {/* Header: compact lockup + tagline on one line */}
-        <div className="w-full flex flex-col gap-4 items-center text-center landing-header">
-          <div>
-            <Lockup />
-          </div>
-          <div className="flex-1" style={{ marginBottom: 5 }}>
-            <Tagline />
-          </div>
+        {/* Title across the top */}
+        <Lockup />
+
+        {/* Tagline */}
+        <div className="mt-3">
+          <Tagline />
         </div>
 
-        {/* Terminal: full width, bleeds past container padding on mobile */}
-        <div
-          className="relative -mx-3 md:mx-0 w-[calc(100%+1.5rem)] md:w-full"
-          style={{
-            height: 540,
-          }}
-        >
-          <Terminal className="absolute inset-0" />
-        </div>
-
-        {/* CTAs below demo */}
-        <div className="flex items-center justify-center gap-4 mt-2 landing-ctas">
+        {/* CTAs */}
+        <div className="flex items-center gap-4 mt-5 landing-ctas">
           <Link
             to="/quickstart/presto"
             className="no-underline! px-6 py-3 rounded-lg transition-opacity hover:opacity-80"
@@ -202,8 +173,8 @@ function Hero() {
               fontSize: "1rem",
               fontWeight: 500,
               color: "var(--vocs-text-color-heading)",
-              backgroundColor:
-                "color-mix(in srgb, var(--vocs-text-color-heading) 12%, transparent)",
+              backgroundColor: "transparent",
+              border: "1px solid var(--vocs-border-color-primary)",
             }}
             onClick={() =>
               captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
@@ -215,6 +186,19 @@ function Hero() {
             Install on your server
           </Link>
         </div>
+
+        {/* Terminal: full width */}
+        <div
+          className="relative -mx-3 md:mx-0 w-[calc(100%+1.5rem)] md:w-full mt-6"
+          style={{
+            height: 540,
+          }}
+        >
+          <Terminal className="absolute inset-0" />
+        </div>
+
+        {/* Designed by */}
+        <DesignedBy />
       </div>
     </section>
   );
@@ -234,43 +218,6 @@ function Tagline() {
         The open protocol for Internet-native payments. Charge for API requests,
         tool calls, or content. Agents, apps, and humans securely pay per
         request.
-      </div>
-      <div
-        className="mt-3 flex items-center justify-center gap-3 landing-designed-by"
-        style={{
-          color: "var(--vocs-text-color-muted)",
-          opacity: 1,
-        }}
-      >
-        <span
-          className="text-xs tracking-widest uppercase"
-          style={{ fontFamily: 'var(--font-mono, "Geist Mono", monospace)' }}
-        >
-          Designed by
-        </span>
-        <a
-          href="https://tempo.xyz"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="no-underline transition-colors flex items-center"
-          style={{ color: "inherit" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = ACCENT)}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-        >
-          <TempoLogo />
-        </a>
-        <span className="text-sm">×</span>
-        <a
-          href="https://stripe.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="no-underline transition-colors flex items-center"
-          style={{ color: "inherit" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#635BFF")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-        >
-          <StripeLogo />
-        </a>
       </div>
     </div>
   );
@@ -340,26 +287,69 @@ function StripeLogo() {
 }
 
 // ---------------------------------------------------------------------------
+// Designed by
+// ---------------------------------------------------------------------------
+
+function DesignedBy() {
+  return (
+    <div
+      className="mt-4 flex items-center gap-3"
+      style={{
+        color: "var(--vocs-text-color-muted)",
+      }}
+    >
+      <span
+        className="text-xs tracking-widest uppercase"
+        style={{ fontFamily: 'var(--font-mono, "Geist Mono", monospace)' }}
+      >
+        Designed by
+      </span>
+      <a
+        href="https://tempo.xyz"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="no-underline transition-colors flex items-center"
+        style={{ color: "inherit" }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = ACCENT)}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+      >
+        <TempoLogo />
+      </a>
+      <span className="text-sm">×</span>
+      <a
+        href="https://stripe.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="no-underline transition-colors flex items-center"
+        style={{ color: "inherit" }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#635BFF")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+      >
+        <StripeLogo />
+      </a>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Lockup wordmark
 // ---------------------------------------------------------------------------
 
 function Lockup() {
   return (
-    <div style={{ color: ACCENT, lineHeight: 1.15 }}>
-      <span
-        style={{
-          fontFamily: 'var(--font-sans, "Geist", sans-serif)',
-          fontSize: "clamp(1.5rem, 4vw, 3rem)",
-          fontWeight: 800,
-          letterSpacing: "-0.02em",
-          textTransform: "uppercase",
-          display: "block",
-        }}
-      >
-        Machine <br className="hidden landing-header-br" />
-        Payments <br className="hidden landing-header-br" />
-        Protocol
-      </span>
-    </div>
+    <h1
+      style={{
+        color: ACCENT,
+        fontFamily: '"Geist", sans-serif',
+        fontSize: "clamp(2.25rem, 6vw, 4rem)",
+        fontWeight: 700,
+        letterSpacing: "-0.03em",
+        lineHeight: 1.05,
+        margin: 0,
+        textTransform: "uppercase" as const,
+      }}
+    >
+      Machine Payments Protocol
+    </h1>
   );
 }
