@@ -286,7 +286,7 @@ export function ServicesPage() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [integrationFilter, setIntegrationFilter] = useState<
-    "all" | "first-party" | "third-party"
+    "all" | "first-party"
   >("all");
 
   useEffect(() => {
@@ -1129,15 +1129,13 @@ function IntegrationFilter({
   value,
   onChange,
 }: {
-  value: "all" | "first-party" | "third-party";
-  onChange: (v: "all" | "first-party" | "third-party") => void;
+  value: "all" | "first-party";
+  onChange: (v: "all" | "first-party") => void;
 }) {
   const dotColor =
     value === "first-party"
       ? "#22c55e"
-      : value === "third-party"
-        ? "#3B82F6"
-        : "var(--vocs-text-color-muted)";
+      : "var(--vocs-text-color-muted)";
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
       <span
@@ -1156,7 +1154,7 @@ function IntegrationFilter({
       <select
         value={value}
         onChange={(e) =>
-          onChange(e.target.value as "all" | "first-party" | "third-party")
+          onChange(e.target.value as "all" | "first-party")
         }
         style={{
           appearance: "none",
@@ -1177,7 +1175,6 @@ function IntegrationFilter({
       >
         <option value="all">All</option>
         <option value="first-party">First-party</option>
-        <option value="third-party">Third-party</option>
       </select>
     </div>
   );
@@ -1313,10 +1310,37 @@ function BorderlessBadge({ children }: { children: React.ReactNode }) {
 // Service icon with optional third-party overlay
 // ---------------------------------------------------------------------------
 
+function FallbackIcon({ name }: { name: string }) {
+  const initials = name
+    .split(/[\s-]+/)
+    .slice(0, 2)
+    .map((w) => w.charAt(0).toUpperCase())
+    .join("");
+  return (
+    <div
+      style={{
+        width: 28,
+        height: 28,
+        borderRadius: 6,
+        background: "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.10))",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: initials.length > 1 ? 10 : 13,
+        fontWeight: 600,
+        letterSpacing: "-0.02em",
+        color: "var(--vocs-text-color-secondary)",
+        border: "1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08))",
+      }}
+    >
+      {initials || "?"}
+    </div>
+  );
+}
+
 function ServiceIcon({ service: s }: { service: Service }) {
-  const isThirdParty = s.integration === "third-party";
-  const isFirstParty = !isThirdParty;
-  const dotColor = isFirstParty ? "#22c55e" : "#3B82F6";
+  const isFirstParty = s.integration !== "third-party";
+  const [imgError, setImgError] = useState(false);
   return (
     <div
       className="svc-icon"
@@ -1328,44 +1352,32 @@ function ServiceIcon({ service: s }: { service: Service }) {
         marginRight: 6,
       }}
     >
-      {s.id ? (
+      {s.id && !imgError ? (
         <img
           src={`/icons/${s.id}.svg`}
           alt=""
           width={28}
           height={28}
           style={{ borderRadius: 6, display: "block", objectFit: "cover" }}
+          onError={() => setImgError(true)}
         />
       ) : (
-        <div
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 6,
-            background: CODE_BG,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 13,
-            fontWeight: 600,
-            color: "var(--vocs-text-color-secondary)",
-          }}
-        >
-          {s.name.charAt(0).toUpperCase()}
-        </div>
+        <FallbackIcon name={s.name} />
       )}
-      <span
-        style={{
-          position: "absolute",
-          top: -3,
-          right: -3,
-          width: 12,
-          height: 12,
-          borderRadius: "50%",
-          background: dotColor,
-          border: "2px solid var(--vocs-background-color-primary, #1a1a1a)",
-        }}
-      />
+      {isFirstParty && (
+        <span
+          style={{
+            position: "absolute",
+            top: -3,
+            right: -3,
+            width: 12,
+            height: 12,
+            borderRadius: "50%",
+            background: "#22c55e",
+            border: "2px solid var(--vocs-background-color-primary, #1a1a1a)",
+          }}
+        />
+      )}
     </div>
   );
 }
