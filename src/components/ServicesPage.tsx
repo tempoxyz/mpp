@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { services } from "../data/registry";
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
+import { fetchServices } from "../data/registry";
 
 const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
@@ -19,73 +15,341 @@ const CATEGORY_LABELS: Record<Category, string> = {
   storage: "Storage",
   web: "Web",
 };
-
-const STATUS_COLORS: Record<string, string> = {
-  active: "#16a34a",
-  beta: "#2563eb",
-  deprecated: "#dc2626",
-  maintenance: "#d97706",
-};
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+const PAGE_SIZE = 60;
+const CODE_BG = "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.07))";
+const URL_COLOR = "light-dark(rgba(0,0,0,0.7), rgba(255,255,255,0.7))";
+const CMD_PURPLE = "#c084fc";
+const CMD_GREEN = "#4ade80";
 
 function allCategories(s: Service): Category[] {
-  const cats: Category[] = [];
-  if (s.category) cats.push(s.category);
-  if (s.categories) {
-    for (const c of s.categories) {
-      if (!cats.includes(c)) cats.push(c);
-    }
-  }
-  return cats;
+  return s.categories ?? [];
 }
-
 function formatPrice(ep: Endpoint): string {
   const p = ep.payment;
-  if (!p) return "Free";
-  if (!p.amount) return p.description ?? "Paid";
-  const value = Number(p.amount) / 10 ** (p.decimals ?? 0);
-  if (value < 0.01) return `$${value.toFixed(4)}`;
-  if (value < 1) return `$${value.toFixed(4)}`;
-  return `$${value.toFixed(2)}`;
+  if (!p) return "—";
+  if (!p.amount) return "n/a";
+  const v = Number(p.amount) / 10 ** (p.decimals ?? 0);
+  if (Number.isNaN(v)) return "—";
+  if (v >= 1) return `$${v.toFixed(2)}`;
+  let s = v.toFixed(4);
+  s = s.replace(/0+$/, "");
+  if (s.endsWith(".")) s = s.slice(0, -1);
+  return `$${s}`;
+}
+function copyText(t: string) {
+  navigator.clipboard.writeText(t);
+}
+
+// Icons
+function ChevronDownIcon({
+  expanded,
+  size = 14,
+}: {
+  expanded: boolean;
+  size?: number;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={{
+        transition: "transform 0.2s ease",
+        transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+        flexShrink: 0,
+      }}
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+function CopyIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+    </svg>
+  );
+}
+function CheckIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+function TerminalIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" x2="20" y1="19" y2="19" />
+    </svg>
+  );
+}
+function ArrowRightIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={{
+        color: "var(--vocs-text-color-muted)",
+        flexShrink: 0,
+        marginTop: 2,
+      }}
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
+  );
+}
+function SearchIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+function SearchInput({
+  search,
+  setSearch,
+  setPage,
+  fullWidth,
+}: {
+  search: string;
+  setSearch: (v: string) => void;
+  setPage: (v: number) => void;
+  fullWidth?: boolean;
+}) {
+  return (
+    <div style={{ position: "relative", width: fullWidth ? "100%" : 260 }}>
+      <span
+        style={{
+          position: "absolute",
+          left: 10,
+          top: "50%",
+          transform: "translateY(-50%)",
+          color: "var(--vocs-text-color-muted)",
+          pointerEvents: "none",
+        }}
+      >
+        <SearchIcon />
+      </span>
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setPage(0);
+        }}
+        placeholder="Search services..."
+        style={{
+          width: "100%",
+          padding: "0.4rem 0.6rem 0.4rem 2rem",
+          fontSize: 14,
+          borderRadius: 7,
+          border: "1px solid var(--vocs-border-color-primary)",
+          background: "transparent",
+          color: "var(--vocs-text-color-heading)",
+          fontFamily: "var(--font-sans)",
+          outline: "none",
+        }}
+      />
+    </div>
+  );
+}
+
+function useCopyFeedback() {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const t = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const copy = useCallback((text: string, id: string) => {
+    copyText(text);
+    setCopiedId(id);
+    if (t.current) clearTimeout(t.current);
+    t.current = setTimeout(() => setCopiedId(null), 1500);
+  }, []);
+  return { copiedId, copy };
+}
+
+// Syntax-highlighted CLI text
+function HighlightedCmd({ children }: { children: string }) {
+  const parts: React.ReactNode[] = [];
+  const tokens = children.split(/(\s+)/);
+  let key = 0;
+  for (const tok of tokens) {
+    if (/^(curl|bash)$/.test(tok)) {
+      parts.push(
+        <span key={key} style={{ color: CMD_PURPLE }}>
+          {tok}
+        </span>,
+      );
+    } else if (/^presto$/.test(tok)) {
+      parts.push(
+        <span key={key} style={{ color: CMD_GREEN }}>
+          {tok}
+        </span>,
+      );
+    } else if (/^-/.test(tok)) {
+      parts.push(
+        <span key={key} style={{ color: "var(--vocs-text-color-muted)" }}>
+          {tok}
+        </span>,
+      );
+    } else if (/^https?:\/\//.test(tok)) {
+      parts.push(
+        <span key={key} style={{ color: "var(--vocs-text-color-heading)" }}>
+          {tok}
+        </span>,
+      );
+    } else if (/^'/.test(tok) || /^"/.test(tok)) {
+      parts.push(
+        <span key={key} style={{ color: CMD_GREEN }}>
+          {tok}
+        </span>,
+      );
+    } else {
+      parts.push(<span key={key}>{tok}</span>);
+    }
+    key++;
+  }
+  return <>{parts}</>;
 }
 
 // ---------------------------------------------------------------------------
-// Component
+// Main
 // ---------------------------------------------------------------------------
 
-const PAGE_SIZE = 25;
-
 export function ServicesPage() {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null,
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(
+    new Set(),
   );
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
+  const [prestoOpen, setPrestoOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const categories = [
-    ...new Set(services.flatMap((s) => allCategories(s))),
-  ].sort() as Category[];
+  useEffect(() => {
+    fetchServices()
+      .then((data) => {
+        setServices(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : String(err));
+        setLoading(false);
+      });
+  }, []);
 
-  const filtered = services.filter((s) => {
-    if (selectedCategory) {
-      if (!allCategories(s).includes(selectedCategory)) return false;
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(search), 150);
+    return () => clearTimeout(id);
+  }, [search]);
+
+  const categories = useMemo(
+    () =>
+      [
+        ...new Set(services.flatMap((s) => allCategories(s))),
+      ].sort() as Category[],
+    [services],
+  );
+  const filtered = useMemo(() => {
+    let list = services;
+    if (selectedCategories.size > 0)
+      list = list.filter((s) =>
+        allCategories(s).some((c) => selectedCategories.has(c)),
+      );
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.description?.toLowerCase().includes(q) ||
+          s.url.toLowerCase().includes(q) ||
+          s.tags?.some((t) => t.toLowerCase().includes(q)),
+      );
     }
-    return true;
-  });
+    return list;
+  }, [services, selectedCategories, debouncedSearch]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const toggle = (id: string) =>
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+  const toggleRow = (id: string) =>
+    setExpandedIds((p) => {
+      if (p.has(id)) return new Set();
+      return new Set([id]);
     });
+  const toggleCat = (cat: Category) => {
+    setSelectedCategories((p) => {
+      const n = new Set(p);
+      if (n.has(cat)) n.delete(cat);
+      else n.add(cat);
+      return n;
+    });
+    setPage(0);
+  };
+  const clearCats = () => {
+    setSelectedCategories(new Set());
+    setPage(0);
+  };
 
   return (
     <div
@@ -96,332 +360,258 @@ export function ServicesPage() {
       }}
     >
       <PageStyles />
-
       <div
+        className="services-container"
         style={{
-          maxWidth: 960,
+          maxWidth: 1600,
           margin: "0 auto",
-          padding: "2.5rem 1.5rem 4rem",
+          padding: "3rem 2.5rem 5rem",
         }}
       >
         {/* Header */}
-        <h1
-          style={{
-            fontSize: "1.75rem",
-            fontWeight: 500,
-            letterSpacing: "-0.02em",
-            marginBottom: "0.375rem",
-          }}
-        >
-          Services
-        </h1>
-        <p
-          style={{
-            color: "var(--vocs-text-color-secondary)",
-            fontSize: 15,
-            lineHeight: 1.5,
-            marginBottom: "2rem",
-          }}
-        >
-          MPP-enabled APIs your agent or application can pay for with
-          stablecoins.
-        </p>
-
-        {/* Category pills */}
-        <div
-          style={{
-            display: "flex",
-            gap: "0.375rem",
-            flexWrap: "wrap",
-            marginBottom: "1.5rem",
-          }}
-        >
-          <Pill
-            active={!selectedCategory}
-            onClick={() => { setSelectedCategory(null); setPage(0); }}
-          >
-            All
-          </Pill>
-          {categories.map((cat) => (
-            <Pill
-              key={cat}
-              active={selectedCategory === cat}
-              onClick={() => {
-                setSelectedCategory(selectedCategory === cat ? null : cat);
-                setPage(0);
-              }}
-            >
-              {CATEGORY_LABELS[cat] ?? cat}
-            </Pill>
-          ))}
-        </div>
-
-        {/* Table */}
-        <div data-services-table style={{ overflowX: "auto" }}>
-          <table
+        <div style={{ marginBottom: "0.1rem" }}>
+          <h1
             style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: 14,
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  borderBottom: "1px solid var(--vocs-border-color-primary)",
-                }}
-              >
-                <Th style={{ textAlign: "left" }}>Service</Th>
-                <Th className="hide-mobile" style={{ textAlign: "left" }}>
-                  URL
-                </Th>
-                <Th style={{ textAlign: "left", width: 100 }}>Category</Th>
-                <Th style={{ width: 36 }} />
-              </tr>
-            </thead>
-            <tbody>
-              {paged.map((s) => (
-                <ServiceRow
-                  key={s.id}
-                  service={s}
-                  expanded={expandedIds.has(s.id)}
-                  onToggle={() => toggle(s.id)}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filtered.length === 0 && (
-          <p
-            style={{
-              textAlign: "center",
-              padding: "3rem 0",
-              color: "var(--vocs-text-color-secondary)",
-              fontSize: 14,
-            }}
-          >
-            No services match your search.
-          </p>
-        )}
-
-        {/* Pagination + count */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: "1rem",
-          }}
-        >
-          <p
-            style={{
-              color: "var(--vocs-text-color-secondary)",
-              fontSize: 13,
-            }}
-          >
-            {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} of {filtered.length} services
-          </p>
-
-          {totalPages > 1 && (
-            <div style={{ display: "flex", gap: "0.375rem" }}>
-              <button
-                type="button"
-                disabled={page === 0}
-                onClick={() => setPage(page - 1)}
-                style={{
-                  padding: "0.25rem 0.625rem",
-                  fontSize: 13,
-                  borderRadius: 6,
-                  border: "1px solid var(--vocs-border-color-primary)",
-                  background: "transparent",
-                  color: page === 0 ? "var(--vocs-text-color-muted)" : "var(--vocs-text-color-secondary)",
-                  cursor: page === 0 ? "default" : "pointer",
-                  fontFamily: "var(--font-sans)",
-                }}
-              >
-                ← Prev
-              </button>
-              <button
-                type="button"
-                disabled={page >= totalPages - 1}
-                onClick={() => setPage(page + 1)}
-                style={{
-                  padding: "0.25rem 0.625rem",
-                  fontSize: 13,
-                  borderRadius: 6,
-                  border: "1px solid var(--vocs-border-color-primary)",
-                  background: "transparent",
-                  color: page >= totalPages - 1 ? "var(--vocs-text-color-muted)" : "var(--vocs-text-color-secondary)",
-                  cursor: page >= totalPages - 1 ? "default" : "pointer",
-                  fontFamily: "var(--font-sans)",
-                }}
-              >
-                Next →
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Presto section */}
-        <div
-          style={{
-            marginTop: "4rem",
-            borderTop: "1px solid var(--vocs-border-color-primary)",
-            paddingTop: "2.5rem",
-          }}
-        >
-          <h2
-            style={{
-              fontSize: "1.25rem",
+              fontSize: "2.1rem",
               fontWeight: 500,
               letterSpacing: "-0.02em",
-              marginBottom: "0.375rem",
+              margin: 0,
+              whiteSpace: "nowrap",
             }}
           >
-            Presto
-          </h2>
+            Services
+          </h1>
           <p
             style={{
               color: "var(--vocs-text-color-secondary)",
-              fontSize: 15,
+              fontSize: 17,
               lineHeight: 1.5,
-              marginBottom: "1.5rem",
-              maxWidth: 640,
+              marginBottom: "2.25rem",
             }}
           >
-            <code style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>presto</code> is
-            a command-line tool for making HTTP requests with automatic payment
-            support. When you request a resource that requires payment,{" "}
-            <code style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>presto</code> detects
-            the <code style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>402</code> response,
-            fulfills the payment, and retries—all in a single command.
+            MPP-enabled APIs your agent or application can pay for with
+            stablecoins.
           </p>
+        </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            {/* Install */}
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.375rem" }}>
-                Install
-              </p>
-              <pre
-                style={{
-                  margin: 0,
-                  padding: 0,
-                  fontSize: 12,
-                  fontFamily: "var(--font-mono)",
-                  overflowX: "auto",
-                  lineHeight: 1.5,
-                }}
-              >
-                <code>
-                  <span style={{ color: "var(--vocs-text-color-secondary)" }}>$ </span>
-                  curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash
-                </code>
-              </pre>
-            </div>
+        {/* Presto accordion + info cards (mobile) */}
+        <div
+          className="mobile-cards"
+          style={{
+            display: "none",
+            flexDirection: "column",
+            gap: "0.5rem",
+            marginBottom: "1.75rem",
+            marginTop: "0.25rem",
+          }}
+        >
+          <PrestoCard
+            open={prestoOpen}
+            onToggle={() => setPrestoOpen(!prestoOpen)}
+          />
+          <MobileInfoCards />
+        </div>
 
-            {/* Log in */}
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.375rem" }}>
-                Log in
-              </p>
-              <p
+        {/* Layout */}
+        <div
+          className="services-layout"
+          style={{ display: "flex", gap: "3rem", alignItems: "flex-start" }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {loading && (
+              <div
                 style={{
+                  padding: "5rem 0",
+                  textAlign: "center",
                   color: "var(--vocs-text-color-secondary)",
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  marginBottom: "0.375rem",
+                  fontSize: 16,
                 }}
               >
-                Connect your Tempo wallet. This opens your browser to authenticate
-                and stores credentials locally.
-              </p>
-              <pre
+                Loading services...
+              </div>
+            )}
+            {error && (
+              <div
                 style={{
-                  margin: 0,
-                  padding: 0,
-                  fontSize: 12,
-                  fontFamily: "var(--font-mono)",
-                  overflowX: "auto",
-                  lineHeight: 1.5,
-                }}
-              >
-                <code>
-                  <span style={{ color: "var(--vocs-text-color-secondary)" }}>$ </span>
-                  presto login
-                </code>
-              </pre>
-            </div>
-
-            {/* Make a request */}
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.375rem" }}>
-                Make a paid request
-              </p>
-              <p
-                style={{
+                  padding: "2rem",
+                  borderRadius: 10,
+                  border: "1px solid var(--vocs-border-color-primary)",
+                  background: "var(--vocs-background-color-surfaceMuted)",
                   color: "var(--vocs-text-color-secondary)",
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  marginBottom: "0.375rem",
-                }}
-              >
-                Query any service above. Payment is handled automatically.
-              </p>
-              <pre
-                style={{
-                  margin: 0,
-                  padding: 0,
-                  fontSize: 12,
-                  fontFamily: "var(--font-mono)",
-                  overflowX: "auto",
+                  fontSize: 15,
                   lineHeight: 1.5,
                 }}
               >
-                <code>
-                  <span style={{ color: "var(--vocs-text-color-secondary)" }}>$ </span>
-                  {`presto https://mpp.tempo.xyz/openai/v1/chat/completions \\
-    -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello!"}]}'`}
-                </code>
-              </pre>
-            </div>
-
-            {/* Preview */}
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.375rem" }}>
-                Preview before paying
-              </p>
-              <p
-                style={{
-                  color: "var(--vocs-text-color-secondary)",
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  marginBottom: "0.375rem",
-                }}
-              >
-                Use dry-run mode to see what a request costs without executing
-                payment.
-              </p>
-              <pre
-                style={{
-                  margin: 0,
-                  padding: 0,
-                  fontSize: 12,
-                  fontFamily: "var(--font-mono)",
-                  overflowX: "auto",
-                  lineHeight: 1.5,
-                }}
-              >
-                <code>
-                  <span style={{ color: "var(--vocs-text-color-secondary)" }}>$ </span>
-                  presto --dry-run https://mpp.tempo.xyz/openai/v1/chat/completions
-                </code>
-              </pre>
-            </div>
+                <strong style={{ color: "var(--vocs-text-color-heading)" }}>
+                  Failed to load services
+                </strong>
+                <p style={{ margin: "0.5rem 0 0" }}>{error}</p>
+              </div>
+            )}
+            {!loading && !error && (
+              <>
+                <div
+                  className="search-mobile"
+                  style={{ display: "none", marginBottom: "0.75rem" }}
+                >
+                  <SearchInput
+                    search={search}
+                    setSearch={setSearch}
+                    setPage={setPage}
+                    fullWidth
+                  />
+                </div>
+                <div
+                  className="filter-tags"
+                  style={{
+                    display: "flex",
+                    gap: "0.375rem",
+                    flexWrap: "wrap",
+                    marginBottom: "1.5rem",
+                    alignItems: "center",
+                    marginLeft: "0.5rem",
+                    marginRight: "0.5rem",
+                  }}
+                >
+                  <Pill
+                    active={selectedCategories.size === 0}
+                    onClick={clearCats}
+                  >
+                    All
+                  </Pill>
+                  {categories.map((cat) => (
+                    <Pill
+                      key={cat}
+                      active={selectedCategories.has(cat)}
+                      onClick={() => toggleCat(cat)}
+                    >
+                      {CATEGORY_LABELS[cat] ?? cat}
+                    </Pill>
+                  ))}
+                  <div
+                    className="search-desktop"
+                    style={{ marginLeft: "auto" }}
+                  >
+                    <SearchInput
+                      search={search}
+                      setSearch={setSearch}
+                      setPage={setPage}
+                    />
+                  </div>
+                </div>
+                <div data-services-table>
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      fontSize: 15,
+                      tableLayout: "fixed",
+                    }}
+                  >
+                    <colgroup>
+                      <col style={{ width: "21%" }} />
+                      <col className="hide-mobile" style={{ width: "33%" }} />
+                      <col className="hide-mobile" style={{ width: "38%" }} />
+                      <col style={{ width: "8%" }} />
+                    </colgroup>
+                    <thead>
+                      <tr
+                        style={{
+                          borderBottom:
+                            "1px solid var(--vocs-border-color-primary)",
+                        }}
+                      >
+                        <Th style={{ textAlign: "left" }}>Service</Th>
+                        <Th
+                          className="hide-mobile"
+                          style={{ textAlign: "left" }}
+                        >
+                          URL
+                        </Th>
+                        <Th
+                          className="hide-mobile"
+                          style={{ textAlign: "left" }}
+                        >
+                          Description
+                        </Th>
+                        <Th style={{ width: 36 }} />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paged.map((s) => (
+                        <ServiceRow
+                          key={s.id}
+                          service={s}
+                          expanded={expandedIds.has(s.id)}
+                          onToggle={() => toggleRow(s.id)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {filtered.length === 0 && (
+                  <p
+                    style={{
+                      textAlign: "center",
+                      padding: "4rem 0",
+                      color: "var(--vocs-text-color-secondary)",
+                      fontSize: 15,
+                    }}
+                  >
+                    No services found.
+                  </p>
+                )}
+                {totalPages > 1 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginTop: "1rem",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "var(--vocs-text-color-muted)",
+                        fontSize: 13,
+                      }}
+                    >
+                      {page * PAGE_SIZE + 1}–
+                      {Math.min((page + 1) * PAGE_SIZE, filtered.length)} of{" "}
+                      {filtered.length}
+                    </p>
+                    <div style={{ display: "flex", gap: "0.375rem" }}>
+                      <PaginationBtn
+                        disabled={page === 0}
+                        onClick={() => setPage(page - 1)}
+                      >
+                        ← Prev
+                      </PaginationBtn>
+                      <PaginationBtn
+                        disabled={page >= totalPages - 1}
+                        onClick={() => setPage(page + 1)}
+                      >
+                        Next →
+                      </PaginationBtn>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-
-
+          <div
+            className="services-sidebar"
+            style={{
+              width: 360,
+              flexShrink: 0,
+              position: "sticky",
+              top: "calc(var(--vocs-spacing-topNav, 64px) + 1.5rem)",
+              alignSelf: "flex-start",
+            }}
+          >
+            <PrestoCardFull />
+            <SidebarInfoCards />
+          </div>
         </div>
       </div>
     </div>
@@ -429,7 +619,436 @@ export function ServicesPage() {
 }
 
 // ---------------------------------------------------------------------------
-// Sub-components
+// Resource link row (docs, llms.txt)
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Presto cards
+// ---------------------------------------------------------------------------
+
+function PrestoCard({
+  open,
+  onToggle,
+}: {
+  open: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div
+      className="presto-accordion"
+      style={{
+        borderRadius: 10,
+        border: "1px solid var(--vocs-border-color-primary)",
+        background: "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
+      }}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem",
+          width: "100%",
+          padding: "0.75rem 1rem",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          fontFamily: "var(--font-sans)",
+          color: "var(--vocs-text-color-heading)",
+          fontSize: 14,
+        }}
+      >
+        <TerminalIcon />
+        <div style={{ flex: 1, textAlign: "left" }}>
+          <span style={{ fontWeight: 500 }}>Get started with Presto</span>
+          <span
+            style={{
+              color: "var(--vocs-text-color-muted)",
+              marginLeft: "0.5rem",
+              fontSize: 13,
+            }}
+          >
+            — like curl, but with built-in payments
+          </span>
+        </div>
+        <ChevronDownIcon expanded={open} size={14} />
+      </button>
+      {open && (
+        <div
+          style={{
+            padding: "0 1rem 1rem",
+            borderTop: "1px solid var(--vocs-border-color-primary)",
+            marginTop: 0,
+          }}
+        >
+          <div style={{ paddingTop: "0.75rem" }}>
+            <PrestoSteps />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PrestoCardFull() {
+  return (
+    <div
+      style={{
+        borderRadius: 10,
+        border: "1px solid var(--vocs-border-color-primary)",
+        background: "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
+        padding: "1.25rem",
+      }}
+    >
+      <h2
+        style={{
+          fontSize: "1.25rem",
+          fontWeight: 500,
+          letterSpacing: "-0.02em",
+          marginBottom: "0.35rem",
+        }}
+      >
+        Get started with Presto
+      </h2>
+      <p
+        style={{
+          color: "var(--vocs-text-color-secondary)",
+          fontSize: 14,
+          lineHeight: 1.5,
+          marginBottom: "1.25rem",
+        }}
+      >
+        A command-line HTTP client with built-in MPP payment support. When a
+        server responds with{" "}
+        <code
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 12,
+            padding: "0.1rem 0.3rem",
+            borderRadius: 3,
+            background: CODE_BG,
+          }}
+        >
+          402
+        </code>
+        , Presto handles the payment and retries automatically.
+      </p>
+      <PrestoSteps />
+    </div>
+  );
+}
+
+function MobileInfoCards() {
+  const cs: React.CSSProperties = {
+    flex: 1,
+    minWidth: 0,
+    padding: "0.7rem 0.85rem",
+    borderRadius: 8,
+    border: "1px solid var(--vocs-border-color-primary)",
+    background: "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
+    textDecoration: "none",
+    color: "var(--vocs-text-color-heading)",
+    fontSize: 14,
+    fontWeight: 500,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.45rem",
+    transition: "background 0.15s, border-color 0.15s",
+  };
+  return (
+    <div style={{ display: "flex", gap: "0.5rem" }}>
+      <a
+        href="https://mpp.tempo.xyz/llms.txt"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="info-card-link"
+        style={cs}
+      >
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          style={{ flexShrink: 0, color: "var(--vocs-text-color-muted)" }}
+        >
+          <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+          <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+        </svg>
+        llms.txt
+      </a>
+      <a href="/overview" className="info-card-link" style={cs}>
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          style={{ flexShrink: 0, color: "var(--vocs-text-color-muted)" }}
+        >
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        </svg>
+        Docs
+      </a>
+    </div>
+  );
+}
+
+function SidebarInfoCards() {
+  const cardStyle: React.CSSProperties = {
+    padding: "0.65rem 0.85rem",
+    borderRadius: 8,
+    border: "1px solid var(--vocs-border-color-primary)",
+    background: "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
+    display: "flex",
+    gap: "0.55rem",
+    alignItems: "flex-start",
+  };
+  const titleStyle: React.CSSProperties = {
+    fontSize: 14,
+    fontWeight: 500,
+    marginBottom: "0.1rem",
+  };
+  const descStyle: React.CSSProperties = {
+    fontSize: 13,
+    color: "var(--vocs-text-color-muted)",
+    lineHeight: 1.45,
+  };
+  const iconStyle: React.CSSProperties = {
+    color: "var(--vocs-text-color-muted)",
+    marginTop: 1,
+    flexShrink: 0,
+  };
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        marginTop: "0.75rem",
+      }}
+    >
+      <a
+        href="https://mpp.tempo.xyz/llms.txt"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="info-card-link"
+        style={{
+          ...cardStyle,
+          textDecoration: "none",
+          color: "var(--vocs-text-color-heading)",
+          transition: "background 0.15s, border-color 0.15s",
+        }}
+      >
+        <span style={iconStyle}>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+          </svg>
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={titleStyle}>llms.txt</div>
+          <div style={descStyle}>Service discovery for agents.</div>
+        </div>
+        <ArrowRightIcon />
+      </a>
+      <a
+        href="/overview"
+        className="info-card-link"
+        style={{
+          ...cardStyle,
+          textDecoration: "none",
+          color: "var(--vocs-text-color-heading)",
+          transition: "background 0.15s, border-color 0.15s",
+        }}
+      >
+        <span style={iconStyle}>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+        </span>
+        <div style={{ flex: 1 }}>
+          <div style={titleStyle}>Documentation</div>
+          <div style={descStyle}>Guides, quickstarts, and SDKs.</div>
+        </div>
+        <ArrowRightIcon />
+      </a>
+      <div
+        style={{
+          ...cardStyle,
+          background: "transparent",
+          border: "1px solid transparent",
+        }}
+      >
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background: "#3B82F6",
+            flexShrink: 0,
+            marginTop: 5,
+          }}
+        />
+        <div>
+          <div style={titleStyle}>Third-party services</div>
+          <div style={descStyle}>
+            APIs proxied through MPP. Pricing set by providers.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PrestoSteps() {
+  return (
+    <div
+      style={{
+        padding: "0 0rem",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
+    >
+      <CliSnippet label="Install" desc="One-line install via shell.">
+        curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash
+      </CliSnippet>
+      <CliSnippet
+        label="Log in"
+        desc="Opens browser to connect your Tempo wallet."
+      >
+        presto login
+      </CliSnippet>
+      <CliSnippet
+        label="Make a request"
+        desc="Payment handled automatically."
+      >{`presto https://mpp.tempo.xyz/openai/v1/chat/completions \\\n  -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello!"}]}'`}</CliSnippet>
+      <CliSnippet label="Dry run" desc="Preview cost without paying.">
+        presto --dry-run https://mpp.tempo.xyz/openai/v1/chat/completions
+      </CliSnippet>
+    </div>
+  );
+}
+
+function CliSnippet({
+  label,
+  desc,
+  children,
+}: {
+  label: string;
+  desc?: string;
+  children: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const t = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const handleCopy = () => {
+    copyText(children);
+    setCopied(true);
+    if (t.current) clearTimeout(t.current);
+    t.current = setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <div>
+      <div style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.2rem" }}>
+        {label}
+      </div>
+      {desc && (
+        <div
+          style={{
+            color: "var(--vocs-text-color-muted)",
+            fontSize: 13,
+            lineHeight: 1.45,
+            marginBottom: "0.5rem",
+          }}
+        >
+          {desc}
+        </div>
+      )}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+      <div
+        onClick={handleCopy}
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 8,
+          padding: "0.45rem 0.6rem",
+          borderRadius: 6,
+          border: "1px solid var(--vocs-border-color-primary)",
+          background: CODE_BG,
+          cursor: "pointer",
+          fontFamily: "var(--font-mono)",
+          fontSize: 12,
+          lineHeight: 1.6,
+          color: "var(--vocs-text-color-heading)",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-all",
+        }}
+      >
+        <span style={{ flex: 1 }}>
+          <span
+            style={{
+              color: "var(--vocs-text-color-muted)",
+              userSelect: "none",
+            }}
+          >
+            ${" "}
+          </span>
+          <HighlightedCmd>{children}</HighlightedCmd>
+        </span>
+        <span
+          style={{
+            flexShrink: 0,
+            marginTop: 2,
+            color: copied
+              ? "var(--vocs-text-color-heading)"
+              : "var(--vocs-text-color-muted)",
+            transition: "color 0.15s",
+          }}
+        >
+          {copied ? <CheckIcon size={11} /> : <CopyIcon size={11} />}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Small components
 // ---------------------------------------------------------------------------
 
 function Pill({
@@ -446,13 +1065,15 @@ function Pill({
       type="button"
       onClick={onClick}
       style={{
-        padding: "0.25rem 0.625rem",
+        padding: "0.3rem 0.65rem",
         fontSize: 13,
         borderRadius: 6,
         border: "1px solid var(--vocs-border-color-primary)",
-        background: active ? "var(--vocs-text-color-heading)" : "transparent",
+        background: active
+          ? "light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.12))"
+          : "transparent",
         color: active
-          ? "var(--vocs-background-color-primary)"
+          ? "var(--vocs-text-color-heading)"
           : "var(--vocs-text-color-secondary)",
         cursor: "pointer",
         fontFamily: "var(--font-sans)",
@@ -464,7 +1085,37 @@ function Pill({
     </button>
   );
 }
-
+function PaginationBtn({
+  disabled,
+  onClick,
+  children,
+}: {
+  disabled: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      style={{
+        padding: "0.25rem 0.6rem",
+        fontSize: 13,
+        borderRadius: 6,
+        border: "1px solid var(--vocs-border-color-primary)",
+        background: "transparent",
+        color: disabled
+          ? "var(--vocs-text-color-muted)"
+          : "var(--vocs-text-color-secondary)",
+        cursor: disabled ? "default" : "pointer",
+        fontFamily: "var(--font-sans)",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 function Th({
   children,
   style,
@@ -481,7 +1132,7 @@ function Th({
         padding: "0.5rem 0.75rem",
         fontSize: 12,
         fontWeight: 500,
-        color: "var(--vocs-text-color-secondary)",
+        color: "var(--vocs-text-color-muted)",
         textTransform: "uppercase" as const,
         letterSpacing: "0.05em",
         whiteSpace: "nowrap",
@@ -492,6 +1143,90 @@ function Th({
     </th>
   );
 }
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      style={{
+        fontSize: 12,
+        padding: "0.1rem 0.35rem",
+        borderRadius: 3,
+        border: "1px solid var(--vocs-border-color-primary)",
+        color: "var(--vocs-text-color-muted)",
+        whiteSpace: "nowrap",
+        textTransform: "capitalize",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Service icon with optional third-party overlay
+// ---------------------------------------------------------------------------
+
+function ServiceIcon({ service: s }: { service: Service }) {
+  const isThirdParty = s.integration === "third-party";
+  return (
+    <div
+      className="svc-icon"
+      style={{
+        position: "relative",
+        width: 28,
+        height: 28,
+        flexShrink: 0,
+        marginRight: 6,
+        alignSelf: "flex-start",
+        marginTop: 2,
+      }}
+    >
+      {s.id ? (
+        <img
+          src={`/icons/${s.id}.svg`}
+          alt=""
+          width={28}
+          height={28}
+          style={{ borderRadius: 6, display: "block", objectFit: "cover" }}
+        />
+      ) : (
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 6,
+            background: CODE_BG,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 13,
+            fontWeight: 600,
+            color: "var(--vocs-text-color-secondary)",
+          }}
+        >
+          {s.name.charAt(0).toUpperCase()}
+        </div>
+      )}
+      {isThirdParty && (
+        <span
+          style={{
+            position: "absolute",
+            top: -3,
+            right: -3,
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: "#3B82F6",
+            border: "2px solid var(--vocs-background-color-primary, #1a1a1a)",
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Service row
+// ---------------------------------------------------------------------------
 
 function ServiceRow({
   service: s,
@@ -503,7 +1238,12 @@ function ServiceRow({
   onToggle: () => void;
 }) {
   const cats = allCategories(s);
-
+  const { copiedId, copy } = useCopyFeedback();
+  const handleCopyUrl = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    copy(s.url, `url-${s.id}`);
+  };
+  const expandedBg = "light-dark(rgba(0,0,0,0.035), rgba(255,255,255,0.035))";
   return (
     <>
       <tr
@@ -514,104 +1254,153 @@ function ServiceRow({
             : "1px solid var(--vocs-border-color-primary)",
           cursor: "pointer",
           transition: "background 0.1s",
-          background: expanded
-            ? "var(--vocs-background-color-surfaceMuted)"
-            : undefined,
+          background: expanded ? expandedBg : undefined,
+          height: 54,
         }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.background =
-            "var(--vocs-background-color-surfaceMuted)")
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.background = expanded
-            ? "var(--vocs-background-color-surfaceMuted)"
-            : "transparent")
-        }
+        onMouseEnter={(e) => {
+          if (!expanded)
+            e.currentTarget.style.background =
+              "var(--vocs-background-color-surfaceMuted)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = expanded ? expandedBg : "";
+        }}
       >
-        {/* Name + description */}
-        <td style={{ padding: "0.625rem 0.75rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span style={{ fontWeight: 500 }}>{s.name}</span>
-            {s.status && s.status !== "active" && (
-              <StatusDot status={s.status} />
-            )}
-          </div>
+        <td style={{ padding: "0.6rem 0.75rem", verticalAlign: "middle" }}>
           <div
-            className="hide-mobile"
             style={{
-              color: "var(--vocs-text-color-secondary)",
-              fontSize: 13,
-              marginTop: 2,
-              lineHeight: 1.4,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
             }}
           >
-            {s.description}
+            <ServiceIcon service={s} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}
+              >
+                <span
+                  style={{
+                    fontWeight: 500,
+                    fontSize: 15,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {s.name}
+                </span>
+                {cats[0] && (
+                  <Badge>{CATEGORY_LABELS[cats[0]] ?? cats[0]}</Badge>
+                )}
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+                {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+                <span
+                  className="show-tablet"
+                  onClick={handleCopyUrl}
+                  style={{
+                    display: "none",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 11,
+                    color:
+                      copiedId === `url-${s.id}`
+                        ? "var(--vocs-text-color-heading)"
+                        : URL_COLOR,
+                    marginLeft: "auto",
+                    padding: "0.15rem 0.4rem",
+                    borderRadius: 4,
+                    background: CODE_BG,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: "50%",
+                    cursor: "pointer",
+                    transition: "color 0.15s",
+                    flexShrink: 1,
+                  }}
+                  title={
+                    copiedId === `url-${s.id}` ? "Copied!" : `Copy: ${s.url}`
+                  }
+                >
+                  {copiedId === `url-${s.id}` ? "Copied!" : s.url}
+                </span>
+              </div>
+              <div
+                className="show-tablet"
+                style={{ display: "none", marginTop: 5 }}
+              >
+                <span
+                  style={{
+                    color: "var(--vocs-text-color-secondary)",
+                    fontSize: 14,
+                    lineHeight: 1.4,
+                    maxWidth: "60%",
+                  }}
+                >
+                  {s.description}
+                </span>
+              </div>
+            </div>
           </div>
         </td>
-
-        {/* URL */}
+        <td
+          className="hide-mobile"
+          style={{ padding: "0.6rem 0.75rem", verticalAlign: "middle" }}
+        >
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+          <span
+            onClick={handleCopyUrl}
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 12,
+              color:
+                copiedId === `url-${s.id}`
+                  ? "var(--vocs-text-color-heading)"
+                  : URL_COLOR,
+              cursor: "pointer",
+              display: "inline-block",
+              padding: "0.15rem 0.4rem",
+              borderRadius: 4,
+              background: CODE_BG,
+              transition: "color 0.15s",
+              wordBreak: "break-all",
+            }}
+            title={
+              copiedId === `url-${s.id}` ? "Copied!" : `Click to copy: ${s.url}`
+            }
+          >
+            {copiedId === `url-${s.id}` ? "Copied!" : s.url}
+          </span>
+        </td>
         <td
           className="hide-mobile"
           style={{
-            padding: "0.625rem 0.75rem",
-            fontFamily: "var(--font-mono)",
-            fontSize: 13,
+            padding: "0.6rem 0.75rem",
             color: "var(--vocs-text-color-secondary)",
+            fontSize: 13,
+            lineHeight: 1.45,
+            verticalAlign: "middle",
           }}
         >
-          {s.url}
+          {s.description}
         </td>
-
-        {/* Category */}
-        <td style={{ padding: "0.625rem 0.75rem" }}>
-          {cats[0] && (
-            <span
-              style={{
-                fontSize: 12,
-                padding: "0.125rem 0.5rem",
-                borderRadius: 4,
-                border: "1px solid var(--vocs-border-color-primary)",
-                color: "var(--vocs-text-color-secondary)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {CATEGORY_LABELS[cats[0]] ?? cats[0]}
-            </span>
-          )}
-        </td>
-
-        {/* Chevron */}
         <td
           style={{
-            padding: "0.625rem 0.75rem",
-            textAlign: "center",
-            color: "var(--vocs-text-color-secondary)",
+            padding: "0.6rem 0.35rem",
+            textAlign: "right",
+            color: "var(--vocs-text-color-muted)",
+            verticalAlign: "middle",
           }}
         >
-          <span
-            style={{
-              display: "inline-block",
-              transition: "transform 0.15s",
-              transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
-              fontSize: 12,
-            }}
-          >
-            ▸
-          </span>
+          <ChevronDownIcon expanded={expanded} />
         </td>
       </tr>
-
-      {/* Expanded detail */}
       {expanded && (
-        <tr
-          style={{
-            background: "var(--vocs-background-color-surfaceMuted)",
-          }}
-        >
+        <tr style={{ background: expandedBg }}>
           <td
             colSpan={4}
+            className="expanded-detail"
             style={{
-              padding: "0 0.75rem 0.75rem",
+              padding: "0.25rem 0 0.75rem",
               borderBottom: "1px solid var(--vocs-border-color-primary)",
             }}
           >
@@ -623,276 +1412,232 @@ function ServiceRow({
   );
 }
 
-function ExpandedDetail({ service: s }: { service: Service }) {
-  const methods = Object.keys(s.methods);
-  const intents = [
-    ...new Set(Object.values(s.methods).flatMap((m) => m.intents)),
-  ];
+// ---------------------------------------------------------------------------
+// Expanded detail
+// ---------------------------------------------------------------------------
 
-  return (
-    <div
-      style={{ fontSize: 13 }}
-    >
-      {/* Meta row */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1.5rem",
-          marginBottom: s.endpoints.length > 0 ? "1rem" : 0,
-          color: "var(--vocs-text-color-secondary)",
-          lineHeight: 1.5,
-        }}
-      >
-        <MetaItem label="URL">
-          <code
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: 12,
-            }}
-          >
-            {s.url}
-          </code>
-        </MetaItem>
-        {s.serviceUrl && (
-          <MetaItem label="Upstream">
-            <a
-              href={s.serviceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: "var(--vocs-text-color-heading)",
-                textDecoration: "underline",
-                textUnderlineOffset: 2,
-              }}
-            >
-              {new URL(s.serviceUrl).host}
-            </a>
-          </MetaItem>
-        )}
-        <MetaItem label="Payment">
-          {methods.join(", ")} ({intents.join(", ")})
-        </MetaItem>
-        {s.integration && (
-          <MetaItem label="Type">
-            {s.integration === "first-party" ? "First-party" : "Third-party"}
-          </MetaItem>
-        )}
-      </div>
+const SUB_GRID = "21% 33% 1fr auto 6rem";
 
-      {/* Endpoints */}
-      {s.endpoints.length > 0 && (
-        <div>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 500,
-              color: "var(--vocs-text-color-secondary)",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              marginBottom: "0.5rem",
-            }}
-          >
-            Endpoints
-          </div>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: 13,
-            }}
-          >
-            <tbody>
-              {s.endpoints.map((ep) => (
-                <tr
-                  key={`${ep.method}-${ep.path}`}
-                  style={{
-                    borderBottom:
-                      "1px solid light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06))",
-                  }}
-                >
-                  <td
-                    style={{
-                      padding: "0.375rem 0.5rem 0.375rem 0",
-                      whiteSpace: "nowrap",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 12,
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: 48,
-                        fontWeight: 500,
-                        color: "var(--vocs-text-color-heading)",
-                      }}
-                    >
-                      {ep.method}
-                    </span>
-                    <span style={{ color: "var(--vocs-text-color-secondary)" }}>
-                      {ep.path}
-                    </span>
-                  </td>
-                  <td
-                    className="hide-mobile"
-                    style={{
-                      padding: "0.375rem 0.5rem",
-                      color: "var(--vocs-text-color-secondary)",
-                    }}
-                  >
-                    {ep.description}
-                  </td>
-                  <td
-                    style={{
-                      padding: "0.375rem 0 0.375rem 0.5rem",
-                      textAlign: "right",
-                      whiteSpace: "nowrap",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 12,
-                      color: "var(--vocs-text-color-secondary)",
-                    }}
-                  >
-                    {formatPrice(ep)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Docs links */}
-      {s.docs && (
-        <div
-          style={{
-            display: "flex",
-            gap: "1rem",
-            marginTop: "0.75rem",
-            fontSize: 13,
-          }}
-        >
-          {s.docs.homepage && (
-            <DocLink href={s.docs.homepage} label="Docs" />
-          )}
-          {s.docs.apiReference && (
-            <DocLink href={s.docs.apiReference} label="API Reference" />
-          )}
-          {s.docs.llmsTxt && (
-            <DocLink href={s.docs.llmsTxt} label="llms.txt" />
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MetaItem({
-  label,
+function SubTh({
   children,
+  style,
 }: {
-  label: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  style?: React.CSSProperties;
 }) {
-  return (
-    <div>
-      <span
-        style={{
-          fontSize: 11,
-          fontWeight: 500,
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          color: "var(--vocs-text-color-secondary)",
-          marginRight: "0.375rem",
-        }}
-      >
-        {label}
-      </span>
-      {children}
-    </div>
-  );
-}
-
-function DocLink({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        color: "var(--vocs-text-color-heading)",
-        textDecoration: "underline",
-        textUnderlineOffset: 2,
-        textDecorationThickness: 1,
-      }}
-    >
-      {label} ↗
-    </a>
-  );
-}
-
-function StatusDot({ status }: { status: string }) {
   return (
     <span
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 4,
         fontSize: 11,
-        color: STATUS_COLORS[status] ?? "var(--vocs-text-color-secondary)",
-        textTransform: "capitalize",
+        fontWeight: 500,
+        color: "var(--vocs-text-color-muted)",
+        textTransform: "uppercase" as const,
+        letterSpacing: "0.05em",
+        padding: "0 0.75rem",
+        ...style,
       }}
     >
-      <span
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          background:
-            STATUS_COLORS[status] ?? "var(--vocs-text-color-secondary)",
-        }}
-      />
-      {status}
+      {children}
     </span>
   );
 }
 
+function ExpandedDetail({ service: s }: { service: Service }) {
+  const { copiedId, copy } = useCopyFeedback();
+  const baseUrl = s.serviceUrl ?? s.url;
+  return (
+    <div style={{ fontSize: 14 }}>
+      {s.endpoints.length > 0 && (
+        <div>
+          <div
+            className="hide-mobile"
+            style={{
+              display: "grid",
+              gridTemplateColumns: SUB_GRID,
+              padding: "0.45rem 0",
+              background:
+                "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))",
+            }}
+          >
+            <SubTh style={{ paddingLeft: "2.5rem" }}>Method</SubTh>
+            <SubTh>Route</SubTh>
+            <SubTh>Description</SubTh>
+            <SubTh style={{ textAlign: "right" }}>Intent</SubTh>
+            <SubTh style={{ textAlign: "right", paddingRight: "1rem" }}>
+              Price
+            </SubTh>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {s.endpoints.map((ep, idx) => {
+              const fullUrl = `${baseUrl}${ep.path}`;
+              const copyId = `ep-${s.id}-${ep.method}-${ep.path}`;
+              const isCopied = copiedId === copyId;
+              const isLast = idx === s.endpoints.length - 1;
+              return (
+                <div
+                  key={`${ep.method}-${ep.path}`}
+                  className="sub-row"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: SUB_GRID,
+                    alignItems: "center",
+                    borderBottom: isLast
+                      ? "none"
+                      : "1px solid light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.05))",
+                  }}
+                >
+                  <div style={{ padding: "0.65rem 0.75rem 0.65rem 2.5rem" }}>
+                    <span
+                      style={{
+                        fontWeight: 600,
+                        fontFamily: "var(--font-mono)",
+                        fontSize: 13,
+                      }}
+                    >
+                      {ep.method}
+                    </span>
+                  </div>
+                  <div style={{ padding: "0.65rem 0.75rem" }}>
+                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copy(fullUrl, copyId);
+                      }}
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: 12,
+                        padding: "0.15rem 0.4rem",
+                        borderRadius: 4,
+                        background: CODE_BG,
+                        color: isCopied
+                          ? "var(--vocs-text-color-heading)"
+                          : URL_COLOR,
+                        cursor: "pointer",
+                        transition: "color 0.15s",
+                        wordBreak: "break-all",
+                        display: "inline",
+                      }}
+                      title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
+                    >
+                      {isCopied ? "Copied!" : ep.path}
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "0.65rem 0.75rem",
+                      color: "var(--vocs-text-color-secondary)",
+                      fontSize: 13,
+                      lineHeight: 1.45,
+                    }}
+                  >
+                    <span>{ep.description}</span>
+                  </div>
+                  <div
+                    style={{
+                      padding: "0.65rem 0.5rem 0.65rem 0",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    {ep.payment?.intent && <Badge>{ep.payment.intent}</Badge>}
+                  </div>
+                  <div
+                    style={{
+                      padding: "0.65rem 1rem 0.65rem 0",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 13,
+                      fontVariantNumeric: "tabular-nums",
+                      textAlign: "right",
+                      color: "var(--vocs-text-color-muted)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {formatPrice(ep)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
-// Page-level styles — hide sidebar/outline, responsive columns
+// Styles
 // ---------------------------------------------------------------------------
 
 function PageStyles() {
   return (
     <style>{`
       [data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
-      /* Reset global table overrides from _root.css for the services table */
-      [data-services-table] table {
-        table-layout: auto !important;
-      }
-      [data-services-table] table td,
-      [data-services-table] table th {
-        white-space: normal !important;
-        width: auto !important;
-        min-width: 0 !important;
-      }
-      [data-services-table] table td:first-child,
-      [data-services-table] table th:first-child {
-        width: auto !important;
-        min-width: 0 !important;
-      }
-      [data-services-table] table th:nth-child(3),
-      [data-services-table] table td:nth-child(3) {
-        min-width: 0 !important;
-      }
-      [data-services-table] table td:nth-child(2) {
-        padding-top: inherit !important;
-        padding-bottom: inherit !important;
-      }
-      [data-services-table] table td:nth-child(2) code {
-        display: inline !important;
-        margin-top: 0 !important;
-      }
-      @media (max-width: 640px) {
+      [data-layout="minimal"] main > article { max-width: none !important; }
+      .search-mobile { display: none; }
+      .mobile-cards { display: none !important; }
+      .show-tablet { display: none !important; }
+      [data-services-table] table { table-layout: fixed !important; }
+      [data-services-table] table td, [data-services-table] table th { white-space: normal !important; min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
+      .info-card-link:hover { background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06)) !important; border-color: light-dark(rgba(0,0,0,0.15), rgba(255,255,255,0.15)) !important; }
+      .expanded-detail { animation: expandIn 0.15s ease-out; }
+      @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
+
+      @media (max-width: 1100px) {
         .hide-mobile { display: none !important; }
+        .show-tablet { display: block !important; }
+        span.show-tablet { display: inline-block !important; }
+        [data-services-table] table col:nth-child(1) { width: 94% !important; }
+        [data-services-table] table col:nth-child(2),
+        [data-services-table] table col:nth-child(3) { width: 0 !important; }
+        [data-services-table] table col:nth-child(4) { width: 6% !important; }
+        [data-services-table] table td:first-child { padding: 0.8rem 0.5rem 0.8rem 0.75rem !important; vertical-align: top !important; }
+        [data-services-table] table td:last-child { padding: 0.8rem 0.25rem !important; vertical-align: top !important; padding-top: 1.1rem !important; }
+
+        .sub-row {
+          display: grid !important;
+          grid-template-columns: auto 1fr auto auto !important;
+          grid-template-rows: auto auto !important;
+          padding: 0.75rem 0.75rem 0.75rem 3.5rem !important;
+          gap: 0.2rem 0.6rem !important;
+          align-items: baseline !important;
+        }
+        .sub-row > * { padding: 0 !important; }
+        .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 14px !important; font-weight: 600 !important; }
+        .sub-row > *:nth-child(2) { grid-row: 1; grid-column: 2; }
+        .sub-row > *:nth-child(3) { grid-row: 2; grid-column: 1 / -1; font-size: 14px !important; color: var(--vocs-text-color-secondary) !important; }
+        .sub-row > *:nth-child(4) { grid-row: 1; grid-column: 3; }
+        .sub-row > *:nth-child(5) { grid-row: 1; grid-column: 4; text-align: right !important; font-size: 13px !important; }
+      }
+
+      @media (max-width: 900px) {
+        .services-layout { flex-direction: column !important; }
+        .services-sidebar { display: none !important; }
+        .mobile-cards { display: flex !important; }
+        .search-desktop { display: none !important; }
+        .search-mobile { display: block !important; }
+        .services-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+        [data-services-table] table { margin-left: -0.75rem !important; margin-right: -0.75rem !important; width: calc(100% + 1.5rem) !important; }
+        [data-services-table] thead { display: none !important; }
+        .filter-tags { justify-content: center !important; max-width: 85% !important; margin-left: auto !important; margin-right: auto !important; }
+        .filter-tags button { font-size: 14px !important; padding: 0.35rem 0.75rem !important; }
+      }
+
+      @media (max-width: 640px) {
+        .services-container { padding-left: 0rem !important; padding-right: 0rem !important; }
+        [data-services-table] table { margin-left: 0 !important; margin-right: 0 !important; width: 100% !important; }
+        .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
+        .svc-icon img { width: 34px !important; height: 34px !important; }
+        .sub-row { padding-left: 3.75rem !important; }
+        .filter-tags { max-width: 100% !important; padding: 0 0.5rem !important; }
+        .search-mobile { padding: 0 0.5rem !important; }
+        .mobile-cards { padding: 0 0.5rem !important; }
+        h1, h1 + p { padding: 0 0.5rem !important; }
       }
     `}</style>
   );
