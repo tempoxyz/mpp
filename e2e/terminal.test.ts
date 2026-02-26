@@ -270,10 +270,8 @@ describe("terminal", () => {
       page.getByText("Using wallet", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
 
-    await playwrightExpect(page.getByText("Quit")).toBeVisible({
-      timeout: 15_000,
-    });
-    await page.waitForSelector("[data-wizard-ready]", { timeout: 5_000 });
+    // Wait for the second run to fully complete (wizard ready for input)
+    await page.waitForSelector("[data-wizard-ready]", { timeout: 20_000 });
 
     // Navigate to Quit (5 options: Chat with AI, Generate image, Search the web, Summarize article, Quit)
     await pressKey(page, "ArrowDown"); // → Generate image (1)
@@ -300,6 +298,140 @@ describe("terminal", () => {
       page.getByText("What would you like to do?").last(),
     ).toBeVisible({ timeout: 5_000 });
     await playwrightExpect(page.getByText("Chat with AI")).toBeVisible();
+
+    await page.close();
+  });
+});
+
+describe("terminal (classic mode)", () => {
+  it.concurrent("shows classic wizard options with ?mode=classic", async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}/?mode=classic`);
+    await waitForWizard(page);
+
+    await playwrightExpect(page.getByText("Write poem")).toBeVisible();
+    await playwrightExpect(page.getByText("Create ASCII art")).toBeVisible();
+    await playwrightExpect(page.getByText("Lookup company")).toBeVisible();
+    await playwrightExpect(page.getByText("Chat with AI")).toBeHidden();
+
+    await page.close();
+  });
+
+  it.concurrent('selects "Write poem" and shows payment channel steps', async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}/?mode=classic`);
+    await waitForWizard(page);
+
+    await pressKey(page, "Enter");
+
+    await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
+      timeout: 5_000,
+    });
+    await page.keyboard.type("roses are red");
+    await page.keyboard.press("Enter");
+
+    await playwrightExpect(
+      page.getByText("Creating wallet", { exact: false }),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await playwrightExpect(
+      page.getByText("Opening payment channel"),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await playwrightExpect(
+      page.getByText("tokens streamed", { exact: false }),
+    ).toBeVisible({ timeout: 20_000 });
+
+    await playwrightExpect(
+      page.getByText("Closing payment channel"),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await playwrightExpect(
+      page.getByText("What would you like to do?").last(),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await page.close();
+  });
+
+  it.concurrent('selects "Create ASCII art" and shows charge steps', async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}/?mode=classic`);
+    await waitForWizard(page);
+
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "Enter");
+
+    await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
+      timeout: 5_000,
+    });
+    await page.keyboard.type("a cat");
+    await page.keyboard.press("Enter");
+
+    await playwrightExpect(
+      page.getByText("Creating wallet", { exact: false }),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await playwrightExpect(page.getByText("Fulfilling payment")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await playwrightExpect(page.getByText("200 OK")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await playwrightExpect(
+      page.getByText("What would you like to do?").last(),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await page.close();
+  });
+
+  it.concurrent('selects "Lookup company" and shows Stripe steps', async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}/?mode=classic`);
+    await waitForWizard(page);
+
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "Enter");
+
+    await playwrightExpect(page.getByText("Enter URL:")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await page.keyboard.type("stripe.com");
+    await page.keyboard.press("Enter");
+
+    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await playwrightExpect(
+      page.getByText("Card number:", { exact: false }),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await page.keyboard.type("4242424242424242");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("12/34");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("123");
+    await page.keyboard.press("Enter");
+
+    await playwrightExpect(
+      page.getByText("Creating PaymentIntent"),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await playwrightExpect(page.getByText("200 OK")).toBeVisible({
+      timeout: 5_000,
+    });
 
     await page.close();
   });

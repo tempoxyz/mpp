@@ -9,6 +9,25 @@ export const DEMO_LIVE = import.meta.env.VITE_DEMO_LIVE !== "false";
 
 const maxDeposit = "1";
 
+function timedFetch(base: typeof globalThis.fetch): typeof globalThis.fetch {
+  return async (input, init) => {
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.href
+          : input.url;
+    const method = init?.method ?? "GET";
+    const t0 = performance.now();
+    console.log(`[fetch-timing] ${method} ${url} started`);
+    const res = await base(input, init);
+    console.log(
+      `[fetch-timing] ${method} ${url} → ${res.status} (${(performance.now() - t0).toFixed(0)}ms)`,
+    );
+    return res;
+  };
+}
+
 export async function createDemoClient() {
   const privateKey = generatePrivateKey();
   const account = privateKeyToAccount(privateKey);
@@ -16,12 +35,20 @@ export async function createDemoClient() {
   const getClient = () =>
     createClient({ chain: tempoModerato, transport: http() });
 
+  const tracked = timedFetch(globalThis.fetch);
+
   const { fetch } = Mppx.create({
+    fetch: tracked,
     polyfill: false,
     methods: [tempo({ account, maxDeposit, getClient })],
   });
 
-  const session = tempo.session({ account, maxDeposit, getClient });
+  const session = tempo.session({
+    account,
+    maxDeposit,
+    getClient,
+    fetch: tracked,
+  });
 
   async function fundWallet() {
     const res = await globalThis.fetch("/api/wallet", {

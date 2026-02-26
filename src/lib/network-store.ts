@@ -52,8 +52,14 @@ export function wrapFetch<
       url,
     });
 
+    const t0 = performance.now();
+    console.log(`[fetch-timing] ${method} ${url} started`);
     try {
       const response = await fetch(...args);
+      const elapsed = (performance.now() - t0).toFixed(0);
+      console.log(
+        `[fetch-timing] ${method} ${url} → ${response.status} (${elapsed}ms)`,
+      );
 
       const contentType = response.headers.get("content-type") ?? "";
       if (contentType.includes("text/event-stream")) {

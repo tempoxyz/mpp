@@ -533,11 +533,16 @@ function AsyncSteps({
           if (paymentChannel) {
             // Use session SSE for bidirectional voucher flow
             let sseReceipt: { txHash?: string; reference?: string } | undefined;
+            const t0 = performance.now();
+            console.log("[session-timing] session.sse() started");
             const stream = await demoClient.session.sse(demoEndpoint, {
               onReceipt: (r) => {
                 sseReceipt = r;
               },
             });
+            console.log(
+              `[session-timing] session.sse() resolved in ${(performance.now() - t0).toFixed(0)}ms`,
+            );
 
             // Capture channel ID after SSE opens the channel
             if (demoClient.session.channelId) {
@@ -1479,10 +1484,13 @@ function Wizard({
       setChosenOutput([]); // live mode — content comes from API
     } else {
       // simulated mode — pick from canned data
-      if (opt === "Chat with AI") setChosenOutput(pickChat());
-      else if (opt === "Generate image") setChosenOutput(pickImage());
+      if (opt === "Chat with AI" || opt === "Write poem")
+        setChosenOutput(pickChat());
+      else if (opt === "Generate image" || opt === "Create ASCII art")
+        setChosenOutput(pickImage());
       else if (opt === "Search the web") setChosenOutput(pickSearch());
-      else if (opt === "Summarize article") setChosenOutput(pickArticle());
+      else if (opt === "Summarize article" || opt === "Lookup company")
+        setChosenOutput(pickArticle());
     }
 
     setChosenUrl(urlInput.trim());
@@ -1765,9 +1773,11 @@ function Wizard({
                 className="term-url-input min-w-0 flex-1 bg-transparent outline-none"
                 style={{ color: "var(--term-gray10)" }}
                 placeholder={
-                  currentOptions[selected] === "Chat with AI"
+                  currentOptions[selected] === "Chat with AI" ||
+                  currentOptions[selected] === "Write poem"
                     ? "what are micropayments?"
-                    : currentOptions[selected] === "Generate image"
+                    : currentOptions[selected] === "Generate image" ||
+                        currentOptions[selected] === "Create ASCII art"
                       ? "a neon cityscape at night"
                       : currentOptions[selected] === "Search the web"
                         ? "AI agent payments"
@@ -1782,7 +1792,10 @@ function Wizard({
               <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
             </p>
           )}
-          {(chosen === "Chat with AI" || chosen === "Generate image") &&
+          {(chosen === "Chat with AI" ||
+            chosen === "Generate image" ||
+            chosen === "Write poem" ||
+            chosen === "Create ASCII art") &&
             chosenUrl && (
               <p style={{ color: "var(--term-gray6)" }}>
                 Enter prompt:{" "}
@@ -1899,14 +1912,17 @@ function DiscoverServices({
   savedCard: SavedCard | undefined;
   setSavedCard: (card: SavedCard | undefined) => void;
 }) {
+  const isClassic =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("mode") === "classic";
+
+  const options = isClassic
+    ? ["Write poem", "Create ASCII art", "Lookup company"]
+    : ["Chat with AI", "Generate image", "Search the web", "Summarize article"];
+
   return (
     <Wizard
-      options={[
-        "Chat with AI",
-        "Generate image",
-        "Search the web",
-        "Summarize article",
-      ]}
+      options={options}
       demoClient={demoClient}
       onRestart={onRestart}
       address={address}

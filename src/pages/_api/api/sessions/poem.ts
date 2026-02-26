@@ -55,10 +55,17 @@ const poems = [
 ];
 
 export default async function handler(request: Request) {
+  const t0 = performance.now();
+  console.log(
+    `[server-timing] ${request.method} ${request.url} — session handler started`,
+  );
   const result = await mppx.session({
     amount: "0.001",
     unitType: "word",
   })(request);
+  console.log(
+    `[server-timing] session() resolved in ${(performance.now() - t0).toFixed(0)}ms (status=${result.status})`,
+  );
 
   if (result.status === 402) return result.challenge;
 

@@ -324,3 +324,4 @@ When testing changes, you should *always* make sure the site builds and types ch
 
 1. `pnpm check:types` — Must pass with no errors
 2. `pnpm build` — Must complete successfully
+3. `pnpm test:e2e` — Must pass when changing the terminal demo (`src/components/Terminal.tsx`, `src/components/terminal-data.ts`, or related components)
