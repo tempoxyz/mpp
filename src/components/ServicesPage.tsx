@@ -1376,6 +1376,7 @@ function ServiceRow({
                 style={{ display: "none", marginTop: 5 }}
               >
                 <span
+                  className="svc-desc-mobile"
                   style={{
                     color: "var(--vocs-text-color-secondary)",
                     fontSize: 14,
@@ -1628,7 +1629,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
           style={{
             display: "none",
             gap: "0.5rem",
-            padding: "0.15rem 0.75rem 0.65rem 0.75rem",
+            padding: "0.15rem 0.5rem 0.65rem 0.5rem",
           }}
         >
           {docsUrl && (
@@ -1826,10 +1827,13 @@ function PageStyles() {
         [data-services-table] table col:nth-child(2),
         [data-services-table] table col:nth-child(3) { width: 0 !important; }
         [data-services-table] table col:nth-child(4) { width: 36px !important; }
-        [data-services-table] table td:first-child { padding: 0.8rem 0.5rem 0.8rem 0.75rem !important; vertical-align: middle !important; }
-        [data-services-table] table td:last-child { padding: 0.8rem 0.5rem !important; vertical-align: middle !important; text-align: right !important; }
+        [data-services-table] table { overflow: hidden !important; }
+        [data-services-table] table td:first-child { padding: 1rem 0.25rem 1rem 0.5rem !important; vertical-align: middle !important; }
+        [data-services-table] table td:last-child { padding: 1rem 0.5rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 36px !important; }
         .svc-icon { align-self: center !important; margin-top: 0 !important; }
         .svc-name-row { flex-wrap: nowrap !important; gap: 0.4rem !important; }
+        .svc-name-row > span:first-child { font-size: 17px !important; }
+        .svc-desc-mobile { font-size: 16px !important; }
         .expanded-links { display: flex !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
         .sub-row:first-child { border-top: none !important; }
@@ -1838,7 +1842,7 @@ function PageStyles() {
           display: grid !important;
           grid-template-columns: auto 1fr auto !important;
           grid-template-rows: auto auto !important;
-          padding: 0.65rem 0.75rem 0.65rem 3.5rem !important;
+          padding: 0.65rem 0.5rem 0.65rem 0.5rem !important;
           gap: 0.15rem 0.6rem !important;
           align-items: center !important;
         }
@@ -1859,10 +1863,11 @@ function PageStyles() {
         .services-container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
         [data-services-table] table { margin-left: -0.5rem !important; margin-right: -0.5rem !important; width: calc(100% + 1rem) !important; }
         [data-services-table] thead { display: none !important; }
-        .filter-tags { justify-content: center !important; margin-bottom: 2rem !important; }
+        .filter-tags { justify-content: center !important; margin-bottom: 1.25rem !important; margin-left: 0.5rem !important; margin-right: 0.5rem !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 18% !important; justify-content: center !important; }
         .filter-tags .search-desktop { display: none !important; }
         .search-mobile { margin-bottom: 1rem !important; }
+        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
       }
@@ -1873,9 +1878,9 @@ function PageStyles() {
         [data-services-table] table { margin-left: 0 !important; margin-right: 0 !important; width: 100% !important; }
         .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
         .svc-icon img { width: 34px !important; height: 34px !important; }
-        .sub-row { padding-left: 3.75rem !important; }
+        .sub-row { padding-left: 0.5rem !important; }
         .header-cards { padding: 0 0.5rem !important; }
-        .filter-tags { padding: 0 0.5rem !important; }
+        .filter-tags { padding: 0 0.5rem !important; margin-left: 0 !important; margin-right: 0 !important; }
         .filter-tags button { min-width: 0 !important; }
         .search-mobile { padding: 0 0.5rem !important; }
         h1, h1 + p { padding: 0 0.5rem !important; }
