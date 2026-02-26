@@ -215,7 +215,7 @@ function Tagline() {
       style={{ color: "var(--vocs-text-color-secondary)" }}
     >
       <div>
-        The open protocol for Internet-native payments. Charge for API requests,
+        The open protocol for internet-native payments. Charge for API requests,
         tool calls, or content. Agents, apps, and humans securely pay per
         request.
       </div>
