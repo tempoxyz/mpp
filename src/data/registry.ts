@@ -1,4 +1,12 @@
-import discovery from "../../schemas/discovery.json";
+// ---------------------------------------------------------------------------
+// API config
+// Uses the local /api/services route which proxies discovery.json (same origin,
+// no CORS). In production this serves from the same Vercel deployment.
+// To point at an external API instead, change API_URL to the full URL.
+// ---------------------------------------------------------------------------
+
+const API_URL = "/api/services";
+const CACHE_TTL_MS = 60_000;
 
 // ---------------------------------------------------------------------------
 // Types (mirrors the discovery JSON Schema)
@@ -59,9 +67,40 @@ export interface Service {
 }
 
 // ---------------------------------------------------------------------------
-// Public API — static import, no network request
+// Module-level cache for rate limiting
+// ---------------------------------------------------------------------------
+
+let cached: { data: Service[]; ts: number } | null = null;
+let inflight: Promise<Service[]> | null = null;
+
+async function fetchFromApi(): Promise<Service[]> {
+  const res = await fetch(API_URL);
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  const json = await res.json();
+  return json.services;
+}
+
+// ---------------------------------------------------------------------------
+// Public API — cached, deduped, rate-limited
 // ---------------------------------------------------------------------------
 
 export async function fetchServices(): Promise<Service[]> {
-  return discovery.services as unknown as Service[];
+  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  if (inflight) return inflight;
+
+  inflight = fetchFromApi()
+    .then((services) => {
+      cached = { data: services, ts: Date.now() };
+      inflight = null;
+      return services;
+    })
+    .catch((err) => {
+      inflight = null;
+      throw err;
+    });
+
+  return inflight;
 }
