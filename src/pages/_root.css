@@ -68,6 +68,7 @@
 
 /* Prevent layout shift when scrollbar appears/disappears between routes */
 html {
+  font-size: 90%;
   scrollbar-gutter: stable;
   overflow-y: scroll;
 }
@@ -777,8 +778,6 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 
   /* Pink */
   --term-pink9: light-dark(hsl(336 65% 45%), hsl(341 90% 67%));
-
-  color-scheme: light dark;
 }
 
 /* Terminal-scoped utility overrides — map tailwind-like classes to --term- vars */

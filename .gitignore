@@ -10,3 +10,4 @@ public/specs/
 src/pages/specs/index.mdx
 src/pages/_vocs.generated.css
 src/snippets/cli-help.txt
+.vercel
