@@ -402,7 +402,7 @@ export function ServicesPage() {
               marginTop: "-0.5rem",
             }}
           >
-            MPP-enabled APIs your agent or application can use seamlessly.
+            MPP-enabled APIs your agent or application can seamlessly use.
           </p>
         </div>
 
@@ -697,20 +697,7 @@ function PrestoCardFull() {
           marginBottom: "1.25rem",
         }}
       >
-        A command-line HTTP client with built-in MPP payment support. When a
-        server responds with{" "}
-        <code
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 12,
-            padding: "0.1rem 0.3rem",
-            borderRadius: 3,
-            background: CODE_BG,
-          }}
-        >
-          402
-        </code>
-        , Presto handles the payment and retries automatically.
+        Command-line client with built-in MPP support.
       </p>
       <PrestoSteps />
     </div>
@@ -779,7 +766,7 @@ function HeaderCards({
           </div>
         </button>
         <a
-          href="https://mpp.tempo.xyz/llms.txt"
+          href="/services/llms.txt"
           target="_blank"
           rel="noopener noreferrer"
           className="info-card-link"
@@ -911,7 +898,7 @@ function SidebarInfoCards() {
       }}
     >
       <a
-        href="https://mpp.tempo.xyz/llms.txt"
+        href="/services/llms.txt"
         target="_blank"
         rel="noopener noreferrer"
         className="info-card-link"
@@ -996,7 +983,7 @@ function SidebarInfoCards() {
         <div>
           <div style={titleStyle}>First-party services</div>
           <div style={descStyle}>
-            Hosted natively on Tempo with built-in MPP support.
+            Directly integrated with MPP.
           </div>
         </div>
       </div>

@@ -1,0 +1,35 @@
+# MPP Services
+
+> MPP-enabled APIs your agent or application can seamlessly use.
+> Docs: https://mpp.tempo.xyz/overview
+> Full reference: https://mpp.tempo.xyz/llms-full.txt
+
+## Presto
+
+Presto is a command-line HTTP client with built-in MPP payment support.
+
+Install:
+  $ curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash
+
+Log in (connects your Tempo wallet):
+  $ presto login
+
+Make a request (payment handled automatically):
+  $ presto https://mpp.tempo.xyz/openai/v1/chat/completions \
+    -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello"}]}'
+
+Preview cost without paying:
+  $ presto --dry-run https://mpp.tempo.xyz/openai/v1/chat/completions
+
+## API
+
+Programmatically discover services:
+  GET https://mpp.tempo.xyz/api/services
+
+Returns JSON with all services, endpoints, and pricing.
+
+## Services
+
+```json
+[{"id":"agentmail","name":"AgentMail","serviceUrl":"https://mpp.tempo.xyz/agentmail","description":"Email inboxes for AI agents — create, send, receive, and manage email programmatically.","categories":["ai","social"]},{"id":"alchemy","name":"Alchemy","serviceUrl":"https://mpp.tempo.xyz/alchemy","description":"Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.","categories":["blockchain","data"]},{"id":"anthropic","name":"Anthropic","serviceUrl":"https://mpp.tempo.xyz/anthropic","description":"Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.","categories":["ai"]},{"id":"browserbase","name":"Browserbase","serviceUrl":"https://mpp.tempo.xyz/browserbase","description":"Headless browser sessions for web scraping and automation.","categories":["web","compute"]},{"id":"codex","name":"Codex","serviceUrl":"https://mpp.tempo.xyz/codex","description":"GraphQL API for DeFi and blockchain data across 80+ networks.","categories":["blockchain","data"]},{"id":"digitalocean","name":"DigitalOcean","serviceUrl":"https://mpp.tempo.xyz/digitalocean","description":"Cloud infrastructure for 1-click deploy of hosted MPP Agents on DigitalOcean Droplets.","categories":["compute"]},{"id":"elevenlabs","name":"ElevenLabs","serviceUrl":"https://mpp.tempo.xyz/elevenlabs","description":"Text-to-speech, speech-to-text, and voice cloning.","categories":["ai","media"]},{"id":"exa","name":"Exa","serviceUrl":"https://mpp.tempo.xyz/exa","description":"AI-powered web search, content retrieval, and answers.","categories":["search","ai"]},{"id":"fal","name":"fal.ai","serviceUrl":"https://mpp.tempo.xyz/fal","description":"Image, video, and audio generation with 600+ models (Flux, SD, Recraft, Grok).","categories":["ai","media"]},{"id":"firecrawl","name":"Firecrawl","serviceUrl":"https://mpp.tempo.xyz/firecrawl","description":"Web scraping, crawling, and structured data extraction for LLMs.","categories":["web","data"]},{"id":"gemini","name":"Google Gemini","serviceUrl":"https://mpp.tempo.xyz/gemini","description":"Gemini text generation, Veo video, and Nano Banana image generation with model-tier pricing.","categories":["ai","media"]},{"id":"modal","name":"Modal","serviceUrl":"https://mpp.tempo.xyz/modal","description":"Serverless GPU compute for sandboxed code execution and AI/ML workloads.","categories":["compute"]},{"id":"openai","name":"OpenAI","serviceUrl":"https://mpp.tempo.xyz/openai","description":"Chat completions, embeddings, image generation, and audio with model-tier pricing.","categories":["ai","media"]},{"id":"openrouter","name":"OpenRouter","serviceUrl":"https://mpp.tempo.xyz/openrouter","description":"Unified API for 100+ LLMs with live per-model pricing.","categories":["ai"]},{"id":"parallel","name":"Parallel","serviceUrl":"https://mpp.tempo.xyz/parallel","description":"Web search, page extraction, and web-grounded chat completions.","categories":["search","ai"]},{"id":"rpc","name":"Tempo RPC","serviceUrl":"https://mpp.tempo.xyz/rpc","description":"Tempo blockchain JSON-RPC access (mainnet and testnet).","categories":["blockchain"]},{"id":"storage","name":"Object Storage","serviceUrl":"https://mpp.tempo.xyz/storage","description":"S3/R2-compatible object storage with dynamic per-size pricing.","categories":["storage"]},{"id":"twitter","name":"Twitter/X","serviceUrl":"https://mpp.tempo.xyz/twitter","description":"X API v2 for tweets, users, and search.","categories":["social","data"]}]
+```
