@@ -18,8 +18,8 @@ const CATEGORY_LABELS: Record<Category, string> = {
 const PAGE_SIZE = 60;
 const CODE_BG = "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.07))";
 const URL_COLOR = "light-dark(rgba(0,0,0,0.7), rgba(255,255,255,0.7))";
-const CMD_PURPLE = "#c084fc";
-const CMD_GREEN = "#4ade80";
+const CMD_PURPLE = "light-dark(#7c3aed, #c084fc)";
+const CMD_GREEN = "light-dark(#15803d, #4ade80)";
 
 function allCategories(s: Service): Category[] {
   return s.categories ?? [];
@@ -245,7 +245,7 @@ function HighlightedCmd({ children }: { children: string }) {
       );
     } else if (/^-/.test(tok)) {
       parts.push(
-        <span key={key} style={{ color: "var(--vocs-text-color-muted)" }}>
+        <span key={key} style={{ color: "var(--vocs-text-color-secondary)" }}>
           {tok}
         </span>,
       );
@@ -369,7 +369,10 @@ export function ServicesPage() {
         }}
       >
         {/* Header */}
-        <div className="page-header" style={{ marginBottom: "0.1rem" }}>
+        <div
+          className="page-header"
+          style={{ marginBottom: "0.1rem", paddingLeft: "0.5rem" }}
+        >
           <h1
             style={{
               fontSize: "2.1rem",
@@ -394,22 +397,15 @@ export function ServicesPage() {
           </p>
         </div>
 
-        {/* Presto accordion + info cards (mobile) */}
+        {/* Header cards — visible when sidebar hidden */}
         <div
-          className="mobile-cards"
-          style={{
-            display: "none",
-            flexDirection: "column",
-            gap: "0.5rem",
-            marginBottom: "1.75rem",
-            marginTop: "0.25rem",
-          }}
+          className="header-cards"
+          style={{ display: "none", marginBottom: "1.5rem" }}
         >
-          <PrestoCard
-            open={prestoOpen}
-            onToggle={() => setPrestoOpen(!prestoOpen)}
+          <HeaderCards
+            prestoOpen={prestoOpen}
+            onPrestoToggle={() => setPrestoOpen(!prestoOpen)}
           />
-          <MobileInfoCards />
         </div>
 
         {/* Layout */}
@@ -504,15 +500,15 @@ export function ServicesPage() {
                     style={{
                       width: "100%",
                       borderCollapse: "collapse",
-                      fontSize: 15,
+                      fontSize: 16,
                       tableLayout: "fixed",
                     }}
                   >
                     <colgroup>
-                      <col style={{ width: "21%" }} />
-                      <col className="hide-mobile" style={{ width: "33%" }} />
-                      <col className="hide-mobile" style={{ width: "38%" }} />
-                      <col style={{ width: "8%" }} />
+                      <col style={{ width: "18%" }} />
+                      <col className="hide-mobile" style={{ width: "36%" }} />
+                      <col className="hide-mobile" style={{ width: "36%" }} />
+                      <col style={{ width: "10%" }} />
                     </colgroup>
                     <thead>
                       <tr
@@ -626,71 +622,6 @@ export function ServicesPage() {
 // Presto cards
 // ---------------------------------------------------------------------------
 
-function PrestoCard({
-  open,
-  onToggle,
-}: {
-  open: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <div
-      className="presto-accordion"
-      style={{
-        borderRadius: 10,
-        border: "1px solid var(--vocs-border-color-primary)",
-        background: "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
-      }}
-    >
-      <button
-        type="button"
-        onClick={onToggle}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.6rem",
-          width: "100%",
-          padding: "0.75rem 1rem",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          fontFamily: "var(--font-sans)",
-          color: "var(--vocs-text-color-heading)",
-          fontSize: 14,
-        }}
-      >
-        <TerminalIcon />
-        <div style={{ flex: 1, textAlign: "left" }}>
-          <span style={{ fontWeight: 500 }}>Get started with Presto</span>
-          <span
-            style={{
-              color: "var(--vocs-text-color-muted)",
-              marginLeft: "0.5rem",
-              fontSize: 13,
-            }}
-          >
-            — like curl, but with built-in payments
-          </span>
-        </div>
-        <ChevronDownIcon expanded={open} size={14} />
-      </button>
-      {open && (
-        <div
-          style={{
-            padding: "0 1rem 1rem",
-            borderTop: "1px solid var(--vocs-border-color-primary)",
-            marginTop: 0,
-          }}
-        >
-          <div style={{ paddingTop: "0.75rem" }}>
-            <PrestoSteps />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function PrestoCardFull() {
   return (
     <div
@@ -739,27 +670,67 @@ function PrestoCardFull() {
   );
 }
 
-function MobileInfoCards() {
+function HeaderCards({
+  prestoOpen,
+  onPrestoToggle,
+}: {
+  prestoOpen: boolean;
+  onPrestoToggle: () => void;
+}) {
   const cs: React.CSSProperties = {
-    flex: 1,
-    minWidth: 0,
-    padding: "0.7rem 0.85rem",
+    padding: "0.65rem 0.85rem",
     borderRadius: 8,
     border: "1px solid var(--vocs-border-color-primary)",
     background: "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
     textDecoration: "none",
     color: "var(--vocs-text-color-heading)",
-    fontSize: 14,
-    fontWeight: 500,
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "0.45rem",
+    alignItems: "flex-start",
+    gap: "0.5rem",
     transition: "background 0.15s, border-color 0.15s",
+    minWidth: 0,
+  };
+  const titleS: React.CSSProperties = { fontSize: 14, fontWeight: 500 };
+  const descS: React.CSSProperties = {
+    fontSize: 12,
+    color: "var(--vocs-text-color-muted)",
+    lineHeight: 1.35,
+    marginTop: 1,
+  };
+  const iconS: React.CSSProperties = {
+    color: "var(--vocs-text-color-muted)",
+    marginTop: 2,
+    flexShrink: 0,
   };
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-      <div style={{ display: "flex", gap: "0.5rem" }}>
+    <>
+      <div
+        className="header-cards-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "0.5rem",
+        }}
+      >
+        <button
+          type="button"
+          onClick={onPrestoToggle}
+          className="info-card-link"
+          style={{
+            ...cs,
+            cursor: "pointer",
+            fontFamily: "var(--font-sans)",
+            textAlign: "left",
+          }}
+        >
+          <span style={iconS}>
+            <TerminalIcon />
+          </span>
+          <div>
+            <div style={titleS}>Presto</div>
+            <div style={descS}>CLI with built-in payments</div>
+          </div>
+        </button>
         <a
           href="https://mpp.tempo.xyz/llms.txt"
           target="_blank"
@@ -768,8 +739,8 @@ function MobileInfoCards() {
           style={cs}
         >
           <svg
-            width="15"
-            height="15"
+            width="16"
+            height="16"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -777,17 +748,20 @@ function MobileInfoCards() {
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
-            style={{ flexShrink: 0, color: "var(--vocs-text-color-muted)" }}
+            style={iconS}
           >
             <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
             <path d="M14 2v4a2 2 0 0 0 2 2h4" />
           </svg>
-          llms.txt
+          <div>
+            <div style={titleS}>llms.txt</div>
+            <div style={descS}>Service discovery for agents</div>
+          </div>
         </a>
         <a href="/overview" className="info-card-link" style={cs}>
           <svg
-            width="15"
-            height="15"
+            width="16"
+            height="16"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -795,44 +769,54 @@ function MobileInfoCards() {
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
-            style={{ flexShrink: 0, color: "var(--vocs-text-color-muted)" }}
+            style={iconS}
           >
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
-          Docs
+          <div>
+            <div style={titleS}>Documentation</div>
+            <div style={descS}>Guides, quickstarts, and SDKs</div>
+          </div>
         </a>
-      </div>
-      <div
-        className="mobile-third-party"
-        style={{
-          ...cs,
-          justifyContent: "center",
-          background: "transparent",
-          border: "none",
-          padding: "0.3rem 0.2rem",
-        }}
-      >
-        <span
+        <div
           style={{
-            width: 8,
-            height: 8,
-            borderRadius: "50%",
-            background: "#3B82F6",
-            flexShrink: 0,
-          }}
-        />
-        <span
-          style={{
-            color: "var(--vocs-text-color-muted)",
-            fontWeight: 400,
-            fontSize: 13,
+            ...cs,
+            border: "none",
+            background: "transparent",
+            padding: "0.65rem 0.5rem",
           }}
         >
-          Third-party services proxied through MPP
-        </span>
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: "#3B82F6",
+              flexShrink: 0,
+              marginTop: 6,
+            }}
+          />
+          <div>
+            <div style={titleS}>Third-party</div>
+            <div style={descS}>APIs proxied through MPP</div>
+          </div>
+        </div>
       </div>
-    </div>
+      {prestoOpen && (
+        <div
+          style={{
+            marginTop: "0.5rem",
+            borderRadius: 10,
+            border: "1px solid var(--vocs-border-color-primary)",
+            background: "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
+            padding: "1rem",
+          }}
+        >
+          <PrestoSteps />
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1162,10 +1146,8 @@ function Th({
       style={{
         padding: "0.5rem 0.75rem",
         fontSize: 12,
-        fontWeight: 500,
+        fontWeight: 400,
         color: "var(--vocs-text-color-muted)",
-        textTransform: "uppercase" as const,
-        letterSpacing: "0.05em",
         whiteSpace: "nowrap",
         ...style,
       }}
@@ -1272,7 +1254,7 @@ function ServiceRow({
     e.stopPropagation();
     copy(s.url, `url-${s.id}`);
   };
-  const expandedBg = "light-dark(rgba(0,0,0,0.035), rgba(255,255,255,0.035))";
+  const expandedBg = "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))";
   return (
     <>
       <tr
@@ -1284,7 +1266,7 @@ function ServiceRow({
           cursor: "pointer",
           transition: "background 0.1s",
           background: expanded ? expandedBg : undefined,
-          height: 54,
+          height: 58,
         }}
         onMouseEnter={(e) => {
           if (!expanded)
@@ -1295,7 +1277,7 @@ function ServiceRow({
           e.currentTarget.style.background = expanded ? expandedBg : "";
         }}
       >
-        <td style={{ padding: "0.6rem 0.75rem", verticalAlign: "middle" }}>
+        <td style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}>
           <div
             style={{
               display: "flex",
@@ -1311,7 +1293,7 @@ function ServiceRow({
                 <span
                   style={{
                     fontWeight: 500,
-                    fontSize: 15,
+                    fontSize: 16,
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -1372,7 +1354,7 @@ function ServiceRow({
         </td>
         <td
           className="hide-mobile"
-          style={{ padding: "0.6rem 0.75rem", verticalAlign: "middle" }}
+          style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}
         >
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
           {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
@@ -1380,7 +1362,7 @@ function ServiceRow({
             onClick={handleCopyUrl}
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: 12,
+              fontSize: 13,
               color:
                 copiedId === `url-${s.id}`
                   ? "var(--vocs-text-color-heading)"
@@ -1403,9 +1385,9 @@ function ServiceRow({
         <td
           className="hide-mobile"
           style={{
-            padding: "0.6rem 0.75rem",
+            padding: "0.7rem 0.75rem",
             color: "var(--vocs-text-color-secondary)",
-            fontSize: 13,
+            fontSize: 14,
             lineHeight: 1.45,
             verticalAlign: "middle",
           }}
@@ -1414,13 +1396,20 @@ function ServiceRow({
         </td>
         <td
           style={{
-            padding: "0.6rem 0.35rem",
-            textAlign: "right",
-            color: "var(--vocs-text-color-muted)",
+            padding: 0,
             verticalAlign: "middle",
           }}
         >
-          <ChevronDownIcon expanded={expanded} />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              paddingRight: "0.5rem",
+              color: "var(--vocs-text-color-muted)",
+            }}
+          >
+            <ChevronDownIcon expanded={expanded} />
+          </div>
         </td>
       </tr>
       {expanded && (
@@ -1445,7 +1434,7 @@ function ServiceRow({
 // Expanded detail
 // ---------------------------------------------------------------------------
 
-const SUB_GRID = "21% 33% 1fr auto 6rem";
+const SUB_GRID = "18% 36% 1fr auto 6rem";
 
 function SubTh({
   children,
@@ -1457,12 +1446,12 @@ function SubTh({
   return (
     <span
       style={{
-        fontSize: 11,
-        fontWeight: 500,
-        color: "var(--vocs-text-color-muted)",
-        textTransform: "uppercase" as const,
-        letterSpacing: "0.05em",
         padding: "0 0.75rem",
+        fontSize: 12,
+        fontWeight: 400,
+        color: "var(--vocs-text-color-muted)",
+        whiteSpace: "nowrap",
+        ...style,
         ...style,
       }}
     >
@@ -1488,7 +1477,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                 "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))",
             }}
           >
-            <SubTh style={{ paddingLeft: "2.5rem" }}>Method</SubTh>
+            <SubTh style={{ paddingLeft: "3.5rem" }}>Method</SubTh>
             <SubTh>Route</SubTh>
             <SubTh>Description</SubTh>
             <SubTh style={{ textAlign: "right" }}>Intent</SubTh>
@@ -1515,18 +1504,18 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       : "1px solid light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.05))",
                   }}
                 >
-                  <div style={{ padding: "0.65rem 0.75rem 0.65rem 2.5rem" }}>
+                  <div style={{ padding: "0.75rem 0.75rem 0.75rem 3.5rem" }}>
                     <span
                       style={{
                         fontWeight: 600,
                         fontFamily: "var(--font-mono)",
-                        fontSize: 13,
+                        fontSize: 14,
                       }}
                     >
                       {ep.method}
                     </span>
                   </div>
-                  <div style={{ padding: "0.65rem 0.75rem" }}>
+                  <div style={{ padding: "0.75rem 0.75rem" }}>
                     {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
                     {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
                     <span
@@ -1536,7 +1525,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       }}
                       style={{
                         fontFamily: "var(--font-mono)",
-                        fontSize: 12,
+                        fontSize: 13,
                         padding: "0.15rem 0.4rem",
                         borderRadius: 4,
                         background: CODE_BG,
@@ -1558,9 +1547,9 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
-                      padding: "0.65rem 0.75rem",
+                      padding: "0.75rem 0.75rem",
                       color: "var(--vocs-text-color-secondary)",
-                      fontSize: 13,
+                      fontSize: 14,
                       lineHeight: 1.45,
                     }}
                   >
@@ -1568,7 +1557,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                   </div>
                   <div
                     style={{
-                      padding: "0.65rem 0.5rem 0.65rem 0",
+                      padding: "0.75rem 0.5rem 0.75rem 0",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "flex-end",
@@ -1580,7 +1569,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       style={{
                         display: "none",
                         fontFamily: "var(--font-mono)",
-                        fontSize: 13,
+                        fontSize: 14,
                         color: "var(--vocs-text-color-muted)",
                         whiteSpace: "nowrap",
                       }}
@@ -1591,9 +1580,9 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                   <div
                     className="desktop-price"
                     style={{
-                      padding: "0.65rem 1rem 0.65rem 0",
+                      padding: "0.75rem 1rem 0.75rem 0",
                       fontFamily: "var(--font-mono)",
-                      fontSize: 13,
+                      fontSize: 14,
                       fontVariantNumeric: "tabular-nums",
                       textAlign: "right",
                       color: "var(--vocs-text-color-muted)",
@@ -1622,7 +1611,7 @@ function PageStyles() {
       [data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
       [data-layout="minimal"] main > article { max-width: none !important; }
       .search-mobile { display: none; }
-      .mobile-cards { display: none !important; }
+      .header-cards { display: none !important; }
       .show-tablet { display: none !important; }
       [data-services-table] table { table-layout: fixed !important; }
       [data-services-table] table td, [data-services-table] table th { white-space: normal !important; min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
@@ -1630,16 +1619,24 @@ function PageStyles() {
       .expanded-detail { animation: expandIn 0.15s ease-out; }
       @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
 
+      /* ---- Sidebar hidden, header cards as 4-col strip ---- */
+      @media (max-width: 1200px) {
+        .services-sidebar { display: none !important; }
+        .services-layout { gap: 0 !important; }
+        .header-cards { display: block !important; }
+      }
+
+      /* ---- Table columns stack ---- */
       @media (max-width: 1100px) {
         .hide-mobile { display: none !important; }
         .show-tablet { display: block !important; }
         span.show-tablet { display: inline-block !important; }
-        [data-services-table] table col:nth-child(1) { width: 94% !important; }
+        [data-services-table] table col:nth-child(1) { width: auto !important; }
         [data-services-table] table col:nth-child(2),
         [data-services-table] table col:nth-child(3) { width: 0 !important; }
-        [data-services-table] table col:nth-child(4) { width: 6% !important; }
+        [data-services-table] table col:nth-child(4) { width: 36px !important; }
         [data-services-table] table td:first-child { padding: 0.8rem 0.5rem 0.8rem 0.75rem !important; vertical-align: middle !important; }
-        [data-services-table] table td:last-child { padding: 0.8rem 0.25rem !important; vertical-align: middle !important; }
+        [data-services-table] table td:last-child { padding: 0.8rem 0.5rem !important; vertical-align: middle !important; text-align: right !important; }
         .svc-icon { align-self: center !important; margin-top: 0 !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
         .sub-row:first-child { border-top: 1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08)) !important; }
@@ -1653,47 +1650,43 @@ function PageStyles() {
           align-items: center !important;
         }
         .sub-row > * { padding: 0 !important; }
-        /* Row 1: METHOD  description  Charge $price */
         .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; font-weight: 600 !important; }
         .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; font-size: 13px !important; color: var(--vocs-text-color-secondary) !important; }
         .sub-row > *:nth-child(4) { grid-row: 1; grid-column: 3; display: flex !important; align-items: center !important; gap: 0.4rem !important; justify-content: flex-end !important; }
-        /* Row 2: route spans full width */
         .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 12px !important; margin-top: 0.15rem; }
-        /* Hide desktop price, show inline mobile price */
         .sub-row .desktop-price { display: none !important; }
         .sub-row .mobile-price { display: inline !important; }
-        .sub-row .sub-header-row { border-bottom: 1px solid var(--vocs-border-color-primary); }
       }
 
+      /* ---- Header cards 2x2, search moves, tags center ---- */
       @media (max-width: 900px) {
-        .services-layout { flex-direction: column !important; }
-        .services-sidebar { display: none !important; }
-        .mobile-cards { display: flex !important; }
+        .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
         .search-desktop { display: none !important; }
         .search-mobile { display: block !important; }
         .services-container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
         [data-services-table] table { margin-left: -0.5rem !important; margin-right: -0.5rem !important; width: calc(100% + 1rem) !important; }
         [data-services-table] thead { display: none !important; }
         [data-services-table] tbody tr:first-child { border-top: 1px solid var(--vocs-border-color-primary) !important; }
-        .filter-tags { justify-content: center !important; max-width: 75% !important; margin-left: auto !important; margin-right: auto !important; }
+        .filter-tags { justify-content: center !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 auto !important; justify-content: center !important; }
         .filter-tags .search-desktop { display: none !important; }
-        .mobile-third-party { text-align: center !important; }
         .page-header { text-align: center !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
       }
 
+      /* ---- Mobile: full-width, bigger icons ---- */
       @media (max-width: 640px) {
         .services-container { padding-left: 0 !important; padding-right: 0 !important; }
         [data-services-table] table { margin-left: 0 !important; margin-right: 0 !important; width: 100% !important; }
         .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
         .svc-icon img { width: 34px !important; height: 34px !important; }
         .sub-row { padding-left: 3.75rem !important; }
+        .header-cards { padding: 0 0.5rem !important; }
         .filter-tags { padding: 0 0.5rem !important; }
         .filter-tags button { min-width: 0 !important; }
         .search-mobile { padding: 0 0.5rem !important; }
-        .mobile-cards { padding: 0 0.5rem !important; }
         h1, h1 + p { padding: 0 0.5rem !important; }
+        .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
       }
     `}</style>
   );
