@@ -285,6 +285,9 @@ export function ServicesPage() {
   const [prestoOpen, setPrestoOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [integrationFilter, setIntegrationFilter] = useState<
+    "all" | "first-party" | "third-party"
+  >("all");
 
   useEffect(() => {
     fetchServices()
@@ -312,6 +315,10 @@ export function ServicesPage() {
   );
   const filtered = useMemo(() => {
     let list = services;
+    if (integrationFilter !== "all")
+      list = list.filter(
+        (s) => (s.integration ?? "first-party") === integrationFilter,
+      );
     if (selectedCategories.size > 0)
       list = list.filter((s) =>
         allCategories(s).some((c) => selectedCategories.has(c)),
@@ -327,7 +334,7 @@ export function ServicesPage() {
       );
     }
     return list;
-  }, [services, selectedCategories, debouncedSearch]);
+  }, [services, selectedCategories, debouncedSearch, integrationFilter]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
@@ -395,8 +402,7 @@ export function ServicesPage() {
               marginTop: "-0.5rem",
             }}
           >
-            MPP-enabled APIs your agent or application can pay for with
-            stablecoins.
+            MPP-enabled APIs your agent or application can use seamlessly.
           </p>
         </div>
 
@@ -457,12 +463,29 @@ export function ServicesPage() {
                     marginTop: "0.5rem",
                   }}
                 >
-                  <SearchInput
-                    search={search}
-                    setSearch={setSearch}
-                    setPage={setPage}
-                    fullWidth
-                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                    }}
+                  >
+                    <IntegrationFilter
+                      value={integrationFilter}
+                      onChange={(v) => {
+                        setIntegrationFilter(v);
+                        setPage(0);
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <SearchInput
+                        search={search}
+                        setSearch={setSearch}
+                        setPage={setPage}
+                        fullWidth
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div
                   className="filter-tags"
@@ -493,8 +516,20 @@ export function ServicesPage() {
                   ))}
                   <div
                     className="search-desktop"
-                    style={{ marginLeft: "auto" }}
+                    style={{
+                      marginLeft: "auto",
+                      display: "flex",
+                      gap: "0.5rem",
+                      alignItems: "center",
+                    }}
                   >
+                    <IntegrationFilter
+                      value={integrationFilter}
+                      onChange={(v) => {
+                        setIntegrationFilter(v);
+                        setPage(0);
+                      }}
+                    />
                     <SearchInput
                       search={search}
                       setSearch={setSearch}
@@ -566,6 +601,7 @@ export function ServicesPage() {
                 )}
                 {totalPages > 1 && (
                   <div
+                    className="pagination"
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -790,6 +826,7 @@ function HeaderCards({
           style={{
             ...cs,
             padding: "0.65rem 0.5rem",
+            background: "transparent",
           }}
         >
           <span
@@ -808,13 +845,13 @@ function HeaderCards({
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                background: "#3B82F6",
+                background: "#22c55e",
               }}
             />
           </span>
           <div>
-            <div style={titleS}>Third-party</div>
-            <div style={descS}>APIs proxied through MPP</div>
+            <div style={titleS}>First-party</div>
+            <div style={descS}>Hosted natively on Tempo</div>
           </div>
         </div>
       </div>
@@ -947,15 +984,15 @@ function SidebarInfoCards() {
             width: 6,
             height: 6,
             borderRadius: "50%",
-            background: "#3B82F6",
+            background: "#22c55e",
             flexShrink: 0,
             marginTop: 5,
           }}
         />
         <div>
-          <div style={titleStyle}>Third-party services</div>
+          <div style={titleStyle}>First-party services</div>
           <div style={descStyle}>
-            APIs proxied through MPP. Pricing set by providers.
+            Hosted natively on Tempo with built-in MPP support.
           </div>
         </div>
       </div>
@@ -1049,7 +1086,14 @@ function CliSnippet({
           wordBreak: "break-all",
         }}
       >
-        <span style={{ flex: 1 }}>
+        <span
+          style={{
+            flex: 1,
+            display: "block",
+            paddingLeft: "1.2em",
+            textIndent: "-1.2em",
+          }}
+        >
           <span
             style={{
               color: "var(--vocs-text-color-muted)",
@@ -1080,6 +1124,64 @@ function CliSnippet({
 // ---------------------------------------------------------------------------
 // Small components
 // ---------------------------------------------------------------------------
+
+function IntegrationFilter({
+  value,
+  onChange,
+}: {
+  value: "all" | "first-party" | "third-party";
+  onChange: (v: "all" | "first-party" | "third-party") => void;
+}) {
+  const dotColor =
+    value === "first-party"
+      ? "#22c55e"
+      : value === "third-party"
+        ? "#3B82F6"
+        : "var(--vocs-text-color-muted)";
+  return (
+    <div style={{ position: "relative", flexShrink: 0 }}>
+      <span
+        style={{
+          position: "absolute",
+          left: 9,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: 7,
+          height: 7,
+          borderRadius: "50%",
+          background: dotColor,
+          pointerEvents: "none",
+        }}
+      />
+      <select
+        value={value}
+        onChange={(e) =>
+          onChange(e.target.value as "all" | "first-party" | "third-party")
+        }
+        style={{
+          appearance: "none",
+          WebkitAppearance: "none",
+          padding: "0.4rem 1.8rem 0.4rem 1.5rem",
+          fontSize: 13,
+          borderRadius: 7,
+          border: "1px solid var(--vocs-border-color-primary)",
+          background: "transparent",
+          color: "var(--vocs-text-color-heading)",
+          fontFamily: "var(--font-sans)",
+          outline: "none",
+          cursor: "pointer",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 0.5rem center",
+        }}
+      >
+        <option value="all">All</option>
+        <option value="first-party">First-party</option>
+        <option value="third-party">Third-party</option>
+      </select>
+    </div>
+  );
+}
 
 function Pill({
   active,
@@ -1213,6 +1315,8 @@ function BorderlessBadge({ children }: { children: React.ReactNode }) {
 
 function ServiceIcon({ service: s }: { service: Service }) {
   const isThirdParty = s.integration === "third-party";
+  const isFirstParty = !isThirdParty;
+  const dotColor = isFirstParty ? "#22c55e" : "#3B82F6";
   return (
     <div
       className="svc-icon"
@@ -1250,20 +1354,18 @@ function ServiceIcon({ service: s }: { service: Service }) {
           {s.name.charAt(0).toUpperCase()}
         </div>
       )}
-      {isThirdParty && (
-        <span
-          style={{
-            position: "absolute",
-            top: -3,
-            right: -3,
-            width: 12,
-            height: 12,
-            borderRadius: "50%",
-            background: "#3B82F6",
-            border: "2px solid var(--vocs-background-color-primary, #1a1a1a)",
-          }}
-        />
-      )}
+      <span
+        style={{
+          position: "absolute",
+          top: -3,
+          right: -3,
+          width: 12,
+          height: 12,
+          borderRadius: "50%",
+          background: dotColor,
+          border: "2px solid var(--vocs-background-color-primary, #1a1a1a)",
+        }}
+      />
     </div>
   );
 }
@@ -1283,9 +1385,10 @@ function ServiceRow({
 }) {
   const cats = allCategories(s);
   const { copiedId, copy } = useCopyFeedback();
+  const displayUrl = s.serviceUrl ?? s.url;
   const handleCopyUrl = (e: React.MouseEvent) => {
     e.stopPropagation();
-    copy(s.url, `url-${s.id}`);
+    copy(displayUrl, `url-${s.id}`);
   };
   const expandedBg = "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))";
   return (
@@ -1294,7 +1397,7 @@ function ServiceRow({
         onClick={onToggle}
         style={{
           borderBottom: expanded
-            ? "none"
+            ? "1px solid transparent"
             : "1px solid var(--vocs-border-color-primary)",
           cursor: "pointer",
           transition: "background 0.1s",
@@ -1320,15 +1423,7 @@ function ServiceRow({
           >
             <ServiceIcon service={s} />
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div
-                className="svc-name-row"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.35rem",
-                  flexWrap: "wrap",
-                }}
-              >
+              <div className="svc-name-row">
                 <span
                   style={{
                     fontWeight: 500,
@@ -1339,41 +1434,12 @@ function ServiceRow({
                   {s.name}
                 </span>
                 {cats[0] && (
-                  <BorderlessBadge>
-                    {CATEGORY_LABELS[cats[0]] ?? cats[0]}
-                  </BorderlessBadge>
+                  <span className="svc-badge-inline">
+                    <BorderlessBadge>
+                      {CATEGORY_LABELS[cats[0]] ?? cats[0]}
+                    </BorderlessBadge>
+                  </span>
                 )}
-                {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
-                {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
-                <span
-                  className="show-tablet"
-                  onClick={handleCopyUrl}
-                  style={{
-                    display: "none",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 13,
-                    color:
-                      copiedId === `url-${s.id}`
-                        ? "var(--vocs-text-color-heading)"
-                        : URL_COLOR,
-                    marginLeft: "auto",
-                    padding: "0.15rem 0.4rem",
-                    borderRadius: 4,
-                    background: CODE_BG,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: "45%",
-                    cursor: "pointer",
-                    transition: "color 0.15s",
-                    flexShrink: 1,
-                  }}
-                  title={
-                    copiedId === `url-${s.id}` ? "Copied!" : `Copy: ${s.url}`
-                  }
-                >
-                  {copiedId === `url-${s.id}` ? "Copied!" : s.url}
-                </span>
               </div>
               <div
                 className="show-tablet"
@@ -1388,6 +1454,40 @@ function ServiceRow({
                   }}
                 >
                   {s.description}
+                </span>
+              </div>
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+              <div
+                className="show-tablet url-mobile"
+                onClick={handleCopyUrl}
+                style={{
+                  display: "none",
+                  marginTop: 4,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 13,
+                    color:
+                      copiedId === `url-${s.id}`
+                        ? "var(--vocs-text-color-heading)"
+                        : URL_COLOR,
+                    padding: "0.15rem 0.4rem",
+                    borderRadius: 4,
+                    background: CODE_BG,
+                    cursor: "pointer",
+                    transition: "color 0.15s",
+                    wordBreak: "break-all",
+                  }}
+                  title={
+                    copiedId === `url-${s.id}`
+                      ? "Copied!"
+                      : `Copy: ${displayUrl}`
+                  }
+                >
+                  {copiedId === `url-${s.id}` ? "Copied!" : displayUrl}
                 </span>
               </div>
             </div>
@@ -1417,10 +1517,12 @@ function ServiceRow({
               wordBreak: "break-all",
             }}
             title={
-              copiedId === `url-${s.id}` ? "Copied!" : `Click to copy: ${s.url}`
+              copiedId === `url-${s.id}`
+                ? "Copied!"
+                : `Click to copy: ${displayUrl}`
             }
           >
-            {copiedId === `url-${s.id}` ? "Copied!" : s.url}
+            {copiedId === `url-${s.id}` ? "Copied!" : displayUrl}
           </span>
         </td>
         <td
@@ -1465,7 +1567,7 @@ function ServiceRow({
                   justifyContent: "center",
                   width: 26,
                   height: 26,
-                  borderRadius: 5,
+                  borderRadius: 7,
                   color: "var(--vocs-text-color-muted)",
                   transition: "background 0.15s, color 0.15s",
                 }}
@@ -1497,7 +1599,7 @@ function ServiceRow({
                   justifyContent: "center",
                   width: 26,
                   height: 26,
-                  borderRadius: 5,
+                  borderRadius: 7,
                   color: "var(--vocs-text-color-muted)",
                   transition: "background 0.15s, color 0.15s",
                 }}
@@ -1608,7 +1710,10 @@ function BookIcon({ size = 13 }: { size?: number }) {
 
 function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
-  const baseUrl = s.serviceUrl ?? s.url;
+  const baseUrl =
+    s.integration !== "third-party"
+      ? `https://${s.id}.mpp.tempo.xyz`
+      : (s.serviceUrl ?? s.url);
   const docsUrl = s.docs?.homepage;
   const websiteUrl = s.provider?.url;
   const mobileLinkStyle: React.CSSProperties = {
@@ -1805,11 +1910,17 @@ function PageStyles() {
     <style>{`
       [data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
       [data-layout="minimal"] main > article { max-width: none !important; }
+      @media (max-width: 900px) {
+        [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
+        [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
+      }
       .search-mobile { display: none; }
       .header-cards { display: none !important; }
       .show-tablet { display: none !important; }
       [data-services-table] table { table-layout: fixed !important; }
       [data-services-table] table td, [data-services-table] table th { white-space: normal !important; min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
+      .svc-name-row { display: flex; flex-direction: column; gap: 0.1rem; }
+      .svc-badge-inline { display: block; }
       .info-card-link:hover { background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06)) !important; border-color: light-dark(rgba(0,0,0,0.15), rgba(255,255,255,0.15)) !important; }
       .expanded-detail { animation: expandIn 0.15s ease-out; }
       @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
@@ -1825,20 +1936,19 @@ function PageStyles() {
       @media (max-width: 1100px) {
         .hide-mobile { display: none !important; }
         .show-tablet { display: block !important; }
-        span.show-tablet { display: inline-block !important; }
-        [data-services-table] table { table-layout: auto !important; }
+        [data-services-table] table { table-layout: auto !important; overflow: visible !important; }
         [data-services-table] table col:nth-child(1) { width: auto !important; }
         [data-services-table] table col:nth-child(2),
         [data-services-table] table col:nth-child(3) { width: 0 !important; }
-        [data-services-table] table col:nth-child(4) { width: 44px !important; }
-        [data-services-table] table { overflow: hidden !important; }
+        [data-services-table] table col:nth-child(4) { width: 48px !important; }
         [data-services-table] table td:first-child { padding: 1rem 0.5rem 1rem 1rem !important; vertical-align: middle !important; }
-        [data-services-table] table td:last-child { padding: 1rem 1rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 44px !important; }
+        [data-services-table] table td:last-child { padding: 1rem 0.5rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
         .svc-icon { align-self: center !important; margin-top: 0 !important; }
-        .svc-name-row { flex-wrap: nowrap !important; gap: 0.4rem !important; }
+        .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.1rem !important; flex-wrap: wrap !important; }
+        .svc-badge-inline { display: inline !important; }
         .svc-name-row > span:first-child { font-size: 17px !important; }
-        .svc-desc-mobile { font-size: 16px !important; }
-        .expanded-links { display: flex !important; }
+        .svc-desc-mobile { font-size: 16px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+        .expanded-links { display: flex !important; padding-left: 3.25rem !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
         .sub-row:first-child { border-top: none !important; }
 
@@ -1846,13 +1956,13 @@ function PageStyles() {
           display: grid !important;
           grid-template-columns: auto 1fr auto !important;
           grid-template-rows: auto auto !important;
-          padding: 0.65rem 1rem 0.65rem 1rem !important;
+          padding: 0.65rem 1rem 0.65rem 3.25rem !important;
           gap: 0.15rem 0.6rem !important;
           align-items: center !important;
         }
         .sub-row > * { padding: 0 !important; }
         .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; font-weight: 600 !important; }
-        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; font-size: 13px !important; color: var(--vocs-text-color-secondary) !important; }
+        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; font-size: 13px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; justify-self: start !important; }
         .sub-row > *:nth-child(4) { grid-row: 1; grid-column: 3; display: flex !important; align-items: center !important; gap: 0.4rem !important; justify-content: flex-end !important; }
         .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 12px !important; margin-top: 0.4rem; text-align: left !important; justify-self: start !important; }
         .sub-row .desktop-price { display: none !important; }
@@ -1861,37 +1971,41 @@ function PageStyles() {
 
       /* ---- Header cards 2x2, search moves, tags center ---- */
       @media (max-width: 900px) {
-        .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        .search-desktop { display: none !important; }
-        .search-mobile { display: block !important; }
-        .services-container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
-        [data-services-table] table { margin-left: -0.5rem !important; margin-right: -0.5rem !important; width: calc(100% + 1rem) !important; }
+        .services-container { padding-left: 0 !important; padding-right: 0 !important; }
+        [data-services-table] table { width: 100% !important; }
         [data-services-table] thead { display: none !important; }
-        .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0.5rem !important; margin-right: 0.5rem !important; }
+        [data-services-table] table td:first-child { padding: 0.85rem 0.5rem 0.85rem 1.25rem !important; vertical-align: middle !important; }
+        [data-services-table] table td:last-child { padding: 0.85rem 1.25rem 0.85rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
+        .chevron-cell { padding-right: 0 !important; }
+        .svc-badge-inline { margin-left: 0.25rem !important; }
+        .expanded-links { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
+        .sub-row { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
+        .header-cards { padding: 0 1.25rem !important; }
+        .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        .header-cards-grid > * > div > div:first-child { font-size: 16px !important; }
+        .header-cards-grid > * > div > div:last-child { font-size: 14px !important; line-height: 1.4 !important; }
+        .search-desktop { display: none !important; }
+        .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
+        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
+        .search-mobile select { font-size: 15px !important; padding-top: 0.55rem !important; padding-bottom: 0.55rem !important; }
+        .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0 !important; margin-right: 0 !important; padding: 0 1.25rem !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 18% !important; justify-content: center !important; }
         .filter-tags .search-desktop { display: none !important; }
-        .search-mobile { margin-bottom: 1rem !important; }
-        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
-        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; }
+        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
+        .pagination { padding: 0 1.25rem !important; }
       }
 
       /* ---- Mobile: full-width, bigger icons ---- */
       @media (max-width: 640px) {
-        .services-container { padding-left: 0 !important; padding-right: 0 !important; }
-        [data-services-table] table { margin-left: 0 !important; margin-right: 0 !important; width: 100% !important; }
-        [data-services-table] table td:first-child { padding-left: 0.75rem !important; }
-        [data-services-table] table td:last-child { padding-right: 0.75rem !important; }
-        .expanded-detail { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+        .expanded-detail { padding-left: 0 !important; padding-right: 0 !important; }
         .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
         .svc-icon img { width: 34px !important; height: 34px !important; }
-        .sub-row { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-        .header-cards { padding: 0 0.75rem !important; }
-        .filter-tags { padding: 0 0.75rem !important; margin-left: 0 !important; margin-right: 0 !important; }
+        .sub-row { padding-left: 4rem !important; }
+        .expanded-links { padding-left: 4rem !important; }
+        .header-cards-grid > * > div > div:first-child { font-size: 17px !important; }
+        .header-cards-grid > * > div > div:last-child { font-size: 15px !important; }
         .filter-tags button { min-width: 0 !important; }
-        .search-mobile { padding: 0 0.75rem !important; }
-        h1, h1 + p { padding: 0 0.75rem !important; }
-        .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
       }
     `}</style>
   );
