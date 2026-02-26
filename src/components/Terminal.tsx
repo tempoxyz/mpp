@@ -566,27 +566,14 @@ function AsyncSteps({
 
             // Close channel and capture the real close tx hash
             try {
-              console.log(
-                "[DEBUG] before close - opened:",
-                demoClient.session.opened,
-                "channelId:",
-                demoClient.session.channelId,
-              );
               const closeReceipt = await demoClient.session.close();
-              console.log(
-                "[DEBUG] closeReceipt:",
-                JSON.stringify(closeReceipt),
-              );
-              console.log("[DEBUG] sseReceipt:", JSON.stringify(sseReceipt));
               const hash =
                 closeReceipt?.txHash ?? sseReceipt?.txHash ?? undefined;
-              console.log("[DEBUG] resolved hash:", hash);
               if (hash) {
                 setTxHash(hash);
                 onTxHash?.(hash);
               }
-            } catch (e) {
-              console.error("[DEBUG] session.close() error:", e);
+            } catch {
               // Channel close failed — keep random hash
             }
           } else {
@@ -607,8 +594,8 @@ function AsyncSteps({
             liveContent = data.lines;
             onContentReceived?.(liveContent);
           }
-        } catch (e) {
-          console.error("Live fetch failed, using simulated content:", e);
+        } catch {
+          // live fetch failed — use simulated content
         }
 
         if (!paymentChannel) {
@@ -623,8 +610,8 @@ function AsyncSteps({
             await new Promise((r) => setTimeout(r, 600));
           }
         }
-      } catch (e) {
-        console.error("Live demo error:", e);
+      } catch {
+        // live demo error
       }
     })();
   }, [
@@ -1573,14 +1560,14 @@ function Wizard({
   ) => {
     const isActive = !opts?.completed;
     if (choice === "Chat with AI" || choice === "Write poem") {
-      const liveEndpoint =
-        choice === "Write poem"
-          ? `/api/demo/poem?prompt=${encodeURIComponent(opts?.url ?? "")}`
-          : `/api/demo/chat?prompt=${encodeURIComponent(opts?.url ?? "")}`;
+      const isPoem = choice === "Write poem";
+      const liveEndpoint = isPoem
+        ? `/api/demo/poem?prompt=${encodeURIComponent(opts?.url ?? "")}`
+        : `/api/demo/chat?prompt=${encodeURIComponent(opts?.url ?? "")}`;
       return (
         <AsyncSteps
           key={key}
-          endpoint="/api/chat"
+          endpoint={isPoem ? "/api/poem" : "/api/chat"}
           liveEndpoint={liveEndpoint}
           isRestart={opts?.isRestart}
           output={output}
@@ -1602,14 +1589,14 @@ function Wizard({
       );
     }
     if (choice === "Generate image" || choice === "Create ASCII art") {
-      const liveEndpoint =
-        choice === "Create ASCII art"
-          ? `/api/demo/ascii?prompt=${encodeURIComponent(opts?.url ?? "")}`
-          : `/api/demo/image?prompt=${encodeURIComponent(opts?.url ?? "")}`;
+      const isAscii = choice === "Create ASCII art";
+      const liveEndpoint = isAscii
+        ? `/api/demo/ascii?prompt=${encodeURIComponent(opts?.url ?? "")}`
+        : `/api/demo/image?prompt=${encodeURIComponent(opts?.url ?? "")}`;
       return (
         <AsyncSteps
           key={key}
-          endpoint="/api/image"
+          endpoint={isAscii ? "/api/ascii" : "/api/image"}
           liveEndpoint={liveEndpoint}
           isRestart={opts?.isRestart}
           output={output}
