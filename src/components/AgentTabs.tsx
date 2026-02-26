@@ -9,7 +9,7 @@ const FLAG_GREY = "var(--vocs-text-color-muted)";
 const PRESTO_INSTALL =
   "curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash";
 const PRESTO_LOGIN = "presto login";
-const QUICKSTART_URL = "https://mpp.sh/quickstart/client.md";
+const QUICKSTART_URL = "https://mpp.dev/quickstart/client.md";
 const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
 
 function CopyIcon({ copied }: { copied: boolean }) {

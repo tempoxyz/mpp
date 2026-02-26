@@ -2074,7 +2074,7 @@ export function Terminal({ className }: { className?: string }) {
             </span>
             <div className="h-2" />
             <p style={{ color: "var(--term-gray6)" }}>
-              mpp.sh@{__COMMIT_SHA__.slice(0, 7)} (released{" "}
+              mpp.dev@{__COMMIT_SHA__.slice(0, 7)} (released{" "}
               {timeAgo(__COMMIT_TIMESTAMP__)})
             </p>
             {showLogin && (

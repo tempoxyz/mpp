@@ -1147,7 +1147,7 @@ export function Startup() {
         <AsciiLogo />
       </div>
       <Line variant="info">
-        mpp.sh@{__COMMIT_SHA__} (released {timeAgo(__COMMIT_TIMESTAMP__)})
+        mpp.dev@{__COMMIT_SHA__} (released {timeAgo(__COMMIT_TIMESTAMP__)})
       </Line>
     </Block>
   );
