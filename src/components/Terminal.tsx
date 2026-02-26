@@ -533,16 +533,11 @@ function AsyncSteps({
           if (paymentChannel) {
             // Use session SSE for bidirectional voucher flow
             let sseReceipt: { txHash?: string; reference?: string } | undefined;
-            const t0 = performance.now();
-            console.log("[session-timing] session.sse() started");
             const stream = await demoClient.session.sse(demoEndpoint, {
               onReceipt: (r) => {
                 sseReceipt = r;
               },
             });
-            console.log(
-              `[session-timing] session.sse() resolved in ${(performance.now() - t0).toFixed(0)}ms`,
-            );
 
             // Capture channel ID after SSE opens the channel
             if (demoClient.session.channelId) {
@@ -1027,15 +1022,7 @@ function CardForm({
               className="cursor-pointer hover:underline"
               style={{ color: "#635BFF" }}
             >
-              [use test card]
-            </button>{" "}
-            <button
-              type="button"
-              onClick={useTestCard}
-              className="cursor-pointer hover:underline"
-              style={{ color: "#00D66F" }}
-            >
-              [use link]
+              Use test card (4242)
             </button>
           </>
         ) : (
@@ -1478,7 +1465,18 @@ function Wizard({
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    // All options now require user input
+    if (opt === "Write poem" || opt === "Create ASCII art") {
+      if (demoClient) {
+        setChosenOutput([]);
+      } else {
+        if (opt === "Write poem") setChosenOutput(pickChat());
+        else setChosenOutput(pickImage());
+      }
+      setChosenUrl(undefined);
+      setChosen(opt);
+      scrollTerminalIntoView();
+      return;
+    }
     setWaitingForUrl(true);
     setUrlInput("");
     setTimeout(() => urlRef.current?.focus(), 0);
@@ -1574,12 +1572,16 @@ function Wizard({
     },
   ) => {
     const isActive = !opts?.completed;
-    if (choice === "Chat with AI" || choice === "Write poem")
+    if (choice === "Chat with AI" || choice === "Write poem") {
+      const liveEndpoint =
+        choice === "Write poem"
+          ? `/api/demo/poem?prompt=${encodeURIComponent(opts?.url ?? "")}`
+          : `/api/demo/chat?prompt=${encodeURIComponent(opts?.url ?? "")}`;
       return (
         <AsyncSteps
           key={key}
           endpoint="/api/chat"
-          liveEndpoint={`/api/demo/chat?prompt=${encodeURIComponent(opts?.url ?? "")}`}
+          liveEndpoint={liveEndpoint}
           isRestart={opts?.isRestart}
           output={output}
           walletState={walletState}
@@ -1598,12 +1600,17 @@ function Wizard({
           }
         />
       );
-    if (choice === "Generate image" || choice === "Create ASCII art")
+    }
+    if (choice === "Generate image" || choice === "Create ASCII art") {
+      const liveEndpoint =
+        choice === "Create ASCII art"
+          ? `/api/demo/ascii?prompt=${encodeURIComponent(opts?.url ?? "")}`
+          : `/api/demo/image?prompt=${encodeURIComponent(opts?.url ?? "")}`;
       return (
         <AsyncSteps
           key={key}
           endpoint="/api/image"
-          liveEndpoint={`/api/demo/image?prompt=${encodeURIComponent(opts?.url ?? "")}`}
+          liveEndpoint={liveEndpoint}
           isRestart={opts?.isRestart}
           output={output}
           walletState={walletState}
@@ -1621,6 +1628,7 @@ function Wizard({
           }
         />
       );
+    }
     if (choice === "Search the web")
       return (
         <AsyncSteps
@@ -1644,11 +1652,15 @@ function Wizard({
           }
         />
       );
-    if (choice === "Summarize article" || choice === "Lookup company")
+    if (choice === "Summarize article" || choice === "Lookup company") {
+      const endpoint =
+        choice === "Lookup company"
+          ? `/api/demo/lookup?url=${encodeURIComponent(opts?.url ?? "")}`
+          : `/api/demo/article?url=${encodeURIComponent(opts?.url ?? "")}`;
       return (
         <StripeSteps
           key={key}
-          endpoint={`/api/demo/article?url=${encodeURIComponent(opts?.url ?? "")}`}
+          endpoint={endpoint}
           output={output}
           onDone={opts?.onDone}
           completed={opts?.completed}
@@ -1658,6 +1670,7 @@ function Wizard({
           onContentReceived={isActive ? handleContentReceived : undefined}
         />
       );
+    }
     return null;
   };
 

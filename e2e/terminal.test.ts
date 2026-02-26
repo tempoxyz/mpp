@@ -318,12 +318,6 @@ describe("terminal (classic mode)", () => {
 
     await pressKey(page, "Enter");
 
-    await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
-      timeout: 5_000,
-    });
-    await page.keyboard.type("roses are red");
-    await page.keyboard.press("Enter");
-
     await playwrightExpect(
       page.getByText("Creating wallet", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
@@ -358,12 +352,6 @@ describe("terminal (classic mode)", () => {
 
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
-
-    await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
-      timeout: 5_000,
-    });
-    await page.keyboard.type("a cat");
-    await page.keyboard.press("Enter");
 
     await playwrightExpect(
       page.getByText("Creating wallet", { exact: false }),

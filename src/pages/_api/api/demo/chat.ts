@@ -62,32 +62,12 @@ function tokenize(text: string): string[] {
 }
 
 export default async function handler(request: Request) {
-  const t0 = performance.now();
-  console.log(
-    `[server-timing] ${request.method} ${new URL(request.url).pathname} — session handler started`,
-  );
   const result = await mppx.session({
     amount: "0.0001",
     unitType: "token",
   })(request);
-  console.log(
-    `[server-timing] session() resolved in ${(performance.now() - t0).toFixed(0)}ms (status=${result.status})`,
-  );
 
-  if (result.status === 402) {
-    const challenge = result.challenge;
-    const wwwAuth =
-      challenge instanceof Response
-        ? challenge.headers.get("WWW-Authenticate")
-        : undefined;
-    console.log(
-      "[SERVER DEBUG] 402 for",
-      request.method,
-      "WWW-Authenticate:",
-      wwwAuth?.slice(0, 200),
-    );
-    return challenge;
-  }
+  if (result.status === 402) return result.challenge;
 
   // POST = voucher update (no body needed)
   if (request.method === "POST") return result.withReceipt();
