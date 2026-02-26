@@ -1359,7 +1359,7 @@ function ServiceRow({
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
-                    maxWidth: "50%",
+                    maxWidth: "45%",
                     cursor: "pointer",
                     transition: "color 0.15s",
                     flexShrink: 1,
@@ -1629,7 +1629,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
           style={{
             display: "none",
             gap: "0.5rem",
-            padding: "0.15rem 0.5rem 0.65rem 0.5rem",
+            padding: "0.15rem 1rem 0.65rem 1rem",
           }}
         >
           {docsUrl && (
@@ -1826,10 +1826,10 @@ function PageStyles() {
         [data-services-table] table col:nth-child(1) { width: auto !important; }
         [data-services-table] table col:nth-child(2),
         [data-services-table] table col:nth-child(3) { width: 0 !important; }
-        [data-services-table] table col:nth-child(4) { width: 36px !important; }
+        [data-services-table] table col:nth-child(4) { width: 44px !important; }
         [data-services-table] table { overflow: hidden !important; }
-        [data-services-table] table td:first-child { padding: 1rem 0.25rem 1rem 0.5rem !important; vertical-align: middle !important; }
-        [data-services-table] table td:last-child { padding: 1rem 0.5rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 36px !important; }
+        [data-services-table] table td:first-child { padding: 1rem 0.5rem 1rem 1rem !important; vertical-align: middle !important; }
+        [data-services-table] table td:last-child { padding: 1rem 1rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 44px !important; }
         .svc-icon { align-self: center !important; margin-top: 0 !important; }
         .svc-name-row { flex-wrap: nowrap !important; gap: 0.4rem !important; }
         .svc-name-row > span:first-child { font-size: 17px !important; }
@@ -1842,7 +1842,7 @@ function PageStyles() {
           display: grid !important;
           grid-template-columns: auto 1fr auto !important;
           grid-template-rows: auto auto !important;
-          padding: 0.65rem 0.5rem 0.65rem 0.5rem !important;
+          padding: 0.65rem 1rem 0.65rem 1rem !important;
           gap: 0.15rem 0.6rem !important;
           align-items: center !important;
         }
@@ -1878,7 +1878,7 @@ function PageStyles() {
         [data-services-table] table { margin-left: 0 !important; margin-right: 0 !important; width: 100% !important; }
         .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
         .svc-icon img { width: 34px !important; height: 34px !important; }
-        .sub-row { padding-left: 0.5rem !important; }
+        .sub-row { padding-left: 1rem !important; padding-right: 1rem !important; }
         .header-cards { padding: 0 0.5rem !important; }
         .filter-tags { padding: 0 0.5rem !important; margin-left: 0 !important; margin-right: 0 !important; }
         .filter-tags button { min-width: 0 !important; }
