@@ -371,7 +371,7 @@ export function ServicesPage() {
         {/* Header */}
         <div
           className="page-header"
-          style={{ marginBottom: "0.1rem", paddingLeft: "0.5rem" }}
+          style={{ marginBottom: "0.5rem", paddingLeft: "0.5rem" }}
         >
           <h1
             style={{
@@ -380,6 +380,8 @@ export function ServicesPage() {
               letterSpacing: "-0.02em",
               margin: 0,
               whiteSpace: "nowrap",
+              marginBottom: "0rem",
+              paddingBottom: "0rem",
             }}
           >
             Services
@@ -388,8 +390,9 @@ export function ServicesPage() {
             style={{
               color: "var(--vocs-text-color-secondary)",
               fontSize: 17,
-              lineHeight: 1.5,
-              marginBottom: "1.25rem",
+              lineHeight: 1.4,
+              marginBottom: "2.25rem",
+              marginTop: "-0.5rem",
             }}
           >
             MPP-enabled APIs your agent or application can pay for with
@@ -787,14 +790,24 @@ function HeaderCards({
         >
           <span
             style={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "#3B82F6",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 16,
+              height: 16,
               flexShrink: 0,
-              marginTop: 6,
+              marginTop: 2,
             }}
-          />
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "#3B82F6",
+              }}
+            />
+          </span>
           <div>
             <div style={titleS}>Third-party</div>
             <div style={descS}>APIs proxied through MPP</div>
@@ -1304,10 +1317,11 @@ function ServiceRow({
             <ServiceIcon service={s} />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div
+                className="svc-name-row"
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.1rem",
+                  gap: "0.35rem",
                   flexWrap: "wrap",
                 }}
               >
@@ -1316,7 +1330,6 @@ function ServiceRow({
                     fontWeight: 500,
                     fontSize: 16,
                     whiteSpace: "nowrap",
-                    width: "100%",
                   }}
                 >
                   {s.name}
@@ -1334,7 +1347,7 @@ function ServiceRow({
                   style={{
                     display: "none",
                     fontFamily: "var(--font-mono)",
-                    fontSize: 11,
+                    fontSize: 13,
                     color:
                       copiedId === `url-${s.id}`
                         ? "var(--vocs-text-color-heading)"
@@ -1424,13 +1437,80 @@ function ServiceRow({
           }}
         >
           <div
+            className="chevron-cell"
             style={{
               display: "flex",
+              alignItems: "center",
               justifyContent: "flex-end",
+              gap: "0.3rem",
               paddingRight: "0.5rem",
               color: "var(--vocs-text-color-muted)",
             }}
           >
+            {s.docs?.homepage && (
+              <a
+                href={s.docs.homepage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hide-mobile"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 26,
+                  height: 26,
+                  borderRadius: 5,
+                  color: "var(--vocs-text-color-muted)",
+                  transition: "background 0.15s, color 0.15s",
+                }}
+                title="Docs"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background =
+                    "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08))";
+                  e.currentTarget.style.color =
+                    "var(--vocs-text-color-heading)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "";
+                  e.currentTarget.style.color = "var(--vocs-text-color-muted)";
+                }}
+              >
+                <BookIcon size={14} />
+              </a>
+            )}
+            {s.provider?.url && (
+              <a
+                href={s.provider.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hide-mobile"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 26,
+                  height: 26,
+                  borderRadius: 5,
+                  color: "var(--vocs-text-color-muted)",
+                  transition: "background 0.15s, color 0.15s",
+                }}
+                title="Website"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background =
+                    "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08))";
+                  e.currentTarget.style.color =
+                    "var(--vocs-text-color-heading)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "";
+                  e.currentTarget.style.color = "var(--vocs-text-color-muted)";
+                }}
+              >
+                <ExternalLinkIcon size={14} />
+              </a>
+            )}
             <ChevronDownIcon expanded={expanded} />
           </div>
         </td>
@@ -1483,11 +1563,98 @@ function SubTh({
   );
 }
 
+function ExternalLinkIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" x2="21" y1="14" y2="3" />
+    </svg>
+  );
+}
+
+function BookIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+    </svg>
+  );
+}
+
 function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
   const baseUrl = s.serviceUrl ?? s.url;
+  const docsUrl = s.docs?.homepage;
+  const websiteUrl = s.provider?.url;
+  const mobileLinkStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.4rem",
+    padding: "0.45rem 0.75rem",
+    fontSize: 14,
+    borderRadius: 6,
+    border: "1px solid var(--vocs-border-color-primary)",
+    background: "light-dark(#fff, rgba(255,255,255,0.06))",
+    color: "var(--vocs-text-color-secondary)",
+    textDecoration: "none",
+    flex: 1,
+  };
   return (
     <div style={{ fontSize: 14 }}>
+      {(docsUrl || websiteUrl) && (
+        <div
+          className="show-tablet expanded-links"
+          style={{
+            display: "none",
+            gap: "0.5rem",
+            padding: "0.15rem 0.75rem 0.65rem 0.75rem",
+          }}
+        >
+          {docsUrl && (
+            <a
+              href={docsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={mobileLinkStyle}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <BookIcon /> Docs
+            </a>
+          )}
+          {websiteUrl && (
+            <a
+              href={websiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={mobileLinkStyle}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLinkIcon /> Website
+            </a>
+          )}
+        </div>
+      )}
       {s.endpoints.length > 0 && (
         <div>
           <div
@@ -1662,8 +1829,10 @@ function PageStyles() {
         [data-services-table] table td:first-child { padding: 0.8rem 0.5rem 0.8rem 0.75rem !important; vertical-align: middle !important; }
         [data-services-table] table td:last-child { padding: 0.8rem 0.5rem !important; vertical-align: middle !important; text-align: right !important; }
         .svc-icon { align-self: center !important; margin-top: 0 !important; }
+        .svc-name-row { flex-wrap: nowrap !important; gap: 0.4rem !important; }
+        .expanded-links { display: flex !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
-        .sub-row:first-child { border-top: 1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08)) !important; }
+        .sub-row:first-child { border-top: none !important; }
 
         .sub-row {
           display: grid !important;
