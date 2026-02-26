@@ -369,7 +369,7 @@ export function ServicesPage() {
         }}
       >
         {/* Header */}
-        <div style={{ marginBottom: "0.1rem" }}>
+        <div className="page-header" style={{ marginBottom: "0.1rem" }}>
           <h1
             style={{
               fontSize: "2.1rem",
@@ -758,49 +758,80 @@ function MobileInfoCards() {
     transition: "background 0.15s, border-color 0.15s",
   };
   return (
-    <div style={{ display: "flex", gap: "0.5rem" }}>
-      <a
-        href="https://mpp.tempo.xyz/llms.txt"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="info-card-link"
-        style={cs}
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      <div style={{ display: "flex", gap: "0.5rem" }}>
+        <a
+          href="https://mpp.tempo.xyz/llms.txt"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="info-card-link"
+          style={cs}
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            style={{ flexShrink: 0, color: "var(--vocs-text-color-muted)" }}
+          >
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+          </svg>
+          llms.txt
+        </a>
+        <a href="/overview" className="info-card-link" style={cs}>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            style={{ flexShrink: 0, color: "var(--vocs-text-color-muted)" }}
+          >
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+          Docs
+        </a>
+      </div>
+      <div
+        className="mobile-third-party"
+        style={{
+          ...cs,
+          justifyContent: "center",
+          background: "transparent",
+          border: "none",
+          padding: "0.3rem 0.2rem",
+        }}
       >
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          style={{ flexShrink: 0, color: "var(--vocs-text-color-muted)" }}
+        <span
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: "#3B82F6",
+            flexShrink: 0,
+          }}
+        />
+        <span
+          style={{
+            color: "var(--vocs-text-color-muted)",
+            fontWeight: 400,
+            fontSize: 13,
+          }}
         >
-          <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-          <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-        </svg>
-        llms.txt
-      </a>
-      <a href="/overview" className="info-card-link" style={cs}>
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          style={{ flexShrink: 0, color: "var(--vocs-text-color-muted)" }}
-        >
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-        </svg>
-        Docs
-      </a>
+          Third-party services proxied through MPP
+        </span>
+      </div>
     </div>
   );
 }
@@ -1176,8 +1207,6 @@ function ServiceIcon({ service: s }: { service: Service }) {
         height: 28,
         flexShrink: 0,
         marginRight: 6,
-        alignSelf: "flex-start",
-        marginTop: 2,
       }}
     >
       {s.id ? (
@@ -1212,8 +1241,8 @@ function ServiceIcon({ service: s }: { service: Service }) {
             position: "absolute",
             top: -3,
             right: -3,
-            width: 10,
-            height: 10,
+            width: 12,
+            height: 12,
             borderRadius: "50%",
             background: "#3B82F6",
             border: "2px solid var(--vocs-background-color-primary, #1a1a1a)",
@@ -1546,8 +1575,21 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                     }}
                   >
                     {ep.payment?.intent && <Badge>{ep.payment.intent}</Badge>}
+                    <span
+                      className="mobile-price"
+                      style={{
+                        display: "none",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: 13,
+                        color: "var(--vocs-text-color-muted)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {formatPrice(ep)}
+                    </span>
                   </div>
                   <div
+                    className="desktop-price"
                     style={{
                       padding: "0.65rem 1rem 0.65rem 0",
                       fontFamily: "var(--font-mono)",
@@ -1596,23 +1638,31 @@ function PageStyles() {
         [data-services-table] table col:nth-child(2),
         [data-services-table] table col:nth-child(3) { width: 0 !important; }
         [data-services-table] table col:nth-child(4) { width: 6% !important; }
-        [data-services-table] table td:first-child { padding: 0.8rem 0.5rem 0.8rem 0.75rem !important; vertical-align: top !important; }
-        [data-services-table] table td:last-child { padding: 0.8rem 0.25rem !important; vertical-align: top !important; padding-top: 1.1rem !important; }
+        [data-services-table] table td:first-child { padding: 0.8rem 0.5rem 0.8rem 0.75rem !important; vertical-align: middle !important; }
+        [data-services-table] table td:last-child { padding: 0.8rem 0.25rem !important; vertical-align: middle !important; }
+        .svc-icon { align-self: center !important; margin-top: 0 !important; }
+        .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
+        .sub-row:first-child { border-top: 1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08)) !important; }
 
         .sub-row {
           display: grid !important;
-          grid-template-columns: auto 1fr auto auto !important;
+          grid-template-columns: auto 1fr auto !important;
           grid-template-rows: auto auto !important;
-          padding: 0.75rem 0.75rem 0.75rem 3.5rem !important;
-          gap: 0.2rem 0.6rem !important;
-          align-items: baseline !important;
+          padding: 0.65rem 0.75rem 0.65rem 3.5rem !important;
+          gap: 0.15rem 0.6rem !important;
+          align-items: center !important;
         }
         .sub-row > * { padding: 0 !important; }
-        .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 14px !important; font-weight: 600 !important; }
-        .sub-row > *:nth-child(2) { grid-row: 1; grid-column: 2; }
-        .sub-row > *:nth-child(3) { grid-row: 2; grid-column: 1 / -1; font-size: 14px !important; color: var(--vocs-text-color-secondary) !important; }
-        .sub-row > *:nth-child(4) { grid-row: 1; grid-column: 3; }
-        .sub-row > *:nth-child(5) { grid-row: 1; grid-column: 4; text-align: right !important; font-size: 13px !important; }
+        /* Row 1: METHOD  description  Charge $price */
+        .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; font-weight: 600 !important; }
+        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; font-size: 13px !important; color: var(--vocs-text-color-secondary) !important; }
+        .sub-row > *:nth-child(4) { grid-row: 1; grid-column: 3; display: flex !important; align-items: center !important; gap: 0.4rem !important; justify-content: flex-end !important; }
+        /* Row 2: route spans full width */
+        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 12px !important; margin-top: 0.15rem; }
+        /* Hide desktop price, show inline mobile price */
+        .sub-row .desktop-price { display: none !important; }
+        .sub-row .mobile-price { display: inline !important; }
+        .sub-row .sub-header-row { border-bottom: 1px solid var(--vocs-border-color-primary); }
       }
 
       @media (max-width: 900px) {
@@ -1621,20 +1671,26 @@ function PageStyles() {
         .mobile-cards { display: flex !important; }
         .search-desktop { display: none !important; }
         .search-mobile { display: block !important; }
-        .services-container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-        [data-services-table] table { margin-left: -0.75rem !important; margin-right: -0.75rem !important; width: calc(100% + 1.5rem) !important; }
+        .services-container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+        [data-services-table] table { margin-left: -0.5rem !important; margin-right: -0.5rem !important; width: calc(100% + 1rem) !important; }
         [data-services-table] thead { display: none !important; }
-        .filter-tags { justify-content: center !important; max-width: 85% !important; margin-left: auto !important; margin-right: auto !important; }
-        .filter-tags button { font-size: 14px !important; padding: 0.35rem 0.75rem !important; }
+        [data-services-table] tbody tr:first-child { border-top: 1px solid var(--vocs-border-color-primary) !important; }
+        .filter-tags { justify-content: center !important; max-width: 75% !important; margin-left: auto !important; margin-right: auto !important; }
+        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 auto !important; justify-content: center !important; }
+        .filter-tags .search-desktop { display: none !important; }
+        .mobile-third-party { text-align: center !important; }
+        .page-header { text-align: center !important; }
+        .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
       }
 
       @media (max-width: 640px) {
-        .services-container { padding-left: 0rem !important; padding-right: 0rem !important; }
+        .services-container { padding-left: 0 !important; padding-right: 0 !important; }
         [data-services-table] table { margin-left: 0 !important; margin-right: 0 !important; width: 100% !important; }
         .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
         .svc-icon img { width: 34px !important; height: 34px !important; }
         .sub-row { padding-left: 3.75rem !important; }
-        .filter-tags { max-width: 100% !important; padding: 0 0.5rem !important; }
+        .filter-tags { padding: 0 0.5rem !important; }
+        .filter-tags button { min-width: 0 !important; }
         .search-mobile { padding: 0 0.5rem !important; }
         .mobile-cards { padding: 0 0.5rem !important; }
         h1, h1 + p { padding: 0 0.5rem !important; }
