@@ -389,7 +389,7 @@ export function ServicesPage() {
               color: "var(--vocs-text-color-secondary)",
               fontSize: 17,
               lineHeight: 1.5,
-              marginBottom: "2.25rem",
+              marginBottom: "1.25rem",
             }}
           >
             MPP-enabled APIs your agent or application can pay for with
@@ -782,8 +782,6 @@ function HeaderCards({
         <div
           style={{
             ...cs,
-            border: "none",
-            background: "transparent",
             padding: "0.65rem 0.5rem",
           }}
         >
@@ -1343,7 +1341,6 @@ function ServiceRow({
                     color: "var(--vocs-text-color-secondary)",
                     fontSize: 14,
                     lineHeight: 1.4,
-                    maxWidth: "60%",
                   }}
                 >
                   {s.description}
@@ -1631,6 +1628,7 @@ function PageStyles() {
         .hide-mobile { display: none !important; }
         .show-tablet { display: block !important; }
         span.show-tablet { display: inline-block !important; }
+        [data-services-table] table { table-layout: auto !important; }
         [data-services-table] table col:nth-child(1) { width: auto !important; }
         [data-services-table] table col:nth-child(2),
         [data-services-table] table col:nth-child(3) { width: 0 !important; }
@@ -1653,7 +1651,7 @@ function PageStyles() {
         .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; font-weight: 600 !important; }
         .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; font-size: 13px !important; color: var(--vocs-text-color-secondary) !important; }
         .sub-row > *:nth-child(4) { grid-row: 1; grid-column: 3; display: flex !important; align-items: center !important; gap: 0.4rem !important; justify-content: flex-end !important; }
-        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 12px !important; margin-top: 0.15rem; }
+        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 12px !important; margin-top: 0.4rem; text-align: left !important; justify-self: start !important; }
         .sub-row .desktop-price { display: none !important; }
         .sub-row .mobile-price { display: inline !important; }
       }
@@ -1666,11 +1664,11 @@ function PageStyles() {
         .services-container { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
         [data-services-table] table { margin-left: -0.5rem !important; margin-right: -0.5rem !important; width: calc(100% + 1rem) !important; }
         [data-services-table] thead { display: none !important; }
-        [data-services-table] tbody tr:first-child { border-top: 1px solid var(--vocs-border-color-primary) !important; }
-        .filter-tags { justify-content: center !important; }
-        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 auto !important; justify-content: center !important; }
+        .filter-tags { justify-content: center !important; margin-bottom: 2rem !important; }
+        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 18% !important; justify-content: center !important; }
         .filter-tags .search-desktop { display: none !important; }
-        .page-header { text-align: center !important; }
+        .search-mobile { margin-bottom: 1rem !important; }
+        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
       }
 
