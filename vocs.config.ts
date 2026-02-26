@@ -3,8 +3,9 @@ import { defineConfig, McpSource } from "vocs/config";
 const baseUrl = (() => {
   if (process.env.VERCEL_ENV === "production")
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  if (process.env.VERCEL_BRANCH_URL)
+    return `https://${process.env.VERCEL_BRANCH_URL}`;
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  // Use localhost for local development
   if (process.env.NODE_ENV !== "production") return "http://localhost:5173";
   return "";
 })();
