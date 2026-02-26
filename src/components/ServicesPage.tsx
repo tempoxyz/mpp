@@ -488,6 +488,31 @@ export function ServicesPage() {
                   </div>
                 </div>
                 <div
+                  className="search-bar"
+                  style={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    alignItems: "center",
+                    marginBottom: "0.75rem",
+                    marginLeft: "0.5rem",
+                    marginRight: "0.5rem",
+                  }}
+                >
+                  <IntegrationFilter
+                    value={integrationFilter}
+                    onChange={(v) => {
+                      setIntegrationFilter(v);
+                      setPage(0);
+                    }}
+                  />
+                  <SearchInput
+                    search={search}
+                    setSearch={setSearch}
+                    setPage={setPage}
+                    fullWidth
+                  />
+                </div>
+                <div
                   className="filter-tags"
                   style={{
                     display: "flex",
@@ -497,6 +522,7 @@ export function ServicesPage() {
                     alignItems: "center",
                     marginLeft: "0.5rem",
                     marginRight: "0.5rem",
+                    justifyContent: "flex-start",
                   }}
                 >
                   <Pill
@@ -514,28 +540,6 @@ export function ServicesPage() {
                       {CATEGORY_LABELS[cat] ?? cat}
                     </Pill>
                   ))}
-                  <div
-                    className="search-desktop"
-                    style={{
-                      marginLeft: "auto",
-                      display: "flex",
-                      gap: "0.5rem",
-                      alignItems: "center",
-                    }}
-                  >
-                    <IntegrationFilter
-                      value={integrationFilter}
-                      onChange={(v) => {
-                        setIntegrationFilter(v);
-                        setPage(0);
-                      }}
-                    />
-                    <SearchInput
-                      search={search}
-                      setSearch={setSearch}
-                      setPage={setPage}
-                    />
-                  </div>
                 </div>
                 <div data-services-table>
                   <table
@@ -1133,9 +1137,7 @@ function IntegrationFilter({
   onChange: (v: "all" | "first-party") => void;
 }) {
   const dotColor =
-    value === "first-party"
-      ? "#22c55e"
-      : "var(--vocs-text-color-muted)";
+    value === "first-party" ? "#22c55e" : "var(--vocs-text-color-muted)";
   return (
     <div style={{ position: "relative", flexShrink: 0 }}>
       <span
@@ -1153,9 +1155,7 @@ function IntegrationFilter({
       />
       <select
         value={value}
-        onChange={(e) =>
-          onChange(e.target.value as "all" | "first-party")
-        }
+        onChange={(e) => onChange(e.target.value as "all" | "first-party")}
         style={{
           appearance: "none",
           WebkitAppearance: "none",
@@ -1330,7 +1330,8 @@ function FallbackIcon({ name }: { name: string }) {
         fontWeight: 600,
         letterSpacing: "-0.02em",
         color: "var(--vocs-text-color-secondary)",
-        border: "1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08))",
+        border:
+          "1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08))",
       }}
     >
       {initials || "?"}
@@ -1437,6 +1438,7 @@ function ServiceRow({
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="svc-name-row">
                 <span
+                  className="svc-name-text"
                   style={{
                     fontWeight: 500,
                     fontSize: 16,
@@ -1447,9 +1449,14 @@ function ServiceRow({
                 </span>
                 {cats[0] && (
                   <span className="svc-badge-inline">
-                    <BorderlessBadge>
-                      {CATEGORY_LABELS[cats[0]] ?? cats[0]}
-                    </BorderlessBadge>
+                    <span className="svc-badge-bordered">
+                      <Badge>{CATEGORY_LABELS[cats[0]] ?? cats[0]}</Badge>
+                    </span>
+                    <span className="svc-badge-borderless">
+                      <BorderlessBadge>
+                        {CATEGORY_LABELS[cats[0]] ?? cats[0]}
+                      </BorderlessBadge>
+                    </span>
                   </span>
                 )}
               </div>
@@ -1933,6 +1940,9 @@ function PageStyles() {
       [data-services-table] table td, [data-services-table] table th { white-space: normal !important; min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
       .svc-name-row { display: flex; flex-direction: column; gap: 0.1rem; }
       .svc-badge-inline { display: block; }
+      .svc-badge-bordered { display: none; }
+      .svc-badge-borderless { display: inline; }
+      .svc-name-text { margin-right: 0.35rem; }
       .info-card-link:hover { background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06)) !important; border-color: light-dark(rgba(0,0,0,0.15), rgba(255,255,255,0.15)) !important; }
       .expanded-detail { animation: expandIn 0.15s ease-out; }
       @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
@@ -1945,7 +1955,8 @@ function PageStyles() {
       }
 
       /* ---- Table columns stack ---- */
-      @media (max-width: 1100px) {
+      @media (max-width: 1400px) {
+        .filter-tags button { flex: 1 0 auto !important; justify-content: center !important; }
         .hide-mobile { display: none !important; }
         .show-tablet { display: block !important; }
         [data-services-table] table { table-layout: auto !important; overflow: visible !important; }
@@ -1958,6 +1969,8 @@ function PageStyles() {
         .svc-icon { align-self: center !important; margin-top: 0 !important; }
         .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.1rem !important; flex-wrap: wrap !important; }
         .svc-badge-inline { display: inline !important; }
+        .svc-badge-bordered { display: inline !important; }
+        .svc-badge-borderless { display: none !important; }
         .svc-name-row > span:first-child { font-size: 17px !important; }
         .svc-desc-mobile { font-size: 16px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
         .expanded-links { display: flex !important; padding-left: 3.25rem !important; }
@@ -1996,13 +2009,12 @@ function PageStyles() {
         .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
         .header-cards-grid > * > div > div:first-child { font-size: 16px !important; }
         .header-cards-grid > * > div > div:last-child { font-size: 14px !important; line-height: 1.4 !important; }
-        .search-desktop { display: none !important; }
+        .search-bar { display: none !important; }
         .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
         .search-mobile select { font-size: 15px !important; padding-top: 0.55rem !important; padding-bottom: 0.55rem !important; }
         .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0 !important; margin-right: 0 !important; padding: 0 1.25rem !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 18% !important; justify-content: center !important; }
-        .filter-tags .search-desktop { display: none !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
         .pagination { padding: 0 1.25rem !important; }
