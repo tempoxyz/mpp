@@ -1082,6 +1082,9 @@ function Pill({
         fontSize: 13,
         borderRadius: 6,
         border: "1px solid var(--vocs-border-color-primary)",
+        whiteSpace: "nowrap",
+        flexShrink: 1,
+        minWidth: 0,
         background: active
           ? "light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.12))"
           : "transparent",
@@ -1162,6 +1165,21 @@ function Badge({ children }: { children: React.ReactNode }) {
         padding: "0.1rem 0.35rem",
         borderRadius: 3,
         border: "1px solid var(--vocs-border-color-primary)",
+        color: "var(--vocs-text-color-muted)",
+        whiteSpace: "nowrap",
+        textTransform: "capitalize",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+function BorderlessBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      style={{
+        fontSize: 12,
+        borderRadius: 3,
         color: "var(--vocs-text-color-muted)",
         whiteSpace: "nowrap",
         textTransform: "capitalize",
@@ -1286,19 +1304,27 @@ function ServiceRow({
             <ServiceIcon service={s} />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div
-                style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.1rem",
+                  flexWrap: "wrap",
+                }}
               >
                 <span
                   style={{
                     fontWeight: 500,
                     fontSize: 16,
                     whiteSpace: "nowrap",
+                    width: "100%",
                   }}
                 >
                   {s.name}
                 </span>
                 {cats[0] && (
-                  <Badge>{CATEGORY_LABELS[cats[0]] ?? cats[0]}</Badge>
+                  <BorderlessBadge>
+                    {CATEGORY_LABELS[cats[0]] ?? cats[0]}
+                  </BorderlessBadge>
                 )}
                 {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
                 {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
