@@ -60,7 +60,7 @@ function timeAgo(iso: string) {
 // ---------------------------------------------------------------------------
 
 const linkPattern =
-  /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
+  /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com|parallel\.ai)/g;
 
 function CssTriangle() {
   return (
@@ -133,8 +133,15 @@ function renderText(text: string): ReactNode {
         ? "https://tempo.xyz"
         : part === "Stripe.com"
           ? "https://stripe.com"
-          : `https://${part}`;
-    const color = part === "Stripe.com" ? "#635BFF" : "var(--term-teal9)";
+          : part === "parallel.ai"
+            ? "https://parallel.ai"
+            : `https://${part}`;
+    const color =
+      part === "Stripe.com"
+        ? "#635BFF"
+        : part === "parallel.ai"
+          ? "var(--term-blue9)"
+          : "var(--term-teal9)";
     return (
       <a
         // biome-ignore lint/suspicious/noArrayIndexKey: static split parts never reorder
@@ -381,6 +388,17 @@ const pickChat = createCyclicPicker(CHAT_RESPONSES);
 const pickImage = createCyclicPicker(IMAGE_RESULTS);
 const pickSearch = createCyclicPicker(SEARCH_RESULTS);
 const pickArticle = createCyclicPicker(ARTICLE_SUMMARIES);
+
+// ---------------------------------------------------------------------------
+// Service label for upstream API providers
+// ---------------------------------------------------------------------------
+
+function serviceLabel(endpoint: string): string | undefined {
+  if (endpoint.includes("/search")) return "parallel.ai web search";
+  if (endpoint.includes("/article") || endpoint.includes("/lookup"))
+    return "parallel.ai article extraction";
+  return undefined;
+}
 
 // ---------------------------------------------------------------------------
 // Step components
@@ -730,6 +748,16 @@ function AsyncSteps({
               }}
             >
               WWW-Authenticate: Payment
+            </p>
+          )}
+          {pastStep("req402") && serviceLabel(liveEndpoint ?? endpoint) && (
+            <p
+              style={{
+                color: "var(--term-gray6)",
+                paddingLeft: "2ch",
+              }}
+            >
+              via {renderText(serviceLabel(liveEndpoint ?? endpoint)!)}
             </p>
           )}
         </>
@@ -1223,6 +1251,16 @@ function StripeSteps({
               }}
             >
               WWW-Authenticate: Payment method=stripe intent=charge
+            </p>
+          )}
+          {pastStep("req402") && serviceLabel(endpoint) && (
+            <p
+              style={{
+                color: "var(--term-gray6)",
+                paddingLeft: "2ch",
+              }}
+            >
+              via {renderText(serviceLabel(endpoint)!)}
             </p>
           )}
         </>
