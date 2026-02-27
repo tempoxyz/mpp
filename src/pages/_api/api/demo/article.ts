@@ -59,6 +59,7 @@ export async function GET(request: Request) {
 
   // Try AI-powered summarization via Parallel Extract API
   const proxyFetch = getProxyFetch();
+  const fullUrl = input.startsWith("http") ? input : `https://${input}`;
   if (proxyFetch && input) {
     try {
       const res = await proxyFetch(
@@ -69,8 +70,9 @@ export async function GET(request: Request) {
           body: JSON.stringify({
             excerpts: true,
             full_content: false,
-            objective: "Summarize this article in 3-5 concise sentences. Be factual and informative.",
-            urls: [input],
+            objective:
+              "Summarize this article in 3-5 concise sentences. Be factual and informative.",
+            urls: [fullUrl],
           }),
         },
       );
