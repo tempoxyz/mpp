@@ -60,7 +60,7 @@ function timeAgo(iso: string) {
 // ---------------------------------------------------------------------------
 
 const linkPattern =
-  /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com|parallel\.ai)/g;
+  /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com|parallel\.ai|fal\.ai)/g;
 
 function CssTriangle() {
   return (
@@ -135,11 +135,13 @@ function renderText(text: string): ReactNode {
           ? "https://stripe.com"
           : part === "parallel.ai"
             ? "https://parallel.ai"
-            : `https://${part}`;
+            : part === "fal.ai"
+              ? "https://fal.ai"
+              : `https://${part}`;
     const color =
       part === "Stripe.com"
         ? "#635BFF"
-        : part === "parallel.ai"
+        : part === "parallel.ai" || part === "fal.ai"
           ? "var(--term-blue9)"
           : "var(--term-teal9)";
     return (
@@ -397,6 +399,8 @@ function serviceLabel(endpoint: string): string | undefined {
   if (endpoint.includes("/search")) return "parallel.ai web search";
   if (endpoint.includes("/article") || endpoint.includes("/lookup"))
     return "parallel.ai article extraction";
+  if (endpoint.includes("/image") || endpoint.includes("/ascii"))
+    return "fal.ai image generation";
   return undefined;
 }
 
