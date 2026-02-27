@@ -25,7 +25,28 @@ export function LandingPage() {
   useEffect(() => {
     const onScroll = () => setScrolledPastHero(window.scrollY > 100);
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    const nav = document.querySelector<HTMLElement>("[data-v-gutter-top]");
+    const saved: string[] = [];
+    if (nav) {
+      for (const cls of Array.from(nav.classList)) {
+        if (cls.includes("bg-")) {
+          saved.push(cls);
+          nav.classList.remove(cls);
+        }
+      }
+      nav.style.cssText +=
+        "; background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent 100%) !important; background-color: transparent !important;";
+    }
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (nav) {
+        for (const cls of saved) nav.classList.add(cls);
+        nav.style.removeProperty("background");
+        nav.style.removeProperty("background-color");
+        nav.style.removeProperty("background-image");
+      }
+    };
   }, []);
 
   return (
@@ -195,7 +216,7 @@ function LandingStyles() {
         .lockup-subtitle { text-align: left !important; text-align-last: auto !important; margin-top: 0.25rem !important; letter-spacing: 0.04em !important; }
         .hero-right .text-base { font-size: 1.125rem !important; line-height: 1.6 !important; margin-top: 1.5rem !important; }
         .landing-terminal { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
-        .landing-hero { padding: 1.75rem 1.5rem 0 !important; margin-top: 0 !important; }
+        .landing-hero { padding: 5.5rem 1.5rem 0 !important; margin-top: 0 !important; }
         .landing-page { row-gap: 1.5rem !important; }
         .landing-ctas { margin-top: 2rem !important; gap: 1rem !important; }
         .landing-ctas a { font-size: 1.0625rem !important; padding: 0.75rem 1.75rem !important; }
@@ -251,8 +272,8 @@ function LandingStyles() {
         border-color: light-dark(rgba(0,0,0,0.18), rgba(255,255,255,0.18)) !important;
       }
 
-      .landing-page ~ [data-v-gutter-top],
-      [data-v-gutter-top] {
+      [data-v-gutter-top][data-v-gutter-top][data-v-gutter-top],
+      [data-v-gutter-top][data-v-gutter-top][data-v-gutter-top] * {
         background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent 100%) !important;
         background-color: transparent !important;
         backdrop-filter: none !important;
