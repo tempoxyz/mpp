@@ -57,7 +57,12 @@ export async function GET(request: Request) {
   const input = url.searchParams.get("url") ?? "";
   const domain = normalizeUrl(input);
 
-  // Try AI-powered summarization via Parallel Extract API
+  // Use canned summary for known domains; try Parallel Extract for others
+  const summary = SUMMARIES[domain];
+  if (summary) {
+    return result.withReceipt(Response.json({ lines: summary }));
+  }
+
   const proxyFetch = getProxyFetch();
   const fullUrl = input.startsWith("http") ? input : `https://${input}`;
   if (proxyFetch && input) {
@@ -100,9 +105,8 @@ export async function GET(request: Request) {
     // Fall through to canned response
   }
 
-  // Fallback: canned responses
-  const summary = SUMMARIES[domain];
-  const lines = summary ?? [`  No summary available for ${domain}`];
+  // Fallback for unknown domains without Parallel results
+  const lines = [`  No summary available for ${domain}`];
 
   return result.withReceipt(Response.json({ lines }));
 }
