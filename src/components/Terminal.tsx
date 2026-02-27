@@ -594,8 +594,8 @@ function AsyncSteps({
             liveContent = data.lines;
             onContentReceived?.(liveContent);
           }
-        } catch {
-          // live fetch failed — use simulated content
+        } catch (e) {
+          console.error("Live fetch failed, using simulated content:", e);
         }
 
         if (!paymentChannel) {
@@ -610,8 +610,8 @@ function AsyncSteps({
             await new Promise((r) => setTimeout(r, 600));
           }
         }
-      } catch {
-        // live demo error
+      } catch (e) {
+        console.error("Live demo error:", e);
       }
     })();
   }, [
@@ -1453,12 +1453,9 @@ function Wizard({
       return;
     }
     if (opt === "Write poem" || opt === "Create ASCII art") {
-      if (demoClient) {
-        setChosenOutput([]);
-      } else {
-        if (opt === "Write poem") setChosenOutput(pickChat());
-        else setChosenOutput(pickImage());
-      }
+      // Always set canned fallback — live mode overwrites via onContentReceived
+      if (opt === "Write poem") setChosenOutput(pickChat());
+      else setChosenOutput(pickImage());
       setChosenUrl(undefined);
       setChosen(opt);
       scrollTerminalIntoView();
@@ -1473,18 +1470,14 @@ function Wizard({
     if (!urlInput.trim()) return;
     const opt = currentOptions[selected];
 
-    if (demoClient) {
-      setChosenOutput([]); // live mode — content comes from API
-    } else {
-      // simulated mode — pick from canned data
-      if (opt === "Chat with AI" || opt === "Write poem")
-        setChosenOutput(pickChat());
-      else if (opt === "Generate image" || opt === "Create ASCII art")
-        setChosenOutput(pickImage());
-      else if (opt === "Search the web") setChosenOutput(pickSearch());
-      else if (opt === "Summarize article" || opt === "Lookup company")
-        setChosenOutput(pickArticle());
-    }
+    // Always set canned fallback — live mode overwrites via onContentReceived
+    if (opt === "Chat with AI" || opt === "Write poem")
+      setChosenOutput(pickChat());
+    else if (opt === "Generate image" || opt === "Create ASCII art")
+      setChosenOutput(pickImage());
+    else if (opt === "Search the web") setChosenOutput(pickSearch());
+    else if (opt === "Summarize article" || opt === "Lookup company")
+      setChosenOutput(pickArticle());
 
     setChosenUrl(urlInput.trim());
     setWaitingForUrl(false);

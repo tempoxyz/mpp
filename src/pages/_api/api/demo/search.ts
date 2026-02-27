@@ -83,22 +83,26 @@ export async function GET(request: Request) {
   if (proxyFetch && query) {
     try {
       const res = await proxyFetch(
-        "https://exa.mpp.moderato.tempo.xyz/search",
+        "https://parallel.mpp.moderato.tempo.xyz/v1beta/search",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            query,
-            type: "neural",
-            numResults: 3,
-            contents: { text: { maxCharacters: 200 } },
+            excerpts: { max_chars_per_result: 200 },
+            max_results: 3,
+            objective: query,
+            search_queries: [query],
           }),
         },
       );
 
       if (res.ok) {
         const data = (await res.json()) as {
-          results?: Array<{ title?: string; url?: string; text?: string }>;
+          results?: Array<{
+            excerpts?: string[];
+            title?: string;
+            url?: string;
+          }>;
         };
 
         if (data.results && data.results.length > 0) {
@@ -107,8 +111,11 @@ export async function GET(request: Request) {
             if (i > 0) lines.push("");
             lines.push(`  ${i + 1}. ${r.title ?? "Untitled"}`);
             lines.push(`     ${r.url ?? ""}`);
-            if (r.text) {
-              const snippet = r.text.trim().replace(/\s+/g, " ").slice(0, 150);
+            if (r.excerpts?.[0]) {
+              const snippet = r.excerpts[0]
+                .trim()
+                .replace(/\s+/g, " ")
+                .slice(0, 150);
               lines.push(`     ${snippet}...`);
             }
           });
@@ -116,7 +123,7 @@ export async function GET(request: Request) {
         }
       }
     } catch (e) {
-      console.error("mpp-proxy Exa error:", e);
+      console.error("mpp-proxy Parallel Search error:", e);
     }
     // Fall through to canned response
   }

@@ -11,7 +11,12 @@ export function getProxyFetch(): typeof globalThis.fetch | null {
   const privateKey = process.env.FEE_PAYER_PRIVATE_KEY;
   if (!privateKey) return null;
 
-  const account = privateKeyToAccount(privateKey as `0x${string}`);
+  let account: ReturnType<typeof privateKeyToAccount>;
+  try {
+    account = privateKeyToAccount(privateKey as `0x${string}`);
+  } catch {
+    return null;
+  }
 
   const { fetch } = Mppx.create({
     polyfill: false,
