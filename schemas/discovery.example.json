@@ -5,7 +5,7 @@
       "id": "exa",
       "name": "Exa",
       "url": "https://api.exa.ai",
-      "serviceUrl": "https://mpp.tempo.xyz/exa",
+      "serviceUrl": "https://exa.mpp.tempo.xyz",
       "description": "AI-powered web search, content retrieval, and answers.",
       "categories": [
         "search",
@@ -105,7 +105,7 @@
       "id": "openrouter",
       "name": "OpenRouter",
       "url": "https://openrouter.ai/api",
-      "serviceUrl": "https://mpp.tempo.xyz/openrouter",
+      "serviceUrl": "https://openrouter.mpp.tempo.xyz",
       "description": "Unified API for 100+ LLMs with live per-model pricing.",
       "categories": [
         "ai"
@@ -159,7 +159,7 @@
       "id": "storage",
       "name": "Object Storage",
       "url": "https://mpp.tempo.xyz/storage",
-      "serviceUrl": "https://mpp.tempo.xyz/storage",
+      "serviceUrl": "https://storage.mpp.tempo.xyz",
       "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
       "categories": [
         "storage"

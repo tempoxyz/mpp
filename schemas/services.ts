@@ -90,7 +90,7 @@ export interface ServiceDef {
   name: string;
   /** Upstream provider URL (e.g. "https://api.openai.com") */
   url: string;
-  /** MPP service URL — where this service is accessed through the proxy (e.g. "https://mpp.tempo.xyz/openai") */
+  /** MPP service URL — where this service is accessed through the proxy (e.g. "https://openai.mpp.tempo.xyz") */
   serviceUrl: string;
   description: string;
   icon?: string;
@@ -118,7 +118,7 @@ export const services: ServiceDef[] = [
     id: "agentmail",
     name: "AgentMail",
     url: "https://api.agentmail.to",
-    serviceUrl: `https://${MPP_REALM}/agentmail`,
+    serviceUrl: `https://agentmail.${MPP_REALM}`,
     description:
       "Email inboxes for AI agents — create, send, receive, and manage email programmatically.",
     categories: ["ai", "social"],
@@ -424,7 +424,7 @@ export const services: ServiceDef[] = [
     id: "alchemy",
     name: "Alchemy",
     url: "https://eth-mainnet.g.alchemy.com",
-    serviceUrl: `https://${MPP_REALM}/alchemy`,
+    serviceUrl: `https://alchemy.${MPP_REALM}`,
     description:
       "Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.",
     categories: ["blockchain", "data"],
@@ -463,7 +463,7 @@ export const services: ServiceDef[] = [
     id: "anthropic",
     name: "Anthropic",
     url: "https://api.anthropic.com",
-    serviceUrl: `https://${MPP_REALM}/anthropic`,
+    serviceUrl: `https://anthropic.${MPP_REALM}`,
     description:
       "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
     categories: ["ai"],
@@ -497,7 +497,7 @@ export const services: ServiceDef[] = [
     id: "browserbase",
     name: "Browserbase",
     url: "https://api.browserbase.com",
-    serviceUrl: `https://${MPP_REALM}/browserbase`,
+    serviceUrl: `https://browserbase.${MPP_REALM}`,
     description: "Headless browser sessions for web scraping and automation.",
     categories: ["web", "compute"],
     integration: "third-party",
@@ -530,7 +530,7 @@ export const services: ServiceDef[] = [
     id: "codex",
     name: "Codex",
     url: "https://graph.codex.io",
-    serviceUrl: `https://${MPP_REALM}/codex`,
+    serviceUrl: `https://codex.${MPP_REALM}`,
     description:
       "GraphQL API for DeFi and blockchain data across 80+ networks.",
     categories: ["blockchain", "data"],
@@ -559,7 +559,7 @@ export const services: ServiceDef[] = [
     id: "digitalocean",
     name: "DigitalOcean",
     url: "https://api.digitalocean.com",
-    serviceUrl: `https://${MPP_REALM}/digitalocean`,
+    serviceUrl: `https://digitalocean.${MPP_REALM}`,
     description:
       "Cloud infrastructure for 1-click deploy of hosted MPP Agents on DigitalOcean Droplets.",
     categories: ["compute"],
@@ -603,7 +603,7 @@ export const services: ServiceDef[] = [
     id: "elevenlabs",
     name: "ElevenLabs",
     url: "https://api.elevenlabs.io",
-    serviceUrl: `https://${MPP_REALM}/elevenlabs`,
+    serviceUrl: `https://elevenlabs.${MPP_REALM}`,
     description: "Text-to-speech, speech-to-text, and voice cloning.",
     categories: ["ai", "media"],
     integration: "third-party",
@@ -647,7 +647,7 @@ export const services: ServiceDef[] = [
     id: "exa",
     name: "Exa",
     url: "https://api.exa.ai",
-    serviceUrl: `https://${MPP_REALM}/exa`,
+    serviceUrl: `https://exa.${MPP_REALM}`,
     description: "AI-powered web search, content retrieval, and answers.",
     categories: ["search", "ai"],
     integration: "third-party",
@@ -682,7 +682,7 @@ export const services: ServiceDef[] = [
     id: "fal",
     name: "fal.ai",
     url: "https://fal.run",
-    serviceUrl: `https://${MPP_REALM}/fal`,
+    serviceUrl: `https://fal.${MPP_REALM}`,
     description:
       "Image, video, and audio generation with 600+ models (Flux, SD, Recraft, Grok).",
     categories: ["ai", "media"],
@@ -786,7 +786,7 @@ export const services: ServiceDef[] = [
     id: "firecrawl",
     name: "Firecrawl",
     url: "https://api.firecrawl.dev",
-    serviceUrl: `https://${MPP_REALM}/firecrawl`,
+    serviceUrl: `https://firecrawl.${MPP_REALM}`,
     description:
       "Web scraping, crawling, and structured data extraction for LLMs.",
     categories: ["web", "data"],
@@ -819,7 +819,7 @@ export const services: ServiceDef[] = [
     id: "gemini",
     name: "Google Gemini",
     url: "https://generativelanguage.googleapis.com",
-    serviceUrl: `https://${MPP_REALM}/gemini`,
+    serviceUrl: `https://gemini.${MPP_REALM}`,
     description:
       "Gemini text generation, Veo video, and Nano Banana image generation with model-tier pricing.",
     categories: ["ai", "media"],
@@ -873,7 +873,7 @@ export const services: ServiceDef[] = [
     id: "modal",
     name: "Modal",
     url: "https://api.modal.com",
-    serviceUrl: `https://${MPP_REALM}/modal`,
+    serviceUrl: `https://modal.${MPP_REALM}`,
     description:
       "Serverless GPU compute for sandboxed code execution and AI/ML workloads.",
     categories: ["compute"],
@@ -905,7 +905,7 @@ export const services: ServiceDef[] = [
     id: "openai",
     name: "OpenAI",
     url: "https://api.openai.com",
-    serviceUrl: `https://${MPP_REALM}/openai`,
+    serviceUrl: `https://openai.${MPP_REALM}`,
     description:
       "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
     icon: "https://mpp.tempo.xyz/icons/openai.svg",
@@ -963,7 +963,7 @@ export const services: ServiceDef[] = [
     id: "openrouter",
     name: "OpenRouter",
     url: "https://openrouter.ai/api",
-    serviceUrl: `https://${MPP_REALM}/openrouter`,
+    serviceUrl: `https://openrouter.${MPP_REALM}`,
     description: "Unified API for 100+ LLMs with live per-model pricing.",
     categories: ["ai"],
     integration: "third-party",
@@ -991,7 +991,7 @@ export const services: ServiceDef[] = [
     id: "parallel",
     name: "Parallel",
     url: "https://api.parallel.ai",
-    serviceUrl: `https://${MPP_REALM}/parallel`,
+    serviceUrl: `https://parallel.${MPP_REALM}`,
     description:
       "Web search, page extraction, and web-grounded chat completions.",
     categories: ["search", "ai"],
@@ -1028,7 +1028,7 @@ export const services: ServiceDef[] = [
     id: "rpc",
     name: "Tempo RPC",
     url: "https://rpc.tempo.xyz",
-    serviceUrl: `https://${MPP_REALM}/rpc`,
+    serviceUrl: `https://rpc.${MPP_REALM}`,
     description: "Tempo blockchain JSON-RPC access (mainnet and testnet).",
     categories: ["blockchain"],
     integration: "first-party",
@@ -1056,7 +1056,7 @@ export const services: ServiceDef[] = [
     id: "storage",
     name: "Object Storage",
     url: "https://mpp.tempo.xyz/storage",
-    serviceUrl: `https://${MPP_REALM}/storage`,
+    serviceUrl: `https://storage.${MPP_REALM}`,
     description:
       "S3/R2-compatible object storage with dynamic per-size pricing.",
     categories: ["storage"],
@@ -1095,7 +1095,7 @@ export const services: ServiceDef[] = [
     id: "twitter",
     name: "Twitter/X",
     url: "https://api.x.com",
-    serviceUrl: `https://${MPP_REALM}/twitter`,
+    serviceUrl: `https://twitter.${MPP_REALM}`,
     description: "X API v2 for tweets, users, and search.",
     categories: ["social", "data"],
     integration: "third-party",

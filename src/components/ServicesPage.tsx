@@ -982,9 +982,7 @@ function SidebarInfoCards() {
         />
         <div>
           <div style={titleStyle}>First-party services</div>
-          <div style={descStyle}>
-            Directly integrated with MPP.
-          </div>
+          <div style={descStyle}>Directly integrated with MPP.</div>
         </div>
       </div>
     </div>
@@ -1013,9 +1011,9 @@ function PrestoSteps() {
       <CliSnippet
         label="Make a request"
         desc="Payment handled automatically."
-      >{`presto https://mpp.tempo.xyz/openai/v1/chat/completions \\\n  -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello!"}]}'`}</CliSnippet>
+      >{`presto https://openai.mpp.tempo.xyz/v1/chat/completions \\\n  -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello!"}]}'`}</CliSnippet>
       <CliSnippet label="Dry run" desc="Preview cost without paying.">
-        presto --dry-run https://mpp.tempo.xyz/openai/v1/chat/completions
+        presto --dry-run https://openai.mpp.tempo.xyz/v1/chat/completions
       </CliSnippet>
     </div>
   );
