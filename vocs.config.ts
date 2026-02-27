@@ -83,6 +83,7 @@ export default defineConfig({
             link: "https://tempoxyz.github.io/mpp-specs/",
           },
           { text: "FAQ", link: "/faq" },
+          { text: "Build with AI", link: "/guides/building-with-ai" },
         ],
       },
       {
@@ -97,7 +98,6 @@ export default defineConfig({
       {
         text: "Guides",
         items: [
-          { text: "Build with AI", link: "/guides/building-with-ai" },
           {
             text: "Accept One-Time Payments",
             link: "/guides/one-time-payments",
