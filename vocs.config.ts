@@ -77,7 +77,6 @@ export default defineConfig({
         text: "Introduction",
         items: [
           { text: "Overview", link: "/overview" },
-          { text: "Services", link: "/services" },
           {
             text: "IETF Specs",
             link: "https://tempoxyz.github.io/mpp-specs/",

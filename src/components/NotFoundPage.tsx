@@ -273,7 +273,8 @@ function NotFoundHeaderLogo() {
   if (!target) return null;
 
   return createPortal(
-    <div
+    <a
+      href="/"
       style={{
         position: "absolute",
         top: 0,
@@ -281,8 +282,9 @@ function NotFoundHeaderLogo() {
         height: "100%",
         display: "flex",
         alignItems: "center",
-        pointerEvents: "none",
+        pointerEvents: "auto",
         zIndex: 1,
+        textDecoration: "none",
       }}
     >
       <picture>
@@ -293,7 +295,7 @@ function NotFoundHeaderLogo() {
           style={{ height: 20, width: "auto" }}
         />
       </picture>
-    </div>,
+    </a>,
     target,
   );
 }

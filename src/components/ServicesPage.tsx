@@ -1999,7 +1999,7 @@ function PageStyles() {
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
         .search-mobile select { font-size: 15px !important; padding-top: 0.55rem !important; padding-bottom: 0.55rem !important; }
         .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0 !important; margin-right: 0 !important; padding: 0 1.25rem !important; }
-        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 18% !important; justify-content: center !important; }
+        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 auto !important; justify-content: center !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
         .pagination { padding: 0 1.25rem !important; }
@@ -2014,7 +2014,7 @@ function PageStyles() {
         .expanded-links { padding-left: 4rem !important; }
         .header-cards-grid > * > div > div:first-child { font-size: 17px !important; }
         .header-cards-grid > * > div > div:last-child { font-size: 15px !important; }
-        .filter-tags button { min-width: 0 !important; }
+        .filter-tags button { min-width: auto !important; }
       }
     `}</style>
   );
