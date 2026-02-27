@@ -395,13 +395,16 @@ const pickArticle = createCyclicPicker(ARTICLE_SUMMARIES);
 // Service label for upstream API providers
 // ---------------------------------------------------------------------------
 
+const SERVICE_LABELS: [string, string][] = [
+  ["/article", "parallel.ai article extraction"],
+  ["/ascii", "fal.ai image generation"],
+  ["/image", "fal.ai image generation"],
+  ["/lookup", "parallel.ai article extraction"],
+  ["/search", "parallel.ai web search"],
+];
+
 function serviceLabel(endpoint: string): string | undefined {
-  if (endpoint.includes("/search")) return "parallel.ai web search";
-  if (endpoint.includes("/article") || endpoint.includes("/lookup"))
-    return "parallel.ai article extraction";
-  if (endpoint.includes("/image") || endpoint.includes("/ascii"))
-    return "fal.ai image generation";
-  return undefined;
+  return SERVICE_LABELS.find(([k]) => endpoint.includes(k))?.[1];
 }
 
 // ---------------------------------------------------------------------------
