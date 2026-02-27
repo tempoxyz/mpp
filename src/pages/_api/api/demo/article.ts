@@ -70,8 +70,7 @@ export async function GET(request: Request) {
           body: JSON.stringify({
             excerpts: true,
             full_content: false,
-            objective:
-              "Summarize this article in 3-5 concise sentences. Be factual and informative.",
+            objective: `Summarize ${fullUrl} in 3-5 concise sentences about what the company or site does. Be factual and specific to this domain.`,
             urls: [fullUrl],
           }),
         },
