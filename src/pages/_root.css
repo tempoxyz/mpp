@@ -30,17 +30,19 @@
 }
 
 @font-face {
-  font-family: "Geist Pixel Line";
-  src: url("/fonts/GeistPixel-Line.woff2") format("woff2");
-  font-weight: 400 700;
+  font-family: "VTC Du Bois";
+  src: url("/fonts/VTCDuBoisTrial-Regular.woff2") format("woff2");
+  font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: "Geist Pixel Grid";
-  src: url("/fonts/GeistPixel-Grid.woff2") format("woff2");
-  font-weight: 400 700;
+  font-family: "VTC Du Bois";
+  src: url("/fonts/VTCDuBoisTrial-Bold.woff2") format("woff2");
+  font-weight: 700;
   font-style: normal;
+  font-display: swap;
   font-display: swap;
 }
 
@@ -114,6 +116,20 @@ html {
 
 [data-v-main] {
   padding-bottom: 0;
+}
+
+/* Cap the entire layout at 1600px and center it */
+[data-v-sidebar] {
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Round the white surface panel on the right side too */
+@media (min-width: 1080px) {
+  [data-v-surface-bg] {
+    border-top-right-radius: 1rem !important;
+  }
 }
 
 /* Header logo - themed color */

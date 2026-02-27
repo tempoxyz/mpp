@@ -372,14 +372,11 @@ export function ServicesPage() {
         style={{
           maxWidth: 1600,
           margin: "0 auto",
-          padding: "3rem 2.5rem 5rem",
+          padding: "3rem 2.5rem 5rem 1.375rem",
         }}
       >
         {/* Header */}
-        <div
-          className="page-header"
-          style={{ marginBottom: "0.5rem", paddingLeft: "0.5rem" }}
-        >
+        <div className="page-header" style={{ marginBottom: "0.5rem" }}>
           <h1
             style={{
               fontSize: "2.1rem",
@@ -1927,7 +1924,10 @@ function ExpandedDetail({ service: s }: { service: Service }) {
 function PageStyles() {
   return (
     <style>{`
-      [data-layout="minimal"] main > article { max-width: none !important; }
+      
+      [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; }
+      [data-layout="minimal"] main > article { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+
       @media (max-width: 900px) {
         [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
         [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
@@ -1937,8 +1937,8 @@ function PageStyles() {
       .show-tablet { display: none !important; }
       [data-services-table] table { table-layout: fixed !important; }
       [data-services-table] table td, [data-services-table] table th { white-space: normal !important; min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
-      .svc-name-row { display: flex; flex-direction: column; gap: 0.1rem; }
-      .svc-badge-inline { display: block; }
+      .svc-name-row { display: flex; flex-direction: column; gap: 0; }
+      .svc-badge-inline { display: block; line-height: 1; margin-top: -0.1rem; }
       .svc-badge-bordered { display: none; }
       .svc-badge-borderless { display: inline; }
       .svc-name-text { margin-right: 0.35rem; }

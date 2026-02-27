@@ -75,25 +75,12 @@ function CssTriangle() {
 const QUICKSTART_LABEL_WIDTH = "13em";
 
 function BlankLine() {
-  return <div className="h-6" />;
+  return <div style={{ height: "1.5rem" }}>{"\u00a0"}</div>;
 }
 
-function TruncatedHex({
-  hash,
-  children,
-}: {
-  hash: string;
-  children: ReactNode;
-}) {
-  return (
-    <>
-      {/* biome-ignore format: contains unicode … */}
-      <span className="md:hidden">
-        {hash.slice(0, 6)}…{hash.slice(-4)}
-      </span>
-      <span className="hidden md:inline">{children}</span>
-    </>
-  );
+function TruncatedHex({ hash }: { hash: string; children?: ReactNode }) {
+  // biome-ignore format: contains unicode …
+  return <>{hash.slice(0, 6)}…{hash.slice(-6)}</>;
 }
 
 function renderText(text: string): ReactNode {
@@ -160,25 +147,27 @@ function QuickstartOutput() {
 // Persist state — skip re-animation on refresh within 24h
 // ---------------------------------------------------------------------------
 
-const PERSIST_KEY = "mpp-terminal-visited";
-const PERSIST_TTL = 24 * 60 * 60 * 1000;
+const PERSIST_KEY = "mpp-terminal-animated";
 
-function hasVisitedRecently(): boolean {
+function shouldSkipAnimation(): boolean {
   try {
-    const stored = localStorage.getItem(PERSIST_KEY);
-    if (!stored) return false;
-    const ts = Number(stored);
-    return Date.now() - ts < PERSIST_TTL;
+    const animated = sessionStorage.getItem(PERSIST_KEY);
+    if (!animated) return false;
+    const navEntries = performance.getEntriesByType?.(
+      "navigation",
+    ) as PerformanceNavigationTiming[];
+    if (navEntries?.[0]?.type === "reload") return false;
+    return true;
   } catch {
     return false;
   }
 }
 
-function markVisited() {
+function markAnimated() {
   try {
-    localStorage.setItem(PERSIST_KEY, String(Date.now()));
+    sessionStorage.setItem(PERSIST_KEY, "1");
   } catch {
-    // localStorage unavailable
+    // sessionStorage unavailable
   }
 }
 
@@ -193,7 +182,7 @@ const JITTER = 35;
 const LINE_DELAY = 500;
 
 function useTypewriter() {
-  const skip = SKIP_ANIMATION || hasVisitedRecently();
+  const skip = SKIP_ANIMATION || shouldSkipAnimation();
   const [showLogin, setShowLogin] = useState(skip);
   const [showPrompt, setShowPrompt] = useState(skip);
   const [started, setStarted] = useState(skip);
@@ -202,7 +191,7 @@ function useTypewriter() {
   const done = started && lineIndex >= lines.length;
 
   useEffect(() => {
-    if (done) markVisited();
+    if (done) markAnimated();
   }, [done]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: skip is stable (derived from env var + localStorage)
@@ -729,6 +718,7 @@ function AsyncSteps({
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("fund")} /> Funding wallet with{" "}
           <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
+          <BlankLine />
         </p>
       )}
       {/* biome-ignore format: contains unicode → */}
@@ -844,6 +834,8 @@ function AsyncSteps({
           >
             {outputText.slice(0, streamChars)}
           </pre>
+          <BlankLine />
+
           {/* biome-ignore format: contains unicode ✔︎ */}
           {tokenCount > 0 && (
             <p style={{ color: "var(--term-gray6)" }}>
@@ -880,16 +872,19 @@ function AsyncSteps({
             )}
           </p>
           {pastStep("closeChannel") && (
-            <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
-              Spent{" "}
-              <span style={{ color: "var(--term-amber9)" }}>
-                {(tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
-              </span>
-              {" · "}Refunded{" "}
-              <span style={{ color: "var(--term-amber9)" }}>
-                {(5 - tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
-              </span>
-            </p>
+            <span style={{ display: "flex", alignItems: "flex-start" }}>
+              <span style={{ color: "var(--term-green9)" }}>✔︎</span>
+              <p style={{ color: "var(--term-gray6)", paddingLeft: "1ch" }}>
+                Spent{" "}
+                <span style={{ color: "var(--term-amber9)" }}>
+                  {(tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
+                </span>
+                {" · "}Refunded{" "}
+                <span style={{ color: "var(--term-amber9)" }}>
+                  {(5 - tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
+                </span>
+              </p>
+            </span>
           )}
         </>
       )}
@@ -944,6 +939,11 @@ function CardForm({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Tab" && field === "number") {
+      e.preventDefault();
+      fillTestCard();
+      return;
+    }
     if (e.key !== "Enter") return;
     if (field === "number" && cardNumber.trim()) setField("expiry");
     else if (field === "expiry" && expiry.trim()) setField("cvc");
@@ -960,7 +960,7 @@ function CardForm({
   const displayExpiry = expiry;
   const maskedCvc = "•••";
 
-  const useTestCard = () => {
+  const fillTestCard = () => {
     setField("done");
     onSubmit({ last4: "4242", expiry: "12/34" });
   };
@@ -968,7 +968,7 @@ function CardForm({
   return (
     <div className="flex flex-col" style={{ paddingLeft: "2ch" }}>
       <p style={{ color: "var(--term-gray6)" }}>
-        Card number:{" "}
+        <span style={{ color: "var(--term-gray9)" }}>Card number:</span>{" "}
         {field === "number" ? (
           <>
             <BlockCursorInput
@@ -983,14 +983,9 @@ function CardForm({
               autoComplete="off"
               data-1p-ignore
             />{" "}
-            <button
-              type="button"
-              onClick={useTestCard}
-              className="cursor-pointer hover:underline"
-              style={{ color: "#635BFF" }}
-            >
-              Use test card (4242)
-            </button>
+            <span style={{ color: "var(--term-gray5)" }}>
+              [Tab] to use test card
+            </span>
           </>
         ) : (
           <span style={{ color: "var(--term-gray10)" }}>
@@ -1000,7 +995,7 @@ function CardForm({
       </p>
       {field !== "number" && (
         <p style={{ color: "var(--term-gray6)" }}>
-          Expiry:{" "}
+          <span style={{ color: "var(--term-gray9)" }}>Expiry:</span>{" "}
           {field === "expiry" ? (
             <BlockCursorInput
               ref={inputRef}
@@ -1021,7 +1016,7 @@ function CardForm({
       )}
       {field !== "number" && field !== "expiry" && (
         <p style={{ color: "var(--term-gray6)" }}>
-          CVC:{" "}
+          <span style={{ color: "var(--term-gray9)" }}>CVC:</span>{" "}
           {field === "cvc" ? (
             <BlockCursorInput
               ref={inputRef}
@@ -1206,7 +1201,9 @@ function StripeSteps({
               <span style={{ color: "var(--term-gray9)" }}>
                 WWW-Authenticate:
               </span>{" "}
-              Payment method=stripe intent=charge
+              Payment Method:{" "}
+              <span style={{ color: "var(--term-amber)" }}>stripe</span> ⋅{" "}
+              Intent: <span style={{ color: "var(--term-amber)" }}>charge</span>
             </p>
           )}
         </>
@@ -1618,13 +1615,16 @@ function Wizard({
             scrollTerminalIntoView();
           }}
         >
-          Run another demo? [Press Enter]
+          Run another demo? Press{" "}
+          <span style={{ color: "var(--term-amber)" }}>[Enter ⏎]</span>
         </button>
       ) : (
         <div>
           <p style={{ color: "var(--term-gray10)" }}>
             What would you like to do?
           </p>
+
+          <BlankLine />
           <div className="flex flex-col" style={{ paddingLeft: "1rem" }}>
             {currentOptions.map((option, i) => (
               <button
@@ -1656,12 +1656,22 @@ function Wizard({
                 )}
               </button>
             ))}
+            <BlankLine />
           </div>
           {/* biome-ignore format: contains unicode ↑↓ */}
           {!chosen && !waitingForUrl && (
-            <p style={{ color: "var(--term-gray5)" }}>
-              Use ↑↓ arrows and Enter to select
-            </p>
+            <>
+              <BlankLine />
+              <p
+                style={{
+                  color: "var(--term-gray5)",
+                  textAlign: "right",
+                  marginTop: "0.75rem",
+                }}
+              >
+                Use ↑↓ arrows and Enter to select
+              </p>
+            </>
           )}
           {waitingForUrl && (
             <p style={{ color: "var(--term-gray6)" }}>
@@ -1786,6 +1796,7 @@ function WalletSetup({
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={step === 1} /> Funding wallet with{" "}
           <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
+          <BlankLine />
         </p>
       )}
     </div>
