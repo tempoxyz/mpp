@@ -517,7 +517,7 @@ const SelectContext = createContext<{
   currentValue: string;
 }>({ currentValue: "" });
 
-function getFirstOptionValue(children: ReactNode): string {
+export function getFirstOptionValue(children: ReactNode): string {
   const childArray = Children.toArray(children);
   for (const child of childArray) {
     if (

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const ASCII_MPP = `
+export const ASCII_MPP = `
 @@@@@@@@%                                $@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%$$$=       
 @@@@@@@@@@$                             $@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$=    
 @@@@@@@@@@@$                           %@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$   
@@ -25,7 +25,7 @@ const ASCII_MPP = `
 %%%%%%%%=               $%$               $%%%%%%%$                          $%%%%%%%$`;
 
 // Characters to cycle through for "filled" positions
-const FILL_CHARS = [
+export const FILL_CHARS = [
   "@",
   "#",
   "%",
@@ -59,14 +59,14 @@ interface Packet {
   trail: { x: number; y: number }[];
 }
 
-const PACKET_SPEED = 0.55;
-const TRAIL_LENGTH = 15;
-const NUM_PACKETS = 8;
+export const PACKET_SPEED = 0.55;
+export const TRAIL_LENGTH = 15;
+export const NUM_PACKETS = 8;
 
 // Node characters (rendered as small 3×3 clusters)
 const NODE_CHAR = "█";
 // Trail characters by recency: head → tail
-const TRAIL_CHARS = [
+export const TRAIL_CHARS = [
   "●",
   "●",
   "●",

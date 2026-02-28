@@ -44,7 +44,7 @@ function useDemoClient() {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function timeAgo(iso: string) {
+export function timeAgo(iso: string) {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.floor(seconds / 60);
@@ -59,7 +59,7 @@ function timeAgo(iso: string) {
 // Link detection
 // ---------------------------------------------------------------------------
 
-const linkPattern =
+export const linkPattern =
   /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com|parallel\.ai|fal\.ai)/g;
 
 function CssTriangle() {
@@ -289,45 +289,46 @@ async function randomAddress() {
   return privateKeyToAccount(key).address;
 }
 
-function randomTxHash() {
+export function randomTxHash() {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   return `0x${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
-const COMPANIES: Record<string, { title: string; description: string }> = {
-  "stripe.com": {
-    title: "Stripe | Financial Infrastructure for the Internet",
-    description:
-      "Stripe powers online and in-person payment processing and financial solutions for businesses of all sizes.",
-  },
-  "tempo.xyz": {
-    title: "Tempo | The Network for Stablecoins",
-    description:
-      "Tempo is a high-performance blockchain network purpose-built for stablecoins and payments.",
-  },
-  "openai.com": {
-    title: "OpenAI",
-    description:
-      "OpenAI is an AI research and deployment company dedicated to ensuring that artificial general intelligence benefits all of humanity.",
-  },
-  "github.com": {
-    title: "GitHub: Let's build from here",
-    description:
-      "GitHub is where over 100 million developers shape the future of software, together.",
-  },
-  "vercel.com": {
-    title:
-      "Vercel: Build and deploy the best web experiences with the Frontend Cloud",
-    description:
-      "Vercel provides the developer tools and cloud infrastructure to build, scale, and secure a faster, more personalized web.",
-  },
-};
+export const COMPANIES: Record<string, { title: string; description: string }> =
+  {
+    "stripe.com": {
+      title: "Stripe | Financial Infrastructure for the Internet",
+      description:
+        "Stripe powers online and in-person payment processing and financial solutions for businesses of all sizes.",
+    },
+    "tempo.xyz": {
+      title: "Tempo | The Network for Stablecoins",
+      description:
+        "Tempo is a high-performance blockchain network purpose-built for stablecoins and payments.",
+    },
+    "openai.com": {
+      title: "OpenAI",
+      description:
+        "OpenAI is an AI research and deployment company dedicated to ensuring that artificial general intelligence benefits all of humanity.",
+    },
+    "github.com": {
+      title: "GitHub: Let's build from here",
+      description:
+        "GitHub is where over 100 million developers shape the future of software, together.",
+    },
+    "vercel.com": {
+      title:
+        "Vercel: Build and deploy the best web experiences with the Frontend Cloud",
+      description:
+        "Vercel provides the developer tools and cloud infrastructure to build, scale, and secure a faster, more personalized web.",
+    },
+  };
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function normalizeUrl(input: string): string {
+export function normalizeUrl(input: string): string {
   return input
     .trim()
     .toLowerCase()
@@ -354,7 +355,7 @@ export function lookupCompany(url: string): string[] {
   ];
 }
 
-function randomStripeId(prefix: string) {
+export function randomStripeId(prefix: string) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = prefix;
@@ -363,7 +364,7 @@ function randomStripeId(prefix: string) {
   return result;
 }
 
-function shuffle<T>(arr: T[]): T[] {
+export function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -395,7 +396,7 @@ const pickArticle = createCyclicPicker(ARTICLE_SUMMARIES);
 // Service label for upstream API providers
 // ---------------------------------------------------------------------------
 
-const SERVICE_LABELS: [string, string][] = [
+export const SERVICE_LABELS: [string, string][] = [
   ["/article", "parallel.ai article extraction"],
   ["/ascii", "fal.ai image generation"],
   ["/image", "fal.ai image generation"],
@@ -403,7 +404,7 @@ const SERVICE_LABELS: [string, string][] = [
   ["/search", "parallel.ai web search"],
 ];
 
-function serviceLabel(endpoint: string): string | undefined {
+export function serviceLabel(endpoint: string): string | undefined {
   return SERVICE_LABELS.find(([k]) => endpoint.includes(k))?.[1];
 }
 
@@ -433,7 +434,7 @@ function StepIcon({
   );
 }
 
-const COST_PER_TOKEN = 0.0001;
+export const COST_PER_TOKEN = 0.0001;
 
 function AsyncSteps({
   endpoint,
@@ -956,7 +957,7 @@ function AsyncSteps({
 // Stripe card form
 // ---------------------------------------------------------------------------
 
-const LOOKUP_COST = 1.0;
+export const LOOKUP_COST = 1.0;
 
 type SavedCard = { last4: string; expiry: string };
 
@@ -1396,7 +1397,7 @@ function StripeSteps({
 // Wizard (interactive menu)
 // ---------------------------------------------------------------------------
 
-type WalletState = {
+export type WalletState = {
   address: string;
   balance: number;
   created: boolean;
@@ -1406,9 +1407,9 @@ type WalletState = {
   setFunded: (v: boolean) => void;
 };
 
-const INITIAL_BALANCE = 100;
+export const INITIAL_BALANCE = 100;
 
-type Run = {
+export type Run = {
   chosen: string;
   output: string[];
   url?: string;
@@ -1416,7 +1417,7 @@ type Run = {
   txHash?: string;
 };
 
-function runCost(run: Run): number {
+export function runCost(run: Run): number {
   if (run.chosen === "Chat with AI") {
     const tokens = Math.ceil(run.output.join("\n").length / 4);
     return tokens * COST_PER_TOKEN;
@@ -1433,7 +1434,7 @@ function runCost(run: Run): number {
   return 0;
 }
 
-const METHOD_LABELS: Record<string, string> = {
+export const METHOD_LABELS: Record<string, string> = {
   "Chat with AI": "Tempo session",
   "Generate image": "Tempo charge",
   "Search the web": "Tempo charge",

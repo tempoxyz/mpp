@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
 
-const CATEGORY_LABELS: Record<Category, string> = {
+export const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
   blockchain: "Blockchain",
   compute: "Compute",
@@ -15,16 +15,16 @@ const CATEGORY_LABELS: Record<Category, string> = {
   storage: "Storage",
   web: "Web",
 };
-const PAGE_SIZE = 60;
+export const PAGE_SIZE = 60;
 const CODE_BG = "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.07))";
 const URL_COLOR = "light-dark(rgba(0,0,0,0.7), rgba(255,255,255,0.7))";
 const CMD_PURPLE = "light-dark(#7c3aed, #c084fc)";
 const CMD_GREEN = "light-dark(#15803d, #4ade80)";
 
-function allCategories(s: Service): Category[] {
+export function allCategories(s: Service): Category[] {
   return s.categories ?? [];
 }
-function formatPrice(ep: Endpoint): string {
+export function formatPrice(ep: Endpoint): string {
   const p = ep.payment;
   if (!p) return "—";
   if (!p.amount) return "n/a";
