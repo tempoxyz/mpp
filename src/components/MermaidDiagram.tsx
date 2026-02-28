@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 // Layout constants
 // ---------------------------------------------------------------------------
 
-const LAYOUT = {
+export const LAYOUT = {
   padding: 20,
   actorGap: 260,
   actorGap2: 360,
@@ -39,7 +39,7 @@ const LAYOUT = {
   lifelineStroke: 0.75,
 };
 
-interface ThemeColors {
+export interface ThemeColors {
   text: string;
   textMuted: string;
   line: string;
@@ -55,7 +55,7 @@ interface ThemeColors {
   badgeText: string;
 }
 
-const THEMES: Record<"light" | "dark", ThemeColors> = {
+export const THEMES: Record<"light" | "dark", ThemeColors> = {
   light: {
     text: "#27272a",
     textMuted: "#3f3f46",
@@ -92,12 +92,12 @@ const THEMES: Record<"light" | "dark", ThemeColors> = {
 // Parser
 // ---------------------------------------------------------------------------
 
-interface Participant {
+export interface Participant {
   id: string;
   label: string;
 }
 
-type Step =
+export type Step =
   | {
       type: "message";
       from: string;
@@ -110,17 +110,17 @@ type Step =
   | { type: "loop-start"; label: string }
   | { type: "loop-end" };
 
-interface ParsedDiagram {
+export interface ParsedDiagram {
   participants: Participant[];
   steps: Step[];
 }
 
-function extractNum(text: string): { num: string | null; rest: string } {
+export function extractNum(text: string): { num: string | null; rest: string } {
   const m = text.match(/^\((\d+)\)\s*(.+)$/);
   return m ? { num: m[1], rest: m[2] } : { num: null, rest: text };
 }
 
-function parse(source: string): ParsedDiagram {
+export function parse(source: string): ParsedDiagram {
   const lines = source
     .split("\n")
     .map((l) => l.trim())
@@ -186,7 +186,7 @@ function parse(source: string): ParsedDiagram {
 // Layout
 // ---------------------------------------------------------------------------
 
-interface LMsg {
+export interface LMsg {
   x1: number;
   x2: number;
   y: number;
@@ -198,7 +198,7 @@ interface LMsg {
   si: number;
   isLast: boolean;
 }
-interface LNote {
+export interface LNote {
   text: string;
   num: string | null;
   x: number;
@@ -210,7 +210,7 @@ interface LNote {
   lines: string[];
   si: number;
 }
-interface LActor {
+export interface LActor {
   cx: number;
   boxX: number;
   boxY: number;
@@ -218,19 +218,19 @@ interface LActor {
   boxH: number;
   label: string;
 }
-interface LBlock {
+export interface LBlock {
   label: string;
   x: number;
   y: number;
   w: number;
   h: number;
 }
-interface LLifeline {
+export interface LLifeline {
   x: number;
   y1: number;
   y2: number;
 }
-interface Layout {
+export interface Layout {
   w: number;
   h: number;
   actors: LActor[];
@@ -241,7 +241,7 @@ interface Layout {
   msgCount: number;
 }
 
-function doLayout(p: ParsedDiagram): Layout {
+export function doLayout(p: ParsedDiagram): Layout {
   const L = LAYOUT;
   const n = p.participants.length;
   const gap = n === 2 ? L.actorGap2 : L.actorGap;
@@ -371,11 +371,15 @@ function doLayout(p: ParsedDiagram): Layout {
   };
 }
 
-function estW(text: string, fontSize: number): number {
+export function estW(text: string, fontSize: number): number {
   return text.length * fontSize * 0.6;
 }
 
-function wrapText(text: string, maxW: number, fontSize: number): string[] {
+export function wrapText(
+  text: string,
+  maxW: number,
+  fontSize: number,
+): string[] {
   const words = text.split(/\s+/);
   const lines: string[] = [];
   let cur = "";
@@ -396,7 +400,7 @@ function wrapText(text: string, maxW: number, fontSize: number): string[] {
 // SVG renderer
 // ---------------------------------------------------------------------------
 
-function render(lo: Layout, th: ThemeColors): string {
+export function render(lo: Layout, th: ThemeColors): string {
   const L = LAYOUT;
   const o: string[] = [];
   const sz = L.arrowSize;
@@ -740,7 +744,7 @@ function render(lo: Layout, th: ThemeColors): string {
 }
 
 // Syntax highlight HTTP codes and methods in labels
-function highlightLabel(label: string, th: ThemeColors): string {
+export function highlightLabel(label: string, th: ThemeColors): string {
   // Tokenize: split label into segments with optional color overrides
   const re =
     /(GET|POST|PUT|DELETE|PATCH|\b[45]\d{2}\b|\b2\d{2}\s*OK\b|\b2\d{2}\b)/g;
@@ -768,7 +772,7 @@ function highlightLabel(label: string, th: ThemeColors): string {
   return result;
 }
 
-function esc(s: string): string {
+export function esc(s: string): string {
   return s
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -780,11 +784,11 @@ function esc(s: string): string {
 // Animation
 // ---------------------------------------------------------------------------
 
-interface AnimationHandle {
+export interface AnimationHandle {
   skipToEnd: () => void;
 }
 
-function showAllItems(svg: SVGSVGElement) {
+export function showAllItems(svg: SVGSVGElement) {
   svg.style.opacity = "1";
   for (const el of svg.querySelectorAll<SVGElement>(
     "[data-step],[data-step-arrow],[data-step-label],[data-step-note]",
@@ -795,7 +799,7 @@ function showAllItems(svg: SVGSVGElement) {
   }
 }
 
-function animate(
+export function animate(
   svg: SVGSVGElement,
   onComplete: () => void,
   onStart: () => void,
@@ -900,9 +904,11 @@ function animate(
           }, delay),
         );
       }
-      timers.push(setTimeout(() => {
-        if (!skipped) onComplete();
-      }, lastDelay + 1800));
+      timers.push(
+        setTimeout(() => {
+          if (!skipped) onComplete();
+        }, lastDelay + 1800),
+      );
     },
     { threshold: 0.15 },
   );
@@ -911,7 +917,7 @@ function animate(
   return handle;
 }
 
-function lineLen(el: SVGElement): number {
+export function lineLen(el: SVGElement): number {
   const x1 = +(el.getAttribute("x1") || 0);
   const x2 = +(el.getAttribute("x2") || 0);
   const y1 = +(el.getAttribute("y1") || 0);
