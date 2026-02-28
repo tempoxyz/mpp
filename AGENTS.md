@@ -211,6 +211,7 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 - "Once" to mean "after"
 - Exclamation points, humor, rhetorical questions
 - The word "crypto"—use "stablecoins" instead
+- "AI coding agent"—say "coding agent" instead (the "AI" is redundant)
 
 **Structure**: Never skip heading levels. Keep headings under 12 words. Use imperative mood for procedures.
 

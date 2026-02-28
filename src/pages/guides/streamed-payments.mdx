@@ -1,6 +1,7 @@
 import { Cards, Tabs, Tab } from 'vocs'
 import { OneTimePaymentsCard, PayAsYouGoCard, PrestoCliCard } from '../../components/cards'
 import * as Cli from '../../components/Cli'
+import { PromptBlock } from '../../components/PromptBlock'
 import { pathUsd } from '../../wagmi.config'
 
 # Accept streamed payments [Per-token billing over Server-Sent Events]
@@ -24,14 +25,14 @@ Try the live payment-gated poetry API running in this command line interface.
 
 ## Prompt mode
 
-Paste this into your AI coding agent to build the entire guide in one shot:
+Paste this into your coding agent to build the entire guide in one shot:
 
-```txt
-Use https://mpp.dev/guides/streamed-payments.md as reference.
+<PromptBlock>
+{`Use https://mpp.dev/guides/streamed-payments.md as reference.
 Add mppx to my app with a payment-gated SSE endpoint
 that streams text word-by-word and charges $0.001 per word using the
-Tempo session payment method with PathUSD and sse: true.
-```
+Tempo session payment method with PathUSD and sse: true.`}
+</PromptBlock>
 
 ## Manual mode
 

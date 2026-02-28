@@ -1,6 +1,7 @@
 "use client";
 
 import { Tabs } from "@base-ui/react/tabs";
+import { PromptBlock } from "./PromptBlock";
 
 export const CLIENT_PROMPT = `Reference https://mpp.dev/quickstart/client.md
 Add mppx to my app as a client. Polyfill the global fetch to automatically 
@@ -12,22 +13,12 @@ Add mppx to my server with a /api/test route that charges $0.01 per
 request using the Tempo payment method with USDC. 
 Use the mppx CLI to test your endpoint`;
 
-function CodeBlock({ children }: { children: string }) {
-  return (
-    <div data-v-code-container>
-      <pre className="vocs:relative vocs:group/code" data-v>
-        <code className="language-txt">{children}</code>
-      </pre>
-    </div>
-  );
-}
-
 export function ClientPrompt() {
-  return <CodeBlock>{CLIENT_PROMPT}</CodeBlock>;
+  return <PromptBlock>{CLIENT_PROMPT}</PromptBlock>;
 }
 
 export function ServerPrompt() {
-  return <CodeBlock>{SERVER_PROMPT}</CodeBlock>;
+  return <PromptBlock>{SERVER_PROMPT}</PromptBlock>;
 }
 
 export function QuickstartPrompts() {
@@ -46,14 +37,14 @@ export function QuickstartPrompts() {
         </Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel
-        className="vocs:*:rounded-t-none vocs:*:border-t-0"
+        className="vocs:*:rounded-t-none vocs:*:border-t-0 vocs:*:my-0"
         data-v-code-group-panel
         value="client"
       >
         <ClientPrompt />
       </Tabs.Panel>
       <Tabs.Panel
-        className="vocs:*:rounded-t-none vocs:*:border-t-0"
+        className="vocs:*:rounded-t-none vocs:*:border-t-0 vocs:*:my-0"
         data-v-code-group-panel
         value="server"
       >
