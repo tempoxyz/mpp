@@ -29,7 +29,7 @@
     "react-dom": "^19",
     "tailwindcss": "^4.1.18",
     "viem": "^2.46.2",
-    "vocs": "https://pkg.pr.new/wevm/vocs@6641be0",
+    "vocs": "https://pkg.pr.new/wevm/vocs@ad53cca",
     "wagmi": "^3.4.2",
     "waku": "^1.0.0-alpha.4",
     "zod": "^4.3.6"
