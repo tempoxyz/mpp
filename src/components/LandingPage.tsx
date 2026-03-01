@@ -340,16 +340,20 @@ function Lockup() {
     <h1
       style={{
         color: ACCENT,
-        fontFamily: '"Geist Mono", monospace',
-        fontSize: "clamp(2.25rem, 6vw, 4rem)",
-        fontWeight: 700,
-        letterSpacing: "-0.03em",
+        fontFamily: '"Chicago Kare", "Geist Mono", monospace',
+        fontWeight: 400,
+        letterSpacing: "0.02em",
         lineHeight: 1.05,
         margin: 0,
         textTransform: "uppercase" as const,
       }}
     >
-      Machine Payments Protocol
+      <span style={{ fontSize: "clamp(2.75rem, 7vw, 5rem)", display: "block" }}>
+        Machine
+      </span>
+      <span style={{ fontSize: "clamp(1.75rem, 4.5vw, 3.25rem)", display: "block" }}>
+        Payments Protocol
+      </span>
     </h1>
   );
 }
