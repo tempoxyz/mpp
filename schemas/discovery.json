@@ -2884,7 +2884,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "stableemail.dev",
       "provider": {
         "name": "Merit Systems",
         "url": "https://stableemail.dev"
@@ -3178,7 +3178,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "stableenrich.dev",
       "provider": {
         "name": "Merit Systems",
         "url": "https://stableenrich.dev"
@@ -3639,7 +3639,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "stablephone.dev",
       "provider": {
         "name": "Merit Systems",
         "url": "https://stablephone.dev"
@@ -3756,7 +3756,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "stablesocial.dev",
       "provider": {
         "name": "Merit Systems",
         "url": "https://stablesocial.dev"
@@ -4439,7 +4439,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "stablestudio.dev",
       "provider": {
         "name": "Merit Systems",
         "url": "https://stablestudio.dev"
@@ -4839,7 +4839,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "stableupload.dev",
       "provider": {
         "name": "Merit Systems",
         "url": "https://stableupload.dev"
