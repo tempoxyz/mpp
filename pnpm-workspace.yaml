@@ -1,2 +1,1 @@
-patchedDependencies:
-  '@wagmi/core': patches/@wagmi__core.patch
+

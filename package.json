@@ -20,8 +20,6 @@
   "dependencies": {
     "@base-ui/react": "^1.1.0",
     "@fontsource/commit-mono": "^5.2.5",
-    "@tanstack/react-query": "^5.90.20",
-    "@tanstack/react-store": "^0.8.0",
     "class-variance-authority": "^0.7.1",
     "mermaid": "^11.12.2",
     "mppx": "~0.3.5",
@@ -30,7 +28,6 @@
     "tailwindcss": "^4.1.18",
     "viem": "^2.46.2",
     "vocs": "https://pkg.pr.new/wevm/vocs@ad53cca",
-    "wagmi": "^3.4.2",
     "waku": "^1.0.0-alpha.4",
     "zod": "^4.3.6"
   },

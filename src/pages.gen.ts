@@ -7,9 +7,7 @@ import type { PathsForPages, GetConfigResponse } from 'waku/router';
 // prettier-ignore
 type Page =
 | { path: '/404'; render: 'static' }
-| { path: '/_cli'; render: 'static' }
 | { path: '/brand'; render: 'static' }
-| { path: '/demo'; render: 'static' }
 | { path: '/faq'; render: 'static' }
 | { path: '/'; render: 'static' }
 | { path: '/overview'; render: 'static' }
