@@ -1,8 +1,7 @@
 import { Cards, Tabs, Tab } from 'vocs'
 import { OneTimePaymentsCard, PayAsYouGoCard, PrestoCliCard } from '../../components/cards'
-import * as Cli from '../../components/Cli'
 import { PromptBlock } from '../../components/PromptBlock'
-import { pathUsd } from '../../wagmi.config'
+import { TerminalPoem } from '../../components/TerminalPoem'
 
 # Accept streamed payments [Per-token billing over Server-Sent Events]
 
@@ -14,14 +13,11 @@ Streamed payments extend [pay-as-you-go sessions](/guides/pay-as-you-go) with SS
 
 ## Demo
 
-Try the live payment-gated poetry API running in this command line interface.
+Try the payment-gated poetry API. Click **Run demo** to create a wallet, fund it, and stream a paid poem.
 
-<Cli.Demo token={pathUsd} restartStep={1}>
-  <Cli.Startup />
-  <Cli.ConnectWallet />
-  <Cli.Faucet />
-  <Cli.Poem />
-</Cli.Demo>
+<div style={{ height: 480 }}>
+  <TerminalPoem />
+</div>
 
 ## Prompt mode
 

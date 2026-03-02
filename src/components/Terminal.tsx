@@ -13,6 +13,7 @@ import {
   commands as _commands,
   image as _image,
   lookup as _lookup,
+  photo as _photo,
   ping as _ping,
   poem as _poem,
   search as _search,
@@ -99,6 +100,43 @@ const QUICKSTART_LABEL_WIDTH = "13em";
 
 function BlankLine() {
   return <div className="h-6" />;
+}
+
+function PhotoOutput({ url }: { url: string }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block relative rounded overflow-hidden"
+      style={{
+        width: 200,
+        height: 200,
+        borderColor: "var(--term-gray4)",
+        borderWidth: 1,
+        borderStyle: "solid",
+      }}
+    >
+      {!loaded && (
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: "var(--term-gray3)" }}
+        />
+      )}
+      <img
+        src={url}
+        alt="Generated"
+        onLoad={() => setLoaded(true)}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          transition: "opacity 0.5s",
+          opacity: loaded ? 1 : 0,
+        }}
+      />
+    </a>
+  );
 }
 
 function SummaryRow({
@@ -434,6 +472,7 @@ function AsyncSteps({
   liveEndpoint,
   isRestart = false,
   output,
+  outputMode,
   walletState,
   paymentChannel = false,
   onDone,
@@ -447,6 +486,7 @@ function AsyncSteps({
   liveEndpoint?: string;
   isRestart?: boolean;
   output: string[];
+  outputMode?: "text" | "photo";
   walletState: WalletState;
   paymentChannel?: boolean;
   onDone?: () => void;
@@ -857,12 +897,16 @@ function AsyncSteps({
       {!paymentChannel && pastStep("req200") && (
         <>
           <BlankLine />
-          <pre
-            className="whitespace-pre-wrap"
-            style={{ color: "var(--term-gray10)" }}
-          >
-            {renderText(outputText)}
-          </pre>
+          {outputMode === "photo" && output.length > 0 ? (
+            <PhotoOutput url={output[0]} />
+          ) : (
+            <pre
+              className="whitespace-pre-wrap"
+              style={{ color: "var(--term-gray10)" }}
+            >
+              {renderText(outputText)}
+            </pre>
+          )}
         </>
       )}
       {paymentChannel && atOrPast("stream") && (
@@ -1106,6 +1150,7 @@ function CardForm({
 function StripeSteps({
   endpoint,
   output,
+  outputMode,
   onDone,
   completed = false,
   savedCard,
@@ -1115,6 +1160,7 @@ function StripeSteps({
 }: {
   endpoint: string;
   output: string[];
+  outputMode?: "text" | "photo";
   onDone?: () => void;
   completed?: boolean;
   savedCard?: SavedCard;
@@ -1348,36 +1394,40 @@ function StripeSteps({
       {pastStep("req200") && output && output.length > 0 && (
         <>
           <BlankLine />
-          <div style={{ color: "var(--term-gray10)" }}>
-            {output.map((line, i) => {
-              const match = line.match(/^(\s*\S+\s+)(.*)$/);
-              if (match) {
-                const indent = match[1].length;
+          {outputMode === "photo" ? (
+            <PhotoOutput url={output[0]} />
+          ) : (
+            <div style={{ color: "var(--term-gray10)" }}>
+              {output.map((line, i) => {
+                const match = line.match(/^(\s*\S+\s+)(.*)$/);
+                if (match) {
+                  const indent = match[1].length;
+                  return (
+                    <pre
+                      // biome-ignore lint/suspicious/noArrayIndexKey: static output lines never reorder
+                      key={i}
+                      className="whitespace-pre-wrap"
+                      style={{
+                        paddingLeft: `${indent}ch`,
+                        textIndent: `-${indent}ch`,
+                      }}
+                    >
+                      {renderText(line)}
+                    </pre>
+                  );
+                }
                 return (
                   <pre
                     // biome-ignore lint/suspicious/noArrayIndexKey: static output lines never reorder
                     key={i}
                     className="whitespace-pre-wrap"
-                    style={{
-                      paddingLeft: `${indent}ch`,
-                      textIndent: `-${indent}ch`,
-                    }}
                   >
                     {renderText(line)}
                   </pre>
                 );
-              }
-              return (
-                <pre
-                  // biome-ignore lint/suspicious/noArrayIndexKey: static output lines never reorder
-                  key={i}
-                  className="whitespace-pre-wrap"
-                >
-                  {renderText(line)}
-                </pre>
-              );
-            })}
-          </div>
+              })}
+            </div>
+          )}
         </>
       )}
     </div>
@@ -1570,6 +1620,7 @@ function Wizard({
           key={key}
           endpoint={liveEndpoint ?? stepConfig.endpoint}
           output={output}
+          outputMode={stepConfig.outputMode}
           onDone={opts?.onDone}
           completed={opts?.completed}
           savedCard={savedCard}
@@ -1587,6 +1638,7 @@ function Wizard({
         liveEndpoint={liveEndpoint}
         isRestart={opts?.isRestart}
         output={output}
+        outputMode={stepConfig.outputMode}
         walletState={walletState}
         paymentChannel={stepConfig.type === "tempo-session"}
         onDone={opts?.onDone}
@@ -1887,6 +1939,7 @@ function SingleStep({
           key={key}
           endpoint={liveEndpoint ?? step.endpoint}
           output={output}
+          outputMode={step.outputMode}
           savedCard={savedCard}
           onCardSaved={setSavedCard}
           demoClient={demoClient}
@@ -1899,6 +1952,7 @@ function SingleStep({
           endpoint={step.endpoint}
           liveEndpoint={liveEndpoint}
           output={output}
+          outputMode={step.outputMode}
           walletState={walletState}
           paymentChannel={step.type === "tempo-session"}
           demoClient={demoClient}
@@ -2202,6 +2256,7 @@ export const Terminal = Object.assign(TerminalComponent, {
   commands: _commands,
   image: _image,
   lookup: _lookup,
+  photo: _photo,
   ping: _ping,
   poem: _poem,
   search: _search,
@@ -2220,6 +2275,7 @@ export {
   _commands as commands,
   _image as image,
   _lookup as lookup,
+  _photo as photo,
   _ping as ping,
   _poem as poem,
   _search as search,

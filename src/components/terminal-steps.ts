@@ -19,6 +19,7 @@ export type PaymentStepConfig = {
   prompt?: { label: string; placeholder: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
+  outputMode?: "text" | "photo";
 };
 
 export type CommandsStepConfig = {
@@ -95,6 +96,7 @@ export function charge({
   prompt,
   skipPrompt,
   pickOutput,
+  outputMode,
 }: {
   label: string;
   endpoint: string;
@@ -103,6 +105,7 @@ export function charge({
   prompt?: { label: string; placeholder: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
+  outputMode?: "text" | "photo";
 }): PaymentStepConfig {
   return {
     type: "tempo-charge",
@@ -114,6 +117,7 @@ export function charge({
     prompt,
     skipPrompt,
     pickOutput,
+    outputMode,
   };
 }
 
@@ -125,6 +129,7 @@ export function session({
   prompt,
   skipPrompt,
   pickOutput,
+  outputMode,
 }: {
   label: string;
   endpoint: string;
@@ -133,6 +138,7 @@ export function session({
   prompt?: { label: string; placeholder: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
+  outputMode?: "text" | "photo";
 }): PaymentStepConfig {
   return {
     type: "tempo-session",
@@ -146,6 +152,7 @@ export function session({
     prompt,
     skipPrompt,
     pickOutput,
+    outputMode,
   };
 }
 
@@ -157,6 +164,7 @@ export function stripe({
   prompt,
   skipPrompt,
   pickOutput,
+  outputMode,
 }: {
   label: string;
   endpoint: string;
@@ -165,6 +173,7 @@ export function stripe({
   prompt?: { label: string; placeholder: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
+  outputMode?: "text" | "photo";
 }): PaymentStepConfig {
   return {
     type: "stripe",
@@ -176,6 +185,7 @@ export function stripe({
     prompt,
     skipPrompt,
     pickOutput,
+    outputMode,
   };
 }
 
@@ -233,7 +243,7 @@ export function article(): PaymentStepConfig {
 export function poem(): PaymentStepConfig {
   return session({
     label: "Write poem",
-    endpoint: "/api/poem",
+    endpoint: "/api/sessions/poem",
     liveEndpoint: (input) =>
       `/api/demo/poem?prompt=${encodeURIComponent(input)}`,
     prompt: { label: "Enter prompt", placeholder: "what are micropayments?" },
@@ -273,5 +283,16 @@ export function ping(): PaymentStepConfig {
     cost: 0.001,
     skipPrompt: true,
     pickOutput: () => ["pong"],
+  });
+}
+
+export function photo(): PaymentStepConfig {
+  return charge({
+    label: "Photo",
+    endpoint: "/api/photo",
+    cost: 0.01,
+    skipPrompt: true,
+    pickOutput: () => ["https://picsum.photos/seed/mpp-demo/400/400"],
+    outputMode: "photo",
   });
 }

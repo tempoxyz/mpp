@@ -14,7 +14,7 @@
     "preview": "vite preview",
     "sync:vocs": "node scripts/copy-vocs-theme.ts && pnpm check",
     "test": "vitest run",
-    "test:e2e": "VITE_SKIP_ANIMATION=true vitest run --config vitest.config.e2e.ts",
+    "test:e2e": "VITE_SKIP_ANIMATION=true VITE_DEMO_LIVE=false vitest run --config vitest.config.e2e.ts",
     "test:watch": "viest"
   },
   "dependencies": {

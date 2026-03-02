@@ -419,6 +419,105 @@ describe("terminal (classic mode)", () => {
   });
 });
 
+describe("terminal (one-time-payments guide)", () => {
+  it.concurrent("renders the photo payment flow", async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}/guides/one-time-payments`, {
+      waitUntil: "load",
+    });
+
+    const terminal = page.locator("[data-terminal]");
+
+    // Terminal should render
+    await playwrightExpect(terminal).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // Wait for hydration, then start the demo
+    await page.waitForSelector("[data-demo-ready]", { timeout: 10_000 });
+    await page.waitForTimeout(2_000);
+    await page.locator("[data-demo-ready]").click();
+
+    // Payment flow steps should appear
+    await playwrightExpect(
+      terminal.getByText("Creating wallet", { exact: false }),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("402 Payment Required"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("Fulfilling payment"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(terminal.getByText("200 OK")).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // Photo should be rendered as an image
+    await playwrightExpect(terminal.locator("img")).toBeVisible({
+      timeout: 10_000,
+    });
+
+    // Restart prompt should appear
+    await playwrightExpect(
+      terminal.getByText("Press Enter or click to restart"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await page.close();
+  });
+});
+
+describe("terminal (streamed-payments guide)", () => {
+  it.concurrent("renders the poem streaming flow", async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}/guides/streamed-payments`, {
+      waitUntil: "load",
+    });
+
+    const terminal = page.locator("[data-terminal]");
+
+    // Terminal should render
+    await playwrightExpect(terminal).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // Wait for hydration, then start the demo
+    await page.waitForSelector("[data-demo-ready]", { timeout: 10_000 });
+    await page.waitForTimeout(2_000);
+    await page.locator("[data-demo-ready]").click();
+
+    // Payment channel flow steps
+    await playwrightExpect(
+      terminal.getByText("Creating wallet", { exact: false }),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("402 Payment Required"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("Opening payment channel"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("tokens streamed", { exact: false }),
+    ).toBeVisible({ timeout: 20_000 });
+
+    await playwrightExpect(
+      terminal.getByText("Closing payment channel"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    // Restart prompt should appear
+    await playwrightExpect(
+      terminal.getByText("Press Enter or click to restart"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await page.close();
+  });
+});
+
 describe("terminal (overview page)", () => {
   it.concurrent("renders the ping payment flow", async () => {
     const page = await newPage();

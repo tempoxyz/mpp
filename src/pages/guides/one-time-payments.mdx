@@ -1,8 +1,7 @@
 import { Cards, Tabs, Tab } from 'vocs'
 import { PayAsYouGoCard, ServerQuickstartCard, PrestoCliCard } from '../../components/cards'
-import * as Cli from '../../components/Cli'
 import { PromptBlock } from '../../components/PromptBlock'
-import { pathUsd } from '../../wagmi.config'
+import { TerminalPhoto } from '../../components/TerminalPhoto'
 
 # Accept one-time payments [Charge per request with a payment-gated API]
 
@@ -12,14 +11,11 @@ but you could swap in an AI model like [OpenAI Image Generation](https://develop
 
 ## Demo
 
-Try the live payment-gated image generation API running in this command line interface.
+Try the payment-gated image generation API. Click **Run demo** to create a wallet, fund it, and make a paid request.
 
-<Cli.Demo token={pathUsd} restartStep={1}>
-  <Cli.Startup />
-  <Cli.ConnectWallet />
-  <Cli.Faucet />
-  <Cli.Photo />
-</Cli.Demo>
+<div style={{ height: 480 }}>
+  <TerminalPhoto />
+</div>
 
 ## Prompt mode
 
