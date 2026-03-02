@@ -19,7 +19,7 @@ export type PaymentStepConfig = {
   prompt?: { label: string; placeholder: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
-  outputMode?: "text" | "photo";
+  outputMode?: "text" | "photo" | "gallery";
 };
 
 export type CommandsStepConfig = {
@@ -105,7 +105,7 @@ export function charge({
   prompt?: { label: string; placeholder: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
-  outputMode?: "text" | "photo";
+  outputMode?: "text" | "photo" | "gallery";
 }): PaymentStepConfig {
   return {
     type: "tempo-charge",
@@ -138,7 +138,7 @@ export function session({
   prompt?: { label: string; placeholder: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
-  outputMode?: "text" | "photo";
+  outputMode?: "text" | "photo" | "gallery";
 }): PaymentStepConfig {
   return {
     type: "tempo-session",
@@ -173,7 +173,7 @@ export function stripe({
   prompt?: { label: string; placeholder: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
-  outputMode?: "text" | "photo";
+  outputMode?: "text" | "photo" | "gallery";
 }): PaymentStepConfig {
   return {
     type: "stripe",
@@ -294,5 +294,20 @@ export function photo(): PaymentStepConfig {
     skipPrompt: true,
     pickOutput: () => ["https://picsum.photos/seed/mpp-demo/400/400"],
     outputMode: "photo",
+  });
+}
+
+export function gallery(): PaymentStepConfig {
+  return session({
+    label: "Generate gallery",
+    endpoint: "/api/sessions/photo",
+    cost: (output) => output.length * 0.01,
+    skipPrompt: true,
+    pickOutput: () =>
+      Array.from(
+        { length: 5 },
+        (_, i) => `https://picsum.photos/seed/mpp-gallery-${i}/200/200`,
+      ),
+    outputMode: "gallery",
   });
 }

@@ -1,8 +1,7 @@
 import { Cards, Tabs, Tab } from 'vocs'
 import { OneTimePaymentsCard, ServerQuickstartCard, PrestoCliCard } from '../../components/cards'
-import * as Cli from '../../components/Cli'
 import { PromptBlock } from '../../components/PromptBlock'
-import { pathUsd } from '../../wagmi.config'
+import { TerminalGallery } from '../../components/TerminalGallery'
 
 # Accept pay-as-you-go payments [Session-based billing with payment channels]
 
@@ -17,14 +16,11 @@ use offchain vouchers for each subsequent request—vouchers are **not bottlenec
 
 ## Demo
 
-Try the live payment-gated photo gallery API running in this command line interface.
+Try the payment-gated photo gallery API. Click **Run demo** to create a wallet, fund it, and generate a gallery of paid photos.
 
-<Cli.Demo token={pathUsd} restartStep={1}>
-  <Cli.Startup />
-  <Cli.ConnectWallet />
-  <Cli.Faucet />
-  <Cli.Gallery />
-</Cli.Demo>
+<div style={{ height: 480 }}>
+  <TerminalGallery />
+</div>
 
 ## Prompt mode
 

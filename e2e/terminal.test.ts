@@ -469,6 +469,89 @@ describe("terminal (one-time-payments guide)", () => {
   });
 });
 
+describe("terminal (pay-as-you-go guide)", () => {
+  it.concurrent("renders the gallery payment flow with session reuse", async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}/guides/pay-as-you-go`, {
+      waitUntil: "load",
+    });
+
+    const terminal = page.locator("[data-terminal]");
+
+    // Terminal should render
+    await playwrightExpect(terminal).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // Wait for hydration, then start the demo
+    await page.waitForSelector("[data-demo-ready]", { timeout: 10_000 });
+    await page.waitForTimeout(2_000);
+    await page.locator("[data-demo-ready]").click();
+
+    // Payment channel flow steps
+    await playwrightExpect(
+      terminal.getByText("Creating wallet", { exact: false }),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("402 Payment Required"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("Opening payment channel"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    // Count picker should appear
+    await playwrightExpect(terminal.getByText("How many photos?")).toBeVisible({
+      timeout: 10_000,
+    });
+
+    await playwrightExpect(
+      terminal.getByText("3 photos ($0.03)"),
+    ).toBeVisible();
+
+    // Select 3 photos (first option, press Enter)
+    await pressKey(page, "Enter");
+
+    // Gallery images should be rendered
+    await playwrightExpect(terminal.locator("img").first()).toBeVisible({
+      timeout: 10_000,
+    });
+
+    // Summary line should show completion
+    await playwrightExpect(terminal.getByText("0.03 USDC")).toBeVisible({
+      timeout: 10_000,
+    });
+
+    // Picker should reappear with "Done" option (session reuse)
+    await playwrightExpect(
+      terminal.getByText("How many photos?").last(),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(terminal.getByText("Done")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    // Select Done (arrow down past 3 options to Done)
+    await pressKey(page, "ArrowDown"); // → 5 photos
+    await pressKey(page, "ArrowDown"); // → 10 photos
+    await pressKey(page, "ArrowDown"); // → Done
+    await pressKey(page, "Enter");
+
+    // Close channel
+    await playwrightExpect(
+      terminal.getByText("Closing payment channel"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    // Restart prompt should appear
+    await playwrightExpect(
+      terminal.getByText("Press Enter or click to restart"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await page.close();
+  });
+});
+
 describe("terminal (streamed-payments guide)", () => {
   it.concurrent("renders the poem streaming flow", async () => {
     const page = await newPage();

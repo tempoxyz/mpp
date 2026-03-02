@@ -11,6 +11,7 @@ import {
   charge as _charge,
   chat as _chat,
   commands as _commands,
+  gallery as _gallery,
   image as _image,
   lookup as _lookup,
   photo as _photo,
@@ -136,6 +137,72 @@ function PhotoOutput({ url }: { url: string }) {
         }}
       />
     </a>
+  );
+}
+
+function GalleryThumb({ url }: { url: string }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block relative rounded overflow-hidden"
+      style={{
+        width: 80,
+        height: 80,
+        borderColor: "var(--term-gray4)",
+        borderWidth: 1,
+        borderStyle: "solid",
+      }}
+    >
+      {!loaded && (
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: "var(--term-gray3)" }}
+        />
+      )}
+      <img
+        src={url}
+        alt="Gallery"
+        onLoad={() => setLoaded(true)}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          transition: "opacity 0.5s",
+          opacity: loaded ? 1 : 0,
+        }}
+      />
+    </a>
+  );
+}
+
+function GalleryGrid({
+  urls,
+  loading = false,
+}: {
+  urls: string[];
+  loading?: boolean;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {urls.map((url) => (
+        <GalleryThumb key={url} url={url} />
+      ))}
+      {loading && (
+        <div
+          className="rounded"
+          style={{
+            width: 80,
+            height: 80,
+            borderColor: "var(--term-gray4)",
+            borderWidth: 1,
+            borderStyle: "solid",
+            backgroundColor: "var(--term-gray3)",
+          }}
+        />
+      )}
+    </div>
   );
 }
 
@@ -486,7 +553,7 @@ function AsyncSteps({
   liveEndpoint?: string;
   isRestart?: boolean;
   output: string[];
-  outputMode?: "text" | "photo";
+  outputMode?: "text" | "photo" | "gallery";
   walletState: WalletState;
   paymentChannel?: boolean;
   onDone?: () => void;
@@ -698,6 +765,17 @@ function AsyncSteps({
       return;
     }
     if (currentKey === "stream") {
+      if (outputMode === "gallery") {
+        if (tokenCount < output.length) {
+          const delay = SKIP_ANIMATION ? 0 : 400;
+          const timer = setTimeout(() => {
+            setTokenCount((t) => t + 1);
+          }, delay);
+          return () => clearTimeout(timer);
+        }
+        setStep((s) => s + 1);
+        return;
+      }
       if (streamChars < outputText.length) {
         const timer = setTimeout(() => {
           setStreamChars((c) => c + 1);
@@ -726,7 +804,10 @@ function AsyncSteps({
     streamChars,
     outputText.length,
     currentKey,
+    output.length,
+    outputMode,
     paymentChannel,
+    tokenCount,
     walletState.setBalance,
     walletState.setCreated,
     steps,
@@ -912,25 +993,50 @@ function AsyncSteps({
       {paymentChannel && atOrPast("stream") && (
         <>
           <BlankLine />
-          <pre
-            className="whitespace-pre-wrap"
-            style={{ color: "var(--term-gray10)" }}
-          >
-            {outputText.slice(0, streamChars)}
-          </pre>
-          {/* biome-ignore format: contains unicode ✔︎ */}
-          {tokenCount > 0 && (
-            <p style={{ color: "var(--term-gray6)" }}>
-              {streamChars < outputText.length ? (
-                <Spinner />
-              ) : (
-                <span style={{ color: "var(--term-green9)" }}>✔︎</span>
-              )}{" "}
-              {tokenCount} tokens streamed —{" "}
-              <span style={{ color: "var(--term-amber9)" }}>
-                {(tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
-              </span>
-            </p>
+          {outputMode === "gallery" ? (
+            <>
+              <GalleryGrid
+                urls={output.slice(0, tokenCount)}
+                loading={tokenCount < output.length}
+              />
+              {/* biome-ignore format: contains unicode ✔︎ */}
+              {tokenCount > 0 && (
+                <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
+                  {tokenCount < output.length ? (
+                    <Spinner />
+                  ) : (
+                    <span style={{ color: "var(--term-green9)" }}>✔︎</span>
+                  )}{" "}
+                  {tokenCount} photos —{" "}
+                  <span style={{ color: "var(--term-amber9)" }}>
+                    {(tokenCount * 0.01).toFixed(2)} USDC
+                  </span>
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <pre
+                className="whitespace-pre-wrap"
+                style={{ color: "var(--term-gray10)" }}
+              >
+                {outputText.slice(0, streamChars)}
+              </pre>
+              {/* biome-ignore format: contains unicode ✔︎ */}
+              {tokenCount > 0 && (
+                <p style={{ color: "var(--term-gray6)" }}>
+                  {streamChars < outputText.length ? (
+                    <Spinner />
+                  ) : (
+                    <span style={{ color: "var(--term-green9)" }}>✔︎</span>
+                  )}{" "}
+                  {tokenCount} tokens streamed —{" "}
+                  <span style={{ color: "var(--term-amber9)" }}>
+                    {(tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
+                  </span>
+                </p>
+              )}
+            </>
           )}
         </>
       )}
@@ -958,32 +1064,40 @@ function AsyncSteps({
               </a>
             </p>
           )}
-          {pastStep("closeChannel") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              spent{" "}
-              <span style={{ color: "var(--term-amber9)" }}>
-                {(tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
-              </span>
-            </p>
-          )}
-          {pastStep("closeChannel") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              refunded{" "}
-              <span style={{ color: "var(--term-amber9)" }}>
-                {(5 - tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
-              </span>
-            </p>
-          )}
+          {pastStep("closeChannel") &&
+            (() => {
+              const spent =
+                outputMode === "gallery"
+                  ? tokenCount * 0.01
+                  : tokenCount * COST_PER_TOKEN;
+              return (
+                <>
+                  <p
+                    style={{
+                      color: "var(--term-gray6)",
+                      paddingLeft: "2ch",
+                    }}
+                  >
+                    spent{" "}
+                    <span style={{ color: "var(--term-amber9)" }}>
+                      {spent.toFixed(outputMode === "gallery" ? 2 : 4)} USDC
+                    </span>
+                  </p>
+                  <p
+                    style={{
+                      color: "var(--term-gray6)",
+                      paddingLeft: "2ch",
+                    }}
+                  >
+                    refunded{" "}
+                    <span style={{ color: "var(--term-amber9)" }}>
+                      {(5 - spent).toFixed(outputMode === "gallery" ? 2 : 4)}{" "}
+                      USDC
+                    </span>
+                  </p>
+                </>
+              );
+            })()}
         </>
       )}
     </div>
@@ -1160,7 +1274,7 @@ function StripeSteps({
 }: {
   endpoint: string;
   output: string[];
-  outputMode?: "text" | "photo";
+  outputMode?: "text" | "photo" | "gallery";
   onDone?: () => void;
   completed?: boolean;
   savedCard?: SavedCard;
@@ -1868,6 +1982,477 @@ function Wizard({
 }
 
 // ---------------------------------------------------------------------------
+// Gallery step (session-based multi-run with count picker)
+// ---------------------------------------------------------------------------
+
+const GALLERY_COST = 0.01;
+const GALLERY_COUNTS = [3, 5, 10] as const;
+
+type GalleryPhase =
+  | "gate"
+  | "setup"
+  | "picker"
+  | "fetch"
+  | "closing"
+  | "restart";
+
+function GalleryStep({
+  step,
+  walletState,
+}: {
+  step: PaymentStepConfig;
+  walletState: WalletState;
+}) {
+  const [phase, setPhase] = useState<GalleryPhase>("gate");
+  const [setupStep, setSetupStep] = useState(0);
+  const [channelTxHash] = useState(() => randomTxHash());
+  const [closeTxHash] = useState(() => randomTxHash());
+  const [selected, setSelected] = useState(0);
+  const [urls, setUrls] = useState<string[]>([]);
+  const [revealed, setRevealed] = useState(0);
+  const [targetCount, setTargetCount] = useState(0);
+  const [totalPhotos, setTotalPhotos] = useState(0);
+  const [runIndex, setRunIndex] = useState(0);
+  const [pastRuns, setPastRuns] = useState<{ count: number; urls: string[] }[]>(
+    [],
+  );
+
+  const setupSteps = useMemo(() => {
+    const d = (ms: number) => (SKIP_ANIMATION ? 0 : ms);
+    return [
+      { key: "wallet", delay: d(600) },
+      { key: "fund", delay: d(1500) },
+      { key: "req402", delay: d(1200) },
+      { key: "channel", delay: d(1200) },
+    ];
+  }, []);
+
+  const setupKey = setupSteps[setupStep]?.key ?? "done";
+  const setupPast = (key: string) => {
+    const idx = setupSteps.findIndex((s) => s.key === key);
+    return idx !== -1 && setupStep > idx;
+  };
+  const setupAtOrPast = (key: string) => {
+    const idx = setupSteps.findIndex((s) => s.key === key);
+    return idx !== -1 && setupStep >= idx;
+  };
+  const setupAt = (key: string) => setupKey === key;
+
+  // Setup phase: timed step progression
+  useEffect(() => {
+    if (phase !== "setup") return;
+    if (setupKey === "done") {
+      setPhase("picker");
+      return;
+    }
+    const delay = setupSteps[setupStep].delay;
+    const timer = setTimeout(() => {
+      if (setupKey === "wallet") walletState.setCreated(true);
+      if (setupKey === "fund") {
+        walletState.setFunded(true);
+        walletState.setBalance(INITIAL_BALANCE);
+      }
+      setSetupStep((s) => s + 1);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [phase, setupStep, setupKey, setupSteps, walletState]);
+
+  // Fetch phase: reveal photos one at a time
+  useEffect(() => {
+    if (phase !== "fetch") return;
+    if (revealed < targetCount) {
+      const delay = SKIP_ANIMATION ? 0 : 400;
+      const timer = setTimeout(() => setRevealed((r) => r + 1), delay);
+      return () => clearTimeout(timer);
+    }
+    // Run complete
+    const runUrls = urls.slice(urls.length - targetCount);
+    setPastRuns((prev) => [...prev, { count: targetCount, urls: runUrls }]);
+    setTotalPhotos((t) => t + targetCount);
+    setRunIndex((r) => r + 1);
+    setSelected(0);
+    setPhase("picker");
+  }, [phase, revealed, targetCount, urls]);
+
+  // Closing phase: timed
+  useEffect(() => {
+    if (phase !== "closing") return;
+    const delay = SKIP_ANIMATION ? 0 : 1000;
+    const timer = setTimeout(() => setPhase("restart"), delay);
+    return () => clearTimeout(timer);
+  }, [phase]);
+
+  // Picker items
+  const pickerItems = useMemo(() => {
+    const items: { label: string; value: number | "done" }[] =
+      GALLERY_COUNTS.map((n) => ({
+        label: `${n} photos ($${(n * GALLERY_COST).toFixed(2)})`,
+        value: n as number,
+      }));
+    if (runIndex > 0) items.push({ label: "Done", value: "done" });
+    return items;
+  }, [runIndex]);
+
+  const pickCount = (count: number) => {
+    const newUrls = Array.from(
+      { length: count },
+      (_, i) =>
+        `https://picsum.photos/seed/mpp-gallery-${runIndex}-${i}/200/200`,
+    );
+    setUrls((prev) => [...prev, ...newUrls]);
+    setTargetCount(count);
+    setRevealed(0);
+    setPhase("fetch");
+  };
+
+  // Keyboard handling for gate, picker, restart
+  useEffect(() => {
+    if (phase === "gate") {
+      const handler = (e: KeyboardEvent) => {
+        if (e.key === "Enter") setPhase("setup");
+      };
+      window.addEventListener("keydown", handler);
+      return () => window.removeEventListener("keydown", handler);
+    }
+    if (phase === "picker") {
+      const handler = (e: KeyboardEvent) => {
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          setSelected((s) => (s - 1 + pickerItems.length) % pickerItems.length);
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          setSelected((s) => (s + 1) % pickerItems.length);
+        } else if (e.key === "Enter") {
+          const item = pickerItems[selected];
+          if (item.value === "done") {
+            setPhase("closing");
+          } else {
+            pickCount(item.value);
+          }
+        }
+      };
+      document
+        .querySelector("[data-terminal]")
+        ?.setAttribute("data-demo-ready", "");
+      window.addEventListener("keydown", handler);
+      return () => {
+        window.removeEventListener("keydown", handler);
+        document
+          .querySelector("[data-terminal]")
+          ?.removeAttribute("data-demo-ready");
+      };
+    }
+    if (phase === "restart") {
+      const handler = (e: KeyboardEvent) => {
+        if (e.key === "Enter") {
+          setPhase("gate");
+          setSetupStep(0);
+          setUrls([]);
+          setRevealed(0);
+          setTargetCount(0);
+          setTotalPhotos(0);
+          setRunIndex(0);
+          setPastRuns([]);
+          setSelected(0);
+        }
+      };
+      window.addEventListener("keydown", handler);
+      return () => window.removeEventListener("keydown", handler);
+    }
+  });
+
+  if (phase === "gate") {
+    return (
+      <div className="flex flex-col">
+        <BlankLine />
+        <button
+          type="button"
+          data-demo-ready
+          className="w-fit cursor-pointer text-left"
+          style={{ color: "var(--term-pink9)" }}
+          onClick={() => setPhase("setup")}
+        >
+          <CssTriangle /> Run demo
+        </button>
+        <p style={{ color: "var(--term-gray5)" }}>
+          Press Enter or click to start
+        </p>
+      </div>
+    );
+  }
+
+  const spent = totalPhotos * GALLERY_COST;
+
+  return (
+    <div className="flex flex-col">
+      {/* Setup steps */}
+      <BlankLine />
+      {setupAtOrPast("wallet") && (
+        <p style={{ color: "var(--term-gray6)" }}>
+          <StepIcon spinning={setupAt("wallet")} /> Creating wallet{" "}
+          <TruncatedHex hash={walletState.address}>
+            {walletState.address}
+          </TruncatedHex>
+        </p>
+      )}
+      {setupAtOrPast("fund") && (
+        <p style={{ color: "var(--term-gray6)" }}>
+          <StepIcon spinning={setupAt("fund")} /> Funding wallet with{" "}
+          <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
+        </p>
+      )}
+      {/* biome-ignore format: contains unicode → */}
+      {setupAtOrPast("req402") && (
+        <>
+          <p style={{ color: "var(--term-gray6)" }}>
+            <StepIcon spinning={setupAt("req402")} /> GET {step.endpoint}
+            {setupPast("req402") && (
+              <>
+                {" "}
+                →{" "}
+                <span style={{ color: "var(--term-amber9)" }}>
+                  402 Payment Required
+                </span>
+              </>
+            )}
+          </p>
+          {setupPast("req402") && (
+            <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
+              WWW-Authenticate: Payment
+            </p>
+          )}
+        </>
+      )}
+      {setupAtOrPast("channel") && (
+        <>
+          <p style={{ color: "var(--term-gray6)" }}>
+            <StepIcon spinning={setupAt("channel")} /> Opening payment channel
+          </p>
+          {setupPast("channel") && (
+            <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
+              channel{" "}
+              <TruncatedHex hash={channelTxHash}>{channelTxHash}</TruncatedHex>
+            </p>
+          )}
+          {setupPast("channel") && (
+            <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
+              deposit{" "}
+              <span style={{ color: "var(--term-amber9)" }}>5 USDC</span>
+            </p>
+          )}
+        </>
+      )}
+
+      {/* Past runs */}
+      {pastRuns.map((run, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: stable run order
+        <div key={i}>
+          <BlankLine />
+          <p style={{ color: "var(--term-gray10)" }}>How many photos?</p>
+          <div style={{ paddingLeft: "1rem" }}>
+            {GALLERY_COUNTS.map((n) => (
+              <p
+                key={n}
+                style={{
+                  color:
+                    n === run.count ? "var(--term-pink9)" : "var(--term-gray6)",
+                }}
+              >
+                {n === run.count ? (
+                  <>
+                    <CssTriangle />{" "}
+                  </>
+                ) : (
+                  "  "
+                )}
+                {n} photos (${(n * GALLERY_COST).toFixed(2)})
+              </p>
+            ))}
+            {i > 0 && <p style={{ color: "var(--term-gray6)" }}>{"  "}Done</p>}
+          </div>
+          <BlankLine />
+          <GalleryGrid urls={run.urls} />
+          {/* biome-ignore format: contains unicode ✔︎ */}
+          <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
+            <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
+            {run.count} photos —{" "}
+            <span style={{ color: "var(--term-amber9)" }}>
+              {(run.count * GALLERY_COST).toFixed(2)} USDC
+            </span>
+          </p>
+        </div>
+      ))}
+
+      {/* Current picker or fetch */}
+      {phase === "picker" && (
+        <>
+          <BlankLine />
+          <p style={{ color: "var(--term-gray10)" }}>How many photos?</p>
+          <div style={{ paddingLeft: "1rem" }}>
+            {pickerItems.map((item, i) => (
+              <button
+                key={item.label}
+                type="button"
+                className="w-fit cursor-pointer text-left block"
+                style={{
+                  color:
+                    selected === i ? "var(--term-pink9)" : "var(--term-gray6)",
+                }}
+                onMouseEnter={() => setSelected(i)}
+                onClick={() => {
+                  setSelected(i);
+                  if (item.value === "done") {
+                    setPhase("closing");
+                  } else {
+                    pickCount(item.value);
+                  }
+                }}
+              >
+                {selected === i ? (
+                  <>
+                    <CssTriangle />{" "}
+                  </>
+                ) : (
+                  "  "
+                )}
+                {item.label}
+              </button>
+            ))}
+          </div>
+          {/* biome-ignore format: contains unicode ↑↓ */}
+          <p style={{ color: "var(--term-gray5)" }}>
+            Use ↑↓ arrows and Enter to select
+          </p>
+        </>
+      )}
+
+      {phase === "fetch" && (
+        <>
+          <BlankLine />
+          <p style={{ color: "var(--term-gray10)" }}>How many photos?</p>
+          <div style={{ paddingLeft: "1rem" }}>
+            {pickerItems.map((item) => (
+              <p
+                key={item.label}
+                style={{
+                  color:
+                    item.value === targetCount
+                      ? "var(--term-pink9)"
+                      : "var(--term-gray6)",
+                }}
+              >
+                {item.value === targetCount ? (
+                  <>
+                    <CssTriangle />{" "}
+                  </>
+                ) : (
+                  "  "
+                )}
+                {item.label}
+              </p>
+            ))}
+          </div>
+          <BlankLine />
+          <GalleryGrid
+            urls={urls.slice(
+              urls.length - targetCount,
+              urls.length - targetCount + revealed,
+            )}
+            loading={revealed < targetCount}
+          />
+          {/* biome-ignore format: contains unicode ✔︎ */}
+          {revealed > 0 && (
+            <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
+              {revealed < targetCount ? (
+                <Spinner />
+              ) : (
+                <span style={{ color: "var(--term-green9)" }}>✔︎</span>
+              )}{" "}
+              {revealed} photos —{" "}
+              <span style={{ color: "var(--term-amber9)" }}>
+                {(revealed * GALLERY_COST).toFixed(2)} USDC
+              </span>
+            </p>
+          )}
+        </>
+      )}
+
+      {/* Close channel */}
+      {(phase === "closing" || phase === "restart") && (
+        <>
+          <BlankLine />
+          {/* Show "Done" as chosen in the picker */}
+          <p style={{ color: "var(--term-gray10)" }}>How many photos?</p>
+          <div style={{ paddingLeft: "1rem" }}>
+            {pickerItems.map((item) => (
+              <p
+                key={item.label}
+                style={{
+                  color:
+                    item.value === "done"
+                      ? "var(--term-pink9)"
+                      : "var(--term-gray6)",
+                }}
+              >
+                {item.value === "done" ? (
+                  <>
+                    <CssTriangle />{" "}
+                  </>
+                ) : (
+                  "  "
+                )}
+                {item.label}
+              </p>
+            ))}
+          </div>
+          <BlankLine />
+          <p style={{ color: "var(--term-gray6)" }}>
+            <StepIcon spinning={phase === "closing"} /> Closing payment channel
+          </p>
+          {phase === "restart" && (
+            <>
+              <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
+                tx <TruncatedHex hash={closeTxHash}>{closeTxHash}</TruncatedHex>
+              </p>
+              <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
+                spent{" "}
+                <span style={{ color: "var(--term-amber9)" }}>
+                  {spent.toFixed(2)} USDC
+                </span>
+              </p>
+              <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
+                refunded{" "}
+                <span style={{ color: "var(--term-amber9)" }}>
+                  {(5 - spent).toFixed(2)} USDC
+                </span>
+              </p>
+              <button
+                type="button"
+                className="cursor-pointer text-left"
+                style={{ color: "var(--term-gray6)" }}
+                onClick={() => {
+                  setPhase("gate");
+                  setSetupStep(0);
+                  setUrls([]);
+                  setRevealed(0);
+                  setTargetCount(0);
+                  setTotalPhotos(0);
+                  setRunIndex(0);
+                  setPastRuns([]);
+                  setSelected(0);
+                }}
+              >
+                [Press Enter or click to restart]
+              </button>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Single payment step (no wizard menu)
 // ---------------------------------------------------------------------------
 
@@ -2227,6 +2812,16 @@ function TerminalComponent({
                   contentStep.type === "tempo-session" ||
                   contentStep.type === "stripe"
                 ) {
+                  if (contentStep.outputMode === "gallery") {
+                    return (
+                      <GalleryStep
+                        // biome-ignore lint/suspicious/noArrayIndexKey: static steps never reorder
+                        key={i}
+                        step={contentStep}
+                        walletState={walletState}
+                      />
+                    );
+                  }
                   return (
                     <SingleStep
                       // biome-ignore lint/suspicious/noArrayIndexKey: static steps never reorder
@@ -2254,6 +2849,7 @@ export const Terminal = Object.assign(TerminalComponent, {
   charge: _charge,
   chat: _chat,
   commands: _commands,
+  gallery: _gallery,
   image: _image,
   lookup: _lookup,
   photo: _photo,
@@ -2273,6 +2869,7 @@ export {
   _charge as charge,
   _chat as chat,
   _commands as commands,
+  _gallery as gallery,
   _image as image,
   _lookup as lookup,
   _photo as photo,
