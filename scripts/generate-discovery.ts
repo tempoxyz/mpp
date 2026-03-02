@@ -80,7 +80,6 @@ export function buildPayment(
     method: svc.payment.method,
     currency: svc.payment.currency,
     decimals: svc.payment.decimals,
-    recipient: svc.payment.recipient,
     description: ep.desc,
   };
 

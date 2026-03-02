@@ -112,7 +112,6 @@ describe("services registry", () => {
         expect(svc.payment.method).toBeTruthy();
         expect(svc.payment.currency).toBeTruthy();
         expect(svc.payment.decimals).toBeGreaterThanOrEqual(0);
-        expect(svc.payment.recipient).toBeTruthy();
       });
 
       it("has realm and intent", () => {

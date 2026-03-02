@@ -7,7 +7,6 @@
 
 // --- Shared constants ---
 export const USDC = "0x20c000000000000000000000b9537d11c60e8b50";
-export const TEMPO_RECIPIENT = "0xB48141c3Da5030deF992bDc686f0e9A8729206b6";
 export const MPP_REALM = "mpp.tempo.xyz";
 
 // --- Types ---
@@ -56,8 +55,6 @@ export interface PaymentDefaults {
   currency: string;
   /** Decimal places for the currency (e.g. 6 for USDC) */
   decimals: number;
-  /** Payment recipient address or identifier */
-  recipient: string;
 }
 
 /** Common payment defaults for Tempo USDC services */
@@ -65,7 +62,6 @@ export const TEMPO_PAYMENT: PaymentDefaults = {
   method: "tempo",
   currency: USDC,
   decimals: 6,
-  recipient: TEMPO_RECIPIENT,
 };
 
 export interface EndpointDef {

@@ -3,7 +3,6 @@ import {
   MPP_REALM,
   type ServiceDef,
   TEMPO_PAYMENT,
-  TEMPO_RECIPIENT,
   USDC,
 } from "../schemas/services.ts";
 import {
@@ -100,7 +99,6 @@ describe("buildPayment", () => {
       amount: "5000",
       currency: USDC,
       decimals: 6,
-      recipient: TEMPO_RECIPIENT,
       description: "test",
     });
   });
@@ -116,7 +114,6 @@ describe("buildPayment", () => {
       dynamic: true,
       currency: USDC,
       decimals: 6,
-      recipient: TEMPO_RECIPIENT,
       description: "dynamic test",
     });
   });

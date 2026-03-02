@@ -29,7 +29,6 @@ export interface EndpointPayment {
   amount?: string;
   currency?: string;
   decimals?: number;
-  recipient?: string;
   unitType?: string;
   description?: string;
   dynamic?: true;

@@ -48,7 +48,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search the web",
             "amount": "5000"
           },
@@ -63,7 +62,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get page contents",
             "amount": "5000"
           },
@@ -78,7 +76,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Find similar pages",
             "amount": "5000"
           },
@@ -93,7 +90,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get AI-powered answers",
             "amount": "10000"
           },
@@ -147,7 +143,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
             "dynamic": true
           },
@@ -202,7 +197,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Download object ($0.001 base + $0.01/MB)",
             "dynamic": true
           }
@@ -216,7 +210,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Upload object ($0.001 base + $0.01/MB, max 100MB)",
             "dynamic": true
           }
@@ -230,7 +223,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete object",
             "amount": "100"
           }
@@ -244,7 +236,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List objects",
             "amount": "100"
           }
@@ -258,7 +249,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Initiate/complete multipart upload",
             "amount": "100"
           }

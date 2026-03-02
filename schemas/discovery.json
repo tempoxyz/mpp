@@ -48,7 +48,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List inboxes",
             "amount": "5000"
           },
@@ -63,7 +62,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create an inbox",
             "amount": "5000"
           },
@@ -78,7 +76,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get inbox details",
             "amount": "5000"
           },
@@ -93,7 +90,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Update an inbox",
             "amount": "5000"
           },
@@ -108,7 +104,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete an inbox",
             "amount": "5000"
           },
@@ -123,7 +118,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List threads in inbox",
             "amount": "5000"
           },
@@ -138,7 +132,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get thread details",
             "amount": "5000"
           },
@@ -153,7 +146,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get thread attachment",
             "amount": "5000"
           },
@@ -168,7 +160,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete a thread",
             "amount": "5000"
           },
@@ -183,7 +174,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List messages in inbox",
             "amount": "5000"
           },
@@ -198,7 +188,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get message details",
             "amount": "5000"
           },
@@ -213,7 +202,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get message attachment",
             "amount": "5000"
           },
@@ -228,7 +216,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get raw message",
             "amount": "5000"
           },
@@ -243,7 +230,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Send a message",
             "amount": "10000"
           },
@@ -258,7 +244,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Send a message",
             "amount": "10000"
           },
@@ -273,7 +258,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Reply to a message",
             "amount": "10000"
           },
@@ -288,7 +272,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Reply all to a message",
             "amount": "10000"
           },
@@ -303,7 +286,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Forward a message",
             "amount": "10000"
           },
@@ -318,7 +300,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Update a message",
             "amount": "5000"
           },
@@ -333,7 +314,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List drafts in inbox",
             "amount": "5000"
           },
@@ -348,7 +328,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get draft details",
             "amount": "5000"
           },
@@ -363,7 +342,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get draft attachment",
             "amount": "5000"
           },
@@ -378,7 +356,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create a draft",
             "amount": "5000"
           },
@@ -393,7 +370,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Update a draft",
             "amount": "5000"
           },
@@ -408,7 +384,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Send a draft",
             "amount": "10000"
           },
@@ -423,7 +398,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete a draft",
             "amount": "5000"
           },
@@ -438,7 +412,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get inbox metrics",
             "amount": "5000"
           },
@@ -453,7 +426,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List threads across all inboxes",
             "amount": "5000"
           },
@@ -468,7 +440,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get thread details",
             "amount": "5000"
           },
@@ -483,7 +454,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get thread attachment",
             "amount": "5000"
           },
@@ -498,7 +468,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List drafts across all inboxes",
             "amount": "5000"
           },
@@ -513,7 +482,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get draft details",
             "amount": "5000"
           },
@@ -528,7 +496,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get draft attachment",
             "amount": "5000"
           },
@@ -543,7 +510,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List domains",
             "amount": "5000"
           },
@@ -558,7 +524,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create a domain",
             "amount": "10000"
           },
@@ -573,7 +538,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get domain details",
             "amount": "5000"
           },
@@ -588,7 +552,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get domain zone file",
             "amount": "5000"
           },
@@ -603,7 +566,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete a domain",
             "amount": "10000"
           },
@@ -618,7 +580,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Verify a domain",
             "amount": "10000"
           },
@@ -633,7 +594,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List webhooks",
             "amount": "5000"
           },
@@ -648,7 +608,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create a webhook",
             "amount": "5000"
           },
@@ -663,7 +622,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get webhook details",
             "amount": "5000"
           },
@@ -678,7 +636,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Update a webhook",
             "amount": "5000"
           },
@@ -693,7 +650,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete a webhook",
             "amount": "5000"
           },
@@ -708,7 +664,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List metrics",
             "amount": "5000"
           },
@@ -723,7 +678,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List API keys",
             "amount": "5000"
           },
@@ -738,7 +692,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create an API key",
             "amount": "5000"
           },
@@ -753,7 +706,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete an API key",
             "amount": "5000"
           },
@@ -768,7 +720,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List pods",
             "amount": "5000"
           },
@@ -783,7 +734,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create a pod",
             "amount": "5000"
           },
@@ -798,7 +748,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get pod details",
             "amount": "5000"
           },
@@ -813,7 +762,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete a pod",
             "amount": "5000"
           },
@@ -828,7 +776,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List pod inboxes",
             "amount": "5000"
           },
@@ -843,7 +790,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create pod inbox",
             "amount": "5000"
           },
@@ -858,7 +804,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get pod inbox",
             "amount": "5000"
           },
@@ -873,7 +818,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete pod inbox",
             "amount": "5000"
           },
@@ -888,7 +832,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List pod threads",
             "amount": "5000"
           },
@@ -903,7 +846,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get pod thread",
             "amount": "5000"
           },
@@ -918,7 +860,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get pod thread attachment",
             "amount": "5000"
           },
@@ -933,7 +874,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List pod drafts",
             "amount": "5000"
           },
@@ -948,7 +888,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get pod draft",
             "amount": "5000"
           },
@@ -963,7 +902,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get pod draft attachment",
             "amount": "5000"
           },
@@ -978,7 +916,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List pod domains",
             "amount": "5000"
           },
@@ -993,7 +930,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create pod domain",
             "amount": "10000"
           },
@@ -1008,7 +944,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete pod domain",
             "amount": "10000"
           },
@@ -1023,7 +958,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get organization details",
             "amount": "5000"
           },
@@ -1079,7 +1013,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "JSON-RPC call (eth_*, alchemy_*)",
             "amount": "100"
           },
@@ -1094,7 +1027,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "NFT API v3",
             "amount": "500"
           },
@@ -1109,7 +1041,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "NFT API v3",
             "amount": "500"
           },
@@ -1166,7 +1097,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create messages with Claude (Sonnet, Opus, Haiku) - price varies by model",
             "dynamic": true
           }
@@ -1180,7 +1110,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "OpenAI-compatible chat completions (auto-converted to Anthropic format)",
             "dynamic": true
           }
@@ -1234,7 +1163,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create a browser session",
             "amount": "120000"
           },
@@ -1249,7 +1177,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Add more time to session",
             "amount": "120000"
           },
@@ -1305,7 +1232,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "GraphQL query (token data, trades, liquidity, NFTs, wallets)",
             "amount": "350"
           },
@@ -1359,7 +1285,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create a Droplet",
             "dynamic": true
           },
@@ -1388,7 +1313,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete a Droplet",
             "dynamic": true
           },
@@ -1403,7 +1327,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Run a Droplet action",
             "dynamic": true
           },
@@ -1418,7 +1341,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Add an SSH key",
             "dynamic": true
           },
@@ -1517,7 +1439,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Convert text to speech audio",
             "amount": "30000"
           },
@@ -1532,7 +1453,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Stream text-to-speech audio",
             "amount": "30000"
           },
@@ -1547,7 +1467,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Transcribe audio to text (Scribe)",
             "amount": "50000"
           },
@@ -1616,7 +1535,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search the web",
             "amount": "5000"
           },
@@ -1631,7 +1549,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get page contents",
             "amount": "5000"
           },
@@ -1646,7 +1563,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Find similar pages",
             "amount": "5000"
           },
@@ -1661,7 +1577,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get AI-powered answers",
             "amount": "10000"
           },
@@ -1718,7 +1633,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "FLUX.1 [dev] - High-quality text-to-image generation",
             "amount": "25000"
           },
@@ -1733,7 +1647,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "FLUX.1 [schnell] - Fast text-to-image (1-4 steps)",
             "amount": "3000"
           },
@@ -1748,7 +1661,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "FLUX1.1 [pro] - Professional-grade image generation",
             "amount": "35000"
           },
@@ -1763,7 +1675,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "FLUX1.1 [pro] ultra - Up to 2K resolution with improved realism",
             "amount": "60000"
           },
@@ -1778,7 +1689,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Stable Diffusion 3.5 Large - MMDiT text-to-image",
             "amount": "35000"
           },
@@ -1793,7 +1703,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Fast SDXL - Quick Stable Diffusion XL generation",
             "amount": "3000"
           },
@@ -1808,7 +1717,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Recraft V3 - SOTA text-to-image with long text and vector art",
             "amount": "40000"
           },
@@ -1823,7 +1731,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Grok Imagine - xAI image generation",
             "amount": "40000"
           },
@@ -1838,7 +1745,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Grok Imagine Edit - xAI image editing",
             "amount": "40000"
           },
@@ -1853,7 +1759,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Stable Video Diffusion - Image-to-video generation",
             "amount": "70000"
           },
@@ -1868,7 +1773,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "MiniMax Video-01 - Text/image to video generation",
             "amount": "70000"
           },
@@ -1883,7 +1787,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "MiniMax Video-01 Live - Real-time video generation",
             "amount": "70000"
           },
@@ -1898,7 +1801,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Grok Imagine Video - xAI text-to-video generation",
             "amount": "300000"
           },
@@ -1913,7 +1815,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Grok Imagine Video - xAI image-to-video generation",
             "amount": "300000"
           },
@@ -1928,7 +1829,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "fal.ai model generation",
             "amount": "20000"
           },
@@ -1943,7 +1843,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "fal.ai model generation (with namespace)",
             "amount": "20000"
           },
@@ -1998,7 +1897,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Scrape a URL",
             "amount": "2000"
           },
@@ -2013,7 +1911,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Crawl a website",
             "amount": "5000"
           },
@@ -2028,7 +1925,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Map website URLs",
             "amount": "2000"
           },
@@ -2043,7 +1939,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search the web",
             "amount": "4000"
           },
@@ -2058,7 +1953,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Extract structured data",
             "amount": "5000"
           },
@@ -2114,7 +2008,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Generate content (Gemini, Veo, Imagen, etc.) - price varies by model",
             "amount": "500",
             "unitType": "request"
@@ -2129,7 +2022,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Poll async operation status",
             "amount": "100",
             "unitType": "request"
@@ -2144,7 +2036,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Upload file for multimodal input",
             "amount": "1000",
             "unitType": "request"
@@ -2240,7 +2131,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create a sandbox for code execution",
             "dynamic": true
           },
@@ -2322,7 +2212,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Responses API (Codex, GPT-4o, etc.) - price varies by model",
             "dynamic": true
           },
@@ -2337,7 +2226,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Chat completions (GPT-4o, GPT-4, o1, etc.) - price varies by model",
             "dynamic": true
           },
@@ -2352,7 +2240,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create embeddings",
             "amount": "100"
           },
@@ -2367,7 +2254,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Generate images with DALL-E",
             "amount": "50000"
           },
@@ -2382,7 +2268,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Transcribe audio with Whisper",
             "amount": "10000"
           },
@@ -2397,7 +2282,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Text-to-speech",
             "amount": "20000"
           },
@@ -2451,7 +2335,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
             "dynamic": true
           },
@@ -2505,7 +2388,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search the web",
             "amount": "5000",
             "unitType": "request"
@@ -2520,7 +2402,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Extract page content",
             "amount": "1000",
             "unitType": "request"
@@ -2535,7 +2416,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Web-grounded chat completions - price varies by model",
             "dynamic": true
           }
@@ -2589,7 +2469,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "JSON-RPC calls - $0.001 per call",
             "amount": "1000",
             "unitType": "request"
@@ -2644,7 +2523,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Download object ($0.001 base + $0.01/MB)",
             "dynamic": true
           }
@@ -2658,7 +2536,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Upload object ($0.001 base + $0.01/MB, max 100MB)",
             "dynamic": true
           }
@@ -2672,7 +2549,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Delete object",
             "amount": "100"
           }
@@ -2686,7 +2562,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List objects",
             "amount": "100"
           }
@@ -2700,7 +2575,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Initiate/complete multipart upload",
             "amount": "100"
           }
@@ -2754,7 +2628,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Look up tweets by ID",
             "amount": "5000"
           },
@@ -2769,7 +2642,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Look up a single tweet",
             "amount": "5000"
           },
@@ -2784,7 +2656,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create a new tweet",
             "amount": "5000"
           },
@@ -2799,7 +2670,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Look up a user by ID",
             "amount": "5000"
           },
@@ -2814,7 +2684,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Look up user by username",
             "amount": "5000"
           },
@@ -2829,7 +2698,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search recent tweets",
             "amount": "10000"
           },
@@ -2844,7 +2712,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get user tweet timeline",
             "amount": "5000"
           },
@@ -2899,7 +2766,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Send email from relay address",
             "amount": "20000"
           }
@@ -2913,7 +2779,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Purchase a custom email subdomain",
             "amount": "5000000"
           }
@@ -2927,7 +2792,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Send email from custom subdomain",
             "amount": "5000"
           }
@@ -2959,7 +2823,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Create inbox on subdomain",
             "amount": "250000"
           }
@@ -2991,7 +2854,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List subdomain inbox messages",
             "amount": "1000"
           }
@@ -3005,7 +2867,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Read a subdomain inbox message",
             "amount": "1000"
           }
@@ -3025,7 +2886,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Buy a forwarding inbox (30 days)",
             "amount": "1000000"
           }
@@ -3039,7 +2899,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Extend inbox 30 days",
             "amount": "1000000"
           }
@@ -3053,7 +2912,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Extend inbox 90 days (save 17%)",
             "amount": "2500000"
           }
@@ -3067,7 +2925,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Extend inbox 365 days (save 34%)",
             "amount": "8000000"
           }
@@ -3081,7 +2938,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Send email from inbox address",
             "amount": "5000"
           }
@@ -3113,7 +2969,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "List messages in inbox",
             "amount": "1000"
           }
@@ -3127,7 +2982,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Read a single inbox message",
             "amount": "1000"
           }
@@ -3193,7 +3047,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Find prospects by filters",
             "amount": "20000"
           }
@@ -3207,7 +3060,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Enrich single person by email/name/domain",
             "amount": "49500"
           }
@@ -3221,7 +3073,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Find companies by filters",
             "amount": "20000"
           }
@@ -3235,7 +3086,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Enrich single company by domain",
             "amount": "49500"
           }
@@ -3249,7 +3099,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Scrape full LinkedIn profile data",
             "amount": "40000"
           }
@@ -3263,7 +3112,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Enrich contact info from LinkedIn URL, email, or phone",
             "amount": "200000"
           }
@@ -3277,7 +3125,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Neural web search",
             "amount": "10000"
           }
@@ -3291,7 +3138,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Find pages similar to a URL",
             "amount": "10000"
           }
@@ -3305,7 +3151,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Extract content from URLs",
             "amount": "2000"
           }
@@ -3319,7 +3164,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "AI-generated answers with citations",
             "amount": "10000"
           }
@@ -3333,7 +3177,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Scrape a URL with full JavaScript rendering",
             "amount": "12600"
           }
@@ -3347,7 +3190,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search the web and get scraped results",
             "amount": "25200"
           }
@@ -3361,7 +3203,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Text search with full details",
             "amount": "80000"
           }
@@ -3375,7 +3216,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Text search with basic details",
             "amount": "20000"
           }
@@ -3389,7 +3229,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Nearby search with full details",
             "amount": "80000"
           }
@@ -3403,7 +3242,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Nearby search with basic details",
             "amount": "20000"
           }
@@ -3417,7 +3255,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Full place details by ID",
             "amount": "50000"
           }
@@ -3431,7 +3268,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Partial place details by ID",
             "amount": "20000"
           }
@@ -3445,7 +3281,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search X/Twitter posts",
             "amount": "20000"
           }
@@ -3459,7 +3294,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search X/Twitter users",
             "amount": "20000"
           }
@@ -3473,7 +3307,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get recent posts from an X user",
             "amount": "20000"
           }
@@ -3487,7 +3320,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Google News search",
             "amount": "40000"
           }
@@ -3501,7 +3333,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Google Shopping search",
             "amount": "40000"
           }
@@ -3515,7 +3346,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Reddit posts",
             "amount": "20000"
           }
@@ -3529,7 +3359,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get post details and comments",
             "amount": "20000"
           }
@@ -3543,7 +3372,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search for people by name, phone, or address",
             "amount": "440000"
           }
@@ -3557,7 +3385,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Property ownership and resident details by address",
             "amount": "440000"
           }
@@ -3571,7 +3398,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Verify email deliverability",
             "amount": "30000"
           }
@@ -3585,7 +3411,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Find social profiles by email",
             "amount": "400000"
           }
@@ -3599,7 +3424,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Enrich social media profile with contact info",
             "amount": "400000"
           }
@@ -3654,7 +3478,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Make an AI phone call",
             "amount": "540000"
           }
@@ -3674,7 +3497,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Buy a phone number (30 days)",
             "amount": "20000000"
           }
@@ -3688,7 +3510,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Extend a phone number 30 days",
             "amount": "15000000"
           }
@@ -3708,7 +3529,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "iMessage/FaceTime lookup",
             "amount": "50000"
           }
@@ -3771,7 +3591,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get TikTok user profile",
             "amount": "60000"
           }
@@ -3785,7 +3604,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get TikTok user posts",
             "amount": "60000"
           }
@@ -3799,7 +3617,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get TikTok video comments",
             "amount": "60000"
           }
@@ -3813,7 +3630,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get TikTok comment replies",
             "amount": "60000"
           }
@@ -3827,7 +3643,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get TikTok followers",
             "amount": "60000"
           }
@@ -3841,7 +3656,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get TikTok following",
             "amount": "60000"
           }
@@ -3855,7 +3669,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search TikTok posts by keyword",
             "amount": "60000"
           }
@@ -3869,7 +3682,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search TikTok by hashtag",
             "amount": "60000"
           }
@@ -3883,7 +3695,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search TikTok user profiles",
             "amount": "60000"
           }
@@ -3897,7 +3708,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search TikTok posts by sound",
             "amount": "60000"
           }
@@ -3911,7 +3721,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Instagram user profile",
             "amount": "60000"
           }
@@ -3925,7 +3734,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Instagram user posts",
             "amount": "60000"
           }
@@ -3939,7 +3747,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Instagram post comments",
             "amount": "60000"
           }
@@ -3953,7 +3760,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Instagram comment replies",
             "amount": "60000"
           }
@@ -3967,7 +3773,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Instagram followers",
             "amount": "60000"
           }
@@ -3981,7 +3786,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Instagram following",
             "amount": "60000"
           }
@@ -3995,7 +3799,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Instagram user stories",
             "amount": "60000"
           }
@@ -4009,7 +3812,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Instagram user highlights",
             "amount": "60000"
           }
@@ -4023,7 +3825,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Instagram posts by keyword",
             "amount": "60000"
           }
@@ -4037,7 +3838,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Instagram by tag",
             "amount": "60000"
           }
@@ -4051,7 +3851,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get X/Twitter user profile",
             "amount": "60000"
           }
@@ -4065,7 +3864,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get X/Twitter user posts",
             "amount": "60000"
           }
@@ -4079,7 +3877,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get X/Twitter post replies",
             "amount": "60000"
           }
@@ -4093,7 +3890,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get X/Twitter retweet profiles",
             "amount": "60000"
           }
@@ -4107,7 +3903,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get X/Twitter quote tweets",
             "amount": "60000"
           }
@@ -4121,7 +3916,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get X/Twitter followers",
             "amount": "60000"
           }
@@ -4135,7 +3929,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get X/Twitter following",
             "amount": "60000"
           }
@@ -4149,7 +3942,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search X/Twitter posts by keyword",
             "amount": "60000"
           }
@@ -4163,7 +3955,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search X/Twitter user profiles",
             "amount": "60000"
           }
@@ -4177,7 +3968,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Facebook page/user profile",
             "amount": "60000"
           }
@@ -4191,7 +3981,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Facebook page/user posts",
             "amount": "60000"
           }
@@ -4205,7 +3994,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Facebook post comments",
             "amount": "60000"
           }
@@ -4219,7 +4007,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Facebook comment replies",
             "amount": "60000"
           }
@@ -4233,7 +4020,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Facebook followers",
             "amount": "60000"
           }
@@ -4247,7 +4033,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Facebook following",
             "amount": "60000"
           }
@@ -4261,7 +4046,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Facebook posts by keyword",
             "amount": "60000"
           }
@@ -4275,7 +4059,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Facebook people profiles",
             "amount": "60000"
           }
@@ -4289,7 +4072,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Facebook page profiles",
             "amount": "60000"
           }
@@ -4303,7 +4085,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Facebook group profiles",
             "amount": "60000"
           }
@@ -4317,7 +4098,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Reddit post details",
             "amount": "60000"
           }
@@ -4331,7 +4111,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Reddit post comments",
             "amount": "60000"
           }
@@ -4345,7 +4124,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get Reddit comment details",
             "amount": "60000"
           }
@@ -4359,7 +4137,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Reddit posts by keyword",
             "amount": "60000"
           }
@@ -4373,7 +4150,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Search Reddit user profiles",
             "amount": "60000"
           }
@@ -4387,7 +4163,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Get subreddit posts",
             "amount": "60000"
           }
@@ -4454,7 +4229,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Nano Banana image generation",
             "amount": "39000"
           }
@@ -4468,7 +4242,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Nano Banana image editing",
             "amount": "39000"
           }
@@ -4482,7 +4255,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Nano Banana Pro image generation (up to 4K)",
             "dynamic": true
           }
@@ -4496,7 +4268,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Nano Banana Pro image editing (up to 4K)",
             "dynamic": true
           }
@@ -4510,7 +4281,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Grok image generation",
             "amount": "70000"
           }
@@ -4524,7 +4294,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Grok image editing",
             "amount": "22000"
           }
@@ -4538,7 +4307,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Grok video generation",
             "dynamic": true
           }
@@ -4552,7 +4320,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "GPT Image 1 generation",
             "dynamic": true
           }
@@ -4566,7 +4333,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "GPT Image 1 editing",
             "dynamic": true
           }
@@ -4580,7 +4346,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "GPT Image 1.5 generation",
             "dynamic": true
           }
@@ -4594,7 +4359,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "GPT Image 1.5 editing",
             "dynamic": true
           }
@@ -4608,7 +4372,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Flux 2 Pro image generation",
             "dynamic": true
           }
@@ -4622,7 +4385,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Flux 2 Pro image editing",
             "dynamic": true
           }
@@ -4636,7 +4398,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Seedance text-to-video",
             "dynamic": true
           }
@@ -4650,7 +4411,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Seedance image-to-video",
             "dynamic": true
           }
@@ -4664,7 +4424,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Seedance Fast text-to-video",
             "dynamic": true
           }
@@ -4678,7 +4437,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Seedance Fast image-to-video",
             "dynamic": true
           }
@@ -4692,7 +4450,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Wan 2.6 text-to-video",
             "dynamic": true
           }
@@ -4706,7 +4463,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Wan 2.6 image-to-video",
             "dynamic": true
           }
@@ -4720,7 +4476,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Sora 2 video generation",
             "dynamic": true
           }
@@ -4734,7 +4489,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Sora 2 Pro video generation",
             "dynamic": true
           }
@@ -4748,7 +4502,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Veo 3.1 video generation",
             "dynamic": true
           }
@@ -4762,7 +4515,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Veo 3.1 Fast video generation",
             "dynamic": true
           }
@@ -4776,7 +4528,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Upload image for editing or image-to-video",
             "amount": "10000"
           }
@@ -4854,7 +4605,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Buy an upload slot (10MB $0.02, 100MB $0.20, 1GB $2.00)",
             "dynamic": true
           }
@@ -4880,7 +4630,6 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
             "description": "Buy a site upload slot for zip hosting",
             "dynamic": true
           }
