@@ -418,3 +418,48 @@ describe("terminal (classic mode)", () => {
     await page.close();
   });
 });
+
+describe("terminal (overview page)", () => {
+  it.concurrent("renders the ping payment flow", async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}/overview`, {
+      waitUntil: "load",
+    });
+
+    const terminal = page.locator("[data-terminal]");
+
+    // Terminal should render
+    await playwrightExpect(terminal).toBeVisible({
+      timeout: 15_000,
+    });
+
+    // Wait for hydration, then start the demo
+    await page.waitForSelector("[data-demo-ready]", { timeout: 10_000 });
+    // Extra wait for React hydration to attach onClick handler
+    await page.waitForTimeout(2_000);
+    await page.locator("[data-demo-ready]").click();
+
+    // Payment flow steps should appear (simulated mode)
+    await playwrightExpect(
+      terminal.getByText("Creating wallet", { exact: false }),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("Funding wallet", { exact: false }),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("402 Payment Required"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      terminal.getByText("Fulfilling payment"),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(terminal.getByText("200 OK")).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await page.close();
+  });
+});

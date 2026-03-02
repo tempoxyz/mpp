@@ -1,9 +1,8 @@
 import { Cards } from 'vocs'
-import * as Cli from '../components/Cli'
 import { SpecCard } from '../components/SpecCard'
+import { TerminalPing } from '../components/TerminalPing'
 import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, QuickstartCard, ProtocolConceptsCard } from '../components/cards'
 import { PaymentFlowDiagram } from '../components/PaymentFlowDiagram'
-import { pathUsd } from '../wagmi.config'
 
 # Machine Payments Protocol [The open protocol for internet-native payments]
 
@@ -29,14 +28,11 @@ The Machine Payments Protocol addresses this gap by providing an internet-native
 
 ## Try it out
 
-This documentation site is itself an MPP server. Create an account, fund it with testnet tokens, and make a paid request to see the full flow in action.
+See the full payment flow in action. The terminal creates an ephemeral wallet, funds it with testnet USDC, and makes a paid request.
 
-<Cli.Demo title="Make a request with payment" token={pathUsd} restartStep={1}>
-  <Cli.Startup />
-  <Cli.ConnectWallet />
-  <Cli.Faucet />
-  <Cli.Ping />
-</Cli.Demo>
+<div style={{ height: 420 }}>
+  <TerminalPing />
+</div>
 
 ## Use cases
 

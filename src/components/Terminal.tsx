@@ -4,13 +4,29 @@ import { Receipt } from "mppx";
 import type { ReactNode } from "react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { BlockCursorInput } from "./BlockCursorInput";
+import { SPINNER_FRAMES } from "./terminal-data";
 import {
-  ARTICLE_SUMMARIES,
-  CHAT_RESPONSES,
-  IMAGE_RESULTS,
-  SEARCH_RESULTS,
-  SPINNER_FRAMES,
-} from "./terminal-data";
+  article as _article,
+  ascii as _ascii,
+  charge as _charge,
+  chat as _chat,
+  commands as _commands,
+  image as _image,
+  lookup as _lookup,
+  ping as _ping,
+  poem as _poem,
+  search as _search,
+  session as _session,
+  stripe as _stripe,
+  wizard as _wizard,
+  COST_PER_TOKEN,
+  type CommandsStepConfig,
+  LOOKUP_COST,
+  type PaymentStepConfig,
+  type StepConfig,
+  shuffle,
+  type WizardStepConfig,
+} from "./terminal-steps";
 
 // ---------------------------------------------------------------------------
 // Demo client hook
@@ -363,34 +379,6 @@ export function randomStripeId(prefix: string) {
   return result;
 }
 
-export function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function createCyclicPicker<T>(items: T[], first?: T): () => T {
-  let queue = first
-    ? [first, ...shuffle(items.filter((i) => i !== first))]
-    : shuffle(items);
-  let index = 0;
-  return () => {
-    if (index >= queue.length) {
-      queue = shuffle(items);
-      index = 0;
-    }
-    return queue[index++];
-  };
-}
-
-const pickChat = createCyclicPicker(CHAT_RESPONSES);
-const pickImage = createCyclicPicker(IMAGE_RESULTS);
-const pickSearch = createCyclicPicker(SEARCH_RESULTS);
-const pickArticle = createCyclicPicker(ARTICLE_SUMMARIES);
-
 // ---------------------------------------------------------------------------
 // Service label for upstream API providers
 // ---------------------------------------------------------------------------
@@ -414,36 +402,13 @@ export function serviceLabel(endpoint: string): string | undefined {
 const SKIP_ANIMATION = import.meta.env.VITE_SKIP_ANIMATION === "true";
 const STREAM_DELAY = SKIP_ANIMATION ? 0 : 30;
 
-// ---------------------------------------------------------------------------
-// Step DSL types
-// ---------------------------------------------------------------------------
-
-type PaymentStepConfig = {
-  type: "tempo-charge" | "tempo-session" | "stripe";
-  label: string;
-  endpoint: string;
-  liveEndpoint?: (input: string) => string;
-  methodLabel: string;
-  cost: number | ((output: string[]) => number);
-  prompt?: { label: string; placeholder: string };
-  skipPrompt?: boolean;
-  pickOutput?: () => string[];
+export type {
+  StepConfig,
+  PaymentStepConfig,
+  CommandsStepConfig,
+  WizardStepConfig,
 };
-
-type CommandsStepConfig = {
-  type: "commands";
-  commands: string[];
-};
-
-type WizardStepConfig = {
-  type: "wizard";
-  options: PaymentStepConfig[];
-};
-
-export type StepConfig =
-  | PaymentStepConfig
-  | CommandsStepConfig
-  | WizardStepConfig;
+export { COST_PER_TOKEN, LOOKUP_COST, shuffle };
 
 // biome-ignore format: contains unicode ✔︎
 function StepIcon({
@@ -463,8 +428,6 @@ function StepIcon({
     </span>
   );
 }
-
-export const COST_PER_TOKEN = 0.0001;
 
 function AsyncSteps({
   endpoint,
@@ -986,8 +949,6 @@ function AsyncSteps({
 // ---------------------------------------------------------------------------
 // Stripe card form
 // ---------------------------------------------------------------------------
-
-export const LOOKUP_COST = 1.0;
 
 type SavedCard = { last4: string; expiry: string };
 
@@ -1855,6 +1816,111 @@ function Wizard({
 }
 
 // ---------------------------------------------------------------------------
+// Single payment step (no wizard menu)
+// ---------------------------------------------------------------------------
+
+function SingleStep({
+  step,
+  demoClient,
+  walletState,
+  savedCard,
+  setSavedCard,
+}: {
+  step: PaymentStepConfig;
+  demoClient?: DemoClient | null;
+  walletState: WalletState;
+  savedCard: SavedCard | undefined;
+  setSavedCard: (card: SavedCard | undefined) => void;
+}) {
+  const [started, setStarted] = useState(false);
+  const [done, setDone] = useState(false);
+  const [key, setKey] = useState(0);
+  const [output, setOutput] = useState<string[]>(
+    () => step.pickOutput?.() ?? [],
+  );
+
+  const restart = () => {
+    setStarted(false);
+    setDone(false);
+    setOutput(step.pickOutput?.() ?? []);
+    setKey((k) => k + 1);
+  };
+
+  useEffect(() => {
+    if (started && !done) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        if (done) restart();
+        else setStarted(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
+
+  if (!started) {
+    return (
+      <div className="flex flex-col">
+        <BlankLine />
+        <button
+          type="button"
+          data-demo-ready
+          className="w-fit cursor-pointer text-left"
+          style={{ color: "var(--term-pink9)" }}
+          onClick={() => setStarted(true)}
+        >
+          <CssTriangle /> Run demo
+        </button>
+        <p style={{ color: "var(--term-gray5)" }}>
+          Press Enter or click to start
+        </p>
+      </div>
+    );
+  }
+
+  const liveEndpoint = step.liveEndpoint?.("");
+
+  return (
+    <>
+      {step.type === "stripe" ? (
+        <StripeSteps
+          key={key}
+          endpoint={liveEndpoint ?? step.endpoint}
+          output={output}
+          savedCard={savedCard}
+          onCardSaved={setSavedCard}
+          demoClient={demoClient}
+          onContentReceived={setOutput}
+          onDone={() => setDone(true)}
+        />
+      ) : (
+        <AsyncSteps
+          key={key}
+          endpoint={step.endpoint}
+          liveEndpoint={liveEndpoint}
+          output={output}
+          walletState={walletState}
+          paymentChannel={step.type === "tempo-session"}
+          demoClient={demoClient}
+          onContentReceived={setOutput}
+          onDone={() => setDone(true)}
+        />
+      )}
+      {done && (
+        <button
+          type="button"
+          className="cursor-pointer text-left"
+          style={{ color: "var(--term-gray6)" }}
+          onClick={restart}
+        >
+          [Press Enter or click to restart]
+        </button>
+      )}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Exported Terminal component
 // ---------------------------------------------------------------------------
 
@@ -2102,6 +2168,23 @@ function TerminalComponent({
                     />
                   );
                 }
+                if (
+                  contentStep.type === "tempo-charge" ||
+                  contentStep.type === "tempo-session" ||
+                  contentStep.type === "stripe"
+                ) {
+                  return (
+                    <SingleStep
+                      // biome-ignore lint/suspicious/noArrayIndexKey: static steps never reorder
+                      key={i}
+                      step={contentStep}
+                      demoClient={demoClient}
+                      walletState={walletState}
+                      savedCard={savedCard}
+                      setSavedCard={setSavedCard}
+                    />
+                  );
+                }
                 return null;
               })}
           </div>
@@ -2111,208 +2194,36 @@ function TerminalComponent({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Step DSL builder functions
-// ---------------------------------------------------------------------------
-
-function _commands(commands: string[]): CommandsStepConfig {
-  return { type: "commands", commands };
-}
-
-function _wizard(options: PaymentStepConfig[]): WizardStepConfig {
-  return { type: "wizard", options };
-}
-
-function _charge({
-  label,
-  endpoint,
-  liveEndpoint,
-  cost,
-  prompt,
-  skipPrompt,
-  pickOutput,
-}: {
-  label: string;
-  endpoint: string;
-  liveEndpoint?: (input: string) => string;
-  cost: number;
-  prompt?: { label: string; placeholder: string };
-  skipPrompt?: boolean;
-  pickOutput?: () => string[];
-}): PaymentStepConfig {
-  return {
-    type: "tempo-charge",
-    label,
-    endpoint,
-    liveEndpoint,
-    methodLabel: "Tempo charge",
-    cost,
-    prompt,
-    skipPrompt,
-    pickOutput,
-  };
-}
-
-function _session({
-  label,
-  endpoint,
-  liveEndpoint,
-  cost,
-  prompt,
-  skipPrompt,
-  pickOutput,
-}: {
-  label: string;
-  endpoint: string;
-  liveEndpoint?: (input: string) => string;
-  cost?: (output: string[]) => number;
-  prompt?: { label: string; placeholder: string };
-  skipPrompt?: boolean;
-  pickOutput?: () => string[];
-}): PaymentStepConfig {
-  return {
-    type: "tempo-session",
-    label,
-    endpoint,
-    liveEndpoint,
-    methodLabel: "Tempo session",
-    cost:
-      cost ??
-      ((output) => Math.ceil(output.join("\n").length / 4) * COST_PER_TOKEN),
-    prompt,
-    skipPrompt,
-    pickOutput,
-  };
-}
-
-function _stripe({
-  label,
-  endpoint,
-  liveEndpoint,
-  cost,
-  prompt,
-  skipPrompt,
-  pickOutput,
-}: {
-  label: string;
-  endpoint: string;
-  liveEndpoint?: (input: string) => string;
-  cost: number;
-  prompt?: { label: string; placeholder: string };
-  skipPrompt?: boolean;
-  pickOutput?: () => string[];
-}): PaymentStepConfig {
-  return {
-    type: "stripe",
-    label,
-    endpoint,
-    liveEndpoint,
-    methodLabel: "Stripe charge",
-    cost,
-    prompt,
-    skipPrompt,
-    pickOutput,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Preset step builders
-// ---------------------------------------------------------------------------
-
-function _chat(): PaymentStepConfig {
-  return _session({
-    label: "Chat with AI",
-    endpoint: "/api/chat",
-    liveEndpoint: (input) =>
-      `/api/demo/chat?prompt=${encodeURIComponent(input)}`,
-    prompt: { label: "Enter prompt", placeholder: "what are micropayments?" },
-    pickOutput: pickChat,
-  });
-}
-
-function _image(): PaymentStepConfig {
-  return _charge({
-    label: "Generate image",
-    endpoint: "/api/image",
-    liveEndpoint: (input) =>
-      `/api/demo/image?prompt=${encodeURIComponent(input)}`,
-    cost: 0.003,
-    prompt: { label: "Enter prompt", placeholder: "a neon cityscape at night" },
-    pickOutput: pickImage,
-  });
-}
-
-function _search(): PaymentStepConfig {
-  return _charge({
-    label: "Search the web",
-    endpoint: "/api/search",
-    liveEndpoint: (input) =>
-      `/api/demo/search?query=${encodeURIComponent(input)}`,
-    cost: 0.005,
-    prompt: { label: "Enter query", placeholder: "AI agent payments" },
-    pickOutput: pickSearch,
-  });
-}
-
-function _article(): PaymentStepConfig {
-  return _stripe({
-    label: "Summarize article",
-    endpoint: "/api/article",
-    liveEndpoint: (input) =>
-      `/api/demo/article?url=${encodeURIComponent(input)}`,
-    cost: LOOKUP_COST,
-    prompt: { label: "Enter URL", placeholder: "stripe.com" },
-    pickOutput: pickArticle,
-  });
-}
-
-function _poem(): PaymentStepConfig {
-  return _session({
-    label: "Write poem",
-    endpoint: "/api/poem",
-    liveEndpoint: (input) =>
-      `/api/demo/poem?prompt=${encodeURIComponent(input)}`,
-    prompt: { label: "Enter prompt", placeholder: "what are micropayments?" },
-    skipPrompt: true,
-    pickOutput: pickChat,
-  });
-}
-
-function _ascii(): PaymentStepConfig {
-  return _charge({
-    label: "Create ASCII art",
-    endpoint: "/api/ascii",
-    liveEndpoint: (input) =>
-      `/api/demo/ascii?prompt=${encodeURIComponent(input)}`,
-    cost: 0.001,
-    skipPrompt: true,
-    pickOutput: pickImage,
-  });
-}
-
-function _lookup(): PaymentStepConfig {
-  return _stripe({
-    label: "Lookup company",
-    endpoint: "/api/lookup",
-    liveEndpoint: (input) =>
-      `/api/demo/lookup?url=${encodeURIComponent(input)}`,
-    cost: LOOKUP_COST,
-    prompt: { label: "Enter URL", placeholder: "stripe.com" },
-    pickOutput: pickArticle,
-  });
-}
-
 export const Terminal = Object.assign(TerminalComponent, {
-  commands: _commands,
-  wizard: _wizard,
+  article: _article,
+  ascii: _ascii,
   charge: _charge,
+  chat: _chat,
+  commands: _commands,
+  image: _image,
+  lookup: _lookup,
+  ping: _ping,
+  poem: _poem,
+  search: _search,
   session: _session,
   stripe: _stripe,
-  chat: _chat,
-  image: _image,
-  search: _search,
-  article: _article,
-  poem: _poem,
-  ascii: _ascii,
-  lookup: _lookup,
+  wizard: _wizard,
 });
+
+// Named re-exports for MDX/RSC contexts where Object.assign
+// properties are not available across the server-client boundary.
+export {
+  _article as article,
+  _ascii as ascii,
+  _charge as charge,
+  _chat as chat,
+  _commands as commands,
+  _image as image,
+  _lookup as lookup,
+  _ping as ping,
+  _poem as poem,
+  _search as search,
+  _session as session,
+  _stripe as stripe,
+  _wizard as wizard,
+};
