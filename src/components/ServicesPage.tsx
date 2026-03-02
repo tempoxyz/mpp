@@ -1714,10 +1714,7 @@ function BookIcon({ size = 13 }: { size?: number }) {
 
 function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
-  const baseUrl =
-    s.integration !== "third-party"
-      ? `https://${s.id}.mpp.tempo.xyz`
-      : (s.serviceUrl ?? s.url);
+  const baseUrl = s.serviceUrl ?? s.url;
   const docsUrl = s.docs?.homepage;
   const websiteUrl = s.provider?.url;
   const mobileLinkStyle: React.CSSProperties = {
