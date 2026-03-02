@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 import { Link } from "vocs";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
@@ -125,6 +125,19 @@ function LandingStyles() {
 // ---------------------------------------------------------------------------
 
 function Hero() {
+  const steps = useMemo(
+    () => [
+      Terminal.commands(["cat quickstart.txt", "./demo.sh"]),
+      Terminal.wizard([
+        Terminal.chat(),
+        Terminal.image(),
+        Terminal.search(),
+        Terminal.article(),
+      ]),
+    ],
+    [],
+  );
+
   return (
     <section
       className="landing-hero flex flex-col items-center px-3 md:px-6 mb-12 pt-4 md:pt-7"
@@ -194,7 +207,7 @@ function Hero() {
             height: 540,
           }}
         >
-          <Terminal className="absolute inset-0" />
+          <Terminal className="absolute inset-0" steps={steps} />
         </div>
 
         {/* Designed by */}
@@ -216,8 +229,8 @@ function Tagline() {
     >
       <div>
         The open protocol for internet-native payments. Charge for API requests,
-        tool calls, or access to content. Agents, apps, and humans securely pay per
-        request.
+        tool calls, or access to content. Agents, apps, and humans securely pay
+        per request.
       </div>
     </div>
   );
@@ -351,7 +364,9 @@ function Lockup() {
       <span style={{ fontSize: "clamp(2.75rem, 7vw, 5rem)", display: "block" }}>
         Machine
       </span>
-      <span style={{ fontSize: "clamp(1.75rem, 4.5vw, 3.25rem)", display: "block" }}>
+      <span
+        style={{ fontSize: "clamp(1.75rem, 4.5vw, 3.25rem)", display: "block" }}
+      >
         Payments Protocol
       </span>
     </h1>

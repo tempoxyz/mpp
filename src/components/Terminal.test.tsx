@@ -7,7 +7,6 @@ import {
   LOOKUP_COST,
   linkPattern,
   lookupCompany,
-  METHOD_LABELS,
   normalizeUrl,
   type Run,
   randomStripeId,
@@ -16,6 +15,7 @@ import {
   SERVICE_LABELS,
   serviceLabel,
   shuffle,
+  Terminal,
   timeAgo,
 } from "./Terminal";
 
@@ -158,53 +158,49 @@ describe("serviceLabel", () => {
 // ---------------------------------------------------------------------------
 
 describe("runCost", () => {
-  const makeRun = (chosen: string, output: string[] = [""]): Run => ({
-    chosen,
+  const makeRun = (step: Run["step"], output: string[] = [""]): Run => ({
+    step,
     output,
     key: 0,
   });
 
   it("calculates token-based cost for Chat with AI", () => {
     const output = ["Hello world! This is a test response."];
-    const run = makeRun("Chat with AI", output);
+    const run = makeRun(Terminal.chat(), output);
     const tokens = Math.ceil(output.join("\n").length / 4);
     expect(runCost(run)).toBe(tokens * COST_PER_TOKEN);
   });
 
   it("returns fixed cost for Generate image", () => {
-    expect(runCost(makeRun("Generate image"))).toBe(0.003);
+    expect(runCost(makeRun(Terminal.image()))).toBe(0.003);
   });
 
   it("returns fixed cost for Search the web", () => {
-    expect(runCost(makeRun("Search the web"))).toBe(0.005);
+    expect(runCost(makeRun(Terminal.search()))).toBe(0.005);
   });
 
   it("returns LOOKUP_COST for Summarize article", () => {
-    expect(runCost(makeRun("Summarize article"))).toBe(LOOKUP_COST);
+    expect(runCost(makeRun(Terminal.article()))).toBe(LOOKUP_COST);
   });
 
   it("calculates token-based cost for Write poem", () => {
     const output = ["Roses are red"];
-    const run = makeRun("Write poem", output);
+    const run = makeRun(Terminal.poem(), output);
     const tokens = Math.ceil(output.join("\n").length / 4);
     expect(runCost(run)).toBe(tokens * COST_PER_TOKEN);
   });
 
   it("returns fixed cost for Create ASCII art", () => {
-    expect(runCost(makeRun("Create ASCII art"))).toBe(0.001);
+    expect(runCost(makeRun(Terminal.ascii()))).toBe(0.001);
   });
 
   it("returns LOOKUP_COST for Lookup company", () => {
-    expect(runCost(makeRun("Lookup company"))).toBe(LOOKUP_COST);
-  });
-
-  it("returns 0 for unknown action", () => {
-    expect(runCost(makeRun("Unknown action"))).toBe(0);
+    expect(runCost(makeRun(Terminal.lookup()))).toBe(LOOKUP_COST);
   });
 
   it("handles multi-line output for token-based cost", () => {
     const output = ["line one", "line two", "line three"];
-    const run = makeRun("Chat with AI", output);
+    const run = makeRun(Terminal.chat(), output);
     const tokens = Math.ceil(output.join("\n").length / 4);
     expect(runCost(run)).toBe(tokens * COST_PER_TOKEN);
   });
@@ -357,13 +353,13 @@ describe("constants", () => {
     expect(Object.keys(COMPANIES)).toContain("openai.com");
   });
 
-  it("METHOD_LABELS maps all wizard options", () => {
-    expect(METHOD_LABELS["Chat with AI"]).toBe("Tempo session");
-    expect(METHOD_LABELS["Generate image"]).toBe("Tempo charge");
-    expect(METHOD_LABELS["Search the web"]).toBe("Tempo charge");
-    expect(METHOD_LABELS["Summarize article"]).toBe("Stripe charge");
-    expect(METHOD_LABELS["Write poem"]).toBe("Tempo session");
-    expect(METHOD_LABELS["Lookup company"]).toBe("Stripe charge");
+  it("step builders have correct methodLabels", () => {
+    expect(Terminal.chat().methodLabel).toBe("Tempo session");
+    expect(Terminal.image().methodLabel).toBe("Tempo charge");
+    expect(Terminal.search().methodLabel).toBe("Tempo charge");
+    expect(Terminal.article().methodLabel).toBe("Stripe charge");
+    expect(Terminal.poem().methodLabel).toBe("Tempo session");
+    expect(Terminal.lookup().methodLabel).toBe("Stripe charge");
   });
 
   it("SERVICE_LABELS is a non-empty array of tuples", () => {
