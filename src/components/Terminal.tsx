@@ -716,8 +716,11 @@ function AsyncSteps({
               // No receipt header — keep random hash
             }
 
-            const data = (await res.json()) as { lines?: string[] };
-            liveContent = data.lines ?? [];
+            const data = (await res.json()) as {
+              lines?: string[];
+              url?: string;
+            };
+            liveContent = data.lines ?? (data.url ? [data.url] : []);
             onContentReceived?.(liveContent);
           }
         } catch (e) {
