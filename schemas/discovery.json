@@ -2851,6 +2851,2059 @@
           "docs": "https://context7.com/websites/x_x-api/llms.txt?topic=GET%20%2F2%2Fusers%2F%3Aid%2Ftweets"
         }
       ]
+    },
+    {
+      "id": "stableemail",
+      "name": "StableEmail",
+      "url": "https://stableemail.dev",
+      "serviceUrl": "https://stableemail.dev",
+      "description": "Pay-per-send email delivery, forwarding inboxes, and custom subdomains — no API keys or accounts.",
+      "categories": [
+        "social"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "email",
+        "send",
+        "inbox",
+        "forwarding",
+        "subdomain"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://stableemail.dev",
+        "llmsTxt": "https://stableemail.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Merit Systems",
+        "url": "https://stableemail.dev"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/send",
+          "description": "Send email from relay address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Send email from relay address",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/buy",
+          "description": "Purchase a custom email subdomain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Purchase a custom email subdomain",
+            "amount": "5000000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/send",
+          "description": "Send email from custom subdomain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Send email from custom subdomain",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/signers",
+          "description": "Add or remove authorized wallet signers",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/update",
+          "description": "Update subdomain settings (catch-all forwarding)",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/subdomain/status",
+          "description": "Check DNS/SES verification status",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/inbox/create",
+          "description": "Create inbox on subdomain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Create inbox on subdomain",
+            "amount": "250000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/inbox/list",
+          "description": "List subdomain inboxes",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/inbox/update",
+          "description": "Update subdomain inbox settings",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/inbox/delete",
+          "description": "Delete inbox from subdomain",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/inbox/messages",
+          "description": "List subdomain inbox messages",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "List subdomain inbox messages",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/inbox/messages/read",
+          "description": "Read a subdomain inbox message",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Read a subdomain inbox message",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/subdomain/inbox/messages/delete",
+          "description": "Delete a subdomain inbox message",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/buy",
+          "description": "Buy a forwarding inbox (30 days)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Buy a forwarding inbox (30 days)",
+            "amount": "1000000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/topup",
+          "description": "Extend inbox 30 days",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Extend inbox 30 days",
+            "amount": "1000000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/topup/quarter",
+          "description": "Extend inbox 90 days (save 17%)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Extend inbox 90 days (save 17%)",
+            "amount": "2500000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/topup/year",
+          "description": "Extend inbox 365 days (save 34%)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Extend inbox 365 days (save 34%)",
+            "amount": "8000000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/send",
+          "description": "Send email from inbox address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Send email from inbox address",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/inbox/status",
+          "description": "Check inbox status and expiry",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/update",
+          "description": "Update inbox settings",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/cancel",
+          "description": "Cancel inbox and get pro-rata refund",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/messages",
+          "description": "List messages in inbox",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "List messages in inbox",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/messages/read",
+          "description": "Read a single inbox message",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Read a single inbox message",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/inbox/messages/delete",
+          "description": "Delete an inbox message",
+          "payment": null
+        }
+      ]
+    },
+    {
+      "id": "stableenrich",
+      "name": "StableEnrich",
+      "url": "https://stableenrich.dev",
+      "serviceUrl": "https://stableenrich.dev",
+      "description": "Pay-per-request research APIs — people, companies, web search, scraping, places, social media, and contact enrichment.",
+      "categories": [
+        "data",
+        "search",
+        "social"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "apollo",
+        "exa",
+        "firecrawl",
+        "google-maps",
+        "grok",
+        "linkedin",
+        "reddit",
+        "enrichment",
+        "research"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://stableenrich.dev",
+        "llmsTxt": "https://stableenrich.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Merit Systems",
+        "url": "https://stableenrich.dev"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/apollo/people-search",
+          "description": "Find prospects by filters",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Find prospects by filters",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/apollo/people-enrich",
+          "description": "Enrich single person by email/name/domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Enrich single person by email/name/domain",
+            "amount": "49500"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/apollo/org-search",
+          "description": "Find companies by filters",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Find companies by filters",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/apollo/org-enrich",
+          "description": "Enrich single company by domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Enrich single company by domain",
+            "amount": "49500"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/clado/linkedin-scrape",
+          "description": "Scrape full LinkedIn profile data",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Scrape full LinkedIn profile data",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/clado/contacts-enrich",
+          "description": "Enrich contact info from LinkedIn URL, email, or phone",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Enrich contact info from LinkedIn URL, email, or phone",
+            "amount": "200000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/exa/search",
+          "description": "Neural web search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Neural web search",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/exa/find-similar",
+          "description": "Find pages similar to a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Find pages similar to a URL",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/exa/contents",
+          "description": "Extract content from URLs",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Extract content from URLs",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/exa/answer",
+          "description": "AI-generated answers with citations",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "AI-generated answers with citations",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/firecrawl/scrape",
+          "description": "Scrape a URL with full JavaScript rendering",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Scrape a URL with full JavaScript rendering",
+            "amount": "12600"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/firecrawl/search",
+          "description": "Search the web and get scraped results",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search the web and get scraped results",
+            "amount": "25200"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/google-maps/text-search/full",
+          "description": "Text search with full details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Text search with full details",
+            "amount": "80000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/google-maps/text-search/partial",
+          "description": "Text search with basic details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Text search with basic details",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/google-maps/nearby-search/full",
+          "description": "Nearby search with full details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Nearby search with full details",
+            "amount": "80000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/google-maps/nearby-search/partial",
+          "description": "Nearby search with basic details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Nearby search with basic details",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/google-maps/place-details/full",
+          "description": "Full place details by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Full place details by ID",
+            "amount": "50000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/google-maps/place-details/partial",
+          "description": "Partial place details by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Partial place details by ID",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/grok/x-search",
+          "description": "Search X/Twitter posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search X/Twitter posts",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/grok/user-search",
+          "description": "Search X/Twitter users",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search X/Twitter users",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/grok/user-posts",
+          "description": "Get recent posts from an X user",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get recent posts from an X user",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/serper/news",
+          "description": "Google News search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Google News search",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/serper/shopping",
+          "description": "Google Shopping search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Google Shopping search",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/reddit/search",
+          "description": "Search Reddit posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Reddit posts",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/reddit/post-comments",
+          "description": "Get post details and comments",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get post details and comments",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/whitepages/person-search",
+          "description": "Search for people by name, phone, or address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search for people by name, phone, or address",
+            "amount": "440000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/whitepages/property-search",
+          "description": "Property ownership and resident details by address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Property ownership and resident details by address",
+            "amount": "440000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/hunter/email-verifier",
+          "description": "Verify email deliverability",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Verify email deliverability",
+            "amount": "30000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/influencer/enrich-by-email",
+          "description": "Find social profiles by email",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Find social profiles by email",
+            "amount": "400000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/influencer/enrich-by-social",
+          "description": "Enrich social media profile with contact info",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Enrich social media profile with contact info",
+            "amount": "400000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stablephone",
+      "name": "StablePhone",
+      "url": "https://stablephone.dev",
+      "serviceUrl": "https://stablephone.dev",
+      "description": "AI phone calls, dedicated phone numbers, and iMessage/FaceTime lookup — pay per request.",
+      "categories": [
+        "ai",
+        "social"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "phone",
+        "call",
+        "voice",
+        "ai-call",
+        "imessage"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://stablephone.dev",
+        "llmsTxt": "https://stablephone.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Merit Systems",
+        "url": "https://stablephone.dev"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/call",
+          "description": "Make an AI phone call",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Make an AI phone call",
+            "amount": "540000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/call/:id",
+          "description": "Get call status and transcript",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/number",
+          "description": "Buy a phone number (30 days)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Buy a phone number (30 days)",
+            "amount": "20000000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/number/topup",
+          "description": "Extend a phone number 30 days",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Extend a phone number 30 days",
+            "amount": "15000000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/numbers",
+          "description": "List your phone numbers",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/lookup",
+          "description": "iMessage/FaceTime lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "iMessage/FaceTime lookup",
+            "amount": "50000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/lookup/status",
+          "description": "Poll lookup results",
+          "payment": null
+        }
+      ]
+    },
+    {
+      "id": "stablesocial",
+      "name": "StableSocial",
+      "url": "https://stablesocial.dev",
+      "serviceUrl": "https://stablesocial.dev",
+      "description": "Pay-per-request social media data from TikTok, Instagram, X/Twitter, Facebook, and Reddit.",
+      "categories": [
+        "social",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "tiktok",
+        "instagram",
+        "twitter",
+        "facebook",
+        "reddit",
+        "scraping",
+        "social"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://stablesocial.dev",
+        "llmsTxt": "https://stablesocial.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Merit Systems",
+        "url": "https://stablesocial.dev"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/tiktok/profile",
+          "description": "Get TikTok user profile",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get TikTok user profile",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/posts",
+          "description": "Get TikTok user posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get TikTok user posts",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/post-comments",
+          "description": "Get TikTok video comments",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get TikTok video comments",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/comment-replies",
+          "description": "Get TikTok comment replies",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get TikTok comment replies",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/followers",
+          "description": "Get TikTok followers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get TikTok followers",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/following",
+          "description": "Get TikTok following",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get TikTok following",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/search",
+          "description": "Search TikTok posts by keyword",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search TikTok posts by keyword",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/search-hashtag",
+          "description": "Search TikTok by hashtag",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search TikTok by hashtag",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/search-profiles",
+          "description": "Search TikTok user profiles",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search TikTok user profiles",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/tiktok/search-music",
+          "description": "Search TikTok posts by sound",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search TikTok posts by sound",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/profile",
+          "description": "Get Instagram user profile",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Instagram user profile",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/posts",
+          "description": "Get Instagram user posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Instagram user posts",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/post-comments",
+          "description": "Get Instagram post comments",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Instagram post comments",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/comment-replies",
+          "description": "Get Instagram comment replies",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Instagram comment replies",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/followers",
+          "description": "Get Instagram followers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Instagram followers",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/following",
+          "description": "Get Instagram following",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Instagram following",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/stories",
+          "description": "Get Instagram user stories",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Instagram user stories",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/highlights",
+          "description": "Get Instagram user highlights",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Instagram user highlights",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/search",
+          "description": "Search Instagram posts by keyword",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Instagram posts by keyword",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/instagram/search-tags",
+          "description": "Search Instagram by tag",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Instagram by tag",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/profile",
+          "description": "Get X/Twitter user profile",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get X/Twitter user profile",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/posts",
+          "description": "Get X/Twitter user posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get X/Twitter user posts",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/post-replies",
+          "description": "Get X/Twitter post replies",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get X/Twitter post replies",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/post-retweets",
+          "description": "Get X/Twitter retweet profiles",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get X/Twitter retweet profiles",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/post-quotes",
+          "description": "Get X/Twitter quote tweets",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get X/Twitter quote tweets",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/followers",
+          "description": "Get X/Twitter followers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get X/Twitter followers",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/following",
+          "description": "Get X/Twitter following",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get X/Twitter following",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/search",
+          "description": "Search X/Twitter posts by keyword",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search X/Twitter posts by keyword",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/x/search-profiles",
+          "description": "Search X/Twitter user profiles",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search X/Twitter user profiles",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/profile",
+          "description": "Get Facebook page/user profile",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Facebook page/user profile",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/posts",
+          "description": "Get Facebook page/user posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Facebook page/user posts",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/post-comments",
+          "description": "Get Facebook post comments",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Facebook post comments",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/comment-replies",
+          "description": "Get Facebook comment replies",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Facebook comment replies",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/followers",
+          "description": "Get Facebook followers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Facebook followers",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/following",
+          "description": "Get Facebook following",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Facebook following",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/search",
+          "description": "Search Facebook posts by keyword",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Facebook posts by keyword",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/search-people",
+          "description": "Search Facebook people profiles",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Facebook people profiles",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/search-pages",
+          "description": "Search Facebook page profiles",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Facebook page profiles",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/facebook/search-groups",
+          "description": "Search Facebook group profiles",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Facebook group profiles",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/reddit/post",
+          "description": "Get Reddit post details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Reddit post details",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/reddit/post-comments",
+          "description": "Get Reddit post comments",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Reddit post comments",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/reddit/comment",
+          "description": "Get Reddit comment details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get Reddit comment details",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/reddit/search",
+          "description": "Search Reddit posts by keyword",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Reddit posts by keyword",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/reddit/search-profiles",
+          "description": "Search Reddit user profiles",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Search Reddit user profiles",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/reddit/subreddit",
+          "description": "Get subreddit posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Get subreddit posts",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/jobs",
+          "description": "Poll job status and retrieve results",
+          "payment": null
+        }
+      ]
+    },
+    {
+      "id": "stablestudio",
+      "name": "StableStudio",
+      "url": "https://stablestudio.dev",
+      "serviceUrl": "https://stablestudio.dev",
+      "description": "Pay-per-generation AI image and video creation — Nano Banana, GPT Image, Grok, Flux, Sora, Veo, Seedance, and Wan.",
+      "categories": [
+        "ai",
+        "media"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "image",
+        "video",
+        "generation",
+        "nano-banana",
+        "gpt-image",
+        "grok",
+        "flux",
+        "sora",
+        "veo",
+        "seedance",
+        "wan"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://stablestudio.dev",
+        "llmsTxt": "https://stablestudio.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Merit Systems",
+        "url": "https://stablestudio.dev"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/generate/nano-banana/generate",
+          "description": "Nano Banana image generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Nano Banana image generation",
+            "amount": "39000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/nano-banana/edit",
+          "description": "Nano Banana image editing",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Nano Banana image editing",
+            "amount": "39000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/nano-banana-pro/generate",
+          "description": "Nano Banana Pro image generation (up to 4K)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Nano Banana Pro image generation (up to 4K)",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/nano-banana-pro/edit",
+          "description": "Nano Banana Pro image editing (up to 4K)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Nano Banana Pro image editing (up to 4K)",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/grok/generate",
+          "description": "Grok image generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Grok image generation",
+            "amount": "70000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/grok/edit",
+          "description": "Grok image editing",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Grok image editing",
+            "amount": "22000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/grok-video/generate",
+          "description": "Grok video generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Grok video generation",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/gpt-image-1/generate",
+          "description": "GPT Image 1 generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "GPT Image 1 generation",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/gpt-image-1/edit",
+          "description": "GPT Image 1 editing",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "GPT Image 1 editing",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/gpt-image-1.5/generate",
+          "description": "GPT Image 1.5 generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "GPT Image 1.5 generation",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/gpt-image-1.5/edit",
+          "description": "GPT Image 1.5 editing",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "GPT Image 1.5 editing",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/flux-2-pro/generate",
+          "description": "Flux 2 Pro image generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Flux 2 Pro image generation",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/flux-2-pro/edit",
+          "description": "Flux 2 Pro image editing",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Flux 2 Pro image editing",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/seedance/t2v",
+          "description": "Seedance text-to-video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Seedance text-to-video",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/seedance/i2v",
+          "description": "Seedance image-to-video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Seedance image-to-video",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/seedance-fast/t2v",
+          "description": "Seedance Fast text-to-video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Seedance Fast text-to-video",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/seedance-fast/i2v",
+          "description": "Seedance Fast image-to-video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Seedance Fast image-to-video",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/wan-2.6/t2v",
+          "description": "Wan 2.6 text-to-video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Wan 2.6 text-to-video",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/wan-2.6/i2v",
+          "description": "Wan 2.6 image-to-video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Wan 2.6 image-to-video",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/sora-2/generate",
+          "description": "Sora 2 video generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Sora 2 video generation",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/sora-2-pro/generate",
+          "description": "Sora 2 Pro video generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Sora 2 Pro video generation",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/veo-3.1/generate",
+          "description": "Veo 3.1 video generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Veo 3.1 video generation",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/generate/veo-3.1-fast/generate",
+          "description": "Veo 3.1 Fast video generation",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Veo 3.1 Fast video generation",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/upload",
+          "description": "Upload image for editing or image-to-video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Upload image for editing or image-to-video",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/upload/confirm",
+          "description": "Confirm uploaded file",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/jobs/:jobId",
+          "description": "Poll job status and retrieve results",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/jobs",
+          "description": "List jobs",
+          "payment": null
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/jobs/:jobId",
+          "description": "Delete a failed job",
+          "payment": null
+        }
+      ]
+    },
+    {
+      "id": "stableupload",
+      "name": "StableUpload",
+      "url": "https://stableupload.dev",
+      "serviceUrl": "https://stableupload.dev",
+      "description": "Pay-per-upload file hosting and static site hosting with custom domains — 6 month TTL.",
+      "categories": [
+        "storage"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "upload",
+        "files",
+        "hosting",
+        "static-site",
+        "cdn"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://stableupload.dev",
+        "llmsTxt": "https://stableupload.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Merit Systems",
+        "url": "https://stableupload.dev"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/upload",
+          "description": "Buy an upload slot (10MB $0.02, 100MB $0.20, 1GB $2.00)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Buy an upload slot (10MB $0.02, 100MB $0.20, 1GB $2.00)",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/uploads",
+          "description": "List uploads for authenticated wallet",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/download/:uploadId",
+          "description": "Get upload details by ID",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/site",
+          "description": "Buy a site upload slot for zip hosting",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "recipient": "0xB48141c3Da5030deF992bDc686f0e9A8729206b6",
+            "description": "Buy a site upload slot for zip hosting",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/site/activate",
+          "description": "Extract zip and make site live",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/site/domain",
+          "description": "Connect a custom domain to a site",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/site/domain/status",
+          "description": "Check TLS provisioning status",
+          "payment": null
+        }
+      ]
     }
   ]
 }
