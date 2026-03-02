@@ -216,7 +216,7 @@ function Tagline() {
     >
       <div>
         The open protocol for internet-native payments. Charge for API requests,
-        tool calls, or content. Agents, apps, and humans securely pay per
+        tool calls, or access to content. Agents, apps, and humans securely pay per
         request.
       </div>
     </div>
