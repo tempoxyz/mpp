@@ -569,7 +569,7 @@ function AsyncSteps({
   const doneCalled = useRef(false);
   const liveStarted = useRef(false);
 
-  const outputText = output.join("\n");
+  const outputText = (output ?? []).join("\n");
 
   const [steps] = useState(() => {
     const needsFunding = !funded || walletState.balance <= 0;
@@ -716,8 +716,8 @@ function AsyncSteps({
               // No receipt header — keep random hash
             }
 
-            const data = (await res.json()) as { lines: string[] };
-            liveContent = data.lines;
+            const data = (await res.json()) as { lines?: string[] };
+            liveContent = data.lines ?? [];
             onContentReceived?.(liveContent);
           }
         } catch (e) {
@@ -1361,8 +1361,8 @@ function StripeSteps({
         setStep(confirmIdx + 1);
         await new Promise((r) => setTimeout(r, 600));
 
-        const data = (await res.json()) as { lines: string[] };
-        onContentReceived?.(data.lines);
+        const data = (await res.json()) as { lines?: string[] };
+        onContentReceived?.(data.lines ?? []);
 
         const req200Idx = steps.findIndex((s) => s.key === "req200");
         setStep(req200Idx + 1);
