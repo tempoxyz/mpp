@@ -1558,9 +1558,9 @@ function ServiceRow({
               color: "var(--vocs-text-color-muted)",
             }}
           >
-            {s.docs?.homepage && (
+            {(s.docs?.apiReference || s.docs?.llmsTxt || s.docs?.homepage) && (
               <a
-                href={s.docs.homepage}
+                href={(s.docs?.apiReference ?? s.docs?.llmsTxt ?? s.docs?.homepage)!}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hide-mobile"
@@ -1715,7 +1715,7 @@ function BookIcon({ size = 13 }: { size?: number }) {
 function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
   const baseUrl = s.serviceUrl ?? s.url;
-  const docsUrl = s.docs?.homepage;
+  const docsUrl = s.docs?.apiReference ?? s.docs?.llmsTxt ?? s.docs?.homepage;
   const websiteUrl = s.provider?.url;
   const mobileLinkStyle: React.CSSProperties = {
     display: "flex",
