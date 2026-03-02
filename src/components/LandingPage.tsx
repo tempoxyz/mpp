@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useMemo, useState } from "react";
+import { createContext, useState } from "react";
 import { Link } from "vocs";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
@@ -10,6 +10,16 @@ import { Terminal } from "./Terminal";
 // ---------------------------------------------------------------------------
 
 const ACCENT = "var(--vocs-text-color-heading)";
+
+const TERMINAL_STEPS = [
+  Terminal.commands(["cat quickstart.txt", "./demo.sh"]),
+  Terminal.wizard([
+    Terminal.chat(),
+    Terminal.image(),
+    Terminal.search(),
+    Terminal.article(),
+  ]),
+];
 
 // ---------------------------------------------------------------------------
 // Context — shares active agent tab index across components
@@ -125,19 +135,6 @@ function LandingStyles() {
 // ---------------------------------------------------------------------------
 
 function Hero() {
-  const steps = useMemo(
-    () => [
-      Terminal.commands(["cat quickstart.txt", "./demo.sh"]),
-      Terminal.wizard([
-        Terminal.chat(),
-        Terminal.image(),
-        Terminal.search(),
-        Terminal.article(),
-      ]),
-    ],
-    [],
-  );
-
   return (
     <section
       className="landing-hero flex flex-col items-center px-3 md:px-6 mb-12 pt-4 md:pt-7"
@@ -207,7 +204,7 @@ function Hero() {
             height: 540,
           }}
         >
-          <Terminal className="absolute inset-0" steps={steps} />
+          <Terminal className="absolute inset-0" steps={TERMINAL_STEPS} />
         </div>
 
         {/* Designed by */}
