@@ -121,7 +121,9 @@ export default async function handler(request: Request) {
             }
           });
         }
-        console.warn("[demo/chat] OpenAI response did not contain message content");
+        console.warn(
+          "[demo/chat] OpenAI response did not contain message content",
+        );
       } else {
         const body = await res.text();
         console.error(
@@ -129,13 +131,18 @@ export default async function handler(request: Request) {
         );
       }
     } catch (e) {
-      console.error(`[demo/chat] mpp-proxy OpenAI error for prompt=\"${prompt}\":`, e);
+      console.error(
+        `[demo/chat] mpp-proxy OpenAI error for prompt="${prompt}":`,
+        e,
+      );
     }
     // Fall through to canned response
   }
 
   // Fallback: canned response
-  console.warn("[demo/chat] using canned response because live chat is unavailable");
+  console.warn(
+    "[demo/chat] using canned response because live chat is unavailable",
+  );
   const response = responses[Math.floor(Math.random() * responses.length)];
   const text = [
     "[warning] Live chat unavailable; showing canned response.",

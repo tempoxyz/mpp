@@ -34,7 +34,9 @@ export async function POST(request: Request) {
 
     if (action === "balance") {
       if (!address || !address.startsWith("0x")) {
-        console.warn(`[wallet] invalid balance address: ${address || "<empty>"}`);
+        console.warn(
+          `[wallet] invalid balance address: ${address || "<empty>"}`,
+        );
         return Response.json({ error: "Invalid address" }, { status: 400 });
       }
 

@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 
   if (!proxyFetch) {
     console.warn(
-      `[demo/image] fal.ai unavailable for prompt=\"${prompt}\": set FEE_PAYER_PRIVATE_KEY to enable paid generation.`,
+      `[demo/image] fal.ai unavailable for prompt="${prompt}": set FEE_PAYER_PRIVATE_KEY to enable paid generation.`,
     );
   }
 
@@ -75,15 +75,20 @@ export async function GET(request: Request) {
           ];
           return result.withReceipt(Response.json({ lines }));
         }
-        console.warn(`[demo/image] fal.ai returned no images for prompt=\"${prompt}\"`);
+        console.warn(
+          `[demo/image] fal.ai returned no images for prompt="${prompt}"`,
+        );
       } else {
         const body = await res.text();
         console.error(
-          `[demo/image] fal.ai request failed (${res.status} ${res.statusText}) for prompt=\"${prompt}\": ${body.slice(0, 500)}`,
+          `[demo/image] fal.ai request failed (${res.status} ${res.statusText}) for prompt="${prompt}": ${body.slice(0, 500)}`,
         );
       }
     } catch (e) {
-      console.error(`[demo/image] mpp-proxy fal.ai error for prompt=\"${prompt}\":`, e);
+      console.error(
+        `[demo/image] mpp-proxy fal.ai error for prompt="${prompt}":`,
+        e,
+      );
     }
     // Fall through to canned response
   }

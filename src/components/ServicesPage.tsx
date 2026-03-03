@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
 
@@ -687,7 +688,7 @@ function PrestoCardFull() {
           marginBottom: "0.35rem",
         }}
       >
-        Get started with Presto
+        Get started with your Agent
       </h2>
       <p
         style={{
@@ -697,7 +698,11 @@ function PrestoCardFull() {
           marginBottom: "1.25rem",
         }}
       >
-        Command-line client with built-in MPP support.
+        Install the{" "}
+        <Link className="text-primary font-medium" to="/quickstart/agent">
+          Presto CLI
+        </Link>{" "}
+        on your agent to use MPP services.
       </p>
       <PrestoSteps />
     </div>
@@ -809,7 +814,7 @@ function HeaderCards({
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
           <div>
-            <div style={titleS}>Documentation</div>
+            <div style={titleS}>Quickstart</div>
             <div style={descS}>Guides, quickstarts, and SDKs</div>
           </div>
         </a>
@@ -1000,21 +1005,12 @@ function PrestoSteps() {
       }}
     >
       <CliSnippet label="Install" desc="One-line install via shell.">
-        curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash
+        curl -L presto-binaries.tempo.xyz/install.sh | bash
       </CliSnippet>
       <CliSnippet
-        label="Log in"
-        desc="Opens browser to connect your Tempo wallet."
-      >
-        presto login
-      </CliSnippet>
-      <CliSnippet
-        label="Make a request"
-        desc="Payment handled automatically."
-      >{`presto https://openai.mpp.tempo.xyz/v1/chat/completions \\\n  -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello!"}]}'`}</CliSnippet>
-      <CliSnippet label="Dry run" desc="Preview cost without paying.">
-        presto --dry-run https://openai.mpp.tempo.xyz/v1/chat/completions
-      </CliSnippet>
+        label="Prompt your agent"
+        desc="Use a service by prompting your agent (Claude, Codex, Amp, etc):"
+      >{`Generate a surreal image with fal.ai using Presto`}</CliSnippet>
     </div>
   );
 }

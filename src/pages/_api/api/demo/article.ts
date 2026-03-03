@@ -97,7 +97,9 @@ export async function GET(request: Request) {
             .map((line) => `  ${line.trim()}`);
           return result.withReceipt(Response.json({ lines }));
         }
-        console.warn(`[demo/article] Parallel Extract returned no excerpts for ${fullUrl}`);
+        console.warn(
+          `[demo/article] Parallel Extract returned no excerpts for ${fullUrl}`,
+        );
       } else {
         const body = await res.text();
         console.error(
