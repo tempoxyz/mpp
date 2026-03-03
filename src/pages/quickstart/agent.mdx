@@ -5,18 +5,18 @@ import { PrestoCliCard, PrestoExamplesCard } from '../../components/cards'
 
 The Machine Payments Protocol (MPP) can be used with agents to discover and use [services](/services) via direct integrations with MPP-compatible command-line interfaces (CLIs).
 
-## Presto (Tempo Wallet)
+## Tempo Wallet
 
-Presto provides a first-class integration with MPP to provide a seamless experience for using services with your preferred agent.
+Tempo Wallet provides a first-class integration with MPP to provide a seamless experience for using services with your preferred agent.
 
 :::::steps
 
 ### Install
 
-First, install the `presto` binary via your preferred terminal.
+First, install the `tempo` binary via your preferred terminal.
 
 ```bash [install.sh]
-curl -L presto-binaries.tempo.xyz/install.sh | bash
+curl -L tempo.xyz/install | bash
 ```
 
 ### Prompt agent & discover services
@@ -26,20 +26,20 @@ You can discover what services are available by prompting your agent.
 ::::code-group
 
 ```bash [Claude]
-claude prompt "What image generation services can I use with Presto?"
+claude prompt "What image generation services can I use with Tempo Wallet?"
 ```
 
 ```bash [Amp]
-echo "What image generation services can I use with Presto?" | amp
+echo "What image generation services can I use with Tempo Wallet?" | amp
 ```
 
 ```bash [Codex]
-codex "What image generation services can I use with Presto?"
+codex "What image generation services can I use with Tempo Wallet?"
 ```
 
 ```bash [Other]
 # Prompt your agent
-> "What image generation services can I use with Presto?"
+> "What image generation services can I use with Tempo Wallet?"
 ```
 
 ::::
@@ -81,9 +81,9 @@ codex "Generate a surreal image with fal.ai"
     to="/services"
   />
   <Card
-    description="See detailed references and examples for the Presto CLI"
+    description="See detailed references and examples for the Tempo Wallet CLI"
     icon="lucide:github"
-    title="Presto GitHub"
+    title="Tempo Wallet GitHub"
     to="https://github.com/tempoxyz/presto"
   />
 </Cards>
