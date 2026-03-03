@@ -477,7 +477,7 @@ export default defineConfig({
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
     { text: "Services", link: "/services" },
     { text: "SDKs", link: "/sdk" },
-    { text: "CLIs", link: "/clis/presto" },
+    { text: "IETF Specs", link: "https://tempoxyz.github.io/mpp-specs/" },
     {
       text: "GitHub",
       items: [
