@@ -1560,7 +1560,9 @@ function ServiceRow({
           >
             {(s.docs?.apiReference || s.docs?.llmsTxt || s.docs?.homepage) && (
               <a
-                href={(s.docs?.apiReference ?? s.docs?.llmsTxt ?? s.docs?.homepage)!}
+                href={
+                  (s.docs?.apiReference ?? s.docs?.llmsTxt ?? s.docs?.homepage)!
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hide-mobile"

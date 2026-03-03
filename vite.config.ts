@@ -73,35 +73,36 @@ export default defineConfig(({ mode }) => {
     if (!(key in process.env)) process.env[key] = env[key];
   }
   return {
-  define: {
-    __COMMIT_SHA__: JSON.stringify(commitSha),
-    __COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
-  },
-  optimizeDeps: {
-    include: ["@braintree/sanitize-url", "dayjs"],
-  },
-  plugins: [
-    preloadFonts(),
-    stubRehypeMermaid(),
-    Icons({ compiler: "jsx", jsx: "react" }),
-    react(),
-    vocs(),
-  ],
-  // Prevent the TypeScript compiler (used by twoslash) from being bundled into
-  // the server output. TypeScript uses `__filename` which doesn't exist in ESM.
-  environments: {
-    rsc: {
-      build: {
-        rollupOptions: {
-          external: ["typescript"],
+    define: {
+      __COMMIT_SHA__: JSON.stringify(commitSha),
+      __COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
+    },
+    optimizeDeps: {
+      include: ["@braintree/sanitize-url", "dayjs"],
+    },
+    plugins: [
+      preloadFonts(),
+      stubRehypeMermaid(),
+      Icons({ compiler: "jsx", jsx: "react" }),
+      react(),
+      vocs(),
+    ],
+    // Prevent the TypeScript compiler (used by twoslash) from being bundled into
+    // the server output. TypeScript uses `__filename` which doesn't exist in ESM.
+    environments: {
+      rsc: {
+        build: {
+          rollupOptions: {
+            external: ["typescript"],
+          },
         },
       },
     },
-  },
-  ssr: {
-    external: ["typescript"],
-  },
-  test: {
-    exclude: [...configDefaults.exclude, "e2e/**"],
-  },
-}});
+    ssr: {
+      external: ["typescript"],
+    },
+    test: {
+      exclude: [...configDefaults.exclude, "e2e/**"],
+    },
+  };
+});

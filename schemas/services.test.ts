@@ -94,10 +94,9 @@ describe("services registry", () => {
       // Tags
       it("tags are lowercase kebab-case", () => {
         for (const tag of svc.tags) {
-          expect(
-            tag,
-            `Tag "${tag}" is not lowercase kebab-case`,
-          ).toMatch(TAG_RE);
+          expect(tag, `Tag "${tag}" is not lowercase kebab-case`).toMatch(
+            TAG_RE,
+          );
         }
       });
 
@@ -144,10 +143,9 @@ describe("services registry", () => {
       for (const ep of svc.endpoints) {
         describe(`endpoint: ${ep.route}`, () => {
           it("route matches METHOD /path format", () => {
-            expect(
-              ep.route,
-              `Invalid route format: "${ep.route}"`,
-            ).toMatch(ROUTE_RE);
+            expect(ep.route, `Invalid route format: "${ep.route}"`).toMatch(
+              ROUTE_RE,
+            );
           });
 
           it("has a non-empty description", () => {
