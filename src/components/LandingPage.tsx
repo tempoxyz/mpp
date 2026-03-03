@@ -177,7 +177,7 @@ function Hero() {
             Use with your agent
           </Link>
           <Link
-            to="/quickstart"
+            to="/quickstart/server"
             className="no-underline! px-6 py-3 rounded-lg transition-opacity hover:opacity-80"
             style={{
               fontSize: "1rem",
