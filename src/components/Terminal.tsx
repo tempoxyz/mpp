@@ -719,12 +719,8 @@ function AsyncSteps({
             const data = (await res.json()) as {
               lines?: string[];
               url?: string;
-              warning?: string;
             };
             liveContent = data.lines ?? (data.url ? [data.url] : []);
-            if (data.warning) {
-              liveContent = [`  [warning] ${data.warning}`, "", ...liveContent];
-            }
             onContentReceived?.(liveContent);
           }
         } catch (e) {
@@ -1368,11 +1364,10 @@ function StripeSteps({
         setStep(confirmIdx + 1);
         await new Promise((r) => setTimeout(r, 600));
 
-        const data = (await res.json()) as { lines?: string[]; warning?: string };
-        const lines = data.lines ?? [];
-        onContentReceived?.(
-          data.warning ? [`  [warning] ${data.warning}`, "", ...lines] : lines,
-        );
+        const data = (await res.json()) as {
+          lines?: string[];
+        };
+        onContentReceived?.(data.lines ?? []);
 
         const req200Idx = steps.findIndex((s) => s.key === "req200");
         setStep(req200Idx + 1);
