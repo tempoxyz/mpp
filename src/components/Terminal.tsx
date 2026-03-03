@@ -1658,7 +1658,8 @@ function Wizard({
     if (!urlInput.trim()) return;
     const step = currentItems[selected] as PaymentStepConfig;
     if (step.pickOutput) setChosenOutput(step.pickOutput());
-    setChosenUrl(urlInput.trim());
+    const prefix = step.prompt?.prefix ?? "";
+    setChosenUrl(`${prefix}${urlInput.trim()}`);
     setWaitingForUrl(false);
     setChosen(step);
     scrollTerminalIntoView();
@@ -1886,6 +1887,11 @@ function Wizard({
                   "Enter prompt"}
                 :{" "}
               </span>
+              {(currentItems[selected] as PaymentStepConfig).prompt?.prefix && (
+                <span style={{ color: "var(--term-gray10)" }}>
+                  {(currentItems[selected] as PaymentStepConfig).prompt?.prefix}
+                </span>
+              )}
               <BlockCursorInput
                 ref={urlRef}
                 type="text"

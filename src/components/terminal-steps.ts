@@ -16,7 +16,7 @@ export type PaymentStepConfig = {
   liveEndpoint?: (input: string) => string;
   methodLabel: string;
   cost: number | ((output: string[]) => number);
-  prompt?: { label: string; placeholder: string };
+  prompt?: { label: string; placeholder: string; prefix?: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
   outputMode?: "text" | "photo" | "gallery";
@@ -102,7 +102,7 @@ export function charge({
   endpoint: string;
   liveEndpoint?: (input: string) => string;
   cost: number;
-  prompt?: { label: string; placeholder: string };
+  prompt?: { label: string; placeholder: string; prefix?: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
   outputMode?: "text" | "photo" | "gallery";
@@ -135,7 +135,7 @@ export function session({
   endpoint: string;
   liveEndpoint?: (input: string) => string;
   cost?: (output: string[]) => number;
-  prompt?: { label: string; placeholder: string };
+  prompt?: { label: string; placeholder: string; prefix?: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
   outputMode?: "text" | "photo" | "gallery";
@@ -170,7 +170,7 @@ export function stripe({
   endpoint: string;
   liveEndpoint?: (input: string) => string;
   cost: number;
-  prompt?: { label: string; placeholder: string };
+  prompt?: { label: string; placeholder: string; prefix?: string };
   skipPrompt?: boolean;
   pickOutput?: () => string[];
   outputMode?: "text" | "photo" | "gallery";
@@ -235,7 +235,7 @@ export function article(): PaymentStepConfig {
     liveEndpoint: (input) =>
       `/api/demo/article?url=${encodeURIComponent(input)}`,
     cost: LOOKUP_COST,
-    prompt: { label: "Enter URL", placeholder: "stripe.com" },
+    prompt: { label: "Enter URL", placeholder: "stripe.com", prefix: "https://" },
     pickOutput: pickArticle,
   });
 }
@@ -271,7 +271,7 @@ export function lookup(): PaymentStepConfig {
     liveEndpoint: (input) =>
       `/api/demo/lookup?url=${encodeURIComponent(input)}`,
     cost: LOOKUP_COST,
-    prompt: { label: "Enter URL", placeholder: "stripe.com" },
+    prompt: { label: "Enter URL", placeholder: "stripe.com", prefix: "https://" },
     pickOutput: pickArticle,
   });
 }
