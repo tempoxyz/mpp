@@ -35,6 +35,12 @@ export async function GET(request: Request) {
   const proxyFetch = getProxyFetch();
   const prompt = new URL(request.url).searchParams.get("prompt") ?? "untitled";
 
+  if (!proxyFetch) {
+    console.warn(
+      `[demo/image] fal.ai unavailable for prompt=\"${prompt}\": set FEE_PAYER_PRIVATE_KEY to enable paid generation.`,
+    );
+  }
+
   if (proxyFetch) {
     try {
       const res = await proxyFetch(
@@ -69,13 +75,22 @@ export async function GET(request: Request) {
           ];
           return result.withReceipt(Response.json({ lines }));
         }
+        console.warn(`[demo/image] fal.ai returned no images for prompt=\"${prompt}\"`);
+      } else {
+        const body = await res.text();
+        console.error(
+          `[demo/image] fal.ai request failed (${res.status} ${res.statusText}) for prompt=\"${prompt}\": ${body.slice(0, 500)}`,
+        );
       }
     } catch (e) {
-      console.error("mpp-proxy fal.ai error:", e);
+      console.error(`[demo/image] mpp-proxy fal.ai error for prompt=\"${prompt}\":`, e);
     }
     // Fall through to canned response
   }
 
+  const warning =
+    "Using canned image result because live generation is unavailable right now.";
+  console.warn(`[demo/image] ${warning} prompt=${prompt}`);
   const image = imageResults[Math.floor(Math.random() * imageResults.length)];
   const lines = [
     "  model       flux-schnell",
@@ -85,5 +100,5 @@ export async function GET(request: Request) {
     "  cost        $0.003",
   ];
 
-  return result.withReceipt(Response.json({ lines }));
+  return result.withReceipt(Response.json({ lines, warning }));
 }

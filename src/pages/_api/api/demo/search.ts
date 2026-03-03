@@ -80,6 +80,12 @@ export async function GET(request: Request) {
   const proxyFetch = getProxyFetch();
   const query = new URL(request.url).searchParams.get("query");
 
+  if (!proxyFetch && query) {
+    console.warn(
+      `[demo/search] Parallel Search unavailable for query=\"${query}\": set FEE_PAYER_PRIVATE_KEY to enable paid search.`,
+    );
+  }
+
   if (proxyFetch && query) {
     try {
       const res = await proxyFetch(
@@ -121,14 +127,28 @@ export async function GET(request: Request) {
           });
           return result.withReceipt(Response.json({ lines }));
         }
+        console.warn(
+          `[demo/search] Parallel Search returned no results for query=\"${query}\"`,
+        );
+      } else {
+        const body = await res.text();
+        console.error(
+          `[demo/search] Parallel Search failed (${res.status} ${res.statusText}) for query=\"${query}\": ${body.slice(0, 500)}`,
+        );
       }
     } catch (e) {
-      console.error("mpp-proxy Parallel Search error:", e);
+      console.error(
+        `[demo/search] mpp-proxy Parallel Search error for query=\"${query}\":`,
+        e,
+      );
     }
     // Fall through to canned response
   }
 
+  const warning =
+    "Using canned search results because live search is unavailable right now.";
+  console.warn(`[demo/search] ${warning} query=${query || "<empty>"}`);
   const lines = searchResults[Math.floor(Math.random() * searchResults.length)];
 
-  return result.withReceipt(Response.json({ lines }));
+  return result.withReceipt(Response.json({ lines, warning }));
 }

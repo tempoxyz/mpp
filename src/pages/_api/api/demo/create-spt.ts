@@ -1,6 +1,7 @@
 export async function POST(request: Request) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
+    console.error("[demo/create-spt] STRIPE_SECRET_KEY not configured");
     return Response.json(
       { error: "STRIPE_SECRET_KEY not configured" },
       { status: 500 },
@@ -47,10 +48,16 @@ export async function POST(request: Request) {
     const errorBody = (await response.json()) as {
       error: { message: string };
     };
+    console.warn(
+      `[demo/create-spt] initial Stripe SPT request failed: ${errorBody.error.message}`,
+    );
     if (
       (params.metadata || params.networkId) &&
       errorBody.error.message.includes("Received unknown parameter")
     ) {
+      console.warn(
+        "[demo/create-spt] retrying Stripe SPT request without metadata/network_id",
+      );
       const fallbackBody = new URLSearchParams({
         payment_method: params.paymentMethod,
         "usage_limits[currency]": params.currency,
@@ -66,12 +73,18 @@ export async function POST(request: Request) {
         const fallbackError = (await response.json()) as {
           error: { message: string };
         };
+        console.error(
+          `[demo/create-spt] Stripe fallback request failed: ${fallbackError.error.message}`,
+        );
         return Response.json(
           { error: fallbackError.error.message },
           { status: 400 },
         );
       }
     } else {
+      console.error(
+        `[demo/create-spt] Stripe SPT request failed: ${errorBody.error.message}`,
+      );
       return Response.json({ error: errorBody.error.message }, { status: 400 });
     }
   }

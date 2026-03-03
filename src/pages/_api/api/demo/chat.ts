@@ -76,6 +76,12 @@ export default async function handler(request: Request) {
   const proxyFetch = getProxyFetch();
   const prompt = new URL(request.url).searchParams.get("prompt");
 
+  if (!proxyFetch && prompt) {
+    console.warn(
+      "[demo/chat] OpenAI proxy unavailable: set FEE_PAYER_PRIVATE_KEY to enable paid chat.",
+    );
+  }
+
   if (proxyFetch && prompt) {
     try {
       // Call OpenAI through mpp-proxy (proxy handles API key)
@@ -115,16 +121,27 @@ export default async function handler(request: Request) {
             }
           });
         }
+        console.warn("[demo/chat] OpenAI response did not contain message content");
+      } else {
+        const body = await res.text();
+        console.error(
+          `[demo/chat] OpenAI request failed (${res.status} ${res.statusText}): ${body.slice(0, 500)}`,
+        );
       }
     } catch (e) {
-      console.error("mpp-proxy OpenAI error:", e);
+      console.error(`[demo/chat] mpp-proxy OpenAI error for prompt=\"${prompt}\":`, e);
     }
     // Fall through to canned response
   }
 
   // Fallback: canned response
+  console.warn("[demo/chat] using canned response because live chat is unavailable");
   const response = responses[Math.floor(Math.random() * responses.length)];
-  const text = response.join("\t");
+  const text = [
+    "[warning] Live chat unavailable; showing canned response.",
+    "",
+    ...response,
+  ].join("\t");
   const tokens = tokenize(text);
 
   return result.withReceipt(async function* (stream) {

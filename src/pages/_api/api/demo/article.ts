@@ -57,14 +57,13 @@ export async function GET(request: Request) {
   const input = url.searchParams.get("url") ?? "";
   const domain = normalizeUrl(input);
 
-  // Use canned summary for known domains; try Parallel Extract for others
-  const summary = SUMMARIES[domain];
-  if (summary) {
-    return result.withReceipt(Response.json({ lines: summary }));
-  }
-
   const proxyFetch = getProxyFetch();
   const fullUrl = input.startsWith("http") ? input : `https://${input}`;
+  if (!proxyFetch && input) {
+    console.warn(
+      "Parallel Extract unavailable: set FEE_PAYER_PRIVATE_KEY to enable paid extraction.",
+    );
+  }
   if (proxyFetch && input) {
     try {
       const res = await proxyFetch(
@@ -98,6 +97,12 @@ export async function GET(request: Request) {
             .map((line) => `  ${line.trim()}`);
           return result.withReceipt(Response.json({ lines }));
         }
+        console.warn(`[demo/article] Parallel Extract returned no excerpts for ${fullUrl}`);
+      } else {
+        const body = await res.text();
+        console.error(
+          `[demo/article] Parallel Extract failed (${res.status} ${res.statusText}) for ${fullUrl}: ${body.slice(0, 500)}`,
+        );
       }
     } catch (e) {
       console.error("mpp-proxy Parallel Extract error:", e);
@@ -105,8 +110,20 @@ export async function GET(request: Request) {
     // Fall through to canned response
   }
 
+  // Fall back to canned summary for known domains when extraction is unavailable.
+  const summary = SUMMARIES[domain];
+  if (summary) {
+    const warning =
+      "Using canned summary because live extraction is unavailable right now.";
+    console.warn(`[demo/article] ${warning} domain=${domain || "unknown"}`);
+    return result.withReceipt(Response.json({ lines: summary, warning }));
+  }
+
   // Fallback for unknown domains without Parallel results
+  const warning =
+    "No live extraction result available, and no canned summary exists for this domain.";
+  console.warn(`[demo/article] ${warning} domain=${domain || "unknown"}`);
   const lines = [`  No summary available for ${domain}`];
 
-  return result.withReceipt(Response.json({ lines }));
+  return result.withReceipt(Response.json({ lines, warning }));
 }

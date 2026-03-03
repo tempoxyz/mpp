@@ -19,6 +19,14 @@ function getRpcUrlAndHeaders(): {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const method =
+      typeof body === "object" && body !== null && "method" in body
+        ? String((body as { method?: unknown }).method ?? "unknown")
+        : "unknown";
+    const id =
+      typeof body === "object" && body !== null && "id" in body
+        ? (body as { id?: unknown }).id
+        : null;
     const { url, headers } = getRpcUrlAndHeaders();
 
     const response = await fetch(url, {
@@ -28,8 +36,15 @@ export async function POST(request: Request) {
     });
 
     const result = await response.json();
+    if (!response.ok) {
+      console.error(
+        `[rpc] upstream RPC error (${response.status}) method=${method} id=${String(id)}`,
+        result,
+      );
+    }
     return Response.json(result);
   } catch (error) {
+    console.error("[rpc] proxy request failed:", error);
     return Response.json(
       {
         jsonrpc: "2.0",
