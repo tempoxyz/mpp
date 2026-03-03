@@ -46,6 +46,57 @@ Tempo is purpose-built for the payment patterns MPP enables:
   </a>
 </div>
 
+## Auto-swap
+
+When a client doesn't hold the exact currency a server requests, auto-swap automatically finds and executes a DEX swap from a fallback stablecoin (for example, pathUSD or USDC.e) before completing the payment. The client doesn't need to manually manage token swaps.
+
+Enable auto-swap on the client side when creating a charge method:
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+Mppx.create({
+  methods: [tempo.charge({
+    account: privateKeyToAccount('0xabc…123'),
+    autoSwap: true, // [!code hl]
+  })],
+})
+```
+
+For fine-grained control, pass an object to specify custom fallback tokens or slippage tolerance:
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+Mppx.create({
+  methods: [tempo.charge({
+    account: privateKeyToAccount('0xabc…123'),
+    autoSwap: { // [!code hl]
+      slippage: 2, // max slippage tolerance (default: 1%) // [!code hl]
+      tokenIn: ['0x0000000000000000000000000000000000000001'], // [!code hl]
+    }, // [!code hl]
+  })],
+})
+```
+
+You can also enable auto-swap per-request via the fetch `context`:
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mppx = Mppx.create({
+  polyfill: false,
+  methods: [tempo.charge({ account: privateKeyToAccount('0xabc…123') })],
+})
+
+const response = await mppx.fetch('https://api.example.com/resource', {
+  context: { autoSwap: true }, // [!code hl]
+})
+```
+
 ## Fee sponsorship
 
 Tempo supports server-paid transaction fees for both charge and session intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The client doesn't need to hold gas tokens or understand fee mechanics.

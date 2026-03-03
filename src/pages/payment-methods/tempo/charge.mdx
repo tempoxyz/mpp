@@ -117,6 +117,47 @@ const response = await mppx.fetch('https://api.example.com/resource')
 See [`tempo.charge` client reference](/sdk/typescript/client/Method.tempo.charge) for the full parameter list.
 :::
 
+
+### Auto-swap
+
+When the client doesn't hold the requested currency, `autoSwap` automatically swaps from a fallback stablecoin (pathUSD, USDC.e) via the Tempo DEX before transferring.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0xabc…123')
+
+Mppx.create({
+  methods: [tempo.charge({
+    account,
+    autoSwap: true, // [!code hl]
+  })],
+})
+```
+
+Pass an object for custom fallback tokens or slippage:
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0xabc…123')
+
+Mppx.create({
+  methods: [tempo.charge({
+    account,
+    autoSwap: { // [!code hl]
+      slippage: 2, // max slippage % (default: 1) // [!code hl]
+      tokenIn: ['0x0000000000000000000000000000000000000001'], // [!code hl]
+    }, // [!code hl]
+  })],
+})
+```
+
+See [auto-swap](/payment-methods/tempo#auto-swap) for more details.
+
+
 ## Specification
 
 <Cards>

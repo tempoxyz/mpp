@@ -9,13 +9,11 @@ const account = process.env.FEE_PAYER_PRIVATE_KEY
   : undefined;
 
 export const mppx = Mppx.create({
-  realm,
   methods: [
     tempo({
       account: account!,
       feePayer: true,
       currency: import.meta.env.VITE_DEFAULT_CURRENCY!,
-      sse: true,
       getClient() {
         return createClient({
           chain: tempoModerato,
@@ -24,7 +22,10 @@ export const mppx = Mppx.create({
           ),
         });
       },
+      sse: true,
       testnet: true,
     }),
   ],
+  realm,
+  secretKey: "demo",
 });

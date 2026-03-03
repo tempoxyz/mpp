@@ -21,8 +21,8 @@ importers:
         specifier: ^11.12.2
         version: 11.12.2
       mppx:
-        specifier: ~0.3.5
-        version: 0.3.5(@modelcontextprotocol/sdk@1.26.0(zod@4.3.6))(express@5.2.1)(hono@4.11.9)(typescript@5.9.3)(viem@2.46.2(typescript@5.9.3)(zod@4.3.6))
+        specifier: ~0.3.13
+        version: 0.3.13(@modelcontextprotocol/sdk@1.26.0(zod@4.3.6))(express@5.2.1)(hono@4.11.9)(typescript@5.9.3)(viem@2.46.2(typescript@5.9.3)(zod@4.3.6))
       react:
         specifier: ^19
         version: 19.2.4
@@ -2572,8 +2572,8 @@ packages:
   mlly@1.8.0:
     resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
 
-  mppx@0.3.5:
-    resolution: {integrity: sha512-ZuK78Zcx7a5HTWVFdDbgmRfma/hTzT8H3BDE2uVRqNjM+lK0LPS4tTvo8B03CBbnwerz1fxEDo95PI0ACGakNw==}
+  mppx@0.3.13:
+    resolution: {integrity: sha512-94KZXbGDq0ctlEZaeHwCTwZMJd+Fb9nohVLUaOlQ5Pweai5CcGswhLcoy5jiXSAxAq6q4SGsnnKovAALW+Skow==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
@@ -6467,7 +6467,7 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mppx@0.3.5(@modelcontextprotocol/sdk@1.26.0(zod@4.3.6))(express@5.2.1)(hono@4.11.9)(typescript@5.9.3)(viem@2.46.2(typescript@5.9.3)(zod@4.3.6)):
+  mppx@0.3.13(@modelcontextprotocol/sdk@1.26.0(zod@4.3.6))(express@5.2.1)(hono@4.11.9)(typescript@5.9.3)(viem@2.46.2(typescript@5.9.3)(zod@4.3.6)):
     dependencies:
       '@remix-run/fetch-proxy': 0.7.1
       '@remix-run/node-fetch-server': 0.13.0

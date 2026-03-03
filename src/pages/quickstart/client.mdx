@@ -47,6 +47,16 @@ const account = privateKeyToAccount('0xabc…123')
 With Tempo, you can also use [Passkey or WebCrypto accounts](https://viem.sh/tempo/accounts).
 :::
 
+:::tip
+If your users hold a different stablecoin than the one the server requests, enable [auto-swap](/payment-methods/tempo#auto-swap) to automatically convert via the Tempo DEX before paying:
+
+```ts
+Mppx.create({
+  methods: [tempo.charge({ account, autoSwap: true })],
+})
+```
+:::
+
 ### Create payment handler
 
 Call `Mppx.create` at startup. This polyfills the global `fetch` to automatically handle `402` payment challenges.

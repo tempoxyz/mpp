@@ -46,6 +46,24 @@ const method = tempo.charge({
 })
 ```
 
+### autoSwap (optional)
+
+- **Type:** `boolean | { tokenIn?: Address[]; slippage?: number }`
+
+Automatically swap from a supported stablecoin (USDC.e, pathUSD) via the Tempo DEX precompile when the client lacks sufficient balance of the requested currency. 
+
+Pass `true` to enable, or an object for custom tokens and slippage.
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = tempo.charge({
+  account: privateKeyToAccount('0xabc…123'),
+  autoSwap: true, // [!code focus]
+})
+```
+
 ### clientId (optional)
 
 - **Type:** `string`
