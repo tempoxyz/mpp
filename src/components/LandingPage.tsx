@@ -188,12 +188,12 @@ function Hero() {
             }}
             onClick={() =>
               captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
-                cta_label: "Install on your server",
+                cta_label: "Monetize your service",
                 href: "/quickstart/server",
               })
             }
           >
-            Install on your server
+            Monetize your service
           </Link>
         </div>
 
