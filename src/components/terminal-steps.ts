@@ -235,7 +235,11 @@ export function article(): PaymentStepConfig {
     liveEndpoint: (input) =>
       `/api/demo/article?url=${encodeURIComponent(input)}`,
     cost: LOOKUP_COST,
-    prompt: { label: "Enter URL", placeholder: "stripe.com", prefix: "https://" },
+    prompt: {
+      label: "Enter URL",
+      placeholder: "stripe.com",
+      prefix: "https://",
+    },
     pickOutput: pickArticle,
   });
 }
@@ -271,7 +275,11 @@ export function lookup(): PaymentStepConfig {
     liveEndpoint: (input) =>
       `/api/demo/lookup?url=${encodeURIComponent(input)}`,
     cost: LOOKUP_COST,
-    prompt: { label: "Enter URL", placeholder: "stripe.com", prefix: "https://" },
+    prompt: {
+      label: "Enter URL",
+      placeholder: "stripe.com",
+      prefix: "https://",
+    },
     pickOutput: pickArticle,
   });
 }

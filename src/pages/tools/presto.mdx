@@ -102,46 +102,20 @@ On `Spending limit exceeded` or `Insufficient balance`: report to user.
 | `presto sessions sync` | Remove stale local sessions |
 | `presto update` | Update presto to the latest version |
 
-### Display options
+### Options
 
 | Flag | Description |
 |------|-------------|
-| `-s`, `--silent` | Suppress non-essential output (recommended for agents) |
-| `-j`, `--json-output` | JSON output |
-| `-t`, `--toon-output` | TOON output (compact, token-efficient—recommended for agents) |
-| `-i` | Include response headers |
-| `-o <FILE>` | Write output to file |
-| `-v` | Verbose (`-vv` debug, `-vvv` trace) |
-
-### HTTP options
-
-| Flag | Description |
-|------|-------------|
+| `-s` | Silent mode (suppress logs) |
+| `-j` | JSON output |
+| `-t` | TOON output (compact, token-efficient) |
 | `-X <METHOD>` | HTTP method |
 | `--json <DATA>` | JSON body (sets Content-Type) |
-| `--toon <TOON>` | TOON body (decoded to JSON, sets Content-Type) |
 | `-d <DATA>` | POST data (`@file` or `@-` for stdin) |
-| `--data-urlencode <DATA>` | URL-encode a data field (repeatable) |
 | `-H <HEADER>` | Custom header (repeatable) |
-| `-L` | Follow redirects |
-| `-m <SECONDS>` | Timeout |
-| `--connect-timeout <SECONDS>` | TCP connection timeout |
-| `--retries <N>` | Retry on transient network errors |
-| `--retry-backoff <MILLIS>` | Initial retry backoff (doubles each retry) |
-| `--stream` | Stream response body as it arrives |
-| `--sse` | Treat response as Server-Sent Events |
-| `--sse-json` | Output each SSE event as NDJSON |
-| `-f` | Fail on HTTP errors |
-| `--compressed` | Request a compressed response |
-
-### Payment options
-
-| Flag | Description |
-|------|-------------|
+| `-o <FILE>` | Write output to file |
 | `--dry-run` | Preview payment without executing |
 | `--max-pay <AMOUNT>` | Cap the maximum amount to pay |
-| `--currency <ADDR\|SYMBOL>` | Currency for `--max-pay` |
-| `--save-receipt <FILE>` | Save payment receipt to file (JSON) |
 
 ## Learn more
 
