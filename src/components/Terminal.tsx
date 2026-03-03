@@ -1659,7 +1659,8 @@ function Wizard({
     const step = currentItems[selected] as PaymentStepConfig;
     if (step.pickOutput) setChosenOutput(step.pickOutput());
     const prefix = step.prompt?.prefix ?? "";
-    setChosenUrl(`${prefix}${urlInput.trim()}`);
+    const trimmed = urlInput.trim();
+    setChosenUrl(trimmed.startsWith(prefix) ? trimmed : `${prefix}${trimmed}`);
     setWaitingForUrl(false);
     setChosen(step);
     scrollTerminalIntoView();
