@@ -54,13 +54,13 @@ $ presto -X POST \
   https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
 # View active sessions
-$ presto session list
+$ presto sessions list
 
 # Close a session when done (reclaims unspent funds)
-$ presto session close https://openrouter.mpp.tempo.xyz
+$ presto sessions close https://openrouter.mpp.tempo.xyz
 
 # Close all sessions
-$ presto session close --all
+$ presto sessions close --all
 ```
 
 ## HTTP options
@@ -88,8 +88,8 @@ $ presto -m 30 -X POST \
 ## Output control
 
 ```bash [output-control.sh]
-# Quiet mode (suppress logs, recommended for agents)
-$ presto -q -X POST \
+# Silent mode (suppress logs, recommended for agents)
+$ presto -s -X POST \
   --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
   https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
@@ -99,7 +99,12 @@ $ presto -i -X POST \
   https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
 # JSON output format
-$ presto --output-format json -X POST \
+$ presto -j -X POST \
+  --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
+  https://openrouter.mpp.tempo.xyz/v1/chat/completions
+
+# TOON output (compact, token-efficient — recommended for agents)
+$ presto -t -X POST \
   --json '{"model":"openai/gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}' \
   https://openrouter.mpp.tempo.xyz/v1/chat/completions
 
@@ -109,6 +114,19 @@ $ presto -v -X POST \
   https://openrouter.mpp.tempo.xyz/v1/chat/completions
 ```
 
+## Service discovery
+
+```bash [services.sh]
+# List all available services
+$ presto services
+
+# Filter by category
+$ presto services --category ai
+
+# Show detailed info for a service
+$ presto services info openai
+```
+
 ## Wallet status
 
 ```bash [wallet.sh]
@@ -116,5 +134,5 @@ $ presto -v -X POST \
 $ presto whoami
 
 # JSON output (for agents)
-$ presto whoami --output-format json
+$ presto whoami -j
 ```
