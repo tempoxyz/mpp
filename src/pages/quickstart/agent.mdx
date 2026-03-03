@@ -1,0 +1,89 @@
+import { Card, Cards } from 'vocs'
+import { PrestoCliCard, PrestoExamplesCard } from '../../components/cards'
+
+# Use with your Agent [Interact with MPP services with your agent]
+
+The Machine Payments Protocol (MPP) can be used with agents to discover and use [services](/services) via direct integrations with MPP-compatible command-line interfaces (CLIs).
+
+## Presto (Tempo Wallet)
+
+Presto provides a first-class integration with MPP to provide a seamless experience for using services with your preferred agent.
+
+:::::steps
+
+### Install
+
+First, install the `presto` binary via your preferred terminal.
+
+```bash [install.sh]
+curl -L presto-binaries.tempo.xyz/install.sh | bash
+```
+
+### Prompt agent & discover services
+
+You can discover what services are available by prompting your agent.
+
+::::code-group
+
+```bash [Claude]
+claude prompt "What image generation services can I use with Presto?"
+```
+
+```bash [Amp]
+echo "What image generation services can I use with Presto?" | amp
+```
+
+```bash [Codex]
+codex "What image generation services can I use with Presto?"
+```
+
+```bash [Other]
+# Prompt your agent
+> "What image generation services can I use with Presto?"
+```
+
+::::
+
+### Perform services
+
+Prompt your agent to use a service. Presto and MPP handle payments on the fly.
+
+::::code-group
+
+```bash [Claude]
+claude prompt "Generate a surreal image with fal.ai"
+```
+
+```bash [Amp]
+echo "Generate a surreal image with fal.ai" | amp
+```
+
+```bash [Codex]
+codex "Generate a surreal image with fal.ai"
+```
+
+```bash [Other]
+# Prompt your agent
+> "Generate a surreal image with fal.ai"
+```
+
+::::
+
+:::::
+
+### Learn more
+
+<Cards>
+  <Card
+    description="Learn more about the services available to use with MPP"
+    icon="lucide:list"
+    title="Services"
+    to="/services"
+  />
+  <Card
+    description="See detailed references and examples for the Presto CLI"
+    icon="lucide:github"
+    title="Presto GitHub"
+    to="https://github.com/tempoxyz/presto"
+  />
+</Cards>

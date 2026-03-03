@@ -159,7 +159,7 @@ function Hero() {
         {/* CTAs */}
         <div className="flex items-center gap-4 mt-5 landing-ctas">
           <Link
-            to="/quickstart/presto"
+            to="/quickstart/agent"
             className="no-underline! px-6 py-3 rounded-lg transition-opacity hover:opacity-80"
             style={{
               fontSize: "1rem",
@@ -170,14 +170,14 @@ function Hero() {
             onClick={() =>
               captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
                 cta_label: "Use with your agent",
-                href: "/quickstart/presto",
+                href: "/quickstart/agent",
               })
             }
           >
             Use with your agent
           </Link>
           <Link
-            to="/quickstart"
+            to="/quickstart/server"
             className="no-underline! px-6 py-3 rounded-lg transition-opacity hover:opacity-80"
             style={{
               fontSize: "1rem",
@@ -189,7 +189,7 @@ function Hero() {
             onClick={() =>
               captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
                 cta_label: "Install on your server",
-                href: "/quickstart",
+                href: "/quickstart/server",
               })
             }
           >
