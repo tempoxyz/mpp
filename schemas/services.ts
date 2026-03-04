@@ -1453,6 +1453,387 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── StableTravel ─────────────────────────────────────────────────────
+  {
+    id: "stabletravel",
+    name: "StableTravel",
+    url: "https://stabletravel.dev",
+    serviceUrl: "https://stabletravel.dev",
+    description:
+      "Pay-per-request travel APIs — flights, hotels, activities, transfers, and real-time flight tracking. Powered by Amadeus and FlightAware.",
+    categories: ["data", "web"],
+    integration: "first-party",
+    tags: [
+      "amadeus",
+      "flightaware",
+      "flights",
+      "hotels",
+      "activities",
+      "transfers",
+      "travel",
+    ],
+    docs: {
+      homepage: "https://stabletravel.dev",
+      llmsTxt: "https://stabletravel.dev/llms.txt",
+    },
+    provider: { name: "Merit Systems", url: "https://stabletravel.dev" },
+    realm: "stabletravel.dev",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      // Flights
+      {
+        route: "POST /api/flights/search",
+        desc: "Search flight offers (advanced multi-city)",
+        amount: "54000",
+      },
+      {
+        route: "POST /api/flights/price",
+        desc: "Confirm pricing for a flight offer",
+        amount: "32400",
+      },
+      {
+        route: "POST /api/flights/book",
+        desc: "Book a flight (create flight order)",
+        amount: "86400",
+      },
+      {
+        route: "GET /api/flights/orders",
+        desc: "Retrieve a flight order by ID",
+        amount: "5400",
+      },
+      {
+        route: "POST /api/flights/orders/cancel",
+        desc: "Cancel a flight order",
+        amount: "5400",
+      },
+      {
+        route: "POST /api/flights/seatmap",
+        desc: "Get seat maps for a flight",
+        amount: "32400",
+      },
+      {
+        route: "POST /api/flights/upsell",
+        desc: "Get upsell offers for a flight",
+        amount: "32400",
+      },
+      {
+        route: "POST /api/flights/availability",
+        desc: "Check flight availability",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/flights/status",
+        desc: "Get flight status by carrier, number, and date",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/flights/checkin-links",
+        desc: "Get airline check-in page URLs",
+        amount: "5400",
+      },
+      // Hotels
+      {
+        route: "GET /api/hotels/list",
+        desc: "List hotels by city code",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/hotels/list/by-geocode",
+        desc: "List hotels by latitude/longitude",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/hotels/search",
+        desc: "Search hotel offers by hotel IDs",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/hotels/search/by-hotel",
+        desc: "Search offers for a specific hotel",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/hotels/offer",
+        desc: "Get details for a specific hotel offer",
+        amount: "32400",
+      },
+      {
+        route: "POST /api/hotels/book",
+        desc: "Book a hotel offer",
+        amount: "2160",
+      },
+      {
+        route: "GET /api/hotels/autocomplete",
+        desc: "Autocomplete hotel names",
+        amount: "5400",
+      },
+      // Activities
+      {
+        route: "GET /api/activities/search",
+        desc: "Search tours & activities by lat/lng",
+        amount: "54000",
+      },
+      {
+        route: "GET /api/activities/by-square",
+        desc: "Search activities within a geographic square",
+        amount: "54000",
+      },
+      {
+        route: "GET /api/activities/details",
+        desc: "Get activity details by ID",
+        amount: "54000",
+      },
+      // Transfers
+      {
+        route: "POST /api/transfers/search",
+        desc: "Search airport transfer options",
+        amount: "3240",
+      },
+      {
+        route: "POST /api/transfers/book",
+        desc: "Book a transfer",
+        amount: "2160",
+      },
+      {
+        route: "POST /api/transfers/cancel",
+        desc: "Cancel a transfer booking",
+        amount: "2160",
+      },
+      // Reference Data
+      {
+        route: "GET /api/reference/locations",
+        desc: "Search locations (airports, cities) by keyword",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/airports",
+        desc: "Find nearby airports by latitude/longitude",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/airlines",
+        desc: "Look up airline by IATA code",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/airline-routes",
+        desc: "Get routes for an airline from an airport",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/airport-routes",
+        desc: "Get direct destinations from an airport",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/cities",
+        desc: "Search cities by keyword",
+        amount: "5400",
+      },
+      // FlightAware — Real-Time Flights
+      {
+        route: "GET /api/flightaware/flights/search",
+        desc: "Search flights by query string",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/flights/search/positions",
+        desc: "Search flights with position data",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/flights/search/count",
+        desc: "Get count of flights matching a search",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/flights/search/advanced",
+        desc: "Advanced flight search with complex query syntax",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id",
+        desc: "Get flights by ident (flight number, registration)",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/canonical",
+        desc: "Get canonical ident for a flight",
+        amount: "2000",
+      },
+      {
+        route: "POST /api/flightaware/flights/:id/intents",
+        desc: "Set flight intent for push notifications",
+        amount: "1000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/position",
+        desc: "Get latest position for a flight",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/track",
+        desc: "Get full track/positions for a flight",
+        amount: "24000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/route-info",
+        desc: "Get route info (fixes, waypoints) for a flight",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/map",
+        desc: "Get flight track map image (PNG)",
+        amount: "60000",
+      },
+      // FlightAware — Airports
+      {
+        route: "GET /api/flightaware/airports",
+        desc: "List all airports",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/nearby",
+        desc: "Find airports near a lat/lng",
+        amount: "8000",
+      },
+      {
+        route: "GET /api/flightaware/airports/delays",
+        desc: "Get all airport delay information",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id",
+        desc: "Get airport info by code",
+        amount: "30000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/canonical",
+        desc: "Get canonical airport code",
+        amount: "2000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/nearby",
+        desc: "Find airports near a specific airport",
+        amount: "8000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/delays",
+        desc: "Get delays for a specific airport",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights",
+        desc: "Get all flights at an airport",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/arrivals",
+        desc: "Get arrivals at an airport",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/departures",
+        desc: "Get departures from an airport",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/scheduled-departures",
+        desc: "Get scheduled departures",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/scheduled-arrivals",
+        desc: "Get scheduled arrivals",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/to/:dest_id",
+        desc: "Get flights between two airports",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/counts",
+        desc: "Get flight count statistics",
+        amount: "200000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/weather/observations",
+        desc: "Get METAR weather observations",
+        amount: "4000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/weather/forecast",
+        desc: "Get TAF weather forecast",
+        amount: "4000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/routes/:dest_id",
+        desc: "Get route info between airports",
+        amount: "40000",
+      },
+      // FlightAware — Flight History
+      {
+        route: "GET /api/flightaware/history/flights/:id",
+        desc: "Get historical flights by ident",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/history/flights/:id/track",
+        desc: "Get historical flight track",
+        amount: "120000",
+      },
+      {
+        route: "GET /api/flightaware/history/flights/:id/map",
+        desc: "Get historical flight map image (PNG)",
+        amount: "280000",
+      },
+      {
+        route: "GET /api/flightaware/history/flights/:id/route-info",
+        desc: "Get historical flight route info",
+        amount: "80000",
+      },
+      {
+        route: "GET /api/flightaware/history/airports/:id/flights/arrivals",
+        desc: "Get historical arrivals at airport",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/history/airports/:id/flights/departures",
+        desc: "Get historical departures from airport",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/history/airports/:id/flights/to/:dest_id",
+        desc: "Get historical flights between airports",
+        amount: "240000",
+      },
+      {
+        route:
+          "GET /api/flightaware/history/aircraft/:registration/last-flight",
+        desc: "Get last flight for an aircraft",
+        amount: "400000",
+      },
+      {
+        route: "GET /api/flightaware/history/operators/:id/flights",
+        desc: "Get historical flights by operator",
+        amount: "40000",
+      },
+      // FlightAware — Disruption Counts
+      {
+        route: "GET /api/flightaware/disruption-counts/:entity_type",
+        desc: "Get disruption stats by entity type",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/disruption-counts/:entity_type/:id",
+        desc: "Get disruption stats for a specific entity",
+        amount: "10000",
+      },
+    ],
+  },
+
   // ── StablePhone ────────────────────────────────────────────────────────
   {
     id: "stablephone",
