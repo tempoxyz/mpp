@@ -320,8 +320,12 @@ function DesignedBy() {
         rel="noopener noreferrer"
         className="no-underline transition-colors flex items-center"
         style={{ color: "inherit" }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = ACCENT)}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = ACCENT;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "inherit";
+        }}
       >
         <TempoLogo />
       </a>
@@ -332,8 +336,12 @@ function DesignedBy() {
         rel="noopener noreferrer"
         className="no-underline transition-colors flex items-center"
         style={{ color: "inherit" }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#635BFF")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = "#635BFF";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "inherit";
+        }}
       >
         <StripeLogo />
       </a>
