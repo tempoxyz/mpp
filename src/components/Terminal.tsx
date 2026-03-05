@@ -91,6 +91,8 @@ function CssTriangle() {
         borderBottom: "0.3em solid transparent",
         borderLeft: "0.45em solid currentColor",
         verticalAlign: "middle",
+        position: "relative",
+        top: "-0.05em",
       }}
     />
   );
@@ -136,7 +138,13 @@ function PhotoOutput({ url }: { url: string }) {
   );
 }
 
-function GalleryThumb({ url, animate = true }: { url: string; animate?: boolean }) {
+function GalleryThumb({
+  url,
+  animate = true,
+}: {
+  url: string;
+  animate?: boolean;
+}) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -280,9 +288,9 @@ function renderText(text: string): ReactNode {
 // Typewriter commands
 // ---------------------------------------------------------------------------
 
-const BASE_DELAY = 30;
-const JITTER = 35;
-const LINE_DELAY = 500;
+const BASE_DELAY = 20;
+const JITTER = 20;
+const LINE_DELAY = 300;
 
 function useTypewriter(commands: string[]) {
   const noCommands = commands.length === 0;
@@ -296,9 +304,9 @@ function useTypewriter(commands: string[]) {
 
   useEffect(() => {
     if (skip) return;
-    const t1 = setTimeout(() => setShowLogin(true), 500);
-    const t2 = setTimeout(() => setShowPrompt(true), 700);
-    const t3 = setTimeout(() => setStarted(true), 1500);
+    const t1 = setTimeout(() => setShowLogin(true), 300);
+    const t2 = setTimeout(() => setShowPrompt(true), 500);
+    const t3 = setTimeout(() => setStarted(true), 900);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -324,7 +332,7 @@ function useTypewriter(commands: string[]) {
       return () => clearTimeout(timer);
     }
 
-    const delay = lineIndex === 0 ? 800 : LINE_DELAY;
+    const delay = lineIndex === 0 ? 400 : LINE_DELAY;
     const timer = setTimeout(() => {
       setLineIndex((l) => l + 1);
       setCharIndex(0);
@@ -506,12 +514,19 @@ function AsyncSteps({
   outputMode,
   walletState,
   paymentChannel = false,
+  conversational = false,
+  conversationalMode = "input",
+  selectLabel,
+  pickOutput,
   onDone,
   completed = false,
   demoClient,
   onContentReceived,
   initialTxHash,
   onTxHash,
+  initialReplies,
+  onReplies,
+  liveEndpointFn,
 }: {
   endpoint: string;
   liveEndpoint?: string;
@@ -520,18 +535,40 @@ function AsyncSteps({
   outputMode?: "text" | "photo" | "gallery";
   walletState: WalletState;
   paymentChannel?: boolean;
+  conversational?: boolean;
+  conversationalMode?: "input" | "select";
+  selectLabel?: string;
+  pickOutput?: () => string[];
   onDone?: () => void;
   completed?: boolean;
   demoClient?: DemoClient | null;
   onContentReceived?: (content: string[]) => void;
   initialTxHash?: string;
   onTxHash?: (hash: string) => void;
+  initialReplies?: Reply[];
+  onReplies?: (replies: Reply[]) => void;
+  liveEndpointFn?: (input: string) => string;
 }) {
   const { address, funded, setFunded } = walletState;
   const [txHash, setTxHash] = useState(() => initialTxHash ?? randomTxHash());
   const [channelTxHash, setChannelTxHash] = useState(() => randomTxHash());
   const doneCalled = useRef(false);
   const liveStarted = useRef(false);
+  const simStarted = useRef(false);
+
+  // Conversational mode state
+  const [replies, setReplies] = useState<Reply[]>(() => initialReplies ?? []);
+  const [replyInput, setReplyInput] = useState("");
+  const [replyPhase, setReplyPhase] = useState<
+    "input" | "streaming" | "closed"
+  >(completed ? "closed" : "input");
+  const [replyOutput, setReplyOutput] = useState<string[]>([]);
+  const [replyStreamChars, setReplyStreamChars] = useState(0);
+  const [replyTokenCount, setReplyTokenCount] = useState(0);
+  const replyRef = useRef<HTMLInputElement>(null);
+  const [selectReplySelected, setSelectReplySelected] = useState(0);
+  const replyLiveStreaming = useRef(false);
+  const chatHistory = useRef<Array<{ role: string; content: string }>>([]);
 
   const outputText = (output ?? []).join("\n");
 
@@ -546,6 +583,9 @@ function AsyncSteps({
     if (paymentChannel) {
       s.push({ key: "channel", delay: d(1200) });
       s.push({ key: "stream", delay: 0 });
+      if (conversational) {
+        s.push({ key: "reply", delay: 0 });
+      }
       s.push({ key: "closeChannel", delay: d(1000) });
     } else {
       s.push({ key: "pay", delay: d(1500) });
@@ -576,7 +616,8 @@ function AsyncSteps({
 
   // Live mode: run real operations
   useEffect(() => {
-    if (!demoClient || completed || liveStarted.current) return;
+    if (!demoClient || completed || liveStarted.current || simStarted.current)
+      return;
     liveStarted.current = true;
 
     (async () => {
@@ -654,17 +695,39 @@ function AsyncSteps({
               .replace(/\n+$/, "")
               .split("\n");
 
-            // Close channel and capture the real close tx hash
-            try {
-              const closeReceipt = await demoClient.session.close();
-              const hash =
-                closeReceipt?.txHash ?? sseReceipt?.txHash ?? undefined;
-              if (hash) {
-                setTxHash(hash);
-                onTxHash?.(hash);
+            // Seed chat history with initial prompt and response
+            if (conversational) {
+              const initialPrompt = new URL(
+                demoEndpoint,
+                "http://localhost",
+              ).searchParams.get("prompt");
+              if (initialPrompt) {
+                chatHistory.current = [
+                  { role: "user", content: initialPrompt },
+                  {
+                    role: "assistant",
+                    content: liveContent.join("\n"),
+                  },
+                ];
               }
-            } catch {
-              // Channel close failed — keep random hash
+            }
+
+            // Close channel unless conversational (user closes manually)
+            if (!conversational) {
+              try {
+                const closeReceipt = await demoClient.session.close();
+                const hash =
+                  closeReceipt?.txHash ?? sseReceipt?.txHash ?? undefined;
+                if (hash) {
+                  setTxHash(hash);
+                  onTxHash?.(hash);
+                }
+              } catch {
+                // Channel close failed — keep random hash
+              }
+            } else if (sseReceipt?.txHash) {
+              setTxHash(sseReceipt.txHash);
+              onTxHash?.(sseReceipt.txHash);
             }
           } else {
             const res = await demoClient.fetch(demoEndpoint);
@@ -696,8 +759,13 @@ function AsyncSteps({
           await new Promise((r) => setTimeout(r, 400));
         }
 
-        // Remaining steps
+        // Remaining steps (stop at "reply" to let user interact)
         for (let i = payIdx + 2; i <= steps.length; i++) {
+          const nextKey = steps[i]?.key;
+          if (nextKey === "reply") {
+            setStep(i);
+            break;
+          }
           setStep(i);
           if (i < steps.length) {
             await new Promise((r) => setTimeout(r, 600));
@@ -719,11 +787,15 @@ function AsyncSteps({
     setFunded,
     onContentReceived,
     onTxHash,
+    conversational,
   ]);
 
-  // Simulated mode: timed step progression
+  // Step progression (simulated mode, or post-reply resumption in live mode)
+  const replyIdx = steps.findIndex((s) => s.key === "reply");
+  const pastReply = replyIdx !== -1 && step > replyIdx;
   useEffect(() => {
-    if (demoClient) return;
+    if (demoClient && !pastReply) return;
+    simStarted.current = true;
     if (currentKey === "done") {
       if (!doneCalled.current) {
         doneCalled.current = true;
@@ -731,6 +803,7 @@ function AsyncSteps({
       }
       return;
     }
+    if (currentKey === "reply") return; // Wait for user interaction
     if (currentKey === "stream") {
       if (outputMode === "gallery") {
         if (tokenCount < output.length) {
@@ -767,6 +840,7 @@ function AsyncSteps({
     return () => clearTimeout(timer);
   }, [
     demoClient,
+    pastReply,
     step,
     streamChars,
     outputText.length,
@@ -790,6 +864,142 @@ function AsyncSteps({
       onDone?.();
     }
   }, [demoClient, currentKey, onDone]);
+
+  // Reply streaming effect — stream 4 chars (1 token) per tick (simulated)
+  // In live mode, the SSE handler drives replyOutput/replyStreamChars directly
+  const replyOutputText = replyOutput.join("\n");
+  useEffect(() => {
+    if (replyPhase !== "streaming") return;
+    if (replyLiveStreaming.current) return; // Live SSE drives display
+    if (replyStreamChars < replyOutputText.length) {
+      const timer = setTimeout(() => {
+        setReplyStreamChars((c) => Math.min(c + 4, replyOutputText.length));
+        setReplyTokenCount((t) => t + 1);
+      }, STREAM_DELAY);
+      return () => clearTimeout(timer);
+    }
+    // Streaming done — save reply and return to input
+    setReplies((prev) => [
+      ...prev,
+      {
+        prompt: replyInput,
+        output: replyOutput,
+        tokenCount: replyTokenCount,
+      },
+    ]);
+    setTokenCount((t) => t + replyTokenCount);
+    setReplyPhase("input");
+    setReplyInput("");
+    setReplyOutput([]);
+    setReplyStreamChars(0);
+    setReplyTokenCount(0);
+    setTimeout(() => replyRef.current?.focus(), 0);
+  }, [
+    replyPhase,
+    replyStreamChars,
+    replyOutputText.length,
+    replyInput,
+    replyOutput,
+    replyTokenCount,
+  ]);
+
+  // Focus reply input when entering reply step
+  useEffect(() => {
+    if (currentKey === "reply" && replyPhase === "input") {
+      setTimeout(() => replyRef.current?.focus(), 0);
+    }
+  }, [currentKey, replyPhase]);
+
+  const submitReply = (overrideInput?: string) => {
+    const input = overrideInput ?? replyInput.trim();
+    if (!input) return;
+    setReplyInput(input);
+    setReplyStreamChars(0);
+    setReplyTokenCount(0);
+    setReplyPhase("streaming");
+
+    if (demoClient && liveEndpointFn) {
+      // Live mode — hit real API via session SSE
+      replyLiveStreaming.current = true;
+      const baseUrl = liveEndpointFn(input);
+      const url =
+        chatHistory.current.length > 0
+          ? `${baseUrl}&messages=${encodeURIComponent(JSON.stringify(chatHistory.current))}`
+          : baseUrl;
+      const capturedInput = input;
+      (async () => {
+        try {
+          const stream = await demoClient.session.sse(url);
+          let text = "";
+          let chunks = 0;
+          for await (const chunk of stream) {
+            text += chunk;
+            chunks++;
+            const decoded = text.replaceAll("\t", "\n").replace(/\n+$/, "");
+            setReplyOutput(decoded.split("\n"));
+            setReplyStreamChars(decoded.length);
+            setReplyTokenCount(chunks);
+          }
+          // Stream done — finalize
+          const finalOutput = text
+            .replaceAll("\t", "\n")
+            .replace(/\n+$/, "")
+            .split("\n");
+          const finalTokenCount = chunks;
+          // Append to chat history for future context
+          chatHistory.current.push(
+            { role: "user", content: capturedInput },
+            { role: "assistant", content: finalOutput.join("\n") },
+          );
+          setReplies((prev) => [
+            ...prev,
+            {
+              prompt: capturedInput,
+              output: finalOutput,
+              tokenCount: finalTokenCount,
+            },
+          ]);
+        } catch (e) {
+          console.error("Live reply failed, using simulated content:", e);
+          const fallback = pickOutput?.() ?? [];
+          setReplyOutput(fallback);
+        }
+        replyLiveStreaming.current = false;
+        setReplyPhase("input");
+        setReplyInput("");
+        setReplyOutput([]);
+        setReplyStreamChars(0);
+        setReplyTokenCount(0);
+        setTimeout(() => replyRef.current?.focus(), 0);
+      })();
+    } else {
+      // Simulated mode
+      const newOutput = pickOutput?.() ?? [];
+      setReplyOutput(newOutput);
+    }
+  };
+
+  const endSession = () => {
+    setReplyPhase("closed");
+    onReplies?.(replies);
+
+    setStep((s) => s + 1); // Advance past "reply" to "closeChannel" immediately
+
+    if (demoClient) {
+      // Live mode — close the payment channel
+      (async () => {
+        try {
+          const closeReceipt = await demoClient.session.close();
+          if (closeReceipt?.txHash) {
+            setTxHash(closeReceipt.txHash);
+            onTxHash?.(closeReceipt.txHash);
+          }
+        } catch {
+          // Channel close failed — keep existing hash
+        }
+      })();
+    }
+  };
 
   return (
     <div className="flex flex-col">
@@ -1007,6 +1217,147 @@ function AsyncSteps({
           )}
         </>
       )}
+      {/* Conversational replies */}
+      {atOrPast("reply") && (
+        <>
+          {replies.map((r, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: stable order
+            <Fragment key={i}>
+              <BlankLine />
+              {conversationalMode === "input" && (
+                <p style={{ color: "var(--term-gray6)" }}>
+                  Enter prompt:{" "}
+                  <span style={{ color: "var(--term-gray10)" }}>
+                    {r.prompt}
+                  </span>
+                </p>
+              )}
+              <pre
+                className="whitespace-pre-wrap"
+                style={{ color: "var(--term-gray10)" }}
+              >
+                {renderText(r.output.join("\n"))}
+              </pre>
+              {/* biome-ignore format: contains unicode ✔︎ */}
+              <p style={{ color: "var(--term-gray6)" }}>
+                <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
+                {r.tokenCount} tokens streamed —{" "}
+                <span style={{ color: "var(--term-amber9)" }}>
+                  {(r.tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
+                </span>
+              </p>
+            </Fragment>
+          ))}
+          {replyPhase === "streaming" && (
+            <>
+              <BlankLine />
+              {conversationalMode === "input" && (
+                <p style={{ color: "var(--term-gray6)" }}>
+                  Enter prompt:{" "}
+                  <span style={{ color: "var(--term-gray10)" }}>
+                    {replyInput}
+                  </span>
+                </p>
+              )}
+              {replyTokenCount === 0 && (
+                <p style={{ color: "var(--term-gray6)" }}>
+                  <Spinner /> Waiting for response
+                </p>
+              )}
+              {replyTokenCount > 0 && (
+                <pre
+                  className="whitespace-pre-wrap"
+                  style={{ color: "var(--term-gray10)" }}
+                >
+                  {replyOutputText.slice(0, replyStreamChars)}
+                </pre>
+              )}
+              {/* biome-ignore format: contains unicode ✔︎ */}
+              {replyTokenCount > 0 && (
+                <p style={{ color: "var(--term-gray6)" }}>
+                  {replyStreamChars < replyOutputText.length ? (
+                    <Spinner />
+                  ) : (
+                    <span style={{ color: "var(--term-green9)" }}>✔︎</span>
+                  )}{" "}
+                  {replyTokenCount} tokens streamed —{" "}
+                  <span style={{ color: "var(--term-amber9)" }}>
+                    {(replyTokenCount * COST_PER_TOKEN).toFixed(4)} USDC
+                  </span>
+                </p>
+              )}
+            </>
+          )}
+          {replyPhase === "input" && conversationalMode === "input" && (
+            <>
+              <BlankLine />
+              <p className="flex" style={{ color: "var(--term-gray6)" }}>
+                <span className="shrink-0 whitespace-pre">Enter prompt: </span>
+                <BlockCursorInput
+                  ref={replyRef}
+                  type="text"
+                  value={replyInput}
+                  onChange={(e) => setReplyInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") submitReply();
+                  }}
+                  className="term-url-input min-w-0 flex-1 bg-transparent outline-none"
+                  style={{ color: "var(--term-gray10)" }}
+                  placeholder="ask a follow-up"
+                />
+              </p>
+              <button
+                type="button"
+                className="w-fit cursor-pointer text-left"
+                style={{ color: "var(--term-gray5)" }}
+                onClick={endSession}
+              >
+                [click here to end session]
+              </button>
+            </>
+          )}
+          {replyPhase === "input" && conversationalMode === "select" && (
+            <>
+              <BlankLine />
+              <p style={{ color: "var(--term-gray10)" }}>
+                What would you like to do?
+              </p>
+              <div className="flex flex-col" style={{ paddingLeft: "1rem" }}>
+                {[selectLabel ?? "Continue", "Close session"].map((item, i) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className="w-fit cursor-pointer text-left"
+                    style={{
+                      color:
+                        selectReplySelected === i
+                          ? "var(--term-pink9)"
+                          : "var(--term-gray6)",
+                    }}
+                    onMouseEnter={() => setSelectReplySelected(i)}
+                    onClick={() => {
+                      if (i === 0) {
+                        submitReply(selectLabel ?? "Continue");
+                      } else {
+                        endSession();
+                      }
+                    }}
+                  >
+                    {selectReplySelected === i ? (
+                      <>
+                        <CssTriangle />{" "}
+                      </>
+                    ) : (
+                      "  "
+                    )}
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
       {atOrPast("closeChannel") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
@@ -1033,10 +1384,15 @@ function AsyncSteps({
           )}
           {pastStep("closeChannel") &&
             (() => {
+              const replyTokens = replies.reduce(
+                (sum, r) => sum + r.tokenCount,
+                0,
+              );
+              const totalTokens = tokenCount + replyTokens;
               const spent =
                 outputMode === "gallery"
-                  ? tokenCount * 0.01
-                  : tokenCount * COST_PER_TOKEN;
+                  ? totalTokens * 0.01
+                  : totalTokens * COST_PER_TOKEN;
               return (
                 <>
                   <p
@@ -1548,18 +1904,28 @@ export type WalletState = {
 
 export const INITIAL_BALANCE = 100;
 
+export type Reply = {
+  prompt: string;
+  output: string[];
+  tokenCount: number;
+};
+
 export type Run = {
   step: PaymentStepConfig;
   output: string[];
   url?: string;
   key: number;
   txHash?: string;
+  replies?: Reply[];
 };
 
 export function runCost(run: Run): number {
   const cost = run.step.cost;
-  if (typeof cost === "function") return cost(run.output);
-  return cost;
+  const baseCost = typeof cost === "function" ? cost(run.output) : cost;
+  const replyCost = run.replies
+    ? run.replies.reduce((sum, r) => sum + r.tokenCount * COST_PER_TOKEN, 0)
+    : 0;
+  return baseCost + replyCost;
 }
 
 function scrollTerminalIntoView() {
@@ -1601,6 +1967,7 @@ function Wizard({
   const [quit, setQuit] = useState(false);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runKey, setRunKey] = useState(0);
+  const currentRepliesRef = useRef<Reply[]>([]);
 
   const currentItems: (PaymentStepConfig | "quit")[] =
     runs.length > 0 ? [...steps, "quit"] : steps;
@@ -1661,10 +2028,15 @@ function Wizard({
         url: chosenUrl,
         key: runKey,
         txHash: currentTxHashRef.current,
+        replies:
+          currentRepliesRef.current.length > 0
+            ? currentRepliesRef.current
+            : undefined,
       },
     ]);
     setChosenUrl(undefined);
     currentTxHashRef.current = undefined;
+    currentRepliesRef.current = [];
     setRunKey((k) => k + 1);
     setChosen(null);
     setSelected(0);
@@ -1714,6 +2086,7 @@ function Wizard({
       completed?: boolean;
       url?: string;
       txHash?: string;
+      replies?: Reply[];
     },
   ) => {
     const isActive = !opts?.completed;
@@ -1746,6 +2119,10 @@ function Wizard({
         outputMode={stepConfig.outputMode}
         walletState={walletState}
         paymentChannel={stepConfig.type === "tempo-session"}
+        conversational={stepConfig.conversational}
+        conversationalMode={stepConfig.conversationalMode}
+        selectLabel={stepConfig.label}
+        pickOutput={stepConfig.pickOutput}
         onDone={opts?.onDone}
         completed={opts?.completed}
         demoClient={isActive ? demoClient : undefined}
@@ -1758,6 +2135,15 @@ function Wizard({
               }
             : undefined
         }
+        initialReplies={opts?.replies}
+        onReplies={
+          isActive
+            ? (r) => {
+                currentRepliesRef.current = r;
+              }
+            : undefined
+        }
+        liveEndpointFn={isActive ? stepConfig.liveEndpoint : undefined}
       />
     );
   };
@@ -1811,6 +2197,7 @@ function Wizard({
               completed: true,
               url: run.url,
               txHash: run.txHash,
+              replies: run.replies,
             })}
             <BlankLine />
           </div>

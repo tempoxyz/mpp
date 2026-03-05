@@ -13,54 +13,25 @@ export const SPINNER_FRAMES = [
 
 export const CHAT_RESPONSES = [
   [
-    "HTTP 402 is the status code for Payment Required. It was reserved in",
-    "HTTP/1.1 but never standardized—until now. MPP defines a challenge-",
-    "credential-receipt flow that lets any API monetize with stablecoins.",
-    "The server sends a WWW-Authenticate challenge, the client signs a",
-    "payment credential, and the server returns a receipt on success.",
-    "No API keys, no billing portals, no invoices. Just pay-per-request.",
+    "HTTP 402 is the status code for Payment Required. It was reserved in HTTP/1.1 but never standardized—until now. MPP defines a challenge-credential-receipt flow that lets any API monetize with stablecoins. The server sends a WWW-Authenticate challenge, the client signs a payment credential, and the server returns a receipt on success. No API keys, no billing portals, no invoices. Just pay-per-request.",
   ],
   [
-    "Micropayments change the economics of APIs. Instead of monthly",
-    "subscriptions with usage limits, you pay fractions of a cent per",
-    "request. A single GPT-4o call costs about $0.003. An image gen",
-    "costs $0.01. Web search is $0.002. The marginal cost is so low",
-    "that agents can autonomously decide what to pay for.",
+    "Micropayments change the economics of APIs. Instead of monthly subscriptions with usage limits, you pay fractions of a cent per request. A single GPT-4o call costs about $0.003. An image gen costs $0.01. Web search is $0.002. The marginal cost is so low that agents can autonomously decide what to pay for.",
   ],
   [
-    "Stablecoins like USDC solve the payment rail problem. They settle",
-    "in seconds, cost almost nothing to transfer, and work globally",
-    "without bank accounts or currency conversion. When you combine",
-    "stablecoins with HTTP-native auth, you get a protocol where any",
-    "machine can pay any other machine, anywhere, instantly.",
+    "Stablecoins like USDC solve the payment rail problem. They settle in seconds, cost almost nothing to transfer, and work globally without bank accounts or currency conversion. When you combine stablecoins with HTTP-native auth, you get a protocol where any machine can pay any other machine, anywhere, instantly.",
   ],
   [
-    "The key insight is that AI agents need to pay for things. They call",
-    "APIs, use compute, fetch data—but they can't enter credit card",
-    "numbers. MPP gives agents a wallet and a protocol. The agent signs",
-    "a payment, the server verifies it on-chain, and the response streams",
-    "back. No human in the loop.",
+    "The key insight is that AI agents need to pay for things. They call APIs, use compute, fetch data—but they can't enter credit card numbers. MPP gives agents a wallet and a protocol. The agent signs a payment, the server verifies it on-chain, and the response streams back. No human in the loop.",
   ],
   [
-    "Payment channels let you batch thousands of micropayments into a",
-    "single on-chain settlement. You open a channel, make requests, and",
-    "each one increments a signed balance. When you're done, the final",
-    "balance settles on-chain. One transaction for a thousand API calls.",
-    "Gas costs amortized to nearly zero.",
+    "Payment channels let you batch thousands of micropayments into a single on-chain settlement. You open a channel, make requests, and each one increments a signed balance. When you're done, the final balance settles on-chain. One transaction for a thousand API calls. Gas costs amortized to nearly zero.",
   ],
   [
-    "Think of it like this: every API endpoint has a price, just like",
-    "every webpage has a URL. The price lives in the 402 response header.",
-    "Clients that understand the protocol pay automatically. Clients that",
-    "don't get a standard HTTP error. It's backwards-compatible with the",
-    "entire web. No new infrastructure required.",
+    "Think of it like this: every API endpoint has a price, just like every webpage has a URL. The price lives in the 402 response header. Clients that understand the protocol pay automatically. Clients that don't get a standard HTTP error. It's backwards-compatible with the entire web. No new infrastructure required.",
   ],
   [
-    "The authorization header carries a signed payment credential. The",
-    "server verifies the signature, checks the amount, and processes the",
-    "request. If the payment is valid, you get a 200 with a receipt",
-    "header. If not, you get a 402 with a challenge. The whole exchange",
-    "takes milliseconds—faster than a credit card authorization.",
+    "The authorization header carries a signed payment credential. The server verifies the signature, checks the amount, and processes the request. If the payment is valid, you get a 200 with a receipt header. If not, you get a 402 with a challenge. The whole exchange takes milliseconds—faster than a credit card authorization.",
   ],
 ];
 

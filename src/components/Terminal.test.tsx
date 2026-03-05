@@ -204,6 +204,28 @@ describe("runCost", () => {
     const tokens = Math.ceil(output.join("\n").length / 4);
     expect(runCost(run)).toBe(tokens * COST_PER_TOKEN);
   });
+
+  it("includes reply token costs in total", () => {
+    const output = ["Hello world"];
+    const run: Run = {
+      ...makeRun(Terminal.chat(), output),
+      replies: [
+        { prompt: "follow up 1", output: ["response 1"], tokenCount: 10 },
+        { prompt: "follow up 2", output: ["response 2"], tokenCount: 20 },
+      ],
+    };
+    const baseCost = Math.ceil(output.join("\n").length / 4) * COST_PER_TOKEN;
+    const replyCost = (10 + 20) * COST_PER_TOKEN;
+    expect(runCost(run)).toBe(baseCost + replyCost);
+  });
+
+  it("returns base cost when replies is undefined", () => {
+    const output = ["Hello"];
+    const run = makeRun(Terminal.chat(), output);
+    expect(run.replies).toBeUndefined();
+    const baseCost = Math.ceil(output.join("\n").length / 4) * COST_PER_TOKEN;
+    expect(runCost(run)).toBe(baseCost);
+  });
 });
 
 // ---------------------------------------------------------------------------

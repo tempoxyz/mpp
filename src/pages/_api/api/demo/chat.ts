@@ -84,6 +84,18 @@ export default async function handler(request: Request) {
 
   if (proxyFetch && prompt) {
     try {
+      // Build message history from query param
+      const historyParam = new URL(request.url).searchParams.get("messages");
+      const history: Array<{ role: string; content: string }> = [];
+      if (historyParam) {
+        try {
+          const parsed = JSON.parse(historyParam);
+          if (Array.isArray(parsed)) history.push(...parsed);
+        } catch {
+          // Invalid JSON — ignore history
+        }
+      }
+
       // Call OpenAI through mpp-proxy (proxy handles API key)
       const res = await proxyFetch(
         "https://openai.mpp.moderato.tempo.xyz/v1/chat/completions",
@@ -98,6 +110,7 @@ export default async function handler(request: Request) {
                 content:
                   "You are a helpful assistant. Keep responses concise — 3 to 6 sentences.",
               },
+              ...history,
               { role: "user", content: prompt },
             ],
           }),

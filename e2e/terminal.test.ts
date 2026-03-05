@@ -128,9 +128,51 @@ describe("terminal", () => {
       page.getByText("tokens streamed", { exact: false }),
     ).toBeVisible({ timeout: 20_000 });
 
+    // Conversational mode: reply input appears after streaming
+    const followUpInput = page.locator('input[placeholder="ask a follow-up"]');
+    await playwrightExpect(followUpInput).toBeVisible({ timeout: 5_000 });
+
+    // Capture initial token count from the first "tokens streamed" line
+    const initialTokenText = await page
+      .getByText("tokens streamed", { exact: false })
+      .first()
+      .textContent();
+    const initialTokens = Number.parseInt(
+      initialTokenText?.match(/(\d+)\s+tokens/)?.[1] ?? "0",
+      10,
+    );
+
+    // Submit a follow-up prompt
+    await followUpInput.fill("how do they work?");
+    await followUpInput.press("Enter");
+
+    // Wait for follow-up response to stream
+    const tokenLines = page.getByText("tokens streamed", { exact: false });
+    await playwrightExpect(tokenLines.nth(1)).toBeVisible({ timeout: 20_000 });
+
+    // Capture follow-up token count
+    const followUpTokenText = await tokenLines.nth(1).textContent();
+    const followUpTokens = Number.parseInt(
+      followUpTokenText?.match(/(\d+)\s+tokens/)?.[1] ?? "0",
+      10,
+    );
+
+    // End the session
+    await page.getByText("click here to end session").click();
+
     await playwrightExpect(
       page.getByText("Closing payment channel"),
     ).toBeVisible({ timeout: 5_000 });
+
+    // Verify spent amount sums initial + follow-up tokens
+    const spentEl = page.getByText(/^spent\s/);
+    await playwrightExpect(spentEl).toBeVisible({ timeout: 5_000 });
+    const spentText = await spentEl.textContent();
+    const spentAmount = Number.parseFloat(
+      spentText?.match(/([\d.]+)\s+USDC/)?.[1] ?? "0",
+    );
+    const expectedSpent = (initialTokens + followUpTokens) * 0.0001;
+    playwrightExpect(spentAmount).toBeCloseTo(expectedSpent, 3);
 
     await playwrightExpect(
       page.getByText("What would you like to do?").last(),
@@ -387,6 +429,16 @@ describe("terminal (classic mode)", () => {
     await playwrightExpect(
       page.getByText("tokens streamed", { exact: false }),
     ).toBeVisible({ timeout: 20_000 });
+
+    // Conversational select menu appears after streaming
+    await playwrightExpect(
+      page.getByText("What would you like to do?").last(),
+    ).toBeVisible({ timeout: 5_000 });
+    await playwrightExpect(page.getByText("Write poem")).toBeVisible();
+    await playwrightExpect(page.getByText("Close session")).toBeVisible();
+
+    // Select "Close session"
+    await page.getByText("Close session").click();
 
     await playwrightExpect(
       page.getByText("Closing payment channel"),

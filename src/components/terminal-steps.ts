@@ -21,6 +21,8 @@ export type PaymentStepConfig = {
   skipPrompt?: boolean;
   pickOutput?: () => string[];
   outputMode?: "text" | "photo" | "gallery";
+  conversational?: boolean;
+  conversationalMode?: "input" | "select";
 };
 
 export type CommandsStepConfig = {
@@ -132,6 +134,8 @@ export function session({
   skipPrompt,
   pickOutput,
   outputMode,
+  conversational,
+  conversationalMode,
 }: {
   label: string;
   endpoint: string;
@@ -141,6 +145,8 @@ export function session({
   skipPrompt?: boolean;
   pickOutput?: () => string[];
   outputMode?: "text" | "photo" | "gallery";
+  conversational?: boolean;
+  conversationalMode?: "input" | "select";
 }): PaymentStepConfig {
   return {
     type: "tempo-session",
@@ -155,6 +161,8 @@ export function session({
     skipPrompt,
     pickOutput,
     outputMode,
+    conversational,
+    conversationalMode,
   };
 }
 
@@ -203,6 +211,7 @@ export function chat(): PaymentStepConfig {
       `/api/demo/chat?prompt=${encodeURIComponent(input)}`,
     prompt: { label: "Enter prompt", placeholder: "what are micropayments?" },
     pickOutput: pickChat,
+    conversational: true,
   });
 }
 
@@ -256,6 +265,8 @@ export function poem(): PaymentStepConfig {
     prompt: { label: "Enter prompt", placeholder: "what are micropayments?" },
     skipPrompt: true,
     pickOutput: pickPoem,
+    conversational: true,
+    conversationalMode: "select",
   });
 }
 
