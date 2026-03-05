@@ -181,6 +181,29 @@ describe("terminal", () => {
     await page.close();
   });
 
+  it.concurrent("submits default prompt when Enter is pressed on empty input", async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}`);
+    await waitForWizard(page);
+
+    await pressKey(page, "Enter");
+
+    await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await page.keyboard.press("Enter");
+
+    await playwrightExpect(
+      page.getByText("Enter prompt: what are micropayments?", { exact: true }),
+    ).toBeVisible({ timeout: 5_000 });
+    await playwrightExpect(
+      page.getByText("Creating wallet", { exact: false }),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await page.close();
+  });
+
   it.concurrent('selects "Summarize article" and enters a URL', async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
@@ -218,6 +241,41 @@ describe("terminal", () => {
       page.getByText("Creating PaymentIntent"),
     ).toBeVisible({ timeout: 5_000 });
 
+    await playwrightExpect(page.getByText("200 OK")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await page.close();
+  });
+
+  it.concurrent("uses default URL and card values when Enter is pressed", async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}`);
+    await waitForWizard(page);
+
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "Enter");
+
+    await playwrightExpect(page.getByText("Enter URL:")).toBeVisible({
+      timeout: 5_000,
+    });
+
+    await page.keyboard.press("Enter");
+
+    await playwrightExpect(
+      page.getByText("Enter URL: https://stripe.com", { exact: true }),
+    ).toBeVisible({ timeout: 5_000 });
+    await playwrightExpect(
+      page.getByText("Card number:", { exact: false }),
+    ).toBeVisible({ timeout: 5_000 });
+
+    await page.keyboard.press("Enter");
+
+    await playwrightExpect(
+      page.getByText("Creating PaymentIntent"),
+    ).toBeVisible({ timeout: 5_000 });
     await playwrightExpect(page.getByText("200 OK")).toBeVisible({
       timeout: 5_000,
     });

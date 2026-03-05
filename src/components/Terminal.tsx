@@ -1122,6 +1122,10 @@ function CardForm({
   completed?: boolean;
   savedCard?: SavedCard;
 }) {
+  const defaultCardNumber = "4242 4242 4242 4242";
+  const defaultExpiry = "12/34";
+  const defaultCvc = "123";
+
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
@@ -1138,6 +1142,11 @@ function CardForm({
     if (field !== "done") inputRef.current?.focus();
   }, [field]);
 
+  const applyTestCard = () => {
+    setField("done");
+    onSubmit({ last4: "4242", expiry: defaultExpiry });
+  };
+
   if (savedCard) {
     return (
       <div style={{ paddingLeft: "2ch" }}>
@@ -1153,12 +1162,23 @@ function CardForm({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== "Enter") return;
-    if (field === "number" && cardNumber.trim()) setField("expiry");
-    else if (field === "expiry" && expiry.trim()) setField("cvc");
-    else if (field === "cvc" && cvc.trim()) {
+    if (field === "number") {
+      if (!cardNumber.trim()) {
+        applyTestCard();
+        return;
+      }
+      setField("expiry");
+    } else if (field === "expiry") {
+      if (!expiry.trim()) setExpiry(defaultExpiry);
+      setField("cvc");
+    } else if (field === "cvc") {
+      const resolvedExpiry = expiry.trim() || defaultExpiry;
+      const resolvedCvc = cvc.trim() || defaultCvc;
+      if (!expiry.trim()) setExpiry(resolvedExpiry);
+      if (!cvc.trim()) setCvc(resolvedCvc);
       setField("done");
       const last4 = cardNumber.replace(/\s/g, "").slice(-4);
-      onSubmit({ last4, expiry });
+      onSubmit({ last4, expiry: resolvedExpiry });
     }
   };
 
@@ -1167,11 +1187,6 @@ function CardForm({
   const maskedNumber = `•••• •••• •••• ${last4 || "••••"}`;
   const displayExpiry = expiry;
   const maskedCvc = "•••";
-
-  const useTestCard = () => {
-    setField("done");
-    onSubmit({ last4: "4242", expiry: "12/34" });
-  };
 
   return (
     <div className="flex flex-col" style={{ paddingLeft: "2ch" }}>
@@ -1187,13 +1202,13 @@ function CardForm({
               onKeyDown={handleKeyDown}
               className="term-url-input bg-transparent outline-none"
               style={{ color: "var(--term-gray10)" }}
-              placeholder="4242 4242 4242 4242"
+              placeholder={defaultCardNumber}
               autoComplete="off"
               data-1p-ignore
             />{" "}
             <button
               type="button"
-              onClick={useTestCard}
+              onClick={applyTestCard}
               className="cursor-pointer hover:underline"
               style={{ color: "#635BFF" }}
             >
@@ -1201,7 +1216,7 @@ function CardForm({
             </button>{" "}
             <button
               type="button"
-              onClick={useTestCard}
+              onClick={applyTestCard}
               className="cursor-pointer hover:underline"
               style={{ color: "#00D66F" }}
             >
@@ -1657,12 +1672,17 @@ function Wizard({
   };
 
   const submitUrl = () => {
-    if (!urlInput.trim()) return;
     const step = currentItems[selected] as PaymentStepConfig;
+    const defaultInput = step.prompt?.placeholder?.trim() ?? "";
+    const resolvedInput = urlInput.trim() || defaultInput;
+    if (!resolvedInput) return;
     if (step.pickOutput) setChosenOutput(step.pickOutput());
     const prefix = step.prompt?.prefix ?? "";
-    const trimmed = urlInput.trim();
-    setChosenUrl(trimmed.startsWith(prefix) ? trimmed : `${prefix}${trimmed}`);
+    setChosenUrl(
+      resolvedInput.startsWith(prefix)
+        ? resolvedInput
+        : `${prefix}${resolvedInput}`,
+    );
     setWaitingForUrl(false);
     setChosen(step);
     scrollTerminalIntoView();
@@ -1877,12 +1897,6 @@ function Wizard({
               );
             })}
           </div>
-          {/* biome-ignore format: contains unicode ↑↓ */}
-          {!chosen && !waitingForUrl && (
-            <p style={{ color: "var(--term-gray5)" }}>
-              Use ↑↓ arrows and Enter to select
-            </p>
-          )}
           {waitingForUrl && (
             <p className="flex" style={{ color: "var(--term-gray6)" }}>
               <span className="shrink-0 whitespace-pre">
