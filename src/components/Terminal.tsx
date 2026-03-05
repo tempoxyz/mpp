@@ -106,10 +106,7 @@ function PhotoOutput({ url }: { url: string }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="block relative rounded overflow-hidden"
       style={{
         width: 200,
@@ -135,18 +132,15 @@ function PhotoOutput({ url }: { url: string }) {
           opacity: loaded ? 1 : 0,
         }}
       />
-    </a>
+    </div>
   );
 }
 
-function GalleryThumb({ url }: { url: string }) {
+function GalleryThumb({ url, animate = true }: { url: string; animate?: boolean }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="block relative rounded overflow-hidden"
       style={{
         width: 80,
@@ -168,25 +162,27 @@ function GalleryThumb({ url }: { url: string }) {
         onLoad={() => setLoaded(true)}
         className="absolute inset-0 w-full h-full object-cover"
         style={{
-          transition: "opacity 0.5s",
+          transition: animate ? "opacity 0.5s" : undefined,
           opacity: loaded ? 1 : 0,
         }}
       />
-    </a>
+    </div>
   );
 }
 
 function GalleryGrid({
   urls,
   loading = false,
+  animate = true,
 }: {
   urls: string[];
   loading?: boolean;
+  animate?: boolean;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
       {urls.map((url) => (
-        <GalleryThumb key={url} url={url} />
+        <GalleryThumb key={url} url={url} animate={animate} />
       ))}
       {loading && (
         <div
@@ -2271,7 +2267,7 @@ function GalleryStep({
             {i > 0 && <p style={{ color: "var(--term-gray6)" }}>{"  "}Done</p>}
           </div>
           <BlankLine />
-          <GalleryGrid urls={run.urls} />
+          <GalleryGrid urls={run.urls} animate={false} />
           {/* biome-ignore format: contains unicode ✔︎ */}
           <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
             <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
@@ -2631,13 +2627,9 @@ function TerminalComponent({
     const scrollEl = scrollRef.current;
     const contentEl = contentRef.current;
     if (!scrollEl || !contentEl) return;
-    const LINE_HEIGHT = 24; // 1.5rem at 16px base
     const observer = new ResizeObserver(() => {
       if (!autoScrollRef.current) return;
-      const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
-      // Snap to line boundary so topmost visible line is never cut off
-      const snapped = Math.ceil(maxScroll / LINE_HEIGHT) * LINE_HEIGHT;
-      scrollEl.scrollTop = snapped;
+      scrollEl.scrollTop = scrollEl.scrollHeight - scrollEl.clientHeight;
     });
     observer.observe(contentEl);
     return () => observer.disconnect();
@@ -2688,7 +2680,7 @@ function TerminalComponent({
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem] md:overscroll-contain"
           style={{
             backgroundColor: "var(--term-bg2)",
           }}

@@ -62,18 +62,9 @@ export async function GET(request: Request) {
         };
         const img = data.images?.[0];
         if (img) {
-          const size =
-            img.width && img.height
-              ? `${img.width}x${img.height}`
-              : "1024x1024";
-          const lines = [
-            "  model       flux-schnell",
-            `  prompt      "${prompt}"`,
-            `  url         ${img.url}`,
-            `  size        ${size}`,
-            "  cost        $0.003",
-          ];
-          return result.withReceipt(Response.json({ lines }));
+          return result.withReceipt(
+            Response.json({ lines: [img.url] }),
+          );
         }
         console.warn(
           `[demo/image] fal.ai returned no images for prompt="${prompt}"`,
@@ -97,13 +88,8 @@ export async function GET(request: Request) {
     "Using canned image result because live generation is unavailable right now.";
   console.warn(`[demo/image] ${warning} prompt=${prompt}`);
   const image = imageResults[Math.floor(Math.random() * imageResults.length)];
-  const lines = [
-    "  model       flux-schnell",
-    `  prompt      "${prompt}"`,
-    `  url         ${image.url}`,
-    "  size        1024x1024",
-    "  cost        $0.003",
-  ];
 
-  return result.withReceipt(Response.json({ lines, warning }));
+  return result.withReceipt(
+    Response.json({ lines: [image.url], warning }),
+  );
 }
