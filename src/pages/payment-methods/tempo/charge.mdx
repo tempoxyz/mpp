@@ -118,6 +118,62 @@ See [`tempo.charge` client reference](/sdk/typescript/client/Method.tempo.charge
 :::
 
 
+### With hash Credential
+
+In the default flow, the client signs a transaction and the server broadcasts it. With a hash Credential, the client broadcasts the transaction first and sends the transaction hash as proof. The server verifies the payment on-chain by looking up the receipt.
+
+This is useful when the client wants full control over transaction submission—for example, when using a wallet that broadcasts directly, or when integrating with systems that already submit transactions independently.
+
+:::warning
+Hash Credentials cannot use [fee sponsorship](/payment-methods/tempo#fee-sponsorship). The client pays their own gas fees.
+:::
+
+```ts twoslash
+import { Challenge, Credential } from 'mppx'
+import { tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+import { Actions } from 'viem/tempo'
+
+const account = privateKeyToAccount('0xabc…123')
+
+const client = createClient({
+  account,
+  chain: tempoModerato,
+  transport: http(),
+})
+
+// 1. Get the Challenge from the server
+const res = await fetch('https://api.example.com/resource')
+const challenge = Challenge.fromResponse(res, {
+  methods: [tempo.charge({ account })],
+})
+const chainId = challenge.request.methodDetails?.chainId ?? tempoModerato.id
+
+// 2. Broadcast the transfer directly
+const { receipt } = await Actions.token.transferSync(client, {
+  account,
+  amount: BigInt(challenge.request.amount),
+  to: challenge.request.recipient as `0x${string}`,
+  token: challenge.request.currency as `0x${string}`,
+})
+
+// 3. Create a hash Credential with the transaction hash
+const credential = Credential.from({
+  challenge,
+  payload: { hash: receipt.transactionHash, type: 'hash' as const },
+  source: `did:pkh:eip155:${chainId}:${account.address}`,
+})
+
+// 4. Retry the request with proof of payment
+const response = await fetch('https://api.example.com/resource', {
+  headers: { Authorization: Credential.serialize(credential) },
+})
+```
+
+The server handles hash Credentials automatically—no server-side changes are needed. The `tempo.charge()` server method looks up the transaction receipt on-chain and verifies it matches the Challenge parameters (amount, currency, recipient, and chain).
+
 ### Auto-swap
 
 When the client doesn't hold the requested currency, `autoSwap` automatically swaps from a fallback stablecoin (pathUSD, USDC.e) via the Tempo DEX before transferring.
