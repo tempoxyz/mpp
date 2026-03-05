@@ -12,7 +12,7 @@ import { Terminal } from "./Terminal";
 const ACCENT = "var(--vocs-text-color-heading)";
 
 const TERMINAL_STEPS = [
-  Terminal.commands(["cat quickstart.txt", "./demo.sh"]),
+  Terminal.commands(["./demo.sh"]),
   Terminal.wizard([
     Terminal.chat(),
     Terminal.image(),

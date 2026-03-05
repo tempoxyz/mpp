@@ -97,7 +97,6 @@ function CssTriangle() {
 }
 
 const SUMMARY_LABEL_WIDTH = "5.5em";
-const QUICKSTART_LABEL_WIDTH = "13em";
 
 function BlankLine() {
   return <div className="h-6" />;
@@ -279,37 +278,6 @@ function renderText(text: string): ReactNode {
       </a>
     );
   });
-}
-
-// ---------------------------------------------------------------------------
-// Quickstart output (shown after `cat quickstart.txt`)
-// ---------------------------------------------------------------------------
-
-function QuickstartOutput() {
-  const rows = [
-    { label: "Connect your agent:", value: "mpp.dev/llms.txt" },
-    { label: "Discover services:", value: "mpp.dev/services" },
-    { label: "Read the docs:", value: "mpp.dev/overview" },
-  ];
-  return (
-    <div className="flex flex-col">
-      {rows.map((row) => (
-        <p key={row.label} style={{ color: "var(--term-gray6)" }}>
-          {"  "}
-          <span
-            style={{
-              display: "inline-block",
-              width: QUICKSTART_LABEL_WIDTH,
-            }}
-          >
-            {row.label}
-          </span>
-          {renderText(row.value)}
-        </p>
-      ))}
-      <BlankLine />
-    </div>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -2814,7 +2782,6 @@ function TerminalComponent({
                         }}
                       />
                     </p>
-                    {i === 0 && lineIndex > 0 && <QuickstartOutput />}
                   </Fragment>
                 );
               })}
