@@ -1210,17 +1210,17 @@ function CardForm({
               type="button"
               onClick={applyTestCard}
               className="cursor-pointer hover:underline"
-              style={{ color: "#635BFF" }}
+              style={{ color: "#00D66F" }}
             >
-              [use test card]
+              [use link]
             </button>{" "}
             <button
               type="button"
               onClick={applyTestCard}
               className="cursor-pointer hover:underline"
-              style={{ color: "#00D66F" }}
+              style={{ color: "#635BFF" }}
             >
-              [use link]
+              [use test card]
             </button>
           </>
         ) : (
