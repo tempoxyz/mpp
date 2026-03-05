@@ -62,9 +62,7 @@ export async function GET(request: Request) {
         };
         const img = data.images?.[0];
         if (img) {
-          return result.withReceipt(
-            Response.json({ lines: [img.url] }),
-          );
+          return result.withReceipt(Response.json({ lines: [img.url] }));
         }
         console.warn(
           `[demo/image] fal.ai returned no images for prompt="${prompt}"`,
@@ -89,7 +87,5 @@ export async function GET(request: Request) {
   console.warn(`[demo/image] ${warning} prompt=${prompt}`);
   const image = imageResults[Math.floor(Math.random() * imageResults.length)];
 
-  return result.withReceipt(
-    Response.json({ lines: [image.url], warning }),
-  );
+  return result.withReceipt(Response.json({ lines: [image.url], warning }));
 }

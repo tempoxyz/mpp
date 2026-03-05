@@ -136,7 +136,13 @@ function PhotoOutput({ url }: { url: string }) {
   );
 }
 
-function GalleryThumb({ url, animate = true }: { url: string; animate?: boolean }) {
+function GalleryThumb({
+  url,
+  animate = true,
+}: {
+  url: string;
+  animate?: boolean;
+}) {
   const [loaded, setLoaded] = useState(false);
 
   return (

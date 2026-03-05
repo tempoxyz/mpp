@@ -121,7 +121,7 @@ export const services: ServiceDef[] = [
     integration: "first-party",
     tags: ["email", "inbox", "agents", "messaging"],
     docs: {
-    	homepage: "https://docs.agentmail.to",
+      homepage: "https://docs.agentmail.to",
       llmsTxt: "https://docs.agentmail.to/llms.txt",
     },
     provider: { name: "AgentMail", url: "https://agentmail.to" },
