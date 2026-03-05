@@ -6421,6 +6421,218 @@
           }
         }
       ]
+    },
+    {
+      "id": "oxylabs",
+      "name": "Oxylabs",
+      "url": "https://realtime.oxylabs.io",
+      "serviceUrl": "https://oxylabs.mpp.tempo.xyz",
+      "description": "Web scraping API with geo-targeting by country, state, and city. Fetch any public URL through Oxylabs infrastructure with JavaScript rendering support.",
+      "categories": [
+        "web",
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "scraping",
+        "web-scraping",
+        "geo-targeting",
+        "data-extraction"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://developers.oxylabs.io",
+        "apiReference": "https://developers.oxylabs.io/scraper-apis/web-scraper-api"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Oxylabs",
+        "url": "https://oxylabs.io"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/proxy",
+          "description": "Scrape a public URL with optional geo-targeting and JS rendering",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Web scraping request (dynamic pricing based on response size)",
+            "dynamic": true,
+            "amount": "1000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "spyfu",
+      "name": "SpyFu",
+      "url": "https://api.spyfu.com",
+      "serviceUrl": "https://spyfu.mpp.tempo.xyz",
+      "description": "Competitor keyword research — SEO rankings, PPC ads, ad history, and domain analytics. 18+ years of historical data.",
+      "categories": [
+        "data",
+        "search"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "seo",
+        "ppc",
+        "keyword-research",
+        "competitor-analysis",
+        "ads"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://developer.spyfu.com",
+        "apiReference": "https://developer.spyfu.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "SpyFu",
+        "url": "https://spyfu.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/apis/domain_stats_api/v2/*",
+          "description": "Domain stats lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Domain stats lookup",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/serp_api/v2/seo/*",
+          "description": "SEO keyword research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "SEO keyword research",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/serp_api/v2/ppc/*",
+          "description": "PPC keyword research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "PPC keyword research",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/keyword_api/v2/ppc/*",
+          "description": "PPC keyword research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "PPC keyword research",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/cloud_ad_history_api/v2/*",
+          "description": "Ad history research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Ad history research",
+            "amount": "30000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/competitors_api/v2/*",
+          "description": "Competitor analysis",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Competitor analysis",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/keyword_api/v2/kombat/*",
+          "description": "Keyword overlap analysis",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Keyword overlap analysis",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/keyword_api/v2/related/*",
+          "description": "Keyword research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Keyword research",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/organic_history_api/v2/*",
+          "description": "Ranking history research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Ranking history research",
+            "amount": "30000"
+          }
+        }
+      ]
     }
   ]
 }
