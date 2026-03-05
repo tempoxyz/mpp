@@ -2648,6 +2648,61 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Oxylabs ─────────────────────────────────────────────────────────────
+  {
+    id: "oxylabs",
+    name: "Oxylabs",
+    url: "https://realtime.oxylabs.io",
+    serviceUrl: `https://oxylabs.${MPP_REALM}`,
+    description:
+      "Web scraping API with geo-targeting by country, state, and city. Fetch any public URL with JavaScript rendering support.",
+    categories: ["web", "data"],
+    integration: "third-party",
+    tags: ["scraping", "web-scraping", "geo-targeting", "data-extraction"],
+    docs: {
+      apiReference: "https://developers.oxylabs.io/scraper-apis/web-scraper-api",
+    },
+    provider: { name: "Oxylabs", url: "https://oxylabs.io" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "POST /v1/proxy", desc: "Scrape a public URL with optional geo-targeting and JS rendering", dynamic: true },
+    ],
+  },
+
+  // ── SpyFu ──────────────────────────────────────────────────────────────
+  {
+    id: "spyfu",
+    name: "SpyFu",
+    url: "https://api.spyfu.com",
+    serviceUrl: `https://spyfu.${MPP_REALM}`,
+    description:
+      "Competitor keyword research — SEO rankings, PPC ads, ad history, and domain analytics. 18+ years of historical data.",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: ["seo", "ppc", "keyword-research", "competitor-analysis", "ads"],
+    docs: {
+      homepage: "https://developer.spyfu.com",
+      apiReference: "https://developer.spyfu.com",
+    },
+    provider: { name: "SpyFu", url: "https://spyfu.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "GET /apis/domain_stats_api/v2/*", desc: "Domain stats lookup", amount: "10000" },
+      { route: "GET /apis/serp_api/v2/seo/*", desc: "SEO keyword research", amount: "10000" },
+      { route: "GET /apis/serp_api/v2/ppc/*", desc: "PPC keyword research", amount: "20000" },
+      { route: "GET /apis/keyword_api/v2/ppc/*", desc: "PPC keyword research", amount: "20000" },
+      { route: "GET /apis/cloud_ad_history_api/v2/*", desc: "Ad history research", amount: "30000" },
+      { route: "GET /apis/competitors_api/v2/*", desc: "Competitor analysis", amount: "10000" },
+      { route: "GET /apis/keyword_api/v2/kombat/*", desc: "Keyword overlap analysis", amount: "20000" },
+      { route: "GET /apis/keyword_api/v2/related/*", desc: "Keyword research", amount: "20000" },
+      { route: "GET /apis/organic_history_api/v2/*", desc: "Ranking history research", amount: "30000" },
+    ],
+  },
+
   // ── SerpApi ────────────────────────────────────────────────────────────
   {
     id: "serpapi",

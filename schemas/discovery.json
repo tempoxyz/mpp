@@ -6374,60 +6374,11 @@
       ]
     },
     {
-      "id": "serpapi",
-      "name": "SerpApi",
-      "url": "https://serpapi.com",
-      "serviceUrl": "https://serpapi.mpp.tempo.xyz",
-      "description": "Google Flights search — real-time prices, schedules, and booking options.",
-      "categories": [
-        "search",
-        "data"
-      ],
-      "integration": "third-party",
-      "tags": [
-        "search",
-        "flights",
-        "google",
-        "prices"
-      ],
-      "status": "active",
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "SerpApi",
-        "url": "https://serpapi.com"
-      },
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/search",
-          "description": "Google Flights search",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Google Flights search",
-            "amount": "15000"
-          }
-        }
-      ]
-    },
-    {
       "id": "oxylabs",
       "name": "Oxylabs",
       "url": "https://realtime.oxylabs.io",
       "serviceUrl": "https://oxylabs.mpp.tempo.xyz",
-      "description": "Web scraping API with geo-targeting by country, state, and city. Fetch any public URL through Oxylabs infrastructure with JavaScript rendering support.",
+      "description": "Web scraping API with geo-targeting by country, state, and city. Fetch any public URL with JavaScript rendering support.",
       "categories": [
         "web",
         "data"
@@ -6441,7 +6392,6 @@
       ],
       "status": "active",
       "docs": {
-        "homepage": "https://developers.oxylabs.io",
         "apiReference": "https://developers.oxylabs.io/scraper-apis/web-scraper-api"
       },
       "methods": {
@@ -6469,9 +6419,8 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Web scraping request (dynamic pricing based on response size)",
-            "dynamic": true,
-            "amount": "1000"
+            "description": "Scrape a public URL with optional geo-targeting and JS rendering",
+            "dynamic": true
           }
         }
       ]
@@ -6630,6 +6579,55 @@
             "decimals": 6,
             "description": "Ranking history research",
             "amount": "30000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "serpapi",
+      "name": "SerpApi",
+      "url": "https://serpapi.com",
+      "serviceUrl": "https://serpapi.mpp.tempo.xyz",
+      "description": "Google Flights search — real-time prices, schedules, and booking options.",
+      "categories": [
+        "search",
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "search",
+        "flights",
+        "google",
+        "prices"
+      ],
+      "status": "active",
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "SerpApi",
+        "url": "https://serpapi.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/search",
+          "description": "Google Flights search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Google Flights search",
+            "amount": "15000"
           }
         }
       ]
