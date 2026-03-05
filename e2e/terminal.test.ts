@@ -69,17 +69,13 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent("types out lines and shows quickstart output", async () => {
+  it.concurrent("types out demo command and reaches wizard", async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
 
-    await playwrightExpect(
-      page.getByText("Read the docs:", { exact: false }),
-    ).toBeVisible({ timeout: 15_000 });
+    await waitForWizard(page);
 
-    await playwrightExpect(page.getByText("mpp.dev/llms.txt")).toBeVisible();
-    await playwrightExpect(page.getByText("mpp.dev/services")).toBeVisible();
-    await playwrightExpect(page.getByText("mpp.dev/overview")).toBeVisible();
+    await playwrightExpect(page.getByText("Chat with AI")).toBeVisible();
 
     await page.close();
   });
