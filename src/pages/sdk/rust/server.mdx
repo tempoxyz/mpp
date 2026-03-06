@@ -1,10 +1,8 @@
 # Server [Protect endpoints with payment requirements]
 
-Protect endpoints with payment requirements.
+Create an `Mpp` instance with `Mpp::create()` and call `charge()` with a human-readable dollar amount. The `tempo()` factory configures `recipient` once, then every `charge()` call uses those defaults.
 
 ## Quick start
-
-Create an `Mpp` instance with `Mpp::create()` and call `charge()` with a human-readable dollar amount. The `tempo()` factory creates a Tempo payment method—configure `recipient` once, then every `charge()` call uses those defaults.
 
 ```rust
 use mpp::server::{Mpp, tempo, TempoConfig};

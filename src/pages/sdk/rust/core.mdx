@@ -1,6 +1,6 @@
 # Core types [Challenge, Credential, and Receipt primitives]
 
-The SDK provides three core types that map directly to HTTP headers: `PaymentChallenge`, `PaymentCredential`, and `Receipt`.
+These types map directly to HTTP headers—`WWW-Authenticate`, `Authorization`, and `Payment-Receipt`—and can be used independently of the higher-level client and server APIs.
 
 ```rust
 use mpp::{PaymentChallenge, PaymentCredential, Receipt};
