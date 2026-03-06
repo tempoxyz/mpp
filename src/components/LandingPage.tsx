@@ -4,10 +4,28 @@ import { createContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "vocs";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
+import { ServiceDiscovery } from "./ServiceDiscovery";
 import { Terminal } from "./Terminal";
 
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
 const ACCENT = "var(--vocs-text-color-heading)";
-const ACCENT_MUTED = "light-dark(rgba(0,0,0,0.85), rgba(255,255,255,0.85))";
+
+const TERMINAL_STEPS = [
+  Terminal.commands(["./demo.sh"]),
+  Terminal.wizard([
+    Terminal.chat(),
+    Terminal.image(),
+    Terminal.search(),
+    Terminal.article(),
+  ]),
+];
+
+// ---------------------------------------------------------------------------
+// Context — shares active agent tab index across components
+// ---------------------------------------------------------------------------
 
 const AgentContext = createContext<{
   activeAgent: number;
@@ -15,7 +33,7 @@ const AgentContext = createContext<{
 }>({ activeAgent: 0, setActiveAgent: () => {} });
 
 // ---------------------------------------------------------------------------
-// Landing page
+// Landing page (exported)
 // ---------------------------------------------------------------------------
 
 export function LandingPage() {
@@ -25,212 +43,188 @@ export function LandingPage() {
   useEffect(() => {
     const onScroll = () => setScrolledPastHero(window.scrollY > 100);
     window.addEventListener("scroll", onScroll, { passive: true });
-
-    const nav = document.querySelector<HTMLElement>("[data-v-gutter-top]");
-    const saved: string[] = [];
-    if (nav) {
-      for (const cls of Array.from(nav.classList)) {
-        if (cls.includes("bg-")) {
-          saved.push(cls);
-          nav.classList.remove(cls);
-        }
-      }
-      nav.style.cssText +=
-        "; background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent 100%) !important; background-color: transparent !important;";
-    }
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (nav) {
-        for (const cls of saved) nav.classList.add(cls);
-        nav.style.removeProperty("background");
-        nav.style.removeProperty("background-color");
-        nav.style.removeProperty("background-image");
-      }
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
+      <NavBranding />
       <div
         className="not-prose landing-page"
         style={{
           color: ACCENT,
           fontFamily: "var(--font-copy)",
-          marginTop: "calc(var(--vocs-spacing-topNav) * -1) !important",
           userSelect: "none",
           WebkitUserSelect: "none",
         }}
       >
         <LandingStyles />
 
-        <NavLogoOverlay />
-
-        {/* Hero — two-column on desktop: title left, description+CTAs right */}
-        <div
-          className="landing-hero px-3 md:px-6"
-          style={{ maxWidth: 960, margin: "0 auto", width: "100%" }}
-        >
-          <div className="hero-layout">
-            {/* Left: title */}
-            <div className="hero-title">
-              <Lockup />
-            </div>
-
-            {/* Right: description + buttons, vertically justified to match title height */}
-            <div className="hero-right">
-              <Tagline />
-              <div
-                className="flex items-center gap-3 md:gap-4 landing-ctas"
-                style={{ marginTop: "12px" }}
-              >
-                <Link
-                  to="/quickstart/presto"
-                  className="no-underline! rounded-lg transition-opacity hover:opacity-80"
-                  style={{
-                    fontSize: "1.0625rem",
-                    fontWeight: 500,
-                    color: "var(--vocs-background-color-primary)",
-                    backgroundColor: ACCENT_MUTED,
-                    padding: "0.5rem 1.5rem",
-                  }}
-                  onClick={() =>
-                    captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
-                      cta_label: "Use with agents",
-                      href: "/quickstart/presto",
-                    })
-                  }
-                >
-                  Use with agents
-                </Link>
-                <Link
-                  to="/quickstart"
-                  className="no-underline! rounded-lg server-cta"
-                  style={{
-                    fontSize: "1.0625rem",
-                    fontWeight: 500,
-                    color: "var(--vocs-text-color-heading)",
-                    backgroundColor:
-                      "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
-                    border: "1px solid var(--vocs-border-color-primary)",
-                    transition: "background-color 0.15s, border-color 0.15s",
-                    padding: "0.5rem 1.5rem",
-                  }}
-                  onClick={() =>
-                    captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
-                      cta_label: "Install to server",
-                      href: "/quickstart",
-                    })
-                  }
-                >
-                  Install to server
-                </Link>
-              </div>
+        {/* First screen: hero + terminal centered in viewport */}
+        <div className="landing-hero-screen">
+          <Hero />
+          <div className="landing-terminal">
+            <div
+              style={{
+                height: 540,
+                width: "100%",
+                maxWidth: 960,
+                position: "relative",
+              }}
+            >
+              <Terminal className="absolute inset-0" steps={TERMINAL_STEPS} />
             </div>
           </div>
-          <div className="designed-by-mobile" style={{ display: "none" }}>
-            <DesignedBy />
-          </div>
-        </div>
-
-        {/* Terminal — explicit height, snaps when it overflows */}
-        <div className="landing-terminal px-3 md:px-6">
           <div
+            className="landing-top-fade"
             style={{
-              height: "clamp(320px, 55vh, 540px)",
-              width: "100%",
-              maxWidth: 960,
-              position: "relative",
+              opacity: scrolledPastHero ? 1 : 0,
+              transition: "opacity 0.3s",
             }}
-          >
-            <Terminal className="absolute inset-0" />
-          </div>
+          />
+          <div
+            className="landing-bottom-fade"
+            style={{
+              opacity: scrolledPastHero ? 0 : 1,
+              transition: "opacity 0.3s",
+            }}
+          />
         </div>
 
-        {/* Fade overlays — only visible at short viewports via CSS */}
-        <div
-          className="landing-top-fade"
-          style={{
-            opacity: scrolledPastHero ? 1 : 0,
-            transition: "opacity 0.3s",
-          }}
-        />
-        <div
-          className="landing-bottom-fade"
-          style={{
-            opacity: scrolledPastHero ? 0 : 1,
-            transition: "opacity 0.3s",
-          }}
-        />
+        {/* Second screen: service discovery */}
+        <div className="landing-discovery">
+          <ServiceDiscovery />
+        </div>
       </div>
     </AgentContext.Provider>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Scoped styles
+// Scoped styles injected into the page
 // ---------------------------------------------------------------------------
 
 function LandingStyles() {
   return (
     <style>{`
-      [data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
-      html, body { overflow: hidden !important; height: 100dvh !important; }
-      [data-v-main] { padding: 0 !important; margin: 0 !important; overflow: hidden !important; height: 100dvh !important; }
-      [data-v-main] article[data-v-content] { padding: 0 !important; margin: 0 !important; max-width: none !important; overflow: hidden !important; }
+      [data-v-logo] > :not([data-nav-branding]) { display: none !important; }
+      html, body { scroll-behavior: smooth; }
+      [data-v-main] { padding: 0 !important; margin: 0 !important; }
+      [data-v-main] article[data-v-content] { padding: 0 !important; margin: 0 !important; max-width: none !important; }
       [data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
       [data-v-gutter-top] { position: sticky !important; top: 0 !important; z-index: 100 !important; user-select: none !important; -webkit-user-select: none !important; }
 
-      /* Flex column fills remaining viewport below nav */
       .landing-page {
+        height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
+        overflow-y: auto;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+        margin-top: 0 !important;
+      }
+
+      .landing-hero-screen {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
-        overflow: hidden;
-        row-gap: clamp(2rem, 4vh, 4rem);
+        height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 80px);
+        overflow: visible;
+        scroll-snap-align: start;
+        flex-shrink: 0;
+        gap: clamp(1.5rem, 3vh, 3rem);
+        padding: clamp(1rem, 3vh, 2rem) 0;
+        position: relative;
       }
-      .landing-hero { flex-shrink: 0; margin-top: clamp(2rem, 6vh, 5rem); }
 
-      /* Two-column hero: title left, description+CTAs right */
-      .hero-layout {
+      /* Hero two-column row */
+      .hero-row {
         display: flex;
-        gap: 2.5rem;
-        align-items: stretch;
+        align-items: center;
+        gap: clamp(2rem, 4vw, 4rem);
       }
-      .hero-title { flex-shrink: 0; }
+      .hero-left { flex-shrink: 0; }
       .hero-right {
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        gap: 0.75rem;
-        padding: 0.25rem 0;
-        margin-top: 10px;
+        gap: 0.25rem;
       }
 
-      /* Mobile: stack vertically, fix sizing and order */
-      @media (max-width: 767px) {
-        .hero-layout { flex-direction: column; gap: 0; }
-        .hero-right { gap: 0; margin-top: 0 !important; padding: 0 !important; }
-        .hero-title span { font-size: clamp(2.25rem, 7vw, 3.5rem) !important; }
-        .hero-title span span:first-child { font-size: clamp(4rem, 18vw, 7rem) !important; margin-left: -4px !important; line-height: 0.85 !important; }
-        .lockup-subtitle { text-align: left !important; text-align-last: auto !important; margin-top: 0.25rem !important; letter-spacing: 0.04em !important; }
-        .hero-right .text-base { font-size: 1.125rem !important; line-height: 1.6 !important; margin-top: 1.5rem !important; }
-        .landing-terminal { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
-        .landing-hero { padding: 5.5rem 1.5rem 0 !important; margin-top: 0 !important; }
-        .landing-page { row-gap: 1.5rem !important; }
-        .landing-ctas { margin-top: 2rem !important; gap: 1rem !important; }
-        .landing-ctas a { font-size: 1.0625rem !important; padding: 0.75rem 1.75rem !important; }
-        .designed-by-mobile { display: block !important; margin-top: 2.5rem; }
-        .NavLogoOverlay-wrap { display: none !important; }
-        [data-v-logo] { visibility: visible !important; width: auto !important; overflow: visible !important; }
-      }
-      .landing-terminal { flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+      .landing-hero { flex-shrink: 0; }
+      .landing-terminal { flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding-left: 0.75rem; padding-right: 0.75rem; }
+      @media (min-width: 768px) { .landing-terminal { padding-left: 1.5rem; padding-right: 1.5rem; } }
+      .term-wizard-list { padding-left: 1rem; }
       .landing-top-fade, .landing-bottom-fade { display: none; }
 
-      /* Short viewport: terminal overflows, activate snap scroll */
-      @media (max-height: 920px) {
-        .landing-page {
-          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
+      .landing-discovery {
+        scroll-snap-align: start;
+        height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+
+      /* Mobile + Tablet: stack hero columns */
+      @media (max-width: 1079px) {
+        .hero-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        .hero-left h1 { line-height: 0.95 !important; }
+        .landing-hero { padding-top: calc(var(--vocs-spacing-topNav, 56px) + 1rem); padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
+        .landing-terminal { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
+        .landing-ctas {
+          margin-top: 1.25rem !important;
+        }
+        .hero-right .text-base { font-size: 1.0625rem !important; line-height: 1.65 !important; }
+      }
+
+      /* Mobile-only */
+      @media (max-width: 767px) {
+        [data-v-gutter-top] {
+          background: var(--vocs-background-color-primary) !important;
+          background-color: var(--vocs-background-color-primary) !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          border-bottom: none !important;
+          box-shadow: none !important;
+        }
+        .landing-terminal > div { max-height: 420px !important; }
+        .landing-ctas a {
+          font-size: 1rem !important;
+          padding: 0.7rem 1.5rem !important;
+        }
+        [data-terminal] { font-size: 0.9375rem !important; }
+        [data-terminal] p,
+        [data-terminal] .text-sm,
+        [data-terminal] .font-mono { font-size: inherit !important; }
+        .term-wizard-list { padding-left: 0 !important; }
+        .term-wizard-btn {
+          display: block !important;
+          width: 100% !important;
+          padding: 0.5rem 0.75rem !important;
+          margin: 0.2rem 0 !important;
+          border: 1px solid var(--term-gray4) !important;
+          border-radius: 6px !important;
+          line-height: 1.5 !important;
+        }
+      }
+
+      /* Tablet */
+      @media (min-width: 768px) and (max-width: 1079px) {
+        .landing-hero-screen { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
+        .landing-terminal > div { max-width: 720px !important; }
+      }
+
+      /* Desktop */
+      @media (min-width: 1080px) {
+        .landing-hero-screen {
+          padding-left: clamp(3rem, 6vw, 6rem);
+          padding-right: clamp(3rem, 6vw, 6rem);
+        }
+        .landing-terminal > div {
+          max-width: 960px !important;
+        }
+      }
+
+      /* Short + narrow viewport: snap scroll */
+      @media (max-width: 1079px) and (max-height: 920px) {
+        .landing-hero-screen {
+          min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
           overflow-y: auto !important;
           scroll-snap-type: y mandatory !important;
           scroll-behavior: smooth !important;
@@ -238,91 +232,180 @@ function LandingStyles() {
         }
         .landing-hero { scroll-snap-align: start; padding-top: clamp(4rem, 10vh, 7rem); }
         .landing-terminal {
-          min-height: calc(100dvh - var(--vocs-spacing-topNav, 64px));
           scroll-snap-align: start;
           padding-bottom: 128px;
           padding-top: 0;
         }
-
         .landing-top-fade, .landing-bottom-fade { display: block; }
-
-        /* Top fade — dissolves hero when snapped to terminal */
         .landing-top-fade {
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          height: 140px;
+          position: fixed; top: 0; left: 0; right: 0; height: 140px;
           background: linear-gradient(to bottom, var(--vocs-background-color-primary) 0%, oklch(from var(--vocs-background-color-primary) l c h / 0.85) 40%, transparent 100%);
-          pointer-events: none;
-          z-index: 48;
+          pointer-events: none; z-index: 48;
         }
-
-        /* Bottom fade — fades the terminal peek */
         .landing-bottom-fade {
-          position: fixed;
-          bottom: 0; left: 0; right: 0;
-          height: 120px;
+          position: fixed; bottom: 0; left: 0; right: 0; height: 120px;
           background: linear-gradient(to top, var(--vocs-background-color-primary) 0%, oklch(from var(--vocs-background-color-primary) l c h / 0.8) 30%, transparent 100%);
-          pointer-events: none;
-          z-index: 49;
+          pointer-events: none; z-index: 49;
         }
       }
 
-      .server-cta:hover {
-        background-color: light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.10)) !important;
-        border-color: light-dark(rgba(0,0,0,0.18), rgba(255,255,255,0.18)) !important;
-      }
-
-      [data-v-gutter-top][data-v-gutter-top][data-v-gutter-top],
-      [data-v-gutter-top][data-v-gutter-top][data-v-gutter-top] * {
-        background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent 100%) !important;
-        background-color: transparent !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        border-bottom: none !important;
-        box-shadow: none !important;
-      }
-
-      @media (max-width: 767px) {
-        [data-terminal] p,
-        [data-terminal] .text-sm,
-        [data-terminal] .font-mono { font-size: inherit !important; }
+      @media (min-width: 768px) {
+        [data-v-gutter-top] {
+          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent 100%) !important;
+          background-color: transparent !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          border-bottom: none !important;
+          box-shadow: none !important;
+        }
       }
     `}</style>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Nav logo overlay — portals to body to escape stacking contexts
+// Nav branding — injects "Designed by Tempo × Stripe" into the navbar logo slot
 // ---------------------------------------------------------------------------
 
-function NavLogoOverlay() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
+function NavBranding() {
+  const [target, setTarget] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const logo = document.querySelector<HTMLElement>("[data-v-logo]");
+    if (!logo) return;
+
+    logo.removeAttribute("href");
+    logo.style.setProperty("display", "flex", "important");
+    logo.style.setProperty("visibility", "visible", "important");
+    logo.style.setProperty("width", "auto", "important");
+    logo.style.setProperty("overflow", "visible", "important");
+    logo.style.setProperty("align-items", "center");
+    logo.style.setProperty("gap", "0.5rem");
+    logo.style.setProperty("text-decoration", "none");
+    logo.style.setProperty("cursor", "default");
+
+    setTarget(logo);
+  }, []);
+
+  if (!target) return null;
+
   return createPortal(
     <div
-      className="NavLogoOverlay-wrap"
+      data-nav-branding=""
+      className="flex items-center gap-2"
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        height: "var(--vocs-spacing-topNav, 64px)",
-        display: "flex",
-        alignItems: "center",
-        paddingLeft: "1.25rem",
-        paddingTop: 2,
-        zIndex: 9999,
-        pointerEvents: "auto",
+        color: "var(--vocs-text-color-muted)",
+        whiteSpace: "nowrap",
       }}
     >
-      <DesignedBy />
+      <span
+        className="text-[10px] tracking-widest uppercase"
+        style={{ fontFamily: 'var(--font-mono, "Geist Mono", monospace)' }}
+      >
+        Designed by
+      </span>
+      <a
+        href="https://tempo.xyz"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="no-underline transition-colors flex items-center"
+        style={{ color: "inherit" }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = ACCENT;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "inherit";
+        }}
+      >
+        <TempoLogo />
+      </a>
+      <span style={{ fontSize: "0.625rem" }}>×</span>
+      <a
+        href="https://stripe.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="no-underline transition-colors flex items-center"
+        style={{ color: "inherit" }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = "#635BFF";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "inherit";
+        }}
+      >
+        <StripeLogo />
+      </a>
     </div>,
-    document.body,
+    target,
   );
 }
 
 // ---------------------------------------------------------------------------
-// Tagline
+// Hero section
+// ---------------------------------------------------------------------------
+
+function Hero() {
+  return (
+    <section
+      className="landing-hero px-3 md:px-6"
+      style={{ position: "relative", zIndex: 2 }}
+    >
+      <div
+        className="hero-row"
+        style={{ maxWidth: 960, margin: "0 auto", width: "100%" }}
+      >
+        <div className="hero-left">
+          <Lockup />
+        </div>
+        <div className="hero-right">
+          <Tagline />
+          <div className="flex items-center gap-4 mt-4 landing-ctas">
+            <Link
+              to="/quickstart/agent"
+              className="no-underline! px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
+              style={{
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                color: "var(--vocs-background-color-primary)",
+                backgroundColor: ACCENT,
+              }}
+              onClick={() =>
+                captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
+                  cta_label: "Use with your agent",
+                  href: "/quickstart/agent",
+                })
+              }
+            >
+              Use with your agent
+            </Link>
+            <Link
+              to="/quickstart/server"
+              className="no-underline! px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
+              style={{
+                fontSize: "0.9375rem",
+                fontWeight: 500,
+                color: "var(--vocs-text-color-heading)",
+                backgroundColor: "transparent",
+                border: "1px solid var(--vocs-border-color-primary)",
+              }}
+              onClick={() =>
+                captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
+                  cta_label: "Monetize your service",
+                  href: "/quickstart/server",
+                })
+              }
+            >
+              Monetize your service
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Tagline — extracted to avoid JSX whitespace indent issues
 // ---------------------------------------------------------------------------
 
 function Tagline() {
@@ -404,80 +487,26 @@ function StripeLogo() {
 }
 
 // ---------------------------------------------------------------------------
-// Designed by
-// ---------------------------------------------------------------------------
-
-function DesignedBy() {
-  return (
-    <div
-      className="flex items-center gap-3"
-      style={{ color: "var(--vocs-text-color-muted)" }}
-    >
-      <span className="text-sm">Designed by</span>
-      <a
-        href="https://tempo.xyz"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="no-underline transition-colors flex items-center"
-        style={{ color: "inherit" }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = ACCENT)}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-      >
-        <TempoLogo />
-      </a>
-      <span className="text-base">×</span>
-      <a
-        href="https://stripe.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="no-underline transition-colors flex items-center"
-        style={{ color: "inherit" }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#635BFF")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
-      >
-        <StripeLogo />
-      </a>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Lockup wordmark
 // ---------------------------------------------------------------------------
 
 function Lockup() {
   return (
-    <span
+    <h1
       style={{
         color: ACCENT,
-        fontFamily: '"VTC Du Bois", "Geist Mono", monospace',
-        fontSize: "clamp(2rem, 5vw, 3rem)",
-        letterSpacing: "-0.02em",
-        lineHeight: 1,
+        fontFamily: '"Chicago Kare", "Geist Mono", monospace',
+        fontWeight: 400,
+        letterSpacing: "0.02em",
+        lineHeight: 1.05,
         margin: 0,
         textTransform: "uppercase" as const,
-        width: "fit-content",
       }}
     >
-      <span
-        style={{
-          fontSize: "clamp(.5rem, 12vw, 7.5rem)",
-          display: "block",
-          marginLeft: "-4px",
-        }}
-      >
-        Machine
-      </span>
-      <span
-        className="lockup-subtitle"
-        style={{
-          display: "block",
-          textAlign: "justify",
-          textAlignLast: "justify",
-        }}
-      >
+      <span style={{ fontSize: "5rem", display: "block" }}>Machine</span>
+      <span style={{ fontSize: "3.25rem", display: "block" }}>
         Payments Protocol
       </span>
-    </span>
+    </h1>
   );
 }
