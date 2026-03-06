@@ -1125,6 +1125,13 @@ function CardForm({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      if (field === "number" && !cardNumber.trim()) setCardNumber(defaultCardNumber);
+      else if (field === "expiry" && !expiry.trim()) setExpiry(defaultExpiry);
+      else if (field === "cvc" && !cvc.trim()) setCvc(defaultCvc);
+      return;
+    }
     if (e.key !== "Enter") return;
     if (field === "number") {
       if (!cardNumber.trim()) {
