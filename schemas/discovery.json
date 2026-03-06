@@ -1295,12 +1295,12 @@
           "path": "/v2/droplets",
           "description": "List all Droplets",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "amount": "100",
-            "description": "List Droplets"
+            "description": "List all Droplets",
+            "amount": "100"
           },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fdroplets"
         },
@@ -1309,12 +1309,12 @@
           "path": "/v2/droplets/:id",
           "description": "Get Droplet details",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "amount": "100",
-            "description": "Get a Droplet"
+            "description": "Get Droplet details",
+            "amount": "100"
           },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fdroplets%2F%3Aid"
         },
@@ -1365,12 +1365,12 @@
           "path": "/v2/account/keys",
           "description": "List all SSH keys",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "amount": "100",
-            "description": "List SSH keys"
+            "description": "List all SSH keys",
+            "amount": "100"
           },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Faccount%2Fkeys"
         },
@@ -1379,12 +1379,12 @@
           "path": "/v2/account/keys/:id",
           "description": "Get SSH key details",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "amount": "100",
-            "description": "Get an SSH key"
+            "description": "Get SSH key details",
+            "amount": "100"
           },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Faccount%2Fkeys%2F%3Aid"
         },
@@ -1393,12 +1393,12 @@
           "path": "/v2/account/keys/:id",
           "description": "Delete an SSH key",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "amount": "100",
-            "description": "Delete an SSH key"
+            "description": "Delete an SSH key",
+            "amount": "100"
           },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=DELETE%20%2Fv2%2Faccount%2Fkeys%2F%3Aid"
         },
@@ -2176,12 +2176,12 @@
           "path": "/sandbox/exec",
           "description": "Execute command in sandbox",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "amount": "100",
-            "description": "Execute in a sandbox"
+            "description": "Execute command in sandbox",
+            "amount": "100"
           },
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fexec"
         },
@@ -2190,12 +2190,12 @@
           "path": "/sandbox/status",
           "description": "Get sandbox status",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "amount": "100",
-            "description": "Get sandbox status"
+            "description": "Get sandbox status",
+            "amount": "100"
           },
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fstatus"
         },
@@ -2204,12 +2204,12 @@
           "path": "/sandbox/terminate",
           "description": "Terminate a sandbox",
           "payment": {
-            "intent": "charge",
+            "intent": "session",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "amount": "100",
-            "description": "Terminate a sandbox"
+            "description": "Terminate a sandbox",
+            "amount": "100"
           },
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fterminate"
         }

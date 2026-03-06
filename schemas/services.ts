@@ -572,8 +572,8 @@ export const services: ServiceDef[] = [
     docsBase: "https://context7.com/websites/digitalocean/llms.txt",
     endpoints: [
       { route: "POST /v2/droplets", desc: "Create a Droplet", dynamic: true },
-      { route: "GET /v2/droplets", desc: "List all Droplets" },
-      { route: "GET /v2/droplets/:id", desc: "Get Droplet details" },
+      { route: "GET /v2/droplets", desc: "List all Droplets", amount: "100" },
+      { route: "GET /v2/droplets/:id", desc: "Get Droplet details", amount: "100" },
       {
         route: "DELETE /v2/droplets/:id",
         desc: "Delete a Droplet",
@@ -585,9 +585,9 @@ export const services: ServiceDef[] = [
         dynamic: true,
       },
       { route: "POST /v2/account/keys", desc: "Add an SSH key", dynamic: true },
-      { route: "GET /v2/account/keys", desc: "List all SSH keys" },
-      { route: "GET /v2/account/keys/:id", desc: "Get SSH key details" },
-      { route: "DELETE /v2/account/keys/:id", desc: "Delete an SSH key" },
+      { route: "GET /v2/account/keys", desc: "List all SSH keys", amount: "100" },
+      { route: "GET /v2/account/keys/:id", desc: "Get SSH key details", amount: "100" },
+      { route: "DELETE /v2/account/keys/:id", desc: "Delete an SSH key", amount: "100" },
       { route: "GET /v2/regions", desc: "List available regions" },
       { route: "GET /v2/sizes", desc: "List available Droplet sizes" },
       { route: "GET /v2/images", desc: "List available images" },
@@ -890,9 +890,9 @@ export const services: ServiceDef[] = [
         desc: "Create a sandbox for code execution",
         dynamic: true,
       },
-      { route: "POST /sandbox/exec", desc: "Execute command in sandbox" },
-      { route: "POST /sandbox/status", desc: "Get sandbox status" },
-      { route: "POST /sandbox/terminate", desc: "Terminate a sandbox" },
+      { route: "POST /sandbox/exec", desc: "Execute command in sandbox", amount: "100" },
+      { route: "POST /sandbox/status", desc: "Get sandbox status", amount: "100" },
+      { route: "POST /sandbox/terminate", desc: "Terminate a sandbox", amount: "100" },
     ],
   },
 
@@ -1109,16 +1109,16 @@ export const services: ServiceDef[] = [
         desc: "Look up a single tweet",
         amount: "5000",
       },
-      { route: "POST /2/tweets", desc: "Create a new tweet", amount: "5000" },
+      { route: "POST /2/tweets", desc: "Create a new tweet", amount: "10000" },
       {
         route: "GET /2/users/:id",
         desc: "Look up a user by ID",
-        amount: "5000",
+        amount: "10000",
       },
       {
         route: "GET /2/users/by/username/:username",
         desc: "Look up user by username",
-        amount: "5000",
+        amount: "10000",
       },
       {
         route: "GET /2/tweets/search/recent",
@@ -2483,85 +2483,6 @@ export const services: ServiceDef[] = [
         route: "GET /trackbyroute/:rest*",
         desc: "Track flights between airports",
         amount: "2000",
-      },
-    ],
-  },
-
-  // ── FlightAware AeroAPI ────────────────────────────────────────────────
-  {
-    id: "flightaware",
-    name: "FlightAware AeroAPI",
-    url: "https://aeroapi.flightaware.com",
-    serviceUrl: `https://flightaware.${MPP_REALM}`,
-    description:
-      "On-demand flight tracking, airport activity, and aviation data.",
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["flights", "tracking", "airports", "aviation"],
-    provider: { name: "FlightAware", url: "https://www.flightaware.com" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "GET /aeroapi/airports/:id",
-        desc: "Airport info",
-        amount: "10000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights",
-        desc: "Airport flights",
-        amount: "10000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights/arrivals",
-        desc: "Airport arrivals",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights/departures",
-        desc: "Airport departures",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights/scheduled_arrivals",
-        desc: "Scheduled arrivals",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights/scheduled_departures",
-        desc: "Scheduled departures",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/flights/:id/map",
-        desc: "Flight map image",
-        amount: "10000",
-      },
-      {
-        route: "GET /aeroapi/flights/:id/track",
-        desc: "Flight track positions",
-        amount: "30000",
-      },
-      {
-        route: "GET /aeroapi/flights/:ident",
-        desc: "Flight lookup by ident",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/operators/:id",
-        desc: "Operator info",
-        amount: "15000",
-      },
-      {
-        route: "GET /aeroapi/operators/:id/flights",
-        desc: "Operator flights",
-        amount: "30000",
-      },
-      {
-        route: "GET /aeroapi/schedules/:start/:end",
-        desc: "Flight schedules",
-        amount: "20000",
       },
     ],
   },

@@ -1696,7 +1696,10 @@ function Wizard({
         e.preventDefault();
         setSelected((s) => (s + 1) % currentItems.length);
       } else if (e.key === "Tab") {
-        if (terminal?.contains(document.activeElement) || document.activeElement === document.body) {
+        if (
+          terminal?.contains(document.activeElement) ||
+          document.activeElement === document.body
+        ) {
           e.preventDefault();
           confirm();
         }
@@ -2136,7 +2139,10 @@ function GalleryStep({
           e.preventDefault();
           setSelected((s) => (s + 1) % pickerItems.length);
         } else if (e.key === "Tab") {
-          if (terminal?.contains(document.activeElement) || document.activeElement === document.body) {
+          if (
+            terminal?.contains(document.activeElement) ||
+            document.activeElement === document.body
+          ) {
             e.preventDefault();
             const item = pickerItems[selected];
             if (item.value === "done") {
