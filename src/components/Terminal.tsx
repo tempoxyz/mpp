@@ -136,7 +136,13 @@ function PhotoOutput({ url }: { url: string }) {
   );
 }
 
-function GalleryThumb({ url, animate = true }: { url: string; animate?: boolean }) {
+function GalleryThumb({
+  url,
+  animate = true,
+}: {
+  url: string;
+  animate?: boolean;
+}) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -1142,7 +1148,8 @@ function CardForm({
     }
     if (e.key === "Tab") {
       e.preventDefault();
-      if (field === "number" && !cardNumber.trim()) setCardNumber(defaultCardNumber);
+      if (field === "number" && !cardNumber.trim())
+        setCardNumber(defaultCardNumber);
       else if (field === "expiry" && !expiry.trim()) setExpiry(defaultExpiry);
       else if (field === "cvc" && !cvc.trim()) setCvc(defaultCvc);
       return;
@@ -1757,7 +1764,7 @@ function Wizard({
           onCardSaved={setSavedCard}
           demoClient={isActive ? demoClient : undefined}
           onContentReceived={isActive ? handleContentReceived : undefined}
-          onCancel={isActive ? () => setChosen(null) : undefined}
+          onCancel={isActive ? () => { setChosen(null); setChosenUrl(undefined); } : undefined}
         />
       );
     }
