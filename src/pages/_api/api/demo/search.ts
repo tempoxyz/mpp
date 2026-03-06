@@ -82,7 +82,7 @@ export async function GET(request: Request) {
 
   if (!proxyFetch && query) {
     console.warn(
-      `[demo/search] Parallel Search unavailable for query=\"${query}\": set FEE_PAYER_PRIVATE_KEY to enable paid search.`,
+      `[demo/search] Parallel Search unavailable for query="${query}": set FEE_PAYER_PRIVATE_KEY to enable paid search.`,
     );
   }
 
@@ -128,17 +128,17 @@ export async function GET(request: Request) {
           return result.withReceipt(Response.json({ lines }));
         }
         console.warn(
-          `[demo/search] Parallel Search returned no results for query=\"${query}\"`,
+          `[demo/search] Parallel Search returned no results for query="${query}"`,
         );
       } else {
         const body = await res.text();
         console.error(
-          `[demo/search] Parallel Search failed (${res.status} ${res.statusText}) for query=\"${query}\": ${body.slice(0, 500)}`,
+          `[demo/search] Parallel Search failed (${res.status} ${res.statusText}) for query="${query}": ${body.slice(0, 500)}`,
         );
       }
     } catch (e) {
       console.error(
-        `[demo/search] mpp-proxy Parallel Search error for query=\"${query}\":`,
+        `[demo/search] mpp-proxy Parallel Search error for query="${query}":`,
         e,
       );
     }

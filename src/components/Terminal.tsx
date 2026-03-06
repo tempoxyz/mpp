@@ -97,7 +97,6 @@ function CssTriangle() {
 }
 
 const SUMMARY_LABEL_WIDTH = "5.5em";
-const QUICKSTART_LABEL_WIDTH = "13em";
 
 function BlankLine() {
   return <div className="h-6" />;
@@ -107,10 +106,7 @@ function PhotoOutput({ url }: { url: string }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="block relative rounded overflow-hidden"
       style={{
         width: 200,
@@ -136,18 +132,21 @@ function PhotoOutput({ url }: { url: string }) {
           opacity: loaded ? 1 : 0,
         }}
       />
-    </a>
+    </div>
   );
 }
 
-function GalleryThumb({ url }: { url: string }) {
+function GalleryThumb({
+  url,
+  animate = true,
+}: {
+  url: string;
+  animate?: boolean;
+}) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="block relative rounded overflow-hidden"
       style={{
         width: 80,
@@ -169,25 +168,27 @@ function GalleryThumb({ url }: { url: string }) {
         onLoad={() => setLoaded(true)}
         className="absolute inset-0 w-full h-full object-cover"
         style={{
-          transition: "opacity 0.5s",
+          transition: animate ? "opacity 0.5s" : undefined,
           opacity: loaded ? 1 : 0,
         }}
       />
-    </a>
+    </div>
   );
 }
 
 function GalleryGrid({
   urls,
   loading = false,
+  animate = true,
 }: {
   urls: string[];
   loading?: boolean;
+  animate?: boolean;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
       {urls.map((url) => (
-        <GalleryThumb key={url} url={url} />
+        <GalleryThumb key={url} url={url} animate={animate} />
       ))}
       {loading && (
         <div
@@ -279,37 +280,6 @@ function renderText(text: string): ReactNode {
       </a>
     );
   });
-}
-
-// ---------------------------------------------------------------------------
-// Quickstart output (shown after `cat quickstart.txt`)
-// ---------------------------------------------------------------------------
-
-function QuickstartOutput() {
-  const rows = [
-    { label: "Connect your agent:", value: "mpp.dev/llms.txt" },
-    { label: "Discover services:", value: "mpp.dev/services" },
-    { label: "Read the docs:", value: "mpp.dev/overview" },
-  ];
-  return (
-    <div className="flex flex-col">
-      {rows.map((row) => (
-        <p key={row.label} style={{ color: "var(--term-gray6)" }}>
-          {"  "}
-          <span
-            style={{
-              display: "inline-block",
-              width: QUICKSTART_LABEL_WIDTH,
-            }}
-          >
-            {row.label}
-          </span>
-          {renderText(row.value)}
-        </p>
-      ))}
-      <BlankLine />
-    </div>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -1122,6 +1092,10 @@ function CardForm({
   completed?: boolean;
   savedCard?: SavedCard;
 }) {
+  const defaultCardNumber = "4242 4242 4242 4242";
+  const defaultExpiry = "12/34";
+  const defaultCvc = "123";
+
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
@@ -1138,6 +1112,11 @@ function CardForm({
     if (field !== "done") inputRef.current?.focus();
   }, [field]);
 
+  const applyTestCard = () => {
+    setField("done");
+    onSubmit({ last4: "4242", expiry: defaultExpiry });
+  };
+
   if (savedCard) {
     return (
       <div style={{ paddingLeft: "2ch" }}>
@@ -1153,12 +1132,23 @@ function CardForm({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== "Enter") return;
-    if (field === "number" && cardNumber.trim()) setField("expiry");
-    else if (field === "expiry" && expiry.trim()) setField("cvc");
-    else if (field === "cvc" && cvc.trim()) {
+    if (field === "number") {
+      if (!cardNumber.trim()) {
+        applyTestCard();
+        return;
+      }
+      setField("expiry");
+    } else if (field === "expiry") {
+      if (!expiry.trim()) setExpiry(defaultExpiry);
+      setField("cvc");
+    } else if (field === "cvc") {
+      const resolvedExpiry = expiry.trim() || defaultExpiry;
+      const resolvedCvc = cvc.trim() || defaultCvc;
+      if (!expiry.trim()) setExpiry(resolvedExpiry);
+      if (!cvc.trim()) setCvc(resolvedCvc);
       setField("done");
       const last4 = cardNumber.replace(/\s/g, "").slice(-4);
-      onSubmit({ last4, expiry });
+      onSubmit({ last4, expiry: resolvedExpiry });
     }
   };
 
@@ -1167,11 +1157,6 @@ function CardForm({
   const maskedNumber = `•••• •••• •••• ${last4 || "••••"}`;
   const displayExpiry = expiry;
   const maskedCvc = "•••";
-
-  const useTestCard = () => {
-    setField("done");
-    onSubmit({ last4: "4242", expiry: "12/34" });
-  };
 
   return (
     <div className="flex flex-col" style={{ paddingLeft: "2ch" }}>
@@ -1187,25 +1172,25 @@ function CardForm({
               onKeyDown={handleKeyDown}
               className="term-url-input bg-transparent outline-none"
               style={{ color: "var(--term-gray10)" }}
-              placeholder="4242 4242 4242 4242"
+              placeholder={defaultCardNumber}
               autoComplete="off"
               data-1p-ignore
             />{" "}
             <button
               type="button"
-              onClick={useTestCard}
-              className="cursor-pointer hover:underline"
-              style={{ color: "#635BFF" }}
-            >
-              [use test card]
-            </button>{" "}
-            <button
-              type="button"
-              onClick={useTestCard}
+              onClick={applyTestCard}
               className="cursor-pointer hover:underline"
               style={{ color: "#00D66F" }}
             >
               [use link]
+            </button>{" "}
+            <button
+              type="button"
+              onClick={applyTestCard}
+              className="cursor-pointer hover:underline"
+              style={{ color: "#635BFF" }}
+            >
+              [use test card]
             </button>
           </>
         ) : (
@@ -1657,12 +1642,17 @@ function Wizard({
   };
 
   const submitUrl = () => {
-    if (!urlInput.trim()) return;
     const step = currentItems[selected] as PaymentStepConfig;
+    const defaultInput = step.prompt?.placeholder?.trim() ?? "";
+    const resolvedInput = urlInput.trim() || defaultInput;
+    if (!resolvedInput) return;
     if (step.pickOutput) setChosenOutput(step.pickOutput());
     const prefix = step.prompt?.prefix ?? "";
-    const trimmed = urlInput.trim();
-    setChosenUrl(trimmed.startsWith(prefix) ? trimmed : `${prefix}${trimmed}`);
+    setChosenUrl(
+      resolvedInput.startsWith(prefix)
+        ? resolvedInput
+        : `${prefix}${resolvedInput}`,
+    );
     setWaitingForUrl(false);
     setChosen(step);
     scrollTerminalIntoView();
@@ -2283,7 +2273,7 @@ function GalleryStep({
             {i > 0 && <p style={{ color: "var(--term-gray6)" }}>{"  "}Done</p>}
           </div>
           <BlankLine />
-          <GalleryGrid urls={run.urls} />
+          <GalleryGrid urls={run.urls} animate={false} />
           {/* biome-ignore format: contains unicode ✔︎ */}
           <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
             <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
@@ -2643,13 +2633,9 @@ function TerminalComponent({
     const scrollEl = scrollRef.current;
     const contentEl = contentRef.current;
     if (!scrollEl || !contentEl) return;
-    const LINE_HEIGHT = 24; // 1.5rem at 16px base
     const observer = new ResizeObserver(() => {
       if (!autoScrollRef.current) return;
-      const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
-      // Snap to line boundary so topmost visible line is never cut off
-      const snapped = Math.ceil(maxScroll / LINE_HEIGHT) * LINE_HEIGHT;
-      scrollEl.scrollTop = snapped;
+      scrollEl.scrollTop = scrollEl.scrollHeight - scrollEl.clientHeight;
     });
     observer.observe(contentEl);
     return () => observer.disconnect();
@@ -2700,7 +2686,7 @@ function TerminalComponent({
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem] md:overscroll-contain"
           style={{
             backgroundColor: "var(--term-bg2)",
           }}
@@ -2794,7 +2780,6 @@ function TerminalComponent({
                         }}
                       />
                     </p>
-                    {i === 0 && lineIndex > 0 && <QuickstartOutput />}
                   </Fragment>
                 );
               })}

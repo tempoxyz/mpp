@@ -118,7 +118,7 @@ export const services: ServiceDef[] = [
     description:
       "Email inboxes for AI agents — create, send, receive, and manage email programmatically.",
     categories: ["ai", "social"],
-    integration: "third-party",
+    integration: "first-party",
     tags: ["email", "inbox", "agents", "messaging"],
     docs: {
       homepage: "https://docs.agentmail.to",
@@ -991,7 +991,7 @@ export const services: ServiceDef[] = [
     description:
       "Web search, page extraction, and web-grounded chat completions.",
     categories: ["search", "ai"],
-    integration: "third-party",
+    integration: "first-party",
     tags: ["search", "web", "extraction", "chat"],
     docs: { llmsTxt: "https://parallel.ai/llms.txt" },
     provider: { name: "Parallel", url: "https://parallel.ai" },
@@ -1449,6 +1449,387 @@ export const services: ServiceDef[] = [
         route: "POST /api/influencer/enrich-by-social",
         desc: "Enrich social media profile with contact info",
         amount: "400000",
+      },
+    ],
+  },
+
+  // ── StableTravel ─────────────────────────────────────────────────────
+  {
+    id: "stabletravel",
+    name: "StableTravel",
+    url: "https://stabletravel.dev",
+    serviceUrl: "https://stabletravel.dev",
+    description:
+      "Pay-per-request travel APIs — flights, hotels, activities, transfers, and real-time flight tracking. Powered by Amadeus and FlightAware.",
+    categories: ["data", "web"],
+    integration: "first-party",
+    tags: [
+      "amadeus",
+      "flightaware",
+      "flights",
+      "hotels",
+      "activities",
+      "transfers",
+      "travel",
+    ],
+    docs: {
+      homepage: "https://stabletravel.dev",
+      llmsTxt: "https://stabletravel.dev/llms.txt",
+    },
+    provider: { name: "Merit Systems", url: "https://stabletravel.dev" },
+    realm: "stabletravel.dev",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      // Flights
+      {
+        route: "POST /api/flights/search",
+        desc: "Search flight offers (advanced multi-city)",
+        amount: "54000",
+      },
+      {
+        route: "POST /api/flights/price",
+        desc: "Confirm pricing for a flight offer",
+        amount: "32400",
+      },
+      {
+        route: "POST /api/flights/book",
+        desc: "Book a flight (create flight order)",
+        amount: "86400",
+      },
+      {
+        route: "GET /api/flights/orders",
+        desc: "Retrieve a flight order by ID",
+        amount: "5400",
+      },
+      {
+        route: "POST /api/flights/orders/cancel",
+        desc: "Cancel a flight order",
+        amount: "5400",
+      },
+      {
+        route: "POST /api/flights/seatmap",
+        desc: "Get seat maps for a flight",
+        amount: "32400",
+      },
+      {
+        route: "POST /api/flights/upsell",
+        desc: "Get upsell offers for a flight",
+        amount: "32400",
+      },
+      {
+        route: "POST /api/flights/availability",
+        desc: "Check flight availability",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/flights/status",
+        desc: "Get flight status by carrier, number, and date",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/flights/checkin-links",
+        desc: "Get airline check-in page URLs",
+        amount: "5400",
+      },
+      // Hotels
+      {
+        route: "GET /api/hotels/list",
+        desc: "List hotels by city code",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/hotels/list/by-geocode",
+        desc: "List hotels by latitude/longitude",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/hotels/search",
+        desc: "Search hotel offers by hotel IDs",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/hotels/search/by-hotel",
+        desc: "Search offers for a specific hotel",
+        amount: "32400",
+      },
+      {
+        route: "GET /api/hotels/offer",
+        desc: "Get details for a specific hotel offer",
+        amount: "32400",
+      },
+      {
+        route: "POST /api/hotels/book",
+        desc: "Book a hotel offer",
+        amount: "2160",
+      },
+      {
+        route: "GET /api/hotels/autocomplete",
+        desc: "Autocomplete hotel names",
+        amount: "5400",
+      },
+      // Activities
+      {
+        route: "GET /api/activities/search",
+        desc: "Search tours & activities by lat/lng",
+        amount: "54000",
+      },
+      {
+        route: "GET /api/activities/by-square",
+        desc: "Search activities within a geographic square",
+        amount: "54000",
+      },
+      {
+        route: "GET /api/activities/details",
+        desc: "Get activity details by ID",
+        amount: "54000",
+      },
+      // Transfers
+      {
+        route: "POST /api/transfers/search",
+        desc: "Search airport transfer options",
+        amount: "3240",
+      },
+      {
+        route: "POST /api/transfers/book",
+        desc: "Book a transfer",
+        amount: "2160",
+      },
+      {
+        route: "POST /api/transfers/cancel",
+        desc: "Cancel a transfer booking",
+        amount: "2160",
+      },
+      // Reference Data
+      {
+        route: "GET /api/reference/locations",
+        desc: "Search locations (airports, cities) by keyword",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/airports",
+        desc: "Find nearby airports by latitude/longitude",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/airlines",
+        desc: "Look up airline by IATA code",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/airline-routes",
+        desc: "Get routes for an airline from an airport",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/airport-routes",
+        desc: "Get direct destinations from an airport",
+        amount: "5400",
+      },
+      {
+        route: "GET /api/reference/cities",
+        desc: "Search cities by keyword",
+        amount: "5400",
+      },
+      // FlightAware — Real-Time Flights
+      {
+        route: "GET /api/flightaware/flights/search",
+        desc: "Search flights by query string",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/flights/search/positions",
+        desc: "Search flights with position data",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/flights/search/count",
+        desc: "Get count of flights matching a search",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/flights/search/advanced",
+        desc: "Advanced flight search with complex query syntax",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id",
+        desc: "Get flights by ident (flight number, registration)",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/canonical",
+        desc: "Get canonical ident for a flight",
+        amount: "2000",
+      },
+      {
+        route: "POST /api/flightaware/flights/:id/intents",
+        desc: "Set flight intent for push notifications",
+        amount: "1000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/position",
+        desc: "Get latest position for a flight",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/track",
+        desc: "Get full track/positions for a flight",
+        amount: "24000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/route-info",
+        desc: "Get route info (fixes, waypoints) for a flight",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/flightaware/flights/:id/map",
+        desc: "Get flight track map image (PNG)",
+        amount: "60000",
+      },
+      // FlightAware — Airports
+      {
+        route: "GET /api/flightaware/airports",
+        desc: "List all airports",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/nearby",
+        desc: "Find airports near a lat/lng",
+        amount: "8000",
+      },
+      {
+        route: "GET /api/flightaware/airports/delays",
+        desc: "Get all airport delay information",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id",
+        desc: "Get airport info by code",
+        amount: "30000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/canonical",
+        desc: "Get canonical airport code",
+        amount: "2000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/nearby",
+        desc: "Find airports near a specific airport",
+        amount: "8000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/delays",
+        desc: "Get delays for a specific airport",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights",
+        desc: "Get all flights at an airport",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/arrivals",
+        desc: "Get arrivals at an airport",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/departures",
+        desc: "Get departures from an airport",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/scheduled-departures",
+        desc: "Get scheduled departures",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/scheduled-arrivals",
+        desc: "Get scheduled arrivals",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/to/:dest_id",
+        desc: "Get flights between two airports",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/flights/counts",
+        desc: "Get flight count statistics",
+        amount: "200000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/weather/observations",
+        desc: "Get METAR weather observations",
+        amount: "4000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/weather/forecast",
+        desc: "Get TAF weather forecast",
+        amount: "4000",
+      },
+      {
+        route: "GET /api/flightaware/airports/:id/routes/:dest_id",
+        desc: "Get route info between airports",
+        amount: "40000",
+      },
+      // FlightAware — Flight History
+      {
+        route: "GET /api/flightaware/history/flights/:id",
+        desc: "Get historical flights by ident",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/history/flights/:id/track",
+        desc: "Get historical flight track",
+        amount: "120000",
+      },
+      {
+        route: "GET /api/flightaware/history/flights/:id/map",
+        desc: "Get historical flight map image (PNG)",
+        amount: "280000",
+      },
+      {
+        route: "GET /api/flightaware/history/flights/:id/route-info",
+        desc: "Get historical flight route info",
+        amount: "80000",
+      },
+      {
+        route: "GET /api/flightaware/history/airports/:id/flights/arrivals",
+        desc: "Get historical arrivals at airport",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/history/airports/:id/flights/departures",
+        desc: "Get historical departures from airport",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/flightaware/history/airports/:id/flights/to/:dest_id",
+        desc: "Get historical flights between airports",
+        amount: "240000",
+      },
+      {
+        route:
+          "GET /api/flightaware/history/aircraft/:registration/last-flight",
+        desc: "Get last flight for an aircraft",
+        amount: "400000",
+      },
+      {
+        route: "GET /api/flightaware/history/operators/:id/flights",
+        desc: "Get historical flights by operator",
+        amount: "40000",
+      },
+      // FlightAware — Disruption Counts
+      {
+        route: "GET /api/flightaware/disruption-counts/:entity_type",
+        desc: "Get disruption stats by entity type",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/flightaware/disruption-counts/:entity_type/:id",
+        desc: "Get disruption stats for a specific entity",
+        amount: "10000",
       },
     ],
   },
@@ -1983,6 +2364,362 @@ export const services: ServiceDef[] = [
         route: "GET /api/site/domain/status",
         desc: "Check TLS provisioning status",
       },
+    ],
+  },
+
+  // ── AviationStack ──────────────────────────────────────────────────────
+  {
+    id: "aviationstack",
+    name: "AviationStack",
+    url: "https://api.aviationstack.com",
+    serviceUrl: `https://aviationstack.${MPP_REALM}`,
+    description:
+      "Real-time and historical flight tracking, airports, airlines, and schedules.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["flights", "aviation", "tracking", "airports", "airlines"],
+    provider: { name: "AviationStack", url: "https://aviationstack.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /v1/aircraft_types",
+        desc: "Aircraft types lookup",
+        amount: "5000",
+      },
+      { route: "GET /v1/airlines", desc: "Airlines lookup", amount: "5000" },
+      { route: "GET /v1/airplanes", desc: "Airplanes lookup", amount: "5000" },
+      { route: "GET /v1/airports", desc: "Airports lookup", amount: "5000" },
+      { route: "GET /v1/cities", desc: "Cities lookup", amount: "5000" },
+      { route: "GET /v1/countries", desc: "Countries lookup", amount: "5000" },
+      { route: "GET /v1/flights", desc: "Real-time flights", amount: "5000" },
+      {
+        route: "GET /v1/flightsFuture",
+        desc: "Future flight schedules",
+        amount: "5000",
+      },
+      { route: "GET /v1/routes", desc: "Routes lookup", amount: "5000" },
+      { route: "GET /v1/taxes", desc: "Aviation taxes lookup", amount: "5000" },
+      { route: "GET /v1/timetable", desc: "Flight schedules", amount: "5000" },
+    ],
+  },
+
+  // ── Code Storage ───────────────────────────────────────────────────────
+  {
+    id: "codestorage",
+    name: "Code Storage",
+    url: "https://code.storage",
+    serviceUrl: `https://codestorage.${MPP_REALM}`,
+    description:
+      "Paid Git repository creation — create repos and get authenticated clone URLs.",
+    categories: ["storage"],
+    integration: "third-party",
+    tags: ["git", "repos", "code", "storage"],
+    docs: {
+      llmsTxt: "https://code.storage/docs/llms.txt",
+    },
+    provider: { name: "Code Storage", url: "https://code.storage" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /repos/:id",
+        desc: "Get clone URL for a repository",
+        amount: "10000",
+      },
+      {
+        route: "POST /repos",
+        desc: "Create a Git repository",
+        amount: "1000000",
+      },
+    ],
+  },
+
+  // ── FlightAPI ──────────────────────────────────────────────────────────
+  {
+    id: "flightapi",
+    name: "FlightAPI",
+    url: "https://api.flightapi.io",
+    serviceUrl: `https://flightapi.${MPP_REALM}`,
+    description:
+      "Real-time flight prices, tracking, and airport schedules from 700+ airlines.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["flights", "prices", "tracking", "airports", "airlines"],
+    provider: { name: "FlightAPI", url: "https://flightapi.io" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "GET /airline/:rest*", desc: "Track a flight", amount: "2000" },
+      {
+        route: "GET /iata/:rest*",
+        desc: "Airline/airport code lookup",
+        amount: "2000",
+      },
+      {
+        route: "GET /multitrip/:rest*",
+        desc: "Multi-city flight price search",
+        amount: "8000",
+      },
+      {
+        route: "GET /onewaytrip/:rest*",
+        desc: "One-way flight price search",
+        amount: "3000",
+      },
+      {
+        route: "GET /roundtrip/:rest*",
+        desc: "Round-trip flight price search",
+        amount: "3000",
+      },
+      {
+        route: "GET /schedule/:rest*",
+        desc: "Airport schedule",
+        amount: "3000",
+      },
+      {
+        route: "GET /trackbyroute/:rest*",
+        desc: "Track flights between airports",
+        amount: "2000",
+      },
+    ],
+  },
+
+  // ── FlightAware AeroAPI ────────────────────────────────────────────────
+  {
+    id: "flightaware",
+    name: "FlightAware AeroAPI",
+    url: "https://aeroapi.flightaware.com",
+    serviceUrl: `https://flightaware.${MPP_REALM}`,
+    description:
+      "On-demand flight tracking, airport activity, and aviation data.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["flights", "tracking", "airports", "aviation"],
+    provider: { name: "FlightAware", url: "https://www.flightaware.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /aeroapi/airports/:id",
+        desc: "Airport info",
+        amount: "10000",
+      },
+      {
+        route: "GET /aeroapi/airports/:id/flights",
+        desc: "Airport flights",
+        amount: "10000",
+      },
+      {
+        route: "GET /aeroapi/airports/:id/flights/arrivals",
+        desc: "Airport arrivals",
+        amount: "5000",
+      },
+      {
+        route: "GET /aeroapi/airports/:id/flights/departures",
+        desc: "Airport departures",
+        amount: "5000",
+      },
+      {
+        route: "GET /aeroapi/airports/:id/flights/scheduled_arrivals",
+        desc: "Scheduled arrivals",
+        amount: "5000",
+      },
+      {
+        route: "GET /aeroapi/airports/:id/flights/scheduled_departures",
+        desc: "Scheduled departures",
+        amount: "5000",
+      },
+      {
+        route: "GET /aeroapi/flights/:id/map",
+        desc: "Flight map image",
+        amount: "10000",
+      },
+      {
+        route: "GET /aeroapi/flights/:id/track",
+        desc: "Flight track positions",
+        amount: "30000",
+      },
+      {
+        route: "GET /aeroapi/flights/:ident",
+        desc: "Flight lookup by ident",
+        amount: "5000",
+      },
+      {
+        route: "GET /aeroapi/operators/:id",
+        desc: "Operator info",
+        amount: "15000",
+      },
+      {
+        route: "GET /aeroapi/operators/:id/flights",
+        desc: "Operator flights",
+        amount: "30000",
+      },
+      {
+        route: "GET /aeroapi/schedules/:start/:end",
+        desc: "Flight schedules",
+        amount: "20000",
+      },
+    ],
+  },
+
+  // ── GoFlightLabs ───────────────────────────────────────────────────────
+  {
+    id: "goflightlabs",
+    name: "GoFlightLabs",
+    url: "https://goflightlabs.com",
+    serviceUrl: `https://goflightlabs.${MPP_REALM}`,
+    description:
+      "Real-time flight tracking, prices, schedules, and airline data.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["flights", "tracking", "prices", "airlines", "airports"],
+    provider: { name: "GoFlightLabs", url: "https://goflightlabs.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /airports-by-filters",
+        desc: "Airports by filter",
+        amount: "5000",
+      },
+      {
+        route: "GET /flight-data-by-date",
+        desc: "Flight data by date",
+        amount: "5000",
+      },
+      { route: "GET /flight-delay", desc: "Flight delay info", amount: "5000" },
+      {
+        route: "GET /flight-info-by-flight-number",
+        desc: "Flight info by number",
+        amount: "5000",
+      },
+      {
+        route: "GET /flight-prices",
+        desc: "Flight price search",
+        amount: "10000",
+      },
+      { route: "GET /flights", desc: "Real-time flights", amount: "5000" },
+      {
+        route: "GET /flights-airline",
+        desc: "Flights by airline",
+        amount: "5000",
+      },
+      {
+        route: "GET /flights-callsign",
+        desc: "Flights by callsign",
+        amount: "5000",
+      },
+      {
+        route: "GET /flights-history",
+        desc: "Historical flights",
+        amount: "5000",
+      },
+      {
+        route: "GET /flights-schedules",
+        desc: "Flight schedules",
+        amount: "5000",
+      },
+      {
+        route: "GET /future-flights",
+        desc: "Future flight predictions",
+        amount: "5000",
+      },
+      {
+        route: "GET /retrieve-airlines",
+        desc: "Retrieve airlines",
+        amount: "5000",
+      },
+      {
+        route: "GET /retrieve-airports",
+        desc: "Retrieve airports",
+        amount: "5000",
+      },
+      {
+        route: "GET /retrieve-countries",
+        desc: "Retrieve countries",
+        amount: "5000",
+      },
+      { route: "GET /retrieve-routes", desc: "Airline routes", amount: "5000" },
+    ],
+  },
+
+  // ── Oxylabs ─────────────────────────────────────────────────────────────
+  {
+    id: "oxylabs",
+    name: "Oxylabs",
+    url: "https://realtime.oxylabs.io",
+    serviceUrl: `https://oxylabs.${MPP_REALM}`,
+    description:
+      "Web scraping API with geo-targeting by country, state, and city. Fetch any public URL with JavaScript rendering support.",
+    categories: ["web", "data"],
+    integration: "third-party",
+    tags: ["scraping", "web-scraping", "geo-targeting", "data-extraction"],
+    docs: {
+      apiReference: "https://developers.oxylabs.io/scraper-apis/web-scraper-api",
+    },
+    provider: { name: "Oxylabs", url: "https://oxylabs.io" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "POST /v1/proxy", desc: "Scrape a public URL with optional geo-targeting and JS rendering", dynamic: true },
+    ],
+  },
+
+  // ── SpyFu ──────────────────────────────────────────────────────────────
+  {
+    id: "spyfu",
+    name: "SpyFu",
+    url: "https://api.spyfu.com",
+    serviceUrl: `https://spyfu.${MPP_REALM}`,
+    description:
+      "Competitor keyword research — SEO rankings, PPC ads, ad history, and domain analytics. 18+ years of historical data.",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: ["seo", "ppc", "keyword-research", "competitor-analysis", "ads"],
+    docs: {
+      homepage: "https://developer.spyfu.com",
+      apiReference: "https://developer.spyfu.com",
+    },
+    provider: { name: "SpyFu", url: "https://spyfu.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "GET /apis/domain_stats_api/v2/*", desc: "Domain stats lookup", amount: "10000" },
+      { route: "GET /apis/serp_api/v2/seo/*", desc: "SEO keyword research", amount: "10000" },
+      { route: "GET /apis/serp_api/v2/ppc/*", desc: "PPC keyword research", amount: "20000" },
+      { route: "GET /apis/keyword_api/v2/ppc/*", desc: "PPC keyword research", amount: "20000" },
+      { route: "GET /apis/cloud_ad_history_api/v2/*", desc: "Ad history research", amount: "30000" },
+      { route: "GET /apis/competitors_api/v2/*", desc: "Competitor analysis", amount: "10000" },
+      { route: "GET /apis/keyword_api/v2/kombat/*", desc: "Keyword overlap analysis", amount: "20000" },
+      { route: "GET /apis/keyword_api/v2/related/*", desc: "Keyword research", amount: "20000" },
+      { route: "GET /apis/organic_history_api/v2/*", desc: "Ranking history research", amount: "30000" },
+    ],
+  },
+
+  // ── SerpApi ────────────────────────────────────────────────────────────
+  {
+    id: "serpapi",
+    name: "SerpApi",
+    url: "https://serpapi.com",
+    serviceUrl: `https://serpapi.${MPP_REALM}`,
+    description:
+      "Google Flights search — real-time prices, schedules, and booking options.",
+    categories: ["search", "data"],
+    integration: "third-party",
+    tags: ["search", "flights", "google", "prices"],
+    provider: { name: "SerpApi", url: "https://serpapi.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "GET /search", desc: "Google Flights search", amount: "15000" },
     ],
   },
 ];

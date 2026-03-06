@@ -2,6 +2,7 @@ import {
   ARTICLE_SUMMARIES,
   CHAT_RESPONSES,
   IMAGE_RESULTS,
+  POEM_RESULTS,
   SEARCH_RESULTS,
 } from "./terminal-data";
 
@@ -73,6 +74,7 @@ export function createCyclicPicker<T>(items: T[], first?: T): () => T {
 
 export const pickChat = createCyclicPicker(CHAT_RESPONSES);
 export const pickImage = createCyclicPicker(IMAGE_RESULTS);
+export const pickPoem = createCyclicPicker(POEM_RESULTS);
 export const pickSearch = createCyclicPicker(SEARCH_RESULTS);
 export const pickArticle = createCyclicPicker(ARTICLE_SUMMARIES);
 
@@ -213,6 +215,7 @@ export function image(): PaymentStepConfig {
     cost: 0.003,
     prompt: { label: "Enter prompt", placeholder: "a neon cityscape at night" },
     pickOutput: pickImage,
+    outputMode: "photo",
   });
 }
 
@@ -252,7 +255,7 @@ export function poem(): PaymentStepConfig {
       `/api/demo/poem?prompt=${encodeURIComponent(input)}`,
     prompt: { label: "Enter prompt", placeholder: "what are micropayments?" },
     skipPrompt: true,
-    pickOutput: pickChat,
+    pickOutput: pickPoem,
   });
 }
 

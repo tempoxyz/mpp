@@ -11,7 +11,7 @@
         "ai",
         "social"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "email",
         "inbox",
@@ -2352,7 +2352,7 @@
         "search",
         "ai"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "search",
         "web",
@@ -3426,6 +3426,933 @@
             "decimals": 6,
             "description": "Enrich social media profile with contact info",
             "amount": "400000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stabletravel",
+      "name": "StableTravel",
+      "url": "https://stabletravel.dev",
+      "serviceUrl": "https://stabletravel.dev",
+      "description": "Pay-per-request travel APIs — flights, hotels, activities, transfers, and real-time flight tracking. Powered by Amadeus and FlightAware.",
+      "categories": [
+        "data",
+        "web"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "amadeus",
+        "flightaware",
+        "flights",
+        "hotels",
+        "activities",
+        "transfers",
+        "travel"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://stabletravel.dev",
+        "llmsTxt": "https://stabletravel.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "stabletravel.dev",
+      "provider": {
+        "name": "Merit Systems",
+        "url": "https://stabletravel.dev"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/flights/search",
+          "description": "Search flight offers (advanced multi-city)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search flight offers (advanced multi-city)",
+            "amount": "54000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/flights/price",
+          "description": "Confirm pricing for a flight offer",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Confirm pricing for a flight offer",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/flights/book",
+          "description": "Book a flight (create flight order)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Book a flight (create flight order)",
+            "amount": "86400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flights/orders",
+          "description": "Retrieve a flight order by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Retrieve a flight order by ID",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/flights/orders/cancel",
+          "description": "Cancel a flight order",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Cancel a flight order",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/flights/seatmap",
+          "description": "Get seat maps for a flight",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get seat maps for a flight",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/flights/upsell",
+          "description": "Get upsell offers for a flight",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get upsell offers for a flight",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/flights/availability",
+          "description": "Check flight availability",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check flight availability",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flights/status",
+          "description": "Get flight status by carrier, number, and date",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get flight status by carrier, number, and date",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flights/checkin-links",
+          "description": "Get airline check-in page URLs",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get airline check-in page URLs",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/hotels/list",
+          "description": "List hotels by city code",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List hotels by city code",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/hotels/list/by-geocode",
+          "description": "List hotels by latitude/longitude",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List hotels by latitude/longitude",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/hotels/search",
+          "description": "Search hotel offers by hotel IDs",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search hotel offers by hotel IDs",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/hotels/search/by-hotel",
+          "description": "Search offers for a specific hotel",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search offers for a specific hotel",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/hotels/offer",
+          "description": "Get details for a specific hotel offer",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get details for a specific hotel offer",
+            "amount": "32400"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/hotels/book",
+          "description": "Book a hotel offer",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Book a hotel offer",
+            "amount": "2160"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/hotels/autocomplete",
+          "description": "Autocomplete hotel names",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Autocomplete hotel names",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/activities/search",
+          "description": "Search tours & activities by lat/lng",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search tours & activities by lat/lng",
+            "amount": "54000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/activities/by-square",
+          "description": "Search activities within a geographic square",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search activities within a geographic square",
+            "amount": "54000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/activities/details",
+          "description": "Get activity details by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get activity details by ID",
+            "amount": "54000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/transfers/search",
+          "description": "Search airport transfer options",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search airport transfer options",
+            "amount": "3240"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/transfers/book",
+          "description": "Book a transfer",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Book a transfer",
+            "amount": "2160"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/transfers/cancel",
+          "description": "Cancel a transfer booking",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Cancel a transfer booking",
+            "amount": "2160"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/reference/locations",
+          "description": "Search locations (airports, cities) by keyword",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search locations (airports, cities) by keyword",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/reference/airports",
+          "description": "Find nearby airports by latitude/longitude",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find nearby airports by latitude/longitude",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/reference/airlines",
+          "description": "Look up airline by IATA code",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Look up airline by IATA code",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/reference/airline-routes",
+          "description": "Get routes for an airline from an airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get routes for an airline from an airport",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/reference/airport-routes",
+          "description": "Get direct destinations from an airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get direct destinations from an airport",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/reference/cities",
+          "description": "Search cities by keyword",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search cities by keyword",
+            "amount": "5400"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/search",
+          "description": "Search flights by query string",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search flights by query string",
+            "amount": "100000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/search/positions",
+          "description": "Search flights with position data",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search flights with position data",
+            "amount": "100000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/search/count",
+          "description": "Get count of flights matching a search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get count of flights matching a search",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/search/advanced",
+          "description": "Advanced flight search with complex query syntax",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Advanced flight search with complex query syntax",
+            "amount": "100000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/:id",
+          "description": "Get flights by ident (flight number, registration)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get flights by ident (flight number, registration)",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/:id/canonical",
+          "description": "Get canonical ident for a flight",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get canonical ident for a flight",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/flightaware/flights/:id/intents",
+          "description": "Set flight intent for push notifications",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Set flight intent for push notifications",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/:id/position",
+          "description": "Get latest position for a flight",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get latest position for a flight",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/:id/track",
+          "description": "Get full track/positions for a flight",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get full track/positions for a flight",
+            "amount": "24000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/:id/route-info",
+          "description": "Get route info (fixes, waypoints) for a flight",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get route info (fixes, waypoints) for a flight",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/flights/:id/map",
+          "description": "Get flight track map image (PNG)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get flight track map image (PNG)",
+            "amount": "60000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports",
+          "description": "List all airports",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List all airports",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/nearby",
+          "description": "Find airports near a lat/lng",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find airports near a lat/lng",
+            "amount": "8000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/delays",
+          "description": "Get all airport delay information",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get all airport delay information",
+            "amount": "100000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id",
+          "description": "Get airport info by code",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get airport info by code",
+            "amount": "30000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/canonical",
+          "description": "Get canonical airport code",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get canonical airport code",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/nearby",
+          "description": "Find airports near a specific airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find airports near a specific airport",
+            "amount": "8000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/delays",
+          "description": "Get delays for a specific airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get delays for a specific airport",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/flights",
+          "description": "Get all flights at an airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get all flights at an airport",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/flights/arrivals",
+          "description": "Get arrivals at an airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get arrivals at an airport",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/flights/departures",
+          "description": "Get departures from an airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get departures from an airport",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/flights/scheduled-departures",
+          "description": "Get scheduled departures",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get scheduled departures",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/flights/scheduled-arrivals",
+          "description": "Get scheduled arrivals",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get scheduled arrivals",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/flights/to/:dest_id",
+          "description": "Get flights between two airports",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get flights between two airports",
+            "amount": "100000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/flights/counts",
+          "description": "Get flight count statistics",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get flight count statistics",
+            "amount": "200000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/weather/observations",
+          "description": "Get METAR weather observations",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get METAR weather observations",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/weather/forecast",
+          "description": "Get TAF weather forecast",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get TAF weather forecast",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/airports/:id/routes/:dest_id",
+          "description": "Get route info between airports",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get route info between airports",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/flights/:id",
+          "description": "Get historical flights by ident",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical flights by ident",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/flights/:id/track",
+          "description": "Get historical flight track",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical flight track",
+            "amount": "120000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/flights/:id/map",
+          "description": "Get historical flight map image (PNG)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical flight map image (PNG)",
+            "amount": "280000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/flights/:id/route-info",
+          "description": "Get historical flight route info",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical flight route info",
+            "amount": "80000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/airports/:id/flights/arrivals",
+          "description": "Get historical arrivals at airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical arrivals at airport",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/airports/:id/flights/departures",
+          "description": "Get historical departures from airport",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical departures from airport",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/airports/:id/flights/to/:dest_id",
+          "description": "Get historical flights between airports",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical flights between airports",
+            "amount": "240000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/aircraft/:registration/last-flight",
+          "description": "Get last flight for an aircraft",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get last flight for an aircraft",
+            "amount": "400000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/history/operators/:id/flights",
+          "description": "Get historical flights by operator",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical flights by operator",
+            "amount": "40000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/disruption-counts/:entity_type",
+          "description": "Get disruption stats by entity type",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get disruption stats by entity type",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/flightaware/disruption-counts/:entity_type/:id",
+          "description": "Get disruption stats for a specific entity",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get disruption stats for a specific entity",
+            "amount": "10000"
           }
         }
       ]
@@ -4651,6 +5578,1057 @@
           "path": "/api/site/domain/status",
           "description": "Check TLS provisioning status",
           "payment": null
+        }
+      ]
+    },
+    {
+      "id": "aviationstack",
+      "name": "AviationStack",
+      "url": "https://api.aviationstack.com",
+      "serviceUrl": "https://aviationstack.mpp.tempo.xyz",
+      "description": "Real-time and historical flight tracking, airports, airlines, and schedules.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "flights",
+        "aviation",
+        "tracking",
+        "airports",
+        "airlines"
+      ],
+      "status": "active",
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "AviationStack",
+        "url": "https://aviationstack.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/v1/aircraft_types",
+          "description": "Aircraft types lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Aircraft types lookup",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/airlines",
+          "description": "Airlines lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airlines lookup",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/airplanes",
+          "description": "Airplanes lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airplanes lookup",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/airports",
+          "description": "Airports lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airports lookup",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/cities",
+          "description": "Cities lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Cities lookup",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/countries",
+          "description": "Countries lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Countries lookup",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/flights",
+          "description": "Real-time flights",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Real-time flights",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/flightsFuture",
+          "description": "Future flight schedules",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Future flight schedules",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/routes",
+          "description": "Routes lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Routes lookup",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/taxes",
+          "description": "Aviation taxes lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Aviation taxes lookup",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/timetable",
+          "description": "Flight schedules",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight schedules",
+            "amount": "5000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "codestorage",
+      "name": "Code Storage",
+      "url": "https://code.storage",
+      "serviceUrl": "https://codestorage.mpp.tempo.xyz",
+      "description": "Paid Git repository creation — create repos and get authenticated clone URLs.",
+      "categories": [
+        "storage"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "git",
+        "repos",
+        "code",
+        "storage"
+      ],
+      "status": "active",
+      "docs": {
+        "llmsTxt": "https://code.storage/docs/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Code Storage",
+        "url": "https://code.storage"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/repos/:id",
+          "description": "Get clone URL for a repository",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get clone URL for a repository",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/repos",
+          "description": "Create a Git repository",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Create a Git repository",
+            "amount": "1000000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "flightapi",
+      "name": "FlightAPI",
+      "url": "https://api.flightapi.io",
+      "serviceUrl": "https://flightapi.mpp.tempo.xyz",
+      "description": "Real-time flight prices, tracking, and airport schedules from 700+ airlines.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "flights",
+        "prices",
+        "tracking",
+        "airports",
+        "airlines"
+      ],
+      "status": "active",
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "FlightAPI",
+        "url": "https://flightapi.io"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/airline/:rest*",
+          "description": "Track a flight",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Track a flight",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/iata/:rest*",
+          "description": "Airline/airport code lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airline/airport code lookup",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/multitrip/:rest*",
+          "description": "Multi-city flight price search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Multi-city flight price search",
+            "amount": "8000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/onewaytrip/:rest*",
+          "description": "One-way flight price search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "One-way flight price search",
+            "amount": "3000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/roundtrip/:rest*",
+          "description": "Round-trip flight price search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Round-trip flight price search",
+            "amount": "3000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/schedule/:rest*",
+          "description": "Airport schedule",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airport schedule",
+            "amount": "3000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/trackbyroute/:rest*",
+          "description": "Track flights between airports",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Track flights between airports",
+            "amount": "2000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "flightaware",
+      "name": "FlightAware AeroAPI",
+      "url": "https://aeroapi.flightaware.com",
+      "serviceUrl": "https://flightaware.mpp.tempo.xyz",
+      "description": "On-demand flight tracking, airport activity, and aviation data.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "flights",
+        "tracking",
+        "airports",
+        "aviation"
+      ],
+      "status": "active",
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "FlightAware",
+        "url": "https://www.flightaware.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/aeroapi/airports/:id",
+          "description": "Airport info",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airport info",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/airports/:id/flights",
+          "description": "Airport flights",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airport flights",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/airports/:id/flights/arrivals",
+          "description": "Airport arrivals",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airport arrivals",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/airports/:id/flights/departures",
+          "description": "Airport departures",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airport departures",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/airports/:id/flights/scheduled_arrivals",
+          "description": "Scheduled arrivals",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Scheduled arrivals",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/airports/:id/flights/scheduled_departures",
+          "description": "Scheduled departures",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Scheduled departures",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/flights/:id/map",
+          "description": "Flight map image",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight map image",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/flights/:id/track",
+          "description": "Flight track positions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight track positions",
+            "amount": "30000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/flights/:ident",
+          "description": "Flight lookup by ident",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight lookup by ident",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/operators/:id",
+          "description": "Operator info",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Operator info",
+            "amount": "15000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/operators/:id/flights",
+          "description": "Operator flights",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Operator flights",
+            "amount": "30000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aeroapi/schedules/:start/:end",
+          "description": "Flight schedules",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight schedules",
+            "amount": "20000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "goflightlabs",
+      "name": "GoFlightLabs",
+      "url": "https://goflightlabs.com",
+      "serviceUrl": "https://goflightlabs.mpp.tempo.xyz",
+      "description": "Real-time flight tracking, prices, schedules, and airline data.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "flights",
+        "tracking",
+        "prices",
+        "airlines",
+        "airports"
+      ],
+      "status": "active",
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "GoFlightLabs",
+        "url": "https://goflightlabs.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/airports-by-filters",
+          "description": "Airports by filter",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airports by filter",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flight-data-by-date",
+          "description": "Flight data by date",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight data by date",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flight-delay",
+          "description": "Flight delay info",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight delay info",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flight-info-by-flight-number",
+          "description": "Flight info by number",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight info by number",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flight-prices",
+          "description": "Flight price search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight price search",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flights",
+          "description": "Real-time flights",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Real-time flights",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flights-airline",
+          "description": "Flights by airline",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flights by airline",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flights-callsign",
+          "description": "Flights by callsign",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flights by callsign",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flights-history",
+          "description": "Historical flights",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Historical flights",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flights-schedules",
+          "description": "Flight schedules",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Flight schedules",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/future-flights",
+          "description": "Future flight predictions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Future flight predictions",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/retrieve-airlines",
+          "description": "Retrieve airlines",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Retrieve airlines",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/retrieve-airports",
+          "description": "Retrieve airports",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Retrieve airports",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/retrieve-countries",
+          "description": "Retrieve countries",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Retrieve countries",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/retrieve-routes",
+          "description": "Airline routes",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Airline routes",
+            "amount": "5000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "oxylabs",
+      "name": "Oxylabs",
+      "url": "https://realtime.oxylabs.io",
+      "serviceUrl": "https://oxylabs.mpp.tempo.xyz",
+      "description": "Web scraping API with geo-targeting by country, state, and city. Fetch any public URL with JavaScript rendering support.",
+      "categories": [
+        "web",
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "scraping",
+        "web-scraping",
+        "geo-targeting",
+        "data-extraction"
+      ],
+      "status": "active",
+      "docs": {
+        "apiReference": "https://developers.oxylabs.io/scraper-apis/web-scraper-api"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Oxylabs",
+        "url": "https://oxylabs.io"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/proxy",
+          "description": "Scrape a public URL with optional geo-targeting and JS rendering",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Scrape a public URL with optional geo-targeting and JS rendering",
+            "dynamic": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "spyfu",
+      "name": "SpyFu",
+      "url": "https://api.spyfu.com",
+      "serviceUrl": "https://spyfu.mpp.tempo.xyz",
+      "description": "Competitor keyword research — SEO rankings, PPC ads, ad history, and domain analytics. 18+ years of historical data.",
+      "categories": [
+        "data",
+        "search"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "seo",
+        "ppc",
+        "keyword-research",
+        "competitor-analysis",
+        "ads"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://developer.spyfu.com",
+        "apiReference": "https://developer.spyfu.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "SpyFu",
+        "url": "https://spyfu.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/apis/domain_stats_api/v2/*",
+          "description": "Domain stats lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Domain stats lookup",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/serp_api/v2/seo/*",
+          "description": "SEO keyword research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "SEO keyword research",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/serp_api/v2/ppc/*",
+          "description": "PPC keyword research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "PPC keyword research",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/keyword_api/v2/ppc/*",
+          "description": "PPC keyword research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "PPC keyword research",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/cloud_ad_history_api/v2/*",
+          "description": "Ad history research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Ad history research",
+            "amount": "30000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/competitors_api/v2/*",
+          "description": "Competitor analysis",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Competitor analysis",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/keyword_api/v2/kombat/*",
+          "description": "Keyword overlap analysis",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Keyword overlap analysis",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/keyword_api/v2/related/*",
+          "description": "Keyword research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Keyword research",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/apis/organic_history_api/v2/*",
+          "description": "Ranking history research",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Ranking history research",
+            "amount": "30000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "serpapi",
+      "name": "SerpApi",
+      "url": "https://serpapi.com",
+      "serviceUrl": "https://serpapi.mpp.tempo.xyz",
+      "description": "Google Flights search — real-time prices, schedules, and booking options.",
+      "categories": [
+        "search",
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "search",
+        "flights",
+        "google",
+        "prices"
+      ],
+      "status": "active",
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "SerpApi",
+        "url": "https://serpapi.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/search",
+          "description": "Google Flights search",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Google Flights search",
+            "amount": "15000"
+          }
         }
       ]
     }

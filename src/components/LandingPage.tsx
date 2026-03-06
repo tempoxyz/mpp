@@ -12,7 +12,7 @@ import { Terminal } from "./Terminal";
 const ACCENT = "var(--vocs-text-color-heading)";
 
 const TERMINAL_STEPS = [
-  Terminal.commands(["cat quickstart.txt", "./demo.sh"]),
+  Terminal.commands(["./demo.sh"]),
   Terminal.wizard([
     Terminal.chat(),
     Terminal.image(),
@@ -188,12 +188,12 @@ function Hero() {
             }}
             onClick={() =>
               captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
-                cta_label: "Install on your server",
+                cta_label: "Monetize your service",
                 href: "/quickstart/server",
               })
             }
           >
-            Install on your server
+            Monetize your service
           </Link>
         </div>
 
@@ -320,8 +320,12 @@ function DesignedBy() {
         rel="noopener noreferrer"
         className="no-underline transition-colors flex items-center"
         style={{ color: "inherit" }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = ACCENT)}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = ACCENT;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "inherit";
+        }}
       >
         <TempoLogo />
       </a>
@@ -332,8 +336,12 @@ function DesignedBy() {
         rel="noopener noreferrer"
         className="no-underline transition-colors flex items-center"
         style={{ color: "inherit" }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#635BFF")}
-        onMouseLeave={(e) => (e.currentTarget.style.color = "inherit")}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = "#635BFF";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "inherit";
+        }}
       >
         <StripeLogo />
       </a>

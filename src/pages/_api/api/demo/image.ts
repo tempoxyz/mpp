@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 
   if (!proxyFetch) {
     console.warn(
-      `[demo/image] fal.ai unavailable for prompt=\"${prompt}\": set FEE_PAYER_PRIVATE_KEY to enable paid generation.`,
+      `[demo/image] fal.ai unavailable for prompt="${prompt}": set FEE_PAYER_PRIVATE_KEY to enable paid generation.`,
     );
   }
 
@@ -62,28 +62,22 @@ export async function GET(request: Request) {
         };
         const img = data.images?.[0];
         if (img) {
-          const size =
-            img.width && img.height
-              ? `${img.width}x${img.height}`
-              : "1024x1024";
-          const lines = [
-            "  model       flux-schnell",
-            `  prompt      "${prompt}"`,
-            `  url         ${img.url}`,
-            `  size        ${size}`,
-            "  cost        $0.003",
-          ];
-          return result.withReceipt(Response.json({ lines }));
+          return result.withReceipt(Response.json({ lines: [img.url] }));
         }
-        console.warn(`[demo/image] fal.ai returned no images for prompt=\"${prompt}\"`);
+        console.warn(
+          `[demo/image] fal.ai returned no images for prompt="${prompt}"`,
+        );
       } else {
         const body = await res.text();
         console.error(
-          `[demo/image] fal.ai request failed (${res.status} ${res.statusText}) for prompt=\"${prompt}\": ${body.slice(0, 500)}`,
+          `[demo/image] fal.ai request failed (${res.status} ${res.statusText}) for prompt="${prompt}": ${body.slice(0, 500)}`,
         );
       }
     } catch (e) {
-      console.error(`[demo/image] mpp-proxy fal.ai error for prompt=\"${prompt}\":`, e);
+      console.error(
+        `[demo/image] mpp-proxy fal.ai error for prompt="${prompt}":`,
+        e,
+      );
     }
     // Fall through to canned response
   }
@@ -92,13 +86,6 @@ export async function GET(request: Request) {
     "Using canned image result because live generation is unavailable right now.";
   console.warn(`[demo/image] ${warning} prompt=${prompt}`);
   const image = imageResults[Math.floor(Math.random() * imageResults.length)];
-  const lines = [
-    "  model       flux-schnell",
-    `  prompt      "${prompt}"`,
-    `  url         ${image.url}`,
-    "  size        1024x1024",
-    "  cost        $0.003",
-  ];
 
-  return result.withReceipt(Response.json({ lines, warning }));
+  return result.withReceipt(Response.json({ lines: [image.url], warning }));
 }
