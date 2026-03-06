@@ -4,39 +4,319 @@ Protect endpoints with payment requirements.
 
 ## Quick start
 
-Bind method, realm, and secret_key for stateless verification.
+Create an `Mpp` instance with `Mpp::create()` and call `charge()` with a human-readable dollar amount. The `tempo()` factory creates a Tempo payment method—configure `recipient` once, then every `charge()` call uses those defaults.
+
+```rust
+use mpp::server::{Mpp, tempo, TempoConfig};
+
+let mpp = Mpp::create(tempo(TempoConfig {
+    recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+}))?;
+
+let challenge = mpp.charge("0.10")?;
+let receipt = mpp.verify_credential(&credential).await?;
+```
+
+`Mpp::create()` auto-detects `realm` from environment variables (`VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others) and reads `MPP_SECRET_KEY` for stateless HMAC verification. Pass explicit values with the builder to override:
+
+```rust
+let mpp = Mpp::create(
+    tempo(TempoConfig {
+        recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+    })
+    .realm("api.example.com")
+    .secret_key("my-server-secret")
+)?;
+```
+
+## Full Axum example
+
+```rust
+use axum::{routing::get, Router, Json, http::StatusCode};
+use axum::response::IntoResponse;
+use mpp::server::{Mpp, tempo, TempoConfig};
+use mpp::{PaymentChallenge, parse_authorization, format_www_authenticate};
+
+let mpp = Mpp::create(tempo(TempoConfig {
+    recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+}))?;
+
+async fn get_resource(
+    headers: axum::http::HeaderMap,
+    mpp: axum::extract::State<Mpp<...>>,
+) -> impl IntoResponse {
+    let auth = headers.get("authorization").and_then(|v| v.to_str().ok());
+
+    match auth {
+        Some(auth_header) => {
+            let credential = parse_authorization(auth_header).unwrap();
+            let receipt = mpp.verify_credential(&credential).await.unwrap();
+            (StatusCode::OK, Json(serde_json::json!({ "paid": true }))).into_response()
+        }
+        None => {
+            let challenge = mpp.charge("0.50").unwrap();
+            let header = format_www_authenticate(&challenge).unwrap();
+            (StatusCode::PAYMENT_REQUIRED, [("WWW-Authenticate", header)]).into_response()
+        }
+    }
+}
+```
+
+## `tempo()` builder
+
+`tempo()` creates a `TempoBuilder` with smart defaults. Only `recipient` is required.
+
+```rust
+use mpp::server::{tempo, TempoConfig};
+
+let builder = tempo(TempoConfig {
+    recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+})
+.currency("0x20c0000000000000000000000000000000000000")
+.decimals(6)
+.fee_payer(true)
+.realm("api.example.com")
+.rpc_url("https://rpc.moderato.tempo.xyz")
+.secret_key("my-secret");
+```
+
+### `tempo()` parameters
+
+### chain_id (optional)
+
+- **Type:** `u64`
+
+Explicitly set the chain ID. Auto-detected from the RPC URL if omitted (moderato → `42431`, otherwise → `4217`).
+
+### currency (optional)
+
+- **Type:** `&str`
+- **Default:** USDC on mainnet, pathUSD on testnet
+
+TIP-20 token address for charges.
+
+### decimals (optional)
+
+- **Type:** `u32`
+- **Default:** `6`
+
+Token decimal places for dollar-to-base-unit conversion.
+
+### fee_payer (optional)
+
+- **Type:** `bool`
+- **Default:** `false`
+
+Enable fee sponsorship for all Challenges. When enabled, the server co-signs and sponsors transaction gas fees.
+
+### realm (optional)
+
+- **Type:** `&str`
+
+Server realm for `WWW-Authenticate` headers. Auto-detected from `MPP_REALM`, `VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others.
+
+### rpc_url (optional)
+
+- **Type:** `&str`
+- **Default:** `"https://rpc.tempo.xyz"`
+
+Tempo RPC endpoint URL. Also auto-detects chain ID from the URL.
+
+### secret_key (optional)
+
+- **Type:** `&str`
+
+HMAC secret for stateless Challenge ID verification. Reads `MPP_SECRET_KEY` environment variable if omitted.
+
+## `charge()` parameters
+
+### amount
+
+- **Type:** `&str`
+
+Payment amount in dollars (for example, `"0.50"` for $0.50). Automatically converted to base units using the configured decimals.
+
+## `charge_with_options()`
+
+Pass `ChargeOptions` for additional control:
+
+```rust
+use mpp::server::ChargeOptions;
+
+let challenge = mpp.charge_with_options("1.00", ChargeOptions {
+    description: Some("Premium content"),
+    external_id: Some("order-123"),
+    fee_payer: true,
+    ..Default::default()
+})?;
+```
+
+### description (optional)
+
+- **Type:** `Option<&str>`
+
+Human-readable description attached to the Challenge.
+
+### expires (optional)
+
+- **Type:** `Option<&str>`
+
+Challenge expiration as ISO 8601 timestamp. Defaults to 5 minutes from now.
+
+### external_id (optional)
+
+- **Type:** `Option<&str>`
+
+Merchant reference ID for reconciliation.
+
+### fee_payer (optional)
+
+- **Type:** `bool`
+
+Override the server-level fee sponsorship setting for this Challenge.
+
+## Verify a Credential
+
+`verify_credential` decodes the charge request from the echoed challenge automatically—no need to reconstruct the request:
+
+```rust
+let receipt = mpp.verify_credential(&credential).await?;
+println!("Reference: {}", receipt.reference);
+```
+
+To prevent cross-route replay attacks, verify against expected values:
+
+```rust
+use mpp::ChargeRequest;
+
+let expected = ChargeRequest {
+    amount: "100000".into(),
+    currency: "0x20c0000000000000000000000000000000000000".into(),
+    recipient: Some("0xa726a1CD723409074DF9108A2187cfA19899aCF8".into()),
+    ..Default::default()
+};
+
+let receipt = mpp
+    .verify_credential_with_expected_request(&credential, &expected)
+    .await?;
+```
+
+## Axum extractor
+
+The `MppCharge<C>` extractor handles the full `402` challenge/verify flow automatically. Requires the `axum` feature.
+
+Define a `ChargeConfig` type for each price point:
+
+```rust
+use mpp::server::axum::{ChargeConfig, MppCharge, ChargeChallenger};
+use mpp::server::{Mpp, tempo, TempoConfig};
+use axum::{routing::get, Router, Json};
+use std::sync::Arc;
+
+struct OneCent;
+impl ChargeConfig for OneCent {
+    fn amount() -> &'static str { "0.01" }
+}
+
+struct OneDollar;
+impl ChargeConfig for OneDollar {
+    fn amount() -> &'static str { "1.00" }
+    fn description() -> Option<&'static str> { Some("Premium content") }
+}
+
+async fn cheap(charge: MppCharge<OneCent>) -> Json<serde_json::Value> {
+    Json(serde_json::json!({ "paid": true, "ref": charge.receipt.reference }))
+}
+
+async fn expensive(charge: MppCharge<OneDollar>) -> &'static str {
+    "premium content"
+}
+
+let mpp = Mpp::create(tempo(TempoConfig {
+    recipient: "0xabc...",
+})).unwrap();
+
+let app = Router::new()
+    .route("/basic", get(cheap))
+    .route("/premium", get(expensive))
+    .with_state(Arc::new(mpp) as Arc<dyn ChargeChallenger>);
+```
+
+The extractor returns `402` with a `WWW-Authenticate` Challenge when no `Authorization` header is present, and extracts a verified `Receipt` when a valid Credential is provided.
+
+## Session support
+
+For payment session channels, add a `SessionMethod` and generate session Challenges:
+
+```rust
+use mpp::server::SessionChallengeOptions;
+
+let challenge = mpp.session_challenge_with_details(
+    "1000",                                             // amount per unit (base units)
+    "0x20c0000000000000000000000000000000000000",        // currency
+    "0xa726a1CD723409074DF9108A2187cfA19899aCF8",        // recipient
+    SessionChallengeOptions {
+        unit_type: Some("token"),
+        suggested_deposit: Some("60000"),
+        fee_payer: true,
+        ..Default::default()
+    },
+)?;
+```
+
+Verify session credentials (vouchers):
+
+```rust
+let result = mpp.verify_session(&credential).await?;
+println!("Receipt: {:?}", result.receipt);
+
+// Management responses (channel open/close) return a body to forward
+if let Some(body) = result.management_response {
+    return Ok(Json(body));
+}
+```
+
+### `SessionChallengeOptions` parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `description` | `Option<&str>` | Human-readable description |
+| `expires` | `Option<&str>` | Challenge expiration (ISO 8601) |
+| `fee_payer` | `bool` | Enable fee sponsorship |
+| `suggested_deposit` | `Option<&str>` | Suggested deposit in base units |
+| `unit_type` | `Option<&str>` | Unit label (for example, `"token"`, `"byte"`) |
+
+## Advanced API
+
+For full control, use `Mpp::new()` with a manual `TempoChargeMethod`:
 
 ```rust
 use mpp::server::{Mpp, tempo_provider, TempoChargeMethod};
 
 let provider = tempo_provider("https://rpc.tempo.xyz")?;
 let method = TempoChargeMethod::new(provider);
-let payment = Mpp::new(method, "mpp.dev", "my-secret");
+let payment = Mpp::new(method, "api.example.com", "my-server-secret");
+
+// Generate challenges with explicit base units
+let challenge = payment.charge_challenge(
+    "1000000",
+    "0x20c0000000000000000000000000000000000000",
+    "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+)?;
+
+// Verify with an explicit request
+let receipt = payment.verify(&credential, &charge_request).await?;
 ```
 
 ## Key types
 
 | Type | Description |
 |------|-------------|
-| `Mpp` | Server helper for challenges and verification |
-| `TempoChargeMethod` | Built-in Tempo verification logic |
-| `ChargeMethod` | Trait for custom verification |
-
-## Generate a Challenge
-
-```rust
-let challenge = payment.charge_challenge(
-    "1000000",
-    "0x20c0000000000000000000000000000000000000",
-    "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
-)?;
-```
-
-## Verify a Credential
-
-```rust
-let receipt = payment.verify(&credential, &request).await?;
-println!("Payment verified: {}", receipt.reference);
-```
-
-For custom verification, implement `ChargeMethod` and pass it to `Mpp::new`.
+| `ChargeMethod` | Trait for custom charge verification |
+| `ChargeOptions` | Options for `charge_with_options()` |
+| `Mpp` | Server handler binding method, realm, and secret |
+| `SessionChallengeOptions` | Options for `session_challenge_with_details()` |
+| `SessionMethod` | Trait for session/channel verification |
+| `SessionVerifyResult` | Result of session verification with optional management response |
+| `TempoChargeMethod` | Built-in Tempo charge verification |
+| `TempoConfig` | Configuration struct for the `tempo()` factory |

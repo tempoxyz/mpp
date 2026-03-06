@@ -23,54 +23,63 @@ With Tempo blockchain support:
 $ cargo add mpp --features tempo,client,server
 ```
 
+## Requirements
+
+- Rust 1.75+
+- `reqwest` for HTTP requests
+- `alloy` for Tempo signing (with the `tempo` feature)
+
 ## Quick start
 
-### Parse a Challenge
+### Server
 
 ```rust
-use mpp::parse_www_authenticate;
+use mpp::server::{Mpp, tempo, TempoConfig};
+use mpp::{parse_authorization, format_www_authenticate};
 
-let header = r#"Payment id="abc", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOiIxMDAwIn0""#;
-let challenge = parse_www_authenticate(header)?;
+let mpp = Mpp::create(tempo(TempoConfig {
+    recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+}))?;
 
-println!("Method: {}", challenge.method);
-println!("Intent: {}", challenge.intent);
+// Generate a Challenge for $0.50
+let challenge = mpp.charge("0.50")?;
+let header = format_www_authenticate(&challenge)?;
+// → respond with 402 + WWW-Authenticate header
+
+// Later, verify the Credential from the retry request
+let credential = parse_authorization(auth_header)?;
+let receipt = mpp.verify_credential(&credential).await?;
+// → respond with 200 + paid content
 ```
 
-### Create a Credential
+### Client
 
 ```rust
-use mpp::{PaymentCredential, PaymentPayload, ChallengeEcho};
+use mpp::client::{Fetch, TempoProvider};
+use mpp::PrivateKeySigner;
 
-let credential = PaymentCredential::with_source(
-    ChallengeEcho::new("challenge-id", "tempo", "charge"),
-    PaymentCredential::evm_did(42431, "0xa726a1..."),
-    PaymentPayload::transaction("0xf86c..."),
-);
+let signer: PrivateKeySigner = "0xac0974bec..."
+    .parse()?;
+let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
 
-let header = mpp::format_authorization(&credential)?;
-```
-
-### Parse a Receipt
-
-```rust
-use mpp::parse_receipt;
-
-let receipt = parse_receipt(receipt_header)?;
-println!("Status: {:?}", receipt.status);
-println!("Reference: {}", receipt.reference);
+// Handles 402 automatically — pay and retry
+let response = reqwest::Client::new()
+    .get("https://api.example.com/paid")
+    .send_with_payment(&provider)
+    .await?;
 ```
 
 ## Feature flags
 
 | Feature | Description |
 |---------|-------------|
-| `client` | Client-side providers, HTTP extensions |
+| `client` | Client-side providers, `Fetch` extension trait |
+| `evm` | Shared EVM utilities (Address, U256, signing) |
+| `middleware` | reqwest-middleware integration (implies `client`) |
 | `server` | Server verification, `ChargeMethod` trait |
-| `tempo` | Tempo blockchain support |
-| `middleware` | reqwest-middleware integration |
+| `tempo` | Tempo blockchain support (includes `evm`) |
 
-### Common feature flags
+### Common combinations
 
 ```toml
 # Client only
@@ -88,5 +97,6 @@ mpp = { version = "0.1", features = ["tempo", "client", "middleware"] }
 
 ## Next steps
 
+- [Core types](/sdk/rust/core): Challenge, Credential, and Receipt primitives
 - [Client](/sdk/rust/client): Handle `402` responses automatically
 - [Server](/sdk/rust/server): Protect endpoints with payments

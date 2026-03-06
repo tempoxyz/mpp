@@ -4,32 +4,59 @@ Handle `402` Payment Required responses automatically.
 
 ## Quick start
 
-Add `.send_with_payment()` to any `reqwest::RequestBuilder`.
+Add `.send_with_payment()` to any `reqwest::RequestBuilder`. The extension trait handles the challenge→credential→retry flow for you.
 
 ```rust
-use mpp::client::{PaymentExt, TempoProvider};
-use alloy::signers::local::PrivateKeySigner;
+use mpp::client::{Fetch, TempoProvider};
+use mpp::PrivateKeySigner;
 
 let signer = PrivateKeySigner::random();
 let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
 
 let response = reqwest::Client::new()
-    .get("https://mpp.dev/api/ping/paid")
+    .get("https://api.example.com/paid")
     .send_with_payment(&provider)
     .await?;
+
+println!("Status: {}", response.status());
 ```
 
-## Key types
+When the server returns `402`, `send_with_payment`:
 
-| Type | Description |
-|------|-------------|
-| `PaymentExt` | Extension trait that adds `send_with_payment` |
-| `TempoProvider` | Signs and submits Tempo payments |
-| `PaymentProvider` | Trait for custom payment methods |
+1. Parses the Challenge from the `WWW-Authenticate` header
+2. Calls `provider.pay()` to sign a stablecoin transfer
+3. Retries the request with the Credential in the `Authorization` header
 
-## Middleware (Optional)
+## `TempoProvider`
 
-All requests automatically handle 402. Requires the `middleware` feature.
+`TempoProvider` signs TIP-20 stablecoin transfers on the Tempo blockchain.
+
+```rust
+use mpp::client::TempoProvider;
+use mpp::PrivateKeySigner;
+
+let signer: PrivateKeySigner = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    .parse()?;
+
+let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
+```
+
+### With client ID
+
+Attach an identifier to transactions for attribution:
+
+```rust
+let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?
+    .with_client_id("my-app");
+```
+
+## Middleware
+
+For automatic `402` handling on all requests, use `PaymentMiddleware` with `reqwest-middleware`. Requires the `middleware` feature.
+
+```toml
+mpp = { version = "0.1", features = ["tempo", "client", "middleware"] }
+```
 
 ```rust
 use mpp::client::{PaymentMiddleware, TempoProvider};
@@ -41,7 +68,58 @@ let client = ClientBuilder::new(reqwest::Client::new())
     .with(PaymentMiddleware::new(provider))
     .build();
 
-let response = client.get("https://mpp.dev/api/ping/paid").send().await?;
+// All requests through this client handle 402 automatically
+let response = client.get("https://api.example.com/paid").send().await?;
 ```
 
-For custom methods, implement `PaymentProvider` and pass it to `send_with_payment`.
+## Multiple providers
+
+`MultiProvider` wraps multiple payment providers and picks the right one based on the challenge's `method` and `intent`:
+
+```rust
+use mpp::client::{MultiProvider, TempoProvider};
+
+let provider = MultiProvider::new()
+    .with(TempoProvider::new(signer, "https://rpc.tempo.xyz")?);
+
+let response = reqwest::Client::new()
+    .get("https://api.example.com/paid")
+    .send_with_payment(&provider)
+    .await?;
+```
+
+## Custom provider
+
+Implement the `PaymentProvider` trait to add support for custom payment methods:
+
+```rust
+use mpp::client::PaymentProvider;
+use mpp::{PaymentChallenge, PaymentCredential, PaymentPayload, MppError};
+
+#[derive(Clone)]
+struct MyProvider;
+
+impl PaymentProvider for MyProvider {
+    fn supports(&self, method: &str, intent: &str) -> bool {
+        method == "my_network" && intent == "charge"
+    }
+
+    async fn pay(
+        &self,
+        challenge: &PaymentChallenge,
+    ) -> Result<PaymentCredential, MppError> {
+        let echo = challenge.to_echo();
+        Ok(PaymentCredential::new(echo, PaymentPayload::hash("0x...")))
+    }
+}
+```
+
+## Key types
+
+| Type | Description |
+|------|-------------|
+| `Fetch` (`PaymentExt`) | Extension trait that adds `send_with_payment` to `reqwest::RequestBuilder` |
+| `MultiProvider` | Wraps multiple providers, routes by method and intent |
+| `PaymentMiddleware` | reqwest-middleware for automatic `402` handling |
+| `PaymentProvider` | Trait for custom payment method implementations |
+| `TempoProvider` | Signs Tempo stablecoin transfers |

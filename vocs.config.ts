@@ -452,6 +452,7 @@ export default defineConfig({
             collapsed: true,
             items: [
               { text: "Overview", link: "/sdk/rust" },
+              { text: "Core Types", link: "/sdk/rust/core" },
               { text: "Client", link: "/sdk/rust/client" },
               { text: "Server", link: "/sdk/rust/server" },
             ],

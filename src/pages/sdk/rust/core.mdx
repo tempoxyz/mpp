@@ -1,0 +1,91 @@
+# Core types [Challenge, Credential, and Receipt primitives]
+
+The SDK provides three core types that map directly to HTTP headers: `PaymentChallenge`, `PaymentCredential`, and `Receipt`.
+
+```rust
+use mpp::{PaymentChallenge, PaymentCredential, Receipt};
+```
+
+## Parse a Challenge
+
+Parse a `WWW-Authenticate` header into a typed `PaymentChallenge`:
+
+```rust
+use mpp::parse_www_authenticate;
+
+let header = r#"Payment id="abc", realm="api.example.com", method="tempo", intent="charge", request="eyJhbW91bnQiOiIxMDAwIn0""#;
+let challenge = parse_www_authenticate(header)?;
+
+println!("Method: {}", challenge.method);
+println!("Intent: {}", challenge.intent);
+```
+
+Decode the base64url-encoded request to a typed struct:
+
+```rust
+use mpp::ChargeRequest;
+
+let request: ChargeRequest = challenge.request.decode()?;
+println!("Amount: {}", request.amount);
+```
+
+## Create a Credential
+
+Build a `PaymentCredential` from a challenge echo and payment proof:
+
+```rust
+use mpp::{PaymentCredential, PaymentPayload, format_authorization};
+
+let credential = PaymentCredential::with_source(
+    challenge.to_echo(),
+    "did:pkh:eip155:42431:0xa726a1...",
+    PaymentPayload::transaction("0xf86c..."),
+);
+
+let header = format_authorization(&credential)?;
+// header = "Payment eyJ..."
+```
+
+## Parse a Receipt
+
+Parse the `Payment-Receipt` response header:
+
+```rust
+use mpp::parse_receipt;
+
+let receipt = parse_receipt(receipt_header)?;
+println!("Status: {:?}", receipt.status);
+println!("Reference: {}", receipt.reference);
+```
+
+Serialize a Receipt back to a header value:
+
+```rust
+use mpp::format_receipt;
+
+let header = format_receipt(&receipt)?;
+```
+
+## Type reference
+
+| Type | Description |
+|------|-------------|
+| `PaymentChallenge` | Server challenge parsed from `WWW-Authenticate` |
+| `PaymentCredential` | Client credential for the `Authorization` header |
+| `PaymentPayload` | Payment proof—either `transaction` (signed tx) or `hash` (tx hash) |
+| `ChallengeEcho` | Echoed challenge fields in a Credential |
+| `Receipt` | Server receipt parsed from `Payment-Receipt` |
+| `ChargeRequest` | Decoded charge intent request data |
+| `SessionRequest` | Decoded session intent request data |
+| `Base64UrlJson` | JSON value encoded as base64url |
+
+## Header functions
+
+| Function | Description |
+|----------|-------------|
+| `format_authorization` | Serialize a Credential to an `Authorization` header value |
+| `format_receipt` | Serialize a Receipt to a `Payment-Receipt` header value |
+| `format_www_authenticate` | Serialize a Challenge to a `WWW-Authenticate` header value |
+| `parse_authorization` | Parse an `Authorization` header into a Credential |
+| `parse_receipt` | Parse a `Payment-Receipt` header into a Receipt |
+| `parse_www_authenticate` | Parse a `WWW-Authenticate` header into a Challenge |
