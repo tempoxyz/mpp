@@ -205,25 +205,9 @@ export async function handler(req: IncomingMessage, res: ServerResponse) {
 
 ## Testing your server
 
-After your server is running, test it with [presto](/tools/presto) or the `mppx` CLI:
+After your server is running, test it with the `mppx` CLI:
 
-::::code-group
-
-```bash [presto]
-# See the payment challenge
-$ presto inspect <your-server>/resource
-
-# Make a paid request (requires funded wallet)
-$ presto query <your-server>/resource
-
-# Verbose output to see the full 402 flow
-$ presto query -vi <your-server>/resource
-
-# Dry run to preview payment without executing
-$ presto query -D <your-server>/resource
-```
-
-```bash [mppx]
+```bash
 # Create an account funded with testnet tokens
 $ npx mppx account create
 
@@ -231,10 +215,8 @@ $ npx mppx account create
 $ npx mppx <your-server>/resource
 ```
 
-::::
-
 :::tip
-Use `presto inspect` or `npx mppx --inspect` to debug your server's Challenge response without making any payments.
+Use `npx mppx --inspect` to debug your server's Challenge response without making any payments.
 :::
 
 ## Next steps

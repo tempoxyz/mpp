@@ -38,7 +38,7 @@ export function PrestoCliCard() {
     <Card
       description="Command-line tool for making paid HTTP requests"
       icon="lucide:terminal"
-      title="presto CLI"
+      title="Tempo Wallet CLI"
       to="/tools/presto"
     />
   );

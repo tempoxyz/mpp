@@ -713,9 +713,9 @@ function PrestoCardFull() {
           marginBottom: "1.25rem",
         }}
       >
-        Install the{" "}
+        Install{" "}
         <Link className="text-primary font-medium" to="/quickstart/agent">
-          Presto CLI
+          Tempo Wallet
         </Link>{" "}
         on your agent to use MPP services.
       </p>
@@ -1020,12 +1020,12 @@ function PrestoSteps() {
       }}
     >
       <CliSnippet label="Install" desc="One-line install via shell.">
-        curl -L presto-binaries.tempo.xyz/install.sh | bash
+        curl -L cli.tempo.xyz/install.sh | bash
       </CliSnippet>
       <CliSnippet
         label="Prompt your agent"
         desc="Use a service by prompting your agent (Claude, Codex, Amp, etc):"
-      >{`Generate a surreal image with fal.ai using Presto`}</CliSnippet>
+      >{`Generate a surreal image with fal.ai using Tempo Wallet`}</CliSnippet>
     </div>
   );
 }

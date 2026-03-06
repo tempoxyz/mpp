@@ -4,22 +4,22 @@
 > Docs: https://mpp.tempo.xyz/overview
 > Full reference: https://mpp.tempo.xyz/llms-full.txt
 
-## Presto
+## Tempo Wallet
 
-Presto is a command-line HTTP client with built-in MPP payment support.
+Tempo Wallet CLI is a command-line HTTP client with built-in MPP payment support.
 
 Install:
-  $ curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash
+  $ curl -L https://cli.tempo.xyz/install.sh | bash
 
 Log in (connects your Tempo wallet):
-  $ presto login
+  $ tempo-wallet login
 
 Make a request (payment handled automatically):
-  $ presto https://openai.mpp.tempo.xyz/v1/chat/completions \
+  $ tempo-wallet https://openai.mpp.tempo.xyz/v1/chat/completions \
     -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello"}]}'
 
 Preview cost without paying:
-  $ presto --dry-run https://openai.mpp.tempo.xyz/v1/chat/completions
+  $ tempo-wallet --dry-run https://openai.mpp.tempo.xyz/v1/chat/completions
 
 ## API
 

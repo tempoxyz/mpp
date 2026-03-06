@@ -6,9 +6,8 @@ const AGENT_COLOR = "#e8873a";
 const CMD_PURPLE = "#c084fc";
 const PRESTO_GREEN = "#4ade80";
 const FLAG_GREY = "var(--vocs-text-color-muted)";
-const PRESTO_INSTALL =
-  "curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash";
-const PRESTO_LOGIN = "presto login";
+const PRESTO_INSTALL = "curl -L https://cli.tempo.xyz/install.sh | bash";
+const PRESTO_LOGIN = "tempo-wallet login";
 const QUICKSTART_URL = "https://mpp.dev/quickstart/client.md";
 const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
 
@@ -182,14 +181,14 @@ export function AgentTabs() {
           }}
         >
           <div style={{ color: "var(--vocs-text-color-muted)" }}>
-            # Install presto
+            # Install tempo-wallet
           </div>
           <div>
             <span style={{ color: CMD_PURPLE }}>curl</span>
             <span style={{ color: FLAG_GREY }}> -fsSL</span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {" "}
-              https://presto-binaries.tempo.xyz/install.sh
+              https://cli.tempo.xyz/install.sh
             </span>
             <span style={{ color: FLAG_GREY }}> |</span>
             <span style={{ color: CMD_PURPLE }}> bash</span>
@@ -203,7 +202,7 @@ export function AgentTabs() {
             # Connect wallet
           </div>
           <div>
-            <span style={{ color: PRESTO_GREEN }}>presto</span>
+            <span style={{ color: PRESTO_GREEN }}>tempo-wallet</span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {" "}
               login
