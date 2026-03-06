@@ -573,7 +573,11 @@ export const services: ServiceDef[] = [
     endpoints: [
       { route: "POST /v2/droplets", desc: "Create a Droplet", dynamic: true },
       { route: "GET /v2/droplets", desc: "List all Droplets", amount: "100" },
-      { route: "GET /v2/droplets/:id", desc: "Get Droplet details", amount: "100" },
+      {
+        route: "GET /v2/droplets/:id",
+        desc: "Get Droplet details",
+        amount: "100",
+      },
       {
         route: "DELETE /v2/droplets/:id",
         desc: "Delete a Droplet",
@@ -585,9 +589,21 @@ export const services: ServiceDef[] = [
         dynamic: true,
       },
       { route: "POST /v2/account/keys", desc: "Add an SSH key", dynamic: true },
-      { route: "GET /v2/account/keys", desc: "List all SSH keys", amount: "100" },
-      { route: "GET /v2/account/keys/:id", desc: "Get SSH key details", amount: "100" },
-      { route: "DELETE /v2/account/keys/:id", desc: "Delete an SSH key", amount: "100" },
+      {
+        route: "GET /v2/account/keys",
+        desc: "List all SSH keys",
+        amount: "100",
+      },
+      {
+        route: "GET /v2/account/keys/:id",
+        desc: "Get SSH key details",
+        amount: "100",
+      },
+      {
+        route: "DELETE /v2/account/keys/:id",
+        desc: "Delete an SSH key",
+        amount: "100",
+      },
       { route: "GET /v2/regions", desc: "List available regions" },
       { route: "GET /v2/sizes", desc: "List available Droplet sizes" },
       { route: "GET /v2/images", desc: "List available images" },
@@ -890,9 +906,21 @@ export const services: ServiceDef[] = [
         desc: "Create a sandbox for code execution",
         dynamic: true,
       },
-      { route: "POST /sandbox/exec", desc: "Execute command in sandbox", amount: "100" },
-      { route: "POST /sandbox/status", desc: "Get sandbox status", amount: "100" },
-      { route: "POST /sandbox/terminate", desc: "Terminate a sandbox", amount: "100" },
+      {
+        route: "POST /sandbox/exec",
+        desc: "Execute command in sandbox",
+        amount: "100",
+      },
+      {
+        route: "POST /sandbox/status",
+        desc: "Get sandbox status",
+        amount: "100",
+      },
+      {
+        route: "POST /sandbox/terminate",
+        desc: "Terminate a sandbox",
+        amount: "100",
+      },
     ],
   },
 
