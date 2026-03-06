@@ -77,7 +77,7 @@ let response = client.get("https://api.example.com/paid").send().await?;
 `MultiProvider` wraps multiple payment providers and picks the right one based on the challenge's `method` and `intent`:
 
 ```rust
-use mpp::client::{MultiProvider, TempoProvider};
+use mpp::client::{Fetch, MultiProvider, TempoProvider};
 
 let provider = MultiProvider::new()
     .with(TempoProvider::new(signer, "https://rpc.tempo.xyz")?);

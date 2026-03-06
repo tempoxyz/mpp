@@ -29,38 +29,38 @@ let mpp = Mpp::create(
 )?;
 ```
 
-## Full Axum example
+## Axum handler example
+
+Use `charge()` to generate a Challenge and `verify_credential()` to verify the retry:
 
 ```rust
-use axum::{routing::get, Router, Json, http::StatusCode};
-use axum::response::IntoResponse;
 use mpp::server::{Mpp, tempo, TempoConfig};
-use mpp::{PaymentChallenge, parse_authorization, format_www_authenticate};
+use mpp::{parse_authorization, format_www_authenticate};
 
 let mpp = Mpp::create(tempo(TempoConfig {
     recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
 }))?;
 
-async fn get_resource(
-    headers: axum::http::HeaderMap,
-    mpp: axum::extract::State<Mpp<...>>,
-) -> impl IntoResponse {
-    let auth = headers.get("authorization").and_then(|v| v.to_str().ok());
+// In your handler, check for an Authorization header:
+let auth = headers.get("authorization").and_then(|v| v.to_str().ok());
 
-    match auth {
-        Some(auth_header) => {
-            let credential = parse_authorization(auth_header).unwrap();
-            let receipt = mpp.verify_credential(&credential).await.unwrap();
-            (StatusCode::OK, Json(serde_json::json!({ "paid": true }))).into_response()
-        }
-        None => {
-            let challenge = mpp.charge("0.50").unwrap();
-            let header = format_www_authenticate(&challenge).unwrap();
-            (StatusCode::PAYMENT_REQUIRED, [("WWW-Authenticate", header)]).into_response()
-        }
+match auth {
+    Some(auth_header) => {
+        // Parse and verify the Credential
+        let credential = parse_authorization(auth_header)?;
+        let receipt = mpp.verify_credential(&credential).await?;
+        // → return 200 with paid content + Payment-Receipt header
+    }
+    None => {
+        // No Credential — issue a Challenge
+        let challenge = mpp.charge("0.50")?;
+        let header = format_www_authenticate(&challenge)?;
+        // → return 402 with WWW-Authenticate header
     }
 }
 ```
+
+For a declarative approach with less boilerplate, use the [Axum extractor](#axum-extractor) instead.
 
 ## `tempo()` builder
 
