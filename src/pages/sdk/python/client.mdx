@@ -1,6 +1,6 @@
 # Client [Handle 402 responses automatically]
 
-Handle `402` Payment Required responses automatically.
+The `Client` class wraps `httpx` and intercepts `402` responses—it parses the Challenge, signs a stablecoin transfer, and retries with the Credential.
 
 ## Quick start
 

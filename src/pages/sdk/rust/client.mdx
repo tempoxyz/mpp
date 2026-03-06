@@ -1,10 +1,8 @@
 # Client [Handle 402 responses automatically]
 
-Handle `402` Payment Required responses automatically.
+The `Fetch` extension trait adds `.send_with_payment()` to any `reqwest::RequestBuilder`—when a server returns `402`, it parses the Challenge, signs a stablecoin transfer, and retries with the Credential.
 
 ## Quick start
-
-Add `.send_with_payment()` to any `reqwest::RequestBuilder`. The extension trait handles the payment lifecycle for you.
 
 ```rust
 use mpp::client::{Fetch, TempoProvider};
