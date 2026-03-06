@@ -203,6 +203,66 @@ export async function handler(req: IncomingMessage, res: ServerResponse) {
 ```
 
 
+## Push & pull modes
+
+Tempo charges support two transaction submission modes, determined by the client:
+
+- **`pull` mode (default)**: the client signs the transaction and sends the serialized transaction to the server. The server broadcasts it and verifies on-chain. This enables the server to sponsor gas fees via a `feePayer`.
+- **`push` mode**: the client builds, signs, and broadcasts the transaction itself (for example, via a browser wallet). It sends the transaction hash to the server, which verifies the payment by fetching the receipt.
+
+Your server handles both modes automatically – no configuration required. The server inspects the credential payload type (`transaction` for pull, `hash` for push) and verifies accordingly.
+
+If you would like to force a specific mode, you can set the `mode` parameter to `'pull'` or `'push'`.
+
+```ts
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    mode: 'push', // [!code focus]
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+```
+
+### Fee sponsorship
+
+To sponsor gas fees for pull-mode clients, pass a `feePayer` account to `tempo()`:
+
+```ts
+import { Mppx, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    feePayer: privateKeyToAccount('0x…'), // [!code focus]
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  })],
+})
+```
+
+When a pull-mode client submits a signed transaction, the server co-signs with the fee payer account before broadcasting. Push-mode clients pay their own gas, so `feePayer` is ignored for those requests.
+
+### Optimistic verification
+
+By default, the server waits for onchain confirmation before returning a Receipt. For lower latency, set `waitForConfirmation: false` to return immediately after simulation:
+
+```ts
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+    waitForConfirmation: false, // [!code focus]
+  })],
+})
+```
+
+:::warning
+Optimistic verification simulates the transaction but does not wait for inclusion. If the transaction reverts onchain after broadcast, the Receipt does not reflect the failure. Only use this when latency matters more than guaranteed confirmation.
+:::
+
 ## Testing your server
 
 After your server is running, test it with the `mppx` CLI:

@@ -121,6 +121,23 @@ On-chain memo for the transaction.
 
 Testnet mode. Defaults the chain ID to `42431` (Tempo testnet).
 
+### waitForConfirmation (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to wait for the charge transaction to confirm on-chain before responding. When `false`, the transaction is simulated via `eth_estimateGas` and broadcast without waiting for inclusion. The Receipt optimistically reports `status: 'success'` based on simulation alone.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({
+    waitForConfirmation: false, // [!code focus]
+  })],
+})
+```
+
 ## Request parameters
 
 ### amount

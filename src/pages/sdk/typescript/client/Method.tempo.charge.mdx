@@ -75,3 +75,23 @@ Client identifier used to derive the client fingerprint in attribution memos.
 - **Type:** `(parameters: { chainId: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
+
+### mode (optional)
+
+- **Type:** `'push' | 'pull'`
+- **Default:** `'push'` for JSON-RPC accounts, `'pull'` for local accounts
+
+Controls how the charge transaction is submitted.
+
+- `'push'`: the client broadcasts the transaction and sends the transaction hash to the server for verification.
+- `'pull'`: the client signs the transaction and sends the serialized transaction to the server, which broadcasts it. This is required for server-side [fee sponsorship](/quickstart/server#fee-sponsorship).
+
+```ts
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = tempo.charge({
+  account: privateKeyToAccount('0xabc…123'),
+  mode: 'pull', // [!code focus]
+})
+```
