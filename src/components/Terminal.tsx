@@ -1081,10 +1081,12 @@ function CardForm({
   onSubmit,
   completed = false,
   savedCard,
+  onCancel,
 }: {
   onSubmit: (card: SavedCard) => void;
   completed?: boolean;
   savedCard?: SavedCard;
+  onCancel?: () => void;
 }) {
   const defaultCardNumber = "4242 4242 4242 4242";
   const defaultExpiry = "12/34";
@@ -1125,6 +1127,19 @@ function CardForm({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (field === "cvc") {
+        setCvc("");
+        setField("expiry");
+      } else if (field === "expiry") {
+        setExpiry("");
+        setField("number");
+      } else if (field === "number") {
+        onCancel?.();
+      }
+      return;
+    }
     if (e.key === "Tab") {
       e.preventDefault();
       if (field === "number" && !cardNumber.trim()) setCardNumber(defaultCardNumber);
@@ -1260,6 +1275,7 @@ function StripeSteps({
   onCardSaved,
   demoClient,
   onContentReceived,
+  onCancel,
 }: {
   endpoint: string;
   output: string[];
@@ -1270,6 +1286,7 @@ function StripeSteps({
   onCardSaved?: (card: SavedCard) => void;
   demoClient?: DemoClient | null;
   onContentReceived?: (content: string[]) => void;
+  onCancel?: () => void;
 }) {
   const [piId, setPiId] = useState(() => randomStripeId("pi_"));
   const doneCalled = useRef(false);
@@ -1427,6 +1444,7 @@ function StripeSteps({
         <CardForm
           completed={pastStep("cardInput")}
           savedCard={savedCard}
+          onCancel={onCancel}
           onSubmit={(card) => {
             setCardSubmitted(true);
             onCardSaved?.(card);
@@ -1739,6 +1757,7 @@ function Wizard({
           onCardSaved={setSavedCard}
           demoClient={isActive ? demoClient : undefined}
           onContentReceived={isActive ? handleContentReceived : undefined}
+          onCancel={isActive ? () => setChosen(null) : undefined}
         />
       );
     }
@@ -1892,7 +1911,13 @@ function Wizard({
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") submitUrl();
+                  if (e.key === "Escape") {
+                    e.preventDefault();
+                    setWaitingForUrl(false);
+                    setUrlInput("");
+                  } else if (e.key === "Enter") {
+                    submitUrl();
+                  }
                 }}
                 className="term-url-input min-w-0 flex-1 bg-transparent outline-none"
                 style={{ color: "var(--term-gray10)" }}
