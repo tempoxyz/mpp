@@ -45,7 +45,7 @@ export default defineConfig({
     },
   ],
   description: "The open protocol for internet payments.",
-  checkDeadlinks: "warn",
+  checkDeadlinks: true,
   editLink: {
     link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",
     text: "Suggest changes to this page",
