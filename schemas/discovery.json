@@ -1294,14 +1294,28 @@
           "method": "GET",
           "path": "/v2/droplets",
           "description": "List all Droplets",
-          "payment": null,
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "amount": "100",
+            "description": "List Droplets"
+          },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fdroplets"
         },
         {
           "method": "GET",
           "path": "/v2/droplets/:id",
           "description": "Get Droplet details",
-          "payment": null,
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "amount": "100",
+            "description": "Get a Droplet"
+          },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Fdroplets%2F%3Aid"
         },
         {
@@ -1350,21 +1364,42 @@
           "method": "GET",
           "path": "/v2/account/keys",
           "description": "List all SSH keys",
-          "payment": null,
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "amount": "100",
+            "description": "List SSH keys"
+          },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Faccount%2Fkeys"
         },
         {
           "method": "GET",
           "path": "/v2/account/keys/:id",
           "description": "Get SSH key details",
-          "payment": null,
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "amount": "100",
+            "description": "Get an SSH key"
+          },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=GET%20%2Fv2%2Faccount%2Fkeys%2F%3Aid"
         },
         {
           "method": "DELETE",
           "path": "/v2/account/keys/:id",
           "description": "Delete an SSH key",
-          "payment": null,
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "amount": "100",
+            "description": "Delete an SSH key"
+          },
           "docs": "https://context7.com/websites/digitalocean/llms.txt?topic=DELETE%20%2Fv2%2Faccount%2Fkeys%2F%3Aid"
         },
         {
@@ -2140,21 +2175,42 @@
           "method": "POST",
           "path": "/sandbox/exec",
           "description": "Execute command in sandbox",
-          "payment": null,
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "amount": "100",
+            "description": "Execute in a sandbox"
+          },
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fexec"
         },
         {
           "method": "POST",
           "path": "/sandbox/status",
           "description": "Get sandbox status",
-          "payment": null,
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "amount": "100",
+            "description": "Get sandbox status"
+          },
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fstatus"
         },
         {
           "method": "POST",
           "path": "/sandbox/terminate",
           "description": "Terminate a sandbox",
-          "payment": null,
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "amount": "100",
+            "description": "Terminate a sandbox"
+          },
           "docs": "https://context7.com/websites/modal/llms.txt?topic=POST%20%2Fsandbox%2Fterminate"
         }
       ]
@@ -2657,7 +2713,7 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Create a new tweet",
-            "amount": "5000"
+            "amount": "10000"
           },
           "docs": "https://context7.com/websites/x_x-api/llms.txt?topic=POST%20%2F2%2Ftweets"
         },
@@ -2671,7 +2727,7 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Look up a user by ID",
-            "amount": "5000"
+            "amount": "10000"
           },
           "docs": "https://context7.com/websites/x_x-api/llms.txt?topic=GET%20%2F2%2Fusers%2F%3Aid"
         },
@@ -2685,7 +2741,7 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Look up user by username",
-            "amount": "5000"
+            "amount": "10000"
           },
           "docs": "https://context7.com/websites/x_x-api/llms.txt?topic=GET%20%2F2%2Fusers%2Fby%2Fusername%2F%3Ausername"
         },
@@ -5947,197 +6003,6 @@
             "decimals": 6,
             "description": "Track flights between airports",
             "amount": "2000"
-          }
-        }
-      ]
-    },
-    {
-      "id": "flightaware",
-      "name": "FlightAware AeroAPI",
-      "url": "https://aeroapi.flightaware.com",
-      "serviceUrl": "https://flightaware.mpp.tempo.xyz",
-      "description": "On-demand flight tracking, airport activity, and aviation data.",
-      "categories": [
-        "data"
-      ],
-      "integration": "third-party",
-      "tags": [
-        "flights",
-        "tracking",
-        "airports",
-        "aviation"
-      ],
-      "status": "active",
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "FlightAware",
-        "url": "https://www.flightaware.com"
-      },
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/aeroapi/airports/:id",
-          "description": "Airport info",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Airport info",
-            "amount": "10000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/airports/:id/flights",
-          "description": "Airport flights",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Airport flights",
-            "amount": "10000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/airports/:id/flights/arrivals",
-          "description": "Airport arrivals",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Airport arrivals",
-            "amount": "5000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/airports/:id/flights/departures",
-          "description": "Airport departures",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Airport departures",
-            "amount": "5000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/airports/:id/flights/scheduled_arrivals",
-          "description": "Scheduled arrivals",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Scheduled arrivals",
-            "amount": "5000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/airports/:id/flights/scheduled_departures",
-          "description": "Scheduled departures",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Scheduled departures",
-            "amount": "5000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/flights/:id/map",
-          "description": "Flight map image",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Flight map image",
-            "amount": "10000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/flights/:id/track",
-          "description": "Flight track positions",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Flight track positions",
-            "amount": "30000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/flights/:ident",
-          "description": "Flight lookup by ident",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Flight lookup by ident",
-            "amount": "5000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/operators/:id",
-          "description": "Operator info",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Operator info",
-            "amount": "15000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/operators/:id/flights",
-          "description": "Operator flights",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Operator flights",
-            "amount": "30000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/aeroapi/schedules/:start/:end",
-          "description": "Flight schedules",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Flight schedules",
-            "amount": "20000"
           }
         }
       ]
