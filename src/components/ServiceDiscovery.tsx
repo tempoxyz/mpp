@@ -17,34 +17,12 @@ const CATEGORY_LABELS: Record<Category, string> = {
   web: "Web",
 };
 
-const ICON_MAP: Record<string, string> = {
-  agentmail: "agentmail.svg",
-  alchemy: "alchemy.svg",
-  anthropic: "anthropic.svg",
-  browserbase: "browserbase.svg",
-  codex: "codex.svg",
-  digitalocean: "digitalocean.svg",
-  elevenlabs: "elevenlabs.svg",
-  exa: "exa.svg",
-  "fal.ai": "fal.svg",
-  firecrawl: "firecrawl.svg",
-  "google gemini": "gemini.svg",
-  modal: "modal.svg",
-  openai: "openai.svg",
-  openrouter: "openrouter.svg",
-  parallel: "parallel.svg",
-  "tempo rpc": "rpc.svg",
-  "object storage": "storage.svg",
-  "twitter/x": "twitter.svg",
-  stableemail: "stableemail.svg",
-  stableenrich: "stableenrich.svg",
-  stabletravel: "stabletravel.svg",
-  stablephone: "stablephone.svg",
-  stablesocial: "stablesocial.svg",
-  stablestudio: "stablestudio.svg",
-  stableupload: "stableupload.svg",
-  "code storage": "codestorage.svg",
-};
+// Flip to true when `tempo wallet q` convention goes live
+const WALLET_Q_PREFIX = false;
+
+function formatPathForCli(path: string): string {
+  return path.replace(/:(\w+)/g, "{$1}");
+}
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -83,11 +61,9 @@ function getExamplePayload(ep: Endpoint): string {
   return "'{}'";
 }
 
-function getIconUrl(service: Service): string | null {
+function getIconUrl(service: Service): string {
   if (service.icon) return service.icon;
-  const key = service.name.toLowerCase();
-  const file = ICON_MAP[key] ?? ICON_MAP[service.id];
-  return file ? `/icons/${file}` : null;
+  return `/api/icon?id=${encodeURIComponent(service.id)}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -192,6 +168,8 @@ export function ServiceDiscovery() {
   const inputRef = useRef<HTMLInputElement>(null);
   const brokenIcons = useRef(new Set<string>());
   const [, forceIconUpdate] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     fetchServices()
@@ -200,6 +178,7 @@ export function ServiceDiscovery() {
   }, []);
 
   useEffect(() => {
+    setActiveIndex(-1);
     const timer = setTimeout(() => setDebouncedQuery(query), 300);
     return () => clearTimeout(timer);
   }, [query]);
@@ -212,13 +191,28 @@ export function ServiceDiscovery() {
         if (entry.isIntersecting) {
           setVisible(true);
           setTimeout(() => setRevealed(true), 800);
-          setTimeout(() => inputRef.current?.focus(), 400);
+          const isMobile = window.matchMedia("(max-width: 768px)").matches;
+          if (!isMobile) {
+            setTimeout(() => inputRef.current?.focus(), 400);
+          }
         }
       },
       { threshold: 0.5 },
     );
     observer.observe(el);
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleGlobalKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        sectionRef.current?.scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => inputRef.current?.focus(), 300);
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKey);
+    return () => window.removeEventListener("keydown", handleGlobalKey);
   }, []);
 
   const stableScored = useMemo(() => {
@@ -257,6 +251,30 @@ export function ServiceDiscovery() {
       setQuery("");
     }
   }, []);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowDropdown(false);
+        setActiveIndex(-1);
+        inputRef.current?.blur();
+        return;
+      }
+      if (!showDropdown || dropdownResults.length === 0) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveIndex((i) => Math.min(i + 1, dropdownResults.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveIndex((i) => Math.max(i - 1, 0));
+      } else if (e.key === "Enter" && activeIndex >= 0) {
+        e.preventDefault();
+        handleDropdownSelect(dropdownResults[activeIndex]);
+        setActiveIndex(-1);
+      }
+    },
+    [showDropdown, dropdownResults, activeIndex, handleDropdownSelect],
+  );
 
   useEffect(() => {
     if (!debouncedQuery) {
@@ -314,7 +332,7 @@ export function ServiceDiscovery() {
         <div className="discovery-overlay" ref={overlayRef}>
           <h2 className="discovery-overlay-title">Start using MPP</h2>
           <p className="discovery-overlay-desc">
-            Enable seamless, paid behaviors for your agent or application.
+            Level up your agent or app with powerful abilities
           </p>
           <div className="discovery-search-wrapper">
             <div className="discovery-search">
@@ -327,11 +345,52 @@ export function ServiceDiscovery() {
                   setQuery(e.target.value);
                   setShowDropdown(e.target.value.length > 0);
                 }}
-                onFocus={() => query.length > 0 && setShowDropdown(true)}
-                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                onFocus={() => {
+                  setIsFocused(true);
+                  if (query.length > 0) setShowDropdown(true);
+                }}
+                onBlur={() => {
+                  setIsFocused(false);
+                  setTimeout(() => setShowDropdown(false), 200);
+                }}
+                onKeyDown={handleKeyDown}
                 placeholder="Search services, endpoints, categories..."
                 className="discovery-search-input"
               />
+              {!isFocused && query.length === 0 && (
+                <kbd className="discovery-kbd">
+                  <span className="discovery-kbd-symbol">⌘</span>K
+                </kbd>
+              )}
+              {query.length > 0 && (
+                <button
+                  type="button"
+                  className="discovery-search-clear"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setQuery("");
+                    setShowDropdown(false);
+                    inputRef.current?.blur();
+                  }}
+                  aria-label="Clear search"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-label="Clear"
+                  >
+                    <title>Clear</title>
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
             {showDropdown && dropdownResults.length > 0 && (
               <div className="discovery-dropdown">
@@ -339,11 +398,12 @@ export function ServiceDiscovery() {
                   <button
                     key={`${r.type}-${i}`}
                     type="button"
-                    className="discovery-dropdown-item"
+                    className={`discovery-dropdown-item${i === activeIndex ? " discovery-dropdown-active" : ""}`}
                     onMouseDown={(e) => {
                       e.preventDefault();
                       handleDropdownSelect(r);
                     }}
+                    onMouseEnter={() => setActiveIndex(i)}
                   >
                     {r.type === "category" && (
                       <>
@@ -381,6 +441,13 @@ export function ServiceDiscovery() {
               </div>
             )}
           </div>
+          {query.trim().length > 0 &&
+            dropdownResults.length === 0 &&
+            !showDropdown && (
+              <p className="discovery-no-results">
+                No services match your search
+              </p>
+            )}
         </div>
 
         {/* Card grid */}
@@ -495,14 +562,20 @@ function ServiceDetailModal({
   );
   const [copied, setCopied] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(onClose, 200);
+  }, [onClose]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [onClose]);
+  }, [handleClose]);
 
   const iconUrl = getIconUrl(service);
 
@@ -519,13 +592,20 @@ function ServiceDetailModal({
 
   const baseUrl = service.serviceUrl ?? service.url;
   const epPath = selectedEndpoint?.path ?? "";
+  const cliPath = formatPathForCli(epPath);
   const isNonGet = selectedEndpoint && selectedEndpoint.method !== "GET";
   const exampleJson = selectedEndpoint
     ? getExamplePayload(selectedEndpoint)
     : "'{}'";
+  const walletPrefix = WALLET_Q_PREFIX ? "q " : "";
 
   const copyCommand = selectedEndpoint
-    ? `curl -L https://tempo.xyz/install | bash && tempo add wallet && tempo wallet login && tempo wallet ${baseUrl}${epPath}${isNonGet ? ` -X ${selectedEndpoint.method} --json ${exampleJson}` : ""}`
+    ? [
+        "curl -L https://tempo.xyz/install | bash",
+        "tempo add wallet",
+        "tempo wallet login",
+        `tempo wallet ${walletPrefix}--dry-run ${baseUrl}${cliPath}${isNonGet ? ` -X ${selectedEndpoint.method} --json ${exampleJson}` : ""}`,
+      ].join(" && ")
     : null;
 
   const handleCopySnippet = () => {
@@ -536,44 +616,34 @@ function ServiceDetailModal({
     }
   };
 
+  const green = "light-dark(#15803d, #4ade80)";
+  const purple = "light-dark(#7c3aed, #c084fc)";
+  const yellow = "light-dark(#b45309, #fbbf24)";
+  const muted = "var(--vocs-text-color-muted)";
+
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss
     // biome-ignore lint/a11y/noStaticElementInteractions: backdrop dismiss
     <div
-      className="modal-backdrop"
+      className={`modal-backdrop${isClosing ? " modal-closing" : ""}`}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) handleClose();
       }}
     >
       <DiscoveryStyles />
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: stop propagation only */}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: stop propagation only */}
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        {/* Close button */}
-        <button type="button" onClick={onClose} className="modal-close">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-label="Close"
-          >
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-
-        {/* Header */}
+      <div
+        className={`modal-content${isClosing ? " modal-closing" : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header row: icon + title + tags + action buttons + close */}
         <div className="modal-header">
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "flex-start",
+              alignItems: "center",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -634,31 +704,6 @@ function ServiceDetailModal({
                     </span>
                   ))}
                 </div>
-                {service.provider?.name && (
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "var(--vocs-text-color-muted)",
-                      marginTop: 2,
-                    }}
-                  >
-                    {service.provider.url ? (
-                      <a
-                        href={service.provider.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          color: "inherit",
-                          textDecoration: "underline",
-                        }}
-                      >
-                        {service.provider.name}
-                      </a>
-                    ) : (
-                      service.provider.name
-                    )}
-                  </div>
-                )}
               </div>
             </div>
             <div
@@ -666,7 +711,7 @@ function ServiceDetailModal({
                 display: "flex",
                 gap: 8,
                 flexShrink: 0,
-                marginRight: 32,
+                alignItems: "center",
               }}
             >
               {service.docs?.homepage && (
@@ -741,6 +786,26 @@ function ServiceDetailModal({
                   <span>API</span>
                 </a>
               )}
+              <button
+                type="button"
+                onClick={handleClose}
+                className="modal-close"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-label="Close"
+                >
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
             </div>
           </div>
           {service.description && (
@@ -801,89 +866,107 @@ function ServiceDetailModal({
           </div>
         </div>
 
-        {/* CLI snippet — click anywhere to copy */}
+        {/* CLI snippet */}
         {selectedEndpoint && (
-          // biome-ignore lint/a11y/useKeyWithClickEvents: copy on click
-          // biome-ignore lint/a11y/noStaticElementInteractions: copy on click
-          <div
-            className="modal-cli"
-            style={{ marginTop: "1.25rem", cursor: "pointer" }}
-            onClick={handleCopySnippet}
-          >
+          <div style={{ marginTop: "1.25rem" }}>
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 8,
+                gap: 8,
+                fontSize: 13,
+                fontWeight: 500,
+                color: "var(--vocs-text-color-heading)",
+                marginBottom: 4,
               }}
+            >
+              <span>Try it out</span>
+            </div>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--vocs-text-color-secondary)",
+                margin: "0 0 0.75rem",
+                lineHeight: 1.5,
+              }}
+            >
+              {selectedEndpoint.description ??
+                `Use this ${service.name} endpoint.`}
+            </p>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy on click */}
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: copy on click */}
+            <div
+              className={`modal-cli${copied ? " modal-cli-copied" : ""}`}
+              style={{ cursor: "pointer" }}
+              onClick={handleCopySnippet}
             >
               <div
                 style={{
-                  fontSize: 11,
-                  color: "var(--vocs-text-color-muted)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginBottom: 8,
                 }}
               >
-                Get started
+                <span
+                  className={`modal-copy-btn${copied ? " modal-copy-btn-active" : ""}`}
+                >
+                  {copied ? "Copied!" : "Copy"}
+                </span>
               </div>
-              <span className="modal-copy-btn">
-                {copied ? "Copied" : "Copy"}
-              </span>
+              <div className="cli-lines">
+                <div className="cli-line">
+                  <span className="cli-line-cmd">
+                    <span style={{ color: muted }}>$ </span>
+                    <span style={{ color: green }}>curl</span> -L
+                    https://tempo.xyz/install | bash
+                  </span>
+                  <span className="cli-line-comment"># Install Tempo CLI</span>
+                </div>
+                <div className="cli-line">
+                  <span className="cli-line-cmd">
+                    <span style={{ color: muted }}>$ </span>
+                    <span style={{ color: green }}>tempo</span> add wallet
+                  </span>
+                  <span className="cli-line-comment"># Add wallet tools</span>
+                </div>
+                <div className="cli-line">
+                  <span className="cli-line-cmd">
+                    <span style={{ color: muted }}>$ </span>
+                    <span style={{ color: green }}>tempo</span> wallet login
+                  </span>
+                  <span className="cli-line-comment">
+                    # Sign in via browser
+                  </span>
+                </div>
+                <div className="cli-line-empty" />
+                <div className="cli-line">
+                  <span className="cli-line-cmd">
+                    <span style={{ color: muted }}>$ </span>
+                    <span style={{ color: green }}>tempo</span> wallet{" "}
+                    {walletPrefix}--dry-run {baseUrl}
+                    {cliPath}
+                    {isNonGet && (
+                      <>
+                        {" \\\n    "}
+                        <span style={{ color: purple }}>
+                          -X {selectedEndpoint.method}
+                        </span>
+                        {" --json "}
+                        <span style={{ color: yellow }}>{exampleJson}</span>
+                      </>
+                    )}
+                  </span>
+                  <span className="cli-line-comment">
+                    # Test without paying
+                  </span>
+                </div>
+              </div>
             </div>
-            <pre
-              style={{
-                fontSize: 13,
-                lineHeight: 1.8,
-                margin: 0,
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-all",
-              }}
-            >
-              <span style={{ color: "var(--vocs-text-color-muted)" }}>$ </span>
-              <span style={{ color: "light-dark(#15803d, #4ade80)" }}>
-                curl
-              </span>{" "}
-              -L https://tempo.xyz/install | bash{"\n"}
-              <span style={{ color: "var(--vocs-text-color-muted)" }}>$ </span>
-              <span style={{ color: "light-dark(#15803d, #4ade80)" }}>
-                tempo
-              </span>{" "}
-              add wallet{"\n"}
-              <span style={{ color: "var(--vocs-text-color-muted)" }}>$ </span>
-              <span style={{ color: "light-dark(#15803d, #4ade80)" }}>
-                tempo
-              </span>{" "}
-              wallet login{"\n"}
-              <span style={{ color: "var(--vocs-text-color-muted)" }}>$ </span>
-              <span style={{ color: "light-dark(#15803d, #4ade80)" }}>
-                tempo
-              </span>{" "}
-              wallet {baseUrl}
-              {epPath}
-              {isNonGet && (
-                <>
-                  {" \\\n  "}
-                  <span style={{ color: "light-dark(#7c3aed, #c084fc)" }}>
-                    -X {selectedEndpoint.method}
-                  </span>
-                  {" --json "}
-                  <span style={{ color: "light-dark(#b45309, #fbbf24)" }}>
-                    {exampleJson}
-                  </span>
-                </>
-              )}
-              {"\n"}
-              <span style={{ color: "var(--vocs-text-color-muted)" }}>
-                {"# Add --dry-run flag to preview cost before paying"}
-              </span>
-            </pre>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -937,20 +1020,50 @@ function DiscoveryStyles() {
         font-weight: 600;
         color: var(--vocs-text-color-heading);
         margin: 0;
-        transition: opacity 0.3s, max-height 0.3s;
+        transition: opacity 0.3s;
       }
       .discovery-overlay-desc {
         color: var(--vocs-text-color-secondary);
         font-size: clamp(1.15rem, 1.3vw, 1rem);
         margin-top: 0.5rem;
-        transition: opacity 0.3s, max-height 0.3s;
+        transition: opacity 0.3s;
       }
-      .has-query .discovery-overlay-title,
-      .has-query .discovery-overlay-desc {
-        opacity: 0;
-        max-height: 0;
-        margin: 0;
-        overflow: hidden;
+      @media (max-width: 768px) {
+        .has-query .discovery-overlay-title,
+        .has-query .discovery-overlay-desc {
+          opacity: 0;
+          max-height: 0;
+          margin: 0;
+          overflow: hidden;
+        }
+      }
+
+      /* No results message */
+      .discovery-no-results {
+        margin-top: 0.75rem;
+        font-size: 0.8125rem;
+        color: var(--vocs-text-color-muted);
+      }
+
+      /* Cmd+K shortcut hint */
+      .discovery-kbd {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 12px;
+        font-family: var(--font-sans);
+        color: var(--vocs-text-color-muted);
+        background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08));
+        border: 1px solid var(--vocs-border-color-primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        line-height: 1;
+        pointer-events: none;
+      }
+      .discovery-kbd-symbol {
+        font-size: 14px;
+        line-height: 1;
       }
 
       /* Radial fade so center area is readable */
@@ -982,6 +1095,13 @@ function DiscoveryStyles() {
             transparent 72%
           );
         }
+        .discovery-overlay {
+          top: 30% !important;
+        }
+        .discovery-dropdown {
+          max-height: 40vh;
+          overflow-y: auto;
+        }
       }
       .has-query .discovery-grid::after { opacity: 0; }
 
@@ -1002,8 +1122,8 @@ function DiscoveryStyles() {
         background: var(--vocs-background-color-primary);
         transition: border-color 0.15s;
       }
-      .discovery-search:focus-within {
-        border-color: var(--vocs-text-color-heading);
+      .discovery-search:has(.discovery-search-input:focus-visible) {
+        border-color: light-dark(rgba(0,0,0,0.25), rgba(255,255,255,0.25));
       }
       .discovery-search-input {
         flex: 1;
@@ -1016,6 +1136,22 @@ function DiscoveryStyles() {
       }
       .discovery-search-input::placeholder {
         color: var(--vocs-text-color-muted);
+      }
+      .discovery-search-clear {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: var(--vocs-text-color-muted);
+        padding: 2px;
+        border-radius: 4px;
+        transition: color 0.15s;
+      }
+      .discovery-search-clear:hover {
+        color: var(--vocs-text-color-heading);
       }
 
       /* Dropdown */
@@ -1049,7 +1185,8 @@ function DiscoveryStyles() {
         white-space: nowrap;
         overflow: hidden;
       }
-      .discovery-dropdown-item:hover {
+      .discovery-dropdown-item:hover,
+      .discovery-dropdown-active {
         background: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06));
       }
       .dropdown-tag {
@@ -1119,7 +1256,7 @@ function DiscoveryStyles() {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        gap: 6px;
+        gap: 4px;
         padding: 12px;
         border-radius: 14px;
         border: 1px solid var(--vocs-border-color-primary);
@@ -1176,7 +1313,7 @@ function DiscoveryStyles() {
         font-size: 13px;
         color: var(--vocs-text-color-secondary);
         line-height: 1.5;
-        margin-top: 4px;
+        margin-top: 2px;
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
@@ -1188,7 +1325,7 @@ function DiscoveryStyles() {
           display: grid !important;
           grid-template-columns: auto 1fr;
           grid-template-rows: auto 1fr;
-          gap: 2px 8px;
+          gap: 2px 12px;
           padding: 10px;
           align-items: start;
         }
@@ -1220,11 +1357,18 @@ function DiscoveryStyles() {
         justify-content: center;
         z-index: 9999;
         padding: 1rem;
-        animation: modalFadeIn 0.2s ease;
+        animation: modalFadeIn 0.2s ease forwards;
+      }
+      .modal-backdrop.modal-closing {
+        animation: modalFadeOut 0.2s ease forwards;
       }
       @keyframes modalFadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
+      }
+      @keyframes modalFadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
       }
       .modal-content {
         position: relative;
@@ -1236,16 +1380,20 @@ function DiscoveryStyles() {
         border-radius: 16px;
         border: 1px solid var(--vocs-border-color-primary);
         padding: 2rem;
-        animation: modalSlideIn 0.25s ease;
+        animation: modalSlideIn 0.25s ease forwards;
+      }
+      .modal-content.modal-closing {
+        animation: modalSlideOut 0.2s ease forwards;
       }
       @keyframes modalSlideIn {
         from { opacity: 0; transform: translateY(16px) scale(0.98); }
         to { opacity: 1; transform: translateY(0) scale(1); }
       }
+      @keyframes modalSlideOut {
+        from { opacity: 1; transform: translateY(0) scale(1); }
+        to { opacity: 0; transform: translateY(16px) scale(0.98); }
+      }
       .modal-close {
-        position: absolute;
-        top: 1.25rem;
-        right: 1.5rem;
         border: none;
         background: transparent;
         cursor: pointer;
@@ -1253,6 +1401,10 @@ function DiscoveryStyles() {
         padding: 4px;
         border-radius: 6px;
         transition: color 0.15s, background 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
       }
       .modal-close:hover {
         color: var(--vocs-text-color-heading);
@@ -1290,6 +1442,15 @@ function DiscoveryStyles() {
         background: light-dark(#f5f5f5, #1a1a1a);
         font-family: var(--font-mono);
         overflow-x: auto;
+        transition: opacity 0.15s;
+      }
+      .modal-cli-copied {
+        animation: copyPulse 0.4s ease;
+      }
+      @keyframes copyPulse {
+        0% { opacity: 1; }
+        30% { opacity: 0.5; }
+        100% { opacity: 1; }
       }
       .modal-copy-btn {
         font-size: 11px;
@@ -1300,11 +1461,44 @@ function DiscoveryStyles() {
         color: var(--vocs-text-color-muted);
         cursor: pointer;
         font-family: var(--font-sans);
-        transition: color 0.15s, background 0.15s;
+        transition: color 0.15s, background 0.15s, border-color 0.15s;
       }
       .modal-copy-btn:hover {
         color: var(--vocs-text-color-heading);
         background: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06));
+      }
+      .modal-copy-btn-active {
+        color: light-dark(#15803d, #4ade80) !important;
+        border-color: light-dark(#15803d, #4ade80) !important;
+        background: light-dark(rgba(21,128,61,0.08), rgba(74,222,128,0.1)) !important;
+        font-weight: 600;
+      }
+
+      /* CLI line layout */
+      .cli-lines {
+        display: flex;
+        flex-direction: column;
+        font-size: 13px;
+        line-height: 1.8;
+        margin: 0;
+      }
+      .cli-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+      }
+      .cli-line-cmd {
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .cli-line-comment {
+        white-space: nowrap;
+        color: var(--vocs-text-color-muted);
+        flex-shrink: 0;
+        text-align: right;
+      }
+      .cli-line-empty {
+        height: 0.4em;
       }
 
       /* Endpoint count pill */
@@ -1347,7 +1541,7 @@ function DiscoveryStyles() {
       }
       .modal-endpoint-row {
         display: grid;
-        grid-template-columns: 60px minmax(80px, 1fr) minmax(120px, 1.5fr) auto;
+        grid-template-columns: 60px minmax(80px, 1fr) minmax(120px, 1.5fr) minmax(60px, auto);
         gap: 8px;
         align-items: center;
         width: 100%;
@@ -1395,12 +1589,15 @@ function DiscoveryStyles() {
         text-overflow: ellipsis;
         white-space: nowrap;
         text-align: left;
+        justify-self: start;
       }
       .endpoint-price {
         font-family: var(--font-mono);
         font-size: 12px;
         color: var(--vocs-text-color-muted);
         white-space: nowrap;
+        text-align: right;
+        justify-self: end;
       }
 
       @media (max-width: 640px) {
@@ -1409,6 +1606,7 @@ function DiscoveryStyles() {
           grid-template-columns: 50px 1fr auto;
         }
         .endpoint-desc { display: none; }
+        .cli-line-comment { display: none; }
       }
     `}</style>
   );

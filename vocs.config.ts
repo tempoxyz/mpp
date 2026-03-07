@@ -493,7 +493,7 @@ export default defineConfig({
     { icon: "x", link: "https://x.com/mpp" },
     { icon: "github", link: "https://github.com/tempoxyz/mpp-specs" },
   ],
-  title: "MPP: The Internet Payments Protocol",
+  title: "MPP: Internet Payments Protocol",
   titleTemplate: "%s | MPP",
   twoslash: {
     twoslashOptions: {

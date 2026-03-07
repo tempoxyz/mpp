@@ -20,6 +20,7 @@
   "dependencies": {
     "@base-ui/react": "^1.1.0",
     "@fontsource/commit-mono": "^5.2.5",
+    "@vercel/blob": "^2.3.1",
     "class-variance-authority": "^0.7.1",
     "mermaid": "^11.12.2",
     "mppx": "~0.3.16",

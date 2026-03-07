@@ -106,10 +106,7 @@ function PhotoOutput({ url }: { url: string }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="block relative rounded overflow-hidden"
       style={{
         width: 200,
@@ -135,18 +132,21 @@ function PhotoOutput({ url }: { url: string }) {
           opacity: loaded ? 1 : 0,
         }}
       />
-    </a>
+    </div>
   );
 }
 
-function GalleryThumb({ url }: { url: string }) {
+function GalleryThumb({
+  url,
+  animate = true,
+}: {
+  url: string;
+  animate?: boolean;
+}) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="block relative rounded overflow-hidden"
       style={{
         width: 80,
@@ -168,25 +168,27 @@ function GalleryThumb({ url }: { url: string }) {
         onLoad={() => setLoaded(true)}
         className="absolute inset-0 w-full h-full object-cover"
         style={{
-          transition: "opacity 0.5s",
+          transition: animate ? "opacity 0.5s" : undefined,
           opacity: loaded ? 1 : 0,
         }}
       />
-    </a>
+    </div>
   );
 }
 
 function GalleryGrid({
   urls,
   loading = false,
+  animate = true,
 }: {
   urls: string[];
   loading?: boolean;
+  animate?: boolean;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
       {urls.map((url) => (
-        <GalleryThumb key={url} url={url} />
+        <GalleryThumb key={url} url={url} animate={animate} />
       ))}
       {loading && (
         <div
@@ -1685,6 +1687,7 @@ function Wizard({
 
   useEffect(() => {
     if (chosen || quit || waitingForUrl) return;
+    const terminal = document.querySelector("[data-terminal]");
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -1692,19 +1695,23 @@ function Wizard({
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
         setSelected((s) => (s + 1) % currentItems.length);
+      } else if (e.key === "Tab") {
+        if (
+          terminal?.contains(document.activeElement) ||
+          document.activeElement === document.body
+        ) {
+          e.preventDefault();
+          confirm();
+        }
       } else if (e.key === "Enter") {
         confirm();
       }
     };
-    document
-      .querySelector("[data-terminal]")
-      ?.setAttribute("data-wizard-ready", "");
+    terminal?.setAttribute("data-wizard-ready", "");
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document
-        .querySelector("[data-terminal]")
-        ?.removeAttribute("data-wizard-ready");
+      terminal?.removeAttribute("data-wizard-ready");
     };
   });
 
@@ -1773,10 +1780,11 @@ function Wizard({
           runIndex > 0 ? [...steps, "quit"] : steps;
         return (
           <div key={run.key}>
+            <BlankLine />
             <p style={{ color: "var(--term-gray10)" }}>
               What would you like to do?
             </p>
-            <div className="flex flex-col" style={{ paddingLeft: "1rem" }}>
+            <div className="flex flex-col">
               {runItems.map((item) => {
                 const label = item === "quit" ? "Quit" : item.label;
                 const isChosen = item !== "quit" && item === run.step;
@@ -1865,13 +1873,17 @@ function Wizard({
               );
             })}
           </div>
-          {/* biome-ignore format: contains unicode ↑↓ */}
+          {/* biome-ignore format: contains unicode ↑↓⇥⏎ */}
           {!chosen && !waitingForUrl && (
             <p
               className="hidden md:block"
-              style={{ color: "var(--term-gray5)" }}
+              style={{
+                color: "var(--term-gray5)",
+                marginTop: "auto",
+                paddingTop: "1rem",
+              }}
             >
-              Use ↑↓ arrows and Enter to select
+              Use ↑↓ or ⇥ to select, and ⏎ to confirm.
             </p>
           )}
           {waitingForUrl && (
@@ -1892,7 +1904,15 @@ function Wizard({
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") submitUrl();
+                  if (e.key === "Tab") {
+                    e.preventDefault();
+                    const placeholder =
+                      (currentItems[selected] as PaymentStepConfig).prompt
+                        ?.placeholder ?? "";
+                    if (!urlInput && placeholder) setUrlInput(placeholder);
+                  } else if (e.key === "Enter") {
+                    submitUrl();
+                  }
                 }}
                 className="term-url-input min-w-0 flex-1 bg-transparent outline-none"
                 style={{ color: "var(--term-gray10)" }}
@@ -2118,6 +2138,7 @@ function GalleryStep({
       return () => window.removeEventListener("keydown", handler);
     }
     if (phase === "picker") {
+      const terminal = document.querySelector("[data-terminal]");
       const handler = (e: KeyboardEvent) => {
         if (e.key === "ArrowUp") {
           e.preventDefault();
@@ -2125,6 +2146,19 @@ function GalleryStep({
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           setSelected((s) => (s + 1) % pickerItems.length);
+        } else if (e.key === "Tab") {
+          if (
+            terminal?.contains(document.activeElement) ||
+            document.activeElement === document.body
+          ) {
+            e.preventDefault();
+            const item = pickerItems[selected];
+            if (item.value === "done") {
+              setPhase("closing");
+            } else {
+              pickCount(item.value);
+            }
+          }
         } else if (e.key === "Enter") {
           const item = pickerItems[selected];
           if (item.value === "done") {
@@ -2134,15 +2168,11 @@ function GalleryStep({
           }
         }
       };
-      document
-        .querySelector("[data-terminal]")
-        ?.setAttribute("data-demo-ready", "");
+      terminal?.setAttribute("data-demo-ready", "");
       window.addEventListener("keydown", handler);
       return () => {
         window.removeEventListener("keydown", handler);
-        document
-          .querySelector("[data-terminal]")
-          ?.removeAttribute("data-demo-ready");
+        terminal?.removeAttribute("data-demo-ready");
       };
     }
     if (phase === "restart") {
@@ -2274,7 +2304,7 @@ function GalleryStep({
             {i > 0 && <p style={{ color: "var(--term-gray6)" }}>{"  "}Done</p>}
           </div>
           <BlankLine />
-          <GalleryGrid urls={run.urls} />
+          <GalleryGrid urls={run.urls} animate={false} />
           {/* biome-ignore format: contains unicode ✔︎ */}
           <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
             <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
@@ -2322,9 +2352,9 @@ function GalleryStep({
               </button>
             ))}
           </div>
-          {/* biome-ignore format: contains unicode ↑↓ */}
-          <p className="hidden md:block" style={{ color: "var(--term-gray5)" }}>
-            Use ↑↓ arrows and Enter to select
+          {/* biome-ignore format: contains unicode ↑↓⇥⏎ */}
+          <p className="hidden md:block" style={{ color: "var(--term-gray5)", marginTop: "1rem" }}>
+            Use ↑↓ or ⇥ to select, and ⏎ to confirm.
           </p>
         </>
       )}
@@ -2591,6 +2621,22 @@ function TerminalComponent({
   const [created, setCreated] = useState(false);
   const [funded, setFunded] = useState(false);
   const [savedCard, setSavedCard] = useState<SavedCard | undefined>();
+  const [lastLogin] = useState(() => {
+    try {
+      const prev = localStorage.getItem("mpp-last-visit");
+      const now = new Date();
+      localStorage.setItem("mpp-last-visit", now.toISOString());
+      if (prev) {
+        const d = new Date(prev);
+        return d.toDateString() === "Invalid Date"
+          ? now.toString().replace(/\s*\(.*\)/, "")
+          : d.toString().replace(/\s*\(.*\)/, "");
+      }
+      return now.toString().replace(/\s*\(.*\)/, "");
+    } catch {
+      return new Date().toString().replace(/\s*\(.*\)/, "");
+    }
+  });
   const walletState: WalletState = {
     address,
     balance,
@@ -2634,13 +2680,9 @@ function TerminalComponent({
     const scrollEl = scrollRef.current;
     const contentEl = contentRef.current;
     if (!scrollEl || !contentEl) return;
-    const LINE_HEIGHT = 24; // 1.5rem at 16px base
     const observer = new ResizeObserver(() => {
       if (!autoScrollRef.current) return;
-      const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
-      // Snap to line boundary so topmost visible line is never cut off
-      const snapped = Math.ceil(maxScroll / LINE_HEIGHT) * LINE_HEIGHT;
-      scrollEl.scrollTop = snapped;
+      scrollEl.scrollTop = scrollEl.scrollHeight - scrollEl.clientHeight;
     });
     observer.observe(contentEl);
     return () => observer.disconnect();
@@ -2686,12 +2728,69 @@ function TerminalComponent({
             className="size-3 rounded-full"
             style={{ backgroundColor: "var(--term-gray4)" }}
           />
+          <span
+            style={{
+              flex: 1,
+              textAlign: "center",
+              fontSize: "0.75rem",
+              color: "var(--term-gray6)",
+            }}
+          >
+            demo.sh
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setWizardKey((k) => k + 1);
+              setCreated(false);
+              setFunded(false);
+              setBalance(0);
+              setSavedCard(undefined);
+            }}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--term-gray6)",
+              padding: 2,
+              borderRadius: 4,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--term-gray10)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--term-gray6)";
+            }}
+            aria-label="Restart demo"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-label="Restart"
+            >
+              <title>Restart</title>
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+              <path d="M8 16H3v5" />
+            </svg>
+          </button>
         </div>
 
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem] md:overscroll-contain"
           style={{
             backgroundColor: "var(--term-bg2)",
           }}
@@ -2709,6 +2808,19 @@ function TerminalComponent({
               ✔︎▸↑↓→
             </span>
             <div className="h-2" />
+            <pre
+              style={{
+                color: "var(--term-gray5)",
+                fontSize: "0.65em",
+                lineHeight: 1.2,
+                margin: "0 0 0.25rem",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {
+                " __  __ ___ ___ \n|  \\/  | _ \\ _ \\\n| |\\/| |  _/  _/\n|_|  |_|_| |_|  "
+              }
+            </pre>
             <p style={{ color: "var(--term-gray6)" }}>
               mpp.dev@{__COMMIT_SHA__.slice(0, 7)} (released{" "}
               {timeAgo(__COMMIT_TIMESTAMP__)})
@@ -2718,7 +2830,7 @@ function TerminalComponent({
                 className="hidden md:block"
                 style={{ color: "var(--term-gray6)" }}
               >
-                Last login: Wed Oct 29 22:30:00 1969 on ttys000
+                Last login: {lastLogin} on ttys000
               </p>
             )}
             {showPrompt && !started && (

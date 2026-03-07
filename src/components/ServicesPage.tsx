@@ -1352,7 +1352,7 @@ function ServiceIcon({ service: s }: { service: Service }) {
     >
       {s.id && !imgError ? (
         <img
-          src={`/icons/${s.id}.svg`}
+          src={`/api/icon?id=${encodeURIComponent(s.id)}`}
           alt=""
           width={28}
           height={28}
