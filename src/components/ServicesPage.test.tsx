@@ -26,14 +26,14 @@ describe("formatPrice", () => {
     expect(formatPrice(ep(undefined))).toBe("—");
   });
 
-  it("returns n/a when amount is missing", () => {
-    expect(formatPrice(ep({ intent: "charge", method: "tempo" }))).toBe("n/a");
+  it("returns — when amount is missing", () => {
+    expect(formatPrice(ep({ intent: "charge", method: "tempo" }))).toBe("—");
   });
 
-  it("returns n/a when amount is empty string", () => {
+  it("returns — when amount is empty string", () => {
     expect(
       formatPrice(ep({ intent: "charge", method: "tempo", amount: "" })),
-    ).toBe("n/a");
+    ).toBe("—");
   });
 
   it("formats integer dollar amounts", () => {

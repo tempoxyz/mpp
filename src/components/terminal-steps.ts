@@ -13,6 +13,7 @@ import {
 export type PaymentStepConfig = {
   type: "tempo-charge" | "tempo-session" | "stripe";
   label: string;
+  description?: string;
   endpoint: string;
   liveEndpoint?: (input: string) => string;
   methodLabel: string;
@@ -92,6 +93,7 @@ export function wizard(options: PaymentStepConfig[]): WizardStepConfig {
 
 export function charge({
   label,
+  description,
   endpoint,
   liveEndpoint,
   cost,
@@ -101,6 +103,7 @@ export function charge({
   outputMode,
 }: {
   label: string;
+  description?: string;
   endpoint: string;
   liveEndpoint?: (input: string) => string;
   cost: number;
@@ -112,6 +115,7 @@ export function charge({
   return {
     type: "tempo-charge",
     label,
+    description,
     endpoint,
     liveEndpoint,
     methodLabel: "Tempo charge",
@@ -125,6 +129,7 @@ export function charge({
 
 export function session({
   label,
+  description,
   endpoint,
   liveEndpoint,
   cost,
@@ -134,6 +139,7 @@ export function session({
   outputMode,
 }: {
   label: string;
+  description?: string;
   endpoint: string;
   liveEndpoint?: (input: string) => string;
   cost?: (output: string[]) => number;
@@ -145,6 +151,7 @@ export function session({
   return {
     type: "tempo-session",
     label,
+    description,
     endpoint,
     liveEndpoint,
     methodLabel: "Tempo session",
@@ -160,6 +167,7 @@ export function session({
 
 export function stripe({
   label,
+  description,
   endpoint,
   liveEndpoint,
   cost,
@@ -169,6 +177,7 @@ export function stripe({
   outputMode,
 }: {
   label: string;
+  description?: string;
   endpoint: string;
   liveEndpoint?: (input: string) => string;
   cost: number;
@@ -180,6 +189,7 @@ export function stripe({
   return {
     type: "stripe",
     label,
+    description,
     endpoint,
     liveEndpoint,
     methodLabel: "Stripe charge",
@@ -198,6 +208,7 @@ export function stripe({
 export function chat(): PaymentStepConfig {
   return session({
     label: "Chat with AI",
+    description: "Chat with AI and pay per token streamed",
     endpoint: "/api/chat",
     liveEndpoint: (input) =>
       `/api/demo/chat?prompt=${encodeURIComponent(input)}`,
@@ -209,6 +220,7 @@ export function chat(): PaymentStepConfig {
 export function image(): PaymentStepConfig {
   return charge({
     label: "Generate image",
+    description: "Generate an image and pay per request",
     endpoint: "/api/image",
     liveEndpoint: (input) =>
       `/api/demo/image?prompt=${encodeURIComponent(input)}`,
@@ -222,6 +234,7 @@ export function image(): PaymentStepConfig {
 export function search(): PaymentStepConfig {
   return charge({
     label: "Search the web",
+    description: "Search the web and pay per request",
     endpoint: "/api/search",
     liveEndpoint: (input) =>
       `/api/demo/search?query=${encodeURIComponent(input)}`,
@@ -234,6 +247,7 @@ export function search(): PaymentStepConfig {
 export function article(): PaymentStepConfig {
   return stripe({
     label: "Summarize article",
+    description: "Summarize an article and pay with Stripe",
     endpoint: "/api/article",
     liveEndpoint: (input) =>
       `/api/demo/article?url=${encodeURIComponent(input)}`,
@@ -250,6 +264,7 @@ export function article(): PaymentStepConfig {
 export function poem(): PaymentStepConfig {
   return session({
     label: "Write poem",
+    description: "Write a poem and pay per token streamed",
     endpoint: "/api/sessions/poem",
     liveEndpoint: (input) =>
       `/api/demo/poem?prompt=${encodeURIComponent(input)}`,
@@ -262,6 +277,7 @@ export function poem(): PaymentStepConfig {
 export function ascii(): PaymentStepConfig {
   return charge({
     label: "Create ASCII art",
+    description: "Create ASCII art and pay per request",
     endpoint: "/api/ascii",
     liveEndpoint: (input) =>
       `/api/demo/ascii?prompt=${encodeURIComponent(input)}`,
@@ -274,6 +290,7 @@ export function ascii(): PaymentStepConfig {
 export function lookup(): PaymentStepConfig {
   return stripe({
     label: "Lookup company",
+    description: "Look up a company and pay with Stripe",
     endpoint: "/api/lookup",
     liveEndpoint: (input) =>
       `/api/demo/lookup?url=${encodeURIComponent(input)}`,
@@ -290,6 +307,7 @@ export function lookup(): PaymentStepConfig {
 export function ping(): PaymentStepConfig {
   return charge({
     label: "Ping",
+    description: "Ping a paid endpoint",
     endpoint: "/api/ping/paid",
     cost: 0.001,
     skipPrompt: true,
@@ -300,6 +318,7 @@ export function ping(): PaymentStepConfig {
 export function photo(): PaymentStepConfig {
   return charge({
     label: "Photo",
+    description: "Fetch a photo and pay per request",
     endpoint: "/api/photo",
     cost: 0.01,
     skipPrompt: true,
@@ -311,6 +330,7 @@ export function photo(): PaymentStepConfig {
 export function gallery(): PaymentStepConfig {
   return session({
     label: "Generate gallery",
+    description: "Generate a photo gallery and pay per image",
     endpoint: "/api/sessions/photo",
     cost: (output) => output.length * 0.01,
     skipPrompt: true,

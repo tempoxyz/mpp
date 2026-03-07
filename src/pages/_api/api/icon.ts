@@ -35,7 +35,7 @@ function domainFor(service: ServiceEntry): string | null {
 }
 
 function styledSvg(logoDataUri: string): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><defs><filter id="mono"><feColorMatrix type="matrix" values="0 0 0 0 0.91 0 0 0 0 0.91 0 0 0 0 0.93 0 0 0 1 0"/></filter></defs><rect fill="#2A2A2A" width="512" height="512" rx="64"/><image href="${logoDataUri}" x="96" y="96" width="320" height="320" filter="url(#mono)"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><defs><filter id="mono"><feColorMatrix type="matrix" values="0 0 0 0 0.91 0 0 0 0 0.91 0 0 0 0 0.93 0 0 0 1 0"/></filter></defs><rect fill="#2A2A2A" width="512" height="512" rx="64"/><image href="${logoDataUri}" x="96" y="96" width="320" height="320" preserveAspectRatio="xMidYMid meet" filter="url(#mono)"/></svg>`;
 }
 
 function letterSvg(name: string): string {

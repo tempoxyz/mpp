@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
 
-const CATEGORY_LABELS: Record<Category, string> = {
+export const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
   blockchain: "Blockchain",
   compute: "Compute",
@@ -15,21 +16,32 @@ const CATEGORY_LABELS: Record<Category, string> = {
   storage: "Storage",
   web: "Web",
 };
-const PAGE_SIZE = 60;
+export const PAGE_SIZE = 60;
 const CODE_BG = "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.07))";
 const URL_COLOR = "light-dark(rgba(0,0,0,0.7), rgba(255,255,255,0.7))";
 const CMD_PURPLE = "light-dark(#7c3aed, #c084fc)";
 const CMD_GREEN = "light-dark(#15803d, #4ade80)";
 
-function allCategories(s: Service): Category[] {
+const PINNED_IDS: string[] = [
+  "openai",
+  "anthropic",
+  "google-gemini",
+  "parallel",
+  "openrouter",
+  "stabletravel",
+  "codestorage",
+  "browserbase",
+];
+
+export function allCategories(s: Service): Category[] {
   return s.categories ?? [];
 }
-function formatPrice(ep: Endpoint): string {
+export function formatPrice(ep: Endpoint): string {
   const p = ep.payment;
-  if (!p) return "—";
-  if (!p.amount) return "n/a";
+  if (!p) return "\u2014";
+  if (!p.amount) return "\u2014";
   const v = Number(p.amount) / 10 ** (p.decimals ?? 0);
-  if (Number.isNaN(v)) return "—";
+  if (Number.isNaN(v)) return "\u2014";
   if (v >= 1) return `$${v.toFixed(2)}`;
   let s = v.toFixed(4);
   s = s.replace(/0+$/, "");
@@ -40,7 +52,58 @@ function copyText(t: string) {
   navigator.clipboard.writeText(t);
 }
 
+// ---------------------------------------------------------------------------
+// Search dropdown types and logic
+// ---------------------------------------------------------------------------
+
+type DropdownResult =
+  | { type: "service"; service: Service }
+  | { type: "category"; category: Category; label: string }
+  | { type: "endpoint"; service: Service; endpoint: Endpoint };
+
+function getDropdownResults(
+  services: Service[],
+  query: string,
+): DropdownResult[] {
+  if (!query.trim()) return [];
+  const q = query.toLowerCase();
+  const results: DropdownResult[] = [];
+  for (const [cat, label] of Object.entries(CATEGORY_LABELS)) {
+    if (label.toLowerCase().includes(q) || cat.includes(q)) {
+      results.push({ type: "category", category: cat as Category, label });
+    }
+  }
+  for (const s of services) {
+    if (
+      s.name.toLowerCase().includes(q) ||
+      s.description?.toLowerCase().includes(q) ||
+      s.url.toLowerCase().includes(q) ||
+      s.tags?.some((t) => t.toLowerCase().includes(q))
+    ) {
+      results.push({ type: "service", service: s });
+    }
+  }
+  for (const s of services) {
+    let count = 0;
+    for (const ep of s.endpoints) {
+      if (count >= 5) break;
+      if (
+        ep.path.toLowerCase().includes(q) ||
+        ep.description?.toLowerCase().includes(q) ||
+        ep.method.toLowerCase().includes(q)
+      ) {
+        results.push({ type: "endpoint", service: s, endpoint: ep });
+        count++;
+      }
+    }
+  }
+  return results.slice(0, 12);
+}
+
+// ---------------------------------------------------------------------------
 // Icons
+// ---------------------------------------------------------------------------
+
 function ChevronDownIcon({
   expanded,
   size = 14,
@@ -163,18 +226,138 @@ function SearchIcon() {
     </svg>
   );
 }
+function ExternalLinkIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" x2="21" y1="14" y2="3" />
+    </svg>
+  );
+}
+function BookIcon({ size = 13 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+    </svg>
+  );
+}
 
-function SearchInput({
+// ---------------------------------------------------------------------------
+// Search with dropdown
+// ---------------------------------------------------------------------------
+
+function SearchWithDropdown({
   search,
   setSearch,
   setPage,
+  services,
+  onSelectService,
+  onSelectCategory,
   fullWidth,
+  inputRef: externalRef,
 }: {
   search: string;
   setSearch: (v: string) => void;
   setPage: (v: number) => void;
+  services: Service[];
+  onSelectService: (id: string) => void;
+  onSelectCategory: (cat: Category) => void;
   fullWidth?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }) {
+  const internalRef = useRef<HTMLInputElement>(null);
+  const ref = externalRef ?? internalRef;
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  const dropdownResults = useMemo(
+    () => getDropdownResults(services, search),
+    [services, search],
+  );
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional reset on search change
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [search]);
+
+  const handleSelect = useCallback(
+    (result: DropdownResult) => {
+      setShowDropdown(false);
+      if (result.type === "service") {
+        onSelectService(result.service.id);
+        setSearch("");
+      } else if (result.type === "category") {
+        onSelectCategory(result.category);
+        setSearch("");
+      } else if (result.type === "endpoint") {
+        onSelectService(result.service.id);
+        setSearch("");
+      }
+    },
+    [onSelectService, onSelectCategory, setSearch],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowDropdown(false);
+        setActiveIndex(-1);
+        ref.current?.blur();
+        return;
+      }
+      if (!showDropdown || dropdownResults.length === 0) return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveIndex((i) => Math.min(i + 1, dropdownResults.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveIndex((i) => Math.max(i - 1, 0));
+      } else if (e.key === "Enter" && activeIndex >= 0) {
+        e.preventDefault();
+        handleSelect(dropdownResults[activeIndex]);
+        setActiveIndex(-1);
+      }
+    },
+    [showDropdown, dropdownResults, activeIndex, handleSelect, ref],
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        ref.current &&
+        !ref.current.contains(e.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [ref]);
+
   return (
     <div style={{ position: "relative", width: fullWidth ? "100%" : 260 }}>
       <span
@@ -185,17 +368,24 @@ function SearchInput({
           transform: "translateY(-50%)",
           color: "var(--vocs-text-color-muted)",
           pointerEvents: "none",
+          zIndex: 2,
         }}
       >
         <SearchIcon />
       </span>
       <input
+        ref={ref}
         type="text"
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
           setPage(0);
+          setShowDropdown(true);
         }}
+        onFocus={() => {
+          if (search.trim()) setShowDropdown(true);
+        }}
+        onKeyDown={handleKeyDown}
         placeholder="Search services..."
         style={{
           width: "100%",
@@ -209,9 +399,200 @@ function SearchInput({
           outline: "none",
         }}
       />
+      {!search && (
+        <kbd
+          style={{
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: 11,
+            padding: "1px 5px",
+            borderRadius: 4,
+            border: "1px solid var(--vocs-border-color-primary)",
+            color: "var(--vocs-text-color-muted)",
+            fontFamily: "var(--font-sans)",
+            pointerEvents: "none",
+          }}
+        >
+          ⌘K
+        </kbd>
+      )}
+      {showDropdown && dropdownResults.length > 0 && (
+        <div
+          ref={dropdownRef}
+          className="search-dropdown"
+          style={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            borderRadius: 8,
+            border: "1px solid var(--vocs-border-color-primary)",
+            background: "var(--vocs-background-color-primary)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+            maxHeight: 360,
+            overflow: "auto",
+            padding: "0.25rem 0",
+          }}
+        >
+          {dropdownResults.map((result, idx) => (
+            // biome-ignore lint/a11y/useKeyWithClickEvents: dropdown item
+            // biome-ignore lint/a11y/noStaticElementInteractions: dropdown item
+            <div
+              key={`${result.type}-${idx}`}
+              onClick={() => handleSelect(result)}
+              onMouseEnter={() => setActiveIndex(idx)}
+              className="search-dropdown-item"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                width: "100%",
+                padding: "0.45rem 0.75rem",
+                background:
+                  idx === activeIndex
+                    ? "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.07))"
+                    : "transparent",
+                border: "none",
+                cursor: "pointer",
+                textAlign: "left",
+                fontFamily: "var(--font-sans)",
+                fontSize: 14,
+                color: "var(--vocs-text-color-heading)",
+              }}
+            >
+              {result.type === "category" && (
+                <>
+                  <span
+                    style={{
+                      width: 20,
+                      textAlign: "center",
+                      fontSize: 12,
+                      color: "var(--vocs-text-color-muted)",
+                    }}
+                  >
+                    #
+                  </span>
+                  <span>{result.label}</span>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--vocs-text-color-muted)",
+                      marginLeft: "auto",
+                    }}
+                  >
+                    Category
+                  </span>
+                </>
+              )}
+              {result.type === "service" && (
+                <>
+                  <DropdownServiceIcon service={result.service} />
+                  <span style={{ fontWeight: 500 }}>{result.service.name}</span>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      color: "var(--vocs-text-color-secondary)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                    }}
+                  >
+                    {result.service.description}
+                  </span>
+                </>
+              )}
+              {result.type === "endpoint" && (
+                <>
+                  <span
+                    className={`method-badge method-${result.endpoint.method.toLowerCase()}`}
+                    style={{
+                      width: 44,
+                      textAlign: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {result.endpoint.method}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 13,
+                      color: URL_COLOR,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {result.endpoint.path}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--vocs-text-color-muted)",
+                      marginLeft: "auto",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {result.service.name}
+                  </span>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+function DropdownServiceIcon({ service: s }: { service: Service }) {
+  const [imgError, setImgError] = useState(false);
+  if (s.id && !imgError) {
+    return (
+      <img
+        src={`/api/icon?id=${encodeURIComponent(s.id)}`}
+        alt=""
+        width={20}
+        height={20}
+        style={{
+          borderRadius: 4,
+          display: "block",
+          objectFit: "cover",
+          flexShrink: 0,
+          filter: "invert(var(--icon-invert, 0))",
+        }}
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+  return (
+    <div
+      style={{
+        width: 20,
+        height: 20,
+        borderRadius: 4,
+        background: "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.10))",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 9,
+        fontWeight: 600,
+        color: "var(--vocs-text-color-secondary)",
+        flexShrink: 0,
+      }}
+    >
+      {(s.name[0] ?? "?").toUpperCase()}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Hooks
+// ---------------------------------------------------------------------------
 
 function useCopyFeedback() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -237,7 +618,7 @@ function HighlightedCmd({ children }: { children: string }) {
           {tok}
         </span>,
       );
-    } else if (/^presto$/.test(tok)) {
+    } else if (/^(presto|tempo)$/.test(tok)) {
       parts.push(
         <span key={key} style={{ color: CMD_GREEN }}>
           {tok}
@@ -270,6 +651,21 @@ function HighlightedCmd({ children }: { children: string }) {
 }
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function computeFilteredList(services: Service[]): Service[] {
+  const pinned = PINNED_IDS.flatMap((id) =>
+    services.filter((s) => s.id === id),
+  );
+  const pinnedSet = new Set(PINNED_IDS);
+  const rest = services
+    .filter((s) => !pinnedSet.has(s.id))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  return [...pinned, ...rest];
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -277,17 +673,16 @@ export function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(
-    new Set(),
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
   );
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
   const [prestoOpen, setPrestoOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [integrationFilter, setIntegrationFilter] = useState<
-    "all" | "first-party"
-  >("all");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const initialHashHandled = useRef(false);
 
   useEffect(() => {
     fetchServices()
@@ -306,6 +701,22 @@ export function ServicesPage() {
     return () => clearTimeout(id);
   }, [search]);
 
+  // Cmd+K to focus search
+  useEffect(() => {
+    const handleGlobalKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKey);
+    return () => window.removeEventListener("keydown", handleGlobalKey);
+  }, []);
+
   const categories = useMemo(
     () =>
       [
@@ -313,15 +724,12 @@ export function ServicesPage() {
       ].sort() as Category[],
     [services],
   );
+
   const filtered = useMemo(() => {
     let list = services;
-    if (integrationFilter !== "all")
-      list = list.filter(
-        (s) => (s.integration ?? "first-party") === integrationFilter,
-      );
-    if (selectedCategories.size > 0)
+    if (selectedCategory)
       list = list.filter((s) =>
-        allCategories(s).some((c) => selectedCategories.has(c)),
+        allCategories(s).some((c) => c === selectedCategory),
       );
     if (debouncedSearch) {
       const q = debouncedSearch.toLowerCase();
@@ -330,33 +738,83 @@ export function ServicesPage() {
           s.name.toLowerCase().includes(q) ||
           s.description?.toLowerCase().includes(q) ||
           s.url.toLowerCase().includes(q) ||
-          s.tags?.some((t) => t.toLowerCase().includes(q)),
+          s.tags?.some((t) => t.toLowerCase().includes(q)) ||
+          s.endpoints.some(
+            (ep) =>
+              ep.path.toLowerCase().includes(q) ||
+              ep.description?.toLowerCase().includes(q) ||
+              ep.method.toLowerCase().includes(q),
+          ),
       );
     }
-    return list;
-  }, [services, selectedCategories, debouncedSearch, integrationFilter]);
+    const pinned = PINNED_IDS.flatMap((id) => list.filter((s) => s.id === id));
+    const pinnedSet = new Set(PINNED_IDS);
+    const rest = list
+      .filter((s) => !pinnedSet.has(s.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return [...pinned, ...rest];
+  }, [services, selectedCategory, debouncedSearch]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const toggleRow = (id: string) =>
+  const toggleRow = useCallback((id: string) => {
     setExpandedIds((p) => {
-      if (p.has(id)) return new Set();
+      if (p.has(id)) {
+        history.replaceState(null, "", window.location.pathname);
+        return new Set();
+      }
+      history.replaceState(null, "", `#service-${id}`);
       return new Set([id]);
     });
+  }, []);
+
+  const selectAndScrollToService = useCallback(
+    (serviceId: string) => {
+      setSearch("");
+      setDebouncedSearch("");
+      setSelectedCategory(null);
+      setExpandedIds(new Set([serviceId]));
+      history.replaceState(null, "", `#service-${serviceId}`);
+      const all = computeFilteredList(services);
+      const idx = all.findIndex((s) => s.id === serviceId);
+      if (idx >= 0) setPage(Math.floor(idx / PAGE_SIZE));
+      setTimeout(() => {
+        document
+          .getElementById(`service-${serviceId}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    },
+    [services],
+  );
+
+  // Handle anchor hash on mount
+  useEffect(() => {
+    if (services.length === 0 || initialHashHandled.current) return;
+    const hash = window.location.hash;
+    if (!hash.startsWith("#service-")) return;
+    initialHashHandled.current = true;
+    const serviceId = hash.slice("#service-".length);
+    if (services.some((s) => s.id === serviceId)) {
+      selectAndScrollToService(serviceId);
+    }
+  }, [services, selectAndScrollToService]);
+
   const toggleCat = (cat: Category) => {
-    setSelectedCategories((p) => {
-      const n = new Set(p);
-      if (n.has(cat)) n.delete(cat);
-      else n.add(cat);
-      return n;
-    });
+    setSelectedCategory((prev) => (prev === cat ? null : cat));
     setPage(0);
   };
   const clearCats = () => {
-    setSelectedCategories(new Set());
+    setSelectedCategory(null);
     setPage(0);
   };
+
+  const handleSelectCategory = useCallback((cat: Category) => {
+    setSelectedCategory(cat);
+    setSearch("");
+    setDebouncedSearch("");
+    setPage(0);
+  }, []);
 
   return (
     <div
@@ -376,31 +834,100 @@ export function ServicesPage() {
         }}
       >
         {/* Header */}
-        <div className="page-header" style={{ marginBottom: "0.5rem" }}>
-          <h1
+        <div
+          className="page-header"
+          style={{
+            marginBottom: "0.5rem",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: "1rem",
+          }}
+        >
+          <div>
+            <h1
+              style={{
+                fontSize: "2.1rem",
+                fontWeight: 500,
+                fontFamily: '"VTC Du Bois", var(--font-sans)',
+                letterSpacing: "-0.02em",
+                margin: 0,
+                whiteSpace: "nowrap",
+                marginBottom: "0rem",
+                paddingBottom: "0rem",
+              }}
+            >
+              Services
+            </h1>
+            <p
+              style={{
+                color: "var(--vocs-text-color-secondary)",
+                fontSize: 17,
+                lineHeight: 1.4,
+                marginBottom: "2.75rem",
+                marginTop: "-0.5rem",
+              }}
+            >
+              MPP-enabled APIs your agent or application can seamlessly use.
+            </p>
+          </div>
+          <div
+            className="page-header-ctas"
             style={{
-              fontSize: "2.1rem",
-              fontWeight: 500,
-              letterSpacing: "-0.02em",
-              margin: 0,
-              whiteSpace: "nowrap",
-              marginBottom: "0rem",
-              paddingBottom: "0rem",
+              display: "flex",
+              gap: "0.5rem",
+              flexShrink: 0,
+              marginTop: "0.35rem",
             }}
           >
-            Services
-          </h1>
-          <p
-            style={{
-              color: "var(--vocs-text-color-secondary)",
-              fontSize: 17,
-              lineHeight: 1.4,
-              marginBottom: "2.75rem",
-              marginTop: "-0.5rem",
-            }}
-          >
-            MPP-enabled APIs your agent or application can use seamlessly.
-          </p>
+            <Link
+              to="/quickstart/server"
+              className="no-underline!"
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+                padding: "0.4rem 0.85rem",
+                borderRadius: 7,
+                color: "var(--vocs-background-color-primary)",
+                backgroundColor: "var(--vocs-text-color-heading)",
+                textDecoration: "none",
+                transition: "opacity 0.15s",
+              }}
+              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                (e.currentTarget as HTMLElement).style.opacity = "0.8";
+              }}
+              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                (e.currentTarget as HTMLElement).style.opacity = "1";
+              }}
+            >
+              Add a service
+            </Link>
+            <Link
+              to="/overview"
+              className="no-underline!"
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+                padding: "0.4rem 0.85rem",
+                borderRadius: 7,
+                color: "var(--vocs-text-color-heading)",
+                backgroundColor: "transparent",
+                border: "1px solid var(--vocs-border-color-primary)",
+                textDecoration: "none",
+                transition: "opacity 0.15s",
+              }}
+              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                (e.currentTarget as HTMLElement).style.opacity = "0.8";
+              }}
+              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                (e.currentTarget as HTMLElement).style.opacity = "1";
+              }}
+            >
+              Learn more
+            </Link>
+          </div>
         </div>
 
         {/* Header cards — visible when sidebar hidden */}
@@ -460,29 +987,15 @@ export function ServicesPage() {
                     marginTop: "0.5rem",
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "0.5rem",
-                      alignItems: "center",
-                    }}
-                  >
-                    <IntegrationFilter
-                      value={integrationFilter}
-                      onChange={(v) => {
-                        setIntegrationFilter(v);
-                        setPage(0);
-                      }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <SearchInput
-                        search={search}
-                        setSearch={setSearch}
-                        setPage={setPage}
-                        fullWidth
-                      />
-                    </div>
-                  </div>
+                  <SearchWithDropdown
+                    search={search}
+                    setSearch={setSearch}
+                    setPage={setPage}
+                    services={services}
+                    onSelectService={selectAndScrollToService}
+                    onSelectCategory={handleSelectCategory}
+                    fullWidth
+                  />
                 </div>
                 <div
                   className="search-bar"
@@ -495,18 +1008,15 @@ export function ServicesPage() {
                     marginRight: "0.5rem",
                   }}
                 >
-                  <IntegrationFilter
-                    value={integrationFilter}
-                    onChange={(v) => {
-                      setIntegrationFilter(v);
-                      setPage(0);
-                    }}
-                  />
-                  <SearchInput
+                  <SearchWithDropdown
                     search={search}
                     setSearch={setSearch}
                     setPage={setPage}
+                    services={services}
+                    onSelectService={selectAndScrollToService}
+                    onSelectCategory={handleSelectCategory}
                     fullWidth
+                    inputRef={searchInputRef}
                   />
                 </div>
                 <div
@@ -522,16 +1032,13 @@ export function ServicesPage() {
                     justifyContent: "flex-start",
                   }}
                 >
-                  <Pill
-                    active={selectedCategories.size === 0}
-                    onClick={clearCats}
-                  >
+                  <Pill active={selectedCategory === null} onClick={clearCats}>
                     All
                   </Pill>
                   {categories.map((cat) => (
                     <Pill
                       key={cat}
-                      active={selectedCategories.has(cat)}
+                      active={selectedCategory === cat}
                       onClick={() => toggleCat(cat)}
                     >
                       {CATEGORY_LABELS[cat] ?? cat}
@@ -560,18 +1067,18 @@ export function ServicesPage() {
                             "1px solid var(--vocs-border-color-primary)",
                         }}
                       >
-                        <Th style={{ textAlign: "left" }}>Service</Th>
-                        <Th
-                          className="hide-mobile"
-                          style={{ textAlign: "left" }}
-                        >
-                          URL
-                        </Th>
+                        <Th style={{ textAlign: "left" }} />
                         <Th
                           className="hide-mobile"
                           style={{ textAlign: "left" }}
                         >
                           Description
+                        </Th>
+                        <Th
+                          className="hide-mobile"
+                          style={{ textAlign: "left" }}
+                        >
+                          URL
                         </Th>
                         <Th style={{ width: 36 }} />
                       </tr>
@@ -659,10 +1166,6 @@ export function ServicesPage() {
 }
 
 // ---------------------------------------------------------------------------
-// Resource link row (docs, llms.txt)
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
 // Presto cards
 // ---------------------------------------------------------------------------
 
@@ -684,7 +1187,7 @@ function PrestoCardFull() {
           marginBottom: "0.35rem",
         }}
       >
-        Get started with Presto
+        Get started with your Agent
       </h2>
       <p
         style={{
@@ -694,20 +1197,11 @@ function PrestoCardFull() {
           marginBottom: "1.25rem",
         }}
       >
-        A command-line HTTP client with built-in MPP payment support. When a
-        server responds with{" "}
-        <code
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 12,
-            padding: "0.1rem 0.3rem",
-            borderRadius: 3,
-            background: CODE_BG,
-          }}
-        >
-          402
-        </code>
-        , Presto handles the payment and retries automatically.
+        Install{" "}
+        <Link className="text-primary font-medium" to="/quickstart/agent">
+          Tempo Wallet
+        </Link>{" "}
+        on your agent to use MPP services.
       </p>
       <PrestoSteps />
     </div>
@@ -776,7 +1270,7 @@ function HeaderCards({
           </div>
         </button>
         <a
-          href="https://mpp.tempo.xyz/llms.txt"
+          href="/services/llms.txt"
           target="_blank"
           rel="noopener noreferrer"
           className="info-card-link"
@@ -819,7 +1313,7 @@ function HeaderCards({
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
           <div>
-            <div style={titleS}>Documentation</div>
+            <div style={titleS}>Quickstart</div>
             <div style={descS}>Guides, quickstarts, and SDKs</div>
           </div>
         </a>
@@ -908,7 +1402,7 @@ function SidebarInfoCards() {
       }}
     >
       <a
-        href="https://mpp.tempo.xyz/llms.txt"
+        href="/services/llms.txt"
         target="_blank"
         rel="noopener noreferrer"
         className="info-card-link"
@@ -977,7 +1471,7 @@ function SidebarInfoCards() {
         style={{
           ...cardStyle,
           background: "transparent",
-          border: "1px solid transparent",
+          border: "1px solid var(--vocs-border-color-primary)",
         }}
       >
         <span
@@ -992,9 +1486,7 @@ function SidebarInfoCards() {
         />
         <div>
           <div style={titleStyle}>First-party services</div>
-          <div style={descStyle}>
-            Hosted natively on Tempo with built-in MPP support.
-          </div>
+          <div style={descStyle}>Directly integrated with MPP.</div>
         </div>
       </div>
     </div>
@@ -1011,22 +1503,16 @@ function PrestoSteps() {
         gap: "1rem",
       }}
     >
-      <CliSnippet label="Install" desc="One-line install via shell.">
-        curl -fsSL https://presto-binaries.tempo.xyz/install.sh | bash
+      <CliSnippet label="Install" desc="Install the Tempo CLI.">
+        curl -L https://tempo.xyz/install | bash
+      </CliSnippet>
+      <CliSnippet label="Add wallet" desc="Set up your agent wallet.">
+        tempo add wallet
       </CliSnippet>
       <CliSnippet
-        label="Log in"
-        desc="Opens browser to connect your Tempo wallet."
-      >
-        presto login
-      </CliSnippet>
-      <CliSnippet
-        label="Make a request"
-        desc="Payment handled automatically."
-      >{`presto https://mpp.tempo.xyz/openai/v1/chat/completions \\\n  -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello!"}]}'`}</CliSnippet>
-      <CliSnippet label="Dry run" desc="Preview cost without paying.">
-        presto --dry-run https://mpp.tempo.xyz/openai/v1/chat/completions
-      </CliSnippet>
+        label="Prompt your agent"
+        desc="Use a service by prompting your agent (Claude, Codex, Amp, etc):"
+      >{`Generate a surreal image with fal.ai using Tempo Wallet`}</CliSnippet>
     </div>
   );
 }
@@ -1125,57 +1611,6 @@ function CliSnippet({
 // ---------------------------------------------------------------------------
 // Small components
 // ---------------------------------------------------------------------------
-
-function IntegrationFilter({
-  value,
-  onChange,
-}: {
-  value: "all" | "first-party";
-  onChange: (v: "all" | "first-party") => void;
-}) {
-  const dotColor =
-    value === "first-party" ? "#22c55e" : "var(--vocs-text-color-muted)";
-  return (
-    <div style={{ position: "relative", flexShrink: 0 }}>
-      <span
-        style={{
-          position: "absolute",
-          left: 9,
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: 7,
-          height: 7,
-          borderRadius: "50%",
-          background: dotColor,
-          pointerEvents: "none",
-        }}
-      />
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as "all" | "first-party")}
-        style={{
-          appearance: "none",
-          WebkitAppearance: "none",
-          padding: "0.4rem 1.8rem 0.4rem 1.5rem",
-          fontSize: 13,
-          borderRadius: 7,
-          border: "1px solid var(--vocs-border-color-primary)",
-          background: "transparent",
-          color: "var(--vocs-text-color-heading)",
-          fontFamily: "var(--font-sans)",
-          outline: "none",
-          cursor: "pointer",
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "right 0.5rem center",
-        }}
-      >
-        <option value="all">All</option>
-        <option value="first-party">First-party</option>
-      </select>
-    </div>
-  );
-}
 
 function Pill({
   active,
@@ -1304,7 +1739,7 @@ function BorderlessBadge({ children }: { children: React.ReactNode }) {
 }
 
 // ---------------------------------------------------------------------------
-// Service icon with optional third-party overlay
+// Service icon with optional first-party overlay
 // ---------------------------------------------------------------------------
 
 function FallbackIcon({ name }: { name: string }) {
@@ -1356,7 +1791,12 @@ function ServiceIcon({ service: s }: { service: Service }) {
           alt=""
           width={28}
           height={28}
-          style={{ borderRadius: 6, display: "block", objectFit: "cover" }}
+          style={{
+            borderRadius: 6,
+            display: "block",
+            objectFit: "cover",
+            filter: "invert(var(--icon-invert, 0))",
+          }}
           onError={() => setImgError(true)}
         />
       ) : (
@@ -1404,6 +1844,7 @@ function ServiceRow({
   return (
     <>
       <tr
+        id={`service-${s.id}`}
         onClick={onToggle}
         style={{
           borderBottom: expanded
@@ -1423,12 +1864,13 @@ function ServiceRow({
           e.currentTarget.style.background = expanded ? expandedBg : "";
         }}
       >
-        <td style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}>
+        <td style={{ padding: "0.7rem 0.75rem", verticalAlign: "top" }}>
           <div
             style={{
               display: "flex",
-              alignItems: "center",
+              alignItems: "flex-start",
               gap: "0.5rem",
+              paddingTop: "0.15rem",
             }}
           >
             <ServiceIcon service={s} />
@@ -1511,6 +1953,18 @@ function ServiceRow({
         </td>
         <td
           className="hide-mobile"
+          style={{
+            padding: "0.7rem 0.75rem",
+            color: "var(--vocs-text-color-secondary)",
+            fontSize: 14,
+            lineHeight: 1.45,
+            verticalAlign: "middle",
+          }}
+        >
+          {s.description}
+        </td>
+        <td
+          className="hide-mobile"
           style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}
         >
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
@@ -1542,18 +1996,6 @@ function ServiceRow({
           </span>
         </td>
         <td
-          className="hide-mobile"
-          style={{
-            padding: "0.7rem 0.75rem",
-            color: "var(--vocs-text-color-secondary)",
-            fontSize: 14,
-            lineHeight: 1.45,
-            verticalAlign: "middle",
-          }}
-        >
-          {s.description}
-        </td>
-        <td
           style={{
             padding: 0,
             verticalAlign: "middle",
@@ -1570,9 +2012,11 @@ function ServiceRow({
               color: "var(--vocs-text-color-muted)",
             }}
           >
-            {s.docs?.homepage && (
+            {(s.docs?.apiReference || s.docs?.llmsTxt || s.docs?.homepage) && (
               <a
-                href={s.docs.homepage}
+                href={
+                  (s.docs?.apiReference ?? s.docs?.llmsTxt ?? s.docs?.homepage)!
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hide-mobile"
@@ -1660,7 +2104,7 @@ function ServiceRow({
 // Expanded detail
 // ---------------------------------------------------------------------------
 
-const SUB_GRID = "18% 36% 1fr auto 6rem";
+const SUB_GRID = "18% 36% 1fr 6rem";
 
 function SubTh({
   children,
@@ -1678,7 +2122,6 @@ function SubTh({
         color: "var(--vocs-text-color-muted)",
         whiteSpace: "nowrap",
         ...style,
-        ...style,
       }}
     >
       {children}
@@ -1686,86 +2129,66 @@ function SubTh({
   );
 }
 
-function ExternalLinkIcon({ size = 13 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" x2="21" y1="14" y2="3" />
-    </svg>
-  );
-}
-
-function BookIcon({ size = 13 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-    </svg>
-  );
-}
-
 function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
-  const baseUrl =
-    s.integration !== "third-party"
-      ? `https://${s.id}.mpp.tempo.xyz`
-      : (s.serviceUrl ?? s.url);
-  const docsUrl = s.docs?.homepage;
+  const baseUrl = s.serviceUrl ?? s.url;
+  const docsUrl = s.docs?.apiReference ?? s.docs?.llmsTxt ?? s.docs?.homepage;
   const websiteUrl = s.provider?.url;
-  const mobileLinkStyle: React.CSSProperties = {
-    display: "flex",
+  const compactLinkStyle: React.CSSProperties = {
+    display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center",
-    gap: "0.4rem",
-    padding: "0.45rem 0.75rem",
-    fontSize: 14,
-    borderRadius: 6,
-    border: "1px solid var(--vocs-border-color-primary)",
-    background: "light-dark(#fff, rgba(255,255,255,0.06))",
-    color: "var(--vocs-text-color-secondary)",
+    gap: "0.25rem",
+    padding: "0.15rem 0.45rem",
+    fontSize: 12,
+    borderRadius: 4,
+    color: "var(--vocs-text-color-muted)",
     textDecoration: "none",
-    flex: 1,
+    transition: "color 0.15s",
+    whiteSpace: "nowrap",
+    height: 24,
   };
   return (
     <div style={{ fontSize: 14 }}>
       {(docsUrl || websiteUrl) && (
         <div
-          className="show-tablet expanded-links"
+          className="expanded-url-bar"
           style={{
-            display: "none",
-            gap: "0.5rem",
-            padding: "0.15rem 1rem 0.65rem 1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.35rem",
+            padding: "0.25rem 0.75rem 0.5rem 3.5rem",
           }}
         >
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 13,
+              padding: "0.15rem 0.4rem",
+              borderRadius: 4,
+              background: CODE_BG,
+              color: URL_COLOR,
+              height: 24,
+              display: "inline-flex",
+              alignItems: "center",
+            }}
+          >
+            {baseUrl}
+          </span>
           {docsUrl && (
             <a
               href={docsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              style={mobileLinkStyle}
+              style={compactLinkStyle}
               onClick={(e) => e.stopPropagation()}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--vocs-text-color-heading)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--vocs-text-color-muted)";
+              }}
             >
-              <BookIcon /> Docs
+              <BookIcon size={12} /> Docs
             </a>
           )}
           {websiteUrl && (
@@ -1773,10 +2196,16 @@ function ExpandedDetail({ service: s }: { service: Service }) {
               href={websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              style={mobileLinkStyle}
+              style={compactLinkStyle}
               onClick={(e) => e.stopPropagation()}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--vocs-text-color-heading)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--vocs-text-color-muted)";
+              }}
             >
-              <ExternalLinkIcon /> Website
+              <ExternalLinkIcon size={12} /> Website
             </a>
           )}
         </div>
@@ -1793,10 +2222,9 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                 "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))",
             }}
           >
-            <SubTh style={{ paddingLeft: "3.5rem" }}>Method</SubTh>
+            <SubTh style={{ paddingLeft: "3.5rem" }}>Endpoint</SubTh>
             <SubTh>Route</SubTh>
             <SubTh>Description</SubTh>
-            <SubTh style={{ textAlign: "right" }}>Intent</SubTh>
             <SubTh style={{ textAlign: "right", paddingRight: "1rem" }}>
               Price
             </SubTh>
@@ -1822,16 +2250,19 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                 >
                   <div style={{ padding: "0.75rem 0.75rem 0.75rem 3.5rem" }}>
                     <span
-                      style={{
-                        fontWeight: 600,
-                        fontFamily: "var(--font-mono)",
-                        fontSize: 14,
-                      }}
+                      className={`method-badge method-${ep.method.toLowerCase()}`}
                     >
                       {ep.method}
                     </span>
                   </div>
-                  <div style={{ padding: "0.75rem 0.75rem" }}>
+                  <div
+                    style={{
+                      padding: "0.75rem 0.75rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
                     {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
                     {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
                     <span
@@ -1857,6 +2288,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                     >
                       {isCopied ? "Copied!" : ep.path}
                     </span>
+                    {ep.payment?.intent && <Badge>{ep.payment.intent}</Badge>}
                   </div>
                   <div
                     style={{
@@ -1870,28 +2302,6 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                     }}
                   >
                     <span>{ep.description}</span>
-                  </div>
-                  <div
-                    style={{
-                      padding: "0.75rem 0.5rem 0.75rem 0",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    {ep.payment?.intent && <Badge>{ep.payment.intent}</Badge>}
-                    <span
-                      className="mobile-price"
-                      style={{
-                        display: "none",
-                        fontFamily: "var(--font-mono)",
-                        fontSize: 14,
-                        color: "var(--vocs-text-color-muted)",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {formatPrice(ep)}
-                    </span>
                   </div>
                   <div
                     className="desktop-price"
@@ -1946,11 +2356,30 @@ function PageStyles() {
       .expanded-detail { animation: expandIn 0.15s ease-out; }
       @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
 
+      .method-badge {
+        font-size: 11px;
+        font-weight: 600;
+        font-family: var(--font-mono);
+        padding: 2px 6px;
+        border-radius: 3px;
+        text-align: center;
+        display: inline-block;
+      }
+      .method-get { color: light-dark(#15803d, #4ade80); background: light-dark(rgba(21,128,61,0.1), rgba(74,222,128,0.1)); }
+      .method-post { color: light-dark(#7c3aed, #c084fc); background: light-dark(rgba(124,58,237,0.1), rgba(192,132,252,0.1)); }
+      .method-put { color: light-dark(#b45309, #fbbf24); background: light-dark(rgba(180,83,9,0.1), rgba(251,191,36,0.1)); }
+      .method-delete { color: light-dark(#dc2626, #f87171); background: light-dark(rgba(220,38,38,0.1), rgba(248,113,113,0.1)); }
+      .method-patch { color: light-dark(#0369a1, #38bdf8); background: light-dark(rgba(3,105,161,0.1), rgba(56,189,248,0.1)); }
+
+      .search-dropdown { scrollbar-width: thin; }
+      .search-dropdown-item:hover { background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.07)); }
+
       /* ---- Sidebar hidden, header cards as 4-col strip ---- */
       @media (max-width: 1200px) {
         .services-sidebar { display: none !important; }
         .services-layout { gap: 0 !important; }
         .header-cards { display: block !important; }
+        .page-header-ctas { display: none !important; }
       }
 
       /* ---- Table columns stack ---- */
@@ -1963,16 +2392,16 @@ function PageStyles() {
         [data-services-table] table col:nth-child(2),
         [data-services-table] table col:nth-child(3) { width: 0 !important; }
         [data-services-table] table col:nth-child(4) { width: 48px !important; }
-        [data-services-table] table td:first-child { padding: 1rem 0.5rem 1rem 1rem !important; vertical-align: middle !important; }
+        [data-services-table] table td:first-child { padding: 1rem 0.5rem 1rem 1rem !important; vertical-align: top !important; }
         [data-services-table] table td:last-child { padding: 1rem 0.5rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
-        .svc-icon { align-self: center !important; margin-top: 0 !important; }
+        .svc-icon { align-self: flex-start !important; margin-top: 0 !important; }
         .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.1rem !important; flex-wrap: wrap !important; }
         .svc-badge-inline { display: inline !important; }
         .svc-badge-bordered { display: inline !important; }
         .svc-badge-borderless { display: none !important; }
         .svc-name-row > span:first-child { font-size: 17px !important; }
         .svc-desc-mobile { font-size: 16px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
-        .expanded-links { display: flex !important; padding-left: 3.25rem !important; }
+        .expanded-url-bar { padding-left: 3.25rem !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
         .sub-row:first-child { border-top: none !important; }
 
@@ -1990,7 +2419,6 @@ function PageStyles() {
         .sub-row > *:nth-child(4) { grid-row: 1; grid-column: 3; display: flex !important; align-items: center !important; gap: 0.4rem !important; justify-content: flex-end !important; }
         .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 12px !important; margin-top: 0.4rem; text-align: left !important; justify-self: start !important; }
         .sub-row .desktop-price { display: none !important; }
-        .sub-row .mobile-price { display: inline !important; }
       }
 
       /* ---- Header cards 2x2, search moves, tags center ---- */
@@ -1998,11 +2426,11 @@ function PageStyles() {
         .services-container { padding-left: 0 !important; padding-right: 0 !important; }
         [data-services-table] table { width: 100% !important; }
         [data-services-table] thead { display: none !important; }
-        [data-services-table] table td:first-child { padding: 0.85rem 0.5rem 0.85rem 1.25rem !important; vertical-align: middle !important; }
+        [data-services-table] table td:first-child { padding: 0.85rem 0.5rem 0.85rem 1.25rem !important; vertical-align: top !important; }
         [data-services-table] table td:last-child { padding: 0.85rem 1.25rem 0.85rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
         .chevron-cell { padding-right: 0 !important; }
         .svc-badge-inline { margin-left: 0.25rem !important; }
-        .expanded-links { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
+        .expanded-url-bar { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
         .sub-row { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
         .header-cards { padding: 0 1.25rem !important; }
         .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
@@ -2011,11 +2439,11 @@ function PageStyles() {
         .search-bar { display: none !important; }
         .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
-        .search-mobile select { font-size: 15px !important; padding-top: 0.55rem !important; padding-bottom: 0.55rem !important; }
         .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0 !important; margin-right: 0 !important; padding: 0 1.25rem !important; }
-        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 18% !important; justify-content: center !important; }
-        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; }
+        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 auto !important; justify-content: center !important; }
+        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
+        .page-header-ctas { display: none !important; }
         .pagination { padding: 0 1.25rem !important; }
       }
 
@@ -2025,10 +2453,10 @@ function PageStyles() {
         .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
         .svc-icon img { width: 34px !important; height: 34px !important; }
         .sub-row { padding-left: 4rem !important; }
-        .expanded-links { padding-left: 4rem !important; }
+        .expanded-url-bar { padding-left: 4rem !important; }
         .header-cards-grid > * > div > div:first-child { font-size: 17px !important; }
         .header-cards-grid > * > div > div:last-child { font-size: 15px !important; }
-        .filter-tags button { min-width: 0 !important; }
+        .filter-tags button { min-width: auto !important; }
       }
     `}</style>
   );

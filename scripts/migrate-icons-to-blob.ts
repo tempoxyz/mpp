@@ -26,6 +26,7 @@ async function migrate() {
     try {
       const { url } = await put(`icons/${file}`, svg, {
         access: "public",
+        allowOverwrite: true,
         contentType: "image/svg+xml",
         addRandomSuffix: false,
         token: BLOB_TOKEN,

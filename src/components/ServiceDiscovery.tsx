@@ -330,9 +330,9 @@ export function ServiceDiscovery() {
 
         {/* Search overlay — absolutely centered */}
         <div className="discovery-overlay" ref={overlayRef}>
-          <h2 className="discovery-overlay-title">Start using MPP</h2>
+          <h2 className="discovery-overlay-title">Discover services</h2>
           <p className="discovery-overlay-desc">
-            Level up your agent or app with powerful abilities
+            Level up your agent or app with powerful new abilities
           </p>
           <div className="discovery-search-wrapper">
             <div className="discovery-search">
@@ -354,7 +354,7 @@ export function ServiceDiscovery() {
                   setTimeout(() => setShowDropdown(false), 200);
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="Search services, endpoints, categories..."
+                placeholder="Search by use case, endpoint, or category..."
                 className="discovery-search-input"
               />
               {!isFocused && query.length === 0 && (
@@ -509,10 +509,12 @@ export function ServiceDiscovery() {
             );
           })}
           {(() => {
-            const count = stableScored.length;
+            const matchCount = hasQuery
+              ? targetGridIndex.size
+              : stableScored.length;
             const skeletons: React.ReactNode[] = [];
             const maxCols = 6;
-            const remainder = count % maxCols;
+            const remainder = matchCount % maxCols;
             if (remainder > 0) {
               for (let i = 0; i < maxCols - remainder; i++) {
                 skeletons.push(
@@ -521,8 +523,9 @@ export function ServiceDiscovery() {
                     className={`discovery-card discovery-card-skeleton ${visible ? "discovery-card-visible" : ""}`}
                     style={{
                       transitionDelay: visible
-                        ? `${Math.min((count + i) * 40, 600)}ms`
+                        ? `${Math.min((matchCount + i) * 40, 600)}ms`
                         : "0ms",
+                      opacity: hasQuery ? 0.5 : undefined,
                     }}
                   />,
                 );
@@ -637,74 +640,76 @@ function ServiceDetailModal({
         className={`modal-content${isClosing ? " modal-closing" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header row: icon + title + tags + action buttons + close */}
+        {/* Header: logo, name + categories --- links, description */}
         <div className="modal-header">
+          {/* Logo */}
+          <div style={{ marginBottom: 12 }}>
+            {iconUrl && !imgError ? (
+              <img
+                src={iconUrl}
+                alt=""
+                onError={() => setImgError(true)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  objectFit: "contain",
+                  filter: "invert(var(--icon-invert, 0))",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  background: "var(--vocs-border-color-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 20,
+                  fontWeight: 600,
+                  color: "var(--vocs-text-color-secondary)",
+                }}
+              >
+                {service.name[0]}
+              </div>
+            )}
+          </div>
+
+          {/* Name + categories --- links + close */}
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              gap: 12,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              {iconUrl && !imgError ? (
-                <img
-                  src={iconUrl}
-                  alt=""
-                  onError={() => setImgError(true)}
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 10,
-                    objectFit: "contain",
-                    flexShrink: 0,
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 10,
-                    background: "var(--vocs-border-color-primary)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 20,
-                    fontWeight: 600,
-                    color: "var(--vocs-text-color-secondary)",
-                    flexShrink: 0,
-                  }}
-                >
-                  {service.name[0]}
-                </div>
-              )}
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 600,
-                      margin: 0,
-                      color: "var(--vocs-text-color-heading)",
-                    }}
-                  >
-                    {service.name}
-                  </h3>
-                  {(service.categories ?? []).map((cat) => (
-                    <span key={cat} className="modal-tag">
-                      {CATEGORY_LABELS[cat] ?? cat}
-                    </span>
-                  ))}
-                </div>
-              </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                flexWrap: "wrap",
+                minWidth: 0,
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: 20,
+                  fontWeight: 600,
+                  margin: 0,
+                  color: "var(--vocs-text-color-heading)",
+                }}
+              >
+                {service.name}
+              </h3>
+              {(service.categories ?? []).map((cat) => (
+                <span key={cat} className="modal-tag">
+                  {CATEGORY_LABELS[cat] ?? cat}
+                </span>
+              ))}
             </div>
             <div
               style={{
@@ -815,6 +820,10 @@ function ServiceDetailModal({
                 lineHeight: 1.6,
                 color: "var(--vocs-text-color-secondary)",
                 margin: "0.75rem 0 0",
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical" as const,
+                overflow: "hidden",
               }}
             >
               {service.description}
@@ -829,7 +838,7 @@ function ServiceDetailModal({
               display: "flex",
               alignItems: "center",
               gap: 8,
-              fontSize: 13,
+              fontSize: 15,
               fontWeight: 500,
               color: "var(--vocs-text-color-heading)",
               marginBottom: 8,
@@ -874,7 +883,7 @@ function ServiceDetailModal({
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: 500,
                 color: "var(--vocs-text-color-heading)",
                 marginBottom: 4,
@@ -903,10 +912,21 @@ function ServiceDetailModal({
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "flex-end",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                   marginBottom: 8,
                 }}
               >
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "var(--vocs-text-color-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Get started
+                </div>
                 <span
                   className={`modal-copy-btn${copied ? " modal-copy-btn-active" : ""}`}
                 >
@@ -938,7 +958,6 @@ function ServiceDetailModal({
                     # Sign in via browser
                   </span>
                 </div>
-                <div className="cli-line-empty" />
                 <div className="cli-line">
                   <span className="cli-line-cmd">
                     <span style={{ color: muted }}>$ </span>
@@ -947,7 +966,7 @@ function ServiceDetailModal({
                     {cliPath}
                     {isNonGet && (
                       <>
-                        {" \\\n    "}
+                        {" \\\n      "}
                         <span style={{ color: purple }}>
                           -X {selectedEndpoint.method}
                         </span>
@@ -1026,6 +1045,7 @@ function DiscoveryStyles() {
         color: var(--vocs-text-color-secondary);
         font-size: clamp(1.15rem, 1.3vw, 1rem);
         margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
         transition: opacity 0.3s;
       }
       @media (max-width: 768px) {
@@ -1074,24 +1094,24 @@ function DiscoveryStyles() {
         inset: 0;
         background: radial-gradient(
           ellipse 55% 42% at center,
-          var(--vocs-background-color-primary) 0%,
-          oklch(from var(--vocs-background-color-primary) l c h / 0.97) 28%,
-          oklch(from var(--vocs-background-color-primary) l c h / 0.8) 48%,
-          oklch(from var(--vocs-background-color-primary) l c h / 0.4) 65%,
+          oklch(from var(--vocs-background-color-primary) l c h / 0.96) 0%,
+          oklch(from var(--vocs-background-color-primary) l c h / 0.92) 28%,
+          oklch(from var(--vocs-background-color-primary) l c h / 0.7) 48%,
+          oklch(from var(--vocs-background-color-primary) l c h / 0.3) 65%,
           transparent 80%
         );
         pointer-events: none;
-        z-index: 5;
+        z-index: 8;
         transition: opacity 0.4s;
       }
       @media (max-width: 768px) {
         .discovery-grid::after {
           background: radial-gradient(
             ellipse 85% 38% at center,
-            var(--vocs-background-color-primary) 0%,
-            var(--vocs-background-color-primary) 15%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.95) 30%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.7) 50%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.9) 0%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.85) 15%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.7) 30%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.4) 50%,
             transparent 72%
           );
         }
@@ -1119,7 +1139,7 @@ function DiscoveryStyles() {
         padding: 0.75rem 1rem;
         border-radius: 12px;
         border: 1px solid var(--vocs-border-color-primary);
-        background: var(--vocs-background-color-primary);
+        background: light-dark(var(--vocs-background-color-primary), rgba(255,255,255,0.06));
         transition: border-color 0.15s;
       }
       .discovery-search:has(.discovery-search-input:focus-visible) {
@@ -1290,6 +1310,7 @@ function DiscoveryStyles() {
         height: 28px;
         border-radius: 6px;
         object-fit: contain;
+        filter: invert(var(--icon-invert, 0));
       }
       .discovery-card-icon-fallback {
         width: 28px;
@@ -1479,26 +1500,25 @@ function DiscoveryStyles() {
         display: flex;
         flex-direction: column;
         font-size: 13px;
-        line-height: 1.8;
+        line-height: 1.7;
         margin: 0;
       }
       .cli-line {
         display: flex;
-        justify-content: space-between;
-        gap: 2rem;
+        gap: 1.5rem;
       }
       .cli-line-cmd {
         white-space: pre-wrap;
-        word-break: break-all;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        flex: 1;
+        min-width: 0;
       }
       .cli-line-comment {
         white-space: nowrap;
         color: var(--vocs-text-color-muted);
-        flex-shrink: 0;
         text-align: right;
-      }
-      .cli-line-empty {
-        height: 0.4em;
+        flex-shrink: 0;
       }
 
       /* Endpoint count pill */
@@ -1521,27 +1541,17 @@ function DiscoveryStyles() {
       .modal-endpoints-wrap {
         position: relative;
       }
-      .modal-endpoints-wrap::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 48px;
-        background: linear-gradient(to top, var(--vocs-background-color-primary) 0%, transparent 100%);
-        pointer-events: none;
-        border-radius: 0 0 10px 10px;
-        z-index: 1;
-      }
+      
       .modal-endpoints {
         max-height: 320px;
-        overflow-y: auto;
+        overflow-y: scroll;
         border: 1px solid var(--vocs-border-color-primary);
         border-radius: 10px;
+        padding-right: 2px;
       }
       .modal-endpoint-row {
         display: grid;
-        grid-template-columns: 60px minmax(80px, 1fr) minmax(120px, 1.5fr) minmax(60px, auto);
+        grid-template-columns: 60px minmax(80px, 1fr) minmax(0, 1.5fr) auto;
         gap: 8px;
         align-items: center;
         width: 100%;

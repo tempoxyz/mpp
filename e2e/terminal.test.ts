@@ -94,6 +94,24 @@ describe("terminal", () => {
     await page.close();
   });
 
+  it.concurrent("wallet setup appears before wizard menu", async () => {
+    const page = await newPage();
+    await page.goto(`http://localhost:${port}`);
+
+    // Wallet setup should appear before the wizard menu
+    await playwrightExpect(
+      page.getByText("Create a wallet", { exact: false }),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(
+      page.getByText("Add test funds", { exact: false }),
+    ).toBeVisible({ timeout: 10_000 });
+
+    await waitForWizard(page);
+
+    await page.close();
+  });
+
   it.concurrent('selects "Chat with AI" and shows payment channel steps', async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
@@ -109,20 +127,12 @@ describe("terminal", () => {
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
-      page.getByText("Creating wallet", { exact: false }),
+      page.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
 
-    await playwrightExpect(
-      page.getByText("Funding wallet", { exact: false }),
-    ).toBeVisible({ timeout: 5_000 });
-
-    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
+    await playwrightExpect(page.getByText("Open payment channel")).toBeVisible({
       timeout: 5_000,
     });
-
-    await playwrightExpect(
-      page.getByText("Opening payment channel"),
-    ).toBeVisible({ timeout: 5_000 });
 
     await playwrightExpect(
       page.getByText("tokens streamed", { exact: false }),
@@ -135,7 +145,6 @@ describe("terminal", () => {
     await playwrightExpect(
       page.getByText("What would you like to do?").last(),
     ).toBeVisible({ timeout: 5_000 });
-    await playwrightExpect(page.getByText("Quit")).toBeVisible();
 
     await page.close();
   });
@@ -155,18 +164,16 @@ describe("terminal", () => {
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
-      page.getByText("Creating wallet", { exact: false }),
+      page.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
 
-    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
+    await playwrightExpect(page.getByText("Fulfill payment")).toBeVisible({
       timeout: 5_000,
     });
 
-    await playwrightExpect(page.getByText("Fulfilling payment")).toBeVisible({
-      timeout: 5_000,
-    });
-
-    await playwrightExpect(page.getByText("200 OK")).toBeVisible({
+    await playwrightExpect(
+      page.getByText("(success)", { exact: false }),
+    ).toBeVisible({
       timeout: 5_000,
     });
 
@@ -194,7 +201,7 @@ describe("terminal", () => {
       page.getByText("Enter prompt: what are micropayments?", { exact: true }),
     ).toBeVisible({ timeout: 5_000 });
     await playwrightExpect(
-      page.getByText("Creating wallet", { exact: false }),
+      page.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
 
     await page.close();
@@ -218,7 +225,9 @@ describe("terminal", () => {
     await page.keyboard.type("stripe.com");
     await page.keyboard.press("Enter");
 
-    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
+    await playwrightExpect(
+      page.getByText("(payment required)", { exact: false }),
+    ).toBeVisible({
       timeout: 5_000,
     });
 
@@ -237,7 +246,9 @@ describe("terminal", () => {
       page.getByText("Creating PaymentIntent"),
     ).toBeVisible({ timeout: 5_000 });
 
-    await playwrightExpect(page.getByText("200 OK")).toBeVisible({
+    await playwrightExpect(
+      page.getByText("(success)", { exact: false }),
+    ).toBeVisible({
       timeout: 5_000,
     });
 
@@ -272,14 +283,16 @@ describe("terminal", () => {
     await playwrightExpect(
       page.getByText("Creating PaymentIntent"),
     ).toBeVisible({ timeout: 5_000 });
-    await playwrightExpect(page.getByText("200 OK")).toBeVisible({
+    await playwrightExpect(
+      page.getByText("(success)", { exact: false }),
+    ).toBeVisible({
       timeout: 5_000,
     });
 
     await page.close();
   });
 
-  it.concurrent("quits after a run and shows summary", async () => {
+  it.concurrent("runs multiple times and returns to wizard", async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
     await waitForWizard(page);
@@ -294,14 +307,8 @@ describe("terminal", () => {
     await page.keyboard.type("test image");
     await page.keyboard.press("Enter");
 
-    // First run should say "Creating wallet"
-    await playwrightExpect(
-      page.getByText("Creating wallet", { exact: false }),
-    ).toBeVisible({ timeout: 5_000 });
-
-    await playwrightExpect(page.getByText("Quit")).toBeVisible({
-      timeout: 15_000,
-    });
+    // Wait for the first run to complete and wizard to reappear
+    await page.waitForSelector("[data-wizard-ready]", { timeout: 20_000 });
 
     // Second run: select "Generate image" again
     await pressKey(page, "ArrowDown");
@@ -313,35 +320,9 @@ describe("terminal", () => {
     await page.keyboard.type("another test");
     await page.keyboard.press("Enter");
 
-    // Second run should say "Using wallet" (not "Creating")
-    await playwrightExpect(
-      page.getByText("Using wallet", { exact: false }),
-    ).toBeVisible({ timeout: 5_000 });
-
     // Wait for the second run to fully complete (wizard ready for input)
     await page.waitForSelector("[data-wizard-ready]", { timeout: 20_000 });
 
-    // Navigate to Quit (5 options: Chat with AI, Generate image, Search the web, Summarize article, Quit)
-    await pressKey(page, "ArrowDown"); // → Generate image (1)
-    await pressKey(page, "ArrowDown"); // → Search the web (2)
-    await pressKey(page, "ArrowDown"); // → Summarize article (3)
-    await pressKey(page, "ArrowDown"); // → Quit (4)
-    await pressKey(page, "Enter");
-
-    await playwrightExpect(
-      page.getByText("Total", { exact: false }),
-    ).toBeVisible({ timeout: 5_000 });
-    await playwrightExpect(
-      page.getByText("Balance", { exact: false }),
-    ).toBeVisible();
-    await playwrightExpect(
-      page.getByText("Address", { exact: false }),
-    ).toBeVisible();
-
-    // Press Enter to restart the wizard
-    await pressKey(page, "Enter");
-
-    await page.waitForSelector("[data-wizard-ready]", { timeout: 5_000 });
     await playwrightExpect(
       page.getByText("What would you like to do?").last(),
     ).toBeVisible({ timeout: 5_000 });
@@ -373,16 +354,12 @@ describe("terminal (classic mode)", () => {
     await pressKey(page, "Enter");
 
     await playwrightExpect(
-      page.getByText("Creating wallet", { exact: false }),
+      page.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
 
-    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
+    await playwrightExpect(page.getByText("Open payment channel")).toBeVisible({
       timeout: 5_000,
     });
-
-    await playwrightExpect(
-      page.getByText("Opening payment channel"),
-    ).toBeVisible({ timeout: 5_000 });
 
     await playwrightExpect(
       page.getByText("tokens streamed", { exact: false }),
@@ -408,18 +385,16 @@ describe("terminal (classic mode)", () => {
     await pressKey(page, "Enter");
 
     await playwrightExpect(
-      page.getByText("Creating wallet", { exact: false }),
+      page.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
 
-    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
+    await playwrightExpect(page.getByText("Fulfill payment")).toBeVisible({
       timeout: 5_000,
     });
 
-    await playwrightExpect(page.getByText("Fulfilling payment")).toBeVisible({
-      timeout: 5_000,
-    });
-
-    await playwrightExpect(page.getByText("200 OK")).toBeVisible({
+    await playwrightExpect(
+      page.getByText("(success)", { exact: false }),
+    ).toBeVisible({
       timeout: 5_000,
     });
 
@@ -446,9 +421,9 @@ describe("terminal (classic mode)", () => {
     await page.keyboard.type("stripe.com");
     await page.keyboard.press("Enter");
 
-    await playwrightExpect(page.getByText("402 Payment Required")).toBeVisible({
-      timeout: 5_000,
-    });
+    await playwrightExpect(
+      page.getByText("(payment required)", { exact: false }),
+    ).toBeVisible({ timeout: 5_000 });
 
     await playwrightExpect(
       page.getByText("Card number:", { exact: false }),
@@ -465,7 +440,9 @@ describe("terminal (classic mode)", () => {
       page.getByText("Creating PaymentIntent"),
     ).toBeVisible({ timeout: 5_000 });
 
-    await playwrightExpect(page.getByText("200 OK")).toBeVisible({
+    await playwrightExpect(
+      page.getByText("(success)", { exact: false }),
+    ).toBeVisible({
       timeout: 5_000,
     });
 
@@ -494,18 +471,20 @@ describe("terminal (one-time-payments guide)", () => {
 
     // Payment flow steps should appear
     await playwrightExpect(
-      terminal.getByText("Creating wallet", { exact: false }),
+      terminal.getByText("Create a wallet", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
 
     await playwrightExpect(
-      terminal.getByText("402 Payment Required"),
+      terminal.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(terminal.getByText("Fulfill payment")).toBeVisible({
+      timeout: 10_000,
+    });
 
     await playwrightExpect(
-      terminal.getByText("Fulfilling payment"),
-    ).toBeVisible({ timeout: 10_000 });
-
-    await playwrightExpect(terminal.getByText("200 OK")).toBeVisible({
+      terminal.getByText("(success)", { exact: false }),
+    ).toBeVisible({
       timeout: 15_000,
     });
 
@@ -544,15 +523,15 @@ describe("terminal (pay-as-you-go guide)", () => {
 
     // Payment channel flow steps
     await playwrightExpect(
-      terminal.getByText("Creating wallet", { exact: false }),
+      terminal.getByText("Create a wallet", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
 
     await playwrightExpect(
-      terminal.getByText("402 Payment Required"),
+      terminal.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
 
     await playwrightExpect(
-      terminal.getByText("Opening payment channel"),
+      terminal.getByText("Open payment channel"),
     ).toBeVisible({ timeout: 10_000 });
 
     // Count picker should appear
@@ -627,15 +606,15 @@ describe("terminal (streamed-payments guide)", () => {
 
     // Payment channel flow steps
     await playwrightExpect(
-      terminal.getByText("Creating wallet", { exact: false }),
+      terminal.getByText("Create a wallet", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
 
     await playwrightExpect(
-      terminal.getByText("402 Payment Required"),
+      terminal.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
 
     await playwrightExpect(
-      terminal.getByText("Opening payment channel"),
+      terminal.getByText("Open payment channel"),
     ).toBeVisible({ timeout: 10_000 });
 
     await playwrightExpect(
@@ -677,22 +656,24 @@ describe("terminal (overview page)", () => {
 
     // Payment flow steps should appear (simulated mode)
     await playwrightExpect(
-      terminal.getByText("Creating wallet", { exact: false }),
+      terminal.getByText("Create a wallet", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
 
     await playwrightExpect(
-      terminal.getByText("Funding wallet", { exact: false }),
+      terminal.getByText("Add test funds", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
 
     await playwrightExpect(
-      terminal.getByText("402 Payment Required"),
+      terminal.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 10_000 });
+
+    await playwrightExpect(terminal.getByText("Fulfill payment")).toBeVisible({
+      timeout: 10_000,
+    });
 
     await playwrightExpect(
-      terminal.getByText("Fulfilling payment"),
-    ).toBeVisible({ timeout: 10_000 });
-
-    await playwrightExpect(terminal.getByText("200 OK")).toBeVisible({
+      terminal.getByText("(success)", { exact: false }),
+    ).toBeVisible({
       timeout: 15_000,
     });
 

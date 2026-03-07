@@ -156,6 +156,11 @@ html {
   color: var(--vocs-text-color-heading) !important;
 }
 
+/* Inactive top nav links — no bottom border */
+[data-v-gutter-top] nav a:not([data-v-active="true"]) {
+  border-color: transparent !important;
+}
+
 /* More spacing between top nav links */
 [data-v-gutter-top] nav a {
   margin-inline: 0.25rem;
@@ -327,6 +332,15 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 
   /* Accent button text - always white since accent bg is near-black */
   --accent-button-text: white;
+
+  /* Softer borders in dark mode */
+  --vocs-border-color-primary: light-dark(
+    rgba(0, 0, 0, 0.08),
+    rgba(255, 255, 255, 0.05)
+  );
+
+  /* Invert service icons in dark mode (0 = none, 1 = full invert) */
+  --icon-invert: light-dark(0, 1);
 
   /* Inline code background — kept for reference, actual override is on the element */
   --background-color-inline-code: light-dark(
@@ -784,40 +798,43 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 
 .terminal-theme {
   /* Backgrounds */
-  --term-bg1: light-dark(oklch(0.94 0 0), oklch(0.162 0 0));
-  --term-bg2: light-dark(oklch(1 0 0), oklch(0.22 0 0));
+  --term-bg1: light-dark(oklch(0.94 0 0), oklch(0.14 0 0));
+  --term-bg2: light-dark(oklch(1 0 0), oklch(0.15 0 0));
 
-  /* Gray Scale */
-  --term-gray1: light-dark(oklch(0.955 0 0), oklch(0.21 0 0));
-  --term-gray2: light-dark(oklch(0.933 0 0), oklch(0.223 0 0));
-  --term-gray3: light-dark(oklch(0.933 0 0), oklch(0.25 0 0));
-  --term-gray4: light-dark(oklch(0.933 0 0), oklch(0.29 0 0));
-  --term-gray5: light-dark(oklch(0.549 0 0), oklch(0.5 0 0));
-  --term-gray6: light-dark(oklch(0.45 0 0), oklch(0.649 0 0));
-  --term-gray7: light-dark(oklch(0.649 0 0), oklch(0.649 0 0));
-  --term-gray8: light-dark(oklch(0.549 0 0), oklch(0.549 0 0));
-  --term-gray9: light-dark(oklch(0.5 0 0), oklch(0.72 0 0));
-  --term-gray10: light-dark(oklch(0.21 0 0), oklch(0.933 0 0));
+  /* Gray Scale — dark values tuned for darker --term-bg2 */
+  --term-gray1: light-dark(oklch(0.955 0 0), oklch(0.18 0 0));
+  --term-gray2: light-dark(oklch(0.933 0 0), oklch(0.2 0 0));
+  --term-gray3: light-dark(oklch(0.933 0 0), oklch(0.22 0 0));
+  --term-gray4: light-dark(oklch(0.933 0 0), oklch(0.27 0 0));
+  --term-gray5: light-dark(oklch(0.549 0 0), oklch(0.45 0 0));
+  --term-gray6: light-dark(oklch(0.45 0 0), oklch(0.58 0 0));
+  --term-gray7: light-dark(oklch(0.649 0 0), oklch(0.6 0 0));
+  --term-gray8: light-dark(oklch(0.549 0 0), oklch(0.5 0 0));
+  --term-gray9: light-dark(oklch(0.5 0 0), oklch(0.68 0 0));
+  --term-gray10: light-dark(oklch(0.21 0 0), oklch(0.9 0 0));
 
   /* Blue */
-  --term-blue9: light-dark(hsl(211 100% 42%), hsl(210 100% 66%));
+  --term-blue9: light-dark(hsl(211 100% 42%), hsl(210 100% 70%));
 
   /* Red */
   --term-red7: light-dark(hsl(358 75% 59%), hsl(358 75% 59%));
 
   /* Amber */
-  --term-amber7: light-dark(hsl(39 100% 57%), hsl(39 100% 57%));
-  --term-amber9: light-dark(hsl(30 100% 32%), hsl(39 90% 50%));
+  --term-amber7: light-dark(hsl(39 100% 57%), hsl(39 100% 62%));
+  --term-amber9: light-dark(hsl(30 100% 32%), hsl(39 95% 58%));
 
   /* Green */
-  --term-green7: light-dark(hsl(131 41% 46%), hsl(131 41% 46%));
-  --term-green9: light-dark(hsl(133 50% 32%), hsl(131 43% 57%));
+  --term-green7: light-dark(hsl(131 41% 46%), hsl(131 50% 55%));
+  --term-green9: light-dark(hsl(133 50% 32%), hsl(131 50% 60%));
+
+  /* Orange (HTTP status codes) */
+  --term-orange9: light-dark(hsl(25 95% 45%), hsl(25 95% 63%));
 
   /* Teal */
   --term-teal9: light-dark(hsl(174 91% 25%), hsl(174 90% 41%));
 
   /* Pink */
-  --term-pink9: light-dark(hsl(336 65% 45%), hsl(341 90% 67%));
+  --term-pink9: light-dark(hsl(336 65% 45%), hsl(341 90% 72%));
 }
 
 /* Terminal-scoped utility overrides — map tailwind-like classes to --term- vars */
