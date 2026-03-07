@@ -640,85 +640,15 @@ function ServiceDetailModal({
         className={`modal-content${isClosing ? " modal-closing" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header: logo, name + categories --- links, description */}
-        <div className="modal-header">
-          {/* Logo */}
-          <div style={{ marginBottom: 12 }}>
-            {iconUrl && !imgError ? (
-              <img
-                src={iconUrl}
-                alt=""
-                onError={() => setImgError(true)}
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  objectFit: "contain",
-                  filter: "invert(var(--icon-invert, 0))",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  background: "var(--vocs-border-color-primary)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
-                  fontWeight: 600,
-                  color: "var(--vocs-text-color-secondary)",
-                }}
-              >
-                {service.name[0]}
-              </div>
-            )}
-          </div>
-
-          {/* Name + categories --- links + close */}
+        {/* Links + close — pinned top-right */}
+        <div className="modal-actions">
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
+              gap: 8,
               alignItems: "center",
-              gap: 12,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                flexWrap: "wrap",
-                minWidth: 0,
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: 20,
-                  fontWeight: 600,
-                  margin: 0,
-                  color: "var(--vocs-text-color-heading)",
-                }}
-              >
-                {service.name}
-              </h3>
-              {(service.categories ?? []).map((cat) => (
-                <span key={cat} className="modal-tag">
-                  {CATEGORY_LABELS[cat] ?? cat}
-                </span>
-              ))}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-                flexShrink: 0,
-                alignItems: "center",
-              }}
-            >
               {service.docs?.homepage && (
                 <a
                   href={service.docs.homepage}
@@ -812,6 +742,66 @@ function ServiceDetailModal({
                 </svg>
               </button>
             </div>
+          </div>
+
+        {/* Header */}
+        <div className="modal-header">
+          <div style={{ marginBottom: 12 }}>
+            {iconUrl && !imgError ? (
+              <img
+                src={iconUrl}
+                alt=""
+                onError={() => setImgError(true)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  objectFit: "contain",
+                  filter: "invert(var(--icon-invert, 0))",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  background: "var(--vocs-border-color-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 20,
+                  fontWeight: 600,
+                  color: "var(--vocs-text-color-secondary)",
+                }}
+              >
+                {service.name[0]}
+              </div>
+            )}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexWrap: "wrap",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: 20,
+                fontWeight: 600,
+                margin: 0,
+                color: "var(--vocs-text-color-heading)",
+              }}
+            >
+              {service.name}
+            </h3>
+            {(service.categories ?? []).map((cat) => (
+              <span key={cat} className="modal-tag">
+                {CATEGORY_LABELS[cat] ?? cat}
+              </span>
+            ))}
           </div>
           {service.description && (
             <p
@@ -1413,6 +1403,12 @@ function DiscoveryStyles() {
       @keyframes modalSlideOut {
         from { opacity: 1; transform: translateY(0) scale(1); }
         to { opacity: 0; transform: translateY(16px) scale(0.98); }
+      }
+      .modal-actions {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.5rem;
+        z-index: 2;
       }
       .modal-close {
         border: none;
