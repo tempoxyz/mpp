@@ -103,34 +103,86 @@ function BlankLine() {
 
 function PhotoOutput({ url }: { url: string }) {
   const [loaded, setLoaded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   return (
-    <div
-      className="block relative rounded overflow-hidden"
-      style={{
-        width: 200,
-        height: 200,
-        borderColor: "var(--term-gray4)",
-        borderWidth: 1,
-        borderStyle: "solid",
-      }}
-    >
-      {!loaded && (
-        <div
-          className="absolute inset-0"
-          style={{ backgroundColor: "var(--term-gray3)" }}
-        />
-      )}
-      <img
-        src={url}
-        alt="Generated"
-        onLoad={() => setLoaded(true)}
-        className="absolute inset-0 w-full h-full object-cover"
+    <div>
+      <div
+        className="block relative rounded overflow-hidden"
         style={{
-          transition: "opacity 0.5s",
-          opacity: loaded ? 1 : 0,
+          width: 200,
+          height: 200,
+          borderColor: "var(--term-gray4)",
+          borderWidth: 1,
+          borderStyle: "solid",
         }}
-      />
+      >
+        {!loaded && (
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor: "var(--term-gray3)" }}
+          />
+        )}
+        <img
+          src={url}
+          alt="Generated"
+          onLoad={() => setLoaded(true)}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            transition: "opacity 0.5s",
+            opacity: loaded ? 1 : 0,
+          }}
+        />
+      </div>
+      <p style={{ color: "var(--term-gray5)", fontSize: 11, marginTop: 4 }}>
+        Simulated result
+      </p>
+      <div className="flex gap-3" style={{ marginTop: 2 }}>
+        <a
+          href={url}
+          download
+          className="cursor-pointer"
+          style={{
+            color: "#635BFF",
+            fontSize: 12,
+            fontFamily: "var(--font-mono)",
+            textDecoration: "none",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--term-gray10)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "#635BFF";
+          }}
+        >
+          [⬇ Save]
+        </a>
+        <button
+          type="button"
+          className="cursor-pointer"
+          style={{
+            color: "#635BFF",
+            fontSize: 12,
+            fontFamily: "var(--font-mono)",
+            background: "none",
+            border: "none",
+            padding: 0,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--term-gray10)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "#635BFF";
+          }}
+          onClick={() => {
+            navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+        >
+          {copied ? "Copied!" : "[⬆ Share]"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -535,16 +587,16 @@ function AsyncSteps({
       if (needsFunding || (completed && !isRestart))
         s.push({ key: "fund", delay: demoClient ? 0 : d(1500) });
     }
-    s.push({ key: "req402", delay: d(1200) });
+    s.push({ key: "req402", delay: d(500) });
     if (paymentChannel) {
-      s.push({ key: "channel", delay: d(1200) });
-      s.push({ key: "deposit", delay: d(800) });
-      s.push({ key: "req200", delay: d(800) });
+      s.push({ key: "channel", delay: d(500) });
+      s.push({ key: "deposit", delay: d(500) });
+      s.push({ key: "req200", delay: d(500) });
       s.push({ key: "stream", delay: 0 });
-      s.push({ key: "closeChannel", delay: d(1000) });
+      s.push({ key: "closeChannel", delay: d(500) });
     } else {
-      s.push({ key: "pay", delay: d(1500) });
-      s.push({ key: "req200", delay: d(1000) });
+      s.push({ key: "pay", delay: d(500) });
+      s.push({ key: "req200", delay: d(500) });
     }
     return s;
   });
@@ -833,40 +885,18 @@ function AsyncSteps({
       )}
       {/* biome-ignore format: contains unicode → */}
       {atOrPast("req402") && (
-        <>
-          <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("req402")} /> Call {endpoint}
-            {pastStep("req402") && (
-              <>
-                {" "}
-                → <span style={{ color: "var(--term-orange9)" }}>402</span>{" "}
-                <span style={{ color: "var(--term-gray6)" }}>
-                  (payment required)
-                </span>
-              </>
-            )}
-          </p>
+        <p style={{ color: "var(--term-gray6)" }}>
+          <StepIcon spinning={atStep("req402")} /> Call {endpoint}
           {pastStep("req402") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              {">"} WWW-Authenticate: Payment
-            </p>
+            <>
+              {" "}
+              → <span style={{ color: "var(--term-orange9)" }}>402</span>{" "}
+              <span style={{ color: "var(--term-gray6)" }}>
+                (payment required)
+              </span>
+            </>
           )}
-          {pastStep("req402") && serviceLabel(liveEndpoint ?? endpoint) && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              {">"} via {renderText(serviceLabel(liveEndpoint ?? endpoint)!)}
-            </p>
-          )}
-        </>
+        </p>
       )}
       {atOrPast("channel") && (
         <p style={{ color: "var(--term-gray6)" }}>
@@ -892,7 +922,7 @@ function AsyncSteps({
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("deposit")} /> Deposit funds{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
-          <span style={{ color: "var(--term-amber9)" }}>5 USDC</span>
+          <span style={{ color: "var(--term-green9)" }}>5 USDC</span>
         </p>
       )}
       {atOrPast("pay") && (
@@ -944,75 +974,107 @@ function AsyncSteps({
           <BlankLine />
         </>
       )}
-      {paymentChannel && atOrPast("stream") && (
-        <>
-          <BlankLine />
-          {outputMode === "gallery" ? (
-            <>
-              <GalleryGrid
-                urls={output.slice(0, tokenCount)}
-                loading={tokenCount < output.length}
-              />
-              {/* biome-ignore format: contains unicode ✔︎ */}
-              {tokenCount > 0 && (
-                <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
-                  {tokenCount < output.length ? (
-                    <Spinner />
-                  ) : (
-                    <span style={{ color: "var(--term-green9)" }}>✔︎</span>
-                  )}{" "}
-                  {tokenCount} photos —{" "}
-                  <span style={{ color: "var(--term-amber9)" }}>
-                    {(tokenCount * 0.01).toFixed(2)} USDC
-                  </span>
+      {paymentChannel &&
+        atOrPast("stream") &&
+        (outputMode === "gallery" ? (
+          <>
+            <BlankLine />
+            <GalleryGrid
+              urls={output.slice(0, tokenCount)}
+              loading={tokenCount < output.length}
+            />
+            {/* biome-ignore format: contains unicode ✔︎ */}
+            {tokenCount > 0 && (
+              <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
+                {tokenCount < output.length ? (
+                  <Spinner />
+                ) : (
+                  <span style={{ color: "var(--term-green9)" }}>✔︎</span>
+                )}{" "}
+                {tokenCount} photos —{" "}
+                <span style={{ color: "var(--term-green9)" }}>
+                  {(tokenCount * 0.01).toFixed(2)} USDC
+                </span>
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <BlankLine />
+            <p
+              style={{
+                color: "var(--term-gray5)",
+                borderBottom: "1px solid var(--term-gray4)",
+                paddingBottom: "0.25rem",
+                marginBottom: "0.5rem",
+              }}
+            >
+              {" "}
+            </p>
+            <div
+              style={{
+                color: "var(--term-gray5)",
+                fontSize: "inherit",
+                lineHeight: "1.5",
+              }}
+            >
+              <p>
+                Available:{" "}
+                <span style={{ color: "var(--term-green9)" }}>
+                  {(5 - tokenCount * COST_PER_TOKEN).toFixed(4)}
+                </span>{" "}
+                USDC in channel
+              </p>
+              <p>
+                Spent:{" "}
+                <span style={{ color: "var(--term-amber9)" }}>
+                  {(tokenCount * COST_PER_TOKEN).toFixed(4)}
+                </span>{" "}
+                USDC paid
+              </p>
+              <p>
+                Streamed:{" "}
+                <span style={{ color: "var(--term-gray10)" }}>
+                  {tokenCount}
+                </span>{" "}
+                tokens received
+              </p>
+            </div>
+            <BlankLine />
+            <pre
+              className="whitespace-pre-wrap"
+              style={{ color: "var(--term-gray10)" }}
+            >
+              {outputText.slice(0, streamChars)}
+            </pre>
+            {streamChars >= outputText.length && (
+              <>
+                <BlankLine />
+                <p
+                  style={{
+                    color: "var(--term-gray5)",
+                    borderBottom: "1px solid var(--term-gray4)",
+                    paddingBottom: "0.25rem",
+                  }}
+                >
+                  {" "}
                 </p>
-              )}
-            </>
-          ) : (
-            <>
-              <pre
-                className="whitespace-pre-wrap"
-                style={{ color: "var(--term-gray10)" }}
-              >
-                {outputText.slice(0, streamChars)}
-              </pre>
-              {/* biome-ignore format: contains unicode ✔︎ */}
-              {streamChars >= outputText.length && tokenCount > 0 && (
-                <>
-                  <BlankLine />
-                  <p style={{ color: "var(--term-gray6)" }}>
-                    <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
-                    {tokenCount} tokens streamed
-                  </p>
-                </>
-              )}
-            </>
-          )}
-        </>
-      )}
+              </>
+            )}
+          </>
+        ))}
       {atOrPast("closeChannel") && (
         <>
-          {/* biome-ignore format: contains unicode ✔︎ */}
-          {pastStep("closeChannel") &&
-            (() => {
-              const spent =
-                outputMode === "gallery"
-                  ? tokenCount * 0.01
-                  : tokenCount * COST_PER_TOKEN;
-              return (
-                <>
-                  <BlankLine />
-                  <p style={{ color: "var(--term-gray6)" }}>
-                    <span style={{ color: "var(--term-green9)" }}>✔︎</span> Spent{" "}
-                    <span style={{ color: "var(--term-green9)" }}>
-                      {spent.toFixed(outputMode === "gallery" ? 2 : 4)} USDC
-                    </span>
-                  </p>
-                </>
-              );
-            })()}
+          <BlankLine />
+          {/* biome-ignore format: contains unicode ✔︎ ⋅ */}
+          {pastStep("closeChannel") && tokenCount > 0 && (
+            <p style={{ color: "var(--term-gray6)" }}>
+              <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
+              {tokenCount} tokens streamed
+            </p>
+          )}
           <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("closeChannel")} /> Closing payment
+            <StepIcon spinning={atStep("closeChannel")} /> Closed payment
             channel
             {pastStep("closeChannel") && (
               <>
@@ -1030,7 +1092,6 @@ function AsyncSteps({
               </>
             )}
           </p>
-          {/* biome-ignore format: contains unicode ✔︎ */}
           {pastStep("closeChannel") &&
             (() => {
               const spent =
@@ -1038,13 +1099,23 @@ function AsyncSteps({
                   ? tokenCount * 0.01
                   : tokenCount * COST_PER_TOKEN;
               return (
-                <p style={{ color: "var(--term-gray6)" }}>
-                  <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
-                  Refunded{" "}
-                  <span style={{ color: "var(--term-green9)" }}>
-                    {(5 - spent).toFixed(outputMode === "gallery" ? 2 : 4)} USDC
-                  </span>
-                </p>
+                <>
+                  {/* biome-ignore format: contains unicode ✔︎ */}
+                  <p style={{ color: "var(--term-gray6)" }}>
+                    <span style={{ color: "var(--term-green9)" }}>✔︎</span> Spent{" "}
+                    <span style={{ color: "var(--term-green9)" }}>
+                      {spent.toFixed(outputMode === "gallery" ? 2 : 4)} USDC
+                    </span>
+                  </p>
+                  <p style={{ color: "var(--term-gray6)" }}>
+                    <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
+                    Refunded{" "}
+                    <span style={{ color: "var(--term-green9)" }}>
+                      {(5 - spent).toFixed(outputMode === "gallery" ? 2 : 4)}{" "}
+                      USDC
+                    </span>
+                  </p>
+                </>
               );
             })()}
         </>
@@ -1107,6 +1178,13 @@ function CardForm({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Tab") {
+      e.preventDefault();
+      if (field === "number" && !cardNumber.trim()) {
+        applyTestCard();
+      }
+      return;
+    }
     if (e.key !== "Enter") return;
     if (field === "number") {
       if (!cardNumber.trim()) {
@@ -1158,7 +1236,7 @@ function CardForm({
               className="cursor-pointer hover:underline"
               style={{ color: "#00D66F" }}
             >
-              [use link]
+              [Use Stripe Link]
             </button>{" "}
             <button
               type="button"
@@ -1371,40 +1449,18 @@ function StripeSteps({
       {!description && <BlankLine />}
       {/* biome-ignore format: contains unicode → */}
       {atOrPast("req402") && (
-        <>
-          <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("req402")} /> Call {endpoint}
-            {pastStep("req402") && (
-              <>
-                {" "}
-                → <span style={{ color: "var(--term-orange9)" }}>402</span>{" "}
-                <span style={{ color: "var(--term-gray6)" }}>
-                  (payment required)
-                </span>
-              </>
-            )}
-          </p>
+        <p style={{ color: "var(--term-gray6)" }}>
+          <StepIcon spinning={atStep("req402")} /> Call {endpoint}
           {pastStep("req402") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              {">"} WWW-Authenticate: Payment method=stripe intent=charge
-            </p>
+            <>
+              {" "}
+              → <span style={{ color: "var(--term-orange9)" }}>402</span>{" "}
+              <span style={{ color: "var(--term-gray6)" }}>
+                (payment required)
+              </span>
+            </>
           )}
-          {pastStep("req402") && serviceLabel(endpoint) && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              {">"} via {renderText(serviceLabel(endpoint)!)}
-            </p>
-          )}
-        </>
+        </p>
       )}
       {atOrPast("cardInput") && (
         <CardForm
@@ -1432,7 +1488,7 @@ function StripeSteps({
                 paddingLeft: "2ch",
               }}
             >
-              {">"} id {piId}
+              ID {piId}
             </p>
           )}
           {pastStep("createPI") && (
@@ -1442,7 +1498,7 @@ function StripeSteps({
                 paddingLeft: "2ch",
               }}
             >
-              {">"} amount{" "}
+              Amount{" "}
               <span style={{ color: "var(--term-amber9)" }}>
                 ${LOOKUP_COST.toFixed(2)} USD
               </span>
@@ -1580,10 +1636,13 @@ function Wizard({
   const [waitingForUrl, setWaitingForUrl] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [chosenUrl, setChosenUrl] = useState<string | undefined>();
+  const [urlError, setUrlError] = useState("");
   const urlRef = useRef<HTMLInputElement>(null);
   const currentTxHashRef = useRef<string | undefined>(undefined);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runKey, setRunKey] = useState(0);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const menuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Wallet setup phase — runs before menu is shown
   const [walletSetupStep, setWalletSetupStep] = useState(() =>
@@ -1644,6 +1703,7 @@ function Wizard({
     }
     setWaitingForUrl(true);
     setUrlInput("");
+    setUrlError("");
     setTimeout(() => urlRef.current?.focus(), 0);
   };
 
@@ -1652,17 +1712,32 @@ function Wizard({
     const defaultInput = step.prompt?.placeholder?.trim() ?? "";
     const resolvedInput = urlInput.trim() || defaultInput;
     if (!resolvedInput) return;
-    if (step.pickOutput) setChosenOutput(step.pickOutput());
     const prefix = step.prompt?.prefix ?? "";
-    setChosenUrl(
-      resolvedInput.startsWith(prefix)
-        ? resolvedInput
-        : `${prefix}${resolvedInput}`,
-    );
+    const fullUrl = resolvedInput.startsWith(prefix)
+      ? resolvedInput
+      : `${prefix}${resolvedInput}`;
+    if (fullUrl.startsWith("http://") || fullUrl.startsWith("https://")) {
+      try {
+        new URL(fullUrl);
+      } catch {
+        setUrlError("Enter a valid URL");
+        return;
+      }
+    }
+    setUrlError("");
+    if (step.pickOutput) setChosenOutput(step.pickOutput());
+    setChosenUrl(fullUrl);
     setWaitingForUrl(false);
     setChosen(step);
     scrollTerminalIntoView();
   };
+
+  // Show menu immediately on first load (once wallet ready)
+  useEffect(() => {
+    if (walletReady && runs.length === 0 && !menuVisible) {
+      setMenuVisible(true);
+    }
+  }, [walletReady, runs.length, menuVisible]);
 
   const handleDone = () => {
     setRuns((prev) => [
@@ -1679,11 +1754,21 @@ function Wizard({
     currentTxHashRef.current = undefined;
     setRunKey((k) => k + 1);
     setChosen(null);
-    setSelected(0);
+    setSelected((s) => (s + 1) % currentItems.length);
+    setMenuVisible(false);
+    const delay = SKIP_ANIMATION ? 0 : 5000;
+    menuTimerRef.current = setTimeout(() => setMenuVisible(true), delay);
   };
 
+  // Cleanup timer on unmount
   useEffect(() => {
-    if (chosen || !walletReady || waitingForUrl) return;
+    return () => {
+      if (menuTimerRef.current) clearTimeout(menuTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (chosen || !menuVisible || waitingForUrl) return;
     const terminal = document.querySelector("[data-terminal]");
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") {
@@ -1846,8 +1931,15 @@ function Wizard({
       ))}
 
       {/* Current wizard menu */}
-      {walletReady && (
-        <div>
+      {menuVisible && (
+        <div
+          style={{
+            animation: runs.length > 0 ? "fadeIn 0.5s ease-out" : undefined,
+          }}
+        >
+          <p style={{ color: "var(--term-gray4)", margin: "0.5rem 0" }}>
+            {"─".repeat(40)}
+          </p>
           <BlankLine />
           <p style={{ color: "var(--term-gray10)" }}>
             What would you like to do?
@@ -1912,7 +2004,10 @@ function Wizard({
                   ref={urlRef}
                   type="text"
                   value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
+                  onChange={(e) => {
+                    setUrlInput(e.target.value);
+                    if (urlError) setUrlError("");
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Tab") {
                       e.preventDefault();
@@ -1928,13 +2023,19 @@ function Wizard({
                   placeholder={currentItems[selected].prompt?.placeholder ?? ""}
                 />
               </p>
+              {urlError && (
+                <p style={{ color: "var(--term-red7)" }}>{urlError}</p>
+              )}
             </>
           )}
           {chosen?.prompt && chosenUrl && (
-            <p style={{ color: "var(--term-pink9)" }}>
-              {chosen.prompt.label}:{" "}
-              <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
-            </p>
+            <>
+              <BlankLine />
+              <p style={{ color: "var(--term-pink9)" }}>
+                {chosen.prompt.label}:{" "}
+                <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
+              </p>
+            </>
           )}
           {chosen &&
             renderPaymentSteps(chosen, chosenOutput, runKey, {
@@ -2189,25 +2290,18 @@ function GalleryStep({
       )}
       {/* biome-ignore format: contains unicode → */}
       {setupAtOrPast("req402") && (
-        <>
-          <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={setupAt("req402")} /> Call {step.endpoint}
-            {setupPast("req402") && (
-              <>
-                {" "}
-                → <span style={{ color: "var(--term-orange9)" }}>402</span>{" "}
-                <span style={{ color: "var(--term-gray6)" }}>
-                  (payment required)
-                </span>
-              </>
-            )}
-          </p>
+        <p style={{ color: "var(--term-gray6)" }}>
+          <StepIcon spinning={setupAt("req402")} /> Call {step.endpoint}
           {setupPast("req402") && (
-            <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
-              {">"} WWW-Authenticate: Payment
-            </p>
+            <>
+              {" "}
+              → <span style={{ color: "var(--term-orange9)" }}>402</span>{" "}
+              <span style={{ color: "var(--term-gray6)" }}>
+                (payment required)
+              </span>
+            </>
           )}
-        </>
+        </p>
       )}
       {setupAtOrPast("channel") && (
         <p style={{ color: "var(--term-gray6)" }}>
@@ -2410,7 +2504,7 @@ function GalleryStep({
             </p>
           )}
           <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={phase === "closing"} /> Closing payment channel
+            <StepIcon spinning={phase === "closing"} /> Closed payment channel
             {phase === "restart" && (
               <>
                 {" "}
@@ -2599,22 +2693,47 @@ function TerminalComponent({
   const [created, setCreated] = useState(false);
   const [funded, setFunded] = useState(false);
   const [savedCard, setSavedCard] = useState<SavedCard | undefined>();
-  const [lastLogin] = useState(() => {
-    try {
-      const prev = localStorage.getItem("mpp-last-visit");
-      const now = new Date();
-      localStorage.setItem("mpp-last-visit", now.toISOString());
-      if (prev) {
-        const d = new Date(prev);
-        return d.toDateString() === "Invalid Date"
-          ? now.toString().replace(/\s*\(.*\)/, "")
-          : d.toString().replace(/\s*\(.*\)/, "");
-      }
-      return now.toString().replace(/\s*\(.*\)/, "");
-    } catch {
-      return new Date().toString().replace(/\s*\(.*\)/, "");
-    }
+  const [liveTime, setLiveTime] = useState(() => {
+    const d = new Date();
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    return `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")} ${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
   });
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const d = new Date();
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      setLiveTime(
+        `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")} ${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`,
+      );
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
   const walletState: WalletState = {
     address,
     balance,
@@ -2634,6 +2753,7 @@ function TerminalComponent({
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef(true);
+  const [showTopFade, setShowTopFade] = useState(false);
 
   useEffect(() => {
     const scrollEl = scrollRef.current;
@@ -2644,11 +2764,14 @@ function TerminalComponent({
         const distanceFromBottom =
           scrollEl.scrollHeight - scrollEl.clientHeight - scrollEl.scrollTop;
         autoScrollRef.current = distanceFromBottom < LINE_HEIGHT;
+        setShowTopFade(scrollEl.scrollTop > 10);
       });
     };
+    scrollEl.addEventListener("scroll", checkScroll, { passive: true });
     scrollEl.addEventListener("wheel", checkScroll, { passive: true });
     scrollEl.addEventListener("touchmove", checkScroll, { passive: true });
     return () => {
+      scrollEl.removeEventListener("scroll", checkScroll);
       scrollEl.removeEventListener("wheel", checkScroll);
       scrollEl.removeEventListener("touchmove", checkScroll);
     };
@@ -2660,7 +2783,10 @@ function TerminalComponent({
     if (!scrollEl || !contentEl) return;
     const observer = new ResizeObserver(() => {
       if (!autoScrollRef.current) return;
-      scrollEl.scrollTop = scrollEl.scrollHeight - scrollEl.clientHeight;
+      scrollEl.scrollTo({
+        top: scrollEl.scrollHeight - scrollEl.clientHeight,
+        behavior: "smooth",
+      });
     });
     observer.observe(contentEl);
     return () => observer.disconnect();
@@ -2741,7 +2867,7 @@ function TerminalComponent({
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              color: "var(--term-gray4)",
+              color: "var(--term-gray5)",
               padding: 2,
               borderRadius: 4,
               display: "flex",
@@ -2753,7 +2879,7 @@ function TerminalComponent({
               e.currentTarget.style.color = "var(--term-gray10)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--term-gray4)";
+              e.currentTarget.style.color = "var(--term-gray5)";
             }}
             aria-label="Restart demo"
           >
@@ -2776,6 +2902,23 @@ function TerminalComponent({
             </svg>
           </button>
         </div>
+
+        {/* Top gradient fade */}
+        {showTopFade && (
+          <div
+            style={{
+              position: "absolute",
+              top: 44,
+              left: 0,
+              right: 0,
+              height: 24,
+              background:
+                "linear-gradient(to bottom, var(--term-bg2), transparent)",
+              zIndex: 2,
+              pointerEvents: "none",
+            }}
+          />
+        )}
 
         {/* Terminal body */}
         <div
@@ -2832,7 +2975,7 @@ function TerminalComponent({
                 className="hidden md:block"
                 style={{ color: "var(--term-gray6)" }}
               >
-                Last visit: {lastLogin} on ttys000
+                Last visit: {liveTime} on ttys000
               </p>
             )}
             {showPrompt && !started && (
@@ -2875,27 +3018,9 @@ function TerminalComponent({
                       <span style={{ color: "var(--term-gray10)" }}>
                         {">"}{" "}
                       </span>
-                      {isCommand
-                        ? (() => {
-                            const spaceIdx = visible.indexOf(" ");
-                            if (spaceIdx === -1)
-                              return (
-                                <span style={{ color: "var(--term-blue9)" }}>
-                                  {renderText(visible)}
-                                </span>
-                              );
-                            return (
-                              <>
-                                <span style={{ color: "var(--term-blue9)" }}>
-                                  {visible.slice(0, spaceIdx)}
-                                </span>
-                                <span style={{ color: "var(--term-gray10)" }}>
-                                  {renderText(visible.slice(spaceIdx))}
-                                </span>
-                              </>
-                            );
-                          })()
-                        : renderText(visible)}
+                      <span style={{ color: "var(--term-gray10)" }}>
+                        {isCommand ? renderText(visible) : renderText(visible)}
+                      </span>
                       <span
                         className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
                         style={{

@@ -104,6 +104,8 @@ export const IMAGE_RESULTS = [
 
 export const SEARCH_RESULTS = [
   [
+    "  (Simulated results — connect a live API key for real search)",
+    "",
     "  1. HTTP 402 Payment Required — MDN Web Docs",
     "     https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402",
     "     The 402 status code is reserved for future use in digital payment",

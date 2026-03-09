@@ -139,7 +139,7 @@ describe("terminal", () => {
     ).toBeVisible({ timeout: 20_000 });
 
     await playwrightExpect(
-      page.getByText("Closing payment channel"),
+      page.getByText("Closed payment channel"),
     ).toBeVisible({ timeout: 5_000 });
 
     await playwrightExpect(
@@ -366,7 +366,7 @@ describe("terminal (classic mode)", () => {
     ).toBeVisible({ timeout: 20_000 });
 
     await playwrightExpect(
-      page.getByText("Closing payment channel"),
+      page.getByText("Closed payment channel"),
     ).toBeVisible({ timeout: 5_000 });
 
     await playwrightExpect(
@@ -573,7 +573,7 @@ describe("terminal (pay-as-you-go guide)", () => {
 
     // Close channel
     await playwrightExpect(
-      terminal.getByText("Closing payment channel"),
+      terminal.getByText("Closed payment channel"),
     ).toBeVisible({ timeout: 10_000 });
 
     // Restart prompt should appear
@@ -622,7 +622,7 @@ describe("terminal (streamed-payments guide)", () => {
     ).toBeVisible({ timeout: 20_000 });
 
     await playwrightExpect(
-      terminal.getByText("Closing payment channel"),
+      terminal.getByText("Closed payment channel"),
     ).toBeVisible({ timeout: 10_000 });
 
     // Restart prompt should appear
