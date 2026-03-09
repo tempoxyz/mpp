@@ -389,7 +389,7 @@ function SearchWithDropdown({
           if (search.trim()) setShowDropdown(true);
         }}
         onKeyDown={handleKeyDown}
-        placeholder="Search services..."
+        placeholder={`Search ${services.length} services...`}
         style={{
           width: "100%",
           padding: "0.4rem 0.6rem 0.4rem 2rem",
@@ -405,6 +405,7 @@ function SearchWithDropdown({
       />
       {!search && (
         <kbd
+          className="search-kbd-hint"
           style={{
             position: "absolute",
             right: 8,
@@ -906,7 +907,7 @@ export function ServicesPage() {
           <div>
             <h1
               style={{
-                fontSize: "2.1rem",
+                fontSize: "2.2rem",
                 fontWeight: 700,
                 fontFamily: '"VTC Du Bois", var(--font-sans)',
                 letterSpacing: "-0.02em",
@@ -1593,13 +1594,13 @@ function PrestoCardFull() {
     >
       <h2
         style={{
-          fontSize: "1.25rem",
+          fontSize: "1.15rem",
           fontWeight: 500,
           letterSpacing: "-0.02em",
           marginBottom: "0.35rem",
         }}
       >
-        Get started with your Agent
+        Use with Tempo
       </h2>
       <p
         style={{
@@ -2234,9 +2235,11 @@ function ServiceIcon({ service: s }: { service: Service }) {
             display: "block",
             objectFit: "contain",
             filter: "invert(var(--icon-invert, 0))",
-            ...(["twitter", "elevenlabs", "digitalocean"].includes(s.id)
-              ? { padding: 5 }
-              : {}),
+            ...(s.id === "twitter"
+              ? { width: 20, height: 20, padding: 0, margin: 4 }
+              : ["elevenlabs", "digitalocean"].includes(s.id)
+                ? { padding: 5 }
+                : {}),
           }}
           onError={() => setImgError(true)}
         />
@@ -2963,11 +2966,12 @@ function PageStyles() {
         .services-container { padding-left: 0 !important; padding-right: 0 !important; }
         [data-services-table] table { width: 100% !important; }
         [data-services-table] thead { display: none !important; }
-        [data-services-table] table td:first-child { padding: 0.85rem 0.5rem 0.85rem 1.25rem !important; vertical-align: top !important; }
-        [data-services-table] table td:last-child { padding: 0.85rem 1.25rem 0.85rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
+        [data-services-table] table td:first-child { padding: 1rem 0.75rem 1rem 1.25rem !important; vertical-align: top !important; }
+        [data-services-table] table td:last-child { padding: 1rem 1.25rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
         .chevron-cell { padding-right: 0 !important; }
         .svc-badge-inline { margin-left: 0.25rem !important; }
         .sub-row { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
+        .svc-desc-mobile { font-size: 14.5px !important; }
         .header-cards { padding: 0 1.25rem !important; }
         .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
         .header-cards-grid > * > div > div:first-child { font-size: 16px !important; }
@@ -2975,10 +2979,11 @@ function PageStyles() {
         .search-bar { display: none !important; }
         .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
+        .search-kbd-hint { display: none !important; }
         .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0 !important; margin-right: 0 !important; padding: 0 1.25rem !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 auto !important; justify-content: center !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; }
-        .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; }
+        .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; font-size: 14.5px !important; padding-right: 1rem !important; }
         .page-header-ctas { display: none !important; }
         .pagination { padding: 0 1.25rem !important; }
       }
@@ -2986,8 +2991,8 @@ function PageStyles() {
       /* ---- Mobile: full-width, bigger icons ---- */
       @media (max-width: 640px) {
         .expanded-detail { padding-left: 0 !important; padding-right: 0 !important; }
-        .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
-        .svc-icon img { width: 34px !important; height: 34px !important; }
+        .svc-icon { width: 38px !important; height: 38px !important; margin-right: 10px !important; }
+        .svc-icon img { width: 38px !important; height: 38px !important; }
         .sub-row { padding-left: 4rem !important; }
         .header-cards-grid > * > div > div:first-child { font-size: 17px !important; }
         .header-cards-grid > * > div > div:last-child { font-size: 15px !important; }

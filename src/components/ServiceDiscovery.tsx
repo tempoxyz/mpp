@@ -60,6 +60,21 @@ function getExamplePayload(ep: Endpoint): string {
   ) {
     return '\'{"input":"Hello world","voice":"alloy"}\'';
   }
+  if (ep.path.includes("/apollo") || ep.path.includes("/people")) {
+    return '\'{"name":"Jane Doe","company":"Acme Inc"}\'';
+  }
+  if (ep.path.includes("/enrich") || ep.path.includes("/lookup")) {
+    return '\'{"email":"jane@example.com"}\'';
+  }
+  if (ep.path.includes("/captcha") || ep.path.includes("/solve")) {
+    return '\'{"sitekey":"6Le-...","pageurl":"https://example.com"}\'';
+  }
+  if (ep.path.includes("/repos") || ep.path.includes("/git")) {
+    return '\'{"name":"my-project","private":false}\'';
+  }
+  if (ep.description?.toLowerCase().includes("flight")) {
+    return '\'{"origin":"SFO","destination":"JFK","date":"2026-04-01"}\'';
+  }
   return "'{}'";
 }
 
@@ -398,10 +413,12 @@ export function ServiceDiscovery() {
                 </button>
               )}
             </div>
-            <a href="/services" className="discovery-view-all">
-              View all
-            </a>
-            {showDropdown && dropdownResults.length > 0 && (
+            {query.length === 0 && (
+              <a href="/services" className="discovery-view-all">
+                View all
+              </a>
+            )}
+            {showDropdown && query.length > 0 && (
               <div className="discovery-dropdown">
                 <div className="discovery-dropdown-tabs">
                   {(["all", "services", "endpoints"] as const).map((tab) => (
@@ -423,7 +440,8 @@ export function ServiceDiscovery() {
                     </button>
                   ))}
                 </div>
-                {dropdownResults
+                <div className="discovery-dropdown-scroll">
+                {dropdownResults.length > 0 ? dropdownResults
                   .filter(
                     (r) =>
                       dropdownTab === "all" ||
@@ -474,23 +492,21 @@ export function ServiceDiscovery() {
                         </>
                       )}
                     </button>
-                  ))}
+                  )) : (
+                    <p className="discovery-no-results" style={{ padding: "1rem", margin: 0 }}>
+                      No services match your search
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>
-          {query.trim().length > 0 &&
-            dropdownResults.length === 0 &&
-            !showDropdown && (
-              <p className="discovery-no-results">
-                No services match your search
-              </p>
-            )}
           {/* submit hint removed for now */}
         </div>
 
         {/* Card grid */}
         <div className="discovery-grid" ref={gridRef}>
-          {stableScored.map(({ service, score }, idx) => {
+          {stableScored.slice(0, 48).map(({ service, score }, idx) => {
             const isMatch = !debouncedQuery || score > 0;
             const iconUrl = getIconUrl(service);
             const t = transforms[service.id];
@@ -1271,7 +1287,11 @@ function ServiceDetailModal({
                 handleCopyJson();
               }}
             >
-              {copiedJson ? "Copied!" : "Copy as JSON"}
+              {copiedJson ? (
+                <><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}><polyline points="20 6 9 17 4 12" /></svg>Copied!</>
+              ) : (
+                <><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}><rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>Copy as JSON</>
+              )}
             </button>
           </div>
           <div className="modal-endpoints-wrap">
@@ -1286,6 +1306,7 @@ function ServiceDetailModal({
                     className={`modal-endpoint-row ${isSelected ? "modal-endpoint-selected" : ""}`}
                     onClick={() => {
                       setSelectedEndpoint(ep);
+                      handleCopyEndpoint(ep);
                     }}
                   >
                     <span
@@ -1394,14 +1415,33 @@ function ServiceDetailModal({
             >
               <div
                 style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                   fontSize: 11,
                   color: "var(--vocs-text-color-muted)",
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
+                  paddingBottom: 8,
                   marginBottom: 8,
+                  borderBottom: "1px solid light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06))",
                 }}
               >
-                Get started
+                <span>Get started</span>
+                <span
+                  className={`modal-copy-btn${copied ? " modal-copy-btn-active" : ""}`}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    background: "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
+                    textTransform: "none",
+                    letterSpacing: "normal",
+                  }}
+                >
+                  <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5" /><line x1="12" x2="20" y1="19" y2="19" /></svg>
+                  {copied ? "Copied!" : "Copy commands"}
+                </span>
               </div>
               <div className="cli-lines">
                 <div className="cli-line">
@@ -1434,7 +1474,7 @@ function ServiceDetailModal({
                     <span style={{ color: muted }}>$ </span>
                     <span style={{ color: green }}>tempo</span> wallet{" "}
                     {walletPrefix}--dry-run{" "}
-                    <span style={{ color: "var(--vocs-text-color-heading)" }}>
+                    <span style={{ color: "light-dark(#0d7377, #5eead4)" }}>
                       {baseUrl}
                       {cliPath}
                     </span>
@@ -1453,40 +1493,6 @@ function ServiceDetailModal({
                     # Test without paying
                   </span>
                 </div>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  marginTop: 10,
-                }}
-              >
-                <span
-                  className={`modal-copy-btn${copied ? " modal-copy-btn-active" : ""}`}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 4,
-                    background:
-                      "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
-                  }}
-                >
-                  <svg
-                    aria-hidden="true"
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="4 17 10 11 4 5" />
-                    <line x1="12" x2="20" y1="19" y2="19" />
-                  </svg>
-                  {copied ? "Copied!" : "Copy commands"}
-                </span>
               </div>
             </div>
           </div>
@@ -1615,23 +1621,27 @@ function DiscoveryStyles() {
       @media (max-width: 768px) {
         .discovery-grid::after {
           background: radial-gradient(
-            ellipse 85% 38% at center,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.9) 0%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.85) 15%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.7) 30%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.4) 50%,
-            transparent 72%
+            ellipse 90% 42% at center,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.96) 0%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.92) 18%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.8) 35%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.5) 55%,
+            transparent 75%
           );
         }
         .discovery-overlay {
-          top: 30% !important;
+          top: 28% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
         }
         .discovery-dropdown {
           max-height: 40vh;
           overflow-y: auto;
         }
       }
-      .has-query .discovery-grid::after { opacity: 0; }
+      @media (max-width: 768px) {
+        .discovery-kbd { display: none; }
+      }
 
       .discovery-search-wrapper {
         position: relative;
@@ -1648,9 +1658,11 @@ function DiscoveryStyles() {
         align-items: center;
         gap: 10px;
         padding: 0.75rem 1rem;
-        border-radius: 12px;
+        border-radius: 10px;
         border: 1px solid var(--vocs-border-color-primary);
-        background: light-dark(var(--vocs-background-color-primary), rgba(255,255,255,0.06));
+        background: light-dark(rgba(255,255,255,0.85), rgba(255,255,255,0.06));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         transition: border-color 0.15s;
         flex: 1;
         min-width: 0;
@@ -1688,12 +1700,12 @@ function DiscoveryStyles() {
       }
       .discovery-view-all {
         flex-shrink: 0;
-        font-size: 13px;
+        font-size: 14.5px;
         font-family: var(--font-sans);
-        color: var(--vocs-text-color-muted);
-        text-decoration: none;
+        color: var(--vocs-text-color-secondary);
+        text-decoration: none !important;
         padding: 0.75rem 1rem;
-        border-radius: 12px;
+        border-radius: 10px;
         border: 1px solid var(--vocs-border-color-primary);
         background: light-dark(var(--vocs-background-color-primary), rgba(255,255,255,0.06));
         white-space: nowrap;
@@ -1705,6 +1717,7 @@ function DiscoveryStyles() {
       .discovery-view-all:hover {
         color: var(--vocs-text-color-heading);
         border-color: light-dark(rgba(0,0,0,0.2), rgba(255,255,255,0.2));
+        text-decoration: none !important;
       }
 
       /* Dropdown */
@@ -1720,6 +1733,10 @@ function DiscoveryStyles() {
         box-shadow: 0 8px 32px rgba(0,0,0,0.12);
         overflow: hidden;
         z-index: 20;
+      }
+      .discovery-dropdown-scroll {
+        max-height: 360px;
+        overflow-y: auto;
       }
       .discovery-dropdown-item {
         display: flex;
@@ -1805,12 +1822,23 @@ function DiscoveryStyles() {
       .discovery-grid {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
-        grid-auto-rows: minmax(0, 1fr);
+        grid-auto-rows: minmax(130px, 1fr);
         gap: 10px;
         padding: clamp(0.75rem, 1.5vw, 1.5rem);
         width: 100%;
         height: 100%;
         overflow: hidden;
+      }
+      .discovery-grid::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background: linear-gradient(to top, var(--vocs-background-color-primary) 15%, transparent);
+        pointer-events: none;
+        z-index: 6;
       }
       @media (max-width: 1100px) {
         .discovery-grid {
@@ -1830,7 +1858,6 @@ function DiscoveryStyles() {
       .discovery-card {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
         gap: 4px;
         padding: 12px;
         border-radius: 14px;
@@ -1919,6 +1946,7 @@ function DiscoveryStyles() {
         font-size: 17px;
         color: var(--vocs-text-color-heading);
         margin-top: auto;
+        flex-shrink: 0;
       }
       .discovery-card-desc {
         font-size: 13px;
@@ -1926,9 +1954,11 @@ function DiscoveryStyles() {
         line-height: 1.5;
         margin-top: 2px;
         display: -webkit-box;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        flex-shrink: 1;
+        min-height: 0;
       }
 
       @media (max-width: 768px) {
@@ -2143,17 +2173,29 @@ function DiscoveryStyles() {
       .modal-endpoints-wrap {
         position: relative;
       }
+      .modal-endpoints-wrap::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 32px;
+        background: linear-gradient(to top, var(--vocs-background-color-primary), transparent);
+        pointer-events: none;
+        z-index: 1;
+        border-radius: 0 0 10px 10px;
+      }
       
       .modal-endpoints {
         max-height: 320px;
-        overflow-y: scroll;
+        overflow-y: auto;
         border: 1px solid light-dark(var(--vocs-border-color-primary), rgba(255,255,255,0.1));
         border-radius: 10px;
-        padding-right: 2px;
+        scrollbar-width: thin;
       }
       .modal-endpoint-row {
         display: grid;
-        grid-template-columns: 60px minmax(80px, 1fr) minmax(0, 1.5fr) auto;
+        grid-template-columns: 60px minmax(80px, 1fr) minmax(0, 1.1fr) auto;
         gap: 8px;
         align-items: center;
         width: 100%;
@@ -2226,7 +2268,39 @@ function DiscoveryStyles() {
       }
 
       @media (max-width: 640px) {
-        .modal-content { padding: 1.25rem; }
+        .modal-backdrop {
+          align-items: flex-end !important;
+          padding: 0 !important;
+        }
+        .modal-content {
+          padding: 1.25rem;
+          border-radius: 16px 16px 0 0 !important;
+          max-height: 90vh !important;
+        }
+        @keyframes modalSlideIn {
+          from { opacity: 0; transform: translateY(100%); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes modalSlideOut {
+          from { opacity: 1; transform: translateY(0); }
+          to { opacity: 0; transform: translateY(100%); }
+        }
+        .modal-actions {
+          position: relative !important;
+          top: auto !important;
+          right: auto !important;
+          margin-top: 0.75rem;
+          margin-bottom: 0.5rem;
+        }
+        .modal-actions > div {
+          justify-content: flex-start !important;
+          flex-wrap: wrap;
+        }
+        .modal-close {
+          position: absolute !important;
+          top: 1rem !important;
+          right: 1rem !important;
+        }
         .modal-endpoint-row {
           grid-template-columns: 50px 1fr auto;
         }

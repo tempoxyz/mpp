@@ -311,6 +311,11 @@ function LandingStyles() {
 
       /* Mobile-only */
       @media (max-width: 767px) {
+        .hero-row { align-items: center !important; text-align: center; }
+        .hero-right { align-items: center !important; max-width: 85vw; margin: 0 auto; }
+        .landing-ctas { justify-content: center !important; }
+        .designed-by { justify-content: center !important; }
+        .landing-terminal > div:first-child { max-height: 480px !important; }
         :has(.landing-page) [data-v-gutter-top] {
           background: transparent !important;
           background-color: transparent !important;
@@ -328,7 +333,6 @@ function LandingStyles() {
           justify-content: flex-start !important;
           padding-top: 0 !important;
         }
-        .landing-terminal > div:first-child { max-height: 420px !important; }
         .landing-ctas a {
           font-size: 1rem !important;
           padding: 0.7rem 1.5rem !important;
