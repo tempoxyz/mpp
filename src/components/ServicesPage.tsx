@@ -291,6 +291,9 @@ function SearchWithDropdown({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [dropdownTab, setDropdownTab] = useState<
+    "all" | "services" | "endpoints"
+  >("all");
 
   const dropdownResults = useMemo(
     () => getDropdownResults(services, search),
@@ -393,7 +396,8 @@ function SearchWithDropdown({
           fontSize: 14,
           borderRadius: 7,
           border: "1px solid var(--vocs-border-color-primary)",
-          background: "transparent",
+          background:
+            "light-dark(rgba(255,255,255,0.8), rgba(255,255,255,0.04))",
           color: "var(--vocs-text-color-heading)",
           fontFamily: "var(--font-sans)",
           outline: "none",
@@ -424,171 +428,216 @@ function SearchWithDropdown({
           className="search-dropdown"
           style={{
             position: "absolute",
-            top: "calc(100% + 4px)",
+            top: "calc(100% + 6px)",
             left: 0,
             right: 0,
             zIndex: 100,
-            borderRadius: 8,
+            borderRadius: 12,
             border: "1px solid var(--vocs-border-color-primary)",
             background: "var(--vocs-background-color-primary)",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-            maxHeight: 360,
-            overflow: "auto",
-            padding: "0.25rem 0",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+            overflow: "hidden",
           }}
         >
-          {dropdownResults.map((result, idx) => (
-            // biome-ignore lint/a11y/useKeyWithClickEvents: dropdown item
-            // biome-ignore lint/a11y/noStaticElementInteractions: dropdown item
-            <div
-              key={`${result.type}-${idx}`}
-              onClick={() => handleSelect(result)}
-              onMouseEnter={() => setActiveIndex(idx)}
-              className="search-dropdown-item"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                width: "100%",
-                padding: "0.45rem 0.75rem",
-                background:
-                  idx === activeIndex
-                    ? "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.07))"
-                    : "transparent",
-                border: "none",
-                cursor: "pointer",
-                textAlign: "left",
-                fontFamily: "var(--font-sans)",
-                fontSize: 14,
-                color: "var(--vocs-text-color-heading)",
-              }}
-            >
-              {result.type === "category" && (
-                <>
-                  <span
-                    style={{
-                      width: 20,
-                      textAlign: "center",
-                      fontSize: 12,
-                      color: "var(--vocs-text-color-muted)",
-                    }}
-                  >
-                    #
-                  </span>
-                  <span>{result.label}</span>
-                  <span
-                    style={{
-                      fontSize: 12,
-                      color: "var(--vocs-text-color-muted)",
-                      marginLeft: "auto",
-                    }}
-                  >
-                    Category
-                  </span>
-                </>
-              )}
-              {result.type === "service" && (
-                <>
-                  <DropdownServiceIcon service={result.service} />
-                  <span style={{ fontWeight: 500 }}>{result.service.name}</span>
-                  <span
-                    style={{
-                      fontSize: 13,
-                      color: "var(--vocs-text-color-secondary)",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      flex: 1,
-                    }}
-                  >
-                    {result.service.description}
-                  </span>
-                </>
-              )}
-              {result.type === "endpoint" && (
-                <>
-                  <span
-                    className={`method-badge method-${result.endpoint.method.toLowerCase()}`}
-                    style={{
-                      width: 44,
-                      textAlign: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {result.endpoint.method}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: 13,
-                      color: URL_COLOR,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {result.endpoint.path}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 12,
-                      color: "var(--vocs-text-color-muted)",
-                      marginLeft: "auto",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {result.service.name}
-                  </span>
-                </>
-              )}
-            </div>
-          ))}
+          <div
+            style={{
+              display: "flex",
+              gap: 2,
+              padding: "0.4rem 0.6rem",
+              borderBottom: "1px solid var(--vocs-border-color-primary)",
+            }}
+          >
+            {(["all", "services", "endpoints"] as const).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setDropdownTab(tab);
+                  setActiveIndex(-1);
+                }}
+                style={{
+                  fontSize: 11,
+                  fontFamily: "var(--font-sans)",
+                  padding: "3px 10px",
+                  borderRadius: 5,
+                  border: "none",
+                  background:
+                    dropdownTab === tab
+                      ? "light-dark(rgba(0,0,0,0.07), rgba(255,255,255,0.1))"
+                      : "transparent",
+                  color:
+                    dropdownTab === tab
+                      ? "var(--vocs-text-color-heading)"
+                      : "var(--vocs-text-color-muted)",
+                  cursor: "pointer",
+                }}
+              >
+                {tab === "all"
+                  ? "All"
+                  : tab === "services"
+                    ? "Services"
+                    : "Endpoints"}
+              </button>
+            ))}
+          </div>
+          <div style={{ maxHeight: 360, overflow: "auto" }}>
+            {dropdownResults
+              .filter(
+                (r) =>
+                  dropdownTab === "all" ||
+                  (dropdownTab === "services" &&
+                    (r.type === "service" || r.type === "category")) ||
+                  (dropdownTab === "endpoints" && r.type === "endpoint"),
+              )
+              .map((result, idx) => (
+                // biome-ignore lint/a11y/useKeyWithClickEvents: dropdown item
+                // biome-ignore lint/a11y/noStaticElementInteractions: dropdown item
+                <div
+                  key={`${result.type}-${idx}`}
+                  onClick={() => handleSelect(result)}
+                  onMouseEnter={() => setActiveIndex(idx)}
+                  className="search-dropdown-item"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    width: "100%",
+                    padding: "0.6rem 1rem",
+                    background:
+                      idx === activeIndex
+                        ? "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))"
+                        : "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 13,
+                    color: "var(--vocs-text-color-heading)",
+                    transition: "background 0.1s",
+                  }}
+                >
+                  {result.type === "category" && (
+                    <>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.05em",
+                          color: "var(--vocs-text-color-muted)",
+                          background:
+                            "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08))",
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          flexShrink: 0,
+                          width: 62,
+                          textAlign: "center",
+                          boxSizing: "border-box" as const,
+                        }}
+                      >
+                        Category
+                      </span>
+                      <span>{result.label}</span>
+                    </>
+                  )}
+                  {result.type === "service" && (
+                    <>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.05em",
+                          color: "var(--vocs-text-color-muted)",
+                          background:
+                            "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08))",
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          flexShrink: 0,
+                          width: 62,
+                          textAlign: "center",
+                          boxSizing: "border-box" as const,
+                        }}
+                      >
+                        Service
+                      </span>
+                      <span style={{ fontWeight: 500 }}>
+                        {result.service.name}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "var(--vocs-text-color-muted)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {result.service.description?.slice(0, 60)}
+                      </span>
+                    </>
+                  )}
+                  {result.type === "endpoint" && (
+                    <>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.05em",
+                          color: "var(--vocs-text-color-muted)",
+                          background:
+                            "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08))",
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          flexShrink: 0,
+                          width: 62,
+                          textAlign: "center",
+                          boxSizing: "border-box" as const,
+                        }}
+                      >
+                        Endpoint
+                      </span>
+                      <span style={{ fontWeight: 500 }}>
+                        {result.service.name}
+                      </span>
+                      <span
+                        style={{
+                          marginLeft: "auto",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: 12,
+                            color: "var(--vocs-text-color-muted)",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {result.endpoint.path}
+                        </span>
+                        <span
+                          className={`method-badge method-${result.endpoint.method.toLowerCase()}`}
+                        >
+                          {result.endpoint.method}
+                        </span>
+                      </span>
+                    </>
+                  )}
+                </div>
+              ))}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function DropdownServiceIcon({ service: s }: { service: Service }) {
-  const [imgError, setImgError] = useState(false);
-  if (s.id && !imgError) {
-    return (
-      <img
-        src={`/api/icon?id=${encodeURIComponent(s.id)}`}
-        alt=""
-        width={20}
-        height={20}
-        style={{
-          borderRadius: 4,
-          display: "block",
-          objectFit: "cover",
-          flexShrink: 0,
-          filter: "invert(var(--icon-invert, 0))",
-        }}
-        onError={() => setImgError(true)}
-      />
-    );
-  }
-  return (
-    <div
-      style={{
-        width: 20,
-        height: 20,
-        borderRadius: 4,
-        background: "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.10))",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 9,
-        fontWeight: 600,
-        color: "var(--vocs-text-color-secondary)",
-        flexShrink: 0,
-      }}
-    >
-      {(s.name[0] ?? "?").toUpperCase()}
-    </div>
-  );
-}
+// DropdownServiceIcon removed — dropdown now uses tag labels matching discovery homepage
 
 // ---------------------------------------------------------------------------
 // Hooks
@@ -612,7 +661,16 @@ function HighlightedCmd({ children }: { children: string }) {
   const tokens = children.split(/(\s+)/);
   let key = 0;
   for (const tok of tokens) {
-    if (/^(curl|bash)$/.test(tok)) {
+    if (/^(claude|codex|amp)$/i.test(tok)) {
+      parts.push(
+        <span
+          key={key}
+          style={{ color: "light-dark(#c2410c, #fb923c)", fontWeight: 600 }}
+        >
+          {tok}
+        </span>,
+      );
+    } else if (/^(curl|bash)$/.test(tok)) {
       parts.push(
         <span key={key} style={{ color: CMD_PURPLE }}>
           {tok}
@@ -679,6 +737,7 @@ export function ServicesPage() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(0);
   const [prestoOpen, setPrestoOpen] = useState(false);
+  const [showAddServiceModal, setShowAddServiceModal] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -848,13 +907,14 @@ export function ServicesPage() {
             <h1
               style={{
                 fontSize: "2.1rem",
-                fontWeight: 500,
+                fontWeight: 700,
                 fontFamily: '"VTC Du Bois", var(--font-sans)',
                 letterSpacing: "-0.02em",
                 margin: 0,
                 whiteSpace: "nowrap",
                 marginBottom: "0rem",
                 paddingBottom: "0rem",
+                textTransform: "uppercase",
               }}
             >
               Services
@@ -880,9 +940,9 @@ export function ServicesPage() {
               marginTop: "0.35rem",
             }}
           >
-            <Link
-              to="/quickstart/server"
-              className="no-underline!"
+            {/* <button
+              type="button"
+              onClick={() => setShowAddServiceModal(true)}
               style={{
                 fontSize: "0.875rem",
                 fontWeight: 500,
@@ -893,16 +953,18 @@ export function ServicesPage() {
                 backgroundColor: "var(--vocs-text-color-heading)",
                 textDecoration: "none",
                 transition: "opacity 0.15s",
+                cursor: "pointer",
+                border: "none",
               }}
-              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              onMouseEnter={(e) => {
                 (e.currentTarget as HTMLElement).style.opacity = "0.8";
               }}
-              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.opacity = "1";
               }}
             >
               Add a service
-            </Link>
+            </button> */}
             <Link
               to="/overview"
               className="no-underline!"
@@ -1006,6 +1068,12 @@ export function ServicesPage() {
                     marginBottom: "0.75rem",
                     marginLeft: "0.5rem",
                     marginRight: "0.5rem",
+                    position: "sticky",
+                    top: "var(--vocs-spacing-topNav, 56px)",
+                    zIndex: 10,
+                    background: "var(--vocs-background-color-primary)",
+                    paddingTop: "0.5rem",
+                    paddingBottom: "0.5rem",
                   }}
                 >
                   <SearchWithDropdown
@@ -1019,130 +1087,146 @@ export function ServicesPage() {
                     inputRef={searchInputRef}
                   />
                 </div>
-                <div
-                  className="filter-tags"
-                  style={{
-                    display: "flex",
-                    gap: "0.375rem",
-                    flexWrap: "wrap",
-                    marginBottom: "1.5rem",
-                    alignItems: "center",
-                    marginLeft: "0.5rem",
-                    marginRight: "0.5rem",
-                    justifyContent: "flex-start",
-                  }}
-                >
-                  <Pill active={selectedCategory === null} onClick={clearCats}>
-                    All
-                  </Pill>
-                  {categories.map((cat) => (
-                    <Pill
-                      key={cat}
-                      active={selectedCategory === cat}
-                      onClick={() => toggleCat(cat)}
-                    >
-                      {CATEGORY_LABELS[cat] ?? cat}
-                    </Pill>
-                  ))}
-                </div>
-                <div data-services-table>
-                  <table
-                    style={{
-                      width: "100%",
-                      borderCollapse: "collapse",
-                      fontSize: 16,
-                      tableLayout: "fixed",
-                    }}
-                  >
-                    <colgroup>
-                      <col style={{ width: "18%" }} />
-                      <col className="hide-mobile" style={{ width: "36%" }} />
-                      <col className="hide-mobile" style={{ width: "36%" }} />
-                      <col style={{ width: "10%" }} />
-                    </colgroup>
-                    <thead>
-                      <tr
-                        style={{
-                          borderBottom:
-                            "1px solid var(--vocs-border-color-primary)",
-                        }}
-                      >
-                        <Th style={{ textAlign: "left" }} />
-                        <Th
-                          className="hide-mobile"
-                          style={{ textAlign: "left" }}
-                        >
-                          Description
-                        </Th>
-                        <Th
-                          className="hide-mobile"
-                          style={{ textAlign: "left" }}
-                        >
-                          URL
-                        </Th>
-                        <Th style={{ width: 36 }} />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paged.map((s) => (
-                        <ServiceRow
-                          key={s.id}
-                          service={s}
-                          expanded={expandedIds.has(s.id)}
-                          onToggle={() => toggleRow(s.id)}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {filtered.length === 0 && (
-                  <p
-                    style={{
-                      textAlign: "center",
-                      padding: "4rem 0",
-                      color: "var(--vocs-text-color-secondary)",
-                      fontSize: 15,
-                    }}
-                  >
-                    No services found.
-                  </p>
-                )}
-                {totalPages > 1 && (
+                <div className="services-content-row">
                   <div
-                    className="pagination"
+                    className="filter-tags"
                     style={{
                       display: "flex",
+                      gap: "0.375rem",
+                      flexWrap: "wrap",
+                      marginBottom: "1.5rem",
                       alignItems: "center",
-                      justifyContent: "space-between",
-                      marginTop: "1rem",
+                      marginLeft: "0.5rem",
+                      marginRight: "0.5rem",
+                      justifyContent: "flex-start",
                     }}
                   >
-                    <p
-                      style={{
-                        color: "var(--vocs-text-color-muted)",
-                        fontSize: 13,
-                      }}
+                    <Pill
+                      active={selectedCategory === null}
+                      onClick={clearCats}
                     >
-                      {page * PAGE_SIZE + 1}–
-                      {Math.min((page + 1) * PAGE_SIZE, filtered.length)} of{" "}
-                      {filtered.length}
-                    </p>
-                    <div style={{ display: "flex", gap: "0.375rem" }}>
-                      <PaginationBtn
-                        disabled={page === 0}
-                        onClick={() => setPage(page - 1)}
+                      All
+                    </Pill>
+                    {categories.map((cat) => (
+                      <Pill
+                        key={cat}
+                        active={selectedCategory === cat}
+                        onClick={() => toggleCat(cat)}
                       >
-                        ← Prev
-                      </PaginationBtn>
-                      <PaginationBtn
-                        disabled={page >= totalPages - 1}
-                        onClick={() => setPage(page + 1)}
-                      >
-                        Next →
-                      </PaginationBtn>
-                    </div>
+                        {CATEGORY_LABELS[cat] ?? cat}
+                      </Pill>
+                    ))}
                   </div>
-                )}
+                  <div
+                    className="services-table-col"
+                    style={{ flex: 1, minWidth: 0 }}
+                  >
+                    <div data-services-table>
+                      <table
+                        style={{
+                          width: "100%",
+                          borderCollapse: "collapse",
+                          fontSize: 16,
+                          tableLayout: "fixed",
+                        }}
+                      >
+                        <colgroup>
+                          <col style={{ width: "20%" }} />
+                          <col
+                            className="hide-mobile"
+                            style={{ width: "40%" }}
+                          />
+                          <col
+                            className="hide-mobile"
+                            style={{ width: "32%" }}
+                          />
+                          <col style={{ width: "8%" }} />
+                        </colgroup>
+                        <thead>
+                          <tr
+                            style={{
+                              borderBottom:
+                                "1px solid var(--vocs-border-color-primary)",
+                            }}
+                          >
+                            <Th style={{ textAlign: "left" }} />
+                            <Th
+                              className="hide-mobile"
+                              style={{ textAlign: "left" }}
+                            >
+                              Description
+                            </Th>
+                            <Th
+                              className="hide-mobile"
+                              style={{ textAlign: "left" }}
+                            >
+                              Service URL
+                            </Th>
+                            <Th style={{ width: 36 }} />
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paged.map((s) => (
+                            <ServiceRow
+                              key={s.id}
+                              service={s}
+                              expanded={expandedIds.has(s.id)}
+                              onToggle={() => toggleRow(s.id)}
+                            />
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {filtered.length === 0 && (
+                      <p
+                        style={{
+                          textAlign: "center",
+                          padding: "4rem 0",
+                          color: "var(--vocs-text-color-secondary)",
+                          fontSize: 15,
+                        }}
+                      >
+                        No services found.
+                      </p>
+                    )}
+                    {totalPages > 1 && (
+                      <div
+                        className="pagination"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          marginTop: "1rem",
+                        }}
+                      >
+                        <p
+                          style={{
+                            color: "var(--vocs-text-color-muted)",
+                            fontSize: 13,
+                          }}
+                        >
+                          {page * PAGE_SIZE + 1}–
+                          {Math.min((page + 1) * PAGE_SIZE, filtered.length)} of{" "}
+                          {filtered.length}
+                        </p>
+                        <div style={{ display: "flex", gap: "0.375rem" }}>
+                          <PaginationBtn
+                            disabled={page === 0}
+                            onClick={() => setPage(page - 1)}
+                          >
+                            ← Prev
+                          </PaginationBtn>
+                          <PaginationBtn
+                            disabled={page >= totalPages - 1}
+                            onClick={() => setPage(page + 1)}
+                          >
+                            Next →
+                          </PaginationBtn>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </>
             )}
           </div>
@@ -1158,6 +1242,334 @@ export function ServicesPage() {
           >
             <PrestoCardFull />
             <SidebarInfoCards />
+          </div>
+        </div>
+      </div>
+      {showAddServiceModal && (
+        <AddServiceModal onClose={() => setShowAddServiceModal(false)} />
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Add Service Modal
+// ---------------------------------------------------------------------------
+
+export function AddServiceModal({ onClose }: { onClose: () => void }) {
+  const [form, setForm] = useState({
+    name: "",
+    homepage: "",
+    docs: "",
+    icon: "",
+    github: "",
+    email: "",
+    telegram: "",
+    terms: false,
+    firstParty: false,
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const set = (key: string, value: string | boolean) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
+  const handleSubmit = async () => {
+    if (
+      !form.name ||
+      !form.homepage ||
+      !form.docs ||
+      !form.icon ||
+      !form.github ||
+      !form.email
+    ) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+    if (!form.terms) {
+      setError("You must agree to the terms.");
+      return;
+    }
+    setError("");
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/submit-service", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setSubmitted(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Submission failed.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const overlayStyle: React.CSSProperties = {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.5)",
+    zIndex: 999,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "1rem",
+  };
+  const panelStyle: React.CSSProperties = {
+    background: "var(--vocs-background-color-primary)",
+    border: "1px solid var(--vocs-border-color-primary)",
+    borderRadius: 12,
+    maxWidth: 520,
+    width: "100%",
+    maxHeight: "80vh",
+    overflow: "auto",
+    padding: "1.5rem",
+  };
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "0.5rem 0.75rem",
+    borderRadius: 6,
+    border: "1px solid var(--vocs-border-color-primary)",
+    background: "transparent",
+    color: "var(--vocs-text-color-heading)",
+    fontSize: 14,
+    fontFamily: "var(--font-sans)",
+  };
+  const labelStyle: React.CSSProperties = {
+    fontSize: 13,
+    fontWeight: 500,
+    color: "var(--vocs-text-color-secondary)",
+    marginBottom: 4,
+    display: "block",
+  };
+
+  if (submitted) {
+    return (
+      // biome-ignore lint/a11y/useKeyWithClickEvents: overlay
+      // biome-ignore lint/a11y/noStaticElementInteractions: overlay
+      <div style={overlayStyle} onClick={onClose}>
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: modal panel */}
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: modal panel */}
+        <div style={panelStyle} onClick={(e) => e.stopPropagation()}>
+          <h3 style={{ margin: "0 0 0.75rem", fontSize: 18, fontWeight: 600 }}>
+            Submitted
+          </h3>
+          <p
+            style={{ color: "var(--vocs-text-color-secondary)", fontSize: 14 }}
+          >
+            Your service has been submitted for review. We will reach out via
+            the email you provided.
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              marginTop: "1rem",
+              padding: "0.4rem 1rem",
+              borderRadius: 6,
+              border: "none",
+              background: "var(--vocs-text-color-heading)",
+              color: "var(--vocs-background-color-primary)",
+              cursor: "pointer",
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: overlay
+    // biome-ignore lint/a11y/noStaticElementInteractions: overlay
+    <div style={overlayStyle} onClick={onClose}>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: modal panel */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: modal panel */}
+      <div style={panelStyle} onClick={(e) => e.stopPropagation()}>
+        <h3 style={{ margin: "0 0 1rem", fontSize: 18, fontWeight: 600 }}>
+          Add a service
+        </h3>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+        >
+          <div>
+            <label htmlFor="svc-name" style={labelStyle}>
+              Service name *
+            </label>
+            <input
+              id="svc-name"
+              style={inputStyle}
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              placeholder="My Service"
+            />
+          </div>
+          <div>
+            <label htmlFor="svc-homepage" style={labelStyle}>
+              Homepage URL *
+            </label>
+            <input
+              id="svc-homepage"
+              style={inputStyle}
+              value={form.homepage}
+              onChange={(e) => set("homepage", e.target.value)}
+              placeholder="https://example.com"
+            />
+          </div>
+          <div>
+            <label htmlFor="svc-docs" style={labelStyle}>
+              Documentation URL *
+            </label>
+            <input
+              id="svc-docs"
+              style={inputStyle}
+              value={form.docs}
+              onChange={(e) => set("docs", e.target.value)}
+              placeholder="https://docs.example.com"
+            />
+          </div>
+          <div>
+            <label htmlFor="svc-icon" style={labelStyle}>
+              Icon URL (square, SVG, monochrome) *
+            </label>
+            <input
+              id="svc-icon"
+              style={inputStyle}
+              value={form.icon}
+              onChange={(e) => set("icon", e.target.value)}
+              placeholder="https://example.com/icon.svg"
+            />
+          </div>
+          <div>
+            <label htmlFor="svc-github" style={labelStyle}>
+              GitHub URL *
+            </label>
+            <input
+              id="svc-github"
+              style={inputStyle}
+              value={form.github}
+              onChange={(e) => set("github", e.target.value)}
+              placeholder="https://github.com/org/repo"
+            />
+          </div>
+          <div>
+            <label htmlFor="svc-email" style={labelStyle}>
+              Contact email *
+            </label>
+            <input
+              id="svc-email"
+              style={inputStyle}
+              type="email"
+              value={form.email}
+              onChange={(e) => set("email", e.target.value)}
+              placeholder="you@example.com"
+            />
+          </div>
+          <div>
+            <label htmlFor="svc-telegram" style={labelStyle}>
+              Contact Telegram (optional)
+            </label>
+            <input
+              id="svc-telegram"
+              style={inputStyle}
+              value={form.telegram}
+              onChange={(e) => set("telegram", e.target.value)}
+              placeholder="@handle"
+            />
+          </div>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 8,
+              fontSize: 13,
+              color: "var(--vocs-text-color-secondary)",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={form.terms}
+              onChange={(e) => set("terms", e.target.checked)}
+              style={{ marginTop: 3 }}
+            />
+            <span>
+              I agree to the review terms. Submitted services are subject to
+              review and may be accepted, rejected, or removed at any time.
+              Tempo reserves the right to audit service integrations.
+            </span>
+          </label>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 8,
+              fontSize: 13,
+              color: "var(--vocs-text-color-secondary)",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={form.firstParty}
+              onChange={(e) => set("firstParty", e.target.checked)}
+              style={{ marginTop: 3 }}
+            />
+            <span>
+              I am interested in first-party integration (direct MPP support
+              without a proxy).
+            </span>
+          </label>
+          {error && (
+            <p style={{ color: "red", fontSize: 13, margin: 0 }}>{error}</p>
+          )}
+          <div
+            style={{
+              display: "flex",
+              gap: "0.5rem",
+              justifyContent: "flex-end",
+              marginTop: "0.5rem",
+            }}
+          >
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: "0.4rem 1rem",
+                borderRadius: 6,
+                border: "1px solid var(--vocs-border-color-primary)",
+                background: "transparent",
+                color: "var(--vocs-text-color-heading)",
+                cursor: "pointer",
+                fontSize: 14,
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={submitting}
+              style={{
+                padding: "0.4rem 1rem",
+                borderRadius: 6,
+                border: "none",
+                background: "var(--vocs-text-color-heading)",
+                color: "var(--vocs-background-color-primary)",
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 500,
+                opacity: submitting ? 0.6 : 1,
+              }}
+            >
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
           </div>
         </div>
       </div>
@@ -1486,7 +1898,9 @@ function SidebarInfoCards() {
         />
         <div>
           <div style={titleStyle}>First-party services</div>
-          <div style={descStyle}>Directly integrated with MPP.</div>
+          <div style={descStyle}>
+            Services with direct MPP integration — no wrapper or proxy needed.
+          </div>
         </div>
       </div>
     </div>
@@ -1503,16 +1917,40 @@ function PrestoSteps() {
         gap: "1rem",
       }}
     >
-      <CliSnippet label="Install" desc="Install the Tempo CLI.">
-        curl -L https://tempo.xyz/install | bash
-      </CliSnippet>
-      <CliSnippet label="Add wallet" desc="Set up your agent wallet.">
-        tempo add wallet
+      <CliSnippet
+        label="Install Tempo"
+        desc="Install the CLI. You will be asked to sign in or create a passkey-based wallet in your browser."
+      >
+        curl -L https://tempo.xyz/install | bash && tempo add wallet
       </CliSnippet>
       <CliSnippet
         label="Prompt your agent"
-        desc="Use a service by prompting your agent (Claude, Codex, Amp, etc):"
-      >{`Generate a surreal image with fal.ai using Tempo Wallet`}</CliSnippet>
+        desc="Tell Claude (or Codex, Amp, etc) to use a Tempo service."
+      >
+        {`claude "Summarize https://stripe.com/docs using Exa search via Tempo Wallet"`}
+      </CliSnippet>
+      <div
+        style={{
+          fontSize: 13,
+          color: "var(--vocs-text-color-muted)",
+          lineHeight: 1.5,
+        }}
+      >
+        Point your agent to{" "}
+        <a
+          href="/services/llms.txt"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: "var(--vocs-text-color-secondary)",
+            textDecoration: "underline",
+            textUnderlineOffset: 2,
+          }}
+        >
+          llms.txt
+        </a>{" "}
+        for full service documentation.
+      </div>
     </div>
   );
 }
@@ -1794,8 +2232,11 @@ function ServiceIcon({ service: s }: { service: Service }) {
           style={{
             borderRadius: 6,
             display: "block",
-            objectFit: "cover",
+            objectFit: "contain",
             filter: "invert(var(--icon-invert, 0))",
+            ...(["twitter", "elevenlabs", "digitalocean"].includes(s.id)
+              ? { padding: 5 }
+              : {}),
           }}
           onError={() => setImgError(true)}
         />
@@ -1864,7 +2305,7 @@ function ServiceRow({
           e.currentTarget.style.background = expanded ? expandedBg : "";
         }}
       >
-        <td style={{ padding: "0.7rem 0.75rem", verticalAlign: "top" }}>
+        <td style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}>
           <div
             style={{
               display: "flex",
@@ -1945,7 +2386,25 @@ function ServiceRow({
                       : `Copy: ${displayUrl}`
                   }
                 >
-                  {copiedId === `url-${s.id}` ? "Copied!" : displayUrl}
+                  <span style={{ opacity: 0.5 }}>https://</span>
+                  {displayUrl.replace(/^https?:\/\//, "")}
+                  <span
+                    className="url-copy-icon"
+                    data-copied={
+                      copiedId === `url-${s.id}` ? "true" : undefined
+                    }
+                    style={{
+                      marginLeft: 4,
+                      display: "inline-flex",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    {copiedId === `url-${s.id}` ? (
+                      <CheckIcon size={10} />
+                    ) : (
+                      <CopyIcon size={10} />
+                    )}
+                  </span>
                 </span>
               </div>
             </div>
@@ -1992,7 +2451,23 @@ function ServiceRow({
                 : `Click to copy: ${displayUrl}`
             }
           >
-            {copiedId === `url-${s.id}` ? "Copied!" : displayUrl}
+            <span style={{ opacity: 0.5 }}>https://</span>
+            {displayUrl.replace(/^https?:\/\//, "")}
+            <span
+              className="url-copy-icon"
+              data-copied={copiedId === `url-${s.id}` ? "true" : undefined}
+              style={{
+                marginLeft: 4,
+                display: "inline-flex",
+                verticalAlign: "middle",
+              }}
+            >
+              {copiedId === `url-${s.id}` ? (
+                <CheckIcon size={10} />
+              ) : (
+                <CopyIcon size={10} />
+              )}
+            </span>
           </span>
         </td>
         <td
@@ -2008,7 +2483,7 @@ function ServiceRow({
               alignItems: "center",
               justifyContent: "flex-end",
               gap: "0.3rem",
-              paddingRight: "0.5rem",
+              paddingRight: "0.75rem",
               color: "var(--vocs-text-color-muted)",
             }}
           >
@@ -2019,7 +2494,6 @@ function ServiceRow({
                 }
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hide-mobile"
                 onClick={(e) => e.stopPropagation()}
                 style={{
                   display: "flex",
@@ -2051,7 +2525,6 @@ function ServiceRow({
                 href={s.provider.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hide-mobile"
                 onClick={(e) => e.stopPropagation()}
                 style={{
                   display: "flex",
@@ -2088,7 +2561,7 @@ function ServiceRow({
             colSpan={4}
             className="expanded-detail"
             style={{
-              padding: "0.25rem 0 0.75rem",
+              padding: "0.25rem 0 0.25rem",
               borderBottom: "1px solid var(--vocs-border-color-primary)",
             }}
           >
@@ -2104,7 +2577,7 @@ function ServiceRow({
 // Expanded detail
 // ---------------------------------------------------------------------------
 
-const SUB_GRID = "18% 36% 1fr 6rem";
+const SUB_GRID = "minmax(0, 40%) minmax(0, 1fr) 8%";
 
 function SubTh({
   children,
@@ -2213,7 +2686,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
       {s.endpoints.length > 0 && (
         <div>
           <div
-            className="hide-mobile"
+            className="sub-header"
             style={{
               display: "grid",
               gridTemplateColumns: SUB_GRID,
@@ -2222,8 +2695,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                 "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))",
             }}
           >
-            <SubTh style={{ paddingLeft: "3.5rem" }}>Endpoint</SubTh>
-            <SubTh>Route</SubTh>
+            <SubTh style={{ paddingLeft: "0.75rem" }}>Endpoint</SubTh>
             <SubTh>Description</SubTh>
             <SubTh style={{ textAlign: "right", paddingRight: "1rem" }}>
               Price
@@ -2248,60 +2720,87 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       : "1px solid light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.05))",
                   }}
                 >
-                  <div style={{ padding: "0.75rem 0.75rem 0.75rem 3.5rem" }}>
-                    <span
-                      className={`method-badge method-${ep.method.toLowerCase()}`}
-                    >
-                      {ep.method}
-                    </span>
-                  </div>
                   <div
                     style={{
-                      padding: "0.75rem 0.75rem",
+                      padding: "0.75rem 0.75rem 0.75rem 0.75rem",
                       display: "flex",
-                      alignItems: "center",
-                      gap: 6,
+                      flexDirection: "column",
+                      gap: 4,
                     }}
                   >
-                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
-                    {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copy(fullUrl, copyId);
-                      }}
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: 13,
-                        padding: "0.15rem 0.4rem",
-                        borderRadius: 4,
-                        background: CODE_BG,
-                        color: isCopied
-                          ? "var(--vocs-text-color-heading)"
-                          : URL_COLOR,
-                        cursor: "pointer",
-                        transition: "color 0.15s",
-                        wordBreak: "break-all",
-                        display: "inline",
-                      }}
-                      title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
                     >
-                      {isCopied ? "Copied!" : ep.path}
-                    </span>
-                    {ep.payment?.intent && <Badge>{ep.payment.intent}</Badge>}
+                      <span
+                        className={`method-badge method-${ep.method.toLowerCase()}`}
+                      >
+                        {ep.method}
+                      </span>
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+                      {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copy(fullUrl, copyId);
+                        }}
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: 13,
+                          padding: "0.15rem 0.4rem",
+                          borderRadius: 4,
+                          background: CODE_BG,
+                          color: isCopied
+                            ? "var(--vocs-text-color-heading)"
+                            : URL_COLOR,
+                          cursor: "pointer",
+                          transition: "color 0.15s",
+                          wordBreak: "break-all",
+                          display: "inline",
+                        }}
+                        title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
+                      >
+                        {ep.path}
+                        <span
+                          className="url-copy-icon"
+                          data-copied={isCopied ? "true" : undefined}
+                          style={{
+                            marginLeft: 4,
+                            display: "inline-flex",
+                            verticalAlign: "middle",
+                          }}
+                        >
+                          {isCopied ? (
+                            <CheckIcon size={10} />
+                          ) : (
+                            <CopyIcon size={10} />
+                          )}
+                        </span>
+                      </span>
+                      {ep.payment?.intent && (
+                        <span
+                          className="intent-badge"
+                          data-tip={
+                            ep.payment.intent === "session"
+                              ? "Session: Pay-as-you-go via payment channel"
+                              : "Charge: One-time payment per request"
+                          }
+                        >
+                          <Badge>{ep.payment.intent}</Badge>
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      padding: "0.75rem 0.75rem",
+                      padding: "0.25rem 0.75rem 0.75rem",
                       color: "var(--vocs-text-color-secondary)",
                       fontSize: 14,
                       lineHeight: 1.45,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
-                    <span>{ep.description}</span>
+                    {ep.description}
                   </div>
                   <div
                     className="desktop-price"
@@ -2313,6 +2812,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       textAlign: "right",
                       color: "var(--vocs-text-color-muted)",
                       whiteSpace: "nowrap",
+                      alignSelf: "center",
                     }}
                   >
                     {formatPrice(ep)}
@@ -2345,6 +2845,12 @@ function PageStyles() {
       .search-mobile { display: none; }
       .header-cards { display: none !important; }
       .show-tablet { display: none !important; }
+      .expanded-url-bar { display: none !important; }
+      .url-copy-icon { opacity: 0.8; transition: opacity 0.15s, color 0.15s; color: var(--vocs-text-color-muted); }
+      .url-copy-icon[data-copied="true"] { color: light-dark(#15803d, #4ade80); opacity: 1; }
+      span:hover > .url-copy-icon { opacity: 1; }
+      .sub-row:hover .url-copy-icon { opacity: 0.7; }
+      tr:hover .url-copy-icon { opacity: 0.7; }
       [data-services-table] table { table-layout: fixed !important; }
       [data-services-table] table td, [data-services-table] table th { white-space: normal !important; min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
       .svc-name-row { display: flex; flex-direction: column; gap: 0; }
@@ -2373,6 +2879,35 @@ function PageStyles() {
 
       .search-dropdown { scrollbar-width: thin; }
       .search-dropdown-item:hover { background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.07)); }
+      .intent-badge { position: relative; cursor: help; }
+      .intent-badge::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--vocs-background-color-primary); color: var(--vocs-text-color-secondary); padding: 5px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 0.15s; box-shadow: 0 2px 12px rgba(0,0,0,0.12); border: 1px solid var(--vocs-border-color-primary); }
+      .intent-badge:hover::after { opacity: 1; }
+
+      /* ---- Wide desktop: categories as sidebar column ---- */
+      @media (min-width: 1401px) {
+        .services-content-row {
+          display: flex;
+          gap: 1.5rem;
+          align-items: flex-start;
+        }
+        .filter-tags {
+          flex-direction: column !important;
+          flex-wrap: nowrap !important;
+          width: 140px !important;
+          flex-shrink: 0 !important;
+          position: sticky !important;
+          top: calc(var(--vocs-spacing-topNav, 56px) + 3.5rem) !important;
+          margin-bottom: 0 !important;
+          gap: 0.25rem !important;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+        }
+        .filter-tags button {
+          justify-content: flex-start !important;
+          width: 100% !important;
+          text-align: left !important;
+        }
+      }
 
       /* ---- Sidebar hidden, header cards as 4-col strip ---- */
       @media (max-width: 1200px) {
@@ -2384,6 +2919,9 @@ function PageStyles() {
 
       /* ---- Table columns stack ---- */
       @media (max-width: 1400px) {
+        .services-content-row { display: block !important; }
+        .services-table-col { min-width: 0 !important; }
+        [data-services-table] thead { display: none !important; }
         .filter-tags button { flex: 1 0 auto !important; justify-content: center !important; }
         .hide-mobile { display: none !important; }
         .show-tablet { display: block !important; }
@@ -2401,24 +2939,23 @@ function PageStyles() {
         .svc-badge-borderless { display: none !important; }
         .svc-name-row > span:first-child { font-size: 17px !important; }
         .svc-desc-mobile { font-size: 16px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
-        .expanded-url-bar { padding-left: 3.25rem !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
+        .sub-header { display: grid !important; grid-template-columns: 1fr auto !important; padding-left: 3.25rem !important; padding-right: 1rem !important; }
+        .sub-header > *:nth-child(1) { text-align: left !important; padding-left: 0 !important; }
+        .sub-header > *:nth-child(2) { display: none !important; }
         .sub-row:first-child { border-top: none !important; }
-
         .sub-row {
           display: grid !important;
-          grid-template-columns: auto 1fr auto !important;
+          grid-template-columns: 1fr auto !important;
           grid-template-rows: auto auto !important;
           padding: 0.65rem 1rem 0.65rem 3.25rem !important;
           gap: 0.15rem 0.6rem !important;
-          align-items: center !important;
+          align-items: start !important;
         }
         .sub-row > * { padding: 0 !important; }
-        .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; font-weight: 600 !important; }
-        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; font-size: 13px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; justify-self: start !important; }
-        .sub-row > *:nth-child(4) { grid-row: 1; grid-column: 3; display: flex !important; align-items: center !important; gap: 0.4rem !important; justify-content: flex-end !important; }
-        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 12px !important; margin-top: 0.4rem; text-align: left !important; justify-self: start !important; }
-        .sub-row .desktop-price { display: none !important; }
+        .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; }
+        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; font-family: var(--font-mono); font-size: 12px !important; color: var(--vocs-text-color-muted) !important; text-align: right !important; justify-self: end !important; align-self: center !important; white-space: nowrap; }
+        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 13.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; margin-top: 0.35rem !important; }
       }
 
       /* ---- Header cards 2x2, search moves, tags center ---- */
@@ -2430,7 +2967,6 @@ function PageStyles() {
         [data-services-table] table td:last-child { padding: 0.85rem 1.25rem 0.85rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
         .chevron-cell { padding-right: 0 !important; }
         .svc-badge-inline { margin-left: 0.25rem !important; }
-        .expanded-url-bar { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
         .sub-row { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
         .header-cards { padding: 0 1.25rem !important; }
         .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
@@ -2453,7 +2989,6 @@ function PageStyles() {
         .svc-icon { width: 34px !important; height: 34px !important; margin-right: 10px !important; }
         .svc-icon img { width: 34px !important; height: 34px !important; }
         .sub-row { padding-left: 4rem !important; }
-        .expanded-url-bar { padding-left: 4rem !important; }
         .header-cards-grid > * > div > div:first-child { font-size: 17px !important; }
         .header-cards-grid > * > div > div:last-child { font-size: 15px !important; }
         .filter-tags button { min-width: auto !important; }
