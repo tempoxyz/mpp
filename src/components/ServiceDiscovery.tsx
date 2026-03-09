@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
 
+// import { AddServiceModal } from "./ServicesPage";
+
 const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
   blockchain: "Blockchain",
@@ -170,6 +172,10 @@ export function ServiceDiscovery() {
   const [, forceIconUpdate] = useState(0);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
+  const [dropdownTab, setDropdownTab] = useState<
+    "all" | "services" | "endpoints"
+  >("all");
+  // const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     fetchServices()
@@ -392,52 +398,83 @@ export function ServiceDiscovery() {
                 </button>
               )}
             </div>
+            <a href="/services" className="discovery-view-all">
+              View all
+            </a>
             {showDropdown && dropdownResults.length > 0 && (
               <div className="discovery-dropdown">
-                {dropdownResults.map((r, i) => (
-                  <button
-                    key={`${r.type}-${i}`}
-                    type="button"
-                    className={`discovery-dropdown-item${i === activeIndex ? " discovery-dropdown-active" : ""}`}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      handleDropdownSelect(r);
-                    }}
-                    onMouseEnter={() => setActiveIndex(i)}
-                  >
-                    {r.type === "category" && (
-                      <>
-                        <span className="dropdown-tag">Category</span>
-                        <span>{r.label}</span>
-                      </>
-                    )}
-                    {r.type === "service" && (
-                      <>
-                        <span className="dropdown-tag">Service</span>
-                        <span>{r.service.name}</span>
-                        <span className="dropdown-desc">
-                          {r.service.description?.slice(0, 60)}
-                        </span>
-                      </>
-                    )}
-                    {r.type === "endpoint" && (
-                      <>
-                        <span className="dropdown-tag">Endpoint</span>
-                        <span>{r.service.name}</span>
-                        <span className="dropdown-right">
-                          <span className="dropdown-route">
-                            {r.endpoint.path}
+                <div className="discovery-dropdown-tabs">
+                  {(["all", "services", "endpoints"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      className={`discovery-dropdown-tab${dropdownTab === tab ? " discovery-dropdown-tab-active" : ""}`}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setDropdownTab(tab);
+                        setActiveIndex(-1);
+                      }}
+                    >
+                      {tab === "all"
+                        ? "All"
+                        : tab === "services"
+                          ? "Services"
+                          : "Endpoints"}
+                    </button>
+                  ))}
+                </div>
+                {dropdownResults
+                  .filter(
+                    (r) =>
+                      dropdownTab === "all" ||
+                      (dropdownTab === "services" &&
+                        (r.type === "service" || r.type === "category")) ||
+                      (dropdownTab === "endpoints" && r.type === "endpoint"),
+                  )
+                  .map((r, i) => (
+                    <button
+                      key={`${r.type}-${i}`}
+                      type="button"
+                      className={`discovery-dropdown-item${i === activeIndex ? " discovery-dropdown-active" : ""}`}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleDropdownSelect(r);
+                      }}
+                      onMouseEnter={() => setActiveIndex(i)}
+                    >
+                      {r.type === "category" && (
+                        <>
+                          <span className="dropdown-tag">Category</span>
+                          <span>{r.label}</span>
+                        </>
+                      )}
+                      {r.type === "service" && (
+                        <>
+                          <span className="dropdown-tag">Service</span>
+                          <span>{r.service.name}</span>
+                          <span className="dropdown-desc">
+                            {r.service.description?.slice(0, 60)}
                           </span>
-                          <span
-                            className={`method-badge method-${r.endpoint.method.toLowerCase()}`}
-                          >
-                            {r.endpoint.method}
+                        </>
+                      )}
+                      {r.type === "endpoint" && (
+                        <>
+                          <span className="dropdown-tag">Endpoint</span>
+                          <span>{r.service.name}</span>
+                          <span className="dropdown-right">
+                            <span className="dropdown-route">
+                              {r.endpoint.path}
+                            </span>
+                            <span
+                              className={`method-badge method-${r.endpoint.method.toLowerCase()}`}
+                            >
+                              {r.endpoint.method}
+                            </span>
                           </span>
-                        </span>
-                      </>
-                    )}
-                  </button>
-                ))}
+                        </>
+                      )}
+                    </button>
+                  ))}
               </div>
             )}
           </div>
@@ -448,6 +485,7 @@ export function ServiceDiscovery() {
                 No services match your search
               </p>
             )}
+          {/* submit hint removed for now */}
         </div>
 
         {/* Card grid */}
@@ -471,12 +509,16 @@ export function ServiceDiscovery() {
               <button
                 key={service.id}
                 type="button"
-                className={`discovery-card ${visible ? "discovery-card-visible" : ""}`}
+                className={`discovery-card ${visible ? "discovery-card-visible" : ""}${visible && !revealed && !hasQuery ? " discovery-card-pulsing" : ""}`}
                 style={{
                   transitionDelay:
                     visible && !revealed && !hasQuery
                       ? `${Math.min(idx * 40, 600)}ms`
                       : "0ms",
+                  animationDelay:
+                    visible && !revealed && !hasQuery
+                      ? `${Math.min(idx * 200, 3000)}ms`
+                      : undefined,
                   opacity: hasQuery ? (isMatch ? 1 : 0.08) : undefined,
                   filter: hasQuery && !isMatch ? "blur(3px)" : undefined,
                   pointerEvents: hasQuery && !isMatch ? "none" : undefined,
@@ -486,6 +528,62 @@ export function ServiceDiscovery() {
                 }}
                 onClick={() => setSelectedService(service)}
               >
+                {(service.docs?.homepage || service.provider?.url) && (
+                  <div className="discovery-card-links">
+                    {service.docs?.homepage && (
+                      <a
+                        href={service.docs.homepage}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Docs"
+                        aria-label="Docs"
+                      >
+                        <span className="sr-only">Docs</span>
+                        <svg
+                          aria-hidden="true"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                        </svg>
+                      </a>
+                    )}
+                    {service.provider?.url && (
+                      <a
+                        href={service.provider.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Website"
+                        aria-label="Website"
+                      >
+                        <span className="sr-only">Website</span>
+                        <svg
+                          aria-hidden="true"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" x2="21" y1="14" y2="3" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                )}
                 <div className="discovery-card-icon">
                   {iconUrl && !brokenIcons.current.has(service.id) ? (
                     <img
@@ -545,6 +643,11 @@ export function ServiceDiscovery() {
           />,
           document.body,
         )}
+      {/* {showAddModal &&
+        createPortal(
+          <AddServiceModal onClose={() => setShowAddModal(false)} />,
+          document.body,
+        )} */}
     </>
   );
 }
@@ -564,6 +667,9 @@ function ServiceDetailModal({
     service.endpoints[0] ?? null,
   );
   const [copied, setCopied] = useState(false);
+  const [copiedEndpoint, setCopiedEndpoint] = useState<string | null>(null);
+  const [copiedJson, setCopiedJson] = useState(false);
+  const [showAgentTip, setShowAgentTip] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
@@ -619,6 +725,30 @@ function ServiceDetailModal({
     }
   };
 
+  const handleCopyEndpoint = (ep: Endpoint) => {
+    const url = `${baseUrl}${ep.path}`;
+    navigator.clipboard.writeText(url);
+    setCopiedEndpoint(`${ep.method}-${ep.path}`);
+    setTimeout(() => setCopiedEndpoint(null), 1500);
+  };
+
+  const handleCopyJson = () => {
+    const schema = {
+      name: service.name,
+      description: service.description,
+      url: baseUrl,
+      endpoints: service.endpoints.map((ep) => ({
+        method: ep.method,
+        path: ep.path,
+        description: ep.description,
+        payment: ep.payment,
+      })),
+    };
+    navigator.clipboard.writeText(JSON.stringify(schema, null, 2));
+    setCopiedJson(true);
+    setTimeout(() => setCopiedJson(false), 1500);
+  };
+
   const green = "light-dark(#15803d, #4ade80)";
   const purple = "light-dark(#7c3aed, #c084fc)";
   const yellow = "light-dark(#b45309, #fbbf24)";
@@ -649,100 +779,386 @@ function ServiceDetailModal({
               alignItems: "center",
             }}
           >
-              {service.docs?.homepage && (
-                <a
-                  href={service.docs.homepage}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="modal-link"
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-label="Docs"
-                  >
-                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-                  </svg>
-                  <span>Docs</span>
-                </a>
-              )}
-              {service.provider?.url && (
-                <a
-                  href={service.provider.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="modal-link"
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-label="Website"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M2 12h20" />
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                  </svg>
-                  <span>Website</span>
-                </a>
-              )}
-              {service.serviceUrl && (
-                <a
-                  href={service.serviceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="modal-link"
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-label="API"
-                  >
-                    <polyline points="16 18 22 12 16 6" />
-                    <polyline points="8 6 2 12 8 18" />
-                  </svg>
-                  <span>API</span>
-                </a>
-              )}
-              <button
-                type="button"
-                onClick={handleClose}
-                className="modal-close"
+            {service.docs?.homepage && (
+              <a
+                href={service.docs.homepage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="modal-link"
               >
                 <svg
-                  width="18"
-                  height="18"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  aria-label="Close"
+                  aria-label="Docs"
                 >
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
                 </svg>
-              </button>
-            </div>
+                <span>Docs</span>
+              </a>
+            )}
+            {service.provider?.url && (
+              <a
+                href={service.provider.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="modal-link"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-label="Website"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M2 12h20" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+                <span>Website</span>
+              </a>
+            )}
+            {service.serviceUrl && (
+              <a
+                href={service.serviceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="modal-link"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-label="API"
+                >
+                  <polyline points="16 18 22 12 16 6" />
+                  <polyline points="8 6 2 12 8 18" />
+                </svg>
+                <span>API</span>
+              </a>
+            )}
+            <button
+              type="button"
+              className="modal-link"
+              style={{ position: "relative" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopyJson();
+              }}
+              onMouseEnter={() => setShowAgentTip(true)}
+              onMouseLeave={() => setShowAgentTip(false)}
+            >
+              <svg
+                aria-hidden="true"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 8V4H8" />
+                <rect width="16" height="12" x="4" y="8" rx="2" />
+                <path d="M2 14h2" />
+                <path d="M20 14h2" />
+                <path d="M15 13v2" />
+                <path d="M9 13v2" />
+              </svg>
+              <span>{copiedJson ? "Copied!" : "Add to agent"}</span>
+              {showAgentTip && (
+                /* biome-ignore lint/a11y/useKeyWithClickEvents: tooltip container */
+                /* biome-ignore lint/a11y/noStaticElementInteractions: tooltip container */
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="agent-tooltip"
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    right: 0,
+                    width: 360,
+                    padding: "1rem",
+                    borderRadius: 12,
+                    border:
+                      "1px solid light-dark(var(--vocs-border-color-primary), rgba(255,255,255,0.12))",
+                    background: "var(--vocs-background-color-primary)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+                    zIndex: 30,
+                    textAlign: "left",
+                    fontSize: 13,
+                    color: "var(--vocs-text-color-secondary)",
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: "0 0 0.25rem",
+                      fontWeight: 600,
+                      fontSize: 14,
+                      color: "var(--vocs-text-color-heading)",
+                    }}
+                  >
+                    Add to your agent
+                  </p>
+                  <p
+                    style={{
+                      margin: "0 0 0.75rem",
+                      fontSize: 12,
+                      lineHeight: 1.5,
+                      color: "var(--vocs-text-color-muted)",
+                    }}
+                  >
+                    Copies all {service.endpoints.length} endpoints and service
+                    metadata as structured JSON your agent can use seamlessly.
+                  </p>
+
+                  <p
+                    style={{
+                      margin: "0 0 0.35rem",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      color: "var(--vocs-text-color-muted)",
+                    }}
+                  >
+                    Install Tempo CLI
+                  </p>
+                  <div
+                    style={{
+                      position: "relative",
+                      padding: "0.5rem 0.65rem",
+                      borderRadius: 8,
+                      background:
+                        "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 12,
+                      lineHeight: 1.7,
+                      marginBottom: "0.6rem",
+                    }}
+                  >
+                    <div>
+                      <span
+                        style={{
+                          color: "var(--vocs-text-color-muted)",
+                          userSelect: "none",
+                        }}
+                      >
+                        ${" "}
+                      </span>
+                      curl -L https://tempo.xyz/install | bash
+                    </div>
+                    <div>
+                      <span
+                        style={{
+                          color: "var(--vocs-text-color-muted)",
+                          userSelect: "none",
+                        }}
+                      >
+                        ${" "}
+                      </span>
+                      tempo add wallet
+                    </div>
+                    <button
+                      type="button"
+                      style={{
+                        position: "absolute",
+                        top: 6,
+                        right: 6,
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        color: "var(--vocs-text-color-muted)",
+                        padding: 3,
+                        display: "flex",
+                        borderRadius: 4,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(
+                          "curl -L https://tempo.xyz/install | bash && tempo add wallet",
+                        );
+                      }}
+                    >
+                      <svg
+                        aria-hidden="true"
+                        width="11"
+                        height="11"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect width="14" height="14" x="8" y="8" rx="2" />
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <p
+                    style={{
+                      margin: "0 0 0.35rem",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      color: "var(--vocs-text-color-muted)",
+                    }}
+                  >
+                    Full documentation
+                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginBottom: "0.75rem",
+                      padding: "0.4rem 0.65rem",
+                      borderRadius: 8,
+                      border: "1px solid var(--vocs-border-color-primary)",
+                      background:
+                        "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
+                    }}
+                  >
+                    <svg
+                      aria-hidden="true"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{
+                        flexShrink: 0,
+                        color: "var(--vocs-text-color-muted)",
+                      }}
+                    >
+                      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                    </svg>
+                    <a
+                      href="/services/llms.txt"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        flex: 1,
+                        color: "var(--vocs-text-color-heading)",
+                        textDecoration: "none",
+                        fontSize: 12,
+                        fontWeight: 500,
+                      }}
+                    >
+                      llms.txt
+                    </a>
+                    <button
+                      type="button"
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        color: "var(--vocs-text-color-muted)",
+                        padding: 2,
+                        display: "flex",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(
+                          `${window.location.origin}/services/llms.txt`,
+                        );
+                      }}
+                    >
+                      <svg
+                        aria-hidden="true"
+                        width="11"
+                        height="11"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect width="14" height="14" x="8" y="8" rx="2" />
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <a
+                    href="/guides/building-with-ai"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
+                      padding: "0.45rem 0.75rem",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "var(--vocs-text-color-heading)",
+                      textDecoration: "none",
+                      border:
+                        "1px solid light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.15))",
+                      background:
+                        "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08))",
+                      transition: "background 0.15s",
+                    }}
+                  >
+                    Learn more about building with AI
+                    <svg
+                      aria-hidden="true"
+                      width="10"
+                      height="10"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M5 12h14" />
+                      <path d="m12 5 7 7-7 7" />
+                    </svg>
+                  </a>
+                </div>
+              )}
+            </button>
+            <button type="button" onClick={handleClose} className="modal-close">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-label="Close"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </button>
           </div>
+        </div>
 
         {/* Header */}
         <div className="modal-header">
@@ -821,6 +1237,14 @@ function ServiceDetailModal({
           )}
         </div>
 
+        <div
+          style={{
+            borderBottom: "1px solid var(--vocs-border-color-primary)",
+            margin: "1.25rem -2rem",
+            padding: "0.5rem 0",
+          }}
+        />
+
         {/* Endpoints table */}
         <div style={{ marginTop: "1rem" }}>
           <div
@@ -831,24 +1255,38 @@ function ServiceDetailModal({
               fontSize: 15,
               fontWeight: 500,
               color: "var(--vocs-text-color-heading)",
-              marginBottom: 8,
+              marginBottom: 12,
             }}
           >
             <span>Endpoints</span>
             <span className="endpoint-count-pill">
               {service.endpoints.length}
             </span>
+            <button
+              type="button"
+              className={`modal-copy-btn${copiedJson ? " modal-copy-btn-active" : ""}`}
+              style={{ marginLeft: "auto" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopyJson();
+              }}
+            >
+              {copiedJson ? "Copied!" : "Copy as JSON"}
+            </button>
           </div>
           <div className="modal-endpoints-wrap">
             <div className="modal-endpoints">
               {service.endpoints.map((ep) => {
                 const isSelected = ep === selectedEndpoint;
+                const epCopyId = `${ep.method}-${ep.path}`;
                 return (
                   <button
-                    key={`${ep.method}-${ep.path}`}
+                    key={epCopyId}
                     type="button"
                     className={`modal-endpoint-row ${isSelected ? "modal-endpoint-selected" : ""}`}
-                    onClick={() => setSelectedEndpoint(ep)}
+                    onClick={() => {
+                      setSelectedEndpoint(ep);
+                    }}
                   >
                     <span
                       className={`method-badge method-${ep.method.toLowerCase()}`}
@@ -857,7 +1295,40 @@ function ServiceDetailModal({
                     </span>
                     <span className="endpoint-path">{ep.path}</span>
                     <span className="endpoint-desc">{ep.description}</span>
-                    <span className="endpoint-price">{formatPrice(ep)}</span>
+                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy on click */}
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: copy on click */}
+                    <span
+                      className="endpoint-price-wrap"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyEndpoint(ep);
+                      }}
+                    >
+                      {copiedEndpoint === epCopyId ? (
+                        <span
+                          className="endpoint-copy-done"
+                          style={{ display: "flex", alignItems: "center" }}
+                        >
+                          <svg
+                            aria-hidden="true"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </span>
+                      ) : (
+                        <span className="endpoint-price">
+                          {formatPrice(ep)}
+                        </span>
+                      )}
+                    </span>
                   </button>
                 );
               })}
@@ -865,9 +1336,17 @@ function ServiceDetailModal({
           </div>
         </div>
 
+        <div
+          style={{
+            borderBottom: "1px solid var(--vocs-border-color-primary)",
+            margin: "1.25rem -2rem",
+            padding: "0.5rem 0",
+          }}
+        />
+
         {/* CLI snippet */}
         {selectedEndpoint && (
-          <div style={{ marginTop: "1.25rem" }}>
+          <div className="modal-cli-wrapper" style={{ marginTop: "1.25rem" }}>
             <div
               style={{
                 display: "flex",
@@ -879,7 +1358,21 @@ function ServiceDetailModal({
                 marginBottom: 4,
               }}
             >
-              <span>Try it out</span>
+              <span>
+                Try out{" "}
+                <code
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 13,
+                    padding: "1px 5px",
+                    borderRadius: 4,
+                    background:
+                      "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08))",
+                  }}
+                >
+                  {selectedEndpoint.path}
+                </code>
+              </span>
             </div>
             <p
               style={{
@@ -901,34 +1394,22 @@ function ServiceDetailModal({
             >
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  fontSize: 11,
+                  color: "var(--vocs-text-color-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
                   marginBottom: 8,
                 }}
               >
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: "var(--vocs-text-color-muted)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  Get started
-                </div>
-                <span
-                  className={`modal-copy-btn${copied ? " modal-copy-btn-active" : ""}`}
-                >
-                  {copied ? "Copied!" : "Copy"}
-                </span>
+                Get started
               </div>
               <div className="cli-lines">
                 <div className="cli-line">
                   <span className="cli-line-cmd">
                     <span style={{ color: muted }}>$ </span>
                     <span style={{ color: green }}>curl</span> -L
-                    https://tempo.xyz/install | bash
+                    https://tempo.xyz/install |{" "}
+                    <span style={{ color: green }}>bash</span>
                   </span>
                   <span className="cli-line-comment"># Install Tempo CLI</span>
                 </div>
@@ -952,8 +1433,11 @@ function ServiceDetailModal({
                   <span className="cli-line-cmd">
                     <span style={{ color: muted }}>$ </span>
                     <span style={{ color: green }}>tempo</span> wallet{" "}
-                    {walletPrefix}--dry-run {baseUrl}
-                    {cliPath}
+                    {walletPrefix}--dry-run{" "}
+                    <span style={{ color: "var(--vocs-text-color-heading)" }}>
+                      {baseUrl}
+                      {cliPath}
+                    </span>
                     {isNonGet && (
                       <>
                         {" \\\n      "}
@@ -969,6 +1453,40 @@ function ServiceDetailModal({
                     # Test without paying
                   </span>
                 </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  marginTop: 10,
+                }}
+              >
+                <span
+                  className={`modal-copy-btn${copied ? " modal-copy-btn-active" : ""}`}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    background:
+                      "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
+                  }}
+                >
+                  <svg
+                    aria-hidden="true"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" x2="20" y1="19" y2="19" />
+                  </svg>
+                  {copied ? "Copied!" : "Copy commands"}
+                </span>
               </div>
             </div>
           </div>
@@ -1118,9 +1636,12 @@ function DiscoveryStyles() {
       .discovery-search-wrapper {
         position: relative;
         width: 100%;
-        max-width: 480px;
+        max-width: 600px;
         margin-top: 1rem;
         z-index: 10;
+        display: flex;
+        gap: 0.5rem;
+        align-items: stretch;
       }
       .discovery-search {
         display: flex;
@@ -1131,6 +1652,8 @@ function DiscoveryStyles() {
         border: 1px solid var(--vocs-border-color-primary);
         background: light-dark(var(--vocs-background-color-primary), rgba(255,255,255,0.06));
         transition: border-color 0.15s;
+        flex: 1;
+        min-width: 0;
       }
       .discovery-search:has(.discovery-search-input:focus-visible) {
         border-color: light-dark(rgba(0,0,0,0.25), rgba(255,255,255,0.25));
@@ -1162,6 +1685,26 @@ function DiscoveryStyles() {
       }
       .discovery-search-clear:hover {
         color: var(--vocs-text-color-heading);
+      }
+      .discovery-view-all {
+        flex-shrink: 0;
+        font-size: 13px;
+        font-family: var(--font-sans);
+        color: var(--vocs-text-color-muted);
+        text-decoration: none;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid var(--vocs-border-color-primary);
+        background: light-dark(var(--vocs-background-color-primary), rgba(255,255,255,0.06));
+        white-space: nowrap;
+        transition: color 0.15s, border-color 0.15s, background 0.15s;
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+      }
+      .discovery-view-all:hover {
+        color: var(--vocs-text-color-heading);
+        border-color: light-dark(rgba(0,0,0,0.2), rgba(255,255,255,0.2));
       }
 
       /* Dropdown */
@@ -1235,6 +1778,28 @@ function DiscoveryStyles() {
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+      .discovery-dropdown-tabs {
+        display: flex;
+        gap: 2px;
+        padding: 0.4rem 0.6rem;
+        border-bottom: 1px solid var(--vocs-border-color-primary);
+      }
+      .discovery-dropdown-tab {
+        font-size: 11px;
+        font-family: var(--font-sans);
+        padding: 3px 10px;
+        border-radius: 5px;
+        border: none;
+        background: transparent;
+        color: var(--vocs-text-color-muted);
+        cursor: pointer;
+        transition: background 0.1s, color 0.1s;
+      }
+      .discovery-dropdown-tab:hover { color: var(--vocs-text-color-heading); }
+      .discovery-dropdown-tab-active {
+        background: light-dark(rgba(0,0,0,0.07), rgba(255,255,255,0.1));
+        color: var(--vocs-text-color-heading);
+      }
 
       /* Card grid — fits within viewport, no scroll */
       .discovery-grid {
@@ -1270,7 +1835,7 @@ function DiscoveryStyles() {
         padding: 12px;
         border-radius: 14px;
         border: 1px solid var(--vocs-border-color-primary);
-        background: var(--vocs-background-color-primary);
+        background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.03));
         cursor: pointer;
         text-align: left;
         font-family: var(--font-sans);
@@ -1286,13 +1851,48 @@ function DiscoveryStyles() {
       }
       .discovery-card:hover {
         border-color: light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.12));
-        background: light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03));
+        background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.03));
       }
+      @keyframes cardPulse {
+        0%, 100% { background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.03)); }
+        50% { background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.07)); }
+      }
+      .discovery-card-pulsing { animation: cardPulse 3s ease-in-out infinite; }
+      .discovery-card-pulsing:hover,
+      .has-query .discovery-card-pulsing { animation: none; }
       .discovery-card-skeleton {
         pointer-events: none;
         border-style: dashed;
         border-color: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06));
         background: transparent;
+      }
+      .discovery-card { position: relative; }
+      .discovery-card-links {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        gap: 6px;
+        z-index: 2;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .discovery-card:hover .discovery-card-links { opacity: 1; }
+      .discovery-card-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 5px;
+        color: var(--vocs-text-color-muted);
+        background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08));
+        transition: color 0.15s, background 0.15s;
+        pointer-events: auto;
+      }
+      .discovery-card-links a:hover {
+        color: var(--vocs-text-color-heading);
+        background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.14));
       }
       .discovery-card-icon { flex-shrink: 0; }
       .discovery-card-icon-img {
@@ -1316,7 +1916,7 @@ function DiscoveryStyles() {
       }
       .discovery-card-name {
         font-weight: 600;
-        font-size: 15px;
+        font-size: 17px;
         color: var(--vocs-text-color-heading);
         margin-top: auto;
       }
@@ -1389,7 +1989,7 @@ function DiscoveryStyles() {
         overflow-y: auto;
         background: var(--vocs-background-color-primary);
         border-radius: 16px;
-        border: 1px solid var(--vocs-border-color-primary);
+        border: 1px solid light-dark(var(--vocs-border-color-primary), rgba(255,255,255,0.12));
         padding: 2rem;
         animation: modalSlideIn 0.25s ease forwards;
       }
@@ -1453,6 +2053,10 @@ function DiscoveryStyles() {
       }
 
       /* CLI example */
+      .modal-cli-wrapper {
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
       .modal-cli {
         padding: 1rem;
         border-radius: 10px;
@@ -1500,21 +2104,23 @@ function DiscoveryStyles() {
         margin: 0;
       }
       .cli-line {
-        display: flex;
-        gap: 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: start;
       }
       .cli-line-cmd {
         white-space: pre-wrap;
         word-break: break-word;
         overflow-wrap: anywhere;
-        flex: 1;
-        min-width: 0;
+        padding-left: 2ch;
+        text-indent: -2ch;
       }
       .cli-line-comment {
         white-space: nowrap;
         color: var(--vocs-text-color-muted);
-        text-align: right;
-        flex-shrink: 0;
+        font-size: 12px;
+        text-align: left;
       }
 
       /* Endpoint count pill */
@@ -1541,7 +2147,7 @@ function DiscoveryStyles() {
       .modal-endpoints {
         max-height: 320px;
         overflow-y: scroll;
-        border: 1px solid var(--vocs-border-color-primary);
+        border: 1px solid light-dark(var(--vocs-border-color-primary), rgba(255,255,255,0.1));
         border-radius: 10px;
         padding-right: 2px;
       }
@@ -1591,11 +2197,22 @@ function DiscoveryStyles() {
         white-space: nowrap;
       }
       .endpoint-desc {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
         text-align: left;
         justify-self: start;
+        min-width: 0;
+        font-size: 12px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .endpoint-price-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        white-space: nowrap;
+        cursor: pointer;
       }
       .endpoint-price {
         font-family: var(--font-mono);
@@ -1603,7 +2220,9 @@ function DiscoveryStyles() {
         color: var(--vocs-text-color-muted);
         white-space: nowrap;
         text-align: right;
-        justify-self: end;
+      }
+      .endpoint-copy-done {
+        color: light-dark(#15803d, #4ade80);
       }
 
       @media (max-width: 640px) {
