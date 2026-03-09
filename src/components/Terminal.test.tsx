@@ -43,9 +43,9 @@ describe("timeAgo", () => {
   });
 
   it("returns days ago", () => {
-    const now = new Date();
-    now.setDate(now.getDate() - 7);
-    expect(timeAgo(now.toISOString())).toBe("7d ago");
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    const past = new Date(Date.now() - sevenDaysMs);
+    expect(timeAgo(past.toISOString())).toBe("7d ago");
   });
 
   it("returns 0s ago for current time", () => {

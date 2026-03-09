@@ -20,7 +20,7 @@ For Tempo payments, you need a stablecoin wallet to sign transactions. The SDK a
 
 Both MPP and x402 use HTTP `402` to signal that a request requires payment. The key differences:
 
-- **Payment-method agnostic.** MPP supports stablecoins, cards, wallets, and custom rails through extensible payment method specifications. x402 only supports blockchains. 
+- **Payment-method agnostic.** MPP supports stablecoins, cards, wallets, and custom rails through extensible payment method specifications. x402 only supports blockchains.
 - **Designed for production.** MPP supports idempotency, expiration, and request-tampering mitigations as first-class primitives.
 - **Performant payments.** MPP's session intent enables pay-as-you-go metering for payments as small as 0.0001 USD. MPP sessions can achieve sub-100ms latency and near-zero per-request fees, enabling high-throughput, low-value payments for applications like token streaming or high throughput content aggregation.
 - **Permissionless extensibility.** Anyone can author and publish a new payment method or intent specification without approval from a foundation or intermediary. Payment methods compete on adoption and are independently maintained without the explicit permission of a central authority.
@@ -74,7 +74,7 @@ Yes. See the [server quickstart](/quickstart/server) to start accepting payments
 
 ## Is MPP an IETF standard?
 
-The core [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is on the IETF standards track. Payment method and intent IETF Specs (charge, session, authorize) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
+The core [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is on the IETF standards track. Payment method and intent IETF Specification (charge, session, authorize) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
 
 ## Can I use MPP outside of HTTP?
 

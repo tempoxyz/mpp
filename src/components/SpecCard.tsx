@@ -1,7 +1,7 @@
 import { Card } from "vocs";
 
 export function SpecCard({
-  title = "IETF Specs",
+  title = "IETF Specification",
   description = "Read the full specification",
   to,
 }: {

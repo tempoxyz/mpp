@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AsciiLogo } from "./AsciiLogo";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
+import { AsciiLogo } from "./AsciiLogo";
 
 const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
@@ -351,14 +351,10 @@ export function ServiceDiscovery() {
         {/* Search overlay — absolutely centered */}
         <div className="discovery-overlay" ref={overlayRef}>
           <div className="discovery-ascii-logo">
-
             <AsciiLogo />
           </div>
-          
 
-
-
-        <p className="discovery-overlay-desc">
+          <p className="discovery-overlay-desc">
             Discover powerful, no-setup services to level up your agent or app
           </p>
           <div className="discovery-search-wrapper">

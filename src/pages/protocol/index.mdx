@@ -1,11 +1,11 @@
-import { Badge } from 'vocs'
-import { PaymentFlowDiagram } from '../../components/PaymentFlowDiagram'
+import { Badge } from "vocs";
+import { PaymentFlowDiagram } from "../../components/PaymentFlowDiagram";
 
 # Protocol overview [Standardizing HTTP 402 for machine-to-machine payments]
 
 The Machine Payments Protocol (MPP) is an internet-native protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
 
-These docs provide a developer-friendly overview. For the full specification, see the full [IETF Specs](https://tempoxyz.github.io/mpp-specs/).
+These docs provide a developer-friendly overview. For the full specification, see the full [IETF Specification](https://tempoxyz.github.io/mpp-specs/).
 
 ## Flow
 
@@ -13,8 +13,14 @@ These docs provide a developer-friendly overview. For the full specification, se
 
 ## Core concepts
 
-import { Cards } from 'vocs'
-import { Http402Card, ChallengesCard, CredentialsCard, ReceiptsCard, TransportsCard } from '../../components/cards'
+import { Cards } from "vocs";
+import {
+  Http402Card,
+  ChallengesCard,
+  CredentialsCard,
+  ReceiptsCard,
+  TransportsCard,
+} from "../../components/cards";
 
 <Cards>
   <Http402Card />
@@ -30,19 +36,20 @@ MPP uses HTTP status codes consistently to signal payment-related conditions:
 
 :::info[Consistent 402 usage]
 MPP uses `402` for all payment-related challenges, including failed credential validation. This differs from other HTTP authentication schemes that use `401` for failed credentials. The distinction:
+
 - **`402`** = Payment barrier (initial challenge or retry needed)
 - **`401`** = Authentication failure unrelated to payment
 - **`403`** = Payment succeeded but access denied by policy
-:::
+  :::
 
-| Condition | Status | Response |
-|-----------|--------|----------|
-| Resource requires payment, no credential provided | <Badge variant="danger">402</Badge> | Fresh challenge in `WWW-Authenticate` |
-| Malformed credential (invalid base64url, bad JSON) | <Badge variant="danger">402</Badge> | Fresh challenge + `malformed-credential` problem |
-| Unknown, expired, or already-used challenge id | <Badge variant="danger">402</Badge> | Fresh challenge + `invalid-challenge` problem |
-| Payment proof invalid or verification failed | <Badge variant="danger">402</Badge> | Fresh challenge + `verification-failed` problem |
-| Payment verified, access granted | <Badge variant="success">200</Badge> | Resource + optional `Payment-Receipt` |
-| Payment verified, but policy denies access | <Badge variant="warning">403</Badge> | No challenge (payment was valid) |
+| Condition                                          | Status                               | Response                                         |
+| -------------------------------------------------- | ------------------------------------ | ------------------------------------------------ |
+| Resource requires payment, no credential provided  | <Badge variant="danger">402</Badge>  | Fresh challenge in `WWW-Authenticate`            |
+| Malformed credential (invalid base64url, bad JSON) | <Badge variant="danger">402</Badge>  | Fresh challenge + `malformed-credential` problem |
+| Unknown, expired, or already-used challenge id     | <Badge variant="danger">402</Badge>  | Fresh challenge + `invalid-challenge` problem    |
+| Payment proof invalid or verification failed       | <Badge variant="danger">402</Badge>  | Fresh challenge + `verification-failed` problem  |
+| Payment verified, access granted                   | <Badge variant="success">200</Badge> | Resource + optional `Payment-Receipt`            |
+| Payment verified, but policy denies access         | <Badge variant="warning">403</Badge> | No challenge (payment was valid)                 |
 
 See [HTTP 402](/protocol/http-402) for details on when to return each status code.
 
@@ -54,9 +61,9 @@ MPP works with any payment network or currency. The core protocol defines the fr
 Anyone can define new payment methods. The protocol requires that methods define their `request` schema (what the server asks for) and `payload` schema (what the client provides as proof).
 :::
 
-| Method | Description | Status |
-|--------|-------------|--------|
-| [Tempo](/payment-methods/tempo) | Native stablecoin payments on Tempo Network | <Badge variant="success">Production</Badge> |
+| Method                            | Description                                     | Status                                      |
+| --------------------------------- | ----------------------------------------------- | ------------------------------------------- |
+| [Tempo](/payment-methods/tempo)   | Native stablecoin payments on Tempo Network     | <Badge variant="success">Production</Badge> |
 | [Stripe](/payment-methods/stripe) | Traditional card payment methods through Stripe | <Badge variant="success">Production</Badge> |
 
 Each payment method specifies its own `request` and `payload` schemas while sharing the common challenge/credential flow.
@@ -79,7 +86,8 @@ Payment intents describe the type of payment being requested. Common intents inc
 - **`authorize`**—Authorization that can be captured later
 - **`subscription`**—Recurring payment authorization
 
-Intent IETF Specs define:
+Intent Specification define:
+
 - Required and optional `request` fields
 - `payload` requirements
 - Verification and settlement semantics
@@ -122,15 +130,15 @@ Failed payment attempts return `402` with a fresh challenge and a Problem Detail
 
 Common error codes (full type URI: `https://paymentauth.org/problems/{code}`):
 
-| Code | Description |
-|------|-------------|
-| `payment-required` | Resource requires payment |
-| `payment-insufficient` | Amount too low |
-| `payment-expired` | Challenge or authorization expired |
-| `verification-failed` | Proof invalid |
-| `method-unsupported` | Method not accepted |
-| `malformed-credential` | Invalid credential format |
-| `invalid-challenge` | Challenge ID unknown, expired, or already used |
+| Code                   | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `payment-required`     | Resource requires payment                      |
+| `payment-insufficient` | Amount too low                                 |
+| `payment-expired`      | Challenge or authorization expired             |
+| `verification-failed`  | Proof invalid                                  |
+| `method-unsupported`   | Method not accepted                            |
+| `malformed-credential` | Invalid credential format                      |
+| `invalid-challenge`    | Challenge ID unknown, expired, or already used |
 
 Use the `Retry-After` header to indicate when clients can retry failed payments.
 
@@ -178,6 +186,7 @@ The protocol is designed for extensibility, with simple constraints where requir
 ### Custom parameters
 
 Implementations may define additional parameters in challenges:
+
 - Parameters must use lowercase names
 - Unknown parameters must be ignored by clients
 - This allows payment methods to add method-specific fields
@@ -197,14 +206,27 @@ Implementations may define additional parameters in challenges:
 
 ## Full specification
 
-These docs provide a practical overview. For the full IETF Specs:
+These docs provide a practical overview. For the full Specification:
 
-:::note[Read the full IETF Specs]
-- <a href="https://tempoxyz.github.io/mpp-specs/draft-httpauth-payment-00" data-v="true">Payment HTTP Authentication Scheme</a>—Core protocol spec (draft-httpauth-payment-00)
+:::note[Read the full Specification]
+
+- <a
+    href="https://tempoxyz.github.io/mpp-specs/draft-httpauth-payment-00"
+    data-v="true"
+  >
+    Payment HTTP Authentication Scheme
+  </a>
+  —Core protocol spec (draft-httpauth-payment-00)
 - [Payment Methods](https://tempoxyz.github.io/mpp-specs/)—Payment method definitions
 - [Payment Intents](https://tempoxyz.github.io/mpp-specs/)—Intent types (charge, authorize, subscription)
-- <a href="https://tempoxyz.github.io/mpp-specs/draft-payment-transport-mcp-00" data-v="true">MCP Transport</a>—Model Context Protocol binding
+- <a
+    href="https://tempoxyz.github.io/mpp-specs/draft-payment-transport-mcp-00"
+    data-v="true"
+  >
+    MCP Transport
+  </a>
+  —Model Context Protocol binding
 - [HTTP Transport](https://tempoxyz.github.io/mpp-specs/)—HTTP binding details
-:::
+  :::
 
 The full specification includes detailed ABNF grammar, security analysis, IANA considerations, and complete examples for various payment scenarios.
