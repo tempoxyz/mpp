@@ -111,18 +111,15 @@ html {
 }
 
 [data-v-callout-icon] {
-  margin-top: 0.2rem;
+  margin-top: 0.15rem;
+  margin-right: 0.75rem;
 }
 
 [data-v-main] {
   padding-bottom: 0;
 }
-
-/* Cap the entire layout at 1600px and center it */
-[data-v-sidebar] {
-  max-width: 1600px;
-  margin-left: auto;
-  margin-right: auto;
+[data-v-pagination] {
+  margin-top: 3rem !important;
 }
 
 /* Round the white surface panel on the right side too */
@@ -132,9 +129,11 @@ html {
   }
 }
 
-/* Header logo - themed color */
+/* Header logo - themed color, always on top */
 [data-v-logo] {
   color: var(--vocs-text-color-heading);
+  position: relative;
+  z-index: 51;
 }
 
 [data-v-logo] img {
@@ -142,13 +141,22 @@ html {
   height: 20px;
 }
 
-/* Active top nav route — heading color so it is visible on dark backgrounds */
+/* Active top nav route — dot indicator instead of underline */
 [data-v-gutter-top] nav a[data-v-active="true"] {
-  border-color: light-dark(
-    var(--vocs-color-accent),
-    var(--vocs-text-color-heading)
-  );
+  border-color: transparent !important;
   color: light-dark(var(--vocs-color-accent), var(--vocs-text-color-heading));
+  position: relative;
+}
+[data-v-gutter-top] nav a[data-v-active="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 [data-v-gutter-top] nav a:hover {
@@ -241,6 +249,10 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 /* Uniform sidebar font size */
 [data-v-sidebar] {
   font-size: 14px !important;
+}
+[data-v-sidebar] a[data-v-sidebar-item] {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
 }
 
 /* More vertical breathing room for nested sidebar groups */
@@ -384,6 +396,7 @@ h4,
 h5,
 h6 {
   font-weight: 450;
+  color: var(--vocs-text-color-secondary);
 }
 
 body,
@@ -429,6 +442,48 @@ pre[data-v] {
   padding-block: calc(var(--vocs-spacing) * 3) !important;
 }
 
+pre[data-v]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3rem;
+  background-color: inherit;
+  mask-image: linear-gradient(to right, transparent, black);
+  -webkit-mask-image: linear-gradient(to right, transparent, black);
+  pointer-events: none;
+}
+
+/* Code block copy button — always top-right, only visible on hover */
+pre[data-v] ~ button[aria-label],
+pre[data-v] + button,
+[data-v-code-block] > button:last-child,
+div:has(> pre[data-v]) > button {
+  position: absolute !important;
+  top: 0.5rem !important;
+  right: 0.5rem !important;
+  z-index: 3 !important;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+div:has(> pre[data-v]):hover > button,
+[data-v-code-block]:hover > button:last-child,
+pre[data-v]:hover ~ button[aria-label] {
+  opacity: 1;
+}
+
+/* Right-edge gradient in code blocks — below the copy icon, only on hover */
+pre[data-v]::after {
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+div:has(> pre[data-v]):hover pre[data-v]::after,
+pre[data-v]:hover::after {
+  opacity: 1;
+}
+
 /* Payment flow step list — matches markdown list styling in content */
 .payment-flow-steps {
   list-style-type: decimal;
@@ -471,6 +526,7 @@ pre[data-v] {
 
 [data-v-content] table {
   width: 100% !important;
+  font-size: calc(1em + 1.5px);
 }
 
 [data-v-content] table td,
@@ -536,10 +592,20 @@ pre[data-v] {
   padding-right: calc(0.375rem - 1px) !important;
 }
 
-/* Inline code in headings — proportional spacing so it doesn't track tight at larger sizes */
+/* Inline code in headings — no extra left margin, slight right for breathing room */
 [data-v-content] :is(h1, h2, h3, h4) code {
-  margin-left: 0.3em !important;
-  margin-right: 0.3em !important;
+  margin-left: 0 !important;
+  margin-right: 0.15em !important;
+}
+
+/* Agent/Server badge tags in headings — larger, vertically centered */
+[data-v-content] :is(h3, h4) [data-v-badge],
+[data-v-content] :is(h3, h4) .mr-2 {
+  display: inline-flex !important;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+  font-size: 0.8rem;
 }
 
 /* No underline on cards, buttons, and interactive elements */
@@ -596,6 +662,14 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] > div:last-child {
 
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover {
   border-color: var(--vocs-border-color-primary) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+a[class*="vocs:rounded-md"][class*="vocs:border"] {
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease !important;
 }
 
 /* Card title turns heading color on hover (accent is invisible on dark) */
@@ -630,6 +704,15 @@ article hr {
   z-index: 50 !important;
 }
 
+/* Gradient background for services page header (layout: minimal) */
+[data-layout="minimal"] [data-v-gutter-top] {
+  background: linear-gradient(
+    to bottom,
+    var(--vocs-background-color-primary) 60%,
+    transparent
+  ) !important;
+}
+
 /* Force mobile nav / header / root background to match primary background.
    Vocs applies vocs:max-md:bg-surface on :root which switches mobile to a
    different surface color. Override it everywhere. */
@@ -640,7 +723,7 @@ header {
   background-color: var(--vocs-background-color-primary) !important;
 }
 [data-v-gutter-top] {
-  background-color: var(--vocs-background-color-primary);
+  background-color: var(--vocs-background-color-primary) !important;
 }
 
 /* Header z-index handles content layering — no overflow clip needed */
@@ -682,37 +765,6 @@ aside[data-v-callout] a:hover {
 /* Copy page for AI — align with TOC left edge */
 [data-v-outline] [data-v-copy-for-ai] {
   margin-left: 1.5rem !important;
-}
-
-/* Ask AI — aligned with TOC left edge on desktop */
-[data-v-ask-ai-container] {
-  left: auto !important;
-  right: 1rem !important;
-  bottom: 1.5rem !important;
-  transform: none !important;
-}
-
-/* Inline TOC mode (tablet/mobile): hide Ask AI to avoid overlap */
-@media (max-width: 1376px) {
-  [data-v-ask-ai-container] {
-    display: none !important;
-  }
-}
-
-/* Desktop TOC mode: position Ask AI using TOC width, not gutter width */
-@media (min-width: 1377px) {
-  [data-v-ask-ai-container] {
-    left: calc(100vw - (var(--spacing-gutter) * 0.8) + 5rem) !important;
-    right: auto !important;
-    bottom: 2rem !important;
-  }
-}
-
-/* Ask AI component — darker background for visibility */
-[data-v-ask-ai-trigger] {
-  background: var(--vocs-background-color-primary) !important;
-  border: 1px solid var(--vocs-border-color-primary) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Non-selected code-group / tab icons greyscale */
@@ -862,4 +914,37 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   50% {
     opacity: 0;
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Bottom gradient above Ask AI for visibility */
+[data-v-main]::after {
+  content: "";
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(
+    to top,
+    var(--vocs-background-color-primary) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 40;
+}
+/* Hide on landing/services pages where it's not needed */
+:has(.landing-page) [data-v-main]::after,
+[data-layout="minimal"] [data-v-main]::after {
+  display: none;
 }

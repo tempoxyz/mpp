@@ -32,11 +32,12 @@ export function PromptBlock({ children }: { children: string }) {
         >
           <code className="language-txt">{children}</code>
           <span
-            className="vocs:absolute vocs:right-2.5 vocs:top-1/2 vocs:-translate-y-1/2 vocs:p-1.5 vocs:rounded-md vocs:transition-colors vocs:duration-150"
+            className="vocs:absolute vocs:right-2.5 vocs:top-2.5 vocs:p-1.5 vocs:rounded-md vocs:transition-all vocs:duration-150 prompt-copy-icon"
             style={{
               color: copied
                 ? "var(--vocs-color-success, #22c55e)"
                 : "var(--vocs-color-text-secondary)",
+              opacity: copied ? 1 : undefined,
             }}
             aria-hidden="true"
           >
