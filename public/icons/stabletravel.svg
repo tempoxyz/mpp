@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect fill="#2A2A2A" width="512" height="512" rx="64"/><svg x="96" y="96" width="320" height="320" viewBox="0 0 70.07 80.91"><g><polygon points="19.29 31.36 19.29 49.54 35.03 58.64 35.03 40.45 19.29 31.36" style="fill:#E8E8EC;"/><polygon points="35.03 22.27 35.03 22.27 19.29 31.36 35.03 40.45 50.78 31.36 35.03 22.27" style="fill:#E8E8EC;"/><polygon points="50.78 31.36 35.03 40.45 35.03 58.64 35.03 58.64 50.78 49.54 50.78 31.36" style="fill:#E8E8EC;"/><polygon points="50.78 31.36 50.78 31.36 70.07 20.23 35.03 0 35.03 22.27 50.78 31.36" style="fill:#E8E8EC;"/><polygon points="19.29 31.36 35.03 22.27 35.03 0 0 20.23 19.29 31.36 19.29 31.36" style="fill:#E8E8EC;"/><polygon points="19.29 49.55 0 60.68 35.03 80.91 35.03 58.63 19.29 49.55" style="fill:#E8E8EC;"/><polygon points="50.78 49.54 35.03 58.63 35.03 58.63 35.03 80.91 70.07 60.68 50.78 49.54" style="fill:#E8E8EC;"/><polygon points="70.07 60.68 70.07 20.23 70.07 20.23 50.78 31.36 50.78 49.54 50.78 49.54 70.07 60.68 70.07 60.68" style="fill:#E8E8EC;"/><polygon points="19.29 49.54 19.29 31.36 0 20.23 0 60.68 0 60.68 19.29 49.55 19.29 49.54" style="fill:#E8E8EC;"/></g></svg></svg>
+<svg width="68" height="78" viewBox="0 0 68 78" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M33.86 21.42L18.64 30.17L33.86 38.91L49.07 30.17L33.86 21.42Z" fill="#F9A51E"/>
+<path d="M49.07 47.65L33.86 56.4V77.82L67.72 58.36L49.07 47.65Z" fill="#8C4C1C"/>
+<path d="M18.64 30.17V47.65L33.86 56.4V38.91L18.64 30.17Z" fill="#FFAE39"/>
+<path d="M49.07 30.17L33.86 38.91V56.4L49.07 47.65V30.17Z" fill="#EA971F"/>
+<path d="M49.07 30.17L67.72 19.45L33.86 0V21.42L49.07 30.17Z" fill="#B56A1F"/>
+<path d="M18.64 30.17L33.86 21.42V0L0 19.45L18.64 30.17Z" fill="#C1741F"/>
+<path d="M18.64 47.65L0 58.36L33.86 77.82V56.4L18.64 47.65Z" fill="#DD8C1F"/>
+<path d="M67.7199 58.36V19.45L49.0699 30.17V47.65L67.7199 58.36Z" fill="#A0591F"/>
+<path d="M18.64 47.65V30.17L0 19.45V58.36L18.64 47.65Z" fill="#CE7F20"/>
+<rect width="67.72" height="77.82" fill="black" style="mix-blend-mode:saturation"/>
+</svg>

@@ -1,0 +1,19 @@
+MPP Services Directory
+
+MPP-enabled services are listed at https://mpp.dev/services and available via the API at https://mpp.dev/api/services.
+
+To get the full list of services and their endpoints programmatically:
+
+  GET https://mpp.dev/api/services
+
+This returns a JSON array of services, each with:
+- name: Service display name
+- description: What the service does
+- url: The MPP-enabled base URL
+- serviceUrl: The service's homepage
+- categories: Array of category tags (ai, search, storage, etc.)
+- endpoints: Array of API endpoints with method, path, description, and pricing
+- docs: Links to documentation, llms.txt, and API reference
+- integration: "first-party" or "third-party"
+
+Services include AI providers (OpenAI, Anthropic, Google Gemini), search engines, storage platforms, social media APIs, and more -- all accessible via HTTP 402 payment authentication using stablecoins on Tempo.
