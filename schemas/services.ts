@@ -2729,9 +2729,20 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "GET /v1/videos:lookupVideo", desc: "Look up an aerial view video", amount: "16000" },
-      { route: "POST /v1/videos:renderVideo", desc: "Render an aerial view video", amount: "16000" },
-      { route: "GET /v1/videos:lookupVideoMetadata", desc: "Look up video metadata" },
+      {
+        route: "GET /v1/videos:lookupVideo",
+        desc: "Look up an aerial view video",
+        amount: "16000",
+      },
+      {
+        route: "POST /v1/videos:renderVideo",
+        desc: "Render an aerial view video",
+        amount: "16000",
+      },
+      {
+        route: "GET /v1/videos:lookupVideoMetadata",
+        desc: "Look up video metadata",
+      },
     ],
   },
 
@@ -2754,8 +2765,16 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "POST /v1/currentConditions:lookup", desc: "Get current air quality conditions", amount: "5000" },
-      { route: "POST /v1/history:lookup", desc: "Get air quality history", amount: "5000" },
+      {
+        route: "POST /v1/currentConditions:lookup",
+        desc: "Get current air quality conditions",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/history:lookup",
+        desc: "Get air quality history",
+        amount: "5000",
+      },
     ],
   },
 
@@ -2772,14 +2791,19 @@ export const services: ServiceDef[] = [
     tags: ["maps", "google", "geolocation"],
     docs: {
       homepage: "https://developers.google.com/maps/documentation/geolocation",
-      apiReference: "https://developers.google.com/maps/documentation/geolocation/overview",
+      apiReference:
+        "https://developers.google.com/maps/documentation/geolocation/overview",
     },
     provider: { name: "Google", url: "https://developers.google.com/maps" },
     realm: MPP_REALM,
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "POST /geolocation/v1/geolocate", desc: "Geolocate a device", amount: "5000" },
+      {
+        route: "POST /geolocation/v1/geolocate",
+        desc: "Geolocate a device",
+        amount: "5000",
+      },
     ],
   },
 
@@ -2795,19 +2819,41 @@ export const services: ServiceDef[] = [
     integration: "first-party",
     tags: ["maps", "google", "places"],
     docs: {
-      homepage: "https://developers.google.com/maps/documentation/places/web-service",
-      apiReference: "https://developers.google.com/maps/documentation/places/web-service/reference/rest",
+      homepage:
+        "https://developers.google.com/maps/documentation/places/web-service",
+      apiReference:
+        "https://developers.google.com/maps/documentation/places/web-service/reference/rest",
     },
     provider: { name: "Google", url: "https://developers.google.com/maps" },
     realm: MPP_REALM,
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "GET /v1/places/:id", desc: "Get place details (essentials)", amount: "5000" },
-      { route: "POST /v1/places:searchText", desc: "Text search for places", amount: "32000" },
-      { route: "POST /v1/places:searchNearby", desc: "Nearby search for places", amount: "32000" },
-      { route: "POST /v1/places:autocomplete", desc: "Place autocomplete", amount: "2830" },
-      { route: "GET /v1/places/:id/photos/:photoId/media", desc: "Get a place photo", amount: "7000" },
+      {
+        route: "GET /v1/places/:id",
+        desc: "Get place details (essentials)",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/places:searchText",
+        desc: "Text search for places",
+        amount: "32000",
+      },
+      {
+        route: "POST /v1/places:searchNearby",
+        desc: "Nearby search for places",
+        amount: "32000",
+      },
+      {
+        route: "POST /v1/places:autocomplete",
+        desc: "Place autocomplete",
+        amount: "2830",
+      },
+      {
+        route: "GET /v1/places/:id/photos/:photoId/media",
+        desc: "Get a place photo",
+        amount: "7000",
+      },
     ],
   },
 
@@ -2830,7 +2876,11 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "GET /v1/forecast:lookup", desc: "Get pollen forecast", amount: "10000" },
+      {
+        route: "GET /v1/forecast:lookup",
+        desc: "Get pollen forecast",
+        amount: "10000",
+      },
     ],
   },
 
@@ -2854,8 +2904,16 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "GET /v1/nearestRoads", desc: "Find nearest roads to coordinates", amount: "10000" },
-      { route: "GET /v1/snapToRoads", desc: "Snap GPS coordinates to roads", amount: "10000" },
+      {
+        route: "GET /v1/nearestRoads",
+        desc: "Find nearest roads to coordinates",
+        amount: "10000",
+      },
+      {
+        route: "GET /v1/snapToRoads",
+        desc: "Snap GPS coordinates to roads",
+        amount: "10000",
+      },
     ],
   },
 
@@ -2879,8 +2937,16 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "POST /directions/v2:computeRoutes", desc: "Compute routes between locations", amount: "5000" },
-      { route: "POST /distanceMatrix/v2:computeRouteMatrix", desc: "Compute distance matrix", amount: "5000" },
+      {
+        route: "POST /directions/v2:computeRoutes",
+        desc: "Compute routes between locations",
+        amount: "5000",
+      },
+      {
+        route: "POST /distanceMatrix/v2:computeRouteMatrix",
+        desc: "Compute distance matrix",
+        amount: "5000",
+      },
     ],
   },
 
@@ -2903,8 +2969,16 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "GET /v1/buildingInsights:findClosest", desc: "Get building solar insights", amount: "10000" },
-      { route: "GET /v1/dataLayers:get", desc: "Get solar data layers", amount: "75000" },
+      {
+        route: "GET /v1/buildingInsights:findClosest",
+        desc: "Get building solar insights",
+        amount: "10000",
+      },
+      {
+        route: "GET /v1/dataLayers:get",
+        desc: "Get solar data layers",
+        amount: "75000",
+      },
     ],
   },
 
@@ -2924,9 +2998,21 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "GET /v1/2dtiles/:z/:x/:y", desc: "Get a 2D map tile", amount: "600" },
-      { route: "GET /v1/streetview/tiles/:panoId/:z/:x/:y", desc: "Get a Street View tile", amount: "2000" },
-      { route: "GET /v1/3dtiles/root.json", desc: "Get 3D tiles root", amount: "6000" },
+      {
+        route: "GET /v1/2dtiles/:z/:x/:y",
+        desc: "Get a 2D map tile",
+        amount: "600",
+      },
+      {
+        route: "GET /v1/streetview/tiles/:panoId/:z/:x/:y",
+        desc: "Get a Street View tile",
+        amount: "2000",
+      },
+      {
+        route: "GET /v1/3dtiles/root.json",
+        desc: "Get 3D tiles root",
+        amount: "6000",
+      },
       { route: "GET /v1/createSession", desc: "Create a tile session" },
     ],
   },
@@ -2944,15 +3030,23 @@ export const services: ServiceDef[] = [
     tags: ["maps", "google", "address", "validation"],
     docs: {
       homepage: "https://developers.google.com/maps",
-      apiReference: "https://developers.google.com/maps/documentation/address-validation",
+      apiReference:
+        "https://developers.google.com/maps/documentation/address-validation",
     },
     provider: { name: "Google", url: "https://developers.google.com/maps" },
     realm: MPP_REALM,
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "POST /v1:validateAddress", desc: "Validate a postal address", amount: "17000" },
-      { route: "POST /v1:provideValidationFeedback", desc: "Provide validation feedback" },
+      {
+        route: "POST /v1:validateAddress",
+        desc: "Validate a postal address",
+        amount: "17000",
+      },
+      {
+        route: "POST /v1:provideValidationFeedback",
+        desc: "Provide validation feedback",
+      },
     ],
   },
 
@@ -2975,10 +3069,26 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "GET /v1/currentConditions:lookup", desc: "Get current weather conditions", amount: "150" },
-      { route: "GET /v1/forecast/hours:lookup", desc: "Get hourly weather forecast", amount: "150" },
-      { route: "GET /v1/forecast/days:lookup", desc: "Get daily weather forecast", amount: "150" },
-      { route: "GET /v1/history/hours:lookup", desc: "Get hourly weather history", amount: "150" },
+      {
+        route: "GET /v1/currentConditions:lookup",
+        desc: "Get current weather conditions",
+        amount: "150",
+      },
+      {
+        route: "GET /v1/forecast/hours:lookup",
+        desc: "Get hourly weather forecast",
+        amount: "150",
+      },
+      {
+        route: "GET /v1/forecast/days:lookup",
+        desc: "Get daily weather forecast",
+        amount: "150",
+      },
+      {
+        route: "GET /v1/history/hours:lookup",
+        desc: "Get hourly weather history",
+        amount: "150",
+      },
     ],
   },
 
@@ -3004,40 +3114,156 @@ export const services: ServiceDef[] = [
     payment: TEMPO_PAYMENT,
     endpoints: [
       // Standard API — StockX
-      { route: "GET /v3/stockx/products", desc: "Search StockX products", amount: "500" },
-      { route: "GET /v3/stockx/products/:id", desc: "Get a StockX product", amount: "500" },
-      { route: "GET /v3/stockx/products/:id/sales", desc: "StockX sales history", amount: "500" },
-      { route: "GET /v3/stockx/products/:id/sales/daily", desc: "StockX daily sales data", amount: "500" },
-      { route: "POST /v3/stockx/prices", desc: "StockX batch prices", amount: "500" },
+      {
+        route: "GET /v3/stockx/products",
+        desc: "Search StockX products",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/stockx/products/:id",
+        desc: "Get a StockX product",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/stockx/products/:id/sales",
+        desc: "StockX sales history",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/stockx/products/:id/sales/daily",
+        desc: "StockX daily sales data",
+        amount: "500",
+      },
+      {
+        route: "POST /v3/stockx/prices",
+        desc: "StockX batch prices",
+        amount: "500",
+      },
       // Standard API — GOAT
-      { route: "GET /v3/goat/products", desc: "Search GOAT products", amount: "500" },
-      { route: "GET /v3/goat/products/:id", desc: "Get a GOAT product", amount: "500" },
-      { route: "GET /v3/goat/products/:id/sales", desc: "GOAT sales history", amount: "500" },
-      { route: "GET /v3/goat/products/:id/sales/daily", desc: "GOAT daily sales data", amount: "500" },
+      {
+        route: "GET /v3/goat/products",
+        desc: "Search GOAT products",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/goat/products/:id",
+        desc: "Get a GOAT product",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/goat/products/:id/sales",
+        desc: "GOAT sales history",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/goat/products/:id/sales/daily",
+        desc: "GOAT daily sales data",
+        amount: "500",
+      },
       // Standard API — Shopify, SNKRS, Kream, Novelship
-      { route: "GET /v3/shopify/products", desc: "Search Shopify products", amount: "500" },
-      { route: "GET /v3/shopify/products/:id", desc: "Get a Shopify product", amount: "500" },
-      { route: "GET /v3/shopify/shops", desc: "List Shopify shops", amount: "500" },
-      { route: "GET /v3/snkrs/products", desc: "Search SNKRS products", amount: "500" },
-      { route: "GET /v3/kream/products", desc: "Search Kream products", amount: "500" },
-      { route: "GET /v3/kream/products/:id", desc: "Get a Kream product", amount: "500" },
-      { route: "GET /v3/novelship/products", desc: "Search Novelship products", amount: "500" },
+      {
+        route: "GET /v3/shopify/products",
+        desc: "Search Shopify products",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/shopify/products/:id",
+        desc: "Get a Shopify product",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/shopify/shops",
+        desc: "List Shopify shops",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/snkrs/products",
+        desc: "Search SNKRS products",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/kream/products",
+        desc: "Search Kream products",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/kream/products/:id",
+        desc: "Get a Kream product",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/novelship/products",
+        desc: "Search Novelship products",
+        amount: "500",
+      },
       // Unified API
-      { route: "GET /v3/unified/products/:id", desc: "Get a unified product", amount: "500" },
-      { route: "GET /v3/unified/gtin", desc: "Look up unified product by GTIN/barcode", amount: "500" },
+      {
+        route: "GET /v3/unified/products/:id",
+        desc: "Get a unified product",
+        amount: "500",
+      },
+      {
+        route: "GET /v3/unified/gtin",
+        desc: "Look up unified product by GTIN/barcode",
+        amount: "500",
+      },
       // Exports
-      { route: "GET /v3/exports/daily", desc: "Daily CSV snapshot", amount: "500" },
+      {
+        route: "GET /v3/exports/daily",
+        desc: "Daily CSV snapshot",
+        amount: "500",
+      },
       // Real-Time API
-      { route: "GET /v3/realtime/stockx/products", desc: "Search StockX in real-time", amount: "5000" },
-      { route: "GET /v3/realtime/stockx/products/:id", desc: "Get StockX product in real-time", amount: "5000" },
-      { route: "GET /v3/realtime/stockx/products/:id/asks", desc: "StockX real-time asks/bids", amount: "5000" },
-      { route: "GET /v3/realtime/stockx/products/:id/sales", desc: "StockX real-time sales", amount: "5000" },
-      { route: "GET /v3/realtime/stockx/products/:id/related", desc: "StockX real-time related products", amount: "5000" },
-      { route: "GET /v3/realtime/goat/products", desc: "Search GOAT in real-time", amount: "5000" },
-      { route: "GET /v3/realtime/goat/products/:id", desc: "Get GOAT product in real-time", amount: "5000" },
-      { route: "GET /v3/realtime/goat/products/:id/offers", desc: "GOAT real-time offers", amount: "5000" },
-      { route: "GET /v3/realtime/goat/products/:id/sales", desc: "GOAT real-time sales", amount: "5000" },
-      { route: "GET /v3/realtime/alias/products/:id/recent-orders", desc: "Real-time recent orders by alias", amount: "5000" },
+      {
+        route: "GET /v3/realtime/stockx/products",
+        desc: "Search StockX in real-time",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/stockx/products/:id",
+        desc: "Get StockX product in real-time",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/stockx/products/:id/asks",
+        desc: "StockX real-time asks/bids",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/stockx/products/:id/sales",
+        desc: "StockX real-time sales",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/stockx/products/:id/related",
+        desc: "StockX real-time related products",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/goat/products",
+        desc: "Search GOAT in real-time",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/goat/products/:id",
+        desc: "Get GOAT product in real-time",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/goat/products/:id/offers",
+        desc: "GOAT real-time offers",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/goat/products/:id/sales",
+        desc: "GOAT real-time sales",
+        amount: "5000",
+      },
+      {
+        route: "GET /v3/realtime/alias/products/:id/recent-orders",
+        desc: "Real-time recent orders by alias",
+        amount: "5000",
+      },
     ],
   },
 
@@ -3061,9 +3287,12 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      { route: "POST /createTask", desc: "Submit a captcha task for solving", amount: "3000" },
+      {
+        route: "POST /createTask",
+        desc: "Submit a captcha task for solving",
+        amount: "3000",
+      },
       { route: "POST /getTaskResult", desc: "Poll for task result" },
     ],
   },
-
 ];
