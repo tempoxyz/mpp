@@ -14,16 +14,21 @@ The full MPP logo for use in headers, documentation, and marketing materials.
     backgroundColor: "#f5f5f5",
     borderRadius: "8px",
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    gap: "1rem",
   }}
 >
-  <img src="/logo-light.svg" alt="MPP Logo" style={{ maxWidth: "300px" }} />
+  <img
+    src="/logo-dark.svg"
+    alt="MPP Logo (dark, for light backgrounds)"
+    style={{ maxWidth: "300px" }}
+  />
+  <a href="/logo-dark.svg" download style={{ fontSize: "13px" }}>
+    Download SVG
+  </a>
 </div>
-
-<a href="/logo-light.svg" download>
-  Download SVG
-</a>
 
 ### Dark background
 
@@ -33,16 +38,25 @@ The full MPP logo for use in headers, documentation, and marketing materials.
     backgroundColor: "#0a0a0a",
     borderRadius: "8px",
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    gap: "1rem",
   }}
 >
-  <img src="/logo-dark.svg" alt="MPP Logo" style={{ maxWidth: "300px" }} />
+  <img
+    src="/logo-light.svg"
+    alt="MPP Logo (light, for dark backgrounds)"
+    style={{ maxWidth: "300px" }}
+  />
+  <a
+    href="/logo-light.svg"
+    download
+    style={{ fontSize: "13px", color: "#888" }}
+  >
+    Download SVG
+  </a>
 </div>
-
-<a href="/logo-dark.svg" download>
-  Download SVG
-</a>
 
 ## Icon
 
@@ -56,20 +70,21 @@ The square MPP icon for favicons, app icons, and compact spaces.
     backgroundColor: "#f5f5f5",
     borderRadius: "8px",
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    gap: "1rem",
   }}
 >
   <img
-    src="/mpp-icon-dark.svg"
+    src="/favicon-dark.svg"
     alt="MPP Icon"
     style={{ width: "120px", height: "120px" }}
   />
+  <a href="/favicon-dark.svg" download style={{ fontSize: "13px" }}>
+    Download SVG
+  </a>
 </div>
-
-<a href="/mpp-icon-dark.svg" download>
-  Download SVG
-</a>
 
 ### Dark background
 
@@ -79,20 +94,21 @@ The square MPP icon for favicons, app icons, and compact spaces.
     backgroundColor: "#0a0a0a",
     borderRadius: "8px",
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    gap: "1rem",
   }}
 >
   <img
-    src="/mpp-icon.svg"
+    src="/favicon.svg"
     alt="MPP Icon"
     style={{ width: "120px", height: "120px" }}
   />
+  <a href="/favicon.svg" download style={{ fontSize: "13px", color: "#888" }}>
+    Download SVG
+  </a>
 </div>
-
-<a href="/mpp-icon.svg" download>
-  Download SVG
-</a>
 
 ## ASCII art
 
@@ -106,6 +122,7 @@ import { AsciiLogo } from "../components/AsciiLogo";
     backgroundColor: "#f5f5f5",
     borderRadius: "8px",
     overflow: "auto",
+    color: "#1a1a1a",
   }}
 >
   <AsciiLogo />
@@ -117,7 +134,20 @@ import { AsciiLogo } from "../components/AsciiLogo";
 
 ### React component
 
-The animated ASCII logo component is available in the site source code at [`src/components/AsciiLogo.tsx`](https://github.com/tempoxyz/mpp/blob/main/src/components/AsciiLogo.tsx).
+<details>
+<summary>View source code</summary>
+
+The animated ASCII logo component is available at `src/components/AsciiLogo.tsx` (735 lines). Since the repository is private, here is the import pattern:
+
+```tsx
+import { AsciiLogo } from "./components/AsciiLogo";
+
+// Renders an animated ASCII version of the MPP logo
+// with network animation, character cycling, and context menu
+<AsciiLogo />;
+```
+
+</details>
 
 ## Usage guidelines
 

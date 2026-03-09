@@ -22,6 +22,8 @@
     "@fontsource/commit-mono": "^5.2.5",
     "@vercel/blob": "^2.3.1",
     "class-variance-authority": "^0.7.1",
+    "form-data": "^4.0.5",
+    "mailgun.js": "^12.7.1",
     "mermaid": "^11.12.2",
     "mppx": "~0.3.16",
     "react": "^19",

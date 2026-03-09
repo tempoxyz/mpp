@@ -576,7 +576,7 @@ const mppx = Mppx.create({
 const res = await fetch('http://localhost:3000/api/sessions/photo')
 ```
 
-- **`maxDeposit: '1'`** — Locks up to 1 pathUSD into the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
+- **`maxDeposit: '1'`**: Locks up to 1 pathUSD into the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
 - The client handles the full session lifecycle automatically: channel open, voucher signing, and retry after `402` responses.
 - If the server sets `suggestedDeposit`, the client uses `min(suggestedDeposit, maxDeposit)`.
 

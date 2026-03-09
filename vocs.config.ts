@@ -52,8 +52,8 @@ export default defineConfig({
   },
   iconUrl: "/favicon.svg",
   logoUrl: {
-    light: "/logo-light.svg",
-    dark: "/logo-dark.svg",
+    light: "/logo-dark.svg",
+    dark: "/logo-light.svg",
   },
   mcp: {
     enabled: true,
@@ -509,9 +509,9 @@ export default defineConfig({
     {
       text: "GitHub",
       items: [
-        { text: "mppx [TypeScript]", link: "https://github.com/wevm/mppx" },
-        { text: "mpp-rs [Rust]", link: "https://github.com/tempoxyz/mpp-rs" },
-        { text: "pympp [Python]", link: "https://github.com/tempoxyz/pympp" },
+        { text: "mppx [`TypeScript`]", link: "https://github.com/wevm/mppx" },
+        { text: "mpp-rs [`Rust`]", link: "https://github.com/tempoxyz/mpp-rs" },
+        { text: "pympp [`Python`]", link: "https://github.com/tempoxyz/pympp" },
         {
           text: "IETF Specs",
           link: "https://github.com/tempoxyz/mpp-specs",
