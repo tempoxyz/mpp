@@ -58,13 +58,6 @@
     "vitest": "^4.0.18"
   },
   "packageManager": "pnpm@10.22.0",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "version": "^24.5.1",
-      "onFail": "download"
-    }
-  },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
   }
