@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { AsciiLogo } from "./AsciiLogo";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
-
-// import { AddServiceModal } from "./ServicesPage";
 
 const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
@@ -351,9 +350,16 @@ export function ServiceDiscovery() {
 
         {/* Search overlay — absolutely centered */}
         <div className="discovery-overlay" ref={overlayRef}>
-          <h2 className="discovery-overlay-title">Discover services</h2>
-          <p className="discovery-overlay-desc">
-            Level up your agent or app with powerful new abilities
+          <div className="discovery-ascii-logo">
+
+            <AsciiLogo />
+          </div>
+          
+
+
+
+        <p className="discovery-overlay-desc">
+            Discover powerful, no-setup services to level up your agent or app
           </p>
           <div className="discovery-search-wrapper">
             <div className="discovery-search">
@@ -375,7 +381,7 @@ export function ServiceDiscovery() {
                   setTimeout(() => setShowDropdown(false), 200);
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="Search by use case, endpoint, or category..."
+                placeholder="Find by usage, route, category..."
                 className="discovery-search-input"
               />
               {!isFocused && query.length === 0 && (
@@ -441,59 +447,65 @@ export function ServiceDiscovery() {
                   ))}
                 </div>
                 <div className="discovery-dropdown-scroll">
-                {dropdownResults.length > 0 ? dropdownResults
-                  .filter(
-                    (r) =>
-                      dropdownTab === "all" ||
-                      (dropdownTab === "services" &&
-                        (r.type === "service" || r.type === "category")) ||
-                      (dropdownTab === "endpoints" && r.type === "endpoint"),
-                  )
-                  .map((r, i) => (
-                    <button
-                      key={`${r.type}-${i}`}
-                      type="button"
-                      className={`discovery-dropdown-item${i === activeIndex ? " discovery-dropdown-active" : ""}`}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        handleDropdownSelect(r);
-                      }}
-                      onMouseEnter={() => setActiveIndex(i)}
+                  {dropdownResults.length > 0 ? (
+                    dropdownResults
+                      .filter(
+                        (r) =>
+                          dropdownTab === "all" ||
+                          (dropdownTab === "services" &&
+                            (r.type === "service" || r.type === "category")) ||
+                          (dropdownTab === "endpoints" &&
+                            r.type === "endpoint"),
+                      )
+                      .map((r, i) => (
+                        <button
+                          key={`${r.type}-${i}`}
+                          type="button"
+                          className={`discovery-dropdown-item${i === activeIndex ? " discovery-dropdown-active" : ""}`}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleDropdownSelect(r);
+                          }}
+                          onMouseEnter={() => setActiveIndex(i)}
+                        >
+                          {r.type === "category" && (
+                            <>
+                              <span className="dropdown-tag">Category</span>
+                              <span>{r.label}</span>
+                            </>
+                          )}
+                          {r.type === "service" && (
+                            <>
+                              <span className="dropdown-tag">Service</span>
+                              <span>{r.service.name}</span>
+                              <span className="dropdown-desc">
+                                {r.service.description?.slice(0, 60)}
+                              </span>
+                            </>
+                          )}
+                          {r.type === "endpoint" && (
+                            <>
+                              <span className="dropdown-tag">Endpoint</span>
+                              <span>{r.service.name}</span>
+                              <span className="dropdown-right">
+                                <span className="dropdown-route">
+                                  {r.endpoint.path}
+                                </span>
+                                <span
+                                  className={`method-badge method-${r.endpoint.method.toLowerCase()}`}
+                                >
+                                  {r.endpoint.method}
+                                </span>
+                              </span>
+                            </>
+                          )}
+                        </button>
+                      ))
+                  ) : (
+                    <p
+                      className="discovery-no-results"
+                      style={{ padding: "1rem", margin: 0 }}
                     >
-                      {r.type === "category" && (
-                        <>
-                          <span className="dropdown-tag">Category</span>
-                          <span>{r.label}</span>
-                        </>
-                      )}
-                      {r.type === "service" && (
-                        <>
-                          <span className="dropdown-tag">Service</span>
-                          <span>{r.service.name}</span>
-                          <span className="dropdown-desc">
-                            {r.service.description?.slice(0, 60)}
-                          </span>
-                        </>
-                      )}
-                      {r.type === "endpoint" && (
-                        <>
-                          <span className="dropdown-tag">Endpoint</span>
-                          <span>{r.service.name}</span>
-                          <span className="dropdown-right">
-                            <span className="dropdown-route">
-                              {r.endpoint.path}
-                            </span>
-                            <span
-                              className={`method-badge method-${r.endpoint.method.toLowerCase()}`}
-                            >
-                              {r.endpoint.method}
-                            </span>
-                          </span>
-                        </>
-                      )}
-                    </button>
-                  )) : (
-                    <p className="discovery-no-results" style={{ padding: "1rem", margin: 0 }}>
                       No services match your search
                     </p>
                   )}
@@ -1288,9 +1300,42 @@ function ServiceDetailModal({
               }}
             >
               {copiedJson ? (
-                <><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}><polyline points="20 6 9 17 4 12" /></svg>Copied!</>
+                <>
+                  <svg
+                    aria-hidden="true"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ marginRight: 4 }}
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Copied!
+                </>
               ) : (
-                <><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}><rect width="14" height="14" x="8" y="8" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>Copy as JSON</>
+                <>
+                  <svg
+                    aria-hidden="true"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ marginRight: 4 }}
+                  >
+                    <rect width="14" height="14" x="8" y="8" rx="2" />
+                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                  </svg>
+                  Copy as JSON
+                </>
               )}
             </button>
           </div>
@@ -1424,7 +1469,8 @@ function ServiceDetailModal({
                   letterSpacing: "0.05em",
                   paddingBottom: 8,
                   marginBottom: 8,
-                  borderBottom: "1px solid light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06))",
+                  borderBottom:
+                    "1px solid light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06))",
                 }}
               >
                 <span>Get started</span>
@@ -1434,12 +1480,26 @@ function ServiceDetailModal({
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 4,
-                    background: "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
+                    background:
+                      "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
                     textTransform: "none",
                     letterSpacing: "normal",
                   }}
                 >
-                  <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5" /><line x1="12" x2="20" y1="19" y2="19" /></svg>
+                  <svg
+                    aria-hidden="true"
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" x2="20" y1="19" y2="19" />
+                  </svg>
                   {copied ? "Copied!" : "Copy commands"}
                 </span>
               </div>
@@ -1545,25 +1605,26 @@ function DiscoveryStyles() {
         align-items: center;
         text-align: center;
         pointer-events: none;
-        width: min(90vw, 480px);
+        width: min(90vw, 600px);
       }
       .discovery-overlay > * { pointer-events: auto; }
-      .discovery-overlay-title {
-        font-size: clamp(2rem, 2.5vw, 2.5rem);
-        font-weight: 600;
-        color: var(--vocs-text-color-heading);
+      .discovery-ascii-logo {
         margin: 0;
         transition: opacity 0.3s;
+        pointer-events: none;
+        color: var(--vocs-text-color-heading);
+        opacity: 0.85;
+        margin-bottom: 1rem;
       }
       .discovery-overlay-desc {
-        color: var(--vocs-text-color-secondary);
+        color: var(--vocs-text-color-muted);
         font-size: clamp(1.15rem, 1.3vw, 1rem);
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
         transition: opacity 0.3s;
       }
       @media (max-width: 768px) {
-        .has-query .discovery-overlay-title,
+        .has-query .discovery-ascii-logo,
         .has-query .discovery-overlay-desc {
           opacity: 0;
           max-height: 0;
