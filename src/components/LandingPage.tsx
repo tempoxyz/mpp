@@ -38,6 +38,14 @@ const AgentContext = createContext<{
 export function LandingPage() {
   const [activeAgent, setActiveAgent] = useState(0);
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  const [skipAnimation] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const key = "mpp-landing-animated";
+    const seen = sessionStorage.getItem(key);
+    if (seen) return true;
+    sessionStorage.setItem(key, "1");
+    return false;
+  });
 
   useEffect(() => {
     const onScroll = () => setScrolledPastHero(window.scrollY > 100);
@@ -45,10 +53,42 @@ export function LandingPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        const el = document.querySelector(".landing-page") as HTMLElement;
+        if (el) {
+          el.style.scrollSnapType = "none";
+          setTimeout(() => {
+            el.style.scrollSnapType = "";
+          }, 500);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
+  useEffect(() => {
+    const logoLink = document.querySelector(
+      "[data-v-logo] a",
+    ) as HTMLAnchorElement;
+    if (!logoLink) return;
+    const handler = (e: MouseEvent) => {
+      e.preventDefault();
+      document
+        .querySelector(".landing-page")
+        ?.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    logoLink.addEventListener("click", handler);
+    return () => logoLink.removeEventListener("click", handler);
+  }, []);
+
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
       <div
-        className="not-prose landing-page"
+        className={`not-prose landing-page${skipAnimation ? " skip-entrance" : ""}`}
         style={{
           color: ACCENT,
           fontFamily: "var(--font-copy)",
@@ -107,12 +147,12 @@ export function LandingPage() {
 function LandingStyles() {
   return (
     <style>{`
-      [data-v-logo] { display: flex !important; align-items: center !important; gap: 0.75rem !important; }
-      html, body { scroll-behavior: smooth; }
-      [data-v-main] { padding: 0 !important; margin: 0 !important; }
-      [data-v-main] article[data-v-content] { padding: 0 !important; margin: 0 !important; max-width: none !important; }
-      [data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
-      [data-v-gutter-top] { position: sticky !important; top: 0 !important; z-index: 100 !important; user-select: none !important; -webkit-user-select: none !important; }
+      :has(.landing-page) [data-v-logo] { display: flex !important; align-items: center !important; gap: 0.75rem !important; }
+      html:has(.landing-page), html:has(.landing-page) body { scroll-behavior: smooth; }
+      :has(.landing-page) [data-v-main] { padding: 0 !important; margin: 0 !important; }
+      :has(.landing-page) [data-v-main] article[data-v-content] { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+      :has(.landing-page) [data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
+      :has(.landing-page) [data-v-gutter-top] { position: sticky !important; top: 0 !important; z-index: 100 !important; user-select: none !important; -webkit-user-select: none !important; }
 
       .landing-page {
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
@@ -175,13 +215,14 @@ function LandingStyles() {
         align-items: center;
         gap: 1.5rem;
         color: var(--vocs-text-color-muted);
-        font-size: 0.8rem;
+        opacity: 0.6;
+        font-size: 0.85rem;
         font-family: var(--font-mono, "Geist Mono", monospace);
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin: 0;
         padding: 0;
-        opacity: 0.7;
+        opacity: 1;
         position: absolute;
         bottom: 0;
         left: 50%;
@@ -195,7 +236,7 @@ function LandingStyles() {
         content: '';
         flex: 1;
         height: 1px;
-        background: oklch(from var(--vocs-text-color-muted) l c h / 0.15);
+        background: oklch(from var(--vocs-text-color-secondary) l c h / 0.3);
       }
 
       .landing-discovery {
@@ -205,14 +246,49 @@ function LandingStyles() {
         overflow: hidden;
       }
 
-      /* Lockup entrance animation */
+      /* Lockup entrance animation — staggered sequence */
       .lockup-img {
         animation: lockupReveal 0.8s ease-out both;
+      }
+      .hero-right {
+        opacity: 0;
+        animation: heroContentReveal 0.6s ease-out 0.5s both;
+      }
+      .landing-ctas {
+        opacity: 0;
+        animation: heroContentReveal 0.5s ease-out 0.8s both;
+      }
+      .landing-terminal {
+        opacity: 0;
+        animation: heroContentReveal 0.6s ease-out 1.1s both;
+      }
+      .landing-scroll-cta {
+        opacity: 0;
+        animation: scrollCtaReveal 0.4s ease-out 1.5s both;
+      }
+      @keyframes scrollCtaReveal {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 0.6; transform: translateY(0); }
       }
       @keyframes lockupReveal {
         from { opacity: 0; transform: translateX(-12px); filter: blur(4px); }
         to { opacity: 1; transform: translateX(0); filter: blur(0); }
       }
+      @keyframes heroContentReveal {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Skip entrance animations on revisit */
+      .skip-entrance .lockup-img,
+      .skip-entrance .hero-right,
+      .skip-entrance .landing-ctas,
+      .skip-entrance .landing-terminal,
+      .skip-entrance .landing-scroll-cta {
+        animation: none !important;
+        opacity: 1 !important;
+      }
+      .skip-entrance .landing-scroll-cta { opacity: 0.6 !important; }
 
       /* Du Bois font for page titles */
       .lockup-h1,
@@ -235,7 +311,7 @@ function LandingStyles() {
 
       /* Mobile-only */
       @media (max-width: 767px) {
-        [data-v-gutter-top] {
+        :has(.landing-page) [data-v-gutter-top] {
           background: transparent !important;
           background-color: transparent !important;
           backdrop-filter: none !important;
@@ -322,7 +398,7 @@ function LandingStyles() {
       }
 
       @media (min-width: 768px) {
-        [data-v-gutter-top] {
+        :has(.landing-page) [data-v-gutter-top] {
           background: transparent !important;
           background-color: transparent !important;
           backdrop-filter: none !important;
@@ -399,6 +475,7 @@ function DesignedBy() {
 // ---------------------------------------------------------------------------
 
 function Hero() {
+  const [hoverCta, setHoverCta] = useState<string | null>(null);
   return (
     <section
       className="landing-hero px-3 md:px-6"
@@ -412,7 +489,7 @@ function Hero() {
           <Lockup />
         </div>
         <div className="hero-right">
-          <Tagline />
+          <Tagline override={hoverCta} />
           <div className="flex items-center gap-4 mt-4 landing-ctas">
             <Link
               to="/quickstart/agent"
@@ -424,6 +501,12 @@ function Hero() {
                 color: "light-dark(#fff, #111)",
                 backgroundColor: "light-dark(#111, rgba(255,255,255,0.92))",
               }}
+              onMouseEnter={() =>
+                setHoverCta(
+                  "Install in under a minute on Claude, Codex, Amp, or any coding agent. Handles 402 payment challenges and pays for API calls with stablecoins via MCP.",
+                )
+              }
+              onMouseLeave={() => setHoverCta(null)}
               onClick={() =>
                 captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
                   cta_label: "Use with agents",
@@ -444,6 +527,12 @@ function Hero() {
                 backgroundColor: "light-dark(#fff, rgba(255,255,255,0.06))",
                 border: "1px solid var(--vocs-border-color-primary)",
               }}
+              onMouseEnter={() =>
+                setHoverCta(
+                  "Add a single endpoint to your API and start earning per request. Works with any HTTP framework. Set flexible per-route pricing, paid in stablecoins.",
+                )
+              }
+              onMouseLeave={() => setHoverCta(null)}
               onClick={() =>
                 captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
                   cta_label: "Monetize a service",
@@ -464,16 +553,33 @@ function Hero() {
 // Tagline
 // ---------------------------------------------------------------------------
 
-function Tagline() {
+function Tagline({ override }: { override?: string | null }) {
+  const defaultText =
+    "The open protocol for internet-native payments. Charge for API requests, tool calls, or content. Agents, apps, and humans securely pay per request.";
   return (
     <div
       className="text-base md:text-lg leading-relaxed max-w-xl font-normal"
-      style={{ color: "var(--vocs-text-color-secondary)" }}
+      style={{
+        color: "var(--vocs-text-color-secondary)",
+        position: "relative",
+      }}
     >
-      <div>
-        The open protocol for internet-native payments. Charge for API requests,
-        tool calls, or content. Agents, apps, and humans securely pay per
-        request.
+      <div
+        style={{ opacity: override ? 0 : 1, transition: "opacity 0.25s ease" }}
+      >
+        {defaultText}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          opacity: override ? 1 : 0,
+          transition: "opacity 0.25s ease",
+        }}
+      >
+        {override || defaultText}
       </div>
     </div>
   );
