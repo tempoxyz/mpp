@@ -1,4 +1,5 @@
 {
+  "installCommand": "rm -rf node_modules && pnpm install",
   "redirects": [
     {
       "source": "/:path(.*)",
