@@ -196,17 +196,14 @@ function LandingStyles() {
       .term-wizard-list { padding-left: 0; }
 
       .designed-by {
-        position: absolute;
-        bottom: 24px;
-        right: 28px;
+        position: relative;
         z-index: 10;
+        justify-content: flex-end;
+        margin-top: 0.5rem;
       }
       @media (max-width: 767px) {
         .designed-by {
-          position: relative;
-          bottom: auto;
-          right: auto;
-          justify-content: flex-start;
+          justify-content: center;
           margin-top: 0.75rem;
           width: 100%;
         }
@@ -344,13 +341,14 @@ function LandingStyles() {
           box-shadow: none !important;
         }
         .landing-page {
-          scroll-snap-type: none !important;
+          scroll-snap-type: y proximity !important;
         }
         .landing-hero-screen {
-          height: auto !important;
-          min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 60px);
+          height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 80px) !important;
+          min-height: 0 !important;
           justify-content: flex-start !important;
           padding-top: 0 !important;
+          overflow: hidden;
         }
         .landing-ctas a {
           font-size: 1rem !important;

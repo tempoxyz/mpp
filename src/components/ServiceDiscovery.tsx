@@ -1932,12 +1932,12 @@ function DiscoveryStyles() {
       @media (max-width: 768px) {
         .discovery-grid::after {
           background: radial-gradient(
-            ellipse 95% 50% at center,
+            ellipse 100% 60% at 50% 30%,
             oklch(from var(--vocs-background-color-primary) l c h / 0.98) 0%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.96) 15%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.88) 30%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.6) 50%,
-            transparent 70%
+            oklch(from var(--vocs-background-color-primary) l c h / 0.95) 20%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.85) 35%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.5) 55%,
+            transparent 75%
           );
         }
         .discovery-overlay {
@@ -2188,7 +2188,9 @@ function DiscoveryStyles() {
           gap: 10px;
           padding: 1rem;
           justify-items: center;
+          align-items: center;
         }
+          
       }
 
       .discovery-card {

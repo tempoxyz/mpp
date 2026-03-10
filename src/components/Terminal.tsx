@@ -3003,10 +3003,15 @@ function TerminalComponent({
                         visibility: i <= lineIndex ? "visible" : "hidden",
                       }}
                     >
-                      <span style={{ color: "var(--term-gray6)" }}>
-                        {"$"}{" "}
-                      </span>
-                      <span style={{ color: i === 0 && isCommand ? "var(--term-green9)" : "var(--term-gray10)" }}>
+                      <span style={{ color: "var(--term-gray6)" }}>{"$"} </span>
+                      <span
+                        style={{
+                          color:
+                            i === 0 && isCommand
+                              ? "var(--term-green9)"
+                              : "var(--term-gray10)",
+                        }}
+                      >
                         {renderText(visible)}
                       </span>
                       <span
