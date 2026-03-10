@@ -1,0 +1,44 @@
+# `stripe` [Register all Stripe intents]
+
+Convenience function that creates the Stripe `charge` method intent.
+
+## Usage
+
+```ts twoslash
+// @noErrors
+import { loadStripe } from '@stripe/stripe-js'
+import { Mppx, stripe } from 'mppx/client'
+
+const stripeJs = (await loadStripe('pk_test_...'))!
+
+Mppx.create({
+  methods: [
+    // [!code focus:start]
+    stripe({
+      client: stripeJs,
+      createToken: async (params) => {
+        const res = await fetch('/api/create-spt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params),
+        })
+        return (await res.json()).spt
+      },
+      paymentMethod: 'pm_card_visa',
+    }),
+    // [!code focus:end]
+  ],
+})
+```
+
+## Return type
+
+```ts
+import type { Method } from 'mppx'
+
+type ReturnType = Method.Client
+```
+
+## Parameters
+
+See [`stripe.charge`](/sdk/typescript/client/Method.stripe.charge) for the full parameter list.

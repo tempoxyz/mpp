@@ -1,0 +1,37 @@
+# `stripe` [Register all Stripe intents]
+
+Convenience function that creates the Stripe `charge` method intent.
+
+## Usage
+
+```ts twoslash
+// @noErrors
+import Stripe from 'stripe'
+import { Mppx, stripe } from 'mppx/server'
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+Mppx.create({
+  methods: [
+    // [!code focus:start]
+    stripe({
+      client: stripeClient,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+    // [!code focus:end]
+  ],
+})
+```
+
+## Return type
+
+```ts
+import type { Method } from 'mppx'
+
+type ReturnType = Method.Server
+```
+
+## Parameters
+
+See [`stripe.charge`](/sdk/typescript/server/Method.stripe.charge) for the full parameter list.
