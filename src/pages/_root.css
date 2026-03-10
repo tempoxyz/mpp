@@ -977,10 +977,51 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   display: none;
 }
 
-/* ---- Mobile navigation fix ----
-   On minimal-layout pages (landing, services), hide the docs sidebar in the
-   mobile drawer and show only the top-level nav links. */
+/* ---- Mobile navigation ----
+   Custom nav rendered by _layout.tsx MobileNav component.
+   Hidden on desktop. On mobile, appears inside the sidebar drawer. */
+[data-mobile-nav] {
+  display: none;
+}
 @media (max-width: 1079px) {
+  [data-mobile-nav] {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 1rem 1.25rem 1.25rem;
+    border-bottom: 1px solid var(--vocs-border-color-primary);
+    margin-bottom: 1rem;
+  }
+  [data-mobile-nav-item] {
+    display: block;
+    padding: 0.65rem 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--vocs-text-color-heading);
+    text-decoration: none !important;
+    font-family: var(--font-sans);
+  }
+  [data-mobile-nav-item]:hover {
+    color: var(--vocs-text-color-heading);
+  }
+  [data-mobile-nav-subitems] {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  [data-mobile-nav-subitem] {
+    display: block;
+    padding: 0.45rem 0;
+    font-size: 14px;
+    color: var(--vocs-text-color-secondary);
+    text-decoration: none !important;
+  }
+  [data-mobile-nav-subitem]:hover {
+    color: var(--vocs-text-color-heading);
+  }
+
+  /* On minimal-layout pages, hide the docs sidebar entirely */
   [data-layout="minimal"] [data-v-sidebar] {
     display: none !important;
   }

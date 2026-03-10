@@ -701,7 +701,10 @@ export function ServiceDiscovery() {
         createPortal(
           <ServiceDetailModal
             service={selectedService}
-            onClose={() => setSelectedService(null)}
+            onClose={() => {
+              setSelectedService(null);
+              dismissMobileSearch();
+            }}
           />,
           document.body,
         )}
@@ -2507,10 +2510,18 @@ function DiscoveryStyles() {
           from { opacity: 1; transform: translateY(0); }
           to { opacity: 0; transform: translateY(100%); }
         }
+        .modal-content {
+          display: flex !important;
+          flex-direction: column !important;
+          padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)) !important;
+        }
+        .modal-content > * { order: 3; }
+        .modal-header { order: 1 !important; }
         .modal-actions {
           position: relative !important;
           top: auto !important;
           right: auto !important;
+          order: 2;
           margin-top: 0.75rem;
           margin-bottom: 0.5rem;
         }
@@ -2520,8 +2531,13 @@ function DiscoveryStyles() {
         }
         .modal-close {
           position: absolute !important;
-          top: 1rem !important;
-          right: 1rem !important;
+          top: 0.75rem !important;
+          right: 0.75rem !important;
+          border: 1px solid var(--vocs-border-color-primary) !important;
+          border-radius: 8px !important;
+          padding: 6px !important;
+          width: 32px !important;
+          height: 32px !important;
         }
         .modal-endpoint-row {
           grid-template-columns: 50px 1fr 70px;
