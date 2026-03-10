@@ -1019,7 +1019,7 @@ export const services: ServiceDef[] = [
     description:
       "Web search, page extraction, and web-grounded chat completions.",
     categories: ["search", "ai"],
-    integration: "first-party",
+    integration: "third-party",
     tags: ["search", "web", "extraction", "chat"],
     docs: { llmsTxt: "https://parallel.ai/llms.txt" },
     provider: { name: "Parallel", url: "https://parallel.ai" },
@@ -2722,7 +2722,7 @@ export const services: ServiceDef[] = [
     description:
       "Google Maps Platform — geocoding, directions, places, routes, tiles, weather, air quality, and more.",
     categories: ["data"],
-    integration: "first-party",
+    integration: "third-party",
     tags: [
       "maps",
       "google",
@@ -2957,7 +2957,7 @@ export const services: ServiceDef[] = [
     description:
       "Sneaker & streetwear market data — prices, sales history, and availability from StockX, GOAT, and more.",
     categories: ["data"],
-    integration: "first-party",
+    integration: "third-party",
     tags: ["sneakers", "streetwear", "prices", "stockx", "goat"],
     docs: {
       homepage: "https://kicks.dev",
@@ -3132,7 +3132,7 @@ export const services: ServiceDef[] = [
     description:
       "CAPTCHA solving API — reCAPTCHA, Turnstile, hCaptcha, image captchas, and more.",
     categories: ["web"],
-    integration: "first-party",
+    integration: "third-party",
     tags: ["captcha", "automation", "solving"],
     docs: {
       homepage: "https://2captcha.com",

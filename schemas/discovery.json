@@ -11,7 +11,7 @@
         "ai",
         "social"
       ],
-      "integration": "first-party",
+      "integration": "third-party",
       "tags": [
         "email",
         "inbox",
@@ -2408,7 +2408,7 @@
         "search",
         "ai"
       ],
-      "integration": "first-party",
+      "integration": "third-party",
       "tags": [
         "search",
         "web",
@@ -6506,7 +6506,7 @@
       "categories": [
         "data"
       ],
-      "integration": "first-party",
+      "integration": "third-party",
       "tags": [
         "maps",
         "google",
@@ -7029,7 +7029,7 @@
       "categories": [
         "data"
       ],
-      "integration": "first-party",
+      "integration": "third-party",
       "tags": [
         "sneakers",
         "streetwear",
@@ -7447,7 +7447,7 @@
       "categories": [
         "web"
       ],
-      "integration": "first-party",
+      "integration": "third-party",
       "tags": [
         "captcha",
         "automation",
