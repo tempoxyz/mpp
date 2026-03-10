@@ -62,6 +62,7 @@ type Page =
 | { path: '/sdk/typescript/client/Transport.http'; render: 'static' }
 | { path: '/sdk/typescript/client/Transport.mcp'; render: 'static' }
 | { path: '/sdk/rust/client'; render: 'static' }
+| { path: '/sdk/rust/core'; render: 'static' }
 | { path: '/sdk/rust'; render: 'static' }
 | { path: '/sdk/rust/server'; render: 'static' }
 | { path: '/sdk/python/client'; render: 'static' }
