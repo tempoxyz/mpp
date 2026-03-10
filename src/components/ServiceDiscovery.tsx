@@ -350,7 +350,13 @@ export function ServiceDiscovery() {
 
         {/* Search overlay — absolutely centered */}
         <div className="discovery-overlay" ref={overlayRef}>
-          <div className="discovery-ascii-logo">
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: scroll to top */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: scroll to top */}
+          <div
+            className="discovery-ascii-logo"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            style={{ cursor: "pointer" }}
+          >
             <AsciiLogo />
           </div>
 
@@ -374,7 +380,9 @@ export function ServiceDiscovery() {
                 }}
                 onBlur={() => {
                   setIsFocused(false);
-                  setTimeout(() => setShowDropdown(false), 200);
+                  setTimeout(() => {
+                    setShowDropdown(false);
+                  }, 200);
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder="Find by usage, route, category..."
@@ -385,6 +393,20 @@ export function ServiceDiscovery() {
                   <span className="discovery-kbd-symbol">⌘</span>K
                 </kbd>
               )}
+              {query.length > 0 &&
+                !showDropdown &&
+                dropdownResults.length === 0 && (
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--vocs-text-color-muted)",
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
+                    }}
+                  >
+                    no matches
+                  </span>
+                )}
               {query.length > 0 && (
                 <button
                   type="button"
@@ -498,12 +520,16 @@ export function ServiceDiscovery() {
                         </button>
                       ))
                   ) : (
-                    <p
-                      className="discovery-no-results"
-                      style={{ padding: "1rem", margin: 0 }}
+                    <div
+                      style={{
+                        padding: "1.5rem 1rem",
+                        textAlign: "center",
+                        color: "var(--vocs-text-color-muted)",
+                        fontSize: 14,
+                      }}
                     >
-                      No services match your search
-                    </p>
+                      <p style={{ margin: 0 }}>No matches found</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -904,7 +930,20 @@ function ServiceDetailModal({
                 <path d="M15 13v2" />
                 <path d="M9 13v2" />
               </svg>
-              <span>{copiedJson ? "Copied!" : "Add to agent"}</span>
+              <span>Add to agent</span>
+              {/* Invisible bridge to prevent tooltip dismiss when moving cursor */}
+              {showAgentTip && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    right: 0,
+                    width: "100%",
+                    height: 12,
+                  }}
+                  aria-hidden="true"
+                />
+              )}
               {showAgentTip && (
                 /* biome-ignore lint/a11y/useKeyWithClickEvents: tooltip container */
                 /* biome-ignore lint/a11y/noStaticElementInteractions: tooltip container */
@@ -1126,42 +1165,85 @@ function ServiceDetailModal({
                     </button>
                   </div>
 
-                  <a
-                    href="/guides/building-with-ai"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 6,
-                      padding: "0.45rem 0.75rem",
-                      borderRadius: 8,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      color: "var(--vocs-text-color-heading)",
-                      textDecoration: "none",
-                      border:
-                        "1px solid light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.15))",
-                      background:
-                        "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08))",
-                      transition: "background 0.15s",
-                    }}
-                  >
-                    Learn more about building with AI
-                    <svg
-                      aria-hidden="true"
-                      width="10"
-                      height="10"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyJson();
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        padding: "0.45rem 0.75rem",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        color: "var(--vocs-text-color-heading)",
+                        border:
+                          "1px solid light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.15))",
+                        background:
+                          "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08))",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-sans)",
+                        transition: "background 0.15s",
+                      }}
                     >
-                      <path d="M5 12h14" />
-                      <path d="m12 5 7 7-7 7" />
-                    </svg>
-                  </a>
+                      <svg
+                        aria-hidden="true"
+                        width="11"
+                        height="11"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect width="14" height="14" x="8" y="8" rx="2" />
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                      </svg>
+                      Add to agent
+                    </button>
+                    <a
+                      href="/guides/building-with-ai"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        padding: "0.45rem 0.75rem",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        color: "var(--vocs-text-color-heading)",
+                        textDecoration: "none",
+                        border:
+                          "1px solid light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.15))",
+                        background:
+                          "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08))",
+                        transition: "background 0.15s",
+                      }}
+                    >
+                      Learn more
+                      <svg
+                        aria-hidden="true"
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
               )}
             </button>
@@ -1280,6 +1362,7 @@ function ServiceDetailModal({
               fontWeight: 500,
               color: "var(--vocs-text-color-heading)",
               marginBottom: 12,
+              flexWrap: "nowrap",
             }}
           >
             <span>Endpoints</span>
@@ -1336,7 +1419,37 @@ function ServiceDetailModal({
             </button>
           </div>
           <div className="modal-endpoints-wrap">
-            <div className="modal-endpoints">
+            <div className="modal-endpoints-grad-top" id="ep-grad-top" />
+            <div
+              className="modal-endpoints"
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                const top = el.scrollTop > 4;
+                const bottom =
+                  el.scrollHeight - el.scrollTop - el.clientHeight > 4;
+                const canScroll = el.scrollHeight > el.clientHeight + 4;
+                const topEl = el.parentElement?.querySelector(
+                  ".modal-endpoints-grad-top",
+                );
+                const bottomEl = el.parentElement?.querySelector(
+                  ".modal-endpoints-grad-bottom",
+                );
+                if (topEl) topEl.classList.toggle("visible", top && canScroll);
+                if (bottomEl)
+                  bottomEl.classList.toggle("visible", bottom && canScroll);
+              }}
+              ref={(el) => {
+                if (!el) return;
+                const canScroll = el.scrollHeight > el.clientHeight + 4;
+                const bottom =
+                  el.scrollHeight - el.scrollTop - el.clientHeight > 4;
+                const bottomEl = el.parentElement?.querySelector(
+                  ".modal-endpoints-grad-bottom",
+                );
+                if (bottomEl)
+                  bottomEl.classList.toggle("visible", bottom && canScroll);
+              }}
+            >
               {service.endpoints.map((ep) => {
                 const isSelected = ep === selectedEndpoint;
                 const epCopyId = `${ep.method}-${ep.path}`;
@@ -1395,24 +1508,26 @@ function ServiceDetailModal({
                 );
               })}
             </div>
+            <div className="modal-endpoints-grad-bottom" />
           </div>
         </div>
 
         <div
           style={{
             borderBottom: "1px solid var(--vocs-border-color-primary)",
-            margin: "1.25rem -2rem",
-            padding: "0.5rem 0",
+            margin: "1rem -2rem",
+            padding: "0.6rem 0",
           }}
         />
 
         {/* CLI snippet */}
         {selectedEndpoint && (
-          <div className="modal-cli-wrapper" style={{ marginTop: "1.25rem" }}>
+          <div className="modal-cli-wrapper" style={{ marginTop: "0.75rem" }}>
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "space-between",
                 gap: 8,
                 fontSize: 15,
                 fontWeight: 500,
@@ -1435,6 +1550,38 @@ function ServiceDetailModal({
                   {selectedEndpoint.path}
                 </code>
               </span>
+              <button
+                type="button"
+                className={`modal-copy-btn${copied ? " modal-copy-btn-active" : ""}`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  cursor: "pointer",
+                  textTransform: "none",
+                  letterSpacing: "normal",
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCopySnippet();
+                }}
+              >
+                <svg
+                  aria-hidden="true"
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="4 17 10 11 4 5" />
+                  <line x1="12" x2="20" y1="19" y2="19" />
+                </svg>
+                {copied ? "Copied!" : "Copy commands"}
+              </button>
             </div>
             <p
               style={{
@@ -1454,51 +1601,6 @@ function ServiceDetailModal({
               style={{ cursor: "pointer" }}
               onClick={handleCopySnippet}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  fontSize: 11,
-                  color: "var(--vocs-text-color-muted)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  paddingBottom: 8,
-                  marginBottom: 8,
-                  borderBottom:
-                    "1px solid light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06))",
-                }}
-              >
-                <span>Get started</span>
-                <span
-                  className={`modal-copy-btn${copied ? " modal-copy-btn-active" : ""}`}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 4,
-                    background:
-                      "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
-                    textTransform: "none",
-                    letterSpacing: "normal",
-                  }}
-                >
-                  <svg
-                    aria-hidden="true"
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="4 17 10 11 4 5" />
-                    <line x1="12" x2="20" y1="19" y2="19" />
-                  </svg>
-                  {copied ? "Copied!" : "Copy commands"}
-                </span>
-              </div>
               <div className="cli-lines">
                 <div className="cli-line">
                   <span className="cli-line-cmd">
@@ -1546,7 +1648,9 @@ function ServiceDetailModal({
                     )}
                   </span>
                   <span className="cli-line-comment">
-                    # Test without paying
+                    {cliPath.includes("{")
+                      ? `# Replace ${cliPath.match(/\{(\w+)\}/g)?.join(", ") ?? "{…}"} with real values`
+                      : "# Test without paying"}
                   </span>
                 </div>
               </div>
@@ -1695,6 +1799,20 @@ function DiscoveryStyles() {
           max-height: 40vh;
           overflow-y: auto;
         }
+        .discovery-dropdown-item {
+          padding: 0.8rem 1rem !important;
+          font-size: 15px !important;
+        }
+        .dropdown-tag {
+          font-size: 11px !important;
+        }
+        .dropdown-desc, .dropdown-route {
+          font-size: 13px !important;
+        }
+        .discovery-dropdown-tab {
+          font-size: 12px !important;
+          padding: 4px 12px !important;
+        }
       }
       @media (max-width: 768px) {
         .discovery-kbd { display: none; }
@@ -1717,9 +1835,9 @@ function DiscoveryStyles() {
         padding: 0.75rem 1rem;
         border-radius: 10px;
         border: 1px solid var(--vocs-border-color-primary);
-        background: light-dark(rgba(255,255,255,0.85), rgba(255,255,255,0.06));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background: light-dark(rgba(255,255,255,0.9), rgba(255,255,255,0.09));
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         transition: border-color 0.15s;
         flex: 1;
         min-width: 0;
@@ -1786,8 +1904,10 @@ function DiscoveryStyles() {
         margin-top: 6px;
         border-radius: 12px;
         border: 1px solid var(--vocs-border-color-primary);
-        background: var(--vocs-background-color-primary);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        background: light-dark(rgba(255,255,255,0.95), rgba(30,30,30,0.92));
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
         overflow: hidden;
         z-index: 20;
       }
@@ -1800,11 +1920,11 @@ function DiscoveryStyles() {
         align-items: center;
         gap: 8px;
         width: 100%;
-        padding: 0.6rem 1rem;
+        padding: 0.7rem 1rem;
         border: none;
         background: transparent;
         cursor: pointer;
-        font-size: 13px;
+        font-size: 14px;
         color: var(--vocs-text-color-heading);
         text-align: left;
         font-family: var(--font-sans);
@@ -1820,8 +1940,8 @@ function DiscoveryStyles() {
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--vocs-text-color-muted);
-        background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08));
+        color: light-dark(rgba(0,0,0,0.55), rgba(255,255,255,0.6));
+        background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1));
         padding: 2px 6px;
         border-radius: 4px;
         flex-shrink: 0;
@@ -2153,12 +2273,7 @@ function DiscoveryStyles() {
         transition: opacity 0.15s;
       }
       .modal-cli-copied {
-        animation: copyPulse 0.4s ease;
-      }
-      @keyframes copyPulse {
-        0% { opacity: 1; }
-        30% { opacity: 0.5; }
-        100% { opacity: 1; }
+        /* No flash on copy — keep steady */
       }
       .modal-copy-btn {
         font-size: 11px;
@@ -2166,7 +2281,7 @@ function DiscoveryStyles() {
         border-radius: 4px;
         border: 1px solid var(--vocs-border-color-primary);
         background: transparent;
-        color: var(--vocs-text-color-muted);
+        color: var(--vocs-text-color-secondary);
         cursor: pointer;
         font-family: var(--font-sans);
         transition: color 0.15s, background 0.15s, border-color 0.15s;
@@ -2230,19 +2345,32 @@ function DiscoveryStyles() {
       .modal-endpoints-wrap {
         position: relative;
       }
-      .modal-endpoints-wrap::after {
-        content: '';
+      .modal-endpoints-grad-top,
+      .modal-endpoints-grad-bottom {
         position: absolute;
-        bottom: 0;
         left: 0;
         right: 0;
         height: 32px;
-        background: linear-gradient(to top, var(--vocs-background-color-primary), transparent);
         pointer-events: none;
         z-index: 1;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .modal-endpoints-grad-top {
+        top: 0;
+        background: linear-gradient(to bottom, var(--vocs-background-color-primary), transparent);
+        border-radius: 10px 10px 0 0;
+      }
+      .modal-endpoints-grad-bottom {
+        bottom: 0;
+        background: linear-gradient(to top, var(--vocs-background-color-primary), transparent);
         border-radius: 0 0 10px 10px;
       }
-      
+      .modal-endpoints-grad-top.visible,
+      .modal-endpoints-grad-bottom.visible {
+        opacity: 1;
+      }
+
       .modal-endpoints {
         max-height: 320px;
         overflow-y: auto;
@@ -2252,7 +2380,7 @@ function DiscoveryStyles() {
       }
       .modal-endpoint-row {
         display: grid;
-        grid-template-columns: 60px minmax(80px, 1fr) minmax(0, 1.1fr) auto;
+        grid-template-columns: 60px minmax(80px, 1fr) minmax(0, 1.1fr) 80px;
         gap: 8px;
         align-items: center;
         width: 100%;
@@ -2359,7 +2487,7 @@ function DiscoveryStyles() {
           right: 1rem !important;
         }
         .modal-endpoint-row {
-          grid-template-columns: 50px 1fr auto;
+          grid-template-columns: 50px 1fr 70px;
         }
         .endpoint-desc { display: none; }
         .cli-line-comment { display: none; }

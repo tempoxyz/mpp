@@ -1937,9 +1937,12 @@ function Wizard({
             animation: runs.length > 0 ? "fadeIn 0.5s ease-out" : undefined,
           }}
         >
-          <p style={{ color: "var(--term-gray4)", margin: "0.5rem 0" }}>
-            {"─".repeat(40)}
-          </p>
+          <div
+            style={{
+              borderTop: "1px solid var(--term-gray4)",
+              margin: "0.5rem 0",
+            }}
+          />
           <BlankLine />
           <p style={{ color: "var(--term-gray10)" }}>
             What would you like to do?
@@ -2693,27 +2696,8 @@ function TerminalComponent({
   const [created, setCreated] = useState(false);
   const [funded, setFunded] = useState(false);
   const [savedCard, setSavedCard] = useState<SavedCard | undefined>();
-  const [liveTime, setLiveTime] = useState(() => {
-    const d = new Date();
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    return `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")} ${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
-  });
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const d = new Date();
+  const [liveTime] = useState(() => {
+    const fmt = (d: Date) => {
       const months = [
         "Jan",
         "Feb",
@@ -2728,12 +2712,17 @@ function TerminalComponent({
         "Nov",
         "Dec",
       ];
-      setLiveTime(
-        `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")} ${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`,
-      );
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+      return `${months[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")} ${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+    };
+    const key = "mpp-terminal-last-visit";
+    const stored =
+      typeof localStorage !== "undefined" ? localStorage.getItem(key) : null;
+    const now = new Date();
+    if (typeof localStorage !== "undefined")
+      localStorage.setItem(key, now.toISOString());
+    if (stored) return fmt(new Date(stored));
+    return fmt(now);
+  });
   const walletState: WalletState = {
     address,
     balance,
@@ -2849,10 +2838,10 @@ function TerminalComponent({
               flex: 1,
               textAlign: "center",
               fontSize: "0.9375rem",
-              color: "var(--term-gray6)",
+              color: "var(--term-green9)",
             }}
           >
-            demo.sh
+            ./demo.sh
           </span>
           <button
             type="button"
@@ -2982,7 +2971,7 @@ function TerminalComponent({
               <>
                 <BlankLine />
                 <p style={{ color: "var(--term-gray6)" }}>
-                  <span style={{ color: "var(--term-gray10)" }}>{">"} </span>
+                  <span style={{ color: "var(--term-gray10)" }}>{"$"} </span>
                   <span
                     className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
                     style={{
@@ -3016,10 +3005,17 @@ function TerminalComponent({
                       }}
                     >
                       <span style={{ color: "var(--term-gray10)" }}>
-                        {">"}{" "}
+                        {"$"}{" "}
                       </span>
-                      <span style={{ color: "var(--term-gray10)" }}>
-                        {isCommand ? renderText(visible) : renderText(visible)}
+                      <span
+                        style={{
+                          color:
+                            i === 0 && isCommand
+                              ? "var(--term-green9)"
+                              : "var(--term-gray10)",
+                        }}
+                      >
+                        {renderText(visible)}
                       </span>
                       <span
                         className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"

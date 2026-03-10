@@ -93,9 +93,13 @@ export async function fetchServices(): Promise<Service[]> {
 
   inflight = fetchFromApi()
     .then((services) => {
-      cached = { data: services, ts: Date.now() };
+      const cleaned = services.map((s) => ({
+        ...s,
+        name: s.name.replace(/ \(New\)$/i, ""),
+      }));
+      cached = { data: cleaned, ts: Date.now() };
       inflight = null;
-      return services;
+      return cleaned;
     })
     .catch((err) => {
       inflight = null;

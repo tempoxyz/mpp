@@ -236,7 +236,24 @@ function LandingStyles() {
         content: '';
         flex: 1;
         height: 1px;
-        background: oklch(from var(--vocs-text-color-secondary) l c h / 0.3);
+        background: linear-gradient(90deg,
+          oklch(from var(--vocs-text-color-secondary) l c h / 0.15),
+          oklch(from var(--vocs-text-color-secondary) l c h / 0.4),
+          oklch(from var(--vocs-text-color-secondary) l c h / 0.15)
+        );
+        background-size: 200% 100%;
+        animation: borderShimmer 5s ease-in-out infinite;
+      }
+      @keyframes borderShimmer {
+        0%, 100% { background-position: 200% 0; }
+        50% { background-position: -200% 0; }
+      }
+      @keyframes textShimmer {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 0.75; }
+      }
+      .landing-scroll-cta {
+        animation: scrollCtaReveal 0.4s ease-out 1.5s both, textShimmer 5s ease-in-out 2s infinite;
       }
 
       .landing-discovery {
@@ -317,7 +334,7 @@ function LandingStyles() {
         .designed-by { justify-content: center !important; }
         .landing-terminal > div:first-child { max-height: 480px !important; }
         :has(.landing-page) [data-v-gutter-top] {
-          background: transparent !important;
+          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent) !important;
           background-color: transparent !important;
           backdrop-filter: none !important;
           -webkit-backdrop-filter: none !important;
@@ -562,14 +579,19 @@ function Tagline({ override }: { override?: string | null }) {
     "The open protocol for internet-native payments. Charge for API requests, tool calls, or content. Agents, apps, and humans securely pay per request.";
   return (
     <div
-      className="text-base md:text-lg leading-relaxed max-w-xl font-normal"
+      className="text-[1.125rem] md:text-[1.25rem] leading-relaxed max-w-xl font-normal"
       style={{
         color: "var(--vocs-text-color-secondary)",
         position: "relative",
+        overflow: "hidden",
       }}
     >
       <div
-        style={{ opacity: override ? 0 : 1, transition: "opacity 0.25s ease" }}
+        style={{
+          opacity: override ? 0 : 1,
+          transition: "opacity 0.2s ease",
+          willChange: "opacity",
+        }}
       >
         {defaultText}
       </div>
@@ -580,7 +602,9 @@ function Tagline({ override }: { override?: string | null }) {
           left: 0,
           right: 0,
           opacity: override ? 1 : 0,
-          transition: "opacity 0.25s ease",
+          transition: "opacity 0.2s ease",
+          transitionDelay: override ? "0.15s" : "0s",
+          willChange: "opacity",
         }}
       >
         {override || defaultText}
@@ -670,7 +694,7 @@ function Lockup() {
           className="lockup-img"
           style={{
             height: "auto",
-            width: "clamp(240px, 28vw, 380px)",
+            width: "clamp(288px, 33.6vw, 456px)",
             marginTop: "1rem",
           }}
         />

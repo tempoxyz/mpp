@@ -970,16 +970,18 @@ export function ServicesPage() {
               to="/overview"
               className="no-underline!"
               style={{
-                fontSize: "0.875rem",
+                fontSize: "0.9375rem",
                 fontWeight: 500,
                 whiteSpace: "nowrap",
-                padding: "0.4rem 0.85rem",
-                borderRadius: 7,
+                padding: "0.5rem 1rem",
+                borderRadius: 8,
                 color: "var(--vocs-text-color-heading)",
-                backgroundColor: "transparent",
-                border: "1px solid var(--vocs-border-color-primary)",
+                backgroundColor:
+                  "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.08))",
+                border:
+                  "1px solid light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.12))",
                 textDecoration: "none",
-                transition: "opacity 0.15s",
+                transition: "opacity 0.15s, background 0.15s",
               }}
               onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
                 (e.currentTarget as HTMLElement).style.opacity = "0.8";
@@ -1070,7 +1072,7 @@ export function ServicesPage() {
                     marginLeft: "0.5rem",
                     marginRight: "0.5rem",
                     position: "sticky",
-                    top: "var(--vocs-spacing-topNav, 56px)",
+                    top: "calc(var(--vocs-spacing-topNav, 56px) - 8px)",
                     zIndex: 10,
                     background: "var(--vocs-background-color-primary)",
                     paddingTop: "0.5rem",
@@ -1088,36 +1090,33 @@ export function ServicesPage() {
                     inputRef={searchInputRef}
                   />
                 </div>
-                <div className="services-content-row">
-                  <div
-                    className="filter-tags"
-                    style={{
-                      display: "flex",
-                      gap: "0.375rem",
-                      flexWrap: "wrap",
-                      marginBottom: "1.5rem",
-                      alignItems: "center",
-                      marginLeft: "0.5rem",
-                      marginRight: "0.5rem",
-                      justifyContent: "flex-start",
-                    }}
-                  >
+                <div
+                  className="filter-tags"
+                  style={{
+                    display: "flex",
+                    gap: "0.375rem",
+                    flexWrap: "wrap",
+                    marginBottom: "0.75rem",
+                    alignItems: "center",
+                    marginLeft: "0.5rem",
+                    marginRight: "0.5rem",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Pill active={selectedCategory === null} onClick={clearCats}>
+                    All
+                  </Pill>
+                  {categories.map((cat) => (
                     <Pill
-                      active={selectedCategory === null}
-                      onClick={clearCats}
+                      key={cat}
+                      active={selectedCategory === cat}
+                      onClick={() => toggleCat(cat)}
                     >
-                      All
+                      {CATEGORY_LABELS[cat] ?? cat}
                     </Pill>
-                    {categories.map((cat) => (
-                      <Pill
-                        key={cat}
-                        active={selectedCategory === cat}
-                        onClick={() => toggleCat(cat)}
-                      >
-                        {CATEGORY_LABELS[cat] ?? cat}
-                      </Pill>
-                    ))}
-                  </div>
+                  ))}
+                </div>
+                <div className="services-content-row">
                   <div
                     className="services-table-col"
                     style={{ flex: 1, minWidth: 0 }}
@@ -1132,10 +1131,10 @@ export function ServicesPage() {
                         }}
                       >
                         <colgroup>
-                          <col style={{ width: "20%" }} />
+                          <col style={{ width: "18%" }} />
                           <col
                             className="hide-mobile"
-                            style={{ width: "40%" }}
+                            style={{ width: "42%" }}
                           />
                           <col
                             className="hide-mobile"
@@ -1150,7 +1149,7 @@ export function ServicesPage() {
                                 "1px solid var(--vocs-border-color-primary)",
                             }}
                           >
-                            <Th style={{ textAlign: "left" }} />
+                            <Th style={{ textAlign: "left" }}>Provider</Th>
                             <Th
                               className="hide-mobile"
                               style={{ textAlign: "left" }}
@@ -1600,7 +1599,7 @@ function PrestoCardFull() {
           marginBottom: "0.35rem",
         }}
       >
-        Use with Tempo
+        Use with agents
       </h2>
       <p
         style={{
@@ -1610,11 +1609,8 @@ function PrestoCardFull() {
           marginBottom: "1.25rem",
         }}
       >
-        Install{" "}
-        <Link className="text-primary font-medium" to="/quickstart/agent">
-          Tempo Wallet
-        </Link>{" "}
-        on your agent to use MPP services.
+        Install Tempo CLI and its wallet to fund your agents use of MPP
+        services.
       </p>
       <PrestoSteps />
     </div>
@@ -1981,7 +1977,7 @@ function CliSnippet({
       {desc && (
         <div
           style={{
-            color: "var(--vocs-text-color-muted)",
+            color: "var(--vocs-text-color-secondary)",
             fontSize: 13,
             lineHeight: 1.45,
             marginBottom: "0.5rem",
@@ -2886,29 +2882,10 @@ function PageStyles() {
       .intent-badge::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--vocs-background-color-primary); color: var(--vocs-text-color-secondary); padding: 5px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 0.15s; box-shadow: 0 2px 12px rgba(0,0,0,0.12); border: 1px solid var(--vocs-border-color-primary); }
       .intent-badge:hover::after { opacity: 1; }
 
-      /* ---- Wide desktop: categories as sidebar column ---- */
+      /* ---- Wide desktop: filters stay as horizontal row inline with search ---- */
       @media (min-width: 1401px) {
         .services-content-row {
-          display: flex;
-          gap: 1.5rem;
-          align-items: flex-start;
-        }
-        .filter-tags {
-          flex-direction: column !important;
-          flex-wrap: nowrap !important;
-          width: 140px !important;
-          flex-shrink: 0 !important;
-          position: sticky !important;
-          top: calc(var(--vocs-spacing-topNav, 56px) + 3.5rem) !important;
-          margin-bottom: 0 !important;
-          gap: 0.25rem !important;
-          margin-left: 0 !important;
-          margin-right: 0 !important;
-        }
-        .filter-tags button {
-          justify-content: flex-start !important;
-          width: 100% !important;
-          text-align: left !important;
+          display: block;
         }
       }
 
@@ -2925,7 +2902,6 @@ function PageStyles() {
         .services-content-row { display: block !important; }
         .services-table-col { min-width: 0 !important; }
         [data-services-table] thead { display: none !important; }
-        .filter-tags button { flex: 1 0 auto !important; justify-content: center !important; }
         .hide-mobile { display: none !important; }
         .show-tablet { display: block !important; }
         [data-services-table] table { table-layout: auto !important; overflow: visible !important; }
@@ -2980,8 +2956,8 @@ function PageStyles() {
         .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
         .search-kbd-hint { display: none !important; }
-        .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0 !important; margin-right: 0 !important; padding: 0 1.25rem !important; }
-        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 auto !important; justify-content: center !important; }
+        .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0 !important; margin-right: 0 !important; padding: 0 1.25rem !important; gap: 0.35rem !important; }
+        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 calc(20% - 0.35rem) !important; justify-content: center !important; max-width: calc(25% - 0.35rem) !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; font-size: 14.5px !important; padding-right: 1rem !important; }
         .page-header-ctas { display: none !important; }
