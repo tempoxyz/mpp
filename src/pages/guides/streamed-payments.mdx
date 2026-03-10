@@ -1,7 +1,11 @@
-import { Cards, Tabs, Tab } from 'vocs'
-import { OneTimePaymentsCard, PayAsYouGoCard, PrestoCliCard } from '../../components/cards'
-import { PromptBlock } from '../../components/PromptBlock'
-import { TerminalPoem } from '../../components/TerminalPoem'
+import { Cards, Tabs, Tab } from "vocs";
+import {
+  OneTimePaymentsCard,
+  PayAsYouGoCard,
+  PrestoCliCard,
+} from "../../components/cards";
+import { PromptBlock } from "../../components/PromptBlock";
+import { TerminalPoem } from "../../components/TerminalPoem";
 
 # Accept streamed payments [Per-token billing over Server-Sent Events]
 
@@ -24,7 +28,7 @@ Try the payment-gated poetry API. Click **Run demo** to create a wallet, fund it
 Paste this into your coding agent to build the entire guide in one shot:
 
 <PromptBlock>
-{`Use https://mpp.dev/guides/streamed-payments.md as reference.
+  {`Use https://mpp.dev/guides/streamed-payments.md as reference.
 Add mppx to my app with a payment-gated SSE endpoint
 that streams text word-by-word and charges $0.001 per word using the
 Tempo session payment method with PathUSD and sse: true.`}
@@ -41,15 +45,19 @@ Select your framework to follow a step-by-step guide. If your framework isn't li
 #### Install `mppx`
 
 :::code-group
+
 ```bash [npm]
 npm install mppx viem
 ```
+
 ```bash [pnpm]
 pnpm add mppx viem
 ```
+
 ```bash [bun]
 bun add mppx viem
 ```
+
 :::
 
 #### Set up `Mppx` instance with streaming
@@ -57,15 +65,17 @@ bun add mppx viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [app/api/sessions/poem/route.ts]
-import { Mppx, tempo } from 'mppx/nextjs'
+import { Mppx, tempo } from "mppx/nextjs";
 
 export const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 ```
 
 #### Create the `/api/sessions/poem` route
@@ -73,41 +83,43 @@ export const mppx = Mppx.create({
 Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [app/api/sessions/poem/route.ts]
-import { Mppx, tempo } from 'mppx/nextjs'
+import { Mppx, tempo } from "mppx/nextjs";
 
 export const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 
 // [!code focus:start]
 const poem = {
-  title: 'The Road Not Taken',
-  author: 'Robert Frost',
+  title: "The Road Not Taken",
+  author: "Robert Frost",
   lines: [
-    'Two roads diverged in a yellow wood,',
-    'And sorry I could not travel both',
-    'And be one traveler, long I stood',
-    'And looked down one as far as I could',
-    'To where it bent in the undergrowth;',
+    "Two roads diverged in a yellow wood,",
+    "And sorry I could not travel both",
+    "And be one traveler, long I stood",
+    "And looked down one as far as I could",
+    "To where it bent in the undergrowth;",
   ],
-}
+};
 
-export const GET =
-  mppx.session({ amount: '0.001', unitType: 'word' })
-  (async () => {
-    const words = poem.lines.flatMap(line => [...line.split(' '), '\\n'])
+export const GET = mppx.session({ amount: "0.001", unitType: "word" })(
+  async () => {
+    const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
     return async function* (stream) {
-      yield JSON.stringify({ title: poem.title, author: poem.author })
+      yield JSON.stringify({ title: poem.title, author: poem.author });
       for (const word of words) {
-        await stream.charge()
-        yield word
+        await stream.charge();
+        yield word;
       }
-    }
-  })
+    };
+  },
+);
 // [!code focus:end]
 ```
 
@@ -122,6 +134,7 @@ $ npx mppx http://localhost:3000/api/sessions/poem
 ```
 
 ::::
+
   </Tab>
   <Tab title="Hono">
 ::::steps
@@ -129,15 +142,19 @@ $ npx mppx http://localhost:3000/api/sessions/poem
 #### Install `mppx` and `hono`
 
 :::code-group
+
 ```bash [npm]
 npm install mppx hono viem
 ```
+
 ```bash [pnpm]
 pnpm add mppx hono viem
 ```
+
 ```bash [bun]
 bun add mppx hono viem
 ```
+
 :::
 
 #### Set up `Mppx` instance with streaming
@@ -145,18 +162,20 @@ bun add mppx hono viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [server.ts]
-import { Hono } from 'hono'
-import { Mppx, tempo } from 'mppx/hono'
+import { Hono } from "hono";
+import { Mppx, tempo } from "mppx/hono";
 
-const app = new Hono()
+const app = new Hono();
 
 const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 ```
 
 #### Create the `/api/sessions/poem` route
@@ -164,46 +183,48 @@ const mppx = Mppx.create({
 Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [server.ts]
-import { Hono } from 'hono'
-import { Mppx, tempo } from 'mppx/hono'
+import { Hono } from "hono";
+import { Mppx, tempo } from "mppx/hono";
 
-const app = new Hono()
+const app = new Hono();
 
 const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 
 // [!code focus:start]
 const poem = {
-  title: 'The Road Not Taken',
-  author: 'Robert Frost',
+  title: "The Road Not Taken",
+  author: "Robert Frost",
   lines: [
-    'Two roads diverged in a yellow wood,',
-    'And sorry I could not travel both',
-    'And be one traveler, long I stood',
-    'And looked down one as far as I could',
-    'To where it bent in the undergrowth;',
+    "Two roads diverged in a yellow wood,",
+    "And sorry I could not travel both",
+    "And be one traveler, long I stood",
+    "And looked down one as far as I could",
+    "To where it bent in the undergrowth;",
   ],
-}
+};
 
 app.get(
-  '/api/sessions/poem',
-  mppx.session({ amount: '0.001', unitType: 'word' }),
+  "/api/sessions/poem",
+  mppx.session({ amount: "0.001", unitType: "word" }),
   async (c) => {
-    const words = poem.lines.flatMap(line => [...line.split(' '), '\\n'])
+    const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
     return async function* (stream) {
-      yield JSON.stringify({ title: poem.title, author: poem.author })
+      yield JSON.stringify({ title: poem.title, author: poem.author });
       for (const word of words) {
-        await stream.charge()
-        yield word
+        await stream.charge();
+        yield word;
       }
-    }
+    };
   },
-)
+);
 // [!code focus:end]
 ```
 
@@ -218,6 +239,7 @@ $ npx mppx http://localhost:3000/api/sessions/poem
 ```
 
 ::::
+
   </Tab>
   <Tab title="Workers">
 ::::steps
@@ -225,15 +247,19 @@ $ npx mppx http://localhost:3000/api/sessions/poem
 #### Install `mppx`
 
 :::code-group
+
 ```bash [npm]
 npm install mppx viem
 ```
+
 ```bash [pnpm]
 pnpm add mppx viem
 ```
+
 ```bash [bun]
 bun add mppx viem
 ```
+
 :::
 
 #### Set up `Mppx` instance with streaming
@@ -241,15 +267,17 @@ bun add mppx viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [src/index.ts]
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, tempo } from "mppx/server";
 
 const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 ```
 
 #### Create the `/api/sessions/poem` route
@@ -257,48 +285,50 @@ const mppx = Mppx.create({
 Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [src/index.ts]
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, tempo } from "mppx/server";
 
 const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 
 // [!code focus:start]
 const poem = {
-  title: 'The Road Not Taken',
-  author: 'Robert Frost',
+  title: "The Road Not Taken",
+  author: "Robert Frost",
   lines: [
-    'Two roads diverged in a yellow wood,',
-    'And sorry I could not travel both',
-    'And be one traveler, long I stood',
-    'And looked down one as far as I could',
-    'To where it bent in the undergrowth;',
+    "Two roads diverged in a yellow wood,",
+    "And sorry I could not travel both",
+    "And be one traveler, long I stood",
+    "And looked down one as far as I could",
+    "To where it bent in the undergrowth;",
   ],
-}
+};
 
 export default {
   async fetch(request: Request) {
     const result = await mppx.session({
-      amount: '0.001',
-      unitType: 'word',
-    })(request)
+      amount: "0.001",
+      unitType: "word",
+    })(request);
 
-    if (result.status === 402) return result.challenge
+    if (result.status === 402) return result.challenge;
 
-    const words = poem.lines.flatMap(line => [...line.split(' '), '\\n'])
+    const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
     return result.withReceipt(async function* (stream) {
-      yield JSON.stringify({ title: poem.title, author: poem.author })
+      yield JSON.stringify({ title: poem.title, author: poem.author });
       for (const word of words) {
-        await stream.charge()
-        yield word
+        await stream.charge();
+        yield word;
       }
-    })
+    });
   },
-}
+};
 // [!code focus:end]
 ```
 
@@ -313,6 +343,7 @@ $ npx mppx http://localhost:8787
 ```
 
 ::::
+
   </Tab>
   <Tab title="Express">
 ::::steps
@@ -320,15 +351,19 @@ $ npx mppx http://localhost:8787
 #### Install `mppx` and `express`
 
 :::code-group
+
 ```bash [npm]
 npm install mppx express viem
 ```
+
 ```bash [pnpm]
 pnpm add mppx express viem
 ```
+
 ```bash [bun]
 bun add mppx express viem
 ```
+
 :::
 
 #### Set up `Mppx` instance with streaming
@@ -336,18 +371,20 @@ bun add mppx express viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [server.ts]
-import express from 'express'
-import { Mppx, tempo } from 'mppx/express'
+import express from "express";
+import { Mppx, tempo } from "mppx/express";
 
-const app = express()
+const app = express();
 
 const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 ```
 
 #### Create the `/api/sessions/poem` route
@@ -355,46 +392,48 @@ const mppx = Mppx.create({
 Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [server.ts]
-import express from 'express'
-import { Mppx, tempo } from 'mppx/express'
+import express from "express";
+import { Mppx, tempo } from "mppx/express";
 
-const app = express()
+const app = express();
 
 const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 
 // [!code focus:start]
 const poem = {
-  title: 'The Road Not Taken',
-  author: 'Robert Frost',
+  title: "The Road Not Taken",
+  author: "Robert Frost",
   lines: [
-    'Two roads diverged in a yellow wood,',
-    'And sorry I could not travel both',
-    'And be one traveler, long I stood',
-    'And looked down one as far as I could',
-    'To where it bent in the undergrowth;',
+    "Two roads diverged in a yellow wood,",
+    "And sorry I could not travel both",
+    "And be one traveler, long I stood",
+    "And looked down one as far as I could",
+    "To where it bent in the undergrowth;",
   ],
-}
+};
 
 app.get(
-  '/api/sessions/poem',
-  mppx.session({ amount: '0.001', unitType: 'word' }),
+  "/api/sessions/poem",
+  mppx.session({ amount: "0.001", unitType: "word" }),
   async (req, res) => {
-    const words = poem.lines.flatMap(line => [...line.split(' '), '\\n'])
+    const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
     return async function* (stream) {
-      yield JSON.stringify({ title: poem.title, author: poem.author })
+      yield JSON.stringify({ title: poem.title, author: poem.author });
       for (const word of words) {
-        await stream.charge()
-        yield word
+        await stream.charge();
+        yield word;
       }
-    }
+    };
   },
-)
+);
 // [!code focus:end]
 ```
 
@@ -409,6 +448,7 @@ $ npx mppx http://localhost:3000/api/sessions/poem
 ```
 
 ::::
+
   </Tab>
   <Tab title="Other">
 
@@ -421,15 +461,19 @@ This guide walks through using `mppx/server` directly with any [Fetch API](https
 #### Install `mppx`
 
 :::code-group
+
 ```bash [npm]
 npm install mppx viem
 ```
+
 ```bash [pnpm]
 pnpm add mppx viem
 ```
+
 ```bash [bun]
 bun add mppx viem
 ```
+
 :::
 
 #### Set up `Mppx` instance with streaming
@@ -437,15 +481,17 @@ bun add mppx viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [server.ts]
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, tempo } from "mppx/server";
 
 const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 ```
 
 #### Create the streaming poem route
@@ -453,48 +499,50 @@ const mppx = Mppx.create({
 Create the route handler. `withReceipt` accepts an async generator—each yielded value becomes one SSE `event: message` and is charged one tick (`$0.001`). If the channel balance runs out mid-stream, the server emits `event: payment-need-voucher` and pauses until the client sends a new voucher.
 
 ```ts [server.ts]
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, tempo } from "mppx/server";
 
 const mppx = Mppx.create({
-  methods: [tempo({
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    sse: true,
-  })],
-})
+  methods: [
+    tempo({
+      currency: "0x20c0000000000000000000000000000000000000",
+      recipient: "0xa726a1CD723409074DF9108A2187cfA19899aCF8",
+      sse: true,
+    }),
+  ],
+});
 
 // [!code focus:start]
 const poem = {
-  title: 'The Road Not Taken',
-  author: 'Robert Frost',
+  title: "The Road Not Taken",
+  author: "Robert Frost",
   lines: [
-    'Two roads diverged in a yellow wood,',
-    'And sorry I could not travel both',
-    'And be one traveler, long I stood',
-    'And looked down one as far as I could',
-    'To where it bent in the undergrowth;',
+    "Two roads diverged in a yellow wood,",
+    "And sorry I could not travel both",
+    "And be one traveler, long I stood",
+    "And looked down one as far as I could",
+    "To where it bent in the undergrowth;",
   ],
-}
+};
 
 Bun.serve({
   async fetch(request) {
     const result = await mppx.session({
-      amount: '0.001',
-      unitType: 'word',
-    })(request)
+      amount: "0.001",
+      unitType: "word",
+    })(request);
 
-    if (result.status === 402) return result.challenge
+    if (result.status === 402) return result.challenge;
 
-    const words = poem.lines.flatMap(line => [...line.split(' '), '\\n'])
+    const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
     return result.withReceipt(async function* (stream) {
-      yield JSON.stringify({ title: poem.title, author: poem.author })
+      yield JSON.stringify({ title: poem.title, author: poem.author });
       for (const word of words) {
-        await stream.charge()
-        yield word
+        await stream.charge();
+        yield word;
       }
-    })
+    });
   },
-})
+});
 // [!code focus:end]
 ```
 
@@ -518,19 +566,19 @@ $ npx mppx http://localhost:3000
 Use `tempo.session()` from `mppx/client` to create a session manager. The `.sse()` method connects to the SSE endpoint and handles voucher renewal automatically—if the server requests a new voucher mid-stream, the client signs and sends one without interrupting the stream.
 
 ```ts [client.ts]
-import { tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from "mppx/client";
+import { privateKeyToAccount } from "viem/accounts";
 
 const session = tempo.session({
-  account: privateKeyToAccount('0x...'),
-  maxDeposit: '1', // Lock up to 1 pathUSD per channel
-})
+  account: privateKeyToAccount("0x..."),
+  maxDeposit: "1", // Lock up to 1 pathUSD per channel
+});
 
 // .sse() returns an async iterable of SSE data payloads
-const stream = await session.sse('http://localhost:3000/api/sessions/poem')
+const stream = await session.sse("http://localhost:3000/api/sessions/poem");
 
 for await (const word of stream) {
-  process.stdout.write(word + ' ')
+  process.stdout.write(word + " ");
 }
 ```
 
