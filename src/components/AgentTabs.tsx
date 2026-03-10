@@ -6,7 +6,7 @@ const AGENT_COLOR = "#e8873a";
 const CMD_PURPLE = "#c084fc";
 const PRESTO_GREEN = "#4ade80";
 const FLAG_GREY = "var(--vocs-text-color-muted)";
-const PRESTO_INSTALL = "curl -L https://cli.tempo.xyz/install.sh | bash";
+const PRESTO_INSTALL = "curl -L https://cli.tempo.xyz/install | bash";
 const PRESTO_LOGIN = "tempo-wallet login";
 const QUICKSTART_URL = "https://mpp.dev/quickstart/client.md";
 const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
@@ -188,7 +188,7 @@ export function AgentTabs() {
             <span style={{ color: FLAG_GREY }}> -fsSL</span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {" "}
-              https://cli.tempo.xyz/install.sh
+              https://cli.tempo.xyz/install
             </span>
             <span style={{ color: FLAG_GREY }}> |</span>
             <span style={{ color: CMD_PURPLE }}> bash</span>

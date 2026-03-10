@@ -224,7 +224,7 @@ function buildLlmsTxt(allBuilt: Record<string, unknown>[]): string {
     "Tempo Wallet CLI is a command-line HTTP client with built-in MPP payment support.",
     "",
     "Install:",
-    "  $ curl -L https://cli.tempo.xyz/install.sh | bash",
+    "  $ curl -L https://cli.tempo.xyz/install | bash",
     "",
     "Log in (connects your Tempo wallet):",
     "  $ tempo-wallet login",

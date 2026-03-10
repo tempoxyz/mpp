@@ -1020,7 +1020,7 @@ function PrestoSteps() {
       }}
     >
       <CliSnippet label="Install" desc="One-line install via shell.">
-        curl -L cli.tempo.xyz/install.sh | bash
+        curl -L cli.tempo.xyz/install | bash
       </CliSnippet>
       <CliSnippet
         label="Prompt your agent"

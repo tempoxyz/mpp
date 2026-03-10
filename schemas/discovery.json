@@ -11,7 +11,7 @@
         "ai",
         "social"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "email",
         "inbox",
