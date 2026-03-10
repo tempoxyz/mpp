@@ -9,56 +9,25 @@ Present both stablecoin and card payment options for a single endpoint. The clie
 ```ts twoslash
 import { Mppx, stripe, tempo } from 'mppx/server'
 
-const tempoCharge = tempo.charge({
-  currency: '0x20c0000000000000000000000000000000000000',
-  recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-})
-
-const stripeCharge = stripe.charge({
-  networkId: 'acct_1234',
-  paymentMethodTypes: ['card'],
-  secretKey: process.env.STRIPE_SECRET_KEY!,
-})
-
-const mppx = Mppx.create({
-  methods: [tempoCharge, stripeCharge],
-})
-// ---cut---
-export async function handler(request: Request) {
-  const result = await mppx.compose(
-    [tempoCharge, { amount: '1' }],
-    [stripeCharge, { amount: '1', currency: 'usd' }],
-  )(request)
-
-  if (result.status === 402) return result.challenge
-  return result.withReceipt(Response.json({ data: '...' }))
-}
-```
-
-### With string keys
-
-Use `"name/intent"` strings to reference methods instead of method objects.
-
-```ts twoslash
-import { Mppx, stripe, tempo } from 'mppx/server'
+const pathUSD = '0x20c0000000000000000000000000000000000000'
+const USDC = '0x20C000000000000000000000b9537d11c60E8b50'
+const recipient = '0xa726a1CD723409074DF9108A2187cfA19899aCF8'
 
 const mppx = Mppx.create({
   methods: [
-    tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000',
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    }),
+    tempo.charge({ recipient }),
     stripe.charge({
       networkId: 'acct_1234',
       paymentMethodTypes: ['card'],
-      secretKey: process.env.STRIPE_SECRET_KEY!,
+      secretKey: 'sk_live_...',
     }),
   ],
 })
-// ---cut---
+
 export async function handler(request: Request) {
   const result = await mppx.compose(
-    ['tempo/charge', { amount: '1' }],
+    ['tempo/charge', { amount: '1', currency: pathUSD }],
+    ['tempo/charge', { amount: '1', currency: USDC }],
     ['stripe/charge', { amount: '1', currency: 'usd' }],
   )(request)
 
