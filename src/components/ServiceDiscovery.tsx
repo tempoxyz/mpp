@@ -355,142 +355,6 @@ export function ServiceDiscovery() {
       >
         <DiscoveryStyles />
 
-        {/* Mobile search header bar + full-screen results overlay */}
-        {mobileSearchActive && (
-          <>
-            <div className="mobile-search-header">
-              <div className="discovery-search" style={{ height: "100%" }}>
-                <SearchIcon />
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                    setShowDropdown(e.target.value.length > 0);
-                  }}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Search services..."
-                  className="discovery-search-input"
-                  ref={(el) => el?.focus()}
-                />
-                <button
-                  type="button"
-                  className="mobile-search-dismiss"
-                  onClick={dismissMobileSearch}
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-            <div className="mobile-search-overlay">
-              {query.length > 0 && dropdownResults.length > 0 ? (
-                <>
-                  <div
-                    className="discovery-dropdown-tabs"
-                    style={{
-                      position: "sticky",
-                      top: 0,
-                      background: "var(--vocs-background-color-primary)",
-                      zIndex: 2,
-                    }}
-                  >
-                    {(["all", "services", "endpoints"] as const).map((tab) => (
-                      <button
-                        key={tab}
-                        type="button"
-                        className={`discovery-dropdown-tab${dropdownTab === tab ? " discovery-dropdown-tab-active" : ""}`}
-                        onClick={() => {
-                          setDropdownTab(tab);
-                          setActiveIndex(-1);
-                        }}
-                      >
-                        {tab === "all"
-                          ? "All"
-                          : tab === "services"
-                            ? "Services"
-                            : "Endpoints"}
-                      </button>
-                    ))}
-                  </div>
-                  <div>
-                    {dropdownResults
-                      .filter(
-                        (r) =>
-                          dropdownTab === "all" ||
-                          (dropdownTab === "services" &&
-                            (r.type === "service" || r.type === "category")) ||
-                          (dropdownTab === "endpoints" &&
-                            r.type === "endpoint"),
-                      )
-                      .map((r, i) => (
-                        <button
-                          key={`mobile-${r.type}-${i}`}
-                          type="button"
-                          className="discovery-dropdown-item"
-                          onClick={() => handleDropdownSelect(r)}
-                        >
-                          {r.type === "category" && (
-                            <>
-                              <span className="dropdown-tag">Category</span>
-                              <span>{r.label}</span>
-                            </>
-                          )}
-                          {r.type === "service" && (
-                            <>
-                              <span className="dropdown-tag">Service</span>
-                              <span>{r.service.name}</span>
-                              <span className="dropdown-desc">
-                                {r.service.description?.slice(0, 60)}
-                              </span>
-                            </>
-                          )}
-                          {r.type === "endpoint" && (
-                            <>
-                              <span className="dropdown-tag">Endpoint</span>
-                              <span>{r.service.name}</span>
-                              <span className="dropdown-right">
-                                <span className="dropdown-route">
-                                  {r.endpoint.path}
-                                </span>
-                                <span
-                                  className={`method-badge method-${r.endpoint.method.toLowerCase()}`}
-                                >
-                                  {r.endpoint.method}
-                                </span>
-                              </span>
-                            </>
-                          )}
-                        </button>
-                      ))}
-                  </div>
-                </>
-              ) : query.length > 0 ? (
-                <div
-                  style={{
-                    padding: "2rem 1rem",
-                    textAlign: "center",
-                    color: "var(--vocs-text-color-muted)",
-                    fontSize: 15,
-                  }}
-                >
-                  No matches found
-                </div>
-              ) : (
-                <div
-                  style={{
-                    padding: "2rem 1rem",
-                    textAlign: "center",
-                    color: "var(--vocs-text-color-muted)",
-                    fontSize: 14,
-                  }}
-                >
-                  Type to search services and endpoints
-                </div>
-              )}
-            </div>
-          </>
-        )}
-
         {/* Search overlay — absolutely centered */}
         <div className="discovery-overlay" ref={overlayRef}>
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: scroll to top */}
@@ -520,9 +384,6 @@ export function ServiceDiscovery() {
                 onFocus={() => {
                   setIsFocused(true);
                   if (query.length > 0) setShowDropdown(true);
-                  if (window.matchMedia("(max-width: 768px)").matches) {
-                    setMobileSearchActive(true);
-                  }
                 }}
                 onBlur={() => {
                   setIsFocused(false);
@@ -545,11 +406,26 @@ export function ServiceDiscovery() {
               {query.length > 0 && (
                 <button
                   type="button"
+                  className="mobile-view-btn"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setMobileSearchActive(true);
+                    setShowDropdown(false);
+                    inputRef.current?.blur();
+                  }}
+                >
+                  View
+                </button>
+              )}
+              {query.length > 0 && (
+                <button
+                  type="button"
                   className="discovery-search-clear"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     setQuery("");
                     setShowDropdown(false);
+                    setMobileSearchActive(false);
                     inputRef.current?.blur();
                   }}
                   aria-label="Clear search"
@@ -818,6 +694,67 @@ export function ServiceDiscovery() {
           })()}
         </div>
       </div>
+
+      {/* Mobile header-bar search mode (activated via "View" button) */}
+      {mobileSearchActive && createPortal(
+        <div className="mobile-search-portal">
+          <div className="mobile-search-header">
+            <div className="discovery-search" style={{ height: "100%", borderRadius: 8 }}>
+              <SearchIcon />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                }}
+                placeholder="Search services..."
+                className="discovery-search-input"
+                style={{ fontSize: 14 }}
+                ref={(el) => el?.focus()}
+              />
+              <button
+                type="button"
+                className="mobile-search-dismiss"
+                onClick={dismissMobileSearch}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+          <div className="mobile-search-overlay">
+            <div className="discovery-dropdown-tabs" style={{ position: "sticky", top: 0, background: "var(--vocs-background-color-primary)", zIndex: 2, borderBottom: "1px solid var(--vocs-border-color-primary)", padding: "0.5rem 1rem" }}>
+              {(["all", "services", "endpoints"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`discovery-dropdown-tab${dropdownTab === tab ? " discovery-dropdown-tab-active" : ""}`}
+                  onClick={() => { setDropdownTab(tab); setActiveIndex(-1); }}
+                >
+                  {tab === "all" ? "All" : tab === "services" ? "Services" : "Endpoints"}
+                </button>
+              ))}
+            </div>
+            <div style={{ padding: "0.5rem 0" }}>
+              {dropdownResults.length > 0 ? (
+                dropdownResults
+                  .filter((r) => dropdownTab === "all" || (dropdownTab === "services" && (r.type === "service" || r.type === "category")) || (dropdownTab === "endpoints" && r.type === "endpoint"))
+                  .map((r, i) => (
+                    <button key={`mv-${r.type}-${i}`} type="button" className="discovery-dropdown-item" onClick={() => handleDropdownSelect(r)}>
+                      {r.type === "category" && <><span className="dropdown-tag">Category</span><span>{r.label}</span></>}
+                      {r.type === "service" && <><span className="dropdown-tag">Service</span><span>{r.service.name}</span><span className="dropdown-desc">{r.service.description?.slice(0, 60)}</span></>}
+                      {r.type === "endpoint" && <><span className="dropdown-tag">Endpoint</span><span>{r.service.name}</span><span className="dropdown-right"><span className="dropdown-route">{r.endpoint.path}</span><span className={`method-badge method-${r.endpoint.method.toLowerCase()}`}>{r.endpoint.method}</span></span></>}
+                    </button>
+                  ))
+              ) : (
+                <div style={{ padding: "2rem 1rem", textAlign: "center", color: "var(--vocs-text-color-muted)", fontSize: 15 }}>
+                  {query.length > 0 ? "No matches found" : "Type to search services and endpoints"}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
 
       {/* Detail modal — portaled to body to escape stacking context */}
       {selectedService &&
@@ -2649,64 +2586,75 @@ function DiscoveryStyles() {
         .cli-line-comment { display: none; }
       }
 
-      /* ---- Mobile search header bar mode ---- */
-      .mobile-search-header {
-        display: none;
-      }
-      .mobile-search-overlay {
-        display: none;
-      }
+      /* ---- Mobile "View" button (hidden on desktop) ---- */
+      .mobile-view-btn { display: none; }
       @media (max-width: 768px) {
-        .mobile-search-header {
+        .mobile-view-btn {
           display: block;
-          position: fixed;
-          top: 8px;
-          left: 56px;
-          right: 56px;
-          z-index: 110;
-          height: 40px;
-        }
-        .mobile-search-header .discovery-search {
-          height: 100%;
-          padding: 0 0.75rem;
-          font-size: 14px;
-          border-radius: 8px;
-        }
-        .mobile-search-header .discovery-search-input {
-          font-size: 14px;
-        }
-        .mobile-search-dismiss {
           flex-shrink: 0;
           border: none;
-          background: transparent;
+          background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1));
           color: var(--vocs-text-color-heading);
-          font-size: 13px;
-          font-weight: 500;
+          font-size: 12px;
+          font-weight: 600;
           font-family: var(--font-sans);
           cursor: pointer;
-          padding: 4px 8px;
-          border-radius: 4px;
+          padding: 4px 10px;
+          border-radius: 5px;
+          white-space: nowrap;
         }
-        .mobile-search-overlay {
-          display: block;
-          position: fixed;
-          top: 56px;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: var(--vocs-background-color-primary);
-          z-index: 100;
-          overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-        .mobile-search-overlay .discovery-dropdown-item {
-          padding: 0.9rem 1.25rem;
-          font-size: 15px;
-        }
-        .mobile-search-overlay .discovery-dropdown-tabs {
-          padding: 0.5rem 1rem;
-          border-bottom: 1px solid var(--vocs-border-color-primary);
-        }
+      }
+
+      /* ---- Mobile search portal (header bar + full-screen overlay) ---- */
+      .mobile-search-portal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+      }
+      .mobile-search-portal .mobile-search-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        padding: 0 1rem;
+        background: var(--vocs-background-color-primary);
+        z-index: 10001;
+        border-bottom: 1px solid var(--vocs-border-color-primary);
+      }
+      .mobile-search-portal .mobile-search-header .discovery-search {
+        flex: 1;
+        padding: 0 0.75rem;
+        border-radius: 8px;
+      }
+      .mobile-search-dismiss {
+        flex-shrink: 0;
+        border: none;
+        background: transparent;
+        color: var(--vocs-text-color-heading);
+        font-size: 14px;
+        font-weight: 500;
+        font-family: var(--font-sans);
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 6px;
+      }
+      .mobile-search-portal .mobile-search-overlay {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--vocs-background-color-primary);
+        z-index: 10000;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .mobile-search-portal .discovery-dropdown-item {
+        padding: 0.9rem 1.25rem !important;
+        font-size: 15px !important;
       }
     `}</style>
   );
