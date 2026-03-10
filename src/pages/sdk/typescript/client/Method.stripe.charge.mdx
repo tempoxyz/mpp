@@ -1,0 +1,101 @@
+# `Method.stripe.charge` [One-time payments via Shared Payment Tokens]
+
+Creates a Stripe charge payment method for client-side SPT-based payments.
+
+## Usage
+
+```ts twoslash
+// @noErrors
+import { loadStripe } from '@stripe/stripe-js'
+import { Mppx, stripe } from 'mppx/client'
+
+const stripeJs = (await loadStripe('pk_test_...'))!
+
+Mppx.create({
+  methods: [
+    // [!code focus:start]
+    stripe.charge({
+      client: stripeJs,
+      createToken: async ({ amount, currency, expiresAt, metadata, networkId, paymentMethod }) => {
+        const res = await fetch('/api/create-spt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentMethod, amount, currency, networkId, expiresAt, metadata }),
+        })
+        return (await res.json()).spt
+      },
+    }),
+    // [!code focus:end]
+  ],
+})
+```
+
+## Return type
+
+```ts
+import type { Method } from 'mppx'
+
+type ReturnType = Method.Client
+```
+
+## Parameters
+
+### client (optional)
+
+- **Type:** `StripeJs`
+
+Stripe.js instance from `@stripe/stripe-js`. Forwarded to the `createToken` callback for use with Stripe Elements.
+
+```ts twoslash
+// @noErrors
+import { loadStripe } from '@stripe/stripe-js'
+import { stripe } from 'mppx/client'
+
+const stripeJs = (await loadStripe('pk_test_...'))!
+
+const method = stripe.charge({
+  client: stripeJs, // [!code focus]
+  createToken: async (params) => '...',
+})
+```
+
+### createToken
+
+- **Type:** `(params: OnChallengeParameters) => Promise<string>`
+
+Callback invoked when a Stripe challenge is received. Must return an SPT token string (`spt_...`). Typically proxied through a server endpoint since SPT creation requires a Stripe secret key.
+
+The callback receives:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `amount` | `string` | Payment amount in smallest currency unit |
+| `challenge` | `Challenge` | The parsed Challenge from the server |
+| `client` | `StripeJs \| undefined` | Stripe.js instance, if provided |
+| `currency` | `string` | Three-letter ISO currency code |
+| `expiresAt` | `number` | SPT expiration as a Unix timestamp (seconds) |
+| `metadata` | `Record<string, string>` | Optional metadata from the Challenge |
+| `networkId` | `string \| undefined` | Stripe Business Network profile ID |
+| `paymentMethod` | `string \| undefined` | Stripe payment method ID |
+
+### externalId (optional)
+
+- **Type:** `string`
+
+Client reference ID included in the Credential payload.
+
+### paymentMethod (optional)
+
+- **Type:** `string`
+
+Default Stripe payment method ID (e.g. `pm_card_visa`). Overridden by `context.paymentMethod` at credential-creation time.
+
+```ts twoslash
+// @noErrors
+import { stripe } from 'mppx/client'
+
+const method = stripe.charge({
+  createToken: async (params) => '...',
+  paymentMethod: 'pm_card_visa', // [!code focus]
+})
+```

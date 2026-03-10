@@ -188,6 +188,14 @@ export default defineConfig({
                         text: "tempo.session",
                         link: "/sdk/typescript/client/Method.tempo.session",
                       },
+                      {
+                        text: "stripe",
+                        link: "/sdk/typescript/client/Method.stripe",
+                      },
+                      {
+                        text: "stripe.charge",
+                        link: "/sdk/typescript/client/Method.stripe.charge",
+                      },
                     ],
                   },
                   {
@@ -242,6 +250,14 @@ export default defineConfig({
                       {
                         text: "tempo.session",
                         link: "/sdk/typescript/server/Method.tempo.session",
+                      },
+                      {
+                        text: "stripe",
+                        link: "/sdk/typescript/server/Method.stripe",
+                      },
+                      {
+                        text: "stripe.charge",
+                        link: "/sdk/typescript/server/Method.stripe.charge",
                       },
                     ],
                   },
