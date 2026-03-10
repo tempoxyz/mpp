@@ -2837,10 +2837,10 @@ function TerminalComponent({
               flex: 1,
               textAlign: "center",
               fontSize: "0.9375rem",
-              color: "var(--term-green9)",
+              color: "var(--term-gray6)",
             }}
           >
-            ./demo.sh
+            demo.sh
           </span>
           <button
             type="button"
@@ -2970,7 +2970,7 @@ function TerminalComponent({
               <>
                 <BlankLine />
                 <p style={{ color: "var(--term-gray6)" }}>
-                  <span style={{ color: "var(--term-gray10)" }}>{"$"} </span>
+                  <span style={{ color: "var(--term-gray6)" }}>{"$"} </span>
                   <span
                     className="ml-0.5 inline-block h-[1.1em] w-[0.6em] align-text-bottom"
                     style={{
@@ -3003,17 +3003,10 @@ function TerminalComponent({
                         visibility: i <= lineIndex ? "visible" : "hidden",
                       }}
                     >
-                      <span style={{ color: "var(--term-gray10)" }}>
+                      <span style={{ color: "var(--term-gray6)" }}>
                         {"$"}{" "}
                       </span>
-                      <span
-                        style={{
-                          color:
-                            i === 0 && isCommand
-                              ? "var(--term-green9)"
-                              : "var(--term-gray10)",
-                        }}
-                      >
+                      <span style={{ color: i === 0 && isCommand ? "var(--term-green9)" : "var(--term-gray10)" }}>
                         {renderText(visible)}
                       </span>
                       <span

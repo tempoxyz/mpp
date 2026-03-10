@@ -696,65 +696,134 @@ export function ServiceDiscovery() {
       </div>
 
       {/* Mobile header-bar search mode (activated via "View" button) */}
-      {mobileSearchActive && createPortal(
-        <div className="mobile-search-portal">
-          <div className="mobile-search-header">
-            <div className="discovery-search" style={{ height: "100%", borderRadius: 8 }}>
-              <SearchIcon />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                }}
-                placeholder="Search services..."
-                className="discovery-search-input"
-                style={{ fontSize: 14 }}
-                ref={(el) => el?.focus()}
-              />
-              <button
-                type="button"
-                className="mobile-search-dismiss"
-                onClick={dismissMobileSearch}
+      {mobileSearchActive &&
+        createPortal(
+          <div className="mobile-search-portal">
+            <div className="mobile-search-header">
+              <div
+                className="discovery-search"
+                style={{ height: "100%", borderRadius: 8 }}
               >
-                Done
-              </button>
-            </div>
-          </div>
-          <div className="mobile-search-overlay">
-            <div className="discovery-dropdown-tabs" style={{ position: "sticky", top: 0, background: "var(--vocs-background-color-primary)", zIndex: 2, borderBottom: "1px solid var(--vocs-border-color-primary)", padding: "0.5rem 1rem" }}>
-              {(["all", "services", "endpoints"] as const).map((tab) => (
+                <SearchIcon />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                  }}
+                  placeholder="Search services..."
+                  className="discovery-search-input"
+                  style={{ fontSize: 14 }}
+                  ref={(el) => el?.focus()}
+                />
                 <button
-                  key={tab}
                   type="button"
-                  className={`discovery-dropdown-tab${dropdownTab === tab ? " discovery-dropdown-tab-active" : ""}`}
-                  onClick={() => { setDropdownTab(tab); setActiveIndex(-1); }}
+                  className="mobile-search-dismiss"
+                  onClick={dismissMobileSearch}
                 >
-                  {tab === "all" ? "All" : tab === "services" ? "Services" : "Endpoints"}
+                  Done
                 </button>
-              ))}
+              </div>
             </div>
-            <div style={{ padding: "0.5rem 0" }}>
-              {dropdownResults.length > 0 ? (
-                dropdownResults
-                  .filter((r) => dropdownTab === "all" || (dropdownTab === "services" && (r.type === "service" || r.type === "category")) || (dropdownTab === "endpoints" && r.type === "endpoint"))
-                  .map((r, i) => (
-                    <button key={`mv-${r.type}-${i}`} type="button" className="discovery-dropdown-item" onClick={() => handleDropdownSelect(r)}>
-                      {r.type === "category" && <><span className="dropdown-tag">Category</span><span>{r.label}</span></>}
-                      {r.type === "service" && <><span className="dropdown-tag">Service</span><span>{r.service.name}</span><span className="dropdown-desc">{r.service.description?.slice(0, 60)}</span></>}
-                      {r.type === "endpoint" && <><span className="dropdown-tag">Endpoint</span><span>{r.service.name}</span><span className="dropdown-right"><span className="dropdown-route">{r.endpoint.path}</span><span className={`method-badge method-${r.endpoint.method.toLowerCase()}`}>{r.endpoint.method}</span></span></>}
-                    </button>
-                  ))
-              ) : (
-                <div style={{ padding: "2rem 1rem", textAlign: "center", color: "var(--vocs-text-color-muted)", fontSize: 15 }}>
-                  {query.length > 0 ? "No matches found" : "Type to search services and endpoints"}
-                </div>
-              )}
+            <div className="mobile-search-overlay">
+              <div
+                className="discovery-dropdown-tabs"
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  background: "var(--vocs-background-color-primary)",
+                  zIndex: 2,
+                  borderBottom: "1px solid var(--vocs-border-color-primary)",
+                  padding: "0.5rem 1rem",
+                }}
+              >
+                {(["all", "services", "endpoints"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    className={`discovery-dropdown-tab${dropdownTab === tab ? " discovery-dropdown-tab-active" : ""}`}
+                    onClick={() => {
+                      setDropdownTab(tab);
+                      setActiveIndex(-1);
+                    }}
+                  >
+                    {tab === "all"
+                      ? "All"
+                      : tab === "services"
+                        ? "Services"
+                        : "Endpoints"}
+                  </button>
+                ))}
+              </div>
+              <div style={{ padding: "0.5rem 0" }}>
+                {dropdownResults.length > 0 ? (
+                  dropdownResults
+                    .filter(
+                      (r) =>
+                        dropdownTab === "all" ||
+                        (dropdownTab === "services" &&
+                          (r.type === "service" || r.type === "category")) ||
+                        (dropdownTab === "endpoints" && r.type === "endpoint"),
+                    )
+                    .map((r, i) => (
+                      <button
+                        key={`mv-${r.type}-${i}`}
+                        type="button"
+                        className="discovery-dropdown-item"
+                        onClick={() => handleDropdownSelect(r)}
+                      >
+                        {r.type === "category" && (
+                          <>
+                            <span className="dropdown-tag">Category</span>
+                            <span>{r.label}</span>
+                          </>
+                        )}
+                        {r.type === "service" && (
+                          <>
+                            <span className="dropdown-tag">Service</span>
+                            <span>{r.service.name}</span>
+                            <span className="dropdown-desc">
+                              {r.service.description?.slice(0, 60)}
+                            </span>
+                          </>
+                        )}
+                        {r.type === "endpoint" && (
+                          <>
+                            <span className="dropdown-tag">Endpoint</span>
+                            <span>{r.service.name}</span>
+                            <span className="dropdown-right">
+                              <span className="dropdown-route">
+                                {r.endpoint.path}
+                              </span>
+                              <span
+                                className={`method-badge method-${r.endpoint.method.toLowerCase()}`}
+                              >
+                                {r.endpoint.method}
+                              </span>
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    ))
+                ) : (
+                  <div
+                    style={{
+                      padding: "2rem 1rem",
+                      textAlign: "center",
+                      color: "var(--vocs-text-color-muted)",
+                      fontSize: 15,
+                    }}
+                  >
+                    {query.length > 0
+                      ? "No matches found"
+                      : "Type to search services and endpoints"}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </div>,
-        document.body,
-      )}
+          </div>,
+          document.body,
+        )}
 
       {/* Detail modal — portaled to body to escape stacking context */}
       {selectedService &&
@@ -1800,17 +1869,18 @@ function DiscoveryStyles() {
         max-height: 0;
         margin: 0;
         overflow: hidden;
-        transition: opacity 0.25s, max-height 0.3s, margin 0.3s;
+        transition: none;
       }
       .has-query .discovery-overlay-desc {
         opacity: 0;
         max-height: 0;
         margin: 0;
         overflow: hidden;
-        transition: opacity 0.25s, max-height 0.3s, margin 0.3s;
+        transition: none;
       }
       .has-query .discovery-overlay {
         top: 35%;
+        transition: top 0.15s ease;
       }
 
       /* No results message */
@@ -1862,12 +1932,12 @@ function DiscoveryStyles() {
       @media (max-width: 768px) {
         .discovery-grid::after {
           background: radial-gradient(
-            ellipse 90% 42% at center,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.96) 0%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.92) 18%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.8) 35%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.5) 55%,
-            transparent 75%
+            ellipse 95% 50% at center,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.98) 0%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.96) 15%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.88) 30%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.6) 50%,
+            transparent 70%
           );
         }
         .discovery-overlay {
@@ -2117,6 +2187,7 @@ function DiscoveryStyles() {
           grid-auto-rows: 110px;
           gap: 10px;
           padding: 1rem;
+          justify-items: center;
         }
       }
 

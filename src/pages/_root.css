@@ -948,6 +948,13 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   }
 }
 
+/* Touch devices: no hover-based selection highlight in terminal menus */
+@media (hover: none) {
+  .terminal-theme .term-wizard-btn {
+    color: var(--term-gray6) !important;
+  }
+}
+
 /* Bottom gradient above Ask AI for visibility */
 [data-v-main]::after {
   content: "";

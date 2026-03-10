@@ -111,6 +111,8 @@ export function LandingPage() {
               }}
             >
               <Terminal className="absolute inset-0" steps={TERMINAL_STEPS} />
+            </div>
+            <div style={{ marginTop: 12, width: "100%", maxWidth: 960 }}>
               <DesignedBy />
             </div>
           </div>
@@ -346,7 +348,7 @@ function LandingStyles() {
         }
         .landing-hero-screen {
           height: auto !important;
-          min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px) + 80px);
+          min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 60px);
           justify-content: flex-start !important;
           padding-top: 0 !important;
         }

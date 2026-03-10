@@ -902,6 +902,7 @@ export function ServicesPage() {
             alignItems: "flex-start",
             justifyContent: "space-between",
             gap: "1rem",
+            marginLeft: "0.5rem",
           }}
         >
           <div>
@@ -1077,6 +1078,7 @@ export function ServicesPage() {
                     background: "var(--vocs-background-color-primary)",
                     paddingTop: "0.5rem",
                     paddingBottom: "0.5rem",
+                    flexWrap: "wrap",
                   }}
                 >
                   <SearchWithDropdown
@@ -1089,32 +1091,31 @@ export function ServicesPage() {
                     fullWidth
                     inputRef={searchInputRef}
                   />
-                </div>
-                <div
-                  className="filter-tags"
-                  style={{
-                    display: "flex",
-                    gap: "0.375rem",
-                    flexWrap: "wrap",
-                    marginBottom: "0.75rem",
-                    alignItems: "center",
-                    marginLeft: "0.5rem",
-                    marginRight: "0.5rem",
-                    justifyContent: "flex-start",
-                  }}
-                >
-                  <Pill active={selectedCategory === null} onClick={clearCats}>
-                    All
-                  </Pill>
-                  {categories.map((cat) => (
+                  <div
+                    className="filter-tags"
+                    style={{
+                      display: "flex",
+                      gap: "0.375rem",
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                    }}
+                  >
                     <Pill
-                      key={cat}
-                      active={selectedCategory === cat}
-                      onClick={() => toggleCat(cat)}
+                      active={selectedCategory === null}
+                      onClick={clearCats}
                     >
-                      {CATEGORY_LABELS[cat] ?? cat}
+                      All
                     </Pill>
-                  ))}
+                    {categories.map((cat) => (
+                      <Pill
+                        key={cat}
+                        active={selectedCategory === cat}
+                        onClick={() => toggleCat(cat)}
+                      >
+                        {CATEGORY_LABELS[cat] ?? cat}
+                      </Pill>
+                    ))}
+                  </div>
                 </div>
                 <div className="services-content-row">
                   <div
@@ -1149,7 +1150,7 @@ export function ServicesPage() {
                                 "1px solid var(--vocs-border-color-primary)",
                             }}
                           >
-                            <Th style={{ textAlign: "left" }}>Provider</Th>
+                            <Th style={{ textAlign: "left" }} />
                             <Th
                               className="hide-mobile"
                               style={{ textAlign: "left" }}
@@ -2971,7 +2972,7 @@ function PageStyles() {
         .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
         .search-kbd-hint { display: none !important; }
-        .filter-tags { justify-content: center !important; margin-bottom: 3.75rem !important; margin-left: 0 !important; margin-right: 0 !important; padding: 0 1.25rem !important; gap: 0.35rem !important; }
+        .filter-tags { justify-content: center !important; gap: 0.35rem !important; width: 100% !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 calc(20% - 0.35rem) !important; justify-content: center !important; max-width: calc(25% - 0.35rem) !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; }
         .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; font-size: 14.5px !important; padding-right: 1rem !important; }
