@@ -6498,11 +6498,11 @@
       ]
     },
     {
-      "id": "googlemaps-aerialview",
-      "name": "Google Maps Aerial View",
-      "url": "https://aerialview.googleapis.com",
-      "serviceUrl": "https://googlemaps-aerialview.mpp.tempo.xyz",
-      "description": "Google Maps Aerial View API — 3D aerial flyover videos of locations.",
+      "id": "googlemaps",
+      "name": "Google Maps",
+      "url": "https://maps.googleapis.com",
+      "serviceUrl": "https://googlemaps.mpp.tempo.xyz",
+      "description": "Google Maps Platform — geocoding, directions, places, routes, tiles, weather, air quality, and more.",
       "categories": [
         "data"
       ],
@@ -6510,193 +6510,24 @@
       "tags": [
         "maps",
         "google",
+        "geocoding",
+        "directions",
+        "places",
+        "routes",
+        "tiles",
+        "weather",
+        "air-quality",
+        "solar",
+        "roads",
+        "pollen",
+        "geolocation",
         "aerial",
-        "video"
-      ],
-      "status": "active",
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/v1/videos:lookupVideo",
-          "description": "Look up an aerial view video",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Look up an aerial view video",
-            "amount": "16000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/v1/videos:renderVideo",
-          "description": "Render an aerial view video",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Render an aerial view video",
-            "amount": "16000"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/v1/videos:lookupVideoMetadata",
-          "description": "Look up video metadata",
-          "payment": null
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-airquality",
-      "name": "Google Maps Air Quality",
-      "url": "https://airquality.googleapis.com",
-      "serviceUrl": "https://googlemaps-airquality.mpp.tempo.xyz",
-      "description": "Google Maps Air Quality API — air quality indexes, pollutants, and health recommendations.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "air-quality"
+        "validation"
       ],
       "status": "active",
       "docs": {
-        "homepage": "https://developers.google.com/maps/documentation/air-quality"
-      },
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
-        {
-          "method": "POST",
-          "path": "/v1/currentConditions:lookup",
-          "description": "Get current air quality conditions",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get current air quality conditions",
-            "amount": "5000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/v1/history:lookup",
-          "description": "Get air quality history",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get air quality history",
-            "amount": "5000"
-          }
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-geolocation",
-      "name": "Google Maps Geolocation",
-      "url": "https://www.googleapis.com",
-      "serviceUrl": "https://googlemaps-geolocation.mpp.tempo.xyz",
-      "description": "Google Maps Geolocation API — determine device location from cell towers and WiFi.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "geolocation"
-      ],
-      "status": "active",
-      "docs": {
-        "homepage": "https://developers.google.com/maps/documentation/geolocation",
-        "apiReference": "https://developers.google.com/maps/documentation/geolocation/overview"
-      },
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
-        {
-          "method": "POST",
-          "path": "/geolocation/v1/geolocate",
-          "description": "Geolocate a device",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Geolocate a device",
-            "amount": "5000"
-          }
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-places-v2",
-      "name": "Google Maps Places (New)",
-      "url": "https://places.googleapis.com",
-      "serviceUrl": "https://googlemaps-places-v2.mpp.tempo.xyz",
-      "description": "Google Maps Places API (New) — search, details, autocomplete, and photos with enhanced data.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "places"
-      ],
-      "status": "active",
-      "docs": {
-        "homepage": "https://developers.google.com/maps/documentation/places/web-service",
-        "apiReference": "https://developers.google.com/maps/documentation/places/web-service/reference/rest"
+        "homepage": "https://developers.google.com/maps",
+        "apiReference": "https://developers.google.com/maps/documentation"
       },
       "methods": {
         "tempo": {
@@ -6716,225 +6547,137 @@
       "endpoints": [
         {
           "method": "GET",
-          "path": "/v1/places/:id",
-          "description": "Get place details (essentials)",
+          "path": "/maps/geocode/json",
+          "description": "Geocode an address or reverse-geocode coordinates",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Get place details (essentials)",
+            "description": "Geocode an address or reverse-geocode coordinates",
             "amount": "5000"
           }
         },
         {
-          "method": "POST",
-          "path": "/v1/places:searchText",
-          "description": "Text search for places",
+          "method": "GET",
+          "path": "/maps/directions/json",
+          "description": "Get directions between locations",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Text search for places",
-            "amount": "32000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/v1/places:searchNearby",
-          "description": "Nearby search for places",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Nearby search for places",
-            "amount": "32000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/v1/places:autocomplete",
-          "description": "Place autocomplete",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Place autocomplete",
-            "amount": "2830"
+            "description": "Get directions between locations",
+            "amount": "5000"
           }
         },
         {
           "method": "GET",
-          "path": "/v1/places/:id/photos/:photoId/media",
-          "description": "Get a place photo",
+          "path": "/maps/distancematrix/json",
+          "description": "Travel time and distance for origin-destination pairs",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Get a place photo",
+            "description": "Travel time and distance for origin-destination pairs",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/maps/elevation/json",
+          "description": "Get elevation for locations",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get elevation for locations",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/maps/timezone/json",
+          "description": "Get time zone for coordinates",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get time zone for coordinates",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/maps/staticmap",
+          "description": "Generate a static map image",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a static map image",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/maps/streetview",
+          "description": "Get a static Street View image",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a static Street View image",
             "amount": "7000"
           }
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-pollen",
-      "name": "Google Maps Pollen",
-      "url": "https://pollen.googleapis.com",
-      "serviceUrl": "https://googlemaps-pollen.mpp.tempo.xyz",
-      "description": "Google Maps Pollen API — pollen types, plants, and allergy indexes by location.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "pollen"
-      ],
-      "status": "active",
-      "docs": {
-        "homepage": "https://developers.google.com/maps/documentation/pollen"
-      },
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
+        },
         {
           "method": "GET",
-          "path": "/v1/forecast:lookup",
-          "description": "Get pollen forecast",
+          "path": "/maps/place/textsearch/json",
+          "description": "Search places by text query",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Get pollen forecast",
-            "amount": "10000"
-          }
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-roads",
-      "name": "Google Maps Roads",
-      "url": "https://roads.googleapis.com",
-      "serviceUrl": "https://googlemaps-roads.mpp.tempo.xyz",
-      "description": "Google Maps Roads API — snap coordinates to roads and find nearest roads.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "roads"
-      ],
-      "status": "active",
-      "docs": {
-        "homepage": "https://developers.google.com/maps",
-        "apiReference": "https://developers.google.com/maps/documentation/roads"
-      },
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/v1/nearestRoads",
-          "description": "Find nearest roads to coordinates",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Find nearest roads to coordinates",
-            "amount": "10000"
+            "description": "Search places by text query",
+            "amount": "32000"
           }
         },
         {
           "method": "GET",
-          "path": "/v1/snapToRoads",
-          "description": "Snap GPS coordinates to roads",
+          "path": "/maps/place/nearbysearch/json",
+          "description": "Search nearby places",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Snap GPS coordinates to roads",
-            "amount": "10000"
+            "description": "Search nearby places",
+            "amount": "32000"
           }
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-routes",
-      "name": "Google Maps Routes",
-      "url": "https://routes.googleapis.com",
-      "serviceUrl": "https://googlemaps-routes.mpp.tempo.xyz",
-      "description": "Google Maps Routes API — compute routes and distance matrices with real-time traffic.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "routes",
-        "directions"
-      ],
-      "status": "active",
-      "docs": {
-        "homepage": "https://developers.google.com/maps",
-        "apiReference": "https://developers.google.com/maps/documentation/routes"
-      },
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
+        },
+        {
+          "method": "GET",
+          "path": "/maps/place/details/json",
+          "description": "Get place details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get place details",
+            "amount": "17000"
+          }
+        },
         {
           "method": "POST",
-          "path": "/directions/v2:computeRoutes",
+          "path": "/routes/directions/v2:computeRoutes",
           "description": "Compute routes between locations",
           "payment": {
             "intent": "charge",
@@ -6947,7 +6690,7 @@
         },
         {
           "method": "POST",
-          "path": "/distanceMatrix/v2:computeRouteMatrix",
+          "path": "/routes/distanceMatrix/v2:computeRouteMatrix",
           "description": "Compute distance matrix",
           "payment": {
             "intent": "charge",
@@ -6957,108 +6700,75 @@
             "description": "Compute distance matrix",
             "amount": "5000"
           }
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-solar",
-      "name": "Google Maps Solar",
-      "url": "https://solar.googleapis.com",
-      "serviceUrl": "https://googlemaps-solar.mpp.tempo.xyz",
-      "description": "Google Maps Solar API — rooftop solar energy potential for buildings.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "solar",
-        "energy"
-      ],
-      "status": "active",
-      "docs": {
-        "homepage": "https://developers.google.com/maps/documentation/solar"
-      },
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
+        },
         {
           "method": "GET",
-          "path": "/v1/buildingInsights:findClosest",
-          "description": "Get building solar insights",
+          "path": "/places/v1/places/:id",
+          "description": "Get place details (essentials)",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Get building solar insights",
-            "amount": "10000"
+            "description": "Get place details (essentials)",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/places/v1/places:searchText",
+          "description": "Text search for places",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Text search for places",
+            "amount": "32000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/places/v1/places:searchNearby",
+          "description": "Nearby search for places",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Nearby search for places",
+            "amount": "32000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/places/v1/places:autocomplete",
+          "description": "Place autocomplete",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Place autocomplete",
+            "amount": "2830"
           }
         },
         {
           "method": "GET",
-          "path": "/v1/dataLayers:get",
-          "description": "Get solar data layers",
+          "path": "/places/v1/places/:id/photos/:photoId/media",
+          "description": "Get a place photo",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Get solar data layers",
-            "amount": "75000"
+            "description": "Get a place photo",
+            "amount": "7000"
           }
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-tiles",
-      "name": "Google Maps Tiles",
-      "url": "https://tile.googleapis.com",
-      "serviceUrl": "https://googlemaps-tiles.mpp.tempo.xyz",
-      "description": "Google Maps Tiles API — 2D map tiles, Street View tiles, and 3D tiles.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "tiles"
-      ],
-      "status": "active",
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
+        },
         {
           "method": "GET",
-          "path": "/v1/2dtiles/:z/:x/:y",
+          "path": "/tiles/v1/2dtiles/:z/:x/:y",
           "description": "Get a 2D map tile",
           "payment": {
             "intent": "charge",
@@ -7071,7 +6781,7 @@
         },
         {
           "method": "GET",
-          "path": "/v1/streetview/tiles/:panoId/:z/:x/:y",
+          "path": "/tiles/v1/streetview/tiles/:panoId/:z/:x/:y",
           "description": "Get a Street View tile",
           "payment": {
             "intent": "charge",
@@ -7084,7 +6794,7 @@
         },
         {
           "method": "GET",
-          "path": "/v1/3dtiles/root.json",
+          "path": "/tiles/v1/3dtiles/root.json",
           "description": "Get 3D tiles root",
           "payment": {
             "intent": "charge",
@@ -7097,52 +6807,39 @@
         },
         {
           "method": "GET",
-          "path": "/v1/createSession",
+          "path": "/tiles/v1/createSession",
           "description": "Create a tile session",
           "payment": null
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-validation",
-      "name": "Google Maps Address Validation",
-      "url": "https://addressvalidation.googleapis.com",
-      "serviceUrl": "https://googlemaps-validation.mpp.tempo.xyz",
-      "description": "Google Maps Address Validation API — validate and standardize postal addresses.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "address",
-        "validation"
-      ],
-      "status": "active",
-      "docs": {
-        "homepage": "https://developers.google.com/maps",
-        "apiReference": "https://developers.google.com/maps/documentation/address-validation"
-      },
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
+        },
+        {
+          "method": "GET",
+          "path": "/roads/v1/nearestRoads",
+          "description": "Find nearest roads to coordinates",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find nearest roads to coordinates",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/roads/v1/snapToRoads",
+          "description": "Snap GPS coordinates to roads",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Snap GPS coordinates to roads",
+            "amount": "10000"
+          }
+        },
         {
           "method": "POST",
-          "path": "/v1:validateAddress",
+          "path": "/validation/v1:validateAddress",
           "description": "Validate a postal address",
           "payment": {
             "intent": "charge",
@@ -7155,50 +6852,123 @@
         },
         {
           "method": "POST",
-          "path": "/v1:provideValidationFeedback",
+          "path": "/validation/v1:provideValidationFeedback",
           "description": "Provide validation feedback",
           "payment": null
-        }
-      ]
-    },
-    {
-      "id": "googlemaps-weather",
-      "name": "Google Maps Weather",
-      "url": "https://weather.googleapis.com",
-      "serviceUrl": "https://googlemaps-weather.mpp.tempo.xyz",
-      "description": "Google Maps Weather API — current conditions, hourly and daily forecasts.",
-      "categories": [
-        "data"
-      ],
-      "integration": "first-party",
-      "tags": [
-        "maps",
-        "google",
-        "weather"
-      ],
-      "status": "active",
-      "docs": {
-        "homepage": "https://developers.google.com/maps/documentation/weather"
-      },
-      "methods": {
-        "tempo": {
-          "intents": [
-            "charge"
-          ],
-          "assets": [
-            "0x20c000000000000000000000b9537d11c60e8b50"
-          ]
-        }
-      },
-      "realm": "mpp.tempo.xyz",
-      "provider": {
-        "name": "Google",
-        "url": "https://developers.google.com/maps"
-      },
-      "endpoints": [
+        },
         {
           "method": "GET",
-          "path": "/v1/currentConditions:lookup",
+          "path": "/solar/v1/buildingInsights:findClosest",
+          "description": "Get building solar insights",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get building solar insights",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/solar/v1/dataLayers:get",
+          "description": "Get solar data layers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get solar data layers",
+            "amount": "75000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aerialview/v1/videos:lookupVideo",
+          "description": "Look up an aerial view video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Look up an aerial view video",
+            "amount": "16000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/aerialview/v1/videos:renderVideo",
+          "description": "Render an aerial view video",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Render an aerial view video",
+            "amount": "16000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/aerialview/v1/videos:lookupVideoMetadata",
+          "description": "Look up video metadata",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/airquality/v1/currentConditions:lookup",
+          "description": "Get current air quality conditions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get current air quality conditions",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/airquality/v1/history:lookup",
+          "description": "Get air quality history",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get air quality history",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/pollen/v1/forecast:lookup",
+          "description": "Get pollen forecast",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get pollen forecast",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/geolocation/geolocation/v1/geolocate",
+          "description": "Geolocate a device",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Geolocate a device",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/weather/v1/currentConditions:lookup",
           "description": "Get current weather conditions",
           "payment": {
             "intent": "charge",
@@ -7211,7 +6981,7 @@
         },
         {
           "method": "GET",
-          "path": "/v1/forecast/hours:lookup",
+          "path": "/weather/v1/forecast/hours:lookup",
           "description": "Get hourly weather forecast",
           "payment": {
             "intent": "charge",
@@ -7224,7 +6994,7 @@
         },
         {
           "method": "GET",
-          "path": "/v1/forecast/days:lookup",
+          "path": "/weather/v1/forecast/days:lookup",
           "description": "Get daily weather forecast",
           "payment": {
             "intent": "charge",
@@ -7237,7 +7007,7 @@
         },
         {
           "method": "GET",
-          "path": "/v1/history/hours:lookup",
+          "path": "/weather/v1/history/hours:lookup",
           "description": "Get hourly weather history",
           "payment": {
             "intent": "charge",

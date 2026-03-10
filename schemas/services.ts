@@ -2713,382 +2713,76 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Google Maps Aerial View ─────────────────────────────────────────
+  // ── Google Maps ─────────────────────────────────────────────────────
   {
-    id: "googlemaps-aerialview",
-    name: "Google Maps Aerial View",
-    url: "https://aerialview.googleapis.com",
-    serviceUrl: `https://googlemaps-aerialview.${MPP_REALM}`,
+    id: "googlemaps",
+    name: "Google Maps",
+    url: "https://maps.googleapis.com",
+    serviceUrl: `https://googlemaps.${MPP_REALM}`,
     description:
-      "Google Maps Aerial View API — 3D aerial flyover videos of locations.",
+      "Google Maps Platform — geocoding, directions, places, routes, tiles, weather, air quality, and more.",
     categories: ["data"],
     integration: "first-party",
-    tags: ["maps", "google", "aerial", "video"],
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "GET /v1/videos:lookupVideo",
-        desc: "Look up an aerial view video",
-        amount: "16000",
-      },
-      {
-        route: "POST /v1/videos:renderVideo",
-        desc: "Render an aerial view video",
-        amount: "16000",
-      },
-      {
-        route: "GET /v1/videos:lookupVideoMetadata",
-        desc: "Look up video metadata",
-      },
-    ],
-  },
-
-  // ── Google Maps Air Quality ────────────────────────────────────────
-  {
-    id: "googlemaps-airquality",
-    name: "Google Maps Air Quality",
-    url: "https://airquality.googleapis.com",
-    serviceUrl: `https://googlemaps-airquality.${MPP_REALM}`,
-    description:
-      "Google Maps Air Quality API — air quality indexes, pollutants, and health recommendations.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "air-quality"],
-    docs: {
-      homepage: "https://developers.google.com/maps/documentation/air-quality",
-    },
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /v1/currentConditions:lookup",
-        desc: "Get current air quality conditions",
-        amount: "5000",
-      },
-      {
-        route: "POST /v1/history:lookup",
-        desc: "Get air quality history",
-        amount: "5000",
-      },
-    ],
-  },
-
-  // ── Google Maps Geolocation ────────────────────────────────────────
-  {
-    id: "googlemaps-geolocation",
-    name: "Google Maps Geolocation",
-    url: "https://www.googleapis.com",
-    serviceUrl: `https://googlemaps-geolocation.${MPP_REALM}`,
-    description:
-      "Google Maps Geolocation API — determine device location from cell towers and WiFi.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "geolocation"],
-    docs: {
-      homepage: "https://developers.google.com/maps/documentation/geolocation",
-      apiReference:
-        "https://developers.google.com/maps/documentation/geolocation/overview",
-    },
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /geolocation/v1/geolocate",
-        desc: "Geolocate a device",
-        amount: "5000",
-      },
-    ],
-  },
-
-  // ── Google Maps Places (New) ───────────────────────────────────────
-  {
-    id: "googlemaps-places-v2",
-    name: "Google Maps Places (New)",
-    url: "https://places.googleapis.com",
-    serviceUrl: `https://googlemaps-places-v2.${MPP_REALM}`,
-    description:
-      "Google Maps Places API (New) — search, details, autocomplete, and photos with enhanced data.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "places"],
-    docs: {
-      homepage:
-        "https://developers.google.com/maps/documentation/places/web-service",
-      apiReference:
-        "https://developers.google.com/maps/documentation/places/web-service/reference/rest",
-    },
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "GET /v1/places/:id",
-        desc: "Get place details (essentials)",
-        amount: "5000",
-      },
-      {
-        route: "POST /v1/places:searchText",
-        desc: "Text search for places",
-        amount: "32000",
-      },
-      {
-        route: "POST /v1/places:searchNearby",
-        desc: "Nearby search for places",
-        amount: "32000",
-      },
-      {
-        route: "POST /v1/places:autocomplete",
-        desc: "Place autocomplete",
-        amount: "2830",
-      },
-      {
-        route: "GET /v1/places/:id/photos/:photoId/media",
-        desc: "Get a place photo",
-        amount: "7000",
-      },
-    ],
-  },
-
-  // ── Google Maps Pollen ─────────────────────────────────────────────
-  {
-    id: "googlemaps-pollen",
-    name: "Google Maps Pollen",
-    url: "https://pollen.googleapis.com",
-    serviceUrl: `https://googlemaps-pollen.${MPP_REALM}`,
-    description:
-      "Google Maps Pollen API — pollen types, plants, and allergy indexes by location.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "pollen"],
-    docs: {
-      homepage: "https://developers.google.com/maps/documentation/pollen",
-    },
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "GET /v1/forecast:lookup",
-        desc: "Get pollen forecast",
-        amount: "10000",
-      },
-    ],
-  },
-
-  // ── Google Maps Roads ──────────────────────────────────────────────
-  {
-    id: "googlemaps-roads",
-    name: "Google Maps Roads",
-    url: "https://roads.googleapis.com",
-    serviceUrl: `https://googlemaps-roads.${MPP_REALM}`,
-    description:
-      "Google Maps Roads API — snap coordinates to roads and find nearest roads.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "roads"],
+    tags: ["maps", "google", "geocoding", "directions", "places", "routes", "tiles", "weather", "air-quality", "solar", "roads", "pollen", "geolocation", "aerial", "validation"],
     docs: {
       homepage: "https://developers.google.com/maps",
-      apiReference: "https://developers.google.com/maps/documentation/roads",
+      apiReference: "https://developers.google.com/maps/documentation",
     },
     provider: { name: "Google", url: "https://developers.google.com/maps" },
     realm: MPP_REALM,
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
-      {
-        route: "GET /v1/nearestRoads",
-        desc: "Find nearest roads to coordinates",
-        amount: "10000",
-      },
-      {
-        route: "GET /v1/snapToRoads",
-        desc: "Snap GPS coordinates to roads",
-        amount: "10000",
-      },
-    ],
-  },
-
-  // ── Google Maps Routes ─────────────────────────────────────────────
-  {
-    id: "googlemaps-routes",
-    name: "Google Maps Routes",
-    url: "https://routes.googleapis.com",
-    serviceUrl: `https://googlemaps-routes.${MPP_REALM}`,
-    description:
-      "Google Maps Routes API — compute routes and distance matrices with real-time traffic.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "routes", "directions"],
-    docs: {
-      homepage: "https://developers.google.com/maps",
-      apiReference: "https://developers.google.com/maps/documentation/routes",
-    },
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /directions/v2:computeRoutes",
-        desc: "Compute routes between locations",
-        amount: "5000",
-      },
-      {
-        route: "POST /distanceMatrix/v2:computeRouteMatrix",
-        desc: "Compute distance matrix",
-        amount: "5000",
-      },
-    ],
-  },
-
-  // ── Google Maps Solar ──────────────────────────────────────────────
-  {
-    id: "googlemaps-solar",
-    name: "Google Maps Solar",
-    url: "https://solar.googleapis.com",
-    serviceUrl: `https://googlemaps-solar.${MPP_REALM}`,
-    description:
-      "Google Maps Solar API — rooftop solar energy potential for buildings.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "solar", "energy"],
-    docs: {
-      homepage: "https://developers.google.com/maps/documentation/solar",
-    },
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "GET /v1/buildingInsights:findClosest",
-        desc: "Get building solar insights",
-        amount: "10000",
-      },
-      {
-        route: "GET /v1/dataLayers:get",
-        desc: "Get solar data layers",
-        amount: "75000",
-      },
-    ],
-  },
-
-  // ── Google Maps Tiles ──────────────────────────────────────────────
-  {
-    id: "googlemaps-tiles",
-    name: "Google Maps Tiles",
-    url: "https://tile.googleapis.com",
-    serviceUrl: `https://googlemaps-tiles.${MPP_REALM}`,
-    description:
-      "Google Maps Tiles API — 2D map tiles, Street View tiles, and 3D tiles.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "tiles"],
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "GET /v1/2dtiles/:z/:x/:y",
-        desc: "Get a 2D map tile",
-        amount: "600",
-      },
-      {
-        route: "GET /v1/streetview/tiles/:panoId/:z/:x/:y",
-        desc: "Get a Street View tile",
-        amount: "2000",
-      },
-      {
-        route: "GET /v1/3dtiles/root.json",
-        desc: "Get 3D tiles root",
-        amount: "6000",
-      },
-      { route: "GET /v1/createSession", desc: "Create a tile session" },
-    ],
-  },
-
-  // ── Google Maps Address Validation ─────────────────────────────────
-  {
-    id: "googlemaps-validation",
-    name: "Google Maps Address Validation",
-    url: "https://addressvalidation.googleapis.com",
-    serviceUrl: `https://googlemaps-validation.${MPP_REALM}`,
-    description:
-      "Google Maps Address Validation API — validate and standardize postal addresses.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "address", "validation"],
-    docs: {
-      homepage: "https://developers.google.com/maps",
-      apiReference:
-        "https://developers.google.com/maps/documentation/address-validation",
-    },
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /v1:validateAddress",
-        desc: "Validate a postal address",
-        amount: "17000",
-      },
-      {
-        route: "POST /v1:provideValidationFeedback",
-        desc: "Provide validation feedback",
-      },
-    ],
-  },
-
-  // ── Google Maps Weather ────────────────────────────────────────────
-  {
-    id: "googlemaps-weather",
-    name: "Google Maps Weather",
-    url: "https://weather.googleapis.com",
-    serviceUrl: `https://googlemaps-weather.${MPP_REALM}`,
-    description:
-      "Google Maps Weather API — current conditions, hourly and daily forecasts.",
-    categories: ["data"],
-    integration: "first-party",
-    tags: ["maps", "google", "weather"],
-    docs: {
-      homepage: "https://developers.google.com/maps/documentation/weather",
-    },
-    provider: { name: "Google", url: "https://developers.google.com/maps" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "GET /v1/currentConditions:lookup",
-        desc: "Get current weather conditions",
-        amount: "150",
-      },
-      {
-        route: "GET /v1/forecast/hours:lookup",
-        desc: "Get hourly weather forecast",
-        amount: "150",
-      },
-      {
-        route: "GET /v1/forecast/days:lookup",
-        desc: "Get daily weather forecast",
-        amount: "150",
-      },
-      {
-        route: "GET /v1/history/hours:lookup",
-        desc: "Get hourly weather history",
-        amount: "150",
-      },
+      // Legacy REST (maps.googleapis.com/maps/api)
+      { route: "GET /maps/geocode/json", desc: "Geocode an address or reverse-geocode coordinates", amount: "5000" },
+      { route: "GET /maps/directions/json", desc: "Get directions between locations", amount: "5000" },
+      { route: "GET /maps/distancematrix/json", desc: "Travel time and distance for origin-destination pairs", amount: "5000" },
+      { route: "GET /maps/elevation/json", desc: "Get elevation for locations", amount: "5000" },
+      { route: "GET /maps/timezone/json", desc: "Get time zone for coordinates", amount: "5000" },
+      { route: "GET /maps/staticmap", desc: "Generate a static map image", amount: "2000" },
+      { route: "GET /maps/streetview", desc: "Get a static Street View image", amount: "7000" },
+      { route: "GET /maps/place/textsearch/json", desc: "Search places by text query", amount: "32000" },
+      { route: "GET /maps/place/nearbysearch/json", desc: "Search nearby places", amount: "32000" },
+      { route: "GET /maps/place/details/json", desc: "Get place details", amount: "17000" },
+      // Routes API
+      { route: "POST /routes/directions/v2:computeRoutes", desc: "Compute routes between locations", amount: "5000" },
+      { route: "POST /routes/distanceMatrix/v2:computeRouteMatrix", desc: "Compute distance matrix", amount: "5000" },
+      // Places (New) API
+      { route: "GET /places/v1/places/:id", desc: "Get place details (essentials)", amount: "5000" },
+      { route: "POST /places/v1/places:searchText", desc: "Text search for places", amount: "32000" },
+      { route: "POST /places/v1/places:searchNearby", desc: "Nearby search for places", amount: "32000" },
+      { route: "POST /places/v1/places:autocomplete", desc: "Place autocomplete", amount: "2830" },
+      { route: "GET /places/v1/places/:id/photos/:photoId/media", desc: "Get a place photo", amount: "7000" },
+      // Tiles API
+      { route: "GET /tiles/v1/2dtiles/:z/:x/:y", desc: "Get a 2D map tile", amount: "600" },
+      { route: "GET /tiles/v1/streetview/tiles/:panoId/:z/:x/:y", desc: "Get a Street View tile", amount: "2000" },
+      { route: "GET /tiles/v1/3dtiles/root.json", desc: "Get 3D tiles root", amount: "6000" },
+      { route: "GET /tiles/v1/createSession", desc: "Create a tile session" },
+      // Roads API
+      { route: "GET /roads/v1/nearestRoads", desc: "Find nearest roads to coordinates", amount: "10000" },
+      { route: "GET /roads/v1/snapToRoads", desc: "Snap GPS coordinates to roads", amount: "10000" },
+      // Address Validation API
+      { route: "POST /validation/v1:validateAddress", desc: "Validate a postal address", amount: "17000" },
+      { route: "POST /validation/v1:provideValidationFeedback", desc: "Provide validation feedback" },
+      // Solar API
+      { route: "GET /solar/v1/buildingInsights:findClosest", desc: "Get building solar insights", amount: "10000" },
+      { route: "GET /solar/v1/dataLayers:get", desc: "Get solar data layers", amount: "75000" },
+      // Aerial View API
+      { route: "GET /aerialview/v1/videos:lookupVideo", desc: "Look up an aerial view video", amount: "16000" },
+      { route: "POST /aerialview/v1/videos:renderVideo", desc: "Render an aerial view video", amount: "16000" },
+      { route: "GET /aerialview/v1/videos:lookupVideoMetadata", desc: "Look up video metadata" },
+      // Air Quality API
+      { route: "POST /airquality/v1/currentConditions:lookup", desc: "Get current air quality conditions", amount: "5000" },
+      { route: "POST /airquality/v1/history:lookup", desc: "Get air quality history", amount: "5000" },
+      // Pollen API
+      { route: "GET /pollen/v1/forecast:lookup", desc: "Get pollen forecast", amount: "10000" },
+      // Geolocation API
+      { route: "POST /geolocation/geolocation/v1/geolocate", desc: "Geolocate a device", amount: "5000" },
+      // Weather API
+      { route: "GET /weather/v1/currentConditions:lookup", desc: "Get current weather conditions", amount: "150" },
+      { route: "GET /weather/v1/forecast/hours:lookup", desc: "Get hourly weather forecast", amount: "150" },
+      { route: "GET /weather/v1/forecast/days:lookup", desc: "Get daily weather forecast", amount: "150" },
+      { route: "GET /weather/v1/history/hours:lookup", desc: "Get hourly weather history", amount: "150" },
     ],
   },
 
