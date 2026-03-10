@@ -12,3 +12,4 @@ src/pages/_vocs.generated.css
 src/snippets/cli-help.txt
 .vercel
 .DS_Store
+.env.local

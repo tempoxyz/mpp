@@ -345,7 +345,7 @@ export function ServiceDiscovery() {
     <>
       <div
         ref={sectionRef}
-        className={`discovery-section${hasQuery ? " has-query" : ""}`}
+        className={`discovery-section${hasQuery ? " has-query" : ""}${mobileSearchActive ? " mobile-search-active" : ""}`}
         style={{
           height: "100%",
           width: "100%",
@@ -384,6 +384,9 @@ export function ServiceDiscovery() {
                 onFocus={() => {
                   setIsFocused(true);
                   if (query.length > 0) setShowDropdown(true);
+                  if (window.matchMedia("(max-width: 768px)").matches) {
+                    setMobileSearchActive(true);
+                  }
                 }}
                 onBlur={() => {
                   setIsFocused(false);
@@ -398,23 +401,21 @@ export function ServiceDiscovery() {
                 placeholder="Find by usage, route, category..."
                 className="discovery-search-input"
               />
-              {!isFocused && query.length === 0 && (
+              {!isFocused && query.length === 0 && !mobileSearchActive && (
                 <kbd className="discovery-kbd">
                   <span className="discovery-kbd-symbol">⌘</span>K
                 </kbd>
               )}
-              {query.length > 0 && (
+              {mobileSearchActive && (
                 <button
                   type="button"
-                  className="mobile-view-btn"
+                  className="mobile-search-dismiss"
                   onMouseDown={(e) => {
                     e.preventDefault();
-                    setMobileSearchActive(true);
-                    setShowDropdown(false);
-                    inputRef.current?.blur();
+                    dismissMobileSearch();
                   }}
                 >
-                  View
+                  Done
                 </button>
               )}
               {query.length > 0 && (
@@ -453,7 +454,7 @@ export function ServiceDiscovery() {
                 View all
               </a>
             )}
-            {showDropdown && query.length > 0 && (
+            {(showDropdown || mobileSearchActive) && query.length > 0 && (
               <div className="discovery-dropdown">
                 <div className="discovery-dropdown-tabs">
                   {(["all", "services", "endpoints"] as const).map((tab) => (
@@ -694,136 +695,6 @@ export function ServiceDiscovery() {
           })()}
         </div>
       </div>
-
-      {/* Mobile header-bar search mode (activated via "View" button) */}
-      {mobileSearchActive &&
-        createPortal(
-          <div className="mobile-search-portal">
-            <div className="mobile-search-header">
-              <div
-                className="discovery-search"
-                style={{ height: "100%", borderRadius: 8 }}
-              >
-                <SearchIcon />
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                  }}
-                  placeholder="Search services..."
-                  className="discovery-search-input"
-                  style={{ fontSize: 14 }}
-                  ref={(el) => el?.focus()}
-                />
-                <button
-                  type="button"
-                  className="mobile-search-dismiss"
-                  onClick={dismissMobileSearch}
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-            <div className="mobile-search-overlay">
-              <div
-                className="discovery-dropdown-tabs"
-                style={{
-                  position: "sticky",
-                  top: 0,
-                  background: "var(--vocs-background-color-primary)",
-                  zIndex: 2,
-                  borderBottom: "1px solid var(--vocs-border-color-primary)",
-                  padding: "0.5rem 1rem",
-                }}
-              >
-                {(["all", "services", "endpoints"] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    className={`discovery-dropdown-tab${dropdownTab === tab ? " discovery-dropdown-tab-active" : ""}`}
-                    onClick={() => {
-                      setDropdownTab(tab);
-                      setActiveIndex(-1);
-                    }}
-                  >
-                    {tab === "all"
-                      ? "All"
-                      : tab === "services"
-                        ? "Services"
-                        : "Endpoints"}
-                  </button>
-                ))}
-              </div>
-              <div style={{ padding: "0.5rem 0" }}>
-                {dropdownResults.length > 0 ? (
-                  dropdownResults
-                    .filter(
-                      (r) =>
-                        dropdownTab === "all" ||
-                        (dropdownTab === "services" &&
-                          (r.type === "service" || r.type === "category")) ||
-                        (dropdownTab === "endpoints" && r.type === "endpoint"),
-                    )
-                    .map((r, i) => (
-                      <button
-                        key={`mv-${r.type}-${i}`}
-                        type="button"
-                        className="discovery-dropdown-item"
-                        onClick={() => handleDropdownSelect(r)}
-                      >
-                        {r.type === "category" && (
-                          <>
-                            <span className="dropdown-tag">Category</span>
-                            <span>{r.label}</span>
-                          </>
-                        )}
-                        {r.type === "service" && (
-                          <>
-                            <span className="dropdown-tag">Service</span>
-                            <span>{r.service.name}</span>
-                            <span className="dropdown-desc">
-                              {r.service.description?.slice(0, 60)}
-                            </span>
-                          </>
-                        )}
-                        {r.type === "endpoint" && (
-                          <>
-                            <span className="dropdown-tag">Endpoint</span>
-                            <span>{r.service.name}</span>
-                            <span className="dropdown-right">
-                              <span className="dropdown-route">
-                                {r.endpoint.path}
-                              </span>
-                              <span
-                                className={`method-badge method-${r.endpoint.method.toLowerCase()}`}
-                              >
-                                {r.endpoint.method}
-                              </span>
-                            </span>
-                          </>
-                        )}
-                      </button>
-                    ))
-                ) : (
-                  <div
-                    style={{
-                      padding: "2rem 1rem",
-                      textAlign: "center",
-                      color: "var(--vocs-text-color-muted)",
-                      fontSize: 15,
-                    }}
-                  >
-                    {query.length > 0
-                      ? "No matches found"
-                      : "Type to search services and endpoints"}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
 
       {/* Detail modal — portaled to body to escape stacking context */}
       {selectedService &&
@@ -2659,75 +2530,52 @@ function DiscoveryStyles() {
         .cli-line-comment { display: none; }
       }
 
-      /* ---- Mobile "View" button (hidden on desktop) ---- */
-      .mobile-view-btn { display: none; }
+      /* ---- Mobile search active state ---- */
+      .mobile-search-dismiss { display: none; }
+
       @media (max-width: 768px) {
-        .mobile-view-btn {
+        .mobile-search-active .discovery-ascii-logo {
+          opacity: 0 !important;
+          max-height: 0 !important;
+          margin: 0 !important;
+          overflow: hidden;
+          transition: none;
+        }
+        .mobile-search-active .discovery-overlay-desc {
+          opacity: 0 !important;
+          max-height: 0 !important;
+          margin: 0 !important;
+          overflow: hidden;
+          transition: none;
+        }
+        .mobile-search-active .discovery-overlay {
+          top: 15% !important;
+          transition: top 0.2s ease;
+        }
+        .mobile-search-active .discovery-grid::after {
+          opacity: 1 !important;
+          background: oklch(from var(--vocs-background-color-primary) l c h / 0.92) !important;
+        }
+        .mobile-search-active .discovery-dropdown {
+          max-height: 60vh !important;
+        }
+        .mobile-search-active .discovery-view-all {
+          display: none !important;
+        }
+        .mobile-search-dismiss {
           display: block;
           flex-shrink: 0;
           border: none;
-          background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1));
+          background: transparent;
           color: var(--vocs-text-color-heading);
-          font-size: 12px;
-          font-weight: 600;
+          font-size: 13px;
+          font-weight: 500;
           font-family: var(--font-sans);
           cursor: pointer;
-          padding: 4px 10px;
-          border-radius: 5px;
+          padding: 4px 8px;
+          border-radius: 4px;
           white-space: nowrap;
         }
-      }
-
-      /* ---- Mobile search portal (header bar + full-screen overlay) ---- */
-      .mobile-search-portal {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-      }
-      .mobile-search-portal .mobile-search-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 56px;
-        display: flex;
-        align-items: center;
-        padding: 0 1rem;
-        background: var(--vocs-background-color-primary);
-        z-index: 10001;
-        border-bottom: 1px solid var(--vocs-border-color-primary);
-      }
-      .mobile-search-portal .mobile-search-header .discovery-search {
-        flex: 1;
-        padding: 0 0.75rem;
-        border-radius: 8px;
-      }
-      .mobile-search-dismiss {
-        flex-shrink: 0;
-        border: none;
-        background: transparent;
-        color: var(--vocs-text-color-heading);
-        font-size: 14px;
-        font-weight: 500;
-        font-family: var(--font-sans);
-        cursor: pointer;
-        padding: 6px 10px;
-        border-radius: 6px;
-      }
-      .mobile-search-portal .mobile-search-overlay {
-        position: fixed;
-        top: 56px;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--vocs-background-color-primary);
-        z-index: 10000;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .mobile-search-portal .discovery-dropdown-item {
-        padding: 0.9rem 1.25rem !important;
-        font-size: 15px !important;
       }
     `}</style>
   );
