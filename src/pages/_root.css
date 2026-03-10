@@ -345,12 +345,6 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
   /* Accent button text - always white since accent bg is near-black */
   --accent-button-text: white;
 
-  /* Muted text — 15% brighter than Vocs default for readability */
-  --vocs-text-color-muted: light-dark(
-    rgba(0, 0, 0, 0.52),
-    rgba(255, 255, 255, 0.48)
-  );
-
   /* Softer borders in dark mode */
   --vocs-border-color-primary: light-dark(
     rgba(0, 0, 0, 0.08),
@@ -469,15 +463,14 @@ div:has(> pre[data-v]) > button {
   position: absolute !important;
   top: 0.5rem !important;
   right: 0.5rem !important;
-  z-index: 100 !important;
-  opacity: 0 !important;
+  z-index: 3 !important;
+  opacity: 0;
   transition: opacity 0.15s;
-  pointer-events: auto;
 }
 div:has(> pre[data-v]):hover > button,
 [data-v-code-block]:hover > button:last-child,
 pre[data-v]:hover ~ button[aria-label] {
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 /* Right-edge gradient in code blocks — below the copy icon, only on hover */
@@ -934,20 +927,6 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   }
 }
 
-/* Terminal buttons: larger touch targets on mobile */
-@media (max-width: 767px) {
-  .terminal-theme .term-wizard-btn {
-    min-height: 44px;
-    padding: 0.5rem 0.75rem;
-    display: flex;
-    align-items: center;
-    border: 1px solid var(--term-gray4);
-    border-radius: 6px;
-    margin: 0.2rem 0;
-    width: 100%;
-  }
-}
-
 /* Bottom gradient above Ask AI for visibility */
 [data-v-main]::after {
   content: "";
@@ -968,28 +947,4 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 :has(.landing-page) [data-v-main]::after,
 [data-layout="minimal"] [data-v-main]::after {
   display: none;
-}
-
-/* ---- Mobile navigation fix ----
-   On minimal-layout pages (landing, services), hide the docs sidebar in the
-   mobile drawer and show only the top-level nav links. */
-@media (max-width: 1079px) {
-  [data-layout="minimal"] [data-v-sidebar] {
-    display: none !important;
-  }
-}
-
-/* ---- Page content opacity transition on route change ----
-   Smooth fade-in for main content area; header/nav stays static. */
-@keyframes pageContentFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-[data-v-content],
-[data-layout="minimal"] main > article {
-  animation: pageContentFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
