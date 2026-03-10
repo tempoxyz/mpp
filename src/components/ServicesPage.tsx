@@ -2339,6 +2339,19 @@ function ServiceRow({
                   </span>
                 )}
               </div>
+              {s.provider?.name && (
+                <div
+                  className="show-tablet"
+                  style={{
+                    display: "none",
+                    marginTop: 3,
+                    fontSize: 13,
+                    color: "var(--vocs-text-color-muted)",
+                  }}
+                >
+                  {s.provider.name}
+                </div>
+              )}
               <div
                 className="show-tablet"
                 style={{ display: "none", marginTop: 5 }}
@@ -2907,12 +2920,14 @@ function PageStyles() {
         [data-services-table] table { table-layout: auto !important; overflow: visible !important; }
         [data-services-table] table col:nth-child(1) { width: auto !important; }
         [data-services-table] table col:nth-child(2),
-        [data-services-table] table col:nth-child(3) { width: 0 !important; }
-        [data-services-table] table col:nth-child(4) { width: 48px !important; }
+        [data-services-table] table col:nth-child(3),
+        [data-services-table] table col:nth-child(4) { width: 0 !important; }
+        [data-services-table] table col:nth-child(5) { width: 48px !important; }
         [data-services-table] table td:first-child { padding: 1rem 0.5rem 1rem 1rem !important; vertical-align: top !important; }
         [data-services-table] table td:last-child { padding: 1rem 0.5rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
         .svc-icon { align-self: flex-start !important; margin-top: 0 !important; }
         .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.1rem !important; flex-wrap: wrap !important; }
+        .svc-name-text { white-space: normal !important; }
         .svc-badge-inline { display: inline !important; }
         .svc-badge-bordered { display: inline !important; }
         .svc-badge-borderless { display: none !important; }
@@ -2943,7 +2958,7 @@ function PageStyles() {
         [data-services-table] table { width: 100% !important; }
         [data-services-table] thead { display: none !important; }
         [data-services-table] table td:first-child { padding: 1rem 0.75rem 1rem 1.25rem !important; vertical-align: top !important; }
-        [data-services-table] table td:last-child { padding: 1rem 1.25rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
+        [data-services-table] table td:last-of-type { padding: 1rem 1.25rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
         .chevron-cell { padding-right: 0 !important; }
         .svc-badge-inline { margin-left: 0.25rem !important; }
         .sub-row { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }

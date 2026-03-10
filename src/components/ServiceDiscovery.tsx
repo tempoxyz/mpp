@@ -382,6 +382,7 @@ export function ServiceDiscovery() {
                   setIsFocused(false);
                   setTimeout(() => {
                     setShowDropdown(false);
+                    setQuery("");
                   }, 200);
                 }}
                 onKeyDown={handleKeyDown}
@@ -393,20 +394,6 @@ export function ServiceDiscovery() {
                   <span className="discovery-kbd-symbol">⌘</span>K
                 </kbd>
               )}
-              {query.length > 0 &&
-                !showDropdown &&
-                dropdownResults.length === 0 && (
-                  <span
-                    style={{
-                      fontSize: 12,
-                      color: "var(--vocs-text-color-muted)",
-                      whiteSpace: "nowrap",
-                      flexShrink: 0,
-                    }}
-                  >
-                    no matches
-                  </span>
-                )}
               {query.length > 0 && (
                 <button
                   type="button"
@@ -1721,16 +1708,24 @@ function DiscoveryStyles() {
         font-size: clamp(1.15rem, 1.3vw, 1rem);
         margin-top: 1rem;
         margin-bottom: 1rem;
-        transition: opacity 0.3s;
+        transition: opacity 0.3s, max-height 0.3s, margin 0.3s;
       }
-      @media (max-width: 768px) {
-        .has-query .discovery-ascii-logo,
-        .has-query .discovery-overlay-desc {
-          opacity: 0;
-          max-height: 0;
-          margin: 0;
-          overflow: hidden;
-        }
+      .has-query .discovery-ascii-logo {
+        opacity: 0;
+        max-height: 0;
+        margin: 0;
+        overflow: hidden;
+        transition: opacity 0.25s, max-height 0.3s, margin 0.3s;
+      }
+      .has-query .discovery-overlay-desc {
+        opacity: 0;
+        max-height: 0;
+        margin: 0;
+        overflow: hidden;
+        transition: opacity 0.25s, max-height 0.3s, margin 0.3s;
+      }
+      .has-query .discovery-overlay {
+        top: 35%;
       }
 
       /* No results message */
@@ -2285,6 +2280,11 @@ function DiscoveryStyles() {
         cursor: pointer;
         font-family: var(--font-sans);
         transition: color 0.15s, background 0.15s, border-color 0.15s;
+        white-space: nowrap;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
       }
       .modal-copy-btn:hover {
         color: var(--vocs-text-color-heading);
