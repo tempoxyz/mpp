@@ -189,7 +189,7 @@ export function ServiceDiscovery() {
   const [dropdownTab, setDropdownTab] = useState<
     "all" | "services" | "endpoints"
   >("all");
-  // const [showAddModal, setShowAddModal] = useState(false);
+  const [mobileSearchActive, setMobileSearchActive] = useState(false);
 
   useEffect(() => {
     fetchServices()
@@ -259,16 +259,23 @@ export function ServiceDiscovery() {
     [services, query],
   );
 
+  const dismissMobileSearch = useCallback(() => {
+    setMobileSearchActive(false);
+    setShowDropdown(false);
+    setQuery("");
+    inputRef.current?.blur();
+  }, []);
+
   const handleDropdownSelect = useCallback((result: DropdownResult) => {
     setShowDropdown(false);
+    setMobileSearchActive(false);
+    inputRef.current?.blur();
     if (result.type === "service") {
       setSelectedService(result.service);
-      setQuery("");
     } else if (result.type === "category") {
       setQuery(result.label);
     } else if (result.type === "endpoint") {
       setSelectedService(result.service);
-      setQuery("");
     }
   }, []);
 
@@ -348,6 +355,142 @@ export function ServiceDiscovery() {
       >
         <DiscoveryStyles />
 
+        {/* Mobile search header bar + full-screen results overlay */}
+        {mobileSearchActive && (
+          <>
+            <div className="mobile-search-header">
+              <div className="discovery-search" style={{ height: "100%" }}>
+                <SearchIcon />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setShowDropdown(e.target.value.length > 0);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search services..."
+                  className="discovery-search-input"
+                  ref={(el) => el?.focus()}
+                />
+                <button
+                  type="button"
+                  className="mobile-search-dismiss"
+                  onClick={dismissMobileSearch}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+            <div className="mobile-search-overlay">
+              {query.length > 0 && dropdownResults.length > 0 ? (
+                <>
+                  <div
+                    className="discovery-dropdown-tabs"
+                    style={{
+                      position: "sticky",
+                      top: 0,
+                      background: "var(--vocs-background-color-primary)",
+                      zIndex: 2,
+                    }}
+                  >
+                    {(["all", "services", "endpoints"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        type="button"
+                        className={`discovery-dropdown-tab${dropdownTab === tab ? " discovery-dropdown-tab-active" : ""}`}
+                        onClick={() => {
+                          setDropdownTab(tab);
+                          setActiveIndex(-1);
+                        }}
+                      >
+                        {tab === "all"
+                          ? "All"
+                          : tab === "services"
+                            ? "Services"
+                            : "Endpoints"}
+                      </button>
+                    ))}
+                  </div>
+                  <div>
+                    {dropdownResults
+                      .filter(
+                        (r) =>
+                          dropdownTab === "all" ||
+                          (dropdownTab === "services" &&
+                            (r.type === "service" || r.type === "category")) ||
+                          (dropdownTab === "endpoints" &&
+                            r.type === "endpoint"),
+                      )
+                      .map((r, i) => (
+                        <button
+                          key={`mobile-${r.type}-${i}`}
+                          type="button"
+                          className="discovery-dropdown-item"
+                          onClick={() => handleDropdownSelect(r)}
+                        >
+                          {r.type === "category" && (
+                            <>
+                              <span className="dropdown-tag">Category</span>
+                              <span>{r.label}</span>
+                            </>
+                          )}
+                          {r.type === "service" && (
+                            <>
+                              <span className="dropdown-tag">Service</span>
+                              <span>{r.service.name}</span>
+                              <span className="dropdown-desc">
+                                {r.service.description?.slice(0, 60)}
+                              </span>
+                            </>
+                          )}
+                          {r.type === "endpoint" && (
+                            <>
+                              <span className="dropdown-tag">Endpoint</span>
+                              <span>{r.service.name}</span>
+                              <span className="dropdown-right">
+                                <span className="dropdown-route">
+                                  {r.endpoint.path}
+                                </span>
+                                <span
+                                  className={`method-badge method-${r.endpoint.method.toLowerCase()}`}
+                                >
+                                  {r.endpoint.method}
+                                </span>
+                              </span>
+                            </>
+                          )}
+                        </button>
+                      ))}
+                  </div>
+                </>
+              ) : query.length > 0 ? (
+                <div
+                  style={{
+                    padding: "2rem 1rem",
+                    textAlign: "center",
+                    color: "var(--vocs-text-color-muted)",
+                    fontSize: 15,
+                  }}
+                >
+                  No matches found
+                </div>
+              ) : (
+                <div
+                  style={{
+                    padding: "2rem 1rem",
+                    textAlign: "center",
+                    color: "var(--vocs-text-color-muted)",
+                    fontSize: 14,
+                  }}
+                >
+                  Type to search services and endpoints
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
         {/* Search overlay — absolutely centered */}
         <div className="discovery-overlay" ref={overlayRef}>
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: scroll to top */}
@@ -377,13 +520,18 @@ export function ServiceDiscovery() {
                 onFocus={() => {
                   setIsFocused(true);
                   if (query.length > 0) setShowDropdown(true);
+                  if (window.matchMedia("(max-width: 768px)").matches) {
+                    setMobileSearchActive(true);
+                  }
                 }}
                 onBlur={() => {
                   setIsFocused(false);
-                  setTimeout(() => {
-                    setShowDropdown(false);
-                    setQuery("");
-                  }, 200);
+                  if (!mobileSearchActive) {
+                    setTimeout(() => {
+                      setShowDropdown(false);
+                      setQuery("");
+                    }, 200);
+                  }
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder="Find by usage, route, category..."
@@ -1889,6 +2037,14 @@ function DiscoveryStyles() {
         border-color: light-dark(rgba(0,0,0,0.2), rgba(255,255,255,0.2));
         text-decoration: none !important;
       }
+      @media (max-width: 768px) {
+        .discovery-view-all {
+          background: var(--vocs-background-color-primary) !important;
+          border-color: light-dark(rgba(0,0,0,0.15), rgba(255,255,255,0.15)) !important;
+          color: var(--vocs-text-color-heading) !important;
+          font-weight: 500;
+        }
+      }
 
       /* Dropdown */
       .discovery-dropdown {
@@ -2491,6 +2647,66 @@ function DiscoveryStyles() {
         }
         .endpoint-desc { display: none; }
         .cli-line-comment { display: none; }
+      }
+
+      /* ---- Mobile search header bar mode ---- */
+      .mobile-search-header {
+        display: none;
+      }
+      .mobile-search-overlay {
+        display: none;
+      }
+      @media (max-width: 768px) {
+        .mobile-search-header {
+          display: block;
+          position: fixed;
+          top: 8px;
+          left: 56px;
+          right: 56px;
+          z-index: 110;
+          height: 40px;
+        }
+        .mobile-search-header .discovery-search {
+          height: 100%;
+          padding: 0 0.75rem;
+          font-size: 14px;
+          border-radius: 8px;
+        }
+        .mobile-search-header .discovery-search-input {
+          font-size: 14px;
+        }
+        .mobile-search-dismiss {
+          flex-shrink: 0;
+          border: none;
+          background: transparent;
+          color: var(--vocs-text-color-heading);
+          font-size: 13px;
+          font-weight: 500;
+          font-family: var(--font-sans);
+          cursor: pointer;
+          padding: 4px 8px;
+          border-radius: 4px;
+        }
+        .mobile-search-overlay {
+          display: block;
+          position: fixed;
+          top: 56px;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: var(--vocs-background-color-primary);
+          z-index: 100;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .mobile-search-overlay .discovery-dropdown-item {
+          padding: 0.9rem 1.25rem;
+          font-size: 15px;
+        }
+        .mobile-search-overlay .discovery-dropdown-tabs {
+          padding: 0.5rem 1rem;
+          border-bottom: 1px solid var(--vocs-border-color-primary);
+        }
       }
     `}</style>
   );
