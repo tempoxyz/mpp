@@ -534,9 +534,9 @@ for await (const word of stream) {
 }
 ```
 
-- **`tempo.session()`**: Creates a session manager that handles the full channel lifecycle: open, voucher signing, and close.
-- **`.sse()`**: Connects to an SSE endpoint. Automatically sends new vouchers when the server emits `payment-need-voucher` events.
-- **`maxDeposit: '1'`**: Locks up to 1 pathUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
+- **`tempo.session()`** — Creates a session manager that handles the full channel lifecycle: open, voucher signing, and close.
+- **`.sse()`** — Connects to an SSE endpoint. Automatically sends new vouchers when the server emits `payment-need-voucher` events.
+- **`maxDeposit: '1'`** — Locks up to 1 pathUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
 
 ## Next steps
 
