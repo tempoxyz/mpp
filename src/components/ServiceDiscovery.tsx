@@ -770,7 +770,7 @@ export function ServiceDiscovery() {
           document.body,
         )} */}
 
-      {/* Mobile nav search — third state: search in sticky nav with results below */}
+      {/* Mobile nav search — third state: full-screen card grid results */}
       {mobileNavSearch &&
         createPortal(
           <div className="mobile-nav-search-overlay">
@@ -788,6 +788,11 @@ export function ServiceDiscovery() {
                 className="mobile-nav-search-input"
                 ref={(el) => el?.focus()}
               />
+              {targetGridIndex.size > 0 && (
+                <span className="mobile-nav-search-count">
+                  {targetGridIndex.size} matches
+                </span>
+              )}
               <button
                 type="button"
                 className="mobile-nav-search-close"
@@ -813,49 +818,44 @@ export function ServiceDiscovery() {
                 </svg>
               </button>
             </div>
-            {query.length > 0 && dropdownResults.length > 0 && (
-              <div className="mobile-nav-search-results">
-                {dropdownResults.map((r, i) => (
-                  <button
-                    key={`nav-${r.type}-${i}`}
-                    type="button"
-                    className="mobile-nav-search-item"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      handleDropdownSelect(r);
-                    }}
-                  >
-                    <span className="dropdown-tag">
-                      {r.type === "category"
-                        ? "Category"
-                        : r.type === "service"
-                          ? "Service"
-                          : "Endpoint"}
-                    </span>
-                    <span>
-                      {r.type === "category" ? r.label : r.service.name}
-                    </span>
-                    {r.type === "endpoint" && (
-                      <span className="dropdown-route">{r.endpoint.path}</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-            {query.length > 0 && dropdownResults.length === 0 && (
-              <div className="mobile-nav-search-results">
-                <div
-                  style={{
-                    padding: "1.5rem 1rem",
-                    textAlign: "center",
-                    color: "var(--vocs-text-color-muted)",
-                    fontSize: 14,
-                  }}
-                >
-                  No matches found
-                </div>
-              </div>
-            )}
+            <div className="mobile-nav-search-grid">
+              {stableScored
+                .filter(({ score }) => !debouncedQuery || score > 0)
+                .sort((a, b) => b.score - a.score)
+                .map(({ service }) => {
+                  const iconUrl = getIconUrl(service);
+                  return (
+                    <button
+                      key={service.id}
+                      type="button"
+                      className="discovery-card discovery-card-visible"
+                      onClick={() => setSelectedService(service)}
+                    >
+                      <div className="discovery-card-icon">
+                        {iconUrl && !brokenIcons.current.has(service.id) ? (
+                          <img
+                            src={iconUrl}
+                            alt=""
+                            className="discovery-card-icon-img"
+                            onError={() => {
+                              brokenIcons.current.add(service.id);
+                              forceIconUpdate((n) => n + 1);
+                            }}
+                          />
+                        ) : (
+                          <div className="discovery-card-icon-fallback">
+                            {service.name[0]}
+                          </div>
+                        )}
+                      </div>
+                      <div className="discovery-card-name">{service.name}</div>
+                      <div className="discovery-card-desc">
+                        {service.description}
+                      </div>
+                    </button>
+                  );
+                })}
+            </div>
           </div>,
           document.body,
         )}
@@ -2777,7 +2777,9 @@ function DiscoveryStyles() {
         inset: 0;
         z-index: 9998;
         background: var(--vocs-background-color-primary);
-        animation: navSearchFadeIn 0.25s ease forwards;
+        display: flex;
+        flex-direction: column;
+        animation: navSearchFadeIn 0.2s ease forwards;
       }
       @keyframes navSearchFadeIn {
         from { opacity: 0; }
@@ -2790,6 +2792,7 @@ function DiscoveryStyles() {
         padding: 0.75rem 1rem;
         border-bottom: 1px solid var(--vocs-border-color-primary);
         background: var(--vocs-background-color-primary);
+        flex-shrink: 0;
       }
       .mobile-nav-search-input {
         flex: 1;
@@ -2802,6 +2805,16 @@ function DiscoveryStyles() {
       }
       .mobile-nav-search-input::placeholder {
         color: var(--vocs-text-color-muted);
+      }
+      .mobile-nav-search-count {
+        flex-shrink: 0;
+        font-size: 12px;
+        font-family: var(--font-sans);
+        color: var(--vocs-text-color-muted);
+        background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08));
+        padding: 3px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
       }
       .mobile-nav-search-close {
         display: flex;
@@ -2819,30 +2832,32 @@ function DiscoveryStyles() {
       .mobile-nav-search-close:hover {
         color: var(--vocs-text-color-heading);
       }
-      .mobile-nav-search-results {
+      .mobile-nav-search-grid {
+        flex: 1;
         overflow-y: auto;
-        max-height: calc(100dvh - 60px);
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        -webkit-overflow-scrolling: touch;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 120px;
+        gap: 8px;
+        padding: 0.75rem;
+        align-content: start;
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
       }
-      .mobile-nav-search-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+      .mobile-nav-search-grid .discovery-card {
         width: 100%;
-        padding: 0.9rem 1rem;
-        border: none;
-        border-bottom: 1px solid var(--vocs-border-color-primary);
-        background: transparent;
-        cursor: pointer;
-        font-size: 15px;
-        color: var(--vocs-text-color-heading);
-        text-align: left;
-        font-family: var(--font-sans);
-        transition: background 0.1s;
+        height: 100%;
+        box-sizing: border-box;
+        display: grid !important;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 2px 12px;
+        padding: 10px;
+        align-items: start;
       }
-      .mobile-nav-search-item:active {
-        background: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06));
-      }
+      .mobile-nav-search-grid .discovery-card-icon { grid-area: 1 / 1; align-self: center; }
+      .mobile-nav-search-grid .discovery-card-name { grid-area: 1 / 2; align-self: center; margin-top: 0; font-size: 15px; }
+      .mobile-nav-search-grid .discovery-card-desc { grid-area: 2 / 1 / 3 / -1; -webkit-line-clamp: 3; font-size: 13.5px; margin-top: 2px; }
     `}</style>
   );
 }
