@@ -37,7 +37,6 @@ const AgentContext = createContext<{
 
 export function LandingPage() {
   const [activeAgent, setActiveAgent] = useState(0);
-  const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [skipAnimation] = useState(() => {
     if (typeof window === "undefined") return false;
     const key = "mpp-landing-animated";
@@ -46,12 +45,6 @@ export function LandingPage() {
     sessionStorage.setItem(key, "1");
     return false;
   });
-
-  useEffect(() => {
-    const onScroll = () => setScrolledPastHero(window.scrollY > 100);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -77,6 +70,7 @@ export function LandingPage() {
     if (!logoLink) return;
     const handler = (e: MouseEvent) => {
       e.preventDefault();
+      window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
       document
         .querySelector(".landing-page")
         ?.scrollTo({ top: 0, behavior: "smooth" });
@@ -98,9 +92,13 @@ export function LandingPage() {
       >
         <LandingStyles />
 
-        {/* First screen: hero + terminal centered in viewport */}
-        <div className="landing-hero-screen">
+        {/* Snap section 1: Hero */}
+        <div className="landing-hero-section">
           <Hero />
+        </div>
+
+        {/* Snap section 2: Terminal */}
+        <div className="landing-terminal-section">
           <div className="landing-terminal">
             <div
               style={{
@@ -117,23 +115,9 @@ export function LandingPage() {
             </div>
           </div>
           <p className="landing-scroll-cta">Start using MPP services today</p>
-          <div
-            className="landing-top-fade"
-            style={{
-              opacity: scrolledPastHero ? 1 : 0,
-              transition: "opacity 0.3s",
-            }}
-          />
-          <div
-            className="landing-bottom-fade"
-            style={{
-              opacity: scrolledPastHero ? 0 : 1,
-              transition: "opacity 0.3s",
-            }}
-          />
         </div>
 
-        {/* Second screen: service discovery */}
+        {/* Snap section 3: Service Discovery */}
         <div className="landing-discovery">
           <ServiceDiscovery />
         </div>
@@ -164,20 +148,19 @@ function LandingStyles() {
         margin-top: 0 !important;
       }
 
-      .landing-hero-screen {
+      /* ---- Snap section 1: Hero ---- */
+      .landing-hero-section {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 80px);
-        overflow: visible;
+        min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
         scroll-snap-align: start;
         flex-shrink: 0;
-        gap: clamp(1.5rem, 3vh, 3rem);
-        padding: clamp(1rem, 3vh, 2rem) 0;
+        padding: clamp(2rem, 4vh, 4rem) 0;
+        padding-top: var(--vocs-spacing-topNav, 56px);
         position: relative;
       }
 
-      /* Hero two-column row */
       .hero-row {
         display: flex;
         align-items: center;
@@ -187,10 +170,24 @@ function LandingStyles() {
       .hero-right {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.5rem;
+      }
+      .landing-hero { flex-shrink: 0; }
+
+      /* ---- Snap section 2: Terminal ---- */
+      .landing-terminal-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
+        scroll-snap-align: start;
+        flex-shrink: 0;
+        padding: clamp(3rem, 6vh, 5rem) 0;
+        position: relative;
+        margin-top: -2rem;
       }
 
-      .landing-hero { flex-shrink: 0; }
       .landing-terminal { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-left: 0.75rem; padding-right: 0.75rem; }
       @media (min-width: 768px) { .landing-terminal { padding-left: 1.5rem; padding-right: 1.5rem; } }
       .term-wizard-list { padding-left: 0; }
@@ -208,20 +205,25 @@ function LandingStyles() {
           width: 100%;
         }
       }
-      .landing-top-fade, .landing-bottom-fade { display: none; }
+
+      @media (max-width: 767px) {
+       .landing-scroll-cta { 
+
+       margin-top: 12rem !important;
+    }
+      }
+
       .landing-scroll-cta {
         display: flex;
         align-items: center;
         gap: 1.5rem;
         color: var(--vocs-text-color-muted);
-        opacity: 0.6;
         font-size: 0.85rem;
         font-family: var(--font-mono, "Geist Mono", monospace);
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin: 0;
         padding: 0;
-        opacity: 1;
         position: absolute;
         bottom: 0;
         left: 50%;
@@ -255,6 +257,7 @@ function LandingStyles() {
         animation: scrollCtaReveal 0.4s ease-out 1.5s both, textShimmer 5s ease-in-out 2s infinite;
       }
 
+      /* ---- Snap section 3: Discovery ---- */
       .landing-discovery {
         scroll-snap-align: start;
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
@@ -262,7 +265,7 @@ function LandingStyles() {
         overflow: hidden;
       }
 
-      /* Lockup entrance animation — staggered sequence */
+      /* ---- Entrance animations ---- */
       .lockup-img {
         animation: lockupReveal 0.8s ease-out both;
       }
@@ -295,7 +298,6 @@ function LandingStyles() {
         to { opacity: 1; transform: translateY(0); }
       }
 
-      /* Skip entrance animations on revisit */
       .skip-entrance .lockup-img,
       .skip-entrance .hero-right,
       .skip-entrance .landing-ctas,
@@ -306,32 +308,27 @@ function LandingStyles() {
       }
       .skip-entrance .landing-scroll-cta { opacity: 0.6 !important; }
 
-      /* Du Bois font for page titles */
       .lockup-h1,
       .discovery-overlay-title {
         font-family: "VTC Du Bois", var(--font-sans) !important;
         text-transform: uppercase;
       }
 
-      /* Mobile + Tablet: stack hero columns */
+      /* ---- Tablet + Mobile: stack hero columns ---- */
       @media (max-width: 1079px) {
-        .hero-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        .hero-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .hero-left h1 { line-height: 0.95 !important; }
-        .landing-hero { padding-top: calc(var(--vocs-spacing-topNav, 56px) + 0.25rem); padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
+        .landing-hero { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
         .landing-terminal { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
-        .landing-ctas {
-          margin-top: 1.25rem !important;
-        }
+        .landing-ctas { margin-top: 1.5rem !important; }
         .hero-right .text-base { font-size: 1.0625rem !important; line-height: 1.65 !important; }
       }
 
-      /* Mobile-only */
+      /* ---- Mobile ---- */
       @media (max-width: 767px) {
-        .hero-row { align-items: center !important; text-align: center; }
-        .hero-right { align-items: center !important; max-width: 85vw; margin: 0 auto; }
-        .landing-ctas { justify-content: center !important; }
-        .designed-by { justify-content: center !important; }
-        .landing-terminal > div:first-child { max-height: 480px !important; }
+        .landing-page {
+          scroll-snap-type: y proximity !important;
+        }
         :has(.landing-page) [data-v-gutter-top] {
           background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent) !important;
           background-color: transparent !important;
@@ -340,15 +337,30 @@ function LandingStyles() {
           border-bottom: none !important;
           box-shadow: none !important;
         }
-        .landing-page {
-          scroll-snap-type: y proximity !important;
+        .hero-row { align-items: center !important; text-align: center; gap: 1.5rem !important; }
+        .hero-right { align-items: center !important; max-width: 85vw; margin: 0 auto; gap: 0.75rem; }
+        .landing-ctas { justify-content: center !important; margin-top: 1.25rem !important; }
+        .designed-by { justify-content: center !important; }
+        .landing-terminal > div:first-child { max-height: 480px !important; min-width: 90vw !important; }
+
+        .landing-hero-section {
+          min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
+          justify-content: center !important;
         }
-        .landing-hero-screen {
-          height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 80px) !important;
-          min-height: 0 !important;
-          justify-content: flex-start !important;
-          padding-top: 0 !important;
-          overflow: hidden;
+        .landing-terminal-section {
+          scroll-snap-align: center !important;
+          min-height: auto !important;
+          padding-top: clamp(3rem, 8vh, 5rem) !important;
+          padding-bottom: clamp(4rem, 10vh, 7rem) !important;
+        }
+        .landing-scroll-cta {
+          position: static !important;
+          left: auto !important;
+          margin-left: 0 !important;
+          width: 100% !important;
+          margin-top: auto;
+          justify-content: end !important;
+          font-size: 0.75rem;
         }
         .landing-ctas a {
           font-size: 1rem !important;
@@ -370,15 +382,15 @@ function LandingStyles() {
         }
       }
 
-      /* Tablet */
+      /* ---- Tablet ---- */
       @media (min-width: 768px) and (max-width: 1079px) {
-        .landing-hero-screen { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
+        .landing-hero-section { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
         .landing-terminal > div:first-child { max-width: 720px !important; }
       }
 
-      /* Desktop */
+      /* ---- Desktop ---- */
       @media (min-width: 1080px) {
-        .landing-hero-screen {
+        .landing-hero-section {
           padding-left: clamp(3rem, 6vw, 6rem);
           padding-right: clamp(3rem, 6vw, 6rem);
         }
@@ -387,34 +399,6 @@ function LandingStyles() {
         }
         .hero-right {
           padding-right: 2rem !important;
-        }
-      }
-
-      /* Short + narrow viewport: snap scroll */
-      @media (max-width: 1079px) and (max-height: 920px) {
-        .landing-hero-screen {
-          min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
-          overflow-y: auto !important;
-          scroll-snap-type: y mandatory !important;
-          scroll-behavior: smooth !important;
-          justify-content: flex-start !important;
-        }
-        .landing-hero { scroll-snap-align: start; padding-top: clamp(4rem, 10vh, 7rem); }
-        .landing-terminal {
-          scroll-snap-align: start;
-          padding-bottom: 128px;
-          padding-top: 0;
-        }
-        .landing-top-fade, .landing-bottom-fade { display: block; }
-        .landing-top-fade {
-          position: fixed; top: 0; left: 0; right: 0; height: 140px;
-          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 0%, oklch(from var(--vocs-background-color-primary) l c h / 0.85) 40%, transparent 100%);
-          pointer-events: none; z-index: 48;
-        }
-        .landing-bottom-fade {
-          position: fixed; bottom: 0; left: 0; right: 0; height: 120px;
-          background: linear-gradient(to top, var(--vocs-background-color-primary) 0%, oklch(from var(--vocs-background-color-primary) l c h / 0.8) 30%, transparent 100%);
-          pointer-events: none; z-index: 49;
         }
       }
 

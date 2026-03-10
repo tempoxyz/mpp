@@ -1092,7 +1092,7 @@ export function ServicesPage() {
                     inputRef={searchInputRef}
                   />
                   <div
-                    className="filter-tags"
+                    className="filter-tags filter-tags-pills"
                     style={{
                       display: "flex",
                       gap: "0.375rem",
@@ -1116,6 +1116,12 @@ export function ServicesPage() {
                       </Pill>
                     ))}
                   </div>
+                  <FilterDropdown
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onSelect={toggleCat}
+                    onClear={clearCats}
+                  />
                 </div>
                 <div className="services-content-row">
                   <div
@@ -1150,7 +1156,12 @@ export function ServicesPage() {
                                 "1px solid var(--vocs-border-color-primary)",
                             }}
                           >
-                            <Th style={{ textAlign: "left" }} />
+                            <Th
+                              className="hide-mobile"
+                              style={{ textAlign: "left" }}
+                            >
+                              Provider
+                            </Th>
                             <Th
                               className="hide-mobile"
                               style={{ textAlign: "left" }}
@@ -1675,8 +1686,10 @@ function HeaderCards({
             <TerminalIcon />
           </span>
           <div>
-            <div style={titleS}>Presto</div>
-            <div style={descS}>CLI with built-in payments</div>
+            <div style={titleS}>Use with Tempo</div>
+            <div style={descS}>
+              CLI & wallet for out-of-the-box agentic payments
+            </div>
           </div>
         </button>
         <a
@@ -2085,6 +2098,155 @@ function Pill({
     </button>
   );
 }
+function FilterDropdown({
+  categories,
+  selectedCategory,
+  onSelect,
+  onClear,
+}: {
+  categories: Category[];
+  selectedCategory: Category | null;
+  onSelect: (cat: Category) => void;
+  onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const label = selectedCategory
+    ? (CATEGORY_LABELS[selectedCategory] ?? selectedCategory)
+    : "All";
+
+  return (
+    <div className="filter-dropdown-wrap" style={{ position: "relative" }}>
+      <button
+        type="button"
+        className="filter-dropdown-btn"
+        onClick={() => setOpen(!open)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "0.4rem 0.75rem",
+          fontSize: 14,
+          fontWeight: 500,
+          borderRadius: 6,
+          border: "1px solid var(--vocs-border-color-primary)",
+          background: "transparent",
+          color: "var(--vocs-text-color-heading)",
+          cursor: "pointer",
+          fontFamily: "var(--font-sans)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {label}
+        <svg
+          aria-hidden="true"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            transform: open ? "rotate(180deg)" : "rotate(0)",
+            transition: "transform 0.15s",
+          }}
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {open && (
+        <>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: backdrop */}
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 19,
+            }}
+            onClick={() => setOpen(false)}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "calc(100% + 4px)",
+              left: 0,
+              zIndex: 20,
+              minWidth: 160,
+              padding: "0.35rem",
+              borderRadius: 8,
+              border: "1px solid var(--vocs-border-color-primary)",
+              background: "var(--vocs-background-color-primary)",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                onClear();
+                setOpen(false);
+              }}
+              style={{
+                display: "block",
+                width: "100%",
+                padding: "0.45rem 0.65rem",
+                fontSize: 14,
+                textAlign: "left",
+                border: "none",
+                borderRadius: 5,
+                background:
+                  selectedCategory === null
+                    ? "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))"
+                    : "transparent",
+                color:
+                  selectedCategory === null
+                    ? "var(--vocs-text-color-heading)"
+                    : "var(--vocs-text-color-secondary)",
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              All
+            </button>
+            {categories.map((cat) => (
+              <button
+                type="button"
+                key={cat}
+                onClick={() => {
+                  onSelect(cat);
+                  setOpen(false);
+                }}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "0.45rem 0.65rem",
+                  fontSize: 14,
+                  textAlign: "left",
+                  border: "none",
+                  borderRadius: 5,
+                  background:
+                    selectedCategory === cat
+                      ? "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))"
+                      : "transparent",
+                  color:
+                    selectedCategory === cat
+                      ? "var(--vocs-text-color-heading)"
+                      : "var(--vocs-text-color-secondary)",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                {CATEGORY_LABELS[cat] ?? cat}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function PaginationBtn({
   disabled,
   onClick,
@@ -2854,6 +3016,12 @@ function PageStyles() {
       @media (max-width: 900px) {
         [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
         [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
+      }
+      /* Filter: pills on wide, dropdown on narrow */
+      .filter-dropdown-wrap { display: none; }
+      @media (max-width: 900px) {
+        .filter-tags-pills { display: none !important; }
+        .filter-dropdown-wrap { display: block !important; }
       }
       .search-mobile { display: none; }
       .header-cards { display: none !important; }

@@ -978,16 +978,21 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 }
 
 /* ---- Mobile navigation ----
-   Custom nav rendered by _layout.tsx MobileNav component.
-   Hidden on desktop. On mobile, appears inside the sidebar drawer. */
+   Portaled into [data-v-sidebar] by _layout.tsx MobileNavPortal.
+   Hidden on desktop. On mobile, appears at top of sidebar drawer. */
 [data-mobile-nav] {
   display: none;
 }
 @media (max-width: 1079px) {
+  [data-v-sidebar] {
+    display: flex !important;
+    flex-direction: column !important;
+  }
   [data-mobile-nav] {
     display: flex;
     flex-direction: column;
     gap: 0;
+    order: -1;
     padding: 1rem 1.25rem 1.25rem;
     border-bottom: 1px solid var(--vocs-border-color-primary);
     margin-bottom: 1rem;

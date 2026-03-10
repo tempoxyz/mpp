@@ -190,6 +190,7 @@ export function ServiceDiscovery() {
     "all" | "services" | "endpoints"
   >("all");
   const [mobileSearchActive, setMobileSearchActive] = useState(false);
+  const [mobileNavSearch, setMobileNavSearch] = useState(false);
 
   useEffect(() => {
     fetchServices()
@@ -235,6 +236,18 @@ export function ServiceDiscovery() {
     return () => window.removeEventListener("keydown", handleGlobalKey);
   }, []);
 
+  useEffect(() => {
+    const handleReset = () => {
+      setQuery("");
+      setShowDropdown(false);
+      setMobileSearchActive(false);
+      setMobileNavSearch(false);
+      setSelectedService(null);
+    };
+    window.addEventListener("mpp:reset-discovery", handleReset);
+    return () => window.removeEventListener("mpp:reset-discovery", handleReset);
+  }, []);
+
   const stableScored = useMemo(() => {
     return services.map((s) => ({
       service: s,
@@ -261,6 +274,7 @@ export function ServiceDiscovery() {
 
   const dismissMobileSearch = useCallback(() => {
     setMobileSearchActive(false);
+    setMobileNavSearch(false);
     setShowDropdown(false);
     setQuery("");
     inputRef.current?.blur();
@@ -269,6 +283,7 @@ export function ServiceDiscovery() {
   const handleDropdownSelect = useCallback((result: DropdownResult) => {
     setShowDropdown(false);
     setMobileSearchActive(false);
+    setMobileNavSearch(false);
     inputRef.current?.blur();
     if (result.type === "service") {
       setSelectedService(result.service);
@@ -339,13 +354,13 @@ export function ServiceDiscovery() {
     setTransforms(next);
   }, [debouncedQuery, stableScored, targetGridIndex]);
 
-  const hasQuery = debouncedQuery.length > 0;
+  const hasQuery = query.length > 0;
 
   return (
     <>
       <div
         ref={sectionRef}
-        className={`discovery-section${hasQuery ? " has-query" : ""}${mobileSearchActive ? " mobile-search-active" : ""}`}
+        className={`discovery-section${hasQuery ? " has-query" : ""}${mobileSearchActive ? " mobile-search-active" : ""}${mobileNavSearch ? " mobile-nav-search" : ""}`}
         style={{
           height: "100%",
           width: "100%",
@@ -361,14 +376,23 @@ export function ServiceDiscovery() {
           {/* biome-ignore lint/a11y/noStaticElementInteractions: scroll to top */}
           <div
             className="discovery-ascii-logo"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => {
+              setQuery("");
+              setShowDropdown(false);
+              setMobileSearchActive(false);
+              setMobileNavSearch(false);
+              setSelectedService(null);
+              document
+                .querySelector(".landing-page")
+                ?.scrollTo({ top: 0, behavior: "smooth" });
+            }}
             style={{ cursor: "pointer" }}
           >
             <AsciiLogo />
           </div>
 
           <p className="discovery-overlay-desc">
-            Discover powerful, no-setup services to level up your agent or app
+            Discover powerful, instant services to level up your agent or app
           </p>
           <div className="discovery-search-wrapper">
             <div className="discovery-search">
@@ -406,19 +430,7 @@ export function ServiceDiscovery() {
                   <span className="discovery-kbd-symbol">⌘</span>K
                 </kbd>
               )}
-              {mobileSearchActive && (
-                <button
-                  type="button"
-                  className="mobile-search-dismiss"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    dismissMobileSearch();
-                  }}
-                >
-                  Done
-                </button>
-              )}
-              {query.length > 0 && (
+              {query.length > 0 && !mobileSearchActive && (
                 <button
                   type="button"
                   className="discovery-search-clear"
@@ -426,7 +438,6 @@ export function ServiceDiscovery() {
                     e.preventDefault();
                     setQuery("");
                     setShowDropdown(false);
-                    setMobileSearchActive(false);
                     inputRef.current?.blur();
                   }}
                   aria-label="Clear search"
@@ -440,7 +451,52 @@ export function ServiceDiscovery() {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    aria-label="Clear"
+                  >
+                    <title>Clear</title>
+                    <path d="M18 6 6 18" />
+                    <path d="m6 6 12 12" />
+                  </svg>
+                </button>
+              )}
+              {mobileSearchActive &&
+                dropdownResults.length > 0 &&
+                !mobileNavSearch && (
+                  <button
+                    type="button"
+                    className="mobile-search-view"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setMobileNavSearch(true);
+                      setShowDropdown(true);
+                    }}
+                  >
+                    View
+                  </button>
+                )}
+              {mobileSearchActive && (
+                <button
+                  type="button"
+                  className="mobile-search-dismiss"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    if (query.length > 0) {
+                      setQuery("");
+                      setShowDropdown(false);
+                    } else {
+                      dismissMobileSearch();
+                    }
+                  }}
+                  aria-label="Clear"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
                     <title>Clear</title>
                     <path d="M18 6 6 18" />
@@ -449,7 +505,7 @@ export function ServiceDiscovery() {
                 </button>
               )}
             </div>
-            {query.length === 0 && (
+            {query.length === 0 && !mobileSearchActive && (
               <a href="/services" className="discovery-view-all">
                 View all
               </a>
@@ -713,6 +769,96 @@ export function ServiceDiscovery() {
           <AddServiceModal onClose={() => setShowAddModal(false)} />,
           document.body,
         )} */}
+
+      {/* Mobile nav search — third state: search in sticky nav with results below */}
+      {mobileNavSearch &&
+        createPortal(
+          <div className="mobile-nav-search-overlay">
+            <DiscoveryStyles />
+            <div className="mobile-nav-search-bar">
+              <SearchIcon />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setShowDropdown(e.target.value.length > 0);
+                }}
+                placeholder="Search services..."
+                className="mobile-nav-search-input"
+                ref={(el) => el?.focus()}
+              />
+              <button
+                type="button"
+                className="mobile-nav-search-close"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  dismissMobileSearch();
+                }}
+                aria-label="Close search"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <title>Close</title>
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg>
+              </button>
+            </div>
+            {query.length > 0 && dropdownResults.length > 0 && (
+              <div className="mobile-nav-search-results">
+                {dropdownResults.map((r, i) => (
+                  <button
+                    key={`nav-${r.type}-${i}`}
+                    type="button"
+                    className="mobile-nav-search-item"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleDropdownSelect(r);
+                    }}
+                  >
+                    <span className="dropdown-tag">
+                      {r.type === "category"
+                        ? "Category"
+                        : r.type === "service"
+                          ? "Service"
+                          : "Endpoint"}
+                    </span>
+                    <span>
+                      {r.type === "category" ? r.label : r.service.name}
+                    </span>
+                    {r.type === "endpoint" && (
+                      <span className="dropdown-route">{r.endpoint.path}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+            {query.length > 0 && dropdownResults.length === 0 && (
+              <div className="mobile-nav-search-results">
+                <div
+                  style={{
+                    padding: "1.5rem 1rem",
+                    textAlign: "center",
+                    color: "var(--vocs-text-color-muted)",
+                    fontSize: 14,
+                  }}
+                >
+                  No matches found
+                </div>
+              </div>
+            )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
@@ -2053,18 +2199,18 @@ function DiscoveryStyles() {
         .discovery-grid {
           grid-template-columns: repeat(4, 1fr);
           grid-auto-rows: minmax(160px, 1fr);
+
+
+          
         }
       }
       @media (max-width: 768px) {
         .discovery-grid {
           grid-template-columns: repeat(2, 1fr);
-          grid-auto-rows: 110px;
-          gap: 10px;
-          padding: 1rem;
-          justify-items: center;
-          align-items: center;
+          grid-auto-rows: 120px;
+          gap: 8px;
+          padding: 0.75rem;
         }
-          
       }
 
       .discovery-card {
@@ -2181,12 +2327,15 @@ function DiscoveryStyles() {
           gap: 2px 12px;
           padding: 10px;
           align-items: start;
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
         }
         .discovery-card-icon { grid-area: 1 / 1; align-self: center; }
         .discovery-card-icon-img { width: 20px !important; height: 20px !important; }
         .discovery-card-icon-fallback { width: 20px !important; height: 20px !important; font-size: 11px !important; }
-        .discovery-card-name { grid-area: 1 / 2; align-self: center; margin-top: 0; font-size: 14px; }
-        .discovery-card-desc { grid-area: 2 / 1 / 3 / -1; -webkit-line-clamp: 3; font-size: 12.5px; margin-top: 2px; }
+        .discovery-card-name { grid-area: 1 / 2; align-self: center; margin-top: 0; font-size: 15px; }
+        .discovery-card-desc { grid-area: 2 / 1 / 3 / -1; -webkit-line-clamp: 3; font-size: 13.5px; margin-top: 2px; }
         .discovery-grid::before {
           content: '';
           position: absolute;
@@ -2546,27 +2695,30 @@ function DiscoveryStyles() {
         .cli-line-comment { display: none; }
       }
 
-      /* ---- Mobile search active state ---- */
-      .mobile-search-dismiss { display: none; }
+      /* ---- Mobile search buttons ---- */
+      .mobile-search-dismiss,
+      .mobile-search-view { display: none; }
 
       @media (max-width: 768px) {
+        .discovery-overlay {
+          transition: top 0.3s ease, opacity 0.3s ease !important;
+        }
         .mobile-search-active .discovery-ascii-logo {
           opacity: 0 !important;
           max-height: 0 !important;
           margin: 0 !important;
           overflow: hidden;
-          transition: none;
+          transition: opacity 0.2s ease, max-height 0.2s ease, margin 0.2s ease;
         }
         .mobile-search-active .discovery-overlay-desc {
           opacity: 0 !important;
           max-height: 0 !important;
           margin: 0 !important;
           overflow: hidden;
-          transition: none;
+          transition: opacity 0.2s ease, max-height 0.2s ease, margin 0.2s ease;
         }
         .mobile-search-active .discovery-overlay {
           top: 15% !important;
-          transition: top 0.2s ease;
         }
         .mobile-search-active .discovery-grid::after {
           opacity: 1 !important;
@@ -2578,20 +2730,118 @@ function DiscoveryStyles() {
         .mobile-search-active .discovery-view-all {
           display: none !important;
         }
+        .mobile-nav-search .discovery-overlay {
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
         .mobile-search-dismiss {
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           flex-shrink: 0;
           border: none;
           background: transparent;
+          color: var(--vocs-text-color-muted);
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 4px;
+          transition: color 0.15s;
+        }
+        .mobile-search-dismiss:hover {
           color: var(--vocs-text-color-heading);
-          font-size: 13px;
-          font-weight: 500;
+        }
+        .mobile-search-view {
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
+          border: none;
+          background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1));
+          color: var(--vocs-text-color-heading);
+          font-size: 12px;
+          font-weight: 600;
           font-family: var(--font-sans);
           cursor: pointer;
-          padding: 4px 8px;
-          border-radius: 4px;
+          padding: 4px 10px;
+          border-radius: 5px;
           white-space: nowrap;
+          transition: background 0.15s;
         }
+        .mobile-search-view:hover {
+          background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.15));
+        }
+      }
+
+      /* ---- Mobile nav search overlay (third state) ---- */
+      .mobile-nav-search-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9998;
+        background: var(--vocs-background-color-primary);
+        animation: navSearchFadeIn 0.25s ease forwards;
+      }
+      @keyframes navSearchFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .mobile-nav-search-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--vocs-border-color-primary);
+        background: var(--vocs-background-color-primary);
+      }
+      .mobile-nav-search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 16px;
+        color: var(--vocs-text-color-heading);
+        font-family: var(--font-sans);
+      }
+      .mobile-nav-search-input::placeholder {
+        color: var(--vocs-text-color-muted);
+      }
+      .mobile-nav-search-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: none;
+        background: transparent;
+        color: var(--vocs-text-color-muted);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 6px;
+        transition: color 0.15s;
+      }
+      .mobile-nav-search-close:hover {
+        color: var(--vocs-text-color-heading);
+      }
+      .mobile-nav-search-results {
+        overflow-y: auto;
+        max-height: calc(100dvh - 60px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .mobile-nav-search-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: none;
+        border-bottom: 1px solid var(--vocs-border-color-primary);
+        background: transparent;
+        cursor: pointer;
+        font-size: 15px;
+        color: var(--vocs-text-color-heading);
+        text-align: left;
+        font-family: var(--font-sans);
+        transition: background 0.1s;
+      }
+      .mobile-nav-search-item:active {
+        background: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06));
       }
     `}</style>
   );
