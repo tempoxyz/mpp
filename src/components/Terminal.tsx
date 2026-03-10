@@ -3,7 +3,6 @@
 import { Receipt } from "mppx";
 import type { ReactNode } from "react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-// import { ASCII_MPP } from "./AsciiLogo";
 import { BlockCursorInput } from "./BlockCursorInput";
 import { SPINNER_FRAMES } from "./terminal-data";
 import {
