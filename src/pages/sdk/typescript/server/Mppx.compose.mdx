@@ -4,22 +4,30 @@ Combines multiple method handlers into a single route handler that presents all 
 
 ## Usage
 
+Present both stablecoin and card payment options for a single endpoint. The client picks whichever method it supports.
+
 ```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, stripe, tempo } from 'mppx/server'
+
+const tempoCharge = tempo.charge({
+  currency: '0x20c0000000000000000000000000000000000000',
+  recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+})
+
+const stripeCharge = stripe.charge({
+  networkId: 'acct_1234',
+  paymentMethodTypes: ['card'],
+  secretKey: process.env.STRIPE_SECRET_KEY!,
+})
 
 const mppx = Mppx.create({
-  methods: [
-    tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000',
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-    }),
-  ],
+  methods: [tempoCharge, stripeCharge],
 })
 // ---cut---
 export async function handler(request: Request) {
   const result = await mppx.compose(
-    [mppx.methods[0]!, { amount: '0.1' }],
-    [mppx.methods[0]!, { amount: '1' }],
+    [tempoCharge, { amount: '1' }],
+    [stripeCharge, { amount: '1', currency: 'usd' }],
   )(request)
 
   if (result.status === 402) return result.challenge
@@ -32,7 +40,7 @@ export async function handler(request: Request) {
 Use `"name/intent"` strings to reference methods instead of method objects.
 
 ```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, stripe, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [
@@ -40,13 +48,18 @@ const mppx = Mppx.create({
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
     }),
+    stripe.charge({
+      networkId: 'acct_1234',
+      paymentMethodTypes: ['card'],
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+    }),
   ],
 })
 // ---cut---
 export async function handler(request: Request) {
   const result = await mppx.compose(
-    ['tempo/charge', { amount: '0.1' }],
     ['tempo/charge', { amount: '1' }],
+    ['stripe/charge', { amount: '1', currency: 'usd' }],
   )(request)
 
   if (result.status === 402) return result.challenge
