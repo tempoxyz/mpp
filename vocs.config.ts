@@ -177,6 +177,10 @@ export default defineConfig({
                     collapsed: true,
                     items: [
                       {
+                        text: "tempo",
+                        link: "/sdk/typescript/client/Method.tempo",
+                      },
+                      {
                         text: "tempo.charge",
                         link: "/sdk/typescript/client/Method.tempo.charge",
                       },
@@ -228,6 +232,10 @@ export default defineConfig({
                     collapsed: true,
                     items: [
                       {
+                        text: "tempo",
+                        link: "/sdk/typescript/server/Method.tempo",
+                      },
+                      {
                         text: "tempo.charge",
                         link: "/sdk/typescript/server/Method.tempo.charge",
                       },
@@ -241,6 +249,10 @@ export default defineConfig({
                     text: "Mppx",
                     collapsed: true,
                     items: [
+                      {
+                        text: ".compose",
+                        link: "/sdk/typescript/server/Mppx.compose",
+                      },
                       {
                         text: ".create",
                         link: "/sdk/typescript/server/Mppx.create",

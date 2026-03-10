@@ -1,0 +1,79 @@
+# `tempo` [Register all Tempo intents]
+
+Convenience function that creates both `tempo.charge` and `tempo.session` method intents with shared configuration.
+
+## Usage
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+Mppx.create({
+  methods: [
+    // [!code focus:start]
+    tempo(),
+    // [!code focus:end]
+  ],
+})
+```
+
+This is equivalent to:
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+Mppx.create({
+  methods: [
+    tempo.charge(),
+    tempo.session(),
+  ],
+})
+```
+
+## Return type
+
+```ts
+type ReturnType = readonly [Method.Server, Method.Server]
+```
+
+A tuple of `[charge, session]` methods. `Mppx.create` accepts tuples in the `methods` array and flattens them automatically.
+
+## Parameters
+
+Accepts the union of [`tempo.charge`](/sdk/typescript/server/Method.tempo.charge) and [`tempo.session`](/sdk/typescript/server/Method.tempo.session) parameters. The most common are listed below.
+
+### currency (optional)
+
+- **Type:** `Address`
+
+Default TIP-20 token address for the payment currency.
+
+### decimals (optional)
+
+- **Type:** `number`
+- **Default:** `6`
+
+Decimal places for amount parsing.
+
+### feePayer (optional)
+
+- **Type:** `Account`
+
+Account for sponsoring transaction fees.
+
+### getClient (optional)
+
+- **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
+
+Function that returns a viem client for the given chain ID. Overrides the default RPC configuration.
+
+### recipient (optional)
+
+- **Type:** `Address`
+
+Default recipient address for payments.
+
+### testnet (optional)
+
+- **Type:** `boolean`
+
+Testnet mode. Defaults the chain ID to `42431` (Tempo testnet).

@@ -71,6 +71,8 @@ if (response.status === 402) {
 type Mppx = {
   /** Payment-aware fetch function that automatically handles 402 responses. */
   fetch: Fetch
+  /** The original, unwrapped fetch — bypasses payment interception. */
+  rawFetch: typeof globalThis.fetch
   /** The configured payment methods. */
   methods: readonly Method.Client[]
   /** The transport used. */
@@ -81,6 +83,25 @@ type Mppx = {
     context?: Context,
   ) => Promise<string>
 }
+```
+
+### `rawFetch`
+
+The original `fetch` function, before payment interception. Use `rawFetch` when you need to make requests that bypass the 402 handler—for example, probing a 402 endpoint for websocket auth tokens or calling APIs that return 402 for non-payment reasons.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  polyfill: false,
+  methods: [tempo({ account })],
+})
+
+// Bypass payment interception
+const raw = await mppx.rawFetch('https://api.example.com/ws-auth') // [!code focus]
 ```
 
 ## Parameters
