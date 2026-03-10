@@ -13,22 +13,20 @@ const pathUSD = '0x20c0000000000000000000000000000000000000'
 const USDC = '0x20C000000000000000000000b9537d11c60E8b50'
 const recipient = '0xa726a1CD723409074DF9108A2187cfA19899aCF8'
 
-const mppx = Mppx.create({
-  methods: [
-    tempo.charge({ recipient }),
-    stripe.charge({
-      networkId: 'acct_1234',
-      paymentMethodTypes: ['card'],
-      secretKey: 'sk_live_...',
-    }),
-  ],
+const charge = tempo.charge({ recipient })
+const card = stripe.charge({
+  networkId: 'acct_1234',
+  paymentMethodTypes: ['card'],
+  secretKey: 'sk_live_...',
 })
+
+const mppx = Mppx.create({ methods: [charge, card] })
 
 export async function handler(request: Request) {
   const result = await mppx.compose(
-    ['tempo/charge', { amount: '1', currency: pathUSD }],
-    ['tempo/charge', { amount: '1', currency: USDC }],
-    ['stripe/charge', { amount: '1', currency: 'usd' }],
+    [charge, { amount: '1', currency: pathUSD }],
+    [charge, { amount: '1', currency: USDC }],
+    [card, { amount: '1', currency: 'usd' }],
   )(request)
 
   if (result.status === 402) return result.challenge
