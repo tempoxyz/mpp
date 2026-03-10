@@ -326,3 +326,19 @@ When testing changes, you should *always* make sure the site builds and types ch
 1. `pnpm check:types` — Must pass with no errors
 2. `pnpm build` — Must complete successfully
 3. `pnpm test:e2e` — Must pass when changing the terminal demo (`src/components/Terminal.tsx`, `src/components/terminal-data.ts`, or related components)
+
+## Cursor Cloud specific instructions
+
+**Product:** Single Vocs v2 documentation site for the Machine Payments Protocol (MPP). No monorepo workspaces, no databases, no Docker.
+
+**Node.js requirement:** The project requires Node.js >= 24 (`engines` field in `package.json`). The update script handles this via nvm.
+
+**Dev server:** `pnpm dev` starts Vite on `http://localhost:5173/`. Warnings about `@braintree/sanitize-url` and `dayjs` from mermaid's `optimizeDeps.include` are harmless and expected.
+
+**Production build (`pnpm build`):** The SSG phase imports serverless API route code that calls `Mppx.create()`, which requires `MPP_SECRET_KEY` (and potentially other env vars from `.env.example`). Without these secrets the build fails at the static-generation step. The Vite compilation and dev server work fine without them. If you need a full build, set the env vars from `.env.example` first.
+
+**Lint:** `pnpm check` runs Biome with `--write` (auto-fixes). `pnpm check:types` runs `tsc --noEmit`.
+
+**Tests:** `pnpm test` runs Vitest unit tests. `pnpm test:e2e` runs Playwright-based e2e tests (requires Playwright browsers installed via `npx playwright install --with-deps chromium`).
+
+**Pre-commit hook:** `simple-git-hooks` runs `pnpm check` on pre-commit.
