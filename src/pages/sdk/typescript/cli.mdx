@@ -68,6 +68,24 @@ $ mppx example.com/content -M channel=0x123 -M deposit=1000000
 
 For Tempo session payments, use `channel` and `deposit`. For Stripe, use `paymentMethod`.
 
+## Sign command
+
+Sign a payment Challenge and output the `Authorization` header value without making a request. Accepts a challenge via `--challenge` or stdin.
+
+```bash [terminal]
+$ mppx sign --challenge 'Payment method="tempo-session";chain-id=98865;...'
+```
+
+```bash [terminal]
+$ echo 'Payment method="tempo-session";chain-id=98865;...' | mppx sign
+```
+
+Use `--dry-run` to validate and parse a Challenge without signing:
+
+```bash [terminal]
+$ mppx sign --challenge 'Payment method="tempo-session";...' --dry-run
+```
+
 ## Stripe payments
 
 The CLI supports Stripe payment methods. Set your Stripe test-mode secret key and make requests to Stripe-enabled endpoints.
@@ -81,4 +99,24 @@ Pass method-specific options with `-M`:
 
 ```bash [terminal]
 $ mppx https://example.com/content -M paymentMethod=pm_card_visa
+```
+
+## Agent integration
+
+Register `mppx` as an MCP server for use with coding agents:
+
+```bash [terminal]
+$ mppx mcp add
+```
+
+Sync skill files to your agent's skill directory:
+
+```bash [terminal]
+$ mppx skills add
+```
+
+Generate shell completions:
+
+```bash [terminal]
+$ mppx completions
 ```
