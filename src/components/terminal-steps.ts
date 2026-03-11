@@ -239,7 +239,7 @@ export function search(): PaymentStepConfig {
     liveEndpoint: (input) =>
       `/api/demo/search?query=${encodeURIComponent(input)}`,
     cost: 0.005,
-    prompt: { label: "Enter query", placeholder: "machine payments" },
+    prompt: { label: "Enter query", placeholder: "Machine Payments" },
     pickOutput: pickSearch,
   });
 }
