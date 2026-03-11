@@ -357,9 +357,9 @@ describe("constants", () => {
     expect(Terminal.chat().methodLabel).toBe("Tempo session");
     expect(Terminal.image().methodLabel).toBe("Tempo charge");
     expect(Terminal.search().methodLabel).toBe("Tempo charge");
-    expect(Terminal.article().methodLabel).toBe("Stripe charge");
+    expect(Terminal.article().methodLabel).toBe("machine payments");
     expect(Terminal.poem().methodLabel).toBe("Tempo session");
-    expect(Terminal.lookup().methodLabel).toBe("Stripe charge");
+    expect(Terminal.lookup().methodLabel).toBe("machine payments");
   });
 
   it("SERVICE_LABELS is a non-empty array of tuples", () => {

@@ -879,7 +879,7 @@ function AsyncSteps({
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("fund")} /> Add test funds{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
-          <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
+          <span style={{ color: "var(--term-amber9)" }}>100 USD</span>
         </p>
       )}
       {/* biome-ignore format: contains unicode → */}
@@ -921,7 +921,7 @@ function AsyncSteps({
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("deposit")} /> Deposit funds{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
-          <span style={{ color: "var(--term-green9)" }}>5 USDC</span>
+          <span style={{ color: "var(--term-green9)" }}>5 USD</span>
         </p>
       )}
       {atOrPast("pay") && (
@@ -1005,7 +1005,7 @@ function AsyncSteps({
                 )}{" "}
                 {tokenCount} photos —{" "}
                 <span style={{ color: "var(--term-green9)" }}>
-                  {(tokenCount * 0.01).toFixed(2)} USDC
+                  {(tokenCount * 0.01).toFixed(2)} USD
                 </span>
               </p>
             )}
@@ -1036,14 +1036,14 @@ function AsyncSteps({
                 <span style={{ color: "var(--term-green9)" }}>
                   {(5 - tokenCount * COST_PER_TOKEN).toFixed(4)}
                 </span>{" "}
-                USDC in channel
+                USD in channel
               </p>
               <p>
                 Spent:{" "}
                 <span style={{ color: "var(--term-amber9)" }}>
                   {(tokenCount * COST_PER_TOKEN).toFixed(4)}
                 </span>{" "}
-                USDC paid
+                USD paid
               </p>
               <p>
                 Streamed:{" "}
@@ -1128,7 +1128,7 @@ function AsyncSteps({
                   <p style={{ color: "var(--term-gray6)" }}>
                     <span style={{ color: "var(--term-green9)" }}>✔︎</span> Spent{" "}
                     <span style={{ color: "var(--term-green9)" }}>
-                      {spent.toFixed(outputMode === "gallery" ? 2 : 4)} USDC
+                      {spent.toFixed(outputMode === "gallery" ? 2 : 4)} USD
                     </span>
                   </p>
                   <p style={{ color: "var(--term-gray6)" }}>
@@ -1136,7 +1136,7 @@ function AsyncSteps({
                     Refunded{" "}
                     <span style={{ color: "var(--term-green9)" }}>
                       {(5 - spent).toFixed(outputMode === "gallery" ? 2 : 4)}{" "}
-                      USDC
+                      USD
                     </span>
                   </p>
                 </>
@@ -1260,7 +1260,7 @@ function CardForm({
               className="cursor-pointer hover:underline"
               style={{ color: "#00D66F" }}
             >
-              [Use Stripe Link]
+              [Use Link]
             </button>{" "}
             <button
               type="button"
@@ -1904,7 +1904,7 @@ function Wizard({
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={walletSetupStep < 2} /> Add test funds{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
-          <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
+          <span style={{ color: "var(--term-amber9)" }}>100 USD</span>
         </p>
       )}
 
@@ -2311,7 +2311,7 @@ function GalleryStep({
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={setupAt("fund")} /> Add test funds{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
-          <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
+          <span style={{ color: "var(--term-amber9)" }}>100 USD</span>
         </p>
       )}
       {/* biome-ignore format: contains unicode → */}
@@ -2353,7 +2353,7 @@ function GalleryStep({
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={false} /> Deposit funds{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
-          <span style={{ color: "var(--term-amber9)" }}>5 USDC</span>
+          <span style={{ color: "var(--term-amber9)" }}>5 USD</span>
         </p>
       )}
 
@@ -2391,7 +2391,7 @@ function GalleryStep({
             <span style={{ color: "var(--term-green9)" }}>✔︎</span> {run.count}{" "}
             photos —{" "}
             <span style={{ color: "var(--term-amber9)" }}>
-              {(run.count * GALLERY_COST).toFixed(2)} USDC
+              {(run.count * GALLERY_COST).toFixed(2)} USD
             </span>
           </p>
         </div>
@@ -2487,7 +2487,7 @@ function GalleryStep({
               )}{" "}
               {revealed} photos —{" "}
               <span style={{ color: "var(--term-amber9)" }}>
-                {(revealed * GALLERY_COST).toFixed(2)} USDC
+                {(revealed * GALLERY_COST).toFixed(2)} USD
               </span>
             </p>
           )}
@@ -2528,7 +2528,7 @@ function GalleryStep({
             <p style={{ color: "var(--term-gray6)" }}>
               <span style={{ color: "var(--term-green9)" }}>✔︎</span> Spent{" "}
               <span style={{ color: "var(--term-green9)" }}>
-                {spent.toFixed(2)} USDC
+                {spent.toFixed(2)} USD
               </span>
             </p>
           )}
@@ -2556,7 +2556,7 @@ function GalleryStep({
               <p style={{ color: "var(--term-gray6)" }}>
                 <span style={{ color: "var(--term-green9)" }}>✔︎</span> Refunded{" "}
                 <span style={{ color: "var(--term-green9)" }}>
-                  {(5 - spent).toFixed(2)} USDC
+                  {(5 - spent).toFixed(2)} USD
                 </span>
               </p>
               <button

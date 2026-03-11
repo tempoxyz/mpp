@@ -192,7 +192,7 @@ export function stripe({
     description,
     endpoint,
     liveEndpoint,
-    methodLabel: "Stripe charge",
+    methodLabel: "machine payments",
     cost,
     prompt,
     skipPrompt,

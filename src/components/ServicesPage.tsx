@@ -721,14 +721,21 @@ function HighlightedCmd({ children }: { children: string }) {
 // Helpers
 // ---------------------------------------------------------------------------
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function computeFilteredList(services: Service[]): Service[] {
   const pinned = PINNED_IDS.flatMap((id) =>
     services.filter((s) => s.id === id),
   );
   const pinnedSet = new Set(PINNED_IDS);
-  const rest = services
-    .filter((s) => !pinnedSet.has(s.id))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const rest = shuffle(services.filter((s) => !pinnedSet.has(s.id)));
   return [...pinned, ...rest];
 }
 
@@ -824,9 +831,7 @@ export function ServicesPage() {
     }
     const pinned = PINNED_IDS.flatMap((id) => list.filter((s) => s.id === id));
     const pinnedSet = new Set(PINNED_IDS);
-    const rest = list
-      .filter((s) => !pinnedSet.has(s.id))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    const rest = shuffle(list.filter((s) => !pinnedSet.has(s.id)));
     return [...pinned, ...rest];
   }, [services, selectedCategory, effectiveSearch]);
 
