@@ -737,9 +737,7 @@ function orderServices(services: Service[], shuffledIds: string[]): Service[] {
   const pinnedSet = new Set(PINNED_IDS);
   const rest = services.filter((s) => !pinnedSet.has(s.id));
   const idxMap = new Map(shuffledIds.map((id, i) => [id, i]));
-  rest.sort(
-    (a, b) => (idxMap.get(a.id) ?? 0) - (idxMap.get(b.id) ?? 0),
-  );
+  rest.sort((a, b) => (idxMap.get(a.id) ?? 0) - (idxMap.get(b.id) ?? 0));
   return [...pinned, ...rest];
 }
 
@@ -2574,7 +2572,7 @@ function ServiceIcon({ service: s }: { service: Service }) {
     >
       {s.id && !imgError ? (
         <img
-          src={`/api/icon?id=${encodeURIComponent(s.id)}`}
+          src={`/icons/${encodeURIComponent(s.id)}.svg`}
           alt=""
           width={28}
           height={28}

@@ -28,10 +28,11 @@ jobs:
         with:
           node-version: "24"
       - run: node scripts/generate-discovery.ts
+      - run: node scripts/gen-icons.cjs --strict
       - name: Check for uncommitted changes
         run: |
-          if ! git diff --exit-code schemas/discovery.json schemas/discovery.example.json; then
-            echo "::error::Generated discovery files are out of date. Run 'node scripts/generate-discovery.ts' and commit the result."
+          if ! git diff --exit-code schemas/discovery.json schemas/discovery.example.json public/icons/; then
+            echo "::error::Generated files are out of date. Run 'node scripts/generate-discovery.ts && node scripts/gen-icons.cjs' and commit the result."
             exit 1
           fi
 

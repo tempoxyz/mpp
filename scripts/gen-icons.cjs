@@ -1,7 +1,31 @@
+/**
+ * Generate service icons for public/icons/.
+ *
+ * Three tiers of icons (in priority order):
+ *   1. Hand-coded SVG vector paths (defined in `icons` below)
+ *   2. Brand logos fetched from brand.dev (when BRANDDEV_LOGOLINK_KEY is set)
+ *   3. Letter-fallback SVGs (single uppercase letter)
+ *
+ * Usage:
+ *   node scripts/gen-icons.cjs              # generate all icons
+ *   node scripts/gen-icons.cjs --strict     # fail if any letter fallbacks remain
+ *   BRANDDEV_LOGOLINK_KEY=... node scripts/gen-icons.cjs  # fetch missing brand icons
+ *
+ * The --strict flag is used in CI to ensure all services have a real icon
+ * (vector or brand) checked into git — no letter fallbacks allowed.
+ */
+
 const fs = require("node:fs");
 const path = require("node:path");
 
+const strict = process.argv.includes("--strict");
+const LOGOLINK_KEY = process.env.BRANDDEV_LOGOLINK_KEY;
+
 const iconsDir = path.join(__dirname, "..", "public", "icons");
+
+// ---------------------------------------------------------------------------
+// SVG generators
+// ---------------------------------------------------------------------------
 
 function svg(viewBox, paths) {
   const [minX, minY, vbW, vbH] = viewBox.split(/\s+/).map(Number);
@@ -24,6 +48,36 @@ function svg(viewBox, paths) {
     `</g></svg>`,
   ].join("");
 }
+
+function letterSvg(letter) {
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">`,
+    `<rect fill="#2A2A2A" width="512" height="512" rx="64"/>`,
+    `<text x="256" y="256" text-anchor="middle" dominant-baseline="central" font-family="system-ui,-apple-system,sans-serif" font-size="240" font-weight="600" fill="#E8E8EC">${letter}</text>`,
+    `</svg>`,
+  ].join("");
+}
+
+function brandSvg(logoDataUri) {
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">`,
+    `<defs><filter id="mono" color-interpolation-filters="sRGB">`,
+    `<feColorMatrix type="saturate" values="0"/>`,
+    `<feComponentTransfer>`,
+    `<feFuncR type="table" tableValues="1 0.16"/>`,
+    `<feFuncG type="table" tableValues="1 0.16"/>`,
+    `<feFuncB type="table" tableValues="1 0.16"/>`,
+    `</feComponentTransfer>`,
+    `</filter></defs>`,
+    `<rect fill="#2A2A2A" width="512" height="512" rx="64"/>`,
+    `<image href="${logoDataUri}" x="96" y="96" width="320" height="320" preserveAspectRatio="xMidYMid meet" filter="url(#mono)"/>`,
+    `</svg>`,
+  ].join("");
+}
+
+// ---------------------------------------------------------------------------
+// Hand-coded vector icons
+// ---------------------------------------------------------------------------
 
 const icons = {
   agentmail: [
@@ -107,20 +161,16 @@ const icons = {
   ],
 };
 
-function letterSvg(letter) {
-  return [
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">`,
-    `<rect fill="#2A2A2A" width="512" height="512" rx="64"/>`,
-    `<text x="256" y="256" text-anchor="middle" dominant-baseline="central" font-family="system-ui,-apple-system,sans-serif" font-size="240" font-weight="600" fill="#E8E8EC">${letter}</text>`,
-    `</svg>`,
-  ].join("");
-}
+// ---------------------------------------------------------------------------
+// Google Maps icons (all share the same path)
+// ---------------------------------------------------------------------------
 
 const GMAPS_VB = "0 0 24 24";
 const GMAPS_PATH =
   "M19.527 4.799c1.212 2.608.937 5.678-.405 8.173-1.101 2.047-2.744 3.74-4.098 5.614-.619.858-1.244 1.75-1.669 2.727-.141.325-.263.658-.383.992-.121.333-.224.673-.34 1.008-.109.314-.236.684-.627.687h-.007c-.466-.001-.579-.53-.695-.887-.284-.874-.581-1.713-1.019-2.525-.51-.944-1.145-1.817-1.79-2.671L19.527 4.799zM8.545 7.705l-3.959 4.707c.724 1.54 1.821 2.863 2.871 4.18.247.31.494.622.737.936l4.984-5.925-.029.01c-1.741.601-3.691-.291-4.392-1.987a3.377 3.377 0 0 1-.209-.716c-.063-.437-.077-.761-.004-1.198l.001-.007zM5.492 3.149l-.003.004c-1.947 2.466-2.281 5.88-1.117 8.77l4.785-5.689-.058-.05-3.607-3.035zM14.661.436l-3.838 4.563a.295.295 0 0 1 .027-.01c1.6-.551 3.403.15 4.22 1.626.176.319.323.683.377 1.045.068.446.085.773.012 1.22l-.003.016 3.836-4.561A8.382 8.382 0 0 0 14.67.439l-.009-.003zM9.466 5.868L14.162.285l-.047-.012A8.31 8.31 0 0 0 11.986 0a8.439 8.439 0 0 0-6.169 2.766l-.016.018 3.665 3.084z";
 
 const gmapsServices = [
+  "googlemaps",
   "googlemaps-aerialview",
   "googlemaps-airquality",
   "googlemaps-geolocation",
@@ -144,35 +194,148 @@ const letterOverrides = {
   twocaptcha: "2",
 };
 
-// Auto-generate letter icons for any service without a vector icon
-const hasIcon = new Set([
-  ...Object.keys(icons),
-  ...gmapsServices,
-]);
-const discoveryPath = path.join(__dirname, "..", "schemas", "discovery.json");
-const serviceIds = fs.existsSync(discoveryPath)
-  ? Object.keys(JSON.parse(fs.readFileSync(discoveryPath, "utf-8")).services || {})
-  : [];
-const letterIcons = {};
-for (const id of new Set(serviceIds)) {
-  if (hasIcon.has(id)) continue;
-  letterIcons[id] = letterOverrides[id] || id[0].toUpperCase();
+// ---------------------------------------------------------------------------
+// brand.dev fetching
+// ---------------------------------------------------------------------------
+
+function domainFor(service) {
+  const raw = service.provider?.url || service.url;
+  try {
+    return new URL(raw).hostname;
+  } catch {
+    return null;
+  }
 }
 
-let n = 0;
-for (const [name, [vb, paths]] of Object.entries(icons)) {
-  fs.writeFileSync(path.join(iconsDir, `${name}.svg`), svg(vb, paths));
-  n++;
+async function fetchBrandIcon(domain) {
+  try {
+    const url = `https://logos.brand.dev/?publicClientId=${encodeURIComponent(LOGOLINK_KEY)}&domain=${domain}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const ct = res.headers.get("content-type") || "image/png";
+    const buf = await res.arrayBuffer();
+    if (buf.byteLength < 100) return null;
+    return `data:${ct};base64,${Buffer.from(buf).toString("base64")}`;
+  } catch (e) {
+    console.error(`  brand.dev error for ${domain}: ${e.message}`);
+    return null;
+  }
 }
-for (const name of gmapsServices) {
-  fs.writeFileSync(
-    path.join(iconsDir, `${name}.svg`),
-    svg(GMAPS_VB, GMAPS_PATH),
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+async function main() {
+  const hasIcon = new Set([...Object.keys(icons), ...gmapsServices]);
+  const discoveryPath = path.join(__dirname, "..", "schemas", "discovery.json");
+  const services = fs.existsSync(discoveryPath)
+    ? JSON.parse(fs.readFileSync(discoveryPath, "utf-8")).services || []
+    : [];
+  const serviceIds = services.map((s) => s.id);
+
+  // --- Tier 1: write hand-coded vector icons ---
+  let n = 0;
+  for (const [name, [vb, paths]] of Object.entries(icons)) {
+    fs.writeFileSync(path.join(iconsDir, `${name}.svg`), svg(vb, paths));
+    n++;
+  }
+  for (const name of gmapsServices) {
+    fs.writeFileSync(
+      path.join(iconsDir, `${name}.svg`),
+      svg(GMAPS_VB, GMAPS_PATH),
+    );
+    n++;
+  }
+
+  // --- Determine which services still need icons ---
+  const needsIcon = [];
+  for (const id of new Set(serviceIds)) {
+    if (hasIcon.has(id)) continue;
+    const existing = path.join(iconsDir, `${id}.svg`);
+    if (fs.existsSync(existing)) {
+      const content = fs.readFileSync(existing, "utf-8");
+      if (!content.includes("<text ")) continue; // already has a brand icon
+    }
+    needsIcon.push(id);
+  }
+
+  // --- Tier 2: fetch brand icons from brand.dev (when key is available) ---
+  let brandFetched = 0;
+  let brandFailed = 0;
+  if (LOGOLINK_KEY && needsIcon.length > 0) {
+    const serviceMap = new Map(services.map((s) => [s.id, s]));
+    const domainCache = new Map();
+
+    console.log(`Fetching brand icons for ${needsIcon.length} services...`);
+
+    for (const id of [...needsIcon]) {
+      const service = serviceMap.get(id);
+      if (!service) continue;
+
+      const domain = domainFor(service);
+      if (!domain) {
+        console.log(`  skip  ${id} (no domain)`);
+        brandFailed++;
+        continue;
+      }
+
+      let dataUri;
+      if (domainCache.has(domain)) {
+        dataUri = domainCache.get(domain);
+      } else {
+        dataUri = await fetchBrandIcon(domain);
+        domainCache.set(domain, dataUri);
+      }
+
+      if (!dataUri) {
+        console.log(`  fail  ${id} (${domain})`);
+        brandFailed++;
+        continue;
+      }
+
+      fs.writeFileSync(path.join(iconsDir, `${id}.svg`), brandSvg(dataUri));
+      console.log(`  done  ${id}`);
+      needsIcon.splice(needsIcon.indexOf(id), 1);
+      brandFetched++;
+      n++;
+    }
+
+    console.log(
+      `Brand icons: ${brandFetched} fetched, ${brandFailed} failed`,
+    );
+  }
+
+  // --- Tier 3: letter fallbacks for anything remaining ---
+  let letterCount = 0;
+  for (const id of needsIcon) {
+    const letter = letterOverrides[id] || id[0].toUpperCase();
+    fs.writeFileSync(path.join(iconsDir, `${id}.svg`), letterSvg(letter));
+    letterCount++;
+    n++;
+  }
+
+  console.log(`Wrote ${n} icons (${letterCount} letter fallbacks)`);
+
+  // --- Validate: every service ID must have a matching icon file ---
+  const missing = serviceIds.filter(
+    (id) => !fs.existsSync(path.join(iconsDir, `${id}.svg`)),
   );
-  n++;
+  if (missing.length > 0) {
+    console.error(`\nMissing icons for: ${missing.join(", ")}`);
+    process.exit(1);
+  }
+
+  // --- Strict mode: fail if any letter fallbacks exist ---
+  if (strict && letterCount > 0) {
+    console.error(
+      `\n--strict: ${letterCount} services have letter-fallback icons: ${needsIcon.join(", ")}`,
+    );
+    console.error(
+      "Run with BRANDDEV_LOGOLINK_KEY to fetch brand icons, then commit the results.",
+    );
+    process.exit(1);
+  }
 }
-for (const [name, letter] of Object.entries(letterIcons)) {
-  fs.writeFileSync(path.join(iconsDir, `${name}.svg`), letterSvg(letter));
-  n++;
-}
-console.log(`Wrote ${n} icons`);
+
+main();

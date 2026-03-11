@@ -77,8 +77,7 @@ function getExamplePayload(ep: Endpoint): string {
 }
 
 function getIconUrl(service: Service): string {
-  if (service.icon) return service.icon;
-  return `/api/icon?id=${encodeURIComponent(service.id)}`;
+  return `/icons/${encodeURIComponent(service.id)}.svg`;
 }
 
 // ---------------------------------------------------------------------------
@@ -172,8 +171,6 @@ export function ServiceDiscovery() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [revealed, setRevealed] = useState(false);
   const [transforms, setTransforms] = useState<
     Record<string, { x: number; y: number }>
   >({});
@@ -204,23 +201,10 @@ export function ServiceDiscovery() {
   }, [query]);
 
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          setTimeout(() => setRevealed(true), 800);
-          const isMobile = window.matchMedia("(max-width: 768px)").matches;
-          if (!isMobile) {
-            setTimeout(() => inputRef.current?.focus(), 400);
-          }
-        }
-      },
-      { threshold: 0.5 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    if (!isMobile) {
+      inputRef.current?.focus({ preventScroll: true });
+    }
   }, []);
 
   useEffect(() => {
@@ -387,11 +371,7 @@ export function ServiceDiscovery() {
               setSelectedService(null);
               const el = document.querySelector(".landing-page") as HTMLElement;
               if (el) {
-                el.style.scrollSnapType = "none";
                 el.scrollTo({ top: 0, behavior: "smooth" });
-                setTimeout(() => {
-                  el.style.scrollSnapType = "";
-                }, 600);
               }
             }}
             style={{ cursor: "pointer" }}
@@ -625,7 +605,7 @@ export function ServiceDiscovery() {
 
         {/* Card grid */}
         <div className="discovery-grid" ref={gridRef}>
-          {stableScored.slice(0, 48).map(({ service, score }, idx) => {
+          {stableScored.slice(0, 48).map(({ service, score }) => {
             const isMatch = !debouncedQuery || score > 0;
             const iconUrl = getIconUrl(service);
             const t = transforms[service.id];
@@ -644,16 +624,8 @@ export function ServiceDiscovery() {
               <button
                 key={service.id}
                 type="button"
-                className={`discovery-card ${visible ? "discovery-card-visible" : ""}${visible && !revealed && !hasQuery ? " discovery-card-pulsing" : ""}`}
+                className="discovery-card discovery-card-visible"
                 style={{
-                  transitionDelay:
-                    visible && !revealed && !hasQuery
-                      ? `${Math.min(idx * 40, 600)}ms`
-                      : "0ms",
-                  animationDelay:
-                    visible && !revealed && !hasQuery
-                      ? `${Math.min(idx * 200, 3000)}ms`
-                      : undefined,
                   opacity: hasQuery ? (isMatch ? 1 : 0.08) : undefined,
                   filter: hasQuery && !isMatch ? "blur(3px)" : undefined,
                   pointerEvents: hasQuery && !isMatch ? "none" : undefined,
@@ -753,11 +725,8 @@ export function ServiceDiscovery() {
                 skeletons.push(
                   <div
                     key={`skel-${i}`}
-                    className={`discovery-card discovery-card-skeleton ${visible ? "discovery-card-visible" : ""}`}
+                    className="discovery-card discovery-card-skeleton discovery-card-visible"
                     style={{
-                      transitionDelay: visible
-                        ? `${Math.min((matchCount + i) * 40, 600)}ms`
-                        : "0ms",
                       opacity: hasQuery ? 0.5 : undefined,
                     }}
                   />,
@@ -2176,8 +2145,6 @@ function DiscoveryStyles() {
         overflow: hidden;
         min-height: 0;
         transition: opacity 0.4s ease, filter 0.4s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.15s, background 0.15s;
-        opacity: 0.3;
-        transform: translateY(6px);
       }
       .discovery-card-visible {
         opacity: 1;
@@ -2187,13 +2154,6 @@ function DiscoveryStyles() {
         border-color: light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.12));
         background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.03));
       }
-      @keyframes cardPulse {
-        0%, 100% { background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.03)); }
-        50% { background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.07)); }
-      }
-      .discovery-card-pulsing { animation: cardPulse 3s ease-in-out infinite; }
-      .discovery-card-pulsing:hover,
-      .has-query .discovery-card-pulsing { animation: none; }
       .discovery-card-skeleton {
         pointer-events: none;
         border-style: dashed;

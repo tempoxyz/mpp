@@ -37,24 +37,12 @@ const AgentContext = createContext<{
 
 export function LandingPage() {
   const [activeAgent, setActiveAgent] = useState(0);
-  const [skipAnimation] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const key = "mpp-landing-animated";
-    const seen = sessionStorage.getItem(key);
-    if (seen) return true;
-    sessionStorage.setItem(key, "1");
-    return false;
-  });
-
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
         const el = document.querySelector(".landing-page") as HTMLElement;
         if (el) {
-          el.style.scrollSnapType = "none";
-          setTimeout(() => {
-            el.style.scrollSnapType = "";
-          }, 500);
+          el.scrollTo({ top: 0 });
         }
       }
     };
@@ -73,11 +61,7 @@ export function LandingPage() {
       window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
       const el = document.querySelector(".landing-page") as HTMLElement;
       if (el) {
-        el.style.scrollSnapType = "none";
         el.scrollTo({ top: 0, behavior: "smooth" });
-        setTimeout(() => {
-          el.style.scrollSnapType = "";
-        }, 600);
       }
     };
     logoLink.addEventListener("click", handler);
@@ -87,7 +71,7 @@ export function LandingPage() {
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
       <div
-        className={`not-prose landing-page${skipAnimation ? " skip-entrance" : ""}`}
+        className="not-prose landing-page skip-entrance"
         style={{
           color: ACCENT,
           fontFamily: "var(--font-copy)",
@@ -160,19 +144,17 @@ function LandingStyles() {
       .landing-page {
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
         overflow-y: auto;
-        scroll-snap-type: y mandatory;
         scroll-behavior: smooth;
         margin-top: 0 !important;
       }
 
-      /* ---- Main section: hero + terminal (single snap on tablet/desktop) ---- */
+      /* ---- Main section: hero + terminal ---- */
       .landing-main-section {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: stretch;
         gap: 20px;
-        scroll-snap-align: start;
         flex-shrink: 0;
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
         position: relative;
@@ -282,9 +264,8 @@ function LandingStyles() {
         .designed-by-mobile { display: none; }
       }
 
-      /* ---- Discovery (always a snap point) ---- */
+      /* ---- Discovery ---- */
       .landing-discovery {
-        scroll-snap-align: start;
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
         flex-shrink: 0;
         overflow: hidden;
@@ -425,19 +406,17 @@ function LandingStyles() {
           background-color: transparent !important;
         }
 
-        /* ---- Mobile layout: 3 snap sections via negative margins ---- */
+        /* ---- Mobile layout ---- */
 
         .landing-main-section {
-          scroll-snap-align: none !important;
           height: auto !important;
           min-height: auto !important;
           padding: 0 !important;
           display: block !important;
         }
 
-        /* Snap 1: Hero — CTAs hidden via clip */
+        /* Hero — CTAs hidden via clip */
         .landing-hero-part {
-          scroll-snap-align: start !important;
           height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
           flex-shrink: 0 !important;
           display: flex !important;
@@ -464,9 +443,8 @@ function LandingStyles() {
           animation: ctaTextShimmer 5s ease-in-out infinite !important;
         }
 
-        /* Snap 2: Terminal — pulled up so it peeks from hero */
+        /* Terminal — pulled up so it peeks from hero */
         .landing-terminal-part {
-          scroll-snap-align: start !important;
           height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
           flex-shrink: 0 !important;
           display: flex !important;
@@ -512,9 +490,8 @@ function LandingStyles() {
           width: 100% !important;
         }
 
-        /* Snap 3: Discovery — pulled up so it peeks from terminal */
+        /* Discovery — pulled up so it peeks from terminal */
         .landing-discovery {
-          scroll-snap-align: start !important;
           height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
           flex-shrink: 0 !important;
           margin-top: -15vh !important;
