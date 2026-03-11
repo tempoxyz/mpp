@@ -109,7 +109,6 @@ export function LandingPage() {
               <div
                 className="landing-terminal-inner"
                 style={{
-                  height: 540,
                   width: "100%",
                   maxWidth: 960,
                   position: "relative",
@@ -168,10 +167,12 @@ function LandingStyles() {
       .landing-main-section {
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        gap: 32px;
         scroll-snap-align: start;
         flex-shrink: 0;
-        height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 60px);
-        padding-top: var(--vocs-spacing-topNav, 56px);
+        height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
+        position: relative;
       }
 
       .landing-hero-part {
@@ -195,23 +196,22 @@ function LandingStyles() {
 
       /* Try MPP CTA — only visible on mobile */
       .landing-try-cta { display: none !important; }
+      .landing-discover-cta { position: absolute; bottom: 0; left: 0; right: 0; }
 
       /* ---- Terminal part ---- */
       .landing-terminal-part {
-        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         min-height: 0;
         padding: 0 0.75rem;
+        width: 100%;
       }
 
       .landing-terminal {
-        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         min-height: 0;
         width: 100%;
         padding: 0 0.75rem;
@@ -220,9 +220,9 @@ function LandingStyles() {
       }
 
       .landing-terminal-inner {
-        flex: 1;
         min-height: 300px;
         max-height: 540px;
+        height: clamp(300px, 45vh, 540px);
         border: 1px solid oklch(from var(--vocs-text-color-secondary) l c h / 0.12);
         border-radius: 12px;
         animation: terminalBorderShimmer 5s ease-in-out infinite;
@@ -367,7 +367,9 @@ function LandingStyles() {
 
       /* ---- Transparent header on tablet+ ---- */
       @media (min-width: 768px) {
-        :has(.landing-page) [data-v-gutter-top] {
+        :has(.landing-page) [data-v-gutter-top],
+        :has(.landing-page) [data-v-header],
+        :has(.landing-page) header {
           background: transparent !important;
           background-color: transparent !important;
           backdrop-filter: none !important;
@@ -388,6 +390,11 @@ function LandingStyles() {
           -webkit-backdrop-filter: none !important;
           border-bottom: none !important;
           box-shadow: none !important;
+        }
+        :has(.landing-page) [data-v-header],
+        :has(.landing-page) header {
+          background: transparent !important;
+          background-color: transparent !important;
         }
 
         /* ---- Mobile layout: 3 snap sections via negative margins ---- */
@@ -433,6 +440,8 @@ function LandingStyles() {
           margin-top: -42vh !important;
           padding: 0 1rem !important;
           overflow: visible !important;
+          background: var(--vocs-background-color-primary) !important;
+          z-index: 2 !important;
         }
         .landing-terminal-part .landing-terminal {
           display: flex !important;

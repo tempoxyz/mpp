@@ -23,14 +23,17 @@ function usePostHog() {
 
 function MobileNav() {
   const handleLogoClick = () => {
-    window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
     const el = document.querySelector(".landing-page") as HTMLElement;
     if (el) {
+      window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
       el.style.scrollSnapType = "none";
       el.scrollTo({ top: 0, behavior: "smooth" });
       setTimeout(() => {
         el.style.scrollSnapType = "";
       }, 600);
+    } else {
+      window.location.href = "/";
+      return;
     }
     const closeBtn = document.querySelector(
       "[data-v-sidebar-close]",
@@ -112,6 +115,11 @@ function MobileNavPortal() {
 
   useEffect(() => {
     const update = () => {
+      const path = window.location.pathname;
+      if (path !== "/" && path !== "/services") {
+        setTarget(null);
+        return;
+      }
       const sidebar = document.querySelector("[data-v-sidebar]");
       if (sidebar?.isConnected) {
         setTarget((prev) => (prev === sidebar ? prev : sidebar));
