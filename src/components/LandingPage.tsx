@@ -71,9 +71,14 @@ export function LandingPage() {
     const handler = (e: MouseEvent) => {
       e.preventDefault();
       window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
-      document
-        .querySelector(".landing-page")
-        ?.scrollTo({ top: 0, behavior: "smooth" });
+      const el = document.querySelector(".landing-page") as HTMLElement;
+      if (el) {
+        el.style.scrollSnapType = "none";
+        el.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => {
+          el.style.scrollSnapType = "";
+        }, 600);
+      }
     };
     logoLink.addEventListener("click", handler);
     return () => logoLink.removeEventListener("click", handler);
@@ -92,32 +97,43 @@ export function LandingPage() {
       >
         <LandingStyles />
 
-        {/* Snap section 1: Hero — terminal peeks below */}
-        <div className="landing-hero-section">
-          <Hero />
-          <p className="landing-scroll-cta">Try using an MPP service now</p>
-        </div>
+        {/* Hero + Terminal (single snap on tablet/desktop, two snaps on mobile) */}
+        <div className="landing-main-section">
+          <div className="landing-hero-part">
+            <Hero />
+            <p className="landing-scroll-cta landing-try-cta">Try MPP now</p>
+          </div>
 
-        {/* Snap section 2: Terminal — centered when snapped */}
-        <div className="landing-terminal-section">
-          <div className="landing-terminal">
-            <div
-              style={{
-                height: 540,
-                width: "100%",
-                maxWidth: 960,
-                position: "relative",
-              }}
-            >
-              <Terminal className="absolute inset-0" steps={TERMINAL_STEPS} />
+          <div className="landing-terminal-part">
+            <div className="landing-terminal">
+              <div
+                className="landing-terminal-inner"
+                style={{
+                  height: 540,
+                  width: "100%",
+                  maxWidth: 960,
+                  position: "relative",
+                }}
+              >
+                <Terminal className="absolute inset-0" steps={TERMINAL_STEPS} />
+                <div className="designed-by-desktop">
+                  <DesignedBy />
+                </div>
+              </div>
+              <div
+                className="designed-by-mobile"
+                style={{ width: "100%", maxWidth: 960 }}
+              >
+                <DesignedBy />
+              </div>
             </div>
-            <div style={{ marginTop: 12, width: "100%", maxWidth: 960 }}>
-              <DesignedBy />
-            </div>
+            <p className="landing-scroll-cta landing-discover-cta">
+              Discover services
+            </p>
           </div>
         </div>
 
-        {/* Snap section 3: Service Discovery */}
+        {/* Service Discovery */}
         <div className="landing-discovery">
           <ServiceDiscovery />
         </div>
@@ -138,9 +154,8 @@ function LandingStyles() {
       :has(.landing-page) [data-v-main] { padding: 0 !important; margin: 0 !important; }
       :has(.landing-page) [data-v-main] article[data-v-content] { padding: 0 !important; margin: 0 !important; max-width: none !important; }
       :has(.landing-page) [data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
-      :has(.landing-page) [data-v-gutter-top] { position: sticky !important; top: 0 !important; z-index: 100 !important; user-select: none !important; -webkit-user-select: none !important; }
+      :has(.landing-page) [data-v-gutter-top] { position: sticky !important; top: 0 !important; z-index: 200 !important; user-select: none !important; -webkit-user-select: none !important; }
 
-      /* ---- Scroll container ---- */
       .landing-page {
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
         overflow-y: auto;
@@ -149,21 +164,22 @@ function LandingStyles() {
         margin-top: 0 !important;
       }
 
-      /* ========================================
-         SNAP SECTION 1: Hero
-         Shorter than viewport so terminal peeks
-         ======================================== */
-      .landing-hero-section {
+      /* ---- Main section: hero + terminal (single snap on tablet/desktop) ---- */
+      .landing-main-section {
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: stretch;
-        height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
         scroll-snap-align: start;
         flex-shrink: 0;
+        height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 60px);
         padding-top: var(--vocs-spacing-topNav, 56px);
-        position: relative;
       }
+
+      .landing-hero-part {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .landing-hero { flex-shrink: 0; }
 
       .hero-row {
         display: flex;
@@ -174,93 +190,80 @@ function LandingStyles() {
       .hero-right {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.75rem;
       }
-      .landing-hero { flex-shrink: 0; }
 
-      /* CTA divider at the bottom of hero */
-      .landing-scroll-cta {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        color: var(--vocs-text-color-muted);
-        font-size: 0.85rem;
-        font-family: var(--font-mono, "Geist Mono", monospace);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin: 0;
-        padding: 0;
-        margin-top: auto;
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
-        white-space: nowrap;
-      }
-      .landing-scroll-cta::before,
-      .landing-scroll-cta::after {
-        content: '';
+      /* Try MPP CTA — only visible on mobile */
+      .landing-try-cta { display: none !important; }
+
+      /* ---- Terminal part ---- */
+      .landing-terminal-part {
         flex: 1;
-        height: 1px;
-        background: linear-gradient(90deg,
-          oklch(from var(--vocs-text-color-secondary) l c h / 0.15),
-          oklch(from var(--vocs-text-color-secondary) l c h / 0.4),
-          oklch(from var(--vocs-text-color-secondary) l c h / 0.15)
-        );
-        background-size: 200% 100%;
-        animation: borderShimmer 5s ease-in-out infinite;
-      }
-      @keyframes borderShimmer {
-        0%, 100% { background-position: 200% 0; }
-        50% { background-position: -200% 0; }
-      }
-      @keyframes textShimmer {
-        0%, 100% { opacity: 0.5; }
-        50% { opacity: 0.75; }
-      }
-
-      /* ========================================
-         SNAP SECTION 2: Terminal
-         Full viewport, terminal centered
-         ======================================== */
-      .landing-terminal-section {
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
-        scroll-snap-align: start;
-        flex-shrink: 0;
-        position: relative;
+        min-height: 0;
+        padding: 0 0.75rem;
       }
 
       .landing-terminal {
-        flex-shrink: 0;
+        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
+        min-height: 0;
+        width: 100%;
+        padding: 0 0.75rem;
+        opacity: 0;
+        animation: heroContentReveal 0.6s ease-out 1.1s both;
       }
-      @media (min-width: 768px) { .landing-terminal { padding-left: 1.5rem; padding-right: 1.5rem; } }
+
+      .landing-terminal-inner {
+        flex: 1;
+        min-height: 300px;
+        max-height: 540px;
+        border: 1px solid oklch(from var(--vocs-text-color-secondary) l c h / 0.12);
+        border-radius: 12px;
+        animation: terminalBorderShimmer 5s ease-in-out infinite;
+      }
+
       .term-wizard-list { padding-left: 0; }
 
-      .designed-by {
-        position: relative;
-        z-index: 10;
-        justify-content: flex-end;
-        margin-top: 0.5rem;
-      }
-      @media (max-width: 767px) {
-        .designed-by {
-          justify-content: center;
-          margin-top: 0.75rem;
-          width: 100%;
-        }
+      @keyframes terminalBorderShimmer {
+        0%, 100% { border-color: oklch(from var(--vocs-text-color-secondary) l c h / 0.08); }
+        50% { border-color: oklch(from var(--vocs-text-color-secondary) l c h / 0.22); }
       }
 
-      /* ========================================
-         SNAP SECTION 3: Discovery
-         ======================================== */
+      /* ---- DesignedBy ---- */
+      .designed-by {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.35rem;
+        position: relative;
+        z-index: 10;
+        margin-top: 0.5rem;
+      }
+      .designed-by-desktop { display: none; }
+      .designed-by-mobile { margin-top: 12px; }
+      @media (min-width: 768px) {
+        .designed-by-desktop {
+          display: block;
+          position: absolute;
+          bottom: 16px;
+          right: 20px;
+          z-index: 10;
+        }
+        .designed-by-desktop .designed-by {
+          justify-content: flex-end;
+          margin-top: 0;
+        }
+        .designed-by-mobile { display: none; }
+      }
+
+      /* ---- Discovery (always a snap point) ---- */
       .landing-discovery {
         scroll-snap-align: start;
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
@@ -269,29 +272,9 @@ function LandingStyles() {
       }
 
       /* ---- Entrance animations ---- */
-      .lockup-img {
-        animation: lockupReveal 0.8s ease-out both;
-      }
-      .hero-right {
-        opacity: 0;
-        animation: heroContentReveal 0.6s ease-out 0.5s both;
-      }
-      .landing-ctas {
-        opacity: 0;
-        animation: heroContentReveal 0.5s ease-out 0.8s both;
-      }
-      .landing-terminal {
-        opacity: 0;
-        animation: heroContentReveal 0.6s ease-out 1.1s both;
-      }
-      .landing-scroll-cta {
-        opacity: 0;
-        animation: scrollCtaReveal 0.4s ease-out 1.5s both, textShimmer 5s ease-in-out 2s infinite;
-      }
-      @keyframes scrollCtaReveal {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 0.6; transform: translateY(0); }
-      }
+      .lockup-img { animation: lockupReveal 0.8s ease-out both; }
+      .hero-right { opacity: 0; animation: heroContentReveal 0.6s ease-out 0.5s both; }
+      .landing-ctas { opacity: 0; animation: heroContentReveal 0.5s ease-out 0.8s both; }
       @keyframes lockupReveal {
         from { opacity: 0; transform: translateX(-12px); filter: blur(4px); }
         to { opacity: 1; transform: translateX(0); filter: blur(0); }
@@ -304,12 +287,10 @@ function LandingStyles() {
       .skip-entrance .lockup-img,
       .skip-entrance .hero-right,
       .skip-entrance .landing-ctas,
-      .skip-entrance .landing-terminal,
-      .skip-entrance .landing-scroll-cta {
+      .skip-entrance .landing-terminal {
         animation: none !important;
         opacity: 1 !important;
       }
-      .skip-entrance .landing-scroll-cta { opacity: 0.6 !important; }
 
       .lockup-h1,
       .discovery-overlay-title {
@@ -317,82 +298,74 @@ function LandingStyles() {
         text-transform: uppercase;
       }
 
-      /* ---- Tablet + Mobile: stack hero columns ---- */
+      /* ---- Scroll CTA shimmer dividers ---- */
+      .landing-scroll-cta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        color: var(--vocs-text-color-muted);
+        font-size: 0.75rem;
+        font-family: var(--font-mono, "Geist Mono", monospace);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin: 0;
+        padding: 0;
+        margin-top: auto;
+        width: 100%;
+        white-space: nowrap;
+        opacity: 0;
+        animation: scrollCtaReveal 0.4s ease-out 1.5s both, ctaTextShimmer 5s ease-in-out 2s infinite;
+      }
+      .skip-entrance .landing-scroll-cta { animation: none !important; opacity: 0.6 !important; }
+      .landing-scroll-cta::before,
+      .landing-scroll-cta::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg,
+          oklch(from var(--vocs-text-color-secondary) l c h / 0.15),
+          oklch(from var(--vocs-text-color-secondary) l c h / 0.4),
+          oklch(from var(--vocs-text-color-secondary) l c h / 0.15));
+        background-size: 200% 100%;
+        animation: borderShimmer 5s ease-in-out infinite;
+      }
+      @keyframes borderShimmer {
+        0%, 100% { background-position: 200% 0; }
+        50% { background-position: -200% 0; }
+      }
+      @keyframes scrollCtaReveal {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 0.6; transform: translateY(0); }
+      }
+      @keyframes ctaTextShimmer {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 0.75; }
+      }
+
+      /* ---- Tablet + small desktop: stack hero columns ---- */
       @media (max-width: 1079px) {
         .hero-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .hero-left h1 { line-height: 0.95 !important; }
         .landing-hero { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
-        .landing-terminal { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
         .landing-ctas { margin-top: 1.5rem !important; }
         .hero-right .text-base { font-size: 1.0625rem !important; line-height: 1.65 !important; }
       }
 
-      /* ---- Mobile ---- */
-      @media (max-width: 767px) {
-        .landing-page {
-          scroll-snap-type: y proximity !important;
-        }
-        :has(.landing-page) [data-v-gutter-top] {
-          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent) !important;
-          background-color: transparent !important;
-          backdrop-filter: none !important;
-          -webkit-backdrop-filter: none !important;
-          border-bottom: none !important;
-          box-shadow: none !important;
-        }
-        .hero-row { align-items: center !important; text-align: center; gap: 1.5rem !important; }
-        .hero-right { align-items: center !important; max-width: 85vw; margin: 0 auto; gap: 0.75rem; }
-        .landing-ctas { justify-content: center !important; margin-top: 1.25rem !important; }
-        .designed-by { justify-content: center !important; }
-        .landing-terminal > div:first-child { max-height: 480px !important; min-width: 90vw !important; }
-
-        .landing-hero-section {
-          height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 80px) !important;
-          padding-top: 0 !important;
-        }
-        .landing-scroll-cta {
-          font-size: 0.75rem;
-        }
-        .landing-ctas a {
-          font-size: 1rem !important;
-          padding: 0.7rem 1.5rem !important;
-        }
-        [data-terminal] { font-size: 0.9375rem !important; }
-        [data-terminal] p,
-        [data-terminal] .text-sm,
-        [data-terminal] .font-mono { font-size: inherit !important; }
-        .term-wizard-list { padding-left: 0 !important; }
-        .term-wizard-btn {
-          display: block !important;
-          width: 100% !important;
-          padding: 0.5rem 0.75rem !important;
-          margin: 0.2rem 0 !important;
-          border: 1px solid var(--term-gray4) !important;
-          border-radius: 6px !important;
-          line-height: 1.5 !important;
-        }
-      }
-
-      /* ---- Tablet ---- */
+      /* ---- Tablet: two snap sections (hero+terminal, discovery) ---- */
       @media (min-width: 768px) and (max-width: 1079px) {
-        .landing-hero-section { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
-        .landing-terminal > div:first-child { max-width: 720px !important; }
+        .landing-hero-part { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
+        .landing-terminal-inner { max-width: 720px !important; }
+        .landing-terminal { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
       }
 
       /* ---- Desktop ---- */
       @media (min-width: 1080px) {
-        .landing-hero-section {
-          padding-left: clamp(3rem, 6vw, 6rem);
-          padding-right: clamp(3rem, 6vw, 6rem);
-        }
-        .landing-terminal > div:first-child {
-          max-width: 960px !important;
-        }
-        .hero-right {
-          padding-right: 2rem !important;
-        }
+        .landing-hero-part { padding-left: clamp(3rem, 6vw, 6rem); padding-right: clamp(3rem, 6vw, 6rem); }
+        .landing-terminal-inner { max-width: 960px !important; }
+        .hero-right { padding-right: 2rem !important; }
       }
 
+      /* ---- Transparent header on tablet+ ---- */
       @media (min-width: 768px) {
         :has(.landing-page) [data-v-gutter-top] {
           background: transparent !important;
@@ -402,6 +375,131 @@ function LandingStyles() {
           border-bottom: none !important;
           box-shadow: none !important;
         }
+        .landing-terminal { padding-left: 1.5rem; padding-right: 1.5rem; }
+      }
+
+      /* ---- Mobile: three snap sections ---- */
+      @media (max-width: 767px) {
+        .landing-page { scroll-snap-type: y mandatory !important; }
+        :has(.landing-page) [data-v-gutter-top] {
+          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent) !important;
+          background-color: transparent !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          border-bottom: none !important;
+          box-shadow: none !important;
+        }
+
+        /* ---- Mobile layout: 3 snap sections via negative margins ---- */
+
+        /* Parent wrapper becomes transparent — children are the snap targets */
+        .landing-main-section {
+          scroll-snap-align: none !important;
+          height: auto !important;
+          min-height: auto !important;
+          padding: 0 !important;
+          display: block !important;
+        }
+
+        /* Snap 1: Hero */
+        .landing-hero-part {
+          scroll-snap-align: start !important;
+          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
+          flex-shrink: 0 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: center !important;
+          padding: 0 1.75rem 12rem !important;
+          margin-top: -8rem !important;
+          overflow: hidden !important;
+          z-index: 1 !important;
+        }
+        .landing-hero-part .landing-hero {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+        .landing-try-cta { display: none !important; }
+
+        /* Snap 2: Terminal — pulled up so it peeks from hero */
+        .landing-terminal-part {
+          scroll-snap-align: start !important;
+          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
+          flex-shrink: 0 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          margin-top: -42vh !important;
+          padding: 0 1rem !important;
+          overflow: visible !important;
+        }
+        .landing-terminal-part .landing-terminal {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+          width: 100% !important;
+          overflow: visible !important;
+          opacity: 1 !important;
+        }
+        .landing-terminal-inner {
+          height: 390px !important;
+          min-width: 90vw !important;
+        }
+        .landing-terminal-part > .landing-scroll-cta {
+          margin-top: auto !important;
+          margin-bottom: 1.5rem !important;
+          flex-shrink: 0 !important;
+          position: relative !important;
+          z-index: 2 !important;
+        }
+
+        /* Snap 3: Discovery — pulled up so it peeks from terminal */
+        .landing-discovery {
+          scroll-snap-align: start !important;
+          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
+          flex-shrink: 0 !important;
+          margin-top: -15vh !important;
+        }
+
+        /* Hero content styles */
+        .hero-row { align-items: center !important; text-align: center; gap: 1.5rem !important; }
+        .hero-right { align-items: center !important; max-width: 90vw; gap: 0.75rem; }
+        .landing-ctas { justify-content: center !important; margin-top: 1.5rem !important; }
+        .lockup-img { width: clamp(260px, 72vw, 380px) !important; }
+        .hero-right > div:first-child { font-size: 1.1875rem !important; max-width: 90vw !important; }
+        .landing-ctas a { font-size: 1.1rem !important; padding: 0.75rem 1.75rem !important; }
+
+        /* DesignedBy row */
+        .designed-by {
+          flex-direction: row !important;
+          align-items: center !important;
+          gap: 8px !important;
+          margin-top: 0.75rem !important;
+          width: 100%;
+          justify-content: center !important;
+        }
+        .designed-by-mobile { margin-top: 1.5rem; margin-bottom: 50px; display: flex; flex-direction: row; }
+
+        /* Terminal font sizes */
+        [data-terminal] { font-size: 1.0625rem !important; }
+        [data-terminal] p,
+        [data-terminal] .text-sm,
+        [data-terminal] .font-mono { font-size: 13.5px !important; }
+        .term-wizard-list { padding-left: 0 !important; }
+        .term-wizard-btn {
+          display: block !important;
+          width: 100% !important;
+          padding: 0.5rem 0.75rem !important;
+          margin: 0.2rem 0 !important;
+          border: 1px solid var(--term-gray4) !important;
+          border-radius: 6px !important;
+          line-height: 1.5 !important;
+          font-size: 15px !important;
+        }
+
+        .landing-scroll-cta { font-size: 0.8rem !important; margin-top: 0.5rem !important; margin-bottom: 0.25rem !important; }
       }
     `}</style>
   );
@@ -414,7 +512,7 @@ function LandingStyles() {
 function DesignedBy() {
   return (
     <div
-      className="designed-by flex items-center gap-2"
+      className="designed-by flex !flex-row items-center justify-center gap-2"
       style={{
         color: "var(--vocs-text-color-muted)",
         whiteSpace: "nowrap",
@@ -471,7 +569,6 @@ function DesignedBy() {
 // ---------------------------------------------------------------------------
 
 function Hero() {
-  const [hoverCta, setHoverCta] = useState<string | null>(null);
   return (
     <section
       className="landing-hero px-3 md:px-6"
@@ -485,8 +582,8 @@ function Hero() {
           <Lockup />
         </div>
         <div className="hero-right">
-          <Tagline override={hoverCta} />
-          <div className="flex items-center gap-4 mt-4 landing-ctas">
+          <Tagline />
+          <div className="flex items-center gap-4 mt-3 landing-ctas">
             <Link
               to="/quickstart/agent"
               className="no-underline! px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
@@ -497,12 +594,6 @@ function Hero() {
                 color: "light-dark(#fff, #111)",
                 backgroundColor: "light-dark(#111, rgba(255,255,255,0.92))",
               }}
-              onMouseEnter={() =>
-                setHoverCta(
-                  "Install in under a minute on Claude, Codex, Amp, or any coding agent. Handles 402 payment challenges and pays for API calls with stablecoins via MCP.",
-                )
-              }
-              onMouseLeave={() => setHoverCta(null)}
               onClick={() =>
                 captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
                   cta_label: "Use with agents",
@@ -523,12 +614,6 @@ function Hero() {
                 backgroundColor: "light-dark(#fff, rgba(255,255,255,0.06))",
                 border: "1px solid var(--vocs-border-color-primary)",
               }}
-              onMouseEnter={() =>
-                setHoverCta(
-                  "Add a single endpoint to your API and start earning per request. Works with any HTTP framework. Set flexible per-route pricing, paid in stablecoins.",
-                )
-              }
-              onMouseLeave={() => setHoverCta(null)}
               onClick={() =>
                 captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
                   cta_label: "Monetize a service",
@@ -549,41 +634,14 @@ function Hero() {
 // Tagline
 // ---------------------------------------------------------------------------
 
-function Tagline({ override }: { override?: string | null }) {
-  const defaultText =
-    "The open protocol for internet-native payments. Charge for API requests, tool calls, or content. Agents, apps, and humans securely pay per request.";
+function Tagline() {
   return (
     <div
-      className="text-[1.125rem] md:text-[1.25rem] leading-relaxed max-w-xl font-normal"
-      style={{
-        color: "var(--vocs-text-color-secondary)",
-        position: "relative",
-        overflow: "hidden",
-      }}
+      className="text-[1.0625rem] md:text-[1.125rem] leading-relaxed max-w-xl font-normal"
+      style={{ color: "var(--vocs-text-color-secondary)" }}
     >
-      <div
-        style={{
-          opacity: override ? 0 : 1,
-          transition: "opacity 0.2s ease",
-          willChange: "opacity",
-        }}
-      >
-        {defaultText}
-      </div>
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          opacity: override ? 1 : 0,
-          transition: "opacity 0.2s ease",
-          transitionDelay: override ? "0.15s" : "0s",
-          willChange: "opacity",
-        }}
-      >
-        {override || defaultText}
-      </div>
+      The open protocol for internet-native payments. Charge for API requests,
+      tool calls, or content. Agents, apps, and humans securely pay per request.
     </div>
   );
 }

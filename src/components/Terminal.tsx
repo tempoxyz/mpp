@@ -963,12 +963,25 @@ function AsyncSteps({
           {outputMode === "photo" && output.length > 0 ? (
             <PhotoOutput url={output[0]} />
           ) : (
-            <pre
-              className="whitespace-pre-wrap"
-              style={{ color: "var(--term-gray10)" }}
-            >
-              {renderText(outputText)}
-            </pre>
+            <>
+              <pre
+                className="whitespace-pre-wrap"
+                style={{ color: "var(--term-gray10)" }}
+              >
+                {renderText(outputText)}
+              </pre>
+              {!demoClient && (
+                <p
+                  style={{
+                    color: "var(--term-gray5)",
+                    fontSize: 11,
+                    marginTop: 8,
+                  }}
+                >
+                  Simulated result
+                </p>
+              )}
+            </>
           )}
           <BlankLine />
         </>
@@ -1010,6 +1023,7 @@ function AsyncSteps({
             >
               {" "}
             </p>
+            <BlankLine />
             <div
               style={{
                 color: "var(--term-gray5)",
@@ -1046,6 +1060,17 @@ function AsyncSteps({
             >
               {outputText.slice(0, streamChars)}
             </pre>
+            {streamChars >= outputText.length && !demoClient && (
+              <p
+                style={{
+                  color: "var(--term-gray5)",
+                  fontSize: 11,
+                  marginTop: 8,
+                }}
+              >
+                Simulated result
+              </p>
+            )}
             {streamChars >= outputText.length && (
               <>
                 <BlankLine />
@@ -1703,7 +1728,7 @@ function Wizard({
     setWaitingForUrl(true);
     setUrlInput("");
     setUrlError("");
-    setTimeout(() => urlRef.current?.focus(), 0);
+    requestAnimationFrame(() => urlRef.current?.focus());
   };
 
   const submitUrl = () => {
@@ -1728,6 +1753,7 @@ function Wizard({
     setChosenUrl(fullUrl);
     setWaitingForUrl(false);
     setChosen(step);
+    urlRef.current?.blur();
     scrollTerminalIntoView();
   };
 
@@ -1936,12 +1962,6 @@ function Wizard({
             animation: runs.length > 0 ? "fadeIn 0.5s ease-out" : undefined,
           }}
         >
-          <div
-            style={{
-              borderTop: "1px solid var(--term-gray4)",
-              margin: "0.5rem 0",
-            }}
-          />
           <BlankLine />
           <p style={{ color: "var(--term-gray10)" }}>
             What would you like to do?
@@ -1993,6 +2013,7 @@ function Wizard({
           {waitingForUrl && (
             <>
               <BlankLine />
+              <BlankLine />
               <p className="flex" style={{ color: "var(--term-pink9)" }}>
                 <span className="shrink-0 whitespace-pre">
                   {currentItems[selected].prompt?.label ?? "Enter prompt"}:{" "}
@@ -2005,6 +2026,9 @@ function Wizard({
                 <BlockCursorInput
                   ref={urlRef}
                   type="text"
+                  inputMode="url"
+                  enterKeyHint="go"
+                  autoFocus
                   value={urlInput}
                   onChange={(e) => {
                     setUrlInput(e.target.value);
@@ -2364,8 +2388,8 @@ function GalleryStep({
           <GalleryGrid urls={run.urls} animate={false} />
           {/* biome-ignore format: contains unicode ✔︎ */}
           <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
-            <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
-            {run.count} photos —{" "}
+            <span style={{ color: "var(--term-green9)" }}>✔︎</span> {run.count}{" "}
+            photos —{" "}
             <span style={{ color: "var(--term-amber9)" }}>
               {(run.count * GALLERY_COST).toFixed(2)} USDC
             </span>
@@ -2410,7 +2434,10 @@ function GalleryStep({
             ))}
           </div>
           {/* biome-ignore format: contains unicode ↑↓⇥⏎ */}
-          <p className="hidden md:block" style={{ color: "var(--term-gray5)", marginTop: "1rem" }}>
+          <p
+            className="hidden md:block"
+            style={{ color: "var(--term-gray5)", marginTop: "1rem" }}
+          >
             Use ↑↓ or ⇥ to select, and ⏎ to confirm.
           </p>
         </>
@@ -2527,8 +2554,7 @@ function GalleryStep({
             <>
               {/* biome-ignore format: contains unicode ✔︎ */}
               <p style={{ color: "var(--term-gray6)" }}>
-                <span style={{ color: "var(--term-green9)" }}>✔︎</span>
-                {" "}Refunded{" "}
+                <span style={{ color: "var(--term-green9)" }}>✔︎</span> Refunded{" "}
                 <span style={{ color: "var(--term-green9)" }}>
                   {(5 - spent).toFixed(2)} USDC
                 </span>
@@ -2806,7 +2832,10 @@ function TerminalComponent({
         {/* Title bar */}
         <div
           className="flex items-center gap-2 px-4 py-3"
-          style={{ backgroundColor: "var(--term-bg2)" }}
+          style={{
+            backgroundColor: "var(--term-bg2)",
+            borderBottom: "1px solid var(--term-gray4)",
+          }}
         >
           <span
             className="rounded-full"
@@ -2896,7 +2925,7 @@ function TerminalComponent({
           <div
             style={{
               position: "absolute",
-              top: 44,
+              top: 43,
               left: 0,
               right: 0,
               height: 24,

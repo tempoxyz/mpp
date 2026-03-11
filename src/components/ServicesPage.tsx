@@ -45,7 +45,14 @@ export function formatPrice(ep: Endpoint): string {
   if (v >= 1) return `$${v.toFixed(2)}`;
   let s = v.toFixed(4);
   s = s.replace(/0+$/, "");
-  if (s.endsWith(".")) s = s.slice(0, -1);
+  if (s.endsWith(".")) s += "00";
+  else {
+    const dotIdx = s.indexOf(".");
+    if (dotIdx >= 0) {
+      const decimals = s.length - dotIdx - 1;
+      if (decimals < 2) s += "0".repeat(2 - decimals);
+    }
+  }
   return `$${s}`;
 }
 function copyText(t: string) {
@@ -276,6 +283,7 @@ function SearchWithDropdown({
   onSelectCategory,
   fullWidth,
   inputRef: externalRef,
+  onInputFocus,
 }: {
   search: string;
   setSearch: (v: string) => void;
@@ -285,6 +293,7 @@ function SearchWithDropdown({
   onSelectCategory: (cat: Category) => void;
   fullWidth?: boolean;
   inputRef?: React.RefObject<HTMLInputElement | null>;
+  onInputFocus?: () => void;
 }) {
   const internalRef = useRef<HTMLInputElement>(null);
   const ref = externalRef ?? internalRef;
@@ -387,6 +396,7 @@ function SearchWithDropdown({
         }}
         onFocus={() => {
           if (search.trim()) setShowDropdown(true);
+          onInputFocus?.();
         }}
         onKeyDown={handleKeyDown}
         placeholder={`Search ${services.length} services...`}
@@ -659,15 +669,12 @@ function useCopyFeedback() {
 // Syntax-highlighted CLI text
 function HighlightedCmd({ children }: { children: string }) {
   const parts: React.ReactNode[] = [];
-  const tokens = children.split(/(\s+)/);
+  const segments = children.match(/"[^"]*"|'[^']*'|\S+|\s+/g) ?? [];
   let key = 0;
-  for (const tok of tokens) {
+  for (const tok of segments) {
     if (/^(claude|codex|amp)$/i.test(tok)) {
       parts.push(
-        <span
-          key={key}
-          style={{ color: "light-dark(#c2410c, #fb923c)", fontWeight: 600 }}
-        >
+        <span key={key} style={{ color: CMD_PURPLE, fontWeight: 600 }}>
           {tok}
         </span>,
       );
@@ -695,9 +702,9 @@ function HighlightedCmd({ children }: { children: string }) {
           {tok}
         </span>,
       );
-    } else if (/^'/.test(tok) || /^"/.test(tok)) {
+    } else if (/^["']/.test(tok) && tok.length > 1) {
       parts.push(
-        <span key={key} style={{ color: CMD_GREEN }}>
+        <span key={key} style={{ color: "var(--vocs-text-color-heading)" }}>
           {tok}
         </span>,
       );
@@ -742,7 +749,11 @@ export function ServicesPage() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const initialHashHandled = useRef(false);
+  const [mobileSearchActive, setMobileSearchActive] = useState(false);
+  const [mobileResultsView, setMobileResultsView] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchServices()
@@ -785,14 +796,17 @@ export function ServicesPage() {
     [services],
   );
 
+  const effectiveSearch =
+    mobileSearchActive && !mobileResultsView ? "" : debouncedSearch;
+
   const filtered = useMemo(() => {
     let list = services;
     if (selectedCategory)
       list = list.filter((s) =>
         allCategories(s).some((c) => c === selectedCategory),
       );
-    if (debouncedSearch) {
-      const q = debouncedSearch.toLowerCase();
+    if (effectiveSearch) {
+      const q = effectiveSearch.toLowerCase();
       list = list.filter(
         (s) =>
           s.name.toLowerCase().includes(q) ||
@@ -813,7 +827,7 @@ export function ServicesPage() {
       .filter((s) => !pinnedSet.has(s.id))
       .sort((a, b) => a.name.localeCompare(b.name));
     return [...pinned, ...rest];
-  }, [services, selectedCategory, debouncedSearch]);
+  }, [services, selectedCategory, effectiveSearch]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
@@ -835,6 +849,8 @@ export function ServicesPage() {
       setDebouncedSearch("");
       setSelectedCategory(null);
       setExpandedIds(new Set([serviceId]));
+      setMobileSearchActive(false);
+      setMobileResultsView(false);
       history.replaceState(null, "", `#service-${serviceId}`);
       const all = computeFilteredList(services);
       const idx = all.findIndex((s) => s.id === serviceId);
@@ -874,6 +890,30 @@ export function ServicesPage() {
     setSearch("");
     setDebouncedSearch("");
     setPage(0);
+    setMobileSearchActive(false);
+    setMobileResultsView(false);
+  }, []);
+
+  const dismissMobileSearch = useCallback(() => {
+    setMobileSearchActive(false);
+    setMobileResultsView(false);
+    setSearch("");
+    setDebouncedSearch("");
+  }, []);
+
+  const handleMobileView = useCallback(() => {
+    setMobileResultsView(true);
+    setDebouncedSearch(search);
+    setPage(0);
+    setTimeout(() => {
+      tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }, [search]);
+
+  const handleMobileSearchFocus = useCallback(() => {
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      setMobileSearchActive(true);
+    }
   }, []);
 
   return (
@@ -908,7 +948,7 @@ export function ServicesPage() {
           <div>
             <h1
               style={{
-                fontSize: "2.2rem",
+                fontSize: "2.5rem",
                 fontWeight: 700,
                 fontFamily: '"VTC Du Bois", var(--font-sans)',
                 letterSpacing: "-0.02em",
@@ -933,67 +973,7 @@ export function ServicesPage() {
               MPP-enabled APIs your agent or application can seamlessly use.
             </p>
           </div>
-          <div
-            className="page-header-ctas"
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              flexShrink: 0,
-              marginTop: "0.35rem",
-            }}
-          >
-            {/* <button
-              type="button"
-              onClick={() => setShowAddServiceModal(true)}
-              style={{
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                whiteSpace: "nowrap",
-                padding: "0.4rem 0.85rem",
-                borderRadius: 7,
-                color: "var(--vocs-background-color-primary)",
-                backgroundColor: "var(--vocs-text-color-heading)",
-                textDecoration: "none",
-                transition: "opacity 0.15s",
-                cursor: "pointer",
-                border: "none",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.opacity = "0.8";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.opacity = "1";
-              }}
-            >
-              Add a service
-            </button> */}
-            <Link
-              to="/overview"
-              className="no-underline!"
-              style={{
-                fontSize: "0.9375rem",
-                fontWeight: 500,
-                whiteSpace: "nowrap",
-                padding: "0.5rem 1rem",
-                borderRadius: 8,
-                color: "var(--vocs-text-color-heading)",
-                backgroundColor:
-                  "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.08))",
-                border:
-                  "1px solid light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.12))",
-                textDecoration: "none",
-                transition: "opacity 0.15s, background 0.15s",
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                (e.currentTarget as HTMLElement).style.opacity = "0.8";
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                (e.currentTarget as HTMLElement).style.opacity = "1";
-              }}
-            >
-              Learn more
-            </Link>
-          </div>
+          <div className="page-header-ctas" style={{ display: "none" }} />
         </div>
 
         {/* Header cards — visible when sidebar hidden */}
@@ -1014,15 +994,91 @@ export function ServicesPage() {
         >
           <div style={{ flex: 1, minWidth: 0 }}>
             {loading && (
-              <div
-                style={{
-                  padding: "5rem 0",
-                  textAlign: "center",
-                  color: "var(--vocs-text-color-secondary)",
-                  fontSize: 16,
-                }}
-              >
-                Loading services...
+              <div>
+                <style>
+                  {`@keyframes skeletonShimmer {
+                    0% { background-position: -200% 0; }
+                    100% { background-position: 200% 0; }
+                  }`}
+                </style>
+                {["a", "b", "c", "d", "e", "f", "g", "h"].map((k) => (
+                  <div
+                    key={k}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "1rem",
+                      height: 58,
+                      padding: "0 1rem",
+                      borderBottom:
+                        "1px solid light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06))",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 6,
+                        background:
+                          "linear-gradient(90deg, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 25%, light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.1)) 50%, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 75%)",
+                        backgroundSize: "200% 100%",
+                        animation: "skeletonShimmer 1.5s infinite ease-in-out",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: 100,
+                        height: 14,
+                        borderRadius: 4,
+                        background:
+                          "linear-gradient(90deg, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 25%, light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.1)) 50%, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 75%)",
+                        backgroundSize: "200% 100%",
+                        animation: "skeletonShimmer 1.5s infinite ease-in-out",
+                        animationDelay: "0.1s",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div
+                      style={{
+                        flex: 1,
+                        height: 12,
+                        borderRadius: 4,
+                        background:
+                          "linear-gradient(90deg, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 25%, light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.1)) 50%, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 75%)",
+                        backgroundSize: "200% 100%",
+                        animation: "skeletonShimmer 1.5s infinite ease-in-out",
+                        animationDelay: "0.2s",
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: 140,
+                        height: 12,
+                        borderRadius: 4,
+                        background:
+                          "linear-gradient(90deg, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 25%, light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.1)) 50%, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 75%)",
+                        backgroundSize: "200% 100%",
+                        animation: "skeletonShimmer 1.5s infinite ease-in-out",
+                        animationDelay: "0.3s",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: 8,
+                        background:
+                          "linear-gradient(90deg, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 25%, light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.1)) 50%, light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) 75%)",
+                        backgroundSize: "200% 100%",
+                        animation: "skeletonShimmer 1.5s infinite ease-in-out",
+                        animationDelay: "0.4s",
+                        flexShrink: 0,
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             )}
             {error && (
@@ -1045,23 +1101,187 @@ export function ServicesPage() {
             )}
             {!loading && !error && (
               <>
+                {mobileSearchActive && !mobileResultsView && (
+                  // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop
+                  // biome-ignore lint/a11y/noStaticElementInteractions: backdrop
+                  <div
+                    className="mobile-search-backdrop"
+                    onClick={dismissMobileSearch}
+                    style={{
+                      position: "fixed",
+                      inset: 0,
+                      zIndex: 99,
+                      background:
+                        "light-dark(rgba(255,255,255,0.85), rgba(0,0,0,0.75))",
+                      backdropFilter: "blur(12px)",
+                      WebkitBackdropFilter: "blur(12px)",
+                    }}
+                  />
+                )}
+                {mobileResultsView && (
+                  <div
+                    className="mobile-results-header"
+                    style={{
+                      position: "sticky",
+                      top: 0,
+                      zIndex: 30,
+                      display: "none",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "0.75rem 1.25rem",
+                      background: "var(--vocs-background-color-primary)",
+                      borderBottom:
+                        "1px solid var(--vocs-border-color-primary)",
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <SearchWithDropdown
+                        search={search}
+                        setSearch={setSearch}
+                        setPage={setPage}
+                        services={services}
+                        onSelectService={selectAndScrollToService}
+                        onSelectCategory={handleSelectCategory}
+                        fullWidth
+                        inputRef={mobileSearchInputRef}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={dismissMobileSearch}
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        color: "var(--vocs-text-color-muted)",
+                        cursor: "pointer",
+                        padding: 4,
+                        borderRadius: 4,
+                        flexShrink: 0,
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
                 <div
-                  className="search-mobile"
+                  className={`search-mobile ${mobileResultsView ? "search-mobile-hidden" : ""}`}
                   style={{
                     display: "none",
                     marginBottom: "1rem",
                     marginTop: "0.5rem",
+                    position:
+                      mobileSearchActive && !mobileResultsView
+                        ? "relative"
+                        : undefined,
+                    zIndex:
+                      mobileSearchActive && !mobileResultsView
+                        ? 100
+                        : undefined,
                   }}
                 >
-                  <SearchWithDropdown
-                    search={search}
-                    setSearch={setSearch}
-                    setPage={setPage}
-                    services={services}
-                    onSelectService={selectAndScrollToService}
-                    onSelectCategory={handleSelectCategory}
-                    fullWidth
-                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.5rem",
+                      alignItems: "stretch",
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <SearchWithDropdown
+                        search={search}
+                        setSearch={(v) => {
+                          setSearch(v);
+                          if (v && !mobileSearchActive) {
+                            if (
+                              window.matchMedia("(max-width: 900px)").matches
+                            ) {
+                              setMobileSearchActive(true);
+                            }
+                          }
+                        }}
+                        setPage={setPage}
+                        services={services}
+                        onSelectService={selectAndScrollToService}
+                        onSelectCategory={handleSelectCategory}
+                        fullWidth
+                        inputRef={searchInputRef}
+                        onInputFocus={handleMobileSearchFocus}
+                      />
+                    </div>
+                    {mobileSearchActive && !mobileResultsView && (
+                      <>
+                        {search.trim() && (
+                          <button
+                            type="button"
+                            className="mobile-search-view-btn"
+                            onClick={handleMobileView}
+                            style={{
+                              flexShrink: 0,
+                              border: "none",
+                              background:
+                                "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))",
+                              color: "var(--vocs-text-color-heading)",
+                              fontSize: 13,
+                              fontWeight: 600,
+                              fontFamily: "var(--font-sans)",
+                              cursor: "pointer",
+                              padding: "0 12px",
+                              borderRadius: 7,
+                              whiteSpace: "nowrap",
+                              transition: "background 0.15s",
+                            }}
+                          >
+                            View
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={dismissMobileSearch}
+                          style={{
+                            flexShrink: 0,
+                            border: "none",
+                            background: "transparent",
+                            color: "var(--vocs-text-color-muted)",
+                            cursor: "pointer",
+                            padding: 4,
+                            borderRadius: 4,
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <path d="M18 6 6 18" />
+                            <path d="m6 6 12 12" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <div
                   className="search-bar"
@@ -1073,12 +1293,11 @@ export function ServicesPage() {
                     marginLeft: "0.5rem",
                     marginRight: "0.5rem",
                     position: "sticky",
-                    top: "calc(var(--vocs-spacing-topNav, 56px) - 8px)",
-                    zIndex: 10,
+                    top: "calc(var(--vocs-spacing-topNav, 56px) - 14px)",
+                    zIndex: 50,
                     background: "var(--vocs-background-color-primary)",
                     paddingTop: "0.5rem",
                     paddingBottom: "0.5rem",
-                    flexWrap: "wrap",
                   }}
                 >
                   <SearchWithDropdown
@@ -1091,39 +1310,35 @@ export function ServicesPage() {
                     fullWidth
                     inputRef={searchInputRef}
                   />
-                  <div
-                    className="filter-tags filter-tags-pills"
-                    style={{
-                      display: "flex",
-                      gap: "0.375rem",
-                      flexWrap: "wrap",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Pill
-                      active={selectedCategory === null}
-                      onClick={clearCats}
-                    >
-                      All
-                    </Pill>
-                    {categories.map((cat) => (
-                      <Pill
-                        key={cat}
-                        active={selectedCategory === cat}
-                        onClick={() => toggleCat(cat)}
-                      >
-                        {CATEGORY_LABELS[cat] ?? cat}
-                      </Pill>
-                    ))}
-                  </div>
                   <FilterDropdown
                     categories={categories}
                     selectedCategory={selectedCategory}
                     onSelect={toggleCat}
                     onClear={clearCats}
                   />
+                  <Link
+                    to="/overview"
+                    className="no-underline! search-bar-learn-more"
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 500,
+                      whiteSpace: "nowrap",
+                      padding: "0.45rem 0.85rem",
+                      borderRadius: 7,
+                      color: "var(--vocs-text-color-heading)",
+                      border: "1px solid var(--vocs-border-color-primary)",
+                      background:
+                        "light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.06))",
+                      textDecoration: "none",
+                      transition:
+                        "color 0.15s, border-color 0.15s, background 0.15s",
+                      flexShrink: 0,
+                    }}
+                  >
+                    Learn more
+                  </Link>
                 </div>
-                <div className="services-content-row">
+                <div ref={tableRef} className="services-content-row">
                   <div
                     className="services-table-col"
                     style={{ flex: 1, minWidth: 0 }}
@@ -1649,7 +1864,7 @@ function HeaderCards({
     transition: "background 0.15s, border-color 0.15s",
     minWidth: 0,
   };
-  const titleS: React.CSSProperties = { fontSize: 14, fontWeight: 500 };
+  const titleS: React.CSSProperties = { fontSize: 13, fontWeight: 500 };
   const descS: React.CSSProperties = {
     fontSize: 12,
     color: "var(--vocs-text-color-muted)",
@@ -1687,9 +1902,7 @@ function HeaderCards({
           </span>
           <div>
             <div style={titleS}>Use with Tempo</div>
-            <div style={descS}>
-              CLI & wallet for out-of-the-box agentic payments
-            </div>
+            <div style={descS}>CLI & wallet for agents</div>
           </div>
         </button>
         <a
@@ -1801,7 +2014,7 @@ function SidebarInfoCards() {
     alignItems: "flex-start",
   };
   const titleStyle: React.CSSProperties = {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 500,
     marginBottom: "0.1rem",
   };
@@ -1925,11 +2138,11 @@ function PrestoSteps() {
         padding: "0 0rem",
         display: "flex",
         flexDirection: "column",
-        gap: "1rem",
+        gap: "1.25rem",
       }}
     >
       <CliSnippet
-        label="Install Tempo"
+        label="Install Tempo tools"
         desc="Install the CLI. You will be asked to sign in or create a passkey-based wallet in your browser."
       >
         curl -L https://tempo.xyz/install | bash && tempo add wallet
@@ -1938,7 +2151,7 @@ function PrestoSteps() {
         label="Prompt your agent"
         desc="Tell Claude (or Codex, Amp, etc) to use a Tempo service."
       >
-        {`claude "Summarize https://stripe.com/docs using Exa search via Tempo Wallet"`}
+        {`claude "Summarize https://stripe.com/docs using Exa search via Tempo"`}
       </CliSnippet>
       <div
         style={{
@@ -1994,7 +2207,7 @@ function CliSnippet({
             color: "var(--vocs-text-color-secondary)",
             fontSize: 13,
             lineHeight: 1.45,
-            marginBottom: "0.5rem",
+            marginBottom: "0.75rem",
           }}
         >
           {desc}
@@ -2009,7 +2222,7 @@ function CliSnippet({
           alignItems: "flex-start",
           justifyContent: "space-between",
           gap: 8,
-          padding: "0.45rem 0.6rem",
+          padding: "0.6rem 0.6rem",
           borderRadius: 6,
           border: "1px solid var(--vocs-border-color-primary)",
           background: CODE_BG,
@@ -2061,43 +2274,6 @@ function CliSnippet({
 // Small components
 // ---------------------------------------------------------------------------
 
-function Pill({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        padding: "0.3rem 0.65rem",
-        fontSize: 13,
-        borderRadius: 6,
-        border: "1px solid var(--vocs-border-color-primary)",
-        whiteSpace: "nowrap",
-        flexShrink: 1,
-        minWidth: 0,
-        background: active
-          ? "light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.12))"
-          : "transparent",
-        color: active
-          ? "var(--vocs-text-color-heading)"
-          : "var(--vocs-text-color-secondary)",
-        cursor: "pointer",
-        fontFamily: "var(--font-sans)",
-        lineHeight: 1.4,
-        transition: "background 0.15s, color 0.15s",
-      }}
-    >
-      {children}
-    </button>
-  );
-}
 function FilterDropdown({
   categories,
   selectedCategory,
@@ -2112,7 +2288,7 @@ function FilterDropdown({
   const [open, setOpen] = useState(false);
   const label = selectedCategory
     ? (CATEGORY_LABELS[selectedCategory] ?? selectedCategory)
-    : "All";
+    : "Showing all";
 
   return (
     <div className="filter-dropdown-wrap" style={{ position: "relative" }}>
@@ -2123,6 +2299,7 @@ function FilterDropdown({
         style={{
           display: "flex",
           alignItems: "center",
+          justifyContent: "space-between",
           gap: 6,
           padding: "0.4rem 0.75rem",
           fontSize: 14,
@@ -2130,7 +2307,7 @@ function FilterDropdown({
           borderRadius: 6,
           border: "1px solid var(--vocs-border-color-primary)",
           background: "transparent",
-          color: "var(--vocs-text-color-heading)",
+          color: "var(--vocs-text-color-muted)",
           cursor: "pointer",
           fontFamily: "var(--font-sans)",
           whiteSpace: "nowrap",
@@ -2456,7 +2633,7 @@ function ServiceRow({
           cursor: "pointer",
           transition: "background 0.1s",
           background: expanded ? expandedBg : undefined,
-          height: 58,
+          minHeight: 58,
         }}
         onMouseEnter={(e) => {
           if (!expanded)
@@ -2502,22 +2679,9 @@ function ServiceRow({
                   </span>
                 )}
               </div>
-              {s.provider?.name && (
-                <div
-                  className="show-tablet"
-                  style={{
-                    display: "none",
-                    marginTop: 3,
-                    fontSize: 13,
-                    color: "var(--vocs-text-color-muted)",
-                  }}
-                >
-                  {s.provider.name}
-                </div>
-              )}
               <div
-                className="show-tablet"
-                style={{ display: "none", marginTop: 5 }}
+                className="show-tablet svc-desc-container"
+                style={{ display: "none", marginTop: 8 }}
               >
                 <span
                   className="svc-desc-mobile"
@@ -2525,61 +2689,34 @@ function ServiceRow({
                     color: "var(--vocs-text-color-secondary)",
                     fontSize: 14,
                     lineHeight: 1.4,
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
                   }}
                 >
                   {s.description}
                 </span>
               </div>
-              {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
-              {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
               <div
                 className="show-tablet url-mobile"
-                onClick={handleCopyUrl}
                 style={{
                   display: "none",
-                  marginTop: 4,
+                  marginTop: 10,
                 }}
               >
                 <span
                   style={{
                     fontFamily: "var(--font-mono)",
                     fontSize: 13,
-                    color:
-                      copiedId === `url-${s.id}`
-                        ? "var(--vocs-text-color-heading)"
-                        : URL_COLOR,
+                    color: URL_COLOR,
                     padding: "0.15rem 0.4rem",
                     borderRadius: 4,
                     background: CODE_BG,
-                    cursor: "pointer",
-                    transition: "color 0.15s",
-                    wordBreak: "break-all",
                   }}
-                  title={
-                    copiedId === `url-${s.id}`
-                      ? "Copied!"
-                      : `Copy: ${displayUrl}`
-                  }
                 >
                   <span style={{ opacity: 0.5 }}>https://</span>
                   {displayUrl.replace(/^https?:\/\//, "")}
-                  <span
-                    className="url-copy-icon"
-                    data-copied={
-                      copiedId === `url-${s.id}` ? "true" : undefined
-                    }
-                    style={{
-                      marginLeft: 4,
-                      display: "inline-flex",
-                      verticalAlign: "middle",
-                    }}
-                  >
-                    {copiedId === `url-${s.id}` ? (
-                      <CheckIcon size={10} />
-                    ) : (
-                      <CopyIcon size={10} />
-                    )}
-                  </span>
                 </span>
               </div>
             </div>
@@ -2657,11 +2794,44 @@ function ServiceRow({
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
-              gap: "0.3rem",
+              gap: "0.5rem",
               paddingRight: "0.75rem",
               color: "var(--vocs-text-color-muted)",
             }}
           >
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+            <span
+              className="mobile-row-copy"
+              onClick={(e) => {
+                e.stopPropagation();
+                copy(displayUrl, `url-${s.id}`);
+              }}
+              style={{
+                display: "none",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                color:
+                  copiedId === `url-${s.id}`
+                    ? "light-dark(#15803d, #4ade80)"
+                    : "var(--vocs-text-color-muted)",
+                transition: "color 0.15s",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+              title={
+                copiedId === `url-${s.id}` ? "Copied!" : `Copy: ${displayUrl}`
+              }
+            >
+              {copiedId === `url-${s.id}` ? (
+                <CheckIcon size={16} />
+              ) : (
+                <CopyIcon size={16} />
+              )}
+            </span>
             {(s.docs?.apiReference || s.docs?.llmsTxt || s.docs?.homepage) && (
               <a
                 href={
@@ -2674,11 +2844,13 @@ function ServiceRow({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: 26,
-                  height: 26,
+                  width: 32,
+                  height: 32,
                   borderRadius: 7,
+                  border: "1px solid var(--vocs-border-color-primary)",
                   color: "var(--vocs-text-color-muted)",
-                  transition: "background 0.15s, color 0.15s",
+                  transition:
+                    "background 0.15s, color 0.15s, border-color 0.15s",
                 }}
                 title="Docs"
                 onMouseEnter={(e) => {
@@ -2705,11 +2877,13 @@ function ServiceRow({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: 26,
-                  height: 26,
+                  width: 32,
+                  height: 32,
                   borderRadius: 7,
+                  border: "1px solid var(--vocs-border-color-primary)",
                   color: "var(--vocs-text-color-muted)",
-                  transition: "background 0.15s, color 0.15s",
+                  transition:
+                    "background 0.15s, color 0.15s, border-color 0.15s",
                 }}
                 title="Website"
                 onMouseEnter={(e) => {
@@ -2890,6 +3064,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                     display: "grid",
                     gridTemplateColumns: SUB_GRID,
                     alignItems: "center",
+                    minHeight: 56,
                     borderBottom: isLast
                       ? "none"
                       : "1px solid light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.05))",
@@ -2904,7 +3079,12 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                     }}
                   >
                     <div
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        minWidth: 0,
+                      }}
                     >
                       <span
                         className={`method-badge method-${ep.method.toLowerCase()}`}
@@ -2914,6 +3094,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
                       {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
                       <span
+                        className="ep-path-clickable"
                         onClick={(e) => {
                           e.stopPropagation();
                           copy(fullUrl, copyId);
@@ -2929,14 +3110,17 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                             : URL_COLOR,
                           cursor: "pointer",
                           transition: "color 0.15s",
-                          wordBreak: "break-all",
-                          display: "inline",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "inline-block",
+                          minWidth: 0,
                         }}
                         title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
                       >
                         {ep.path}
                         <span
-                          className="url-copy-icon"
+                          className="url-copy-icon ep-copy-inline"
                           data-copied={isCopied ? "true" : undefined}
                           style={{
                             marginLeft: 4,
@@ -2951,21 +3135,24 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                           )}
                         </span>
                       </span>
-                      {ep.payment?.intent && (
-                        <span
-                          className="intent-badge"
-                          data-tip={
-                            ep.payment.intent === "session"
-                              ? "Session: Pay-as-you-go via payment channel"
-                              : "Charge: One-time payment per request"
-                          }
-                        >
-                          <Badge>{ep.payment.intent}</Badge>
-                        </span>
-                      )}
+                      <span className="intent-badge-desktop">
+                        {ep.payment?.intent && (
+                          <span
+                            className="intent-badge"
+                            data-tip={
+                              ep.payment.intent === "session"
+                                ? "Session: Pay-as-you-go via payment channel"
+                                : "Charge: One-time payment per request"
+                            }
+                          >
+                            <Badge>{ep.payment.intent}</Badge>
+                          </span>
+                        )}
+                      </span>
                     </div>
                   </div>
                   <div
+                    className="ep-desc-cell"
                     style={{
                       padding: "0.25rem 0.75rem 0.75rem",
                       color: "var(--vocs-text-color-secondary)",
@@ -2973,12 +3160,20 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       lineHeight: 1.45,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical" as const,
                     }}
                   >
+                    {ep.payment?.intent && (
+                      <span className="intent-badge-mobile">
+                        <Badge>{ep.payment.intent}</Badge>
+                      </span>
+                    )}
                     {ep.description}
                   </div>
                   <div
-                    className="desktop-price"
+                    className="ep-price-cell"
                     style={{
                       padding: "0.75rem 1rem 0.75rem 0",
                       fontFamily: "var(--font-mono)",
@@ -2990,7 +3185,37 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       alignSelf: "center",
                     }}
                   >
-                    {formatPrice(ep)}
+                    <span className="ep-price-text">{formatPrice(ep)}</span>
+                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+                    <span
+                      className="ep-copy-mobile"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copy(fullUrl, copyId);
+                      }}
+                      style={{
+                        display: "none",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 32,
+                        height: 32,
+                        borderRadius: 6,
+                        color: isCopied
+                          ? "light-dark(#15803d, #4ade80)"
+                          : "var(--vocs-text-color-muted)",
+                        cursor: "pointer",
+                        transition: "color 0.15s",
+                        flexShrink: 0,
+                      }}
+                      title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
+                    >
+                      {isCopied ? (
+                        <CheckIcon size={14} />
+                      ) : (
+                        <CopyIcon size={14} />
+                      )}
+                    </span>
                   </div>
                 </div>
               );
@@ -3017,12 +3242,19 @@ function PageStyles() {
         [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
         [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
       }
-      /* Filter: pills on wide, dropdown on narrow */
-      .filter-dropdown-wrap { display: none; }
+      /* Filter: always show dropdown, search bar taller */
+      .filter-dropdown-wrap { display: block; }
+      .filter-tags-pills { display: none !important; }
+      .search-bar input { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+      .filter-dropdown-btn { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+      .search-bar-learn-more { display: inline-flex !important; align-items: center; }
       @media (max-width: 900px) {
-        .filter-tags-pills { display: none !important; }
-        .filter-dropdown-wrap { display: block !important; }
+        .search-bar-learn-more { display: none !important; }
       }
+
+      /* Soften table borders */
+      [data-services-table] table tr { border-color: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) !important; }
+
       .search-mobile { display: none; }
       .header-cards { display: none !important; }
       .show-tablet { display: none !important; }
@@ -3063,6 +3295,9 @@ function PageStyles() {
       .intent-badge { position: relative; cursor: help; }
       .intent-badge::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--vocs-background-color-primary); color: var(--vocs-text-color-secondary); padding: 5px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 0.15s; box-shadow: 0 2px 12px rgba(0,0,0,0.12); border: 1px solid var(--vocs-border-color-primary); }
       .intent-badge:hover::after { opacity: 1; }
+      .intent-badge-mobile { display: none; }
+      .ep-copy-mobile { display: none !important; }
+      .mobile-row-copy { display: none !important; }
 
       /* ---- Wide desktop: filters stay as horizontal row inline with search ---- */
       @media (min-width: 1401px) {
@@ -3084,26 +3319,31 @@ function PageStyles() {
         .services-content-row { display: block !important; }
         .services-table-col { min-width: 0 !important; }
         [data-services-table] thead { display: none !important; }
-        .hide-mobile { display: none !important; }
         .show-tablet { display: block !important; }
-        [data-services-table] table { table-layout: auto !important; overflow: visible !important; }
-        [data-services-table] table col:nth-child(1) { width: auto !important; }
-        [data-services-table] table col:nth-child(2),
-        [data-services-table] table col:nth-child(3),
-        [data-services-table] table col:nth-child(4) { width: 0 !important; }
-        [data-services-table] table col:nth-child(5) { width: 48px !important; }
-        [data-services-table] table td:first-child { padding: 1rem 0.5rem 1rem 1rem !important; vertical-align: top !important; }
-        [data-services-table] table td:last-child { padding: 1rem 0.5rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
+        [data-services-table] table { table-layout: fixed !important; overflow: visible !important; }
+        /* 3-col: name+desc | URL | chevron+actions */
+        [data-services-table] table col:nth-child(1) { width: 45% !important; }
+        [data-services-table] table col:nth-child(2) { width: 0 !important; }
+        [data-services-table] table col:nth-child(3) { width: 42% !important; }
+        [data-services-table] table col:nth-child(4) { width: 13% !important; }
+        /* Hide description column (col 2) — desc moves into cell 1 via .show-tablet */
+        td.hide-mobile:nth-child(2) { display: none !important; }
+        /* Keep URL column (col 3) visible */
+        td.hide-mobile:nth-child(3) { display: table-cell !important; white-space: nowrap !important; }
+        td.hide-mobile:nth-child(3) span { white-space: nowrap !important; word-break: normal !important; }
+        [data-services-table] table td:first-child { padding: 0.75rem 0.5rem 0.75rem 1rem !important; vertical-align: top !important; }
+        [data-services-table] table td:last-child { padding: 0.75rem 0.5rem 0.75rem 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
         .svc-icon { align-self: flex-start !important; margin-top: 0 !important; }
-        .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.1rem !important; flex-wrap: wrap !important; }
-        .svc-name-text { white-space: normal !important; }
-        .svc-badge-inline { display: inline !important; }
+        .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; flex-wrap: nowrap !important; }
+        .svc-name-text { white-space: nowrap !important; }
+        .svc-badge-inline { display: inline !important; flex-shrink: 0 !important; }
         .svc-badge-bordered { display: inline !important; }
         .svc-badge-borderless { display: none !important; }
-        .svc-name-row > span:first-child { font-size: 17px !important; }
-        .svc-desc-mobile { font-size: 16px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+        .svc-name-row > span:first-child { font-size: 16px !important; }
+        .svc-desc-mobile { font-size: 14px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+        .url-mobile { display: none !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
-        .sub-header { display: grid !important; grid-template-columns: 1fr auto !important; padding-left: 3.25rem !important; padding-right: 1rem !important; }
+        .sub-header { display: grid !important; grid-template-columns: 1fr auto !important; padding-left: 1rem !important; padding-right: 0.75rem !important; }
         .sub-header > *:nth-child(1) { text-align: left !important; padding-left: 0 !important; }
         .sub-header > *:nth-child(2) { display: none !important; }
         .sub-row:first-child { border-top: none !important; }
@@ -3111,14 +3351,22 @@ function PageStyles() {
           display: grid !important;
           grid-template-columns: 1fr auto !important;
           grid-template-rows: auto auto !important;
-          padding: 0.65rem 1rem 0.65rem 3.25rem !important;
-          gap: 0.15rem 0.6rem !important;
+          padding: 0.65rem 0.75rem 0.65rem 1rem !important;
+          gap: 0.15rem 0.5rem !important;
           align-items: start !important;
         }
         .sub-row > * { padding: 0 !important; }
-        .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; }
-        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; font-family: var(--font-mono); font-size: 12px !important; color: var(--vocs-text-color-muted) !important; text-align: right !important; justify-self: end !important; align-self: center !important; white-space: nowrap; }
-        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 13.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; margin-top: 0.35rem !important; }
+        .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; overflow: hidden; min-width: 0; }
+        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; display: flex !important; align-items: center !important; gap: 0.35rem !important; font-family: var(--font-mono); font-size: 13.5px !important; color: var(--vocs-text-color-muted) !important; text-align: right !important; justify-self: end !important; align-self: center !important; white-space: nowrap; }
+        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 14.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; margin-top: 0.35rem !important; }
+        .intent-badge-desktop { display: none !important; }
+        .intent-badge-mobile { display: inline !important; margin-right: 0.35rem; }
+        .ep-copy-inline { display: none !important; }
+        .ep-copy-mobile { display: inline-flex !important; }
+        .ep-path-clickable { cursor: default !important; pointer-events: none; }
+        .mobile-row-copy { display: none !important; }
+        .url-copy-icon { opacity: 0.8 !important; }
+        .expanded-url-bar { display: flex !important; padding-left: 1rem !important; }
       }
 
       /* ---- Header cards 2x2, search moves, tags center ---- */
@@ -3130,7 +3378,7 @@ function PageStyles() {
         [data-services-table] table td:last-of-type { padding: 1rem 1.25rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
         .chevron-cell { padding-right: 0 !important; }
         .svc-badge-inline { margin-left: 0.25rem !important; }
-        .sub-row { padding-left: 3.5rem !important; padding-right: 1.25rem !important; }
+        .sub-row { padding-left: 1.25rem !important; padding-right: 0.75rem !important; }
         .svc-desc-mobile { font-size: 14.5px !important; }
         .header-cards { padding: 0 1.25rem !important; }
         .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
@@ -3140,6 +3388,11 @@ function PageStyles() {
         .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
         .search-kbd-hint { display: none !important; }
+        .mobile-results-header { display: flex !important; }
+        .mobile-search-backdrop + .mobile-results-header { display: none !important; }
+        .search-mobile .search-dropdown { max-height: 50vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+        .search-mobile .search-dropdown-item { padding: 0.75rem 1rem !important; font-size: 14px !important; }
+        .search-mobile-hidden { display: none !important; }
         .filter-tags { justify-content: center !important; gap: 0.35rem !important; width: 100% !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 calc(20% - 0.35rem) !important; justify-content: center !important; max-width: calc(25% - 0.35rem) !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; }
@@ -3153,7 +3406,7 @@ function PageStyles() {
         .expanded-detail { padding-left: 0 !important; padding-right: 0 !important; }
         .svc-icon { width: 38px !important; height: 38px !important; margin-right: 10px !important; }
         .svc-icon img { width: 38px !important; height: 38px !important; }
-        .sub-row { padding-left: 4rem !important; }
+        .sub-row { padding-left: 1.25rem !important; }
         .header-cards-grid > * > div > div:first-child { font-size: 17px !important; }
         .header-cards-grid > * > div > div:last-child { font-size: 15px !important; }
         .filter-tags button { min-width: auto !important; }

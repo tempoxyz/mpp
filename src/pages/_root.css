@@ -172,6 +172,24 @@ html {
 /* More spacing between top nav links */
 [data-v-gutter-top] nav a {
   margin-inline: 0.25rem;
+  position: relative;
+}
+
+/* Focus state — faded dot instead of browser focus ring */
+[data-v-gutter-top] nav a:focus-visible {
+  outline: none !important;
+}
+[data-v-gutter-top] nav a:focus-visible::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.35;
 }
 
 /* No underline on hover inside buttons or button-like links */
@@ -291,7 +309,8 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 /* TOC active item — heading color so it is visible on dark backgrounds */
 [data-v-outline-items] a[data-active="true"] {
   background-color: oklch(
-    from var(--vocs-text-color-heading) l c h / 0.08
+    from var(--vocs-text-color-heading) l c h /
+    0.08
   ) !important;
   color: var(--vocs-text-color-heading) !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
@@ -316,10 +335,12 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
   :where(& > :not(:last-child)) {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(
-      calc(var(--vocs-spacing) * 4) * var(--tw-space-y-reverse)
+      calc(var(--vocs-spacing) * 4) *
+      var(--tw-space-y-reverse)
     );
     margin-block-end: calc(
-      calc(var(--vocs-spacing) * 4) * calc(1 - var(--tw-space-y-reverse))
+      calc(var(--vocs-spacing) * 4) *
+      calc(1 - var(--tw-space-y-reverse))
     );
   }
 }
@@ -804,8 +825,7 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] img {
 }
 
 /* Tempo card — larger icon */
-a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
-  [class*="vocs:size-8"]
+a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"] [class*="vocs:size-8"]
   svg,
 a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   [class*="vocs:size-8"]
@@ -982,27 +1002,40 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   display: none;
 }
 @media (max-width: 1079px) {
+  /* Ensure sidebar overlay covers the top nav bar */
   [data-v-sidebar] {
     display: flex !important;
     flex-direction: column !important;
+    z-index: 200 !important;
+  }
+  /* Hide the Vocs sidebar section selector / input at top */
+  [data-v-sidebar] > [data-v-sidebar-section-header]:first-of-type,
+  [data-v-sidebar] > select:first-of-type,
+  [data-v-sidebar] > div:has(select):first-of-type {
+    display: none !important;
   }
   [data-mobile-nav] {
     display: flex;
     flex-direction: column;
     gap: 0;
     order: -1;
-    padding: 1rem 1.25rem 1.25rem;
     border-bottom: 1px solid var(--vocs-border-color-primary);
-    margin-bottom: 1rem;
+    margin-bottom: 0;
+  }
+  [data-mobile-nav-logo] {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.25rem;
   }
   [data-mobile-nav-item] {
     display: block;
-    padding: 0.65rem 0;
+    padding: 0.35rem 0;
     font-size: 15px;
-    font-weight: 500;
-    color: var(--vocs-text-color-heading);
+    font-weight: 400;
+    color: var(--vocs-text-color-secondary);
     text-decoration: none !important;
     font-family: var(--font-sans);
+    text-align: left;
+    line-height: 1.5;
   }
   [data-mobile-nav-item]:hover {
     color: var(--vocs-text-color-heading);
@@ -1010,23 +1043,82 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   [data-mobile-nav-subitems] {
     display: flex;
     flex-direction: column;
-    padding-left: 0.75rem;
-    margin-bottom: 0.25rem;
+    padding-left: 0;
+    margin-bottom: 0.15rem;
+  }
+  [data-mobile-nav-flat] {
+    padding-left: 0;
   }
   [data-mobile-nav-subitem] {
     display: block;
-    padding: 0.45rem 0;
-    font-size: 14px;
+    padding: 0.3rem 0;
+    font-size: 15px;
+    font-weight: 400;
     color: var(--vocs-text-color-secondary);
     text-decoration: none !important;
+    line-height: 1.5;
   }
   [data-mobile-nav-subitem]:hover {
     color: var(--vocs-text-color-heading);
+  }
+  [data-mobile-nav-label] {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    color: var(--vocs-text-color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: left;
+    padding-top: 1.25rem;
+    padding-bottom: 0.75rem;
+    margin-top: 0.5rem;
+    opacity: 0.7;
   }
 
   /* On minimal-layout pages, hide the docs sidebar entirely */
   [data-layout="minimal"] [data-v-sidebar] {
     display: none !important;
+  }
+}
+
+/* ---- Mobile navbar sizing (120%) ---- */
+@media (max-width: 767px) {
+  [data-v-gutter-top] {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  [data-v-logo] img {
+    height: 24px !important;
+  }
+  /* Scale the hamburger button */
+  [data-v-gutter-top] button[aria-label] {
+    transform: scale(1.2);
+    transform-origin: center right;
+  }
+  /* Ensure close icon is visible in sidebar */
+  [data-v-sidebar-close],
+  [data-v-sidebar] button[aria-label="Close"] {
+    color: var(--vocs-text-color-heading) !important;
+    opacity: 1 !important;
+    z-index: 210 !important;
+  }
+  /* Mobile nav logo: show dark-text version on light, light-text on dark */
+  .mobile-nav-logo-light {
+    display: block;
+  }
+  .mobile-nav-logo-dark {
+    display: none;
+  }
+  @media (prefers-color-scheme: dark) {
+    .mobile-nav-logo-light {
+      display: none;
+    }
+    .mobile-nav-logo-dark {
+      display: block;
+    }
   }
 }
 

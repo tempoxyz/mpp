@@ -181,7 +181,7 @@ export function AgentTabs() {
           }}
         >
           <div style={{ color: "var(--vocs-text-color-muted)" }}>
-            # Install tempo-wallet
+            # Add tempo-wallet
           </div>
           <div>
             <span style={{ color: CMD_PURPLE }}>curl</span>

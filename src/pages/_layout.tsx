@@ -21,113 +21,88 @@ function usePostHog() {
   }, []);
 }
 
-const NAV_LINKS = [
-  { text: "Docs", href: "/overview" },
-  { text: "Services", href: "/services" },
-  {
-    text: "Specification",
-    href: "https://tempoxyz.github.io/mpp-specs/",
-    external: true,
-  },
-  {
-    text: "GitHub",
-    items: [
-      {
-        text: "mppx (TypeScript)",
-        href: "https://github.com/wevm/mppx",
-      },
-      {
-        text: "mpp-rs (Rust)",
-        href: "https://github.com/tempoxyz/mpp-rs",
-      },
-      {
-        text: "pympp (Python)",
-        href: "https://github.com/tempoxyz/pympp",
-      },
-      {
-        text: "Specification",
-        href: "https://github.com/tempoxyz/mpp-specs",
-      },
-    ],
-  },
-] as const;
-
 function MobileNav() {
-  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const handleLogoClick = () => {
+    window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
+    const el = document.querySelector(".landing-page") as HTMLElement;
+    if (el) {
+      el.style.scrollSnapType = "none";
+      el.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => {
+        el.style.scrollSnapType = "";
+      }, 600);
+    }
+    const closeBtn = document.querySelector(
+      "[data-v-sidebar-close]",
+    ) as HTMLElement;
+    closeBtn?.click();
+  };
 
   return (
     <nav data-mobile-nav="" aria-label="Main navigation">
-      {NAV_LINKS.map((link) =>
-        "items" in link ? (
-          <div key={link.text}>
-            <button
-              type="button"
-              data-mobile-nav-item=""
-              onClick={() =>
-                setExpandedGroup(expandedGroup === link.text ? null : link.text)
-              }
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontFamily: "inherit",
-              }}
-            >
-              <span>{link.text}</span>
-              <svg
-                aria-hidden="true"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{
-                  transform:
-                    expandedGroup === link.text
-                      ? "rotate(180deg)"
-                      : "rotate(0)",
-                  transition: "transform 0.15s",
-                }}
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-            {expandedGroup === link.text && (
-              <div data-mobile-nav-subitems="">
-                {link.items.map((sub) => (
-                  <a
-                    key={sub.href}
-                    href={sub.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-mobile-nav-subitem=""
-                  >
-                    {sub.text}
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <a
-            key={link.text}
-            href={link.href}
-            data-mobile-nav-item=""
-            {...("external" in link
-              ? { target: "_blank", rel: "noopener noreferrer" }
-              : {})}
-          >
-            {link.text}
-          </a>
-        ),
-      )}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: nav logo */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: nav logo */}
+      <div
+        data-mobile-nav-logo=""
+        onClick={handleLogoClick}
+        style={{ cursor: "pointer" }}
+      >
+        <img
+          src="/logo-dark.svg"
+          alt="MPP"
+          className="mobile-nav-logo-light"
+          style={{ height: 20, width: "auto" }}
+        />
+        <img
+          src="/logo-light.svg"
+          alt="MPP"
+          className="mobile-nav-logo-dark"
+          style={{ height: 20, width: "auto" }}
+        />
+      </div>
+
+      {/* Top links: Services, Specification, GitHub repos */}
+      <a href="/services" data-mobile-nav-item="">
+        Services
+      </a>
+      <a
+        href="https://tempoxyz.github.io/mpp-specs/"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-mobile-nav-item=""
+      >
+        Specification
+      </a>
+      <span data-mobile-nav-label="">GitHub</span>
+      <div data-mobile-nav-subitems="" data-mobile-nav-flat="">
+        <a
+          href="https://github.com/wevm/mppx"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-mobile-nav-subitem=""
+        >
+          mppx (TypeScript)
+        </a>
+        <a
+          href="https://github.com/tempoxyz/mpp-rs"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-mobile-nav-subitem=""
+        >
+          mpp-rs (Rust)
+        </a>
+        <a
+          href="https://github.com/tempoxyz/pympp"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-mobile-nav-subitem=""
+        >
+          pympp (Python)
+        </a>
+      </div>
+
+      {/* Docs section label */}
+      <span data-mobile-nav-label="">Docs</span>
     </nav>
   );
 }
@@ -136,18 +111,23 @@ function MobileNavPortal() {
   const [target, setTarget] = useState<Element | null>(null);
 
   useEffect(() => {
-    const find = () => {
+    const update = () => {
       const sidebar = document.querySelector("[data-v-sidebar]");
-      if (sidebar) {
-        setTarget(sidebar);
-        return;
+      if (sidebar?.isConnected) {
+        setTarget((prev) => (prev === sidebar ? prev : sidebar));
+      } else {
+        setTarget(null);
       }
-      setTimeout(find, 200);
     };
-    find();
+
+    update();
+
+    const observer = new MutationObserver(update);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, []);
 
-  if (!target) return null;
+  if (!target || !target.isConnected) return null;
   return createPortal(<MobileNav />, target);
 }
 

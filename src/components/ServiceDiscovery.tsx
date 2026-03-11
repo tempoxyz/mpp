@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
-import { AsciiLogo } from "./AsciiLogo";
 
 const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
@@ -190,7 +189,7 @@ export function ServiceDiscovery() {
     "all" | "services" | "endpoints"
   >("all");
   const [mobileSearchActive, setMobileSearchActive] = useState(false);
-  const [mobileNavSearch, setMobileNavSearch] = useState(false);
+  const [mobileResultsView, setMobileResultsView] = useState(false);
 
   useEffect(() => {
     fetchServices()
@@ -239,9 +238,13 @@ export function ServiceDiscovery() {
   useEffect(() => {
     const handleReset = () => {
       setQuery("");
+      setDebouncedQuery("");
       setShowDropdown(false);
+      setActiveIndex(-1);
+      setIsFocused(false);
+      setDropdownTab("all");
       setMobileSearchActive(false);
-      setMobileNavSearch(false);
+      setMobileResultsView(false);
       setSelectedService(null);
     };
     window.addEventListener("mpp:reset-discovery", handleReset);
@@ -274,7 +277,7 @@ export function ServiceDiscovery() {
 
   const dismissMobileSearch = useCallback(() => {
     setMobileSearchActive(false);
-    setMobileNavSearch(false);
+    setMobileResultsView(false);
     setShowDropdown(false);
     setQuery("");
     inputRef.current?.blur();
@@ -283,7 +286,7 @@ export function ServiceDiscovery() {
   const handleDropdownSelect = useCallback((result: DropdownResult) => {
     setShowDropdown(false);
     setMobileSearchActive(false);
-    setMobileNavSearch(false);
+    setMobileResultsView(false);
     inputRef.current?.blur();
     if (result.type === "service") {
       setSelectedService(result.service);
@@ -360,7 +363,7 @@ export function ServiceDiscovery() {
     <>
       <div
         ref={sectionRef}
-        className={`discovery-section${hasQuery ? " has-query" : ""}${mobileSearchActive ? " mobile-search-active" : ""}${mobileNavSearch ? " mobile-nav-search" : ""}`}
+        className={`discovery-section${hasQuery ? " has-query" : ""}${mobileSearchActive ? " mobile-search-active" : ""}${mobileResultsView ? " mobile-results-view" : ""}`}
         style={{
           height: "100%",
           width: "100%",
@@ -380,19 +383,25 @@ export function ServiceDiscovery() {
               setQuery("");
               setShowDropdown(false);
               setMobileSearchActive(false);
-              setMobileNavSearch(false);
+              setMobileResultsView(false);
               setSelectedService(null);
-              document
-                .querySelector(".landing-page")
-                ?.scrollTo({ top: 0, behavior: "smooth" });
+              const el = document.querySelector(".landing-page") as HTMLElement;
+              if (el) {
+                el.style.scrollSnapType = "none";
+                el.scrollTo({ top: 0, behavior: "smooth" });
+                setTimeout(() => {
+                  el.style.scrollSnapType = "";
+                }, 600);
+              }
             }}
             style={{ cursor: "pointer" }}
           >
-            <AsciiLogo />
+            Superpowers for agents
           </div>
 
           <p className="discovery-overlay-desc">
-            Discover powerful, instant services to level up your agent or app
+            Explore services using MPP that enable new use cases for your agent
+            or application in just seconds
           </p>
           <div className="discovery-search-wrapper">
             <div className="discovery-search">
@@ -460,26 +469,34 @@ export function ServiceDiscovery() {
               )}
               {mobileSearchActive &&
                 dropdownResults.length > 0 &&
-                !mobileNavSearch && (
+                !mobileResultsView && (
                   <button
                     type="button"
                     className="mobile-search-view"
                     onMouseDown={(e) => {
                       e.preventDefault();
-                      setMobileNavSearch(true);
-                      setShowDropdown(true);
+                      setMobileResultsView(true);
+                      setShowDropdown(false);
+                      inputRef.current?.blur();
                     }}
                   >
                     View
                   </button>
                 )}
-              {mobileSearchActive && (
+              {mobileResultsView && targetGridIndex.size > 0 && (
+                <span className="mobile-results-count">
+                  {targetGridIndex.size} matches
+                </span>
+              )}
+              {(mobileSearchActive || mobileResultsView) && (
                 <button
                   type="button"
                   className="mobile-search-dismiss"
                   onMouseDown={(e) => {
                     e.preventDefault();
-                    if (query.length > 0) {
+                    if (mobileResultsView) {
+                      dismissMobileSearch();
+                    } else if (query.length > 0) {
                       setQuery("");
                       setShowDropdown(false);
                     } else {
@@ -769,96 +786,6 @@ export function ServiceDiscovery() {
           <AddServiceModal onClose={() => setShowAddModal(false)} />,
           document.body,
         )} */}
-
-      {/* Mobile nav search — third state: full-screen card grid results */}
-      {mobileNavSearch &&
-        createPortal(
-          <div className="mobile-nav-search-overlay">
-            <DiscoveryStyles />
-            <div className="mobile-nav-search-bar">
-              <SearchIcon />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setShowDropdown(e.target.value.length > 0);
-                }}
-                placeholder="Search services..."
-                className="mobile-nav-search-input"
-                ref={(el) => el?.focus()}
-              />
-              {targetGridIndex.size > 0 && (
-                <span className="mobile-nav-search-count">
-                  {targetGridIndex.size} matches
-                </span>
-              )}
-              <button
-                type="button"
-                className="mobile-nav-search-close"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  dismissMobileSearch();
-                }}
-                aria-label="Close search"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <title>Close</title>
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="mobile-nav-search-grid">
-              {stableScored
-                .filter(({ score }) => !debouncedQuery || score > 0)
-                .sort((a, b) => b.score - a.score)
-                .map(({ service }) => {
-                  const iconUrl = getIconUrl(service);
-                  return (
-                    <button
-                      key={service.id}
-                      type="button"
-                      className="discovery-card discovery-card-visible"
-                      onClick={() => setSelectedService(service)}
-                    >
-                      <div className="discovery-card-icon">
-                        {iconUrl && !brokenIcons.current.has(service.id) ? (
-                          <img
-                            src={iconUrl}
-                            alt=""
-                            className="discovery-card-icon-img"
-                            onError={() => {
-                              brokenIcons.current.add(service.id);
-                              forceIconUpdate((n) => n + 1);
-                            }}
-                          />
-                        ) : (
-                          <div className="discovery-card-icon-fallback">
-                            {service.name[0]}
-                          </div>
-                        )}
-                      </div>
-                      <div className="discovery-card-name">{service.name}</div>
-                      <div className="discovery-card-desc">
-                        {service.description}
-                      </div>
-                    </button>
-                  );
-                })}
-            </div>
-          </div>,
-          document.body,
-        )}
     </>
   );
 }
@@ -906,7 +833,15 @@ function ServiceDetailModal({
     if (Number.isNaN(v)) return "—";
     if (v >= 0.01) return `$${v.toFixed(2)}`;
     let s = v.toFixed(4);
-    s = s.replace(/0+$/, "").replace(/\.$/, "");
+    s = s.replace(/0+$/, "");
+    if (s.endsWith(".")) s += "00";
+    else {
+      const dotIdx = s.indexOf(".");
+      if (dotIdx >= 0) {
+        const decimals = s.length - dotIdx - 1;
+        if (decimals < 2) s += "0".repeat(2 - decimals);
+      }
+    }
     return `$${s}`;
   }
 
@@ -963,6 +898,8 @@ function ServiceDetailModal({
   const green = "light-dark(#15803d, #4ade80)";
   const purple = "light-dark(#7c3aed, #c084fc)";
   const yellow = "light-dark(#b45309, #fbbf24)";
+  const flag = "light-dark(#0369a1, #38bdf8)";
+  const teal = "light-dark(#0d7377, #5eead4)";
   const muted = "var(--vocs-text-color-muted)";
 
   return (
@@ -981,13 +918,111 @@ function ServiceDetailModal({
         className={`modal-content${isClosing ? " modal-closing" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Links + close — pinned top-right */}
+        {/* Close button — pinned top-right */}
         <div className="modal-actions">
+          <button type="button" onClick={handleClose} className="modal-close">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-label="Close"
+            >
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Header */}
+        <div className="modal-header">
+          <div style={{ marginBottom: 12 }}>
+            {iconUrl && !imgError ? (
+              <img
+                src={iconUrl}
+                alt=""
+                onError={() => setImgError(true)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  objectFit: "contain",
+                  filter: "invert(var(--icon-invert, 0))",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 10,
+                  background: "var(--vocs-border-color-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 20,
+                  fontWeight: 600,
+                  color: "var(--vocs-text-color-secondary)",
+                }}
+              >
+                {service.name[0]}
+              </div>
+            )}
+          </div>
           <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexWrap: "wrap",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: 22,
+                fontWeight: 600,
+                margin: 0,
+                color: "var(--vocs-text-color-heading)",
+              }}
+            >
+              {service.name}
+            </h3>
+            {(service.categories ?? []).map((cat) => (
+              <span key={cat} className="modal-tag">
+                {CATEGORY_LABELS[cat] ?? cat}
+              </span>
+            ))}
+          </div>
+          {service.description && (
+            <p
+              style={{
+                fontSize: 15,
+                lineHeight: 1.6,
+                color: "var(--vocs-text-color-secondary)",
+                margin: "0.3rem 0 0",
+                display: "-webkit-box",
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: "vertical" as const,
+                overflow: "hidden",
+              }}
+            >
+              {service.description}
+            </p>
+          )}
+
+          {/* Action links — under description */}
+          <div
+            className="modal-action-links"
             style={{
               display: "flex",
               gap: 8,
               alignItems: "center",
+              marginTop: "0.75rem",
+              flexWrap: "wrap",
             }}
           >
             {service.docs?.homepage && (
@@ -1072,6 +1107,10 @@ function ServiceDetailModal({
               }}
               onMouseEnter={() => setShowAgentTip(true)}
               onMouseLeave={() => setShowAgentTip(false)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                setShowAgentTip((v) => !v);
+              }}
             >
               <svg
                 aria-hidden="true"
@@ -1161,7 +1200,7 @@ function ServiceDetailModal({
                       color: "var(--vocs-text-color-muted)",
                     }}
                   >
-                    Install Tempo CLI
+                    Get Tempo tools
                   </p>
                   <div
                     style={{
@@ -1408,100 +1447,7 @@ function ServiceDetailModal({
                 </div>
               )}
             </button>
-            <button type="button" onClick={handleClose} className="modal-close">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-label="Close"
-              >
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-              </svg>
-            </button>
           </div>
-        </div>
-
-        {/* Header */}
-        <div className="modal-header">
-          <div style={{ marginBottom: 12 }}>
-            {iconUrl && !imgError ? (
-              <img
-                src={iconUrl}
-                alt=""
-                onError={() => setImgError(true)}
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  objectFit: "contain",
-                  filter: "invert(var(--icon-invert, 0))",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  background: "var(--vocs-border-color-primary)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
-                  fontWeight: 600,
-                  color: "var(--vocs-text-color-secondary)",
-                }}
-              >
-                {service.name[0]}
-              </div>
-            )}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              flexWrap: "wrap",
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 20,
-                fontWeight: 600,
-                margin: 0,
-                color: "var(--vocs-text-color-heading)",
-              }}
-            >
-              {service.name}
-            </h3>
-            {(service.categories ?? []).map((cat) => (
-              <span key={cat} className="modal-tag">
-                {CATEGORY_LABELS[cat] ?? cat}
-              </span>
-            ))}
-          </div>
-          {service.description && (
-            <p
-              style={{
-                fontSize: 14,
-                lineHeight: 1.6,
-                color: "var(--vocs-text-color-secondary)",
-                margin: "0.75rem 0 0",
-                display: "-webkit-box",
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical" as const,
-                overflow: "hidden",
-              }}
-            >
-              {service.description}
-            </p>
-          )}
         </div>
 
         <div
@@ -1513,7 +1459,7 @@ function ServiceDetailModal({
         />
 
         {/* Endpoints table */}
-        <div style={{ marginTop: "1rem" }}>
+        <div style={{ marginTop: "1.5rem" }}>
           <div
             style={{
               display: "flex",
@@ -1533,7 +1479,7 @@ function ServiceDetailModal({
             <button
               type="button"
               className={`modal-copy-btn${copiedJson ? " modal-copy-btn-active" : ""}`}
-              style={{ marginLeft: "auto" }}
+              style={{ marginLeft: "auto", marginBottom: 4 }}
               onClick={(e) => {
                 e.stopPropagation();
                 handleCopyJson();
@@ -1683,17 +1629,16 @@ function ServiceDetailModal({
 
         {/* CLI snippet */}
         {selectedEndpoint && (
-          <div className="modal-cli-wrapper" style={{ marginTop: "0.75rem" }}>
+          <div className="modal-cli-wrapper" style={{ marginTop: "2rem" }}>
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                gap: 8,
                 fontSize: 15,
                 fontWeight: 500,
                 color: "var(--vocs-text-color-heading)",
-                marginBottom: 4,
+                paddingBottom: 8,
               }}
             >
               <span>
@@ -1746,9 +1691,9 @@ function ServiceDetailModal({
             </div>
             <p
               style={{
-                fontSize: 13,
+                fontSize: 14,
                 color: "var(--vocs-text-color-secondary)",
-                margin: "0 0 0.75rem",
+                margin: "0 0 1rem",
                 lineHeight: 1.5,
               }}
             >
@@ -1766,11 +1711,15 @@ function ServiceDetailModal({
                 <div className="cli-line">
                   <span className="cli-line-cmd">
                     <span style={{ color: muted }}>$ </span>
-                    <span style={{ color: green }}>curl</span> -L
-                    https://tempo.xyz/install |{" "}
+                    <span style={{ color: green }}>curl</span>{" "}
+                    <span style={{ color: flag }}>-L</span>{" "}
+                    <span style={{ color: teal }}>
+                      https://tempo.xyz/install
+                    </span>{" "}
+                    <span style={{ color: flag }}>|</span>{" "}
                     <span style={{ color: green }}>bash</span>
                   </span>
-                  <span className="cli-line-comment"># Install Tempo CLI</span>
+                  <span className="cli-line-comment"># Get Tempo CLI</span>
                 </div>
                 <div className="cli-line">
                   <span className="cli-line-cmd">
@@ -1792,18 +1741,20 @@ function ServiceDetailModal({
                   <span className="cli-line-cmd">
                     <span style={{ color: muted }}>$ </span>
                     <span style={{ color: green }}>tempo</span> wallet{" "}
-                    {walletPrefix}--dry-run{" "}
-                    <span style={{ color: "light-dark(#0d7377, #5eead4)" }}>
+                    {walletPrefix}
+                    <span style={{ color: flag }}>--dry-run</span>{" "}
+                    <span style={{ color: teal }}>
                       {baseUrl}
                       {cliPath}
                     </span>
                     {isNonGet && (
                       <>
                         {" \\\n      "}
+                        <span style={{ color: flag }}>-X</span>{" "}
                         <span style={{ color: purple }}>
-                          -X {selectedEndpoint.method}
-                        </span>
-                        {" --json "}
+                          {selectedEndpoint.method}
+                        </span>{" "}
+                        <span style={{ color: flag }}>--json</span>{" "}
                         <span style={{ color: yellow }}>{exampleJson}</span>
                       </>
                     )}
@@ -1854,7 +1805,7 @@ function SearchIcon() {
 function DiscoveryStyles() {
   return (
     <style>{`
-      /* Search overlay — always centered */
+      /* Search overlay — centered column */
       .discovery-overlay {
         position: absolute;
         top: 50%;
@@ -1867,36 +1818,34 @@ function DiscoveryStyles() {
         text-align: center;
         pointer-events: none;
         width: min(90vw, 600px);
+        gap: 0;
       }
       .discovery-overlay > * { pointer-events: auto; }
       .discovery-ascii-logo {
-        margin: 0;
-        transition: opacity 0.3s;
+        margin: 0 0 0.75rem;
         pointer-events: none;
         color: var(--vocs-text-color-heading);
         opacity: 0.85;
-        margin-bottom: 1rem;
+        font-family: "VTC Du Bois", var(--font-sans);
+        font-size: clamp(2.5rem, 2.5vw, 2.5rem);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+        transition: opacity 0.3s;
       }
+      .discovery-ascii-logo > div { display: none; }
       .discovery-overlay-desc {
-        color: var(--vocs-text-color-muted);
-        font-size: clamp(1.15rem, 1.3vw, 1rem);
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-        transition: opacity 0.3s, max-height 0.3s, margin 0.3s;
+        color: var(--vocs-text-color-secondary);
+        font-size: clamp(1.2rem, 1.2vw, 1.2rem);
+        margin: 0 0 1.25rem;
+        line-height: 1.55;
+        max-width: 500px;
       }
       .has-query .discovery-ascii-logo {
-        opacity: 0;
-        max-height: 0;
-        margin: 0;
-        overflow: hidden;
-        transition: none;
+        display: none !important;
       }
       .has-query .discovery-overlay-desc {
-        opacity: 0;
-        max-height: 0;
-        margin: 0;
-        overflow: hidden;
-        transition: none;
+        display: none !important;
       }
       .has-query .discovery-overlay {
         top: 35%;
@@ -1942,7 +1891,7 @@ function DiscoveryStyles() {
           oklch(from var(--vocs-background-color-primary) l c h / 0.96) 0%,
           oklch(from var(--vocs-background-color-primary) l c h / 0.92) 28%,
           oklch(from var(--vocs-background-color-primary) l c h / 0.7) 48%,
-          oklch(from var(--vocs-background-color-primary) l c h / 0.3) 65%,
+          oklch(from var(--vocs-background-color-primary) l c h / 0.4) 65%,
           transparent 80%
         );
         pointer-events: none;
@@ -1956,7 +1905,7 @@ function DiscoveryStyles() {
             oklch(from var(--vocs-background-color-primary) l c h / 0.98) 0%,
             oklch(from var(--vocs-background-color-primary) l c h / 0.95) 20%,
             oklch(from var(--vocs-background-color-primary) l c h / 0.85) 35%,
-            oklch(from var(--vocs-background-color-primary) l c h / 0.5) 55%,
+            oklch(from var(--vocs-background-color-primary) l c h / 0.7) 55%,
             transparent 75%
           );
         }
@@ -1991,8 +1940,8 @@ function DiscoveryStyles() {
       .discovery-search-wrapper {
         position: relative;
         width: 100%;
-        max-width: 600px;
-        margin-top: 1rem;
+        max-width: 560px;
+        margin-top: 0;
         z-index: 10;
         display: flex;
         gap: 0.5rem;
@@ -2332,8 +2281,8 @@ function DiscoveryStyles() {
           box-sizing: border-box;
         }
         .discovery-card-icon { grid-area: 1 / 1; align-self: center; }
-        .discovery-card-icon-img { width: 20px !important; height: 20px !important; }
-        .discovery-card-icon-fallback { width: 20px !important; height: 20px !important; font-size: 11px !important; }
+        .discovery-card-icon-img { width: 30px !important; height: 30px !important; }
+        .discovery-card-icon-fallback { width: 30px !important; height: 30px !important; font-size: 13px !important; }
         .discovery-card-name { grid-area: 1 / 2; align-self: center; margin-top: 0; font-size: 15px; }
         .discovery-card-desc { grid-area: 2 / 1 / 3 / -1; -webkit-line-clamp: 3; font-size: 13.5px; margin-top: 2px; }
         .discovery-grid::before {
@@ -2447,6 +2396,7 @@ function DiscoveryStyles() {
       .modal-cli-wrapper {
         overflow: hidden;
         transition: max-height 0.3s ease;
+        min-height: 180px;
       }
       .modal-cli {
         padding: 1rem;
@@ -2460,7 +2410,7 @@ function DiscoveryStyles() {
         /* No flash on copy — keep steady */
       }
       .modal-copy-btn {
-        font-size: 11px;
+        font-size: 12px;
         padding: 2px 8px;
         border-radius: 4px;
         border: 1px solid var(--vocs-border-color-primary);
@@ -2478,6 +2428,13 @@ function DiscoveryStyles() {
       .modal-copy-btn:hover {
         color: var(--vocs-text-color-heading);
         background: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06));
+      }
+      @media (max-width: 640px) {
+        .modal-copy-btn {
+          font-size: 13px !important;
+          padding: 6px 12px !important;
+          min-height: 36px;
+        }
       }
       .modal-copy-btn-active {
         color: light-dark(#15803d, #4ade80) !important;
@@ -2537,8 +2494,8 @@ function DiscoveryStyles() {
       .modal-endpoints-grad-top,
       .modal-endpoints-grad-bottom {
         position: absolute;
-        left: 0;
-        right: 0;
+        left: 1px;
+        right: 1px;
         height: 32px;
         pointer-events: none;
         z-index: 1;
@@ -2546,14 +2503,14 @@ function DiscoveryStyles() {
         transition: opacity 0.2s;
       }
       .modal-endpoints-grad-top {
-        top: 0;
+        top: 1px;
         background: linear-gradient(to bottom, var(--vocs-background-color-primary), transparent);
-        border-radius: 10px 10px 0 0;
+        border-radius: 9px 9px 0 0;
       }
       .modal-endpoints-grad-bottom {
-        bottom: 0;
+        bottom: 1px;
         background: linear-gradient(to top, var(--vocs-background-color-primary), transparent);
-        border-radius: 0 0 10px 10px;
+        border-radius: 0 0 9px 9px;
       }
       .modal-endpoints-grad-top.visible,
       .modal-endpoints-grad-bottom.visible {
@@ -2564,7 +2521,8 @@ function DiscoveryStyles() {
         max-height: 320px;
         overflow-y: auto;
         border: 1px solid light-dark(var(--vocs-border-color-primary), rgba(255,255,255,0.1));
-        border-radius: 10px;
+        border-top: none;
+        border-radius: 0 0 10px 10px;
         scrollbar-width: thin;
       }
       .modal-endpoint-row {
@@ -2647,7 +2605,7 @@ function DiscoveryStyles() {
           padding: 0 !important;
         }
         .modal-content {
-          padding: 1.25rem;
+          padding: 0.85rem 1.25rem;
           border-radius: 16px 16px 0 0 !important;
           max-height: 90vh !important;
         }
@@ -2662,36 +2620,53 @@ function DiscoveryStyles() {
         .modal-content {
           display: flex !important;
           flex-direction: column !important;
-          padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)) !important;
+          padding-bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px)) !important;
         }
-        .modal-content > * { order: 3; }
-        .modal-header { order: 1 !important; }
-        .modal-actions {
-          position: relative !important;
-          top: auto !important;
-          right: auto !important;
-          order: 2;
-          margin-top: 0.75rem;
-          margin-bottom: 0.5rem;
-        }
-        .modal-actions > div {
-          justify-content: flex-start !important;
-          flex-wrap: wrap;
-        }
+        .modal-content { position: relative !important; }
         .modal-close {
           position: absolute !important;
           top: 0.75rem !important;
           right: 0.75rem !important;
+          z-index: 10 !important;
           border: 1px solid var(--vocs-border-color-primary) !important;
           border-radius: 8px !important;
           padding: 6px !important;
           width: 32px !important;
           height: 32px !important;
         }
+        .modal-header { padding-left: 0.25rem; }
         .modal-endpoint-row {
-          grid-template-columns: 50px 1fr 70px;
+          grid-template-columns: 50px 1fr;
+          grid-template-rows: auto auto;
+          gap: 4px 8px;
+          padding: 0.6rem 0.75rem;
+          font-size: 14px;
         }
-        .endpoint-desc { display: none; }
+        .endpoint-desc {
+          display: -webkit-box !important;
+          grid-column: 1 / -1;
+          font-size: 13px !important;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          margin-top: 2px;
+        }
+        .endpoint-path { font-size: 13px !important; }
+        .method-badge { font-size: 11px !important; }
+        .modal-endpoints { border-top: none; }
+        .modal-action-links {
+          flex-direction: column !important;
+          gap: 6px !important;
+          margin-top: 1rem !important;
+        }
+        .modal-link {
+          width: 100% !important;
+          justify-content: center !important;
+          padding: 0.6rem 1rem !important;
+          font-size: 14px !important;
+          background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.06)) !important;
+        }
+        .modal-link svg { width: 16px !important; height: 16px !important; }
         .cli-line-comment { display: none; }
       }
 
@@ -2730,9 +2705,45 @@ function DiscoveryStyles() {
         .mobile-search-active .discovery-view-all {
           display: none !important;
         }
-        .mobile-nav-search .discovery-overlay {
+        .mobile-results-view .discovery-overlay {
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          transform: none !important;
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0.75rem 1rem;
+          padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+          flex-direction: row;
+          align-items: center;
+          gap: 10px;
+          position: sticky;
+          z-index: 20;
+          background: var(--vocs-background-color-primary);
+          border-bottom: 1px solid var(--vocs-border-color-primary);
+          pointer-events: auto;
+        }
+        .mobile-results-view .discovery-ascii-logo,
+        .mobile-results-view .discovery-overlay-desc,
+        .mobile-results-view .discovery-view-all,
+        .mobile-results-view .discovery-dropdown,
+        .mobile-results-view .discovery-kbd {
+          display: none !important;
+        }
+        .mobile-results-view .discovery-search-wrapper {
+          margin-top: 0 !important;
+          flex: 1;
+        }
+        .mobile-results-view .discovery-grid::after {
           opacity: 0 !important;
-          pointer-events: none !important;
+        }
+        .mobile-results-view.discovery-section {
+          overflow-y: auto !important;
+          -webkit-overflow-scrolling: touch;
+        }
+        .mobile-results-view .discovery-grid {
+          height: auto !important;
+          overflow: visible !important;
         }
         .mobile-search-dismiss {
           display: flex;
@@ -2771,93 +2782,23 @@ function DiscoveryStyles() {
         }
       }
 
-      /* ---- Mobile nav search overlay (third state) ---- */
-      .mobile-nav-search-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 9998;
-        background: var(--vocs-background-color-primary);
-        display: flex;
-        flex-direction: column;
-        animation: navSearchFadeIn 0.2s ease forwards;
+      /* Match count badge in results view */
+      .mobile-results-count {
+        display: none;
       }
-      @keyframes navSearchFadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+      @media (max-width: 768px) {
+        .mobile-results-count {
+          display: inline-flex;
+          flex-shrink: 0;
+          font-size: 11.5px;
+          font-family: var(--font-sans);
+          color: var(--vocs-text-color-muted);
+          opacity: 0.55;
+          background: none;
+          padding: 0;
+          white-space: nowrap;
+        }
       }
-      .mobile-nav-search-bar {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--vocs-border-color-primary);
-        background: var(--vocs-background-color-primary);
-        flex-shrink: 0;
-      }
-      .mobile-nav-search-input {
-        flex: 1;
-        border: none;
-        background: transparent;
-        outline: none;
-        font-size: 16px;
-        color: var(--vocs-text-color-heading);
-        font-family: var(--font-sans);
-      }
-      .mobile-nav-search-input::placeholder {
-        color: var(--vocs-text-color-muted);
-      }
-      .mobile-nav-search-count {
-        flex-shrink: 0;
-        font-size: 12px;
-        font-family: var(--font-sans);
-        color: var(--vocs-text-color-muted);
-        background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08));
-        padding: 3px 8px;
-        border-radius: 4px;
-        white-space: nowrap;
-      }
-      .mobile-nav-search-close {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        border: none;
-        background: transparent;
-        color: var(--vocs-text-color-muted);
-        cursor: pointer;
-        padding: 4px;
-        border-radius: 6px;
-        transition: color 0.15s;
-      }
-      .mobile-nav-search-close:hover {
-        color: var(--vocs-text-color-heading);
-      }
-      .mobile-nav-search-grid {
-        flex: 1;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: 120px;
-        gap: 8px;
-        padding: 0.75rem;
-        align-content: start;
-        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-      }
-      .mobile-nav-search-grid .discovery-card {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-        display: grid !important;
-        grid-template-columns: auto 1fr;
-        grid-template-rows: auto 1fr;
-        gap: 2px 12px;
-        padding: 10px;
-        align-items: start;
-      }
-      .mobile-nav-search-grid .discovery-card-icon { grid-area: 1 / 1; align-self: center; }
-      .mobile-nav-search-grid .discovery-card-name { grid-area: 1 / 2; align-self: center; margin-top: 0; font-size: 15px; }
-      .mobile-nav-search-grid .discovery-card-desc { grid-area: 2 / 1 / 3 / -1; -webkit-line-clamp: 3; font-size: 13.5px; margin-top: 2px; }
     `}</style>
   );
 }
