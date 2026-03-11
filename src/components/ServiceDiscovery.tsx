@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
+import { PINNED_IDS } from "./ServicesPage";
 
 const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
@@ -193,7 +194,14 @@ export function ServiceDiscovery() {
 
   useEffect(() => {
     fetchServices()
-      .then((s) => setServices(shuffle(s)))
+      .then((data) => {
+        const pinnedSet = new Set(PINNED_IDS);
+        const pinned = PINNED_IDS.flatMap((id) =>
+          data.filter((s) => s.id === id),
+        );
+        const rest = shuffle(data.filter((s) => !pinnedSet.has(s.id)));
+        setServices([...pinned, ...rest]);
+      })
       .catch(() => {});
   }, []);
 

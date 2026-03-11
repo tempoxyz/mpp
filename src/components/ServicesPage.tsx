@@ -22,7 +22,7 @@ const URL_COLOR = "light-dark(rgba(0,0,0,0.7), rgba(255,255,255,0.7))";
 const CMD_PURPLE = "light-dark(#7c3aed, #c084fc)";
 const CMD_GREEN = "light-dark(#15803d, #4ade80)";
 
-const PINNED_IDS: string[] = [
+export const PINNED_IDS: string[] = [
   "openai",
   "anthropic",
   "google-gemini",
