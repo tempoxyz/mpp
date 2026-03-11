@@ -109,6 +109,7 @@ export function LandingPage() {
               <div
                 className="landing-terminal-inner"
                 style={{
+                  height: 540,
                   width: "100%",
                   maxWidth: 960,
                   position: "relative",
@@ -168,7 +169,8 @@ function LandingStyles() {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 32px;
+        align-items: stretch;
+        gap: 20px;
         scroll-snap-align: start;
         flex-shrink: 0;
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
@@ -177,6 +179,7 @@ function LandingStyles() {
 
       .landing-hero-part {
         flex-shrink: 0;
+        flex-grow: 0;
         display: flex;
         flex-direction: column;
       }
@@ -200,18 +203,20 @@ function LandingStyles() {
 
       /* ---- Terminal part ---- */
       .landing-terminal-part {
+        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         min-height: 0;
         padding: 0 0.75rem;
-        width: 100%;
       }
 
       .landing-terminal {
+        flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         min-height: 0;
         width: 100%;
         padding: 0 0.75rem;
@@ -220,9 +225,9 @@ function LandingStyles() {
       }
 
       .landing-terminal-inner {
+        flex: 1;
         min-height: 300px;
         max-height: 540px;
-        height: clamp(300px, 45vh, 540px);
         border: 1px solid oklch(from var(--vocs-text-color-secondary) l c h / 0.12);
         border-radius: 12px;
         animation: terminalBorderShimmer 5s ease-in-out infinite;
@@ -365,6 +370,13 @@ function LandingStyles() {
         .hero-right { padding-right: 2rem !important; }
       }
 
+      /* ---- Tablet+ layout: kill flex-grow so hero+terminal cluster together ---- */
+      @media (min-width: 768px) {
+        .landing-terminal-part { flex: 0 1 auto !important; }
+        .landing-terminal { flex: 0 1 auto !important; }
+        .landing-terminal-inner { flex: 0 0 auto !important; }
+      }
+
       /* ---- Transparent header on tablet+ ---- */
       @media (min-width: 768px) {
         :has(.landing-page) [data-v-gutter-top],
@@ -390,11 +402,6 @@ function LandingStyles() {
           -webkit-backdrop-filter: none !important;
           border-bottom: none !important;
           box-shadow: none !important;
-        }
-        :has(.landing-page) [data-v-header],
-        :has(.landing-page) header {
-          background: transparent !important;
-          background-color: transparent !important;
         }
 
         /* ---- Mobile layout: 3 snap sections via negative margins ---- */
@@ -440,8 +447,6 @@ function LandingStyles() {
           margin-top: -42vh !important;
           padding: 0 1rem !important;
           overflow: visible !important;
-          background: var(--vocs-background-color-primary) !important;
-          z-index: 2 !important;
         }
         .landing-terminal-part .landing-terminal {
           display: flex !important;
@@ -462,6 +467,14 @@ function LandingStyles() {
           flex-shrink: 0 !important;
           position: relative !important;
           z-index: 2 !important;
+        }
+
+        /* Undo desktop absolute positioning on discover CTA */
+        .landing-discover-cta {
+          position: relative !important;
+          bottom: auto !important;
+          left: auto !important;
+          right: auto !important;
         }
 
         /* Snap 3: Discovery — pulled up so it peeks from terminal */
@@ -505,7 +518,7 @@ function LandingStyles() {
           border: 1px solid var(--term-gray4) !important;
           border-radius: 6px !important;
           line-height: 1.5 !important;
-          font-size: 15px !important;
+          font-size: 13.5px !important;
         }
 
         .landing-scroll-cta { font-size: 0.8rem !important; margin-top: 0.5rem !important; margin-bottom: 0.25rem !important; }

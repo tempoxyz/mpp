@@ -1084,6 +1084,10 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 
 /* ---- Mobile navbar sizing (120%) ---- */
 @media (max-width: 767px) {
+  :has(.landing-page) [data-v-gutter-top] {
+    background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent) !important;
+    background-color: transparent !important;
+  }
   [data-v-gutter-top] {
     padding-top: 0.5rem !important;
     padding-bottom: 0.5rem !important;
