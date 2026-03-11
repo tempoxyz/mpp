@@ -1,0 +1,19 @@
+---
+description: Sync service icons when new services are added to schemas/services.ts
+globs: schemas/services.ts
+alwaysApply: false
+---
+
+# Sync service icons for new services
+
+When new services are added to `schemas/services.ts`, check if they have icons in `public/icons/{id}.svg`. If any are missing, run:
+
+```bash
+BRANDDEV_LOGOLINK_KEY=brandLL_e5535b23d847113778ec879427f3b2a66726d6233d355ddd \
+BLOB_READ_WRITE_TOKEN="vercel_blob_rw_WGFDJV2jfqz2Dlpx_3j8Z2SMVXRogMUpxB6vwIBu4WCV6Xr" \
+node --experimental-strip-types scripts/sync-icons.ts
+```
+
+This fetches brand icons from brand.dev Logo Link API, wraps them in a monochrome styled SVG (grey `#2A2A2A` rounded square with a monochrome-filtered logo), saves to `public/icons/`, and pushes to Vercel Blob CDN.
+
+Do **not** modify existing working icons. Only run this for new/missing services.

@@ -396,7 +396,7 @@ export function ServiceDiscovery() {
             }}
             style={{ cursor: "pointer" }}
           >
-            Superpowers for agents
+            Power-ups for agents
           </div>
 
           <p className="discovery-overlay-desc">

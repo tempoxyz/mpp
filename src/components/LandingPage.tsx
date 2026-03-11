@@ -101,11 +101,12 @@ export function LandingPage() {
         <div className="landing-main-section">
           <div className="landing-hero-part">
             <Hero />
-            <p className="landing-scroll-cta landing-try-cta">Try MPP now</p>
           </div>
 
           <div className="landing-terminal-part">
             <div className="landing-terminal">
+              <p className="landing-scroll-cta landing-try-cta">Try MPP now</p>
+
               <div
                 className="landing-terminal-inner"
                 style={{
@@ -127,14 +128,14 @@ export function LandingPage() {
                 <DesignedBy />
               </div>
             </div>
-            <p className="landing-scroll-cta landing-discover-cta">
-              Discover services
-            </p>
           </div>
         </div>
 
         {/* Service Discovery */}
         <div className="landing-discovery">
+          <p className="landing-scroll-cta landing-discover-cta">
+            Discover MPP services
+          </p>
           <ServiceDiscovery />
         </div>
       </div>
@@ -197,9 +198,9 @@ function LandingStyles() {
         gap: 0.75rem;
       }
 
-      /* Try MPP CTA — only visible on mobile */
+      /* Shimmer CTAs — only visible on mobile */
       .landing-try-cta { display: none !important; }
-      .landing-discover-cta { position: absolute; bottom: 0; left: 0; right: 0; }
+      .landing-discover-cta { display: none !important; }
 
       /* ---- Terminal part ---- */
       .landing-terminal-part {
@@ -347,8 +348,8 @@ function LandingStyles() {
         50% { opacity: 0.75; }
       }
 
-      /* ---- Tablet + small desktop: stack hero columns ---- */
-      @media (max-width: 1079px) {
+      /* ---- Small screens: stack hero columns (mobile only, NOT tablet) ---- */
+      @media (max-width: 767px) {
         .hero-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .hero-left h1 { line-height: 0.95 !important; }
         .landing-hero { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
@@ -395,6 +396,8 @@ function LandingStyles() {
       /* ---- Mobile: three snap sections ---- */
       @media (max-width: 767px) {
         .landing-page { scroll-snap-type: y mandatory !important; }
+
+        /* Force gradient nav background — must beat the global background-color rule */
         :has(.landing-page) [data-v-gutter-top] {
           background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent) !important;
           background-color: transparent !important;
@@ -403,10 +406,14 @@ function LandingStyles() {
           border-bottom: none !important;
           box-shadow: none !important;
         }
+        :has(.landing-page) [data-v-header],
+        :has(.landing-page) header {
+          background: transparent !important;
+          background-color: transparent !important;
+        }
 
         /* ---- Mobile layout: 3 snap sections via negative margins ---- */
 
-        /* Parent wrapper becomes transparent — children are the snap targets */
         .landing-main-section {
           scroll-snap-align: none !important;
           height: auto !important;
@@ -415,7 +422,7 @@ function LandingStyles() {
           display: block !important;
         }
 
-        /* Snap 1: Hero */
+        /* Snap 1: Hero — CTAs hidden via clip */
         .landing-hero-part {
           scroll-snap-align: start !important;
           height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
@@ -423,8 +430,8 @@ function LandingStyles() {
           display: flex !important;
           flex-direction: column !important;
           justify-content: center !important;
-          padding: 0 1.75rem 12rem !important;
-          margin-top: -8rem !important;
+          padding: 0 1.75rem 6rem !important;
+          margin-top: -6rem !important;
           overflow: hidden !important;
           z-index: 1 !important;
         }
@@ -433,7 +440,16 @@ function LandingStyles() {
           flex-direction: column;
           justify-content: center;
         }
-        .landing-try-cta { display: none !important; }
+        /* Show shimmer CTA above terminal */
+        .landing-try-cta {
+          display: flex !important;
+          font-size: 0.75rem !important;
+          margin-top: 0 !important;
+          flex-shrink: 0 !important;
+          padding: 0 0.5rem !important;
+          opacity: 0.6 !important;
+          animation: ctaTextShimmer 5s ease-in-out infinite !important;
+        }
 
         /* Snap 2: Terminal — pulled up so it peeks from hero */
         .landing-terminal-part {
@@ -444,7 +460,7 @@ function LandingStyles() {
           flex-direction: column !important;
           align-items: center !important;
           justify-content: center !important;
-          margin-top: -42vh !important;
+          margin-top: -32vh !important;
           padding: 0 1rem !important;
           overflow: visible !important;
         }
@@ -456,25 +472,31 @@ function LandingStyles() {
           width: 100% !important;
           overflow: visible !important;
           opacity: 1 !important;
+          gap: 24px;
+
+          margin-top: -12rem !important;
         }
         .landing-terminal-inner {
-          height: 390px !important;
+          max-height: 50vh !important;
           min-width: 90vw !important;
         }
-        .landing-terminal-part > .landing-scroll-cta {
-          margin-top: auto !important;
-          margin-bottom: 1.5rem !important;
-          flex-shrink: 0 !important;
-          position: relative !important;
-          z-index: 2 !important;
-        }
 
-        /* Undo desktop absolute positioning on discover CTA */
+        /* Show shimmer CTA below terminal (discover services) */
         .landing-discover-cta {
+          display: flex !important;
           position: relative !important;
           bottom: auto !important;
           left: auto !important;
           right: auto !important;
+          margin-top: 0.75rem !important;
+          margin-bottom: 0.5rem !important;
+          flex-shrink: 0 !important;
+          z-index: 2 !important;
+          font-size: 0.75rem !important;
+          padding: 0 0.5rem !important;
+          opacity: 0.6 !important;
+          animation: ctaTextShimmer 5s ease-in-out infinite !important;
+          width: 100% !important;
         }
 
         /* Snap 3: Discovery — pulled up so it peeks from terminal */
@@ -502,7 +524,7 @@ function LandingStyles() {
           width: 100%;
           justify-content: center !important;
         }
-        .designed-by-mobile { margin-top: 1.5rem; margin-bottom: 50px; display: flex; flex-direction: row; }
+        .designed-by-mobile { margin-top: 0rem; margin-bottom: 50px; display: flex; flex-direction: row; }
 
         /* Terminal font sizes */
         [data-terminal] { font-size: 1.0625rem !important; }
