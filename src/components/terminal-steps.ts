@@ -192,7 +192,7 @@ export function stripe({
     description,
     endpoint,
     liveEndpoint,
-    methodLabel: "machine payments",
+    methodLabel: "Stripe charge",
     cost,
     prompt,
     skipPrompt,
@@ -239,7 +239,7 @@ export function search(): PaymentStepConfig {
     liveEndpoint: (input) =>
       `/api/demo/search?query=${encodeURIComponent(input)}`,
     cost: 0.005,
-    prompt: { label: "Enter query", placeholder: "AI agent payments" },
+    prompt: { label: "Enter query", placeholder: "machine payments" },
     pickOutput: pickSearch,
   });
 }
