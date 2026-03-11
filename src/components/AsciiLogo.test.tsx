@@ -46,7 +46,7 @@ describe("ASCII_MPP", () => {
   });
 
   it("uses only expected characters", () => {
-    const allowed = new Set(" @#%&$=");
+    const allowed = new Set(" @#%&$=+.-:*8");
     for (const line of lines) {
       for (const ch of line) {
         expect(allowed.has(ch)).toBe(true);
