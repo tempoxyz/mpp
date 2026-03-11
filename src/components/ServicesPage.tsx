@@ -730,12 +730,16 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function computeFilteredList(services: Service[]): Service[] {
+function orderServices(services: Service[], shuffledIds: string[]): Service[] {
   const pinned = PINNED_IDS.flatMap((id) =>
     services.filter((s) => s.id === id),
   );
   const pinnedSet = new Set(PINNED_IDS);
-  const rest = shuffle(services.filter((s) => !pinnedSet.has(s.id)));
+  const rest = services.filter((s) => !pinnedSet.has(s.id));
+  const idxMap = new Map(shuffledIds.map((id, i) => [id, i]));
+  rest.sort(
+    (a, b) => (idxMap.get(a.id) ?? 0) - (idxMap.get(b.id) ?? 0),
+  );
   return [...pinned, ...rest];
 }
 
@@ -762,10 +766,15 @@ export function ServicesPage() {
   const [mobileSearchActive, setMobileSearchActive] = useState(false);
   const [mobileResultsView, setMobileResultsView] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
+  const shuffledOrder = useRef<string[]>([]);
 
   useEffect(() => {
     fetchServices()
       .then((data) => {
+        const pinnedSet = new Set(PINNED_IDS);
+        shuffledOrder.current = shuffle(
+          data.filter((s) => !pinnedSet.has(s.id)).map((s) => s.id),
+        );
         setServices(data);
         setLoading(false);
       })
@@ -829,10 +838,7 @@ export function ServicesPage() {
           ),
       );
     }
-    const pinned = PINNED_IDS.flatMap((id) => list.filter((s) => s.id === id));
-    const pinnedSet = new Set(PINNED_IDS);
-    const rest = shuffle(list.filter((s) => !pinnedSet.has(s.id)));
-    return [...pinned, ...rest];
+    return orderServices(list, shuffledOrder.current);
   }, [services, selectedCategory, effectiveSearch]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -858,7 +864,7 @@ export function ServicesPage() {
       setMobileSearchActive(false);
       setMobileResultsView(false);
       history.replaceState(null, "", `#service-${serviceId}`);
-      const all = computeFilteredList(services);
+      const all = orderServices(services, shuffledOrder.current);
       const idx = all.findIndex((s) => s.id === serviceId);
       if (idx >= 0) setPage(Math.floor(idx / PAGE_SIZE));
       setTimeout(() => {
