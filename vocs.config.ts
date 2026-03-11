@@ -79,7 +79,7 @@ export default defineConfig({
         items: [
           { text: "Overview", link: "/overview" },
           {
-            text: "Specification",
+            text: "IETF Specs",
             link: "https://tempoxyz.github.io/mpp-specs/",
           },
           { text: "FAQ", link: "/faq" },
@@ -505,7 +505,7 @@ export default defineConfig({
   topNav: [
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
     { text: "Services", link: "/services" },
-    { text: "Specification", link: "https://tempoxyz.github.io/mpp-specs/" },
+    { text: "IETF Specs", link: "https://tempoxyz.github.io/mpp-specs/" },
     {
       text: "GitHub",
       items: [
@@ -513,7 +513,7 @@ export default defineConfig({
         { text: "mpp-rs [`Rust`]", link: "https://github.com/tempoxyz/mpp-rs" },
         { text: "pympp [`Python`]", link: "https://github.com/tempoxyz/pympp" },
         {
-          text: "Specification",
+          text: "IETF Specs",
           link: "https://github.com/tempoxyz/mpp-specs",
         },
       ],
