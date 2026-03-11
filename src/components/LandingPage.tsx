@@ -110,7 +110,7 @@ export function LandingPage() {
               <div
                 className="landing-terminal-inner"
                 style={{
-                  height: 540,
+                  height: 510,
                   width: "100%",
                   maxWidth: 960,
                   position: "relative",
@@ -177,6 +177,19 @@ function LandingStyles() {
         height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
         position: relative;
       }
+      @media (min-width: 768px) {
+        .landing-main-section::after {
+          content: '';
+          position: absolute;
+          bottom: -100px;
+          left: 0;
+          right: 0;
+          height: 100px;
+          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 0%, transparent 100%);
+          pointer-events: none;
+          z-index: 5;
+        }
+      }
 
       .landing-hero-part {
         flex-shrink: 0;
@@ -228,7 +241,7 @@ function LandingStyles() {
       .landing-terminal-inner {
         flex: 1;
         min-height: 300px;
-        max-height: 540px;
+        max-height: 510px;
         border: 1px solid oklch(from var(--vocs-text-color-secondary) l c h / 0.12);
         border-radius: 12px;
         animation: terminalBorderShimmer 5s ease-in-out infinite;
