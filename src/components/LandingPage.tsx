@@ -38,20 +38,6 @@ const AgentContext = createContext<{
 export function LandingPage() {
   const [activeAgent, setActiveAgent] = useState(0);
   useEffect(() => {
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        const el = document.querySelector(".landing-page") as HTMLElement;
-        if (el) {
-          el.scrollTo({ top: 0 });
-        }
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibility);
-  }, []);
-
-  useEffect(() => {
     const logoLink = document.querySelector(
       "[data-v-logo] a",
     ) as HTMLAnchorElement;
@@ -387,9 +373,8 @@ function LandingStyles() {
         .landing-terminal { padding-left: 1.5rem; padding-right: 1.5rem; }
       }
 
-      /* ---- Mobile: three snap sections ---- */
+      /* ---- Mobile: three sections ---- */
       @media (max-width: 767px) {
-        .landing-page { scroll-snap-type: y mandatory !important; }
 
         /* Force gradient nav background — must beat the global background-color rule */
         :has(.landing-page) [data-v-gutter-top] {

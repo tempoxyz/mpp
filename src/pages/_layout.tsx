@@ -26,11 +26,7 @@ function MobileNav() {
     const el = document.querySelector(".landing-page") as HTMLElement;
     if (el) {
       window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
-      el.style.scrollSnapType = "none";
       el.scrollTo({ top: 0, behavior: "smooth" });
-      setTimeout(() => {
-        el.style.scrollSnapType = "";
-      }, 600);
     } else {
       window.location.href = "/";
       return;
