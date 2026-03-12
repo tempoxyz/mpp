@@ -1,90 +1,79 @@
 import { Badge, Card, Cards } from 'vocs'
 
 # Use with your agent [Interact with MPP enabled services with your agent of choice]
+
 Agents and CLIs can pay for MPP-enabled services automatically. Here's how to get started.
 
 | Tool | Best for | Install |
 |------|----------|---------|
 | [Tempo Wallet](https://wallet.tempo.xyz) | AI coding agents (Amp, Claude Code, Codex) | `curl -fsSL https://cli.tempo.xyz/install \| bash` |
-| [mppx](https://mpp.dev/sdk/typescript/cli#cli-reference) | Basic validation and scripts | `npm install mppx viem` |
-| [purl](https://purl.dev) | Humans in the terminal | `` |
+| [mppx](https://mpp.dev/sdk/typescript/cli#cli-reference) | Scripting and programmatic access | `npm install -g mppx` |
 
 ## Tempo Wallet <Badge variant="info">Recommended</Badge>
 
-[Tempo Wallet](https://wallet.tempo.xyz)  
+The [Tempo Wallet](https://wallet.tempo.xyz) CLI gives your agent a managed wallet with passkey auth, spending limits, and automatic payment. One install and your agent can discover and pay for any MPP service.
 
 [Docs →](https://cli.tempo.xyz) · [GitHub →](https://github.com/tempoxyz/wallet)
 
 :::::steps
 
-### Install
+### Install and log in
 
 ```bash
 curl -fsSL https://cli.tempo.xyz/install | bash
 tempo wallet login
 ```
 
+### Check wallet status
+
+```bash
+tempo wallet whoami
+```
+
+Verify `ready` is `true` and `balance` has funds before making requests.
+
 ### Discover services
 
-Prompt your agent to discover what services are available.
+```bash
+# List all available services
+tempo mpp services
 
-::::code-group
+# Filter by category
+tempo mpp services --category ai
 
-```bash [Amp]
-echo "What image generation services can I use with Tempo Wallet?" | amp
+# Show endpoints and pricing for a service
+tempo mpp services info fal
 ```
-
-```bash [Claude]
-claude "What image generation services can I use with Tempo Wallet?"
-```
-
-```bash [Codex]
-codex "What image generation services can I use with Tempo Wallet?"
-```
-
-```bash [Other]
-# Prompt your agent
-> "What image generation services can I use with Tempo Wallet?"
-```
-
-::::
 
 ### Make a paid request
 
-Prompt your agent to use a service. Payment happens automatically when the server returns `402`.
-
-::::code-group
-
-```bash [Amp]
-echo "Generate a surreal image with fal.ai" | amp
+```bash
+tempo mpp -X POST \
+  --json '{"prompt": "a sunset over the ocean"}' \
+  https://fal.mpp.tempo.xyz/fal-ai/flux/dev
 ```
 
-```bash [Claude]
-claude "Generate a surreal image with fal.ai"
-```
+Payment happens automatically when the server returns `402`.
 
-```bash [Codex]
-codex "Generate a surreal image with fal.ai"
-```
+### Install agent skills (optional)
 
-```bash [Other]
-# Prompt your agent
-> "Generate a surreal image with fal.ai"
-```
+Give your agent built-in knowledge of available services and how to use them:
 
-::::
+```bash
+npx skills add tempoxyz/agent-skills
+```
 
 :::::
 
 ## mppx
 
-The [`mppx`](/sdk/typescript/cli#cli-reference) CLI provides a basic CLI and scripting interface for making requests to MPP-enabled services.
+The [`mppx`](/sdk/typescript/cli) CLI is a lightweight alternative bundled with the `mppx` npm package. It includes account management, agent integration, and the same automatic payment flow.
 
 [Docs →](/sdk/typescript/cli) · [GitHub →](https://github.com/wevm/mppx)
 
 :::::steps
 
-### Install
+### Install and set up an account
 
 ::::code-group
 ```bash [npm]
@@ -98,6 +87,10 @@ bun add -g mppx
 ```
 ::::
 
+```bash
+mppx account create
+```
+
 ### Make a paid request
 
 ```bash
@@ -106,43 +99,14 @@ mppx https://mpp.dev/api/ping/paid
 
 Payment is handled automatically when the server returns `402`.
 
-### Pass method options
+### Register with your agent (optional)
 
 ```bash
-mppx https://mpp.dev/api/ping/paid -M channel=0x123 -M deposit=1000000
-```
+# Add as an MCP server
+mppx mcp add
 
-:::::
-
-## purl
-
-[`purl`](https://purl.dev) is a `curl`-like command-line-interface for making simple MPP requests and debugging resources.
-
-:::::steps
-
-### Install
-
-```bash
-cargo install purl
-```
-
-### Set up a wallet
-
-```bash
-purl wallet add
-```
-
-### Make a paid request
-
-```bash
-# Preview payment without executing
-purl --dry-run https://mpp.dev/api/ping/paid
-
-# Make the request (pays automatically)
-purl https://mpp.dev/api/ping/paid
-
-# Require confirmation before paying
-purl --confirm https://mpp.dev/api/ping/paid
+# Sync skill files to your agent
+mppx skills add
 ```
 
 :::::
@@ -151,7 +115,7 @@ purl --confirm https://mpp.dev/api/ping/paid
 
 <Cards>
   <Card
-    description="Learn more about the services available to use with MPP"
+    description="Browse available MPP services and their endpoints"
     icon="lucide:list"
     title="Services"
     to="/services"
