@@ -21,6 +21,27 @@ function usePostHog() {
   }, []);
 }
 
+function useGoogleAnalytics() {
+  useEffect(() => {
+    if (!import.meta.env.PROD) return;
+    const id = import.meta.env.VITE_GA_MEASUREMENT_ID;
+    if (!id) return;
+    if (document.querySelector(`script[src*="googletagmanager"]`)) return;
+
+    const script = document.createElement("script");
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+    script.async = true;
+    document.head.appendChild(script);
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag(...args: unknown[]) {
+      window.dataLayer.push(args);
+    }
+    gtag("js", new Date());
+    gtag("config", id);
+  }, []);
+}
+
 function MobileNav() {
   const handleLogoClick = () => {
     const el = document.querySelector(".landing-page") as HTMLElement;
@@ -141,6 +162,9 @@ function MobileNavPortal() {
 
 export default function Layout(props: React.PropsWithChildren) {
   usePostHog();
+  useGoogleAnalytics();
+
+  const ahrefsKey = import.meta.env.VITE_AHREFS_VERIFICATION;
 
   return (
     <>
@@ -148,6 +172,9 @@ export default function Layout(props: React.PropsWithChildren) {
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1"
       />
+      {ahrefsKey && (
+        <meta name="ahrefs-site-verification" content={ahrefsKey} />
+      )}
       <MobileNavPortal />
       {props.children}
     </>
