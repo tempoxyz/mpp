@@ -8,7 +8,7 @@ Agents can automatically interact with MPP-enabled services. Here's how to get s
 
 The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery.
 
-### Automatic installation
+### Automatic setup 
 
 Paste this into your agent to set up Tempo Wallet:
 
@@ -16,13 +16,13 @@ Paste this into your agent to set up Tempo Wallet:
 Read and follow https://wallet.tempo.xyz/skill.md
 ```
 
-### Manual installation
+### Manual setup
 
 ```bash
-# Install the CLI (also installs agent skills automatically)
+# Install the CLI
 curl -fsSL https://cli.tempo.xyz/install | bash
 
-# Connect your wallet (opens browser for passkey auth)
+# Connect your wallet 
 tempo wallet login
 
 # Verify setup
@@ -48,8 +48,6 @@ tempo mpp -X POST \
 ## mppx
 
 The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
-
-[Docs →](/sdk/typescript/cli) · [GitHub →](https://github.com/wevm/mppx)
 
 ### Install
 
@@ -83,17 +81,5 @@ mppx https://mpp.dev/api/ping/paid
     icon="lucide:list"
     title="Services"
     to="/services"
-  />
-  <Card
-    description="Set up your app as an MPP client"
-    icon="lucide:code"
-    title="Client quickstart"
-    to="/quickstart/client"
-  />
-  <Card
-    description="Add payment gating to your HTTP endpoints"
-    icon="lucide:server"
-    title="Server quickstart"
-    to="/quickstart/server"
   />
 </Cards>
