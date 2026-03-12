@@ -79,9 +79,9 @@ codex "Generate a surreal image with fal.ai"
 
 ## mppx
 
-A TypeScript library that polyfills `fetch` to handle `402` responses automatically. Your existing code works unchanged — payments happen in the background.
+The [`mppx`](/sdk/typescript/cli#cli-reference) CLI provides a lightweight command-line and scripting interface for making requests to MPP-enabled services.
 
-[Docs →](https://mpp.dev/sdk/typescript/client/Mppx.create) · [GitHub →](https://github.com/wevm/mppx)
+[Docs →](/sdk/typescript/cli) · [GitHub →](https://github.com/wevm/mppx)
 
 :::::steps
 
@@ -89,36 +89,29 @@ A TypeScript library that polyfills `fetch` to handle `402` responses automatica
 
 ::::code-group
 ```bash [npm]
-npm install mppx viem
+npm install -g mppx
 ```
 ```bash [pnpm]
-pnpm add mppx viem
+pnpm add -g mppx
 ```
 ```bash [bun]
-bun add mppx viem
+bun add -g mppx
 ```
 ::::
 
-### Create payment handler
-
-```ts
-import { privateKeyToAccount } from 'viem/accounts'
-import { Mppx, tempo } from 'mppx/client'
-
-const account = privateKeyToAccount('0xabc…123')
-
-Mppx.create({
-  methods: [tempo({ account })],
-})
-```
-
 ### Make a paid request
 
-```ts
-const response = await fetch('https://api.example.com/data')
+```bash
+mppx https://api.example.com/data
 ```
 
-`fetch` is polyfilled — when the server returns `402`, `mppx` pays and retries automatically.
+Payment is handled automatically when the server returns `402`.
+
+### Pass method options
+
+```bash
+mppx https://api.example.com/data -M channel=0x123 -M deposit=1000000
+```
 
 :::::
 
