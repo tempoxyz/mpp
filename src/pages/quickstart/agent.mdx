@@ -2,23 +2,21 @@ import { Badge, Card, Cards } from 'vocs'
 
 # Use with your agent [Interact with MPP enabled services with your agent of choice]
 
-Agents and CLIs can pay for MPP-enabled services automatically. Here's how to get started.
+Agents can automatically interact with MPP-enabled services. Here's how to get started.
 
 ## Tempo Wallet <Badge variant="info">Recommended</Badge>
 
-The [Tempo Wallet](https://wallet.tempo.xyz) CLI gives your agent a managed wallet with passkey auth, spending limits, and automatic payment.
+The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery.
 
-[Docs →](https://cli.tempo.xyz) · [GitHub →](https://github.com/tempoxyz/wallet)
+### Automatic installation
 
-### Use in your agent
+Paste this into your agent to set up Tempo Wallet:
 
-Paste this into your coding agent to set up Tempo Wallet:
+```bash
+Read and follow https://wallet.tempo.xyz/skill.md
+```
 
-> Read and follow https://wallet.tempo.xyz/skill.md
-
-The agent will install the CLI, connect your wallet, and load the skill automatically.
-
-### Manual install
+### Manual installation
 
 ```bash
 # Install the CLI (also installs agent skills automatically)
@@ -31,13 +29,17 @@ tempo wallet login
 tempo wallet whoami
 ```
 
-Once installed, discover and call services:
+Once setup, discover and call services:
+
+**List available services**
 
 ```bash
-# List available services
 tempo mpp services
+```
 
-# Make a paid request
+**Make a paid request**
+
+```bash
 tempo mpp -X POST \
   --json '{"prompt": "a sunset over the ocean"}' \
   https://fal.mpp.tempo.xyz/fal-ai/flux/dev
@@ -45,16 +47,32 @@ tempo mpp -X POST \
 
 ## mppx
 
-The [`mppx`](/sdk/typescript/cli) CLI is a lightweight alternative bundled with the `mppx` npm package.
+The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
 
 [Docs →](/sdk/typescript/cli) · [GitHub →](https://github.com/wevm/mppx)
 
+### Install
+
+:::code-group
+```bash [npm]
+npm install -g mppx
+```
+```bash [pnpm]
+pnpm add -g mppx
+```
+```bash [bun]
+bun add -g mppx
+```
+:::
+
+### Get started
+
 ```bash
 # Create an account
-npx mppx account create
+mppx account create
 
 # Make a paid request
-npx mppx https://mpp.dev/api/ping/paid
+mppx https://mpp.dev/api/ping/paid
 ```
 
 ## Next steps
