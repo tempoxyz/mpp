@@ -15,31 +15,19 @@ The [Tempo Wallet](https://wallet.tempo.xyz) CLI gives your agent a managed wall
 
 [Docs →](https://cli.tempo.xyz) · [GitHub →](https://github.com/tempoxyz/wallet)
 
-:::::steps
-
-### Install and log in
+### Get started
 
 ```bash
 curl -fsSL https://cli.tempo.xyz/install | bash
-tempo wallet login
 ```
 
-### Check wallet status
-
-```bash
-tempo wallet whoami
-```
-
-Verify `ready` is `true` and `balance` has funds before making requests.
+This installs the `tempo` CLI and prompts you to log in. Once set up, your agent can discover and pay for any MPP service.
 
 ### Discover services
 
 ```bash
 # List all available services
 tempo mpp services
-
-# Filter by category
-tempo mpp services --category ai
 
 # Show endpoints and pricing for a service
 tempo mpp services info fal
@@ -55,46 +43,22 @@ tempo mpp -X POST \
 
 Payment happens automatically when the server returns `402`.
 
-### Install agent skills (optional)
-
-Give your agent built-in knowledge of available services and how to use them:
-
-```bash
-npx skills add tempoxyz/agent-skills
-```
-
-:::::
-
 ## mppx
 
 The [`mppx`](/sdk/typescript/cli) CLI is a lightweight alternative bundled with the `mppx` npm package. It includes account management, agent integration, and the same automatic payment flow.
 
 [Docs →](/sdk/typescript/cli) · [GitHub →](https://github.com/wevm/mppx)
 
-:::::steps
-
-### Install and set up an account
-
-::::code-group
-```bash [npm]
-npm install -g mppx
-```
-```bash [pnpm]
-pnpm add -g mppx
-```
-```bash [bun]
-bun add -g mppx
-```
-::::
+### Get started
 
 ```bash
-mppx account create
+npx mppx account create
 ```
 
-### Make a paid request
+This creates a local account and funds it with testnet tokens. Then make requests:
 
 ```bash
-mppx https://mpp.dev/api/ping/paid
+npx mppx https://mpp.dev/api/ping/paid
 ```
 
 Payment is handled automatically when the server returns `402`.
@@ -103,13 +67,11 @@ Payment is handled automatically when the server returns `402`.
 
 ```bash
 # Add as an MCP server
-mppx mcp add
+npx mppx mcp add
 
 # Sync skill files to your agent
-mppx skills add
+npx mppx skills add
 ```
-
-:::::
 
 ## Next steps
 
