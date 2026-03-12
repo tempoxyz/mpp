@@ -3,7 +3,6 @@
 import { createContext, useEffect, useState } from "react";
 import { Link } from "vocs";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
-import { ServiceDiscovery } from "./ServiceDiscovery";
 import { Terminal } from "./Terminal";
 
 // ---------------------------------------------------------------------------
@@ -44,11 +43,7 @@ export function LandingPage() {
     if (!logoLink) return;
     const handler = (e: MouseEvent) => {
       e.preventDefault();
-      window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
-      const el = document.querySelector(".landing-page") as HTMLElement;
-      if (el) {
-        el.scrollTo({ top: 0, behavior: "smooth" });
-      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     };
     logoLink.addEventListener("click", handler);
     return () => logoLink.removeEventListener("click", handler);
@@ -57,7 +52,7 @@ export function LandingPage() {
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
       <div
-        className="not-prose landing-page skip-entrance"
+        className="not-prose landing-page"
         style={{
           color: ACCENT,
           fontFamily: "var(--font-copy)",
@@ -67,7 +62,7 @@ export function LandingPage() {
       >
         <LandingStyles />
 
-        {/* Hero + Terminal (single snap on tablet/desktop, two snaps on mobile) */}
+        {/* Hero + Terminal */}
         <div className="landing-main-section">
           <div className="landing-hero-part">
             <Hero />
@@ -100,14 +95,6 @@ export function LandingPage() {
             </div>
           </div>
         </div>
-
-        {/* Service Discovery */}
-        <div className="landing-discovery">
-          <p className="landing-scroll-cta landing-discover-cta">
-            Discover MPP services
-          </p>
-          <ServiceDiscovery />
-        </div>
       </div>
     </AgentContext.Provider>
   );
@@ -121,16 +108,12 @@ function LandingStyles() {
   return (
     <style>{`
       :has(.landing-page) [data-v-logo] { display: flex !important; align-items: center !important; gap: 0.75rem !important; }
-      html:has(.landing-page), html:has(.landing-page) body { scroll-behavior: smooth; }
       :has(.landing-page) [data-v-main] { padding: 0 !important; margin: 0 !important; }
       :has(.landing-page) [data-v-main] article[data-v-content] { padding: 0 !important; margin: 0 !important; max-width: none !important; }
       :has(.landing-page) [data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
       :has(.landing-page) [data-v-gutter-top] { position: sticky !important; top: 0 !important; z-index: 200 !important; user-select: none !important; -webkit-user-select: none !important; }
 
       .landing-page {
-        height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
-        overflow-y: auto;
-        scroll-behavior: smooth;
         margin-top: 0 !important;
       }
 
@@ -141,22 +124,8 @@ function LandingStyles() {
         justify-content: center;
         align-items: stretch;
         gap: 20px;
-        flex-shrink: 0;
-        height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
+        min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
         position: relative;
-      }
-      @media (min-width: 768px) {
-        .landing-main-section::after {
-          content: '';
-          position: absolute;
-          bottom: -100px;
-          left: 0;
-          right: 0;
-          height: 100px;
-          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 0%, transparent 100%);
-          pointer-events: none;
-          z-index: 5;
-        }
       }
 
       .landing-hero-part {
@@ -179,9 +148,8 @@ function LandingStyles() {
         gap: 0.75rem;
       }
 
-      /* Shimmer CTAs — only visible on mobile */
+      /* Shimmer CTA — only visible on mobile */
       .landing-try-cta { display: none !important; }
-      .landing-discover-cta { display: none !important; }
 
       /* ---- Terminal part ---- */
       .landing-terminal-part {
@@ -202,8 +170,6 @@ function LandingStyles() {
         min-height: 0;
         width: 100%;
         padding: 0 0.75rem;
-        opacity: 0;
-        animation: heroContentReveal 0.6s ease-out 1.1s both;
       }
 
       .landing-terminal-inner {
@@ -250,41 +216,13 @@ function LandingStyles() {
         .designed-by-mobile { display: none; }
       }
 
-      /* ---- Discovery ---- */
-      .landing-discovery {
-        height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
-        flex-shrink: 0;
-        overflow: hidden;
-      }
-
-      /* ---- Entrance animations ---- */
-      .lockup-img { animation: lockupReveal 0.8s ease-out both; }
-      .hero-right { opacity: 0; animation: heroContentReveal 0.6s ease-out 0.5s both; }
-      .landing-ctas { opacity: 0; animation: heroContentReveal 0.5s ease-out 0.8s both; }
-      @keyframes lockupReveal {
-        from { opacity: 0; transform: translateX(-12px); filter: blur(4px); }
-        to { opacity: 1; transform: translateX(0); filter: blur(0); }
-      }
-      @keyframes heroContentReveal {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      .skip-entrance .lockup-img,
-      .skip-entrance .hero-right,
-      .skip-entrance .landing-ctas,
-      .skip-entrance .landing-terminal {
-        animation: none !important;
-        opacity: 1 !important;
-      }
-
       .lockup-h1,
       .discovery-overlay-title {
         font-family: "VTC Du Bois", var(--font-sans) !important;
         text-transform: uppercase;
       }
 
-      /* ---- Scroll CTA shimmer dividers ---- */
+      /* ---- Scroll CTA shimmer divider ---- */
       .landing-scroll-cta {
         display: flex;
         align-items: center;
@@ -299,10 +237,9 @@ function LandingStyles() {
         margin-top: auto;
         width: 100%;
         white-space: nowrap;
-        opacity: 0;
-        animation: scrollCtaReveal 0.4s ease-out 1.5s both, ctaTextShimmer 5s ease-in-out 2s infinite;
+        opacity: 0.6;
+        animation: ctaTextShimmer 5s ease-in-out infinite;
       }
-      .skip-entrance .landing-scroll-cta { animation: none !important; opacity: 0.6 !important; }
       .landing-scroll-cta::before,
       .landing-scroll-cta::after {
         content: '';
@@ -319,10 +256,6 @@ function LandingStyles() {
         0%, 100% { background-position: 200% 0; }
         50% { background-position: -200% 0; }
       }
-      @keyframes scrollCtaReveal {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 0.6; transform: translateY(0); }
-      }
       @keyframes ctaTextShimmer {
         0%, 100% { opacity: 0.5; }
         50% { opacity: 0.75; }
@@ -337,7 +270,7 @@ function LandingStyles() {
         .hero-right .text-base { font-size: 1.0625rem !important; line-height: 1.65 !important; }
       }
 
-      /* ---- Tablet: two snap sections (hero+terminal, discovery) ---- */
+      /* ---- Tablet ---- */
       @media (min-width: 768px) and (max-width: 1079px) {
         .landing-hero-part { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
         .landing-terminal-inner { max-width: 720px !important; }
@@ -351,7 +284,7 @@ function LandingStyles() {
         .hero-right { padding-right: 2rem !important; }
       }
 
-      /* ---- Tablet+ layout: kill flex-grow so hero+terminal cluster together ---- */
+      /* ---- Tablet+ layout ---- */
       @media (min-width: 768px) {
         .landing-terminal-part { flex: 0 1 auto !important; }
         .landing-terminal { flex: 0 1 auto !important; }
@@ -373,10 +306,10 @@ function LandingStyles() {
         .landing-terminal { padding-left: 1.5rem; padding-right: 1.5rem; }
       }
 
-      /* ---- Mobile: three sections ---- */
+      /* ---- Mobile ---- */
       @media (max-width: 767px) {
 
-        /* Force gradient nav background — must beat the global background-color rule */
+        /* Force gradient nav background */
         :has(.landing-page) [data-v-gutter-top] {
           background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent) !important;
           background-color: transparent !important;
@@ -394,22 +327,16 @@ function LandingStyles() {
         /* ---- Mobile layout ---- */
 
         .landing-main-section {
-          height: auto !important;
           min-height: auto !important;
           padding: 0 !important;
           display: block !important;
         }
 
-        /* Hero — CTAs hidden via clip */
         .landing-hero-part {
-          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
-          flex-shrink: 0 !important;
           display: flex !important;
           flex-direction: column !important;
           justify-content: center !important;
-          padding: 0 1.75rem 6rem !important;
-          margin-top: -6rem !important;
-          overflow: hidden !important;
+          padding: 0 1.75rem 2rem !important;
           z-index: 1 !important;
         }
         .landing-hero-part .landing-hero {
@@ -428,58 +355,22 @@ function LandingStyles() {
           animation: ctaTextShimmer 5s ease-in-out infinite !important;
         }
 
-        /* Terminal — pulled up so it peeks from hero */
         .landing-terminal-part {
-          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
-          flex-shrink: 0 !important;
           display: flex !important;
           flex-direction: column !important;
           align-items: center !important;
-          justify-content: center !important;
-          margin-top: -32vh !important;
           padding: 0 1rem !important;
-          overflow: visible !important;
         }
         .landing-terminal-part .landing-terminal {
           display: flex !important;
           flex-direction: column !important;
           align-items: center !important;
-          justify-content: center !important;
           width: 100% !important;
-          overflow: visible !important;
-          opacity: 1 !important;
           gap: 24px;
-
-          margin-top: -12rem !important;
         }
         .landing-terminal-inner {
           max-height: 50vh !important;
           min-width: 90vw !important;
-        }
-
-        /* Show shimmer CTA below terminal (discover services) */
-        .landing-discover-cta {
-          display: flex !important;
-          position: relative !important;
-          bottom: auto !important;
-          left: auto !important;
-          right: auto !important;
-          margin-top: 0.75rem !important;
-          margin-bottom: 0.5rem !important;
-          flex-shrink: 0 !important;
-          z-index: 2 !important;
-          font-size: 0.75rem !important;
-          padding: 0 0.5rem !important;
-          opacity: 0.6 !important;
-          animation: ctaTextShimmer 5s ease-in-out infinite !important;
-          width: 100% !important;
-        }
-
-        /* Discovery — pulled up so it peeks from terminal */
-        .landing-discovery {
-          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
-          flex-shrink: 0 !important;
-          margin-top: -15vh !important;
         }
 
         /* Hero content styles */
@@ -502,10 +393,6 @@ function LandingStyles() {
         .designed-by-mobile { margin-top: 0rem; margin-bottom: 50px; display: flex; flex-direction: row; }
 
         /* Terminal font sizes */
-        [data-terminal] { font-size: 1.0625rem !important; }
-        [data-terminal] p,
-        [data-terminal] .text-sm,
-        [data-terminal] .font-mono { font-size: 13.5px !important; }
         .term-wizard-list { padding-left: 0 !important; }
         .term-wizard-btn {
           display: block !important;

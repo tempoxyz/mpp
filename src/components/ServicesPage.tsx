@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
+import { ServiceDiscovery } from "./ServiceDiscovery";
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
@@ -763,6 +764,7 @@ export function ServicesPage() {
   const initialHashHandled = useRef(false);
   const [mobileSearchActive, setMobileSearchActive] = useState(false);
   const [mobileResultsView, setMobileResultsView] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const tableRef = useRef<HTMLDivElement>(null);
   const shuffledOrder = useRef<string[]>([]);
 
@@ -1326,6 +1328,95 @@ export function ServicesPage() {
                     onSelect={toggleCat}
                     onClear={clearCats}
                   />
+                  <div
+                    style={{
+                      display: "flex",
+                      border: "1px solid var(--vocs-border-color-primary)",
+                      borderRadius: 7,
+                      overflow: "hidden",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      aria-label="List view"
+                      onClick={() => setViewMode("list")}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 34,
+                        height: 34,
+                        border: "none",
+                        cursor: "pointer",
+                        color:
+                          viewMode === "list"
+                            ? "var(--vocs-text-color-heading)"
+                            : "var(--vocs-text-color-muted)",
+                        background:
+                          viewMode === "list"
+                            ? "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))"
+                            : "transparent",
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <title>List</title>
+                        <path d="M3 6h18" />
+                        <path d="M3 12h18" />
+                        <path d="M3 18h18" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Grid view"
+                      onClick={() => setViewMode("grid")}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 34,
+                        height: 34,
+                        border: "none",
+                        borderLeft:
+                          "1px solid var(--vocs-border-color-primary)",
+                        cursor: "pointer",
+                        color:
+                          viewMode === "grid"
+                            ? "var(--vocs-text-color-heading)"
+                            : "var(--vocs-text-color-muted)",
+                        background:
+                          viewMode === "grid"
+                            ? "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))"
+                            : "transparent",
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <title>Grid</title>
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                      </svg>
+                    </button>
+                  </div>
                   <Link
                     to="/overview"
                     className="no-underline! search-bar-learn-more"
@@ -1348,122 +1439,173 @@ export function ServicesPage() {
                     Learn more
                   </Link>
                 </div>
-                <div ref={tableRef} className="services-content-row">
+                {viewMode === "grid" ? (
                   <div
-                    className="services-table-col"
-                    style={{ flex: 1, minWidth: 0 }}
+                    style={{
+                      position: "fixed",
+                      inset: 0,
+                      zIndex: 200,
+                      background: "var(--vocs-background-color-primary)",
+                    }}
                   >
-                    <div data-services-table>
-                      <table
-                        style={{
-                          width: "100%",
-                          borderCollapse: "collapse",
-                          fontSize: 16,
-                          tableLayout: "fixed",
-                        }}
+                    <button
+                      type="button"
+                      aria-label="Close grid view"
+                      onClick={() => setViewMode("list")}
+                      style={{
+                        position: "absolute",
+                        top: 16,
+                        right: 16,
+                        zIndex: 210,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 36,
+                        height: 36,
+                        borderRadius: 8,
+                        border: "1px solid var(--vocs-border-color-primary)",
+                        background:
+                          "light-dark(rgba(255,255,255,0.9), rgba(0,0,0,0.6))",
+                        backdropFilter: "blur(8px)",
+                        cursor: "pointer",
+                        color: "var(--vocs-text-color-heading)",
+                      }}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <colgroup>
-                          <col style={{ width: "18%" }} />
-                          <col
-                            className="hide-mobile"
-                            style={{ width: "42%" }}
-                          />
-                          <col
-                            className="hide-mobile"
-                            style={{ width: "32%" }}
-                          />
-                          <col style={{ width: "8%" }} />
-                        </colgroup>
-                        <thead>
-                          <tr
-                            style={{
-                              borderBottom:
-                                "1px solid var(--vocs-border-color-primary)",
-                            }}
-                          >
-                            <Th
-                              className="hide-mobile"
-                              style={{ textAlign: "left" }}
-                            >
-                              Provider
-                            </Th>
-                            <Th
-                              className="hide-mobile"
-                              style={{ textAlign: "left" }}
-                            >
-                              Description
-                            </Th>
-                            <Th
-                              className="hide-mobile"
-                              style={{ textAlign: "left" }}
-                            >
-                              Service URL
-                            </Th>
-                            <Th style={{ width: 36 }} />
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {paged.map((s) => (
-                            <ServiceRow
-                              key={s.id}
-                              service={s}
-                              expanded={expandedIds.has(s.id)}
-                              onToggle={() => toggleRow(s.id)}
-                            />
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    {filtered.length === 0 && (
-                      <p
-                        style={{
-                          textAlign: "center",
-                          padding: "4rem 0",
-                          color: "var(--vocs-text-color-secondary)",
-                          fontSize: 15,
-                        }}
-                      >
-                        No services found.
-                      </p>
-                    )}
-                    {totalPages > 1 && (
-                      <div
-                        className="pagination"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          marginTop: "1rem",
-                        }}
-                      >
-                        <p
+                        <title>Close</title>
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                      </svg>
+                    </button>
+                    <ServiceDiscovery />
+                  </div>
+                ) : (
+                  <div ref={tableRef} className="services-content-row">
+                    <div
+                      className="services-table-col"
+                      style={{ flex: 1, minWidth: 0 }}
+                    >
+                      <div data-services-table>
+                        <table
                           style={{
-                            color: "var(--vocs-text-color-muted)",
-                            fontSize: 13,
+                            width: "100%",
+                            borderCollapse: "collapse",
+                            fontSize: 16,
+                            tableLayout: "fixed",
                           }}
                         >
-                          {page * PAGE_SIZE + 1}–
-                          {Math.min((page + 1) * PAGE_SIZE, filtered.length)} of{" "}
-                          {filtered.length}
-                        </p>
-                        <div style={{ display: "flex", gap: "0.375rem" }}>
-                          <PaginationBtn
-                            disabled={page === 0}
-                            onClick={() => setPage(page - 1)}
-                          >
-                            ← Prev
-                          </PaginationBtn>
-                          <PaginationBtn
-                            disabled={page >= totalPages - 1}
-                            onClick={() => setPage(page + 1)}
-                          >
-                            Next →
-                          </PaginationBtn>
-                        </div>
+                          <colgroup>
+                            <col style={{ width: "18%" }} />
+                            <col
+                              className="hide-mobile"
+                              style={{ width: "42%" }}
+                            />
+                            <col
+                              className="hide-mobile"
+                              style={{ width: "32%" }}
+                            />
+                            <col style={{ width: "8%" }} />
+                          </colgroup>
+                          <thead>
+                            <tr
+                              style={{
+                                borderBottom:
+                                  "1px solid var(--vocs-border-color-primary)",
+                              }}
+                            >
+                              <Th
+                                className="hide-mobile"
+                                style={{ textAlign: "left" }}
+                              >
+                                Provider
+                              </Th>
+                              <Th
+                                className="hide-mobile"
+                                style={{ textAlign: "left" }}
+                              >
+                                Description
+                              </Th>
+                              <Th
+                                className="hide-mobile"
+                                style={{ textAlign: "left" }}
+                              >
+                                Service URL
+                              </Th>
+                              <Th style={{ width: 36 }} />
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {paged.map((s) => (
+                              <ServiceRow
+                                key={s.id}
+                                service={s}
+                                expanded={expandedIds.has(s.id)}
+                                onToggle={() => toggleRow(s.id)}
+                              />
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    )}
+                      {filtered.length === 0 && (
+                        <p
+                          style={{
+                            textAlign: "center",
+                            padding: "4rem 0",
+                            color: "var(--vocs-text-color-secondary)",
+                            fontSize: 15,
+                          }}
+                        >
+                          No services found.
+                        </p>
+                      )}
+                      {totalPages > 1 && (
+                        <div
+                          className="pagination"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginTop: "1rem",
+                          }}
+                        >
+                          <p
+                            style={{
+                              color: "var(--vocs-text-color-muted)",
+                              fontSize: 13,
+                            }}
+                          >
+                            {page * PAGE_SIZE + 1}–
+                            {Math.min((page + 1) * PAGE_SIZE, filtered.length)}{" "}
+                            of {filtered.length}
+                          </p>
+                          <div style={{ display: "flex", gap: "0.375rem" }}>
+                            <PaginationBtn
+                              disabled={page === 0}
+                              onClick={() => setPage(page - 1)}
+                            >
+                              ← Prev
+                            </PaginationBtn>
+                            <PaginationBtn
+                              disabled={page >= totalPages - 1}
+                              onClick={() => setPage(page + 1)}
+                            >
+                              Next →
+                            </PaginationBtn>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
           </div>

@@ -133,10 +133,7 @@ function PhotoOutput({ url }: { url: string }) {
           }}
         />
       </div>
-      <p style={{ color: "var(--term-gray5)", fontSize: 11, marginTop: 4 }}>
-        Simulated result
-      </p>
-      <div className="flex gap-3" style={{ marginTop: 2 }}>
+      <div className="flex gap-3" style={{ marginTop: 6 }}>
         <a
           href={url}
           download
@@ -963,25 +960,12 @@ function AsyncSteps({
           {outputMode === "photo" && output.length > 0 ? (
             <PhotoOutput url={output[0]} />
           ) : (
-            <>
               <pre
                 className="whitespace-pre-wrap"
                 style={{ color: "var(--term-gray10)" }}
               >
-                {renderText(outputText)}
+              {renderText(outputText)}
               </pre>
-              {!demoClient && (
-                <p
-                  style={{
-                    color: "var(--term-gray5)",
-                    fontSize: 11,
-                    marginTop: 8,
-                  }}
-                >
-                  Simulated result
-                </p>
-              )}
-            </>
           )}
           <BlankLine />
         </>
@@ -1060,17 +1044,6 @@ function AsyncSteps({
             >
               {outputText.slice(0, streamChars)}
             </pre>
-            {streamChars >= outputText.length && !demoClient && (
-              <p
-                style={{
-                  color: "var(--term-gray5)",
-                  fontSize: 11,
-                  marginTop: 8,
-                }}
-              >
-                Simulated result
-              </p>
-            )}
             {streamChars >= outputText.length && (
               <>
                 <BlankLine />
@@ -1642,14 +1615,12 @@ function scrollTerminalIntoView() {
 function Wizard({
   steps,
   demoClient,
-  address,
   walletState,
   savedCard,
   setSavedCard,
 }: {
   steps: PaymentStepConfig[];
   demoClient?: DemoClient | null;
-  address: string;
   walletState: WalletState;
   savedCard: SavedCard | undefined;
   setSavedCard: (card: SavedCard | undefined) => void;
@@ -1667,48 +1638,6 @@ function Wizard({
   const [runKey, setRunKey] = useState(0);
   const [menuVisible, setMenuVisible] = useState(false);
   const menuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Wallet setup phase — runs before menu is shown
-  const [walletSetupStep, setWalletSetupStep] = useState(() =>
-    walletState.created && walletState.funded ? 2 : 0,
-  );
-  const walletReady = walletSetupStep >= 2;
-
-  useEffect(() => {
-    if (walletState.created && walletState.funded) {
-      setWalletSetupStep(2);
-      return;
-    }
-    if (walletSetupStep === 0) {
-      const d = SKIP_ANIMATION ? 0 : 600;
-      const timer = setTimeout(() => {
-        walletState.setCreated(true);
-        setWalletSetupStep(1);
-      }, d);
-      return () => clearTimeout(timer);
-    }
-    if (walletSetupStep === 1) {
-      const d = demoClient ? 0 : SKIP_ANIMATION ? 0 : 1500;
-      const doFund = async () => {
-        if (demoClient) {
-          try {
-            await demoClient.fundWallet();
-          } catch (e) {
-            console.error("Live funding failed, continuing:", e);
-          }
-        }
-        walletState.setFunded(true);
-        walletState.setBalance(INITIAL_BALANCE);
-        setWalletSetupStep(2);
-      };
-      if (d === 0) {
-        doFund();
-      } else {
-        const timer = setTimeout(doFund, d);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [walletSetupStep, walletState, demoClient]);
 
   const currentItems = steps;
 
@@ -1757,12 +1686,11 @@ function Wizard({
     scrollTerminalIntoView();
   };
 
-  // Show menu immediately on first load (once wallet ready)
   useEffect(() => {
-    if (walletReady && runs.length === 0 && !menuVisible) {
+    if (runs.length === 0 && !menuVisible) {
       setMenuVisible(true);
     }
-  }, [walletReady, runs.length, menuVisible]);
+  }, [runs.length, menuVisible]);
 
   const handleDone = () => {
     setRuns((prev) => [
@@ -1884,30 +1812,6 @@ function Wizard({
 
   return (
     <div className="flex flex-col">
-      {/* Wallet setup phase */}
-      <BlankLine />
-      {/* biome-ignore format: contains unicode ✔︎ ⋅ */}
-      <p style={{ color: "var(--term-gray6)" }}>
-        <StepIcon spinning={walletSetupStep < 1} /> Create a wallet{" "}
-        <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
-        <a
-          href={`https://explore.tempo.xyz/address/${address}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:underline"
-          style={{ color: "var(--term-blue9)" }}
-        >
-          {address.slice(0, 6)}…{address.slice(-4)}
-        </a>
-      </p>
-      {walletSetupStep >= 1 && (
-        <p style={{ color: "var(--term-gray6)" }}>
-          <StepIcon spinning={walletSetupStep < 2} /> Add test funds{" "}
-          <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
-          <span style={{ color: "var(--term-amber9)" }}>100 USD</span>
-        </p>
-      )}
-
       {/* Completed runs */}
       {runs.map((run) => (
         <div key={run.key}>
@@ -2012,7 +1916,6 @@ function Wizard({
           )}
           {waitingForUrl && (
             <>
-              <BlankLine />
               <BlankLine />
               <p className="flex" style={{ color: "var(--term-pink9)" }}>
                 <span className="shrink-0 whitespace-pre">
@@ -2746,7 +2649,7 @@ function TerminalComponent({
     if (typeof localStorage !== "undefined")
       localStorage.setItem(key, now.toISOString());
     if (stored) return fmt(new Date(stored));
-    return fmt(now);
+    return "Oct 29 1969 22:30:00";
   });
   const walletState: WalletState = {
     address,
@@ -2767,6 +2670,7 @@ function TerminalComponent({
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef(true);
+  const programmaticScrollRef = useRef(false);
   const [showTopFade, setShowTopFade] = useState(false);
 
   useEffect(() => {
@@ -2774,6 +2678,7 @@ function TerminalComponent({
     if (!scrollEl) return;
     const LINE_HEIGHT = 24;
     const checkScroll = () => {
+      if (programmaticScrollRef.current) return;
       requestAnimationFrame(() => {
         const distanceFromBottom =
           scrollEl.scrollHeight - scrollEl.clientHeight - scrollEl.scrollTop;
@@ -2781,13 +2686,16 @@ function TerminalComponent({
         setShowTopFade(scrollEl.scrollTop > 10);
       });
     };
-    scrollEl.addEventListener("scroll", checkScroll, { passive: true });
     scrollEl.addEventListener("wheel", checkScroll, { passive: true });
     scrollEl.addEventListener("touchmove", checkScroll, { passive: true });
+    const updateFade = () => {
+      requestAnimationFrame(() => setShowTopFade(scrollEl.scrollTop > 10));
+    };
+    scrollEl.addEventListener("scroll", updateFade, { passive: true });
     return () => {
-      scrollEl.removeEventListener("scroll", checkScroll);
       scrollEl.removeEventListener("wheel", checkScroll);
       scrollEl.removeEventListener("touchmove", checkScroll);
+      scrollEl.removeEventListener("scroll", updateFade);
     };
   }, []);
 
@@ -2797,10 +2705,14 @@ function TerminalComponent({
     if (!scrollEl || !contentEl) return;
     const observer = new ResizeObserver(() => {
       if (!autoScrollRef.current) return;
+      programmaticScrollRef.current = true;
       scrollEl.scrollTo({
         top: scrollEl.scrollHeight - scrollEl.clientHeight,
         behavior: "smooth",
       });
+      setTimeout(() => {
+        programmaticScrollRef.current = false;
+      }, 500);
     });
     observer.observe(contentEl);
     return () => observer.disconnect();
@@ -2940,7 +2852,7 @@ function TerminalComponent({
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem] md:overscroll-contain"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[13.5px] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem] md:overscroll-contain"
           style={{
             backgroundColor: "var(--term-bg2)",
           }}
@@ -3068,7 +2980,6 @@ function TerminalComponent({
                       key={`${wizardKey}-${i}`}
                       steps={wizardOptions}
                       demoClient={demoClient}
-                      address={address}
                       walletState={walletState}
                       savedCard={savedCard}
                       setSavedCard={setSavedCard}
