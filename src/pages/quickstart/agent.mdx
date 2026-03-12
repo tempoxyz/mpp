@@ -1,18 +1,17 @@
 import { Badge, Card, Cards } from 'vocs'
 
 # Use with your agent [Interact with MPP enabled services with your agent of choice]
-
 Agents and CLIs can pay for MPP-enabled services automatically. Here's how to get started.
 
 | Tool | Best for | Install |
 |------|----------|---------|
 | [Tempo Wallet](https://wallet.tempo.xyz) | AI coding agents (Amp, Claude Code, Codex) | `curl -fsSL https://cli.tempo.xyz/install \| bash` |
 | [mppx](https://mpp.dev/sdk/typescript/cli#cli-reference) | Basic validation and scripts | `npm install mppx viem` |
-| [purl](https://purl.dev) | Humans in the terminal | `cargo install --path cli` |
+| [purl](https://purl.dev) | Humans in the terminal | `` |
 
 ## Tempo Wallet <Badge variant="info">Recommended</Badge>
 
-[Tempo Wallet](https://wallet.tempo.xyz) provides the best way to 
+[Tempo Wallet](https://wallet.tempo.xyz)  
 
 [Docs →](https://cli.tempo.xyz) · [GitHub →](https://github.com/tempoxyz/wallet)
 
@@ -79,7 +78,7 @@ codex "Generate a surreal image with fal.ai"
 
 ## mppx
 
-The [`mppx`](/sdk/typescript/cli#cli-reference) CLI provides a lightweight command-line and scripting interface for making requests to MPP-enabled services.
+The [`mppx`](/sdk/typescript/cli#cli-reference) CLI provides a basic CLI and scripting interface for making requests to MPP-enabled services.
 
 [Docs →](/sdk/typescript/cli) · [GitHub →](https://github.com/wevm/mppx)
 
@@ -102,7 +101,7 @@ bun add -g mppx
 ### Make a paid request
 
 ```bash
-mppx https://api.example.com/data
+mppx https://mpp.dev/api/ping/paid
 ```
 
 Payment is handled automatically when the server returns `402`.
@@ -110,25 +109,21 @@ Payment is handled automatically when the server returns `402`.
 ### Pass method options
 
 ```bash
-mppx https://api.example.com/data -M channel=0x123 -M deposit=1000000
+mppx https://mpp.dev/api/ping/paid -M channel=0x123 -M deposit=1000000
 ```
 
 :::::
 
 ## purl
 
-A curl-like CLI for making HTTP requests that require payment. Built by Stripe for humans and agents alike.
-
-[Docs →](https://purl.dev) · [GitHub →](https://github.com/stripe/purl)
+[`purl`](https://purl.dev) is a `curl`-like command-line-interface for making simple MPP requests and debugging resources.
 
 :::::steps
 
 ### Install
 
 ```bash
-git clone https://github.com/stripe/purl
-cd purl
-cargo install --path cli
+cargo install purl
 ```
 
 ### Set up a wallet
@@ -141,13 +136,13 @@ purl wallet add
 
 ```bash
 # Preview payment without executing
-purl --dry-run https://api.example.com/data
+purl --dry-run https://mpp.dev/api/ping/paid
 
 # Make the request (pays automatically)
-purl https://api.example.com/data
+purl https://mpp.dev/api/ping/paid
 
 # Require confirmation before paying
-purl --confirm https://api.example.com/data
+purl --confirm https://mpp.dev/api/ping/paid
 ```
 
 :::::
