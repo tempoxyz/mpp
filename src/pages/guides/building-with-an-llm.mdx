@@ -1,0 +1,93 @@
+---
+title: Building with an LLM
+description: Use llms-full.txt to give your coding agent complete MPP context.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Building with an LLM [Give your agent MPP context]
+
+Point your coding agent at <a href="/llms-full.txt" target="_self">`llms-full.txt`</a>, a single file containing the complete documentation.
+
+## Get started
+
+Copy this URL and paste it into your agent:
+
+```
+https://mpp.tempo.xyz/llms-full.txt
+```
+
+Then ask your agent something like:
+
+```
+Use https://mpp.tempo.xyz/llms-full.txt as reference.
+Add mppx to my Next.js app with a /api/checkout route.
+```
+
+Your agent now has full context on MPP's client and server APIs, payment methods, and integration patterns.
+
+## Advanced options
+
+These alternatives provide different ways to consume the docs depending on your workflow.
+
+### Agent skills
+
+Install skills for your coding agent using the [`skills` CLI](https://github.com/vercel-labs/skills):
+
+```bash
+npx skills install wevm/mppx -g
+```
+
+After installing, your agent knows how to integrate `mppx` with your chosen framework.
+
+### llms.txt
+
+Each page has a [`llms.txt`](https://llmstxt.org) file for LLM consumption:
+
+- <a href="/llms.txt" target="_self">`llms.txt`</a>: A concise index of all pages with titles and descriptions
+- <a href="/llms-full.txt" target="_self">`llms-full.txt`</a>: Complete documentation content in a single file
+
+### MCP server
+
+Connect the docs as an [MCP server](https://modelcontextprotocol.io) so your agent can search and read pages directly:
+
+::::code-group
+
+```bash [Claude Code]
+claude mcp add --transport http mpp https://mpp.tempo.xyz/api/mcp
+```
+
+```bash [Codex]
+codex mcp add --transport http mpp https://mpp.tempo.xyz/api/mcp
+```
+
+```bash [Amp]
+amp mcp add --transport http mpp https://mpp.tempo.xyz/api/mcp
+```
+
+```json [Manual]
+// Claude Code: .mcp.json | Cursor: ~/.cursor/mcp.json
+// Windsurf: ~/.codeium/windsurf/mcp_config.json
+{
+  "mcpServers": {
+    "mpp": {
+      "url": "https://mpp.tempo.xyz/api/mcp"
+    }
+  }
+}
+```
+
+::::
+
+**Available tools:**
+
+| Tool | Description |
+| --- | --- |
+| `list_pages` | List all documentation pages with their paths |
+| `read_page` | Read the content of a specific documentation page |
+| `search_docs` | Search documentation for a query string |
+| `list_sources` | List available source code repositories |
+| `list_source_files` | List files in a directory |
+| `read_source_file` | Read a source code file |
+| `get_file_tree` | Get a recursive file tree |
+| `search_source` | Search source code for a pattern |
