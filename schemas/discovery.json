@@ -6547,7 +6547,7 @@
       "endpoints": [
         {
           "method": "GET",
-          "path": "/maps/geocode/json",
+          "path": "/geocode/json",
           "description": "Geocode an address or reverse-geocode coordinates",
           "payment": {
             "intent": "charge",
@@ -6560,7 +6560,7 @@
         },
         {
           "method": "GET",
-          "path": "/maps/directions/json",
+          "path": "/directions/json",
           "description": "Get directions between locations",
           "payment": {
             "intent": "charge",
@@ -6573,7 +6573,7 @@
         },
         {
           "method": "GET",
-          "path": "/maps/distancematrix/json",
+          "path": "/distancematrix/json",
           "description": "Travel time and distance for origin-destination pairs",
           "payment": {
             "intent": "charge",
@@ -6586,7 +6586,7 @@
         },
         {
           "method": "GET",
-          "path": "/maps/elevation/json",
+          "path": "/elevation/json",
           "description": "Get elevation for locations",
           "payment": {
             "intent": "charge",
@@ -6599,7 +6599,7 @@
         },
         {
           "method": "GET",
-          "path": "/maps/timezone/json",
+          "path": "/timezone/json",
           "description": "Get time zone for coordinates",
           "payment": {
             "intent": "charge",
@@ -6612,7 +6612,7 @@
         },
         {
           "method": "GET",
-          "path": "/maps/staticmap",
+          "path": "/staticmap",
           "description": "Generate a static map image",
           "payment": {
             "intent": "charge",
@@ -6625,7 +6625,7 @@
         },
         {
           "method": "GET",
-          "path": "/maps/streetview",
+          "path": "/streetview",
           "description": "Get a static Street View image",
           "payment": {
             "intent": "charge",
@@ -6638,7 +6638,13 @@
         },
         {
           "method": "GET",
-          "path": "/maps/place/textsearch/json",
+          "path": "/streetview/metadata",
+          "description": "Get Street View metadata",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/place/textsearch/json",
           "description": "Search places by text query",
           "payment": {
             "intent": "charge",
@@ -6651,7 +6657,7 @@
         },
         {
           "method": "GET",
-          "path": "/maps/place/nearbysearch/json",
+          "path": "/place/nearbysearch/json",
           "description": "Search nearby places",
           "payment": {
             "intent": "charge",
@@ -6664,7 +6670,7 @@
         },
         {
           "method": "GET",
-          "path": "/maps/place/details/json",
+          "path": "/place/details/json",
           "description": "Get place details",
           "payment": {
             "intent": "charge",
@@ -6676,8 +6682,60 @@
           }
         },
         {
+          "method": "GET",
+          "path": "/place/findplacefromtext/json",
+          "description": "Find a place from text",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find a place from text",
+            "amount": "17000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/place/autocomplete/json",
+          "description": "Place autocomplete suggestions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Place autocomplete suggestions",
+            "amount": "2830"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/place/queryautocomplete/json",
+          "description": "Query autocomplete suggestions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Query autocomplete suggestions",
+            "amount": "2830"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/place/photo",
+          "description": "Get a place photo",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a place photo",
+            "amount": "7000"
+          }
+        },
+        {
           "method": "POST",
-          "path": "/routes/directions/v2:computeRoutes",
+          "path": "/directions/v2:computeRoutes",
           "description": "Compute routes between locations",
           "payment": {
             "intent": "charge",
@@ -6690,7 +6748,7 @@
         },
         {
           "method": "POST",
-          "path": "/routes/distanceMatrix/v2:computeRouteMatrix",
+          "path": "/distanceMatrix/v2:computeRouteMatrix",
           "description": "Compute distance matrix",
           "payment": {
             "intent": "charge",
@@ -6703,7 +6761,7 @@
         },
         {
           "method": "GET",
-          "path": "/places/v1/places/:id",
+          "path": "/v1/places/:id",
           "description": "Get place details (essentials)",
           "payment": {
             "intent": "charge",
@@ -6716,7 +6774,7 @@
         },
         {
           "method": "POST",
-          "path": "/places/v1/places:searchText",
+          "path": "/v1/places:searchText",
           "description": "Text search for places",
           "payment": {
             "intent": "charge",
@@ -6729,7 +6787,7 @@
         },
         {
           "method": "POST",
-          "path": "/places/v1/places:searchNearby",
+          "path": "/v1/places:searchNearby",
           "description": "Nearby search for places",
           "payment": {
             "intent": "charge",
@@ -6742,7 +6800,7 @@
         },
         {
           "method": "POST",
-          "path": "/places/v1/places:autocomplete",
+          "path": "/v1/places:autocomplete",
           "description": "Place autocomplete",
           "payment": {
             "intent": "charge",
@@ -6755,7 +6813,7 @@
         },
         {
           "method": "GET",
-          "path": "/places/v1/places/:id/photos/:photoId/media",
+          "path": "/v1/places/:id/photos/:photoId/media",
           "description": "Get a place photo",
           "payment": {
             "intent": "charge",
@@ -6768,7 +6826,7 @@
         },
         {
           "method": "GET",
-          "path": "/tiles/v1/2dtiles/:z/:x/:y",
+          "path": "/v1/2dtiles/:z/:x/:y",
           "description": "Get a 2D map tile",
           "payment": {
             "intent": "charge",
@@ -6781,7 +6839,7 @@
         },
         {
           "method": "GET",
-          "path": "/tiles/v1/streetview/tiles/:panoId/:z/:x/:y",
+          "path": "/v1/streetview/tiles/:panoId/:z/:x/:y",
           "description": "Get a Street View tile",
           "payment": {
             "intent": "charge",
@@ -6794,7 +6852,7 @@
         },
         {
           "method": "GET",
-          "path": "/tiles/v1/3dtiles/root.json",
+          "path": "/v1/3dtiles/root.json",
           "description": "Get 3D tiles root",
           "payment": {
             "intent": "charge",
@@ -6807,13 +6865,13 @@
         },
         {
           "method": "GET",
-          "path": "/tiles/v1/createSession",
+          "path": "/v1/createSession",
           "description": "Create a tile session",
           "payment": null
         },
         {
           "method": "GET",
-          "path": "/roads/v1/nearestRoads",
+          "path": "/v1/nearestRoads",
           "description": "Find nearest roads to coordinates",
           "payment": {
             "intent": "charge",
@@ -6826,7 +6884,7 @@
         },
         {
           "method": "GET",
-          "path": "/roads/v1/snapToRoads",
+          "path": "/v1/snapToRoads",
           "description": "Snap GPS coordinates to roads",
           "payment": {
             "intent": "charge",
@@ -6839,7 +6897,7 @@
         },
         {
           "method": "POST",
-          "path": "/validation/v1:validateAddress",
+          "path": "/v1:validateAddress",
           "description": "Validate a postal address",
           "payment": {
             "intent": "charge",
@@ -6852,13 +6910,13 @@
         },
         {
           "method": "POST",
-          "path": "/validation/v1:provideValidationFeedback",
+          "path": "/v1:provideValidationFeedback",
           "description": "Provide validation feedback",
           "payment": null
         },
         {
           "method": "GET",
-          "path": "/solar/v1/buildingInsights:findClosest",
+          "path": "/v1/buildingInsights:findClosest",
           "description": "Get building solar insights",
           "payment": {
             "intent": "charge",
@@ -6871,7 +6929,7 @@
         },
         {
           "method": "GET",
-          "path": "/solar/v1/dataLayers:get",
+          "path": "/v1/dataLayers:get",
           "description": "Get solar data layers",
           "payment": {
             "intent": "charge",
@@ -6884,7 +6942,7 @@
         },
         {
           "method": "GET",
-          "path": "/aerialview/v1/videos:lookupVideo",
+          "path": "/v1/videos:lookupVideo",
           "description": "Look up an aerial view video",
           "payment": {
             "intent": "charge",
@@ -6897,7 +6955,7 @@
         },
         {
           "method": "POST",
-          "path": "/aerialview/v1/videos:renderVideo",
+          "path": "/v1/videos:renderVideo",
           "description": "Render an aerial view video",
           "payment": {
             "intent": "charge",
@@ -6910,13 +6968,13 @@
         },
         {
           "method": "GET",
-          "path": "/aerialview/v1/videos:lookupVideoMetadata",
+          "path": "/v1/videos:lookupVideoMetadata",
           "description": "Look up video metadata",
           "payment": null
         },
         {
           "method": "POST",
-          "path": "/airquality/v1/currentConditions:lookup",
+          "path": "/v1/currentConditions:lookup",
           "description": "Get current air quality conditions",
           "payment": {
             "intent": "charge",
@@ -6929,7 +6987,7 @@
         },
         {
           "method": "POST",
-          "path": "/airquality/v1/history:lookup",
+          "path": "/v1/history:lookup",
           "description": "Get air quality history",
           "payment": {
             "intent": "charge",
@@ -6942,7 +7000,7 @@
         },
         {
           "method": "GET",
-          "path": "/pollen/v1/forecast:lookup",
+          "path": "/v1/forecast:lookup",
           "description": "Get pollen forecast",
           "payment": {
             "intent": "charge",
@@ -6955,7 +7013,7 @@
         },
         {
           "method": "POST",
-          "path": "/geolocation/geolocation/v1/geolocate",
+          "path": "/geolocation/v1/geolocate",
           "description": "Geolocate a device",
           "payment": {
             "intent": "charge",
@@ -6968,7 +7026,7 @@
         },
         {
           "method": "GET",
-          "path": "/weather/v1/currentConditions:lookup",
+          "path": "/v1/currentConditions:lookup",
           "description": "Get current weather conditions",
           "payment": {
             "intent": "charge",
@@ -6981,7 +7039,7 @@
         },
         {
           "method": "GET",
-          "path": "/weather/v1/forecast/hours:lookup",
+          "path": "/v1/forecast/hours:lookup",
           "description": "Get hourly weather forecast",
           "payment": {
             "intent": "charge",
@@ -6994,7 +7052,7 @@
         },
         {
           "method": "GET",
-          "path": "/weather/v1/forecast/days:lookup",
+          "path": "/v1/forecast/days:lookup",
           "description": "Get daily weather forecast",
           "payment": {
             "intent": "charge",
@@ -7007,7 +7065,7 @@
         },
         {
           "method": "GET",
-          "path": "/weather/v1/history/hours:lookup",
+          "path": "/v1/history/hours:lookup",
           "description": "Get hourly weather history",
           "payment": {
             "intent": "charge",
