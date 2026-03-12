@@ -1,18 +1,18 @@
-import { Card, Cards } from 'vocs'
+import { Badge, Card, Cards } from 'vocs'
 
-# Use with your Agent [Interact with MPP services with your agent]
+# Use with your agent [Interact with MPP enabled services with your agent of choice]
 
 Three tools for making paid HTTP requests. Pick the one that fits your workflow.
 
 | Tool | Best for | Install |
 |------|----------|---------|
-| [Tempo Wallet](https://cli.tempo.xyz) | AI coding agents (Amp, Claude Code) | `curl -fsSL https://cli.tempo.xyz/install \| bash` |
-| [mppx](https://mpp.dev/sdk/typescript/client/Mppx.create) | JS/TS apps and scripts | `npm install mppx viem` |
+| [Tempo Wallet](https://wallet.tempo.xyz) <Badge variant="info">Recommended</Badge> | AI coding agents (Amp, Claude Code, Codex) | `curl -fsSL https://cli.tempo.xyz/install \| bash` |
+| [mppx](https://mpp.dev/sdk/typescript/cli#cli-reference) | Basic validation and scripts | `npm install mppx viem` |
 | [purl](https://purl.dev) | Humans in the terminal | `cargo install --path cli` |
 
-## Tempo Wallet
+## Tempo Wallet <Badge variant="info">Recommended</Badge>
 
-A managed wallet CLI with passkey auth, spending limits, and automatic payment. Designed for AI agents that need to make paid requests without manual intervention.
+[Tempo Wallet](https://wallet.tempo.xyz) provides the best way to 
 
 [Docs →](https://cli.tempo.xyz) · [GitHub →](https://github.com/tempoxyz/wallet)
 
