@@ -4,73 +4,57 @@ import { Badge, Card, Cards } from 'vocs'
 
 Agents and CLIs can pay for MPP-enabled services automatically. Here's how to get started.
 
-| Tool | Best for | Install |
-|------|----------|---------|
-| [Tempo Wallet](https://wallet.tempo.xyz) | AI coding agents (Amp, Claude Code, Codex) | `curl -fsSL https://cli.tempo.xyz/install \| bash` |
-| [mppx](https://mpp.dev/sdk/typescript/cli#cli-reference) | Scripting and programmatic access | `npm install -g mppx` |
-
 ## Tempo Wallet <Badge variant="info">Recommended</Badge>
 
-The [Tempo Wallet](https://wallet.tempo.xyz) CLI gives your agent a managed wallet with passkey auth, spending limits, and automatic payment. One install and your agent can discover and pay for any MPP service.
+The [Tempo Wallet](https://wallet.tempo.xyz) CLI gives your agent a managed wallet with passkey auth, spending limits, and automatic payment.
 
 [Docs →](https://cli.tempo.xyz) · [GitHub →](https://github.com/tempoxyz/wallet)
 
-### Get started
+### Use in your agent
+
+Paste this into your coding agent to set up Tempo Wallet:
+
+> Read and follow https://wallet.tempo.xyz/skill.md
+
+The agent will install the CLI, connect your wallet, and load the skill automatically.
+
+### Manual install
 
 ```bash
+# Install the CLI (also installs agent skills automatically)
 curl -fsSL https://cli.tempo.xyz/install | bash
+
+# Connect your wallet (opens browser for passkey auth)
+tempo wallet login
+
+# Verify setup
+tempo wallet whoami
 ```
 
-This installs the `tempo` CLI and prompts you to log in. Once set up, your agent can discover and pay for any MPP service.
-
-### Discover services
+Once installed, discover and call services:
 
 ```bash
-# List all available services
+# List available services
 tempo mpp services
 
-# Show endpoints and pricing for a service
-tempo mpp services info fal
-```
-
-### Make a paid request
-
-```bash
+# Make a paid request
 tempo mpp -X POST \
   --json '{"prompt": "a sunset over the ocean"}' \
   https://fal.mpp.tempo.xyz/fal-ai/flux/dev
 ```
 
-Payment happens automatically when the server returns `402`.
-
 ## mppx
 
-The [`mppx`](/sdk/typescript/cli) CLI is a lightweight alternative bundled with the `mppx` npm package. It includes account management, agent integration, and the same automatic payment flow.
+The [`mppx`](/sdk/typescript/cli) CLI is a lightweight alternative bundled with the `mppx` npm package.
 
 [Docs →](/sdk/typescript/cli) · [GitHub →](https://github.com/wevm/mppx)
 
-### Get started
-
 ```bash
+# Create an account
 npx mppx account create
-```
 
-This creates a local account and funds it with testnet tokens. Then make requests:
-
-```bash
+# Make a paid request
 npx mppx https://mpp.dev/api/ping/paid
-```
-
-Payment is handled automatically when the server returns `402`.
-
-### Register with your agent (optional)
-
-```bash
-# Add as an MCP server
-npx mppx mcp add
-
-# Sync skill files to your agent
-npx mppx skills add
 ```
 
 ## Next steps
