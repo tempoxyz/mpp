@@ -1,36 +1,42 @@
 import { Card, Cards } from 'vocs'
-import { PrestoCliCard, PrestoExamplesCard } from '../../components/cards'
 
 # Use with your Agent [Interact with MPP services with your agent]
 
-The Machine Payments Protocol (MPP) can be used with agents to discover and use [services](/services) via direct integrations with MPP-compatible command-line interfaces (CLIs).
+Three tools for making paid HTTP requests. Pick the one that fits your workflow.
+
+| Tool | Best for | Install |
+|------|----------|---------|
+| [Tempo Wallet](https://cli.tempo.xyz) | AI coding agents (Amp, Claude Code) | `curl -fsSL https://cli.tempo.xyz/install \| bash` |
+| [mppx](https://mpp.dev/sdk/typescript/client/Mppx.create) | JS/TS apps and scripts | `npm install mppx viem` |
+| [purl](https://purl.dev) | Humans in the terminal | `cargo install --path cli` |
 
 ## Tempo Wallet
 
-Tempo Wallet provides a first-class integration with MPP to provide a seamless experience for using services with your preferred agent.
+A managed wallet CLI with passkey auth, spending limits, and automatic payment. Designed for AI agents that need to make paid requests without manual intervention.
+
+[Docs →](https://cli.tempo.xyz) · [GitHub →](https://github.com/tempoxyz/wallet)
 
 :::::steps
 
 ### Install
 
-First, install the `tempo` binary via your preferred terminal.
-
-```bash [install.sh]
-curl -L cli.tempo.xyz/install | bash
+```bash
+curl -fsSL https://cli.tempo.xyz/install | bash
+tempo wallet login
 ```
 
-### Prompt agent & discover services
+### Discover services
 
-You can discover what services are available by prompting your agent.
+Prompt your agent to discover what services are available.
 
 ::::code-group
 
-```bash [Claude]
-claude "What image generation services can I use with Tempo Wallet?"
-```
-
 ```bash [Amp]
 echo "What image generation services can I use with Tempo Wallet?" | amp
+```
+
+```bash [Claude]
+claude "What image generation services can I use with Tempo Wallet?"
 ```
 
 ```bash [Codex]
@@ -44,18 +50,18 @@ codex "What image generation services can I use with Tempo Wallet?"
 
 ::::
 
-### Perform services
+### Make a paid request
 
-Prompt your agent to use a service. Presto and MPP handle payments on the fly.
+Prompt your agent to use a service. Payment happens automatically when the server returns `402`.
 
 ::::code-group
 
-```bash [Claude]
-claude "Generate a surreal image with fal.ai"
-```
-
 ```bash [Amp]
 echo "Generate a surreal image with fal.ai" | amp
+```
+
+```bash [Claude]
+claude "Generate a surreal image with fal.ai"
 ```
 
 ```bash [Codex]
@@ -71,7 +77,89 @@ codex "Generate a surreal image with fal.ai"
 
 :::::
 
-### Learn more
+## mppx
+
+A TypeScript library that polyfills `fetch` to handle `402` responses automatically. Your existing code works unchanged — payments happen in the background.
+
+[Docs →](https://mpp.dev/sdk/typescript/client/Mppx.create) · [GitHub →](https://github.com/wevm/mppx)
+
+:::::steps
+
+### Install
+
+::::code-group
+```bash [npm]
+npm install mppx viem
+```
+```bash [pnpm]
+pnpm add mppx viem
+```
+```bash [bun]
+bun add mppx viem
+```
+::::
+
+### Create payment handler
+
+```ts
+import { privateKeyToAccount } from 'viem/accounts'
+import { Mppx, tempo } from 'mppx/client'
+
+const account = privateKeyToAccount('0xabc…123')
+
+Mppx.create({
+  methods: [tempo({ account })],
+})
+```
+
+### Make a paid request
+
+```ts
+const response = await fetch('https://api.example.com/data')
+```
+
+`fetch` is polyfilled — when the server returns `402`, `mppx` pays and retries automatically.
+
+:::::
+
+## purl
+
+A curl-like CLI for making HTTP requests that require payment. Built by Stripe for humans and agents alike.
+
+[Docs →](https://purl.dev) · [GitHub →](https://github.com/stripe/purl)
+
+:::::steps
+
+### Install
+
+```bash
+git clone https://github.com/stripe/purl
+cd purl
+cargo install --path cli
+```
+
+### Set up a wallet
+
+```bash
+purl wallet add
+```
+
+### Make a paid request
+
+```bash
+# Preview payment without executing
+purl --dry-run https://api.example.com/data
+
+# Make the request (pays automatically)
+purl https://api.example.com/data
+
+# Require confirmation before paying
+purl --confirm https://api.example.com/data
+```
+
+:::::
+
+## Next steps
 
 <Cards>
   <Card
@@ -81,9 +169,15 @@ codex "Generate a surreal image with fal.ai"
     to="/services"
   />
   <Card
-    description="See detailed references and examples for the Tempo Wallet CLI"
-    icon="lucide:github"
-    title="Tempo Wallet GitHub"
-    to="https://github.com/tempoxyz/wallet"
+    description="Set up your app as an MPP client"
+    icon="lucide:code"
+    title="Client quickstart"
+    to="/quickstart/client"
+  />
+  <Card
+    description="Add payment gating to your HTTP endpoints"
+    icon="lucide:server"
+    title="Server quickstart"
+    to="/quickstart/server"
   />
 </Cards>
