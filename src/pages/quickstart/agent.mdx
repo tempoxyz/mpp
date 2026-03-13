@@ -1,4 +1,4 @@
-import { Badge, Card, Cards } from 'vocs'
+import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
 
 # Use with your agent [Interact with MPP enabled services with your agent of choice]
 
@@ -8,48 +8,45 @@ Agents can automatically interact with MPP-enabled services. Here's how to get s
 
 The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery. Agents can use tempo wallet to seamlessly pay for powerful new capabilities on demand. 
 
-### Automatic setup 
+<Tabs>
+<Tab title="Automatic">
 
 Paste this into your agent to set up Tempo Wallet:
 
-::::code-group
 
-```bash [Amp]
-echo "Read and follow https://wallet.tempo.xyz/skill.md" | amp
+```
+Read and follow https://wallet.tempo.xyz/skill.md
 ```
 
-```bash [Claude]
-claude "Read and follow https://wallet.tempo.xyz/skill.md"
-```
+</Tab>
+<Tab title="Manual">
+::::steps
 
-```bash [Codex]
-codex "Read and follow https://wallet.tempo.xyz/skill.md"
-```
-
-::::
-
-### Manual setup
+#### Install the CLI
 
 ```bash
-# Install the CLI
-curl -fsSL https://cli.tempo.xyz/install | bash
+curl -fsSL https://tempo.xyz/install | bash
+```
 
-# Connect your wallet 
+#### Connect your wallet
+
+```bash
 tempo wallet login
+```
 
-# Verify setup
+#### Verify setup
+
+```bash
 tempo wallet whoami
 ```
 
-Once setup, use Tempo Wallet to discover and call services:
-
-**List available services**
+#### List available services
 
 ```bash
 tempo mpp services
 ```
 
-**Make a paid request**
+#### Make a paid request
 
 ```bash
 tempo mpp -X POST \
@@ -57,9 +54,15 @@ tempo mpp -X POST \
   https://fal.mpp.tempo.xyz/fal-ai/flux/dev
 ```
 
+::::
+</Tab>
+</Tabs>
+
 ## mppx
 
 The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
+
+::::steps
 
 ### Install
 
@@ -75,15 +78,19 @@ bun add -g mppx
 ```
 :::
 
-### Get started
+### Create an account
 
 ```bash
-# Create an account
 mppx account create
+```
 
-# Make a paid request
+### Make a paid request
+
+```bash
 mppx https://mpp.dev/api/ping/paid
 ```
+
+::::
 
 ## Next steps
 
