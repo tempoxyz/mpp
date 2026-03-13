@@ -3571,8 +3571,11 @@ function PageStyles() {
 
       /* Hide logo when search bar is stuck and overlaps it at mid-wide viewports */
       @media (min-width: 1500px) and (max-width: 1730px) {
-        [data-search-stuck] [data-v-logo-image] { opacity: 0 !important; pointer-events: none; }
+        [data-search-stuck] [data-v-logo] { opacity: 0 !important; pointer-events: none; }
       }
+
+      /* Tighten search bar padding when stuck so it aligns with nav links */
+      [data-search-stuck] .search-bar { padding-top: 0rem !important; }
 
       @media (max-width: 900px) {
         [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
