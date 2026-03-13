@@ -206,59 +206,77 @@ export function stripe({
 // ---------------------------------------------------------------------------
 
 export function chat(): PaymentStepConfig {
-  return session({
-    label: "Chat with AI",
-    description: "Chat with AI and pay per token streamed",
-    endpoint: "/api/chat",
-    liveEndpoint: (input) =>
-      `/api/demo/chat?prompt=${encodeURIComponent(input)}`,
-    prompt: { label: "Enter prompt", placeholder: "what are micropayments?" },
-    pickOutput: pickChat,
-  });
+  return {
+    ...session({
+      label: "Chat with AI",
+      description: "Chat with AI and pay per token streamed",
+      endpoint: "/api/chat",
+      liveEndpoint: (input) =>
+        `/api/demo/chat?prompt=${encodeURIComponent(input)}`,
+      prompt: {
+        label: "Enter prompt",
+        placeholder: "what are micropayments?",
+      },
+      pickOutput: pickChat,
+    }),
+    methodLabel: "Tempo session + OpenAI",
+  };
 }
 
 export function image(): PaymentStepConfig {
-  return charge({
-    label: "Generate image",
-    description: "Generate an image and pay per request",
-    endpoint: "/api/image",
-    liveEndpoint: (input) =>
-      `/api/demo/image?prompt=${encodeURIComponent(input)}`,
-    cost: 0.003,
-    prompt: { label: "Enter prompt", placeholder: "a neon cityscape at night" },
-    pickOutput: pickImage,
-    outputMode: "photo",
-  });
+  return {
+    ...charge({
+      label: "Generate image",
+      description: "Generate an image and pay per request",
+      endpoint: "/api/image",
+      liveEndpoint: (input) =>
+        `/api/demo/image?prompt=${encodeURIComponent(input)}`,
+      cost: 0.003,
+      prompt: {
+        label: "Enter prompt",
+        placeholder: "a neon cityscape at night",
+      },
+      pickOutput: pickImage,
+      outputMode: "photo",
+    }),
+    methodLabel: "Tempo charge + fal.ai",
+  };
 }
 
 export function search(): PaymentStepConfig {
-  return charge({
-    label: "Search the web",
-    description: "Search the web and pay per request",
-    endpoint: "/api/search",
-    liveEndpoint: (input) =>
-      `/api/demo/search?query=${encodeURIComponent(input)}`,
-    cost: 0.005,
-    prompt: { label: "Enter query", placeholder: "Machine Payments" },
-    pickOutput: pickSearch,
-  });
+  return {
+    ...session({
+      label: "Search the web",
+      description: "Search the web and pay per query",
+      endpoint: "/api/search",
+      liveEndpoint: (input) =>
+        `/api/demo/search?query=${encodeURIComponent(input)}`,
+      cost: () => 0.005,
+      prompt: { label: "Enter query", placeholder: "Machine Payments" },
+      pickOutput: pickSearch,
+    }),
+    methodLabel: "Tempo session + Parallel",
+  };
 }
 
 export function article(): PaymentStepConfig {
-  return stripe({
-    label: "Summarize article",
-    description: "Summarize an article and pay with Stripe",
-    endpoint: "/api/article",
-    liveEndpoint: (input) =>
-      `/api/demo/article?url=${encodeURIComponent(input)}`,
-    cost: LOOKUP_COST,
-    prompt: {
-      label: "Enter URL",
-      placeholder: "stripe.com",
-      prefix: "https://",
-    },
-    pickOutput: pickArticle,
-  });
+  return {
+    ...stripe({
+      label: "Summarize article",
+      description: "Summarize an article and pay with Stripe",
+      endpoint: "/api/article",
+      liveEndpoint: (input) =>
+        `/api/demo/article?url=${encodeURIComponent(input)}`,
+      cost: LOOKUP_COST,
+      prompt: {
+        label: "Enter URL",
+        placeholder: "stripe.com",
+        prefix: "https://",
+      },
+      pickOutput: pickArticle,
+    }),
+    methodLabel: "Stripe charge + Parallel",
+  };
 }
 
 export function poem(): PaymentStepConfig {
