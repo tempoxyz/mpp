@@ -753,10 +753,13 @@ article hr {
 /* Vocs sets z-index:10 + isolation:isolate on <main>, trapping all children
    below the nav's z-index:50.  On minimal-layout pages (no sidebar/outline)
    we remove that stacking context so the sticky search bar can sit above
-   the nav. */
-[data-layout="minimal"] main {
-  z-index: auto !important;
-  isolation: auto !important;
+   the nav.  Only above 900px — below that the search bar is hidden and
+   main's stacking context must stay to keep content below the nav. */
+@media (min-width: 901px) {
+  [data-layout="minimal"] main {
+    z-index: auto !important;
+    isolation: auto !important;
+  }
 }
 
 /* Force mobile nav / header / root background to match primary background.

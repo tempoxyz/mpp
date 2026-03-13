@@ -792,7 +792,9 @@ export function ServicesPage() {
     return () => clearTimeout(id);
   }, [search]);
 
+  const stickyObserverReady = !loading && !error;
   useEffect(() => {
+    if (!stickyObserverReady) return;
     const el = stickyRef.current;
     if (!el) return;
     const navH =
@@ -812,7 +814,7 @@ export function ServicesPage() {
       io.disconnect();
       document.documentElement.removeAttribute("data-search-stuck");
     };
-  }, []);
+  }, [stickyObserverReady]);
 
   // Cmd+K to focus search
   useEffect(() => {
