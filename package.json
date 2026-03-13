@@ -62,7 +62,9 @@
     "node": ">=24"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
