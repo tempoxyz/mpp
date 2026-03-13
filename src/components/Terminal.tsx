@@ -2795,16 +2795,7 @@ function TerminalComponent({
               backgroundColor: "var(--term-gray4)",
             }}
           />
-          <span
-            style={{
-              flex: 1,
-              textAlign: "center",
-              fontSize: "0.9375rem",
-              color: "var(--term-gray6)",
-            }}
-          >
-            demo.sh
-          </span>
+          <span style={{ flex: 1 }} />
           <button
             type="button"
             onClick={() => {
