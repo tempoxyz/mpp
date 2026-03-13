@@ -3944,15 +3944,22 @@ function PageStyles() {
           display: block !important;
           width: 100% !important;
         }
+        [data-services-table] table tr > td[colspan] {
+          display: block !important;
+          width: 100% !important;
+          max-width: none !important;
+          min-width: 0 !important;
+          overflow: visible !important;
+        }
         [data-services-table] table tr[id^="service-"] {
           display: flex !important;
           flex-wrap: wrap !important;
           position: relative !important;
         }
         [data-services-table] table tr[id^="service-"] > td:first-child {
+          display: block !important;
           max-width: none !important;
           width: 100% !important;
-          margin-right: auto !important;
         }
         [data-services-table] table tr[id^="service-"] > td:last-of-type {
           position: absolute !important;

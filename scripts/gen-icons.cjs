@@ -251,7 +251,7 @@ async function main() {
     const existing = path.join(iconsDir, `${id}.svg`);
     if (fs.existsSync(existing)) {
       const content = fs.readFileSync(existing, "utf-8");
-      if (!content.includes("<text ")) continue; // already has a brand icon
+      if (!content.includes("<text ")) continue;
     }
     needsIcon.push(id);
   }
