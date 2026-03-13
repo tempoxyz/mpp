@@ -315,8 +315,7 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 /* TOC active item — heading color so it is visible on dark backgrounds */
 [data-v-outline-items] a[data-active="true"] {
   background-color: oklch(
-    from var(--vocs-text-color-heading) l c h /
-    0.08
+    from var(--vocs-text-color-heading) l c h / 0.08
   ) !important;
   color: var(--vocs-text-color-heading) !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
@@ -341,12 +340,10 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
   :where(& > :not(:last-child)) {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(
-      calc(var(--vocs-spacing) * 4) *
-      var(--tw-space-y-reverse)
+      calc(var(--vocs-spacing) * 4) * var(--tw-space-y-reverse)
     );
     margin-block-end: calc(
-      calc(var(--vocs-spacing) * 4) *
-      calc(1 - var(--tw-space-y-reverse))
+      calc(var(--vocs-spacing) * 4) * calc(1 - var(--tw-space-y-reverse))
     );
   }
 }
@@ -831,7 +828,8 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] img {
 }
 
 /* Tempo card — larger icon */
-a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"] [class*="vocs:size-8"]
+a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
+  [class*="vocs:size-8"]
   svg,
 a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   [class*="vocs:size-8"]
@@ -1008,11 +1006,30 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   display: none;
 }
 @media (max-width: 1079px) {
-  /* Ensure sidebar overlay covers the top nav bar */
+  /* Raise backdrop + dialog above gutter-top (z-index 200) */
+  [data-v-mobile-nav][role="dialog"] {
+    z-index: 260 !important;
+  }
+  div[role="presentation"][data-open],
+  div[role="presentation"][data-base-ui-inert] {
+    z-index: 250 !important;
+  }
+
+  /* Remove dialog's top header/close-button area to align content with hamburger */
+  [data-v-mobile-nav] > div:first-child:has(button[aria-label]) {
+    display: none !important;
+  }
+  [data-v-mobile-nav] > div {
+    height: 100% !important;
+    padding-top: 1rem !important;
+  }
+  [data-v-mobile-nav] {
+    border-left: none !important;
+  }
+
   [data-v-sidebar] {
     display: flex !important;
     flex-direction: column !important;
-    z-index: 200 !important;
   }
   /* Hide the Vocs sidebar section selector / input at top */
   [data-v-sidebar] > [data-v-sidebar-section-header]:first-of-type,
@@ -1020,6 +1037,7 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   [data-v-sidebar] > div:has(select):first-of-type {
     display: none !important;
   }
+
   [data-mobile-nav] {
     display: flex;
     flex-direction: column;
@@ -1027,10 +1045,6 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
     order: -1;
     border-bottom: 1px solid var(--vocs-border-color-primary);
     margin-bottom: 0;
-  }
-  [data-mobile-nav-logo] {
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.25rem;
   }
   [data-mobile-nav-item] {
     display: block;
@@ -1088,9 +1102,26 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   }
 }
 
+/* ---- Push mobile nav breakpoint from 1024px down to 640px ---- */
+@media (min-width: 641px) {
+  /* Force TopNav links visible (Vocs hides them below lg/1024px) */
+  [data-v-gutter-top] > nav {
+    display: flex !important;
+  }
+  /* Force hamburger / mobile-nav container hidden */
+  [data-v-gutter-top] > div:last-child:has([data-v-mobile-nav-trigger]),
+  [data-v-gutter-top] > div:last-child:has(button[aria-label="Menu"]) {
+    display: none !important;
+  }
+  /* Also hide the generic lg:hidden wrapper Vocs uses */
+  [data-v-gutter-top] > div:not([data-v-gutter-top-left]):not(nav):last-child {
+    display: none !important;
+  }
+}
+
 /* ---- Mobile navbar sizing (120%) ---- */
-@media (max-width: 767px) {
-  :has(.landing-page) [data-v-gutter-top] {
+@media (max-width: 640px) {
+  :has(.landing-page) [data-v-gutter-top]:not(:has(button[data-popup-open])) {
     background: linear-gradient(
       to bottom,
       var(--vocs-background-color-primary) 60%,
@@ -1112,32 +1143,54 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   [data-v-logo] img {
     height: 24px !important;
   }
-  /* Scale the hamburger button */
+  /* When sidebar open: raise gutter above everything, hide contents except hamburger */
+  [data-v-gutter-top]:has(button[data-popup-open]) {
+    z-index: 270 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  [data-v-gutter-top]:has(button[data-popup-open]) * {
+    visibility: hidden;
+  }
+  [data-v-gutter-top]:has(button[data-popup-open]) button[data-popup-open],
+  [data-v-gutter-top]:has(button[data-popup-open]) button[data-popup-open] * {
+    visibility: visible !important;
+  }
+
+  /* Hamburger button — stays above sidebar overlay */
   [data-v-gutter-top] button[aria-label] {
     transform: scale(1.2);
     transform-origin: center right;
+    margin-right: -4px;
+    z-index: 310 !important;
+    position: relative;
   }
-  /* Ensure close icon is visible in sidebar */
-  [data-v-sidebar-close],
-  [data-v-sidebar] button[aria-label="Close"] {
-    color: var(--vocs-text-color-heading) !important;
-    opacity: 1 !important;
-    z-index: 210 !important;
+  /* Hide hamburger SVG when open, show CSS X instead */
+  [data-v-gutter-top] button[aria-label] svg {
+    transition: opacity 0.15s ease;
   }
-  /* Mobile nav logo: show dark-text version on light, light-text on dark */
-  .mobile-nav-logo-light {
-    display: block;
+  [data-v-gutter-top] button[data-popup-open] svg {
+    opacity: 0;
   }
-  .mobile-nav-logo-dark {
-    display: none;
+  [data-v-gutter-top] button[data-popup-open]::before,
+  [data-v-gutter-top] button[data-popup-open]::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 1px;
+    left: 50%;
+    top: 50%;
+    margin-left: -8px;
   }
-  @media (prefers-color-scheme: dark) {
-    .mobile-nav-logo-light {
-      display: none;
-    }
-    .mobile-nav-logo-dark {
-      display: block;
-    }
+  [data-v-gutter-top] button[data-popup-open]::before {
+    transform: rotate(45deg);
+  }
+  [data-v-gutter-top] button[data-popup-open]::after {
+    transform: rotate(-45deg);
   }
 }
 

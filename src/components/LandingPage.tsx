@@ -275,6 +275,9 @@ function LandingStyles() {
         .landing-hero-part { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }
         .landing-terminal-inner { max-width: 720px !important; }
         .landing-terminal { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
+        .hero-row { flex-direction: column !important; align-items: center !important; text-align: center; gap: 1.25rem !important; }
+        .hero-right { align-items: center !important; }
+        .landing-ctas { justify-content: center !important; }
       }
 
       /* ---- Desktop ---- */
@@ -337,6 +340,7 @@ function LandingStyles() {
           flex-direction: column !important;
           justify-content: center !important;
           padding: 0 1.75rem 2rem !important;
+          margin-top: 2rem !important;
           z-index: 1 !important;
         }
         .landing-hero-part .landing-hero {
@@ -348,7 +352,7 @@ function LandingStyles() {
         .landing-try-cta {
           display: flex !important;
           font-size: 0.75rem !important;
-          margin-top: 0 !important;
+          margin-top: 2rem !important;
           flex-shrink: 0 !important;
           padding: 0 0.5rem !important;
           opacity: 0.6 !important;
@@ -369,7 +373,8 @@ function LandingStyles() {
           gap: 24px;
         }
         .landing-terminal-inner {
-          max-height: 50vh !important;
+          max-height: 65vh !important;
+          min-height: 420px !important;
           min-width: 90vw !important;
         }
 

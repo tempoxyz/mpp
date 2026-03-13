@@ -406,7 +406,7 @@ function SearchWithDropdown({
           width: "100%",
           padding: "0.4rem 0.6rem 0.4rem 2rem",
           fontSize: 14,
-          borderRadius: 7,
+          borderRadius: 8,
           border: "1px solid var(--vocs-border-color-primary)",
           background:
             "light-dark(rgba(255,255,255,0.8), rgba(255,255,255,0.04))",
@@ -765,6 +765,9 @@ export function ServicesPage() {
   const [mobileSearchActive, setMobileSearchActive] = useState(false);
   const [mobileResultsView, setMobileResultsView] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [gridSelectedServiceId, setGridSelectedServiceId] = useState<
+    string | undefined
+  >(undefined);
   const tableRef = useRef<HTMLDivElement>(null);
   const shuffledOrder = useRef<string[]>([]);
 
@@ -851,6 +854,25 @@ export function ServicesPage() {
         return new Set();
       }
       history.replaceState(null, "", `#service-${id}`);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const el = document.getElementById(`service-${id}`);
+          if (!el) return;
+          const target = el.getBoundingClientRect().top + window.scrollY - 80;
+          const start = window.scrollY;
+          const dist = target - start;
+          const dur = Math.min(900, Math.max(500, Math.abs(dist) * 0.9));
+          let t0: number | null = null;
+          const step = (t: number) => {
+            if (!t0) t0 = t;
+            const p = Math.min((t - t0) / dur, 1);
+            const ease = p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2;
+            window.scrollTo(0, start + dist * ease);
+            if (p < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        });
+      });
       return new Set([id]);
     });
   }, []);
@@ -860,9 +882,13 @@ export function ServicesPage() {
       setSearch("");
       setDebouncedSearch("");
       setSelectedCategory(null);
-      setExpandedIds(new Set([serviceId]));
       setMobileSearchActive(false);
       setMobileResultsView(false);
+      if (viewMode === "grid") {
+        setGridSelectedServiceId(serviceId);
+        return;
+      }
+      setExpandedIds(new Set([serviceId]));
       history.replaceState(null, "", `#service-${serviceId}`);
       const all = orderServices(services, shuffledOrder.current);
       const idx = all.findIndex((s) => s.id === serviceId);
@@ -873,7 +899,7 @@ export function ServicesPage() {
           ?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 100);
     },
-    [services],
+    [services, viewMode],
   );
 
   // Handle anchor hash on mount
@@ -942,7 +968,7 @@ export function ServicesPage() {
         style={{
           maxWidth: 1600,
           margin: "0 auto",
-          padding: "3rem 2.5rem 5rem 1.375rem",
+          padding: "3rem 1.5rem 5rem 1.5rem",
         }}
       >
         {/* Header */}
@@ -971,7 +997,7 @@ export function ServicesPage() {
                 textTransform: "uppercase",
               }}
             >
-              Services
+              Power-ups for agents
             </h1>
             <p
               style={{
@@ -982,7 +1008,7 @@ export function ServicesPage() {
                 marginTop: "-0.5rem",
               }}
             >
-              MPP-enabled APIs your agent or application can seamlessly use.
+              MPP-enabled APIs that work seamlessly with apps & agents.
             </p>
           </div>
           <div className="page-header-ctas" style={{ display: "none" }} />
@@ -1235,6 +1261,93 @@ export function ServicesPage() {
                         onInputFocus={handleMobileSearchFocus}
                       />
                     </div>
+                    {!mobileSearchActive && (
+                      <div
+                        className="mobile-view-toggle"
+                        style={{
+                          display: "flex",
+                          gap: 2,
+                          flexShrink: 0,
+                          alignItems: "center",
+                        }}
+                      >
+                        <button
+                          type="button"
+                          aria-label="List view"
+                          onClick={() => setViewMode("list")}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 34,
+                            height: 34,
+                            border: "none",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            background: "transparent",
+                            color:
+                              viewMode === "list"
+                                ? "var(--vocs-text-color-heading)"
+                                : "var(--vocs-text-color-muted)",
+                            opacity: viewMode === "list" ? 1 : 0.5,
+                          }}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <title>List</title>
+                            <path d="M3 6h18" />
+                            <path d="M3 12h18" />
+                            <path d="M3 18h18" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Grid view"
+                          onClick={() => setViewMode("grid")}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 34,
+                            height: 34,
+                            border: "none",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            background: "transparent",
+                            color:
+                              viewMode === "grid"
+                                ? "var(--vocs-text-color-heading)"
+                                : "var(--vocs-text-color-muted)",
+                            opacity: viewMode === "grid" ? 1 : 0.5,
+                          }}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <title>Grid</title>
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                     {mobileSearchActive && !mobileResultsView && (
                       <>
                         {search.trim() && (
@@ -1331,9 +1444,7 @@ export function ServicesPage() {
                   <div
                     style={{
                       display: "flex",
-                      border: "1px solid var(--vocs-border-color-primary)",
-                      borderRadius: 7,
-                      overflow: "hidden",
+                      gap: 2,
                       flexShrink: 0,
                     }}
                   >
@@ -1348,15 +1459,15 @@ export function ServicesPage() {
                         width: 34,
                         height: 34,
                         border: "none",
+                        borderRadius: 6,
                         cursor: "pointer",
+                        background: "transparent",
                         color:
                           viewMode === "list"
                             ? "var(--vocs-text-color-heading)"
                             : "var(--vocs-text-color-muted)",
-                        background:
-                          viewMode === "list"
-                            ? "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))"
-                            : "transparent",
+                        opacity: viewMode === "list" ? 1 : 0.5,
+                        transition: "color 0.15s, opacity 0.15s",
                       }}
                     >
                       <svg
@@ -1386,17 +1497,15 @@ export function ServicesPage() {
                         width: 34,
                         height: 34,
                         border: "none",
-                        borderLeft:
-                          "1px solid var(--vocs-border-color-primary)",
+                        borderRadius: 6,
                         cursor: "pointer",
+                        background: "transparent",
                         color:
                           viewMode === "grid"
                             ? "var(--vocs-text-color-heading)"
                             : "var(--vocs-text-color-muted)",
-                        background:
-                          viewMode === "grid"
-                            ? "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))"
-                            : "transparent",
+                        opacity: viewMode === "grid" ? 1 : 0.5,
+                        transition: "color 0.15s, opacity 0.15s",
                       }}
                     >
                       <svg
@@ -1440,53 +1549,52 @@ export function ServicesPage() {
                   </Link>
                 </div>
                 {viewMode === "grid" ? (
-                  <div
-                    style={{
-                      position: "fixed",
-                      inset: 0,
-                      zIndex: 200,
-                      background: "var(--vocs-background-color-primary)",
-                    }}
-                  >
-                    <button
-                      type="button"
-                      aria-label="Close grid view"
-                      onClick={() => setViewMode("list")}
-                      style={{
-                        position: "absolute",
-                        top: 16,
-                        right: 16,
-                        zIndex: 210,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: 36,
-                        height: 36,
-                        borderRadius: 8,
-                        border: "1px solid var(--vocs-border-color-primary)",
-                        background:
-                          "light-dark(rgba(255,255,255,0.9), rgba(0,0,0,0.6))",
-                        backdropFilter: "blur(8px)",
-                        cursor: "pointer",
-                        color: "var(--vocs-text-color-heading)",
-                      }}
-                    >
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <title>Close</title>
-                        <path d="M18 6 6 18" />
-                        <path d="m6 6 12 12" />
-                      </svg>
-                    </button>
-                    <ServiceDiscovery />
+                  <div className="services-grid-inline">
+                    <style>{`
+                      .services-grid-inline .discovery-section {
+                        height: auto !important;
+                        overflow: visible !important;
+                      }
+                      .services-grid-inline .discovery-overlay {
+                        display: none !important;
+                      }
+                      .services-grid-inline .discovery-grid {
+                        height: auto !important;
+                        overflow: visible !important;
+                        grid-template-columns: repeat(4, 1fr) !important;
+                        grid-auto-rows: minmax(150px, 1fr) !important;
+                        padding-left: 0 !important;
+                        padding-right: 0 !important;
+                      }
+                      .services-grid-inline .discovery-grid::before,
+                      .services-grid-inline .discovery-grid::after {
+                        display: none !important;
+                      }
+                      @media (max-width: 1100px) {
+                        .services-grid-inline .discovery-grid {
+                          grid-template-columns: repeat(3, 1fr) !important;
+                        }
+                      }
+                      @media (max-width: 900px) {
+                        .services-grid-inline .discovery-grid {
+                          grid-template-columns: repeat(2, 1fr) !important;
+                          grid-auto-rows: 120px !important;
+                          padding-left: 1.25rem !important;
+                          padding-right: 1.25rem !important;
+                        }
+                        .services-grid-inline .discovery-card-desc {
+                          font-size: 14px !important;
+                        }
+                      }
+                    `}</style>
+                    <ServiceDiscovery
+                      externalQuery={debouncedSearch}
+                      externalCategory={selectedCategory}
+                      externalSelectedServiceId={gridSelectedServiceId}
+                      onExternalServiceHandled={() =>
+                        setGridSelectedServiceId(undefined)
+                      }
+                    />
                   </div>
                 ) : (
                   <div ref={tableRef} className="services-content-row">
@@ -1507,13 +1615,13 @@ export function ServicesPage() {
                             <col style={{ width: "18%" }} />
                             <col
                               className="hide-mobile"
-                              style={{ width: "42%" }}
+                              style={{ width: "36%" }}
                             />
                             <col
                               className="hide-mobile"
-                              style={{ width: "32%" }}
+                              style={{ width: "36%" }}
                             />
-                            <col style={{ width: "8%" }} />
+                            <col style={{ width: "10%" }} />
                           </colgroup>
                           <thead>
                             <tr
@@ -2173,7 +2281,7 @@ function SidebarInfoCards() {
   const descStyle: React.CSSProperties = {
     fontSize: 13,
     color: "var(--vocs-text-color-muted)",
-    lineHeight: 1.45,
+    lineHeight: 1.6,
   };
   const iconStyle: React.CSSProperties = {
     color: "var(--vocs-text-color-muted)",
@@ -2358,7 +2466,7 @@ function CliSnippet({
           style={{
             color: "var(--vocs-text-color-secondary)",
             fontSize: 13,
-            lineHeight: 1.45,
+            lineHeight: 1.6,
             marginBottom: "0.75rem",
           }}
         >
@@ -2842,7 +2950,7 @@ function ServiceRow({
                     fontSize: 14,
                     lineHeight: 1.4,
                     display: "-webkit-box",
-                    WebkitLineClamp: 2,
+                    WebkitLineClamp: 3,
                     WebkitBoxOrient: "vertical",
                     overflow: "hidden",
                   }}
@@ -2880,7 +2988,7 @@ function ServiceRow({
             padding: "0.7rem 0.75rem",
             color: "var(--vocs-text-color-secondary)",
             fontSize: 14,
-            lineHeight: 1.45,
+            lineHeight: 1.6,
             verticalAlign: "middle",
           }}
         >
@@ -3062,8 +3170,8 @@ function ServiceRow({
             colSpan={4}
             className="expanded-detail"
             style={{
-              padding: "0.25rem 0 0.25rem",
               borderBottom: "1px solid var(--vocs-border-color-primary)",
+              paddingRight: "0px !important",
             }}
           >
             <ExpandedDetail service={s} />
@@ -3078,8 +3186,6 @@ function ServiceRow({
 // Expanded detail
 // ---------------------------------------------------------------------------
 
-const SUB_GRID = "minmax(0, 40%) minmax(0, 1fr) 8%";
-
 function SubTh({
   children,
   style,
@@ -3091,7 +3197,7 @@ function SubTh({
     <span
       style={{
         padding: "0 0.75rem",
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: 400,
         color: "var(--vocs-text-color-muted)",
         whiteSpace: "nowrap",
@@ -3106,28 +3212,12 @@ function SubTh({
 function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
   const baseUrl = s.serviceUrl ?? s.url;
-  const docsUrl = s.docs?.apiReference ?? s.docs?.llmsTxt ?? s.docs?.homepage;
-  const websiteUrl = s.provider?.url;
-  const compactLinkStyle: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "0.25rem",
-    padding: "0.15rem 0.45rem",
-    fontSize: 12,
-    borderRadius: 4,
-    color: "var(--vocs-text-color-muted)",
-    textDecoration: "none",
-    transition: "color 0.15s",
-    whiteSpace: "nowrap",
-    height: 24,
-  };
   return (
     <div style={{ fontSize: 14 }}>
-      {(docsUrl || websiteUrl) && (
+      {baseUrl && (
         <div
           className="expanded-url-bar"
           style={{
-            display: "flex",
             alignItems: "center",
             gap: "0.35rem",
             padding: "0.25rem 0.75rem 0.5rem 3.5rem",
@@ -3148,40 +3238,6 @@ function ExpandedDetail({ service: s }: { service: Service }) {
           >
             {baseUrl}
           </span>
-          {docsUrl && (
-            <a
-              href={docsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={compactLinkStyle}
-              onClick={(e) => e.stopPropagation()}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--vocs-text-color-heading)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--vocs-text-color-muted)";
-              }}
-            >
-              <BookIcon size={12} /> Docs
-            </a>
-          )}
-          {websiteUrl && (
-            <a
-              href={websiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={compactLinkStyle}
-              onClick={(e) => e.stopPropagation()}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--vocs-text-color-heading)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--vocs-text-color-muted)";
-              }}
-            >
-              <ExternalLinkIcon size={12} /> Website
-            </a>
-          )}
         </div>
       )}
       {s.endpoints.length > 0 && (
@@ -3189,8 +3245,6 @@ function ExpandedDetail({ service: s }: { service: Service }) {
           <div
             className="sub-header"
             style={{
-              display: "grid",
-              gridTemplateColumns: SUB_GRID,
               padding: "0.45rem 0",
               background:
                 "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))",
@@ -3213,9 +3267,6 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                   key={`${ep.method}-${ep.path}`}
                   className="sub-row"
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: SUB_GRID,
-                    alignItems: "center",
                     minHeight: 56,
                     borderBottom: isLast
                       ? "none"
@@ -3224,7 +3275,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                 >
                   <div
                     style={{
-                      padding: "0.75rem 0.75rem 0.75rem 0.75rem",
+                      padding: "0.85rem 0.75rem 0.85rem 0.75rem",
                       display: "flex",
                       flexDirection: "column",
                       gap: 4,
@@ -3287,6 +3338,33 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                           )}
                         </span>
                       </span>
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+                      {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+                      <span
+                        className="ep-copy-outside"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copy(fullUrl, copyId);
+                        }}
+                        style={{
+                          display: "none",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                          cursor: "pointer",
+                          color: isCopied
+                            ? "light-dark(#15803d, #4ade80)"
+                            : "var(--vocs-text-color-muted)",
+                          transition: "color 0.15s",
+                        }}
+                        title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
+                      >
+                        {isCopied ? (
+                          <CheckIcon size={14} />
+                        ) : (
+                          <CopyIcon size={14} />
+                        )}
+                      </span>
                       <span className="intent-badge-desktop">
                         {ep.payment?.intent && (
                           <span
@@ -3306,15 +3384,9 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                   <div
                     className="ep-desc-cell"
                     style={{
-                      padding: "0.25rem 0.75rem 0.75rem",
                       color: "var(--vocs-text-color-secondary)",
                       fontSize: 14,
-                      lineHeight: 1.45,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical" as const,
+                      lineHeight: 2,
                     }}
                   >
                     {ep.payment?.intent && (
@@ -3327,17 +3399,28 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                   <div
                     className="ep-price-cell"
                     style={{
-                      padding: "0.75rem 1rem 0.75rem 0",
+                      padding: "0 1rem 0 0",
                       fontFamily: "var(--font-mono)",
                       fontSize: 14,
                       fontVariantNumeric: "tabular-nums",
-                      textAlign: "right",
-                      color: "var(--vocs-text-color-muted)",
+                      color: "var(--vocs-text-color-secondary)",
                       whiteSpace: "nowrap",
-                      alignSelf: "center",
+                      alignSelf: "stretch",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
                     }}
                   >
+                    {ep.payment?.intent && (
+                      <span
+                        className="intent-badge-price"
+                        style={{ marginRight: "0.35rem" }}
+                      >
+                        <Badge>{ep.payment.intent}</Badge>
+                      </span>
+                    )}
                     <span className="ep-price-text">{formatPrice(ep)}</span>
+
                     {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
                     {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
                     <span
@@ -3409,6 +3492,9 @@ function PageStyles() {
 
       .search-mobile { display: none; }
       .header-cards { display: none !important; }
+      .sub-header { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 1fr) 8%; }
+      .sub-row { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 1fr) 8%; align-items: center; }
+      .ep-desc-cell { padding: 0.25rem 0.75rem 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
       .show-tablet { display: none !important; }
       .expanded-url-bar { display: none !important; }
       .url-copy-icon { opacity: 0.8; transition: opacity 0.15s, color 0.15s; color: var(--vocs-text-color-muted); }
@@ -3424,6 +3510,7 @@ function PageStyles() {
       .svc-badge-borderless { display: inline; }
       .svc-name-text { margin-right: 0.35rem; }
       .info-card-link:hover { background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06)) !important; border-color: light-dark(rgba(0,0,0,0.15), rgba(255,255,255,0.15)) !important; }
+      .chevron-cell a { aspect-ratio: 1; box-sizing: border-box; }
       .expanded-detail { animation: expandIn 0.15s ease-out; }
       @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -3448,6 +3535,7 @@ function PageStyles() {
       .intent-badge::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--vocs-background-color-primary); color: var(--vocs-text-color-secondary); padding: 5px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 0.15s; box-shadow: 0 2px 12px rgba(0,0,0,0.12); border: 1px solid var(--vocs-border-color-primary); }
       .intent-badge:hover::after { opacity: 1; }
       .intent-badge-mobile { display: none; }
+      .intent-badge-price { display: none; }
       .ep-copy-mobile { display: none !important; }
       .mobile-row-copy { display: none !important; }
 
@@ -3462,8 +3550,17 @@ function PageStyles() {
       @media (max-width: 1200px) {
         .services-sidebar { display: none !important; }
         .services-layout { gap: 0 !important; }
-        .header-cards { display: block !important; }
+        .page-header { margin-left: 0 !important; }
+        .header-cards { display: block !important; margin-left: 0 !important; margin-right: 0 !important; margin-bottom: 0.75rem !important; }
         .page-header-ctas { display: none !important; }
+        .search-bar {
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+          top: calc(var(--vocs-spacing-topNav, 56px) - 4px) !important;
+          padding-top: 0.75rem !important;
+          padding-bottom: 0.75rem !important;
+          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent) !important;
+        }
       }
 
       /* ---- Table columns stack ---- */
@@ -3472,12 +3569,12 @@ function PageStyles() {
         .services-table-col { min-width: 0 !important; }
         [data-services-table] thead { display: none !important; }
         .show-tablet { display: block !important; }
-        [data-services-table] table { table-layout: fixed !important; overflow: visible !important; }
+        [data-services-table] table { table-layout: fixed !important; overflow: visible !important; width: 100% !important; }
         /* 3-col: name+desc | URL | chevron+actions */
-        [data-services-table] table col:nth-child(1) { width: 45% !important; }
-        [data-services-table] table col:nth-child(2) { width: 0 !important; }
-        [data-services-table] table col:nth-child(3) { width: 42% !important; }
-        [data-services-table] table col:nth-child(4) { width: 13% !important; }
+        [data-services-table] table col:nth-child(1) { width: 48% !important; }
+        [data-services-table] table col:nth-child(2) { width: 44% !important; }
+        [data-services-table] table col:nth-child(3) { width: 14% !important; }
+        [data-services-table] table col:nth-child(4) { width: 0% !important; }
         /* Hide description column (col 2) — desc moves into cell 1 via .show-tablet */
         td.hide-mobile:nth-child(2) { display: none !important; }
         /* Keep URL column (col 3) visible */
@@ -3492,9 +3589,11 @@ function PageStyles() {
         .svc-badge-bordered { display: inline !important; }
         .svc-badge-borderless { display: none !important; }
         .svc-name-row > span:first-child { font-size: 16px !important; }
-        .svc-desc-mobile { font-size: 14px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+        .svc-desc-mobile { font-size: 14.5px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
         .url-mobile { display: none !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
+        .expanded-url-bar { display: none !important; }
+        tr:has(+ tr .expanded-detail) { border-bottom: none !important; }
         .sub-header { display: grid !important; grid-template-columns: 1fr auto !important; padding-left: 1rem !important; padding-right: 0.75rem !important; }
         .sub-header > *:nth-child(1) { text-align: left !important; padding-left: 0 !important; }
         .sub-header > *:nth-child(2) { display: none !important; }
@@ -3503,14 +3602,15 @@ function PageStyles() {
           display: grid !important;
           grid-template-columns: 1fr auto !important;
           grid-template-rows: auto auto !important;
-          padding: 0.65rem 0.75rem 0.65rem 1rem !important;
-          gap: 0.15rem 0.5rem !important;
+          padding: 0.8rem 0.75rem 0.8rem 1rem !important;
+          gap: 0 0.5rem !important;
           align-items: start !important;
+
         }
         .sub-row > * { padding: 0 !important; }
         .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; overflow: hidden; min-width: 0; }
-        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; display: flex !important; align-items: center !important; gap: 0.35rem !important; font-family: var(--font-mono); font-size: 13.5px !important; color: var(--vocs-text-color-muted) !important; text-align: right !important; justify-self: end !important; align-self: center !important; white-space: nowrap; }
-        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 14.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; margin-top: 0.35rem !important; }
+        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; display: flex !important; align-items: center !important; gap: 0.35rem !important; font-family: var(--font-mono); font-size: 13.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: right !important; justify-self: end !important; align-self: center !important; white-space: nowrap; }
+        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 14.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; margin-top: 0.2rem !important; display: block !important; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; overflow: visible !important; }
         .intent-badge-desktop { display: none !important; }
         .intent-badge-mobile { display: inline !important; margin-right: 0.35rem; }
         .ep-copy-inline { display: none !important; }
@@ -3518,24 +3618,64 @@ function PageStyles() {
         .ep-path-clickable { cursor: default !important; pointer-events: none; }
         .mobile-row-copy { display: none !important; }
         .url-copy-icon { opacity: 0.8 !important; }
-        .expanded-url-bar { display: flex !important; padding-left: 1rem !important; }
       }
 
       /* ---- Header cards 2x2, search moves, tags center ---- */
       @media (max-width: 900px) {
         .services-container { padding-left: 0 !important; padding-right: 0 !important; }
-        [data-services-table] table { width: 100% !important; }
+        [data-services-table] table { width: 100% !important; table-layout: auto !important; }
         [data-services-table] thead { display: none !important; }
-        [data-services-table] table td:first-child { padding: 1rem 0.75rem 1rem 1.25rem !important; vertical-align: top !important; }
-        [data-services-table] table td:last-of-type { padding: 1rem 1.25rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
-        .chevron-cell { padding-right: 0 !important; }
-        .svc-badge-inline { margin-left: 0.25rem !important; }
-        .sub-row { padding-left: 1.25rem !important; padding-right: 0.75rem !important; }
-        .svc-desc-mobile { font-size: 14.5px !important; }
-        .header-cards { padding: 0 1.25rem !important; }
+        [data-services-table] colgroup { display: none !important; }
+        td.hide-mobile:nth-child(2) { display: none !important; }
+        td.hide-mobile:nth-child(3) { display: none !important; }
+        [data-services-table] table { table-layout: auto !important; }
+        [data-services-table] table td:first-child:not(.expanded-detail) { padding: 1rem 0.35rem 1rem 1.25rem !important; vertical-align: top !important; overflow: hidden !important; max-width: 0 !important; width: 100% !important; }
+        [data-services-table] table td:last-of-type:not(.expanded-detail) { padding: 0.75rem 1rem 0.75rem 0 !important; vertical-align: middle !important; text-align: right !important; white-space: nowrap !important; overflow: visible !important; padding-right: 24px !important; width: 120px !important; min-width: 140px !important; max-width: 140px !important; box-sizing: border-box !important; }
+        .expanded-detail { padding: 0 !important; }
+        .chevron-cell { padding-right: 0 !important; gap: 0.25rem !important; }
+        .chevron-cell a { width: 32px !important; height: 32px !important; border: 1px solid var(--vocs-border-color-primary) !important; border-radius: 7px !important; display: flex !important; align-items: center !important; justify-content: center !important; margin-right: 4px; }
+        .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; }
+        .svc-badge-inline { display: inline !important; margin-left: 0.25rem !important; }
+        .svc-badge-bordered { display: inline !important; }
+        .svc-badge-borderless { display: none !important; }
+        .show-tablet { display: block !important; }
+        
+        .svc-desc-container { display: block !important; }
+        .sub-row {
+          display: grid !important;
+          grid-template-columns: 1fr auto !important;
+          grid-template-rows: auto auto !important;
+          padding: 0.8rem 1.25rem 0.8rem 1.25rem !important;
+          gap: 0 0.75rem !important;
+          align-items: start !important;
+          text-align: left;
+          margin-top: 4px;
+          padding-bottom: 0rem !important;
+          
+        }
+        .sub-row > * { padding: 0 !important; }
+        .sub-row > *:nth-child(1) { grid-row: 1 !important; grid-column: 1 !important; }
+        .sub-row > *:nth-child(3) { grid-row: 1 !important; grid-column: 2 !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; justify-self: end !important; align-self: center !important; white-space: nowrap !important; }
+        .sub-row > *:nth-child(2) { grid-row: 2 !important; grid-column: 1 / -1 !important; margin-top: 0.2rem !important; display: block !important; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; overflow: visible !important; }
+        .ep-desc-cell { display: block !important; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; overflow: visible !important; padding: 0 !important; padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+        .intent-badge-mobile { display: none !important; }
+        .intent-badge-price { display: inline !important; }
+        .ep-copy-inline { display: none !important; }
+        .ep-copy-outside { display: inline-flex !important; }
+        .ep-copy-mobile { display: none !important; }
+        .ep-path-clickable { pointer-events: none !important; cursor: default !important; }
+        .sub-header { padding-left: 1.25rem !important; padding-right: 1.25rem !important; grid-template-columns: 1fr auto !important; }
+        .sub-header > *:nth-child(1) { text-align: left !important; padding-left: 0 !important; }
+        .sub-header > *:nth-child(2) { display: none !important; }
+        .sub-header > *:nth-child(3) { text-align: right !important; padding-right: 0 !important; }
+        .expanded-detail { overflow: hidden !important; padding-left: 0 !important; padding-right: 0 !important; }
+        .svc-desc-mobile { font-size: 14.5px !important; -webkit-line-clamp: 3 !important; max-width: none !important; }
+        .url-mobile { display: block !important; }
+        .expanded-url-bar { display: none !important; }
+        .header-cards { padding: 0 1.25rem !important; margin-left: 0 !important; margin-right: 0 !important; }
         .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        .header-cards-grid > * > div > div:first-child { font-size: 16px !important; }
-        .header-cards-grid > * > div > div:last-child { font-size: 14px !important; line-height: 1.4 !important; }
+        .header-cards-grid > * > div > div:first-child { font-size: 14.5px !important; }
+        .header-cards-grid > * > div > div:last-child { font-size: 13.5px !important; line-height: 1.4 !important; }
         .search-bar { display: none !important; }
         .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
@@ -3547,21 +3687,29 @@ function PageStyles() {
         .search-mobile-hidden { display: none !important; }
         .filter-tags { justify-content: center !important; gap: 0.35rem !important; width: 100% !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 calc(20% - 0.35rem) !important; justify-content: center !important; max-width: calc(25% - 0.35rem) !important; }
-        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; }
-        .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; font-size: 14.5px !important; padding-right: 1rem !important; }
+        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; margin-left: 0 !important; }
+        .page-header p { max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; font-size: 16.5px !important; }
         .page-header-ctas { display: none !important; }
         .pagination { padding: 0 1.25rem !important; }
+        .ep-desc-cell {
+          margin-top: 6px !important;
+          margin-bottom: 2px !important;
+          font-size: 14.5px !important;
+        }
       }
 
       /* ---- Mobile: full-width, bigger icons ---- */
       @media (max-width: 640px) {
-        .expanded-detail { padding-left: 0 !important; padding-right: 0 !important; }
+        .expanded-detail { padding-left: 0 !important; padding-right: 0 !important;  }
         .svc-icon { width: 38px !important; height: 38px !important; margin-right: 10px !important; }
         .svc-icon img { width: 38px !important; height: 38px !important; }
         .sub-row { padding-left: 1.25rem !important; }
-        .header-cards-grid > * > div > div:first-child { font-size: 17px !important; }
-        .header-cards-grid > * > div > div:last-child { font-size: 15px !important; }
+        .header-cards-grid > * > div > div:first-child { font-size: 14.5px !important; }
+        .header-cards-grid > * > div > div:last-child { font-size: 13.5px !important; }
         .filter-tags button { min-width: auto !important; }
+        [data-services-table] table td:last-child  {
+          padding-right: 0px !important;
+        }
       }
     `}</style>
   );
