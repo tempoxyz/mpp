@@ -3214,21 +3214,62 @@ function ServiceRow({
           </div>
         </td>
       </tr>
-      {expanded && (
-        <tr data-expanded="" style={{ background: expandedBg }}>
-          <td
-            colSpan={4}
-            className="expanded-detail"
-            style={{
-              borderBottom: "1px solid var(--vocs-border-color-primary)",
-              paddingRight: "0px !important",
-            }}
-          >
-            <ExpandedDetail service={s} />
-          </td>
-        </tr>
-      )}
+      <AccordionRow expanded={expanded} bg={expandedBg}>
+        <ExpandedDetail service={s} />
+      </AccordionRow>
     </>
+  );
+}
+
+const ACCORDION_MS = 250;
+
+function AccordionRow({
+  expanded,
+  bg,
+  children,
+}: {
+  expanded: boolean;
+  bg: string;
+  children: React.ReactNode;
+}) {
+  const [mounted, setMounted] = useState(expanded);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (expanded) {
+      setMounted(true);
+      requestAnimationFrame(() => requestAnimationFrame(() => setOpen(true)));
+    } else {
+      setOpen(false);
+      const id = setTimeout(() => setMounted(false), ACCORDION_MS);
+      return () => clearTimeout(id);
+    }
+  }, [expanded]);
+
+  if (!mounted && !expanded) return null;
+
+  return (
+    <tr data-expanded={expanded ? "" : undefined} style={{ background: bg }}>
+      <td
+        colSpan={4}
+        style={{
+          padding: 0,
+          borderBottom: open
+            ? "1px solid var(--vocs-border-color-primary)"
+            : "1px solid transparent",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateRows: open ? "1fr" : "0fr",
+            transition: `grid-template-rows ${ACCORDION_MS}ms ease`,
+          }}
+        >
+          <div style={{ overflow: "hidden", minHeight: 0 }}>{children}</div>
+        </div>
+      </td>
+    </tr>
   );
 }
 
@@ -3567,8 +3608,7 @@ function PageStyles() {
       .svc-name-text { margin-right: 0.35rem; }
       .info-card-link:hover { background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06)) !important; border-color: light-dark(rgba(0,0,0,0.15), rgba(255,255,255,0.15)) !important; }
       .chevron-cell a { aspect-ratio: 1; box-sizing: border-box; }
-      .expanded-detail { animation: expandIn 0.15s ease-out; }
-      @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
+      .expanded-detail { }
 
       /* Dim non-expanded rows when one is expanded */
       [data-has-expanded] tbody tr:not([data-expanded]) { opacity: 0.35; }
