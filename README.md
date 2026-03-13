@@ -2,10 +2,6 @@
 
 The marketing site, developer documentation, and service directory for the Machine Payments Protocol.
 
-* **[mpp.dev](https://mpp.dev)** — Marketing site
-* **[IETF Specs](https://tempoxyz.github.io/mpp-specs/)** — the core specification submitted to the IETF
-* **[Service Directory](https://mpp.dev/services)** — browse MPP-enabled services
-
 ## Overview
 
 This repository contains:
