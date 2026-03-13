@@ -631,7 +631,7 @@ function Lockup() {
   return (
     <h1 className="lockup-h1" style={{ margin: 0 }}>
       <img
-        src="/lockup-light.svg"
+        src="/lockup-dark.svg"
         alt="Machine Payments Protocol"
         className="lockup-img lockup-for-light"
         style={{
@@ -641,7 +641,7 @@ function Lockup() {
         }}
       />
       <img
-        src="/lockup-dark.svg"
+        src="/lockup-light.svg"
         alt="Machine Payments Protocol"
         className="lockup-img lockup-for-dark"
         style={{
