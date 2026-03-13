@@ -5,14 +5,16 @@ export function DownloadSvgButton({ files }: { files: string[] }) {
     <button
       type="button"
       onClick={() => {
-        for (const f of files) {
-          const a = document.createElement("a");
-          a.href = f;
-          a.download = f.split("/").pop() ?? f;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }
+        files.forEach((f, i) => {
+          setTimeout(() => {
+            const a = document.createElement("a");
+            a.href = f;
+            a.download = f.split("/").pop() ?? f;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }, i * 200);
+        });
       }}
       style={{
         fontSize: "12px",
