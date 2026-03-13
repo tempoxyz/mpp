@@ -4,10 +4,11 @@ import { useCallback, useRef, useState } from "react";
 
 const AGENT_COLOR = "#e8873a";
 const CMD_PURPLE = "#c084fc";
-const PRESTO_GREEN = "#4ade80";
+const WALLET_GREEN = "#4ade80";
 const FLAG_GREY = "var(--vocs-text-color-muted)";
-const PRESTO_INSTALL = "curl -L https://cli.tempo.xyz/install | bash";
-const PRESTO_LOGIN = "tempo-wallet login";
+const WALLET_INSTALL =
+  "curl -fsSL https://tempo.xyz/install | bash && tempo add wallet";
+const WALLET_LOGIN = "tempo wallet login";
 const QUICKSTART_URL = "https://mpp.dev/quickstart/client.md";
 const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
 
@@ -107,7 +108,7 @@ export function AgentTabs() {
   const taskCmd = [agent.bin, agent.args, TASK_PROMPT]
     .filter(Boolean)
     .join(" ");
-  const allSteps = `${PRESTO_INSTALL} && ${PRESTO_LOGIN} && ${setupCmd} && ${taskCmd}`;
+  const allSteps = `${WALLET_INSTALL} && ${WALLET_LOGIN} && ${setupCmd} && ${taskCmd}`;
 
   const copy = useCallback(() => {
     const sel = window.getSelection();
@@ -181,17 +182,24 @@ export function AgentTabs() {
           }}
         >
           <div style={{ color: "var(--vocs-text-color-muted)" }}>
-            # Add tempo-wallet
+            # Install Tempo CLI + wallet
           </div>
           <div>
             <span style={{ color: CMD_PURPLE }}>curl</span>
             <span style={{ color: FLAG_GREY }}> -fsSL</span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {" "}
-              https://cli.tempo.xyz/install
+              https://tempo.xyz/install
             </span>
             <span style={{ color: FLAG_GREY }}> |</span>
             <span style={{ color: CMD_PURPLE }}> bash</span>
+          </div>
+          <div>
+            <span style={{ color: WALLET_GREEN }}>tempo</span>
+            <span style={{ color: "var(--vocs-text-color-heading)" }}>
+              {" "}
+              add wallet
+            </span>
           </div>
           <div
             style={{
@@ -202,10 +210,10 @@ export function AgentTabs() {
             # Connect wallet
           </div>
           <div>
-            <span style={{ color: PRESTO_GREEN }}>tempo-wallet</span>
+            <span style={{ color: WALLET_GREEN }}>tempo</span>
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {" "}
-              login
+              wallet login
             </span>
           </div>
           <div

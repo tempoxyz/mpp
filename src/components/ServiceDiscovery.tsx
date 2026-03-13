@@ -18,7 +18,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   web: "Web",
 };
 
-// Flip to true when `tempo wallet q` convention goes live
+// Flip to true when `tempo mpp q` convention goes live
 const WALLET_Q_PREFIX = false;
 
 function formatPathForCli(path: string): string {
@@ -893,10 +893,10 @@ function ServiceDetailModal({
 
   const copyCommand = selectedEndpoint
     ? [
-        "curl -L https://tempo.xyz/install | bash",
+        "curl -fsSL https://tempo.xyz/install | bash",
         "tempo add wallet",
         "tempo wallet login",
-        `tempo wallet ${walletPrefix}--dry-run ${baseUrl}${cliPath}${isNonGet ? ` -X ${selectedEndpoint.method} --json ${exampleJson}` : ""}`,
+        `tempo mpp ${walletPrefix}--dry-run ${baseUrl}${cliPath}${isNonGet ? ` -X ${selectedEndpoint.method} --json ${exampleJson}` : ""}`,
       ].join(" && ")
     : null;
 
