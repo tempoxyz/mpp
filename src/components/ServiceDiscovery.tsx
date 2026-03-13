@@ -367,30 +367,6 @@ export function ServiceDiscovery() {
 
         {/* Search overlay — absolutely centered */}
         <div className="discovery-overlay" ref={overlayRef}>
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: scroll to top */}
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: scroll to top */}
-          <div
-            className="discovery-ascii-logo"
-            onClick={() => {
-              setQuery("");
-              setShowDropdown(false);
-              setMobileSearchActive(false);
-              setMobileResultsView(false);
-              setSelectedService(null);
-              const el = document.querySelector(".landing-page") as HTMLElement;
-              if (el) {
-                el.scrollTo({ top: 0, behavior: "smooth" });
-              }
-            }}
-            style={{ cursor: "pointer" }}
-          >
-            Power-ups for agents
-          </div>
-
-          <p className="discovery-overlay-desc">
-            Explore services using MPP that enable new use cases for your agent
-            or application in just seconds
-          </p>
           <div className="discovery-search-wrapper">
             <div className="discovery-search">
               <SearchIcon />
@@ -1798,32 +1774,6 @@ function DiscoveryStyles() {
         gap: 0;
       }
       .discovery-overlay > * { pointer-events: auto; }
-      .discovery-ascii-logo {
-        margin: 0 0 0.75rem;
-        pointer-events: none;
-        color: var(--vocs-text-color-heading);
-        opacity: 0.85;
-        font-family: "VTC Du Bois", var(--font-sans);
-        font-size: clamp(2.5rem, 2.5vw, 2.5rem);
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: -0.01em;
-        transition: opacity 0.3s;
-      }
-      .discovery-ascii-logo > div { display: none; }
-      .discovery-overlay-desc {
-        color: var(--vocs-text-color-secondary);
-        font-size: clamp(1.2rem, 1.2vw, 1.2rem);
-        margin: 0 0 1.25rem;
-        line-height: 1.55;
-        max-width: 500px;
-      }
-      .has-query .discovery-ascii-logo {
-        display: none !important;
-      }
-      .has-query .discovery-overlay-desc {
-        display: none !important;
-      }
       .has-query .discovery-overlay {
         top: 35%;
         transition: top 0.15s ease;
@@ -2646,20 +2596,6 @@ function DiscoveryStyles() {
         .discovery-overlay {
           transition: top 0.3s ease, opacity 0.3s ease !important;
         }
-        .mobile-search-active .discovery-ascii-logo {
-          opacity: 0 !important;
-          max-height: 0 !important;
-          margin: 0 !important;
-          overflow: hidden;
-          transition: opacity 0.2s ease, max-height 0.2s ease, margin 0.2s ease;
-        }
-        .mobile-search-active .discovery-overlay-desc {
-          opacity: 0 !important;
-          max-height: 0 !important;
-          margin: 0 !important;
-          overflow: hidden;
-          transition: opacity 0.2s ease, max-height 0.2s ease, margin 0.2s ease;
-        }
         .mobile-search-active .discovery-overlay {
           top: 15% !important;
         }
@@ -2691,8 +2627,6 @@ function DiscoveryStyles() {
           border-bottom: 1px solid var(--vocs-border-color-primary);
           pointer-events: auto;
         }
-        .mobile-results-view .discovery-ascii-logo,
-        .mobile-results-view .discovery-overlay-desc,
         .mobile-results-view .discovery-view-all,
         .mobile-results-view .discovery-dropdown,
         .mobile-results-view .discovery-kbd {
