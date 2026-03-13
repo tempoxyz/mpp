@@ -1171,7 +1171,7 @@ export function ServicesPage() {
                 marginTop: "-0.5rem",
               }}
             >
-              MPP-enabled APIs that work seamlessly with apps & agents.
+              Discover MPP-enabled APIs that work seamlessly with apps & agents.
             </p>
           </div>
           <div className="page-header-ctas" style={{ display: "none" }} />
