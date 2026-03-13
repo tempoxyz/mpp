@@ -390,9 +390,27 @@ function LogoContextMenu() {
   );
 }
 
+function useLogoFullReload() {
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement).closest?.(
+        "[data-v-logo] a",
+      ) as HTMLAnchorElement | null;
+      if (!anchor) return;
+      if (window.location.pathname === "/") return;
+      e.preventDefault();
+      e.stopPropagation();
+      window.location.href = "/";
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, []);
+}
+
 export default function Layout(props: React.PropsWithChildren) {
   usePostHog();
   useGoogleAnalytics();
+  useLogoFullReload();
 
   const ahrefsKey = import.meta.env.VITE_AHREFS_VERIFICATION;
 
