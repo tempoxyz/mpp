@@ -3352,6 +3352,7 @@ function AccordionRow({
   return (
     <tr data-expanded={expanded ? "" : undefined} style={{ background: bg }}>
       <td
+        className="expanded-detail"
         colSpan={4}
         style={{
           padding: 0,
@@ -3944,12 +3945,10 @@ function PageStyles() {
           display: block !important;
           width: 100% !important;
         }
-        [data-services-table] table tr > td[colspan] {
+        [data-services-table] table tr > td.expanded-detail {
           display: block !important;
           width: 100% !important;
           max-width: none !important;
-          min-width: 0 !important;
-          overflow: visible !important;
         }
         [data-services-table] table tr[id^="service-"] {
           display: flex !important;
