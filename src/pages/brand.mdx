@@ -1,5 +1,7 @@
 # Brand [MPP brand assets and guidelines]
 
+import { DownloadSvgButton } from "../components/DownloadSvgButton";
+
 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid var(--vocs-border-color-primary)", padding: "1.5rem", borderRadius: "8px", backgroundColor: "var(--vocs-background-color-primary)" }}>
 
 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -47,23 +49,7 @@
   <span style={{ color: "var(--vocs-text-color-secondary)", fontSize: "14px" }}>
     The full MPP logo for headers, documentation, and marketing materials.
   </span>
-  <a
-    href="/logo-dark.svg"
-    download
-    style={{
-      fontSize: "12px",
-      color: "var(--vocs-text-color-muted)",
-      textDecoration: "none",
-      whiteSpace: "nowrap",
-      marginLeft: "1rem",
-      border: "1px solid var(--vocs-border-color-primary)",
-      borderRadius: "8px",
-      padding: "0.5rem 1rem",
-      backgroundColor: "var(--vocs-background-color-primary)",
-    }}
-  >
-    Download SVG
-  </a>
+  <DownloadSvgButton files={["/logo-dark.svg", "/logo-light.svg"]} />
 </div>
 
 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
@@ -96,7 +82,7 @@
     <img
       src="/logo-dark.svg"
       alt="MPP Logo (dark, for light backgrounds)"
-      style={{ maxWidth: "200px", width: "100%" }}
+      style={{ maxWidth: "150px", width: "100%" }}
     />
   </div>
   <div
@@ -128,7 +114,7 @@
     <img
       src="/logo-light.svg"
       alt="MPP Logo (light, for dark backgrounds)"
-      style={{ maxWidth: "200px", width: "100%" }}
+      style={{ maxWidth: "150px", width: "100%" }}
     />
   </div>
 </div>
@@ -147,23 +133,7 @@
     The "Machine Payments Protocol" wordmark for landing pages and hero
     sections.
   </span>
-  <a
-    href="/lockup-light.svg"
-    download
-    style={{
-      fontSize: "12px",
-      color: "var(--vocs-text-color-muted)",
-      textDecoration: "none",
-      whiteSpace: "nowrap",
-      marginLeft: "1rem",
-      border: "1px solid var(--vocs-border-color-primary)",
-      borderRadius: "8px",
-      padding: "0.5rem 1rem",
-      backgroundColor: "var(--vocs-background-color-primary)",
-    }}
-  >
-    Download SVG
-  </a>
+  <DownloadSvgButton files={["/lockup-dark.svg", "/lockup-light.svg"]} />
 </div>
 
 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
@@ -246,23 +216,7 @@
   <span style={{ color: "var(--vocs-text-color-secondary)", fontSize: "14px" }}>
     The square MPP icon for favicons, app icons, and compact spaces.
   </span>
-  <a
-    href="/favicon.svg"
-    download
-    style={{
-      fontSize: "12px",
-      color: "var(--vocs-text-color-muted)",
-      textDecoration: "none",
-      whiteSpace: "nowrap",
-      marginLeft: "1rem",
-      border: "1px solid var(--vocs-border-color-primary)",
-      borderRadius: "8px",
-      padding: "0.5rem 1rem",
-      backgroundColor: "var(--vocs-background-color-primary)",
-    }}
-  >
-    Download SVG
-  </a>
+  <DownloadSvgButton files={["/favicon.svg", "/favicon-dark.svg"]} />
 </div>
 
 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>

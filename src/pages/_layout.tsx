@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import lockupDarkRaw from "../../public/lockup-dark.svg?raw";
+import lockupLightRaw from "../../public/lockup-light.svg?raw";
+import logoDarkRaw from "../../public/logo-dark.svg?raw";
+import logoLightRaw from "../../public/logo-light.svg?raw";
 
-// Snippet from https://us.posthog.com/project/settings/snippet
 const POSTHOG_SNIPPET = `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetGroupPropertiesForFlags setGroupPropertiesForFlags resetPersonPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init('phc_aNlTw2xAUQKd9zTovXeYheEUpQpEhplehCK5r1e31HR',{api_host:'https://us.i.posthog.com',disable_session_recording:true});`;
 
 function usePostHog() {
@@ -122,6 +125,26 @@ function MobileNavPortal() {
   return createPortal(<MobileNav />, target);
 }
 
+function CheckIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={{ color: "light-dark(#15803d, #4ade80)" }}
+    >
+      <title>Check</title>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
 function CopyIcon() {
   return (
     <svg
@@ -171,12 +194,13 @@ const menuItemStyle: React.CSSProperties = {
   padding: "0.65rem 1rem",
   border: "none",
   background: "transparent",
-  color: "var(--vocs-text-color-heading)",
+  color: "var(--vocs-text-color-muted)",
   fontSize: 14,
   fontFamily: "var(--font-sans)",
   cursor: "pointer",
   textDecoration: "none",
   textAlign: "left",
+  transition: "color 0.1s",
 };
 
 function LogoMenu({
@@ -190,19 +214,25 @@ function LogoMenu({
   const [copied, setCopied] = useState<string | null>(null);
 
   const copySvg = useCallback(
-    async (path: string, label: string) => {
+    (svgText: string, label: string) => {
+      const ta = document.createElement("textarea");
+      ta.value = svgText;
+      ta.style.cssText = "position:fixed;opacity:0;left:-9999px";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
       try {
-        const res = await fetch(path);
-        const text = await res.text();
-        await navigator.clipboard.writeText(text);
-        setCopied(label);
-        setTimeout(() => {
-          setCopied(null);
-          onClose();
-        }, 800);
+        document.execCommand("copy");
       } catch {
-        onClose();
+        /* ignore */
       }
+      document.body.removeChild(ta);
+      navigator.clipboard?.writeText(svgText).catch(() => {});
+      setCopied(label);
+      setTimeout(() => {
+        setCopied(null);
+        onClose();
+      }, 2000);
     },
     [onClose],
   );
@@ -223,7 +253,8 @@ function LogoMenu({
         left,
         zIndex: 9999,
         minWidth: 220,
-        background: "var(--vocs-background-color-primary)",
+        background:
+          "var(--vocs-background-color-surface, var(--vocs-background-color-primary))",
         border: "1px solid var(--vocs-border-color-primary)",
         borderRadius: 10,
         boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
@@ -233,52 +264,75 @@ function LogoMenu({
     >
       <button
         type="button"
-        onClick={() =>
-          copySvg(isDark ? "/logo-light.svg" : "/logo-dark.svg", "icon")
-        }
+        onClick={() => copySvg(isDark ? logoLightRaw : logoDarkRaw, "icon")}
         style={menuItemStyle}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background =
-            "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06))";
+          if (!copied)
+            e.currentTarget.style.color = "var(--vocs-text-color-heading)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "transparent";
+          if (!copied)
+            e.currentTarget.style.color = "var(--vocs-text-color-muted)";
         }}
       >
-        <CopyIcon />
+        {copied === "icon" ? <CheckIcon /> : <CopyIcon />}
         {copied === "icon" ? "Copied!" : "Copy icon"}
       </button>
       <button
         type="button"
-        onClick={() =>
-          copySvg(
-            isDark ? "/lockup-light.svg" : "/lockup-dark.svg",
-            "logo",
-          )
-        }
+        onClick={() => copySvg(isDark ? lockupLightRaw : lockupDarkRaw, "logo")}
         style={menuItemStyle}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background =
-            "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06))";
+          if (!copied)
+            e.currentTarget.style.color = "var(--vocs-text-color-heading)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "transparent";
+          if (!copied)
+            e.currentTarget.style.color = "var(--vocs-text-color-muted)";
         }}
       >
-        <CopyIcon />
+        {copied === "logo" ? <CheckIcon /> : <CopyIcon />}
         {copied === "logo" ? "Copied!" : "Copy full logo"}
       </button>
+      <a
+        href="/brand"
+        onClick={() => setTimeout(onClose, 100)}
+        style={menuItemStyle}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = "var(--vocs-text-color-heading)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = "var(--vocs-text-color-muted)";
+        }}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <title>Brand</title>
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <polyline points="15 3 21 3 21 9" />
+          <line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+        Brand page
+      </a>
       <a
         href="/brand.zip"
         download
         onClick={() => setTimeout(onClose, 100)}
         style={menuItemStyle}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background =
-            "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06))";
+          e.currentTarget.style.color = "var(--vocs-text-color-heading)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "transparent";
+          e.currentTarget.style.color = "var(--vocs-text-color-muted)";
         }}
       >
         <DownloadIcon />
