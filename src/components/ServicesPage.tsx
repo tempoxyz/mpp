@@ -3923,7 +3923,7 @@ function PageStyles() {
         .filter-tags { justify-content: flex-start !important; gap: 0.5rem !important; width: 100% !important; padding: 0.75rem 1.25rem !important; }
         .filter-tags button { font-size: 14.5px !important; padding: 0.5rem 1rem !important; flex: unset !important; max-width: unset !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; margin-left: 0 !important; }
-        .page-header p { max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; font-size: 16.5px !important; }
+        .page-header p { max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; font-size: 16.5px !important; padding-left: 4rem; padding-right: 4rem;}
         .page-header-ctas { display: none !important; }
         .pagination { padding: 0 1.25rem !important; }
         .ep-desc-cell {
