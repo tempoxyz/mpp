@@ -5,11 +5,13 @@ import { SpecCard } from '../../../components/SpecCard'
 
 The Lightning implementation of the [charge](/intents/charge) intent.
 
-The server generates a fresh BOLT11 invoice for each request. The client pays it over the Lightning Network via a Spark wallet and presents the payment preimage as a credential. The server verifies `sha256(preimage) == paymentHash` locally and returns the resource with a receipt.
+The server generates a fresh [BOLT11](https://github.com/lightning/bolts/blob/master/11-payment-encoding.md) invoice for each request. The client pays it over the [Lightning Network](https://lightning.network) and presents the payment preimage as a credential. The server verifies `sha256(preimage) == paymentHash` locally and returns the resource with a receipt.
 
 This method is best for single API calls, content access, or one-off purchases.
 
 ## Server
+
+The `spark` namespace is the reference implementation using [Spark](https://spark.money) wallets. The protocol works with any Lightning node—you can build your own method handler using [LND](https://github.com/lightningnetwork/lnd), [LDK](https://lightningdevkit.org), or any stack that can create BOLT11 invoices and verify preimages.
 
 Use `spark.charge` to gate any endpoint behind a one-time Lightning payment. The method handles invoice generation, Challenge creation, preimage verification, and Receipt generation.
 
@@ -81,7 +83,7 @@ const mppx = Mppx.create({
 
 ## Client
 
-Use `spark.charge` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, pays the BOLT11 invoice via its Spark wallet, and retries with the preimage as a Credential.
+Use `spark.charge` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, pays the BOLT11 invoice, and retries with the preimage as a Credential.
 
 ```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
