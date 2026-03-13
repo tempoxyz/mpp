@@ -1160,7 +1160,7 @@ export function ServicesPage() {
                 textTransform: "uppercase",
               }}
             >
-              Power-ups for agents
+              Discover services
             </h1>
             <p
               style={{
@@ -1171,7 +1171,7 @@ export function ServicesPage() {
                 marginTop: "-0.5rem",
               }}
             >
-              Discover MPP-enabled APIs that work seamlessly with apps & agents.
+              Explore MPP-enabled APIs that work seamlessly with apps & agents.
             </p>
           </div>
           <div className="page-header-ctas" style={{ display: "none" }} />
