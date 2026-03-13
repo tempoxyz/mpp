@@ -2672,6 +2672,7 @@ function TerminalComponent({
   const contentRef = useRef<HTMLDivElement>(null);
   const autoScrollRef = useRef(true);
   const programmaticScrollRef = useRef(false);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [showTopFade, setShowTopFade] = useState(false);
 
   useEffect(() => {
@@ -2681,6 +2682,7 @@ function TerminalComponent({
     const checkScroll = () => {
       if (programmaticScrollRef.current) return;
       requestAnimationFrame(() => {
+        if (programmaticScrollRef.current) return;
         const distanceFromBottom =
           scrollEl.scrollHeight - scrollEl.clientHeight - scrollEl.scrollTop;
         autoScrollRef.current = distanceFromBottom < LINE_HEIGHT;
@@ -2700,23 +2702,42 @@ function TerminalComponent({
     };
   }, []);
 
+  const prevHeightRef = useRef(0);
   useEffect(() => {
     const scrollEl = scrollRef.current;
     const contentEl = contentRef.current;
     if (!scrollEl || !contentEl) return;
+    prevHeightRef.current = contentEl.scrollHeight;
     const observer = new ResizeObserver(() => {
+      const newH = contentEl.scrollHeight;
+      const grew = newH > prevHeightRef.current;
+      prevHeightRef.current = newH;
+      if (grew) autoScrollRef.current = true;
       if (!autoScrollRef.current) return;
       programmaticScrollRef.current = true;
       scrollEl.scrollTo({
         top: scrollEl.scrollHeight - scrollEl.clientHeight,
         behavior: "smooth",
       });
-      setTimeout(() => {
+      clearTimeout(scrollTimerRef.current);
+      scrollTimerRef.current = setTimeout(() => {
         programmaticScrollRef.current = false;
-      }, 500);
+        if (!autoScrollRef.current) return;
+        const gap =
+          scrollEl.scrollHeight - scrollEl.clientHeight - scrollEl.scrollTop;
+        if (gap > 1) {
+          scrollEl.scrollTo({
+            top: scrollEl.scrollHeight - scrollEl.clientHeight,
+            behavior: "smooth",
+          });
+        }
+      }, 600);
     });
     observer.observe(contentEl);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearTimeout(scrollTimerRef.current);
+    };
   }, []);
 
   return (

@@ -286,6 +286,8 @@ function SearchWithDropdown({
   fullWidth,
   inputRef: externalRef,
   onInputFocus,
+  onDismiss,
+  resultCount,
 }: {
   search: string;
   setSearch: (v: string) => void;
@@ -296,6 +298,8 @@ function SearchWithDropdown({
   fullWidth?: boolean;
   inputRef?: React.RefObject<HTMLInputElement | null>;
   onInputFocus?: () => void;
+  onDismiss?: () => void;
+  resultCount?: number;
 }) {
   const internalRef = useRef<HTMLInputElement>(null);
   const ref = externalRef ?? internalRef;
@@ -404,7 +408,7 @@ function SearchWithDropdown({
         placeholder={`Search ${services.length} services...`}
         style={{
           width: "100%",
-          padding: "0.4rem 0.6rem 0.4rem 2rem",
+          padding: `0.4rem ${onDismiss && resultCount != null ? "5rem" : onDismiss ? "2rem" : "0.6rem"} 0.4rem 2rem`,
           fontSize: 14,
           borderRadius: 8,
           border: "1px solid var(--vocs-border-color-primary)",
@@ -415,7 +419,58 @@ function SearchWithDropdown({
           outline: "none",
         }}
       />
-      {!search && (
+      {onDismiss && resultCount != null && (
+        <span
+          style={{
+            position: "absolute",
+            right: 32,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: "12.5px",
+            color: "var(--vocs-text-color-muted)",
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        >
+          {resultCount}
+        </span>
+      )}
+      {onDismiss && (
+        <button
+          type="button"
+          onClick={onDismiss}
+          style={{
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            border: "none",
+            background: "transparent",
+            color: "var(--vocs-text-color-muted)",
+            cursor: "pointer",
+            padding: 4,
+            display: "flex",
+            alignItems: "center",
+            zIndex: 2,
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      )}
+      {!search && !onDismiss && (
         <kbd
           className="search-kbd-hint"
           style={{
@@ -762,6 +817,7 @@ export function ServicesPage() {
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const initialHashHandled = useRef(false);
   const [mobileSearchActive, setMobileSearchActive] = useState(false);
+  const [mobileSearchStuck, setMobileSearchStuck] = useState(false);
   const [mobileResultsView, setMobileResultsView] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [gridSelectedServiceId, setGridSelectedServiceId] = useState<
@@ -815,6 +871,53 @@ export function ServicesPage() {
       document.documentElement.removeAttribute("data-search-stuck");
     };
   }, [stickyObserverReady]);
+
+  useEffect(() => {
+    if (!stickyObserverReady) return;
+    if (window.matchMedia("(min-width: 901px)").matches) return;
+    const el = document.querySelector(".search-mobile-spacer");
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        const stuck = !e.isIntersecting;
+        document.documentElement.toggleAttribute(
+          "data-mobile-search-stuck",
+          stuck,
+        );
+        setMobileSearchStuck(stuck);
+      },
+      { threshold: 0 },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      document.documentElement.removeAttribute("data-mobile-search-stuck");
+      setMobileSearchStuck(false);
+    };
+  }, [stickyObserverReady]);
+
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 901px)").matches) return;
+    const nav = document.querySelector("[data-v-gutter-top]") as HTMLElement;
+    if (!nav) return;
+    const sync = () => {
+      const rect = nav.getBoundingClientRect();
+      const visible = rect.bottom > 0;
+      document.documentElement.style.setProperty(
+        "--mobile-search-top",
+        visible ? `${rect.bottom}px` : "0px",
+      );
+    };
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(nav, { attributes: true, attributeFilter: ["style", "class"] });
+    window.addEventListener("scroll", sync, { passive: true });
+    return () => {
+      mo.disconnect();
+      window.removeEventListener("scroll", sync);
+      document.documentElement.style.removeProperty("--mobile-search-top");
+    };
+  }, []);
 
   // Cmd+K to focus search
   useEffect(() => {
@@ -870,6 +973,24 @@ export function ServicesPage() {
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  const mobileSearchCount = useMemo(() => {
+    if (!search.trim()) return 0;
+    const q = search.toLowerCase();
+    return services.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.description?.toLowerCase().includes(q) ||
+        s.url.toLowerCase().includes(q) ||
+        s.tags?.some((t) => t.toLowerCase().includes(q)) ||
+        s.endpoints.some(
+          (ep) =>
+            ep.path.toLowerCase().includes(q) ||
+            ep.description?.toLowerCase().includes(q) ||
+            ep.method.toLowerCase().includes(q),
+        ),
+    ).length;
+  }, [services, search]);
 
   const toggleRow = useCallback((id: string) => {
     setExpandedIds((p) => {
@@ -976,7 +1097,17 @@ export function ServicesPage() {
     setDebouncedSearch(search);
     setPage(0);
     setTimeout(() => {
-      tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const el = tableRef.current;
+      if (!el) return;
+      const navH =
+        document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
+          .height ?? 56;
+      const barH =
+        document.querySelector(".search-mobile")?.getBoundingClientRect()
+          .height ?? 56;
+      const y =
+        el.getBoundingClientRect().top + window.scrollY - navH - barH - 12;
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
     }, 100);
   }, [search]);
 
@@ -1171,23 +1302,25 @@ export function ServicesPage() {
             )}
             {!loading && !error && (
               <>
-                {mobileSearchActive && !mobileResultsView && (
-                  // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop
-                  // biome-ignore lint/a11y/noStaticElementInteractions: backdrop
-                  <div
-                    className="mobile-search-backdrop"
-                    onClick={dismissMobileSearch}
-                    style={{
-                      position: "fixed",
-                      inset: 0,
-                      zIndex: 99,
-                      background:
-                        "light-dark(rgba(255,255,255,0.85), rgba(0,0,0,0.75))",
-                      backdropFilter: "blur(12px)",
-                      WebkitBackdropFilter: "blur(12px)",
-                    }}
-                  />
-                )}
+                {mobileSearchActive &&
+                  !mobileResultsView &&
+                  mobileSearchStuck && (
+                    // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop
+                    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop
+                    <div
+                      className="mobile-search-backdrop"
+                      onClick={dismissMobileSearch}
+                      style={{
+                        position: "fixed",
+                        inset: 0,
+                        zIndex: 99,
+                        background:
+                          "light-dark(rgba(255,255,255,0.85), rgba(0,0,0,0.75))",
+                        backdropFilter: "blur(12px)",
+                        WebkitBackdropFilter: "blur(12px)",
+                      }}
+                    />
+                  )}
                 {mobileResultsView && (
                   <div
                     className="mobile-results-header"
@@ -1249,7 +1382,11 @@ export function ServicesPage() {
                   </div>
                 )}
                 <div
-                  className={`search-mobile ${mobileResultsView ? "search-mobile-hidden" : ""}${mobileSearchActive && !mobileResultsView ? " search-mobile-active" : ""}`}
+                  className="search-mobile-spacer"
+                  style={{ display: "none" }}
+                />
+                <div
+                  className={`search-mobile${mobileSearchActive && !mobileResultsView ? " search-mobile-active" : ""}`}
                   style={{
                     display: "none",
                     marginBottom: "1rem",
@@ -1283,6 +1420,14 @@ export function ServicesPage() {
                         fullWidth
                         inputRef={searchInputRef}
                         onInputFocus={handleMobileSearchFocus}
+                        onDismiss={
+                          mobileSearchActive ? dismissMobileSearch : undefined
+                        }
+                        resultCount={
+                          mobileSearchActive && search.trim()
+                            ? mobileSearchCount
+                            : undefined
+                        }
                       />
                     </div>
                     {!mobileSearchActive && (
@@ -1372,85 +1517,34 @@ export function ServicesPage() {
                         </button>
                       </div>
                     )}
-                    {mobileSearchActive && !mobileResultsView && (
-                      <>
+                    {mobileSearchActive &&
+                      !mobileResultsView &&
+                      search.trim() && (
                         <button
                           type="button"
-                          onClick={dismissMobileSearch}
-                          className="mobile-search-x"
+                          className="mobile-search-view-btn"
+                          onClick={handleMobileView}
                           style={{
                             flexShrink: 0,
-                            border: "none",
-                            background: "transparent",
-                            color: "var(--vocs-text-color-muted)",
+                            border:
+                              "1px solid var(--vocs-border-color-primary)",
+                            background:
+                              "light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.06))",
+                            color: "var(--vocs-text-color-heading)",
+                            fontSize: 13,
+                            fontWeight: 500,
+                            fontFamily: "var(--font-sans)",
                             cursor: "pointer",
-                            padding: 6,
-                            borderRadius: 4,
-                            display: "flex",
-                            alignItems: "center",
+                            padding: "0.45rem 0.85rem",
+                            borderRadius: 7,
+                            whiteSpace: "nowrap",
+                            transition:
+                              "color 0.15s, border-color 0.15s, background 0.15s",
                           }}
                         >
-                          <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                          >
-                            <path d="M18 6 6 18" />
-                            <path d="m6 6 12 12" />
-                          </svg>
+                          View
                         </button>
-                        {search.trim() && (
-                          <button
-                            type="button"
-                            className="mobile-search-view-btn"
-                            onClick={handleMobileView}
-                            style={{
-                              flexShrink: 0,
-                              border: "none",
-                              background:
-                                "light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.12))",
-                              color: "var(--vocs-text-color-heading)",
-                              fontSize: 13,
-                              fontWeight: 600,
-                              fontFamily: "var(--font-sans)",
-                              cursor: "pointer",
-                              padding: "0.4rem 0.85rem",
-                              borderRadius: 20,
-                              whiteSpace: "nowrap",
-                              transition: "background 0.15s",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6,
-                            }}
-                          >
-                            View
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                minWidth: 22,
-                                height: 22,
-                                borderRadius: 11,
-                                background:
-                                  "light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.12))",
-                                fontSize: 11,
-                                fontWeight: 700,
-                                padding: "0 5px",
-                              }}
-                            >
-                              {filtered.length}
-                            </span>
-                          </button>
-                        )}
-                      </>
-                    )}
+                      )}
                   </div>
                 </div>
                 <div
@@ -1467,7 +1561,7 @@ export function ServicesPage() {
                     marginBottom: "0.75rem",
                     marginRight: "0.5rem",
                     position: "sticky",
-                    top: "calc(var(--vocs-spacing-topNav, 56px) -  48px)",
+                    top: "calc(var(--vocs-spacing-topNav, 56px) -  46px)",
                     zIndex: 51,
                     background:
                       "linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent)",
@@ -3746,9 +3840,9 @@ function PageStyles() {
         td.hide-mobile:nth-child(3) { display: none !important; }
         [data-services-table] table { table-layout: auto !important; }
         [data-services-table] table td:first-child:not(.expanded-detail) { padding: 1.15rem 0.35rem 1.15rem 1.25rem !important; vertical-align: top !important; overflow: hidden !important; max-width: 0 !important; width: 100% !important; }
-        [data-services-table] table td:last-of-type:not(.expanded-detail) { padding: 0.75rem 1rem 0.75rem 0 !important; vertical-align: middle !important; text-align: right !important; white-space: nowrap !important; overflow: visible !important; padding-right: 24px !important; width: 120px !important; min-width: 140px !important; max-width: 140px !important; box-sizing: border-box !important; }
+        [data-services-table] table td:last-of-type:not(.expanded-detail) { padding: 0 !important; vertical-align: middle !important; text-align: right !important; white-space: nowrap !important; overflow: visible !important; width: 120px !important; min-width: 140px !important; max-width: 140px !important; box-sizing: border-box !important; }
         .expanded-detail { padding: 0 !important; }
-        .chevron-cell { padding-right: 0 !important; gap: 0.25rem !important; }
+        .chevron-cell { padding-right: 24px !important; gap: 0.25rem !important; }
         .chevron-cell a { width: 32px !important; height: 32px !important; border: 1px solid var(--vocs-border-color-primary) !important; border-radius: 7px !important; display: flex !important; align-items: center !important; justify-content: center !important; margin-right: 4px; }
         .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; }
         .svc-badge-inline { display: inline !important; margin-left: 0.25rem !important; }
@@ -3795,36 +3889,39 @@ function PageStyles() {
         .search-bar { display: none !important; }
         .search-mobile {
           display: block !important;
-          padding: 0 1.25rem !important;
-          margin-bottom: 1rem !important;
-          position: sticky !important;
-          top: 0 !important;
-          z-index: 40 !important;
-          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 85%, transparent) !important;
-          padding-top: 0.75rem !important;
-          padding-bottom: 0.75rem !important;
+          padding: 0.75rem 1.25rem !important;
+          margin: 0 !important;
+          position: relative !important;
+          margin-top: -56px !important;
         }
-        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 16px !important; }
-        .search-mobile-active {
+        .search-mobile-spacer { display: block !important; height: 56px; }
+        [data-mobile-search-stuck] .search-mobile {
           position: fixed !important;
-          top: 0 !important;
+          top: var(--mobile-search-top, 56px) !important;
           left: 0 !important;
           right: 0 !important;
+          z-index: 40 !important;
+          margin-top: 0 !important;
+          background: var(--vocs-background-color-primary) !important;
+          transition: top 0.2s ease !important;
+        }
+        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 16px !important; }
+        .search-mobile-active,
+        [data-mobile-search-stuck] .search-mobile-active {
           z-index: 101 !important;
-          padding: 0.75rem 1rem !important;
-          margin: 0 !important;
-          // background: var(--vocs-background-color-primary) !important;
+          background: var(--vocs-background-color-primary) !important;
         }
         .search-kbd-hint { display: none !important; }
-        .mobile-results-header { display: flex !important; }
-        .mobile-search-backdrop + .mobile-results-header { display: none !important; }
+        .mobile-results-header { display: none !important; }
         .search-mobile .search-dropdown { max-height: 50vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
-        .search-mobile-active .search-dropdown { position: fixed !important; left: 0 !important; right: 0 !important; width: 100vw !important; max-width: 100vw !important; border-radius: 0 0 12px 12px !important; border-left: none !important; border-right: none !important; max-height: 60vh !important; }
+        .search-mobile-active .search-dropdown { position: fixed !important; top: calc(var(--mobile-search-top, 56px) + 52px) !important; left: 0 !important; right: 0 !important; width: 100vw !important; max-width: 100vw !important; border-radius: 0 0 12px 12px !important; border-left: none !important; border-right: none !important; max-height: 60vh !important; z-index: 102 !important; }
+        .search-mobile .search-dropdown > div:first-child { padding: 0.75rem 1.25rem !important; gap: 6px !important; }
+        .search-mobile .search-dropdown > div:first-child button { font-size: 13px !important; padding: 8px 16px !important; border-radius: 6px !important; }
         .search-mobile .search-dropdown-item { padding: 0.85rem 1.25rem !important; font-size: 15px !important; }
         .search-mobile .search-dropdown-item span:first-child { font-size: 11px !important; width: 70px !important; min-width: 70px !important; }
         .search-mobile-hidden { display: none !important; }
-        .filter-tags { justify-content: center !important; gap: 0.35rem !important; width: 100% !important; }
-        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 calc(20% - 0.35rem) !important; justify-content: center !important; max-width: calc(25% - 0.35rem) !important; }
+        .filter-tags { justify-content: flex-start !important; gap: 0.5rem !important; width: 100% !important; padding: 0.75rem 1.25rem !important; }
+        .filter-tags button { font-size: 14.5px !important; padding: 0.5rem 1rem !important; flex: unset !important; max-width: unset !important; }
         .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; margin-left: 0 !important; }
         .page-header p { max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; font-size: 16.5px !important; }
         .page-header-ctas { display: none !important; }
