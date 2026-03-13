@@ -83,7 +83,7 @@ export default defineConfig({
             link: "https://tempoxyz.github.io/mpp-specs/",
           },
           { text: "FAQ", link: "/faq" },
-          { text: "Build with an LLM", link: "/guides/building-with-ai" },
+          { text: "Build with an LLM", link: "/guides/building-with-an-llm" },
         ],
       },
       {
