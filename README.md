@@ -1,33 +1,17 @@
 # Machine Payments Protocol (MPP)
 
-The documentation site, service directory, and developer portal for the Machine Payments Protocol.
+The marketing site, developer documentation, and service directory for the Machine Payments Protocol.
 
-* **[mpp.dev](https://mpp.dev)** — live site
+* **[mpp.dev](https://mpp.dev)** — Marketing site
 * **[IETF Specs](https://tempoxyz.github.io/mpp-specs/)** — the core specification submitted to the IETF
 * **[Service Directory](https://mpp.dev/services)** — browse MPP-enabled services
 
 ## Overview
 
-MPP lets any client—agents, apps, or humans—pay for any service, inline, over HTTP. This repository contains:
+This repository contains:
 
-- **Documentation** — quickstart guides, protocol explainers, and SDK references for [TypeScript](https://github.com/wevm/mppx), [Python](https://github.com/tempoxyz/pympp), and [Rust](https://github.com/tempoxyz/mpp-rs)
-- **Service Directory** — a registry of MPP-enabled services with pricing, endpoints, and payment methods
-- **Landing page** — the public-facing site at [mpp.dev](https://mpp.dev)
-- **API routes** — demo endpoints for the interactive terminal and search
-
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Server
-
-    Client->>Server: GET /resource
-    Server-->>Client: 402 Payment Required<br/>WWW-Authenticate: Payment ...
-
-    Note over Client: Client fulfills payment challenge
-
-    Client->>Server: GET /resource<br/>Authorization: Payment credential
-    Server-->>Client: 200 OK
-```
+* **Documentation** — quickstart guides, protocol explainers, and SDK references
+* **Service Directory** — a registry of MPP-enabled services
 
 ## Development
 
@@ -36,45 +20,6 @@ pnpm install      # Install dependencies
 pnpm run dev      # Start development server
 pnpm run build    # Production build
 pnpm run preview  # Preview production build
-```
-
-### Prerequisites
-
-- **Node.js** >= 24
-- **pnpm** >= 10
-
-### Useful commands
-
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Local development server |
-| `pnpm build` | Production build |
-| `pnpm check` | Biome lint and format |
-| `pnpm check:types` | TypeScript type checking |
-| `pnpm test` | Run unit tests |
-| `pnpm test:e2e` | Run end-to-end tests |
-
-## Project structure
-
-```
-src/
-  pages/           — file-based routing (.mdx, .tsx)
-    _api/          — API routes (server-side handlers)
-    guides/        — how-to guides
-    intents/       — payment intent docs
-    payment-methods/ — payment method docs
-    protocol/      — protocol concept docs
-    quickstart/    — getting started guides
-    sdk/           — SDK reference (TypeScript, Python, Rust)
-  components/      — React components
-  data/            — runtime data loaders
-  public/          — static assets
-schemas/
-  services.ts      — service registry (source of truth)
-  discovery.json   — generated discovery file
-  discovery.schema.json — JSON Schema for service entries
-scripts/           — build and codegen scripts
-vocs.config.ts     — Vocs site configuration
 ```
 
 ## Contributing to the service directory
@@ -87,43 +32,43 @@ The service directory at [mpp.dev/services](https://mpp.dev/services) lists all 
 
 ```ts
 {
-  id: "my-service",                              // URL-safe unique ID
-  name: "My Service",                            // Display name
-  url: "https://api.example.com",                // Upstream provider URL
-  serviceUrl: "https://my-service.mpp.tempo.xyz",// MPP service URL
+  id: "my-service",
+  name: "My Service",
+  url: "https://example.com",
+  serviceUrl: "https://api.example.com",
   description: "What your service does.",
-  categories: ["ai"],                            // One or more: ai, blockchain, compute, data, media, search, social, storage, web
-  integration: "first-party",                    // "first-party" or "third-party"
-  tags: ["llm", "chat"],                         // Freeform search tags
+  categories: ["ai"],
+  integration: "first-party",
+  tags: ["llm", "chat"],
   docs: {
     homepage: "https://docs.example.com",
     llmsTxt: "https://docs.example.com/llms.txt",
   },
   provider: { name: "Example Inc.", url: "https://example.com" },
   realm: MPP_REALM,
-  intent: "charge",                              // Default intent: "charge" or "session"
-  payment: TEMPO_PAYMENT,                        // Use TEMPO_PAYMENT for Tempo USDC
+  intent: "charge",
+  payment: TEMPO_PAYMENT,
   endpoints: [
     { route: "POST /v1/completions", desc: "Generate completions", amount: "5000" },
-    { route: "GET /v1/models", desc: "List models" },  // Omit amount for free endpoints
+    { route: "GET /v1/models", desc: "List models" },
   ],
 }
 ```
 
-2. **Regenerate the discovery file**:
+1. **Regenerate the discovery file**:
 
 ```bash
 node scripts/generate-discovery.ts
 ```
 
-3. **Validate** — the build runs schema validation automatically:
+1. **Validate** — the build runs schema validation automatically:
 
 ```bash
 pnpm check:types
 pnpm build
 ```
 
-4. **Open a pull request** with both `schemas/services.ts` and `schemas/discovery.json` changes.
+1. **Open a pull request** with both `schemas/services.ts` and `schemas/discovery.json` changes.
 
 ### Service schema
 
@@ -186,6 +131,6 @@ We welcome contributions to documentation, the service directory, and site impro
 
 ## License
 
-Documentation content: [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/) (Public Domain)
+Documentation content: [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT), at your option
 
 Code and tooling: [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT), at your option
