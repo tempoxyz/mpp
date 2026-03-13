@@ -3582,7 +3582,7 @@ function PageStyles() {
       [data-search-stuck] .search-bar { padding-top: 0rem !important; }
 
       @media (max-width: 900px) {
-        [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
+        [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: clip !important; }
         [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
       }
       /* Filter: always show dropdown, search bar taller */
