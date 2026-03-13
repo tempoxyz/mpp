@@ -92,7 +92,7 @@ export default defineConfig({
           { text: "Overview", link: "/quickstart" },
           { text: "Use with your app", link: "/quickstart/client" },
           { text: "Monetize your service", link: "/quickstart/server" },
-          { text: "Use with your agent", link: "/quickstart/agent" },
+          { text: "Use with agents", link: "/quickstart/agent" },
         ],
       },
       {
