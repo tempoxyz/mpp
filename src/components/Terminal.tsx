@@ -163,6 +163,7 @@ function PhotoOutput({ url }: { url: string }) {
             background: "none",
             border: "none",
             padding: 0,
+            cursor: "pointer",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.color = "var(--term-gray10)";
@@ -960,12 +961,12 @@ function AsyncSteps({
           {outputMode === "photo" && output.length > 0 ? (
             <PhotoOutput url={output[0]} />
           ) : (
-              <pre
-                className="whitespace-pre-wrap"
-                style={{ color: "var(--term-gray10)" }}
-              >
+            <pre
+              className="whitespace-pre-wrap"
+              style={{ color: "var(--term-gray10)" }}
+            >
               {renderText(outputText)}
-              </pre>
+            </pre>
           )}
           <BlankLine />
         </>
@@ -2795,7 +2796,7 @@ function TerminalComponent({
             style={{
               background: "transparent",
               border: "none",
-              cursor: "pointer",
+
               color: "var(--term-gray5)",
               padding: 2,
               borderRadius: 4,

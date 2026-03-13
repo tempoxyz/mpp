@@ -115,6 +115,7 @@ function LandingStyles() {
 
       .landing-page {
         margin-top: 0 !important;
+        
       }
 
       /* ---- Main section: hero + terminal ---- */
@@ -123,7 +124,7 @@ function LandingStyles() {
         flex-direction: column;
         justify-content: center;
         align-items: stretch;
-        gap: 20px;
+        gap: 40px;
         min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
         position: relative;
       }

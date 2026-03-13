@@ -1422,7 +1422,7 @@ function ServiceDetailModal({
                           "1px solid light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.15))",
                         background:
                           "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08))",
-                        cursor: "pointer",
+
                         fontFamily: "var(--font-sans)",
                         transition: "background 0.15s",
                       }}
@@ -1699,7 +1699,7 @@ function ServiceDetailModal({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 4,
-                  cursor: "pointer",
+
                   textTransform: "none",
                   letterSpacing: "normal",
                 }}
@@ -2019,8 +2019,9 @@ function DiscoveryStyles() {
         flex-shrink: 0;
         border: none;
         background: transparent;
-        cursor: pointer;
+        
         color: var(--vocs-text-color-muted);
+        
         padding: 2px;
         border-radius: 4px;
         transition: color 0.15s;
@@ -2086,7 +2087,7 @@ function DiscoveryStyles() {
         padding: 0.7rem 1rem;
         border: none;
         background: transparent;
-        cursor: pointer;
+        
         font-size: 14px;
         color: var(--vocs-text-color-heading);
         text-align: left;
@@ -2149,7 +2150,7 @@ function DiscoveryStyles() {
         border: none;
         background: transparent;
         color: var(--vocs-text-color-muted);
-        cursor: pointer;
+        
         transition: background 0.1s, color 0.1s;
       }
       .discovery-dropdown-tab:hover { color: var(--vocs-text-color-heading); }
@@ -2206,7 +2207,7 @@ function DiscoveryStyles() {
         border-radius: 14px;
         border: 1px solid var(--vocs-border-color-primary);
         background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.03));
-        cursor: pointer;
+        
         text-align: left;
         font-family: var(--font-sans);
         overflow: visible;
@@ -2381,7 +2382,7 @@ function DiscoveryStyles() {
       .modal-close {
         border: none;
         background: transparent;
-        cursor: pointer;
+        
         color: var(--vocs-text-color-muted);
         padding: 4px;
         border-radius: 6px;
@@ -2415,6 +2416,7 @@ function DiscoveryStyles() {
         color: var(--vocs-text-color-heading);
         text-decoration: none;
         transition: background 0.15s;
+        cursor: pointer;
       }
       .modal-link:hover {
         background: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06));
@@ -2549,8 +2551,7 @@ function DiscoveryStyles() {
         max-height: 320px;
         overflow-y: auto;
         border: 1px solid light-dark(var(--vocs-border-color-primary), rgba(255,255,255,0.1));
-        border-top: none;
-        border-radius: 0 0 10px 10px;
+        border-radius: 10px;
         scrollbar-width: thin;
       }
       .modal-endpoint-row {
@@ -2681,7 +2682,6 @@ function DiscoveryStyles() {
         }
         .endpoint-path { font-size: 13px !important; }
         .method-badge { font-size: 11px !important; }
-        .modal-endpoints { border-top: none; }
         .modal-action-links {
           flex-direction: column !important;
           gap: 6px !important;
@@ -2781,7 +2781,7 @@ function DiscoveryStyles() {
           border: none;
           background: transparent;
           color: var(--vocs-text-color-muted);
-          cursor: pointer;
+          
           padding: 4px;
           border-radius: 4px;
           transition: color 0.15s;
@@ -2799,7 +2799,7 @@ function DiscoveryStyles() {
           font-size: 12px;
           font-weight: 600;
           font-family: var(--font-sans);
-          cursor: pointer;
+          
           padding: 4px 10px;
           border-radius: 5px;
           white-space: nowrap;

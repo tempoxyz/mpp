@@ -43,45 +43,11 @@ function useGoogleAnalytics() {
 }
 
 function MobileNav() {
-  const handleLogoClick = () => {
-    const el = document.querySelector(".landing-page") as HTMLElement;
-    if (el) {
-      window.dispatchEvent(new CustomEvent("mpp:reset-discovery"));
-      el.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      window.location.href = "/";
-      return;
-    }
-    const closeBtn = document.querySelector(
-      "[data-v-sidebar-close]",
-    ) as HTMLElement;
-    closeBtn?.click();
-  };
-
   return (
     <nav data-mobile-nav="" aria-label="Main navigation">
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: nav logo */}
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: nav logo */}
-      <div
-        data-mobile-nav-logo=""
-        onClick={handleLogoClick}
-        style={{ cursor: "pointer" }}
-      >
-        <img
-          src="/logo-dark.svg"
-          alt="MPP"
-          className="mobile-nav-logo-light"
-          style={{ height: 20, width: "auto" }}
-        />
-        <img
-          src="/logo-light.svg"
-          alt="MPP"
-          className="mobile-nav-logo-dark"
-          style={{ height: 20, width: "auto" }}
-        />
-      </div>
-
-      {/* Top links: Services, Specification, GitHub repos */}
+      <a href="/overview" data-mobile-nav-item="">
+        Docs
+      </a>
       <a href="/services" data-mobile-nav-item="">
         Services
       </a>

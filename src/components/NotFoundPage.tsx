@@ -166,7 +166,7 @@ export function NotFoundPage() {
           letterSpacing: "1px",
           color: "var(--vocs-text-color-heading)",
           opacity: 0.85,
-          cursor: "pointer",
+          
         }}
       >
         <div

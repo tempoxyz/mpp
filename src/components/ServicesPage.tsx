@@ -483,7 +483,6 @@ function SearchWithDropdown({
                     dropdownTab === tab
                       ? "var(--vocs-text-color-heading)"
                       : "var(--vocs-text-color-muted)",
-                  cursor: "pointer",
                 }}
               >
                 {tab === "all"
@@ -522,7 +521,7 @@ function SearchWithDropdown({
                         ? "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))"
                         : "transparent",
                     border: "none",
-                    cursor: "pointer",
+
                     textAlign: "left",
                     fontFamily: "var(--font-sans)",
                     fontSize: 13,
@@ -769,6 +768,7 @@ export function ServicesPage() {
     string | undefined
   >(undefined);
   const tableRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
   const shuffledOrder = useRef<string[]>([]);
 
   useEffect(() => {
@@ -791,6 +791,25 @@ export function ServicesPage() {
     const id = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(id);
   }, [search]);
+
+  useEffect(() => {
+    const el = stickyRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        document.documentElement.toggleAttribute(
+          "data-search-stuck",
+          !e.isIntersecting,
+        );
+      },
+      { threshold: 0 },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      document.documentElement.removeAttribute("data-search-stuck");
+    };
+  }, []);
 
   // Cmd+K to focus search
   useEffect(() => {
@@ -850,7 +869,17 @@ export function ServicesPage() {
   const toggleRow = useCallback((id: string) => {
     setExpandedIds((p) => {
       if (p.has(id)) {
+        const el = document.getElementById(`service-${id}`);
+        const rectBefore = el?.getBoundingClientRect().top ?? 0;
         history.replaceState(null, "", window.location.pathname);
+        requestAnimationFrame(() => {
+          if (!el) return;
+          const rectAfter = el.getBoundingClientRect().top;
+          const drift = rectAfter - rectBefore;
+          if (Math.abs(drift) > 1) {
+            window.scrollBy(0, drift);
+          }
+        });
         return new Set();
       }
       history.replaceState(null, "", `#service-${id}`);
@@ -1191,7 +1220,7 @@ export function ServicesPage() {
                         border: "none",
                         background: "transparent",
                         color: "var(--vocs-text-color-muted)",
-                        cursor: "pointer",
+
                         padding: 4,
                         borderRadius: 4,
                         flexShrink: 0,
@@ -1217,19 +1246,11 @@ export function ServicesPage() {
                   </div>
                 )}
                 <div
-                  className={`search-mobile ${mobileResultsView ? "search-mobile-hidden" : ""}`}
+                  className={`search-mobile ${mobileResultsView ? "search-mobile-hidden" : ""}${mobileSearchActive && !mobileResultsView ? " search-mobile-active" : ""}`}
                   style={{
                     display: "none",
                     marginBottom: "1rem",
                     marginTop: "0.5rem",
-                    position:
-                      mobileSearchActive && !mobileResultsView
-                        ? "relative"
-                        : undefined,
-                    zIndex:
-                      mobileSearchActive && !mobileResultsView
-                        ? 100
-                        : undefined,
                   }}
                 >
                   <div
@@ -1283,7 +1304,7 @@ export function ServicesPage() {
                             height: 34,
                             border: "none",
                             borderRadius: 6,
-                            cursor: "pointer",
+
                             background: "transparent",
                             color:
                               viewMode === "list"
@@ -1320,7 +1341,7 @@ export function ServicesPage() {
                             height: 34,
                             border: "none",
                             borderRadius: 6,
-                            cursor: "pointer",
+
                             background: "transparent",
                             color:
                               viewMode === "grid"
@@ -1350,40 +1371,17 @@ export function ServicesPage() {
                     )}
                     {mobileSearchActive && !mobileResultsView && (
                       <>
-                        {search.trim() && (
-                          <button
-                            type="button"
-                            className="mobile-search-view-btn"
-                            onClick={handleMobileView}
-                            style={{
-                              flexShrink: 0,
-                              border: "none",
-                              background:
-                                "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))",
-                              color: "var(--vocs-text-color-heading)",
-                              fontSize: 13,
-                              fontWeight: 600,
-                              fontFamily: "var(--font-sans)",
-                              cursor: "pointer",
-                              padding: "0 12px",
-                              borderRadius: 7,
-                              whiteSpace: "nowrap",
-                              transition: "background 0.15s",
-                            }}
-                          >
-                            View
-                          </button>
-                        )}
                         <button
                           type="button"
                           onClick={dismissMobileSearch}
+                          className="mobile-search-x"
                           style={{
                             flexShrink: 0,
                             border: "none",
                             background: "transparent",
                             color: "var(--vocs-text-color-muted)",
                             cursor: "pointer",
-                            padding: 4,
+                            padding: 6,
                             borderRadius: 4,
                             display: "flex",
                             alignItems: "center",
@@ -1404,10 +1402,59 @@ export function ServicesPage() {
                             <path d="m6 6 12 12" />
                           </svg>
                         </button>
+                        {search.trim() && (
+                          <button
+                            type="button"
+                            className="mobile-search-view-btn"
+                            onClick={handleMobileView}
+                            style={{
+                              flexShrink: 0,
+                              border: "none",
+                              background:
+                                "light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.12))",
+                              color: "var(--vocs-text-color-heading)",
+                              fontSize: 13,
+                              fontWeight: 600,
+                              fontFamily: "var(--font-sans)",
+                              cursor: "pointer",
+                              padding: "0.4rem 0.85rem",
+                              borderRadius: 20,
+                              whiteSpace: "nowrap",
+                              transition: "background 0.15s",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            View
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                minWidth: 22,
+                                height: 22,
+                                borderRadius: 11,
+                                background:
+                                  "light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.12))",
+                                fontSize: 11,
+                                fontWeight: 700,
+                                padding: "0 5px",
+                              }}
+                            >
+                              {filtered.length}
+                            </span>
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
                 </div>
+                <div
+                  ref={stickyRef}
+                  style={{ height: 0, pointerEvents: "none" }}
+                  aria-hidden
+                />
                 <div
                   className="search-bar"
                   style={{
@@ -1415,14 +1462,14 @@ export function ServicesPage() {
                     gap: "0.5rem",
                     alignItems: "center",
                     marginBottom: "0.75rem",
-                    marginLeft: "0.5rem",
                     marginRight: "0.5rem",
                     position: "sticky",
-                    top: "calc(var(--vocs-spacing-topNav, 56px) - 14px)",
-                    zIndex: 50,
-                    background: "var(--vocs-background-color-primary)",
-                    paddingTop: "0.5rem",
-                    paddingBottom: "0.5rem",
+                    top: "calc(var(--vocs-spacing-topNav, 56px) -  40px)",
+                    zIndex: 51,
+                    background:
+                      "linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent)",
+                    paddingTop: "0.75rem",
+                    paddingBottom: "0.75rem",
                   }}
                 >
                   <SearchWithDropdown
@@ -1460,7 +1507,7 @@ export function ServicesPage() {
                         height: 34,
                         border: "none",
                         borderRadius: 6,
-                        cursor: "pointer",
+
                         background: "transparent",
                         color:
                           viewMode === "list"
@@ -1498,7 +1545,7 @@ export function ServicesPage() {
                         height: 34,
                         border: "none",
                         borderRadius: 6,
-                        cursor: "pointer",
+
                         background: "transparent",
                         color:
                           viewMode === "grid"
@@ -1860,7 +1907,7 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
               border: "none",
               background: "var(--vocs-text-color-heading)",
               color: "var(--vocs-background-color-primary)",
-              cursor: "pointer",
+
               fontSize: 14,
               fontWeight: 500,
             }}
@@ -1977,7 +2024,6 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
               gap: 8,
               fontSize: 13,
               color: "var(--vocs-text-color-secondary)",
-              cursor: "pointer",
             }}
           >
             <input
@@ -1999,7 +2045,6 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
               gap: 8,
               fontSize: 13,
               color: "var(--vocs-text-color-secondary)",
-              cursor: "pointer",
             }}
           >
             <input
@@ -2033,7 +2078,7 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
                 border: "1px solid var(--vocs-border-color-primary)",
                 background: "transparent",
                 color: "var(--vocs-text-color-heading)",
-                cursor: "pointer",
+
                 fontSize: 14,
               }}
             >
@@ -2049,7 +2094,7 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
                 border: "none",
                 background: "var(--vocs-text-color-heading)",
                 color: "var(--vocs-background-color-primary)",
-                cursor: "pointer",
+
                 fontSize: 14,
                 fontWeight: 500,
                 opacity: submitting ? 0.6 : 1,
@@ -2152,7 +2197,7 @@ function HeaderCards({
           className="info-card-link"
           style={{
             ...cs,
-            cursor: "pointer",
+
             fontFamily: "var(--font-sans)",
             textAlign: "left",
           }}
@@ -2568,7 +2613,7 @@ function FilterDropdown({
           border: "1px solid var(--vocs-border-color-primary)",
           background: "transparent",
           color: "var(--vocs-text-color-muted)",
-          cursor: "pointer",
+
           fontFamily: "var(--font-sans)",
           whiteSpace: "nowrap",
         }}
@@ -2640,7 +2685,7 @@ function FilterDropdown({
                   selectedCategory === null
                     ? "var(--vocs-text-color-heading)"
                     : "var(--vocs-text-color-secondary)",
-                cursor: "pointer",
+
                 fontFamily: "var(--font-sans)",
               }}
             >
@@ -2670,7 +2715,7 @@ function FilterDropdown({
                     selectedCategory === cat
                       ? "var(--vocs-text-color-heading)"
                       : "var(--vocs-text-color-secondary)",
-                  cursor: "pointer",
+
                   fontFamily: "var(--font-sans)",
                 }}
               >
@@ -2890,7 +2935,7 @@ function ServiceRow({
           borderBottom: expanded
             ? "1px solid transparent"
             : "1px solid var(--vocs-border-color-primary)",
-          cursor: "pointer",
+
           transition: "background 0.1s",
           background: expanded ? expandedBg : undefined,
           minHeight: 58,
@@ -3009,13 +3054,14 @@ function ServiceRow({
                 copiedId === `url-${s.id}`
                   ? "var(--vocs-text-color-heading)"
                   : URL_COLOR,
-              cursor: "pointer",
+
               display: "inline-block",
               padding: "0.15rem 0.4rem",
               borderRadius: 4,
               background: CODE_BG,
               transition: "color 0.15s",
               wordBreak: "break-all",
+              cursor: "pointer",
             }}
             title={
               copiedId === `url-${s.id}`
@@ -3311,13 +3357,14 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                           color: isCopied
                             ? "var(--vocs-text-color-heading)"
                             : URL_COLOR,
-                          cursor: "pointer",
+
                           transition: "color 0.15s",
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           display: "inline-block",
                           minWidth: 0,
+                          cursor: "pointer",
                         }}
                         title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
                       >
@@ -3473,6 +3520,11 @@ function PageStyles() {
       [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; }
       [data-layout="minimal"] main > article { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
 
+      /* Hide logo when search bar overlaps it at mid-wide viewports */
+      @media (min-width: 1500px) and (max-width: 1730px) {
+        [data-v-logo-image] { opacity: 0 !important; pointer-events: none; }
+      }
+
       @media (max-width: 900px) {
         [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
         [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
@@ -3488,7 +3540,7 @@ function PageStyles() {
       }
 
       /* Soften table borders */
-      [data-services-table] table tr { border-color: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) !important; }
+      [data-services-table] table tr { border-color: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) !important; scroll-margin-top: calc(var(--vocs-spacing-topNav, 56px) + 60px); }
 
       .search-mobile { display: none; }
       .header-cards { display: none !important; }
@@ -3546,6 +3598,8 @@ function PageStyles() {
         }
       }
 
+
+
       /* ---- Sidebar hidden, header cards as 4-col strip ---- */
       @media (max-width: 1200px) {
         .services-sidebar { display: none !important; }
@@ -3553,11 +3607,13 @@ function PageStyles() {
         .page-header { margin-left: 0 !important; }
         .header-cards { display: block !important; margin-left: 0 !important; margin-right: 0 !important; margin-bottom: 0.75rem !important; }
         .page-header-ctas { display: none !important; }
+        
         .search-bar {
           margin-left: 0 !important;
+          margin-top: 0 !important;
+          padding-top: 20px !important;
           margin-right: 0 !important;
           top: calc(var(--vocs-spacing-topNav, 56px) - 4px) !important;
-          padding-top: 0.75rem !important;
           padding-bottom: 0.75rem !important;
           background: linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent) !important;
         }
@@ -3629,7 +3685,7 @@ function PageStyles() {
         td.hide-mobile:nth-child(2) { display: none !important; }
         td.hide-mobile:nth-child(3) { display: none !important; }
         [data-services-table] table { table-layout: auto !important; }
-        [data-services-table] table td:first-child:not(.expanded-detail) { padding: 1rem 0.35rem 1rem 1.25rem !important; vertical-align: top !important; overflow: hidden !important; max-width: 0 !important; width: 100% !important; }
+        [data-services-table] table td:first-child:not(.expanded-detail) { padding: 1.15rem 0.35rem 1.15rem 1.25rem !important; vertical-align: top !important; overflow: hidden !important; max-width: 0 !important; width: 100% !important; }
         [data-services-table] table td:last-of-type:not(.expanded-detail) { padding: 0.75rem 1rem 0.75rem 0 !important; vertical-align: middle !important; text-align: right !important; white-space: nowrap !important; overflow: visible !important; padding-right: 24px !important; width: 120px !important; min-width: 140px !important; max-width: 140px !important; box-sizing: border-box !important; }
         .expanded-detail { padding: 0 !important; }
         .chevron-cell { padding-right: 0 !important; gap: 0.25rem !important; }
@@ -3678,12 +3734,24 @@ function PageStyles() {
         .header-cards-grid > * > div > div:last-child { font-size: 13.5px !important; line-height: 1.4 !important; }
         .search-bar { display: none !important; }
         .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
-        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
+        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 16px !important; }
+        .search-mobile-active {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          z-index: 101 !important;
+          padding: 0.75rem 1rem !important;
+          margin: 0 !important;
+          // background: var(--vocs-background-color-primary) !important;
+        }
         .search-kbd-hint { display: none !important; }
         .mobile-results-header { display: flex !important; }
         .mobile-search-backdrop + .mobile-results-header { display: none !important; }
         .search-mobile .search-dropdown { max-height: 50vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
-        .search-mobile .search-dropdown-item { padding: 0.75rem 1rem !important; font-size: 14px !important; }
+        .search-mobile-active .search-dropdown { position: fixed !important; left: 0 !important; right: 0 !important; width: 100vw !important; max-width: 100vw !important; border-radius: 0 0 12px 12px !important; border-left: none !important; border-right: none !important; max-height: 60vh !important; }
+        .search-mobile .search-dropdown-item { padding: 0.85rem 1.25rem !important; font-size: 15px !important; }
+        .search-mobile .search-dropdown-item span:first-child { font-size: 11px !important; width: 70px !important; min-width: 70px !important; }
         .search-mobile-hidden { display: none !important; }
         .filter-tags { justify-content: center !important; gap: 0.35rem !important; width: 100% !important; }
         .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 calc(20% - 0.35rem) !important; justify-content: center !important; max-width: calc(25% - 0.35rem) !important; }

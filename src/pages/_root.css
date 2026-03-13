@@ -139,6 +139,7 @@ html {
   color: var(--vocs-text-color-heading);
   position: relative;
   z-index: 51;
+  transition: opacity 0.15s;
 }
 
 [data-v-logo] img {
@@ -732,13 +733,28 @@ article hr {
   z-index: 50 !important;
 }
 
-/* Gradient background for services page header (layout: minimal) */
+/* Gradient nav on minimal pages — search bar (z:51) paints above it */
 [data-layout="minimal"] [data-v-gutter-top] {
   background: linear-gradient(
     to bottom,
     var(--vocs-background-color-primary) 60%,
     transparent
   ) !important;
+}
+/* Mobile-ish: solid nav, gradient moves to .search-bar instead */
+@media (max-width: 1200px) {
+  [data-layout="minimal"] [data-v-gutter-top] {
+    background: var(--vocs-background-color-primary) !important;
+  }
+}
+
+/* Vocs sets z-index:10 + isolation:isolate on <main>, trapping all children
+   below the nav's z-index:50.  On minimal-layout pages (no sidebar/outline)
+   we remove that stacking context so the sticky search bar can sit above
+   the nav. */
+[data-layout="minimal"] main {
+  z-index: auto !important;
+  isolation: auto !important;
 }
 
 /* Force mobile nav / header / root background to match primary background.
@@ -1207,4 +1223,10 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 [data-v-content],
 [data-layout="minimal"] main > article {
   animation: pageContentFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Minimal-layout pages (services, etc.) manage their own entrance animations.
+   Remove the page fade so the article doesn't create a stacking context that
+   traps sticky elements below the nav (z-index: 50). */
+[data-layout="minimal"] main > article {
+  animation: none;
 }

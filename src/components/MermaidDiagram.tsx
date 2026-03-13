@@ -1005,7 +1005,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    cursor: "pointer",
+    
     padding: 0,
     opacity: 0.7,
     transition: "opacity 0.2s",
