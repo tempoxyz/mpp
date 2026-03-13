@@ -405,7 +405,7 @@ function SearchWithDropdown({
           onInputFocus?.();
         }}
         onKeyDown={handleKeyDown}
-        placeholder={`Search ${services.length} services...`}
+        placeholder="Search services..."
         style={{
           width: "100%",
           padding: `0.4rem ${onDismiss && resultCount != null ? "5rem" : onDismiss ? "2rem" : "0.6rem"} 0.4rem 2rem`,
@@ -1171,7 +1171,7 @@ export function ServicesPage() {
                 marginTop: "-0.5rem",
               }}
             >
-              Use MPP-enabled APIs seamlessly with your agents.
+              Use MPP-enabled APIs seamlessly with your agent.
             </p>
           </div>
           <div className="page-header-ctas" style={{ display: "none" }} />
