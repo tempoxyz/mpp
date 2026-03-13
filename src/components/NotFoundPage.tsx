@@ -151,8 +151,6 @@ export function NotFoundPage() {
 				[data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
 				[data-v-main] article[data-v-content] { padding-top: 0 !important; padding-bottom: 0 !important; }
 				[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
-				html.dark [data-logo-light] { display: none !important; }
-				html.dark [data-logo-dark] { display: block !important; }
 			`}</style>
       <NotFoundHeaderLogo />
 
@@ -252,18 +250,14 @@ function NotFoundHeaderLogo() {
         textDecoration: "none",
       }}
     >
-      <img
-        src="/logo-dark.svg"
-        alt="MPP"
-        data-logo-light
-        style={{ height: 20, width: "auto" }}
-      />
-      <img
-        src="/logo-light.svg"
-        alt="MPP"
-        data-logo-dark
-        style={{ height: 20, width: "auto", display: "none" }}
-      />
+      <picture>
+        <source srcSet="/logo-light.svg" media="(prefers-color-scheme: dark)" />
+        <img
+          src="/logo-dark.svg"
+          alt="MPP"
+          style={{ height: 20, width: "auto" }}
+        />
+      </picture>
     </a>,
     target,
   );

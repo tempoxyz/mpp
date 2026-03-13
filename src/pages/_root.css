@@ -1131,21 +1131,14 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   .mobile-nav-logo-dark {
     display: none;
   }
-  html.dark .mobile-nav-logo-light {
-    display: none;
+  @media (prefers-color-scheme: dark) {
+    .mobile-nav-logo-light {
+      display: none;
+    }
+    .mobile-nav-logo-dark {
+      display: block;
+    }
   }
-  html.dark .mobile-nav-logo-dark {
-    display: block;
-  }
-
-}
-
-/* Landing page lockup: respect Vocs theme */
-html.dark .lockup-light {
-  display: none !important;
-}
-html.dark .lockup-dark {
-  display: block !important;
 }
 
 /* ---- Page content opacity transition on route change ----
