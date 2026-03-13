@@ -1171,7 +1171,7 @@ export function ServicesPage() {
                 marginTop: "-0.5rem",
               }}
             >
-              Explore MPP-enabled APIs that work seamlessly with apps & agents.
+              Use MPP-enabled APIs seamlessly with your agents.
             </p>
           </div>
           <div className="page-header-ctas" style={{ display: "none" }} />
@@ -3696,7 +3696,7 @@ function PageStyles() {
       .header-cards { display: none !important; }
       .sub-header { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 1fr) 8%; }
       .sub-row { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 1fr) 8%; align-items: center; }
-      .ep-desc-cell { padding: 0.25rem 0.75rem 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+      .ep-desc-cell { padding: 0.25rem 0.75rem 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal; word-break: break-word; }
       .show-tablet { display: none !important; }
       .expanded-url-bar { display: none !important; }
       .url-copy-icon { opacity: 0.8; transition: opacity 0.15s, color 0.15s; color: var(--vocs-text-color-muted); }
@@ -3930,6 +3930,36 @@ function PageStyles() {
           margin-top: 6px !important;
           margin-bottom: 2px !important;
           font-size: 14.5px !important;
+        }
+      }
+
+      /* ---- Mobile: one-column primary rows ---- */
+      @media (max-width: 700px) {
+        [data-services-table] table tr[id^="service-"] {
+          display: flex !important;
+          flex-wrap: wrap !important;
+          position: relative !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td:first-child {
+          max-width: none !important;
+          width: 100% !important;
+          margin-right: auto !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td:last-of-type {
+          position: absolute !important;
+          right: 0 !important;
+          top: 0 !important;
+          width: auto !important;
+          min-width: auto !important;
+          max-width: none !important;
+          height: auto !important;
+          padding-top: 0.75rem !important;
+        }
+        .svc-badge-inline { position: relative !important; top: -4px !important; }
+        .svc-name-row { margin-bottom: 3px !important; }
+        .ep-desc-cell {
+          white-space: normal !important;
+          word-break: break-word !important;
         }
       }
 
