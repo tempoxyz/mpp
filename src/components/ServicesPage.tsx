@@ -3580,8 +3580,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                     className="ep-desc-cell"
                     style={{
                       color: "var(--vocs-text-color-secondary)",
-                      fontSize: 14,
-                      lineHeight: 2,
+                      fontSize: 13.5,
                     }}
                   >
                     {ep.payment?.intent && (
