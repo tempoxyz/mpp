@@ -158,7 +158,7 @@ export function NotFoundPage() {
       <div
         onMouseEnter={() => startMorph(1)}
         onMouseLeave={() => startMorph(0)}
-        className="overflow-x-auto max-w-full mb-8"
+        className="overflow-hidden max-w-full mb-8"
         style={{
           fontFamily: "monospace",
           lineHeight: 1.15,
@@ -169,7 +169,7 @@ export function NotFoundPage() {
         }}
       >
         <div
-          className="text-[4px] sm:text-[5px] md:text-[6px]"
+          className="text-[2.5px] sm:text-[4px] md:text-[5px] lg:text-[6px]"
           style={{ minWidth: "fit-content" }}
         >
           {mppLines.map((mppLine, lineIdx) => {
