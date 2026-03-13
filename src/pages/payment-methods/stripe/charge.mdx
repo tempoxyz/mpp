@@ -323,7 +323,6 @@ export async function POST(request: Request) {
     'usage_limits[max_amount]': amount,
     'usage_limits[expires_at]': expiresAt.toString(),
   })
-  if (networkId) body.set('seller_details[network_id]', networkId)
   if (metadata) {
     for (const [key, value] of Object.entries(metadata)) {
       body.set(`metadata[${key}]`, value)
