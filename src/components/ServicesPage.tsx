@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices } from "../data/registry";
+import { ServiceDiscovery } from "./ServiceDiscovery";
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
@@ -285,6 +286,8 @@ function SearchWithDropdown({
   fullWidth,
   inputRef: externalRef,
   onInputFocus,
+  onDismiss,
+  resultCount,
 }: {
   search: string;
   setSearch: (v: string) => void;
@@ -295,6 +298,8 @@ function SearchWithDropdown({
   fullWidth?: boolean;
   inputRef?: React.RefObject<HTMLInputElement | null>;
   onInputFocus?: () => void;
+  onDismiss?: () => void;
+  resultCount?: number;
 }) {
   const internalRef = useRef<HTMLInputElement>(null);
   const ref = externalRef ?? internalRef;
@@ -403,9 +408,9 @@ function SearchWithDropdown({
         placeholder={`Search ${services.length} services...`}
         style={{
           width: "100%",
-          padding: "0.4rem 0.6rem 0.4rem 2rem",
+          padding: `0.4rem ${onDismiss && resultCount != null ? "5rem" : onDismiss ? "2rem" : "0.6rem"} 0.4rem 2rem`,
           fontSize: 14,
-          borderRadius: 7,
+          borderRadius: 8,
           border: "1px solid var(--vocs-border-color-primary)",
           background:
             "light-dark(rgba(255,255,255,0.8), rgba(255,255,255,0.04))",
@@ -414,7 +419,58 @@ function SearchWithDropdown({
           outline: "none",
         }}
       />
-      {!search && (
+      {onDismiss && resultCount != null && (
+        <span
+          style={{
+            position: "absolute",
+            right: 32,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: "12.5px",
+            color: "var(--vocs-text-color-muted)",
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        >
+          {resultCount}
+        </span>
+      )}
+      {onDismiss && (
+        <button
+          type="button"
+          onClick={onDismiss}
+          style={{
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            border: "none",
+            background: "transparent",
+            color: "var(--vocs-text-color-muted)",
+            cursor: "pointer",
+            padding: 4,
+            display: "flex",
+            alignItems: "center",
+            zIndex: 2,
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      )}
+      {!search && !onDismiss && (
         <kbd
           className="search-kbd-hint"
           style={{
@@ -482,7 +538,6 @@ function SearchWithDropdown({
                     dropdownTab === tab
                       ? "var(--vocs-text-color-heading)"
                       : "var(--vocs-text-color-muted)",
-                  cursor: "pointer",
                 }}
               >
                 {tab === "all"
@@ -521,7 +576,7 @@ function SearchWithDropdown({
                         ? "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))"
                         : "transparent",
                     border: "none",
-                    cursor: "pointer",
+
                     textAlign: "left",
                     fontFamily: "var(--font-sans)",
                     fontSize: 13,
@@ -762,8 +817,14 @@ export function ServicesPage() {
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const initialHashHandled = useRef(false);
   const [mobileSearchActive, setMobileSearchActive] = useState(false);
+  const [mobileSearchStuck, setMobileSearchStuck] = useState(false);
   const [mobileResultsView, setMobileResultsView] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [gridSelectedServiceId, setGridSelectedServiceId] = useState<
+    string | undefined
+  >(undefined);
   const tableRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
   const shuffledOrder = useRef<string[]>([]);
 
   useEffect(() => {
@@ -786,6 +847,77 @@ export function ServicesPage() {
     const id = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(id);
   }, [search]);
+
+  const stickyObserverReady = !loading && !error;
+  useEffect(() => {
+    if (!stickyObserverReady) return;
+    const el = stickyRef.current;
+    if (!el) return;
+    const navH =
+      document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
+        .height ?? 56;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        document.documentElement.toggleAttribute(
+          "data-search-stuck",
+          !e.isIntersecting,
+        );
+      },
+      { threshold: 0, rootMargin: `-${navH}px 0px 0px 0px` },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      document.documentElement.removeAttribute("data-search-stuck");
+    };
+  }, [stickyObserverReady]);
+
+  useEffect(() => {
+    if (!stickyObserverReady) return;
+    if (window.matchMedia("(min-width: 901px)").matches) return;
+    const el = document.querySelector(".search-mobile-spacer");
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        const stuck = !e.isIntersecting;
+        document.documentElement.toggleAttribute(
+          "data-mobile-search-stuck",
+          stuck,
+        );
+        setMobileSearchStuck(stuck);
+      },
+      { threshold: 0 },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      document.documentElement.removeAttribute("data-mobile-search-stuck");
+      setMobileSearchStuck(false);
+    };
+  }, [stickyObserverReady]);
+
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 901px)").matches) return;
+    const nav = document.querySelector("[data-v-gutter-top]") as HTMLElement;
+    if (!nav) return;
+    const sync = () => {
+      const rect = nav.getBoundingClientRect();
+      const visible = rect.bottom > 0;
+      document.documentElement.style.setProperty(
+        "--mobile-search-top",
+        visible ? `${rect.bottom}px` : "0px",
+      );
+    };
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(nav, { attributes: true, attributeFilter: ["style", "class"] });
+    window.addEventListener("scroll", sync, { passive: true });
+    return () => {
+      mo.disconnect();
+      window.removeEventListener("scroll", sync);
+      document.documentElement.style.removeProperty("--mobile-search-top");
+    };
+  }, []);
 
   // Cmd+K to focus search
   useEffect(() => {
@@ -842,13 +974,58 @@ export function ServicesPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
+  const mobileSearchCount = useMemo(() => {
+    if (!search.trim()) return 0;
+    const q = search.toLowerCase();
+    return services.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.description?.toLowerCase().includes(q) ||
+        s.url.toLowerCase().includes(q) ||
+        s.tags?.some((t) => t.toLowerCase().includes(q)) ||
+        s.endpoints.some(
+          (ep) =>
+            ep.path.toLowerCase().includes(q) ||
+            ep.description?.toLowerCase().includes(q) ||
+            ep.method.toLowerCase().includes(q),
+        ),
+    ).length;
+  }, [services, search]);
+
   const toggleRow = useCallback((id: string) => {
     setExpandedIds((p) => {
       if (p.has(id)) {
         history.replaceState(null, "", window.location.pathname);
         return new Set();
       }
+      const hadPrevious = p.size > 0;
       history.replaceState(null, "", `#service-${id}`);
+      const delay = hadPrevious ? 220 : 50;
+      setTimeout(() => {
+        const el = document.getElementById(`service-${id}`);
+        if (!el) return;
+        const navH =
+          document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
+            .height ?? 56;
+        const barH =
+          document.querySelector(".search-bar")?.getBoundingClientRect()
+            .height ?? 0;
+        const target =
+          el.getBoundingClientRect().top + window.scrollY - navH - barH - 12;
+        const start = window.scrollY;
+        const dist = target - start;
+        if (Math.abs(dist) < 2) return;
+        const dur = Math.min(600, Math.max(300, Math.abs(dist) * 0.6));
+        let t0: number | null = null;
+        const step = (t: number) => {
+          if (!t0) t0 = t;
+          const p = Math.min((t - t0) / dur, 1);
+          const ease = p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2;
+          window.scrollTo(0, start + dist * ease);
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }, delay);
       return new Set([id]);
     });
   }, []);
@@ -858,9 +1035,13 @@ export function ServicesPage() {
       setSearch("");
       setDebouncedSearch("");
       setSelectedCategory(null);
-      setExpandedIds(new Set([serviceId]));
       setMobileSearchActive(false);
       setMobileResultsView(false);
+      if (viewMode === "grid") {
+        setGridSelectedServiceId(serviceId);
+        return;
+      }
+      setExpandedIds(new Set([serviceId]));
       history.replaceState(null, "", `#service-${serviceId}`);
       const all = orderServices(services, shuffledOrder.current);
       const idx = all.findIndex((s) => s.id === serviceId);
@@ -871,7 +1052,7 @@ export function ServicesPage() {
           ?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 100);
     },
-    [services],
+    [services, viewMode],
   );
 
   // Handle anchor hash on mount
@@ -916,7 +1097,17 @@ export function ServicesPage() {
     setDebouncedSearch(search);
     setPage(0);
     setTimeout(() => {
-      tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const el = tableRef.current;
+      if (!el) return;
+      const navH =
+        document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
+          .height ?? 56;
+      const barH =
+        document.querySelector(".search-mobile")?.getBoundingClientRect()
+          .height ?? 56;
+      const y =
+        el.getBoundingClientRect().top + window.scrollY - navH - barH - 12;
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
     }, 100);
   }, [search]);
 
@@ -940,7 +1131,7 @@ export function ServicesPage() {
         style={{
           maxWidth: 1600,
           margin: "0 auto",
-          padding: "3rem 2.5rem 5rem 1.375rem",
+          padding: "3rem 1.5rem 5rem 1.5rem",
         }}
       >
         {/* Header */}
@@ -969,7 +1160,7 @@ export function ServicesPage() {
                 textTransform: "uppercase",
               }}
             >
-              Services
+              Discover services
             </h1>
             <p
               style={{
@@ -980,7 +1171,7 @@ export function ServicesPage() {
                 marginTop: "-0.5rem",
               }}
             >
-              MPP-enabled APIs your agent or application can seamlessly use.
+              Use MPP-enabled APIs seamlessly with your agents.
             </p>
           </div>
           <div className="page-header-ctas" style={{ display: "none" }} />
@@ -1111,23 +1302,25 @@ export function ServicesPage() {
             )}
             {!loading && !error && (
               <>
-                {mobileSearchActive && !mobileResultsView && (
-                  // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop
-                  // biome-ignore lint/a11y/noStaticElementInteractions: backdrop
-                  <div
-                    className="mobile-search-backdrop"
-                    onClick={dismissMobileSearch}
-                    style={{
-                      position: "fixed",
-                      inset: 0,
-                      zIndex: 99,
-                      background:
-                        "light-dark(rgba(255,255,255,0.85), rgba(0,0,0,0.75))",
-                      backdropFilter: "blur(12px)",
-                      WebkitBackdropFilter: "blur(12px)",
-                    }}
-                  />
-                )}
+                {mobileSearchActive &&
+                  !mobileResultsView &&
+                  mobileSearchStuck && (
+                    // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop
+                    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop
+                    <div
+                      className="mobile-search-backdrop"
+                      onClick={dismissMobileSearch}
+                      style={{
+                        position: "fixed",
+                        inset: 0,
+                        zIndex: 99,
+                        background:
+                          "light-dark(rgba(255,255,255,0.85), rgba(0,0,0,0.75))",
+                        backdropFilter: "blur(12px)",
+                        WebkitBackdropFilter: "blur(12px)",
+                      }}
+                    />
+                  )}
                 {mobileResultsView && (
                   <div
                     className="mobile-results-header"
@@ -1163,7 +1356,7 @@ export function ServicesPage() {
                         border: "none",
                         background: "transparent",
                         color: "var(--vocs-text-color-muted)",
-                        cursor: "pointer",
+
                         padding: 4,
                         borderRadius: 4,
                         flexShrink: 0,
@@ -1189,19 +1382,15 @@ export function ServicesPage() {
                   </div>
                 )}
                 <div
-                  className={`search-mobile ${mobileResultsView ? "search-mobile-hidden" : ""}`}
+                  className="search-mobile-spacer"
+                  style={{ display: "none" }}
+                />
+                <div
+                  className={`search-mobile${mobileSearchActive && !mobileResultsView ? " search-mobile-active" : ""}`}
                   style={{
                     display: "none",
                     marginBottom: "1rem",
                     marginTop: "0.5rem",
-                    position:
-                      mobileSearchActive && !mobileResultsView
-                        ? "relative"
-                        : undefined,
-                    zIndex:
-                      mobileSearchActive && !mobileResultsView
-                        ? 100
-                        : undefined,
                   }}
                 >
                   <div
@@ -1231,68 +1420,138 @@ export function ServicesPage() {
                         fullWidth
                         inputRef={searchInputRef}
                         onInputFocus={handleMobileSearchFocus}
+                        onDismiss={
+                          mobileSearchActive ? dismissMobileSearch : undefined
+                        }
+                        resultCount={
+                          mobileSearchActive && search.trim()
+                            ? mobileSearchCount
+                            : undefined
+                        }
                       />
                     </div>
-                    {mobileSearchActive && !mobileResultsView && (
-                      <>
-                        {search.trim() && (
-                          <button
-                            type="button"
-                            className="mobile-search-view-btn"
-                            onClick={handleMobileView}
-                            style={{
-                              flexShrink: 0,
-                              border: "none",
-                              background:
-                                "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.1))",
-                              color: "var(--vocs-text-color-heading)",
-                              fontSize: 13,
-                              fontWeight: 600,
-                              fontFamily: "var(--font-sans)",
-                              cursor: "pointer",
-                              padding: "0 12px",
-                              borderRadius: 7,
-                              whiteSpace: "nowrap",
-                              transition: "background 0.15s",
-                            }}
-                          >
-                            View
-                          </button>
-                        )}
+                    {!mobileSearchActive && (
+                      <div
+                        className="mobile-view-toggle"
+                        style={{
+                          display: "flex",
+                          gap: 2,
+                          flexShrink: 0,
+                          alignItems: "center",
+                        }}
+                      >
                         <button
                           type="button"
-                          onClick={dismissMobileSearch}
+                          aria-label="List view"
+                          onClick={() => setViewMode("list")}
                           style={{
-                            flexShrink: 0,
-                            border: "none",
-                            background: "transparent",
-                            color: "var(--vocs-text-color-muted)",
-                            cursor: "pointer",
-                            padding: 4,
-                            borderRadius: 4,
                             display: "flex",
                             alignItems: "center",
+                            justifyContent: "center",
+                            width: 34,
+                            height: 34,
+                            border: "none",
+                            borderRadius: 6,
+
+                            background: "transparent",
+                            color:
+                              viewMode === "list"
+                                ? "var(--vocs-text-color-heading)"
+                                : "var(--vocs-text-color-muted)",
+                            opacity: viewMode === "list" ? 1 : 0.5,
                           }}
                         >
                           <svg
-                            width="18"
-                            height="18"
+                            width="16"
+                            height="16"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            aria-hidden="true"
                           >
-                            <path d="M18 6 6 18" />
-                            <path d="m6 6 12 12" />
+                            <title>List</title>
+                            <path d="M3 6h18" />
+                            <path d="M3 12h18" />
+                            <path d="M3 18h18" />
                           </svg>
                         </button>
-                      </>
+                        <button
+                          type="button"
+                          aria-label="Grid view"
+                          onClick={() => setViewMode("grid")}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 34,
+                            height: 34,
+                            border: "none",
+                            borderRadius: 6,
+
+                            background: "transparent",
+                            color:
+                              viewMode === "grid"
+                                ? "var(--vocs-text-color-heading)"
+                                : "var(--vocs-text-color-muted)",
+                            opacity: viewMode === "grid" ? 1 : 0.5,
+                          }}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <title>Grid</title>
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                          </svg>
+                        </button>
+                      </div>
                     )}
+                    {mobileSearchActive &&
+                      !mobileResultsView &&
+                      search.trim() && (
+                        <button
+                          type="button"
+                          className="mobile-search-view-btn"
+                          onClick={handleMobileView}
+                          style={{
+                            flexShrink: 0,
+                            border:
+                              "1px solid var(--vocs-border-color-primary)",
+                            background:
+                              "light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.06))",
+                            color: "var(--vocs-text-color-heading)",
+                            fontSize: 13,
+                            fontWeight: 500,
+                            fontFamily: "var(--font-sans)",
+                            cursor: "pointer",
+                            padding: "0.45rem 0.85rem",
+                            borderRadius: 7,
+                            whiteSpace: "nowrap",
+                            transition:
+                              "color 0.15s, border-color 0.15s, background 0.15s",
+                          }}
+                        >
+                          View
+                        </button>
+                      )}
                   </div>
                 </div>
+                <div
+                  ref={stickyRef}
+                  style={{ height: 1, marginBottom: -1, pointerEvents: "none" }}
+                  aria-hidden
+                />
                 <div
                   className="search-bar"
                   style={{
@@ -1300,14 +1559,13 @@ export function ServicesPage() {
                     gap: "0.5rem",
                     alignItems: "center",
                     marginBottom: "0.75rem",
-                    marginLeft: "0.5rem",
                     marginRight: "0.5rem",
                     position: "sticky",
-                    top: "calc(var(--vocs-spacing-topNav, 56px) - 14px)",
-                    zIndex: 50,
-                    background: "var(--vocs-background-color-primary)",
-                    paddingTop: "0.5rem",
-                    paddingBottom: "0.5rem",
+                    top: "calc(var(--vocs-spacing-topNav, 56px) -  46px)",
+                    zIndex: 51,
+                    background:
+                      "linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent)",
+                    paddingBottom: "0.75rem",
                   }}
                 >
                   <SearchWithDropdown
@@ -1326,6 +1584,91 @@ export function ServicesPage() {
                     onSelect={toggleCat}
                     onClear={clearCats}
                   />
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 2,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      aria-label="List view"
+                      onClick={() => setViewMode("list")}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 34,
+                        height: 34,
+                        border: "none",
+                        borderRadius: 6,
+
+                        background: "transparent",
+                        color:
+                          viewMode === "list"
+                            ? "var(--vocs-text-color-heading)"
+                            : "var(--vocs-text-color-muted)",
+                        opacity: viewMode === "list" ? 1 : 0.5,
+                        transition: "color 0.15s, opacity 0.15s",
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <title>List</title>
+                        <path d="M3 6h18" />
+                        <path d="M3 12h18" />
+                        <path d="M3 18h18" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Grid view"
+                      onClick={() => setViewMode("grid")}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 34,
+                        height: 34,
+                        border: "none",
+                        borderRadius: 6,
+
+                        background: "transparent",
+                        color:
+                          viewMode === "grid"
+                            ? "var(--vocs-text-color-heading)"
+                            : "var(--vocs-text-color-muted)",
+                        opacity: viewMode === "grid" ? 1 : 0.5,
+                        transition: "color 0.15s, opacity 0.15s",
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <title>Grid</title>
+                        <rect x="3" y="3" width="7" height="7" />
+                        <rect x="14" y="3" width="7" height="7" />
+                        <rect x="3" y="14" width="7" height="7" />
+                        <rect x="14" y="14" width="7" height="7" />
+                      </svg>
+                    </button>
+                  </div>
                   <Link
                     to="/overview"
                     className="no-underline! search-bar-learn-more"
@@ -1348,122 +1691,177 @@ export function ServicesPage() {
                     Learn more
                   </Link>
                 </div>
-                <div ref={tableRef} className="services-content-row">
-                  <div
-                    className="services-table-col"
-                    style={{ flex: 1, minWidth: 0 }}
-                  >
-                    <div data-services-table>
-                      <table
-                        style={{
-                          width: "100%",
-                          borderCollapse: "collapse",
-                          fontSize: 16,
-                          tableLayout: "fixed",
-                        }}
-                      >
-                        <colgroup>
-                          <col style={{ width: "18%" }} />
-                          <col
-                            className="hide-mobile"
-                            style={{ width: "42%" }}
-                          />
-                          <col
-                            className="hide-mobile"
-                            style={{ width: "32%" }}
-                          />
-                          <col style={{ width: "8%" }} />
-                        </colgroup>
-                        <thead>
-                          <tr
-                            style={{
-                              borderBottom:
-                                "1px solid var(--vocs-border-color-primary)",
-                            }}
-                          >
-                            <Th
-                              className="hide-mobile"
-                              style={{ textAlign: "left" }}
-                            >
-                              Provider
-                            </Th>
-                            <Th
-                              className="hide-mobile"
-                              style={{ textAlign: "left" }}
-                            >
-                              Description
-                            </Th>
-                            <Th
-                              className="hide-mobile"
-                              style={{ textAlign: "left" }}
-                            >
-                              Service URL
-                            </Th>
-                            <Th style={{ width: 36 }} />
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {paged.map((s) => (
-                            <ServiceRow
-                              key={s.id}
-                              service={s}
-                              expanded={expandedIds.has(s.id)}
-                              onToggle={() => toggleRow(s.id)}
-                            />
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    {filtered.length === 0 && (
-                      <p
-                        style={{
-                          textAlign: "center",
-                          padding: "4rem 0",
-                          color: "var(--vocs-text-color-secondary)",
-                          fontSize: 15,
-                        }}
-                      >
-                        No services found.
-                      </p>
-                    )}
-                    {totalPages > 1 && (
+                {viewMode === "grid" ? (
+                  <div className="services-grid-inline">
+                    <style>{`
+                      .services-grid-inline .discovery-section {
+                        height: auto !important;
+                        overflow: visible !important;
+                      }
+                      .services-grid-inline .discovery-overlay {
+                        display: none !important;
+                      }
+                      .services-grid-inline .discovery-grid {
+                        height: auto !important;
+                        overflow: visible !important;
+                        grid-template-columns: repeat(4, 1fr) !important;
+                        grid-auto-rows: minmax(150px, 1fr) !important;
+                        padding-left: 0 !important;
+                        padding-right: 0 !important;
+                      }
+                      .services-grid-inline .discovery-grid::before,
+                      .services-grid-inline .discovery-grid::after {
+                        display: none !important;
+                      }
+                      @media (max-width: 1100px) {
+                        .services-grid-inline .discovery-grid {
+                          grid-template-columns: repeat(3, 1fr) !important;
+                        }
+                      }
+                      @media (max-width: 900px) {
+                        .services-grid-inline .discovery-grid {
+                          grid-template-columns: repeat(2, 1fr) !important;
+                          grid-auto-rows: 120px !important;
+                          padding-left: 1.25rem !important;
+                          padding-right: 1.25rem !important;
+                        }
+                        .services-grid-inline .discovery-card-desc {
+                          font-size: 14px !important;
+                        }
+                      }
+                    `}</style>
+                    <ServiceDiscovery
+                      externalQuery={debouncedSearch}
+                      externalCategory={selectedCategory}
+                      externalSelectedServiceId={gridSelectedServiceId}
+                      onExternalServiceHandled={() =>
+                        setGridSelectedServiceId(undefined)
+                      }
+                    />
+                  </div>
+                ) : (
+                  <div ref={tableRef} className="services-content-row">
+                    <div
+                      className="services-table-col"
+                      style={{ flex: 1, minWidth: 0 }}
+                    >
                       <div
-                        className="pagination"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          marginTop: "1rem",
-                        }}
+                        data-services-table
+                        {...(expandedIds.size > 0
+                          ? { "data-has-expanded": "" }
+                          : {})}
                       >
-                        <p
+                        <table
                           style={{
-                            color: "var(--vocs-text-color-muted)",
-                            fontSize: 13,
+                            width: "100%",
+                            borderCollapse: "collapse",
+                            fontSize: 16,
+                            tableLayout: "fixed",
                           }}
                         >
-                          {page * PAGE_SIZE + 1}–
-                          {Math.min((page + 1) * PAGE_SIZE, filtered.length)} of{" "}
-                          {filtered.length}
-                        </p>
-                        <div style={{ display: "flex", gap: "0.375rem" }}>
-                          <PaginationBtn
-                            disabled={page === 0}
-                            onClick={() => setPage(page - 1)}
-                          >
-                            ← Prev
-                          </PaginationBtn>
-                          <PaginationBtn
-                            disabled={page >= totalPages - 1}
-                            onClick={() => setPage(page + 1)}
-                          >
-                            Next →
-                          </PaginationBtn>
-                        </div>
+                          <colgroup>
+                            <col style={{ width: "18%" }} />
+                            <col
+                              className="hide-mobile"
+                              style={{ width: "36%" }}
+                            />
+                            <col
+                              className="hide-mobile"
+                              style={{ width: "36%" }}
+                            />
+                            <col style={{ width: "10%" }} />
+                          </colgroup>
+                          <thead>
+                            <tr
+                              style={{
+                                borderBottom:
+                                  "1px solid var(--vocs-border-color-primary)",
+                              }}
+                            >
+                              <Th
+                                className="hide-mobile"
+                                style={{ textAlign: "left" }}
+                              >
+                                Provider
+                              </Th>
+                              <Th
+                                className="hide-mobile"
+                                style={{ textAlign: "left" }}
+                              >
+                                Description
+                              </Th>
+                              <Th
+                                className="hide-mobile"
+                                style={{ textAlign: "left" }}
+                              >
+                                Service URL
+                              </Th>
+                              <Th style={{ width: 36 }} />
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {paged.map((s) => (
+                              <ServiceRow
+                                key={s.id}
+                                service={s}
+                                expanded={expandedIds.has(s.id)}
+                                onToggle={() => toggleRow(s.id)}
+                              />
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    )}
+                      {filtered.length === 0 && (
+                        <p
+                          style={{
+                            textAlign: "center",
+                            padding: "4rem 0",
+                            color: "var(--vocs-text-color-secondary)",
+                            fontSize: 15,
+                          }}
+                        >
+                          No services found.
+                        </p>
+                      )}
+                      {totalPages > 1 && (
+                        <div
+                          className="pagination"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            marginTop: "1rem",
+                          }}
+                        >
+                          <p
+                            style={{
+                              color: "var(--vocs-text-color-muted)",
+                              fontSize: 13,
+                            }}
+                          >
+                            {page * PAGE_SIZE + 1}–
+                            {Math.min((page + 1) * PAGE_SIZE, filtered.length)}{" "}
+                            of {filtered.length}
+                          </p>
+                          <div style={{ display: "flex", gap: "0.375rem" }}>
+                            <PaginationBtn
+                              disabled={page === 0}
+                              onClick={() => setPage(page - 1)}
+                            >
+                              ← Prev
+                            </PaginationBtn>
+                            <PaginationBtn
+                              disabled={page >= totalPages - 1}
+                              onClick={() => setPage(page + 1)}
+                            >
+                              Next →
+                            </PaginationBtn>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
           </div>
@@ -1610,7 +2008,7 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
               border: "none",
               background: "var(--vocs-text-color-heading)",
               color: "var(--vocs-background-color-primary)",
-              cursor: "pointer",
+
               fontSize: 14,
               fontWeight: 500,
             }}
@@ -1727,7 +2125,6 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
               gap: 8,
               fontSize: 13,
               color: "var(--vocs-text-color-secondary)",
-              cursor: "pointer",
             }}
           >
             <input
@@ -1749,7 +2146,6 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
               gap: 8,
               fontSize: 13,
               color: "var(--vocs-text-color-secondary)",
-              cursor: "pointer",
             }}
           >
             <input
@@ -1783,7 +2179,7 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
                 border: "1px solid var(--vocs-border-color-primary)",
                 background: "transparent",
                 color: "var(--vocs-text-color-heading)",
-                cursor: "pointer",
+
                 fontSize: 14,
               }}
             >
@@ -1799,7 +2195,7 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
                 border: "none",
                 background: "var(--vocs-text-color-heading)",
                 color: "var(--vocs-background-color-primary)",
-                cursor: "pointer",
+
                 fontSize: 14,
                 fontWeight: 500,
                 opacity: submitting ? 0.6 : 1,
@@ -1902,7 +2298,7 @@ function HeaderCards({
           className="info-card-link"
           style={{
             ...cs,
-            cursor: "pointer",
+
             fontFamily: "var(--font-sans)",
             textAlign: "left",
           }}
@@ -2031,7 +2427,7 @@ function SidebarInfoCards() {
   const descStyle: React.CSSProperties = {
     fontSize: 13,
     color: "var(--vocs-text-color-muted)",
-    lineHeight: 1.45,
+    lineHeight: 1.6,
   };
   const iconStyle: React.CSSProperties = {
     color: "var(--vocs-text-color-muted)",
@@ -2216,7 +2612,7 @@ function CliSnippet({
           style={{
             color: "var(--vocs-text-color-secondary)",
             fontSize: 13,
-            lineHeight: 1.45,
+            lineHeight: 1.6,
             marginBottom: "0.75rem",
           }}
         >
@@ -2318,7 +2714,7 @@ function FilterDropdown({
           border: "1px solid var(--vocs-border-color-primary)",
           background: "transparent",
           color: "var(--vocs-text-color-muted)",
-          cursor: "pointer",
+
           fontFamily: "var(--font-sans)",
           whiteSpace: "nowrap",
         }}
@@ -2390,7 +2786,7 @@ function FilterDropdown({
                   selectedCategory === null
                     ? "var(--vocs-text-color-heading)"
                     : "var(--vocs-text-color-secondary)",
-                cursor: "pointer",
+
                 fontFamily: "var(--font-sans)",
               }}
             >
@@ -2420,7 +2816,7 @@ function FilterDropdown({
                     selectedCategory === cat
                       ? "var(--vocs-text-color-heading)"
                       : "var(--vocs-text-color-secondary)",
-                  cursor: "pointer",
+
                   fontFamily: "var(--font-sans)",
                 }}
               >
@@ -2636,12 +3032,13 @@ function ServiceRow({
       <tr
         id={`service-${s.id}`}
         onClick={onToggle}
+        {...(expanded ? { "data-expanded": "" } : {})}
         style={{
           borderBottom: expanded
             ? "1px solid transparent"
             : "1px solid var(--vocs-border-color-primary)",
-          cursor: "pointer",
-          transition: "background 0.1s",
+
+          transition: "background 0.1s, opacity 0.2s",
           background: expanded ? expandedBg : undefined,
           minHeight: 58,
         }}
@@ -2700,7 +3097,7 @@ function ServiceRow({
                     fontSize: 14,
                     lineHeight: 1.4,
                     display: "-webkit-box",
-                    WebkitLineClamp: 2,
+                    WebkitLineClamp: 3,
                     WebkitBoxOrient: "vertical",
                     overflow: "hidden",
                   }}
@@ -2738,7 +3135,7 @@ function ServiceRow({
             padding: "0.7rem 0.75rem",
             color: "var(--vocs-text-color-secondary)",
             fontSize: 14,
-            lineHeight: 1.45,
+            lineHeight: 1.6,
             verticalAlign: "middle",
           }}
         >
@@ -2759,13 +3156,14 @@ function ServiceRow({
                 copiedId === `url-${s.id}`
                   ? "var(--vocs-text-color-heading)"
                   : URL_COLOR,
-              cursor: "pointer",
+
               display: "inline-block",
               padding: "0.15rem 0.4rem",
               borderRadius: 4,
               background: CODE_BG,
               transition: "color 0.15s",
               wordBreak: "break-all",
+              cursor: "pointer",
             }}
             title={
               copiedId === `url-${s.id}`
@@ -2914,29 +3312,73 @@ function ServiceRow({
           </div>
         </td>
       </tr>
-      {expanded && (
-        <tr style={{ background: expandedBg }}>
-          <td
-            colSpan={4}
-            className="expanded-detail"
-            style={{
-              padding: "0.25rem 0 0.25rem",
-              borderBottom: "1px solid var(--vocs-border-color-primary)",
-            }}
-          >
-            <ExpandedDetail service={s} />
-          </td>
-        </tr>
-      )}
+      <AccordionRow expanded={expanded} bg={expandedBg}>
+        <ExpandedDetail service={s} />
+      </AccordionRow>
     </>
+  );
+}
+
+const ACCORDION_MS = 200;
+
+function AccordionRow({
+  expanded,
+  bg,
+  children,
+}: {
+  expanded: boolean;
+  bg: string;
+  children: React.ReactNode;
+}) {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [render, setRender] = useState(expanded);
+
+  if (expanded && !render) setRender(true);
+
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.style.gridTemplateRows = expanded ? "1fr" : "0fr";
+    });
+    if (!expanded) {
+      const id = setTimeout(() => setRender(false), ACCORDION_MS);
+      return () => clearTimeout(id);
+    }
+  }, [expanded]);
+
+  if (!render) return null;
+
+  return (
+    <tr data-expanded={expanded ? "" : undefined} style={{ background: bg }}>
+      <td
+        className="expanded-detail"
+        colSpan={4}
+        style={{
+          padding: 0,
+          borderBottom: expanded
+            ? "1px solid var(--vocs-border-color-primary)"
+            : "1px solid transparent",
+        }}
+      >
+        <div
+          ref={gridRef}
+          style={{
+            display: "grid",
+            gridTemplateRows: "0fr",
+            transition: `grid-template-rows ${ACCORDION_MS}ms ease-out`,
+          }}
+        >
+          <div style={{ overflow: "hidden", minHeight: 0 }}>{children}</div>
+        </div>
+      </td>
+    </tr>
   );
 }
 
 // ---------------------------------------------------------------------------
 // Expanded detail
 // ---------------------------------------------------------------------------
-
-const SUB_GRID = "minmax(0, 40%) minmax(0, 1fr) 8%";
 
 function SubTh({
   children,
@@ -2949,7 +3391,7 @@ function SubTh({
     <span
       style={{
         padding: "0 0.75rem",
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: 400,
         color: "var(--vocs-text-color-muted)",
         whiteSpace: "nowrap",
@@ -2964,28 +3406,12 @@ function SubTh({
 function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
   const baseUrl = s.serviceUrl ?? s.url;
-  const docsUrl = s.docs?.apiReference ?? s.docs?.llmsTxt ?? s.docs?.homepage;
-  const websiteUrl = s.provider?.url;
-  const compactLinkStyle: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "0.25rem",
-    padding: "0.15rem 0.45rem",
-    fontSize: 12,
-    borderRadius: 4,
-    color: "var(--vocs-text-color-muted)",
-    textDecoration: "none",
-    transition: "color 0.15s",
-    whiteSpace: "nowrap",
-    height: 24,
-  };
   return (
     <div style={{ fontSize: 14 }}>
-      {(docsUrl || websiteUrl) && (
+      {baseUrl && (
         <div
           className="expanded-url-bar"
           style={{
-            display: "flex",
             alignItems: "center",
             gap: "0.35rem",
             padding: "0.25rem 0.75rem 0.5rem 3.5rem",
@@ -3006,40 +3432,6 @@ function ExpandedDetail({ service: s }: { service: Service }) {
           >
             {baseUrl}
           </span>
-          {docsUrl && (
-            <a
-              href={docsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={compactLinkStyle}
-              onClick={(e) => e.stopPropagation()}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--vocs-text-color-heading)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--vocs-text-color-muted)";
-              }}
-            >
-              <BookIcon size={12} /> Docs
-            </a>
-          )}
-          {websiteUrl && (
-            <a
-              href={websiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={compactLinkStyle}
-              onClick={(e) => e.stopPropagation()}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--vocs-text-color-heading)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--vocs-text-color-muted)";
-              }}
-            >
-              <ExternalLinkIcon size={12} /> Website
-            </a>
-          )}
         </div>
       )}
       {s.endpoints.length > 0 && (
@@ -3047,8 +3439,6 @@ function ExpandedDetail({ service: s }: { service: Service }) {
           <div
             className="sub-header"
             style={{
-              display: "grid",
-              gridTemplateColumns: SUB_GRID,
               padding: "0.45rem 0",
               background:
                 "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))",
@@ -3071,9 +3461,6 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                   key={`${ep.method}-${ep.path}`}
                   className="sub-row"
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: SUB_GRID,
-                    alignItems: "center",
                     minHeight: 56,
                     borderBottom: isLast
                       ? "none"
@@ -3082,7 +3469,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                 >
                   <div
                     style={{
-                      padding: "0.75rem 0.75rem 0.75rem 0.75rem",
+                      padding: "0.85rem 0.75rem 0.85rem 0.75rem",
                       display: "flex",
                       flexDirection: "column",
                       gap: 4,
@@ -3118,13 +3505,14 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                           color: isCopied
                             ? "var(--vocs-text-color-heading)"
                             : URL_COLOR,
-                          cursor: "pointer",
+
                           transition: "color 0.15s",
                           whiteSpace: "nowrap",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           display: "inline-block",
                           minWidth: 0,
+                          cursor: "pointer",
                         }}
                         title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
                       >
@@ -3145,6 +3533,33 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                           )}
                         </span>
                       </span>
+                      {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
+                      {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
+                      <span
+                        className="ep-copy-outside"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copy(fullUrl, copyId);
+                        }}
+                        style={{
+                          display: "none",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                          cursor: "pointer",
+                          color: isCopied
+                            ? "light-dark(#15803d, #4ade80)"
+                            : "var(--vocs-text-color-muted)",
+                          transition: "color 0.15s",
+                        }}
+                        title={isCopied ? "Copied!" : `Copy: ${fullUrl}`}
+                      >
+                        {isCopied ? (
+                          <CheckIcon size={14} />
+                        ) : (
+                          <CopyIcon size={14} />
+                        )}
+                      </span>
                       <span className="intent-badge-desktop">
                         {ep.payment?.intent && (
                           <span
@@ -3164,15 +3579,8 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                   <div
                     className="ep-desc-cell"
                     style={{
-                      padding: "0.25rem 0.75rem 0.75rem",
                       color: "var(--vocs-text-color-secondary)",
-                      fontSize: 14,
-                      lineHeight: 1.45,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical" as const,
+                      fontSize: 13.5,
                     }}
                   >
                     {ep.payment?.intent && (
@@ -3185,17 +3593,28 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                   <div
                     className="ep-price-cell"
                     style={{
-                      padding: "0.75rem 1rem 0.75rem 0",
+                      padding: "0 1rem 0 0",
                       fontFamily: "var(--font-mono)",
                       fontSize: 14,
                       fontVariantNumeric: "tabular-nums",
-                      textAlign: "right",
-                      color: "var(--vocs-text-color-muted)",
+                      color: "var(--vocs-text-color-secondary)",
                       whiteSpace: "nowrap",
-                      alignSelf: "center",
+                      alignSelf: "stretch",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
                     }}
                   >
+                    {ep.payment?.intent && (
+                      <span
+                        className="intent-badge-price"
+                        style={{ marginRight: "0.35rem" }}
+                      >
+                        <Badge>{ep.payment.intent}</Badge>
+                      </span>
+                    )}
                     <span className="ep-price-text">{formatPrice(ep)}</span>
+
                     {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
                     {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
                     <span
@@ -3248,8 +3667,16 @@ function PageStyles() {
       [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; }
       [data-layout="minimal"] main > article { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
 
+      /* Hide logo when search bar is stuck and overlaps it at mid-wide viewports */
+      @media (min-width: 1500px) and (max-width: 1730px) {
+        [data-search-stuck] [data-v-logo] { opacity: 0 !important; pointer-events: none; }
+      }
+
+      /* Tighten search bar padding when stuck so it aligns with nav links */
+      [data-search-stuck] .search-bar { padding-top: 0rem !important; }
+
       @media (max-width: 900px) {
-        [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
+        [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: clip !important; }
         [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
       }
       /* Filter: always show dropdown, search bar taller */
@@ -3263,10 +3690,13 @@ function PageStyles() {
       }
 
       /* Soften table borders */
-      [data-services-table] table tr { border-color: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) !important; }
+      [data-services-table] table tr { border-color: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) !important; scroll-margin-top: calc(var(--vocs-spacing-topNav, 56px) + 80px); }
 
       .search-mobile { display: none; }
       .header-cards { display: none !important; }
+      .sub-header { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 1fr) 8%; }
+      .sub-row { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 1fr) 8%; align-items: center; }
+      .ep-desc-cell { padding: 0.25rem 0.75rem 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal; word-break: break-word; }
       .show-tablet { display: none !important; }
       .expanded-url-bar { display: none !important; }
       .url-copy-icon { opacity: 0.8; transition: opacity 0.15s, color 0.15s; color: var(--vocs-text-color-muted); }
@@ -3282,8 +3712,13 @@ function PageStyles() {
       .svc-badge-borderless { display: inline; }
       .svc-name-text { margin-right: 0.35rem; }
       .info-card-link:hover { background: light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06)) !important; border-color: light-dark(rgba(0,0,0,0.15), rgba(255,255,255,0.15)) !important; }
-      .expanded-detail { animation: expandIn 0.15s ease-out; }
-      @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
+      .chevron-cell a { aspect-ratio: 1; box-sizing: border-box; }
+      .expanded-detail { }
+
+      /* Dim non-expanded rows when one is expanded */
+      [data-services-table] tbody tr { transition: opacity 0.2s; }
+      [data-has-expanded] tbody tr:not([data-expanded]) { opacity: 0.35; }
+      [data-has-expanded] tbody tr:not([data-expanded]):hover { opacity: 0.7; }
 
       .method-badge {
         font-size: 11px;
@@ -3306,6 +3741,7 @@ function PageStyles() {
       .intent-badge::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--vocs-background-color-primary); color: var(--vocs-text-color-secondary); padding: 5px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 0.15s; box-shadow: 0 2px 12px rgba(0,0,0,0.12); border: 1px solid var(--vocs-border-color-primary); }
       .intent-badge:hover::after { opacity: 1; }
       .intent-badge-mobile { display: none; }
+      .intent-badge-price { display: none; }
       .ep-copy-mobile { display: none !important; }
       .mobile-row-copy { display: none !important; }
 
@@ -3316,12 +3752,25 @@ function PageStyles() {
         }
       }
 
+
+
       /* ---- Sidebar hidden, header cards as 4-col strip ---- */
       @media (max-width: 1200px) {
         .services-sidebar { display: none !important; }
         .services-layout { gap: 0 !important; }
-        .header-cards { display: block !important; }
+        .page-header { margin-left: 0 !important; }
+        .header-cards { display: block !important; margin-left: 0 !important; margin-right: 0 !important; margin-bottom: 0.75rem !important; }
         .page-header-ctas { display: none !important; }
+        
+        .search-bar {
+          margin-left: 0 !important;
+          margin-top: 0 !important;
+          padding-top: 20px !important;
+          margin-right: 0 !important;
+          top: calc(var(--vocs-spacing-topNav, 56px) - 4px) !important;
+          padding-bottom: 0.75rem !important;
+          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent) !important;
+        }
       }
 
       /* ---- Table columns stack ---- */
@@ -3330,19 +3779,19 @@ function PageStyles() {
         .services-table-col { min-width: 0 !important; }
         [data-services-table] thead { display: none !important; }
         .show-tablet { display: block !important; }
-        [data-services-table] table { table-layout: fixed !important; overflow: visible !important; }
+        [data-services-table] table { table-layout: fixed !important; overflow: visible !important; width: 100% !important; }
         /* 3-col: name+desc | URL | chevron+actions */
-        [data-services-table] table col:nth-child(1) { width: 45% !important; }
-        [data-services-table] table col:nth-child(2) { width: 0 !important; }
-        [data-services-table] table col:nth-child(3) { width: 42% !important; }
-        [data-services-table] table col:nth-child(4) { width: 13% !important; }
+        [data-services-table] table col:nth-child(1) { width: 48% !important; }
+        [data-services-table] table col:nth-child(2) { width: 44% !important; }
+        [data-services-table] table col:nth-child(3) { width: 14% !important; }
+        [data-services-table] table col:nth-child(4) { width: 0% !important; }
         /* Hide description column (col 2) — desc moves into cell 1 via .show-tablet */
         td.hide-mobile:nth-child(2) { display: none !important; }
         /* Keep URL column (col 3) visible */
         td.hide-mobile:nth-child(3) { display: table-cell !important; white-space: nowrap !important; }
         td.hide-mobile:nth-child(3) span { white-space: nowrap !important; word-break: normal !important; }
         [data-services-table] table td:first-child { padding: 0.75rem 0.5rem 0.75rem 1rem !important; vertical-align: top !important; }
-        [data-services-table] table td:last-child { padding: 0.75rem 0.5rem 0.75rem 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
+        [data-services-table] table td:last-child { padding: 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
         .svc-icon { align-self: flex-start !important; margin-top: 0 !important; }
         .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; flex-wrap: nowrap !important; }
         .svc-name-text { white-space: nowrap !important; }
@@ -3350,9 +3799,11 @@ function PageStyles() {
         .svc-badge-bordered { display: inline !important; }
         .svc-badge-borderless { display: none !important; }
         .svc-name-row > span:first-child { font-size: 16px !important; }
-        .svc-desc-mobile { font-size: 14px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+        .svc-desc-mobile { font-size: 14.5px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
         .url-mobile { display: none !important; }
         .expanded-detail { padding-top: 0 !important; padding-bottom: 0.5rem !important; }
+        .expanded-url-bar { display: none !important; }
+        tr:has(+ tr .expanded-detail) { border-bottom: none !important; }
         .sub-header { display: grid !important; grid-template-columns: 1fr auto !important; padding-left: 1rem !important; padding-right: 0.75rem !important; }
         .sub-header > *:nth-child(1) { text-align: left !important; padding-left: 0 !important; }
         .sub-header > *:nth-child(2) { display: none !important; }
@@ -3361,14 +3812,15 @@ function PageStyles() {
           display: grid !important;
           grid-template-columns: 1fr auto !important;
           grid-template-rows: auto auto !important;
-          padding: 0.65rem 0.75rem 0.65rem 1rem !important;
-          gap: 0.15rem 0.5rem !important;
+          padding: 0.8rem 0.75rem 0.8rem 1rem !important;
+          gap: 0 0.5rem !important;
           align-items: start !important;
+
         }
         .sub-row > * { padding: 0 !important; }
         .sub-row > *:nth-child(1) { grid-row: 1; grid-column: 1; font-size: 13px !important; overflow: hidden; min-width: 0; }
-        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; display: flex !important; align-items: center !important; gap: 0.35rem !important; font-family: var(--font-mono); font-size: 13.5px !important; color: var(--vocs-text-color-muted) !important; text-align: right !important; justify-self: end !important; align-self: center !important; white-space: nowrap; }
-        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 14.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; margin-top: 0.35rem !important; }
+        .sub-row > *:nth-child(3) { grid-row: 1; grid-column: 2; display: flex !important; align-items: center !important; gap: 0.35rem !important; font-family: var(--font-mono); font-size: 13.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: right !important; justify-self: end !important; align-self: center !important; white-space: nowrap; }
+        .sub-row > *:nth-child(2) { grid-row: 2; grid-column: 1 / -1; font-size: 14.5px !important; color: var(--vocs-text-color-secondary) !important; text-align: left !important; margin-top: 0.2rem !important; display: block !important; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; overflow: visible !important; }
         .intent-badge-desktop { display: none !important; }
         .intent-badge-mobile { display: inline !important; margin-right: 0.35rem; }
         .ep-copy-inline { display: none !important; }
@@ -3376,50 +3828,167 @@ function PageStyles() {
         .ep-path-clickable { cursor: default !important; pointer-events: none; }
         .mobile-row-copy { display: none !important; }
         .url-copy-icon { opacity: 0.8 !important; }
-        .expanded-url-bar { display: flex !important; padding-left: 1rem !important; }
       }
 
       /* ---- Header cards 2x2, search moves, tags center ---- */
       @media (max-width: 900px) {
         .services-container { padding-left: 0 !important; padding-right: 0 !important; }
-        [data-services-table] table { width: 100% !important; }
+        [data-services-table] table { width: 100% !important; table-layout: auto !important; }
         [data-services-table] thead { display: none !important; }
-        [data-services-table] table td:first-child { padding: 1rem 0.75rem 1rem 1.25rem !important; vertical-align: top !important; }
-        [data-services-table] table td:last-of-type { padding: 1rem 1.25rem 1rem 0 !important; vertical-align: middle !important; text-align: right !important; width: 48px !important; min-width: 48px !important; max-width: 48px !important; box-sizing: border-box !important; overflow: visible !important; }
-        .chevron-cell { padding-right: 0 !important; }
-        .svc-badge-inline { margin-left: 0.25rem !important; }
-        .sub-row { padding-left: 1.25rem !important; padding-right: 0.75rem !important; }
-        .svc-desc-mobile { font-size: 14.5px !important; }
-        .header-cards { padding: 0 1.25rem !important; }
+        [data-services-table] colgroup { display: none !important; }
+        td.hide-mobile:nth-child(2) { display: none !important; }
+        td.hide-mobile:nth-child(3) { display: none !important; }
+        [data-services-table] table { table-layout: auto !important; }
+        [data-services-table] table td:first-child:not(.expanded-detail) { padding: 1.15rem 0.35rem 1.15rem 1.25rem !important; vertical-align: top !important; overflow: hidden !important; max-width: 0 !important; width: 100% !important; }
+        [data-services-table] table td:last-of-type:not(.expanded-detail) { padding: 0 !important; vertical-align: middle !important; text-align: right !important; white-space: nowrap !important; overflow: visible !important; width: 120px !important; min-width: 140px !important; max-width: 140px !important; box-sizing: border-box !important; }
+        .expanded-detail { padding: 0 !important; }
+        .chevron-cell { padding-right: 24px !important; gap: 0.25rem !important; }
+        .chevron-cell a { width: 32px !important; height: 32px !important; border: 1px solid var(--vocs-border-color-primary) !important; border-radius: 7px !important; display: flex !important; align-items: center !important; justify-content: center !important; margin-right: 4px; }
+        .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; }
+        .svc-badge-inline { display: inline !important; margin-left: 0.25rem !important; }
+        .svc-badge-bordered { display: inline !important; }
+        .svc-badge-borderless { display: none !important; }
+        .show-tablet { display: block !important; }
+        
+        .svc-desc-container { display: block !important; }
+        .sub-row {
+          display: grid !important;
+          grid-template-columns: 1fr auto !important;
+          grid-template-rows: auto auto !important;
+          padding: 0.8rem 1.25rem 0.8rem 1.25rem !important;
+          gap: 0 0.75rem !important;
+          align-items: start !important;
+          text-align: left;
+          margin-top: 4px;
+          padding-bottom: 0rem !important;
+          
+        }
+        .sub-row > * { padding: 0 !important; }
+        .sub-row > *:nth-child(1) { grid-row: 1 !important; grid-column: 1 !important; }
+        .sub-row > *:nth-child(3) { grid-row: 1 !important; grid-column: 2 !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; justify-self: end !important; align-self: center !important; white-space: nowrap !important; }
+        .sub-row > *:nth-child(2) { grid-row: 2 !important; grid-column: 1 / -1 !important; margin-top: 0.2rem !important; display: block !important; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; overflow: visible !important; }
+        .ep-desc-cell { display: block !important; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; overflow: visible !important; padding: 0 !important; padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+        .intent-badge-mobile { display: none !important; }
+        .intent-badge-price { display: inline !important; }
+        .ep-copy-inline { display: none !important; }
+        .ep-copy-outside { display: inline-flex !important; }
+        .ep-copy-mobile { display: none !important; }
+        .ep-path-clickable { pointer-events: none !important; cursor: default !important; }
+        .sub-header { padding-left: 1.25rem !important; padding-right: 1.25rem !important; grid-template-columns: 1fr auto !important; }
+        .sub-header > *:nth-child(1) { text-align: left !important; padding-left: 0 !important; }
+        .sub-header > *:nth-child(2) { display: none !important; }
+        .sub-header > *:nth-child(3) { text-align: right !important; padding-right: 0 !important; }
+        .expanded-detail { overflow: hidden !important; padding-left: 0 !important; padding-right: 0 !important; }
+        .svc-desc-mobile { font-size: 14.5px !important; -webkit-line-clamp: 3 !important; max-width: none !important; }
+        .url-mobile { display: block !important; }
+        .expanded-url-bar { display: none !important; }
+        .header-cards { padding: 0 1.25rem !important; margin-left: 0 !important; margin-right: 0 !important; }
         .header-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        .header-cards-grid > * > div > div:first-child { font-size: 16px !important; }
-        .header-cards-grid > * > div > div:last-child { font-size: 14px !important; line-height: 1.4 !important; }
+        .header-cards-grid > * > div > div:first-child { font-size: 14.5px !important; }
+        .header-cards-grid > * > div > div:last-child { font-size: 13.5px !important; line-height: 1.4 !important; }
         .search-bar { display: none !important; }
-        .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
-        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 15px !important; }
+        .search-mobile {
+          display: block !important;
+          padding: 0.75rem 1.25rem !important;
+          margin: 0 !important;
+          position: relative !important;
+          margin-top: -56px !important;
+        }
+        .search-mobile-spacer { display: block !important; height: 56px; }
+        [data-mobile-search-stuck] .search-mobile {
+          position: fixed !important;
+          top: var(--mobile-search-top, 56px) !important;
+          left: 0 !important;
+          right: 0 !important;
+          z-index: 40 !important;
+          margin-top: 0 !important;
+          background: var(--vocs-background-color-primary) !important;
+          transition: top 0.2s ease !important;
+        }
+        .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 16px !important; }
+        .search-mobile-active,
+        [data-mobile-search-stuck] .search-mobile-active {
+          z-index: 101 !important;
+          background: var(--vocs-background-color-primary) !important;
+        }
         .search-kbd-hint { display: none !important; }
-        .mobile-results-header { display: flex !important; }
-        .mobile-search-backdrop + .mobile-results-header { display: none !important; }
+        .mobile-results-header { display: none !important; }
         .search-mobile .search-dropdown { max-height: 50vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
-        .search-mobile .search-dropdown-item { padding: 0.75rem 1rem !important; font-size: 14px !important; }
+        .search-mobile-active .search-dropdown { position: fixed !important; top: calc(var(--mobile-search-top, 56px) + 52px) !important; left: 0 !important; right: 0 !important; width: 100vw !important; max-width: 100vw !important; border-radius: 0 0 12px 12px !important; border-left: none !important; border-right: none !important; max-height: 60vh !important; z-index: 102 !important; }
+        .search-mobile .search-dropdown > div:first-child { padding: 0.75rem 1.25rem !important; gap: 6px !important; }
+        .search-mobile .search-dropdown > div:first-child button { font-size: 13px !important; padding: 8px 16px !important; border-radius: 6px !important; }
+        .search-mobile .search-dropdown-item { padding: 0.85rem 1.25rem !important; font-size: 15px !important; }
+        .search-mobile .search-dropdown-item span:first-child { font-size: 11px !important; width: 70px !important; min-width: 70px !important; }
         .search-mobile-hidden { display: none !important; }
-        .filter-tags { justify-content: center !important; gap: 0.35rem !important; width: 100% !important; }
-        .filter-tags button { font-size: 14px !important; padding: 0.4rem 0.85rem !important; flex: 1 1 calc(20% - 0.35rem) !important; justify-content: center !important; max-width: calc(25% - 0.35rem) !important; }
-        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; }
-        .page-header p { max-width: 80% !important; margin-left: auto !important; margin-right: auto !important; font-size: 14.5px !important; padding-right: 1rem !important; }
+        .filter-tags { justify-content: flex-start !important; gap: 0.5rem !important; width: 100% !important; padding: 0.75rem 1.25rem !important; }
+        .filter-tags button { font-size: 14.5px !important; padding: 0.5rem 1rem !important; flex: unset !important; max-width: unset !important; }
+        .page-header { text-align: center !important; margin-bottom: 1.25rem !important; padding: 0 1.25rem !important; flex-direction: column !important; align-items: center !important; margin-left: 0 !important; }
+        .page-header p { max-width: 100% !important; margin-left: auto !important; margin-right: auto !important; font-size: 16.5px !important; padding-left: 4rem; padding-right: 4rem;}
         .page-header-ctas { display: none !important; }
         .pagination { padding: 0 1.25rem !important; }
+        .ep-desc-cell {
+          margin-top: 6px !important;
+          margin-bottom: 2px !important;
+          font-size: 14.5px !important;
+        }
+      }
+
+      /* ---- Mobile: one-column primary rows ---- */
+      @media (max-width: 700px) {
+        [data-services-table] table,
+        [data-services-table] table tbody {
+          display: block !important;
+          width: 100% !important;
+        }
+        [data-services-table] table tr {
+          display: block !important;
+          width: 100% !important;
+        }
+        [data-services-table] table tr > td.expanded-detail {
+          display: block !important;
+          width: 100% !important;
+          max-width: none !important;
+        }
+        [data-services-table] table tr[id^="service-"] {
+          display: flex !important;
+          flex-wrap: wrap !important;
+          position: relative !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td:first-child {
+          display: block !important;
+          max-width: none !important;
+          width: 100% !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td:last-of-type {
+          position: absolute !important;
+          right: 0 !important;
+          top: 0 !important;
+          width: auto !important;
+          min-width: auto !important;
+          max-width: none !important;
+          height: auto !important;
+          padding-top: 0.75rem !important;
+        }
+        .svc-badge-inline { position: relative !important; top: -4px !important; }
+        .svc-name-row { margin-bottom: 3px !important; }
+        .ep-desc-cell {
+          white-space: normal !important;
+          word-break: break-word !important;
+        }
       }
 
       /* ---- Mobile: full-width, bigger icons ---- */
       @media (max-width: 640px) {
-        .expanded-detail { padding-left: 0 !important; padding-right: 0 !important; }
+        .expanded-detail { padding-left: 0 !important; padding-right: 0 !important;  }
         .svc-icon { width: 38px !important; height: 38px !important; margin-right: 10px !important; }
         .svc-icon img { width: 38px !important; height: 38px !important; }
         .sub-row { padding-left: 1.25rem !important; }
-        .header-cards-grid > * > div > div:first-child { font-size: 17px !important; }
-        .header-cards-grid > * > div > div:last-child { font-size: 15px !important; }
+        .header-cards-grid > * > div > div:first-child { font-size: 14.5px !important; }
+        .header-cards-grid > * > div > div:last-child { font-size: 13.5px !important; }
         .filter-tags button { min-width: auto !important; }
+        [data-services-table] table td:last-child  {
+          padding-right: 0px !important;
+        }
       }
     `}</style>
   );

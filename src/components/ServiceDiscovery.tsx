@@ -166,7 +166,17 @@ function getDropdownResults(
 // Exported component
 // ---------------------------------------------------------------------------
 
-export function ServiceDiscovery() {
+export function ServiceDiscovery({
+  externalQuery,
+  externalCategory,
+  externalSelectedServiceId,
+  onExternalServiceHandled,
+}: {
+  externalQuery?: string;
+  externalCategory?: string | null;
+  externalSelectedServiceId?: string;
+  onExternalServiceHandled?: () => void;
+} = {}) {
   const [services, setServices] = useState<Service[]>([]);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -243,16 +253,30 @@ export function ServiceDiscovery() {
     return () => window.removeEventListener("mpp:reset-discovery", handleReset);
   }, []);
 
+  useEffect(() => {
+    if (externalQuery !== undefined) {
+      setDebouncedQuery(externalQuery);
+    }
+  }, [externalQuery]);
+
   const stableScored = useMemo(() => {
-    return services.map((s) => ({
+    let scored = services.map((s) => ({
       service: s,
       score: scoreService(s, debouncedQuery),
     }));
-  }, [services, debouncedQuery]);
+    if (externalCategory) {
+      scored = scored.map((item) => {
+        const cats = (item.service.categories ?? []) as string[];
+        const matches = cats.some((c) => c === externalCategory);
+        return { ...item, score: matches ? Math.max(item.score, 1) : 0 };
+      });
+    }
+    return scored;
+  }, [services, debouncedQuery, externalCategory]);
 
   const targetGridIndex = useMemo(() => {
     const map = new Map<string, number>();
-    if (!debouncedQuery) return map;
+    if (!debouncedQuery && !externalCategory) return map;
     const matches = [...stableScored]
       .filter((s) => s.score > 0)
       .sort((a, b) => b.score - a.score);
@@ -260,12 +284,22 @@ export function ServiceDiscovery() {
       map.set(matches[i].service.id, i);
     }
     return map;
-  }, [stableScored, debouncedQuery]);
+  }, [stableScored, debouncedQuery, externalCategory]);
 
   const dropdownResults = useMemo(
     () => getDropdownResults(services, query),
     [services, query],
   );
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: trigger on external ID change
+  useEffect(() => {
+    if (!externalSelectedServiceId || services.length === 0) return;
+    const svc = services.find((s) => s.id === externalSelectedServiceId);
+    if (svc) {
+      setSelectedService(svc);
+      onExternalServiceHandled?.();
+    }
+  }, [externalSelectedServiceId, services]);
 
   const dismissMobileSearch = useCallback(() => {
     setMobileSearchActive(false);
@@ -349,7 +383,8 @@ export function ServiceDiscovery() {
     setTransforms(next);
   }, [debouncedQuery, stableScored, targetGridIndex]);
 
-  const hasQuery = query.length > 0;
+  const hasQuery =
+    query.length > 0 || debouncedQuery.length > 0 || !!externalCategory;
 
   return (
     <>
@@ -384,7 +419,8 @@ export function ServiceDiscovery() {
             }}
             style={{ cursor: "pointer" }}
           >
-            Power-ups for agents
+            Superpowers for <br className="sm:hidden" />
+            your agent
           </div>
 
           <p className="discovery-overlay-desc">
@@ -614,7 +650,7 @@ export function ServiceDiscovery() {
         {/* Card grid */}
         <div className="discovery-grid" ref={gridRef}>
           {stableScored.slice(0, 48).map(({ service, score }) => {
-            const isMatch = !debouncedQuery || score > 0;
+            const isMatch = (!debouncedQuery && !externalCategory) || score > 0;
             const iconUrl = getIconUrl(service);
             const t = transforms[service.id];
             const isAnimating = hasQuery && isMatch && t;
@@ -699,7 +735,14 @@ export function ServiceDiscovery() {
                     )}
                   </div>
                 )}
-                <div className="discovery-card-icon">
+                <div
+                  className="discovery-card-icon"
+                  style={{
+                    position: "relative",
+                    overflow: "visible",
+                    zIndex: 1,
+                  }}
+                >
                   {iconUrl && !brokenIcons.current.has(service.id) ? (
                     <img
                       src={iconUrl}
@@ -714,6 +757,23 @@ export function ServiceDiscovery() {
                     <div className="discovery-card-icon-fallback">
                       {service.name[0]}
                     </div>
+                  )}
+                  {service.integration !== "third-party" && (
+                    <span
+                      className="discovery-card-fp-dot"
+                      style={{
+                        position: "absolute",
+                        top: -1,
+                        right: -1,
+                        width: 9,
+                        height: 9,
+                        borderRadius: "50%",
+                        background: "#22c55e",
+                        border:
+                          "1.5px solid var(--vocs-background-color-primary, #1a1a1a)",
+                        zIndex: 2,
+                      }}
+                    />
                   )}
                 </div>
                 <div className="discovery-card-name">{service.name}</div>
@@ -1363,7 +1423,7 @@ function ServiceDetailModal({
                           "1px solid light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.15))",
                         background:
                           "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.08))",
-                        cursor: "pointer",
+
                         fontFamily: "var(--font-sans)",
                         transition: "background 0.15s",
                       }}
@@ -1640,7 +1700,7 @@ function ServiceDetailModal({
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 4,
-                  cursor: "pointer",
+
                   textTransform: "none",
                   letterSpacing: "normal",
                 }}
@@ -1960,8 +2020,9 @@ function DiscoveryStyles() {
         flex-shrink: 0;
         border: none;
         background: transparent;
-        cursor: pointer;
+        
         color: var(--vocs-text-color-muted);
+        
         padding: 2px;
         border-radius: 4px;
         transition: color 0.15s;
@@ -2027,7 +2088,7 @@ function DiscoveryStyles() {
         padding: 0.7rem 1rem;
         border: none;
         background: transparent;
-        cursor: pointer;
+        
         font-size: 14px;
         color: var(--vocs-text-color-heading);
         text-align: left;
@@ -2090,7 +2151,7 @@ function DiscoveryStyles() {
         border: none;
         background: transparent;
         color: var(--vocs-text-color-muted);
-        cursor: pointer;
+        
         transition: background 0.1s, color 0.1s;
       }
       .discovery-dropdown-tab:hover { color: var(--vocs-text-color-heading); }
@@ -2147,10 +2208,10 @@ function DiscoveryStyles() {
         border-radius: 14px;
         border: 1px solid var(--vocs-border-color-primary);
         background: light-dark(rgba(0,0,0,0.03), rgba(255,255,255,0.03));
-        cursor: pointer;
+        
         text-align: left;
         font-family: var(--font-sans);
-        overflow: hidden;
+        overflow: visible;
         min-height: 0;
         transition: opacity 0.4s ease, filter 0.4s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.15s, background 0.15s;
       }
@@ -2196,7 +2257,7 @@ function DiscoveryStyles() {
         color: var(--vocs-text-color-heading);
         background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.14));
       }
-      .discovery-card-icon { flex-shrink: 0; }
+      .discovery-card-icon { flex-shrink: 0; width: 28px; height: 28px; }
       .discovery-card-icon-img {
         width: 28px;
         height: 28px;
@@ -2228,6 +2289,7 @@ function DiscoveryStyles() {
         color: var(--vocs-text-color-secondary);
         line-height: 1.5;
         margin-top: 2px;
+        overflow: hidden;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -2321,7 +2383,7 @@ function DiscoveryStyles() {
       .modal-close {
         border: none;
         background: transparent;
-        cursor: pointer;
+        
         color: var(--vocs-text-color-muted);
         padding: 4px;
         border-radius: 6px;
@@ -2355,6 +2417,7 @@ function DiscoveryStyles() {
         color: var(--vocs-text-color-heading);
         text-decoration: none;
         transition: background 0.15s;
+        cursor: pointer;
       }
       .modal-link:hover {
         background: light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06));
@@ -2489,8 +2552,7 @@ function DiscoveryStyles() {
         max-height: 320px;
         overflow-y: auto;
         border: 1px solid light-dark(var(--vocs-border-color-primary), rgba(255,255,255,0.1));
-        border-top: none;
-        border-radius: 0 0 10px 10px;
+        border-radius: 10px;
         scrollbar-width: thin;
       }
       .modal-endpoint-row {
@@ -2559,7 +2621,7 @@ function DiscoveryStyles() {
       .endpoint-price {
         font-family: var(--font-mono);
         font-size: 12px;
-        color: var(--vocs-text-color-muted);
+        color: var(--vocs-text-color-secondary);
         white-space: nowrap;
         text-align: right;
       }
@@ -2621,7 +2683,6 @@ function DiscoveryStyles() {
         }
         .endpoint-path { font-size: 13px !important; }
         .method-badge { font-size: 11px !important; }
-        .modal-endpoints { border-top: none; }
         .modal-action-links {
           flex-direction: column !important;
           gap: 6px !important;
@@ -2721,7 +2782,7 @@ function DiscoveryStyles() {
           border: none;
           background: transparent;
           color: var(--vocs-text-color-muted);
-          cursor: pointer;
+          
           padding: 4px;
           border-radius: 4px;
           transition: color 0.15s;
@@ -2739,7 +2800,7 @@ function DiscoveryStyles() {
           font-size: 12px;
           font-weight: 600;
           font-family: var(--font-sans);
-          cursor: pointer;
+          
           padding: 4px 10px;
           border-radius: 5px;
           white-space: nowrap;
