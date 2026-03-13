@@ -56,8 +56,6 @@ export function LandingPage() {
         style={{
           color: ACCENT,
           fontFamily: "var(--font-copy)",
-          userSelect: "none",
-          WebkitUserSelect: "none",
         }}
       >
         <LandingStyles />
@@ -115,7 +113,7 @@ function LandingStyles() {
 
       .landing-page {
         margin-top: 0 !important;
-        
+
       }
 
       /* ---- Main section: hero + terminal ---- */
@@ -222,6 +220,10 @@ function LandingStyles() {
         font-family: "VTC Du Bois", var(--font-sans) !important;
         text-transform: uppercase;
       }
+      .lockup-for-light { }
+      .lockup-for-dark { display: none; }
+      :root[style*="color-scheme: dark"] .lockup-for-light { display: none; }
+      :root[style*="color-scheme: dark"] .lockup-for-dark { display: block; }
 
       /* ---- Scroll CTA shimmer divider ---- */
       .landing-scroll-cta {
@@ -628,22 +630,26 @@ function StripeLogo() {
 function Lockup() {
   return (
     <h1 className="lockup-h1" style={{ margin: 0 }}>
-      <picture>
-        <source
-          srcSet="/lockup-light.svg"
-          media="(prefers-color-scheme: dark)"
-        />
-        <img
-          src="/lockup-dark.svg"
-          alt="Machine Payments Protocol"
-          className="lockup-img"
-          style={{
-            height: "auto",
-            width: "clamp(288px, 33.6vw, 456px)",
-            marginTop: "1rem",
-          }}
-        />
-      </picture>
+      <img
+        src="/lockup-light.svg"
+        alt="Machine Payments Protocol"
+        className="lockup-img lockup-for-light"
+        style={{
+          height: "auto",
+          width: "clamp(288px, 33.6vw, 456px)",
+          marginTop: "1rem",
+        }}
+      />
+      <img
+        src="/lockup-dark.svg"
+        alt="Machine Payments Protocol"
+        className="lockup-img lockup-for-dark"
+        style={{
+          height: "auto",
+          width: "clamp(288px, 33.6vw, 456px)",
+          marginTop: "1rem",
+        }}
+      />
     </h1>
   );
 }
