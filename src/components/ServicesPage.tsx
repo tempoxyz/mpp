@@ -888,8 +888,9 @@ export function ServicesPage() {
           const el = document.getElementById(`service-${id}`);
           if (!el) return;
           const navH =
-            document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
-              .height ?? 56;
+            document
+              .querySelector("[data-v-gutter-top]")
+              ?.getBoundingClientRect().height ?? 56;
           const barH =
             document.querySelector(".search-bar")?.getBoundingClientRect()
               .height ?? 0;
@@ -1656,7 +1657,12 @@ export function ServicesPage() {
                       className="services-table-col"
                       style={{ flex: 1, minWidth: 0 }}
                     >
-                      <div data-services-table>
+                      <div
+                        data-services-table
+                        {...(expandedIds.size > 0
+                          ? { "data-has-expanded": "" }
+                          : {})}
+                      >
                         <table
                           style={{
                             width: "100%",
@@ -2938,12 +2944,13 @@ function ServiceRow({
       <tr
         id={`service-${s.id}`}
         onClick={onToggle}
+        {...(expanded ? { "data-expanded": "" } : {})}
         style={{
           borderBottom: expanded
             ? "1px solid transparent"
             : "1px solid var(--vocs-border-color-primary)",
 
-          transition: "background 0.1s",
+          transition: "background 0.1s, opacity 0.2s",
           background: expanded ? expandedBg : undefined,
           minHeight: 58,
         }}
@@ -3218,7 +3225,7 @@ function ServiceRow({
         </td>
       </tr>
       {expanded && (
-        <tr style={{ background: expandedBg }}>
+        <tr data-expanded="" style={{ background: expandedBg }}>
           <td
             colSpan={4}
             className="expanded-detail"
@@ -3572,6 +3579,10 @@ function PageStyles() {
       .chevron-cell a { aspect-ratio: 1; box-sizing: border-box; }
       .expanded-detail { animation: expandIn 0.15s ease-out; }
       @keyframes expandIn { from { opacity: 0; } to { opacity: 1; } }
+
+      /* Dim non-expanded rows when one is expanded */
+      [data-has-expanded] tbody tr:not([data-expanded]) { opacity: 0.35; }
+      [data-has-expanded] tbody tr:not([data-expanded]):hover { opacity: 0.7; }
 
       .method-badge {
         font-size: 11px;
