@@ -1061,6 +1061,12 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   }
   [data-v-mobile-nav] {
     border-left: none !important;
+    min-height: 100dvh !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+  div[role="presentation"][data-open],
+  div[role="presentation"][data-base-ui-inert] {
+    min-height: 100dvh !important;
   }
 
   [data-v-sidebar] {
