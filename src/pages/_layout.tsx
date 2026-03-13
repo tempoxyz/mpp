@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 // Snippet from https://us.posthog.com/project/settings/snippet
@@ -122,6 +122,220 @@ function MobileNavPortal() {
   return createPortal(<MobileNav />, target);
 }
 
+function CopyIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <title>Copy</title>
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <title>Download</title>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}
+
+const menuItemStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: "0.65rem",
+  width: "100%",
+  padding: "0.65rem 1rem",
+  border: "none",
+  background: "transparent",
+  color: "var(--vocs-text-color-heading)",
+  fontSize: 14,
+  fontFamily: "var(--font-sans)",
+  cursor: "pointer",
+  textDecoration: "none",
+  textAlign: "left",
+};
+
+function LogoMenu({
+  pos,
+  onClose,
+}: {
+  pos: { x: number; y: number };
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copySvg = useCallback(
+    async (path: string, label: string) => {
+      try {
+        const res = await fetch(path);
+        const text = await res.text();
+        await navigator.clipboard.writeText(text);
+        setCopied(label);
+        setTimeout(() => {
+          setCopied(null);
+          onClose();
+        }, 800);
+      } catch {
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
+  const isDark =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  const maxX = typeof window !== "undefined" ? window.innerWidth - 240 : pos.x;
+  const left = Math.min(pos.x, maxX);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        position: "fixed",
+        top: pos.y,
+        left,
+        zIndex: 9999,
+        minWidth: 220,
+        background: "var(--vocs-background-color-primary)",
+        border: "1px solid var(--vocs-border-color-primary)",
+        borderRadius: 10,
+        boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+        padding: "4px 0",
+        fontFamily: "var(--font-sans)",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() =>
+          copySvg(isDark ? "/logo-light.svg" : "/logo-dark.svg", "icon")
+        }
+        style={menuItemStyle}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background =
+            "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06))";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "transparent";
+        }}
+      >
+        <CopyIcon />
+        {copied === "icon" ? "Copied!" : "Copy icon"}
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          copySvg(
+            isDark ? "/lockup-light.svg" : "/lockup-dark.svg",
+            "logo",
+          )
+        }
+        style={menuItemStyle}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background =
+            "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06))";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "transparent";
+        }}
+      >
+        <CopyIcon />
+        {copied === "logo" ? "Copied!" : "Copy full logo"}
+      </button>
+      <a
+        href="/brand.zip"
+        download
+        onClick={() => setTimeout(onClose, 100)}
+        style={menuItemStyle}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background =
+            "light-dark(rgba(0,0,0,0.05), rgba(255,255,255,0.06))";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "transparent";
+        }}
+      >
+        <DownloadIcon />
+        Download brand assets
+      </a>
+    </div>
+  );
+}
+
+function LogoContextMenu() {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const logo = (e.target as HTMLElement).closest("[data-v-logo]");
+      if (!logo) return;
+      e.preventDefault();
+      setPos({ x: e.clientX, y: e.clientY });
+    };
+    document.addEventListener("contextmenu", handler);
+    return () => document.removeEventListener("contextmenu", handler);
+  }, []);
+
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!pos) return;
+    const close = (e: Event) => {
+      if (
+        menuRef.current &&
+        e.target instanceof Node &&
+        menuRef.current.contains(e.target)
+      )
+        return;
+      setPos(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPos(null);
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("scroll", close, true);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("scroll", close, true);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [pos]);
+
+  if (!pos) return null;
+  return createPortal(
+    <div ref={menuRef}>
+      <LogoMenu pos={pos} onClose={() => setPos(null)} />
+    </div>,
+    document.body,
+  );
+}
+
 export default function Layout(props: React.PropsWithChildren) {
   usePostHog();
   useGoogleAnalytics();
@@ -152,6 +366,7 @@ export default function Layout(props: React.PropsWithChildren) {
         crossOrigin="anonymous"
       />
       <MobileNavPortal />
+      <LogoContextMenu />
       {props.children}
     </>
   );
