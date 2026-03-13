@@ -869,17 +869,7 @@ export function ServicesPage() {
   const toggleRow = useCallback((id: string) => {
     setExpandedIds((p) => {
       if (p.has(id)) {
-        const el = document.getElementById(`service-${id}`);
-        const rectBefore = el?.getBoundingClientRect().top ?? 0;
         history.replaceState(null, "", window.location.pathname);
-        requestAnimationFrame(() => {
-          if (!el) return;
-          const rectAfter = el.getBoundingClientRect().top;
-          const drift = rectAfter - rectBefore;
-          if (Math.abs(drift) > 1) {
-            window.scrollBy(0, drift);
-          }
-        });
         return new Set();
       }
       history.replaceState(null, "", `#service-${id}`);
