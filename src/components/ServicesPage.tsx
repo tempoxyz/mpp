@@ -3839,18 +3839,20 @@ function PageStyles() {
         td.hide-mobile:nth-child(2) { display: none !important; }
         td.hide-mobile:nth-child(3) { display: none !important; }
         [data-services-table] table { table-layout: auto !important; }
-        [data-services-table] table td:first-child:not(.expanded-detail) { padding: 1.15rem 0.35rem 1.15rem 1.25rem !important; vertical-align: top !important; overflow: hidden !important; max-width: 0 !important; width: 100% !important; }
-        [data-services-table] table td:last-of-type:not(.expanded-detail) { padding: 0 !important; vertical-align: middle !important; text-align: right !important; white-space: nowrap !important; overflow: visible !important; width: 120px !important; min-width: 140px !important; max-width: 140px !important; box-sizing: border-box !important; }
+        [data-services-table] table tr:not(:has(.expanded-detail)) { display: flex !important; flex-wrap: wrap !important; position: relative !important; }
+        [data-services-table] table td:first-child:not(.expanded-detail) { padding: 1.15rem 1.25rem !important; vertical-align: top !important; overflow: visible !important; max-width: none !important; width: 100% !important; }
+        [data-services-table] table td:last-of-type:not(.expanded-detail) { position: absolute !important; top: 1.15rem !important; right: 0.75rem !important; padding: 0 !important; width: auto !important; min-width: auto !important; max-width: none !important; }
         .expanded-detail { padding: 0 !important; }
         .chevron-cell { padding-right: 24px !important; gap: 0.25rem !important; }
         .chevron-cell a { width: 32px !important; height: 32px !important; border: 1px solid var(--vocs-border-color-primary) !important; border-radius: 7px !important; display: flex !important; align-items: center !important; justify-content: center !important; margin-right: 4px; }
-        .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; }
+        .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; padding-right: 120px !important; }
         .svc-badge-inline { display: inline !important; margin-left: 0.25rem !important; }
         .svc-badge-bordered { display: inline !important; }
         .svc-badge-borderless { display: none !important; }
         .show-tablet { display: block !important; }
         
         .svc-desc-container { display: block !important; }
+        .url-mobile { display: block !important; }
         .sub-row {
           display: grid !important;
           grid-template-columns: 1fr auto !important;
