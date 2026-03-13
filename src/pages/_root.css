@@ -1046,6 +1046,10 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   div[role="presentation"][data-base-ui-inert] {
     z-index: 250 !important;
   }
+  /* Drop gutter-top below the dialog when mobile nav is open */
+  :has([data-v-mobile-nav][role="dialog"]) [data-v-gutter-top] {
+    z-index: 0 !important;
+  }
 
   /* Remove dialog's top header/close-button area to align content with hamburger */
   [data-v-mobile-nav] > div:first-child:has(button[aria-label]) {
