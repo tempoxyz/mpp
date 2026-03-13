@@ -93,7 +93,12 @@ export async function GET(request: Request) {
           const lines = excerpts
             .join("\n")
             .split("\n")
-            .filter((line) => line.trim())
+            .filter(
+              (line) =>
+                line.trim() &&
+                !line.trim().startsWith("Section Title:") &&
+                !line.trim().startsWith("Content:"),
+            )
             .map((line) => `  ${line.trim()}`);
           return result.withReceipt(Response.json({ lines }));
         }
