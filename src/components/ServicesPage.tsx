@@ -887,7 +887,14 @@ export function ServicesPage() {
         requestAnimationFrame(() => {
           const el = document.getElementById(`service-${id}`);
           if (!el) return;
-          const target = el.getBoundingClientRect().top + window.scrollY - 80;
+          const navH =
+            document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
+              .height ?? 56;
+          const barH =
+            document.querySelector(".search-bar")?.getBoundingClientRect()
+              .height ?? 0;
+          const target =
+            el.getBoundingClientRect().top + window.scrollY - navH - barH - 12;
           const start = window.scrollY;
           const dist = target - start;
           const dur = Math.min(900, Math.max(500, Math.abs(dist) * 0.9));
@@ -3540,7 +3547,7 @@ function PageStyles() {
       }
 
       /* Soften table borders */
-      [data-services-table] table tr { border-color: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) !important; scroll-margin-top: calc(var(--vocs-spacing-topNav, 56px) + 60px); }
+      [data-services-table] table tr { border-color: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.06)) !important; scroll-margin-top: calc(var(--vocs-spacing-topNav, 56px) + 80px); }
 
       .search-mobile { display: none; }
       .header-cards { display: none !important; }
