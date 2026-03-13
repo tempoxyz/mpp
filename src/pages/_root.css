@@ -139,7 +139,6 @@ html {
   color: var(--vocs-text-color-heading);
   position: relative;
   z-index: 51;
-  transition: opacity 0.15s;
 }
 
 [data-v-logo] img {

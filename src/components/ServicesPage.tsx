@@ -795,6 +795,9 @@ export function ServicesPage() {
   useEffect(() => {
     const el = stickyRef.current;
     if (!el) return;
+    const navH =
+      document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
+        .height ?? 56;
     const io = new IntersectionObserver(
       ([e]) => {
         document.documentElement.toggleAttribute(
@@ -802,7 +805,7 @@ export function ServicesPage() {
           !e.isIntersecting,
         );
       },
-      { threshold: 0 },
+      { threshold: 0, rootMargin: `-${navH}px 0px 0px 0px` },
     );
     io.observe(el);
     return () => {
@@ -1462,11 +1465,10 @@ export function ServicesPage() {
                     marginBottom: "0.75rem",
                     marginRight: "0.5rem",
                     position: "sticky",
-                    top: "calc(var(--vocs-spacing-topNav, 56px) -  40px)",
+                    top: "calc(var(--vocs-spacing-topNav, 56px) -  48px)",
                     zIndex: 51,
                     background:
                       "linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent)",
-                    paddingTop: "0.75rem",
                     paddingBottom: "0.75rem",
                   }}
                 >
@@ -3618,6 +3620,7 @@ function PageStyles() {
       .expanded-detail { }
 
       /* Dim non-expanded rows when one is expanded */
+      [data-services-table] tbody tr { transition: opacity 0.2s; }
       [data-has-expanded] tbody tr:not([data-expanded]) { opacity: 0.35; }
       [data-has-expanded] tbody tr:not([data-expanded]):hover { opacity: 0.7; }
 
@@ -3692,7 +3695,7 @@ function PageStyles() {
         td.hide-mobile:nth-child(3) { display: table-cell !important; white-space: nowrap !important; }
         td.hide-mobile:nth-child(3) span { white-space: nowrap !important; word-break: normal !important; }
         [data-services-table] table td:first-child { padding: 0.75rem 0.5rem 0.75rem 1rem !important; vertical-align: top !important; }
-        [data-services-table] table td:last-child { padding: 0.75rem 0.5rem 0.75rem 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
+        [data-services-table] table td:last-child { padding: 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
         .svc-icon { align-self: flex-start !important; margin-top: 0 !important; }
         .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; flex-wrap: nowrap !important; }
         .svc-name-text { white-space: nowrap !important; }
