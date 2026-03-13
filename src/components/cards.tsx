@@ -223,7 +223,7 @@ export function TransportsCard() {
 export function LightningMethodCard() {
   return (
     <Card
-      description="Bitcoin payments over the Lightning Network with cryptographic verification"
+      description="Bitcoin payments over the Lightning Network"
       icon="lucide:zap"
       title="Lightning"
       to="/payment-methods/lightning"

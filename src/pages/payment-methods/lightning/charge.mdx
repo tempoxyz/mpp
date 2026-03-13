@@ -5,7 +5,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 The Lightning implementation of the [charge](/intents/charge) intent.
 
-The server generates a fresh BOLT11 invoice for each request. The client pays it over the Lightning Network via a Spark wallet and presents the payment preimage as a credential. The server verifies `sha256(preimage) == paymentHash` locally — no external service needed — and returns the resource with a receipt.
+The server generates a fresh BOLT11 invoice for each request. The client pays it over the Lightning Network via a Spark wallet and presents the payment preimage as a credential. The server verifies `sha256(preimage) == paymentHash` locally—no external service needed—and returns the resource with a receipt.
 
 This method is best for single API calls, content access, or one-off purchases.
 
@@ -76,8 +76,8 @@ const mppx = Mppx.create({
 
 | Parameter | Type | Required | Default |
 | --- | --- | --- | --- |
-| `mnemonic` | `string` | Yes | |
-| `network` | `'mainnet'` \| `'regtest'` \| `'signet'` | No | `'mainnet'` |
+| `mnemonic` | `string` | Required | |
+| `network` | `'mainnet'` \| `'regtest'` \| `'signet'` | Optional | `'mainnet'` |
 
 ## Client
 
@@ -123,9 +123,9 @@ The Spark SDK maintains WebSocket connections for Lightning payments. Call `meth
 
 | Parameter | Type | Required | Default |
 | --- | --- | --- | --- |
-| `mnemonic` | `string` | Yes | |
-| `network` | `'mainnet'` \| `'regtest'` \| `'signet'` | No | `'mainnet'` |
-| `maxFeeSats` | `number` | No | `100` |
+| `mnemonic` | `string` | Required | |
+| `network` | `'mainnet'` \| `'regtest'` \| `'signet'` | Optional | `'mainnet'` |
+| `maxFeeSats` | `number` | Optional | `100` |
 
 ## Request fields
 
@@ -133,12 +133,12 @@ The Challenge request includes the base charge fields plus Lightning method deta
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `amount` | `string` | Yes | Invoice amount in satoshis |
-| `currency` | `string` | No | Must be `'BTC'` if present. Defaults to `'BTC'` |
-| `description` | `string` | No | Human-readable memo. Maps to the BOLT11 description field |
-| `methodDetails.invoice` | `string` | Yes | Full BOLT11-encoded payment request (`lnbc...`). Authoritative source for all payment parameters |
-| `methodDetails.paymentHash` | `string` | No | SHA-256 hash of the preimage, lowercase hex. Convenience field — must match the hash decoded from `invoice` |
-| `methodDetails.network` | `string` | No | `'mainnet'`, `'regtest'`, or `'signet'`. Convenience field — must match `invoice`'s human-readable prefix. Defaults to `'mainnet'` |
+| `amount` | `string` | Required | Invoice amount in satoshis |
+| `currency` | `string` | Optional | Must be `'BTC'` if present. Defaults to `'BTC'` |
+| `description` | `string` | Optional | Human-readable memo. Maps to the BOLT11 description field |
+| `methodDetails.invoice` | `string` | Required | Full BOLT11-encoded payment request (`lnbc...`). Authoritative source for all payment parameters |
+| `methodDetails.paymentHash` | `string` | Optional | SHA-256 hash of the preimage, lowercase hex. Convenience field—must match the hash decoded from `invoice` |
+| `methodDetails.network` | `string` | Optional | `'mainnet'`, `'regtest'`, or `'signet'`. Convenience field—must match `invoice`'s human-readable prefix. Defaults to `'mainnet'` |
 
 ## Credential payload
 
@@ -146,7 +146,7 @@ The Credential payload contains the payment preimage revealed by Lightning HTLC 
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `preimage` | `string` | Yes | 32-byte payment preimage, lowercase hex (64 characters) |
+| `preimage` | `string` | Required | 32-byte payment preimage, lowercase hex (64 characters) |
 
 ## Verification
 

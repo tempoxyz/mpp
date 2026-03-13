@@ -8,11 +8,11 @@ The `session` intent enables high-frequency, pay-as-you-go payments over the Lig
 
 Payment sessions reduce payment verification to a single SHA-256 check, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
-## Why sessions matter
+## Why sessions
 
-Traditional payment rails target human purchase flows: a buyer decides, pays, and receives goods. Usage-based billing — the model that powers LLM APIs, metered services, and streaming — requires something fundamentally different. It needs payment verification that can keep pace with the service itself.
+A charge intent requires a full Lightning round-trip per request—invoice generation, HTLC routing, preimage reveal. That's fine for a single API call, but an LLM inference can generate hundreds of tokens over several seconds. Paying per token over Lightning would add seconds of latency per chunk.
 
-Consider an LLM API: a single inference request can generate hundreds of tokens over several seconds. Each token has a known cost, but the total cost isn't known when the request begins. Per-request Lightning payments would add unacceptable latency. Sessions solve this by making payment a continuous, inline part of the HTTP request — one deposit, then near-zero overhead for every subsequent chunk.
+Sessions fix this: one deposit, then the preimage becomes a bearer token. Every subsequent request is verified with a single `sha256` call—no network round-trip, no invoice, no HTLC. The server deducts from the balance inline. When the client is done, the server refunds the unspent sats via the return invoice.
 
 ## How it works
 
@@ -45,21 +45,44 @@ A Lightning session has four phases:
 
 ### Open
 
-The client pays a deposit invoice over the Lightning Network. HTLC settlement reveals the payment preimage — a 32-byte random secret that becomes the bearer token for the session. The client submits the preimage along with a return invoice (a zero-amount BOLT11 invoice for refunds) to open the session.
+The client pays a deposit invoice over the Lightning Network. HTLC settlement reveals the payment preimage—a 32-byte random secret that becomes the bearer token for the session. The client submits the preimage along with a return invoice (a zero-amount BOLT11 invoice for refunds) to open the session.
 
 ### Session (bearer)
 
-The client authenticates subsequent requests by presenting the preimage and session ID. The server verifies `sha256(preimage) == paymentHash` with a single hash operation — no RPC calls, no database lookups. The streaming layer deducts the per-unit cost from the session balance for each chunk delivered.
+The client authenticates subsequent requests by presenting the preimage and session ID. The server verifies `sha256(preimage) == paymentHash` with a single hash operation—no RPC calls, no database lookups. The streaming layer deducts the per-unit cost from the session balance for each chunk delivered.
 
 ### Top up
 
-If the balance runs out mid-stream, the server emits a `payment-need-topup` SSE event and holds the connection open. The client pays a fresh deposit invoice and submits a `topUp` credential. The server credits the balance and resumes the stream on the original connection — no need to replay the request.
+If the balance runs out mid-stream, the server emits a `payment-need-topup` SSE event and holds the connection open. The client pays a fresh deposit invoice and submits a `topUp` credential. The server credits the balance and resumes the stream on the original connection—no need to replay the request.
 
 ### Close
 
 The client submits a `close` credential. The server computes `refundSats = depositSats - spent` and pays the return invoice with the unspent balance. The session is marked closed and no further actions are accepted.
 
 ::::
+
+## Streaming LLM billing
+
+A typical flow for a streaming LLM API priced at 2 sats per token:
+
+1. **Client:** sends an unauthenticated request to the API
+2. **Server:** returns `402` with a deposit invoice for 300 sats (~150 tokens)
+3. **Client:** pays the invoice, opens a session with the preimage + return invoice
+4. **Server:** begins streaming tokens, deducting 2 sats per chunk from the session balance
+5. **Server:** balance exhausted mid-stream—emits `payment-need-topup`, holds connection open
+6. **Client:** pays a new deposit invoice, submits a `topUp` credential—stream resumes
+7. **Client:** closes the session—server refunds unspent sats to the return invoice
+
+The server never calls an external service during streaming. Verification is a single SHA-256 hash per request, and billing is an integer decrement per chunk.
+
+:::info[Why Lightning]
+Lightning has properties that make it a natural fit for session-based billing:
+
+- **No one controls it.**—Bitcoin is an open network. A payment layer for the open internet should be just as open as the network it runs on.
+- **Private by default**—Lightning payments are onion-routed. The only parties who know about a payment are the payer and the payee.
+- **Unmatched network effects**—Bitcoin has more liquidity than all stablecoins combined by an order of magnitude. Cash App, Coinbase, Binance, Strike, Kraken, and most major fintechs already support Lightning.
+- **Self-custodial**—Both client and server hold their own keys. No intermediary holds funds at any point.
+:::
 
 ## Integration
 
@@ -72,17 +95,6 @@ Use `spark.session` to accept prepaid Lightning sessions. The method handles dep
 :::info
 Session support in `spark-mppx` is coming soon. The API below shows the anticipated interface based on the [specification](https://tempoxyz.github.io/mpp-specs/draft-lightning-session-00).
 :::
-
-```ts
-import { Mppx, spark } from 'spark-mppx/server'
-
-const mppx = Mppx.create({
-  methods: [spark.session({ mnemonic: process.env.MNEMONIC! })],
-  secretKey: process.env.MPP_SECRET_KEY!,
-})
-```
-
-Use `mppx.session` in your request handler to meter access:
 
 ```ts
 import { Mppx, spark } from 'spark-mppx/server'
@@ -145,6 +157,21 @@ try {
 } finally {
   await method.cleanup()
 }
+```
+
+### With multiple methods
+
+Register both charge and session so the client can handle either intent:
+
+```ts
+import { Mppx, spark } from 'spark-mppx/client'
+
+const charge = spark.charge({ mnemonic: process.env.MNEMONIC! })
+const session = spark.session({ mnemonic: process.env.MNEMONIC! })
+
+Mppx.create({
+  methods: [charge, session],
+})
 ```
 
 :::info

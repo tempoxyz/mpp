@@ -1,8 +1,6 @@
-import { Badge } from 'vocs'
-
 # Lightning [Bitcoin payments over the Lightning Network]
 
-The Lightning payment method enables payments using Bitcoin over the [Lightning Network](https://lightning.network) within the MPP framework. Lightning supports two intents — **charge** for one-time payments and **session** for prepaid metered access — covering everything from single API calls to high-frequency streaming billing.
+The Lightning payment method enables payments using Bitcoin over the [Lightning Network](https://lightning.network) within the MPP framework. Lightning supports two intents—**charge** for one-time payments and **session** for prepaid metered access—covering everything from single API calls to high-frequency streaming billing.
 
 The implementation is provided by [`spark-mppx`](https://github.com/k15z/spark-mpp-demo), which extends the [`mppx`](https://github.com/tempoxyz/mpp) SDK with Lightning Network support alongside built-in methods like [Stripe](/payment-methods/stripe/) and [Tempo](/payment-methods/tempo/). The reference implementation uses [Spark](https://spark.money) for wallet and node operations, but the protocol works with any Lightning node or wallet that can create BOLT11 invoices and verify preimages.
 
@@ -10,10 +8,10 @@ The implementation is provided by [`spark-mppx`](https://github.com/k15z/spark-m
 
 Lightning brings a distinct set of properties to MPP:
 
-- **Cryptographic verification** — The server checks `sha256(preimage) == paymentHash` with a single hash operation. No RPC calls, no third-party API, no database lookup in the verification path.
-- **Synchronous settlement** — Lightning HTLC settlement reveals the preimage atomically. The preimage *is* the proof of payment — no polling, no webhooks, no confirmation delay.
-- **Global and permissionless** — Bitcoin works identically in every jurisdiction. No accounts to provision, no payment processor approval, no cross-border routing.
-- **Self-custodial** — Both client and server hold their own keys via Spark wallets. No intermediary holds funds at any point in the flow.
+- **Cryptographic verification**—The server checks `sha256(preimage) == paymentHash` with a single hash operation. No RPC calls, no third-party API, no database lookup in the verification path.
+- **Synchronous settlement**—Lightning HTLC settlement reveals the preimage atomically. The preimage *is* the proof of payment—no polling, no webhooks, no confirmation delay.
+- **Global and permissionless**—Bitcoin works identically in every jurisdiction. No accounts to provision, no payment processor approval, no cross-border routing.
+- **Self-custodial**—Both client and server hold their own keys via Spark wallets. No intermediary holds funds at any point in the flow.
 
 ## Choosing an intent
 
