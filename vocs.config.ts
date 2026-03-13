@@ -83,7 +83,7 @@ export default defineConfig({
             link: "https://tempoxyz.github.io/mpp-specs/",
           },
           { text: "FAQ", link: "/faq" },
-          { text: "Build with AI", link: "/guides/building-with-ai" },
+          { text: "Build with an LLM", link: "/guides/building-with-an-llm" },
         ],
       },
       {
@@ -92,7 +92,7 @@ export default defineConfig({
           { text: "Overview", link: "/quickstart" },
           { text: "Use with your app", link: "/quickstart/client" },
           { text: "Monetize your service", link: "/quickstart/server" },
-          { text: "Use with your Agent", link: "/quickstart/agent" },
+          { text: "Use with agents", link: "/quickstart/agent" },
         ],
       },
       {

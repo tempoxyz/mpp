@@ -301,9 +301,7 @@ async function main() {
       n++;
     }
 
-    console.log(
-      `Brand icons: ${brandFetched} fetched, ${brandFailed} failed`,
-    );
+    console.log(`Brand icons: ${brandFetched} fetched, ${brandFailed} failed`);
   }
 
   // --- Tier 3: letter fallbacks for anything remaining ---

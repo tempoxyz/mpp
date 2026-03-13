@@ -1385,7 +1385,7 @@ function ServiceDetailModal({
                       Add to agent
                     </button>
                     <a
-                      href="/guides/building-with-ai"
+                      href="/guides/building-with-an-llm"
                       style={{
                         display: "flex",
                         alignItems: "center",

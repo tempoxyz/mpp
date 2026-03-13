@@ -118,6 +118,11 @@ html {
 [data-v-main] {
   padding-bottom: 0;
 }
+
+/* Add vertical spacing inside tab panels so content breathes */
+[data-v-content] [role="tabpanel"] > *:not(:last-child) {
+  margin-bottom: 1.25rem;
+}
 [data-v-pagination] {
   margin-top: 3rem !important;
 }
