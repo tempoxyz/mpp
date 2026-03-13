@@ -68,6 +68,20 @@ $ mppx example.com/content -M channel=0x123 -M deposit=1000000
 
 For Tempo session payments, use `channel` and `deposit`. For Stripe, use `paymentMethod`.
 
+## Init command
+
+Create an `mppx.config.ts` file in the current directory:
+
+```bash [terminal]
+$ mppx init
+```
+
+Use `--force` to overwrite an existing config file:
+
+```bash [terminal]
+$ mppx init --force
+```
+
 ## Sign command
 
 Sign a payment Challenge and output the `Authorization` header value without making a request. Accepts a challenge via `--challenge` or stdin.
