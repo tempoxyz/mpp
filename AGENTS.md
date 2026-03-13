@@ -18,7 +18,7 @@ Prefer the normative Payment Auth specs at `/specs` for protocol-level details:
 
 - Core Payment HTTP Authentication Scheme
 - Payment methods
-- Payment intents (charge, authorize, subscription)
+- Payment intents (charge, session)
 - Transport bindings (HTTP, MCP)
 
 Current protocol context from this repo:

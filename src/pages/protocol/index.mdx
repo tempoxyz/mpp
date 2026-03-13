@@ -83,10 +83,9 @@ Payment method specifications must define:
 Payment intents describe the type of payment being requested. Common intents include:
 
 - **`charge`**—One-time payment that settles immediately
-- **`authorize`**—Authorization that can be captured later
-- **`subscription`**—Recurring payment authorization
+- **`session`**—Streaming payment over a payment channel
 
-Intent Specification define:
+Intent Specifications define:
 
 - Required and optional `request` fields
 - `payload` requirements
@@ -96,7 +95,7 @@ Servers can offer multiple intents in separate challenges, allowing clients to c
 
 ```http
 WWW-Authenticate: Payment id="abc", method="tempo", intent="charge", ...
-WWW-Authenticate: Payment id="def", method="tempo", intent="authorize", ...
+WWW-Authenticate: Payment id="def", method="tempo", intent="session", ...
 ```
 
 ## Request body binding
@@ -218,7 +217,7 @@ These docs provide a practical overview. For the full Specification:
   </a>
   —Core protocol spec (draft-httpauth-payment-00)
 - [Payment Methods](https://tempoxyz.github.io/mpp-specs/)—Payment method definitions
-- [Payment Intents](https://tempoxyz.github.io/mpp-specs/)—Intent types (charge, authorize, subscription)
+- [Payment Intents](https://tempoxyz.github.io/mpp-specs/)—Intent type definitions (for example, `charge`, `session`)
 - <a
     href="https://tempoxyz.github.io/mpp-specs/draft-payment-transport-mcp-00"
     data-v="true"
