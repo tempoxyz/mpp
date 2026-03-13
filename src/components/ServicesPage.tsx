@@ -3793,7 +3793,17 @@ function PageStyles() {
         .header-cards-grid > * > div > div:first-child { font-size: 14.5px !important; }
         .header-cards-grid > * > div > div:last-child { font-size: 13.5px !important; line-height: 1.4 !important; }
         .search-bar { display: none !important; }
-        .search-mobile { display: block !important; padding: 0 1.25rem !important; margin-bottom: 1rem !important; }
+        .search-mobile {
+          display: block !important;
+          padding: 0 1.25rem !important;
+          margin-bottom: 1rem !important;
+          position: sticky !important;
+          top: 0 !important;
+          z-index: 40 !important;
+          background: linear-gradient(to bottom, var(--vocs-background-color-primary) 85%, transparent) !important;
+          padding-top: 0.75rem !important;
+          padding-bottom: 0.75rem !important;
+        }
         .search-mobile input { padding-top: 0.6rem !important; padding-bottom: 0.6rem !important; font-size: 16px !important; }
         .search-mobile-active {
           position: fixed !important;
