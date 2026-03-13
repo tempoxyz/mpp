@@ -3935,6 +3935,15 @@ function PageStyles() {
 
       /* ---- Mobile: one-column primary rows ---- */
       @media (max-width: 700px) {
+        [data-services-table] table,
+        [data-services-table] table tbody {
+          display: block !important;
+          width: 100% !important;
+        }
+        [data-services-table] table tr {
+          display: block !important;
+          width: 100% !important;
+        }
         [data-services-table] table tr[id^="service-"] {
           display: flex !important;
           flex-wrap: wrap !important;
