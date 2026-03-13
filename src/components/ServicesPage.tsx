@@ -873,33 +873,32 @@ export function ServicesPage() {
         return new Set();
       }
       history.replaceState(null, "", `#service-${id}`);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          const el = document.getElementById(`service-${id}`);
-          if (!el) return;
-          const navH =
-            document
-              .querySelector("[data-v-gutter-top]")
-              ?.getBoundingClientRect().height ?? 56;
-          const barH =
-            document.querySelector(".search-bar")?.getBoundingClientRect()
-              .height ?? 0;
-          const target =
-            el.getBoundingClientRect().top + window.scrollY - navH - barH - 12;
-          const start = window.scrollY;
-          const dist = target - start;
-          const dur = Math.min(900, Math.max(500, Math.abs(dist) * 0.9));
-          let t0: number | null = null;
-          const step = (t: number) => {
-            if (!t0) t0 = t;
-            const p = Math.min((t - t0) / dur, 1);
-            const ease = p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2;
-            window.scrollTo(0, start + dist * ease);
-            if (p < 1) requestAnimationFrame(step);
-          };
-          requestAnimationFrame(step);
-        });
-      });
+      setTimeout(() => {
+        const el = document.getElementById(`service-${id}`);
+        if (!el) return;
+        const navH =
+          document
+            .querySelector("[data-v-gutter-top]")
+            ?.getBoundingClientRect().height ?? 56;
+        const barH =
+          document.querySelector(".search-bar")?.getBoundingClientRect()
+            .height ?? 0;
+        const target =
+          el.getBoundingClientRect().top + window.scrollY - navH - barH - 12;
+        const start = window.scrollY;
+        const dist = target - start;
+        if (Math.abs(dist) < 2) return;
+        const dur = Math.min(600, Math.max(300, Math.abs(dist) * 0.6));
+        let t0: number | null = null;
+        const step = (t: number) => {
+          if (!t0) t0 = t;
+          const p = Math.min((t - t0) / dur, 1);
+          const ease = p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2;
+          window.scrollTo(0, start + dist * ease);
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }, 50);
       return new Set([id]);
     });
   }, []);
@@ -1450,7 +1449,7 @@ export function ServicesPage() {
                 </div>
                 <div
                   ref={stickyRef}
-                  style={{ height: 0, pointerEvents: "none" }}
+                  style={{ height: 1, marginBottom: -1, pointerEvents: "none" }}
                   aria-hidden
                 />
                 <div
@@ -3221,7 +3220,7 @@ function ServiceRow({
   );
 }
 
-const ACCORDION_MS = 250;
+const ACCORDION_MS = 200;
 
 function AccordionRow({
   expanded,
@@ -3232,21 +3231,24 @@ function AccordionRow({
   bg: string;
   children: React.ReactNode;
 }) {
-  const [mounted, setMounted] = useState(expanded);
-  const [open, setOpen] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [render, setRender] = useState(expanded);
+
+  if (expanded && !render) setRender(true);
 
   useEffect(() => {
-    if (expanded) {
-      setMounted(true);
-      requestAnimationFrame(() => requestAnimationFrame(() => setOpen(true)));
-    } else {
-      setOpen(false);
-      const id = setTimeout(() => setMounted(false), ACCORDION_MS);
+    const el = gridRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => {
+      el.style.gridTemplateRows = expanded ? "1fr" : "0fr";
+    });
+    if (!expanded) {
+      const id = setTimeout(() => setRender(false), ACCORDION_MS);
       return () => clearTimeout(id);
     }
   }, [expanded]);
 
-  if (!mounted && !expanded) return null;
+  if (!render) return null;
 
   return (
     <tr data-expanded={expanded ? "" : undefined} style={{ background: bg }}>
@@ -3254,16 +3256,17 @@ function AccordionRow({
         colSpan={4}
         style={{
           padding: 0,
-          borderBottom: open
+          borderBottom: expanded
             ? "1px solid var(--vocs-border-color-primary)"
             : "1px solid transparent",
         }}
       >
         <div
+          ref={gridRef}
           style={{
             display: "grid",
-            gridTemplateRows: open ? "1fr" : "0fr",
-            transition: `grid-template-rows ${ACCORDION_MS}ms ease`,
+            gridTemplateRows: "0fr",
+            transition: `grid-template-rows ${ACCORDION_MS}ms ease-out`,
           }}
         >
           <div style={{ overflow: "hidden", minHeight: 0 }}>{children}</div>
@@ -3565,9 +3568,9 @@ function PageStyles() {
       [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; }
       [data-layout="minimal"] main > article { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
 
-      /* Hide logo when search bar overlaps it at mid-wide viewports */
+      /* Hide logo when search bar is stuck and overlaps it at mid-wide viewports */
       @media (min-width: 1500px) and (max-width: 1730px) {
-        [data-v-logo-image] { opacity: 0 !important; pointer-events: none; }
+        [data-search-stuck] [data-v-logo-image] { opacity: 0 !important; pointer-events: none; }
       }
 
       @media (max-width: 900px) {
