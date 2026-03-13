@@ -66,34 +66,6 @@ pnpm build
 
 1. **Open a pull request** with both `schemas/services.ts` and `schemas/discovery.json` changes.
 
-### Service schema
-
-Each service entry requires:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `string` | URL-safe unique identifier (`^[a-z0-9-]+$`) |
-| `name` | `string` | Human-readable display name |
-| `serviceUrl` | `string` | MPP service URL |
-| `endpoints` | `EndpointDef[]` | List of API endpoints with pricing |
-| `intent` | `"charge" \| "session"` | Default payment intent |
-| `payment` | `PaymentDefaults` | Payment method, currency, and decimals |
-
-See [`schemas/discovery.schema.json`](schemas/discovery.schema.json) for the full JSON Schema.
-
-### Endpoint pricing
-
-Prices are specified in **base units** of the currency. For USDC (6 decimals):
-
-| Amount | Human-readable |
-|--------|---------------|
-| `"1000"` | $0.001 |
-| `"5000"` | $0.005 |
-| `"100000"` | $0.10 |
-| `"1000000"` | $1.00 |
-
-Set `dynamic: true` for endpoints where pricing varies by request (for example, per-token LLM pricing).
-
 ## Contributing
 
 We welcome contributions to documentation, the service directory, and site improvements.
