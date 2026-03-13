@@ -250,9 +250,9 @@ function NotFoundHeaderLogo() {
       }}
     >
       <picture>
-        <source srcSet="/logo-dark.svg" media="(prefers-color-scheme: dark)" />
+        <source srcSet="/logo-light.svg" media="(prefers-color-scheme: dark)" />
         <img
-          src="/logo-light.svg"
+          src="/logo-dark.svg"
           alt="MPP"
           style={{ height: 20, width: "auto" }}
         />
