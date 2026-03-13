@@ -94,28 +94,38 @@ You can inject a [Wagmi](https://wagmi.sh) connector into Mppx by passing the `g
 :::code-group
 
 ```ts twoslash [example.ts]
-// @noErrors
-import { Mppx, tempo } from 'mppx/client'
+import { createConfig, http } from 'wagmi'
 import { getConnectorClient } from 'wagmi/actions'
-import { config } from './config'
+import { tempoModerato } from 'viem/chains'
+import { Mppx, tempo } from 'mppx/client'
+
+declare const connectors: Parameters<typeof createConfig>[0]['connectors']
+// ---cut---
+const config = createConfig({
+  connectors,
+  chains: [tempoModerato],
+  transports: {
+    [tempoModerato.id]: http(),
+  },
+})
 
 Mppx.create({
   methods: [tempo({
-    getClient: (parameters) => getConnectorClient(config, parameters), // 
+    getClient: (parameters) =>
+      getConnectorClient(config, parameters as any),
   })],
 })
-
-const response = await fetch(`https://mpp.dev/api/ping/${address}`)
 ```
 
-```ts twoslash [config.ts] filename="wagmi.config.ts"
-// @noErrors
+```ts twoslash [config.ts]
 import { createConfig, http } from 'wagmi'
-import { webAuthn } from 'wagmi/tempo'
+import { webAuthn, KeyManager } from 'wagmi/tempo'
 import { tempoModerato } from 'viem/chains'
 
+declare const keyManager: KeyManager.KeyManager
+// ---cut---
 export const config = createConfig({
-  connectors: [webAuthn()],
+  connectors: [webAuthn({ keyManager })],
   chains: [tempoModerato],
   transports: {
     [tempoModerato.id]: http(),

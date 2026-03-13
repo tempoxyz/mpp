@@ -5,7 +5,7 @@ The `charge` intent for the Stripe payment method. Requests a one-time payment u
 ## Usage
 
 ```ts twoslash
-// @noErrors
+
 import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/server'
 
@@ -56,7 +56,7 @@ These parameters configure the `stripe.charge()` constructor. You must provide e
 Pre-configured Stripe SDK instance. Any object matching the duck-typed `StripeClient` shape works. Using `client` is recommended — it lets you configure retries, API version, and other options.
 
 ```ts twoslash
-// @noErrors
+
 import Stripe from 'stripe'
 import { stripe } from 'mppx/server'
 

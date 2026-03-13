@@ -18,7 +18,7 @@ You can provide either a `client` (a pre-configured Stripe SDK instance) or a ra
 ### With Stripe SDK client (recommended)
 
 ```ts twoslash
-// @noErrors
+
 import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/server'
 
@@ -71,7 +71,7 @@ const mppx = Mppx.create({
 Include `metadata` in the `stripe.charge` configuration to forward key-value pairs to Stripe. The metadata appears in the Challenge and attaches to the Stripe `PaymentIntent`.
 
 ```ts twoslash
-// @noErrors
+
 import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/server'
 
@@ -106,7 +106,7 @@ export async function handler(request: Request) {
 Allow multiple payment methods, like cards and Link, by specifying them in `paymentMethodTypes`.
 
 ```ts twoslash
-// @noErrors
+
 import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/server'
 
@@ -144,7 +144,7 @@ SPT creation requires a Stripe secret key, so the client accepts a `createToken`
 If you already have a payment method ID (e.g. a test card or a stored method), pass it as `paymentMethod` and mppx handles the full 402 → SPT → retry flow automatically.
 
 ```ts twoslash
-// @noErrors
+
 import { loadStripe } from '@stripe/stripe-js'
 import { Mppx, stripe } from 'mppx/client'
 
@@ -178,7 +178,7 @@ const response = await fetch('https://api.example.com/resource')
 For interactive payment collection, use `onChallenge` to render Stripe Elements when a 402 is received. The user enters card details, you create a payment method, then pass it to `createCredential`.
 
 ```ts twoslash
-// @noErrors
+
 import { loadStripe } from '@stripe/stripe-js'
 import { Receipt } from 'mppx'
 import { Mppx, stripe } from 'mppx/client'
@@ -282,7 +282,7 @@ const paid = await fetch('/api/resource', {
 If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
 
 ```ts twoslash
-// @noErrors
+
 import { loadStripe } from '@stripe/stripe-js'
 import { Mppx, stripe } from 'mppx/client'
 
