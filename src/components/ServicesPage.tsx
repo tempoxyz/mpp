@@ -872,14 +872,15 @@ export function ServicesPage() {
         history.replaceState(null, "", window.location.pathname);
         return new Set();
       }
+      const hadPrevious = p.size > 0;
       history.replaceState(null, "", `#service-${id}`);
+      const delay = hadPrevious ? 220 : 50;
       setTimeout(() => {
         const el = document.getElementById(`service-${id}`);
         if (!el) return;
         const navH =
-          document
-            .querySelector("[data-v-gutter-top]")
-            ?.getBoundingClientRect().height ?? 56;
+          document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
+            .height ?? 56;
         const barH =
           document.querySelector(".search-bar")?.getBoundingClientRect()
             .height ?? 0;
@@ -898,7 +899,7 @@ export function ServicesPage() {
           if (p < 1) requestAnimationFrame(step);
         };
         requestAnimationFrame(step);
-      }, 50);
+      }, delay);
       return new Set([id]);
     });
   }, []);
