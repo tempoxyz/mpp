@@ -1234,7 +1234,7 @@ function CardForm({
               className="cursor-pointer hover:underline"
               style={{ color: "#00D66F" }}
             >
-              [Use Link]
+              [use link]
             </button>{" "}
             <button
               type="button"
@@ -1477,7 +1477,7 @@ function StripeSteps({
       {atOrPast("createPI") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("createPI")} /> Creating PaymentIntent
+            <StepIcon spinning={atStep("createPI")} /> Creating payment_intent
           </p>
           {pastStep("createPI") && (
             <p
