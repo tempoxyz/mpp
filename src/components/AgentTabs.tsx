@@ -7,7 +7,7 @@ const CMD_PURPLE = "#c084fc";
 const WALLET_GREEN = "#4ade80";
 const FLAG_GREY = "var(--vocs-text-color-muted)";
 const WALLET_INSTALL =
-  "curl -fsSL https://tempo.xyz/install | bash && tempo add wallet";
+  "curl -fsSL https://tempo.xyz/install | bash";
 const WALLET_LOGIN = "tempo wallet login";
 const QUICKSTART_URL = "https://mpp.dev/quickstart/client.md";
 const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";

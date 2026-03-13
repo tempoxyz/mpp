@@ -10,17 +10,16 @@ Tempo Wallet CLI is a command-line HTTP client with built-in MPP payment support
 
 Install:
   $ curl -fsSL https://tempo.xyz/install | bash
-  $ tempo add wallet
 
 Log in (connects your Tempo wallet):
   $ tempo wallet login
 
 Make a request (payment handled automatically):
-  $ tempo mpp https://openai.mpp.tempo.xyz/v1/chat/completions \
+  $ tempo request https://openai.mpp.tempo.xyz/v1/chat/completions \
     -X POST --json '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello"}]}'
 
 Preview cost without paying:
-  $ tempo mpp --dry-run https://openai.mpp.tempo.xyz/v1/chat/completions
+  $ tempo request --dry-run https://openai.mpp.tempo.xyz/v1/chat/completions
 
 ## API
 
