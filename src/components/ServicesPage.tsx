@@ -2528,9 +2528,7 @@ function SidebarInfoCards() {
         />
         <div>
           <div style={titleStyle}>First-party services</div>
-          <div style={descStyle}>
-            Services with direct MPP integration — no wrapper or proxy needed.
-          </div>
+          <div style={descStyle}>Services with direct MPP integration</div>
         </div>
       </div>
     </div>
@@ -2557,7 +2555,7 @@ function WalletSteps() {
         label="Prompt your agent"
         desc="Tell Claude (or Codex, Amp, etc) to use a Tempo service."
       >
-        {`claude "Summarize https://stripe.com/docs using Exa search via Tempo"`}
+        {`claude "Summarize https://stripe.com/docs using parallel.ai search via Tempo"`}
       </CliSnippet>
       <div
         style={{
