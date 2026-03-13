@@ -157,6 +157,15 @@ export default defineConfig({
               { text: "Charge", link: "/payment-methods/stripe/charge" },
             ],
           },
+          {
+            text: "Lightning",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/lightning" },
+              { text: "Charge", link: "/payment-methods/lightning/charge" },
+              { text: "Session", link: "/payment-methods/lightning/session" },
+            ],
+          },
           { text: "Custom", link: "/payment-methods/custom" },
         ],
       },

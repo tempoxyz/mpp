@@ -220,6 +220,39 @@ export function TransportsCard() {
   );
 }
 
+export function LightningMethodCard() {
+  return (
+    <Card
+      description="Bitcoin payments over the Lightning Network with cryptographic verification"
+      icon="lucide:zap"
+      title="Lightning"
+      to="/payment-methods/lightning"
+    />
+  );
+}
+
+export function LightningChargeCard() {
+  return (
+    <Card
+      description="One-time payments using BOLT11 invoices"
+      icon="lucide:zap"
+      title="Lightning charge"
+      to="/payment-methods/lightning/charge"
+    />
+  );
+}
+
+export function LightningSessionCard() {
+  return (
+    <Card
+      description="Prepaid metered access with per-request billing"
+      icon="lucide:waves"
+      title="Lightning session"
+      to="/payment-methods/lightning/session"
+    />
+  );
+}
+
 export function StripeMethodCard() {
   return (
     <Card
