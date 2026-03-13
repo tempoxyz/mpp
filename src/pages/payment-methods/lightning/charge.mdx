@@ -5,7 +5,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 The Lightning implementation of the [charge](/intents/charge) intent.
 
-The server generates a fresh BOLT11 invoice for each request. The client pays it over the Lightning Network via a Spark wallet and presents the payment preimage as a credential. The server verifies `sha256(preimage) == paymentHash` locally—no external service needed—and returns the resource with a receipt.
+The server generates a fresh BOLT11 invoice for each request. The client pays it over the Lightning Network via a Spark wallet and presents the payment preimage as a credential. The server verifies `sha256(preimage) == paymentHash` locally and returns the resource with a receipt.
 
 This method is best for single API calls, content access, or one-off purchases.
 
@@ -157,7 +157,7 @@ The server verifies payment with a single hash operation:
 3. Compare against the `paymentHash` from the original Challenge.
 4. If equal, payment is verified. Return the resource with a Receipt.
 
-No RPC calls. No external service. No database lookup in the verification path.
+The entire verification path is local and self-contained.
 
 ## Specification
 

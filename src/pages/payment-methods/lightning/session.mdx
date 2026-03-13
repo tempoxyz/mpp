@@ -12,7 +12,7 @@ Payment sessions reduce payment verification to a single SHA-256 check, making i
 
 A charge intent requires a full Lightning round-trip per request—invoice generation, HTLC routing, preimage reveal. That's fine for a single API call, but an LLM inference can generate hundreds of tokens over several seconds. Paying per token over Lightning would add seconds of latency per chunk.
 
-Sessions fix this: one deposit, then the preimage becomes a bearer token. Every subsequent request is verified with a single `sha256` call—no network round-trip, no invoice, no HTLC. The server deducts from the balance inline. When the client is done, the server refunds the unspent sats via the return invoice.
+Sessions fix this: one deposit, then the preimage becomes a bearer token. Every subsequent request is verified with a single `sha256` call, keeping the entire flow local and inline. The server deducts from the balance as it streams. When the client is done, the server refunds the unspent sats via the return invoice.
 
 ## How it works
 
@@ -49,11 +49,11 @@ The client pays a deposit invoice over the Lightning Network. HTLC settlement re
 
 ### Session (bearer)
 
-The client authenticates subsequent requests by presenting the preimage and session ID. The server verifies `sha256(preimage) == paymentHash` with a single hash operation—no RPC calls, no database lookups. The streaming layer deducts the per-unit cost from the session balance for each chunk delivered.
+The client authenticates subsequent requests by presenting the preimage and session ID. The server verifies `sha256(preimage) == paymentHash` with a single hash operation, entirely locally. The streaming layer deducts the per-unit cost from the session balance for each chunk delivered.
 
 ### Top up
 
-If the balance runs out mid-stream, the server emits a `payment-need-topup` SSE event and holds the connection open. The client pays a fresh deposit invoice and submits a `topUp` credential. The server credits the balance and resumes the stream on the original connection—no need to replay the request.
+If the balance runs out mid-stream, the server emits a `payment-need-topup` SSE event and holds the connection open. The client pays a fresh deposit invoice and submits a `topUp` credential. The server credits the balance and resumes the stream on the original connection. The client doesn't need to replay the request.
 
 ### Close
 
@@ -73,15 +73,15 @@ A typical flow for a streaming LLM API priced at 2 sats per token:
 6. **Client:** pays a new deposit invoice, submits a `topUp` credential—stream resumes
 7. **Client:** closes the session—server refunds unspent sats to the return invoice
 
-The server never calls an external service during streaming. Verification is a single SHA-256 hash per request, and billing is an integer decrement per chunk.
+Everything happens locally during streaming. Verification is a single SHA-256 hash per request, and billing is an integer decrement per chunk.
 
 :::info[Why Lightning]
 Lightning has properties that make it a natural fit for session-based billing:
 
-- **No one controls it.**—Bitcoin is an open network. A payment layer for the open internet should be just as open as the network it runs on.
-- **Private by default**—Lightning payments are onion-routed. The only parties who know about a payment are the payer and the payee.
+- **Open network**—Bitcoin is permissionless. A payment layer for the open internet should be just as open as the network it runs on.
+- **Private by default**—Lightning payments are onion-routed. Only the payer and the payee know about a payment.
 - **Unmatched network effects**—Bitcoin has more liquidity than all stablecoins combined by an order of magnitude. Cash App, Coinbase, Binance, Strike, Kraken, and most major fintechs already support Lightning.
-- **Self-custodial**—Both client and server hold their own keys. No intermediary holds funds at any point.
+- **Self-custodial**—Both client and server hold their own keys. Funds stay under each party's control throughout the entire flow.
 :::
 
 ## Integration
