@@ -4,7 +4,7 @@ MCP SDK transport for server-side payment handling with [`@modelcontextprotocol/
 
 ## Usage
 
-```ts twoslash
+```ts
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { Mppx, tempo, Transport } from 'mppx/server'
 
@@ -34,7 +34,7 @@ server.registerTool('premium', { description: 'A premium tool' }, async (extra) 
 
 ## Return type
 
-```ts twoslash
+```ts
 import type { CallToolResult, McpError } from '@modelcontextprotocol/sdk/types.js'
 
 type ReturnType = Transport<Extra, McpError, CallToolResult>

@@ -24,7 +24,7 @@ bun add mppx express
 
 Import `Mppx` and `tempo` from `mppx/express` to create an Express-aware payment handler. Each intent (for example, `charge`) returns an Express `RequestHandler` you can slot directly into your route.
 
-```ts twoslash [server.ts]
+```ts [server.ts]
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 
@@ -42,7 +42,7 @@ app.get(
 
 Use `mppx.session()` to gate routes behind session-based payment intents.
 
-```ts twoslash [server.ts]
+```ts [server.ts]
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 

@@ -15,7 +15,7 @@ The `spark` namespace is the reference implementation using [Spark](https://spar
 
 Use `spark.charge` to gate any endpoint behind a one-time Lightning payment. The method handles invoice generation, Challenge creation, preimage verification, and Receipt generation.
 
-```ts twoslash
+```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/server'
 
 const mppx = Mppx.create({
@@ -38,7 +38,7 @@ export async function handler(request: Request) {
 
 ### With expiry
 
-```ts twoslash
+```ts
 import { Mppx, Expires, spark } from '@buildonspark/lightning-mpp-sdk/server'
 
 const mppx = Mppx.create({
@@ -62,7 +62,7 @@ export async function handler(request: Request) {
 
 For local development and testing, set `network` to `'regtest'` and use the [Spark faucet](https://docs.spark.money/tools/faucet) to fund wallets.
 
-```ts twoslash
+```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/server'
 
 const mppx = Mppx.create({
@@ -85,7 +85,7 @@ const mppx = Mppx.create({
 
 Use `spark.charge` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, pays the BOLT11 invoice, and retries with the preimage as a Credential.
 
-```ts twoslash
+```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
 
 Mppx.create({
@@ -99,7 +99,7 @@ const response = await fetch('https://api.example.com/resource')
 
 If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
 
-```ts twoslash
+```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
 
 const method = spark.charge({ mnemonic: process.env.MNEMONIC! })

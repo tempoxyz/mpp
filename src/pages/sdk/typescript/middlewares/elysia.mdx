@@ -24,7 +24,7 @@ bun add mppx elysia
 
 Import `Mppx` and `tempo` from `mppx/elysia` to create an Elysia-aware payment handler. Each intent (for example, `charge`) returns an Elysia `beforeHandle` hook you can use with `.guard()` to scope payment to specific routes.
 
-```ts twoslash [server.ts]
+```ts [server.ts]
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 
@@ -41,7 +41,7 @@ const app = new Elysia()
 
 Use `.onBeforeHandle()` to apply payment to all routes.
 
-```ts twoslash [server.ts]
+```ts [server.ts]
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 
@@ -57,7 +57,7 @@ const app = new Elysia()
 
 Use `mppx.session()` to gate routes behind session-based payment intents.
 
-```ts twoslash [server.ts]
+```ts [server.ts]
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 

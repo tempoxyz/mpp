@@ -41,7 +41,7 @@ export async function handler(request: Request) {
 
 ## Return type
 
-```ts twoslash
+```ts
 type ReturnType = (input: Request) => Promise<
   | { status: 402; challenge: Response }
   | { status: 200; withReceipt: <T>(response: T) => T }
