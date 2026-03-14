@@ -312,7 +312,7 @@ const response = await mppx.fetch('https://api.example.com/resource')
 
 The `createToken` callback proxies through your own server because SPT creation requires a Stripe secret key. Here's a minimal implementation:
 
-```ts
+```ts twoslash
 export async function POST(request: Request) {
   const { paymentMethod, amount, currency, expiresAt, networkId, metadata } =
     await request.json()

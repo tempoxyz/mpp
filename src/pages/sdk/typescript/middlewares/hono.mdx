@@ -24,7 +24,7 @@ bun add mppx hono
 
 Import `Mppx` and `tempo` from `mppx/hono` to create a Hono-aware payment handler. Each intent (for example, `charge`) returns a Hono `MiddlewareHandler` you can slot directly into your route.
 
-```ts [server.ts]
+```ts twoslash [server.ts]
 import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
 
@@ -42,7 +42,7 @@ app.get(
 
 Use `mppx.session()` to gate routes behind session-based payment intents.
 
-```ts [server.ts]
+```ts twoslash [server.ts]
 import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
 
