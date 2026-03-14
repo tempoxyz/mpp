@@ -222,13 +222,12 @@ a[class*="rounded-md"][class*="border"]:hover {
   text-decoration: none !important;
 }
 
-/* Active sidebar item */
+/* Active sidebar item — avoid font-weight change to prevent text reflow/shake */
 a[data-v-sidebar-item][data-active="true"],
 a[data-v-sidebar-item][data-active="true"]:link,
 a[data-v-sidebar-item][data-active="true"]:visited {
   color: var(--vocs-text-color-heading) !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
-  font-weight: 500 !important;
 }
 
 /* Sidebar hover — use theme heading color so dark mode stays visible (Tailwind hover can resolve to black) */
@@ -288,6 +287,8 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 /* Prevent sidebar scroll from propagating to window (causes bounce on macOS) */
 [data-v-sidebar-container] {
   overscroll-behavior: contain;
+  /* Prevent width changes during font swap from causing sidebar shake on reload */
+  contain: inline-size;
 }
 
 /* Add bottom padding to sidebar so items don't sit flush against viewport edge */

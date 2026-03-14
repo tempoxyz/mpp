@@ -2,17 +2,17 @@
 
 ## What is MPP?
 
-MPP (Machine Payments Protocol) is an internet-native protocol that lets any client— AI agents, software, or humans—pay for services inline over HTTP. The protocol is payment-method agnostic, open by design, and engineered for extensibility, performance, and security.
+The Machine Payments Protocol (MPP) is an internet-native protocol that lets any client—agents, software, or humans—pay for services inline over HTTP. The protocol is payment-method agnostic, open by design, and engineered for extensibility, performance, and security.
 
 ## Is MPP only for stablecoins?
 
 No. MPP is payment-method agnostic—the protocol works with any payment rail.
 
-Today, [Tempo](/payment-methods/tempo) stablecoin payments, [Stripe](/payment-methods/stripe) (Visa, Mastercard, and other card networks), and [Lightning](/payment-methods/lightning) (Bitcoin over the Lightning Network) are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail.
+Today, [Tempo](/payment-methods/tempo) stablecoin payments, [Stripe](/payment-methods/stripe) (Visa, Mastercard, and other card networks), and [Lightning](/payment-methods/lightning) (Bitcoin over the Lightning Network) are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail. See the full list of payment methods and specifications at [paymentauth.org](https://paymentauth.org).
 
 ## Do I need a stablecoin wallet?
 
-No. With Stripe, you can use traditional cards and wallets without stablecoins.
+No. With Stripe, you can pay with cards without stablecoins. With Lightning, you can pay with Bitcoin.
 
 For Tempo payments, you need a stablecoin wallet to sign transactions. The SDK and the `tempo wallet` CLI handle key management for you.
 
@@ -21,9 +21,10 @@ For Tempo payments, you need a stablecoin wallet to sign transactions. The SDK a
 Both MPP and x402 use HTTP `402` to signal that a request requires payment. The key differences:
 
 - **Payment-method agnostic.** MPP supports stablecoins, cards, wallets, and custom rails through extensible payment method specifications. x402 only supports blockchains.
-- **Designed for production.** MPP supports idempotency, expiration, and request-tampering mitigations as first-class primitives.
-- **Performant payments.** MPP's session intent enables pay-as-you-go metering for payments as small as 0.0001 USD. MPP sessions can achieve sub-100ms latency and near-zero per-request fees, enabling high-throughput, low-value payments for applications like token streaming or high throughput content aggregation.
-- **Permissionless extensibility.** Anyone can author and publish a new payment method or intent specification without approval from a foundation or intermediary. Payment methods compete on adoption and are independently maintained without the explicit permission of a central authority.
+- **Designed for production.** MPP supports idempotency, expiration, request-body binding (digest), and request-tampering mitigations as first-class primitives. x402 does not address idempotency or request binding.
+- **Performant payments.** MPP's session intent enables pay-as-you-go metering for payments as small as 0.0001 USD. Sessions achieve sub-100ms latency and near-zero per-request fees by settling off-chain vouchers, enabling high-throughput applications like token streaming or content aggregation. x402 requires an on-chain transaction per request.
+- **Permissionless extensibility.** Anyone can author and publish a new payment method or intent specification without approval from a foundation or intermediary. Payment methods compete on adoption and are independently maintained.
+- **IETF standards track.** The core [Payment HTTP Authentication Scheme](https://paymentauth.org) is submitted to the IETF for standardization. x402 is not on any standards track.
 
 ## Is MPP compatible with x402?
 
@@ -58,9 +59,9 @@ MPP requires TLS 1.2+ for all connections. Challenge IDs are cryptographically b
 
 Payments use the same security model as the underlying payment method. For Tempo, that means cryptographic signatures over every transaction. For Stripe, it means Stripe's existing fraud and dispute infrastructure.
 
-## Can any Agent use MPP?
+## Can any agent use MPP?
 
-Yes. Any Agent can interact with MPP services via a compatible CLI or SDK. The [quickstart guide](/quickstart/agent) has copy-paste setup instructions for Claude, Codex, and Amp.
+Yes. Connect your agent to MPP-enabled services via a compatible CLI or SDK. The [quickstart guide](/quickstart/agent) has copy-paste setup instructions for Claude, Codex, and Amp.
 
 For programmatic integration, the [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust) SDKs provide native support.
 
