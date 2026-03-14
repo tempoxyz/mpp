@@ -95,7 +95,7 @@ export default defineConfig({
         text: "Quick Start",
         items: [
           { text: "Overview", link: "/quickstart" },
-          { text: "Monetize your service", link: "/quickstart/server" },
+          { text: "Add payments to your API", link: "/quickstart/server" },
           { text: "Use with agents", link: "/quickstart/agent" },
           { text: "Use with your app", link: "/quickstart/client" },
         ],
@@ -104,15 +104,15 @@ export default defineConfig({
         text: "Guides",
         items: [
           {
-            text: "Accept One-Time Payments",
+            text: "Accept one-time payments",
             link: "/guides/one-time-payments",
           },
           {
-            text: "Accept Pay-As-You-Go Payments",
+            text: "Accept pay-as-you-go payments",
             link: "/guides/pay-as-you-go",
           },
           {
-            text: "Accept Streamed Payments",
+            text: "Accept streamed payments",
             link: "/guides/streamed-payments",
           },
         ],
@@ -182,9 +182,9 @@ export default defineConfig({
             text: "TypeScript",
             collapsed: true,
             items: [
-              { text: "Getting Started", link: "/sdk/typescript" },
+              { text: "Getting started", link: "/sdk/typescript" },
               {
-                text: "Client Reference",
+                text: "Client reference",
                 items: [
                   {
                     text: "Methods",
@@ -247,7 +247,7 @@ export default defineConfig({
                 ],
               },
               {
-                text: "Server Reference",
+                text: "Server reference",
                 items: [
                   {
                     text: "Methods",
@@ -318,7 +318,7 @@ export default defineConfig({
                 ],
               },
               {
-                text: "Middleware Reference",
+                text: "Middleware reference",
                 items: [
                   {
                     text: "Elysia",
@@ -339,7 +339,7 @@ export default defineConfig({
                 ],
               },
               {
-                text: "Core Reference",
+                text: "Core reference",
                 items: [
                   {
                     text: "BodyDigest",
@@ -476,7 +476,7 @@ export default defineConfig({
                   },
                 ],
               },
-              { text: "CLI Reference", link: "/sdk/typescript/cli" },
+              { text: "CLI reference", link: "/sdk/typescript/cli" },
             ],
           },
           {
@@ -484,7 +484,7 @@ export default defineConfig({
             collapsed: true,
             items: [
               { text: "Overview", link: "/sdk/python" },
-              { text: "Core Types", link: "/sdk/python/core" },
+              { text: "Core types", link: "/sdk/python/core" },
               { text: "Client", link: "/sdk/python/client" },
               { text: "Server", link: "/sdk/python/server" },
             ],
@@ -494,7 +494,7 @@ export default defineConfig({
             collapsed: true,
             items: [
               { text: "Overview", link: "/sdk/rust" },
-              { text: "Core Types", link: "/sdk/rust/core" },
+              { text: "Core types", link: "/sdk/rust/core" },
               { text: "Client", link: "/sdk/rust/client" },
               { text: "Server", link: "/sdk/rust/server" },
             ],

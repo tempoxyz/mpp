@@ -16,13 +16,11 @@ For Tempo payments, you need a stablecoin wallet to sign transactions. The SDK a
 
 Both MPP and x402 use HTTP `402` to signal that a request requires payment. The key differences:
 
-| | **MPP** | **x402** |
-|---|---------|----------|
-| **Payment methods** | Stablecoins, cards, wallets, custom rails | Blockchain only |
-| **Production primitives** | Idempotency, expiration, request-body binding, tampering mitigations | Limited |
-| **Low-value payments** | Session intent: sub-100ms latency, near-zero per-request fees via off-chain vouchers | On-chain transaction per request |
-| **Extensibility** | Anyone can author and publish new payment methods or intents | Foundation-controlled |
-| **Standardization** | [IETF standards track](https://paymentauth.org) | Not submitted |
+- **Payment-method agnostic.** MPP supports stablecoins, cards, wallets, and custom rails through extensible payment method specifications. x402 only supports blockchains.
+- **Designed for production.** MPP supports idempotency, expiration, request-body binding (digest), and request-tampering mitigations as first-class primitives.
+- **Performant payments.** MPP's session intent enables pay-as-you-go metering for payments as small as 0.0001 USD. Sessions achieve sub-100ms latency and near-zero per-request fees by settling off-chain vouchers, enabling high-throughput applications like token streaming or content aggregation. x402 requires an on-chain transaction per request.
+- **Permissionless extensibility.** Anyone can author and publish a new payment method or intent specification without approval from a foundation or intermediary. Payment methods compete on adoption and are independently maintained.
+- **IETF standards track.** The core [Payment HTTP Authentication Scheme](https://paymentauth.org) is submitted to the IETF for standardization.
 
 ## Is MPP compatible with x402?
 

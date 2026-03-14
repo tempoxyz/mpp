@@ -528,12 +528,12 @@ function Hero() {
               }}
               onClick={() =>
                 captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
-                  cta_label: "Monetize your API",
+                  cta_label: "Add payments to your API",
                   href: "/quickstart/server",
                 })
               }
             >
-              Monetize your API
+              Add payments to your API
             </Link>
           </div>
         </div>
@@ -552,8 +552,9 @@ function Tagline() {
       className="leading-relaxed max-w-xl font-normal max-[1080px]:max-w-lg"
       style={{ color: "var(--vocs-text-color-secondary)" }}
     >
-      The open protocol for internet-native payments. Charge for API requests,
-      tool calls, or content. Agents, apps, and humans securely pay per request.
+      The open protocol for machine-to-machine payments. Charge for API
+      requests, tool calls, or content—agents and apps pay per request in the
+      same HTTP call.
     </div>
   );
 }
