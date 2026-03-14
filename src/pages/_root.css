@@ -91,7 +91,6 @@
 
 /* Prevent layout shift when scrollbar appears/disappears between routes */
 html {
-  font-size: 90%;
   scrollbar-gutter: stable;
   overflow-y: scroll;
   overscroll-behavior: none;
@@ -172,13 +171,6 @@ html {
 /* Inactive top nav links — no bottom border */
 [data-v-gutter-top] nav a:not([data-v-active="true"]) {
   border-color: transparent !important;
-}
-
-/* More spacing between top nav links */
-[data-v-gutter-top] nav a {
-  margin-inline: 0.25rem;
-  padding-bottom: 0.25rem;
-  position: relative;
 }
 
 /* Focus state — faded dot instead of browser focus ring */
@@ -268,15 +260,6 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 [data-v-sidebar] [data-v-sidebar-group] [data-v-sidebar-group] > span {
   color: var(--vocs-text-color-heading) !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
-}
-
-/* Uniform sidebar font size */
-[data-v-sidebar] {
-  font-size: 14px !important;
-}
-[data-v-sidebar] a[data-v-sidebar-item] {
-  font-size: 14px !important;
-  line-height: 1.5 !important;
 }
 
 /* More vertical breathing room for nested sidebar groups */
@@ -444,7 +427,6 @@ body,
 }
 
 [data-v-content] {
-  font-size: 15px;
   /* Prevent content area from growing after load (avoids jitter) */
   max-width: var(--spacing-content);
 }
@@ -780,17 +762,8 @@ article hr {
   }
 }
 
-/* Force mobile nav / header / root background to match primary background.
-   Vocs applies vocs:max-md:bg-surface on :root which switches mobile to a
-   different surface color. Override it everywhere. */
-:root,
-[data-v-header],
-header {
+[data-layout="minimal"] {
   background: var(--vocs-background-color-primary) !important;
-  background-color: var(--vocs-background-color-primary) !important;
-}
-[data-v-gutter-top] {
-  background-color: var(--vocs-background-color-primary) !important;
 }
 
 /* Header z-index handles content layering — no overflow clip needed */

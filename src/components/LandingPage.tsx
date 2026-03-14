@@ -386,8 +386,6 @@ function LandingStyles() {
         .hero-right { align-items: center !important; max-width: 90vw; gap: 0.75rem; }
         .landing-ctas { justify-content: center !important; margin-top: 1.5rem !important; }
         .lockup-img { width: clamp(260px, 72vw, 380px) !important; }
-        .hero-right > div:first-child { font-size: 1.1875rem !important; max-width: 90vw !important; }
-        .landing-ctas a { font-size: 1.1rem !important; padding: 0.75rem 1.75rem !important; }
 
         /* DesignedBy row */
         .designed-by {
@@ -551,7 +549,7 @@ function Hero() {
 function Tagline() {
   return (
     <div
-      className="text-[1.0625rem] md:text-[1.125rem] leading-relaxed max-w-xl font-normal"
+      className="leading-relaxed max-w-xl font-normal max-[1080px]:max-w-lg"
       style={{ color: "var(--vocs-text-color-secondary)" }}
     >
       The open protocol for internet-native payments. Charge for API requests,
