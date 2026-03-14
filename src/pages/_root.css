@@ -789,12 +789,8 @@ aside[data-v-callout] a:hover {
   text-decoration: underline !important;
 }
 
-/* TOC a bit narrower — 80% of gutter width, left edge unchanged */
-[data-v-outline][data-v-gutter-right] {
-  left: calc(100vw - var(--spacing-gutter)) !important;
-  right: auto !important;
-  width: calc(var(--spacing-gutter) * 0.8) !important;
-  max-width: calc(var(--spacing-gutter) * 0.8) !important;
+[data-v-gutter-right] > nav {
+  max-width: 250px;
 }
 
 /* More space between main content and TOC */
@@ -1155,12 +1151,6 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
     background: transparent !important;
     background-color: transparent !important;
   }
-  [data-v-gutter-top] {
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
-    padding-left: 1.25rem !important;
-    padding-right: 1.25rem !important;
-  }
   [data-v-logo] img {
     height: 24px !important;
   }
@@ -1178,40 +1168,6 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   [data-v-gutter-top]:has(button[data-popup-open]) button[data-popup-open],
   [data-v-gutter-top]:has(button[data-popup-open]) button[data-popup-open] * {
     visibility: visible !important;
-  }
-
-  /* Hamburger button — stays above sidebar overlay */
-  [data-v-gutter-top] button[aria-label] {
-    transform: scale(1.2);
-    transform-origin: center right;
-    margin-right: -4px;
-    z-index: 310 !important;
-    position: relative;
-  }
-  /* Hide hamburger SVG when open, show CSS X instead */
-  [data-v-gutter-top] button[aria-label] svg {
-    transition: opacity 0.15s ease;
-  }
-  [data-v-gutter-top] button[data-popup-open] svg {
-    opacity: 0;
-  }
-  [data-v-gutter-top] button[data-popup-open]::before,
-  [data-v-gutter-top] button[data-popup-open]::after {
-    content: "";
-    position: absolute;
-    width: 16px;
-    height: 1.5px;
-    background: currentColor;
-    border-radius: 1px;
-    left: 50%;
-    top: 50%;
-    margin-left: -8px;
-  }
-  [data-v-gutter-top] button[data-popup-open]::before {
-    transform: rotate(45deg);
-  }
-  [data-v-gutter-top] button[data-popup-open]::after {
-    transform: rotate(-45deg);
   }
 }
 
