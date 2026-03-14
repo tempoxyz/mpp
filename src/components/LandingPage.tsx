@@ -566,7 +566,7 @@ function TempoLogo() {
   return (
     <svg
       style={{ height: 14, width: "auto" }}
-      viewBox="0 0 830 185"
+      viewBox="0 0 832 185"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
