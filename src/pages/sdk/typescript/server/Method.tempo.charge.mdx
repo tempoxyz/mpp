@@ -1,4 +1,4 @@
-# `Method.tempo.charge`
+# `Method.tempo.charge` [One-time stablecoin payments]
 
 The `charge` intent for the Tempo payment method. Requests a one-time payment from the client.
 
@@ -73,7 +73,7 @@ export async function handler(request: Request) {
 
 Returns a function that accepts a `Request` and returns a response object with payment status.
 
-```ts
+```ts twoslash
 type ReturnType = (request: Request) => Promise<
   | { status: 402; challenge: Response }
   | { status: 200; withReceipt: <T>(response: T) => T }

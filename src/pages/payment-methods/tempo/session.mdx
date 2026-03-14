@@ -4,7 +4,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 # Session [Low-cost high-throughput payments]
 
-The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Clients deposit funds into an on-chain escrow and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls -- and settles periodically in batches.
+The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Clients deposit funds into an on-chain escrow and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
 
 Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
@@ -53,7 +53,7 @@ The client deposits funds into an on-chain escrow contract, creating a payment c
 
 The client signs EIP-712 vouchers with increasing cumulative amounts as service is consumed. Each voucher authorizes "I have now consumed up to X total." The server verifies the signature, checks that the cumulative amount is higher than the previous voucher, and grants access based on the delta.
 
-Voucher verification is CPU-bound: a single `ecrecover` call against the EIP-712 typed data. No RPC calls. No database lookups in the critical path. This is what enables per-token LLM billing without adding network latency.
+Voucher verification is CPU-bound: a single `ecrecover` call against the EIP-712 typed data. No RPC calls. No database lookups in the critical path. This is what enables per-token LLM billing without adding latency.
 
 ### Top up
 
@@ -171,8 +171,8 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0xabc…123')
 
 const mppx = Mppx.create({
-  polyfill: false,
   methods: [tempo.session({ account })],
+  polyfill: false,
 })
 
 const response = await mppx.fetch('https://api.example.com/v1/chat/completions')

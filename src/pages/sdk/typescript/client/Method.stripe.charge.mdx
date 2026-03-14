@@ -20,7 +20,7 @@ Mppx.create({
         const res = await fetch('/api/create-spt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentMethod, amount, currency, networkId, expiresAt, metadata }),
+          body: JSON.stringify({ amount, currency, expiresAt, metadata, networkId, paymentMethod }),
         })
         return (await res.json()).spt
       },
@@ -32,7 +32,7 @@ Mppx.create({
 
 ## Return type
 
-```ts
+```ts twoslash
 import type { Method } from 'mppx'
 
 type ReturnType = Method.Client

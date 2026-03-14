@@ -1,10 +1,10 @@
-# `Transport.mcpSdk`
+# `Transport.mcpSdk` [MCP SDK server-side transport]
 
 MCP SDK transport for server-side payment handling with [`@modelcontextprotocol/sdk`](https://github.com/modelcontextprotocol/typescript-sdk).
 
 ## Usage
 
-```ts
+```ts twoslash
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { Mppx, tempo, Transport } from 'mppx/server'
 
@@ -34,7 +34,7 @@ server.registerTool('premium', { description: 'A premium tool' }, async (extra) 
 
 ## Return type
 
-```ts
+```ts twoslash
 import type { CallToolResult, McpError } from '@modelcontextprotocol/sdk/types.js'
 
 type ReturnType = Transport<Extra, McpError, CallToolResult>

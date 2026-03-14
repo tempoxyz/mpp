@@ -20,7 +20,7 @@ Paste this into your coding agent to set up a server with `mppx` in one prompt:
 
 ## Framework mode
 
-Use the framework-specific middleware from `mppx` to integrate payment into your server. Each middleware handles the `402` challenge/credential flow and attaches receipts automatically.
+Use the framework-specific middleware from `mppx` to integrate payment into your server. Each middleware handles the `402` Challenge/Credential flow and attaches receipts automatically.
 
 ::::code-group
 
@@ -210,7 +210,7 @@ Tempo charges support two transaction submission modes, determined by the client
 - **`pull` mode (default)**: the client signs the transaction and sends the serialized transaction to the server. The server broadcasts it and verifies on-chain. This enables the server to sponsor gas fees via a `feePayer`.
 - **`push` mode**: the client builds, signs, and broadcasts the transaction itself (for example, via a browser wallet). It sends the transaction hash to the server, which verifies the payment by fetching the receipt.
 
-Your server handles both modes automatically – no configuration required. The server inspects the credential payload type (`transaction` for pull, `hash` for push) and verifies accordingly.
+Your server handles both modes automatically—no configuration required. The server inspects the credential payload type (`transaction` for pull, `hash` for push) and verifies accordingly.
 
 If you would like to force a specific mode, you can set the `mode` parameter to `'pull'` or `'push'`.
 

@@ -24,7 +24,7 @@ bun add mppx
 
 Import `Mppx` and `tempo` from `mppx/nextjs` to create a Next.js-aware payment handler. Each intent (for example, `charge`) returns a wrapper that accepts a route handler.
 
-```ts [app/api/premium/route.ts]
+```ts twoslash [app/api/premium/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
 const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
@@ -38,7 +38,7 @@ export const GET =
 
 Use `mppx.session()` to gate routes behind session-based payment intents.
 
-```ts [app/api/content/route.ts]
+```ts twoslash [app/api/content/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
 const mppx = Mppx.create({ methods: [tempo()] })

@@ -11,7 +11,7 @@ MPP defines how the Payment authentication scheme operates over different transp
 
 ## Transport-agnostic design
 
-MPP's core concepts—challenges, credentials, and receipts—remain the same across transports. The encoding and delivery mechanism changes:
+MPP's core concepts—Challenges, Credentials, and Receipts—remain the same across transports. The encoding and delivery mechanism changes:
 
 - **HTTP** uses standard headers (`WWW-Authenticate`, `Authorization`, `Payment-Receipt`)
 - **MCP** uses JSON-RPC error codes and `_meta` fields

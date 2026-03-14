@@ -106,8 +106,8 @@ import { privateKeyToAccount } from "viem/accounts";
 const account = privateKeyToAccount("0xabc…123");
 
 const mppx = Mppx.create({
-  polyfill: false,
   methods: [tempo.charge({ account })],
+  polyfill: false,
 });
 
 const response = await mppx.fetch("https://api.example.com/resource");

@@ -38,7 +38,7 @@ export async function handler(request: Request) {
 
 Returns a function that accepts a `Request` and returns a response object with payment status.
 
-```ts
+```ts twoslash
 type ReturnType = (request: Request) => Promise<
   | { status: 402; challenge: Response }
   | { status: 200; withReceipt: <T>(response: T) => T }
@@ -53,7 +53,7 @@ These parameters configure the `stripe.charge()` constructor. You must provide e
 
 - **Type:** `StripeClient`
 
-Pre-configured Stripe SDK instance. Any object matching the duck-typed `StripeClient` shape works. Using `client` is recommended — it lets you configure retries, API version, and other options.
+Pre-configured Stripe SDK instance. Any object matching the duck-typed `StripeClient` shape works. Using `client` is recommended—it lets you configure retries, API version, and other options.
 
 ```ts twoslash
 
@@ -95,7 +95,7 @@ Stripe [Business Network](https://docs.stripe.com/get-started/account/profile) p
 
 - **Type:** `string[]`
 
-Allowed Stripe payment method types (e.g. `['card']`, `['card', 'link']`).
+Allowed Stripe payment method types (for example, `['card']`, `['card', 'link']`).
 
 ### metadata (optional)
 
@@ -115,13 +115,13 @@ Payment amount in human-readable units.
 
 - **Type:** `string`
 
-ISO currency code (e.g. `'usd'`).
+ISO currency code (for example, `'usd'`).
 
 ### decimals
 
 - **Type:** `number`
 
-Number of decimal places in the amount (e.g. `2` for cents).
+Number of decimal places in the amount (for example, `2` for cents).
 
 ### description (optional)
 
