@@ -96,7 +96,7 @@ Use `spark.session` to accept prepaid Lightning sessions. The method handles dep
 Session support in `@buildonspark/lightning-mpp-sdk` is coming soon. The API below shows the anticipated interface based on the [specification](https://tempoxyz.github.io/mpp-specs/draft-lightning-session-00).
 :::
 
-```ts twoslash
+```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/server'
 
 const mppx = Mppx.create({
@@ -124,7 +124,7 @@ export async function handler(request: Request) {
 
 Use `spark.session` with `Mppx.create` to automatically handle deposits, bearer authentication, top-ups, and session close.
 
-```ts twoslash
+```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
 
 const method = spark.session({ mnemonic: process.env.MNEMONIC! })
@@ -141,7 +141,7 @@ const response = await fetch('https://api.example.com/v1/chat/completions')
 
 If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
 
-```ts twoslash
+```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
 
 const method = spark.session({ mnemonic: process.env.MNEMONIC! })
@@ -163,7 +163,7 @@ try {
 
 Register both charge and session so the client can handle either intent:
 
-```ts twoslash
+```ts
 import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
 
 const charge = spark.charge({ mnemonic: process.env.MNEMONIC! })
