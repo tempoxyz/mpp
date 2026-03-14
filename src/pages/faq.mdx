@@ -8,7 +8,7 @@ MPP (Machine Payments Protocol) is an internet-native protocol that lets any cli
 
 No. MPP is payment-method agnostic—the protocol works with any payment rail.
 
-Today, [Tempo](/payment-methods/tempo) stablecoin payments and [Stripe](/payment-methods/stripe) (credit cards, wallets, and other payment methods) are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail.
+Today, [Tempo](/payment-methods/tempo) stablecoin payments, [Stripe](/payment-methods/stripe) (Visa, Mastercard, and other card networks), and [Lightning](/payment-methods/lightning) (Bitcoin over the Lightning Network) are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail.
 
 ## Do I need a stablecoin wallet?
 
@@ -27,7 +27,7 @@ Both MPP and x402 use HTTP `402` to signal that a request requires payment. The 
 
 ## Is MPP compatible with x402?
 
-Yes. The core x402 "exact" flows map directly onto MPP's charge intent. MPP clients can consume existing x402 services, and MPP extends beyond what x402 supports with sessions, idempotency, and multi-rail payment methods.
+Yes. The core x402 "exact" flows map directly onto MPP's charge intent. MPP clients can consume existing x402 services. MPP extends beyond x402 with idempotency, receipts, request binding, multiple payment methods including stablecoins and fiat, and efficient low-cost flows like sessions.
 
 ## Why build MPP on Tempo?
 
@@ -58,9 +58,9 @@ MPP requires TLS 1.2+ for all connections. Challenge IDs are cryptographically b
 
 Payments use the same security model as the underlying payment method. For Tempo, that means cryptographic signatures over every transaction. For Stripe, it means Stripe's existing fraud and dispute infrastructure.
 
-## Can any AI agent use MPP?
+## Can any Agent use MPP?
 
-Yes. An AI agent can interact with services via an MPP-compatible CLI. The [quickstart guide](/quickstart/agent) has copy-paste setup instructions for Claude, Codex, and Amp.
+Yes. Any Agent can interact with MPP services via a compatible CLI or SDK. The [quickstart guide](/quickstart/agent) has copy-paste setup instructions for Claude, Codex, and Amp.
 
 For programmatic integration, the [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust) SDKs provide native support.
 
@@ -74,7 +74,7 @@ Yes. See the [server quickstart](/quickstart/server) to start accepting payments
 
 ## Is MPP an IETF standard?
 
-The core [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is on the IETF standards track. Payment method and intent specifications (for example, charge, session) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
+The core [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is submitted to the IETF standards track. Payment method and intent specifications (for example, charge, session) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
 
 ## Can I use MPP outside of HTTP?
 

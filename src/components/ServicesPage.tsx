@@ -2388,7 +2388,7 @@ function HeaderCards({
           </span>
           <div>
             <div style={titleS}>First-party</div>
-            <div style={descS}>Hosted natively on Tempo</div>
+            <div style={descS}>Services which directly integrate with MPP</div>
           </div>
         </div>
       </div>
@@ -2528,7 +2528,9 @@ function SidebarInfoCards() {
         />
         <div>
           <div style={titleStyle}>First-party services</div>
-          <div style={descStyle}>Services with direct MPP integration</div>
+          <div style={descStyle}>
+            Services which directly integrate with MPP
+          </div>
         </div>
       </div>
     </div>

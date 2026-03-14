@@ -55,7 +55,7 @@ function MobileNav() {
         Services
       </a>
       <a
-        href="https://tempoxyz.github.io/mpp-specs/"
+        href="https://paymentauth.org"
         target="_blank"
         rel="noopener noreferrer"
         data-mobile-nav-item=""

@@ -18,9 +18,9 @@ export default defineConfig({
     { source: "/docs", destination: "/overview" },
     {
       source: "/specifications",
-      destination: "https://tempoxyz.github.io/mpp-specs/",
+      destination: "https://paymentauth.org",
     },
-    { source: "/specs", destination: "https://tempoxyz.github.io/mpp-specs/" },
+    { source: "/specs", destination: "https://paymentauth.org" },
     { source: "/quickstart/pget", destination: "/quickstart/agent" },
     { source: "/quickstart/tempoctl", destination: "/quickstart/agent" },
     { source: "/quickstart/presto", destination: "/quickstart/agent" },
@@ -80,7 +80,7 @@ export default defineConfig({
           { text: "Overview", link: "/overview" },
           {
             text: "IETF Specs",
-            link: "https://tempoxyz.github.io/mpp-specs/",
+            link: "https://paymentauth.org",
           },
           { text: "FAQ", link: "/faq" },
           { text: "Build with an LLM", link: "/guides/building-with-an-llm" },
@@ -125,7 +125,7 @@ export default defineConfig({
             link: "/protocol/transports",
             items: [
               { text: "HTTP", link: "/protocol/transports/http" },
-              { text: "MCP", link: "/protocol/transports/mcp" },
+              { text: "MCP and JSON-RPC", link: "/protocol/transports/mcp" },
             ],
           },
         ],
@@ -518,17 +518,13 @@ export default defineConfig({
   topNav: [
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
     { text: "Services", link: "/services" },
-    { text: "IETF Specs", link: "https://tempoxyz.github.io/mpp-specs/" },
+    { text: "IETF Specs", link: "https://paymentauth.org" },
     {
       text: "GitHub",
       items: [
-        { text: "mppx [`TypeScript`]", link: "https://github.com/wevm/mppx" },
-        { text: "mpp-rs [`Rust`]", link: "https://github.com/tempoxyz/mpp-rs" },
-        { text: "pympp [`Python`]", link: "https://github.com/tempoxyz/pympp" },
-        {
-          text: "IETF Specs",
-          link: "https://github.com/tempoxyz/mpp-specs",
-        },
+        { text: "mppx (TypeScript)", link: "https://github.com/wevm/mppx" },
+        { text: "mpp-rs (Rust)", link: "https://github.com/tempoxyz/mpp-rs" },
+        { text: "pympp (Python)", link: "https://github.com/tempoxyz/pympp" },
       ],
     },
   ],

@@ -1,5 +1,6 @@
 import { Cards } from 'vocs'
 import { StripeChargeCard } from '../../../components/cards'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Stripe [Cards, wallets, and other Stripe supported payment methods]
 
@@ -11,30 +12,19 @@ To learn more, read the [Stripe documentation](https://docs.stripe.com/payments/
 
 ## How it works
 
-```
-Client                           Server                          Stripe
-  │                                │                               │
-  │  GET /resource                 │                               │
-  ├──────────────────────────────> │                               │
-  │                                │                               │
-  │  402 + WWW-Authenticate        │                               │
-  │<────────────────────────────── │                               │
-  │                                │                               │
-  │  (create SPT from challenge)   │                               │
-  ├──────────────────────────────────────────────────────────────> │
-  │                       spt_...  │                               │
-  │<────────────────────────────────────────────────────────────── │
-  │                                │                               │
-  │  GET /resource                 │                               │
-  │  Authorization: Payment <cred> │                               │
-  ├──────────────────────────────> │                               │
-  │                                │  PaymentIntent (using SPT)    │
-  │                                ├─────────────────────────────> │
-  │                                │                   pi_...      │
-  │                                │<───────────────────────────── │
-  │  200 OK + Payment-Receipt      │                               │
-  │<────────────────────────────── │                               │
-```
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Stripe
+    Client->>Server: (1) GET /resource
+    Server-->>Client: (2) 402 + Challenge
+    Client->>Stripe: (3) Create SPT from Challenge
+    Stripe-->>Client: (4) spt_...
+    Client->>Server: (5) GET /resource + Credential
+    Server->>Stripe: (6) Create PaymentIntent (using SPT)
+    Stripe-->>Server: (7) pi_...
+    Server-->>Client: (8) 200 OK + Receipt
+`} />
 
 1. **Server** responds with `402` and a Challenge containing the amount, currency, and Stripe method details (Business Network profile, allowed payment method types).
 2. **Client** collects a payment method (via Stripe Elements or a stored method), then creates an SPT through the Stripe API with usage limits matching the Challenge.
