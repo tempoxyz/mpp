@@ -94,6 +94,7 @@ html {
   font-size: 90%;
   scrollbar-gutter: stable;
   overflow-y: scroll;
+  overscroll-behavior: none;
 }
 
 /* Pagination: hide "Next" / "Previous" label text, keep only shortcut (Shift → / ←) */
@@ -299,6 +300,11 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 
 [data-v-sidebar] [data-v-sidebar-group]:last-child {
   margin-bottom: 0 !important;
+}
+
+/* Prevent sidebar scroll from propagating to window (causes bounce on macOS) */
+[data-v-sidebar-container] {
+  overscroll-behavior: contain;
 }
 
 /* Add bottom padding to sidebar so items don't sit flush against viewport edge */
