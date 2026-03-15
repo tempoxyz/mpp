@@ -287,12 +287,20 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 /* Prevent sidebar scroll from propagating to window (causes bounce on macOS) */
 [data-v-sidebar-container] {
   overscroll-behavior: contain;
+  /* Never animate sidebar scrolling—prevents first-interaction bounce effects. */
+  scroll-behavior: auto !important;
   /* Avoid scroll anchoring corrections while sidebar content settles on first load. */
   overflow-anchor: none;
   /* Keep gutter width stable if a sidebar scrollbar appears/disappears. */
   scrollbar-gutter: stable;
   /* Prevent width changes during font swap from causing sidebar shake on reload */
   contain: inline-size;
+}
+
+/* Keep sidebar layout changes instant to avoid visible jitter on first route interaction. */
+[data-v-sidebar-container],
+[data-v-sidebar-container] * {
+  transition: none !important;
 }
 
 /* Add bottom padding to sidebar so items don't sit flush against viewport edge */
