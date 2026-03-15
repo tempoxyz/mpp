@@ -45,6 +45,17 @@ function useGoogleAnalytics() {
   }, []);
 }
 
+function useSidebarClickGuardHydrationFlag() {
+  useEffect(() => {
+    const guard = (
+      window as Window & {
+        __mppSidebarClickGuard?: { hydrated: boolean };
+      }
+    ).__mppSidebarClickGuard;
+    if (guard) guard.hydrated = true;
+  }, []);
+}
+
 function MobileNav() {
   return (
     <nav data-mobile-nav="" aria-label="Main navigation">
@@ -411,11 +422,13 @@ export default function Layout(props: React.PropsWithChildren) {
   usePostHog();
   useGoogleAnalytics();
   useLogoFullReload();
+  useSidebarClickGuardHydrationFlag();
 
   const ahrefsKey = import.meta.env.VITE_AHREFS_VERIFICATION;
 
   return (
     <>
+      <script src="/scripts/sidebar-click-guard.js" />
       <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1"
