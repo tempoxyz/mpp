@@ -14,6 +14,26 @@ const SIDEBAR_CLICK_GUARD_SNIPPET = `(() => {
   window.__mppSidebarClickGuard = { hydrated: false };
   const fallbackMs = 8000;
 
+  const patchSidebarScrollTo = (container) => {
+    if (!container || container.__mppScrollToPatched) return;
+    const original = container.scrollTo.bind(container);
+    container.scrollTo = (...args) => {
+      if (typeof args[0] === "object" && args[0] !== null) {
+        const options = { ...args[0], behavior: "instant" };
+        original(options);
+        return;
+      }
+      original(...args);
+    };
+    container.__mppScrollToPatched = true;
+  };
+
+  patchSidebarScrollTo(document.querySelector("[data-v-sidebar-container]"));
+  const observer = new MutationObserver(() => {
+    patchSidebarScrollTo(document.querySelector("[data-v-sidebar-container]"));
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
   const isPlainLeftClick = (event) =>
     event.button === 0 &&
     !event.metaKey &&
