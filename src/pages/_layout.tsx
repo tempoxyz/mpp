@@ -437,6 +437,20 @@ export default function Layout(props: React.PropsWithChildren) {
         type="font/woff2"
         crossOrigin="anonymous"
       />
+      <link
+        rel="preload"
+        href="/fonts/Geist-Regular.woff2"
+        as="font"
+        type="font/woff2"
+        crossOrigin="anonymous"
+      />
+      <link
+        rel="preload"
+        href="/fonts/Geist-Medium.woff2"
+        as="font"
+        type="font/woff2"
+        crossOrigin="anonymous"
+      />
       <MobileNavPortal />
       <LogoContextMenu />
       {props.children}
