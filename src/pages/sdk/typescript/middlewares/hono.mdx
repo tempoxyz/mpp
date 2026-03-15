@@ -55,3 +55,26 @@ app.get(
   (c) => c.json({ data: 'session content' }),
 )
 ```
+
+### Identifying the payer
+
+After the middleware verifies payment, the `Authorization` header is still on the request. Parse it with `Credential.deserialize` to read the payer's identity from the `source` field—a DID such as `did:pkh:eip155:1:0x...`.
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Credential } from 'mppx'
+import { Mppx, tempo } from 'mppx/hono'
+
+const app = new Hono()
+const mppx = Mppx.create({ methods: [tempo()] })
+
+app.get(
+  '/premium',
+  mppx.charge({ amount: '1' }),
+  (c) => {
+    const credential = Credential.deserialize(c.req.header('Authorization')!)
+    const payer = credential.source // "did:pkh:eip155:1:0x..."
+    return c.json({ payer })
+  },
+)
+```

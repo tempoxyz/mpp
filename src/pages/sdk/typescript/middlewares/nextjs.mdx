@@ -47,3 +47,22 @@ export const GET =
   mppx.session({ amount: '1', unitType: 'token' })
   (() => Response.json({ data: 'session content' }))
 ```
+
+### Identifying the payer
+
+After the handler verifies payment, the `Authorization` header is still on the request. Parse it with `Credential.deserialize` to read the payer's identity from the `source` field—a DID such as `did:pkh:eip155:1:0x...`.
+
+```ts twoslash [app/api/premium/route.ts]
+import { Credential } from 'mppx'
+import { Mppx, tempo } from 'mppx/nextjs'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+export const GET =
+  mppx.charge({ amount: '1' })
+  ((request) => {
+    const credential = Credential.deserialize(request.headers.get('Authorization')!)
+    const payer = credential.source // "did:pkh:eip155:1:0x..."
+    return Response.json({ payer })
+  })
+```

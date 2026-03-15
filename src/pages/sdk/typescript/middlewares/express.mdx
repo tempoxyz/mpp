@@ -55,3 +55,26 @@ app.get(
   (req, res) => res.json({ data: 'session content' }),
 )
 ```
+
+### Identifying the payer
+
+After the middleware verifies payment, the `Authorization` header is still on the request. Parse it with `Credential.deserialize` to read the payer's identity from the `source` field—a DID such as `did:pkh:eip155:1:0x...`.
+
+```ts [server.ts]
+import express from 'express'
+import { Credential } from 'mppx'
+import { Mppx, tempo } from 'mppx/express'
+
+const app = express()
+const mppx = Mppx.create({ methods: [tempo()] })
+
+app.get(
+  '/premium',
+  mppx.charge({ amount: '1' }),
+  (req, res) => {
+    const credential = Credential.deserialize(req.headers.authorization!)
+    const payer = credential.source // "did:pkh:eip155:1:0x..."
+    res.json({ payer })
+  },
+)
+```
