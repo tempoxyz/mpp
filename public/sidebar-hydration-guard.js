@@ -3,9 +3,10 @@
   window.__mppSidebarHydrationGuard = true;
 
   let hydrated = false;
+  let releaseScheduled = false;
   let pendingHref = null;
 
-  const markHydrated = () => {
+  const releaseSidebar = () => {
     if (hydrated) return;
     hydrated = true;
     document.documentElement.removeAttribute("data-sidebar-hydrating");
@@ -24,6 +25,27 @@
     }
 
     window.location.assign(href);
+  };
+
+  const waitForStableLayout = async () => {
+    if (document.fonts && document.fonts.status !== "loaded") {
+      await Promise.race([
+        document.fonts.ready,
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    }
+
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 120));
+  };
+
+  const markHydrated = () => {
+    if (hydrated || releaseScheduled) return;
+    releaseScheduled = true;
+    void waitForStableLayout().finally(releaseSidebar);
   };
 
   const onClick = (event) => {
@@ -50,5 +72,5 @@
   document.documentElement.setAttribute("data-sidebar-hydrating", "true");
   document.addEventListener("click", onClick, true);
   window.addEventListener("mpp:hydrated", markHydrated, { once: true });
-  setTimeout(markHydrated, 8000);
+  setTimeout(releaseSidebar, 8000);
 })();
