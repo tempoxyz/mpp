@@ -303,6 +303,12 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
   transition: none !important;
 }
 
+/* Keep sidebar visually stable during SSR->hydration handoff on hard reload. */
+html[data-sidebar-hydrating="true"] [data-v-sidebar-container] {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Add bottom padding to sidebar so items don't sit flush against viewport edge */
 [data-v-sidebar] {
   padding-bottom: 4rem !important;
