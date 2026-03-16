@@ -15,9 +15,9 @@ const TERMINAL_STEPS = [
   Terminal.commands(["./demo.sh"]),
   Terminal.wizard([
     Terminal.chat(),
+    Terminal.article(),
     Terminal.image(),
     Terminal.search(),
-    Terminal.article(),
   ]),
 ];
 
