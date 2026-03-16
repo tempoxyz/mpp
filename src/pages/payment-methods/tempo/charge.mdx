@@ -77,7 +77,12 @@ When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`)
 ### With Stripe
 
 ```ts twoslash
+// @noErrors
 import { Mppx, tempo } from "mppx/server";
+
+function async createPayToAddress(request: Request) {
+   // Create Stripe PaymentIntent
+}
 
 export async function handler(request: Request) {
   const recipientAddress = await createPayToAddress(request)
