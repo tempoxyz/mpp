@@ -228,7 +228,7 @@ describe("terminal", () => {
     });
 
     // The URL input is a focused BlockCursorInput — type into it via the page
-    await page.keyboard.type("stripe.com");
+    await page.keyboard.type("stratechery.com");
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
@@ -278,7 +278,7 @@ describe("terminal", () => {
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
-      page.getByText("Enter URL: https://stripe.com", { exact: true }),
+      page.getByText("Enter URL: https://stratechery.com", { exact: true }),
     ).toBeVisible({ timeout: 5_000 });
     await playwrightExpect(
       page.getByText("Card number:", { exact: false }),
@@ -424,7 +424,7 @@ describe("terminal (classic mode)", () => {
       timeout: 5_000,
     });
 
-    await page.keyboard.type("stripe.com");
+    await page.keyboard.type("stratechery.com");
     await page.keyboard.press("Enter");
 
     await playwrightExpect(

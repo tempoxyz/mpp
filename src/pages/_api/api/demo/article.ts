@@ -2,6 +2,13 @@ import { getProxyFetch } from "../../../../mppx-proxy-client";
 import { stripeMppx } from "../../../../mppx-stripe.server";
 
 const SUMMARIES: Record<string, string[]> = {
+  "stratechery.com": [
+    "  Ben Thompson argues the web's original sin was ad-supported",
+    "  free content, and that AI agents break this model entirely.",
+    "  Agents don't see ads, can't click them, and need to pay for",
+    "  content directly—making HTTP 402 and machine payments the",
+    "  foundation of the agentic web.",
+  ],
   "stripe.com": [
     "  Stripe processes hundreds of billions of dollars annually",
     "  across 195+ countries. The platform provides unified APIs for",
@@ -56,6 +63,12 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const input = url.searchParams.get("url") ?? "";
   const domain = normalizeUrl(input);
+
+  // Prefer curated summaries for known domains so the demo is consistent.
+  const canned = SUMMARIES[domain];
+  if (canned) {
+    return result.withReceipt(Response.json({ lines: canned }));
+  }
 
   const proxyFetch = getProxyFetch();
   const fullUrl = input.startsWith("http") ? input : `https://${input}`;

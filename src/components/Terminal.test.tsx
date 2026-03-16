@@ -348,6 +348,7 @@ describe("constants", () => {
   });
 
   it("COMPANIES contains expected domains", () => {
+    expect(Object.keys(COMPANIES)).toContain("stratechery.com");
     expect(Object.keys(COMPANIES)).toContain("stripe.com");
     expect(Object.keys(COMPANIES)).toContain("tempo.xyz");
     expect(Object.keys(COMPANIES)).toContain("openai.com");

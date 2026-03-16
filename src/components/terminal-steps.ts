@@ -270,7 +270,7 @@ export function article(): PaymentStepConfig {
       cost: LOOKUP_COST,
       prompt: {
         label: "Enter URL",
-        placeholder: "stripe.com",
+        placeholder: "stratechery.com/2025/the-agentic-web-and-original-sin/",
         prefix: "https://",
       },
       pickOutput: pickArticle,
@@ -315,7 +315,7 @@ export function lookup(): PaymentStepConfig {
     cost: LOOKUP_COST,
     prompt: {
       label: "Enter URL",
-      placeholder: "stripe.com",
+      placeholder: "stratechery.com/2025/the-agentic-web-and-original-sin/",
       prefix: "https://",
     },
     pickOutput: pickArticle,
