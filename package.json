@@ -10,6 +10,7 @@
     "check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
     "check:types": "tsc --noEmit",
     "dev": "vite dev",
+    "generate:discovery": "node scripts/generate-discovery.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "preview": "vite preview",
