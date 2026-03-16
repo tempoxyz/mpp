@@ -90,7 +90,7 @@ export async function handler(request: Request) {
     ],
   });
 
-  const response = await mppx.charge({ amount: "0.01" })(request);
+  const result = await mppx.charge({ amount: "0.01" })(request);
  
   if (result.status === 402) return result.challenge;
  
