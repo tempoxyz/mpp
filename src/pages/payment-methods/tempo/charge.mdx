@@ -79,10 +79,6 @@ When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`)
 ```ts twoslash
 import { Mppx, tempo } from "mppx/server";
 
-async function createPayToAddress(request: Request) {
-  ...
-}
- 
 export async function handler(request: Request) {
   const recipientAddress = await createPayToAddress(request)
   const mppx = Mppx.create({
@@ -92,9 +88,9 @@ export async function handler(request: Request) {
         recipient: recipientAddress,
       }),
     ],
-  })
+  });
 
-  const response = await mppx.charge({ amount: "0.01" })(request)
+  const response = await mppx.charge({ amount: "0.01" })(request);
  
   if (result.status === 402) return result.challenge;
  
