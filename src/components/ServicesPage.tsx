@@ -24,6 +24,7 @@ const CMD_PURPLE = "light-dark(#7c3aed, #c084fc)";
 const CMD_GREEN = "light-dark(#15803d, #4ade80)";
 
 export const PINNED_IDS: string[] = [
+  "alchemy",
   "openai",
   "anthropic",
   "google-gemini",
@@ -999,7 +1000,7 @@ export function ServicesPage() {
         return new Set();
       }
       const hadPrevious = p.size > 0;
-      history.replaceState(null, "", `#service-${id}`);
+      history.replaceState(null, "", `/services#${id}`);
       const delay = hadPrevious ? 220 : 50;
       setTimeout(() => {
         const el = document.getElementById(`service-${id}`);
@@ -1042,7 +1043,7 @@ export function ServicesPage() {
         return;
       }
       setExpandedIds(new Set([serviceId]));
-      history.replaceState(null, "", `#service-${serviceId}`);
+      history.replaceState(null, "", `/services#${serviceId}`);
       const all = orderServices(services, shuffledOrder.current);
       const idx = all.findIndex((s) => s.id === serviceId);
       if (idx >= 0) setPage(Math.floor(idx / PAGE_SIZE));
@@ -1059,9 +1060,9 @@ export function ServicesPage() {
   useEffect(() => {
     if (services.length === 0 || initialHashHandled.current) return;
     const hash = window.location.hash;
-    if (!hash.startsWith("#service-")) return;
+    if (!hash.startsWith("#")) return;
     initialHashHandled.current = true;
-    const serviceId = hash.slice("#service-".length);
+    const serviceId = hash.slice(1);
     if (services.some((s) => s.id === serviceId)) {
       selectAndScrollToService(serviceId);
     }

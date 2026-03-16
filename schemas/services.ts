@@ -422,9 +422,9 @@ export const services: ServiceDef[] = [
     url: "https://eth-mainnet.g.alchemy.com",
     serviceUrl: `https://alchemy.${MPP_REALM}`,
     description:
-      "Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.",
+      "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
     categories: ["blockchain", "data"],
-    integration: "third-party",
+    integration: "first-party",
     tags: ["rpc", "json-rpc", "nft", "evm", "multichain"],
     docs: {
       homepage: "https://www.alchemy.com/docs",
