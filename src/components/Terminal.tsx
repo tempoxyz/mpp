@@ -1839,7 +1839,9 @@ function Wizard({
                     "  "
                   )}
                   {item.label}
-                  <span className="ml-2">({item.methodLabel})</span>
+                  <span className="ml-2" style={{ color: "var(--term-gray5)" }}>
+                    ({item.methodLabel})
+                  </span>
                 </p>
               );
             })}
@@ -1898,7 +1900,9 @@ function Wizard({
                   "  "
                 )}
                 {item.label}
-                <span className="ml-2">({item.methodLabel})</span>
+                <span className="ml-2" style={{ color: "var(--term-gray5)" }}>
+                  ({item.methodLabel})
+                </span>
               </button>
             ))}
           </div>
@@ -2603,9 +2607,11 @@ function SingleStep({
 function TerminalComponent({
   className,
   steps,
+  showLastVisit = true,
 }: {
   className?: string;
   steps: StepConfig[];
+  showLastVisit?: boolean;
 }) {
   const { client: demoClient } = useDemoClient();
 
@@ -2652,6 +2658,7 @@ function TerminalComponent({
     if (stored) return fmt(new Date(stored));
     return "Oct 29 1969 22:30:00";
   });
+
   const walletState: WalletState = {
     address,
     balance,
@@ -2912,7 +2919,7 @@ function TerminalComponent({
               mpp.dev@{__COMMIT_SHA__.slice(0, 7)} (released{" "}
               {timeAgo(__COMMIT_TIMESTAMP__)})
             </p>
-            {showLogin && (
+            {showLastVisit && showLogin && (
               <p
                 className="hidden md:block"
                 style={{ color: "var(--term-gray6)" }}

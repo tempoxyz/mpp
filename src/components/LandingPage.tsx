@@ -79,7 +79,11 @@ export function LandingPage() {
                   position: "relative",
                 }}
               >
-                <Terminal className="absolute inset-0" steps={TERMINAL_STEPS} />
+                <Terminal
+                  className="absolute inset-0"
+                  steps={TERMINAL_STEPS}
+                  showLastVisit={false}
+                />
                 <div className="designed-by-desktop">
                   <DesignedBy />
                 </div>

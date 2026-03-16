@@ -354,10 +354,10 @@ describe("constants", () => {
   });
 
   it("step builders have correct methodLabels", () => {
-    expect(Terminal.chat().methodLabel).toBe("Tempo session + OpenAI");
-    expect(Terminal.image().methodLabel).toBe("Tempo charge + fal.ai");
-    expect(Terminal.search().methodLabel).toBe("Tempo session + Parallel");
-    expect(Terminal.article().methodLabel).toBe("Stripe charge + Parallel");
+    expect(Terminal.chat().methodLabel).toBe("Tempo");
+    expect(Terminal.image().methodLabel).toBe("Tempo");
+    expect(Terminal.search().methodLabel).toBe("Tempo");
+    expect(Terminal.article().methodLabel).toBe("Stripe");
     expect(Terminal.poem().methodLabel).toBe("Tempo session");
     expect(Terminal.lookup().methodLabel).toBe("Stripe charge");
   });

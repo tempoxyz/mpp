@@ -208,7 +208,7 @@ export function stripe({
 export function chat(): PaymentStepConfig {
   return {
     ...session({
-      label: "Chat with AI",
+      label: "Chat with OpenAI",
       description: "Chat with AI and pay per token streamed",
       endpoint: "/api/chat",
       liveEndpoint: (input) =>
@@ -219,14 +219,14 @@ export function chat(): PaymentStepConfig {
       },
       pickOutput: pickChat,
     }),
-    methodLabel: "Tempo session + OpenAI",
+    methodLabel: "Tempo",
   };
 }
 
 export function image(): PaymentStepConfig {
   return {
     ...charge({
-      label: "Generate image",
+      label: "Generate an image using fal.ai",
       description: "Generate an image and pay per request",
       endpoint: "/api/image",
       liveEndpoint: (input) =>
@@ -239,14 +239,14 @@ export function image(): PaymentStepConfig {
       pickOutput: pickImage,
       outputMode: "photo",
     }),
-    methodLabel: "Tempo charge + fal.ai",
+    methodLabel: "Tempo",
   };
 }
 
 export function search(): PaymentStepConfig {
   return {
     ...session({
-      label: "Search the web",
+      label: "Search the web using Parallel",
       description: "Search the web and pay per query",
       endpoint: "/api/search",
       liveEndpoint: (input) =>
@@ -255,14 +255,14 @@ export function search(): PaymentStepConfig {
       prompt: { label: "Enter query", placeholder: "Machine Payments" },
       pickOutput: pickSearch,
     }),
-    methodLabel: "Tempo session + Parallel",
+    methodLabel: "Tempo",
   };
 }
 
 export function article(): PaymentStepConfig {
   return {
     ...stripe({
-      label: "Summarize article",
+      label: "Summarize an article using Parallel",
       description: "Summarize an article and pay with Stripe",
       endpoint: "/api/article",
       liveEndpoint: (input) =>
@@ -275,7 +275,7 @@ export function article(): PaymentStepConfig {
       },
       pickOutput: pickArticle,
     }),
-    methodLabel: "Stripe charge + Parallel",
+    methodLabel: "Stripe",
   };
 }
 
