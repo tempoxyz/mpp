@@ -970,12 +970,12 @@
       "name": "Alchemy",
       "url": "https://eth-mainnet.g.alchemy.com",
       "serviceUrl": "https://alchemy.mpp.tempo.xyz",
-      "description": "Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.",
+      "description": "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
       "categories": [
         "blockchain",
         "data"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "rpc",
         "json-rpc",
