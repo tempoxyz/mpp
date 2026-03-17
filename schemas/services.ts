@@ -1114,53 +1114,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Twitter/X ──────────────────────────────────────────────────────────
-  {
-    id: "twitter",
-    name: "Twitter/X",
-    url: "https://api.x.com",
-    serviceUrl: `https://twitter.${MPP_REALM}`,
-    description: "X API v2 for tweets, users, and search.",
-    categories: ["social", "data"],
-    integration: "third-party",
-    tags: ["twitter", "x", "tweets", "social", "search"],
-    docs: { homepage: "https://developer.x.com/en/docs" },
-    provider: { name: "X Corp", url: "https://x.com" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    docsBase: "https://context7.com/websites/x_x-api/llms.txt",
-    endpoints: [
-      { route: "GET /2/tweets", desc: "Look up tweets by ID", amount: "5000" },
-      {
-        route: "GET /2/tweets/:id",
-        desc: "Look up a single tweet",
-        amount: "5000",
-      },
-      { route: "POST /2/tweets", desc: "Create a new tweet", amount: "10000" },
-      {
-        route: "GET /2/users/:id",
-        desc: "Look up a user by ID",
-        amount: "10000",
-      },
-      {
-        route: "GET /2/users/by/username/:username",
-        desc: "Look up user by username",
-        amount: "10000",
-      },
-      {
-        route: "GET /2/tweets/search/recent",
-        desc: "Search recent tweets",
-        amount: "10000",
-      },
-      {
-        route: "GET /2/users/:id/tweets",
-        desc: "Get user tweet timeline",
-        amount: "5000",
-      },
-    ],
-  },
-
   // ── StableEmail ────────────────────────────────────────────────────────
   {
     id: "stableemail",
