@@ -1,0 +1,134 @@
+import { Cards } from 'vocs'
+import { SpecCard } from '../../../components/SpecCard'
+
+# Card charge [One-time payments using encrypted network tokens]
+
+The card implementation of the [charge](/intents/charge) intent.
+
+The client obtains an encrypted network token from a credential issuer and sends it as a Credential. The server decrypts the token and charges the card through existing card network rails.
+
+This method is best for single API calls, content access, or one-off purchases.
+
+## Server
+
+Use `MppCard.create` and `mpp.charge` to gate any endpoint behind a one-time card payment. The method handles Challenge generation, Credential decryption, gateway authorization, and Receipt generation.
+
+```ts
+import { MppCard } from 'mpp-card/server'
+
+const mpp = MppCard.create({
+  acceptedNetworks: ['visa'],
+  merchantName: 'Demo',
+  privateKey: process.env.PRIVATE_KEY,
+  secretKey: process.env.MPP_SECRET_KEY,
+  gateway: {
+    async charge({ token, amount, currency, idempotencyKey }) {
+      // Call your payment processor here
+      return { reference: 'txn_123', status: 'success' }
+    },
+  },
+})
+
+const charge = mpp.charge({ amount: '500', currency: 'usd' })
+
+export async function handler(request: Request) {
+  const result = await charge(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### Server parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `acceptedNetworks` | `string[]` | Required | Accepted card networks |
+| `merchantName` | `string` | Required | Display name shown to cardholder |
+| `secretKey` | `string` | Required | HMAC signing key for challenge integrity |
+| `gateway` | `ServerEnabler` | Required | Payment gateway for charging decrypted tokens |
+| `privateKey` | `string` | Required | RSA-2048 PEM for token decryption |
+| `billingRequired` | `boolean` | Optional | Request billing address from client |
+
+## Client
+
+Use `MppCard.create` to automatically handle `402` responses. The client parses the Challenge, requests an encrypted network token from the credential issuer, and retries with the Credential.
+
+Before making payments, enroll a card through a tokenization provider (e.g., a secure card collection form or vault API) to obtain a `cardId`.
+
+```ts
+import { MppCard } from 'mpp-card/client'
+
+MppCard.create({
+  cardId: 'card_abc123',
+  enabler: {
+    async getPaymentData({ cardId, challenge }) {
+      // Call your credential issuer here
+      return { encryptedPayload: '...', network: 'visa' }
+    },
+  },
+})
+
+// Global fetch now handles 402 automatically
+const res = await fetch('https://api.merchant.com/data')
+```
+
+### Without polyfill
+
+If you don't want to patch `globalThis.fetch`, use `mppCard.fetch` directly:
+
+```ts
+import { MppCard } from 'mpp-card/client'
+
+const mppCard = MppCard.create({
+  cardId: 'card_abc123',
+  polyfill: false,
+})
+
+const res = await mppCard.fetch('https://api.example.com/resource')
+```
+
+### Client parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cardId` | `string` | Required | Card identifier from your tokenization provider |
+| `enabler` | `ClientEnabler` | Required | Credential issuer for token provisioning |
+
+## Request fields
+
+The Challenge request includes the base charge fields plus card method details.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `amount` | `string` | Required | Amount in the smallest currency unit |
+| `currency` | `string` | Required | ISO currency code |
+| `description` | `string` | Optional | Human-readable payment description |
+| `recipient` | `string` | Optional | Merchant identifier |
+| `externalId` | `string` | Optional | Merchant reference ID |
+| `methodDetails.acceptedNetworks` | `string[]` | Required | Accepted card networks |
+| `methodDetails.merchantName` | `string` | Required | Display name shown to cardholder |
+| `methodDetails.encryptionJwk` | `JWK` | Conditional | RSA-OAEP-256 public key for token encryption |
+| `methodDetails.jwksUri` | `string` | Conditional | HTTPS URI to JWK Set |
+| `methodDetails.kid` | `string` | Conditional | Key ID when `jwksUri` is used |
+| `methodDetails.billingRequired` | `boolean` | Optional | Request billing address from client |
+
+## Credential payload
+
+The Credential payload contains the encrypted network token and card metadata.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `encryptedPayload` | `string` | Required | JWE-encrypted network token (RSA-OAEP-256 + AES-256-GCM) |
+| `network` | `string` | Required | Card network identifier |
+| `panLastFour` | `string` | Required | Last four digits of card number |
+| `panExpirationMonth` | `string` | Required | Card expiration month |
+| `panExpirationYear` | `string` | Required | Card expiration year |
+| `billingAddress` | `object` | Conditional | Billing address (present when `billingRequired` is set) |
+| `cardholderFullName` | `string` | Optional | Cardholder name |
+| `paymentAccountReference` | `string` | Conditional | Payment Account Reference from the token service provider |
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-card-charge-00" />
+</Cards>

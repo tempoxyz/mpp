@@ -1,0 +1,51 @@
+import { Cards } from 'vocs'
+import { CardChargeCard } from '../../../components/cards'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+
+# Card [Card payments via encrypted network tokens]
+
+The Card method enables payments using agentic network tokens, single-use, encrypted credentials provisioned by a card network for machine-initiated transactions. Tokens such as [Visa Intelligent Commerce](https://developer.visa.com/capabilities/visa-intelligent-commerce) settle through existing card infrastructure, and the client and server can each use independent payment providers rather than sharing a single platform.
+
+The [`mpp-card`](https://www.npmjs.com/package/mpp-card) SDK implements the `card` method with the `charge` intent. The protocol is defined in the [Card Network Charge Intent](https://paymentauth.org/draft-card-charge-00) specification.
+
+## Installation
+
+:::code-group
+```bash [npm]
+npm install mpp-card
+```
+```bash [pnpm]
+pnpm add mpp-card
+```
+:::
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant CE as Client Enabler
+    participant Server
+    participant SE as Server Enabler
+    Client->>Server: (1) GET /resource
+    Server-->>Client: (2) 402 + Challenge (amount, networks, encryption key)
+    Client->>CE: (3) cardId + challenge context
+    CE-->>Client: (4) Encrypted network token (JWE)
+    Client->>Server: (5) GET /resource + Credential (encrypted token)
+    Server->>SE: (6) Decrypt token + charge card
+    SE-->>Server: (7) Authorization reference
+    Server-->>Client: (8) 200 OK + Receipt + resource
+`} />
+
+1. **Client** requests a resource from the server.
+2. **Server** responds with `402` and a Challenge containing the amount, currency, accepted card networks, and an RSA public key (`encryptionJwk`).
+3. **Client** sends the card identifier and challenge context to a credential issuer.
+4. **Credential Issuer** provisions a network token, generates a cryptogram, and encrypts both as a JWE using the server's public key. The encrypted token is returned to the client.
+5. **Client** retries the original request with an `Authorization: Payment` header containing the encrypted credential.
+6. **Server** decrypts the token using its private key and forwards it to the payment gateway for authorization through the card network.
+7. **Server** returns the resource with a `Payment-Receipt` header confirming the charge.
+
+## Intents
+
+<Cards>
+  <CardChargeCard />
+</Cards>
