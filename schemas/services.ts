@@ -2645,225 +2645,60 @@ export const services: ServiceDef[] = [
     payment: TEMPO_PAYMENT,
     endpoints: [
       // Legacy REST (maps.googleapis.com/maps/api)
-      {
-        route: "GET /geocode/json",
-        desc: "Geocode an address or reverse-geocode coordinates",
-        amount: "5000",
-      },
-      {
-        route: "GET /directions/json",
-        desc: "Get directions between locations",
-        amount: "5000",
-      },
-      {
-        route: "GET /distancematrix/json",
-        desc: "Travel time and distance for origin-destination pairs",
-        amount: "5000",
-      },
-      {
-        route: "GET /elevation/json",
-        desc: "Get elevation for locations",
-        amount: "5000",
-      },
-      {
-        route: "GET /timezone/json",
-        desc: "Get time zone for coordinates",
-        amount: "5000",
-      },
-      {
-        route: "GET /staticmap",
-        desc: "Generate a static map image",
-        amount: "2000",
-      },
-      {
-        route: "GET /streetview",
-        desc: "Get a static Street View image",
-        amount: "7000",
-      },
-      {
-        route: "GET /streetview/metadata",
-        desc: "Get Street View metadata",
-      },
-      {
-        route: "GET /place/textsearch/json",
-        desc: "Search places by text query",
-        amount: "32000",
-      },
-      {
-        route: "GET /place/nearbysearch/json",
-        desc: "Search nearby places",
-        amount: "32000",
-      },
-      {
-        route: "GET /place/details/json",
-        desc: "Get place details",
-        amount: "17000",
-      },
-      {
-        route: "GET /place/findplacefromtext/json",
-        desc: "Find a place from text",
-        amount: "17000",
-      },
-      {
-        route: "GET /place/autocomplete/json",
-        desc: "Place autocomplete suggestions",
-        amount: "2830",
-      },
-      {
-        route: "GET /place/queryautocomplete/json",
-        desc: "Query autocomplete suggestions",
-        amount: "2830",
-      },
-      {
-        route: "GET /place/photo",
-        desc: "Get a place photo",
-        amount: "7000",
-      },
+      { route: "GET /maps/geocode/json", desc: "Geocode an address or reverse-geocode coordinates", amount: "5000" },
+      { route: "GET /maps/directions/json", desc: "Get directions between locations", amount: "5000" },
+      { route: "GET /maps/distancematrix/json", desc: "Travel time and distance for origin-destination pairs", amount: "5000" },
+      { route: "GET /maps/elevation/json", desc: "Get elevation for locations", amount: "5000" },
+      { route: "GET /maps/timezone/json", desc: "Get time zone for coordinates", amount: "5000" },
+      { route: "GET /maps/staticmap", desc: "Generate a static map image", amount: "2000" },
+      { route: "GET /maps/streetview", desc: "Get a static Street View image", amount: "7000" },
+      { route: "GET /maps/streetview/metadata", desc: "Get Street View metadata" },
+      { route: "GET /maps/place/textsearch/json", desc: "Search places by text query", amount: "32000" },
+      { route: "GET /maps/place/nearbysearch/json", desc: "Search nearby places", amount: "32000" },
+      { route: "GET /maps/place/details/json", desc: "Get place details", amount: "17000" },
+      { route: "GET /maps/place/findplacefromtext/json", desc: "Find a place from text", amount: "17000" },
+      { route: "GET /maps/place/autocomplete/json", desc: "Place autocomplete suggestions", amount: "2830" },
+      { route: "GET /maps/place/queryautocomplete/json", desc: "Query autocomplete suggestions", amount: "2830" },
+      { route: "GET /maps/place/photo", desc: "Get a place photo", amount: "7000" },
       // Routes API
-      {
-        route: "POST /directions/v2:computeRoutes",
-        desc: "Compute routes between locations",
-        amount: "5000",
-      },
-      {
-        route: "POST /distanceMatrix/v2:computeRouteMatrix",
-        desc: "Compute distance matrix",
-        amount: "5000",
-      },
+      { route: "POST /routes/directions/v2:computeRoutes", desc: "Compute routes between locations", amount: "5000" },
+      { route: "POST /routes/distanceMatrix/v2:computeRouteMatrix", desc: "Compute distance matrix", amount: "5000" },
       // Places (New) API
-      {
-        route: "GET /v1/places/:id",
-        desc: "Get place details (essentials)",
-        amount: "5000",
-      },
-      {
-        route: "POST /v1/places:searchText",
-        desc: "Text search for places",
-        amount: "32000",
-      },
-      {
-        route: "POST /v1/places:searchNearby",
-        desc: "Nearby search for places",
-        amount: "32000",
-      },
-      {
-        route: "POST /v1/places:autocomplete",
-        desc: "Place autocomplete",
-        amount: "2830",
-      },
-      {
-        route: "GET /v1/places/:id/photos/:photoId/media",
-        desc: "Get a place photo",
-        amount: "7000",
-      },
+      { route: "GET /places/v1/places/:id", desc: "Get place details (essentials)", amount: "5000" },
+      { route: "POST /places/v1/places:searchText", desc: "Text search for places", amount: "32000" },
+      { route: "POST /places/v1/places:searchNearby", desc: "Nearby search for places", amount: "32000" },
+      { route: "POST /places/v1/places:autocomplete", desc: "Place autocomplete", amount: "2830" },
+      { route: "GET /places/v1/places/:id/photos/:photoId/media", desc: "Get a place photo", amount: "7000" },
       // Tiles API
-      {
-        route: "GET /v1/2dtiles/:z/:x/:y",
-        desc: "Get a 2D map tile",
-        amount: "600",
-      },
-      {
-        route: "GET /v1/streetview/tiles/:panoId/:z/:x/:y",
-        desc: "Get a Street View tile",
-        amount: "2000",
-      },
-      {
-        route: "GET /v1/3dtiles/root.json",
-        desc: "Get 3D tiles root",
-        amount: "6000",
-      },
-      { route: "GET /v1/createSession", desc: "Create a tile session" },
+      { route: "GET /tiles/v1/2dtiles/:z/:x/:y", desc: "Get a 2D map tile", amount: "600" },
+      { route: "GET /tiles/v1/streetview/tiles/:panoId/:z/:x/:y", desc: "Get a Street View tile", amount: "2000" },
+      { route: "GET /tiles/v1/3dtiles/root.json", desc: "Get 3D tiles root", amount: "6000" },
+      { route: "GET /tiles/v1/createSession", desc: "Create a tile session" },
       // Roads API
-      {
-        route: "GET /v1/nearestRoads",
-        desc: "Find nearest roads to coordinates",
-        amount: "10000",
-      },
-      {
-        route: "GET /v1/snapToRoads",
-        desc: "Snap GPS coordinates to roads",
-        amount: "10000",
-      },
+      { route: "GET /roads/v1/nearestRoads", desc: "Find nearest roads to coordinates", amount: "10000" },
+      { route: "GET /roads/v1/snapToRoads", desc: "Snap GPS coordinates to roads", amount: "10000" },
       // Address Validation API
-      {
-        route: "POST /v1:validateAddress",
-        desc: "Validate a postal address",
-        amount: "17000",
-      },
-      {
-        route: "POST /v1:provideValidationFeedback",
-        desc: "Provide validation feedback",
-      },
+      { route: "POST /validation/v1:validateAddress", desc: "Validate a postal address", amount: "17000" },
+      { route: "POST /validation/v1:provideValidationFeedback", desc: "Provide validation feedback" },
       // Solar API
-      {
-        route: "GET /v1/buildingInsights:findClosest",
-        desc: "Get building solar insights",
-        amount: "10000",
-      },
-      {
-        route: "GET /v1/dataLayers:get",
-        desc: "Get solar data layers",
-        amount: "75000",
-      },
+      { route: "GET /solar/v1/buildingInsights:findClosest", desc: "Get building solar insights", amount: "10000" },
+      { route: "GET /solar/v1/dataLayers:get", desc: "Get solar data layers", amount: "75000" },
       // Aerial View API
-      {
-        route: "GET /v1/videos:lookupVideo",
-        desc: "Look up an aerial view video",
-        amount: "16000",
-      },
-      {
-        route: "POST /v1/videos:renderVideo",
-        desc: "Render an aerial view video",
-        amount: "16000",
-      },
-      {
-        route: "GET /v1/videos:lookupVideoMetadata",
-        desc: "Look up video metadata",
-      },
+      { route: "GET /aerialview/v1/videos:lookupVideo", desc: "Look up an aerial view video", amount: "16000" },
+      { route: "POST /aerialview/v1/videos:renderVideo", desc: "Render an aerial view video", amount: "16000" },
+      { route: "GET /aerialview/v1/videos:lookupVideoMetadata", desc: "Look up video metadata" },
       // Air Quality API
-      {
-        route: "POST /v1/currentConditions:lookup",
-        desc: "Get current air quality conditions",
-        amount: "5000",
-      },
-      {
-        route: "POST /v1/history:lookup",
-        desc: "Get air quality history",
-        amount: "5000",
-      },
+      { route: "POST /airquality/v1/currentConditions:lookup", desc: "Get current air quality conditions", amount: "5000" },
+      { route: "POST /airquality/v1/history:lookup", desc: "Get air quality history", amount: "5000" },
       // Pollen API
-      {
-        route: "GET /v1/forecast:lookup",
-        desc: "Get pollen forecast",
-        amount: "10000",
-      },
+      { route: "GET /pollen/v1/forecast:lookup", desc: "Get pollen forecast", amount: "10000" },
       // Geolocation API
-      {
-        route: "POST /geolocation/v1/geolocate",
-        desc: "Geolocate a device",
-        amount: "5000",
-      },
+      { route: "POST /geolocation/geolocation/v1/geolocate", desc: "Geolocate a device", amount: "5000" },
       // Weather API
-      {
-        route: "GET /v1/currentConditions:lookup",
-        desc: "Get current weather conditions",
-        amount: "150",
-      },
-      {
-        route: "GET /v1/forecast/hours:lookup",
-        desc: "Get hourly weather forecast",
-        amount: "150",
-      },
-      {
-        route: "GET /v1/forecast/days:lookup",
-        desc: "Get daily weather forecast",
-        amount: "150",
-      },
-      {
-        route: "GET /v1/history/hours:lookup",
-        desc: "Get hourly weather history",
-        amount: "150",
-      },
+      { route: "GET /weather/v1/currentConditions:lookup", desc: "Get current weather conditions", amount: "150" },
+      { route: "GET /weather/v1/forecast/hours:lookup", desc: "Get hourly weather forecast", amount: "150" },
+      { route: "GET /weather/v1/forecast/days:lookup", desc: "Get daily weather forecast", amount: "150" },
+      { route: "GET /weather/v1/history/hours:lookup", desc: "Get hourly weather history", amount: "150" },
     ],
   },
 
