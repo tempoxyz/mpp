@@ -6690,7 +6690,7 @@
         },
         {
           "method": "POST",
-          "path": "/geolocation/v1/geolocate",
+          "path": "/geolocation/geolocation/v1/geolocate",
           "description": "Geolocate a device",
           "payment": {
             "intent": "charge",

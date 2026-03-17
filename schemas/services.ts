@@ -2839,7 +2839,7 @@ export const services: ServiceDef[] = [
       },
       // Geolocation API
       {
-        route: "POST /geolocation/v1/geolocate",
+        route: "POST /geolocation/geolocation/v1/geolocate",
         desc: "Geolocate a device",
         amount: "5000",
       },
