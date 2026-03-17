@@ -35,7 +35,7 @@ export default defineConfig({
       destination: "/sdk/typescript/server/Method.tempo.session",
     },
   ],
-  description: "The open protocol for internet payments.",
+  description: "The open protocol for machine-to-machine payments.",
   checkDeadlinks: true,
   editLink: {
     link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",

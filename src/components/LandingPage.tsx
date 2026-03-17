@@ -12,7 +12,7 @@ import { Terminal } from "./Terminal";
 const ACCENT = "var(--vocs-text-color-heading)";
 
 const TERMINAL_STEPS = [
-  Terminal.commands(["./demo.sh"]),
+  Terminal.commands(["./mpp.sh"]),
   Terminal.wizard([
     Terminal.chat(),
     Terminal.article(),
