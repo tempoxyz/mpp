@@ -1,5 +1,5 @@
 import { Cards, Tab, Tabs } from 'vocs'
-import { TempoMethodCard, LightningMethodCard, StripeMethodCard, CustomMethodCard } from '../../components/cards'
+import { TempoMethodCard, CardMethodCard, LightningMethodCard, StripeMethodCard, CustomMethodCard } from '../../components/cards'
 
 # Payment methods [Available methods and how to choose one]
 
@@ -22,6 +22,12 @@ HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment method="stripe", intent="charge", ...
 ```
   </Tab>
+  <Tab title="Card">
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment method="card", intent="charge", ...
+```
+  </Tab>
   <Tab title="Lightning">
 ```http
 HTTP/1.1 402 Payment Required
@@ -35,6 +41,7 @@ WWW-Authenticate: Payment method="lightning", intent="charge", ...
 <Cards>
   <TempoMethodCard />
   <StripeMethodCard />
+  <CardMethodCard />
   <LightningMethodCard />
   <CustomMethodCard />
 </Cards>
