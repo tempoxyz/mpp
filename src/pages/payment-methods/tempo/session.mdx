@@ -224,6 +224,15 @@ See [`tempo.session` manager](/sdk/typescript/client/Method.tempo.session-manage
   </Tab>
 </Tabs>
 
+## Escrow contract
+
+Sessions use the `TempoStreamChannel` escrow contract for on-chain deposits, settlement, and channel close. The [reference implementation](https://github.com/tempoxyz/tempo/blob/main/tips/ref-impls/src/TempoStreamChannel.sol) lives in the `tempoxyz/tempo` repository.
+
+| Network | Chain ID | Contract Address |
+|---|---|---|
+| [Mainnet](https://explore.mainnet.tempo.xyz/address/0x33b901018174DDabE4841042ab76ba85D4e24f25?tab=contract) | 98865 | `0x33b901018174DDabE4841042ab76ba85D4e24f25` |
+| [Testnet (Moderato)](https://explore.testnet.tempo.xyz/address/0x9d136eEa063eDE5418A6BC7bEafF009bBb6CFa70?tab=contract) | 42431 | `0x9d136eEa063eDE5418A6BC7bEafF009bBb6CFa70` |
+
 ## Specification
 
 <Cards>
