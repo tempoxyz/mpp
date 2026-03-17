@@ -1030,8 +1030,8 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   [data-v-mobile-nav][role="dialog"] {
     z-index: 260 !important;
   }
-  div[role="presentation"][data-open],
-  div[role="presentation"][data-base-ui-inert] {
+  div[role="presentation"][data-open]:has([data-v-mobile-nav]),
+  div[role="presentation"][data-base-ui-inert]:has([data-v-mobile-nav]) {
     z-index: 250 !important;
   }
   /* Drop gutter-top below the dialog when mobile nav is open */
@@ -1052,8 +1052,8 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
     min-height: 100dvh !important;
     padding-bottom: env(safe-area-inset-bottom, 0px) !important;
   }
-  div[role="presentation"][data-open],
-  div[role="presentation"][data-base-ui-inert] {
+  div[role="presentation"][data-open]:has([data-v-mobile-nav]),
+  div[role="presentation"][data-base-ui-inert]:has([data-v-mobile-nav]) {
     min-height: 100dvh !important;
   }
 
