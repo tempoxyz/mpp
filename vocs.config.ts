@@ -106,10 +106,6 @@ export default defineConfig({
             text: "Accept streamed payments",
             link: "/guides/streamed-payments",
           },
-          {
-            text: "Accept MPP with Stripe",
-            link: "/guides/mpp-with-stripe",
-          },
         ],
       },
       {
