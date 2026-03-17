@@ -197,6 +197,10 @@
           "const": true,
           "description": "When present (always true), indicates dynamic pricing — the price is determined at request time based on factors such as model, token count, or content size. The amount field may be omitted or may represent a base/minimum price."
         },
+        "amountHint": {
+          "type": "string",
+          "description": "Freeform pricing hint for dynamic endpoints (e.g. '$0.10 – $0.30 depending on processor'). Only valid when dynamic is true."
+        },
         "description": {
           "type": "string",
           "description": "Human-readable pricing note."

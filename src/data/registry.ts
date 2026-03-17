@@ -33,6 +33,7 @@ export interface EndpointPayment {
   unitType?: string;
   description?: string;
   dynamic?: true;
+  amountHint?: string;
 }
 
 export interface Endpoint {

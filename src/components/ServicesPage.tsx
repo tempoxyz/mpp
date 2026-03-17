@@ -41,7 +41,7 @@ export function allCategories(s: Service): Category[] {
 export function formatPrice(ep: Endpoint): string {
   const p = ep.payment;
   if (!p) return "\u2014";
-  if (!p.amount) return "\u2014";
+  if (!p.amount) return p.amountHint ?? "\u2014";
   const v = Number(p.amount) / 10 ** (p.decimals ?? 0);
   if (Number.isNaN(v)) return "\u2014";
   if (v === 0) return "$0";
