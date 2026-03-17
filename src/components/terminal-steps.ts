@@ -245,13 +245,13 @@ export function image(): PaymentStepConfig {
 
 export function search(): PaymentStepConfig {
   return {
-    ...session({
+    ...charge({
       label: "Search the web using Parallel",
       description: "Search the web and pay per query",
       endpoint: "/api/search",
       liveEndpoint: (input) =>
         `/api/demo/search?query=${encodeURIComponent(input)}`,
-      cost: () => 0.005,
+      cost: 0.005,
       prompt: { label: "Enter query", placeholder: "Machine Payments" },
       pickOutput: pickSearch,
     }),
