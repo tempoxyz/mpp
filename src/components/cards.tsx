@@ -33,13 +33,13 @@ export function ServerQuickstartCard() {
   );
 }
 
-export function PrestoCliCard() {
+export function WalletCliCard() {
   return (
     <Card
-      description="Command-line tool for making paid HTTP requests"
+      description="Managed MPP client with built in spend controls and service discovery"
       icon="lucide:terminal"
       title="Tempo Wallet CLI"
-      to="/tools/presto"
+      to="https://wallet.tempo.xyz"
     />
   );
 }
@@ -139,28 +139,6 @@ export function PaymentMethodsCard() {
       icon="lucide:credit-card"
       title="Payment Methods"
       to="/payment-methods"
-    />
-  );
-}
-
-export function PrestoExamplesCard() {
-  return (
-    <Card
-      description="Usage patterns, examples, and full reference"
-      icon="lucide:code"
-      title="Examples"
-      to="/tools/presto/examples"
-    />
-  );
-}
-
-export function PrestoDownloadCard() {
-  return (
-    <Card
-      description="Download presto for your platform"
-      icon="lucide:download"
-      title="Download presto"
-      to="https://github.com/tempoxyz/presto"
     />
   );
 }

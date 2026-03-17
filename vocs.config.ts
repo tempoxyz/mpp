@@ -21,16 +21,7 @@ export default defineConfig({
       destination: "https://paymentauth.org",
     },
     { source: "/specs", destination: "https://paymentauth.org" },
-    { source: "/quickstart/pget", destination: "/quickstart/agent" },
-    { source: "/quickstart/tempoctl", destination: "/quickstart/agent" },
-    { source: "/quickstart/presto", destination: "/quickstart/agent" },
-    { source: "/tools/pget", destination: "/tools/presto" },
-    { source: "/tools/pget/examples", destination: "/tools/presto/examples" },
-    { source: "/tools/tempoctl", destination: "/tools/presto" },
-    {
-      source: "/tools/tempoctl/examples",
-      destination: "/tools/presto/examples",
-    },
+
     {
       source: "/payment-methods/tempo/stream",
       destination: "/payment-methods/tempo/session",
