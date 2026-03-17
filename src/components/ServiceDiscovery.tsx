@@ -865,7 +865,7 @@ function ServiceDetailModal({
 
   function formatPrice(ep: Endpoint): string {
     const p = ep.payment;
-    if (!p?.amount) return "—";
+    if (!p?.amount) return p?.amountHint ?? "—";
     const v = Number(p.amount) / 10 ** (p.decimals ?? 0);
     if (Number.isNaN(v)) return "—";
     if (v >= 0.01) return `$${v.toFixed(2)}`;

@@ -2473,7 +2473,8 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Multi-hop web research task - price varies by processor",
-            "dynamic": true
+            "dynamic": true,
+            "amountHint": "$0.10 – $0.30"
           }
         }
       ]

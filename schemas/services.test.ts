@@ -172,6 +172,14 @@ describe("services registry", () => {
               );
             }
           });
+
+          it("does not have amountHint without dynamic", () => {
+            if (ep.amountHint !== undefined && ep.dynamic !== true) {
+              expect.fail(
+                `Endpoint "${ep.route}" has amountHint without dynamic: true`,
+              );
+            }
+          });
         });
       }
     });

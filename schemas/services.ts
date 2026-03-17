@@ -73,6 +73,8 @@ export interface EndpointDef {
   amount?: string;
   /** Dynamic pricing — price computed at runtime based on model/tokens/size */
   dynamic?: true;
+  /** Freeform pricing hint for dynamic endpoints (e.g. "$0.10 – $0.30 depending on processor") */
+  amountHint?: string;
   /** Override service-level default intent */
   intent?: Intent;
   /** Unit type (e.g., "request") */
@@ -1042,6 +1044,7 @@ export const services: ServiceDef[] = [
         route: "POST /api/task",
         desc: "Multi-hop web research task - price varies by processor",
         dynamic: true,
+        amountHint: "$0.10 – $0.30",
       },
     ],
   },

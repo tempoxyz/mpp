@@ -84,7 +84,9 @@ export function buildPayment(
   };
 
   if (ep.dynamic) {
-    return { ...base, dynamic: true };
+    const dyn: Record<string, unknown> = { ...base, dynamic: true };
+    if (ep.amountHint) dyn.amountHint = ep.amountHint;
+    return dyn;
   }
 
   const payment: Record<string, unknown> = { ...base, amount: ep.amount };
@@ -131,6 +133,13 @@ export function validateServices(svcs: ServiceDef[]): void {
       if (ep.amount && ep.dynamic) {
         throw new Error(
           `Endpoint "${ep.route}" in service "${svc.id}" has both amount and dynamic`,
+        );
+      }
+
+      // amountHint requires dynamic
+      if (ep.amountHint && !ep.dynamic) {
+        throw new Error(
+          `Endpoint "${ep.route}" in service "${svc.id}" has amountHint without dynamic: true`,
         );
       }
 
