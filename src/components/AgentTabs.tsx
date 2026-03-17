@@ -9,7 +9,7 @@ const FLAG_GREY = "var(--vocs-text-color-muted)";
 const WALLET_INSTALL = "curl -fsSL https://tempo.xyz/install | bash";
 const WALLET_LOGIN = "tempo wallet login";
 const QUICKSTART_URL = "https://mpp.dev/quickstart/client.md";
-const SERVICES_URL = "https://mpp.tempo.xyz/llms.txt";
+const SERVICES_URL = "https://mpp.dev/llms.txt";
 
 function CopyIcon({ copied }: { copied: boolean }) {
   const color = copied

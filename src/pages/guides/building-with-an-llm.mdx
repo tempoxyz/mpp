@@ -14,7 +14,7 @@ Point your coding agent at <a href="/llms-full.txt" target="_self">`llms-full.tx
 Copy this URL and paste it into your agent:
 
 ```bash [terminal]
-https://mpp.tempo.xyz/llms-full.txt
+https://mpp.dev/llms-full.txt
 ```
 
 Your agent now has full context on MPP's client and server APIs, payment methods, and integration patterns.
@@ -47,15 +47,15 @@ Connect the docs as an [MCP server](https://modelcontextprotocol.io) so your age
 ::::code-group
 
 ```bash [Claude]
-claude mcp add --transport http mpp https://mpp.tempo.xyz/api/mcp
+claude mcp add --transport http mpp https://mpp.dev/api/mcp
 ```
 
 ```bash [Codex]
-codex mcp add --transport http mpp https://mpp.tempo.xyz/api/mcp
+codex mcp add --transport http mpp https://mpp.dev/api/mcp
 ```
 
 ```bash [Amp]
-amp mcp add --transport http mpp https://mpp.tempo.xyz/api/mcp
+amp mcp add --transport http mpp https://mpp.dev/api/mcp
 ```
 
 ```json [Manual]
@@ -64,7 +64,7 @@ amp mcp add --transport http mpp https://mpp.tempo.xyz/api/mcp
 {
   "mcpServers": {
     "mpp": {
-      "url": "https://mpp.tempo.xyz/api/mcp"
+      "url": "https://mpp.dev/api/mcp"
     }
   }
 }

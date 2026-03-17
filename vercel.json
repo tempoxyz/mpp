@@ -3,7 +3,7 @@
     {
       "source": "/:path(.*)",
       "has": [{ "type": "host", "value": "mpp.tempo.xyz" }],
-      "destination": "https://mpp.sh/:path",
+      "destination": "https://mpp.dev/:path",
       "permanent": true
     }
   ]

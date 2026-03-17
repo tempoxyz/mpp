@@ -1,8 +1,8 @@
 # MPP Services
 
 > MPP-enabled APIs your agent or application can seamlessly use.
-> Docs: https://mpp.tempo.xyz/overview
-> Full reference: https://mpp.tempo.xyz/llms-full.txt
+> Docs: https://mpp.dev/overview
+> Full reference: https://mpp.dev/llms-full.txt
 
 ## Tempo Wallet
 
@@ -24,7 +24,7 @@ Preview cost without paying:
 ## API
 
 Programmatically discover services:
-  GET https://mpp.tempo.xyz/api/services
+  GET https://mpp.dev/api/services
 
 Returns JSON with all services, endpoints, and pricing.
 
