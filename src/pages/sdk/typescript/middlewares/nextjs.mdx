@@ -24,7 +24,7 @@ bun add mppx
 
 Import `Mppx` and `tempo` from `mppx/nextjs` to create a Next.js-aware payment handler. Each intent (for example, `charge`) returns a wrapper that accepts a route handler.
 
-```ts [app/api/premium/route.ts]
+```ts twoslash [app/api/premium/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
 const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
@@ -38,7 +38,7 @@ export const GET =
 
 Use `mppx.session()` to gate routes behind session-based payment intents.
 
-```ts [app/api/content/route.ts]
+```ts twoslash [app/api/content/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
 const mppx = Mppx.create({ methods: [tempo()] })
@@ -46,4 +46,23 @@ const mppx = Mppx.create({ methods: [tempo()] })
 export const GET =
   mppx.session({ amount: '1', unitType: 'token' })
   (() => Response.json({ data: 'session content' }))
+```
+
+### Identifying the payer
+
+After the handler verifies payment, the `Authorization` header is still on the request. Parse it with `Credential.deserialize` to read the payer's identity from the `source` field—a DID such as `did:pkh:eip155:1:0x...`.
+
+```ts twoslash [app/api/premium/route.ts]
+import { Credential } from 'mppx'
+import { Mppx, tempo } from 'mppx/nextjs'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+export const GET =
+  mppx.charge({ amount: '1' })
+  ((request) => {
+    const credential = Credential.deserialize(request.headers.get('Authorization')!)
+    const payer = credential.source // "did:pkh:eip155:1:0x..."
+    return Response.json({ payer })
+  })
 ```

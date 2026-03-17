@@ -1,0 +1,71 @@
+# `McpClient.wrap` [Payment-aware MCP client]
+
+Wraps an MCP SDK client with automatic payment handling. When a tool call returns a `-32042` payment required error, the wrapper creates a Credential and retries the call.
+
+## Usage
+
+```ts
+import { Client } from '@modelcontextprotocol/sdk/client'
+import { McpClient, tempo } from 'mppx/mcp-sdk/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const client = new Client({ name: 'my-client', version: '1.0.0' })
+await client.connect(transport)
+
+const mcp = McpClient.wrap(client, {
+  methods: [tempo({ account: privateKeyToAccount('0x...') })],
+})
+
+const result = await mcp.callTool({ name: 'premium_tool', arguments: {} })
+// @log: { content: [...], receipt: { ... } }
+```
+
+### With call options
+
+Pass `context` and `timeout` through the second argument to `callTool`.
+
+```ts
+const result = await mcp.callTool(
+  { name: 'premium_tool', arguments: { query: 'hello' } },
+  { context: { foo: 'bar' }, timeout: 30_000 },
+)
+```
+
+## Return type
+
+`McpClient.wrap` returns an object that spreads the original client and overrides `callTool` with a payment-aware version.
+
+```ts
+type McpClient<client, methods> = Omit<client, 'callTool'> & {
+  callTool: (
+    params: {
+      arguments?: Record<string, unknown>
+      name: string
+      _meta?: Record<string, unknown>
+    },
+    options?: CallToolOptions<methods>,
+  ) => Promise<CallToolResult>
+}
+```
+
+The `CallToolResult` type extends the SDK's return type with a `receipt` field:
+
+```ts
+type CallToolResult = Awaited<ReturnType<Client['callTool']>> & {
+  receipt: Mcp.Receipt | undefined
+}
+```
+
+## Parameters
+
+### client
+
+- **Type:** `Pick<Client, 'callTool'>`
+
+The MCP SDK client instance to wrap. Must have a `callTool` method—typically an instance of `Client` from `@modelcontextprotocol/sdk/client`.
+
+### config.methods
+
+- **Type:** `readonly Method.AnyClient[]`
+
+Array of payment methods to use when handling payment Challenges. The wrapper matches Challenges from the server against installed methods by name and intent.

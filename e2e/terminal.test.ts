@@ -75,7 +75,7 @@ describe("terminal", () => {
 
     await waitForWizard(page);
 
-    await playwrightExpect(page.getByText("Chat with AI")).toBeVisible();
+    await playwrightExpect(page.getByText("Chat with OpenAI")).toBeVisible();
 
     await page.close();
   });
@@ -86,10 +86,16 @@ describe("terminal", () => {
 
     await waitForWizard(page);
 
-    await playwrightExpect(page.getByText("Chat with AI")).toBeVisible();
-    await playwrightExpect(page.getByText("Generate image")).toBeVisible();
-    await playwrightExpect(page.getByText("Search the web")).toBeVisible();
-    await playwrightExpect(page.getByText("Summarize article")).toBeVisible();
+    await playwrightExpect(page.getByText("Chat with OpenAI")).toBeVisible();
+    await playwrightExpect(
+      page.getByText("Generate an image using fal.ai"),
+    ).toBeVisible();
+    await playwrightExpect(
+      page.getByText("Search the web using Parallel"),
+    ).toBeVisible();
+    await playwrightExpect(
+      page.getByText("Summarize an article using Parallel"),
+    ).toBeVisible();
 
     await page.close();
   });
@@ -112,7 +118,7 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Chat with AI" and shows payment channel steps', async () => {
+  it.concurrent('selects "Chat with OpenAI" and shows payment channel steps', async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
     await waitForWizard(page);
@@ -149,7 +155,7 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Generate image" via arrow key and shows charge steps', async () => {
+  it.concurrent('selects "Generate an image using fal.ai" via arrow key and shows charge steps', async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
     await waitForWizard(page);
@@ -207,7 +213,7 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Summarize article" and enters a URL', async () => {
+  it.concurrent('selects "Summarize an article using Parallel" and enters a URL', async () => {
     const page = await newPage();
     await page.goto(`http://localhost:${port}`);
     await waitForWizard(page);
@@ -222,7 +228,7 @@ describe("terminal", () => {
     });
 
     // The URL input is a focused BlockCursorInput — type into it via the page
-    await page.keyboard.type("stripe.com");
+    await page.keyboard.type("stratechery.com");
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
@@ -272,7 +278,7 @@ describe("terminal", () => {
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
-      page.getByText("Enter URL: https://stripe.com", { exact: true }),
+      page.getByText("Enter URL: https://stratechery.com", { exact: true }),
     ).toBeVisible({ timeout: 5_000 });
     await playwrightExpect(
       page.getByText("Card number:", { exact: false }),
@@ -418,7 +424,7 @@ describe("terminal (classic mode)", () => {
       timeout: 5_000,
     });
 
-    await page.keyboard.type("stripe.com");
+    await page.keyboard.type("stratechery.com");
     await page.keyboard.press("Enter");
 
     await playwrightExpect(

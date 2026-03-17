@@ -1,0 +1,46 @@
+# `Request.toNodeListener` [Convert Fetch handlers to Node.js]
+
+Converts a Fetch API handler into a Node.js HTTP request listener. Useful for running an MPP server on bare `node:http` without a framework.
+
+## Usage
+
+```ts
+import http from 'node:http'
+import { Mppx, Request, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const server = http.createServer(
+  Request.toNodeListener(mppx.request),
+)
+
+server.listen(3000)
+```
+
+### `Request.fromNodeListener`
+
+Converts a Node.js `IncomingMessage`/`ServerResponse` pair into a Fetch API `Request`. Useful when you need to manually construct a `Request` inside existing Node.js middleware.
+
+```ts
+import type { IncomingMessage, ServerResponse } from 'node:http'
+import { Request } from 'mppx/server'
+
+function middleware(req: IncomingMessage, res: ServerResponse) {
+  const request = Request.fromNodeListener(req, res)
+  // handle as a Fetch API Request
+}
+```
+
+## Parameters
+
+### handler
+
+- **Type:** `(request: Request) => Promise<Response> | Response`
+
+A Fetch API handler that receives a `Request` and returns a `Response`.
+
+### options (optional)
+
+- **Type:** `RequestListenerOptions`
+
+Options forwarded to the underlying adapter, including an optional error handler.

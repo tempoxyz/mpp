@@ -1,4 +1,4 @@
-# `Challenge.verify`
+# `Challenge.verify` [Verify a Challenge HMAC]
 
 Verifies that a challenge ID matches the expected HMAC for the given parameters.
 
@@ -8,9 +8,9 @@ Verifies that a challenge ID matches the expected HMAC for the given parameters.
 import { Challenge } from 'mppx'
 
 const challenge = Challenge.from({
-  realm: 'mpp.dev',
-  method: 'tempo',
   intent: 'charge',
+  method: 'tempo',
+  realm: 'mpp.dev',
   request: { amount: '1000000', currency: '0x...', recipient: '0x...' },
   secretKey: 'my-secret',
 })

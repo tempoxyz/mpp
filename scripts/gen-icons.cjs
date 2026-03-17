@@ -96,14 +96,6 @@ const icons = {
     "0 0 100 100",
     "M36 72.2222V27.7778H51.2381C57.5873 27.7778 62.6667 32.8571 62.6667 39.2063V41.746C62.6667 44.6667 61.5873 47.3968 59.7461 49.3651C62.2858 51.4603 63.9366 54.6349 63.9366 58.254V60.7936C63.9366 67.1428 58.8572 72.2222 52.508 72.2222H36ZM42.3493 65.873H52.508C55.3651 65.873 57.5873 63.6508 57.5873 60.7936V58.254C57.5873 55.3968 55.3651 53.1746 52.508 53.1746H42.3493V65.873ZM42.3493 46.8254H51.2381C54.0953 46.8254 56.3175 44.6032 56.3175 41.746V39.2063C56.3175 36.3492 54.0953 34.127 51.2381 34.127H42.3493V46.8254Z",
   ],
-  codex: [
-    "0 0 24 24",
-    [
-      "M9.06145 23.1079C5.26816 22.3769-3.39077 20.6274 1.4173 5.06384C9.6344 6.09939 16.9728 14.0644 9.06145 23.1079Z",
-      "M8.91928 23.0939C5.27642 21.2223 0.78371 4.20891 17.0071 0C20.7569 7.19341 19.6212 16.5452 8.91928 23.0939Z",
-      "M8.91388 23.0788C8.73534 19.8817 10.1585 9.08525 23.5699 13.1107C23.1812 20.1229 18.984 26.4182 8.91388 23.0788Z",
-    ],
-  ],
   digitalocean: [
     "0 0 24 24",
     "M12.04 0C5.408-.02.005 5.37.005 11.992h4.638c0-4.923 4.882-8.731 10.064-6.855a6.95 6.95 0 014.147 4.148c1.889 5.177-1.924 10.055-6.84 10.064v-4.61H7.391v4.623h4.61V24c7.86 0 13.967-7.588 11.397-15.83-1.115-3.59-3.985-6.446-7.575-7.575A12.8 12.8 0 0012.039 0zM7.39 19.362H3.828v3.564H7.39zm-3.563 0v-2.978H.85v2.978z",
@@ -222,6 +214,10 @@ async function fetchBrandIcon(domain) {
   }
 }
 
+const DOMAIN_OVERRIDES = {
+  codex: "codex.io",
+};
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -255,7 +251,7 @@ async function main() {
     const existing = path.join(iconsDir, `${id}.svg`);
     if (fs.existsSync(existing)) {
       const content = fs.readFileSync(existing, "utf-8");
-      if (!content.includes("<text ")) continue; // already has a brand icon
+      if (!content.includes("<text ")) continue;
     }
     needsIcon.push(id);
   }
@@ -273,37 +269,35 @@ async function main() {
       const service = serviceMap.get(id);
       if (!service) continue;
 
-      const domain = domainFor(service);
+      const domain = DOMAIN_OVERRIDES[id] || domainFor(service);
       if (!domain) {
         console.log(`  skip  ${id} (no domain)`);
         brandFailed++;
         continue;
       }
 
-      let dataUri;
+      let result;
       if (domainCache.has(domain)) {
-        dataUri = domainCache.get(domain);
+        result = domainCache.get(domain);
       } else {
-        dataUri = await fetchBrandIcon(domain);
-        domainCache.set(domain, dataUri);
+        result = await fetchBrandIcon(domain);
+        domainCache.set(domain, result);
       }
 
-      if (!dataUri) {
+      if (!result) {
         console.log(`  fail  ${id} (${domain})`);
         brandFailed++;
         continue;
       }
 
-      fs.writeFileSync(path.join(iconsDir, `${id}.svg`), brandSvg(dataUri));
-      console.log(`  done  ${id}`);
+      fs.writeFileSync(path.join(iconsDir, `${id}.svg`), brandSvg(result));
+      console.log(`  done  ${id} (${domain})`);
       needsIcon.splice(needsIcon.indexOf(id), 1);
       brandFetched++;
       n++;
     }
 
-    console.log(
-      `Brand icons: ${brandFetched} fetched, ${brandFailed} failed`,
-    );
+    console.log(`Brand icons: ${brandFetched} fetched, ${brandFailed} failed`);
   }
 
   // --- Tier 3: letter fallbacks for anything remaining ---

@@ -970,12 +970,12 @@
       "name": "Alchemy",
       "url": "https://eth-mainnet.g.alchemy.com",
       "serviceUrl": "https://alchemy.mpp.tempo.xyz",
-      "description": "Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.",
+      "description": "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
       "categories": [
         "blockchain",
         "data"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "rpc",
         "json-rpc",
@@ -2401,35 +2401,35 @@
     {
       "id": "parallel",
       "name": "Parallel",
-      "url": "https://api.parallel.ai",
-      "serviceUrl": "https://parallel.mpp.tempo.xyz",
-      "description": "Web search, page extraction, and web-grounded chat completions.",
+      "url": "https://parallelmpp.dev",
+      "serviceUrl": "https://parallelmpp.dev",
+      "description": "Web search, page extraction, and multi-hop web research.",
       "categories": [
         "search",
         "ai"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "search",
         "web",
         "extraction",
-        "chat"
+        "research"
       ],
       "status": "active",
       "docs": {
-        "llmsTxt": "https://parallel.ai/llms.txt"
+        "homepage": "https://parallelmpp.dev/#agents"
       },
       "methods": {
         "tempo": {
           "intents": [
-            "session"
+            "charge"
           ],
           "assets": [
             "0x20c000000000000000000000b9537d11c60e8b50"
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "parallelmpp.dev",
       "provider": {
         "name": "Parallel",
         "url": "https://parallel.ai"
@@ -2437,43 +2437,44 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/v1beta/search",
+          "path": "/api/search",
           "description": "Search the web",
           "payment": {
-            "intent": "session",
+            "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Search the web",
-            "amount": "5000",
+            "amount": "10000",
             "unitType": "request"
           }
         },
         {
           "method": "POST",
-          "path": "/v1beta/extract",
+          "path": "/api/extract",
           "description": "Extract page content",
           "payment": {
-            "intent": "session",
+            "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Extract page content",
-            "amount": "1000",
+            "amount": "10000",
             "unitType": "request"
           }
         },
         {
           "method": "POST",
-          "path": "/chat/completions",
-          "description": "Web-grounded chat completions - price varies by model",
+          "path": "/api/task",
+          "description": "Multi-hop web research task - price varies by processor",
           "payment": {
-            "intent": "session",
+            "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Web-grounded chat completions - price varies by model",
-            "dynamic": true
+            "description": "Multi-hop web research task - price varies by processor",
+            "dynamic": true,
+            "amountHint": "$0.10 – $0.30"
           }
         }
       ]

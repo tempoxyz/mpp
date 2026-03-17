@@ -1,19 +1,20 @@
 # Transports [HTTP and MCP bindings for payment flows]
 
-MPP defines how the Payment authentication scheme operates over different transport protocols. The core protocol targets HTTP, with extensions for other transports like MCP.
+MPP defines how the Payment authentication scheme operates over different transport protocols. The core protocol targets HTTP, with extensions for other transports like MCP and JSON-RPC.
 
 ## Available transports
 
 | Transport | Use Case | Spec |
 |-----------|----------|------|
 | [HTTP](/protocol/transports/http) | REST APIs, web resources | [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-11) |
-| [MCP](/protocol/transports/mcp) | AI tool calls using Model Context Protocol | [MCP Transport Spec](https://tempoxyz.github.io/mpp-specs/) |
+| [MCP](/protocol/transports/mcp) | AI tool calls using Model Context Protocol | [MCP Transport Spec](https://paymentauth.org) |
+| JSON-RPC | Non-MCP JSON-RPC services | [JSON-RPC 2.0](https://www.jsonrpc.org/specification) |
 
 ## Transport-agnostic design
 
-MPP's core concepts—challenges, credentials, and receipts—remain the same across transports. The encoding and delivery mechanism changes:
+MPP's core concepts—Challenges, Credentials, and Receipts—remain the same across transports. The encoding and delivery mechanism changes:
 
 - **HTTP** uses standard headers (`WWW-Authenticate`, `Authorization`, `Payment-Receipt`)
 - **MCP** uses JSON-RPC error codes and `_meta` fields
 
-Choose the transport that matches your protocol. HTTP for REST APIs, MCP for AI agent tool calls.
+Choose the transport that matches your protocol. HTTP for REST APIs, MCP for AI agent tool calls, or JSON-RPC for non-MCP JSON-RPC services.

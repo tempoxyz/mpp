@@ -1,4 +1,4 @@
-# `Receipt.from`
+# `Receipt.from` [Create a new Receipt]
 
 Creates a receipt from the given parameters.
 
@@ -9,9 +9,9 @@ import { Receipt } from 'mppx'
 
 const receipt = Receipt.from({
   method: 'tempo',
+  reference: '0x...',
   status: 'success',
   timestamp: new Date().toISOString(),
-  reference: '0x...',
 })
 ```
 

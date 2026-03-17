@@ -73,6 +73,8 @@ export interface EndpointDef {
   amount?: string;
   /** Dynamic pricing — price computed at runtime based on model/tokens/size */
   dynamic?: true;
+  /** Freeform pricing hint for dynamic endpoints (e.g. "$0.10 – $0.30 depending on processor") */
+  amountHint?: string;
   /** Override service-level default intent */
   intent?: Intent;
   /** Unit type (e.g., "request") */
@@ -422,9 +424,9 @@ export const services: ServiceDef[] = [
     url: "https://eth-mainnet.g.alchemy.com",
     serviceUrl: `https://alchemy.${MPP_REALM}`,
     description:
-      "Blockchain data platform with JSON-RPC and NFT APIs across 80+ chains.",
+      "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
     categories: ["blockchain", "data"],
-    integration: "third-party",
+    integration: "first-party",
     tags: ["rpc", "json-rpc", "nft", "evm", "multichain"],
     docs: {
       homepage: "https://www.alchemy.com/docs",
@@ -1014,35 +1016,35 @@ export const services: ServiceDef[] = [
   {
     id: "parallel",
     name: "Parallel",
-    url: "https://api.parallel.ai",
-    serviceUrl: `https://parallel.${MPP_REALM}`,
-    description:
-      "Web search, page extraction, and web-grounded chat completions.",
+    url: "https://parallelmpp.dev",
+    serviceUrl: `https://parallelmpp.dev`,
+    description: "Web search, page extraction, and multi-hop web research.",
     categories: ["search", "ai"],
-    integration: "third-party",
-    tags: ["search", "web", "extraction", "chat"],
-    docs: { llmsTxt: "https://parallel.ai/llms.txt" },
+    integration: "first-party",
+    tags: ["search", "web", "extraction", "research"],
+    docs: { homepage: "https://parallelmpp.dev/#agents" },
     provider: { name: "Parallel", url: "https://parallel.ai" },
-    realm: MPP_REALM,
-    intent: "session",
+    realm: "parallelmpp.dev",
+    intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
-        route: "POST /v1beta/search",
+        route: "POST /api/search",
         desc: "Search the web",
-        amount: "5000",
+        amount: "10000",
         unitType: "request",
       },
       {
-        route: "POST /v1beta/extract",
+        route: "POST /api/extract",
         desc: "Extract page content",
-        amount: "1000",
+        amount: "10000",
         unitType: "request",
       },
       {
-        route: "POST /chat/completions",
-        desc: "Web-grounded chat completions - price varies by model",
+        route: "POST /api/task",
+        desc: "Multi-hop web research task - price varies by processor",
         dynamic: true,
+        amountHint: "$0.10 – $0.30",
       },
     ],
   },

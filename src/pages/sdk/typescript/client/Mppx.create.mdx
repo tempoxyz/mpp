@@ -1,4 +1,4 @@
-# `Mppx.create`
+# `Mppx.create` [Create a payment-aware fetch client]
 
 Creates a client-side payment handler. Returns a payment handler with a `fetch` function that automatically handles `402` Payment Required responses. By default, also polyfills `globalThis.fetch`.
 
@@ -29,8 +29,8 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 
 const mppx = Mppx.create({
-  polyfill: false, // [!code hl]
   methods: [tempo({ account })],
+  polyfill: false, // [!code hl]
 })
 
 // Use the returned fetch // [!code hl]
@@ -46,8 +46,8 @@ import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const mppx = Mppx.create({
-  polyfill: false, // [!code hl]
   methods: [tempo()],
+  polyfill: false, // [!code hl]
 })
 
 // [!code hl:start]
@@ -181,8 +181,8 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 
 const mppx = Mppx.create({
-  polyfill: false, // [!code focus]
   methods: [tempo({ account })],
+  polyfill: false, // [!code focus]
 })
 ```
 

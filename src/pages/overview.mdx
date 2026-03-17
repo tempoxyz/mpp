@@ -4,17 +4,25 @@ import { TerminalPing } from '../components/TerminalPing'
 import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, QuickstartCard, ProtocolConceptsCard } from '../components/cards'
 import { PaymentFlowDiagram } from '../components/PaymentFlowDiagram'
 
-# Machine Payments Protocol [The open protocol for internet-native payments]
+# Machine Payments Protocol [The open protocol for machine-to-machine payments]
 
-The Machine Payments Protocol (MPP) lets you accept payments from any client— agents, apps, or humans—using standard HTTP control flows. Clients pay inline with their request, and you receive payment confirmation before delivering the response.
+The Machine Payments Protocol (MPP) lets any client—agents, apps, or humans—pay for any service in the same HTTP request. Developers use MPP to let their agents pay for services. Service operators use MPP to accept payments for their APIs.
 
-MPP is built around a simple extensible core and is designed to be neutral to the implementation of underlying payment flows and methods.
+MPP is built around a simple, extensible core and is neutral to the implementation of underlying payment flows and methods.
 
-- **Open standard built for the internet**—Built on an [open specification proposed to the IETF](https://tempoxyz.github.io/mpp-specs/), not a proprietary API
+- **Open standard built for the internet**—Built on an [open specification proposed to the IETF](https://paymentauth.org), not a proprietary API
 - **Designed for payments**—Idempotency, security, and receipts are first-class primitives
-- **Multi rail**—Stablecoins, cards, bank transfers, and digital wallets. All payment methods can be supported through one protocol and flexible control flow
-- **Multi currency**—The protocol is currency agnostic, allowing for transactions in USD, EUR, BRL, USDC, BTC, or any other asset
+- **Works with stablecoins, cards, and bank transfers**—All payment methods can be supported through one protocol and flexible control flow
+- **Any currency**—Transact in USD, EUR, BRL, USDC, BTC, or any other asset
 - **Composable and designed for extension**—A flexible core allows advanced flows like disputes or additional primitives like identity to be gradually introduced
+
+## Who is MPP for?
+
+MPP involves three parties:
+
+- **Developers** build apps and agents that consume paid services. You integrate an MPP client so your agent can discover, pay for, and use third-party APIs without manual signup or API keys.
+- **Agents** are the entities that take action—calling APIs, generating images, querying data. They pay for services autonomously on behalf of your users.
+- **Services** operate APIs that charge for access—LLM inference, image generation, web search, and more. You integrate an MPP server to accept payments with zero onboarding friction.
 
 ## The problem with payments on the internet
 
@@ -24,7 +32,7 @@ However, the very things that make these payment flows familiar and fast for hum
 
 This is not the fault of any individual payment method or credential. This is a global problem which exists at the _interface_ level: how buyer and seller negotiate cost, supported payment methods, and ultimately transact.
 
-The Machine Payments Protocol addresses this gap by providing an internet-native payment interface that strips away the complexity of rich checkout flows, while still providing robust security and reliability. By using MPP, you can accept payments from any client — agents, apps, or humans — and across any payment method, without the need for a complex checkout flows and integrations.
+The Machine Payments Protocol addresses this gap by providing a payment interface built for programmatic access that strips away the complexity of rich checkout flows, while still providing robust security and reliability. By using MPP, you can accept payments from any client—agents, apps, or humans—and across any payment method, without complex checkout flows and integrations.
 
 ## Try it out
 
@@ -36,9 +44,10 @@ See the full payment flow in action. The terminal creates an ephemeral wallet, f
 
 ## Use cases
 
-* **Paid APIs**—Accept payments inline without requiring API keys, billing accounts, or manual signup. Clients pay per request.
-* **MCP servers**—Monetize tool calls served through the Model Context Protocol (MCP). Clients pay autonomously without complicated OAuth or account setup.
-* **Digital content**—Monetize articles, data, or media without subscription paywalls. Charge per access or per query.
+* **Pay for LLM usage**—Your agent calls LLM providers through MPP, paying per token over a Tempo session. No API key management needed.
+* **Generate an image**—Request image generation from fal.ai or ElevenLabs audio, paying per request with a Tempo charge. The agent gets the result in the same response.
+* **Search the web**—Query Parallel for real-time search results, paying per query over a Tempo session. Results flow back in the same HTTP response.
+* **Accept payments for your API**—Accept payments from any client—agents, apps, or humans—without requiring signups, billing accounts, or API keys.
 
 ## Payment flow
 
@@ -61,5 +70,5 @@ MPP comes with a suite of official SDKs maintained by [Tempo Labs](https://tempo
 <Cards>
   <QuickstartCard />
   <ProtocolConceptsCard />
-  <SpecCard to="https://tempoxyz.github.io/mpp-specs/" />
+  <SpecCard to="https://paymentauth.org" />
 </Cards>

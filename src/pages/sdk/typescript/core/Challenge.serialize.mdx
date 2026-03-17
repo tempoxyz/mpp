@@ -1,4 +1,4 @@
-# `Challenge.serialize`
+# `Challenge.serialize` [Serialize a Challenge to a header]
 
 Serializes a challenge to the WWW-Authenticate header format.
 
@@ -9,9 +9,9 @@ import { Challenge } from 'mppx'
 
 const challenge = Challenge.from({
   id: 'abc123',
-  realm: 'mpp.dev',
-  method: 'tempo',
   intent: 'charge',
+  method: 'tempo',
+  realm: 'mpp.dev',
   request: { amount: '1000000', currency: '0x...', recipient: '0x...' },
 })
 

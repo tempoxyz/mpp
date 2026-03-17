@@ -1,6 +1,10 @@
 # `Method.tempo.session` [Low-cost high-throughput payments]
 
-Creates a Tempo payment session method for client-side voucher signing.
+Creates a Tempo payment session method for client-side voucher signing. Pass the result to `Mppx.create` for automatic 402 handling.
+
+:::info
+For standalone session management with explicit `.fetch()`, `.close()`, and `.sse()` methods, see [`tempo.session` manager](/sdk/typescript/client/Method.tempo.session-manager).
+:::
 
 ## Usage
 
@@ -39,7 +43,7 @@ Mppx.create({
 
 ## Return type
 
-```ts
+```ts twoslash
 import type { Method } from 'mppx'
 
 type ReturnType = Method.Client

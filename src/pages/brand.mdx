@@ -1,6 +1,18 @@
 # Brand [MPP brand assets and guidelines]
 
-Download MPP logos and icons for use in your projects, articles, and integrations.
+import { DownloadSvgButton } from "../components/DownloadSvgButton";
+
+<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid var(--vocs-border-color-primary)", padding: "1.5rem", borderRadius: "8px", backgroundColor: "var(--vocs-background-color-primary)" }}>
+
+<div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+<span style={{ fontSize: "18px", color: "var(--vocs-text-color-heading)" }}>
+  Get brand assets
+</span>
+<span style={{ fontSize: "14px", color: "var(--vocs-text-color-secondary)" }}>
+  Download MPP logos and icons for use in your context.
+</span>
+
+</div>
 
 <a
   href="/brand.zip"
@@ -12,15 +24,17 @@ Download MPP logos and icons for use in your projects, articles, and integration
     padding: "0.5rem 1rem",
     borderRadius: "8px",
     border: "1px solid var(--vocs-border-color-primary)",
+    backgroundColor: "var(--vocs-background-color-)",
     fontSize: "14px",
     fontWeight: 500,
     color: "var(--vocs-text-color-heading)",
     textDecoration: "none",
-    marginBottom: "1.5rem",
   }}
 >
-  Download all assets (.zip)
+  Download (.zip)
 </a>
+
+</div>
 
 ## Logo
 
@@ -29,48 +43,35 @@ Download MPP logos and icons for use in your projects, articles, and integration
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: "0.75rem",
+    marginBottom: "2rem",
   }}
 >
   <span style={{ color: "var(--vocs-text-color-secondary)", fontSize: "14px" }}>
     The full MPP logo for headers, documentation, and marketing materials.
   </span>
-  <a
-    href="/logo-dark.svg"
-    download
-    style={{
-      fontSize: "12px",
-      fontFamily: "var(--font-mono)",
-      color: "var(--vocs-text-color-muted)",
-      textDecoration: "none",
-      whiteSpace: "nowrap",
-      marginLeft: "1rem",
-    }}
-  >
-    Download SVG
-  </a>
+  <DownloadSvgButton files={["/logo-dark.svg", "/logo-light.svg"]} />
 </div>
 
-<div
-  style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}
->
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
   <div
     style={{
       padding: "2.5rem 2rem",
-      backgroundColor: "#ebebeb",
+      backgroundColor: "#ffffff",
       borderRadius: "8px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
+      border: "4px solid var(--vocs-background-color-surface)",
+      boxShadow: "inset 0 0 0 1px var(--vocs-border-color-primary)",
     }}
   >
     <span
       style={{
         position: "absolute",
         top: "0.6rem",
-        right: "0.75rem",
+        right: "2rem",
         fontSize: "10px",
         fontFamily: "var(--font-mono)",
         color: "#999",
@@ -82,26 +83,27 @@ Download MPP logos and icons for use in your projects, articles, and integration
     <img
       src="/logo-dark.svg"
       alt="MPP Logo (dark, for light backgrounds)"
-      style={{ maxWidth: "400px", width: "100%" }}
+      style={{ maxWidth: "150px", width: "100%" }}
     />
   </div>
   <div
     style={{
       padding: "2.5rem 2rem",
-      backgroundColor: "#1a1a1a",
       borderRadius: "8px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
+      border: "1px solid rgba(255,255,255,0.08)",
+      backgroundColor: "#141414",
     }}
   >
     <span
       style={{
         position: "absolute",
         top: "0.6rem",
-        right: "0.75rem",
+        right: "2rem",
         fontSize: "10px",
         fontFamily: "var(--font-mono)",
         color: "#666",
@@ -113,7 +115,7 @@ Download MPP logos and icons for use in your projects, articles, and integration
     <img
       src="/logo-light.svg"
       alt="MPP Logo (light, for dark backgrounds)"
-      style={{ maxWidth: "400px", width: "100%" }}
+      style={{ maxWidth: "150px", width: "100%" }}
     />
   </div>
 </div>
@@ -125,49 +127,36 @@ Download MPP logos and icons for use in your projects, articles, and integration
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: "0.75rem",
+    marginBottom: "2rem",
   }}
 >
   <span style={{ color: "var(--vocs-text-color-secondary)", fontSize: "14px" }}>
     The "Machine Payments Protocol" wordmark for landing pages and hero
     sections.
   </span>
-  <a
-    href="/lockup-light.svg"
-    download
-    style={{
-      fontSize: "12px",
-      fontFamily: "var(--font-mono)",
-      color: "var(--vocs-text-color-muted)",
-      textDecoration: "none",
-      whiteSpace: "nowrap",
-      marginLeft: "1rem",
-    }}
-  >
-    Download SVG
-  </a>
+  <DownloadSvgButton files={["/lockup-dark.svg", "/lockup-light.svg"]} />
 </div>
 
-<div
-  style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}
->
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
   <div
     style={{
       padding: "2.5rem 2rem",
-      backgroundColor: "#ebebeb",
+      backgroundColor: "#ffffff",
       borderRadius: "8px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
+      border: "4px solid var(--vocs-background-color-surface)",
+      boxShadow: "inset 0 0 0 1px var(--vocs-border-color-primary)",
     }}
   >
     <span
       style={{
         position: "absolute",
         top: "0.6rem",
-        right: "0.75rem",
+        right: "2rem",
         fontSize: "10px",
         fontFamily: "var(--font-mono)",
         color: "#999",
@@ -177,7 +166,7 @@ Download MPP logos and icons for use in your projects, articles, and integration
       LIGHT
     </span>
     <img
-      src="/lockup-light.svg"
+      src="/lockup-dark.svg"
       alt="MPP Lockup (for light backgrounds)"
       style={{ maxWidth: "clamp(280px, 80vw, 420px)", width: "100%" }}
     />
@@ -185,20 +174,21 @@ Download MPP logos and icons for use in your projects, articles, and integration
   <div
     style={{
       padding: "2.5rem 2rem",
-      backgroundColor: "#1a1a1a",
       borderRadius: "8px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
+      border: "1px solid rgba(255,255,255,0.08)",
+      backgroundColor: "#141414",
     }}
   >
     <span
       style={{
         position: "absolute",
         top: "0.6rem",
-        right: "0.75rem",
+        right: "2rem",
         fontSize: "10px",
         fontFamily: "var(--font-mono)",
         color: "#666",
@@ -208,7 +198,7 @@ Download MPP logos and icons for use in your projects, articles, and integration
       DARK
     </span>
     <img
-      src="/lockup-dark.svg"
+      src="/lockup-light.svg"
       alt="MPP Lockup (for dark backgrounds)"
       style={{ maxWidth: "clamp(280px, 80vw, 420px)", width: "100%" }}
     />
@@ -222,48 +212,35 @@ Download MPP logos and icons for use in your projects, articles, and integration
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: "0.75rem",
+    marginBottom: "2rem",
   }}
 >
   <span style={{ color: "var(--vocs-text-color-secondary)", fontSize: "14px" }}>
     The square MPP icon for favicons, app icons, and compact spaces.
   </span>
-  <a
-    href="/favicon.svg"
-    download
-    style={{
-      fontSize: "12px",
-      fontFamily: "var(--font-mono)",
-      color: "var(--vocs-text-color-muted)",
-      textDecoration: "none",
-      whiteSpace: "nowrap",
-      marginLeft: "1rem",
-    }}
-  >
-    Download SVG
-  </a>
+  <DownloadSvgButton files={["/favicon.svg", "/favicon-dark.svg"]} />
 </div>
 
-<div
-  style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}
->
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
   <div
     style={{
       padding: "2.5rem 2rem",
-      backgroundColor: "#ebebeb",
+      backgroundColor: "#ffffff",
       borderRadius: "8px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
+      border: "4px solid var(--vocs-background-color-surface)",
+      boxShadow: "inset 0 0 0 1px var(--vocs-border-color-primary)",
     }}
   >
     <span
       style={{
         position: "absolute",
         top: "0.6rem",
-        right: "0.75rem",
+        right: "2rem",
         fontSize: "10px",
         fontFamily: "var(--font-mono)",
         color: "#999",
@@ -273,7 +250,7 @@ Download MPP logos and icons for use in your projects, articles, and integration
       LIGHT
     </span>
     <img
-      src="/favicon-dark.svg"
+      src="/favicon.svg"
       alt="MPP Icon (dark, for light backgrounds)"
       style={{ width: "120px", height: "120px" }}
     />
@@ -281,20 +258,21 @@ Download MPP logos and icons for use in your projects, articles, and integration
   <div
     style={{
       padding: "2.5rem 2rem",
-      backgroundColor: "#1a1a1a",
       borderRadius: "8px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
+      border: "1px solid rgba(255,255,255,0.08)",
+      backgroundColor: "#141414",
     }}
   >
     <span
       style={{
         position: "absolute",
         top: "0.6rem",
-        right: "0.75rem",
+        right: "2rem",
         fontSize: "10px",
         fontFamily: "var(--font-mono)",
         color: "#666",
@@ -304,7 +282,7 @@ Download MPP logos and icons for use in your projects, articles, and integration
       DARK
     </span>
     <img
-      src="/favicon.svg"
+      src="/favicon-dark.svg"
       alt="MPP Icon (light, for dark backgrounds)"
       style={{ width: "120px", height: "120px" }}
     />
@@ -318,10 +296,13 @@ import { AsciiLogo } from "../components/AsciiLogo";
 <div
   style={{
     padding: "2rem",
-    backgroundColor: "#0a0a0a",
+    backgroundColor: "var(--vocs-background-color-primary)",
     borderRadius: "8px",
     overflow: "auto",
-    color: "#e5e5e5",
+    color: "var(--vocs-text-color-heading)",
+    display: "flex",
+    justifyContent: "center",
+    border: "1px solid var(--vocs-border-color-primary)",
   }}
 >
   <AsciiLogo />

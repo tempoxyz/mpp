@@ -1,89 +1,104 @@
-import { Card, Cards } from 'vocs'
-import { PrestoCliCard, PrestoExamplesCard } from '../../components/cards'
+import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
 
-# Use with your Agent [Interact with MPP services with your agent]
+# Use with agents [Connect your agent to MPP-enabled services]
 
-The Machine Payments Protocol (MPP) can be used with agents to discover and use [services](/services) via direct integrations with MPP-compatible command-line interfaces (CLIs).
+Agents can automatically interact with MPP-enabled services. Here's how to get started.
 
-## Tempo Wallet
+## Tempo Wallet <Badge variant="info" data-toc-exclude>Recommended</Badge>
 
-Tempo Wallet provides a first-class integration with MPP to provide a seamless experience for using services with your preferred agent.
+The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery. Agents can use `tempo wallet` to pay for powerful new capabilities on demand.
 
-:::::steps
+<Tabs>
+<Tab title="Agent">
+
+Paste this into your agent to set up Tempo Wallet:
+
+
+```
+Read https://wallet.tempo.xyz/SKILL.md and set up tempo
+```
+
+</Tab>
+<Tab title="Human">
+::::steps
+
+#### Install the CLI
+
+```bash
+curl -fsSL https://tempo.xyz/install | bash
+```
+
+#### Connect your wallet
+
+```bash
+tempo wallet login
+```
+
+#### Verify setup
+
+```bash
+tempo wallet whoami
+```
+
+#### List available services
+
+```bash
+tempo wallet services
+```
+
+#### Make a paid request
+
+```bash
+tempo request -X POST \
+  --json '{"prompt": "a sunset over the ocean"}' \
+  https://fal.mpp.tempo.xyz/fal-ai/flux/dev
+```
+
+::::
+</Tab>
+</Tabs>
+
+## mppx
+
+The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
+
+::::steps
 
 ### Install
 
-First, install the `tempo` binary via your preferred terminal.
+:::code-group
+```bash [npm]
+npm install -g mppx
+```
+```bash [pnpm]
+pnpm add -g mppx
+```
+```bash [bun]
+bun add -g mppx
+```
+:::
 
-```bash [install.sh]
-curl -L cli.tempo.xyz/install | bash
+### Create an account
+
+```bash
+mppx account create
 ```
 
-### Prompt agent & discover services
+### Make a paid request
 
-You can discover what services are available by prompting your agent.
-
-::::code-group
-
-```bash [Claude]
-claude "What image generation services can I use with Tempo Wallet?"
-```
-
-```bash [Amp]
-echo "What image generation services can I use with Tempo Wallet?" | amp
-```
-
-```bash [Codex]
-codex "What image generation services can I use with Tempo Wallet?"
-```
-
-```bash [Other]
-# Prompt your agent
-> "What image generation services can I use with Tempo Wallet?"
+```bash
+mppx https://mpp.dev/api/ping/paid
 ```
 
 ::::
 
-### Perform services
-
-Prompt your agent to use a service. Presto and MPP handle payments on the fly.
-
-::::code-group
-
-```bash [Claude]
-claude "Generate a surreal image with fal.ai"
-```
-
-```bash [Amp]
-echo "Generate a surreal image with fal.ai" | amp
-```
-
-```bash [Codex]
-codex "Generate a surreal image with fal.ai"
-```
-
-```bash [Other]
-# Prompt your agent
-> "Generate a surreal image with fal.ai"
-```
-
-::::
-
-:::::
-
-### Learn more
+## Next steps
 
 <Cards>
   <Card
-    description="Learn more about the services available to use with MPP"
+    description="Browse available MPP services and their endpoints"
     icon="lucide:list"
     title="Services"
     to="/services"
-  />
-  <Card
-    description="See detailed references and examples for the Tempo Wallet CLI"
-    icon="lucide:github"
-    title="Tempo Wallet GitHub"
-    to="https://github.com/tempoxyz/wallet"
   />
 </Cards>

@@ -28,7 +28,11 @@ export function PromptBlock({ children }: { children: string }) {
         <pre
           className="vocs:relative vocs:select-none"
           data-v
-          style={{ cursor: "pointer" }}
+          style={{
+            cursor: "pointer",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
         >
           <code className="language-txt">{children}</code>
           <span

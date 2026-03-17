@@ -5,7 +5,7 @@ Creates a Stripe charge payment method for client-side SPT-based payments.
 ## Usage
 
 ```ts twoslash
-// @noErrors
+
 import { loadStripe } from '@stripe/stripe-js'
 import { Mppx, stripe } from 'mppx/client'
 
@@ -20,7 +20,7 @@ Mppx.create({
         const res = await fetch('/api/create-spt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentMethod, amount, currency, networkId, expiresAt, metadata }),
+          body: JSON.stringify({ amount, currency, expiresAt, metadata, networkId, paymentMethod }),
         })
         return (await res.json()).spt
       },
@@ -47,7 +47,7 @@ type ReturnType = Method.Client
 Stripe.js instance from `@stripe/stripe-js`. Forwarded to the `createToken` callback for use with Stripe Elements.
 
 ```ts twoslash
-// @noErrors
+
 import { loadStripe } from '@stripe/stripe-js'
 import { stripe } from 'mppx/client'
 
@@ -91,7 +91,7 @@ Client reference ID included in the Credential payload.
 Default Stripe payment method ID (e.g. `pm_card_visa`). Overridden by `context.paymentMethod` at credential-creation time.
 
 ```ts twoslash
-// @noErrors
+
 import { stripe } from 'mppx/client'
 
 const method = stripe.charge({

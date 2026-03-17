@@ -1,39 +1,38 @@
 # Frequently asked questions [Common questions about the Machine Payments Protocol]
 
-## What is MPP?
-
-MPP (Machine Payments Protocol) is an internet-native protocol that lets any client— AI agents, software, or humans—pay for services inline over HTTP. The protocol is payment-method agnostic, open by design, and engineered for extensibility, performance, and security.
-
 ## Is MPP only for stablecoins?
 
 No. MPP is payment-method agnostic—the protocol works with any payment rail.
 
-Today, [Tempo](/payment-methods/tempo) stablecoin payments and [Stripe](/payment-methods/stripe) (credit cards, wallets, and other payment methods) are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail.
+Today, [Tempo](/payment-methods/tempo) stablecoin payments, [Stripe](/payment-methods/stripe) (Visa, Mastercard, and other card networks), and [Lightning](/payment-methods/lightning) (Bitcoin over the Lightning Network) are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail. See the full list of payment methods and specifications at [paymentauth.org](https://paymentauth.org).
 
 ## Do I need a stablecoin wallet?
 
-No. With Stripe, you can use traditional cards and wallets without stablecoins.
+No. With Stripe, you can pay with cards without stablecoins. With Lightning, you can pay with Bitcoin.
 
-For Tempo payments, you need a stablecoin wallet to sign transactions. The SDK and `presto` CLI handle key management for you.
+For Tempo payments, you need a stablecoin wallet to sign transactions. The SDK and the `tempo wallet` CLI handle key management for you.
 
 ## How is MPP different from x402?
 
 Both MPP and x402 use HTTP `402` to signal that a request requires payment. The key differences:
 
 - **Payment-method agnostic.** MPP supports stablecoins, cards, wallets, and custom rails through extensible payment method specifications. x402 only supports blockchains.
-- **Designed for production.** MPP supports idempotency, expiration, and request-tampering mitigations as first-class primitives.
-- **Performant payments.** MPP's session intent enables pay-as-you-go metering for payments as small as 0.0001 USD. MPP sessions can achieve sub-100ms latency and near-zero per-request fees, enabling high-throughput, low-value payments for applications like token streaming or high throughput content aggregation.
-- **Permissionless extensibility.** Anyone can author and publish a new payment method or intent specification without approval from a foundation or intermediary. Payment methods compete on adoption and are independently maintained without the explicit permission of a central authority.
+- **Designed for production.** MPP supports idempotency, expiration, request-body binding (digest), and request-tampering mitigations as first-class primitives.
+- **Performant payments.** MPP's session intent enables pay-as-you-go metering for payments as small as 0.0001 USD. Sessions achieve sub-100ms latency and near-zero per-request fees by settling off-chain vouchers, enabling high-throughput applications like token streaming or content aggregation. x402 requires an on-chain transaction per request.
+- **Permissionless extensibility.** Anyone can author and publish a new payment method or intent specification without approval from a foundation or intermediary. Payment methods compete on adoption and are independently maintained.
+- **IETF standards track.** The core [Payment HTTP Authentication Scheme](https://paymentauth.org) is submitted to the IETF for standardization.
 
 ## Is MPP compatible with x402?
 
-Yes. The core x402 "exact" flows map directly onto MPP's charge intent. MPP clients can consume existing x402 services, and MPP extends beyond what x402 supports with sessions, idempotency, and multi-rail payment methods.
+Yes. The core x402 "exact" flows map directly onto MPP's charge intent. MPP clients can consume existing x402 services. MPP extends beyond x402 with idempotency, receipts, request binding, multiple payment methods including stablecoins and fiat, and efficient low-cost flows like sessions.
 
 ## Why build MPP on Tempo?
 
-High-throughput, low-value transactions require specific properties from the settlement layer:
+MPP works with any payment rail—Stripe for cards, Lightning for Bitcoin, or any custom method. You don't have to use Tempo.
 
-- **Fast, deterministic finality**—Tempo consensus provides certainty that a payment has settled, not probabilistic confirmation.
+That said, high-throughput, low-value transactions benefit from specific properties that Tempo provides:
+
+- **Fast, deterministic finality**—Certainty that a payment has settled, not probabilistic confirmation.
 - **Low, predictable cost**—Transaction fees stay stable regardless of global network congestion.
 - **Payment lanes**—Dedicated transaction routing for payment traffic, ensuring reliability even under heavy load.
 - **Stablecoin-native**—TIP-20 stablecoins (USDC, USDT) are first-class citizens, so payments are denominated in familiar currency.
@@ -58,12 +57,6 @@ MPP requires TLS 1.2+ for all connections. Challenge IDs are cryptographically b
 
 Payments use the same security model as the underlying payment method. For Tempo, that means cryptographic signatures over every transaction. For Stripe, it means Stripe's existing fraud and dispute infrastructure.
 
-## Can any AI agent use MPP?
-
-Yes. An AI agent can interact with services via an MPP-compatible CLI. The [quickstart guide](/quickstart/agent) has copy-paste setup instructions for Claude, Codex, and Amp.
-
-For programmatic integration, the [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust) SDKs provide native support.
-
 ## What happens if a payment fails?
 
 The service returns an error with details following [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) (Problem Details for HTTP APIs). Your client can retry with a different payment method or surface the error. No money is deducted for failed requests.
@@ -74,7 +67,7 @@ Yes. See the [server quickstart](/quickstart/server) to start accepting payments
 
 ## Is MPP an IETF standard?
 
-The core [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is on the IETF standards track. Payment method and intent IETF Specification (charge, session, authorize) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
+The core [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is submitted to the IETF standards track. Payment method and intent specifications (for example, charge, session) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
 
 ## Can I use MPP outside of HTTP?
 

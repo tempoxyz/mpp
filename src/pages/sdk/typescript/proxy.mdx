@@ -1,0 +1,347 @@
+# Proxy [Paid API proxy]
+
+Gates upstream API services behind MPP `402` payments. The proxy handles routing, credential injection, and payment verification—you configure which endpoints require payment and which are free passthrough.
+
+## Install
+
+:::code-group
+
+```bash [npm]
+npm install mppx
+```
+
+```bash [pnpm]
+pnpm add mppx
+```
+
+```bash [bun]
+bun add mppx
+```
+
+:::
+
+## Usage
+
+Import `Proxy` and a service preset from `mppx/proxy`, then create an `Mppx` server instance from `mppx/server` to define payment intents.
+
+```ts twoslash [server.ts]
+import { Proxy, openai } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const proxy = Proxy.create({
+  services: [
+    openai({
+      apiKey: process.env.OPENAI_API_KEY!,
+      routes: {
+        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
+        'GET /v1/models': true,
+      },
+    }),
+  ],
+})
+
+// Bun / Deno
+export default { fetch: proxy.fetch }
+
+// Node.js
+import { createServer } from 'node:http'
+createServer(proxy.listener).listen(3000)
+```
+
+The proxy returns two handlers:
+
+- **`fetch`** — Fetch API handler. Works with Bun, Deno, Next.js, Hono, Elysia, and SvelteKit.
+- **`listener`** — Node.js request listener. Works with Express, Fastify, and `http.createServer`.
+
+### Multiple services
+
+Pass multiple services to gate several upstream APIs behind a single proxy.
+
+```ts twoslash [server.ts]
+import { Proxy, anthropic, openai, stripe } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const proxy = Proxy.create({
+  description: 'Multi-service paid API proxy',
+  title: 'My Proxy',
+  services: [
+    openai({
+      apiKey: process.env.OPENAI_API_KEY!,
+      routes: {
+        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
+      },
+    }),
+    anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY!,
+      routes: {
+        'POST /v1/messages': mppx.charge({ amount: '0.03' }),
+      },
+    }),
+    stripe({
+      apiKey: process.env.STRIPE_API_KEY!,
+      routes: {
+        'POST /v1/charges': mppx.charge({ amount: '1' }),
+        'GET /v1/customers/:id': true,
+      },
+    }),
+  ],
+})
+```
+
+Each service is mounted at `/{serviceId}/`—for example, requests to `/openai/v1/chat/completions` route to `https://api.openai.com/v1/chat/completions`.
+
+## Built-in services
+
+### `openai`
+
+Creates an OpenAI service definition. Injects `Authorization: Bearer` header for upstream authentication.
+
+```ts [server.ts]
+import { openai } from 'mppx/proxy'
+
+openai({
+  apiKey: 'sk-...',
+  routes: {
+    'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
+    'POST /v1/embeddings': mppx.charge({ amount: '0.01' }),
+    'POST /v1/images/generations': mppx.charge({ amount: '0.10' }),
+    'GET /v1/models': true,
+  },
+})
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `apiKey` | `string` | OpenAI API key. Used as `Authorization: Bearer` header. |
+| `baseUrl` (optional) | `string` | Base URL override. Defaults to `'https://api.openai.com'`. |
+| `routes` | `EndpointMap` | Route definitions for OpenAI endpoints. |
+
+**Typed routes:** `POST /v1/chat/completions`, `POST /v1/completions`, `POST /v1/embeddings`, `POST /v1/images/generations`, `POST /v1/images/edits`, `POST /v1/images/variations`, `POST /v1/audio/transcriptions`, `POST /v1/audio/translations`
+
+### `anthropic`
+
+Creates an Anthropic service definition. Injects `x-api-key` header for upstream authentication.
+
+```ts [server.ts]
+import { anthropic } from 'mppx/proxy'
+
+anthropic({
+  apiKey: 'sk-ant-...',
+  routes: {
+    'POST /v1/messages': mppx.charge({ amount: '0.03' }),
+    'POST /v1/complete': mppx.charge({ amount: '0.02' }),
+  },
+})
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `apiKey` | `string` | Anthropic API key. Used as `x-api-key` header. |
+| `baseUrl` (optional) | `string` | Base URL override. Defaults to `'https://api.anthropic.com'`. |
+| `routes` | `EndpointMap` | Route definitions for Anthropic endpoints. |
+
+**Typed routes:** `POST /v1/messages`, `POST /v1/messages/batches`, `GET /v1/messages/batches`, `GET /v1/messages/batches/:batchId`, `POST /v1/complete`
+
+### `stripe`
+
+Creates a Stripe service definition. Injects `Authorization: Basic` header (API key as username) for upstream authentication. This is a proxy service for the Stripe API—not a payment method.
+
+```ts [server.ts]
+import { stripe } from 'mppx/proxy'
+
+stripe({
+  apiKey: 'sk-...',
+  routes: {
+    'POST /v1/charges': mppx.charge({ amount: '1' }),
+    'GET /v1/customers/:id': true,
+  },
+})
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `apiKey` | `string` | Stripe API key. Used as Basic auth username. |
+| `baseUrl` (optional) | `string` | Base URL override. Defaults to `'https://api.stripe.com'`. |
+| `routes` | `EndpointMap` | Route definitions for Stripe endpoints. |
+
+**Typed routes:** `POST /v1/charges`, `POST /v1/customers`, `GET /v1/customers/:id`, `POST /v1/payment_intents`, `GET /v1/payment_intents/:id`, `POST /v1/subscriptions`, `GET /v1/subscriptions/:id`, `POST /v1/invoices`, `GET /v1/invoices/:id`
+
+## Custom services
+
+Use `Service.from` (or its alias `custom`) to define a service for any upstream API.
+
+### With `bearer` shorthand
+
+```ts twoslash [server.ts]
+import { Proxy, Service } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const proxy = Proxy.create({
+  services: [
+    Service.from('my-api', {
+      baseUrl: 'https://api.example.com',
+      bearer: process.env.MY_API_KEY!,
+      description: 'Example upstream API',
+      title: 'My API',
+      routes: {
+        'POST /v1/generate': mppx.charge({ amount: '0.01' }),
+        'GET /v1/status': true,
+      },
+    }),
+  ],
+})
+```
+
+### With `headers` shorthand
+
+```ts [server.ts]
+import { Service } from 'mppx/proxy'
+
+Service.from('custom-api', {
+  baseUrl: 'https://api.example.com',
+  headers: {
+    'X-API-Key': process.env.CUSTOM_API_KEY!,
+    'X-Org-Id': 'org-123',
+  },
+  routes: {
+    'POST /v1/query': mppx.charge({ amount: '0.02' }),
+  },
+})
+```
+
+### With `rewriteRequest`
+
+For full control over the upstream request, use `rewriteRequest`. The context includes per-endpoint options set via the `options` field on an endpoint definition.
+
+```ts [server.ts]
+import { Service } from 'mppx/proxy'
+
+Service.from('advanced-api', {
+  baseUrl: 'https://api.example.com',
+  rewriteRequest(request, ctx) {
+    request.headers.set('Authorization', `Token ${process.env.API_TOKEN}`)
+    return request
+  },
+  routes: {
+    'POST /v1/generate': mppx.charge({ amount: '0.05' }),
+  },
+})
+```
+
+## Discovery endpoints
+
+The proxy automatically serves discovery endpoints that describe available services and their routes. Coding agents and CLI tools use these endpoints to understand what the proxy offers.
+
+| Endpoint | Content-Type | Description |
+|----------|--------------|-------------|
+| `GET /discover` | `application/json` or `text/plain` | Lists all services. Returns JSON by default, markdown for AI user agents and terminal clients. |
+| `GET /discover/{id}` | `application/json` or `text/markdown` | Details for a single service, including routes and pricing. |
+| `GET /discover/{id}.md` | `text/markdown` | Markdown description of a single service. |
+| `GET /discover/all` | `application/json` or `text/markdown` | All services with full route details. |
+| `GET /discover/all.md` | `text/markdown` | Markdown listing of all services and routes. |
+| `GET /llms.txt` | `text/plain` | `llms.txt`-formatted overview of the proxy and its services. |
+| `GET /discover.md` | `text/plain` | Alias for `/llms.txt`. |
+
+The proxy returns markdown instead of JSON when the request comes from a known AI user agent (for example, `ChatGPT-User`, `ClaudeBot`, `PerplexityBot`) or a terminal client (for example, `curl`, `HTTPie`, `mppx`).
+
+## Parameters
+
+### `Proxy.create` config
+
+### basePath (optional)
+
+- **Type:** `string`
+
+Base path prefix to strip before routing (for example, `'/api/proxy'`). Use when the proxy is mounted at a sub-path.
+
+### description (optional)
+
+- **Type:** `string`
+
+Short description of the proxy shown in `llms.txt` and discovery endpoints.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+
+Custom `fetch` implementation. Defaults to `globalThis.fetch`.
+
+### services
+
+- **Type:** `Service[]`
+
+Array of service definitions to proxy. Each service is mounted at `/{serviceId}/`.
+
+### title (optional)
+
+- **Type:** `string`
+
+Human-readable title for the proxy shown in `llms.txt` and discovery endpoints.
+
+## Service type reference
+
+### `Service.from` config
+
+### baseUrl
+
+- **Type:** `string`
+
+Base URL of the upstream service (for example, `'https://api.openai.com'`).
+
+### bearer (optional)
+
+- **Type:** `string`
+
+Shorthand: injects `Authorization: Bearer {token}` header on upstream requests.
+
+### description (optional)
+
+- **Type:** `string`
+
+Short description of the service, shown in discovery endpoints.
+
+### docsLlmsUrl (optional)
+
+- **Type:** `string | ((options: { route?: string }) => string | undefined)`
+
+Documentation URL for the service. Provide a string for a static URL, or a function that receives an optional route pattern and returns a per-endpoint docs URL.
+
+### headers (optional)
+
+- **Type:** `Record<string, string>`
+
+Shorthand: injects custom headers on upstream requests.
+
+### mutate (optional)
+
+- **Type:** `(req: Request) => Request | Promise<Request>`
+
+Shorthand: full request mutation function. Takes priority over `bearer` and `headers`.
+
+### rewriteRequest (optional)
+
+- **Type:** `(req: Request, ctx: Context) => Request | Promise<Request>`
+
+Hook to modify the upstream request before sending. Receives per-endpoint options via `ctx`.
+
+### routes
+
+- **Type:** `EndpointMap`
+
+Map of `"METHOD /pattern"` keys to endpoint definitions. Each value is one of:
+
+- **`IntentHandler`** — Payment required. The handler issues a `402` Challenge or verifies payment.
+- **`{ pay: IntentHandler, options: EndpointOptions }`** — Payment required with per-endpoint config overrides passed to `rewriteRequest` via `ctx`.
+- **`true`** — Free passthrough. No payment required; `rewriteRequest` is still applied.
+
+### title (optional)
+
+- **Type:** `string`
+
+Human-readable title for the service (for example, `'OpenAI'`).

@@ -1,4 +1,4 @@
-# `Challenge.fromResponse`
+# `Challenge.fromResponse` [Extract a Challenge from a Response]
 
 Extracts the challenge from a Response's WWW-Authenticate header.
 
@@ -37,14 +37,14 @@ The deserialized challenge object.
 
 ## Parameters
 
-### response
-
-- **Type:** `Response`
-
-The HTTP response (must be `402` status).
-
 ### options (optional)
 
 - **Type:** `{ methods?: readonly Method.Method[] }`
 
 Optional settings to narrow the Challenge type using method intents.
+
+### response
+
+- **Type:** `Response`
+
+The HTTP response (must be `402` status).

@@ -74,6 +74,37 @@ const result = await mppx.charge({
 
 When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`) before broadcasting. The client doesn't need gas tokens. See [fee sponsorship](/payment-methods/tempo#fee-sponsorship) for details.
 
+### With Stripe
+
+```ts twoslash
+// @noErrors
+import { Mppx, tempo } from "mppx/server";
+
+function async createPayToAddress(request: Request) {
+   // Create Stripe PaymentIntent
+}
+
+export async function handler(request: Request) {
+  const recipientAddress = await createPayToAddress(request)
+  const mppx = Mppx.create({
+    methods: [
+      tempo.charge({
+        currency: "0x20c0000000000000000000000000000000000000",
+        recipient: recipientAddress,
+      }),
+    ],
+  });
+
+  const result = await mppx.charge({ amount: "0.01" })(request);
+ 
+  if (result.status === 402) return result.challenge;
+ 
+  return result.withReceipt(Response.json({ data: "..." }));
+}
+```
+
+Use Stripe to create a dynamic recipient address per payment, each backed by a PaymentIntent. To learn more, read the [Stripe documentation](https://docs.stripe.com/payments/machine/mpp) on accepting MPP.
+
 :::info
 See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge) for the full parameter list.
 :::
@@ -106,8 +137,8 @@ import { privateKeyToAccount } from "viem/accounts";
 const account = privateKeyToAccount("0xabc…123");
 
 const mppx = Mppx.create({
-  polyfill: false,
   methods: [tempo.charge({ account })],
+  polyfill: false,
 });
 
 const response = await mppx.fetch("https://api.example.com/resource");
@@ -164,5 +195,5 @@ See [auto-swap](/payment-methods/tempo#auto-swap) for more details.
 ## Specification
 
 <Cards>
-  <SpecCard to="https://tempoxyz.github.io/mpp-specs/draft-tempo-charge-00" />
+  <SpecCard to="https://paymentauth.org/draft-tempo-charge-00" />
 </Cards>

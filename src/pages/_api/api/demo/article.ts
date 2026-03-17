@@ -2,6 +2,13 @@ import { getProxyFetch } from "../../../../mppx-proxy-client";
 import { stripeMppx } from "../../../../mppx-stripe.server";
 
 const SUMMARIES: Record<string, string[]> = {
+  "stratechery.com": [
+    "  Ben Thompson argues the web's original sin was ad-supported",
+    "  free content, and that AI agents break this model entirely.",
+    "  Agents don't see ads, can't click them, and need to pay for",
+    "  content directly—making HTTP 402 and machine payments the",
+    "  foundation of the agentic web.",
+  ],
   "stripe.com": [
     "  Stripe processes hundreds of billions of dollars annually",
     "  across 195+ countries. The platform provides unified APIs for",
@@ -57,6 +64,12 @@ export async function GET(request: Request) {
   const input = url.searchParams.get("url") ?? "";
   const domain = normalizeUrl(input);
 
+  // Prefer curated summaries for known domains so the demo is consistent.
+  const canned = SUMMARIES[domain];
+  if (canned) {
+    return result.withReceipt(Response.json({ lines: canned }));
+  }
+
   const proxyFetch = getProxyFetch();
   const fullUrl = input.startsWith("http") ? input : `https://${input}`;
   if (!proxyFetch && input) {
@@ -66,22 +79,22 @@ export async function GET(request: Request) {
   }
   if (proxyFetch && input) {
     try {
-      const res = await proxyFetch(
+      // Step 1: Extract page content via Parallel Extract
+      const extractRes = await proxyFetch(
         "https://parallel.mpp.moderato.tempo.xyz/v1beta/extract",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            excerpts: true,
+            excerpts: { max_chars_per_result: 1000 },
             full_content: false,
-            objective: `Summarize ${fullUrl} in 3-5 concise sentences about what the company or site does. Be factual and specific to this domain.`,
             urls: [fullUrl],
           }),
         },
       );
 
-      if (res.ok) {
-        const data = (await res.json()) as {
+      if (extractRes.ok) {
+        const data = (await extractRes.json()) as {
           results?: Array<{
             excerpts?: string[];
             title?: string;
@@ -90,24 +103,55 @@ export async function GET(request: Request) {
         };
         const excerpts = data.results?.[0]?.excerpts;
         if (excerpts?.length) {
-          const lines = excerpts
-            .join("\n")
-            .split("\n")
-            .filter((line) => line.trim())
-            .map((line) => `  ${line.trim()}`);
-          return result.withReceipt(Response.json({ lines }));
+          // Step 2: Summarize via Parallel Chat
+          const chatRes = await proxyFetch(
+            "https://parallel.mpp.moderato.tempo.xyz/v1beta/chat/completions",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                model: "default",
+                messages: [
+                  {
+                    role: "system",
+                    content:
+                      "Summarize the following page content in 2-3 concise sentences. No markdown, no bullet points.",
+                  },
+                  { role: "user", content: excerpts.join("\n") },
+                ],
+              }),
+            },
+          );
+
+          if (chatRes.ok) {
+            const chatData = (await chatRes.json()) as {
+              choices?: Array<{ message?: { content?: string } }>;
+            };
+            const summary = chatData.choices?.[0]?.message?.content;
+            if (summary) {
+              const lines = summary
+                .split("\n")
+                .filter((line) => line.trim())
+                .map((line) => `  ${line.trim()}`);
+              return result.withReceipt(Response.json({ lines }));
+            }
+          } else {
+            console.error(
+              `[demo/article] Parallel Chat failed (${chatRes.status})`,
+            );
+          }
         }
         console.warn(
           `[demo/article] Parallel Extract returned no excerpts for ${fullUrl}`,
         );
       } else {
-        const body = await res.text();
+        const body = await extractRes.text();
         console.error(
-          `[demo/article] Parallel Extract failed (${res.status} ${res.statusText}) for ${fullUrl}: ${body.slice(0, 500)}`,
+          `[demo/article] Parallel Extract failed (${extractRes.status} ${extractRes.statusText}) for ${fullUrl}: ${body.slice(0, 500)}`,
         );
       }
     } catch (e) {
-      console.error("mpp-proxy Parallel Extract error:", e);
+      console.error("[demo/article] Parallel error:", e);
     }
     // Fall through to canned response
   }

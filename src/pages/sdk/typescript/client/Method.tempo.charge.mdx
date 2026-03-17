@@ -86,7 +86,7 @@ Controls how the charge transaction is submitted.
 - `'push'`: the client broadcasts the transaction and sends the transaction hash to the server for verification.
 - `'pull'`: the client signs the transaction and sends the serialized transaction to the server, which broadcasts it. This is required for server-side [fee sponsorship](/quickstart/server#fee-sponsorship).
 
-```ts
+```ts twoslash
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 

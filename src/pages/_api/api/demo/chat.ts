@@ -6,7 +6,7 @@ const responses = [
     "Great question! MPP uses HTTP 402 to signal that a resource requires payment.",
     "When your client receives a 402, it automatically negotiates a payment channel.",
     "The server issues a Challenge, your wallet signs a Credential, and the stream begins.",
-    "Each token you consume is charged in real time—no upfront costs, no subscriptions.",
+    "Each token you consume is charged in real time—no upfront costs, no billing portals.",
     "It's like a pay-as-you-go meter, but for API calls.",
   ],
   [

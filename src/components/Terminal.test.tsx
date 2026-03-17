@@ -348,16 +348,17 @@ describe("constants", () => {
   });
 
   it("COMPANIES contains expected domains", () => {
+    expect(Object.keys(COMPANIES)).toContain("stratechery.com");
     expect(Object.keys(COMPANIES)).toContain("stripe.com");
     expect(Object.keys(COMPANIES)).toContain("tempo.xyz");
     expect(Object.keys(COMPANIES)).toContain("openai.com");
   });
 
   it("step builders have correct methodLabels", () => {
-    expect(Terminal.chat().methodLabel).toBe("Tempo session");
-    expect(Terminal.image().methodLabel).toBe("Tempo charge");
-    expect(Terminal.search().methodLabel).toBe("Tempo charge");
-    expect(Terminal.article().methodLabel).toBe("Stripe charge");
+    expect(Terminal.chat().methodLabel).toBe("Tempo");
+    expect(Terminal.image().methodLabel).toBe("Tempo");
+    expect(Terminal.search().methodLabel).toBe("Tempo");
+    expect(Terminal.article().methodLabel).toBe("Stripe");
     expect(Terminal.poem().methodLabel).toBe("Tempo session");
     expect(Terminal.lookup().methodLabel).toBe("Stripe charge");
   });

@@ -1,4 +1,4 @@
-# `Receipt.serialize`
+# `Receipt.serialize` [Serialize a Receipt to a string]
 
 Serializes a receipt to the Payment-Receipt header format.
 
@@ -9,9 +9,9 @@ import { Receipt } from 'mppx'
 
 const receipt = Receipt.from({
   method: 'tempo',
+  reference: '0x...',
   status: 'success',
   timestamp: new Date().toISOString(),
-  reference: '0x...',
 })
 
 const header = Receipt.serialize(receipt)

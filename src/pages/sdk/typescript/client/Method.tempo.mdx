@@ -35,6 +35,25 @@ Mppx.create({
 })
 ```
 
+### Standalone session manager
+
+`tempo.session()` also creates a standalone session manager with explicit `.fetch()`, `.close()`, and `.sse()` methods—no `Mppx.create` required:
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const session = tempo.session({
+  account: privateKeyToAccount('0x...'),
+  maxDeposit: '1',
+})
+
+const res = await session.fetch('https://api.example.com/resource')
+await session.close()
+```
+
+See [`tempo.session` manager](/sdk/typescript/client/Method.tempo.session-manager) for the full API.
+
 ## Return type
 
 ```ts

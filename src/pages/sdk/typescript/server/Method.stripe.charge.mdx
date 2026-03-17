@@ -5,7 +5,7 @@ The `charge` intent for the Stripe payment method. Requests a one-time payment u
 ## Usage
 
 ```ts twoslash
-// @noErrors
+
 import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/server'
 
@@ -53,10 +53,10 @@ These parameters configure the `stripe.charge()` constructor. You must provide e
 
 - **Type:** `StripeClient`
 
-Pre-configured Stripe SDK instance. Any object matching the duck-typed `StripeClient` shape works. Using `client` is recommended — it lets you configure retries, API version, and other options.
+Pre-configured Stripe SDK instance. Any object matching the duck-typed `StripeClient` shape works. Using `client` is recommended—it lets you configure retries, API version, and other options.
 
 ```ts twoslash
-// @noErrors
+
 import Stripe from 'stripe'
 import { stripe } from 'mppx/server'
 
@@ -95,7 +95,7 @@ Stripe [Business Network](https://docs.stripe.com/get-started/account/profile) p
 
 - **Type:** `string[]`
 
-Allowed Stripe payment method types (e.g. `['card']`, `['card', 'link']`).
+Allowed Stripe payment method types (for example, `['card']`, `['card', 'link']`).
 
 ### metadata (optional)
 
@@ -115,13 +115,13 @@ Payment amount in human-readable units.
 
 - **Type:** `string`
 
-ISO currency code (e.g. `'usd'`).
+ISO currency code (for example, `'usd'`).
 
 ### decimals
 
 - **Type:** `number`
 
-Number of decimal places in the amount (e.g. `2` for cents).
+Number of decimal places in the amount (for example, `2` for cents).
 
 ### description (optional)
 

@@ -1,6 +1,6 @@
 # HTTP 402 payment required [The status code that signals payment is required]
 
-MPP gives the HTTP/1.1 `402 Payment Required` status code its semantics by pairing it with the HTTP `Payment` authentication scheme.
+MPP services return HTTP `402` Payment Required to indicate that a resource requires payment for access.
 
 ## Overview
 
@@ -77,5 +77,5 @@ import { Cards } from 'vocs'
 import { SpecCard } from '../../components/SpecCard'
 
 <Cards>
-  <SpecCard to="https://tempoxyz.github.io/mpp-specs/" />
+  <SpecCard to="https://paymentauth.org" />
 </Cards>

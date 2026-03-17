@@ -104,7 +104,7 @@ const response = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 
 Use `fetch`. Payment happens when a server returns `402`.
 
-```ts [fetch-resource.ts]
+```ts twoslash [fetch-resource.ts]
 const response = await fetch('https://mpp.dev/api/ping/paid')
 ```
 
@@ -229,7 +229,7 @@ Don't see your framework? `mppx` is designed to be framework-agnostic. See [Manu
 
 If you prefer full control over the payment flow, use `mppx/server` directly with the Fetch API.
 
-```ts
+```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({

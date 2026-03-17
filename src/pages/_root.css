@@ -43,7 +43,6 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  font-display: swap;
 }
 
 @font-face {
@@ -92,9 +91,9 @@
 
 /* Prevent layout shift when scrollbar appears/disappears between routes */
 html {
-  font-size: 90%;
   scrollbar-gutter: stable;
   overflow-y: scroll;
+  overscroll-behavior: none;
 }
 
 /* Pagination: hide "Next" / "Previous" label text, keep only shortcut (Shift → / ←) */
@@ -117,6 +116,11 @@ html {
 
 [data-v-main] {
   padding-bottom: 0;
+}
+
+/* Add vertical spacing inside tab panels so content breathes */
+[data-v-content] [role="tabpanel"] > *:not(:last-child) {
+  margin-bottom: 1.25rem;
 }
 [data-v-pagination] {
   margin-top: 3rem !important;
@@ -169,13 +173,6 @@ html {
   border-color: transparent !important;
 }
 
-/* More spacing between top nav links */
-[data-v-gutter-top] nav a {
-  margin-inline: 0.25rem;
-  padding-bottom: 0.25rem;
-  position: relative;
-}
-
 /* Focus state — faded dot instead of browser focus ring */
 [data-v-gutter-top] nav a:focus-visible {
   outline: none !important;
@@ -225,13 +222,12 @@ a[class*="rounded-md"][class*="border"]:hover {
   text-decoration: none !important;
 }
 
-/* Active sidebar item */
+/* Active sidebar item — avoid font-weight change to prevent text reflow/shake */
 a[data-v-sidebar-item][data-active="true"],
 a[data-v-sidebar-item][data-active="true"]:link,
 a[data-v-sidebar-item][data-active="true"]:visited {
   color: var(--vocs-text-color-heading) !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
-  font-weight: 500 !important;
 }
 
 /* Sidebar hover — use theme heading color so dark mode stays visible (Tailwind hover can resolve to black) */
@@ -265,15 +261,6 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
 }
 
-/* Uniform sidebar font size */
-[data-v-sidebar] {
-  font-size: 14px !important;
-}
-[data-v-sidebar] a[data-v-sidebar-item] {
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-}
-
 /* More vertical breathing room for nested sidebar groups */
 [data-v-sidebar] [data-v-sidebar-group] [data-v-sidebar-group] {
   padding-top: 0.25rem !important;
@@ -295,6 +282,25 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 
 [data-v-sidebar] [data-v-sidebar-group]:last-child {
   margin-bottom: 0 !important;
+}
+
+/* Prevent sidebar scroll from propagating to window (causes bounce on macOS) */
+[data-v-sidebar-container] {
+  overscroll-behavior: contain;
+  /* Never animate sidebar scrolling—prevents first-interaction bounce effects. */
+  scroll-behavior: auto !important;
+  /* Avoid scroll anchoring corrections while sidebar content settles on first load. */
+  overflow-anchor: none;
+  /* Keep gutter width stable if a sidebar scrollbar appears/disappears. */
+  scrollbar-gutter: stable;
+  /* Prevent width changes during font swap from causing sidebar shake on reload */
+  contain: inline-size;
+}
+
+/* Keep sidebar layout changes instant to avoid visible jitter on first route interaction. */
+[data-v-sidebar-container],
+[data-v-sidebar-container] * {
+  transition: none !important;
 }
 
 /* Add bottom padding to sidebar so items don't sit flush against viewport edge */
@@ -434,7 +440,6 @@ body,
 }
 
 [data-v-content] {
-  font-size: 15px;
   /* Prevent content area from growing after load (avoids jitter) */
   max-width: var(--spacing-content);
 }
@@ -730,7 +735,7 @@ article hr {
   z-index: 50 !important;
 }
 
-/* Gradient background for services page header (layout: minimal) */
+/* Gradient nav on minimal pages — search bar (z:51) paints above it */
 [data-layout="minimal"] [data-v-gutter-top] {
   background: linear-gradient(
     to bottom,
@@ -738,18 +743,40 @@ article hr {
     transparent
   ) !important;
 }
-
-/* Force mobile nav / header / root background to match primary background.
-   Vocs applies vocs:max-md:bg-surface on :root which switches mobile to a
-   different surface color. Override it everywhere. */
-:root,
-[data-v-header],
-header {
-  background: var(--vocs-background-color-primary) !important;
-  background-color: var(--vocs-background-color-primary) !important;
+/* Mobile-ish: solid nav, gradient moves to .search-bar instead */
+@media (max-width: 1200px) {
+  [data-layout="minimal"] [data-v-gutter-top] {
+    background: var(--vocs-background-color-primary) !important;
+  }
 }
-[data-v-gutter-top] {
-  background-color: var(--vocs-background-color-primary) !important;
+/* Mobile: gradient nav before search is fixed, solid once fixed */
+@media (max-width: 900px) {
+  :root:not([data-mobile-search-stuck])
+    [data-layout="minimal"]
+    [data-v-gutter-top] {
+    background: linear-gradient(
+      to bottom,
+      var(--vocs-background-color-primary) 60%,
+      transparent
+    ) !important;
+    background-color: transparent !important;
+  }
+}
+
+/* Vocs sets z-index:10 + isolation:isolate on <main>, trapping all children
+   below the nav's z-index:50.  On minimal-layout pages (no sidebar/outline)
+   we remove that stacking context so the sticky search bar can sit above
+   the nav.  Only above 900px — below that the search bar is hidden and
+   main's stacking context must stay to keep content below the nav. */
+@media (min-width: 901px) {
+  [data-layout="minimal"] main {
+    z-index: auto !important;
+    isolation: auto !important;
+  }
+}
+
+[data-layout="minimal"] {
+  background: var(--vocs-background-color-primary) !important;
 }
 
 /* Header z-index handles content layering — no overflow clip needed */
@@ -775,12 +802,8 @@ aside[data-v-callout] a:hover {
   text-decoration: underline !important;
 }
 
-/* TOC a bit narrower — 80% of gutter width, left edge unchanged */
-[data-v-outline][data-v-gutter-right] {
-  left: calc(100vw - var(--spacing-gutter)) !important;
-  right: auto !important;
-  width: calc(var(--spacing-gutter) * 0.8) !important;
-  max-width: calc(var(--spacing-gutter) * 0.8) !important;
+[data-v-gutter-right] > nav {
+  max-width: 250px;
 }
 
 /* More space between main content and TOC */
@@ -1003,11 +1026,40 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   display: none;
 }
 @media (max-width: 1079px) {
-  /* Ensure sidebar overlay covers the top nav bar */
+  /* Raise backdrop + dialog above gutter-top (z-index 200) */
+  [data-v-mobile-nav][role="dialog"] {
+    z-index: 260 !important;
+  }
+  div[role="presentation"][data-open],
+  div[role="presentation"][data-base-ui-inert] {
+    z-index: 250 !important;
+  }
+  /* Drop gutter-top below the dialog when mobile nav is open */
+  :has([data-v-mobile-nav][role="dialog"]) [data-v-gutter-top] {
+    z-index: 0 !important;
+  }
+
+  /* Remove dialog's top header/close-button area to align content with hamburger */
+  [data-v-mobile-nav] > div:first-child:has(button[aria-label]) {
+    display: none !important;
+  }
+  [data-v-mobile-nav] > div {
+    height: 100% !important;
+    padding-top: 1rem !important;
+  }
+  [data-v-mobile-nav] {
+    border-left: none !important;
+    min-height: 100dvh !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+  div[role="presentation"][data-open],
+  div[role="presentation"][data-base-ui-inert] {
+    min-height: 100dvh !important;
+  }
+
   [data-v-sidebar] {
     display: flex !important;
     flex-direction: column !important;
-    z-index: 200 !important;
   }
   /* Hide the Vocs sidebar section selector / input at top */
   [data-v-sidebar] > [data-v-sidebar-section-header]:first-of-type,
@@ -1015,6 +1067,7 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   [data-v-sidebar] > div:has(select):first-of-type {
     display: none !important;
   }
+
   [data-mobile-nav] {
     display: flex;
     flex-direction: column;
@@ -1022,10 +1075,6 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
     order: -1;
     border-bottom: 1px solid var(--vocs-border-color-primary);
     margin-bottom: 0;
-  }
-  [data-mobile-nav-logo] {
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.25rem;
   }
   [data-mobile-nav-item] {
     display: block;
@@ -1083,9 +1132,26 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   }
 }
 
+/* ---- Push mobile nav breakpoint from 1024px down to 640px ---- */
+@media (min-width: 641px) {
+  /* Force TopNav links visible (Vocs hides them below lg/1024px) */
+  [data-v-gutter-top] > nav {
+    display: flex !important;
+  }
+  /* Force hamburger / mobile-nav container hidden */
+  [data-v-gutter-top] > div:last-child:has([data-v-mobile-nav-trigger]),
+  [data-v-gutter-top] > div:last-child:has(button[aria-label="Menu"]) {
+    display: none !important;
+  }
+  /* Also hide the generic lg:hidden wrapper Vocs uses */
+  [data-v-gutter-top] > div:not([data-v-gutter-top-left]):not(nav):last-child {
+    display: none !important;
+  }
+}
+
 /* ---- Mobile navbar sizing (120%) ---- */
-@media (max-width: 767px) {
-  :has(.landing-page) [data-v-gutter-top] {
+@media (max-width: 640px) {
+  :has(.landing-page) [data-v-gutter-top]:not(:has(button[data-popup-open])) {
     background: linear-gradient(
       to bottom,
       var(--vocs-background-color-primary) 60%,
@@ -1098,41 +1164,23 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
     background: transparent !important;
     background-color: transparent !important;
   }
-  [data-v-gutter-top] {
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
-    padding-left: 1.25rem !important;
-    padding-right: 1.25rem !important;
-  }
   [data-v-logo] img {
     height: 24px !important;
   }
-  /* Scale the hamburger button */
-  [data-v-gutter-top] button[aria-label] {
-    transform: scale(1.2);
-    transform-origin: center right;
+  /* When sidebar open: raise gutter above everything, hide contents except hamburger */
+  [data-v-gutter-top]:has(button[data-popup-open]) {
+    z-index: 270 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
-  /* Ensure close icon is visible in sidebar */
-  [data-v-sidebar-close],
-  [data-v-sidebar] button[aria-label="Close"] {
-    color: var(--vocs-text-color-heading) !important;
-    opacity: 1 !important;
-    z-index: 210 !important;
+  [data-v-gutter-top]:has(button[data-popup-open]) * {
+    visibility: hidden;
   }
-  /* Mobile nav logo: show dark-text version on light, light-text on dark */
-  .mobile-nav-logo-light {
-    display: block;
-  }
-  .mobile-nav-logo-dark {
-    display: none;
-  }
-  @media (prefers-color-scheme: dark) {
-    .mobile-nav-logo-light {
-      display: none;
-    }
-    .mobile-nav-logo-dark {
-      display: block;
-    }
+  [data-v-gutter-top]:has(button[data-popup-open]) button[data-popup-open],
+  [data-v-gutter-top]:has(button[data-popup-open]) button[data-popup-open] * {
+    visibility: visible !important;
   }
 }
 
@@ -1149,4 +1197,10 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 [data-v-content],
 [data-layout="minimal"] main > article {
   animation: pageContentFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Minimal-layout pages (services, etc.) manage their own entrance animations.
+   Remove the page fade so the article doesn't create a stacking context that
+   traps sticky elements below the nav (z-index: 50). */
+[data-layout="minimal"] main > article {
+  animation: none;
 }

@@ -56,6 +56,13 @@ Account used as the recipient and for session closure.
 
 Default amount to charge per unit.
 
+### channelStateTtl (optional)
+
+- **Type:** `number`
+- **Default:** `60000`
+
+TTL in milliseconds for cached on-chain channel state. After this duration, the server re-queries on-chain state during voucher handling to detect forced close requests.
+
 ### currency (optional)
 
 - **Type:** `Address`
@@ -138,4 +145,42 @@ Testnet mode.
 - **Type:** `string`
 
 Unit type label (for example, "token", "byte", "request").
+
+### waitForConfirmation (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to wait for open transactions to confirm on-chain before responding. When `false`, the transaction is simulated and broadcast without waiting for inclusion.
+
+## Related
+
+### `tempo.settle`
+
+One-shot settlement: reads the highest voucher from the store and submits it on-chain. Use this for periodic batch settlement outside the request handler.
+
+```ts
+import { tempo } from 'mppx/server'
+import { Store } from 'mppx/server'
+import { createClient, http } from 'viem'
+import { tempo as tempoChain } from 'viem/chains'
+
+const client = createClient({ chain: tempoChain, transport: http() })
+const store = Store.memory()
+
+// Settle a specific channel
+const txHash = await tempo.settle(store, client, '0xchannelId...')
+```
+
+#### Parameters
+
+- **store** — `ChannelStore` — The channel store instance.
+- **client** — `Client` — A viem client for on-chain interaction.
+- **channelId** — `Hex` — The channel to settle.
+- **options.escrowContract** (optional) — `Address` — Escrow contract override.
+- **options.feePayer** (optional) — `Account` — Fee payer account.
+
+#### Return type
+
+- **Type:** `Hex` — The settlement transaction hash.
 

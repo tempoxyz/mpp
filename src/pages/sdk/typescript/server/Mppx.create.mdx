@@ -1,4 +1,4 @@
-# `Mppx.create`
+# `Mppx.create` [Create a server-side payment handler]
 
 Creates a server-side payment handler from a method.
 
@@ -73,7 +73,7 @@ const payment = Mppx.create({
 ### secretKey (optional)
 
 - **Type:** `string`
-- **Default:** Auto-detected from `MPP_SECRET_KEY` environment variable, falling back to a random key.
+- **Default:** Auto-detected from `MPP_SECRET_KEY` environment variable. Throws if neither provided nor set.
 
 Secret key for HMAC-bound challenge IDs. Enables stateless verification—the server verifies that a Challenge was issued by itself without storing state.
 
@@ -82,7 +82,7 @@ import { Mppx, tempo } from 'mppx/server'
 
 const payment = Mppx.create({
   methods: [tempo()],
-  secretKey: process.env.MPPX_SECRET_KEY!, // [!code focus]
+  secretKey: process.env.MPP_SECRET_KEY!, // [!code focus]
 })
 ```
 

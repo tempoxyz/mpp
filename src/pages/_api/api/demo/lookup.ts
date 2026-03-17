@@ -1,6 +1,11 @@
 import { stripeMppx } from "../../../../mppx-stripe.server";
 
 const COMPANIES: Record<string, { title: string; description: string }> = {
+  "stratechery.com": {
+    title: "Stratechery by Ben Thompson",
+    description:
+      "Stratechery provides analysis of the strategy and business side of technology and media.",
+  },
   "stripe.com": {
     title: "Stripe | Financial Infrastructure for the Internet",
     description:

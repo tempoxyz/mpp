@@ -3,9 +3,9 @@ import { PaymentFlowDiagram } from "../../components/PaymentFlowDiagram";
 
 # Protocol overview [Standardizing HTTP 402 for machine-to-machine payments]
 
-The Machine Payments Protocol (MPP) is an internet-native protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
+The Machine Payments Protocol (MPP) is a protocol for machine-to-machine payments. It standardizes HTTP `402` "Payment Required" with an extensible framework that works with any payment network.
 
-These docs provide a developer-friendly overview. For the full specification, see the full [IETF Specification](https://tempoxyz.github.io/mpp-specs/).
+These docs provide a developer-friendly overview. For the full specification, see the full [IETF Specification](https://paymentauth.org).
 
 ## Flow
 
@@ -66,7 +66,7 @@ Anyone can define new payment methods. The protocol requires that methods define
 | [Tempo](/payment-methods/tempo)   | Native stablecoin payments on Tempo Network     | <Badge variant="success">Production</Badge> |
 | [Stripe](/payment-methods/stripe) | Traditional card payment methods through Stripe | <Badge variant="success">Production</Badge> |
 
-Each payment method specifies its own `request` and `payload` schemas while sharing the common challenge/credential flow.
+Each payment method specifies its own `request` and `payload` schemas while sharing the common Challenge/Credential flow.
 
 ### Payment method requirements
 
@@ -83,10 +83,9 @@ Payment method specifications must define:
 Payment intents describe the type of payment being requested. Common intents include:
 
 - **`charge`**—One-time payment that settles immediately
-- **`authorize`**—Authorization that can be captured later
-- **`subscription`**—Recurring payment authorization
+- **`session`**—Streaming payment over a payment channel
 
-Intent Specification define:
+Intent Specifications define:
 
 - Required and optional `request` fields
 - `payload` requirements
@@ -96,7 +95,7 @@ Servers can offer multiple intents in separate challenges, allowing clients to c
 
 ```http
 WWW-Authenticate: Payment id="abc", method="tempo", intent="charge", ...
-WWW-Authenticate: Payment id="def", method="tempo", intent="authorize", ...
+WWW-Authenticate: Payment id="def", method="tempo", intent="session", ...
 ```
 
 ## Request body binding
@@ -146,7 +145,7 @@ Use the `Retry-After` header to indicate when clients can retry failed payments.
 
 ### Transport security
 
-**TLS 1.2 or later is REQUIRED** for all Payment authentication flows. TLS 1.3 is recommended. Payment credentials contain sensitive authorization data that could result in financial loss if intercepted.
+**TLS 1.2 or later is REQUIRED** for all Payment authentication flows. Use TLS 1.3 where possible. Payment Credentials contain sensitive authorization data that could result in financial loss if intercepted.
 
 ### Replay protection
 
@@ -206,27 +205,15 @@ Implementations may define additional parameters in challenges:
 
 ## Full specification
 
-These docs provide a practical overview. For the full Specification:
+These docs provide a practical overview. For the full specification:
 
-:::note[Read the full Specification]
+import { SpecCard } from "../../components/SpecCard";
 
-- <a
-    href="https://tempoxyz.github.io/mpp-specs/draft-httpauth-payment-00"
-    data-v="true"
-  >
-    Payment HTTP Authentication Scheme
-  </a>
-  —Core protocol spec (draft-httpauth-payment-00)
-- [Payment Methods](https://tempoxyz.github.io/mpp-specs/)—Payment method definitions
-- [Payment Intents](https://tempoxyz.github.io/mpp-specs/)—Intent types (charge, authorize, subscription)
-- <a
-    href="https://tempoxyz.github.io/mpp-specs/draft-payment-transport-mcp-00"
-    data-v="true"
-  >
-    MCP Transport
-  </a>
-  —Model Context Protocol binding
-- [HTTP Transport](https://tempoxyz.github.io/mpp-specs/)—HTTP binding details
-  :::
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-httpauth-payment-00" title="Payment HTTP Authentication Scheme" description="Core protocol spec (draft-httpauth-payment-00)" />
+  <SpecCard to="https://paymentauth.org/draft-payment-transport-mcp-00" title="MCP Transport" description="Model Context Protocol binding" />
+  <SpecCard to="https://paymentauth.org" title="Payment Methods and Intents" description="Method and intent definitions (charge, session)" />
+  <SpecCard to="https://paymentauth.org" title="All Specifications" description="Browse the full specification directory" />
+</Cards>
 
 The full specification includes detailed ABNF grammar, security analysis, IANA considerations, and complete examples for various payment scenarios.

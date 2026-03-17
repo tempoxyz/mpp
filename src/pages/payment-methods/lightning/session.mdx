@@ -1,0 +1,189 @@
+import { Cards, Tab, Tabs } from 'vocs'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+import { SpecCard } from '../../../components/SpecCard'
+
+# Lightning session [Pay-as-you-go payments over Lightning]
+
+The `session` intent enables high-frequency, pay-as-you-go payments over the Lightning Network. Clients pay a deposit invoice upfront, then authenticate subsequent requests by presenting the payment preimage as a bearer token. The server tracks a running balance and deducts the configured cost per unit of service. When the session closes, the server refunds any unspent balance via the client's return invoice.
+
+Payment sessions reduce payment verification to a single SHA-256 check, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
+
+## Why sessions
+
+A charge intent requires a full Lightning round-trip per request—invoice generation, HTLC routing, preimage reveal. That's fine for a single API call, but an LLM inference can generate hundreds of tokens over several seconds. Paying per token over Lightning would add seconds of latency per chunk.
+
+Sessions fix this: one deposit, then the preimage becomes a bearer token. Every subsequent request is verified with a single `sha256` call, keeping the entire flow local and inline. The server deducts from the balance as it streams. When the client is done, the server refunds the unspent sats via the return invoice.
+
+## How it works
+
+### Overview
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant LN as Lightning Network
+    Client->>Server: (1) GET /generate
+    Server->>LN: Create deposit invoice
+    LN-->>Server: invoice + paymentHash
+    Server-->>Client: 402 + deposit invoice
+    Client->>LN: (2) Pay deposit invoice
+    LN-->>Client: preimage
+    Client->>Server: (3) GET /generate + open credential
+    Note over Server: Verify preimage, store session
+    Server-->>Client: 200 OK + SSE stream
+    Client->>Server: (4) GET /generate + bearer credential
+    Note over Server: Verify preimage, deduct per chunk
+    Server-->>Client: 200 OK + SSE stream
+    Client->>Server: (5) GET /generate + close credential
+    Note over Server: Refund unspent via return invoice
+    Server-->>Client: 200 {"status":"closed"}
+`} />
+
+A Lightning session has four phases:
+
+::::steps
+
+### Open
+
+The client pays a deposit invoice over the Lightning Network. HTLC settlement reveals the payment preimage—a 32-byte random secret that becomes the bearer token for the session. The client submits the preimage along with a return invoice (a zero-amount BOLT11 invoice for refunds) to open the session.
+
+### Session (bearer)
+
+The client authenticates subsequent requests by presenting the preimage and session ID. The server verifies `sha256(preimage) == paymentHash` with a single hash operation, entirely locally. The streaming layer deducts the per-unit cost from the session balance for each chunk delivered.
+
+### Top up
+
+If the balance runs out mid-stream, the server emits a `payment-need-topup` SSE event and holds the connection open. The client pays a fresh deposit invoice and submits a `topUp` credential. The server credits the balance and resumes the stream on the original connection. The client doesn't need to replay the request.
+
+### Close
+
+The client submits a `close` credential. The server computes `refundSats = depositSats - spent` and pays the return invoice with the unspent balance. The session is marked closed and no further actions are accepted.
+
+::::
+
+## Streaming LLM billing
+
+A typical flow for a streaming LLM API priced at 2 sats per token:
+
+1. **Client:** sends an unauthenticated request to the API
+2. **Server:** returns `402` with a deposit invoice for 300 sats (~150 tokens)
+3. **Client:** pays the invoice, opens a session with the preimage + return invoice
+4. **Server:** begins streaming tokens, deducting 2 sats per chunk from the session balance
+5. **Server:** balance exhausted mid-stream—emits `payment-need-topup`, holds connection open
+6. **Client:** pays a new deposit invoice, submits a `topUp` credential—stream resumes
+7. **Client:** closes the session—server refunds unspent sats to the return invoice
+
+Everything happens locally during streaming. Verification is a single SHA-256 hash per request, and billing is an integer decrement per chunk.
+
+:::info[Why Lightning]
+Lightning has properties that make it a natural fit for session-based billing:
+
+- **Open network**—Bitcoin is permissionless. A payment layer for the open internet should be just as open as the network it runs on.
+- **Private by default**—Lightning payments are onion-routed. Only the payer and the payee know about a payment.
+- **Micropayment-friendly**—Lightning can route sub-cent payments economically, making per-token and per-request billing practical at any price point.
+- **Self-custodial**—Both client and server hold their own keys. Funds stay under each party's control throughout the entire flow.
+:::
+
+## Integration
+
+<Tabs stateKey="platform">
+  <Tab title="Server">
+  <div className="space-y-4">
+
+Use `spark.session` to accept prepaid Lightning sessions. The method handles deposit invoice generation, preimage verification, balance tracking, and refund on close.
+
+:::info
+Session support in `@buildonspark/lightning-mpp-sdk` is coming soon. The API below shows the anticipated interface based on the [specification](https://paymentauth.org/draft-lightning-session-00).
+:::
+
+```ts
+import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/server'
+
+const mppx = Mppx.create({
+  methods: [spark.session({ mnemonic: process.env.MNEMONIC! })],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.session({
+    amount: '2',
+    currency: 'BTC',
+    unitType: 'token',
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+  </div>
+  </Tab>
+  <Tab title="Client">
+  <div className="space-y-4">
+
+Use `spark.session` with `Mppx.create` to automatically handle deposits, bearer authentication, top-ups, and session close.
+
+```ts
+import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
+
+const method = spark.session({ mnemonic: process.env.MNEMONIC! })
+
+Mppx.create({
+  methods: [method],
+})
+
+const response = await fetch('https://api.example.com/v1/chat/completions')
+// Automatically pays deposit, authenticates per request
+```
+
+### Without polyfill
+
+If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
+
+```ts
+import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
+
+const method = spark.session({ mnemonic: process.env.MNEMONIC! })
+
+const mppx = Mppx.create({
+  methods: [method],
+  polyfill: false,
+})
+
+try {
+  const response = await mppx.fetch('https://api.example.com/v1/chat/completions')
+  console.log(await response.json())
+} finally {
+  await method.cleanup()
+}
+```
+
+### With multiple methods
+
+Register both charge and session so the client can handle either intent:
+
+```ts
+import { Mppx, spark } from '@buildonspark/lightning-mpp-sdk/client'
+
+const charge = spark.charge({ mnemonic: process.env.MNEMONIC! })
+const session = spark.session({ mnemonic: process.env.MNEMONIC! })
+
+Mppx.create({
+  methods: [charge, session],
+})
+```
+
+:::info
+The Spark SDK maintains WebSocket connections for Lightning payments. Call `method.cleanup()` when done to close connections and allow the process to exit.
+:::
+
+  </div>
+  </Tab>
+</Tabs>
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-lightning-session-00" />
+</Cards>

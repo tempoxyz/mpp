@@ -1,4 +1,4 @@
-# `Mppx.toNodeListener`
+# `Mppx.toNodeListener` [Adapt payments for Node.js HTTP]
 
 Wraps a payment handler to create a Node.js HTTP listener.
 
@@ -29,7 +29,7 @@ http.createServer(async (req, res) => {
 
 ## Behavior
 
-- **On `402`:** Writes the challenge response headers and body, then ends the connection.
+- **On `402`:** Writes the Challenge response headers and body, then ends the connection.
 - **On `200`:** Sets the `Payment-Receipt` header; the caller writes the response body.
 
 ## Return type

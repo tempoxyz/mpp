@@ -6,9 +6,11 @@
   "scripts": {
     "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && vite build",
     "check": "biome check --write",
+    "check:ci": "biome check",
     "check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
     "check:types": "tsc --noEmit",
     "dev": "vite dev",
+    "generate:discovery": "node scripts/generate-discovery.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "preview": "vite preview",
@@ -19,21 +21,18 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
-    "@fontsource/commit-mono": "^5.2.5",
+    "@stripe/stripe-js": "^8.9.0",
     "@vercel/blob": "^2.3.1",
-    "class-variance-authority": "^0.7.1",
-    "form-data": "^4.0.5",
-    "mailgun.js": "^12.7.1",
     "mermaid": "^11.12.2",
-    "mppx": "~0.3.16",
+    "mppx": "~0.4.2",
     "react": "^19",
     "react-dom": "^19",
+    "stripe": "^20.4.1",
     "tailwindcss": "^4.1.18",
     "viem": "^2.46.2",
-    "vocs": "https://pkg.pr.new/wevm/vocs@ad53cca",
+    "vocs": "https://pkg.pr.new/wevm/vocs@319c55c",
     "wagmi": "^3.4.2",
-    "waku": "^1.0.0-alpha.4",
-    "zod": "^4.3.6"
+    "waku": "^1.0.0-alpha.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.1",
@@ -44,7 +43,6 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vercel/node": "^5.6.12",
     "@vitejs/plugin-react": "^5",
     "ajv": "8",
     "ajv-formats": "^3.0.1",
@@ -62,7 +60,9 @@
     "node": ">=24"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"

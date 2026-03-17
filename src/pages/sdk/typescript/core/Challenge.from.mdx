@@ -1,4 +1,4 @@
-# `Challenge.from`
+# `Challenge.from` [Create a new Challenge]
 
 Creates a challenge from the given parameters.
 
@@ -12,9 +12,9 @@ import { Challenge } from 'mppx'
 // With HMAC-bound ID (recommended for servers)
 const challenge = Challenge.from(
   {
-    realm: 'mpp.dev',
-    method: 'tempo',
     intent: 'charge',
+    method: 'tempo',
+    realm: 'mpp.dev',
     request: { amount: '1000000', currency: '0x...', recipient: '0x...' },
     secretKey: 'my-secret',
   },
@@ -30,9 +30,9 @@ import { Challenge } from 'mppx'
 
 const challenge = Challenge.from({
   id: 'abc123',
-  realm: 'mpp.dev',
-  method: 'tempo',
   intent: 'charge',
+  method: 'tempo',
+  realm: 'mpp.dev',
   request: { amount: '1000000', currency: '0x...', recipient: '0x...' },
 })
 ```

@@ -84,7 +84,9 @@ export function buildPayment(
   };
 
   if (ep.dynamic) {
-    return { ...base, dynamic: true };
+    const dyn: Record<string, unknown> = { ...base, dynamic: true };
+    if (ep.amountHint) dyn.amountHint = ep.amountHint;
+    return dyn;
   }
 
   const payment: Record<string, unknown> = { ...base, amount: ep.amount };
@@ -131,6 +133,13 @@ export function validateServices(svcs: ServiceDef[]): void {
       if (ep.amount && ep.dynamic) {
         throw new Error(
           `Endpoint "${ep.route}" in service "${svc.id}" has both amount and dynamic`,
+        );
+      }
+
+      // amountHint requires dynamic
+      if (ep.amountHint && !ep.dynamic) {
+        throw new Error(
+          `Endpoint "${ep.route}" in service "${svc.id}" has amountHint without dynamic: true`,
         );
       }
 
@@ -224,17 +233,17 @@ function buildLlmsTxt(allBuilt: Record<string, unknown>[]): string {
     "Tempo Wallet CLI is a command-line HTTP client with built-in MPP payment support.",
     "",
     "Install:",
-    "  $ curl -L https://cli.tempo.xyz/install | bash",
+    "  $ curl -fsSL https://tempo.xyz/install | bash",
     "",
     "Log in (connects your Tempo wallet):",
-    "  $ tempo-wallet login",
+    "  $ tempo wallet login",
     "",
     "Make a request (payment handled automatically):",
-    "  $ tempo-wallet https://openai.mpp.tempo.xyz/v1/chat/completions \\",
+    "  $ tempo request https://openai.mpp.tempo.xyz/v1/chat/completions \\",
     '    -X POST --json \'{"model":"gpt-4o","messages":[{"role":"user","content":"Hello"}]}\'',
     "",
     "Preview cost without paying:",
-    "  $ tempo-wallet --dry-run https://openai.mpp.tempo.xyz/v1/chat/completions",
+    "  $ tempo request --dry-run https://openai.mpp.tempo.xyz/v1/chat/completions",
     "",
     "## API",
     "",

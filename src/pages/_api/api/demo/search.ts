@@ -37,9 +37,9 @@ const searchResults = [
     "     https://stripe.com/blog/stablecoins-machine-payments",
     "     No chargebacks, no minimums, no merchant accounts. Stablecoins are the native currency of the API economy...",
     "",
-    "  3. Exa Search API: Semantic Search for LLMs",
-    "     https://docs.exa.ai/reference/search",
-    "     Neural search engine designed for AI applications, returning clean content from across the web...",
+    "  3. Parallel Search API: AI-Native Web Search",
+    "     https://docs.parallel.ai/reference/search",
+    "     AI-native search engine designed for agents, returning structured content from across the web...",
   ],
   [
     "  1. Payment Auth: An HTTP Authentication Scheme for Payments",
