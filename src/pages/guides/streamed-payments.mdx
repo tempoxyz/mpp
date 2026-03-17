@@ -586,6 +586,29 @@ for await (const word of stream) {
 - **`.sse()`** — Connects to an SSE endpoint. Automatically sends new vouchers when the server emits `payment-need-voucher` events.
 - **`maxDeposit: '1'`** — Locks up to 1 pathUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
 
+### Closing the channel
+
+After streaming completes, close the channel to settle and reclaim unspent deposit:
+
+```ts twoslash [client.ts]
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const session = tempo.session({
+  account: privateKeyToAccount('0x...'),
+  maxDeposit: '1',
+})
+
+const stream = await session.sse('http://localhost:3000/api/sessions/poem')
+
+for await (const word of stream) {
+  process.stdout.write(word + ' ')
+}
+
+// Settle on-chain and reclaim unspent deposit
+const receipt = await session.close()
+```
+
 ## Next steps
 
 <Cards>

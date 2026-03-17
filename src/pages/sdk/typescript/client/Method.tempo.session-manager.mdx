@@ -1,0 +1,282 @@
+# `tempo.session` [Standalone session manager]
+
+Creates a standalone session manager that handles the full payment channel lifecycle—open, fetch, stream, and close—without `Mppx.create` or `Fetch.from`.
+
+Use this when you need direct control over session state instead of automatic 402 handling.
+
+## Usage
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const session = tempo.session({
+  account,
+  maxDeposit: '1',
+})
+
+// Make a paid request — opens a channel on first call
+const response = await session.fetch('https://api.example.com/resource')
+console.log(response.status)
+// @log: 200
+
+// Access payment metadata
+console.log(response.receipt)
+console.log(response.cumulative)
+
+// Close the channel and settle on-chain
+const receipt = await session.close()
+```
+
+:::warning
+Channels remain open until you call `session.close()`. Always close sessions when done to settle on-chain and reclaim unspent deposit.
+:::
+
+### Session resumption
+
+All channel state is held in memory. If the client process restarts, the session is lost and a new on-chain channel opens on the next request—the previous channel's deposit is orphaned until manually closed.
+
+When the server includes a `channelId` in the `402` Challenge, the client attempts to recover the channel by reading its on-chain state. If the channel has a positive deposit and is not finalized, it resumes from the on-chain settled amount.
+
+### With SSE streaming
+
+Stream server-sent events with automatic voucher handling. The session signs incremental vouchers as the server requests them during the stream.
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const session = tempo.session({
+  account: privateKeyToAccount('0x...'),
+  maxDeposit: '5',
+})
+
+const stream = await session.sse('https://api.example.com/stream', {
+  onReceipt(receipt) {
+    console.log('Receipt:', receipt)
+  },
+  signal: AbortSignal.timeout(30_000),
+})
+
+for await (const message of stream) {
+  console.log(message)
+}
+
+await session.close()
+```
+
+### With explicit open
+
+Open the channel before the first request. This separates the on-chain deposit transaction from the first API call.
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const session = tempo.session({
+  account,
+  maxDeposit: '10',
+})
+
+// Trigger a 402 to receive the challenge
+await session.fetch('https://api.example.com/resource')
+
+// Open the channel explicitly
+await session.open()
+
+// Subsequent requests use the open channel
+const response = await session.fetch('https://api.example.com/resource')
+```
+
+## Return type
+
+`tempo.session()` returns a `SessionManager` object:
+
+```ts
+type SessionManager = {
+  readonly channelId: Hex | undefined
+  readonly cumulative: bigint
+  readonly opened: boolean
+  open(options?: { deposit?: bigint }): Promise<void>
+  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<PaymentResponse>
+  sse(
+    input: RequestInfo | URL,
+    init?: RequestInit & {
+      onReceipt?: (receipt: SessionReceipt) => void
+      signal?: AbortSignal
+    },
+  ): Promise<AsyncIterable<string>>
+  close(): Promise<SessionReceipt | undefined>
+}
+```
+
+### `PaymentResponse`
+
+`session.fetch()` returns a standard `Response` extended with payment metadata:
+
+```ts
+type PaymentResponse = Response & {
+  receipt: SessionReceipt | null
+  challenge: Challenge | null
+  channelId: Hex | null
+  cumulative: bigint
+}
+```
+
+### `SessionReceipt`
+
+The receipt returned by `session.close()` and available on `PaymentResponse.receipt`:
+
+```ts
+type SessionReceipt = {
+  method: 'tempo'
+  intent: 'session'
+  status: 'success'
+  timestamp: string
+  /** Payment channel ID (not a transaction hash). */
+  reference: string
+  challengeId: string
+  channelId: Hex
+  /** Highest cumulative voucher amount accepted by the server. */
+  acceptedCumulative: string
+  /** Total amount spent in this session. */
+  spent: string
+  /** Number of units consumed (if the server tracks units). */
+  units?: number
+  /** On-chain settlement transaction hash. Present after close. */
+  txHash?: Hex
+}
+```
+
+:::info
+The `reference` field contains the channel ID, not a transaction hash. To get the settlement transaction hash, read `txHash` from the receipt returned by `session.close()`.
+:::
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account`
+
+Account to sign vouchers with.
+
+### authorizedSigner (optional)
+
+- **Type:** `Address`
+
+Address authorized to sign vouchers. Defaults to the account address. Use when a separate access key signs vouchers while the root account funds the channel.
+
+### client (optional)
+
+- **Type:** `Client`
+
+Viem client instance. Shorthand for `getClient: () => client`.
+
+### decimals (optional)
+
+- **Type:** `number`
+- **Default:** `6`
+
+Token decimals for parsing human-readable amounts like `maxDeposit`.
+
+### escrowContract (optional)
+
+- **Type:** `Address`
+
+Escrow contract address override. Derived from the server Challenge if not provided.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Custom fetch function to use for requests.
+
+### getClient (optional)
+
+- **Type:** `(parameters: { chainId: number }) => MaybePromise<Client>`
+
+Function that returns a viem client for the given chain ID.
+
+### maxDeposit (optional)
+
+- **Type:** `string`
+
+Maximum deposit in human-readable units (for example `"10"` for 10 tokens). Caps the server's suggested deposit and enables automatic channel management.
+
+## Methods
+
+### `session.close()`
+
+Closes the payment channel and settles on-chain. Returns the final `SessionReceipt` if available, or `undefined` if no channel was open.
+
+```ts
+const receipt = await session.close()
+```
+
+### `session.fetch(input, init?)`
+
+Makes a payment-aware request. Handles the 402 Challenge → Credential flow automatically, opening a channel on first use if needed.
+
+Returns a [`PaymentResponse`](#paymentresponse) with payment metadata attached.
+
+```ts
+const response = await session.fetch('https://api.example.com/resource')
+console.log(response.receipt)
+console.log(response.cumulative)
+```
+
+### `session.open(options?)`
+
+Opens the payment channel explicitly. You must make at least one `fetch()` or `sse()` call first to receive a 402 Challenge from the server.
+
+- **options.deposit** (`bigint`, optional) — Raw deposit amount in token units.
+
+```ts
+await session.fetch('https://api.example.com/resource')
+await session.open()
+```
+
+### `session.sse(input, init?)`
+
+Opens a server-sent events stream with automatic voucher signing. The server requests incremental vouchers via `payment-need-voucher` events, and the session signs them transparently.
+
+Returns an `AsyncIterable<string>` of message payloads.
+
+- **init.onReceipt** (`(receipt: SessionReceipt) => void`, optional) — Called when the server sends a payment Receipt during the stream.
+- **init.signal** (`AbortSignal`, optional) — Aborts the stream.
+
+```ts
+const stream = await session.sse('https://api.example.com/stream', {
+  onReceipt: (receipt) => console.log('paid:', receipt),
+  signal: AbortSignal.timeout(60_000),
+})
+
+for await (const message of stream) {
+  console.log(message)
+}
+```
+
+## Properties
+
+### `session.channelId`
+
+- **Type:** `Hex | undefined`
+
+The on-chain channel ID after the channel opens. `undefined` before the first successful payment.
+
+### `session.cumulative`
+
+- **Type:** `bigint`
+
+The cumulative amount paid across all vouchers in this session. Starts at `0n`.
+
+### `session.opened`
+
+- **Type:** `boolean`
+
+Whether the payment channel is currently open.

@@ -580,6 +580,29 @@ const res = await fetch('http://localhost:3000/api/sessions/photo')
 - The client handles the full session lifecycle automatically: channel open, voucher signing, and retry after `402` responses.
 - If the server sets `suggestedDeposit`, the client uses `min(suggestedDeposit, maxDeposit)`.
 
+### Closing the channel
+
+After you're done making requests, close the channel to settle on-chain and reclaim unspent deposit:
+
+```ts twoslash [client.ts]
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const session = tempo.session({
+  account: privateKeyToAccount('0x...'),
+  maxDeposit: '1',
+})
+
+const res = await session.fetch('http://localhost:3000/api/sessions/photo')
+
+// Settle on-chain and reclaim unspent deposit
+const receipt = await session.close()
+```
+
+:::info
+Channels remain open for reuse. Closing is not required between individual requests—only when you're done with the session entirely.
+:::
+
 ## Next steps
 
 <Cards>

@@ -203,6 +203,10 @@ export default defineConfig({
                         link: "/sdk/typescript/client/Method.tempo.session",
                       },
                       {
+                        text: "tempo.session (manager)",
+                        link: "/sdk/typescript/client/Method.tempo.session-manager",
+                      },
+                      {
                         text: "stripe",
                         link: "/sdk/typescript/client/Method.stripe",
                       },
@@ -241,6 +245,16 @@ export default defineConfig({
                       {
                         text: ".mcp",
                         link: "/sdk/typescript/client/Transport.mcp",
+                      },
+                    ],
+                  },
+                  {
+                    text: "MCP",
+                    collapsed: true,
+                    items: [
+                      {
+                        text: "McpClient.wrap",
+                        link: "/sdk/typescript/client/McpClient.wrap",
                       },
                     ],
                   },
@@ -315,6 +329,20 @@ export default defineConfig({
                       },
                     ],
                   },
+                  {
+                    text: "Utilities",
+                    collapsed: true,
+                    items: [
+                      {
+                        text: "Response.requirePayment",
+                        link: "/sdk/typescript/server/Response.requirePayment",
+                      },
+                      {
+                        text: "Request.toNodeListener",
+                        link: "/sdk/typescript/server/Request.toNodeListener",
+                      },
+                    ],
+                  },
                 ],
               },
               {
@@ -337,6 +365,10 @@ export default defineConfig({
                     link: "/sdk/typescript/middlewares/nextjs",
                   },
                 ],
+              },
+              {
+                text: "Proxy",
+                link: "/sdk/typescript/proxy",
               },
               {
                 text: "Core reference",

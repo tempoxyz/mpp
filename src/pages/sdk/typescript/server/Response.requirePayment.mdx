@@ -1,0 +1,47 @@
+# `Response.requirePayment` [Create a 402 response]
+
+Creates a `402` Payment Required response with a `WWW-Authenticate: Payment` header. Optionally includes RFC 9457 Problem Details in the response body when an error is provided.
+
+## Usage
+
+```ts twoslash
+import { Challenge } from 'mppx'
+import { Response } from 'mppx/server'
+
+const challenge = Challenge.from({
+  id: 'challenge-123',
+  method: 'tempo',
+  intent: 'charge',
+  realm: 'api.example.com',
+  request: {
+    amount: '1.00',
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+  },
+})
+
+const response = Response.requirePayment({ challenge })
+// @log: Response { status: 402, headers: { 'WWW-Authenticate': 'Payment ...' } }
+```
+
+## Return type
+
+```ts
+type ReturnType = Response
+```
+
+A standard `Response` with status `402` and a `WWW-Authenticate: Payment` header containing the serialized Challenge. When an `error` is provided, the body contains a JSON problem details object with `Content-Type: application/problem+json`.
+
+## Parameters
+
+### challenge
+
+- **Type:** `Challenge`
+
+The Challenge to serialize into the `WWW-Authenticate` header.
+
+### error (optional)
+
+- **Type:** `PaymentError`
+
+An error to include as RFC 9457 Problem Details in the response body.

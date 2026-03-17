@@ -65,6 +65,18 @@ Either party can close the channel. The server calls `close()` on the escrow con
 
 ::::
 
+## Session receipts
+
+Session Receipts differ from charge Receipts. The `reference` field contains the payment channel ID (a `bytes32` hash), not a transaction hash. The on-chain settlement transaction hash is only available after closing the channel.
+
+| Field | Charge receipt | Session receipt |
+|-------|---------------|-----------------|
+| `reference` | Transaction hash | Channel ID |
+| `status` | `"success"` | `"success"` |
+| `method` | `"tempo"` | `"tempo"` |
+
+To get the settlement transaction hash, close the channel via `session.close()` and read the `txHash` field from the returned receipt.
+
 ## High volume API billing
 
 Payment sessions match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
@@ -198,9 +210,15 @@ Mppx.create({
 })
 ```
 
-:::info
-See [`tempo.session` client reference](/sdk/typescript/client/Method.tempo.session) for the full parameter list.
+### Closing the channel
+
+Channels remain open for reuse across requests. Call `session.close()` to settle on-chain and reclaim unspent deposit.
+
+:::warning
+Channels do not close automatically. If you don't call `close()`, the deposit stays locked in the escrow contract until the channel expires or is manually closed.
 :::
+
+See [`tempo.session` manager](/sdk/typescript/client/Method.tempo.session-manager) for the full session lifecycle API.
 
   </div>
   </Tab>
