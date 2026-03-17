@@ -87,11 +87,11 @@ $ mppx init --force
 Sign a payment Challenge and output the `Authorization` header value without making a request. Accepts a challenge via `--challenge` or stdin.
 
 ```bash [terminal]
-$ mppx sign --challenge 'Payment method="tempo-session";chain-id=98865;...'
+$ mppx sign --challenge 'Payment method="tempo-session";chain-id=4217;...'
 ```
 
 ```bash [terminal]
-$ echo 'Payment method="tempo-session";chain-id=98865;...' | mppx sign
+$ echo 'Payment method="tempo-session";chain-id=4217;...' | mppx sign
 ```
 
 Use `--dry-run` to validate and parse a Challenge without signing:

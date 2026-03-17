@@ -235,6 +235,15 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 | `note` | Custom/advanced options | `<Badge variant="note">Custom</Badge>` |
 | `gray` | Neutral metadata | `<Badge variant="gray">any time</Badge>` |
 
+## Tempo Chain IDs
+
+Always use these chain IDs when referencing Tempo networks:
+
+- **Mainnet**: `4217`
+- **Testnet (Moderato)**: `42431`
+
+Never use `98865`—that is a deprecated chain ID.
+
 ## Rules
 
 1. **Alphabetize everything** - Object properties in code examples and ### parameter headings must be alphabetically ordered

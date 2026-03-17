@@ -106,6 +106,7 @@ type Page =
 | { path: '/payment-methods/card'; render: 'static' }
 | { path: '/intents/charge'; render: 'static' }
 | { path: '/guides/building-with-an-llm'; render: 'static' }
+| { path: '/guides/multiple-payment-methods'; render: 'static' }
 | { path: '/guides/one-time-payments'; render: 'static' }
 | { path: '/guides/pay-as-you-go'; render: 'static' }
 | { path: '/guides/streamed-payments'; render: 'static' }
