@@ -2360,11 +2360,16 @@ function HeaderCards({
             <div style={descS}>Guides, quickstarts, and SDKs</div>
           </div>
         </a>
-        <div
+        <a
+          href="/quickstart/server"
+          className="info-card-link"
           style={{
             ...cs,
             padding: "0.65rem 0.5rem",
             background: "transparent",
+            textDecoration: "none",
+            color: "var(--vocs-text-color-heading)",
+            transition: "background 0.15s, border-color 0.15s",
           }}
         >
           <span
@@ -2390,8 +2395,17 @@ function HeaderCards({
           <div>
             <div style={titleS}>First-party</div>
             <div style={descS}>Services which directly integrate with MPP</div>
+            <div
+              style={{
+                fontSize: 11,
+                color: "var(--vocs-text-color-link)",
+                marginTop: "0.2rem",
+              }}
+            >
+              Learn how to integrate →
+            </div>
           </div>
-        </div>
+        </a>
       </div>
       {walletOpen && (
         <div
@@ -2510,11 +2524,16 @@ function SidebarInfoCards() {
         </div>
         <ArrowRightIcon />
       </a>
-      <div
+      <a
+        href="/quickstart/server"
+        className="info-card-link"
         style={{
           ...cardStyle,
           background: "transparent",
           border: "1px solid var(--vocs-border-color-primary)",
+          textDecoration: "none",
+          color: "var(--vocs-text-color-heading)",
+          transition: "background 0.15s, border-color 0.15s",
         }}
       >
         <span
@@ -2527,13 +2546,22 @@ function SidebarInfoCards() {
             marginTop: 5,
           }}
         />
-        <div>
+        <div style={{ flex: 1 }}>
           <div style={titleStyle}>First-party services</div>
           <div style={descStyle}>
             Services which directly integrate with MPP
           </div>
+          <div
+            style={{
+              fontSize: 12,
+              color: "var(--vocs-text-color-link)",
+              marginTop: "0.35rem",
+            }}
+          >
+            Learn how to integrate →
+          </div>
         </div>
-      </div>
+      </a>
     </div>
   );
 }
