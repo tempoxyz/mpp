@@ -6,7 +6,7 @@
       "name": "AgentMail",
       "url": "https://api.agentmail.to",
       "serviceUrl": "https://agentmail.mpp.tempo.xyz",
-      "description": "Email inboxes for AI agents \u2014 create, send, receive, and manage email programmatically.",
+      "description": "Email inboxes for AI agents — create, send, receive, and manage email programmatically.",
       "categories": [
         "ai",
         "social"
@@ -2457,7 +2457,7 @@
       "name": "StableEmail",
       "url": "https://stableemail.dev",
       "serviceUrl": "https://stableemail.dev",
-      "description": "Pay-per-send email delivery, forwarding inboxes, and custom subdomains \u2014 no API keys or accounts.",
+      "description": "Pay-per-send email delivery, forwarding inboxes, and custom subdomains — no API keys or accounts.",
       "categories": [
         "social"
       ],
@@ -2732,7 +2732,7 @@
       "name": "StableEnrich",
       "url": "https://stableenrich.dev",
       "serviceUrl": "https://stableenrich.dev",
-      "description": "Pay-per-request research APIs \u2014 people, companies, web search, scraping, places, social media, and contact enrichment.",
+      "description": "Pay-per-request research APIs — people, companies, web search, scraping, places, social media, and contact enrichment.",
       "categories": [
         "data",
         "search",
@@ -3168,7 +3168,7 @@
       "name": "StableTravel",
       "url": "https://stabletravel.dev",
       "serviceUrl": "https://stabletravel.dev",
-      "description": "Pay-per-request travel APIs \u2014 flights, hotels, activities, transfers, and real-time flight tracking. Powered by Amadeus and FlightAware.",
+      "description": "Pay-per-request travel APIs — flights, hotels, activities, transfers, and real-time flight tracking. Powered by Amadeus and FlightAware.",
       "categories": [
         "data",
         "web"
@@ -4095,7 +4095,7 @@
       "name": "StablePhone",
       "url": "https://stablephone.dev",
       "serviceUrl": "https://stablephone.dev",
-      "description": "AI phone calls, dedicated phone numbers, and iMessage/FaceTime lookup \u2014 pay per request.",
+      "description": "AI phone calls, dedicated phone numbers, and iMessage/FaceTime lookup — pay per request.",
       "categories": [
         "ai",
         "social"
@@ -4840,7 +4840,7 @@
       "name": "StableStudio",
       "url": "https://stablestudio.dev",
       "serviceUrl": "https://stablestudio.dev",
-      "description": "Pay-per-generation AI image and video creation \u2014 Nano Banana, GPT Image, Grok, Flux, Sora, Veo, Seedance, and Wan.",
+      "description": "Pay-per-generation AI image and video creation — Nano Banana, GPT Image, Grok, Flux, Sora, Veo, Seedance, and Wan.",
       "categories": [
         "ai",
         "media"
@@ -5223,7 +5223,7 @@
       "name": "StableUpload",
       "url": "https://stableupload.dev",
       "serviceUrl": "https://stableupload.dev",
-      "description": "Pay-per-upload file hosting and static site hosting with custom domains \u2014 6 month TTL.",
+      "description": "Pay-per-upload file hosting and static site hosting with custom domains — 6 month TTL.",
       "categories": [
         "storage"
       ],
@@ -5498,7 +5498,7 @@
       "name": "Code Storage",
       "url": "https://code.storage",
       "serviceUrl": "https://codestorage.mpp.tempo.xyz",
-      "description": "Paid Git repository creation \u2014 create repos and get authenticated clone URLs.",
+      "description": "Paid Git repository creation — create repos and get authenticated clone URLs.",
       "categories": [
         "storage"
       ],
@@ -5972,7 +5972,7 @@
       "name": "SpyFu",
       "url": "https://api.spyfu.com",
       "serviceUrl": "https://spyfu.mpp.tempo.xyz",
-      "description": "Competitor keyword research \u2014 SEO rankings, PPC ads, ad history, and domain analytics. 18+ years of historical data.",
+      "description": "Competitor keyword research — SEO rankings, PPC ads, ad history, and domain analytics. 18+ years of historical data.",
       "categories": [
         "data",
         "search"
@@ -6130,7 +6130,7 @@
       "name": "SerpApi",
       "url": "https://serpapi.com",
       "serviceUrl": "https://serpapi.mpp.tempo.xyz",
-      "description": "Google Flights search \u2014 real-time prices, schedules, and booking options.",
+      "description": "Google Flights search — real-time prices, schedules, and booking options.",
       "categories": [
         "search",
         "data"
@@ -6179,7 +6179,7 @@
       "name": "Google Maps",
       "url": "https://maps.googleapis.com",
       "serviceUrl": "https://googlemaps.mpp.tempo.xyz",
-      "description": "Google Maps Platform \u2014 geocoding, directions, places, routes, tiles, weather, air quality, and more.",
+      "description": "Google Maps Platform — geocoding, directions, places, routes, tiles, weather, air quality, and more.",
       "categories": [
         "data"
       ],
@@ -6760,7 +6760,7 @@
       "name": "KicksDB",
       "url": "https://api.kicks.dev",
       "serviceUrl": "https://kicksdb.mpp.tempo.xyz",
-      "description": "Sneaker & streetwear market data \u2014 prices, sales history, and availability from StockX, GOAT, and more.",
+      "description": "Sneaker & streetwear market data — prices, sales history, and availability from StockX, GOAT, and more.",
       "categories": [
         "data"
       ],
@@ -7178,7 +7178,7 @@
       "name": "2Captcha",
       "url": "https://api.2captcha.com",
       "serviceUrl": "https://twocaptcha.mpp.tempo.xyz",
-      "description": "CAPTCHA solving API \u2014 reCAPTCHA, Turnstile, hCaptcha, image captchas, and more.",
+      "description": "CAPTCHA solving API — reCAPTCHA, Turnstile, hCaptcha, image captchas, and more.",
       "categories": [
         "web"
       ],

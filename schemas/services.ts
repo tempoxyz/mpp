@@ -552,66 +552,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── DigitalOcean ───────────────────────────────────────────────────────
-  {
-    id: "digitalocean",
-    name: "DigitalOcean",
-    url: "https://api.digitalocean.com",
-    serviceUrl: `https://digitalocean.${MPP_REALM}`,
-    description:
-      "Cloud infrastructure for 1-click deploy of hosted MPP Agents on DigitalOcean Droplets.",
-    categories: ["compute"],
-    integration: "third-party",
-    tags: ["cloud", "droplets", "vps", "infrastructure"],
-    docs: {
-      homepage: "https://docs.digitalocean.com",
-      llmsTxt: "https://docs.digitalocean.com/llms.txt",
-    },
-    provider: { name: "DigitalOcean", url: "https://digitalocean.com" },
-    realm: MPP_REALM,
-    intent: "session",
-    payment: TEMPO_PAYMENT,
-    docsBase: "https://context7.com/websites/digitalocean/llms.txt",
-    endpoints: [
-      { route: "POST /v2/droplets", desc: "Create a Droplet", dynamic: true },
-      { route: "GET /v2/droplets", desc: "List all Droplets", amount: "100" },
-      {
-        route: "GET /v2/droplets/:id",
-        desc: "Get Droplet details",
-        amount: "100",
-      },
-      {
-        route: "DELETE /v2/droplets/:id",
-        desc: "Delete a Droplet",
-        dynamic: true,
-      },
-      {
-        route: "POST /v2/droplets/:id/actions",
-        desc: "Run a Droplet action",
-        dynamic: true,
-      },
-      { route: "POST /v2/account/keys", desc: "Add an SSH key", dynamic: true },
-      {
-        route: "GET /v2/account/keys",
-        desc: "List all SSH keys",
-        amount: "100",
-      },
-      {
-        route: "GET /v2/account/keys/:id",
-        desc: "Get SSH key details",
-        amount: "100",
-      },
-      {
-        route: "DELETE /v2/account/keys/:id",
-        desc: "Delete an SSH key",
-        amount: "100",
-      },
-      { route: "GET /v2/regions", desc: "List available regions" },
-      { route: "GET /v2/sizes", desc: "List available Droplet sizes" },
-      { route: "GET /v2/images", desc: "List available images" },
-    ],
-  },
-
   // ── ElevenLabs ─────────────────────────────────────────────────────────
   {
     id: "elevenlabs",
