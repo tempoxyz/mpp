@@ -4,7 +4,7 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Stripe [Cards, wallets, and other Stripe supported payment methods]
 
-The Stripe payment method enables payments using [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens)—single-use tokens that represent payment authorization. SPTs abstract payment method details (cards, wallets) and provide a unified interface for payment acceptance.
+The Stripe payment method enables payments using [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens)—tokens that allow a client to share a customer's payment method with your Stripe account, with configurable expiration and usage limits. SPTs provide you basic visibility into the payment method (such as card brand and last four digits), while keeping the customer's actual payment details separate.
 
 Both the client and server need a Stripe account. The client creates an SPT using the Stripe API or Stripe.js, and the server consumes it to create a Stripe `PaymentIntent`.
 
