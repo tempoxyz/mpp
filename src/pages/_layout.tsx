@@ -407,23 +407,15 @@ function useLogoFullReload() {
   }, []);
 }
 
-function useSidebarHydrationReadyFlag() {
-  useEffect(() => {
-    window.dispatchEvent(new Event("mpp:hydrated"));
-  }, []);
-}
-
 export default function Layout(props: React.PropsWithChildren) {
   usePostHog();
   useGoogleAnalytics();
   useLogoFullReload();
-  useSidebarHydrationReadyFlag();
 
   const ahrefsKey = import.meta.env.VITE_AHREFS_VERIFICATION;
 
   return (
     <>
-      <script src="/sidebar-hydration-guard.js" />
       <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1"
