@@ -264,6 +264,28 @@ export function StripeMethodCard() {
   );
 }
 
+export function CardMethodCard() {
+  return (
+    <Card
+      description="Card payments via encrypted network tokens"
+      icon="lucide:credit-card"
+      title="Card"
+      to="/payment-methods/card"
+    />
+  );
+}
+
+export function CardChargeCard() {
+  return (
+    <Card
+      description="One-time payments using encrypted network tokens"
+      icon="lucide:credit-card"
+      title="Card charge"
+      to="/payment-methods/card/charge"
+    />
+  );
+}
+
 export function CustomMethodCard() {
   return (
     <Card
