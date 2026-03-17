@@ -199,7 +199,7 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 - Bold for UI elements and list labels
 - Code font for parameters, commands, status codes, object names
 - Em dashes with no spaces: "payments immediately—you don't need to"
-- When discussing command names like `pget` or HTTP status code specifics like `402` you should always use code blocks ``
+- When discussing command names like `tempo wallet` or HTTP status code specifics like `402` you should always use code blocks ``
 
 **MPP core concepts as proper nouns**: Capitalize Challenge, Credential, and Receipt when referring to these as MPP protocol concepts or SDK types. For example: "Parse a Challenge", "Verify a Credential", "Return a Receipt". These are proper nouns within the MPP domain.
 
