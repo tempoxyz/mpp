@@ -67,7 +67,7 @@ const mppx = Mppx.create({
   methods: [
     tempo({
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
     stripe.charge({
       client: stripeClient,
@@ -96,7 +96,7 @@ const mppx = Mppx.create({
   methods: [
     tempo({
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
     stripe.charge({
       client: stripeClient,
@@ -114,6 +114,8 @@ Bun.serve({
   async fetch(request) {
     const result = await mppx.charge({
       amount: '0.01',
+      currency: 'usd',
+      decimals: 2,
       description: 'Premium API access',
     })(request)
 
@@ -158,7 +160,7 @@ const mppx = Mppx.create({
   methods: [
     tempo({
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
     stripe.charge({
       client: stripeClient,
@@ -173,7 +175,7 @@ const mppx = Mppx.create({
 
 app.get(
   '/api/resource',
-  mppx.charge({ amount: '0.01', description: 'Premium API access' }),
+  mppx.charge({ amount: '0.01', currency: 'usd', decimals: 2, description: 'Premium API access' }),
   async (c) => c.json({ message: 'Paid content' }),
 )
 ```
@@ -193,7 +195,7 @@ const mppx = Mppx.create({
   methods: [
     tempo({
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
     stripe.charge({
       client: stripeClient,
@@ -208,7 +210,7 @@ const mppx = Mppx.create({
 
 app.get(
   '/api/resource',
-  mppx.charge({ amount: '0.01', description: 'Premium API access' }),
+  mppx.charge({ amount: '0.01', currency: 'usd', decimals: 2, description: 'Premium API access' }),
   async (req, res) => res.json({ message: 'Paid content' }),
 )
 ```
@@ -226,7 +228,7 @@ const mppx = Mppx.create({
   methods: [
     tempo({
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
     stripe.charge({
       client: stripeClient,
@@ -240,7 +242,7 @@ const mppx = Mppx.create({
 })
 
 export const GET =
-  mppx.charge({ amount: '0.01', description: 'Premium API access' })
+  mppx.charge({ amount: '0.01', currency: 'usd', decimals: 2, description: 'Premium API access' })
   (async () => Response.json({ message: 'Paid content' }))
 ```
 
