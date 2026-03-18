@@ -1128,7 +1128,7 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "GraphQL query (token data, trades, liquidity, NFTs, wallets)",
-            "amount": "350"
+            "amount": "1000"
           },
           "docs": "https://context7.com/websites/codex_io/llms.txt?topic=POST%20%2Fgraphql"
         }
