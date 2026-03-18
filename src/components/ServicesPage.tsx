@@ -24,11 +24,11 @@ const CMD_PURPLE = "light-dark(#7c3aed, #c084fc)";
 const CMD_GREEN = "light-dark(#15803d, #4ade80)";
 
 export const PINNED_IDS: string[] = [
-  "alchemy",
   "openai",
   "anthropic",
   "google-gemini",
   "parallel",
+  "alchemy",
   "openrouter",
   "stabletravel",
   "codestorage",
@@ -41,7 +41,7 @@ export function allCategories(s: Service): Category[] {
 export function formatPrice(ep: Endpoint): string {
   const p = ep.payment;
   if (!p) return "\u2014";
-  if (!p.amount) return p.amountHint ?? "\u2014";
+  if (!p.amount) return p.amountHint ?? "Varies";
   const v = Number(p.amount) / 10 ** (p.decimals ?? 0);
   if (Number.isNaN(v)) return "\u2014";
   if (v === 0) return "$0";

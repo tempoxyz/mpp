@@ -4,9 +4,9 @@
     {
       "id": "agentmail",
       "name": "AgentMail",
-      "url": "https://api.agentmail.to",
-      "serviceUrl": "https://agentmail.mpp.tempo.xyz",
-      "description": "Email inboxes for AI agents — create, send, receive, and manage email programmatically.",
+      "url": "https://mpp.api.agentmail.to",
+      "serviceUrl": "https://mpp.api.agentmail.to",
+      "description": "Email inboxes for AI agents.",
       "categories": [
         "ai",
         "social"
@@ -14,14 +14,16 @@
       "integration": "first-party",
       "tags": [
         "email",
-        "inbox",
-        "agents",
+        "inboxes",
+        "domains",
+        "drafts",
+        "threads",
+        "webhooks",
         "messaging"
       ],
       "status": "active",
       "docs": {
-        "homepage": "https://docs.agentmail.to",
-        "llmsTxt": "https://docs.agentmail.to/llms.txt"
+        "homepage": "https://docs.agentmail.to"
       },
       "methods": {
         "tempo": {
@@ -33,7 +35,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "mpp.api.agentmail.to",
       "provider": {
         "name": "AgentMail",
         "url": "https://agentmail.to"
@@ -43,950 +45,628 @@
           "method": "GET",
           "path": "/v0/inboxes",
           "description": "List inboxes",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List inboxes",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes"
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/inboxes/:inbox_id",
+          "description": "Get inbox",
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/v0/inboxes",
-          "description": "Create an inbox",
+          "description": "Create inbox",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Create an inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Finboxes"
-        },
-        {
-          "method": "GET",
-          "path": "/v0/inboxes/:inboxId",
-          "description": "Get inbox details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get inbox details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId"
+            "description": "Create inbox",
+            "amount": "2000000"
+          }
         },
         {
           "method": "PATCH",
-          "path": "/v0/inboxes/:inboxId",
-          "description": "Update an inbox",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Update an inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=PATCH%20%2Fv0%2Finboxes%2F%3AinboxId"
+          "path": "/v0/inboxes/:inbox_id",
+          "description": "Update inbox",
+          "payment": null
         },
         {
           "method": "DELETE",
-          "path": "/v0/inboxes/:inboxId",
-          "description": "Delete an inbox",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Delete an inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Finboxes%2F%3AinboxId"
+          "path": "/v0/inboxes/:inbox_id",
+          "description": "Delete inbox",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/inboxes/:inboxId/threads",
-          "description": "List threads in inbox",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List threads in inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fthreads"
+          "path": "/v0/inboxes/:inbox_id/threads",
+          "description": "List threads",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/inboxes/:inboxId/threads/:threadId",
-          "description": "Get thread details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get thread details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fthreads%2F%3AthreadId"
+          "path": "/v0/inboxes/:inbox_id/threads/:thread_id",
+          "description": "Get thread",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/inboxes/:inboxId/threads/:threadId/attachments/:attachmentId",
-          "description": "Get thread attachment",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get thread attachment",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fthreads%2F%3AthreadId%2Fattachments%2F%3AattachmentId"
+          "path": "/v0/inboxes/:inbox_id/threads/:thread_id/attachments/:attachment_id",
+          "description": "Get attachment",
+          "payment": null
         },
         {
           "method": "DELETE",
-          "path": "/v0/inboxes/:inboxId/threads/:threadId",
-          "description": "Delete a thread",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Delete a thread",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Finboxes%2F%3AinboxId%2Fthreads%2F%3AthreadId"
+          "path": "/v0/inboxes/:inbox_id/threads/:thread_id",
+          "description": "Delete thread",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/inboxes/:inboxId/messages",
-          "description": "List messages in inbox",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List messages in inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages"
+          "path": "/v0/inboxes/:inbox_id/messages",
+          "description": "List messages",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/inboxes/:inboxId/messages/:messageId",
-          "description": "Get message details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get message details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages%2F%3AmessageId"
+          "path": "/v0/inboxes/:inbox_id/messages/:message_id",
+          "description": "Get message",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/inboxes/:inboxId/messages/:messageId/attachments/:attachmentId",
-          "description": "Get message attachment",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get message attachment",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages%2F%3AmessageId%2Fattachments%2F%3AattachmentId"
+          "path": "/v0/inboxes/:inbox_id/messages/:message_id/attachments/:attachment_id",
+          "description": "Get attachment",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/inboxes/:inboxId/messages/:messageId/raw",
+          "path": "/v0/inboxes/:inbox_id/messages/:message_id/raw",
           "description": "Get raw message",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get raw message",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages%2F%3AmessageId%2Fraw"
-        },
-        {
-          "method": "POST",
-          "path": "/v0/inboxes/:inboxId/messages",
-          "description": "Send a message",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Send a message",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages"
-        },
-        {
-          "method": "POST",
-          "path": "/v0/inboxes/:inboxId/messages/send",
-          "description": "Send a message",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Send a message",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages%2Fsend"
-        },
-        {
-          "method": "POST",
-          "path": "/v0/inboxes/:inboxId/messages/:messageId/reply",
-          "description": "Reply to a message",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Reply to a message",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages%2F%3AmessageId%2Freply"
-        },
-        {
-          "method": "POST",
-          "path": "/v0/inboxes/:inboxId/messages/:messageId/reply-all",
-          "description": "Reply all to a message",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Reply all to a message",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages%2F%3AmessageId%2Freply-all"
-        },
-        {
-          "method": "POST",
-          "path": "/v0/inboxes/:inboxId/messages/:messageId/forward",
-          "description": "Forward a message",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Forward a message",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages%2F%3AmessageId%2Fforward"
+          "payment": null
         },
         {
           "method": "PATCH",
-          "path": "/v0/inboxes/:inboxId/messages/:messageId",
-          "description": "Update a message",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Update a message",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=PATCH%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmessages%2F%3AmessageId"
-        },
-        {
-          "method": "GET",
-          "path": "/v0/inboxes/:inboxId/drafts",
-          "description": "List drafts in inbox",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List drafts in inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fdrafts"
-        },
-        {
-          "method": "GET",
-          "path": "/v0/inboxes/:inboxId/drafts/:draftId",
-          "description": "Get draft details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get draft details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fdrafts%2F%3AdraftId"
-        },
-        {
-          "method": "GET",
-          "path": "/v0/inboxes/:inboxId/drafts/:draftId/attachments/:attachmentId",
-          "description": "Get draft attachment",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get draft attachment",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fdrafts%2F%3AdraftId%2Fattachments%2F%3AattachmentId"
+          "path": "/v0/inboxes/:inbox_id/messages/:message_id",
+          "description": "Update message",
+          "payment": null
         },
         {
           "method": "POST",
-          "path": "/v0/inboxes/:inboxId/drafts",
-          "description": "Create a draft",
+          "path": "/v0/inboxes/:inbox_id/messages/send",
+          "description": "Send message",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Create a draft",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Finboxes%2F%3AinboxId%2Fdrafts"
+            "description": "Send message",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/v0/inboxes/:inbox_id/messages/:message_id/reply",
+          "description": "Reply to message",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Reply to message",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/v0/inboxes/:inbox_id/messages/:message_id/reply-all",
+          "description": "Reply all message",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Reply all message",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/v0/inboxes/:inbox_id/messages/:message_id/forward",
+          "description": "Forward message",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Forward message",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v0/inboxes/:inbox_id/drafts",
+          "description": "List drafts",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/inboxes/:inbox_id/drafts/:draft_id",
+          "description": "Get draft",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/inboxes/:inbox_id/drafts/:draft_id/attachments/:attachment_id",
+          "description": "Get attachment",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/v0/inboxes/:inbox_id/drafts",
+          "description": "Create draft",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Create draft",
+            "amount": "10000"
+          }
         },
         {
           "method": "PATCH",
-          "path": "/v0/inboxes/:inboxId/drafts/:draftId",
-          "description": "Update a draft",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Update a draft",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=PATCH%20%2Fv0%2Finboxes%2F%3AinboxId%2Fdrafts%2F%3AdraftId"
-        },
-        {
-          "method": "POST",
-          "path": "/v0/inboxes/:inboxId/drafts/:draftId/send",
-          "description": "Send a draft",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Send a draft",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Finboxes%2F%3AinboxId%2Fdrafts%2F%3AdraftId%2Fsend"
+          "path": "/v0/inboxes/:inbox_id/drafts/:draft_id",
+          "description": "Update draft",
+          "payment": null
         },
         {
           "method": "DELETE",
-          "path": "/v0/inboxes/:inboxId/drafts/:draftId",
-          "description": "Delete a draft",
+          "path": "/v0/inboxes/:inbox_id/drafts/:draft_id",
+          "description": "Delete draft",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/v0/inboxes/:inbox_id/drafts/:draft_id/send",
+          "description": "Send draft",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Delete a draft",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Finboxes%2F%3AinboxId%2Fdrafts%2F%3AdraftId"
+            "description": "Send draft",
+            "amount": "10000"
+          }
         },
         {
           "method": "GET",
-          "path": "/v0/inboxes/:inboxId/metrics",
-          "description": "Get inbox metrics",
+          "path": "/v0/inboxes/:inbox_id/lists/:direction/:type",
+          "description": "List entries",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/inboxes/:inbox_id/lists/:direction/:type/:entry",
+          "description": "Get list entry",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/v0/inboxes/:inbox_id/lists/:direction/:type",
+          "description": "Create list entry",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Get inbox metrics",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Finboxes%2F%3AinboxId%2Fmetrics"
+            "description": "Create list entry",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/v0/inboxes/:inbox_id/lists/:direction/:type/:entry",
+          "description": "Delete list entry",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/inboxes/:inbox_id/metrics",
+          "description": "Query metrics",
+          "payment": null
         },
         {
           "method": "GET",
           "path": "/v0/threads",
-          "description": "List threads across all inboxes",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List threads across all inboxes",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fthreads"
+          "description": "List threads",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/threads/:threadId",
-          "description": "Get thread details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get thread details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fthreads%2F%3AthreadId"
+          "path": "/v0/threads/:thread_id",
+          "description": "Get thread",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/threads/:threadId/attachments/:attachmentId",
-          "description": "Get thread attachment",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get thread attachment",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fthreads%2F%3AthreadId%2Fattachments%2F%3AattachmentId"
+          "path": "/v0/threads/:thread_id/attachments/:attachment_id",
+          "description": "Get attachment",
+          "payment": null
+        },
+        {
+          "method": "DELETE",
+          "path": "/v0/threads/:thread_id",
+          "description": "Delete thread",
+          "payment": null
         },
         {
           "method": "GET",
           "path": "/v0/drafts",
-          "description": "List drafts across all inboxes",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List drafts across all inboxes",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fdrafts"
+          "description": "List drafts",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/drafts/:draftId",
-          "description": "Get draft details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get draft details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fdrafts%2F%3AdraftId"
+          "path": "/v0/drafts/:draft_id",
+          "description": "Get draft",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/drafts/:draftId/attachments/:attachmentId",
-          "description": "Get draft attachment",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get draft attachment",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fdrafts%2F%3AdraftId%2Fattachments%2F%3AattachmentId"
+          "path": "/v0/drafts/:draft_id/attachments/:attachment_id",
+          "description": "Get attachment",
+          "payment": null
         },
         {
           "method": "GET",
           "path": "/v0/domains",
           "description": "List domains",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List domains",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fdomains"
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/domains/:domain_id",
+          "description": "Get domain",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/domains/:domain_id/zone-file",
+          "description": "Get zone file",
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/v0/domains",
-          "description": "Create a domain",
+          "description": "Create domain",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Create a domain",
+            "description": "Create domain",
             "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Fdomains"
-        },
-        {
-          "method": "GET",
-          "path": "/v0/domains/:domainId",
-          "description": "Get domain details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get domain details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fdomains%2F%3AdomainId"
-        },
-        {
-          "method": "GET",
-          "path": "/v0/domains/:domainId/zone-file",
-          "description": "Get domain zone file",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get domain zone file",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fdomains%2F%3AdomainId%2Fzone-file"
+          }
         },
         {
           "method": "DELETE",
-          "path": "/v0/domains/:domainId",
-          "description": "Delete a domain",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Delete a domain",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Fdomains%2F%3AdomainId"
+          "path": "/v0/domains/:domain_id",
+          "description": "Delete domain",
+          "payment": null
         },
         {
           "method": "POST",
-          "path": "/v0/domains/:domainId/verify",
-          "description": "Verify a domain",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Verify a domain",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Fdomains%2F%3AdomainId%2Fverify"
+          "path": "/v0/domains/:domain_id/verify",
+          "description": "Verify domain",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/webhooks",
-          "description": "List webhooks",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List webhooks",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fwebhooks"
+          "path": "/v0/lists/:direction/:type",
+          "description": "List entries",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/lists/:direction/:type/:entry",
+          "description": "Get list entry",
+          "payment": null
         },
         {
           "method": "POST",
-          "path": "/v0/webhooks",
-          "description": "Create a webhook",
+          "path": "/v0/lists/:direction/:type",
+          "description": "Create list entry",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Create a webhook",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Fwebhooks"
-        },
-        {
-          "method": "GET",
-          "path": "/v0/webhooks/:webhookId",
-          "description": "Get webhook details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get webhook details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fwebhooks%2F%3AwebhookId"
-        },
-        {
-          "method": "PATCH",
-          "path": "/v0/webhooks/:webhookId",
-          "description": "Update a webhook",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Update a webhook",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=PATCH%20%2Fv0%2Fwebhooks%2F%3AwebhookId"
+            "description": "Create list entry",
+            "amount": "10000"
+          }
         },
         {
           "method": "DELETE",
-          "path": "/v0/webhooks/:webhookId",
-          "description": "Delete a webhook",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Delete a webhook",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Fwebhooks%2F%3AwebhookId"
+          "path": "/v0/lists/:direction/:type/:entry",
+          "description": "Delete list entry",
+          "payment": null
         },
         {
           "method": "GET",
           "path": "/v0/metrics",
-          "description": "List metrics",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List metrics",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fmetrics"
+          "description": "Query metrics",
+          "payment": null
         },
         {
           "method": "GET",
           "path": "/v0/api-keys",
           "description": "List API keys",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List API keys",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fapi-keys"
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/v0/api-keys",
-          "description": "Create an API key",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Create an API key",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Fapi-keys"
+          "description": "Create API key",
+          "payment": null
         },
         {
           "method": "DELETE",
-          "path": "/v0/api-keys/:keyId",
-          "description": "Delete an API key",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Delete an API key",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Fapi-keys%2F%3AkeyId"
+          "path": "/v0/api-keys/:api_key",
+          "description": "Delete API key",
+          "payment": null
         },
         {
           "method": "GET",
           "path": "/v0/pods",
           "description": "List pods",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List pods",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods"
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/pods/:pod_id",
+          "description": "Get pod",
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/v0/pods",
-          "description": "Create a pod",
+          "description": "Create pod",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Create a pod",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Fpods"
-        },
-        {
-          "method": "GET",
-          "path": "/v0/pods/:podId",
-          "description": "Get pod details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get pod details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId"
+            "description": "Create pod",
+            "amount": "10000"
+          }
         },
         {
           "method": "DELETE",
-          "path": "/v0/pods/:podId",
-          "description": "Delete a pod",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Delete a pod",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Fpods%2F%3ApodId"
+          "path": "/v0/pods/:pod_id",
+          "description": "Delete pod",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/pods/:podId/inboxes",
-          "description": "List pod inboxes",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List pod inboxes",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Finboxes"
+          "path": "/v0/pods/:pod_id/inboxes",
+          "description": "List inboxes",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/pods/:pod_id/inboxes/:inbox_id",
+          "description": "Get inbox",
+          "payment": null
         },
         {
           "method": "POST",
-          "path": "/v0/pods/:podId/inboxes",
-          "description": "Create pod inbox",
+          "path": "/v0/pods/:pod_id/inboxes",
+          "description": "Create inbox",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Create pod inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Fpods%2F%3ApodId%2Finboxes"
+            "description": "Create inbox",
+            "amount": "2000000"
+          }
         },
         {
-          "method": "GET",
-          "path": "/v0/pods/:podId/inboxes/:inboxId",
-          "description": "Get pod inbox",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get pod inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Finboxes%2F%3AinboxId"
+          "method": "PATCH",
+          "path": "/v0/pods/:pod_id/inboxes/:inbox_id",
+          "description": "Update inbox",
+          "payment": null
         },
         {
           "method": "DELETE",
-          "path": "/v0/pods/:podId/inboxes/:inboxId",
-          "description": "Delete pod inbox",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Delete pod inbox",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Fpods%2F%3ApodId%2Finboxes%2F%3AinboxId"
+          "path": "/v0/pods/:pod_id/inboxes/:inbox_id",
+          "description": "Delete inbox",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/pods/:podId/threads",
-          "description": "List pod threads",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List pod threads",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Fthreads"
+          "path": "/v0/pods/:pod_id/threads",
+          "description": "List threads",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/pods/:podId/threads/:threadId",
-          "description": "Get pod thread",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get pod thread",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Fthreads%2F%3AthreadId"
+          "path": "/v0/pods/:pod_id/threads/:thread_id",
+          "description": "Get thread",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/pods/:podId/threads/:threadId/attachments/:attachmentId",
-          "description": "Get pod thread attachment",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get pod thread attachment",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Fthreads%2F%3AthreadId%2Fattachments%2F%3AattachmentId"
+          "path": "/v0/pods/:pod_id/threads/:thread_id/attachments/:attachment_id",
+          "description": "Get attachment",
+          "payment": null
+        },
+        {
+          "method": "DELETE",
+          "path": "/v0/pods/:pod_id/threads/:thread_id",
+          "description": "Delete thread",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/pods/:podId/drafts",
-          "description": "List pod drafts",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List pod drafts",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Fdrafts"
+          "path": "/v0/pods/:pod_id/drafts",
+          "description": "List drafts",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/pods/:podId/drafts/:draftId",
-          "description": "Get pod draft",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get pod draft",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Fdrafts%2F%3AdraftId"
+          "path": "/v0/pods/:pod_id/drafts/:draft_id",
+          "description": "Get draft",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/pods/:podId/drafts/:draftId/attachments/:attachmentId",
-          "description": "Get pod draft attachment",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get pod draft attachment",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Fdrafts%2F%3AdraftId%2Fattachments%2F%3AattachmentId"
+          "path": "/v0/pods/:pod_id/drafts/:draft_id/attachments/:attachment_id",
+          "description": "Get attachment",
+          "payment": null
         },
         {
           "method": "GET",
-          "path": "/v0/pods/:podId/domains",
-          "description": "List pod domains",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List pod domains",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Fpods%2F%3ApodId%2Fdomains"
+          "path": "/v0/pods/:pod_id/domains",
+          "description": "List domains",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/pods/:pod_id/domains/:domain_id",
+          "description": "Get domain",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/pods/:pod_id/domains/:domain_id/zone-file",
+          "description": "Get zone file",
+          "payment": null
         },
         {
           "method": "POST",
-          "path": "/v0/pods/:podId/domains",
-          "description": "Create pod domain",
+          "path": "/v0/pods/:pod_id/domains",
+          "description": "Create domain",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Create pod domain",
-            "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=POST%20%2Fv0%2Fpods%2F%3ApodId%2Fdomains"
+            "description": "Create domain",
+            "amount": "10000000"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/v0/pods/:pod_id/domains/:domain_id",
+          "description": "Update domain",
+          "payment": null
         },
         {
           "method": "DELETE",
-          "path": "/v0/pods/:podId/domains/:domainId",
-          "description": "Delete pod domain",
+          "path": "/v0/pods/:pod_id/domains/:domain_id",
+          "description": "Delete domain",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/v0/pods/:pod_id/domains/:domain_id/verify",
+          "description": "Verify domain",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/pods/:pod_id/lists/:direction/:type",
+          "description": "List entries",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/pods/:pod_id/lists/:direction/:type/:entry",
+          "description": "Get list entry",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/v0/pods/:pod_id/lists/:direction/:type",
+          "description": "Create list entry",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "Delete pod domain",
+            "description": "Create list entry",
             "amount": "10000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=DELETE%20%2Fv0%2Fpods%2F%3ApodId%2Fdomains%2F%3AdomainId"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/v0/pods/:pod_id/lists/:direction/:type/:entry",
+          "description": "Delete list entry",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/pods/:pod_id/metrics",
+          "description": "Query metrics",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/v0/pods/:pod_id/api-keys",
+          "description": "List API keys",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/v0/pods/:pod_id/api-keys",
+          "description": "Create API key",
+          "payment": null
+        },
+        {
+          "method": "DELETE",
+          "path": "/v0/pods/:pod_id/api-keys/:api_key",
+          "description": "Delete API key",
+          "payment": null
         },
         {
           "method": "GET",
           "path": "/v0/organizations",
-          "description": "Get organization details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get organization details",
-            "amount": "5000"
-          },
-          "docs": "https://docs.agentmail.to/llms.txt?topic=GET%20%2Fv0%2Forganizations"
+          "description": "Get organization",
+          "payment": null
         }
       ]
     },
     {
-      "id": "alchemy",
-      "name": "Alchemy",
-      "url": "https://eth-mainnet.g.alchemy.com",
-      "serviceUrl": "https://alchemy.mpp.tempo.xyz",
-      "description": "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
+      "id": "allium",
+      "name": "Allium",
+      "url": "https://agents.allium.so",
+      "serviceUrl": "https://agents.allium.so",
+      "description": "System of record for onchain finance. Real-time blockchain data: token prices, wallet balances, transactions, PnL, and SQL explorer.",
       "categories": [
         "blockchain",
         "data"
       ],
       "integration": "first-party",
       "tags": [
-        "rpc",
-        "json-rpc",
-        "nft",
-        "evm",
-        "multichain"
+        "blockchain",
+        "prices",
+        "tokens",
+        "wallet",
+        "balances",
+        "transactions",
+        "pnl",
+        "sql",
+        "explorer",
+        "solana",
+        "base",
+        "defi"
       ],
       "status": "active",
       "docs": {
-        "homepage": "https://www.alchemy.com/docs",
-        "llmsTxt": "https://www.alchemy.com/docs/llms.txt"
+        "homepage": "https://docs.allium.so"
       },
       "methods": {
         "tempo": {
@@ -998,53 +678,221 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "agents.allium.so",
       "provider": {
-        "name": "Alchemy",
-        "url": "https://alchemy.com"
+        "name": "Allium",
+        "url": "https://allium.so"
       },
       "endpoints": [
         {
           "method": "POST",
-          "path": "/:network/v2",
-          "description": "JSON-RPC call (eth_*, alchemy_*)",
+          "path": "/api/v1/developer/prices",
+          "description": "Get latest token prices",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC call (eth_*, alchemy_*)",
-            "amount": "100"
-          },
-          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=POST%20%2F%3Anetwork%2Fv2"
-        },
-        {
-          "method": "GET",
-          "path": "/:network/nft/v3/:endpoint",
-          "description": "NFT API v3",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "NFT API v3",
-            "amount": "500"
-          },
-          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=GET%20%2F%3Anetwork%2Fnft%2Fv3%2F%3Aendpoint"
+            "description": "Get latest token prices",
+            "amount": "20000",
+            "unitType": "request"
+          }
         },
         {
           "method": "POST",
-          "path": "/:network/nft/v3/:endpoint",
-          "description": "NFT API v3",
+          "path": "/api/v1/developer/prices/at-timestamp",
+          "description": "Get token prices at a specific time",
           "payment": {
             "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "NFT API v3",
-            "amount": "500"
-          },
-          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=POST%20%2F%3Anetwork%2Fnft%2Fv3%2F%3Aendpoint"
+            "description": "Get token prices at a specific time",
+            "amount": "20000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/developer/prices/history",
+          "description": "Get historical token price series",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical token price series",
+            "amount": "20000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/developer/prices/stats",
+          "description": "Get token price statistics",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get token price statistics",
+            "amount": "20000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/developer/tokens/search",
+          "description": "Search tokens by name or symbol",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search tokens by name or symbol",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/developer/tokens/chain-address",
+          "description": "Look up tokens by chain and address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Look up tokens by chain and address",
+            "amount": "20000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/developer/tokens",
+          "description": "List all supported tokens",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List all supported tokens",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/developer/wallet/balances",
+          "description": "Get current wallet token balances",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get current wallet token balances",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/developer/wallet/balances/history",
+          "description": "Get historical wallet balances",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical wallet balances",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/developer/wallet/transactions",
+          "description": "Get wallet transaction history",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get wallet transaction history",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/developer/wallet/pnl",
+          "description": "Get wallet profit and loss",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get wallet profit and loss",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/explorer/queries/run-async",
+          "description": "Submit raw SQL for async execution",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Submit raw SQL for async execution",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/explorer/queries/:query_id/run-async",
+          "description": "Run a saved query asynchronously",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Run a saved query asynchronously",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/explorer/query-runs/:run_id/status",
+          "description": "Check status of a query run",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check status of a query run",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/explorer/query-runs/:run_id/results",
+          "description": "Fetch results of a completed query",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Fetch results of a completed query",
+            "dynamic": true,
+            "amountHint": "$0.01 – $2.00"
+          }
         }
       ]
     },
@@ -1119,19 +967,22 @@
     {
       "id": "browserbase",
       "name": "Browserbase",
-      "url": "https://api.browserbase.com",
-      "serviceUrl": "https://browserbase.mpp.tempo.xyz",
-      "description": "Headless browser sessions for web scraping and automation.",
+      "url": "https://mpp.browserbase.com",
+      "serviceUrl": "https://mpp.browserbase.com",
+      "description": "Headless browser sessions, web search, and page fetching for AI agents.",
       "categories": [
         "web",
-        "compute"
+        "compute",
+        "search"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "browser",
         "scraping",
         "automation",
-        "headless"
+        "headless",
+        "search",
+        "fetch"
       ],
       "status": "active",
       "docs": {
@@ -1148,7 +999,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "mpp.browserbase.com",
       "provider": {
         "name": "Browserbase",
         "url": "https://browserbase.com"
@@ -1156,7 +1007,7 @@
       "endpoints": [
         {
           "method": "POST",
-          "path": "/v1/sessions",
+          "path": "/browser/session/create",
           "description": "Create a browser session",
           "payment": {
             "intent": "charge",
@@ -1164,13 +1015,20 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Create a browser session",
-            "amount": "120000"
+            "dynamic": true,
+            "amountHint": "$0.12/hr"
           },
-          "docs": "https://context7.com/websites/browserbase/llms.txt?topic=POST%20%2Fv1%2Fsessions"
+          "docs": "https://docs.browserbase.com/reference/api/create-a-session"
+        },
+        {
+          "method": "GET",
+          "path": "/browser/session/:id/status",
+          "description": "Check session status",
+          "payment": null
         },
         {
           "method": "POST",
-          "path": "/v1/sessions/:id/extend",
+          "path": "/browser/session/:id/extend",
           "description": "Add more time to session",
           "payment": {
             "intent": "charge",
@@ -1178,9 +1036,46 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Add more time to session",
-            "amount": "120000"
+            "dynamic": true,
+            "amountHint": "$0.12/hr"
           },
-          "docs": "https://context7.com/websites/browserbase/llms.txt?topic=POST%20%2Fv1%2Fsessions%2F%3Aid%2Fextend"
+          "docs": "https://docs.browserbase.com/reference/api/create-a-session"
+        },
+        {
+          "method": "DELETE",
+          "path": "/browser/session/:id",
+          "description": "Terminate session",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/search",
+          "description": "Web search with structured results",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Web search with structured results",
+            "amount": "10000",
+            "unitType": "request"
+          },
+          "docs": "https://docs.browserbase.com/features/search"
+        },
+        {
+          "method": "POST",
+          "path": "/fetch",
+          "description": "Fetch a page and return content and metadata",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Fetch a page and return content and metadata",
+            "amount": "10000",
+            "unitType": "request"
+          },
+          "docs": "https://docs.browserbase.com/features/fetch"
         }
       ]
     },
@@ -1236,6 +1131,88 @@
             "amount": "350"
           },
           "docs": "https://context7.com/websites/codex_io/llms.txt?topic=POST%20%2Fgraphql"
+        }
+      ]
+    },
+    {
+      "id": "dune",
+      "name": "Dune",
+      "url": "https://dune.com",
+      "serviceUrl": "https://api.dune.com",
+      "description": "Execute SQL queries on Dune and retrieve results or CSV exports from completed executions.",
+      "categories": [
+        "data",
+        "blockchain"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "sql",
+        "analytics",
+        "blockchain",
+        "data",
+        "query"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.dune.com/api-reference/agents/mpp"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "api.dune.com",
+      "provider": {
+        "name": "Dune",
+        "url": "https://dune.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/sql/execute",
+          "description": "Execute a SQL query",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Execute a SQL query",
+            "dynamic": true,
+            "amountHint": "$0.05-$3"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/execution/:execution_id/csv",
+          "description": "Download CSV results for an execution",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Download CSV results for an execution",
+            "dynamic": true,
+            "amountHint": "$0.05-$10"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/execution/:execution_id/results",
+          "description": "Fetch JSON results for an execution",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Fetch JSON results for an execution",
+            "dynamic": true,
+            "amountHint": "$0.05-$10"
+          }
         }
       ]
     },
@@ -2290,6 +2267,89 @@
             "dynamic": true,
             "amountHint": "$0.10 – $0.30"
           }
+        }
+      ]
+    },
+    {
+      "id": "alchemy",
+      "name": "Alchemy",
+      "url": "https://eth-mainnet.g.alchemy.com",
+      "serviceUrl": "https://mpp.alchemy.com",
+      "description": "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
+      "categories": [
+        "blockchain",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "rpc",
+        "json-rpc",
+        "nft",
+        "evm",
+        "multichain"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://www.alchemy.com/docs",
+        "llmsTxt": "https://www.alchemy.com/docs/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "alchemy.com",
+      "provider": {
+        "name": "Alchemy",
+        "url": "https://alchemy.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/:network/v2",
+          "description": "JSON-RPC call (eth_*, alchemy_*)",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "JSON-RPC call (eth_*, alchemy_*)",
+            "amount": "100"
+          },
+          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=POST%20%2F%3Anetwork%2Fv2"
+        },
+        {
+          "method": "GET",
+          "path": "/:network/nft/v3/:endpoint",
+          "description": "NFT API v3",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "NFT API v3",
+            "amount": "500"
+          },
+          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=GET%20%2F%3Anetwork%2Fnft%2Fv3%2F%3Aendpoint"
+        },
+        {
+          "method": "POST",
+          "path": "/:network/nft/v3/:endpoint",
+          "description": "NFT API v3",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "NFT API v3",
+            "amount": "500"
+          },
+          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=POST%20%2F%3Anetwork%2Fnft%2Fv3%2F%3Aendpoint"
         }
       ]
     },
@@ -4206,7 +4266,7 @@
       "name": "StableSocial",
       "url": "https://stablesocial.dev",
       "serviceUrl": "https://stablesocial.dev",
-      "description": "Pay-per-request social media data from TikTok, Instagram, X/Twitter, Facebook, and Reddit.",
+      "description": "Pay-per-request social media data from TikTok, Instagram, Facebook, and Reddit.",
       "categories": [
         "social",
         "data"
@@ -4215,7 +4275,6 @@
       "tags": [
         "tiktok",
         "instagram",
-        "twitter",
         "facebook",
         "reddit",
         "scraping",
@@ -4499,123 +4558,6 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Search Instagram by tag",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/profile",
-          "description": "Get X/Twitter user profile",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get X/Twitter user profile",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/posts",
-          "description": "Get X/Twitter user posts",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get X/Twitter user posts",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/post-replies",
-          "description": "Get X/Twitter post replies",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get X/Twitter post replies",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/post-retweets",
-          "description": "Get X/Twitter retweet profiles",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get X/Twitter retweet profiles",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/post-quotes",
-          "description": "Get X/Twitter quote tweets",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get X/Twitter quote tweets",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/followers",
-          "description": "Get X/Twitter followers",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get X/Twitter followers",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/following",
-          "description": "Get X/Twitter following",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get X/Twitter following",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/search",
-          "description": "Search X/Twitter posts by keyword",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Search X/Twitter posts by keyword",
-            "amount": "60000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/x/search-profiles",
-          "description": "Search X/Twitter user profiles",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Search X/Twitter user profiles",
             "amount": "60000"
           }
         },
@@ -7227,6 +7169,177 @@
           "path": "/getTaskResult",
           "description": "Poll for task result",
           "payment": null
+        }
+      ]
+    },
+    {
+      "id": "postalform",
+      "name": "PostalForm",
+      "url": "https://postalform.com",
+      "serviceUrl": "https://postalform.com",
+      "description": "Print and mail real letters and documents via AI agents.",
+      "categories": [
+        "web"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "mail",
+        "print",
+        "letters",
+        "physical",
+        "postal"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://postalform.com/agents"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "postalform.com",
+      "provider": {
+        "name": "PostalForm",
+        "url": "https://postalform.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/machine/mpp/orders/validate",
+          "description": "Quote and validate an order before payment",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/machine/mpp/orders",
+          "description": "Create and pay for a print-and-mail order",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Create and pay for a print-and-mail order",
+            "dynamic": true,
+            "amountHint": "Varies"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/machine/mpp/orders/:id",
+          "description": "Poll order status and fulfillment",
+          "payment": null
+        }
+      ]
+    },
+    {
+      "id": "prospect-butcher",
+      "name": "Prospect Butcher",
+      "url": "https://agents.prospectbutcher.shop",
+      "serviceUrl": "https://agents.prospectbutcher.shop",
+      "description": "Order sandwiches for pickup in Brooklyn — the first food purchase made entirely by an AI agent.",
+      "categories": [
+        "web"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "food",
+        "ordering",
+        "sandwiches",
+        "physical",
+        "restaurant"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://agents.prospectbutcher.shop",
+        "llmsTxt": "https://agents.prospectbutcher.shop/llms.txt"
+      },
+      "methods": {
+        "stripe": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "usd"
+          ]
+        }
+      },
+      "realm": "agents.prospectbutcher.shop",
+      "provider": {
+        "name": "Prospect Butcher",
+        "url": "https://www.prospectbutcher.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/buy/:slug",
+          "description": "Purchase a sandwich",
+          "payment": {
+            "intent": "charge",
+            "method": "stripe",
+            "currency": "usd",
+            "decimals": 2,
+            "description": "Purchase a sandwich",
+            "dynamic": true,
+            "amountHint": "Varies"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stripe-climate",
+      "name": "Stripe Climate",
+      "url": "https://climate.stripe.dev",
+      "serviceUrl": "https://climate.stripe.dev",
+      "description": "Fund permanent carbon removal projects via Stripe Climate.",
+      "categories": [
+        "web"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "climate",
+        "carbon",
+        "sustainability",
+        "stripe"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://climate.stripe.dev"
+      },
+      "methods": {
+        "stripe": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "usd"
+          ]
+        }
+      },
+      "realm": "climate.stripe.dev",
+      "provider": {
+        "name": "Stripe",
+        "url": "https://stripe.com/climate"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/contribute",
+          "description": "Create a climate contribution",
+          "payment": {
+            "intent": "charge",
+            "method": "stripe",
+            "currency": "usd",
+            "decimals": 2,
+            "description": "Create a climate contribution",
+            "dynamic": true,
+            "amountHint": "$0.01+"
+          }
         }
       ]
     }
