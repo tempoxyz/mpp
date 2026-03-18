@@ -26,8 +26,6 @@ jobs:
           node-version: "22"
           cache: "pnpm"
 
-      # TODO: Once the site is public, replace the build steps with:
-      #   curl -fsSL https://mpp.sh/llms-full.txt -o dist/public/llms-full.txt
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
 
