@@ -777,23 +777,13 @@ function HighlightedCmd({ children }: { children: string }) {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function orderServices(services: Service[], shuffledIds: string[]): Service[] {
+function orderServices(services: Service[]): Service[] {
   const pinned = PINNED_IDS.flatMap((id) =>
     services.filter((s) => s.id === id),
   );
   const pinnedSet = new Set(PINNED_IDS);
   const rest = services.filter((s) => !pinnedSet.has(s.id));
-  const idxMap = new Map(shuffledIds.map((id, i) => [id, i]));
-  rest.sort((a, b) => (idxMap.get(a.id) ?? 0) - (idxMap.get(b.id) ?? 0));
+  rest.sort((a, b) => a.name.localeCompare(b.name));
   return [...pinned, ...rest];
 }
 
@@ -826,15 +816,9 @@ export function ServicesPage() {
   >(undefined);
   const tableRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
-  const shuffledOrder = useRef<string[]>([]);
-
   useEffect(() => {
     fetchServices()
       .then((data) => {
-        const pinnedSet = new Set(PINNED_IDS);
-        shuffledOrder.current = shuffle(
-          data.filter((s) => !pinnedSet.has(s.id)).map((s) => s.id),
-        );
         setServices(data);
         setLoading(false);
       })
@@ -969,7 +953,7 @@ export function ServicesPage() {
           ),
       );
     }
-    return orderServices(list, shuffledOrder.current);
+    return orderServices(list);
   }, [services, selectedCategory, effectiveSearch]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -1044,7 +1028,7 @@ export function ServicesPage() {
       }
       setExpandedIds(new Set([serviceId]));
       history.replaceState(null, "", `/services#${serviceId}`);
-      const all = orderServices(services, shuffledOrder.current);
+      const all = orderServices(services);
       const idx = all.findIndex((s) => s.id === serviceId);
       if (idx >= 0) setPage(Math.floor(idx / PAGE_SIZE));
       setTimeout(() => {
