@@ -571,8 +571,10 @@ function AsyncSteps({
   description?: string;
 }) {
   const { address, funded, setFunded } = walletState;
-  const [txHash, setTxHash] = useState(() => initialTxHash ?? randomTxHash());
-  const [channelTxHash, setChannelTxHash] = useState(() => randomTxHash());
+  const [txHash, setTxHash] = useState<string | null>(
+    () => initialTxHash ?? null,
+  );
+  const [channelTxHash] = useState<string | null>(null);
   const doneCalled = useRef(false);
   const liveStarted = useRef(false);
 
@@ -678,10 +680,8 @@ function AsyncSteps({
               },
             });
 
-            // Capture channel ID after SSE opens the channel
-            if (demoClient.session.channelId) {
-              setChannelTxHash(demoClient.session.channelId);
-            }
+            // Channel ID is available but it's not a tx hash — don't link it
+            // setChannelTxHash is left null for session flows
 
             // Advance through deposit → req200 → stream
             setStep(payIdx + 1);
@@ -868,7 +868,7 @@ function AsyncSteps({
           {isRestart ? "Using" : "Create a"} wallet{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
           <a
-            href={`https://explore.tempo.xyz/address/${address}`}
+            href={`https://explore.moderato.tempo.xyz/address/${address}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline"
@@ -903,12 +903,12 @@ function AsyncSteps({
       {atOrPast("channel") && (
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("channel")} /> Open payment channel
-          {pastStep("channel") && (
+          {pastStep("channel") && channelTxHash && (
             <>
               {" "}
               <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
               <a
-                href={`https://explore.tempo.xyz/receipt/${channelTxHash}`}
+                href={`https://explore.moderato.tempo.xyz/receipt/${channelTxHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -930,12 +930,12 @@ function AsyncSteps({
       {atOrPast("pay") && (
         <p style={{ color: "var(--term-gray6)" }}>
           <StepIcon spinning={atStep("pay")} /> Fulfill payment
-          {pastStep("pay") && (
+          {pastStep("pay") && txHash && (
             <>
               {" "}
               <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
               <a
-                href={`https://explore.tempo.xyz/receipt/${txHash}`}
+                href={`https://explore.moderato.tempo.xyz/receipt/${txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -1079,12 +1079,12 @@ function AsyncSteps({
           <p style={{ color: "var(--term-gray6)" }}>
             <StepIcon spinning={atStep("closeChannel")} /> Closed payment
             channel
-            {pastStep("closeChannel") && (
+            {pastStep("closeChannel") && txHash && (
               <>
                 {" "}
                 <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
                 <a
-                  href={`https://explore.tempo.xyz/receipt/${txHash}`}
+                  href={`https://explore.moderato.tempo.xyz/receipt/${txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline"
@@ -2210,7 +2210,7 @@ function GalleryStep({
           <StepIcon spinning={setupAt("wallet")} /> Create a wallet{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
           <a
-            href={`https://explore.tempo.xyz/address/${walletState.address}`}
+            href={`https://explore.moderato.tempo.xyz/address/${walletState.address}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline"
@@ -2250,7 +2250,7 @@ function GalleryStep({
               {" "}
               <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
               <a
-                href={`https://explore.tempo.xyz/receipt/${channelTxHash}`}
+                href={`https://explore.moderato.tempo.xyz/receipt/${channelTxHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -2452,7 +2452,7 @@ function GalleryStep({
                 {" "}
                 <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
                 <a
-                  href={`https://explore.tempo.xyz/receipt/${closeTxHash}`}
+                  href={`https://explore.moderato.tempo.xyz/receipt/${closeTxHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline"
