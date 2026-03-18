@@ -2993,7 +2993,7 @@ function ServiceIcon({ service: s }: { service: Service }) {
             filter: "invert(var(--icon-invert, 0))",
             ...(s.id === "twitter"
               ? { width: 20, height: 20, padding: 0, margin: 4 }
-              : ["elevenlabs", "digitalocean"].includes(s.id)
+              : s.id === "digitalocean"
                 ? { padding: 5 }
                 : {}),
           }}
