@@ -2580,7 +2580,7 @@ function WalletSteps() {
         label="Install Tempo tools"
         desc="Install the CLI. You will be asked to sign in or create a passkey-based wallet in your browser."
       >
-        curl -L https://tempo.xyz/install | bash && tempo add wallet
+        curl -L https://tempo.xyz/install | bash && tempo add request && tempo wallet login
       </CliSnippet>
       <CliSnippet
         label="Prompt your agent"
