@@ -3408,7 +3408,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-
   // ── Stability AI ───────────────────────────────────────────────────────
   {
     id: "stability-ai",
@@ -3569,8 +3568,6 @@ export const services: ServiceDef[] = [
       {
         route: "POST /stability-ai/result",
         desc: "Retrieve the result of an async generation by ID",
-        amount: "0",
-        unitType: "request",
       },
     ],
   },
@@ -3637,8 +3634,6 @@ export const services: ServiceDef[] = [
       {
         route: "POST /hunter/email-count",
         desc: "Get the count of email addresses for a domain",
-        amount: "0",
-        unitType: "request",
       },
     ],
   },
@@ -3669,8 +3664,6 @@ export const services: ServiceDef[] = [
       {
         route: "POST /replicate/get-prediction",
         desc: "Get the status and output of a prediction",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /replicate/get-model",
@@ -3785,14 +3778,10 @@ export const services: ServiceDef[] = [
       {
         route: "POST /builtwith/whoami",
         desc: "Get current API account information",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /builtwith/usage",
         desc: "Get API usage statistics",
-        amount: "0",
-        unitType: "request",
       },
     ],
   },
@@ -3823,8 +3812,6 @@ export const services: ServiceDef[] = [
       {
         route: "POST /suno/get-music-status",
         desc: "Check the status of a music generation task",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /suno/generate-lyrics",
@@ -3835,14 +3822,10 @@ export const services: ServiceDef[] = [
       {
         route: "POST /suno/get-lyrics-status",
         desc: "Check the status of a lyrics generation task",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /suno/get-credits",
         desc: "Get remaining Suno credits balance",
-        amount: "0",
-        unitType: "request",
       },
     ],
   },
@@ -4116,20 +4099,14 @@ export const services: ServiceDef[] = [
       {
         route: "POST /judge0/get-submission",
         desc: "Get the status and output of a submitted code execution",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /judge0/list-languages",
         desc: "List all supported programming languages",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /judge0/list-statuses",
         desc: "List all possible submission statuses",
-        amount: "0",
-        unitType: "request",
       },
     ],
   },
@@ -4160,20 +4137,14 @@ export const services: ServiceDef[] = [
       {
         route: "POST /api/browser-use-mpp/get-task",
         desc: "Retrieve the full details and output of a task",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /api/browser-use-mpp/get-task-status",
         desc: "Check the current status of a running task",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /api/browser-use-mpp/stop-task",
         desc: "Stop a running browser task",
-        amount: "0",
-        unitType: "request",
       },
     ],
   },
@@ -4210,14 +4181,10 @@ export const services: ServiceDef[] = [
       {
         route: "POST /clado/deep-research-status",
         desc: "Check deep research status and results",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /clado/deep-research-cancel",
         desc: "Cancel a running deep research job",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /clado/deep-research-more",
@@ -4258,14 +4225,10 @@ export const services: ServiceDef[] = [
       {
         route: "POST /clado/bulk-contacts-status",
         desc: "Check bulk enrichment status",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /clado/credits",
         desc: "Check remaining API credits",
-        amount: "0",
-        unitType: "request",
       },
     ],
   },
@@ -4372,44 +4335,30 @@ export const services: ServiceDef[] = [
       {
         route: "POST /api/laso-mpp/get-card-data",
         desc: "Get card status and details",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /api/laso-mpp/get-payment-status",
         desc: "Check payment status",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /api/laso-mpp/get-account-balance",
         desc: "Check account balance",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /api/laso-mpp/withdraw",
         desc: "Initiate a withdrawal",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /api/laso-mpp/get-withdrawal-status",
         desc: "Check withdrawal status",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /api/laso-mpp/refresh-card-data",
         desc: "Refresh card data",
-        amount: "0",
-        unitType: "request",
       },
       {
         route: "POST /api/laso-mpp/refresh",
         desc: "Exchange refresh token for new ID token",
-        amount: "0",
-        unitType: "request",
       },
     ],
   },

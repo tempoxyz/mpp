@@ -7974,15 +7974,7 @@
           "method": "POST",
           "path": "/stability-ai/result",
           "description": "Retrieve the result of an async generation by ID",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Retrieve the result of an async generation by ID",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         }
       ]
     },
@@ -8125,15 +8117,7 @@
           "method": "POST",
           "path": "/hunter/email-count",
           "description": "Get the count of email addresses for a domain",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get the count of email addresses for a domain",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         }
       ]
     },
@@ -8193,15 +8177,7 @@
           "method": "POST",
           "path": "/replicate/get-prediction",
           "description": "Get the status and output of a prediction",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get the status and output of a prediction",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
@@ -8442,29 +8418,13 @@
           "method": "POST",
           "path": "/builtwith/whoami",
           "description": "Get current API account information",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get current API account information",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/builtwith/usage",
           "description": "Get API usage statistics",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get API usage statistics",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         }
       ]
     },
@@ -8524,15 +8484,7 @@
           "method": "POST",
           "path": "/suno/get-music-status",
           "description": "Check the status of a music generation task",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check the status of a music generation task",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
@@ -8552,29 +8504,13 @@
           "method": "POST",
           "path": "/suno/get-lyrics-status",
           "description": "Check the status of a lyrics generation task",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check the status of a lyrics generation task",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/suno/get-credits",
           "description": "Get remaining Suno credits balance",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get remaining Suno credits balance",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         }
       ]
     },
@@ -9158,43 +9094,19 @@
           "method": "POST",
           "path": "/judge0/get-submission",
           "description": "Get the status and output of a submitted code execution",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get the status and output of a submitted code execution",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/judge0/list-languages",
           "description": "List all supported programming languages",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List all supported programming languages",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/judge0/list-statuses",
           "description": "List all possible submission statuses",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "List all possible submission statuses",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         }
       ]
     },
@@ -9254,43 +9166,19 @@
           "method": "POST",
           "path": "/api/browser-use-mpp/get-task",
           "description": "Retrieve the full details and output of a task",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Retrieve the full details and output of a task",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/api/browser-use-mpp/get-task-status",
           "description": "Check the current status of a running task",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check the current status of a running task",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/api/browser-use-mpp/stop-task",
           "description": "Stop a running browser task",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Stop a running browser task",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         }
       ]
     },
@@ -9363,29 +9251,13 @@
           "method": "POST",
           "path": "/clado/deep-research-status",
           "description": "Check deep research status and results",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check deep research status and results",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/clado/deep-research-cancel",
           "description": "Cancel a running deep research job",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Cancel a running deep research job",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
@@ -9475,29 +9347,13 @@
           "method": "POST",
           "path": "/clado/bulk-contacts-status",
           "description": "Check bulk enrichment status",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check bulk enrichment status",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/clado/credits",
           "description": "Check remaining API credits",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check remaining API credits",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         }
       ]
     },
@@ -9720,99 +9576,43 @@
           "method": "POST",
           "path": "/api/laso-mpp/get-card-data",
           "description": "Get card status and details",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get card status and details",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/api/laso-mpp/get-payment-status",
           "description": "Check payment status",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check payment status",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/api/laso-mpp/get-account-balance",
           "description": "Check account balance",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check account balance",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/api/laso-mpp/withdraw",
           "description": "Initiate a withdrawal",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Initiate a withdrawal",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/api/laso-mpp/get-withdrawal-status",
           "description": "Check withdrawal status",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Check withdrawal status",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/api/laso-mpp/refresh-card-data",
           "description": "Refresh card data",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Refresh card data",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         },
         {
           "method": "POST",
           "path": "/api/laso-mpp/refresh",
           "description": "Exchange refresh token for new ID token",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Exchange refresh token for new ID token",
-            "amount": "0",
-            "unitType": "request"
-          }
+          "payment": null
         }
       ]
     },
