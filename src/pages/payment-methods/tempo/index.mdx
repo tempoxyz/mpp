@@ -50,19 +50,27 @@ Tempo is purpose-built for the payment patterns MPP enables:
 
 Tempo supports server-paid transaction fees for both charge and session intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The client doesn't need to hold gas tokens or understand fee mechanics.
 
-Set `feePayer: true` in the Challenge request to enable this:
+Pass a `feePayer` account to `tempo()` to enable this:
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({
+  methods: [tempo({
+    feePayer: privateKeyToAccount('0x…'), // [!code hl]
+  })],
+})
+```
 
-declare const request: Request
-// ---cut---
-const response = await mppx.charge({
-  amount: '0.1',
-  currency: '0x20c0000000000000000000000000000000000000',
-  feePayer: true, // [!code hl]
-  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-})(request)
+It is also possible to point the `feePayer` to a fee service that supports the [`Handler.feePayer`](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer) endpoint:
+
+```ts
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    feePayer: 'https://sponsor.example.com', // [!code hl]
+  })],
+})
 ```

@@ -99,9 +99,9 @@ External identifier for the payment.
 
 ### feePayer (optional)
 
-- **Type:** `Account`
+- **Type:** `Account | string | true`
 
-Account for sponsoring transaction fees.
+Account or URL for sponsoring transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), or `true` when the `account` parameter doubles as the fee payer.
 
 ### getClient (optional)
 

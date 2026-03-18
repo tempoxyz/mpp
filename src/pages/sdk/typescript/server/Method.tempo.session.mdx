@@ -84,9 +84,9 @@ Escrow contract address for the payment channel. Defaults to the canonical escro
 
 ### feePayer (optional)
 
-- **Type:** `Account`
+- **Type:** `Account | string | true`
 
-Account for sponsoring open and top-up transaction fees.
+Account or URL for sponsoring open and top-up transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), or `true` when the `account` parameter doubles as the fee payer.
 
 ### getClient (optional)
 
@@ -178,7 +178,7 @@ const txHash = await tempo.settle(store, client, '0xchannelId...')
 - **client** — `Client` — A viem client for on-chain interaction.
 - **channelId** — `Hex` — The channel to settle.
 - **options.escrowContract** (optional) — `Address` — Escrow contract override.
-- **options.feePayer** (optional) — `Account` — Fee payer account.
+- **options.feePayer** (optional) — `Account | string` — Fee payer account or relay URL.
 
 #### Return type
 

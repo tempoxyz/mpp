@@ -243,7 +243,21 @@ const mppx = Mppx.create({
 })
 ```
 
-When a pull-mode client submits a signed transaction, the server co-signs with the fee payer account before broadcasting. Push-mode clients pay their own gas, so `feePayer` is ignored for those requests.
+It is possible to pass a [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer) URL instead:
+
+```ts
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    feePayer: 'https://sponsor.example.com', // [!code focus]
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })],
+})
+```
+
+When a pull-mode client submits a signed transaction, the server co-signs with the fee payer account (or delegates to the relay) before broadcasting. Push-mode clients pay their own gas, so `feePayer` is ignored for those requests.
 
 ### Optimistic verification
 
