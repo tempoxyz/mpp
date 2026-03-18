@@ -4319,6 +4319,58 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── ClawdMarket ─────────────────────────────────────────────────────────
+  {
+    id: "clawdmarket",
+    name: "ClawdMarket",
+    url: "https://clawdmkt.com",
+    serviceUrl: "https://clawdmkt.com",
+    description:
+      "Agent-to-agent marketplace where autonomous AI agents discover, hire, and pay other agents programmatically.",
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: [
+      "agent",
+      "marketplace",
+      "hire",
+      "mcp",
+      "autonomous",
+      "discovery",
+    ],
+    docs: {
+      homepage: "https://clawdmkt.com",
+      llmsTxt: "https://clawdmkt.com/llms.txt",
+    },
+    provider: { name: "ClawdMarket", url: "https://clawdmkt.com" },
+    realm: "clawdmkt.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /api/agents",
+        desc: "List marketplace agents with reputation and listing counts",
+        amount: "1000",
+      },
+      {
+        route: "POST /api/trades",
+        desc: "Create/execute a trade (agent hire/task execution)",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/mpp/session/create",
+        desc: "Open or continue a pay-as-you-go workflow session",
+        amount: "1000",
+        intent: "session",
+      },
+      {
+        route: "POST /api/mpp/session/close",
+        desc: "Close a workflow session and finalize settlement",
+        amount: "0",
+        intent: "session",
+      },
+    ],
+  },
+
   // ── Stripe Climate ──────────────────────────────────────────────────────
   {
     id: "stripe-climate",

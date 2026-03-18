@@ -9519,6 +9519,101 @@
       ]
     },
     {
+      "id": "clawdmarket",
+      "name": "ClawdMarket",
+      "url": "https://clawdmkt.com",
+      "serviceUrl": "https://clawdmkt.com",
+      "description": "Agent-to-agent marketplace where autonomous AI agents discover, hire, and pay other agents programmatically.",
+      "categories": [
+        "ai",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "agent",
+        "marketplace",
+        "hire",
+        "mcp",
+        "autonomous",
+        "discovery"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://clawdmkt.com",
+        "llmsTxt": "https://clawdmkt.com/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge",
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "clawdmkt.com",
+      "provider": {
+        "name": "ClawdMarket",
+        "url": "https://clawdmkt.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/agents",
+          "description": "List marketplace agents with reputation and listing counts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List marketplace agents with reputation and listing counts",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/trades",
+          "description": "Create/execute a trade (agent hire/task execution)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Create/execute a trade (agent hire/task execution)",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/mpp/session/create",
+          "description": "Open or continue a pay-as-you-go workflow session",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Open or continue a pay-as-you-go workflow session",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/mpp/session/close",
+          "description": "Close a workflow session and finalize settlement",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Close a workflow session and finalize settlement",
+            "amount": "0"
+          }
+        }
+      ]
+    },
+    {
       "id": "stripe-climate",
       "name": "Stripe Climate",
       "url": "https://climate.stripe.dev",
