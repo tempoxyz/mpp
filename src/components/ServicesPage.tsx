@@ -31,6 +31,7 @@ export const PINNED_IDS: string[] = [
   "alchemy",
   "openrouter",
   "stabletravel",
+  "stripe-climate",
   "browserbase",
 ];
 
