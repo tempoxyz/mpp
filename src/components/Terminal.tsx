@@ -868,7 +868,7 @@ function AsyncSteps({
           {isRestart ? "Using" : "Create a"} wallet{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
           <a
-            href={`https://explore.tempo.xyz/address/${address}`}
+            href={`https://explore.moderato.tempo.xyz/address/${address}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline"
@@ -908,7 +908,7 @@ function AsyncSteps({
               {" "}
               <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
               <a
-                href={`https://explore.tempo.xyz/receipt/${channelTxHash}`}
+                href={`https://explore.moderato.tempo.xyz/receipt/${channelTxHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -935,7 +935,7 @@ function AsyncSteps({
               {" "}
               <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
               <a
-                href={`https://explore.tempo.xyz/receipt/${txHash}`}
+                href={`https://explore.moderato.tempo.xyz/receipt/${txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -1084,7 +1084,7 @@ function AsyncSteps({
                 {" "}
                 <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
                 <a
-                  href={`https://explore.tempo.xyz/receipt/${txHash}`}
+                  href={`https://explore.moderato.tempo.xyz/receipt/${txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline"
@@ -2210,7 +2210,7 @@ function GalleryStep({
           <StepIcon spinning={setupAt("wallet")} /> Create a wallet{" "}
           <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
           <a
-            href={`https://explore.tempo.xyz/address/${walletState.address}`}
+            href={`https://explore.moderato.tempo.xyz/address/${walletState.address}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline"
@@ -2250,7 +2250,7 @@ function GalleryStep({
               {" "}
               <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
               <a
-                href={`https://explore.tempo.xyz/receipt/${channelTxHash}`}
+                href={`https://explore.moderato.tempo.xyz/receipt/${channelTxHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
@@ -2452,7 +2452,7 @@ function GalleryStep({
                 {" "}
                 <span style={{ color: "var(--term-gray5)" }}>⋅</span>{" "}
                 <a
-                  href={`https://explore.tempo.xyz/receipt/${closeTxHash}`}
+                  href={`https://explore.moderato.tempo.xyz/receipt/${closeTxHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline"
