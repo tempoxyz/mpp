@@ -1083,13 +1083,13 @@
       "id": "codex",
       "name": "Codex",
       "url": "https://graph.codex.io",
-      "serviceUrl": "https://codex.mpp.tempo.xyz",
+      "serviceUrl": "https://graph.codex.io",
       "description": "GraphQL API for DeFi and blockchain data across 80+ networks.",
       "categories": [
         "blockchain",
         "data"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "graphql",
         "defi",
@@ -1112,7 +1112,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "graph.codex.io",
       "provider": {
         "name": "Codex",
         "url": "https://codex.io"
