@@ -543,7 +543,6 @@ export default defineConfig({
   socials: [
     { icon: "x", link: "https://x.com/mpp" },
     { icon: "github", link: "https://github.com/tempoxyz/mpp-specs" },
-    { icon: "telegram", link: "https://t.me/mpp_devs" },
   ],
   title: "Machine Payments Protocol",
   titleTemplate: "%s | MPP",
