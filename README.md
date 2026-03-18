@@ -1,13 +1,36 @@
-# Machine Payments Protocol (MPP)
+<br>
+<br>
 
-The marketing site, developer documentation, and service directory for the Machine Payments Protocol.
+<p align="center">
+  <a href="https://mpp.dev">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="public/lockup-light.svg">
+      <img alt="Machine Payments Protocol" src="public/lockup-dark.svg" width="auto" height="120">
+    </picture>
+  </a>
+</p>
 
-## Overview
+<br>
+<br>
 
-This repository contains:
+# mpp
 
-* **Documentation** — quickstart guides, protocol explainers, and SDK references
-* **Service Directory** — a registry of MPP-enabled services
+The open protocol for machine-to-machine payments.
+
+[![Website](https://img.shields.io/badge/website-mpp.dev-black)](https://mpp.dev)
+[![IETF Spec](https://img.shields.io/badge/spec-paymentauth.org-blue)](https://paymentauth.org)
+[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue)](LICENSE-MIT)
+
+[MPP](https://mpp.dev) lets any client — agents, apps, or humans — pay for any service in the same HTTP request. It standardizes [HTTP 402](https://mpp.dev/protocol/http-402) with an open [IETF specification](https://paymentauth.org), so servers can charge and clients can pay without API keys, billing accounts, or checkout flows.
+
+You can get started today by reading the [protocol overview](https://mpp.dev/protocol/), jumping straight to the [quickstart](https://mpp.dev/quickstart/), or exploring the [SDKs](https://mpp.dev/sdk/).
+
+## What's in this repo
+
+This repository contains the [mpp.dev](https://mpp.dev) documentation site and service directory.
+
+- **Documentation** — quickstart guides, protocol explainers, and SDK references
+- **Service Directory** — a registry of MPP-enabled services at [mpp.dev/services](https://mpp.dev/services)
 
 ## Development
 
@@ -51,24 +74,24 @@ The service directory at [mpp.dev/services](https://mpp.dev/services) lists all 
 }
 ```
 
-1. **Regenerate the discovery file**:
+2. **Regenerate the discovery file**:
 
 ```bash
 node scripts/generate-discovery.ts
 ```
 
-1. **Validate** — the build runs schema validation automatically:
+3. **Validate**:
 
 ```bash
 pnpm check:types
 pnpm build
 ```
 
-1. **Open a pull request** with both `schemas/services.ts` and `schemas/discovery.json` changes.
+4. **Open a pull request** with both `schemas/services.ts` and `schemas/discovery.json` changes.
 
 ## Contributing
 
-We welcome contributions to documentation, the service directory, and site improvements.
+Contributions to documentation, the service directory, and site improvements are welcome.
 
 ### Pull request checklist
 
@@ -77,7 +100,7 @@ We welcome contributions to documentation, the service directory, and site impro
 3. **Lint passes**: `pnpm check`
 4. **E2E tests pass** (if touching terminal or interactive components): `pnpm test:e2e`
 
-### Types of changes
+### Types of contributions
 
 | Change type | Process |
 |-------------|---------|
@@ -88,17 +111,23 @@ We welcome contributions to documentation, the service directory, and site impro
 | New component | Follow patterns in `src/components/` |
 | Site configuration | Open an issue first for discussion |
 
-## Related repositories
+## SDKs
 
-| Repository | Description |
-|------------|-------------|
+| Repository | Language |
+|------------|----------|
+| [wevm/mppx](https://github.com/wevm/mppx) | TypeScript |
+| [tempoxyz/pympp](https://github.com/tempoxyz/pympp) | Python |
+| [tempoxyz/mpp-rs](https://github.com/tempoxyz/mpp-rs) | Rust |
 | [tempoxyz/mpp-specs](https://github.com/tempoxyz/mpp-specs) | IETF specifications |
-| [wevm/mppx](https://github.com/wevm/mppx) | TypeScript SDK |
-| [tempoxyz/pympp](https://github.com/tempoxyz/pympp) | Python SDK |
-| [tempoxyz/mpp-rs](https://github.com/tempoxyz/mpp-rs) | Rust SDK |
+
+## Security
+
+See [`SECURITY.md`](./SECURITY.md) for reporting vulnerabilities.
 
 ## License
 
-Documentation content: [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT), at your option
+Licensed under either of [Apache License, Version 2.0](./LICENSE-APACHE) or [MIT License](./LICENSE-MIT) at your option.
 
-Code and tooling: [Apache 2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT), at your option
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in these crates by you, as defined in the Apache-2.0 license,
+shall be dual licensed as above, without any additional terms or conditions.
