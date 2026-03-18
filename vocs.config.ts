@@ -172,6 +172,14 @@ export default defineConfig({
               { text: "Session", link: "/payment-methods/lightning/session" },
             ],
           },
+          {
+            text: "Solana",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/solana" },
+              { text: "Charge", link: "/payment-methods/solana/charge" },
+            ],
+          },
           { text: "Custom", link: "/payment-methods/custom" },
         ],
       },
@@ -532,6 +540,11 @@ export default defineConfig({
               { text: "Server", link: "/sdk/rust/server" },
             ],
           },
+          {
+            text: "Solana",
+            collapsed: true,
+            items: [{ text: "Overview", link: "/sdk/solana" }],
+          },
         ],
       },
       {
@@ -563,6 +576,7 @@ export default defineConfig({
         { text: "mppx (TypeScript)", link: "https://github.com/wevm/mppx" },
         { text: "mpp-rs (Rust)", link: "https://github.com/tempoxyz/mpp-rs" },
         { text: "pympp (Python)", link: "https://github.com/tempoxyz/pympp" },
+        { text: "mppx-solana (Solana)", link: "https://github.com/nitishxyz/mppx-solana" },
       ],
     },
   ],

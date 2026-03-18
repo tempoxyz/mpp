@@ -121,6 +121,17 @@ export function RustSdkCard() {
   );
 }
 
+export function SolanaSdkCard() {
+  return (
+    <Card
+      description="Get started with `mppx-solana`, a Solana payment method package for `mppx`"
+      icon="simple-icons:solana"
+      title="Solana"
+      to="/sdk/solana"
+    />
+  );
+}
+
 export function MppxCreateReferenceCard({ to }: { to: string }) {
   return (
     <Card
@@ -205,6 +216,17 @@ export function LightningMethodCard() {
       icon="lucide:zap"
       title="Lightning"
       to="/payment-methods/lightning"
+    />
+  );
+}
+
+export function SolanaMethodCard() {
+  return (
+    <Card
+      description="SOL and SPL token payments through the Solana ecosystem"
+      icon="simple-icons:solana"
+      title="Solana"
+      to="/payment-methods/solana"
     />
   );
 }
