@@ -682,50 +682,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── ElevenLabs ─────────────────────────────────────────────────────────
-  {
-    id: "elevenlabs",
-    name: "ElevenLabs",
-    url: "https://api.elevenlabs.io",
-    serviceUrl: `https://elevenlabs.${MPP_REALM}`,
-    description: "Text-to-speech, speech-to-text, and voice cloning.",
-    categories: ["ai", "media"],
-    integration: "third-party",
-    tags: ["tts", "stt", "voice", "audio", "speech"],
-    docs: {
-      homepage: "https://elevenlabs.io/docs",
-      llmsTxt: "https://elevenlabs.io/docs/llms.txt",
-      apiReference: "https://elevenlabs.io/docs/api-reference",
-    },
-    provider: { name: "ElevenLabs", url: "https://elevenlabs.io" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    docsBase: "https://context7.com/websites/elevenlabs_io/llms.txt",
-    endpoints: [
-      {
-        route: "POST /v1/text-to-speech/:voiceId",
-        desc: "Convert text to speech audio",
-        amount: "30000",
-      },
-      {
-        route: "POST /v1/text-to-speech/:voiceId/stream",
-        desc: "Stream text-to-speech audio",
-        amount: "30000",
-      },
-      {
-        route: "POST /v1/speech-to-text",
-        desc: "Transcribe audio to text (Scribe)",
-        amount: "50000",
-      },
-      {
-        route: "GET /v1/speech-to-text/transcripts/:transcriptionId",
-        desc: "Get a transcript by ID",
-      },
-      { route: "GET /v1/voices", desc: "List available voices" },
-    ],
-  },
-
   // ── Exa ────────────────────────────────────────────────────────────────
   {
     id: "exa",
