@@ -639,7 +639,7 @@ export const services: ServiceDef[] = [
       {
         route: "POST /graphql",
         desc: "GraphQL query (token data, trades, liquidity, NFTs, wallets)",
-        amount: "350",
+        amount: "1000",
       },
     ],
   },
