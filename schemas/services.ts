@@ -3408,75 +3408,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Grok ────────────────────────────────────────────────────────────────
-  {
-    id: "grok",
-    name: "Grok",
-    url: "https://grok.mpp.paywithlocus.com",
-    serviceUrl: "https://grok.mpp.paywithlocus.com",
-    description:
-      "xAI's Grok LLM with chat, web search, X/Twitter search, code execution, image generation, image editing, and text-to-speech.",
-    categories: ["ai"],
-    integration: "third-party",
-    tags: [
-      "ai",
-      "llm",
-      "chat",
-      "search",
-      "image-generation",
-      "tts",
-      "code-execution",
-    ],
-    docs: { homepage: "https://docs.x.ai" },
-    provider: { name: "xAI", url: "https://x.ai" },
-    realm: "grok.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /grok/chat",
-        desc: "Chat completion with Grok models",
-        dynamic: true,
-        amountHint: "$0.01 – $0.50",
-      },
-      {
-        route: "POST /grok/web-search",
-        desc: "Chat with live web search grounding",
-        dynamic: true,
-        amountHint: "$0.01 – $0.50",
-      },
-      {
-        route: "POST /grok/x-search",
-        desc: "Chat with live X/Twitter search grounding",
-        dynamic: true,
-        amountHint: "$0.01 – $0.50",
-      },
-      {
-        route: "POST /grok/code-execution",
-        desc: "Chat with sandboxed code execution",
-        dynamic: true,
-        amountHint: "$0.01 – $0.50",
-      },
-      {
-        route: "POST /grok/image-generate",
-        desc: "Generate images from text prompts",
-        dynamic: true,
-        amountHint: "$0.05 – $0.20",
-      },
-      {
-        route: "POST /grok/image-edit",
-        desc: "Edit images with text instructions",
-        dynamic: true,
-        amountHint: "$0.05 – $0.20",
-      },
-      {
-        route: "POST /grok/tts",
-        desc: "Convert text to speech audio",
-        dynamic: true,
-        amountHint: "$0.01 – $0.10",
-      },
-    ],
-  },
 
   // ── Stability AI ───────────────────────────────────────────────────────
   {
@@ -4163,13 +4094,7 @@ export const services: ServiceDef[] = [
       "Online code execution engine — compile and run code in 70+ programming languages with sandboxed execution.",
     categories: ["compute"],
     integration: "third-party",
-    tags: [
-      "code-execution",
-      "compiler",
-      "sandbox",
-      "programming",
-      "languages",
-    ],
+    tags: ["code-execution", "compiler", "sandbox", "programming", "languages"],
     docs: { homepage: "https://judge0.com" },
     provider: { name: "Judge0", url: "https://judge0.com" },
     realm: "judge0.mpp.paywithlocus.com",
@@ -4263,13 +4188,7 @@ export const services: ServiceDef[] = [
       "People search, LinkedIn enrichment, and deep research for lead generation.",
     categories: ["data"],
     integration: "third-party",
-    tags: [
-      "people-search",
-      "linkedin",
-      "enrichment",
-      "leads",
-      "deep-research",
-    ],
+    tags: ["people-search", "linkedin", "enrichment", "leads", "deep-research"],
     docs: { homepage: "https://docs.clado.ai" },
     provider: { name: "Clado", url: "https://clado.ai" },
     realm: "clado.mpp.paywithlocus.com",
