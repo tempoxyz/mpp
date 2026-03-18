@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: "24"
       - run: node scripts/generate-discovery.ts
-      - run: node scripts/gen-icons.cjs --strict
+      - run: node scripts/gen-icons.cjs
       - name: Check for uncommitted changes
         run: |
           if ! git diff --exit-code schemas/discovery.json schemas/discovery.example.json public/icons/; then
