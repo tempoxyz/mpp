@@ -7292,6 +7292,2670 @@
       ]
     },
     {
+      "id": "mapbox",
+      "name": "Mapbox",
+      "url": "https://mapbox.mpp.paywithlocus.com",
+      "serviceUrl": "https://mapbox.mpp.paywithlocus.com",
+      "description": "Geocoding, directions, isochrones, map matching, static maps, and tile queries.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "maps",
+        "geocoding",
+        "directions",
+        "routing",
+        "geospatial"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.mapbox.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mapbox.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Mapbox",
+        "url": "https://www.mapbox.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/mapbox/geocode-forward",
+          "description": "Convert an address or place name to coordinates",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Convert an address or place name to coordinates",
+            "amount": "750",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mapbox/geocode-reverse",
+          "description": "Convert coordinates to an address or place name",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Convert coordinates to an address or place name",
+            "amount": "750",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mapbox/directions",
+          "description": "Get turn-by-turn directions between coordinates",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get turn-by-turn directions between coordinates",
+            "amount": "2000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mapbox/matrix",
+          "description": "Get travel time and distance matrix between coordinates",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get travel time and distance matrix between coordinates",
+            "dynamic": true,
+            "amountHint": "$0.002 – $0.50"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mapbox/isochrone",
+          "description": "Get reachable area polygons from a point within time or distance limits",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get reachable area polygons from a point within time or distance limits",
+            "amount": "2000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mapbox/map-matching",
+          "description": "Snap GPS traces to the road network",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Snap GPS traces to the road network",
+            "amount": "2000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mapbox/static-image",
+          "description": "Generate a static map image",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a static map image",
+            "amount": "1000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mapbox/tilequery",
+          "description": "Query map tile features at a location",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Query map tile features at a location",
+            "amount": "2000",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rentcast",
+      "name": "RentCast",
+      "url": "https://rentcast.mpp.paywithlocus.com",
+      "serviceUrl": "https://rentcast.mpp.paywithlocus.com",
+      "description": "Real estate data including property records, valuations, rent estimates, sale and rental listings, and market statistics.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "real-estate",
+        "property",
+        "valuation",
+        "listings",
+        "rental",
+        "market-data"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://developers.rentcast.io"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "rentcast.mpp.paywithlocus.com",
+      "provider": {
+        "name": "RentCast",
+        "url": "https://www.rentcast.io"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/rentcast/properties",
+          "description": "Search property records by address, city, state, zip, or coordinates",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search property records by address, city, state, zip, or coordinates",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/property-by-id",
+          "description": "Get property details by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get property details by ID",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/random-properties",
+          "description": "Get random property records",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get random property records",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/value-estimate",
+          "description": "Get property value estimate with comparables",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get property value estimate with comparables",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/rent-estimate",
+          "description": "Get rental price estimate with comparables",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get rental price estimate with comparables",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/sale-listings",
+          "description": "Search active sale listings",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search active sale listings",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/sale-listing-by-id",
+          "description": "Get sale listing details by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get sale listing details by ID",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/rental-listings",
+          "description": "Search active rental listings",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search active rental listings",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/rental-listing-by-id",
+          "description": "Get rental listing details by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get rental listing details by ID",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/rentcast/markets",
+          "description": "Get market statistics for a zip code",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get market statistics for a zip code",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "grok",
+      "name": "Grok",
+      "url": "https://grok.mpp.paywithlocus.com",
+      "serviceUrl": "https://grok.mpp.paywithlocus.com",
+      "description": "xAI's Grok LLM with chat, web search, X/Twitter search, code execution, image generation, image editing, and text-to-speech.",
+      "categories": [
+        "ai"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "ai",
+        "llm",
+        "chat",
+        "search",
+        "image-generation",
+        "tts",
+        "code-execution"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.x.ai"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "grok.mpp.paywithlocus.com",
+      "provider": {
+        "name": "xAI",
+        "url": "https://x.ai"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/grok/chat",
+          "description": "Chat completion with Grok models",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Chat completion with Grok models",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.50"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/grok/web-search",
+          "description": "Chat with live web search grounding",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Chat with live web search grounding",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.50"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/grok/x-search",
+          "description": "Chat with live X/Twitter search grounding",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Chat with live X/Twitter search grounding",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.50"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/grok/code-execution",
+          "description": "Chat with sandboxed code execution",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Chat with sandboxed code execution",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.50"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/grok/image-generate",
+          "description": "Generate images from text prompts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate images from text prompts",
+            "dynamic": true,
+            "amountHint": "$0.05 – $0.20"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/grok/image-edit",
+          "description": "Edit images with text instructions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Edit images with text instructions",
+            "dynamic": true,
+            "amountHint": "$0.05 – $0.20"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/grok/tts",
+          "description": "Convert text to speech audio",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Convert text to speech audio",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.10"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stability-ai",
+      "name": "Stability AI",
+      "url": "https://stability.mpp.paywithlocus.com",
+      "serviceUrl": "https://stability.mpp.paywithlocus.com",
+      "description": "Generative AI for images, 3D models, and audio — including generation, editing, upscaling, background removal, style transfer, and more.",
+      "categories": [
+        "ai",
+        "media"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "ai",
+        "image-generation",
+        "image-editing",
+        "3d",
+        "audio",
+        "upscaling",
+        "style-transfer"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://platform.stability.ai"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "stability.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Stability AI",
+        "url": "https://stability.ai"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/stability-ai/generate-ultra",
+          "description": "Generate high-quality images with Ultra model",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate high-quality images with Ultra model",
+            "amount": "92000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/generate-core",
+          "description": "Generate images with Core model",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate images with Core model",
+            "amount": "35000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/generate-sd3",
+          "description": "Generate images with Stable Diffusion 3 — price varies by model variant",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate images with Stable Diffusion 3 — price varies by model variant",
+            "dynamic": true,
+            "amountHint": "$0.035 – $0.092"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/erase",
+          "description": "Erase objects from an image using a mask",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Erase objects from an image using a mask",
+            "amount": "58000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/inpaint",
+          "description": "Fill in masked regions of an image with new content",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Fill in masked regions of an image with new content",
+            "amount": "58000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/outpaint",
+          "description": "Extend an image beyond its original borders",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extend an image beyond its original borders",
+            "amount": "46000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/search-and-replace",
+          "description": "Find and replace objects in an image by description",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find and replace objects in an image by description",
+            "amount": "58000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/search-and-recolor",
+          "description": "Find and recolor objects in an image by description",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find and recolor objects in an image by description",
+            "amount": "58000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/remove-background",
+          "description": "Remove the background from an image",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Remove the background from an image",
+            "amount": "58000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/replace-background-and-relight",
+          "description": "Replace background and adjust lighting on a subject",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Replace background and adjust lighting on a subject",
+            "amount": "92000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/upscale-fast",
+          "description": "Upscale an image quickly (4x)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Upscale an image quickly (4x)",
+            "amount": "23000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/upscale-conservative",
+          "description": "Upscale an image with conservative detail enhancement",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Upscale an image with conservative detail enhancement",
+            "amount": "460000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/upscale-creative",
+          "description": "Upscale an image with creative detail synthesis",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Upscale an image with creative detail synthesis",
+            "amount": "690000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/sketch",
+          "description": "Generate an image guided by a sketch",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate an image guided by a sketch",
+            "amount": "58000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/structure",
+          "description": "Generate an image guided by structural input",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate an image guided by structural input",
+            "amount": "58000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/style-guide",
+          "description": "Generate an image guided by a style reference",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate an image guided by a style reference",
+            "amount": "58000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/style-transfer",
+          "description": "Transfer the style of one image onto another",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Transfer the style of one image onto another",
+            "amount": "92000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/stable-fast-3d",
+          "description": "Generate a 3D model from a single image (fast)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a 3D model from a single image (fast)",
+            "amount": "115000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/stable-point-aware-3d",
+          "description": "Generate a 3D model from a single image (point-aware)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a 3D model from a single image (point-aware)",
+            "amount": "46000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/text-to-audio",
+          "description": "Generate audio from a text prompt — price varies by duration",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate audio from a text prompt — price varies by duration",
+            "dynamic": true,
+            "amountHint": "$0.02 – $0.10"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/audio-to-audio",
+          "description": "Transform audio guided by a text prompt — price varies by duration",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Transform audio guided by a text prompt — price varies by duration",
+            "dynamic": true,
+            "amountHint": "$0.02 – $0.10"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/audio-inpaint",
+          "description": "Inpaint a section of audio guided by a text prompt — price varies by duration",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Inpaint a section of audio guided by a text prompt — price varies by duration",
+            "dynamic": true,
+            "amountHint": "$0.02 – $0.10"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/stability-ai/result",
+          "description": "Retrieve the result of an async generation by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Retrieve the result of an async generation by ID",
+            "amount": "0",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hunter",
+      "name": "Hunter",
+      "url": "https://hunter.mpp.paywithlocus.com",
+      "serviceUrl": "https://hunter.mpp.paywithlocus.com",
+      "description": "Email finding, verification, and enrichment — domain search, person lookup, and company intelligence.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "email",
+        "enrichment",
+        "leads",
+        "verification",
+        "b2b"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://hunter.io/api"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "hunter.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Hunter",
+        "url": "https://hunter.io"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/hunter/domain-search",
+          "description": "Find email addresses associated with a domain — price scales with result limit",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find email addresses associated with a domain — price scales with result limit",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.10"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/hunter/discover",
+          "description": "Discover contacts matching filters",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Discover contacts matching filters",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/hunter/email-finder",
+          "description": "Find the email address of a person at a company",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find the email address of a person at a company",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/hunter/email-verifier",
+          "description": "Verify the deliverability of an email address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Verify the deliverability of an email address",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/hunter/email-enrichment",
+          "description": "Get enriched data about an email address owner",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get enriched data about an email address owner",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/hunter/company-enrichment",
+          "description": "Get enriched data about a company by domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get enriched data about a company by domain",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/hunter/combined-enrichment",
+          "description": "Get combined person and company enrichment from an email",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get combined person and company enrichment from an email",
+            "amount": "20000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/hunter/email-count",
+          "description": "Get the count of email addresses for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get the count of email addresses for a domain",
+            "amount": "0",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "replicate",
+      "name": "Replicate",
+      "url": "https://replicate.mpp.paywithlocus.com",
+      "serviceUrl": "https://replicate.mpp.paywithlocus.com",
+      "description": "Run open-source AI models — image generation, LLMs, video, audio, and more.",
+      "categories": [
+        "ai",
+        "media"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "ai",
+        "ml",
+        "models",
+        "inference",
+        "open-source"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://replicate.com/docs"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "replicate.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Replicate",
+        "url": "https://replicate.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/replicate/run",
+          "description": "Run a model prediction — price varies by model",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Run a model prediction — price varies by model",
+            "dynamic": true,
+            "amountHint": "$0.01 – $1.00"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/replicate/get-prediction",
+          "description": "Get the status and output of a prediction",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get the status and output of a prediction",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/replicate/get-model",
+          "description": "Get details about a model",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get details about a model",
+            "amount": "1000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/replicate/list-models",
+          "description": "List available models",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List available models",
+            "amount": "1000",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "builtwith",
+      "name": "BuiltWith",
+      "url": "https://builtwith.mpp.paywithlocus.com",
+      "serviceUrl": "https://builtwith.mpp.paywithlocus.com",
+      "description": "Technology detection and website profiling — discover what technologies websites use, find competitors, and analyze tech trends.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "technology",
+        "detection",
+        "websites",
+        "analytics",
+        "competitive-intelligence"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://api.builtwith.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "builtwith.mpp.paywithlocus.com",
+      "provider": {
+        "name": "BuiltWith",
+        "url": "https://builtwith.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/builtwith/domain",
+          "description": "Get full technology profile for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get full technology profile for a domain",
+            "amount": "50000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/lists",
+          "description": "Get lists of websites using a specific technology",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get lists of websites using a specific technology",
+            "amount": "50000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/relationships",
+          "description": "Get related websites for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get related websites for a domain",
+            "amount": "50000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/company-to-url",
+          "description": "Find website URLs for a company name",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find website URLs for a company name",
+            "amount": "50000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/tags",
+          "description": "Get technology tags for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get technology tags for a domain",
+            "amount": "50000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/product",
+          "description": "Search for websites using a product or technology",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search for websites using a product or technology",
+            "amount": "50000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/recommendations",
+          "description": "Get technology recommendations for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get technology recommendations for a domain",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/redirects",
+          "description": "Get redirect chain for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get redirect chain for a domain",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/keywords",
+          "description": "Get keyword analysis for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get keyword analysis for a domain",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/trends",
+          "description": "Get usage trends for a technology",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get usage trends for a technology",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/trust",
+          "description": "Get trust and safety signals for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get trust and safety signals for a domain",
+            "amount": "30000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/free",
+          "description": "Get basic technology profile for a domain (light)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get basic technology profile for a domain (light)",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/whoami",
+          "description": "Get current API account information",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get current API account information",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/builtwith/usage",
+          "description": "Get API usage statistics",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get API usage statistics",
+            "amount": "0",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "suno",
+      "name": "Suno",
+      "url": "https://suno.mpp.paywithlocus.com",
+      "serviceUrl": "https://suno.mpp.paywithlocus.com",
+      "description": "AI music and lyrics generation — create songs, instrumentals, and lyrics from text prompts.",
+      "categories": [
+        "ai",
+        "media"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "ai",
+        "music",
+        "audio",
+        "lyrics",
+        "generation"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.suno.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "suno.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Suno",
+        "url": "https://suno.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/suno/generate-music",
+          "description": "Generate a song from a text prompt or lyrics",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a song from a text prompt or lyrics",
+            "amount": "100000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/suno/get-music-status",
+          "description": "Check the status of a music generation task",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check the status of a music generation task",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/suno/generate-lyrics",
+          "description": "Generate song lyrics from a text prompt",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate song lyrics from a text prompt",
+            "amount": "20000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/suno/get-lyrics-status",
+          "description": "Check the status of a lyrics generation task",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check the status of a lyrics generation task",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/suno/get-credits",
+          "description": "Get remaining Suno credits balance",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get remaining Suno credits balance",
+            "amount": "0",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "openweather",
+      "name": "OpenWeather",
+      "url": "https://weather.mpp.paywithlocus.com",
+      "serviceUrl": "https://weather.mpp.paywithlocus.com",
+      "description": "Weather data including current conditions, 5-day forecasts, air quality, geocoding, and comprehensive one-call weather.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "weather",
+        "forecast",
+        "air-quality",
+        "geocoding",
+        "climate"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://openweathermap.org/api"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "weather.mpp.paywithlocus.com",
+      "provider": {
+        "name": "OpenWeather",
+        "url": "https://openweathermap.org"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/openweather/current-weather",
+          "description": "Get current weather conditions for a location",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get current weather conditions for a location",
+            "amount": "3000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/openweather/forecast-5day",
+          "description": "Get 5-day / 3-hour weather forecast",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get 5-day / 3-hour weather forecast",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/openweather/air-quality",
+          "description": "Get air quality index and pollutant data",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get air quality index and pollutant data",
+            "amount": "3000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/openweather/geocode",
+          "description": "Convert a place name to coordinates",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Convert a place name to coordinates",
+            "amount": "2000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/openweather/reverse-geocode",
+          "description": "Convert coordinates to a place name",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Convert coordinates to a place name",
+            "amount": "2000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/openweather/onecall",
+          "description": "Get comprehensive weather data (current, minutely, hourly, daily)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get comprehensive weather data (current, minutely, hourly, daily)",
+            "amount": "7000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/openweather/weather-overview",
+          "description": "Get a human-readable weather summary",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a human-readable weather summary",
+            "amount": "7000",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "url": "https://perplexity.mpp.paywithlocus.com",
+      "serviceUrl": "https://perplexity.mpp.paywithlocus.com",
+      "description": "AI-powered search and chat with Sonar models — real-time web-grounded answers, search, and embeddings.",
+      "categories": [
+        "ai",
+        "search"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "ai",
+        "search",
+        "llm",
+        "chat",
+        "embeddings",
+        "web-grounded"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.perplexity.ai"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "perplexity.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Perplexity",
+        "url": "https://www.perplexity.ai"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/perplexity/chat",
+          "description": "Chat completion with Sonar models and web citations",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Chat completion with Sonar models and web citations",
+            "dynamic": true,
+            "amountHint": "$0.001 – $0.05"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/perplexity/search",
+          "description": "Web search with structured results",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Web search with structured results",
+            "dynamic": true,
+            "amountHint": "$0.005 – $0.05"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/perplexity/embed",
+          "description": "Generate text embeddings",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate text embeddings",
+            "dynamic": true,
+            "amountHint": "$0.001 – $0.01"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/perplexity/context-embed",
+          "description": "Generate contextual embeddings for document chunks",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate contextual embeddings for document chunks",
+            "dynamic": true,
+            "amountHint": "$0.001 – $0.01"
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffbot",
+      "name": "Diffbot",
+      "url": "https://diffbot.mpp.paywithlocus.com",
+      "serviceUrl": "https://diffbot.mpp.paywithlocus.com",
+      "description": "Web data extraction, natural language processing, and knowledge graph — extract structured data from any URL, analyze text entities, and search a global knowledge graph.",
+      "categories": [
+        "ai",
+        "data",
+        "web"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "web-scraping",
+        "extraction",
+        "nlp",
+        "knowledge-graph",
+        "entities",
+        "structured-data"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.diffbot.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "diffbot.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Diffbot",
+        "url": "https://www.diffbot.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/diffbot/article",
+          "description": "Extract structured article data from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract structured article data from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot/product",
+          "description": "Extract structured product data from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract structured product data from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot/discussion",
+          "description": "Extract discussion/comment threads from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract discussion/comment threads from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot/image",
+          "description": "Extract image metadata from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract image metadata from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot/video",
+          "description": "Extract video metadata from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract video metadata from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot/analyze",
+          "description": "Auto-detect page type and extract structured data from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Auto-detect page type and extract structured data from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot/event",
+          "description": "Extract event data from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract event data from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot/list",
+          "description": "Extract list items from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract list items from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot/job",
+          "description": "Extract job listing data from a URL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract job listing data from a URL",
+            "amount": "1200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot-nl/analyze",
+          "description": "Analyze text for entities, relationships, and sentiment (NLP)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Analyze text for entities, relationships, and sentiment (NLP)",
+            "dynamic": true,
+            "amountHint": "$0.001 – $0.01"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot-kg/search",
+          "description": "Search the Diffbot Knowledge Graph for entities",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search the Diffbot Knowledge Graph for entities",
+            "dynamic": true,
+            "amountHint": "$0.03 – $1.50"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/diffbot-kg/enhance",
+          "description": "Enrich an entity with Knowledge Graph data",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Enrich an entity with Knowledge Graph data",
+            "dynamic": true,
+            "amountHint": "$0.03 – $0.12"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mathpix",
+      "name": "Mathpix",
+      "url": "https://mathpix.mpp.paywithlocus.com",
+      "serviceUrl": "https://mathpix.mpp.paywithlocus.com",
+      "description": "OCR for math and scientific documents — extract LaTeX, MathML, and text from images and handwritten strokes.",
+      "categories": [
+        "ai"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "ocr",
+        "math",
+        "latex",
+        "handwriting",
+        "document-processing"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.mathpix.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mathpix.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Mathpix",
+        "url": "https://mathpix.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/mathpix/process-image",
+          "description": "Extract LaTeX and text from an image of math or scientific content",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract LaTeX and text from an image of math or scientific content",
+            "amount": "2000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mathpix/process-strokes",
+          "description": "Convert handwritten strokes to LaTeX and text",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Convert handwritten strokes to LaTeX and text",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "judge0",
+      "name": "Judge0",
+      "url": "https://judge0.mpp.paywithlocus.com",
+      "serviceUrl": "https://judge0.mpp.paywithlocus.com",
+      "description": "Online code execution engine — compile and run code in 70+ programming languages with sandboxed execution.",
+      "categories": [
+        "compute"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "code-execution",
+        "compiler",
+        "sandbox",
+        "programming",
+        "languages"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://judge0.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "judge0.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Judge0",
+        "url": "https://judge0.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/judge0/execute-code",
+          "description": "Execute code synchronously and return the output",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Execute code synchronously and return the output",
+            "amount": "1000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/judge0/submit-code",
+          "description": "Submit code for async execution and get a token",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Submit code for async execution and get a token",
+            "amount": "1000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/judge0/get-submission",
+          "description": "Get the status and output of a submitted code execution",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get the status and output of a submitted code execution",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/judge0/list-languages",
+          "description": "List all supported programming languages",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List all supported programming languages",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/judge0/list-statuses",
+          "description": "List all possible submission statuses",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List all possible submission statuses",
+            "amount": "0",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "browser-use",
+      "name": "Browser Use",
+      "url": "https://beta-api.paywithlocus.com/api/browser-use-mpp",
+      "serviceUrl": "https://beta-api.paywithlocus.com/api/browser-use-mpp",
+      "description": "AI-powered browser automation — run tasks in a cloud browser with LLM agents.",
+      "categories": [
+        "ai",
+        "web"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "ai",
+        "browser",
+        "automation",
+        "scraping",
+        "web-agent"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.cloud.browser-use.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "browseruse.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Browser Use",
+        "url": "https://browser-use.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/browser-use-mpp/run-task",
+          "description": "Start an automated browser task with an AI agent",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Start an automated browser task with an AI agent",
+            "dynamic": true,
+            "amountHint": "$0.01 – $10.00"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/browser-use-mpp/get-task",
+          "description": "Retrieve the full details and output of a task",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Retrieve the full details and output of a task",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/browser-use-mpp/get-task-status",
+          "description": "Check the current status of a running task",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check the current status of a running task",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/browser-use-mpp/stop-task",
+          "description": "Stop a running browser task",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Stop a running browser task",
+            "amount": "0",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "clado",
+      "name": "Clado",
+      "url": "https://clado.mpp.paywithlocus.com",
+      "serviceUrl": "https://clado.mpp.paywithlocus.com",
+      "description": "People search, LinkedIn enrichment, and deep research for lead generation.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "people-search",
+        "linkedin",
+        "enrichment",
+        "leads",
+        "deep-research"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.clado.ai"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "clado.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Clado",
+        "url": "https://clado.ai"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/clado/search",
+          "description": "Search for people by query",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search for people by query",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.30"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/deep-research",
+          "description": "Start async deep research job",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Start async deep research job",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.30"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/deep-research-status",
+          "description": "Check deep research status and results",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check deep research status and results",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/deep-research-cancel",
+          "description": "Cancel a running deep research job",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Cancel a running deep research job",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/deep-research-more",
+          "description": "Request additional deep research results",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Request additional deep research results",
+            "dynamic": true,
+            "amountHint": "$0.01 – $0.30"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/contacts",
+          "description": "Get contact info by LinkedIn URL, email, or phone",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get contact info by LinkedIn URL, email, or phone",
+            "dynamic": true,
+            "amountHint": "$0.04 – $0.14"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/scrape",
+          "description": "Scrape a LinkedIn profile",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Scrape a LinkedIn profile",
+            "amount": "2000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/linkedin-profile",
+          "description": "Get structured LinkedIn profile data",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get structured LinkedIn profile data",
+            "amount": "1000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/post-reactions",
+          "description": "Get reactions on a LinkedIn post",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get reactions on a LinkedIn post",
+            "amount": "1000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/bulk-contacts",
+          "description": "Enrich contacts in bulk",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Enrich contacts in bulk",
+            "dynamic": true,
+            "amountHint": "$0.04 – $1.40"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/bulk-contacts-status",
+          "description": "Check bulk enrichment status",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check bulk enrichment status",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/clado/credits",
+          "description": "Check remaining API credits",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check remaining API credits",
+            "amount": "0",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "edgar",
+      "name": "EDGAR",
+      "url": "https://edgar.mpp.paywithlocus.com",
+      "serviceUrl": "https://edgar.mpp.paywithlocus.com",
+      "description": "SEC EDGAR public financial data — company filing history, XBRL financial facts, and single-concept time series.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "sec",
+        "edgar",
+        "finance",
+        "filings",
+        "xbrl",
+        "stocks"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://www.sec.gov/developer"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "edgar.mpp.paywithlocus.com",
+      "provider": {
+        "name": "SEC EDGAR",
+        "url": "https://www.sec.gov/developer"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/edgar/company-submissions",
+          "description": "Get filing history and metadata for a SEC filer",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get filing history and metadata for a SEC filer",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/edgar/company-facts",
+          "description": "Get all XBRL financial data for a company",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get all XBRL financial data for a company",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/edgar/company-concept",
+          "description": "Get time series for a single XBRL financial metric",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get time series for a single XBRL financial metric",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "edgar-search",
+      "name": "EDGAR Search",
+      "url": "https://edgar-search.mpp.paywithlocus.com",
+      "serviceUrl": "https://edgar-search.mpp.paywithlocus.com",
+      "description": "Full-text search across all SEC filings — 10-Ks, 10-Qs, 8-Ks, proxy statements, and more.",
+      "categories": [
+        "data",
+        "search"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "sec",
+        "edgar",
+        "search",
+        "filings",
+        "finance"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://www.sec.gov/developer"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "edgar-search.mpp.paywithlocus.com",
+      "provider": {
+        "name": "SEC EDGAR",
+        "url": "https://www.sec.gov/developer"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/edgar-search/search",
+          "description": "Search full text of SEC filings by keyword, company, form type, and date range",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search full text of SEC filings by keyword, company, form type, and date range",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
+      "id": "laso",
+      "name": "Laso Finance",
+      "url": "https://beta-api.paywithlocus.com/api/laso-mpp",
+      "serviceUrl": "https://beta-api.paywithlocus.com/api/laso-mpp",
+      "description": "AI-powered virtual debit cards, payments via Venmo/PayPal, and balance management.",
+      "categories": [
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "finance",
+        "payments",
+        "debit-card",
+        "venmo",
+        "paypal"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.paywithlocus.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "laso.mpp.paywithlocus.com",
+      "provider": {
+        "name": "Laso Finance",
+        "url": "https://laso.finance"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/auth",
+          "description": "Authenticate for a session token",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Authenticate for a session token",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/get-card",
+          "description": "Provision a virtual debit card",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Provision a virtual debit card",
+            "dynamic": true,
+            "amountHint": "$5.00 – $1000.00"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/send-payment",
+          "description": "Send payment via Venmo or PayPal",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Send payment via Venmo or PayPal",
+            "dynamic": true,
+            "amountHint": "$5.00 – $1000.00"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/get-card-data",
+          "description": "Get card status and details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get card status and details",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/get-payment-status",
+          "description": "Check payment status",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check payment status",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/get-account-balance",
+          "description": "Check account balance",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check account balance",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/withdraw",
+          "description": "Initiate a withdrawal",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Initiate a withdrawal",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/get-withdrawal-status",
+          "description": "Check withdrawal status",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check withdrawal status",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/refresh-card-data",
+          "description": "Refresh card data",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Refresh card data",
+            "amount": "0",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/laso-mpp/refresh",
+          "description": "Exchange refresh token for new ID token",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Exchange refresh token for new ID token",
+            "amount": "0",
+            "unitType": "request"
+          }
+        }
+      ]
+    },
+    {
       "id": "stripe-climate",
       "name": "Stripe Climate",
       "url": "https://climate.stripe.dev",
