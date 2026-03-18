@@ -499,10 +499,10 @@ function Hero() {
         </div>
         <div className="hero-right">
           <Tagline />
-          <div className="flex items-center gap-4 mt-3 landing-ctas">
+          <div className="flex items-center gap-3 sm:gap-4 mt-3 px-4 sm:px-0 landing-ctas">
             <Link
               to="/quickstart/agent"
-              className="no-underline! px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
+              className="no-underline! px-3 sm:px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
               style={{
                 fontSize: "0.9375rem",
                 fontWeight: 500,
@@ -521,7 +521,7 @@ function Hero() {
             </Link>
             <Link
               to="/quickstart/server"
-              className="no-underline! px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
+              className="no-underline! px-3 sm:px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
               style={{
                 fontSize: "0.9375rem",
                 fontWeight: 500,
