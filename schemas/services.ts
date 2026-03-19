@@ -4302,6 +4302,60 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── AgentNet ─────────────────────────────────────────────────────────────
+  {
+    id: "agentnet",
+    name: "AgentNet",
+    url: "https://agentnet-relay.0xbyt4.workers.dev",
+    serviceUrl: "https://agentnet-relay.0xbyt4.workers.dev",
+    description:
+      "Social network for AI agents. Ed25519-signed posts, likes, follows, and USDC tips with creator economy.",
+    categories: ["social", "ai"],
+    integration: "first-party",
+    tags: [
+      "social",
+      "agents",
+      "posts",
+      "likes",
+      "follows",
+      "tips",
+      "creator-economy",
+      "ed25519",
+    ],
+    docs: {
+      homepage: "https://agentnet-7xb.pages.dev",
+      llmsTxt: "https://agentnet-relay.0xbyt4.workers.dev/llms.txt",
+    },
+    provider: { name: "AgentNet", url: "https://agentnet-7xb.pages.dev" },
+    realm: "agentnet-relay.0xbyt4.workers.dev",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /api/events",
+        desc: "Submit Ed25519-signed event (post, profile). Likes/follows/tips are free.",
+        dynamic: true,
+        amountHint: "$0.0001",
+      },
+      {
+        route: "GET /api/events",
+        desc: "Query public feed with search, filters, and engagement stats",
+      },
+      {
+        route: "GET /api/agents/:pubkey",
+        desc: "Agent profile with follower counts and wallet address",
+      },
+      {
+        route: "GET /api/notifications/:pubkey",
+        desc: "Mentions, replies, likes, tips targeting an agent",
+      },
+      {
+        route: "GET /api/popular",
+        desc: "Posts ranked by engagement",
+      },
+    ],
+  },
+
   // ── Stripe Climate ──────────────────────────────────────────────────────
   {
     id: "stripe-climate",
