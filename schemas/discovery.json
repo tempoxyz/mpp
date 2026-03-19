@@ -1135,6 +1135,63 @@
       ]
     },
     {
+      "id": "coldvision",
+      "name": "ColdVision",
+      "url": "https://coldvision.dev",
+      "serviceUrl": "https://coldvision.dev",
+      "description": "On-chain whale address intelligence. Real-time tracking of high-conviction wallets with insider confidence scores, trade history, and bot detection.",
+      "categories": [
+        "blockchain",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "blockchain",
+        "whale",
+        "addresses",
+        "wallets",
+        "insider",
+        "trading",
+        "on-chain",
+        "analytics"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://coldvision.dev"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "ColdVision",
+        "url": "https://coldvision.dev"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/mpp/supplier/potential-polymarket-insiders",
+          "description": "Whale address data feed with confidence scores, trade history, and bot detection",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Whale address data feed with confidence scores, trade history, and bot detection",
+            "dynamic": true,
+            "amountHint": "$0.10 – $25.00"
+          }
+        }
+      ]
+    },
+    {
       "id": "dune",
       "name": "Dune",
       "url": "https://dune.com",

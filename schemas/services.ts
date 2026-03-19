@@ -644,6 +644,40 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── ColdVision ─────────────────────────────────────────────────────────
+  {
+    id: "coldvision",
+    name: "ColdVision",
+    url: "https://coldvision.dev",
+    serviceUrl: "https://coldvision.dev",
+    description:
+      "On-chain whale address intelligence. Real-time tracking of high-conviction wallets with insider confidence scores, trade history, and bot detection.",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: [
+      "blockchain",
+      "whale",
+      "addresses",
+      "wallets",
+      "insider",
+      "trading",
+      "on-chain",
+      "analytics",
+    ],
+    docs: { homepage: "https://coldvision.dev" },
+    provider: { name: "ColdVision", url: "https://coldvision.dev" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /api/mpp/supplier/potential-polymarket-insiders",
+        desc: "Whale address data feed with confidence scores, trade history, and bot detection",
+        dynamic: true,
+        amountHint: "$0.10 – $25.00",
+      },
+    ],
+  },
   // ── Dune ────────────────────────────────────────────────────────────────
   {
     id: "dune",
