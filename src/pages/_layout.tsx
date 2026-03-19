@@ -42,9 +42,10 @@ function useGoogleAnalytics() {
     document.head.appendChild(script);
 
     window.dataLayer = window.dataLayer || [];
-    function gtag(...args: unknown[]) {
-      window.dataLayer.push(args);
-    }
+    const gtag: (...args: unknown[]) => void = function () {
+      // biome-ignore lint/complexity/noArguments: gtag.js bootstrap requires the native arguments object
+      window.dataLayer.push(arguments);
+    };
     gtag("js", new Date());
     gtag("config", id);
   }, []);
