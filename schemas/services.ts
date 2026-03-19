@@ -4332,8 +4332,8 @@ export const services: ServiceDef[] = [
   {
     id: "sardis-guard",
     name: "Sardis Guard",
-    url: "https://guard.sardis.sh",
-    serviceUrl: "https://guard.sardis.sh",
+    url: "https://sardis-guard-482463483786.us-central1.run.app",
+    serviceUrl: "https://sardis-guard-482463483786.us-central1.run.app",
     description:
       "Financial intelligence and governance for AI agent payments. " +
       "8-gate security pipeline with ML anomaly detection, OFAC sanctions screening, " +
