@@ -1079,7 +1079,7 @@ export const services: ServiceDef[] = [
   {
     id: "alchemy",
     name: "Alchemy",
-    url: "https://eth-mainnet.g.alchemy.com",
+    url: "https://agents.alchemy.com/",
     serviceUrl: "https://mpp.alchemy.com",
     description:
       "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
@@ -1087,14 +1087,14 @@ export const services: ServiceDef[] = [
     integration: "first-party",
     tags: ["rpc", "json-rpc", "nft", "evm", "multichain"],
     docs: {
-      homepage: "https://www.alchemy.com/docs",
-      llmsTxt: "https://www.alchemy.com/docs/llms.txt",
+      homepage: "https://agents.alchemy.com/s",
+      llmsTxt: "https://www.alchemy.com/llms.txt",
     },
-    provider: { name: "Alchemy", url: "https://alchemy.com" },
+    provider: { name: "Alchemy", url: "https://agents.alchemy.com/" },
     realm: "alchemy.com",
     intent: "session",
     payment: TEMPO_PAYMENT,
-    docsBase: "https://context7.com/websites/alchemy/llms.txt",
+    docsBase: "https://www.alchemy.com/llms.txt",
     endpoints: [
       {
         route: "POST /:network/v2",

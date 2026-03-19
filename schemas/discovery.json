@@ -2175,7 +2175,7 @@
     {
       "id": "alchemy",
       "name": "Alchemy",
-      "url": "https://eth-mainnet.g.alchemy.com",
+      "url": "https://agents.alchemy.com/",
       "serviceUrl": "https://mpp.alchemy.com",
       "description": "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
       "categories": [
@@ -2192,8 +2192,8 @@
       ],
       "status": "active",
       "docs": {
-        "homepage": "https://www.alchemy.com/docs",
-        "llmsTxt": "https://www.alchemy.com/docs/llms.txt"
+        "homepage": "https://agents.alchemy.com/s",
+        "llmsTxt": "https://www.alchemy.com/llms.txt"
       },
       "methods": {
         "tempo": {
@@ -2208,7 +2208,7 @@
       "realm": "alchemy.com",
       "provider": {
         "name": "Alchemy",
-        "url": "https://alchemy.com"
+        "url": "https://agents.alchemy.com/"
       },
       "endpoints": [
         {
@@ -2223,7 +2223,7 @@
             "description": "JSON-RPC call (eth_*, alchemy_*)",
             "amount": "100"
           },
-          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=POST%20%2F%3Anetwork%2Fv2"
+          "docs": "https://www.alchemy.com/llms.txt?topic=POST%20%2F%3Anetwork%2Fv2"
         },
         {
           "method": "GET",
@@ -2237,7 +2237,7 @@
             "description": "NFT API v3",
             "amount": "500"
           },
-          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=GET%20%2F%3Anetwork%2Fnft%2Fv3%2F%3Aendpoint"
+          "docs": "https://www.alchemy.com/llms.txt?topic=GET%20%2F%3Anetwork%2Fnft%2Fv3%2F%3Aendpoint"
         },
         {
           "method": "POST",
@@ -2251,7 +2251,7 @@
             "description": "NFT API v3",
             "amount": "500"
           },
-          "docs": "https://context7.com/websites/alchemy/llms.txt?topic=POST%20%2F%3Anetwork%2Fnft%2Fv3%2F%3Aendpoint"
+          "docs": "https://www.alchemy.com/llms.txt?topic=POST%20%2F%3Anetwork%2Fnft%2Fv3%2F%3Aendpoint"
         }
       ]
     },
