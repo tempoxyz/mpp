@@ -1322,7 +1322,6 @@ export const services: ServiceDef[] = [
       "exa",
       "firecrawl",
       "google-maps",
-      "grok",
       "linkedin",
       "reddit",
       "enrichment",
@@ -1430,22 +1429,6 @@ export const services: ServiceDef[] = [
       {
         route: "GET /api/google-maps/place-details/partial",
         desc: "Partial place details by ID",
-        amount: "20000",
-      },
-      // Grok (X/Twitter)
-      {
-        route: "POST /api/grok/x-search",
-        desc: "Search X/Twitter posts",
-        amount: "20000",
-      },
-      {
-        route: "POST /api/grok/user-search",
-        desc: "Search X/Twitter users",
-        amount: "20000",
-      },
-      {
-        route: "POST /api/grok/user-posts",
-        desc: "Get recent posts from an X user",
         amount: "20000",
       },
       // Serper

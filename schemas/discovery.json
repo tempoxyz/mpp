@@ -2706,7 +2706,6 @@
         "exa",
         "firecrawl",
         "google-maps",
-        "grok",
         "linkedin",
         "reddit",
         "enrichment",
@@ -2964,45 +2963,6 @@
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
             "description": "Partial place details by ID",
-            "amount": "20000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/grok/x-search",
-          "description": "Search X/Twitter posts",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Search X/Twitter posts",
-            "amount": "20000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/grok/user-search",
-          "description": "Search X/Twitter users",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Search X/Twitter users",
-            "amount": "20000"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/grok/user-posts",
-          "description": "Get recent posts from an X user",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Get recent posts from an X user",
             "amount": "20000"
           }
         },
