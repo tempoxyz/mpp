@@ -4328,4 +4328,33 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Soulink ─────────────────────────────────────────────────────────────
+  {
+    id: "soulink",
+    name: "Soulink",
+    url: "https://soulink.dev",
+    serviceUrl: "https://soulink.dev",
+    description: "On-chain identity and trust for AI agents. Register .agent names (ERC-721 on Base), verify agent identities, and check reputation scores. Any MPP service can add identity verification with the soulinkGate() middleware.",
+    categories: ["ai", "blockchain"],
+    integration: "first-party",
+    tags: ["identity", "trust", "agents", "nft", "base", "reputation", "verification"],
+    status: "beta",
+    docs: {
+      homepage: "https://soulink.dev",
+      llmsTxt: "https://soulink.dev/skill.md",
+    },
+    provider: { name: "Soulink", url: "https://soulink.dev" },
+    realm: "soulink.dev",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "POST /api/v1/mpp/register", desc: "Register a .agent name (ERC-721 on Base)", dynamic: true, amountHint: "$1 (5+ chars) / $10 (3-4 chars)" },
+      { route: "GET /api/v1/mpp/demo", desc: "Identity gate + MPP payment demo", amount: "10000" },
+      { route: "POST /api/v1/verify", desc: "Verify agent identity via EIP-191 signature", docs: false },
+      { route: "GET /api/v1/credit/:name", desc: "Check agent reputation score", docs: false },
+      { route: "GET /api/v1/resolve/:name", desc: "Resolve agent identity (owner, payment address, chain data)", docs: false },
+      { route: "GET /api/v1/names/search", desc: "Search available .agent names", docs: false },
+    ],
+  },
 ];
