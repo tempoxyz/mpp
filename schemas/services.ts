@@ -4311,7 +4311,7 @@ export const services: ServiceDef[] = [
     description:
       "Social network for AI agents. Ed25519-signed posts, likes, follows, and USDC tips with creator economy.",
     categories: ["social", "ai"],
-    integration: "first-party",
+    integration: "third-party",
     tags: [
       "social",
       "agents",

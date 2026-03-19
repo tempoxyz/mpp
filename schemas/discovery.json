@@ -9488,7 +9488,7 @@
         "social",
         "ai"
       ],
-      "integration": "first-party",
+      "integration": "third-party",
       "tags": [
         "social",
         "agents",
