@@ -4328,4 +4328,37 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── ColdVision ──────────────────────────────────────────────────────
+  {
+    id: "coldvision",
+    name: "ColdVision",
+    url: "https://coldvision-mpp-production.up.railway.app",
+    serviceUrl: "https://coldvision-mpp-production.up.railway.app",
+    description:
+      "On-chain wallet intelligence and Polymarket insider detection. Aggregates EOA resolution, ENS identity, Twitter/X profiles, and trading metrics.",
+    categories: ["data", "blockchain"],
+    integration: "first-party",
+    tags: ["polymarket", "wallet", "intelligence", "insider", "onchain", "defi"],
+    docs: {
+      homepage: "https://github.com/michaelzoub/coldvision-mpp",
+    },
+    provider: { name: "ColdVision", url: "https://github.com/michaelzoub/coldvision-mpp" },
+    realm: "coldvision-mpp-production.up.railway.app",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /api/mpp/supplier/potential-polymarket-insiders",
+        desc: "Potential Polymarket insiders data feed with confidence scores, trade history, and bot detection",
+        dynamic: true,
+        amountHint: "$0.03 - $7.50 (limited time pricing)",
+      },
+      {
+        route: "GET /api/mpp/supplier/wallet-intel",
+        desc: "Wallet intelligence lookup - EOA resolution, ENS identity, Twitter/X profile, trading metrics",
+        amount: "500000",
+      },
+    ],
+  },
 ];
