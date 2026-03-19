@@ -11,4 +11,5 @@ export const stripeMppx = Mppx.create({
       secretKey: process.env.STRIPE_SECRET_KEY!,
     }),
   ],
+  secretKey: "demo",
 });

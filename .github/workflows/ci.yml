@@ -93,5 +93,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
         env:
-          MPP_SECRET_KEY: ${{ secrets.MPP_SECRET_KEY }}
+          MPP_SECRET_KEY: ${{ secrets.MPP_SECRET_KEY || 'ci-placeholder-key' }}
 
