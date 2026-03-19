@@ -1307,6 +1307,52 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── StableDomains ──────────────────────────────────────────────────────
+  {
+    id: "stabledomains",
+    name: "StableDomains",
+    url: "https://stabledomains.dev",
+    serviceUrl: "https://stabledomains.dev",
+    description:
+      "Domain registration via micropayments — search, register, renew, and manage DNS. No accounts.",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["domains", "dns", "registrar", "web"],
+    docs: {
+      homepage: "https://stabledomains.dev",
+      llmsTxt: "https://stabledomains.dev/llms.txt",
+    },
+    provider: { name: "Merit Systems", url: "https://stabledomains.dev" },
+    realm: "stabledomains.dev",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /api/check",
+        desc: "Check domain availability and pricing",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/register",
+        desc: "Register a domain",
+        dynamic: true,
+        amountHint: "$20 – $150 depending on TLD",
+      },
+      {
+        route: "POST /api/domain/renew",
+        desc: "Renew a domain",
+        dynamic: true,
+        amountHint: "$20 – $150 depending on TLD",
+      },
+      { route: "GET /api/domain/status", desc: "Check domain status" },
+      { route: "POST /api/domain/dns", desc: "Update DNS records" },
+      {
+        route: "POST /api/domain/transfer-out",
+        desc: "Transfer domain out",
+      },
+    ],
+  },
+
   // ── StableEnrich ───────────────────────────────────────────────────────
   {
     id: "stableenrich",
