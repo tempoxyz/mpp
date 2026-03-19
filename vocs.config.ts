@@ -33,7 +33,8 @@ export default defineConfig({
       destination: "/sdk/typescript/server/Method.tempo.session",
     },
   ],
-  description: "The open protocol for machine-to-machine payments.",
+  description:
+    "MPP (Machine Payments Protocol) is the open standard for machine-to-machine payments via HTTP 402.",
   checkDeadlinks: true,
   editLink: {
     link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",
@@ -544,7 +545,7 @@ export default defineConfig({
     { icon: "x", link: "https://x.com/mpp" },
     { icon: "github", link: "https://github.com/tempoxyz/mpp-specs" },
   ],
-  title: "Machine Payments Protocol",
+  title: "MPP — Machine Payments Protocol",
   titleTemplate: "%s | MPP",
   twoslash: {
     twoslashOptions: {

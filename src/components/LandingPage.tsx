@@ -11,6 +11,30 @@ import { Terminal } from "./Terminal";
 
 const ACCENT = "var(--vocs-text-color-heading)";
 
+const JSON_LD = JSON.stringify([
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "MPP",
+    alternateName: "Machine Payments Protocol",
+    url: "https://mpp.tempo.xyz",
+    description:
+      "The open standard for machine-to-machine payments via HTTP 402.",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Tempo",
+    url: "https://tempo.xyz",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Stripe",
+    url: "https://stripe.com",
+  },
+]);
+
 const TERMINAL_STEPS = [
   Terminal.commands(["./mpp.sh"]),
   Terminal.wizard([
@@ -51,6 +75,11 @@ export function LandingPage() {
 
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: static JSON-LD structured data
+        dangerouslySetInnerHTML={{ __html: JSON_LD }}
+      />
       <div
         className="not-prose landing-page"
         style={{
@@ -633,9 +662,10 @@ function StripeLogo() {
 function Lockup() {
   return (
     <h1 className="lockup-h1" style={{ margin: 0 }}>
+      <span className="sr-only">MPP — Machine Payments Protocol</span>
       <img
         src="/lockup-dark.svg"
-        alt="Machine Payments Protocol"
+        alt=""
         className="lockup-img lockup-for-light"
         style={{
           height: "auto",
@@ -645,7 +675,7 @@ function Lockup() {
       />
       <img
         src="/lockup-light.svg"
-        alt="Machine Payments Protocol"
+        alt=""
         className="lockup-img lockup-for-dark"
         style={{
           height: "auto",
