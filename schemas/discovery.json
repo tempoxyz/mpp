@@ -1689,6 +1689,88 @@
       ]
     },
     {
+      "id": "govlaws",
+      "name": "GovLaws",
+      "url": "https://govlaws.ai",
+      "serviceUrl": "https://govlaws.ai",
+      "description": "Current U.S. federal regulation lookup, semantic search, and change tracking with provenance-rich responses from official government sources.",
+      "categories": [
+        "data",
+        "search"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "legal",
+        "regulatory",
+        "government",
+        "citations",
+        "compliance",
+        "federal"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://govlaws.ai/mpp",
+        "llmsTxt": "https://govlaws.ai/llms.txt",
+        "apiReference": "https://govlaws.ai/api/openapi.json"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "govlaws.ai",
+      "provider": {
+        "name": "GovLaws",
+        "url": "https://govlaws.ai"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/mpp/resolve",
+          "description": "Resolve a CFR citation to current text, provenance, freshness, and recent changes",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Resolve a CFR citation to current text, provenance, freshness, and recent changes",
+            "amount": "50000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/mpp/search",
+          "description": "Semantic search across current U.S. federal regulations",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Semantic search across current U.S. federal regulations",
+            "amount": "30000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/mpp/changes",
+          "description": "Recent Federal Register change events filtered by agency, citation, or lookback",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Recent Federal Register change events filtered by agency, citation, or lookback",
+            "amount": "30000"
+          }
+        }
+      ]
+    },
+    {
       "id": "gemini",
       "name": "Google Gemini",
       "url": "https://generativelanguage.googleapis.com",
