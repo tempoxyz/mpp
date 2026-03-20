@@ -9529,6 +9529,142 @@
           }
         }
       ]
+    },
+    {
+      "id": "xquik",
+      "name": "Xquik",
+      "url": "https://xquik.com",
+      "serviceUrl": "https://xquik.com",
+      "description": "Real-time X (Twitter) data — tweet lookup, user profiles, article extraction, tweet search, follower checks, media download, and trending topics.",
+      "categories": [
+        "social",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "twitter",
+        "x",
+        "social-media",
+        "tweets",
+        "scraping"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.xquik.com",
+        "llmsTxt": "https://docs.xquik.com/llms.txt",
+        "apiReference": "https://docs.xquik.com/api-reference/overview"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge",
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "xquik.com",
+      "provider": {
+        "name": "Xquik",
+        "url": "https://xquik.com"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/v1/x/tweets/:id",
+          "description": "Look up a tweet with engagement metrics",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Look up a tweet with engagement metrics",
+            "amount": "300"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/x/tweets/search",
+          "description": "Search tweets by query",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search tweets by query",
+            "amount": "300",
+            "unitType": "tweet"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/x/users/:username",
+          "description": "Get X user profile",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get X user profile",
+            "amount": "360"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/x/followers/check",
+          "description": "Check follow relationship",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check follow relationship",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/x/articles/:tweetId",
+          "description": "Get X Article (long-form post)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get X Article (long-form post)",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x/media/download",
+          "description": "Download tweet media",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Download tweet media",
+            "amount": "300",
+            "unitType": "media"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/trends",
+          "description": "Trending topics on X",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Trending topics on X",
+            "amount": "900"
+          }
+        }
+      ]
     }
   ]
 }
