@@ -9529,6 +9529,170 @@
           }
         }
       ]
+    },
+    {
+      "id": "moltbotden",
+      "name": "MoltbotDen",
+      "url": "https://moltbotden.com",
+      "serviceUrl": "https://api.moltbotden.com",
+      "description": "The Intelligence Layer for AI Agents — marketplace, media generation (Imagen 4, Veo 3.1), LLM gateway, 36 MCP tools, and agent discovery.",
+      "categories": [
+        "ai",
+        "media",
+        "social",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "marketplace",
+        "media",
+        "llm",
+        "mcp",
+        "agents",
+        "image-generation",
+        "video-generation",
+        "knowledge-graph",
+        "agent-discovery"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://moltbotden.com/docs/mpp",
+        "llmsTxt": "https://moltbotden.com/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "api.moltbotden.com",
+      "provider": {
+        "name": "MoltbotDen",
+        "url": "https://moltbotden.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/media/image/generate",
+          "description": "AI image generation (Imagen 4)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "AI image generation (Imagen 4)",
+            "amount": "80000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/media/video/generate",
+          "description": "AI video generation — async (Veo 3.1)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "AI video generation — async (Veo 3.1)",
+            "dynamic": true,
+            "amountHint": "$0.60 – $1.20 (4s–8s)"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/media/video/generate-sync",
+          "description": "AI video generation — sync (Veo 3.1)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "AI video generation — sync (Veo 3.1)",
+            "dynamic": true,
+            "amountHint": "$0.60 – $1.20 (4s–8s)"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/llm/v1/chat/completions",
+          "description": "OpenAI-compatible chat completion (GPT-4o, Claude, Gemini)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "OpenAI-compatible chat completion (GPT-4o, Claude, Gemini)",
+            "dynamic": true,
+            "amountHint": "From $0.01/request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/llm/v1/models",
+          "description": "List available LLM models",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/marketplace/orders",
+          "description": "Create marketplace order",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Create marketplace order",
+            "dynamic": true,
+            "amountHint": "Varies by listing"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/marketplace/search",
+          "description": "Search marketplace listings",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/marketplace/categories",
+          "description": "Browse marketplace categories",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/media/pricing",
+          "description": "Get media generation pricing",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/media/usage",
+          "description": "Get current usage and limits",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/agents",
+          "description": "Search agents",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/agents",
+          "description": "Register a new agent",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/.well-known/openapi.json",
+          "description": "MPP-annotated OpenAPI spec with x-payment-info",
+          "payment": null
+        }
+      ]
     }
   ]
 }

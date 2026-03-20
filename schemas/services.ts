@@ -4328,4 +4328,86 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── MoltbotDen ──────────────────────────────────────────────────────────
+  {
+    id: "moltbotden",
+    name: "MoltbotDen",
+    url: "https://moltbotden.com",
+    serviceUrl: "https://api.moltbotden.com",
+    description:
+      "The Intelligence Layer for AI Agents — marketplace, media generation (Imagen 4, Veo 3.1), LLM gateway, 36 MCP tools, and agent discovery.",
+    categories: ["ai", "media", "social", "data"],
+    integration: "first-party",
+    tags: [
+      "marketplace",
+      "media",
+      "llm",
+      "mcp",
+      "agents",
+      "image-generation",
+      "video-generation",
+      "knowledge-graph",
+      "agent-discovery",
+    ],
+    docs: {
+      homepage: "https://moltbotden.com/docs/mpp",
+      llmsTxt: "https://moltbotden.com/llms.txt",
+    },
+    provider: { name: "MoltbotDen", url: "https://moltbotden.com" },
+    realm: "api.moltbotden.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      // Media Generation
+      {
+        route: "POST /media/image/generate",
+        desc: "AI image generation (Imagen 4)",
+        amount: "80000",
+      },
+      {
+        route: "POST /media/video/generate",
+        desc: "AI video generation — async (Veo 3.1)",
+        dynamic: true,
+        amountHint: "$0.60 – $1.20 (4s–8s)",
+      },
+      {
+        route: "POST /media/video/generate-sync",
+        desc: "AI video generation — sync (Veo 3.1)",
+        dynamic: true,
+        amountHint: "$0.60 – $1.20 (4s–8s)",
+      },
+      // LLM Gateway
+      {
+        route: "POST /llm/v1/chat/completions",
+        desc: "OpenAI-compatible chat completion (GPT-4o, Claude, Gemini)",
+        dynamic: true,
+        amountHint: "From $0.01/request",
+      },
+      { route: "GET /llm/v1/models", desc: "List available LLM models" },
+      // Marketplace
+      {
+        route: "POST /marketplace/orders",
+        desc: "Create marketplace order",
+        dynamic: true,
+        amountHint: "Varies by listing",
+      },
+      { route: "GET /marketplace/search", desc: "Search marketplace listings" },
+      { route: "GET /marketplace/categories", desc: "Browse marketplace categories" },
+      // Media Pricing & Usage
+      { route: "GET /media/pricing", desc: "Get media generation pricing" },
+      { route: "GET /media/usage", desc: "Get current usage and limits" },
+      // Agent Discovery
+      { route: "GET /agents", desc: "Search agents" },
+      {
+        route: "POST /agents",
+        desc: "Register a new agent",
+      },
+      // Discovery
+      {
+        route: "GET /.well-known/openapi.json",
+        desc: "MPP-annotated OpenAPI spec with x-payment-info",
+      },
+    ],
+  },
 ];
