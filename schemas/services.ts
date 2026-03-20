@@ -72,6 +72,26 @@ export const STRIPE_PAYMENT: PaymentDefaults = {
   decimals: 2,
 };
 
+/** Native ALGO token on Algorand mainnet (ASA ID 0, 6 decimal places = microALGO) */
+export const ALGO_NATIVE = "0";
+
+/** Native VOI token on Voi mainnet (ASA ID 0, 6 decimal places = microVOI) */
+export const VOI_NATIVE = "0";
+
+/** Common payment defaults for Algorand native ALGO payments */
+export const ALGORAND_PAYMENT: PaymentDefaults = {
+  method: "algorand",
+  currency: ALGO_NATIVE,
+  decimals: 6,
+};
+
+/** Common payment defaults for Voi native VOI payments */
+export const VOI_PAYMENT: PaymentDefaults = {
+  method: "voi",
+  currency: VOI_NATIVE,
+  decimals: 6,
+};
+
 export interface EndpointDef {
   /** Route string: "METHOD /path" (without service slug prefix) */
   route: string;
@@ -5542,6 +5562,62 @@ export const services: ServiceDef[] = [
         desc: "Create a climate contribution",
         dynamic: true,
         amountHint: "$0.01+",
+      },
+    ],
+  },
+
+  // ── AlgoVoi ────────────────────────────────────────────────────────────
+  {
+    id: "algovoi",
+    name: "AlgoVoi",
+    url: "https://mcp.ilovechicken.co.uk",
+    serviceUrl: "https://mcp.ilovechicken.co.uk",
+    description:
+      "Algorand and Voi blockchain gateway — MCP tools for account lookup, " +
+      "asset data, transaction history, and on-chain AI agent payments via " +
+      "native ALGO or VOI using the x402/MPP HTTP payment protocol.",
+    categories: ["blockchain", "ai"],
+    integration: "first-party",
+    tags: [
+      "algorand",
+      "voi",
+      "avm",
+      "blockchain",
+      "mcp",
+      "x402",
+      "micropayments",
+      "algo",
+      "asa",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://mcp.ilovechicken.co.uk",
+    },
+    provider: { name: "AlgoVoi", url: "https://mcp.ilovechicken.co.uk" },
+    realm: "mcp.ilovechicken.co.uk",
+    intent: "charge",
+    payment: ALGORAND_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /account/:address",
+        desc: "Algorand/Voi account balance and state",
+        amount: "1000",
+      },
+      {
+        route: "GET /assets/:id",
+        desc: "ASA metadata and supply",
+        amount: "1000",
+      },
+      {
+        route: "GET /transactions/:address",
+        desc: "Transaction history for an address",
+        amount: "2000",
+      },
+      {
+        route: "POST /mcp",
+        desc: "MCP tool calls — AI agent blockchain actions",
+        dynamic: true,
+        amountHint: "0.001–0.01 ALGO per call",
       },
     ],
   },

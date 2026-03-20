@@ -11914,6 +11914,103 @@
           }
         }
       ]
+    },
+    {
+      "id": "algovoi",
+      "name": "AlgoVoi",
+      "url": "https://mcp.ilovechicken.co.uk",
+      "serviceUrl": "https://mcp.ilovechicken.co.uk",
+      "description": "Algorand and Voi blockchain gateway — MCP tools for account lookup, asset data, transaction history, and on-chain AI agent payments via native ALGO or VOI using the x402/MPP HTTP payment protocol.",
+      "categories": [
+        "blockchain",
+        "ai"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "algorand",
+        "voi",
+        "avm",
+        "blockchain",
+        "mcp",
+        "x402",
+        "micropayments",
+        "algo",
+        "asa"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://mcp.ilovechicken.co.uk"
+      },
+      "methods": {
+        "algorand": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0"
+          ]
+        }
+      },
+      "realm": "mcp.ilovechicken.co.uk",
+      "provider": {
+        "name": "AlgoVoi",
+        "url": "https://mcp.ilovechicken.co.uk"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/account/:address",
+          "description": "Algorand/Voi account balance and state",
+          "payment": {
+            "intent": "charge",
+            "method": "algorand",
+            "currency": "0",
+            "decimals": 6,
+            "description": "Algorand/Voi account balance and state",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/assets/:id",
+          "description": "ASA metadata and supply",
+          "payment": {
+            "intent": "charge",
+            "method": "algorand",
+            "currency": "0",
+            "decimals": 6,
+            "description": "ASA metadata and supply",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/transactions/:address",
+          "description": "Transaction history for an address",
+          "payment": {
+            "intent": "charge",
+            "method": "algorand",
+            "currency": "0",
+            "decimals": 6,
+            "description": "Transaction history for an address",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/mcp",
+          "description": "MCP tool calls — AI agent blockchain actions",
+          "payment": {
+            "intent": "charge",
+            "method": "algorand",
+            "currency": "0",
+            "decimals": 6,
+            "description": "MCP tool calls — AI agent blockchain actions",
+            "dynamic": true,
+            "amountHint": "0.001–0.01 ALGO per call"
+          }
+        }
+      ]
     }
   ]
 }
