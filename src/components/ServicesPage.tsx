@@ -2531,7 +2531,7 @@ function SidebarInfoCards() {
           }}
         />
         <div style={{ flex: 1 }}>
-          <div style={titleStyle}>First-party services</div>
+          <div style={titleStyle}>Third-party services</div>
           <div style={descStyle}>
             Services which directly integrate with MPP
           </div>
