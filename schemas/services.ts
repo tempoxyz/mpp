@@ -4328,4 +4328,145 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Arkham ──────────────────────────────────────────────────────────────
+  {
+    id: "arkham",
+    name: "Arkham",
+    url: "https://arkm.com",
+    serviceUrl: `https://arkham.${MPP_REALM}`,
+    description:
+      "Blockchain intelligence API connecting on-chain activity to real-world entities. Address labeling, entity tracking, balances, portfolio history, and transaction flows across 14+ chains.",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: ["blockchain", "intelligence", "addresses", "entities", "analytics"],
+    docs: {
+      homepage: "https://intel.arkm.com/api/docs",
+    },
+    provider: { name: "Arkham", url: "https://arkm.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /intelligence/address/batch/all",
+        desc: "Batch address intelligence across all chains (up to 1000 addresses)",
+        amount: "10000",
+      },
+      {
+        route: "GET /intelligence/address/{address}",
+        desc: "Get intelligence for a single address",
+        amount: "1000",
+      },
+      {
+        route: "GET /intelligence/address/{address}/all",
+        desc: "Get multi-chain intelligence for an address",
+        amount: "1000",
+      },
+      {
+        route: "POST /intelligence/address/batch",
+        desc: "Batch address intelligence (up to 1000 addresses)",
+        amount: "10000",
+      },
+      {
+        route: "GET /intelligence/address_enriched/{address}",
+        desc: "Get enriched address intelligence with tags and predictions",
+        amount: "2000",
+      },
+      {
+        route: "GET /intelligence/address_enriched/{address}/all",
+        desc: "Get enriched address intelligence across all chains",
+        amount: "2000",
+      },
+      {
+        route: "POST /intelligence/address_enriched/batch",
+        desc: "Batch enriched address intelligence (up to 1000 addresses)",
+        amount: "15000",
+      },
+      {
+        route: "POST /intelligence/address_enriched/batch/all",
+        desc: "Batch enriched address intelligence across all chains",
+        amount: "15000",
+      },
+      {
+        route: "GET /intelligence/entity/{entity}",
+        desc: "Get entity information including tags and social links",
+        amount: "1000",
+      },
+      {
+        route: "GET /intelligence/entity/{entity}/summary",
+        desc: "Get precomputed summary statistics for an entity",
+        amount: "2000",
+      },
+      {
+        route: "GET /intelligence/entity_predictions/{entity}",
+        desc: "Get ML-generated address predictions for an entity",
+        amount: "2000",
+      },
+      {
+        route: "GET /intelligence/search",
+        desc: "Search across addresses, entities, and tokens",
+        amount: "1000",
+      },
+      {
+        route: "GET /intelligence/token/{chain}/{address}",
+        desc: "Get token info by chain and contract address",
+        amount: "1000",
+      },
+      {
+        route: "GET /intelligence/contract/{chain}/{address}",
+        desc: "Get contract metadata including deployer and proxy status",
+        amount: "1000",
+      },
+      {
+        route: "GET /balances/address/{address}",
+        desc: "Get token balances for an address",
+        amount: "1000",
+      },
+      {
+        route: "GET /balances/entity/{entity}",
+        desc: "Get token balances for an entity",
+        amount: "1000",
+      },
+      {
+        route: "GET /portfolio/address/{address}",
+        desc: "Get historical portfolio snapshots for an address",
+        amount: "2000",
+      },
+      {
+        route: "GET /portfolio/entity/{entity}",
+        desc: "Get historical portfolio snapshots for an entity",
+        amount: "2000",
+      },
+      {
+        route: "GET /flow/address/{address}",
+        desc: "Get historical USD inflows and outflows for an address",
+        amount: "2000",
+      },
+      {
+        route: "GET /flow/entity/{entity}",
+        desc: "Get historical USD inflows and outflows for an entity",
+        amount: "2000",
+      },
+      {
+        route: "GET /counterparties/address/{address}",
+        desc: "Get top counterparties by volume for an address",
+        amount: "2000",
+      },
+      {
+        route: "GET /counterparties/entity/{entity}",
+        desc: "Get top counterparties by volume for an entity",
+        amount: "2000",
+      },
+      {
+        route: "GET /chains",
+        desc: "List supported blockchain chains",
+      },
+      {
+        route: "GET /swaps",
+        desc: "Retrieve DEX trades based on query filters",
+        amount: "2000",
+      },
+    ],
+  },
 ];

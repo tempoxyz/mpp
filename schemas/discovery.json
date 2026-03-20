@@ -9529,6 +9529,351 @@
           }
         }
       ]
+    },
+    {
+      "id": "arkham",
+      "name": "Arkham",
+      "url": "https://arkm.com",
+      "serviceUrl": "https://arkham.mpp.tempo.xyz",
+      "description": "Blockchain intelligence API connecting on-chain activity to real-world entities. Address labeling, entity tracking, balances, portfolio history, and transaction flows across 14+ chains.",
+      "categories": [
+        "blockchain",
+        "data"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "blockchain",
+        "intelligence",
+        "addresses",
+        "entities",
+        "analytics"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://intel.arkm.com/api/docs"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Arkham",
+        "url": "https://arkm.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/intelligence/address/batch/all",
+          "description": "Batch address intelligence across all chains (up to 1000 addresses)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Batch address intelligence across all chains (up to 1000 addresses)",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/address/{address}",
+          "description": "Get intelligence for a single address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get intelligence for a single address",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/address/{address}/all",
+          "description": "Get multi-chain intelligence for an address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get multi-chain intelligence for an address",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/intelligence/address/batch",
+          "description": "Batch address intelligence (up to 1000 addresses)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Batch address intelligence (up to 1000 addresses)",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/address_enriched/{address}",
+          "description": "Get enriched address intelligence with tags and predictions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get enriched address intelligence with tags and predictions",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/address_enriched/{address}/all",
+          "description": "Get enriched address intelligence across all chains",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get enriched address intelligence across all chains",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/intelligence/address_enriched/batch",
+          "description": "Batch enriched address intelligence (up to 1000 addresses)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Batch enriched address intelligence (up to 1000 addresses)",
+            "amount": "15000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/intelligence/address_enriched/batch/all",
+          "description": "Batch enriched address intelligence across all chains",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Batch enriched address intelligence across all chains",
+            "amount": "15000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/entity/{entity}",
+          "description": "Get entity information including tags and social links",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get entity information including tags and social links",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/entity/{entity}/summary",
+          "description": "Get precomputed summary statistics for an entity",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get precomputed summary statistics for an entity",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/entity_predictions/{entity}",
+          "description": "Get ML-generated address predictions for an entity",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get ML-generated address predictions for an entity",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/search",
+          "description": "Search across addresses, entities, and tokens",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search across addresses, entities, and tokens",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/token/{chain}/{address}",
+          "description": "Get token info by chain and contract address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get token info by chain and contract address",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/intelligence/contract/{chain}/{address}",
+          "description": "Get contract metadata including deployer and proxy status",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get contract metadata including deployer and proxy status",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/balances/address/{address}",
+          "description": "Get token balances for an address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get token balances for an address",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/balances/entity/{entity}",
+          "description": "Get token balances for an entity",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get token balances for an entity",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/portfolio/address/{address}",
+          "description": "Get historical portfolio snapshots for an address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical portfolio snapshots for an address",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/portfolio/entity/{entity}",
+          "description": "Get historical portfolio snapshots for an entity",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical portfolio snapshots for an entity",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flow/address/{address}",
+          "description": "Get historical USD inflows and outflows for an address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical USD inflows and outflows for an address",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/flow/entity/{entity}",
+          "description": "Get historical USD inflows and outflows for an entity",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get historical USD inflows and outflows for an entity",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/counterparties/address/{address}",
+          "description": "Get top counterparties by volume for an address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get top counterparties by volume for an address",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/counterparties/entity/{entity}",
+          "description": "Get top counterparties by volume for an entity",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get top counterparties by volume for an entity",
+            "amount": "2000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/chains",
+          "description": "List supported blockchain chains",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/swaps",
+          "description": "Retrieve DEX trades based on query filters",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Retrieve DEX trades based on query filters",
+            "amount": "2000"
+          }
+        }
+      ]
     }
   ]
 }
