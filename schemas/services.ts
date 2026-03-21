@@ -4328,4 +4328,64 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Trading Signals API ──────────────────────────────────────────────
+  {
+    id: "trading-signals",
+    name: "Trading Signals",
+    url: "https://vps-c18b11e2.vps.ovh.ca",
+    serviceUrl: "https://vps-c18b11e2.vps.ovh.ca",
+    description:
+      "AI-optimized compound trading signals. Cross-references SEC Form 4 insider trades, congressional stock activity, and market data through an AutoResearch-tuned scoring engine.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["trading", "signals", "insider-trading", "congress", "market-data", "stocks", "finance"],
+    status: "active",
+    docs: {
+      homepage: "https://vps-c18b11e2.vps.ovh.ca/health",
+      llmsTxt: "https://vps-c18b11e2.vps.ovh.ca/llms.txt",
+    },
+    provider: { name: "Hermes Trading", url: "https://vps-c18b11e2.vps.ovh.ca" },
+    realm: "vps-c18b11e2.vps.ovh.ca",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /api/signals/scan",
+        desc: "Top 10 compound trading signals with conviction scores",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/signals/score",
+        desc: "Score a specific ticker across all signal sources",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/insider/cluster-buys",
+        desc: "SEC Form 4 insider cluster buying activity",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/insider/officer-sells",
+        desc: "Officer selling signals — strongest predictor at 80% accuracy",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/congress/recent",
+        desc: "Recent congressional stock trades from Capitol Trades",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/market/dashboard",
+        desc: "Market overview — sectors, movers, futures, VIX",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
