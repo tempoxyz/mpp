@@ -2315,9 +2315,9 @@
       "url": "https://quicknode.com/",
       "serviceUrl": "https://mpp.quicknode.com",
       "description": "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+      "icon": "https://mpp.quicknode.com/favicon.ico",
       "categories": [
-        "rpc",
-        "json-rpc",
+        "blockchain"
       ],
       "integration": "first-party",
       "tags": [
@@ -2336,8 +2336,7 @@
       "methods": {
         "tempo": {
           "intents": [
-            "charge",
-            "session"
+            "charge"
           ],
           "assets": [
             "0x20c000000000000000000000b9537d11c60e8b50"
@@ -2359,24 +2358,24 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC method",
-            "amount": "1000"
-          },
-          "docs": "https://mpp.quicknode.com/llms.txt"
+            "description": "JSON-RPC calls - $0.001 per call",
+            "amount": "1000",
+            "unitType": "request"
+          }
         },
         {
           "method": "POST",
           "path": "/session/:network",
           "description": "JSON-RPC calls - $0.00001 per call",
           "payment": {
-            "intent": "session",
+            "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC method",
-            "amount": "10"
-          },
-          "docs": "https://mpp.quicknode.com/llms.txt"
+            "description": "JSON-RPC calls - $0.00001 per call",
+            "amount": "10",
+            "unitType": "request"
+          }
         }
       ]
     },
@@ -11982,6 +11981,591 @@
             "description": "Create a climate contribution",
             "dynamic": true,
             "amountHint": "$0.01+"
+          }
+        }
+      ]
+    },
+    {
+      "id": "surf-twitter",
+      "name": "Surf Twitter",
+      "url": "https://twitter.surf.cascade.fyi",
+      "serviceUrl": "https://twitter.surf.cascade.fyi",
+      "description": "Twitter/X data API. Search tweets, look up users and tweets, browse lists, communities, spaces, and trends.",
+      "categories": [
+        "social",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "twitter",
+        "x",
+        "tweets",
+        "users",
+        "search",
+        "social-media",
+        "lists",
+        "communities",
+        "spaces",
+        "trends"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://surf.cascade.fyi",
+        "apiReference": "https://twitter.surf.cascade.fyi"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "twitter.surf.cascade.fyi",
+      "provider": {
+        "name": "Cascade",
+        "url": "https://surf.cascade.fyi"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/tweets/search",
+          "description": "Search tweets with advanced operators",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search tweets with advanced operators",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tweets/:id",
+          "description": "Get a single tweet by ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a single tweet by ID",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tweets",
+          "description": "Get multiple tweets by IDs (batch)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get multiple tweets by IDs (batch)",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tweets/:id/replies",
+          "description": "Get replies to a tweet",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get replies to a tweet",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tweets/:id/quotes",
+          "description": "Get quote tweets",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get quote tweets",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tweets/:id/retweeters",
+          "description": "Get users who retweeted a tweet",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get users who retweeted a tweet",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tweets/:id/thread",
+          "description": "Get full thread for a tweet",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get full thread for a tweet",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tweets/:id/article",
+          "description": "Get Twitter article content",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get Twitter article content",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/search",
+          "description": "Search users by keyword",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search users by keyword",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/relationship",
+          "description": "Check follow relationship between two users",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check follow relationship between two users",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:ref",
+          "description": "Get user profile by username or ID",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get user profile by username or ID",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users",
+          "description": "Get multiple users by IDs (batch)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get multiple users by IDs (batch)",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:ref/tweets",
+          "description": "Get a user's tweets",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a user's tweets",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:ref/mentions",
+          "description": "Get tweets mentioning a user",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get tweets mentioning a user",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:ref/followers",
+          "description": "Get a user's followers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a user's followers",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:ref/following",
+          "description": "Get accounts a user follows",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get accounts a user follows",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:ref/verified_followers",
+          "description": "Get a user's verified followers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a user's verified followers",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/lists/:id/tweets",
+          "description": "Get tweets from a list",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get tweets from a list",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/lists/:id/members",
+          "description": "Get members of a list",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get members of a list",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/lists/:id/followers",
+          "description": "Get followers of a list",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get followers of a list",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/communities/search",
+          "description": "Search communities",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search communities",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/communities/:id",
+          "description": "Get community details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get community details",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/communities/:id/tweets",
+          "description": "Get tweets in a community",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get tweets in a community",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/communities/:id/members",
+          "description": "Get community members",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get community members",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/spaces/:id",
+          "description": "Get Twitter Space details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get Twitter Space details",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/trends",
+          "description": "Get trending topics",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get trending topics",
+            "amount": "1000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "surf-reddit",
+      "name": "Surf Reddit",
+      "url": "https://reddit.surf.cascade.fyi",
+      "serviceUrl": "https://reddit.surf.cascade.fyi",
+      "description": "Reddit data API. Search posts, browse subreddits, read threads with comments, and look up user profiles.",
+      "categories": [
+        "social",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "reddit",
+        "posts",
+        "subreddits",
+        "comments",
+        "users",
+        "search",
+        "social-media"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://surf.cascade.fyi",
+        "apiReference": "https://reddit.surf.cascade.fyi"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "reddit.surf.cascade.fyi",
+      "provider": {
+        "name": "Cascade",
+        "url": "https://surf.cascade.fyi"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/search",
+          "description": "Search Reddit posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search Reddit posts",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/r/:subreddit",
+          "description": "Get subreddit info",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get subreddit info",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/r/:subreddit/posts",
+          "description": "Get posts from a subreddit",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get posts from a subreddit",
+            "amount": "3000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/posts/:id",
+          "description": "Get a post with comments",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a post with comments",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:username",
+          "description": "Get user profile",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get user profile",
+            "amount": "1000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:username/posts",
+          "description": "Get a user's posts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a user's posts",
+            "amount": "4000"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/:username/comments",
+          "description": "Get a user's comments",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get a user's comments",
+            "amount": "4000"
+          }
+        }
+      ]
+    },
+    {
+      "id": "surf-web",
+      "name": "Surf Web",
+      "url": "https://web.surf.cascade.fyi",
+      "serviceUrl": "https://web.surf.cascade.fyi",
+      "description": "Web crawling and search API. Crawl any URL to markdown or search the web with AI-powered results.",
+      "categories": [
+        "web",
+        "search"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "crawl",
+        "scrape",
+        "search",
+        "markdown",
+        "web-data"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://surf.cascade.fyi",
+        "apiReference": "https://web.surf.cascade.fyi"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "web.surf.cascade.fyi",
+      "provider": {
+        "name": "Cascade",
+        "url": "https://surf.cascade.fyi"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/crawl",
+          "description": "Crawl a URL and return content as markdown or HTML",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Crawl a URL and return content as markdown or HTML",
+            "amount": "5000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/v1/search",
+          "description": "Search the web with AI-powered results",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search the web with AI-powered results",
+            "amount": "10000"
           }
         }
       ]
