@@ -2315,9 +2315,9 @@
       "url": "https://quicknode.com/",
       "serviceUrl": "https://mpp.quicknode.com",
       "description": "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+      "icon": "https://mpp.quicknode.com/favicon.ico",
       "categories": [
-        "rpc",
-        "json-rpc",
+        "blockchain"
       ],
       "integration": "first-party",
       "tags": [
@@ -2336,8 +2336,7 @@
       "methods": {
         "tempo": {
           "intents": [
-            "charge",
-            "session"
+            "charge"
           ],
           "assets": [
             "0x20c000000000000000000000b9537d11c60e8b50"
@@ -2359,24 +2358,24 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC method",
-            "amount": "1000"
-          },
-          "docs": "https://mpp.quicknode.com/llms.txt"
+            "description": "JSON-RPC calls - $0.001 per call",
+            "amount": "1000",
+            "unitType": "request"
+          }
         },
         {
           "method": "POST",
           "path": "/session/:network",
           "description": "JSON-RPC calls - $0.00001 per call",
           "payment": {
-            "intent": "session",
+            "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC method",
-            "amount": "10"
-          },
-          "docs": "https://mpp.quicknode.com/llms.txt"
+            "description": "JSON-RPC calls - $0.00001 per call",
+            "amount": "10",
+            "unitType": "request"
+          }
         }
       ]
     },
@@ -11982,6 +11981,124 @@
             "description": "Create a climate contribution",
             "dynamic": true,
             "amountHint": "$0.01+"
+          }
+        }
+      ]
+    },
+    {
+      "id": "0x402",
+      "name": "0x402",
+      "url": "https://0x402.link",
+      "serviceUrl": "https://0x402.link",
+      "description": "AI-optimized compound trading signals. Cross-references SEC Form 4 insider trades, congressional stock activity, and market data through an AutoResearch-tuned scoring engine.",
+      "categories": [
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "trading",
+        "signals",
+        "insider-trading",
+        "congress",
+        "market-data",
+        "stocks",
+        "finance"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://0x402.link",
+        "llmsTxt": "https://0x402.link/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "0x402.link",
+      "provider": {
+        "name": "0x402",
+        "url": "https://0x402.link"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/signals/scan",
+          "description": "Top 10 compound trading signals with conviction scores",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Top 10 compound trading signals with conviction scores",
+            "amount": "20000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/signals/score",
+          "description": "Score a specific ticker across all signal sources",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Score a specific ticker across all signal sources",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/insider/cluster-buys",
+          "description": "SEC Form 4 insider cluster buying activity",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "SEC Form 4 insider cluster buying activity",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/insider/officer-sells",
+          "description": "Officer selling signals — strongest predictor at 80% accuracy",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Officer selling signals — strongest predictor at 80% accuracy",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/congress/recent",
+          "description": "Recent congressional stock trades from Capitol Trades",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/market/dashboard",
+          "description": "Market overview — sectors, movers, futures, VIX",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Market overview — sectors, movers, futures, VIX",
+            "amount": "5000",
+            "unitType": "request"
           }
         }
       ]
