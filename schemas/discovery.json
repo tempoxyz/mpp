@@ -9535,10 +9535,9 @@
       "name": "0x402",
       "url": "https://0x402.link",
       "serviceUrl": "https://0x402.link",
-      "description": "Pay-per-use trading signals and domain registration for AI agents. Trading: AutoResearch-optimized compound signals from SEC insider trades, congressional activity, and market data. Domains: search, register, and configure DNS for any TLD.",
+      "description": "AI-optimized compound trading signals for agents. Cross-references SEC Form 4 insider trades, congressional stock activity, and market data through an AutoResearch-tuned scoring engine.",
       "categories": [
-        "data",
-        "web"
+        "data"
       ],
       "integration": "first-party",
       "tags": [
@@ -9547,9 +9546,8 @@
         "insider-trading",
         "congress",
         "market-data",
-        "domains",
-        "dns",
-        "registration"
+        "stocks",
+        "finance"
       ],
       "status": "active",
       "docs": {
@@ -9653,60 +9651,6 @@
             "decimals": 6,
             "description": "Market overview — sectors, movers, futures, VIX",
             "amount": "5000",
-            "unitType": "request"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/api/domains/search",
-          "description": "Search domain availability and pricing across TLDs",
-          "payment": null
-        },
-        {
-          "method": "GET",
-          "path": "/api/domains/prices",
-          "description": "Full TLD pricing list with registration and renewal costs",
-          "payment": null
-        },
-        {
-          "method": "POST",
-          "path": "/api/domains/register",
-          "description": "Register a domain with WHOIS privacy and optional DNS configuration",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Register a domain with WHOIS privacy and optional DNS configuration",
-            "dynamic": true,
-            "amountHint": "$8.00 – $45.00+ depending on TLD"
-          }
-        },
-        {
-          "method": "POST",
-          "path": "/api/domains/dns",
-          "description": "Update DNS records for a registered domain",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Update DNS records for a registered domain",
-            "amount": "500000",
-            "unitType": "request"
-          }
-        },
-        {
-          "method": "GET",
-          "path": "/api/domains/status",
-          "description": "Domain status, expiry, nameservers, and DNS records",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Domain status, expiry, nameservers, and DNS records",
-            "amount": "100000",
             "unitType": "request"
           }
         }

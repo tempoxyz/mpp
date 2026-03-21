@@ -4336,8 +4336,8 @@ export const services: ServiceDef[] = [
     url: "https://0x402.link",
     serviceUrl: "https://0x402.link",
     description:
-      "Pay-per-use trading signals and domain registration for AI agents. Trading: AutoResearch-optimized compound signals from SEC insider trades, congressional activity, and market data. Domains: search, register, and configure DNS for any TLD.",
-    categories: ["data", "web"],
+      "AI-optimized compound trading signals for agents. Cross-references SEC Form 4 insider trades, congressional stock activity, and market data through an AutoResearch-tuned scoring engine.",
+    categories: ["data"],
     integration: "first-party",
     tags: [
       "trading",
@@ -4345,9 +4345,8 @@ export const services: ServiceDef[] = [
       "insider-trading",
       "congress",
       "market-data",
-      "domains",
-      "dns",
-      "registration",
+      "stocks",
+      "finance",
     ],
     status: "active",
     docs: {
@@ -4398,32 +4397,7 @@ export const services: ServiceDef[] = [
         amount: "5000",
         unitType: "request",
       },
-      {
-        route: "GET /api/domains/search",
-        desc: "Search domain availability and pricing across TLDs",
-      },
-      {
-        route: "GET /api/domains/prices",
-        desc: "Full TLD pricing list with registration and renewal costs",
-      },
-      {
-        route: "POST /api/domains/register",
-        desc: "Register a domain with WHOIS privacy and optional DNS configuration",
-        dynamic: true,
-        amountHint: "$8.00 – $45.00+ depending on TLD",
-      },
-      {
-        route: "POST /api/domains/dns",
-        desc: "Update DNS records for a registered domain",
-        amount: "500000",
-        unitType: "request",
-      },
-      {
-        route: "GET /api/domains/status",
-        desc: "Domain status, expiry, nameservers, and DNS records",
-        amount: "100000",
-        unitType: "request",
-      },
+
     ],
   },
 ];
