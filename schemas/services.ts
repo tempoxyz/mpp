@@ -4333,20 +4333,31 @@ export const services: ServiceDef[] = [
   {
     id: "trading-signals",
     name: "Trading Signals",
-    url: "https://vps-c18b11e2.vps.ovh.ca",
-    serviceUrl: "https://vps-c18b11e2.vps.ovh.ca",
+    url: "https://0x402.link",
+    serviceUrl: "https://0x402.link",
     description:
       "AI-optimized compound trading signals. Cross-references SEC Form 4 insider trades, congressional stock activity, and market data through an AutoResearch-tuned scoring engine.",
     categories: ["data"],
     integration: "first-party",
-    tags: ["trading", "signals", "insider-trading", "congress", "market-data", "stocks", "finance"],
+    tags: [
+      "trading",
+      "signals",
+      "insider-trading",
+      "congress",
+      "market-data",
+      "stocks",
+      "finance",
+    ],
     status: "active",
     docs: {
-      homepage: "https://vps-c18b11e2.vps.ovh.ca/health",
-      llmsTxt: "https://vps-c18b11e2.vps.ovh.ca/llms.txt",
+      homepage: "https://0x402.link/health",
+      llmsTxt: "https://0x402.link/llms.txt",
     },
-    provider: { name: "Hermes Trading", url: "https://vps-c18b11e2.vps.ovh.ca" },
-    realm: "vps-c18b11e2.vps.ovh.ca",
+    provider: {
+      name: "Hermes Trading",
+      url: "https://0x402.link",
+    },
+    realm: "0x402.link",
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
