@@ -382,9 +382,6 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
     rgba(255, 255, 255, 0.05)
   );
 
-  /* Invert service icons in dark mode (0 = none, 1 = full invert) */
-  --icon-invert: light-dark(0, 1);
-
   /* Inline code background — kept for reference, actual override is on the element */
   --background-color-inline-code: light-dark(
     var(--vocs-color-gray12),

@@ -3,7 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { fetchServices } from "../data/registry";
+import {
+  fetchIconManifest,
+  fetchServices,
+  iconUrl as getIconUrlForService,
+  type IconManifest,
+  useIsDark,
+} from "../data/registry";
 import { PINNED_IDS } from "./ServicesPage";
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -78,7 +84,7 @@ function getExamplePayload(ep: Endpoint): string {
 }
 
 function getIconUrl(service: Service): string {
-  return `/icons/${encodeURIComponent(service.id)}.svg`;
+  return getIconUrlForService(service.id);
 }
 
 // ---------------------------------------------------------------------------
@@ -180,6 +186,7 @@ export function ServiceDiscovery({
   const [services, setServices] = useState<Service[]>([]);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const isDark = useIsDark();
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [transforms, setTransforms] = useState<
@@ -191,6 +198,10 @@ export function ServiceDiscovery({
   const inputRef = useRef<HTMLInputElement>(null);
   const brokenIcons = useRef(new Set<string>());
   const [, forceIconUpdate] = useState(0);
+  const [iconManifest, setIconManifest] = useState<IconManifest>({
+    transparent: new Set(),
+    lightBg: new Set(),
+  });
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
   const [dropdownTab, setDropdownTab] = useState<
@@ -209,6 +220,9 @@ export function ServiceDiscovery({
         const rest = shuffle(data.filter((s) => !pinnedSet.has(s.id)));
         setServices([...pinned, ...rest]);
       })
+      .catch(() => {});
+    fetchIconManifest()
+      .then(setIconManifest)
       .catch(() => {});
   }, []);
 
@@ -748,6 +762,11 @@ export function ServiceDiscovery({
                       src={iconUrl}
                       alt=""
                       className="discovery-card-icon-img"
+                      style={
+                        isDark === iconManifest.lightBg.has(service.id)
+                          ? { filter: "invert(1)" }
+                          : undefined
+                      }
                       onError={() => {
                         brokenIcons.current.add(service.id);
                         forceIconUpdate((n) => n + 1);
@@ -811,6 +830,8 @@ export function ServiceDiscovery({
         createPortal(
           <ServiceDetailModal
             service={selectedService}
+            iconManifest={iconManifest}
+            isDark={isDark}
             onClose={() => {
               setSelectedService(null);
               dismissMobileSearch();
@@ -833,9 +854,13 @@ export function ServiceDiscovery({
 
 function ServiceDetailModal({
   service,
+  iconManifest,
+  isDark,
   onClose,
 }: {
   service: Service;
+  iconManifest: IconManifest;
+  isDark: boolean;
   onClose: () => void;
 }) {
   const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint | null>(
@@ -987,7 +1012,9 @@ function ServiceDetailModal({
                   height: 44,
                   borderRadius: 10,
                   objectFit: "contain",
-                  filter: "invert(var(--icon-invert, 0))",
+                  ...(isDark === iconManifest.lightBg.has(service.id)
+                    ? { filter: "invert(1)" }
+                    : {}),
                 }}
               />
             ) : (
@@ -2251,7 +2278,6 @@ function DiscoveryStyles() {
         height: 28px;
         border-radius: 6px;
         object-fit: contain;
-        filter: invert(var(--icon-invert, 0));
       }
       .discovery-card-icon-fallback {
         width: 28px;
