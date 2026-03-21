@@ -1,5 +1,6 @@
 // @ts-nocheck – server-only, uses Vite ?raw import and resvg native module
-import { Resvg } from "@resvg/resvg-js";
+import { initWasm, Resvg } from "@resvg/resvg-wasm";
+import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm?url";
 import ogDescriptions from "../../../../scripts/og-descriptions.json";
 import templateSvg from "./og-template.svg?raw";
 
@@ -214,7 +215,16 @@ function buildSvg(
   return svg;
 }
 
+let wasmInitialized = false;
+
 export async function GET(request: Request) {
+  if (!wasmInitialized) {
+    const wasmBuf = await fetch(new URL(resvgWasm, request.url)).then((r) =>
+      r.arrayBuffer(),
+    );
+    await initWasm(wasmBuf);
+    wasmInitialized = true;
+  }
   const url = new URL(request.url);
   const title = url.searchParams.get("title") || "Untitled";
   const rawDescription = url.searchParams.get("description") || "";
