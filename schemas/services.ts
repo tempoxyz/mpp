@@ -4328,4 +4328,50 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "palm",
+    name: "Palm",
+    url: "https://palm.guzus.xyz",
+    serviceUrl: "https://mpp.guzus.xyz",
+    description:
+      "Polymarket on-chain analytics API. Real-time trade data, market stats, trader profiles, and meme content — powered by ClickHouse over indexed blockchain data.",
+    categories: ["data", "blockchain"],
+    integration: "first-party",
+    tags: [
+      "polymarket",
+      "prediction-markets",
+      "analytics",
+      "on-chain",
+      "memes",
+    ],
+    docs: {
+      homepage: "https://palm.guzus.xyz",
+    },
+    provider: { name: "Guzus", url: "https://guzus.xyz" },
+    realm: "mpp.guzus.xyz",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /meme/random",
+        desc: "Random crypto meme from memtherscan",
+        amount: "1000",
+      },
+      {
+        route: "GET /polymarket/overview",
+        desc: "Polymarket aggregate stats: total trades, volume, top markets, top traders, recent trades",
+        amount: "50000",
+      },
+      {
+        route: "GET /polymarket/market",
+        desc: "Specific market data by token ID",
+        amount: "20000",
+      },
+      {
+        route: "GET /polymarket/trader",
+        desc: "Trader profile: trade count, volume, PnL, trade history",
+        amount: "20000",
+      },
+    ],
+  },
 ];
