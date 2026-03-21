@@ -34,8 +34,11 @@ if (!BLOB_TOKEN) {
   process.exit(1);
 }
 
-const LOGODEV_PK =
-  process.env.LOGODEV_PUBLIC_KEY ?? "pk_KHltsKRcTSKdi8m11WM62Q";
+const LOGODEV_PK = process.env.LOGODEV_PUBLIC_KEY;
+if (!LOGODEV_PK) {
+  console.error("LOGODEV_PUBLIC_KEY is required");
+  process.exit(1);
+}
 
 const DOMAIN_OVERRIDES: Record<string, string> = {
   stableemail: "stablestudio.dev",
