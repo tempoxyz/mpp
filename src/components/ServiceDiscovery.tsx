@@ -5,9 +5,12 @@ import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
 import {
   domainForService,
+  fetchIconManifest,
   fetchServices,
   iconUrl as getIconUrlForService,
+  type IconManifest,
   logoDevUrl,
+  useIsDark,
 } from "../data/registry";
 import { PINNED_IDS } from "./ServicesPage";
 
@@ -190,6 +193,7 @@ export function ServiceDiscovery({
   const [services, setServices] = useState<Service[]>([]);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const isDark = useIsDark();
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [transforms, setTransforms] = useState<
@@ -200,6 +204,10 @@ export function ServiceDiscovery({
   const gridRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const iconFallbackStage = useRef(new Map<string, "logo.dev" | "broken">());
+  const [iconManifest, setIconManifest] = useState<IconManifest>({
+    transparent: new Set(),
+    lightBg: new Set(),
+  });
   const [, forceIconUpdate] = useState(0);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
@@ -219,6 +227,9 @@ export function ServiceDiscovery({
         const rest = shuffle(data.filter((s) => !pinnedSet.has(s.id)));
         setServices([...pinned, ...rest]);
       })
+      .catch(() => {});
+    fetchIconManifest()
+      .then(setIconManifest)
       .catch(() => {});
   }, []);
 
@@ -762,35 +773,50 @@ export function ServiceDiscovery({
                         </div>
                       );
                     }
+                    const isTransparent = iconManifest.transparent.has(
+                      service.id,
+                    );
+                    const isLightBg = iconManifest.lightBg.has(service.id);
+                    const needsInvert = isDark === isLightBg;
                     const src =
                       stage === "logo.dev"
                         ? (getLogoDevFallbackUrl(service) ?? iconUrl)
                         : iconUrl;
                     return (
-                      <img
-                        src={src}
-                        alt=""
-                        className="discovery-card-icon-img"
-                        onError={() => {
-                          if (!stage) {
-                            const fallback = getLogoDevFallbackUrl(service);
-                            if (fallback) {
-                              iconFallbackStage.current.set(
-                                service.id,
-                                "logo.dev",
-                              );
+                      <div
+                        className={`discovery-card-icon-bg${isTransparent ? " transparent" : ""}`}
+                      >
+                        <img
+                          src={src}
+                          alt=""
+                          className="discovery-card-icon-img"
+                          style={
+                            needsInvert ? { filter: "invert(1)" } : undefined
+                          }
+                          onError={() => {
+                            if (!stage) {
+                              const fallback = getLogoDevFallbackUrl(service);
+                              if (fallback) {
+                                iconFallbackStage.current.set(
+                                  service.id,
+                                  "logo.dev",
+                                );
+                              } else {
+                                iconFallbackStage.current.set(
+                                  service.id,
+                                  "broken",
+                                );
+                              }
                             } else {
                               iconFallbackStage.current.set(
                                 service.id,
                                 "broken",
                               );
                             }
-                          } else {
-                            iconFallbackStage.current.set(service.id, "broken");
-                          }
-                          forceIconUpdate((n) => n + 1);
-                        }}
-                      />
+                            forceIconUpdate((n) => n + 1);
+                          }}
+                        />
+                      </div>
                     );
                   })()}
                   {service.integration !== "third-party" && (
@@ -846,6 +872,8 @@ export function ServiceDiscovery({
         createPortal(
           <ServiceDetailModal
             service={selectedService}
+            iconManifest={iconManifest}
+            isDark={isDark}
             onClose={() => {
               setSelectedService(null);
               dismissMobileSearch();
@@ -868,9 +896,13 @@ export function ServiceDiscovery({
 
 function ServiceDetailModal({
   service,
+  iconManifest,
+  isDark,
   onClose,
 }: {
   service: Service;
+  iconManifest: IconManifest;
+  isDark: boolean;
   onClose: () => void;
 }) {
   const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint | null>(
@@ -1013,27 +1045,31 @@ function ServiceDetailModal({
         <div className="modal-header">
           <div style={{ marginBottom: 12 }}>
             {!modalIconBroken ? (
-              <img
-                src={modalIconSrc}
-                alt=""
-                onError={() => {
-                  if (!modalTriedFallback.current) {
-                    modalTriedFallback.current = true;
-                    const fallback = getLogoDevFallbackUrl(service);
-                    if (fallback) {
-                      setModalIconSrc(fallback);
-                      return;
-                    }
+              <div
+                className={`discovery-modal-icon-bg${iconManifest.transparent.has(service.id) ? " transparent" : ""}`}
+              >
+                <img
+                  src={modalIconSrc}
+                  alt=""
+                  className="discovery-modal-icon-img"
+                  style={
+                    isDark === iconManifest.lightBg.has(service.id)
+                      ? { filter: "invert(1)" }
+                      : undefined
                   }
-                  setModalIconBroken(true);
-                }}
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  objectFit: "contain",
-                }}
-              />
+                  onError={() => {
+                    if (!modalTriedFallback.current) {
+                      modalTriedFallback.current = true;
+                      const fallback = getLogoDevFallbackUrl(service);
+                      if (fallback) {
+                        setModalIconSrc(fallback);
+                        return;
+                      }
+                    }
+                    setModalIconBroken(true);
+                  }}
+                />
+              </div>
             ) : (
               <div
                 style={{
@@ -2290,12 +2326,27 @@ function DiscoveryStyles() {
         background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.14));
       }
       .discovery-card-icon { flex-shrink: 0; width: 28px; height: 28px; }
-      .discovery-card-icon-img {
+      .discovery-card-icon-bg {
         width: 28px;
         height: 28px;
         border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08));
+      }
+      .discovery-card-icon-bg.transparent {
+        background: light-dark(#ededed, #3d3d3d);
+        padding: 3px;
+        box-sizing: border-box;
+      }
+      .discovery-card-icon-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 6px;
         object-fit: contain;
-        filter: invert(var(--icon-invert, 0));
+        display: block;
+      }
+      .discovery-card-icon-bg.transparent .discovery-card-icon-img {
+        border-radius: 4px;
       }
       .discovery-card-icon-fallback {
         width: 28px;
@@ -2343,7 +2394,7 @@ function DiscoveryStyles() {
           box-sizing: border-box;
         }
         .discovery-card-icon { grid-area: 1 / 1; align-self: center; }
-        .discovery-card-icon-img { width: 30px !important; height: 30px !important; }
+        .discovery-card-icon-bg { width: 30px !important; height: 30px !important; }
         .discovery-card-icon-fallback { width: 30px !important; height: 30px !important; font-size: 13px !important; }
         .discovery-card-name { grid-area: 1 / 2; align-self: center; margin-top: 0; font-size: 15px; }
         .discovery-card-desc { grid-area: 2 / 1 / 3 / -1; -webkit-line-clamp: 3; font-size: 13.5px; margin-top: 2px; }
@@ -2430,6 +2481,28 @@ function DiscoveryStyles() {
         background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08));
       }
       .modal-header { margin-bottom: 0.5rem; }
+      .discovery-modal-icon-bg {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08));
+      }
+      .discovery-modal-icon-bg.transparent {
+        background: light-dark(#ededed, #3d3d3d);
+        padding: 5px;
+        box-sizing: border-box;
+      }
+      .discovery-modal-icon-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        object-fit: contain;
+        display: block;
+      }
+      .discovery-modal-icon-bg.transparent .discovery-modal-icon-img {
+        border-radius: 7px;
+      }
       .modal-tag {
         font-size: 11px;
         padding: 2px 8px;

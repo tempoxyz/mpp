@@ -5,9 +5,12 @@ import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
 import {
   domainForService,
+  fetchIconManifest,
   fetchServices,
+  type IconManifest,
   iconUrl,
   logoDevUrl,
+  useIsDark,
 } from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
 
@@ -797,7 +800,12 @@ function orderServices(services: Service[]): Service[] {
 // ---------------------------------------------------------------------------
 
 export function ServicesPage() {
+  const isDark = useIsDark();
   const [services, setServices] = useState<Service[]>([]);
+  const [iconManifest, setIconManifest] = useState<IconManifest>({
+    transparent: new Set(),
+    lightBg: new Set(),
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -831,6 +839,9 @@ export function ServicesPage() {
         setError(err instanceof Error ? err.message : String(err));
         setLoading(false);
       });
+    fetchIconManifest()
+      .then(setIconManifest)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -1794,6 +1805,8 @@ export function ServicesPage() {
                               <ServiceRow
                                 key={s.id}
                                 service={s}
+                                iconManifest={iconManifest}
+                                isDark={isDark}
                                 expanded={expandedIds.has(s.id)}
                                 onToggle={() => toggleRow(s.id)}
                               />
@@ -2971,8 +2984,19 @@ function FallbackIcon({ name }: { name: string }) {
   );
 }
 
-function ServiceIcon({ service: s }: { service: Service }) {
+function ServiceIcon({
+  service: s,
+  iconManifest,
+  isDark,
+}: {
+  service: Service;
+  iconManifest: IconManifest;
+  isDark: boolean;
+}) {
   const isFirstParty = s.integration !== "third-party";
+  const isTransparent = iconManifest.transparent.has(s.id);
+  const isLightBg = iconManifest.lightBg.has(s.id);
+  const needsInvert = isDark === isLightBg;
   const [src, setSrc] = useState(() => iconUrl(s.id));
   const [fallbackFailed, setFallbackFailed] = useState(false);
   const triedFallback = useRef(false);
@@ -3001,18 +3025,15 @@ function ServiceIcon({ service: s }: { service: Service }) {
       }}
     >
       {s.id && !fallbackFailed ? (
-        <img
-          src={src}
-          alt=""
-          width={28}
-          height={28}
-          style={{
-            borderRadius: 6,
-            display: "block",
-            objectFit: "contain",
-          }}
-          onError={handleError}
-        />
+        <div className={`svc-icon-bg${isTransparent ? " transparent" : ""}`}>
+          <img
+            src={src}
+            alt=""
+            className="svc-icon-img"
+            style={needsInvert ? { filter: "invert(1)" } : undefined}
+            onError={handleError}
+          />
+        </div>
       ) : (
         <FallbackIcon name={s.name} />
       )}
@@ -3040,10 +3061,14 @@ function ServiceIcon({ service: s }: { service: Service }) {
 
 function ServiceRow({
   service: s,
+  iconManifest,
+  isDark,
   expanded,
   onToggle,
 }: {
   service: Service;
+  iconManifest: IconManifest;
+  isDark: boolean;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -3088,7 +3113,11 @@ function ServiceRow({
               paddingTop: "0.15rem",
             }}
           >
-            <ServiceIcon service={s} />
+            <ServiceIcon
+              service={s}
+              iconManifest={iconManifest}
+              isDark={isDark}
+            />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="svc-name-row">
                 <span
@@ -3734,6 +3763,28 @@ function PageStyles() {
       tr:hover .url-copy-icon { opacity: 0.7; }
       [data-services-table] table { table-layout: fixed !important; }
       [data-services-table] table td, [data-services-table] table th { white-space: normal !important; min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
+      .svc-icon-bg {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid light-dark(rgba(0,0,0,0.08), rgba(255,255,255,0.08));
+      }
+      .svc-icon-bg.transparent {
+        background: light-dark(#ededed, #3d3d3d);
+        padding: 3px;
+        box-sizing: border-box;
+      }
+      .svc-icon-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 6px;
+        object-fit: contain;
+        display: block;
+      }
+      .svc-icon-bg.transparent .svc-icon-img {
+        border-radius: 4px;
+      }
       .svc-name-row { display: flex; flex-direction: column; gap: 0; }
       .svc-badge-inline { display: block; line-height: 1; margin-top: -0.1rem; }
       .svc-badge-bordered { display: none; }
@@ -4009,7 +4060,7 @@ function PageStyles() {
       @media (max-width: 640px) {
         .expanded-detail { padding-left: 0 !important; padding-right: 0 !important;  }
         .svc-icon { width: 38px !important; height: 38px !important; margin-right: 10px !important; }
-        .svc-icon img { width: 38px !important; height: 38px !important; }
+        .svc-icon-bg { width: 38px !important; height: 38px !important; }
         .sub-row { padding-left: 1.25rem !important; }
         .header-cards-grid > * > div > div:first-child { font-size: 14.5px !important; }
         .header-cards-grid > * > div > div:last-child { font-size: 13.5px !important; }

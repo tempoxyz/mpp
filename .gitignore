@@ -16,3 +16,4 @@ src/snippets/cli-help.txt
 
 # Licensed font files (served via Vercel Blob in production)
 public/fonts/VTCDuBois*
+.env*.local
