@@ -2256,6 +2256,119 @@
       ]
     },
     {
+      "id": "lasso",
+      "name": "Lasso RPC",
+      "url": "https://lasso.sh",
+      "serviceUrl": "https://mpp.lasso.sh",
+      "description": "Smart RPC routing with strategy control — fastest, load-balanced, or latency-weighted across multiple providers with automatic failover. Multi-chain EVM support.",
+      "categories": [
+        "blockchain"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "rpc",
+        "json-rpc",
+        "evm",
+        "multichain",
+        "routing",
+        "failover",
+        "ethereum",
+        "base",
+        "arbitrum",
+        "tempo"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://lasso.sh",
+        "llmsTxt": "https://lasso.sh/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.lasso.sh",
+      "provider": {
+        "name": "Lasso",
+        "url": "https://lasso.sh"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/fastest/:chain",
+          "description": "RPC routed to lowest-latency provider. Best for trading and time-sensitive operations.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "RPC routed to lowest-latency provider. Best for trading and time-sensitive operations.",
+            "amount": "200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/latency-weighted/:chain",
+          "description": "RPC biased toward faster providers with distribution for reliability. Default strategy.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "RPC biased toward faster providers with distribution for reliability. Default strategy.",
+            "amount": "150",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/load-balanced/:chain",
+          "description": "RPC distributed across all providers. Lowest cost.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "RPC distributed across all providers. Lowest cost.",
+            "amount": "100",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/:chain",
+          "description": "RPC with default routing (latency-weighted).",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "RPC with default routing (latency-weighted).",
+            "amount": "150",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/pricing",
+          "description": "Method-level pricing with strategy descriptions",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/chains",
+          "description": "Available chains with chain IDs",
+          "payment": null
+        }
+      ]
+    },
+    {
       "id": "rpc",
       "name": "Tempo RPC",
       "url": "https://rpc.tempo.xyz",
