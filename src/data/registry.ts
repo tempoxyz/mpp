@@ -7,6 +7,7 @@
 
 const API_URL = "/api/services";
 const CACHE_TTL_MS = 60_000;
+const LOGODEV_PK = "pk_KHltsKRcTSKdi8m11WM62Q";
 
 // ---------------------------------------------------------------------------
 // Types (mirrors the discovery JSON Schema)
@@ -107,6 +108,31 @@ function writeSessionCache(data: Service[]) {
     );
   } catch {}
 }
+
+// ---------------------------------------------------------------------------
+// Logo helpers
+// ---------------------------------------------------------------------------
+
+export function domainForService(service: Service): string | null {
+  const raw = service.provider?.url ?? service.url;
+  try {
+    return new URL(raw).hostname;
+  } catch {
+    return null;
+  }
+}
+
+export function logoDevUrl(domain: string): string {
+  return `https://img.logo.dev/${encodeURIComponent(domain)}?token=${LOGODEV_PK}&format=png&theme=dark&greyscale=true&retina=true`;
+}
+
+export function iconUrl(serviceId: string): string {
+  return `/api/icon?id=${encodeURIComponent(serviceId)}`;
+}
+
+// ---------------------------------------------------------------------------
+// Fetch
+// ---------------------------------------------------------------------------
 
 export async function fetchServices(): Promise<Service[]> {
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {

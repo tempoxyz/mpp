@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { fetchServices } from "../data/registry";
+import {
+  domainForService,
+  fetchServices,
+  iconUrl,
+  logoDevUrl,
+} from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
 
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -2968,7 +2973,22 @@ function FallbackIcon({ name }: { name: string }) {
 
 function ServiceIcon({ service: s }: { service: Service }) {
   const isFirstParty = s.integration !== "third-party";
-  const [imgError, setImgError] = useState(false);
+  const [src, setSrc] = useState(() => iconUrl(s.id));
+  const [fallbackFailed, setFallbackFailed] = useState(false);
+  const triedFallback = useRef(false);
+
+  const handleError = useCallback(() => {
+    if (!triedFallback.current) {
+      triedFallback.current = true;
+      const domain = domainForService(s);
+      if (domain) {
+        setSrc(logoDevUrl(domain));
+        return;
+      }
+    }
+    setFallbackFailed(true);
+  }, [s]);
+
   return (
     <div
       className="svc-icon"
@@ -2980,9 +3000,9 @@ function ServiceIcon({ service: s }: { service: Service }) {
         marginRight: 6,
       }}
     >
-      {s.id && !imgError ? (
+      {s.id && !fallbackFailed ? (
         <img
-          src={`/icons/${encodeURIComponent(s.id)}.svg`}
+          src={src}
           alt=""
           width={28}
           height={28}
@@ -2990,14 +3010,8 @@ function ServiceIcon({ service: s }: { service: Service }) {
             borderRadius: 6,
             display: "block",
             objectFit: "contain",
-            filter: "invert(var(--icon-invert, 0))",
-            ...(s.id === "twitter"
-              ? { width: 20, height: 20, padding: 0, margin: 4 }
-              : s.id === "digitalocean"
-                ? { padding: 5 }
-                : {}),
           }}
-          onError={() => setImgError(true)}
+          onError={handleError}
         />
       ) : (
         <FallbackIcon name={s.name} />

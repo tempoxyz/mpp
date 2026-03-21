@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/sync-logos",
+      "schedule": "* * * * *"
+    }
+  ],
   "redirects": [
     {
       "source": "/:path(.*)",

@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { fetchServices } from "../data/registry";
+import {
+  domainForService,
+  fetchServices,
+  iconUrl as getIconUrlForService,
+  logoDevUrl,
+} from "../data/registry";
 import { PINNED_IDS } from "./ServicesPage";
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -78,7 +83,12 @@ function getExamplePayload(ep: Endpoint): string {
 }
 
 function getIconUrl(service: Service): string {
-  return `/icons/${encodeURIComponent(service.id)}.svg`;
+  return getIconUrlForService(service.id);
+}
+
+function getLogoDevFallbackUrl(service: Service): string | null {
+  const domain = domainForService(service);
+  return domain ? logoDevUrl(domain) : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -189,7 +199,7 @@ export function ServiceDiscovery({
   const overlayRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const brokenIcons = useRef(new Set<string>());
+  const iconFallbackStage = useRef(new Map<string, "logo.dev" | "broken">());
   const [, forceIconUpdate] = useState(0);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
@@ -743,21 +753,46 @@ export function ServiceDiscovery({
                     zIndex: 1,
                   }}
                 >
-                  {iconUrl && !brokenIcons.current.has(service.id) ? (
-                    <img
-                      src={iconUrl}
-                      alt=""
-                      className="discovery-card-icon-img"
-                      onError={() => {
-                        brokenIcons.current.add(service.id);
-                        forceIconUpdate((n) => n + 1);
-                      }}
-                    />
-                  ) : (
-                    <div className="discovery-card-icon-fallback">
-                      {service.name[0]}
-                    </div>
-                  )}
+                  {(() => {
+                    const stage = iconFallbackStage.current.get(service.id);
+                    if (stage === "broken") {
+                      return (
+                        <div className="discovery-card-icon-fallback">
+                          {service.name[0]}
+                        </div>
+                      );
+                    }
+                    const src =
+                      stage === "logo.dev"
+                        ? (getLogoDevFallbackUrl(service) ?? iconUrl)
+                        : iconUrl;
+                    return (
+                      <img
+                        src={src}
+                        alt=""
+                        className="discovery-card-icon-img"
+                        onError={() => {
+                          if (!stage) {
+                            const fallback = getLogoDevFallbackUrl(service);
+                            if (fallback) {
+                              iconFallbackStage.current.set(
+                                service.id,
+                                "logo.dev",
+                              );
+                            } else {
+                              iconFallbackStage.current.set(
+                                service.id,
+                                "broken",
+                              );
+                            }
+                          } else {
+                            iconFallbackStage.current.set(service.id, "broken");
+                          }
+                          forceIconUpdate((n) => n + 1);
+                        }}
+                      />
+                    );
+                  })()}
                   {service.integration !== "third-party" && (
                     <span
                       className="discovery-card-fp-dot"
@@ -845,7 +880,9 @@ function ServiceDetailModal({
   const [copiedEndpoint, setCopiedEndpoint] = useState<string | null>(null);
   const [copiedJson, setCopiedJson] = useState(false);
   const [showAgentTip, setShowAgentTip] = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const [modalIconSrc, setModalIconSrc] = useState(() => getIconUrl(service));
+  const modalTriedFallback = useRef(false);
+  const [modalIconBroken, setModalIconBroken] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
   const handleClose = useCallback(() => {
@@ -860,8 +897,6 @@ function ServiceDetailModal({
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [handleClose]);
-
-  const iconUrl = getIconUrl(service);
 
   function formatPrice(ep: Endpoint): string {
     const p = ep.payment;
@@ -977,17 +1012,26 @@ function ServiceDetailModal({
         {/* Header */}
         <div className="modal-header">
           <div style={{ marginBottom: 12 }}>
-            {iconUrl && !imgError ? (
+            {!modalIconBroken ? (
               <img
-                src={iconUrl}
+                src={modalIconSrc}
                 alt=""
-                onError={() => setImgError(true)}
+                onError={() => {
+                  if (!modalTriedFallback.current) {
+                    modalTriedFallback.current = true;
+                    const fallback = getLogoDevFallbackUrl(service);
+                    if (fallback) {
+                      setModalIconSrc(fallback);
+                      return;
+                    }
+                  }
+                  setModalIconBroken(true);
+                }}
                 style={{
                   width: 44,
                   height: 44,
                   borderRadius: 10,
                   objectFit: "contain",
-                  filter: "invert(var(--icon-invert, 0))",
                 }}
               />
             ) : (
