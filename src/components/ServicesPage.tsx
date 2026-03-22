@@ -833,6 +833,12 @@ export function ServicesPage() {
     return () => clearTimeout(id);
   }, [search]);
 
+  // Reset expanded row when search or category changes so rows don't stay grayed out
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional reset on category change
+  useEffect(() => {
+    setExpandedIds(new Set());
+  }, [debouncedSearch, selectedCategory]);
+
   const stickyObserverReady = !loading && !error;
   useEffect(() => {
     if (!stickyObserverReady) return;
