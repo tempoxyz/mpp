@@ -4328,4 +4328,33 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── MPP Review API ─────────────────────────────────────────────────────
+  {
+    id: "mpp-review",
+    name: "MPP Review",
+    url: "https://mpp-review-api.vercel.app",
+    serviceUrl: "https://mpp-review-api.vercel.app",
+    description:
+      "AI code review for $0.05 per request. Analyzes code for SQL injection, race conditions, XSS, and other security issues using gstack's production checklist.",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["code-review", "security", "claude", "gstack", "developer-tools"],
+    docs: {
+      homepage: "https://github.com/Hugo6991/mpp-review-api",
+    },
+    provider: {
+      name: "Hugo6991",
+      url: "https://github.com/Hugo6991",
+    },
+    realm: "mpp-review-api.vercel.app",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /api/review",
+        desc: "Submit code for security-focused AI review (powered by Claude + gstack checklist)",
+        amount: "50000",
+      },
+    ],
+  },
 ];
