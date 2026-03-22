@@ -9529,6 +9529,176 @@
           }
         }
       ]
+    },
+    {
+      "id": "asiapulse",
+      "name": "AsiaPulse",
+      "url": "https://asiapulse.paulc7.workers.dev",
+      "serviceUrl": "https://asiapulse.paulc7.workers.dev",
+      "description": "Asian macro financial data and Tempo on-chain analytics — kimchi premium, FX rates, central bank interest rates, Korean crypto news in English, and Tempo chain payment flow analysis.",
+      "categories": [
+        "data",
+        "blockchain"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "macro",
+        "asia",
+        "korea",
+        "fx",
+        "interest-rates",
+        "tempo-analytics",
+        "kimchi-premium",
+        "stablecoin"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://asiapulse.paulc7.workers.dev",
+        "llmsTxt": "https://asiapulse.paulc7.workers.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "asiapulse.paulc7.workers.dev",
+      "provider": {
+        "name": "AsiaPulse",
+        "url": "https://asiapulse.paulc7.workers.dev"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/asia-macro/kimchi-premium",
+          "description": "Real-time BTC/ETH kimchi premium (Upbit vs Binance price gap)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Real-time BTC/ETH kimchi premium (Upbit vs Binance price gap)",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/asia-macro/fx-rates",
+          "description": "Live KRW, JPY, CNY, EUR exchange rates against USD",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Live KRW, JPY, CNY, EUR exchange rates against USD",
+            "amount": "3000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/asia-macro/interest-rates",
+          "description": "Central bank policy rates for US, KR, JP, EU, UK, CN, CH — auto-updated daily",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Central bank policy rates for US, KR, JP, EU, UK, CN, CH — auto-updated daily",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/asia-macro/kr-news",
+          "description": "Korean crypto news headlines translated to English with sentiment analysis",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Korean crypto news headlines translated to English with sentiment analysis",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tempo/chain-stats",
+          "description": "Tempo chain block height, TPS, and transaction metrics",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Tempo chain block height, TPS, and transaction metrics",
+            "amount": "3000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tempo/stablecoin-flows",
+          "description": "PathUSD transfer volume, unique wallets, and flow analysis",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "PathUSD transfer volume, unique wallets, and flow analysis",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tempo/top-accounts",
+          "description": "Top payment accounts by volume on Tempo",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Top payment accounts by volume on Tempo",
+            "amount": "5000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/tempo/mpp-activity",
+          "description": "MPP payment traffic and service usage analytics",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "MPP payment traffic and service usage analytics",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/bundle/asia-snapshot",
+          "description": "Combined macro data + Tempo chain analytics in one call",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Combined macro data + Tempo chain analytics in one call",
+            "amount": "20000",
+            "unitType": "request"
+          }
+        }
+      ]
     }
   ]
 }
