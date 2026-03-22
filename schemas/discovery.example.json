@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "services": [
+    {
+      "id": "exa",
+      "name": "Exa",
+      "url": "https://api.exa.ai",
+      "serviceUrl": "https://exa.mpp.tempo.xyz",
+      "description": "AI-powered web search, content retrieval, and answers.",
+      "categories": [
+        "search",
+        "ai"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "search",
+        "web",
+        "content",
+        "ai-search"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.exa.ai",
+        "llmsTxt": "https://docs.exa.ai/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Exa",
+        "url": "https://exa.ai"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/search",
+          "description": "Search the web",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Search the web",
+            "amount": "5000"
+          },
+          "docs": "https://context7.com/websites/exa_ai/llms.txt?topic=POST%20%2Fsearch"
+        },
+        {
+          "method": "POST",
+          "path": "/contents",
+          "description": "Get page contents",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get page contents",
+            "amount": "5000"
+          },
+          "docs": "https://context7.com/websites/exa_ai/llms.txt?topic=POST%20%2Fcontents"
+        },
+        {
+          "method": "POST",
+          "path": "/findSimilar",
+          "description": "Find similar pages",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find similar pages",
+            "amount": "5000"
+          },
+          "docs": "https://context7.com/websites/exa_ai/llms.txt?topic=POST%20%2FfindSimilar"
+        },
+        {
+          "method": "POST",
+          "path": "/answer",
+          "description": "Get AI-powered answers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Get AI-powered answers",
+            "amount": "10000"
+          },
+          "docs": "https://context7.com/websites/exa_ai/llms.txt?topic=POST%20%2Fanswer"
+        }
+      ]
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "url": "https://openrouter.ai/api",
+      "serviceUrl": "https://openrouter.mpp.tempo.xyz",
+      "description": "Unified API for 100+ LLMs with live per-model pricing.",
+      "categories": [
+        "ai"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "llm",
+        "unified",
+        "multi-model",
+        "chat"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://openrouter.ai/docs",
+        "llmsTxt": "https://openrouter.ai/docs/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "OpenRouter",
+        "url": "https://openrouter.ai"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/chat/completions",
+          "description": "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
+            "dynamic": true
+          },
+          "docs": "https://context7.com/websites/openrouter_ai/llms.txt?topic=POST%20%2Fv1%2Fchat%2Fcompletions"
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "name": "Object Storage",
+      "url": "https://mpp.tempo.xyz/storage",
+      "serviceUrl": "https://storage.mpp.tempo.xyz",
+      "description": "S3/R2-compatible object storage with dynamic per-size pricing.",
+      "categories": [
+        "storage"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "s3",
+        "r2",
+        "objects",
+        "blobs",
+        "files"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://developers.cloudflare.com/r2/"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge",
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.tempo.xyz",
+      "provider": {
+        "name": "Tempo",
+        "url": "https://tempo.xyz"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/:key",
+          "description": "Download object ($0.001 base + $0.01/MB)",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Download object ($0.001 base + $0.01/MB)",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/:key",
+          "description": "Upload object ($0.001 base + $0.01/MB, max 100MB)",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Upload object ($0.001 base + $0.01/MB, max 100MB)",
+            "dynamic": true
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/:key",
+          "description": "Delete object",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Delete object",
+            "amount": "100"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/",
+          "description": "List objects",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "List objects",
+            "amount": "100"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/:key",
+          "description": "Initiate/complete multipart upload",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Initiate/complete multipart upload",
+            "amount": "100"
+          }
+        }
+      ]
+    }
+  ]
+}
