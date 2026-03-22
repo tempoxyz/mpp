@@ -1918,7 +1918,7 @@
         "blockchain",
         "data"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "blockchain",
         "smart-money",
@@ -1946,7 +1946,7 @@
           ]
         }
       },
-      "realm": "mpp.tempo.xyz",
+      "realm": "api.nansen.ai",
       "provider": {
         "name": "Nansen",
         "url": "https://nansen.ai"

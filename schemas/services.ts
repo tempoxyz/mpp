@@ -961,7 +961,7 @@ export const services: ServiceDef[] = [
     description:
       "Blockchain analytics and smart money intelligence. Token data, wallet profiling, DEX trades, PnL, and flow analysis across multiple chains.",
     categories: ["blockchain", "data"],
-    integration: "third-party",
+    integration: "first-party",
     tags: [
       "blockchain",
       "smart-money",
@@ -979,7 +979,7 @@ export const services: ServiceDef[] = [
       apiReference: "https://docs.nansen.ai/nansen-api-reference",
     },
     provider: { name: "Nansen", url: "https://nansen.ai" },
-    realm: MPP_REALM,
+    realm: "api.nansen.ai",
     intent: "charge",
     payment: TEMPO_PAYMENT,
     docsBase: "https://docs.nansen.ai/api",
