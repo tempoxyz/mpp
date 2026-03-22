@@ -4328,4 +4328,55 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Sardis Company Builder ─────────────────────────────────────────────
+  {
+    id: "sardis-company-builder",
+    name: "Sardis Company Builder",
+    url: "https://sardis-company-builder-482463483786.us-central1.run.app",
+    serviceUrl:
+      "https://sardis-company-builder-482463483786.us-central1.run.app",
+    description:
+      "Autonomous AI agent that starts companies — discovers MPP services, researches markets, validates ideas with AI, generates branding, deploys websites, and produces technical specs for coding agents.",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: [
+      "company-builder",
+      "startup",
+      "autonomous-agent",
+      "research",
+      "branding",
+      "specs",
+    ],
+    docs: {
+      homepage: "https://github.com/EfeDurmaz16/sardis-company-builder",
+    },
+    provider: { name: "Sardis", url: "https://github.com/EfeDurmaz16" },
+    realm:
+      "sardis-company-builder-482463483786.us-central1.run.app",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /build",
+        desc: "Build a company from a description — full autonomous pipeline",
+        amount: "1000000",
+        unitType: "request",
+      },
+      {
+        route: "POST /build/free",
+        desc: "Build a company (free tier, limited budget)",
+      },
+      {
+        route: "POST /generate-idea",
+        desc: "AI generates a startup idea and builds the company autonomously",
+      },
+      {
+        route: "POST /build/html",
+        desc: "Build a company and return an HTML report",
+        amount: "1000000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
