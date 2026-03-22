@@ -4339,7 +4339,15 @@ export const services: ServiceDef[] = [
       "AI-optimized compound trading signals. Cross-references SEC Form 4 insider trades, congressional stock activity, and market data through an AutoResearch-tuned scoring engine.",
     categories: ["data"],
     integration: "first-party",
-    tags: ["trading", "signals", "insider-trading", "congress", "market-data", "stocks", "finance"],
+    tags: [
+      "trading",
+      "signals",
+      "insider-trading",
+      "congress",
+      "market-data",
+      "stocks",
+      "finance",
+    ],
     status: "active",
     docs: {
       homepage: "https://0x402.link",
@@ -4373,6 +4381,10 @@ export const services: ServiceDef[] = [
         desc: "Officer selling signals — strongest predictor at 80% accuracy",
         amount: "5000",
         unitType: "request",
+      },
+      {
+        route: "GET /api/congress/recent",
+        desc: "Recent congressional stock trades — 30-day window (free)",
       },
       {
         route: "GET /api/market/dashboard",

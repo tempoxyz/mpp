@@ -9628,6 +9628,12 @@
         },
         {
           "method": "GET",
+          "path": "/api/congress/recent",
+          "description": "Recent congressional stock trades — 30-day window (free)",
+          "payment": null
+        },
+        {
+          "method": "GET",
           "path": "/api/market/dashboard",
           "description": "Market overview — sectors, movers, futures, VIX",
           "payment": {
