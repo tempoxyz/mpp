@@ -9628,20 +9628,6 @@
         },
         {
           "method": "GET",
-          "path": "/api/congress/recent",
-          "description": "Recent congressional stock trades from Capitol Trades",
-          "payment": {
-            "intent": "charge",
-            "method": "tempo",
-            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
-            "decimals": 6,
-            "description": "Recent congressional stock trades from Capitol Trades",
-            "amount": "5000",
-            "unitType": "request"
-          }
-        },
-        {
-          "method": "GET",
           "path": "/api/market/dashboard",
           "description": "Market overview — sectors, movers, futures, VIX",
           "payment": {

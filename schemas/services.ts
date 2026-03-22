@@ -4375,12 +4375,6 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /api/congress/recent",
-        desc: "Recent congressional stock trades from Capitol Trades",
-        amount: "5000",
-        unitType: "request",
-      },
-      {
         route: "GET /api/market/dashboard",
         desc: "Market overview — sectors, movers, futures, VIX",
         amount: "5000",
