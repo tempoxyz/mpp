@@ -9529,6 +9529,92 @@
           }
         }
       ]
+    },
+    {
+      "id": "zk-proof",
+      "name": "ZK Proof Service",
+      "url": "https://himess-zk-proof-service.hf.space",
+      "serviceUrl": "https://himess-zk-proof-service.hf.space",
+      "description": "Groth16 ZK proof generation for private UTXO transactions — JoinSplit circuits on BN254 curve.",
+      "categories": [
+        "compute",
+        "blockchain"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "zk",
+        "zero-knowledge",
+        "groth16",
+        "proof",
+        "privacy",
+        "snarkjs"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://github.com/Himess/zk-proof-service",
+        "llmsTxt": "https://himess-zk-proof-service.hf.space/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "himess-zk-proof-service.hf.space",
+      "provider": {
+        "name": "Himess",
+        "url": "https://github.com/Himess"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/circuits",
+          "description": "List available circuits and pricing",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/prove/1x2",
+          "description": "Generate Groth16 proof for 1-input 2-output JoinSplit (13,726 constraints)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate 1x2 JoinSplit proof",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/prove/2x2",
+          "description": "Generate Groth16 proof for 2-input 2-output JoinSplit (25,877 constraints)",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate 2x2 JoinSplit proof",
+            "amount": "20000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/verify/1x2",
+          "description": "Verify a 1x2 JoinSplit proof",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/verify/2x2",
+          "description": "Verify a 2x2 JoinSplit proof",
+          "payment": null
+        }
+      ]
     }
   ]
 }
