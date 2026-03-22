@@ -1,10 +1,22 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/sync-logos",
+      "schedule": "* * * * *"
+    }
+  ],
   "redirects": [
     {
       "source": "/:path(.*)",
       "has": [{ "type": "host", "value": "mpp.tempo.xyz" }],
       "destination": "https://mpp.dev/:path",
       "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/fonts/VTCDuBois-:path*",
+      "destination": "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-:path*"
     }
   ]
 }

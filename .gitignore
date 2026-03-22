@@ -13,3 +13,7 @@ src/snippets/cli-help.txt
 .vercel
 .DS_Store
 .env.local
+
+# Licensed font files (served via Vercel Blob in production)
+public/fonts/VTCDuBois*
+.env*.local
