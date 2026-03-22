@@ -1912,7 +1912,7 @@
       "id": "nansen",
       "name": "Nansen",
       "url": "https://api.nansen.ai",
-      "serviceUrl": "https://nansen.mpp.tempo.xyz",
+      "serviceUrl": "https://api.nansen.ai",
       "description": "Blockchain analytics and smart money intelligence. Token data, wallet profiling, DEX trades, PnL, and flow analysis across multiple chains.",
       "categories": [
         "blockchain",
