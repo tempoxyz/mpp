@@ -996,7 +996,7 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
-        route: "POST /api/v1/smart-money/netflows",
+        route: "POST /api/v1/smart-money/netflow",
         desc: "Net token flows by smart money addresses",
         amount: "5000",
       },
@@ -1006,7 +1006,7 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
-        route: "POST /api/v1/smart-money/jupiter-dcas",
+        route: "POST /api/v1/smart-money/dcas",
         desc: "Smart money Jupiter DCA orders on Solana",
         amount: "5000",
       },
@@ -1017,7 +1017,7 @@ export const services: ServiceDef[] = [
       },
       // Profiler
       {
-        route: "POST /api/v1/address/current-balance",
+        route: "POST /api/v1/profiler/address/current-balance",
         desc: "Current token balances of an address",
         amount: "5000",
       },
@@ -1067,7 +1067,7 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
-        route: "POST /api/v1/profiler/entity-name-search",
+        route: "POST /api/v1/search/entity-name",
         desc: "Search for entity names",
         amount: "5000",
       },
@@ -1088,7 +1088,7 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
-        route: "POST /api/v1/tgm/token-screener",
+        route: "POST /api/v1/token-screener",
         desc: "Real-time token analytics across chains",
         amount: "5000",
       },
@@ -1133,7 +1133,7 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
-        route: "POST /api/v1/tgm/perp-screener",
+        route: "POST /api/v1/perp-screener",
         desc: "Screen Hyperliquid tokens by volume",
         amount: "5000",
       },
