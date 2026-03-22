@@ -13,13 +13,75 @@ export default defineConfig({
   colorScheme: "light dark",
   baseUrl,
   redirects: [
+    // Aliases for overview
     { source: "/docs", destination: "/overview" },
+    { source: "/documentation", destination: "/overview" },
+    { source: "/about", destination: "/overview" },
+
+    // Spec redirects
     {
       source: "/specifications",
       destination: "https://paymentauth.org",
     },
     { source: "/specs", destination: "https://paymentauth.org" },
+    { source: "/spec", destination: "https://paymentauth.org" },
+    { source: "/specification", destination: "https://paymentauth.org" },
 
+    // Quickstart aliases
+    { source: "/get-started", destination: "/quickstart" },
+    { source: "/getting-started", destination: "/quickstart" },
+    { source: "/start", destination: "/quickstart" },
+    { source: "/quick-start", destination: "/quickstart" },
+    { source: "/install", destination: "/quickstart" },
+    { source: "/installation", destination: "/quickstart" },
+    { source: "/guide", destination: "/quickstart" },
+    { source: "/tutorial", destination: "/quickstart" },
+
+    // Deleted guide pages
+    {
+      source: "/guides/building-with-ai",
+      destination: "/guides/building-with-an-llm",
+    },
+    {
+      source: "/guides/mpp-with-stripe",
+      destination: "/payment-methods/stripe",
+    },
+
+    // Protocol concept shortcuts
+    { source: "/402", destination: "/protocol/http-402" },
+    { source: "/x402", destination: "/protocol/http-402" },
+    { source: "/challenges", destination: "/protocol/challenges" },
+    { source: "/challenge", destination: "/protocol/challenges" },
+    { source: "/credentials", destination: "/protocol/credentials" },
+    { source: "/credential", destination: "/protocol/credentials" },
+    { source: "/receipts", destination: "/protocol/receipts" },
+    { source: "/receipt", destination: "/protocol/receipts" },
+    { source: "/transports", destination: "/protocol/transports" },
+    { source: "/transport", destination: "/protocol/transports" },
+    { source: "/mcp", destination: "/protocol/transports/mcp" },
+
+    // SDK shortcuts
+    { source: "/typescript", destination: "/sdk/typescript" },
+    { source: "/python", destination: "/sdk/python" },
+    { source: "/rust", destination: "/sdk/rust" },
+    { source: "/reference", destination: "/sdk" },
+    { source: "/api", destination: "/sdk" },
+
+    // SDK repo shortcuts
+    { source: "/mppx", destination: "https://github.com/wevm/mppx" },
+    { source: "/pympp", destination: "https://github.com/tempoxyz/pympp" },
+    {
+      source: "/mpp-rs",
+      destination: "https://github.com/tempoxyz/mpp-rs",
+    },
+
+    // Payment methods aliases
+    { source: "/methods", destination: "/payment-methods" },
+    { source: "/payment-method", destination: "/payment-methods" },
+    { source: "/intents", destination: "/intents/charge" },
+    { source: "/intent", destination: "/intents/charge" },
+
+    // Stream → session renames
     {
       source: "/payment-methods/tempo/stream",
       destination: "/payment-methods/tempo/session",
@@ -32,6 +94,121 @@ export default defineConfig({
       source: "/sdk/typescript/server/Method.tempo.stream",
       destination: "/sdk/typescript/server/Method.tempo.session",
     },
+
+    // Old TS SDK pages moved from /sdk/typescript/ to /sdk/typescript/core/
+    {
+      source: "/sdk/typescript/BodyDigest.compute",
+      destination: "/sdk/typescript/core/BodyDigest.compute",
+    },
+    {
+      source: "/sdk/typescript/BodyDigest.verify",
+      destination: "/sdk/typescript/core/BodyDigest.verify",
+    },
+    {
+      source: "/sdk/typescript/Challenge.deserialize",
+      destination: "/sdk/typescript/core/Challenge.deserialize",
+    },
+    {
+      source: "/sdk/typescript/Challenge.from",
+      destination: "/sdk/typescript/core/Challenge.from",
+    },
+    {
+      source: "/sdk/typescript/Challenge.fromHeaders",
+      destination: "/sdk/typescript/core/Challenge.fromHeaders",
+    },
+    {
+      source: "/sdk/typescript/Challenge.fromResponse",
+      destination: "/sdk/typescript/core/Challenge.fromResponse",
+    },
+    {
+      source: "/sdk/typescript/Challenge.serialize",
+      destination: "/sdk/typescript/core/Challenge.serialize",
+    },
+    {
+      source: "/sdk/typescript/Challenge.verify",
+      destination: "/sdk/typescript/core/Challenge.verify",
+    },
+    {
+      source: "/sdk/typescript/Credential.deserialize",
+      destination: "/sdk/typescript/core/Credential.deserialize",
+    },
+    {
+      source: "/sdk/typescript/Credential.from",
+      destination: "/sdk/typescript/core/Credential.from",
+    },
+    {
+      source: "/sdk/typescript/Credential.fromRequest",
+      destination: "/sdk/typescript/core/Credential.fromRequest",
+    },
+    {
+      source: "/sdk/typescript/Credential.serialize",
+      destination: "/sdk/typescript/core/Credential.serialize",
+    },
+    {
+      source: "/sdk/typescript/Expires",
+      destination: "/sdk/typescript/core/Expires",
+    },
+    {
+      source: "/sdk/typescript/Method.toClient",
+      destination: "/sdk/typescript/core/Method.toClient",
+    },
+    {
+      source: "/sdk/typescript/Method.toServer",
+      destination: "/sdk/typescript/core/Method.toServer",
+    },
+    {
+      source: "/sdk/typescript/PaymentRequest.deserialize",
+      destination: "/sdk/typescript/core/PaymentRequest.deserialize",
+    },
+    {
+      source: "/sdk/typescript/PaymentRequest.from",
+      destination: "/sdk/typescript/core/PaymentRequest.from",
+    },
+    {
+      source: "/sdk/typescript/PaymentRequest.serialize",
+      destination: "/sdk/typescript/core/PaymentRequest.serialize",
+    },
+    {
+      source: "/sdk/typescript/Receipt.deserialize",
+      destination: "/sdk/typescript/core/Receipt.deserialize",
+    },
+    {
+      source: "/sdk/typescript/Receipt.from",
+      destination: "/sdk/typescript/core/Receipt.from",
+    },
+    {
+      source: "/sdk/typescript/Receipt.fromResponse",
+      destination: "/sdk/typescript/core/Receipt.fromResponse",
+    },
+    {
+      source: "/sdk/typescript/Receipt.serialize",
+      destination: "/sdk/typescript/core/Receipt.serialize",
+    },
+    {
+      source: "/sdk/typescript/installation",
+      destination: "/sdk/typescript",
+    },
+
+    // Old Fetch.* client pages (removed)
+    {
+      source: "/sdk/typescript/client/Fetch.from",
+      destination: "/sdk/typescript",
+    },
+    {
+      source: "/sdk/typescript/client/Fetch.polyfill",
+      destination: "/sdk/typescript",
+    },
+
+    // Old server page
+    {
+      source: "/sdk/typescript/server/Request.fromNodeListener",
+      destination: "/sdk/typescript/server/Request.toNodeListener",
+    },
+
+    // Services aliases
+    { source: "/service", destination: "/services" },
+    { source: "/marketplace", destination: "/services" },
+    { source: "/directory", destination: "/services" },
   ],
   description:
     "MPP (Machine Payments Protocol) is the open standard for machine-to-machine payments via HTTP 402.",
