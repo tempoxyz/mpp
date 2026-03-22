@@ -3451,6 +3451,139 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Billboard ──────────────────────────────────────────────────────────
+  {
+    id: "ad",
+    name: "Billboard",
+    url: "https://x.com/MPPBillboard",
+    serviceUrl: "https://ad.mpp.paywithlocus.com",
+    description:
+      "Post to the @MPPBillboard account on X — price doubles with each post.",
+    categories: ["social"],
+    integration: "first-party",
+    tags: ["ad", "locus"],
+    docs: {
+      homepage: "https://x.com/MPPBillboard",
+      llmsTxt: "https://paywithlocus.com/discover/ad.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "ad.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /ad/post",
+        desc: "Post to @MPPBillboard on X",
+        dynamic: true,
+        amountHint: "$0.01 × 2^n (doubles each post)",
+      },
+      {
+        route: "POST /ad/get-price",
+        desc: "Check current post price",
+      },
+    ],
+  },
+
+  // ── Brave Search ───────────────────────────────────────────────────────
+  {
+    id: "brave",
+    name: "Brave Search",
+    url: "https://brave.com/search",
+    serviceUrl: "https://brave.mpp.paywithlocus.com",
+    description:
+      "Independent web search — web, news, images, videos, AI answers, and LLM context. Privacy-first search from a large independent index.",
+    categories: ["search"],
+    integration: "first-party",
+    tags: ["brave", "locus"],
+    docs: {
+      homepage: "https://api.search.brave.com/app/#/documentation",
+      llmsTxt: "https://paywithlocus.com/discover/brave.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "brave.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /brave/web-search",
+        desc: "Web Search",
+        amount: "30000",
+        unitType: "request",
+      },
+      {
+        route: "POST /brave/news-search",
+        desc: "News Search",
+        amount: "30000",
+        unitType: "request",
+      },
+      {
+        route: "POST /brave/image-search",
+        desc: "Image Search",
+        amount: "30000",
+        unitType: "request",
+      },
+      {
+        route: "POST /brave/video-search",
+        desc: "Video Search",
+        amount: "30000",
+        unitType: "request",
+      },
+      {
+        route: "POST /brave/llm-context",
+        desc: "LLM Context",
+        amount: "30000",
+        unitType: "request",
+      },
+      {
+        route: "POST /brave/answers",
+        desc: "AI Answers",
+        amount: "80000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Browser Use ────────────────────────────────────────────────────────
+  {
+    id: "browser-use",
+    name: "Browser Use",
+    url: "https://browser-use.com",
+    serviceUrl: "https://browser-use.mpp.paywithlocus.com",
+    description:
+      "AI-powered browser automation — run tasks in a cloud browser with LLM agents.",
+    categories: ["ai", "web"],
+    integration: "first-party",
+    tags: ["browser-use", "locus"],
+    docs: {
+      homepage: "https://docs.cloud.browser-use.com",
+      llmsTxt: "https://paywithlocus.com/discover/browser-use.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "browser-use.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /browser-use/run-task",
+        desc: "Start an automated browser task",
+        dynamic: true,
+        amountHint: "$0.01 – $10.00",
+      },
+      {
+        route: "POST /browser-use/get-task",
+        desc: "Get task details and output",
+      },
+      {
+        route: "POST /browser-use/get-task-status",
+        desc: "Check task status",
+      },
+      {
+        route: "POST /browser-use/stop-task",
+        desc: "Stop a running task",
+      },
+    ],
+  },
+
   // ── BuiltWith ────────────────────────────────────────────────────────
   {
     id: "builtwith",
@@ -3819,6 +3952,45 @@ export const services: ServiceDef[] = [
         desc: "List Models",
         amount: "4000",
         unitType: "request",
+      },
+    ],
+  },
+
+  // ── DeepL ──────────────────────────────────────────────────────────────
+  {
+    id: "deepl",
+    name: "DeepL",
+    url: "https://www.deepl.com",
+    serviceUrl: "https://deepl.mpp.paywithlocus.com",
+    description:
+      "Professional translation and text improvement — translate text between 30+ languages with industry-leading quality, or rephrase text with DeepL Write.",
+    categories: ["ai"],
+    integration: "first-party",
+    tags: ["deepl", "locus"],
+    docs: {
+      homepage: "https://developers.deepl.com",
+      llmsTxt: "https://paywithlocus.com/discover/deepl.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "deepl.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /deepl/translate",
+        desc: "Translate Text",
+        dynamic: true,
+        amountHint: "$0.02+ (scales with text length)",
+      },
+      {
+        route: "POST /deepl/rephrase",
+        desc: "Rephrase Text",
+        dynamic: true,
+        amountHint: "$0.02+ (scales with text length)",
+      },
+      {
+        route: "POST /deepl/languages",
+        desc: "List Languages",
       },
     ],
   },
@@ -4455,6 +4627,41 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── IPinfo ─────────────────────────────────────────────────────────────
+  {
+    id: "ipinfo",
+    name: "IPinfo",
+    url: "https://ipinfo.io",
+    serviceUrl: "https://ipinfo.mpp.paywithlocus.com",
+    description:
+      "IP geolocation, ASN, privacy detection, and carrier data.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["ipinfo", "locus"],
+    docs: {
+      homepage: "https://ipinfo.io/developers",
+      llmsTxt: "https://paywithlocus.com/discover/ipinfo.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "ipinfo.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /ipinfo/ip-lite",
+        desc: "Basic IP Info",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /ipinfo/ip-lookup",
+        desc: "Full IP Lookup",
+        amount: "1000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Judge0 ───────────────────────────────────────────────────────────
   {
     id: "judge0",
@@ -4504,6 +4711,69 @@ export const services: ServiceDef[] = [
         desc: "List Statuses",
         amount: "5000",
         unitType: "request",
+      },
+    ],
+  },
+
+  // ── Laso Finance ───────────────────────────────────────────────────────
+  {
+    id: "laso",
+    name: "Laso Finance",
+    url: "https://laso.finance",
+    serviceUrl: "https://laso.mpp.paywithlocus.com",
+    description:
+      "Prepaid virtual debit cards (US only) — order cards, check balances, search merchants, and manage withdrawals.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["laso", "locus"],
+    docs: {
+      homepage: "https://laso.finance",
+      llmsTxt: "https://paywithlocus.com/discover/laso.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "laso.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /laso/auth",
+        desc: "Authenticate",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /laso/get-card",
+        desc: "Order a Prepaid Card",
+        dynamic: true,
+        amountHint: "$5.00 – $1,000.00",
+      },
+      {
+        route: "POST /laso/get-card-data",
+        desc: "Get card status and details",
+      },
+      {
+        route: "POST /laso/search-merchants",
+        desc: "Search merchant compatibility",
+      },
+      {
+        route: "POST /laso/get-account-balance",
+        desc: "Check account balance",
+      },
+      {
+        route: "POST /laso/withdraw",
+        desc: "Initiate a withdrawal",
+      },
+      {
+        route: "POST /laso/get-withdrawal-status",
+        desc: "Check withdrawal status",
+      },
+      {
+        route: "POST /laso/refresh-card-data",
+        desc: "Refresh card balance",
+      },
+      {
+        route: "POST /laso/refresh",
+        desc: "Refresh expired token",
       },
     ],
   },
@@ -4966,6 +5236,35 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── ScreenshotOne ──────────────────────────────────────────────────────
+  {
+    id: "screenshot",
+    name: "ScreenshotOne",
+    url: "https://screenshotone.com",
+    serviceUrl: "https://screenshot.mpp.paywithlocus.com",
+    description:
+      "Capture website screenshots as PNG, JPEG, WebP, or PDF with customizable viewport, full-page, dark mode, and ad blocking.",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["screenshot", "locus"],
+    docs: {
+      homepage: "https://screenshotone.com/docs/getting-started",
+      llmsTxt: "https://paywithlocus.com/discover/screenshot.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "screenshot.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /screenshot/take",
+        desc: "Capture Screenshot",
+        amount: "50000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Stability AI ─────────────────────────────────────────────────────
   {
     id: "stability-ai",
@@ -5295,6 +5594,131 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── VirusTotal ─────────────────────────────────────────────────────────
+  {
+    id: "virustotal",
+    name: "VirusTotal",
+    url: "https://www.virustotal.com",
+    serviceUrl: "https://virustotal.mpp.paywithlocus.com",
+    description:
+      "Threat intelligence — scan files and URLs, query domains, IPs, and hashes against 70+ security vendors and sandboxes.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["virustotal", "locus"],
+    docs: {
+      homepage: "https://docs.virustotal.com",
+      llmsTxt: "https://paywithlocus.com/discover/virustotal.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "virustotal.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /virustotal/file-report",
+        desc: "File Report",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/url-report",
+        desc: "URL Report",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/domain-report",
+        desc: "Domain Report",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/ip-report",
+        desc: "IP Report",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/url-scan",
+        desc: "Scan URL",
+        amount: "80000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/file-scan",
+        desc: "Scan File",
+        amount: "80000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/search",
+        desc: "Search",
+        amount: "80000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/file-behaviours",
+        desc: "File Behaviours",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/domain-dns",
+        desc: "Domain DNS Resolution",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/file-comments",
+        desc: "File Comments",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/url-comments",
+        desc: "URL Comments",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/domain-comments",
+        desc: "Domain Comments",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/ip-comments",
+        desc: "IP Comments",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/file-votes",
+        desc: "File Votes",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/url-votes",
+        desc: "URL Votes",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/mitre-tactics",
+        desc: "MITRE ATT&CK Tactics",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /virustotal/mitre-techniques",
+        desc: "MITRE ATT&CK Techniques",
+        amount: "50000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Web Scraping ─────────────────────────────────────────────────────
   {
     id: "abstract-web-scraping",
@@ -5318,6 +5742,53 @@ export const services: ServiceDef[] = [
         route: "POST /abstract-web-scraping/scrape",
         desc: "Scrape",
         amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Wolfram Alpha ──────────────────────────────────────────────────────
+  {
+    id: "wolfram",
+    name: "Wolfram Alpha",
+    url: "https://www.wolframalpha.com",
+    serviceUrl: "https://wolfram.mpp.paywithlocus.com",
+    description:
+      "Computational intelligence — answer questions, perform calculations, and generate structured results across math, science, geography, and more.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["wolfram", "locus"],
+    docs: {
+      homepage: "https://products.wolframalpha.com/api",
+      llmsTxt: "https://paywithlocus.com/discover/wolfram.md",
+    },
+    provider: { name: "Locus", url: "https://paywithlocus.com" },
+    realm: "wolfram.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /wolfram/short-answer",
+        desc: "Short Answer",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /wolfram/spoken",
+        desc: "Spoken Answer",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /wolfram/full-results",
+        desc: "Full Results",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /wolfram/simple",
+        desc: "Simple (Image Result)",
+        amount: "50000",
         unitType: "request",
       },
     ],
