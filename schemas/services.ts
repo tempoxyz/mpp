@@ -1120,6 +1120,82 @@ export const services: ServiceDef[] = [
     ],
   },
 
+
+  // ── Nansen ──────────────────────────────────────────────────────────────
+  {
+    id: "nansen",
+    name: "Nansen",
+    url: "https://api.nansen.ai",
+    serviceUrl: `https://nansen.${MPP_REALM}`,
+    description:
+      "Blockchain analytics and smart money intelligence. Token data, wallet profiling, DEX trades, PnL, and flow analysis across multiple chains.",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: [
+      "blockchain",
+      "smart-money",
+      "wallet",
+      "tokens",
+      "defi",
+      "analytics",
+      "profiler",
+      "dex",
+      "pnl",
+      "onchain",
+    ],
+    docs: {
+      homepage: "https://docs.nansen.ai",
+      apiReference: "https://docs.nansen.ai/nansen-api-reference",
+    },
+    provider: { name: "Nansen", url: "https://nansen.ai" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    docsBase: "https://docs.nansen.ai/api",
+    endpoints: [
+      // Smart Money
+      { route: "POST /api/v1/smart-money/holdings", desc: "Smart money aggregated token balances", amount: "5000" },
+      { route: "POST /api/v1/smart-money/historical-holdings", desc: "Historical smart money holdings", amount: "5000" },
+      { route: "POST /api/v1/smart-money/netflows", desc: "Net token flows by smart money addresses", amount: "5000" },
+      { route: "POST /api/v1/smart-money/dex-trades", desc: "Smart money DEX trades (last 24h)", amount: "5000" },
+      { route: "POST /api/v1/smart-money/jupiter-dcas", desc: "Smart money Jupiter DCA orders on Solana", amount: "5000" },
+      { route: "POST /api/v1/smart-money/perp-trades", desc: "Smart money perp trades on Hyperliquid", amount: "5000" },
+      // Profiler
+      { route: "POST /api/v1/address/current-balance", desc: "Current token balances of an address", amount: "5000" },
+      { route: "POST /api/v1/profiler/address/historical-balances", desc: "Historical wallet balances", amount: "5000" },
+      { route: "POST /api/v1/profiler/address/transactions", desc: "Wallet transaction history", amount: "5000" },
+      { route: "POST /api/v1/profiler/address/counterparties", desc: "Top counterparties of a wallet", amount: "5000" },
+      { route: "POST /api/v1/profiler/address/related-wallets", desc: "Related wallets and first-degree relations", amount: "5000" },
+      { route: "POST /api/v1/profiler/address/pnl", desc: "Past trades and PnL performance", amount: "5000" },
+      { route: "POST /api/v1/profiler/address/pnl-summary", desc: "Trade summary with top 5 trades", amount: "5000" },
+      { route: "POST /api/v1/profiler/address/labels", desc: "Address labels and entity tags", amount: "5000" },
+      { route: "POST /api/v1/profiler/perp-positions", desc: "Wallet perp positions and account health", amount: "5000" },
+      { route: "POST /api/v1/profiler/perp-trades", desc: "Wallet Hyperliquid trade history", amount: "5000" },
+      { route: "POST /api/v1/profiler/entity-name-search", desc: "Search for entity names", amount: "5000" },
+      // Token God Mode
+      { route: "POST /api/v1/tgm/token-information", desc: "Token metadata: market cap, volume, holders", amount: "5000" },
+      { route: "POST /api/v1/tgm/indicators", desc: "Risk and reward indicators for a token", amount: "5000" },
+      { route: "POST /api/v1/tgm/token-ohlcv", desc: "Token OHLCV price data", amount: "5000" },
+      { route: "POST /api/v1/tgm/token-screener", desc: "Real-time token analytics across chains", amount: "5000" },
+      { route: "POST /api/v1/tgm/flow-intelligence", desc: "Token flow summary across smart money and exchanges", amount: "5000" },
+      { route: "POST /api/v1/tgm/holders", desc: "Top holders by entity category", amount: "5000" },
+      { route: "POST /api/v1/tgm/flows", desc: "Total token inflow and outflow", amount: "5000" },
+      { route: "POST /api/v1/tgm/who-bought-sold", desc: "Recent buyers and sellers summary", amount: "5000" },
+      { route: "POST /api/v1/tgm/dex-trades", desc: "All DEX trades of a token", amount: "5000" },
+      { route: "POST /api/v1/tgm/transfers", desc: "Top token transfers", amount: "5000" },
+      { route: "POST /api/v1/tgm/jup-dca", desc: "Jupiter DCA orders for a token on Solana", amount: "5000" },
+      { route: "POST /api/v1/tgm/pnl-leaderboard", desc: "Top addresses by realized and unrealized PnL", amount: "5000" },
+      { route: "POST /api/v1/tgm/perp-screener", desc: "Screen Hyperliquid tokens by volume", amount: "5000" },
+      { route: "POST /api/v1/tgm/perp-pnl-leaderboard", desc: "Perp PnL leaderboard for a token", amount: "5000" },
+      { route: "POST /api/v1/tgm/perp-positions", desc: "Open perp positions for a token", amount: "5000" },
+      { route: "POST /api/v1/tgm/perp-trades", desc: "Perp trading history for a token", amount: "5000" },
+      // Portfolio
+      { route: "POST /api/v1/portfolio/defi-holdings", desc: "Track DeFi positions across addresses", amount: "5000" },
+      // Perp Leaderboard
+      { route: "POST /api/v1/perp-leaderboard", desc: "Most profitable Hyperliquid addresses", amount: "5000" },
+    ],
+  },
+
   // ── OpenAI ─────────────────────────────────────────────────────────────
   {
     id: "openai",
