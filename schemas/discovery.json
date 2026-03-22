@@ -9529,6 +9529,72 @@
           }
         }
       ]
+    },
+    {
+      "id": "surf-inference",
+      "name": "Surf Inference",
+      "url": "https://inference.surf.cascade.fyi",
+      "serviceUrl": "https://inference.surf.cascade.fyi",
+      "description": "OpenAI-compatible LLM inference with per-token streaming sessions. Claude, Grok, Kimi, MiniMax, Qwen, and GLM models.",
+      "categories": [
+        "ai"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "llm",
+        "inference",
+        "openai-compatible",
+        "claude",
+        "grok",
+        "kimi",
+        "minimax",
+        "qwen",
+        "glm",
+        "streaming",
+        "chat"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://surf.cascade.fyi",
+        "apiReference": "https://inference.surf.cascade.fyi"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "inference.surf.cascade.fyi",
+      "provider": {
+        "name": "Cascade",
+        "url": "https://surf.cascade.fyi"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/chat/completions",
+          "description": "Chat completions with per-token streaming sessions - price varies by model",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Chat completions with per-token streaming sessions - price varies by model",
+            "dynamic": true,
+            "amountHint": "$0.001 - $25.00 per 1M tokens"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/models",
+          "description": "List available models",
+          "payment": null
+        }
+      ]
     }
   ]
 }

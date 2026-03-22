@@ -4328,4 +4328,45 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Surf Inference ───────────────────────────────────────────────────
+  {
+    id: "surf-inference",
+    name: "Surf Inference",
+    url: "https://inference.surf.cascade.fyi",
+    serviceUrl: "https://inference.surf.cascade.fyi",
+    description: "OpenAI-compatible LLM inference with per-token streaming sessions. Claude, Grok, Kimi, MiniMax, Qwen, and GLM models.",
+    categories: ["ai"],
+    integration: "first-party",
+    tags: [
+      "llm",
+      "inference",
+      "openai-compatible",
+      "claude",
+      "grok",
+      "kimi",
+      "minimax",
+      "qwen",
+      "glm",
+      "streaming",
+      "chat",
+    ],
+    docs: {
+      homepage: "https://surf.cascade.fyi",
+      apiReference: "https://inference.surf.cascade.fyi",
+    },
+    provider: { name: "Cascade", url: "https://surf.cascade.fyi" },
+    realm: "inference.surf.cascade.fyi",
+    intent: "session",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /v1/chat/completions",
+        desc: "Chat completions with per-token streaming sessions - price varies by model",
+        dynamic: true,
+        amountHint: "$0.001 - $25.00 per 1M tokens",
+      },
+      { route: "GET /v1/models", desc: "List available models" },
+    ],
+  },
 ];
