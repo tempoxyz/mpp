@@ -2690,6 +2690,104 @@
       ]
     },
     {
+      "id": "stabledomains",
+      "name": "StableDomains",
+      "url": "https://stabledomains.dev",
+      "serviceUrl": "https://stabledomains.dev",
+      "description": "Domain registration via micropayments — search, register, renew, and manage DNS. No accounts.",
+      "categories": [
+        "web"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "domains",
+        "dns",
+        "registrar",
+        "web"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://stabledomains.dev",
+        "llmsTxt": "https://stabledomains.dev/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "stabledomains.dev",
+      "provider": {
+        "name": "Merit Systems",
+        "url": "https://stabledomains.dev"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/check",
+          "description": "Check domain availability and pricing",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check domain availability and pricing",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/register",
+          "description": "Register a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Register a domain",
+            "dynamic": true,
+            "amountHint": "$20 – $150 depending on TLD"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/domain/renew",
+          "description": "Renew a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Renew a domain",
+            "dynamic": true,
+            "amountHint": "$20 – $150 depending on TLD"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/api/domain/status",
+          "description": "Check domain status",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/domain/dns",
+          "description": "Update DNS records",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/domain/transfer-out",
+          "description": "Transfer domain out",
+          "payment": null
+        }
+      ]
+    },
+    {
       "id": "stableenrich",
       "name": "StableEnrich",
       "url": "https://stableenrich.dev",
