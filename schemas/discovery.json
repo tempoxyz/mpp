@@ -1909,6 +1909,732 @@
       ]
     },
     {
+      "id": "nansen",
+      "name": "Nansen",
+      "url": "https://api.nansen.ai",
+      "serviceUrl": "https://api.nansen.ai",
+      "description": "Blockchain analytics and smart money intelligence. Token data, wallet profiling, DEX trades, PnL, and flow analysis across multiple chains.",
+      "categories": [
+        "blockchain",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "blockchain",
+        "smart-money",
+        "wallet",
+        "tokens",
+        "defi",
+        "analytics",
+        "profiler",
+        "dex",
+        "pnl",
+        "onchain",
+        "prediction-market"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://docs.nansen.ai",
+        "apiReference": "https://docs.nansen.ai/nansen-api-reference"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "api.nansen.ai",
+      "provider": {
+        "name": "Nansen",
+        "url": "https://nansen.ai"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/v1/account",
+          "description": "Get account information",
+          "payment": null,
+          "docs": "https://docs.nansen.ai/api?topic=GET%20%2Fapi%2Fv1%2Faccount"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/smart-money/netflow",
+          "description": "Net token flows by smart money addresses",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Net token flows by smart money addresses",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fsmart-money%2Fnetflow"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/smart-money/dex-trades",
+          "description": "Smart money DEX trades",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Smart money DEX trades",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fsmart-money%2Fdex-trades"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/smart-money/perp-trades",
+          "description": "Smart money perp trades on Hyperliquid",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Smart money perp trades on Hyperliquid",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fsmart-money%2Fperp-trades"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/smart-money/dcas",
+          "description": "Smart money DCA orders on Solana",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Smart money DCA orders on Solana",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fsmart-money%2Fdcas"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/smart-money/holdings",
+          "description": "Smart money aggregated token balances",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Smart money aggregated token balances",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fsmart-money%2Fholdings"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/smart-money/historical-holdings",
+          "description": "Historical smart money holdings",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Historical smart money holdings",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fsmart-money%2Fhistorical-holdings"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/transactions",
+          "description": "Wallet transaction history",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Wallet transaction history",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Ftransactions"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/transaction-with-token-transfer-lookup",
+          "description": "Transaction with token transfer lookup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Transaction with token transfer lookup",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftransaction-with-token-transfer-lookup"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/pnl-summary",
+          "description": "Trade summary with top 5 trades",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Trade summary with top 5 trades",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Fpnl-summary"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/current-balance",
+          "description": "Current token balances of an address",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Current token balances of an address",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Fcurrent-balance"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/counterparties",
+          "description": "Top counterparties of a wallet",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Top counterparties of a wallet",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Fcounterparties"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/historical-balances",
+          "description": "Historical wallet balances",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Historical wallet balances",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Fhistorical-balances"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/related-wallets",
+          "description": "Related wallets and first-degree relations",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Related wallets and first-degree relations",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Frelated-wallets"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/pnl",
+          "description": "Past trades and PnL performance",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Past trades and PnL performance",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Fpnl"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/labels",
+          "description": "Address labels and entity tags",
+          "payment": null,
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Flabels"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/address/premium-labels",
+          "description": "Premium address labels and entity tags",
+          "payment": null,
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Faddress%2Fpremium-labels"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/perp-positions",
+          "description": "Wallet perp positions and account health",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Wallet perp positions and account health",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Fperp-positions"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/profiler/perp-trades",
+          "description": "Wallet Hyperliquid trade history",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Wallet Hyperliquid trade history",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprofiler%2Fperp-trades"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/flows",
+          "description": "Total token inflow and outflow",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Total token inflow and outflow",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fflows"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/who-bought-sold",
+          "description": "Recent buyers and sellers summary",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Recent buyers and sellers summary",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fwho-bought-sold"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/dex-trades",
+          "description": "All DEX trades of a token",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "All DEX trades of a token",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fdex-trades"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/transfers",
+          "description": "Top token transfers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Top token transfers",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Ftransfers"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/holders",
+          "description": "Top holders by entity category",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Top holders by entity category",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fholders"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/pnl-leaderboard",
+          "description": "Top addresses by realized and unrealized PnL",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Top addresses by realized and unrealized PnL",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fpnl-leaderboard"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/perp-pnl-leaderboard",
+          "description": "Perp PnL leaderboard for a token",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Perp PnL leaderboard for a token",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fperp-pnl-leaderboard"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/perp-positions",
+          "description": "Open perp positions for a token",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Open perp positions for a token",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fperp-positions"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/perp-trades",
+          "description": "Perp trading history for a token",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Perp trading history for a token",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fperp-trades"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/flow-intelligence",
+          "description": "Token flow summary across smart money and exchanges",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Token flow summary across smart money and exchanges",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fflow-intelligence"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/position-intelligence",
+          "description": "Token position intelligence",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Token position intelligence",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fposition-intelligence"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/token-information",
+          "description": "Token metadata: market cap, volume, holders",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Token metadata: market cap, volume, holders",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Ftoken-information"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/indicators",
+          "description": "Risk and reward indicators for a token",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Risk and reward indicators for a token",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Findicators"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/token-ohlcv",
+          "description": "Token OHLCV price data",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Token OHLCV price data",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Ftoken-ohlcv"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tgm/jup-dca",
+          "description": "Jupiter DCA orders for a token on Solana",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Jupiter DCA orders for a token on Solana",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftgm%2Fjup-dca"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/token-screener",
+          "description": "Real-time token analytics across chains",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Real-time token analytics across chains",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Ftoken-screener"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/perp-screener",
+          "description": "Screen Hyperliquid tokens by volume",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Screen Hyperliquid tokens by volume",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fperp-screener"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/portfolio/defi-holdings",
+          "description": "Track DeFi positions across addresses",
+          "payment": null,
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fportfolio%2Fdefi-holdings"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/search/entity-name",
+          "description": "Search for entity names",
+          "payment": null,
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fsearch%2Fentity-name"
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/search/token-sectors",
+          "description": "List token sectors",
+          "payment": null,
+          "docs": "https://docs.nansen.ai/api?topic=GET%20%2Fapi%2Fv1%2Fsearch%2Ftoken-sectors"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/search/general",
+          "description": "General search",
+          "payment": null,
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fsearch%2Fgeneral"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/perp-leaderboard",
+          "description": "Most profitable Hyperliquid addresses",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Most profitable Hyperliquid addresses",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fperp-leaderboard"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/ohlcv",
+          "description": "Prediction market OHLCV data",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Prediction market OHLCV data",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Fohlcv"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/orderbook",
+          "description": "Prediction market orderbook",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Prediction market orderbook",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Forderbook"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/top-holders",
+          "description": "Top holders in prediction market",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Top holders in prediction market",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Ftop-holders"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/trades-by-market",
+          "description": "Trades by prediction market",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Trades by prediction market",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Ftrades-by-market"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/market-screener",
+          "description": "Screen prediction markets",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Screen prediction markets",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Fmarket-screener"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/event-screener",
+          "description": "Screen prediction market events",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Screen prediction market events",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Fevent-screener"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/pnl-by-market",
+          "description": "PnL by prediction market",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "PnL by prediction market",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Fpnl-by-market"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/pnl-by-address",
+          "description": "PnL by address in prediction markets",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "PnL by address in prediction markets",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Fpnl-by-address"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/position-detail",
+          "description": "Prediction market position details",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Prediction market position details",
+            "amount": "50000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Fposition-detail"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/trades-by-address",
+          "description": "Trades by address in prediction markets",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Trades by address in prediction markets",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Ftrades-by-address"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/prediction-market/categories",
+          "description": "Prediction market categories",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Prediction market categories",
+            "amount": "10000"
+          },
+          "docs": "https://docs.nansen.ai/api?topic=POST%20%2Fapi%2Fv1%2Fprediction-market%2Fcategories"
+        }
+      ]
+    },
+    {
       "id": "openai",
       "name": "OpenAI",
       "url": "https://api.openai.com",
