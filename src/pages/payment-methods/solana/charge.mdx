@@ -1,0 +1,351 @@
+# Solana charge [One-time SOL and SPL token transfers]
+
+The Solana implementation of the [charge](/intents/charge) intent.
+
+The client signs and submits a Solana transaction (native SOL or SPL token transfer), the server verifies it on-chain, and returns the resource with a Receipt. Settlement completes in ~400ms.
+
+## Server
+
+Use `mppx.charge` with the Solana server method to gate any endpoint behind a one-time payment. The method handles Challenge generation, on-chain transaction verification, and Receipt creation.
+
+### Native SOL
+
+```ts [server.ts]
+import { Mppx } from "mppx/server";
+import { server as solanaServer, NATIVE_SOL_CURRENCY } from "mppx-solana";
+
+const mppx = Mppx.create({
+  methods: [
+    solanaServer({
+      cluster: "mainnet-beta",
+      currency: NATIVE_SOL_CURRENCY,
+      decimals: 9,
+      recipient: "YourWalletPublicKeyBase58",
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+});
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({
+    amount: "1000000",
+    description: "API access",
+  })(request);
+
+  if (result.status === 402) return result.challenge;
+
+  return result.withReceipt(Response.json({ data: "your paid content here" }));
+}
+```
+
+### SPL tokens (USDC)
+
+```ts [server-usdc.ts]
+import { Mppx } from "mppx/server";
+import { server as solanaServer } from "mppx-solana";
+
+const mppx = Mppx.create({
+  methods: [
+    solanaServer({
+      cluster: "mainnet-beta",
+      currency: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      decimals: 6,
+      recipient: "YourWalletPublicKeyBase58",
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+});
+```
+
+The `currency` parameter accepts the SPL mint address. Common tokens:
+
+| Token | Mint address | Decimals |
+|-------|-------------|----------|
+| SOL (native) | `solana:native` | 9 |
+| USDC | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | 6 |
+| USDT | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` | 6 |
+
+### With memo verification
+
+Attach a memo to bind payments to specific invoices or orders. The server rejects transactions that don't contain the expected memo.
+
+```ts [server-memo.ts]
+import { Mppx } from "mppx/server";
+import { server as solanaServer, NATIVE_SOL_CURRENCY } from "mppx-solana";
+
+const mppx = Mppx.create({
+  methods: [
+    solanaServer({
+      cluster: "mainnet-beta",
+      currency: NATIVE_SOL_CURRENCY,
+      decimals: 9,
+      recipient: "YourWalletPublicKeyBase58",
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+});
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({
+    amount: "1000000",
+    memo: "invoice-abc-123",
+  })(request);
+
+  if (result.status === 402) return result.challenge;
+
+  return result.withReceipt(Response.json({ data: "paid" }));
+}
+```
+
+### Framework examples
+
+::::steps
+
+#### Hono
+
+```ts [hono.ts]
+import { Hono } from "hono";
+import { Mppx } from "mppx/hono";
+import { server as solanaServer, NATIVE_SOL_CURRENCY } from "mppx-solana";
+
+const app = new Hono();
+
+const mppx = Mppx.create({
+  methods: [
+    solanaServer({
+      cluster: "mainnet-beta",
+      currency: NATIVE_SOL_CURRENCY,
+      decimals: 9,
+      recipient: "YourWalletPublicKeyBase58",
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+});
+
+app.get(
+  "/api/resource",
+  mppx.charge({ amount: "1000000", description: "API access" }),
+  async (c) => c.json({ data: "your paid content here" }),
+);
+```
+
+#### Express
+
+```ts [express.ts]
+import express from "express";
+import { Mppx } from "mppx/express";
+import { server as solanaServer, NATIVE_SOL_CURRENCY } from "mppx-solana";
+
+const app = express();
+
+const mppx = Mppx.create({
+  methods: [
+    solanaServer({
+      cluster: "mainnet-beta",
+      currency: NATIVE_SOL_CURRENCY,
+      decimals: 9,
+      recipient: "YourWalletPublicKeyBase58",
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+});
+
+app.get(
+  "/api/resource",
+  mppx.charge({ amount: "1000000", description: "API access" }),
+  async (req, res) => res.json({ data: "your paid content here" }),
+);
+```
+
+#### Next.js
+
+```ts [app/api/resource/route.ts]
+import { Mppx } from "mppx/nextjs";
+import { server as solanaServer, NATIVE_SOL_CURRENCY } from "mppx-solana";
+
+const mppx = Mppx.create({
+  methods: [
+    solanaServer({
+      cluster: "mainnet-beta",
+      currency: NATIVE_SOL_CURRENCY,
+      decimals: 9,
+      recipient: "YourWalletPublicKeyBase58",
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+});
+
+export const GET = mppx.charge({
+  amount: "1000000",
+  description: "API access",
+})(async () => Response.json({ data: "your paid content here" }));
+```
+
+::::
+
+### With fee sponsorship
+
+Enable gasless transactions so clients only need the payment token—no SOL required. The server sponsors the Solana transaction fee and the client reimburses the server in the same token.
+
+```ts [sponsored-server.ts]
+import { Connection, Keypair } from "@solana/web3.js";
+import { Mppx } from "mppx/server";
+import {
+  createSponsorHandler,
+  server as solanaServer,
+} from "mppx-solana";
+
+const sponsorKeypair = Keypair.fromSecretKey(/* server fee payer key */);
+const connection = new Connection("https://api.mainnet-beta.solana.com");
+
+const mppx = Mppx.create({
+  methods: [
+    solanaServer({
+      cluster: "mainnet-beta",
+      connection,
+      currency: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      decimals: 6,
+      recipient: "MerchantWalletPublicKeyBase58",
+      sponsor: {
+        feePayer: sponsorKeypair,
+        feeTokenAmount: "10000",
+        sponsorPath: "/sponsor",
+      },
+    }),
+  ],
+  realm: "api.example.com",
+  secretKey: process.env.MPP_SECRET_KEY!,
+});
+
+const handleSponsor = createSponsorHandler({
+  connection,
+  feePayer: sponsorKeypair,
+  feeTokenAmount: "10000",
+});
+
+Bun.serve({
+  routes: {
+    "/api/resource": {
+      GET: async (request) => {
+        const result = await mppx.charge({
+          amount: "100000",
+        })(request);
+
+        if (result.status === 402) return result.challenge;
+        return result.withReceipt(Response.json({ data: "paid content" }));
+      },
+    },
+    "/sponsor": {
+      POST: handleSponsor,
+    },
+  },
+});
+```
+
+The `sponsor` config adds `sponsored: true` and `sponsorPath` to the Challenge. The client detects this automatically and uses the sponsor endpoint—no client-side changes needed.
+
+See [fee sponsorship](/payment-methods/solana#fee-sponsorship) for the full flow diagram and cost breakdown.
+
+## Client
+
+Use the Solana client method with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, builds and signs a Solana transaction, submits it, and retries with the transaction signature as proof.
+
+```ts [client.ts]
+import { Connection, Keypair } from "@solana/web3.js";
+import { Mppx } from "mppx/client";
+import { client as solanaClient } from "mppx-solana";
+
+const mppx = Mppx.create({
+  methods: [
+    solanaClient({
+      connection: new Connection("https://api.mainnet-beta.solana.com"),
+      signer: Keypair.fromSecretKey(/* your key */),
+    }),
+  ],
+  polyfill: false,
+});
+
+const response = await mppx.fetch("https://api.example.com/resource");
+const data = await response.json();
+```
+
+### With polyfill
+
+Patch `globalThis.fetch` so every `fetch` call automatically handles Solana payments:
+
+```ts [client-polyfill.ts]
+import { Connection, Keypair } from "@solana/web3.js";
+import { Mppx } from "mppx/client";
+import { client as solanaClient } from "mppx-solana";
+
+Mppx.create({
+  methods: [
+    solanaClient({
+      connection: new Connection("https://api.mainnet-beta.solana.com"),
+      signer: Keypair.fromSecretKey(/* your key */),
+    }),
+  ],
+});
+
+const response = await fetch("https://api.example.com/resource");
+```
+
+### Custom signer
+
+Any object with `publicKey` and `signTransaction` works—use this to integrate wallet adapters:
+
+```ts [client-wallet.ts]
+import { client as solanaClient } from "mppx-solana";
+
+solanaClient({
+  connection,
+  signer: {
+    publicKey: wallet.publicKey,
+    signTransaction: (tx) => wallet.signTransaction(tx),
+  },
+});
+```
+
+### Dynamic connection
+
+Use `getConnection` when you need per-request RPC routing:
+
+```ts [client-dynamic.ts]
+import { Connection } from "@solana/web3.js";
+import { client as solanaClient } from "mppx-solana";
+
+solanaClient({
+  getConnection: (cluster) => {
+    if (cluster === "devnet")
+      return new Connection("https://api.devnet.solana.com");
+    return new Connection("https://my-rpc.example.com");
+  },
+  signer: myKeypair,
+});
+```
+
+## How it works
+
+```
+Client                          Server
+  │                               │
+  │  GET /api/resource            │
+  │ ─────────────────────────────►│
+  │                               │
+  │  402 + Challenge              │
+  │  (amount, recipient, mint)    │
+  │ ◄─────────────────────────────│
+  │                               │
+  │  Signs & sends Solana tx      │
+  │  Retries with tx signature    │
+  │ ─────────────────────────────►│
+  │                               │
+  │  Verifies tx on-chain         │
+  │  200 + Resource + Receipt     │
+  │ ◄─────────────────────────────│
+```
+
+1. Client hits a paid endpoint—server returns `402` with a Solana payment Challenge
+2. Client builds, signs, and submits a Solana transaction
+3. Client retries the request with the transaction signature as a Credential
+4. Server verifies the transaction on-chain and returns the resource with a Receipt
