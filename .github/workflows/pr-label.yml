@@ -1,0 +1,23 @@
+name: PR Auto-Label
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Label PR
+        run: npx tsx .github/actions/pr-label/label-pr.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
