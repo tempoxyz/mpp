@@ -335,3 +335,34 @@ When testing changes, you should *always* make sure the site builds and types ch
 1. `pnpm check:types` — Must pass with no errors
 2. `pnpm build` — Must complete successfully
 3. `pnpm test:e2e` — Must pass when changing the terminal demo (`src/components/Terminal.tsx`, `src/components/terminal-data.ts`, or related components)
+
+## Cursor Cloud specific instructions
+
+This is a Vocs v2 documentation site. The only service to run is the Vite dev server (`pnpm dev`, port 5173). No databases, Docker, or external services are required for local development.
+
+### Node version
+
+The project requires **Node.js >= 24** (`engines` field in `package.json`). The VM ships with Node 22 via nvm, so the update script installs Node 24 automatically. After the update script runs, `node --version` reports v24.x.
+
+### Key commands
+
+All standard commands are in `package.json` scripts and documented in the README. Quick reference:
+
+- **Dev server**: `pnpm dev` (port 5173)
+- **Lint**: `pnpm check` (auto-fix) or `pnpm check:ci` (read-only, CI mode)
+- **Types**: `pnpm check:types`
+- **Unit tests**: `pnpm test`
+- **E2E tests**: `pnpm test:e2e` (requires Playwright Chromium — install with `pnpm exec playwright install chromium`)
+- **Build**: `pnpm build`
+
+### E2E test caveats
+
+The E2E tests (`e2e/terminal.test.ts`) launch their own Vite dev server on a random port and a headless Chromium browser. Several tests have intermittent timing failures related to Vocs RSC hydration; these are pre-existing and not part of the regular CI pipeline. Only run E2E tests when modifying the terminal demo components.
+
+### Environment variables
+
+Live demos (chat, image generation, article summarization) require secrets (`FEE_PAYER_PRIVATE_KEY`, `STRIPE_SECRET_KEY`). These are **optional** — the site builds and serves correctly without them, falling back to canned responses. See `.env.example` for the full list.
+
+### Git hooks
+
+`simple-git-hooks` runs `pnpm check` (Biome lint+format with auto-fix) on pre-commit. This is set up automatically by `pnpm install` via the `prepare` script.
