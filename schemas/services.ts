@@ -4328,4 +4328,67 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Xquik ─────────────────────────────────────────────────────────────
+  {
+    id: "xquik",
+    name: "Xquik",
+    url: "https://xquik.com",
+    serviceUrl: "https://xquik.com",
+    description:
+      "Real-time X (Twitter) data — tweet lookup, user profiles, article extraction, tweet search, follower checks, media download, and trending topics.",
+    categories: ["social", "data"],
+    integration: "first-party",
+    tags: ["twitter", "x", "social-media", "tweets", "scraping"],
+    docs: {
+      homepage: "https://docs.xquik.com",
+      llmsTxt: "https://docs.xquik.com/llms.txt",
+      apiReference: "https://docs.xquik.com/api-reference/overview",
+    },
+    provider: { name: "Xquik", url: "https://xquik.com" },
+    realm: "xquik.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /api/v1/x/tweets/:id",
+        desc: "Look up a tweet with engagement metrics",
+        amount: "300",
+      },
+      {
+        route: "GET /api/v1/x/tweets/search",
+        desc: "Search tweets by query",
+        amount: "300",
+        intent: "session",
+        unitType: "tweet",
+      },
+      {
+        route: "GET /api/v1/x/users/:username",
+        desc: "Get X user profile",
+        amount: "360",
+      },
+      {
+        route: "GET /api/v1/x/followers/check",
+        desc: "Check follow relationship",
+        amount: "2000",
+      },
+      {
+        route: "GET /api/v1/x/articles/:tweetId",
+        desc: "Get X Article (long-form post)",
+        amount: "2000",
+      },
+      {
+        route: "POST /api/v1/x/media/download",
+        desc: "Download tweet media",
+        amount: "300",
+        intent: "session",
+        unitType: "media",
+      },
+      {
+        route: "GET /api/v1/trends",
+        desc: "Trending topics on X",
+        amount: "900",
+      },
+    ],
+  },
 ];
