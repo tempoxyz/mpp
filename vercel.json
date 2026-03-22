@@ -6,5 +6,11 @@
       "destination": "https://mpp.dev/:path",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/fonts/VTCDuBois-:path*",
+      "destination": "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-:path*"
+    }
   ]
 }
