@@ -205,6 +205,11 @@ export default defineConfig({
       destination: "/sdk/typescript/server/Request.toNodeListener",
     },
 
+    // Extensions aliases
+    { source: "/awesome", destination: "/extensions" },
+    { source: "/community", destination: "/extensions" },
+    { source: "/ecosystem", destination: "/extensions" },
+
     // Services aliases
     { source: "/service", destination: "/services" },
     { source: "/marketplace", destination: "/services" },
@@ -715,7 +720,10 @@ export default defineConfig({
       },
       {
         text: "Resources",
-        items: [{ text: "Brand", link: "/brand" }],
+        items: [
+          { text: "Extensions", link: "/extensions" },
+          { text: "Brand", link: "/brand" },
+        ],
       },
     ],
   },
