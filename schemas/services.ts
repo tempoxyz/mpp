@@ -5619,11 +5619,17 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payment: LIGHTNING_PAYMENT,
     endpoints: [
-      { route: "GET /services", desc: "List services (free tier: 10/day per IP)" },
+      {
+        route: "GET /services",
+        desc: "List services (free tier: 10/day per IP)",
+      },
       { route: "GET /search", desc: "Search services by keyword" },
       { route: "GET /categories", desc: "List all categories" },
       { route: "GET /services/:slug", desc: "Get service details" },
-      { route: "GET /services/:slug/ratings", desc: "List ratings for a service" },
+      {
+        route: "GET /services/:slug/ratings",
+        desc: "List ratings for a service",
+      },
       {
         route: "GET /services/bulk",
         desc: "Bulk export all services",
