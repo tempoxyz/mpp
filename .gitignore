@@ -13,3 +13,8 @@ src/snippets/cli-help.txt
 .vercel
 .DS_Store
 .env.local
+
+# Generated from schemas/services.ts — run `pnpm generate:discovery` to rebuild
+schemas/discovery.json
+schemas/discovery.example.json
+public/services/llms.txt

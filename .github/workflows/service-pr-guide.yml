@@ -25,8 +25,6 @@ jobs:
               '### Required',
               '- [ ] Your service is **live and accepting payments** via MPP (not a placeholder or coming-soon)',
               '- [ ] You\'ve added your entry to `schemas/services.ts` following the [contributing guide](https://github.com/tempoxyz/mpp?tab=readme-ov-file#contributing-to-the-service-directory)',
-              '- [ ] You\'ve run `node scripts/generate-discovery.ts` and committed the updated `schemas/discovery.json`',
-              '- [ ] You\'ve run `node scripts/gen-icons.cjs` and committed any new icons',
               '- [ ] Types pass: `pnpm check:types`',
               '- [ ] Build succeeds: `pnpm build`',
               '',

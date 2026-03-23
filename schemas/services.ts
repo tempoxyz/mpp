@@ -2,7 +2,8 @@
  * MPP Service Registry
  *
  * Edit this file to add or modify services.
- * Run `node scripts/generate-discovery.ts` to regenerate discovery.json.
+ * Generated artifacts (discovery.json, llms.txt, icons) are built
+ * automatically during `pnpm dev` and `pnpm build`.
  */
 
 // --- Shared constants ---
