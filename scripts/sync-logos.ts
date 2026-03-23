@@ -184,7 +184,7 @@ function domainForService(svc: ServiceEntry): string | null {
 }
 
 function logoUrl(domain: string): string {
-  return `https://img.logo.dev/${domain}?token=${LOGODEV_PK}&format=png&size=256&greyscale=true&theme=dark&fallback=monogram&retina=true`;
+  return `https://img.logo.dev/${domain}?token=${LOGODEV_PK}&format=png&size=256&fallback=monogram&retina=true`;
 }
 
 // ---------------------------------------------------------------------------
