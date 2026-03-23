@@ -3,13 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
-import {
-  fetchIconManifest,
-  fetchServices,
-  type IconManifest,
-  iconUrl,
-  useIsDark,
-} from "../data/registry";
+import { fetchServices, iconUrl } from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
 
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -798,12 +792,7 @@ function orderServices(services: Service[]): Service[] {
 // ---------------------------------------------------------------------------
 
 export function ServicesPage() {
-  const isDark = useIsDark();
   const [services, setServices] = useState<Service[]>([]);
-  const [iconManifest, setIconManifest] = useState<IconManifest>({
-    transparent: new Set(),
-    lightBg: new Set(),
-  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -837,9 +826,6 @@ export function ServicesPage() {
         setError(err instanceof Error ? err.message : String(err));
         setLoading(false);
       });
-    fetchIconManifest()
-      .then(setIconManifest)
-      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -1803,8 +1789,6 @@ export function ServicesPage() {
                               <ServiceRow
                                 key={s.id}
                                 service={s}
-                                iconManifest={iconManifest}
-                                isDark={isDark}
                                 expanded={expandedIds.has(s.id)}
                                 onToggle={() => toggleRow(s.id)}
                               />
@@ -2982,17 +2966,8 @@ function FallbackIcon({ name }: { name: string }) {
   );
 }
 
-function ServiceIcon({
-  service: s,
-  iconManifest,
-  isDark,
-}: {
-  service: Service;
-  iconManifest: IconManifest;
-  isDark: boolean;
-}) {
+function ServiceIcon({ service: s }: { service: Service }) {
   const isFirstParty = s.integration !== "third-party";
-  const needsInvert = isDark === iconManifest.lightBg.has(s.id);
   const [imgError, setImgError] = useState(false);
   return (
     <div
@@ -3011,12 +2986,7 @@ function ServiceIcon({
           alt=""
           width={28}
           height={28}
-          style={{
-            borderRadius: 6,
-            display: "block",
-            objectFit: "contain",
-            ...(needsInvert ? { filter: "invert(1)" } : {}),
-          }}
+          className="svc-icon-img"
           onError={() => setImgError(true)}
         />
       ) : (
@@ -3046,14 +3016,10 @@ function ServiceIcon({
 
 function ServiceRow({
   service: s,
-  iconManifest,
-  isDark,
   expanded,
   onToggle,
 }: {
   service: Service;
-  iconManifest: IconManifest;
-  isDark: boolean;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -3098,11 +3064,7 @@ function ServiceRow({
               paddingTop: "0.15rem",
             }}
           >
-            <ServiceIcon
-              service={s}
-              iconManifest={iconManifest}
-              isDark={isDark}
-            />
+            <ServiceIcon service={s} />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="svc-name-row">
                 <span
@@ -3835,6 +3797,10 @@ function PageStyles() {
         [data-services-table] table td:first-child { padding: 0.75rem 0.5rem 0.75rem 1rem !important; vertical-align: top !important; }
         [data-services-table] table td:last-child { padding: 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
         .svc-icon { align-self: flex-start !important; margin-top: 0 !important; }
+      .svc-icon-img {
+        width: 28px; height: 28px; border-radius: 6px;
+        display: block; object-fit: contain;
+      }
         .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; flex-wrap: nowrap !important; }
         .svc-name-text { white-space: nowrap !important; }
         .svc-badge-inline { display: inline !important; flex-shrink: 0 !important; }

@@ -89,6 +89,12 @@
  * in Head.tsx. No manual overrides needed.
  */
 
+/* Service icons: dark bg baked in; invert for dark mode */
+.discovery-card-icon-img,
+.svc-icon-img {
+  filter: light-dark(none, invert(1));
+}
+
 /* Prevent layout shift when scrollbar appears/disappears between routes */
 html {
   scrollbar-gutter: stable;
