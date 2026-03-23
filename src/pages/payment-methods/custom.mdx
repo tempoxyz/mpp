@@ -2,23 +2,31 @@
 title: "Custom payment methods"
 ---
 
+import { Cards } from 'vocs'
+import { SpecCard } from '../../components/SpecCard'
+
 # Custom [Build your own payment method]
 
-The `mppx` SDK supports dynamic extensibility for new payment methods. You can implement custom payment methods to integrate any payment rails such as other blockchains, card processors, or proprietary systems.
+The `mppx` SDK supports dynamic extensibility for new payment methods. You can implement custom payment methods to integrate any payment rail—other blockchains, card processors, or proprietary systems.
 
-## Overview
+| Approach | Description | Best for |
+|---|---|---|
+| **[Dynamic extension](#dynamic-extension)** | Define a method inline in your app | Integrating a new payment rail |
+| **[First-party SDK](#first-party-sdk)** | Package your method as a standalone npm module | Publishing a reusable method for the ecosystem |
 
-A custom payment method requires:
+## Dynamic extension
 
-1. **Method definition:** Define the method name, intent, and schemas for request parameters and Credential payloads
-2. **Client logic:** Create Credentials when the client gets a `402` response
-3. **Server logic:** Verify Credentials and return Receipts
+A custom payment method requires three pieces:
 
-## Define a method
+1. **Method definition** — Define the method name, intent, and schemas for request parameters and Credential payloads
+2. **Client logic** — Create Credentials when the client gets a `402` response
+3. **Server logic** — Verify Credentials and return Receipts
+
+### Define a method
 
 Start by defining your payment method with `Method.from`. The definition includes the method name, intent type, and schemas for request parameters and Credential payloads.
 
-```ts twoslash
+```ts twoslash [methods.ts]
 import { Method, z } from 'mppx'
 
 const lightning = Method.from({
@@ -41,11 +49,11 @@ const lightning = Method.from({
 })
 ```
 
-## Client implementation
+### Client implementation
 
 Extend the method with Credential creation logic using `Method.toClient`. The `createCredential` function runs when the client gets a `402` response:
 
-```ts twoslash
+```ts twoslash [methods.client.ts]
 import { Credential, Method, z } from 'mppx'
 
 const lightning = Method.from({
@@ -83,11 +91,11 @@ const clientMethod = Method.toClient(lightning, {
 })
 ```
 
-## Server implementation
+### Server implementation
 
 Extend the method with verification logic using `Method.toServer`. For Lightning Network, verify that the preimage hashes to the payment hash:
 
-```ts twoslash
+```ts twoslash [methods.server.ts]
 import { Method, Receipt, z } from 'mppx'
 
 const lightning = Method.from({
@@ -119,7 +127,9 @@ const serverMethod = Method.toServer(lightning, {
     const expectedHash = credential.challenge.request.paymentHash
 
     const actualHash = bytesToHex(sha256(hexToBytes(preimage)))
-    const isValid = actualHash === expectedHash
+    if (actualHash !== expectedHash) {
+      throw new Error('Preimage does not match payment hash')
+    }
 
     return Receipt.from({
       method: 'lightning',
@@ -131,13 +141,13 @@ const serverMethod = Method.toServer(lightning, {
 })
 ```
 
-## Use in your app
+### Use in your app
 
-### Client
+#### Client
 
 Pass the client method to `Mppx.create`:
 
-```ts twoslash
+```ts twoslash [client.ts]
 import { Credential, Method, z } from 'mppx'
 import { Mppx } from 'mppx/client'
 
@@ -183,11 +193,11 @@ const { fetch } = Mppx.create({
 const response = await fetch('https://api.example.com/premium')
 ```
 
-### Server
+#### Server
 
 Pass the server method to `Mppx.create`:
 
-```ts twoslash
+```ts twoslash [server.ts]
 import { Method, Receipt, z } from 'mppx'
 import { Mppx } from 'mppx/server'
 
@@ -220,7 +230,9 @@ const serverMethod = Method.toServer(lightning, {
     const expectedHash = credential.challenge.request.paymentHash
 
     const actualHash = bytesToHex(sha256(hexToBytes(preimage)))
-    const isValid = actualHash === expectedHash
+    if (actualHash !== expectedHash) {
+      throw new Error('Preimage does not match payment hash')
+    }
 
     return Receipt.from({
       method: 'lightning',
@@ -236,8 +248,274 @@ const mppx = Mppx.create({
 })
 ```
 
+### Advanced options
+
+#### Pre-fill defaults
+
+Use `defaults` to pre-fill request parameters so callers don't repeat them. Fields in `defaults` become optional at the call site.
+
+```ts [methods.server.ts]
+const serverMethod = Method.toServer(lightning, {
+  defaults: {
+    currency: 'BTC',
+    recipient: 'lnbc1...',
+  },
+  async verify({ credential }) {
+    // ...
+  },
+})
+```
+
+#### Transform with `z.pipe`
+
+Use `z.pipe` to accept human-readable input and emit a normalized wire format. The built-in `tempo` method uses this to convert dollar amounts to atomic units.
+
+```ts twoslash [methods.ts]
+import { Method, z } from 'mppx'
+import { parseUnits } from 'viem'
+
+export const charge = Method.from({
+  intent: 'charge',
+  name: 'acme-pay',
+  schema: {
+    credential: {
+      payload: z.object({ receiptId: z.string() }),
+    },
+    request: z.pipe(
+      z.object({
+        amount: z.string(),
+        currency: z.string(),
+        decimals: z.number(),
+        recipient: z.string(),
+      }),
+      z.transform(({ amount, decimals, ...rest }) => ({
+        ...rest,
+        amount: parseUnits(amount, decimals).toString(),
+      })),
+    ),
+  },
+})
+```
+
+Callers pass `{ amount: '1.50', decimals: 6 }`, the Challenge contains `{ amount: '1500000' }`. Use `parseUnits` from viem for decimal-safe conversion—never use `Number()` for monetary amounts.
+
+#### Client context
+
+Declare a `context` schema to accept per-call parameters. The context is validated at runtime before `createCredential` runs.
+
+```ts [methods.client.ts]
+const clientMethod = Method.toClient(lightning, {
+  context: z.object({ maxFeeSats: z.number() }),
+  async createCredential({ challenge, context }) {
+    // context.maxFeeSats is type-safe and validated
+  },
+})
+```
+
+#### Request hook
+
+Use the `request` hook to enrich parameters before the Challenge is issued:
+
+```ts [methods.server.ts]
+const serverMethod = Method.toServer(lightning, {
+  async request({ request }) {
+    const invoice = await createInvoice(request.amount)
+    return { ...request, invoice, paymentHash: invoice.hash }
+  },
+  async verify({ credential }) {
+    // ...
+  },
+})
+```
+
+#### Respond hook
+
+Use `respond` to return a Response directly after verification, skipping the route handler. Return `undefined` to let the handler run normally.
+
+```ts [methods.server.ts]
+const serverMethod = Method.toServer(lightning, {
+  async verify({ credential }) { /* ... */ },
+  respond({ input }) {
+    if (input.method === 'POST' && input.headers.get('content-length') === '0') {
+      return new Response(null, { status: 204 })
+    }
+    return undefined
+  },
+})
+```
+
+## Gotchas
+
+- **Always reject invalid proofs.** Throw an error from `verify` when verification fails. Never return a success Receipt without checking the proof.
+- **Use decimal-safe math for amounts.** Use `parseUnits`/`formatUnits` from viem instead of `Number()` or floating-point arithmetic.
+- **Verify against the original Challenge.** Always check the Credential's proof against the request fields from the Challenge (amount, currency, recipient). Don't trust the payload alone.
+- **Keep secrets server-side.** The Challenge is sent to the client. Don't put API keys, private keys, or other secrets in request fields.
+- **Use `methodDetails` for method-specific fields.** Nest non-standard request fields under a `methodDetails` object to avoid collisions with the base schema.
+- **Make invoice/order creation idempotent.** The `request` hook runs on both the initial `402` and the Credential submission. Don't generate a new invoice if one already exists for the Challenge.
+- **Clean up resources.** If your client method opens WebSocket connections, SDK instances, or listeners, expose a `cleanup()` method so callers can tear them down.
+
+## First-party SDK
+
+When you want others to use your payment method, package it as a standalone npm module. Users install it and import your method the same way they use `tempo` or `stripe`—a single import gives them both `Mppx` and your method factory.
+
+### Package structure
+
+Organize your SDK with three export paths: root (shared schemas), `./client`, and `./server`. Start with a single intent (`charge`) and add more later.
+
+```
+my-method-sdk/
+├── src/
+│   ├── index.ts              # Re-export shared schemas
+│   ├── Methods.ts            # Shared Method.from() definitions
+│   ├── client/
+│   │   ├── index.ts          # ./client entry point
+│   │   └── Charge.ts         # Client charge implementation
+│   └── server/
+│       ├── index.ts          # ./server entry point
+│       └── Charge.ts         # Server charge implementation
+├── package.json
+└── tsconfig.json
+```
+
+### Exports map
+
+Define three entry points in `package.json`. Declare `mppx` as a peer dependency so the user's app shares a single instance.
+
+```json [package.json]
+{
+  "name": "@my-org/my-method-sdk",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "src"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    }
+  },
+  "peerDependencies": {
+    "mppx": ">=0.3.15"
+  }
+}
+```
+
+### Shared method definition
+
+Define your schemas once in a shared file. Both client and server import from here.
+
+```ts [src/Methods.ts]
+import { Method, z } from 'mppx'
+
+export const charge = Method.from({
+  intent: 'charge',
+  name: 'my-method',
+  schema: {
+    credential: {
+      payload: z.object({ proof: z.string() }),
+    },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      recipient: z.string(),
+    }),
+  },
+})
+```
+
+### Re-export `Mppx`
+
+Re-export `Mppx` (and `Expires`, `Store` on the server) from your entry points so users need only one import:
+
+```ts [src/server/index.ts]
+export { charge } from './Charge.js'
+export { Mppx, Expires, Store } from 'mppx/server'
+```
+
+```ts [src/client/index.ts]
+export { charge } from './Charge.js'
+export { Mppx } from 'mppx/client'
+```
+
+Users get a single-line import:
+
+```ts [server.ts]
+import { Mppx, charge } from '@my-org/my-method-sdk/server'
+
+const mppx = Mppx.create({
+  methods: [charge({ /* config */ })],
+})
+```
+
+### Advanced SDK patterns
+
+#### Method namespace
+
+When your SDK supports multiple intents, export a namespace that groups them under a single name. Calling the namespace directly defaults to `charge`.
+
+```ts [src/server/Methods.ts]
+import { charge as charge_ } from './Charge.js'
+import { session as session_ } from './Session.js'
+
+export function myMethod(parameters: myMethod.Parameters) {
+  return myMethod.charge(parameters)
+}
+
+export namespace myMethod {
+  export type Parameters = charge_.Parameters
+  export const charge = charge_
+  export const session = session_
+}
+```
+
+```ts [server.ts]
+import { myMethod } from '@my-org/my-method-sdk/server'
+
+myMethod(opts)             // defaults to charge
+myMethod.charge(opts)      // explicit charge
+myMethod.session(opts)     // explicit session
+```
+
+#### Augment the returned method
+
+Use `Object.assign` to attach lifecycle methods (like `cleanup` or `close`) to the method object returned by `Method.toClient` or `Method.toServer`:
+
+```ts [src/client/Charge.ts]
+import { Credential, Method } from 'mppx'
+import * as Methods from '../Methods.js'
+
+export function charge(parameters: charge.Parameters) {
+  let connection: WebSocket | null = null
+
+  const method = Method.toClient(Methods.charge, {
+    async createCredential({ challenge }) {
+      // ... pay and return credential
+    },
+  })
+
+  async function cleanup() {
+    connection?.close()
+  }
+
+  return Object.assign(method, { cleanup })
+}
+```
+
+### Reference implementations
+
+| SDK | Payment rail | Intents | Source |
+|---|---|---|---|
+| [`@buildonspark/lightning-mpp-sdk`](https://github.com/buildonspark/lightning-mpp-sdk) | Lightning Network | charge, session | [GitHub](https://github.com/buildonspark/lightning-mpp-sdk) |
+
 ## SDK references
 
-- [`Method.from`](/sdk/typescript/Method.from)—Define a payment method with schemas
-- [`Method.toClient`](/sdk/typescript/core/Method.toClient)—Extend a method with client-side Credential creation logic
-- [`Method.toServer`](/sdk/typescript/core/Method.toServer)—Extend a method with server-side verification logic
+- [`Method.from`](/sdk/typescript/Method.from) — Define a payment method with schemas
+- [`Method.toClient`](/sdk/typescript/core/Method.toClient) — Extend a method with client-side Credential creation logic
+- [`Method.toServer`](/sdk/typescript/core/Method.toServer) — Extend a method with server-side verification logic
