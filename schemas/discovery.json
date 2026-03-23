@@ -8888,6 +8888,106 @@
       ]
     },
     {
+      "id": "mdshare",
+      "name": "MDShare",
+      "url": "https://share.yekyos.com",
+      "serviceUrl": "https://share.yekyos.com",
+      "description": "Temporary Markdown sharing with public, edit, manage, and paid MPP creation endpoints.",
+      "categories": [
+        "storage",
+        "web"
+      ],
+      "integration": "third-party",
+      "tags": [
+        "markdown",
+        "sharing",
+        "temporary-links",
+        "password-protection",
+        "burn-after-read",
+        "edit-links",
+        "manage-links",
+        "anonymous-collaboration"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://share.yekyos.com/discover/mdshare.md",
+        "llmsTxt": "https://share.yekyos.com/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c0000000000000000000000000000000000000"
+          ]
+        }
+      },
+      "realm": "share.yekyos.com",
+      "provider": {
+        "name": "MDShare",
+        "url": "https://share.yekyos.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/mpp/shares",
+          "description": "Create a Markdown share with MPP payment",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c0000000000000000000000000000000000000",
+            "decimals": 6,
+            "description": "Create a Markdown share with MPP payment",
+            "amount": "10000",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/shares",
+          "description": "Create a Markdown share without payment",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/shares/:slug/public",
+          "description": "Inspect public share availability and gating state",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/shares/:slug/public",
+          "description": "Unlock a password-protected or burn-confirmed public share",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/api/shares/:slug/manage",
+          "description": "Open the owner or editor management state for a share",
+          "payment": null
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/shares/:slug/manage",
+          "description": "Update Markdown content via owner or editor token",
+          "payment": null
+        },
+        {
+          "method": "PATCH",
+          "path": "/api/shares/:slug/settings",
+          "description": "Update share settings via owner token",
+          "payment": null
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/shares/:slug/manage",
+          "description": "Delete a share via owner token",
+          "payment": null
+        }
+      ]
+    },
+    {
       "id": "judge0",
       "name": "Judge0",
       "url": "https://judge0.mpp.paywithlocus.com",
