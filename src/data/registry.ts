@@ -5,6 +5,8 @@
 // To point at an external API instead, change API_URL to the full URL.
 // ---------------------------------------------------------------------------
 
+import { useEffect, useState } from "react";
+
 const API_URL = "/api/services";
 const CACHE_TTL_MS = 60_000;
 
@@ -107,6 +109,88 @@ function writeSessionCache(data: Service[]) {
     );
   } catch {}
 }
+
+// ---------------------------------------------------------------------------
+// Logo helpers
+// ---------------------------------------------------------------------------
+
+export function iconUrl(serviceId: string): string {
+  return `/api/icon?id=${encodeURIComponent(serviceId)}`;
+}
+
+export function useIsDark(): boolean {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const scheme = document.documentElement.style.colorScheme;
+      setDark(
+        scheme === "dark" ||
+          (!scheme &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches),
+      );
+    };
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", check);
+    return () => {
+      observer.disconnect();
+      mq.removeEventListener("change", check);
+    };
+  }, []);
+  return dark;
+}
+
+// ---------------------------------------------------------------------------
+// Icon manifest (transparency + background data from sync-logos)
+// ---------------------------------------------------------------------------
+
+export interface IconManifest {
+  transparent: Set<string>;
+  lightBg: Set<string>;
+}
+
+const EMPTY_MANIFEST: IconManifest = {
+  transparent: new Set(),
+  lightBg: new Set(),
+};
+
+let manifestCache: { data: IconManifest; ts: number } | null = null;
+let manifestInflight: Promise<IconManifest> | null = null;
+
+export async function fetchIconManifest(): Promise<IconManifest> {
+  if (manifestCache && Date.now() - manifestCache.ts < CACHE_TTL_MS) {
+    return manifestCache.data;
+  }
+
+  if (manifestInflight) return manifestInflight;
+
+  manifestInflight = fetch("/api/icon-manifest")
+    .then((res) => (res.ok ? res.json() : { transparent: [], lightBg: [] }))
+    .then((json: { transparent: string[]; lightBg?: string[] }) => {
+      const manifest: IconManifest = {
+        transparent: new Set(json.transparent),
+        lightBg: new Set(json.lightBg ?? []),
+      };
+      manifestCache = { data: manifest, ts: Date.now() };
+      manifestInflight = null;
+      return manifest;
+    })
+    .catch(() => {
+      manifestInflight = null;
+      return EMPTY_MANIFEST;
+    });
+
+  return manifestInflight;
+}
+
+// ---------------------------------------------------------------------------
+// Fetch
+// ---------------------------------------------------------------------------
 
 export async function fetchServices(): Promise<Service[]> {
   if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {

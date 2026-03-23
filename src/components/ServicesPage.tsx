@@ -3,7 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { fetchServices } from "../data/registry";
+import {
+  fetchIconManifest,
+  fetchServices,
+  type IconManifest,
+  iconUrl,
+  useIsDark,
+} from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
 
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -792,7 +798,12 @@ function orderServices(services: Service[]): Service[] {
 // ---------------------------------------------------------------------------
 
 export function ServicesPage() {
+  const isDark = useIsDark();
   const [services, setServices] = useState<Service[]>([]);
+  const [iconManifest, setIconManifest] = useState<IconManifest>({
+    transparent: new Set(),
+    lightBg: new Set(),
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
@@ -826,12 +837,21 @@ export function ServicesPage() {
         setError(err instanceof Error ? err.message : String(err));
         setLoading(false);
       });
+    fetchIconManifest()
+      .then(setIconManifest)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     const id = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(id);
   }, [search]);
+
+  // Reset expanded row when search or category changes so rows don't stay grayed out
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional reset on category change
+  useEffect(() => {
+    setExpandedIds(new Set());
+  }, [debouncedSearch, selectedCategory]);
 
   const stickyObserverReady = !loading && !error;
   useEffect(() => {
@@ -1789,6 +1809,8 @@ export function ServicesPage() {
                               <ServiceRow
                                 key={s.id}
                                 service={s}
+                                iconManifest={iconManifest}
+                                isDark={isDark}
                                 expanded={expandedIds.has(s.id)}
                                 onToggle={() => toggleRow(s.id)}
                               />
@@ -2966,8 +2988,17 @@ function FallbackIcon({ name }: { name: string }) {
   );
 }
 
-function ServiceIcon({ service: s }: { service: Service }) {
+function ServiceIcon({
+  service: s,
+  iconManifest,
+  isDark,
+}: {
+  service: Service;
+  iconManifest: IconManifest;
+  isDark: boolean;
+}) {
   const isFirstParty = s.integration !== "third-party";
+  const needsInvert = isDark === iconManifest.lightBg.has(s.id);
   const [imgError, setImgError] = useState(false);
   return (
     <div
@@ -2982,7 +3013,7 @@ function ServiceIcon({ service: s }: { service: Service }) {
     >
       {s.id && !imgError ? (
         <img
-          src={`/icons/${encodeURIComponent(s.id)}.svg`}
+          src={iconUrl(s.id)}
           alt=""
           width={28}
           height={28}
@@ -2990,12 +3021,7 @@ function ServiceIcon({ service: s }: { service: Service }) {
             borderRadius: 6,
             display: "block",
             objectFit: "contain",
-            filter: "invert(var(--icon-invert, 0))",
-            ...(s.id === "twitter"
-              ? { width: 20, height: 20, padding: 0, margin: 4 }
-              : s.id === "digitalocean"
-                ? { padding: 5 }
-                : {}),
+            ...(needsInvert ? { filter: "invert(1)" } : {}),
           }}
           onError={() => setImgError(true)}
         />
@@ -3026,10 +3052,14 @@ function ServiceIcon({ service: s }: { service: Service }) {
 
 function ServiceRow({
   service: s,
+  iconManifest,
+  isDark,
   expanded,
   onToggle,
 }: {
   service: Service;
+  iconManifest: IconManifest;
+  isDark: boolean;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -3074,7 +3104,11 @@ function ServiceRow({
               paddingTop: "0.15rem",
             }}
           >
-            <ServiceIcon service={s} />
+            <ServiceIcon
+              service={s}
+              iconManifest={iconManifest}
+              isDark={isDark}
+            />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="svc-name-row">
                 <span

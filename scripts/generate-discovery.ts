@@ -5,8 +5,8 @@
  * Usage: node scripts/generate-discovery.ts
  */
 
-import { writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import {
   type EndpointDef,
   HTTP_METHODS,
@@ -289,6 +289,7 @@ function generate(): void {
   writeJson(OUTPUT_EXAMPLE, { version: 1, services: exampleServices });
 
   // llms.txt (served statically, overrides Vocs auto-generated version)
+  mkdirSync(dirname(OUTPUT_LLMS_TXT), { recursive: true });
   writeFileSync(OUTPUT_LLMS_TXT, buildLlmsTxt(allBuilt));
   console.log(`Generated ${OUTPUT_LLMS_TXT} (${services.length} services)`);
 

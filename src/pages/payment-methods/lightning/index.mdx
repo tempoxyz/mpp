@@ -2,7 +2,7 @@
 
 The Lightning payment method enables payments using Bitcoin over the [Lightning Network](https://lightning.network) within the MPP framework. Lightning supports two intents—**charge** for one-time payments and **session** for prepaid metered access—covering everything from single API calls to high-frequency streaming billing.
 
-The implementation is provided by [`@buildonspark/lightning-mpp-sdk`](https://github.com/buildonspark/lightning-mpp-sdk), which extends the [`mppx`](https://github.com/tempoxyz/mpp) SDK with Lightning Network support alongside built-in methods like [Stripe](/payment-methods/stripe/) and [Tempo](/payment-methods/tempo/). The reference implementation uses [Spark](https://spark.money) for wallet and node operations, but the protocol works with any Lightning node or wallet that can create BOLT11 invoices and verify preimages.
+The implementation is provided by [`@buildonspark/lightning-mpp-sdk`](https://github.com/buildonspark/lightning-mpp-sdk), which extends the [`mppx`](https://github.com/tempoxyz/mpp) SDK with Lightning Network support alongside built-in methods like [Stripe](/payment-methods/stripe) and [Tempo](/payment-methods/tempo). The reference implementation uses [Spark](https://spark.money) for wallet and node operations, but the protocol works with any Lightning node or wallet that can create BOLT11 invoices and verify preimages.
 
 ## Installation
 

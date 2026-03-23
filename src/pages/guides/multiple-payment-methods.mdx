@@ -1,3 +1,7 @@
+---
+description: "Accept Tempo stablecoins, Stripe cards, and Lightning Bitcoin on a single API endpoint. Serve a multi-method 402 Challenge and let clients choose."
+---
+
 import { Cards } from 'vocs'
 import { OneTimePaymentsCard, PayAsYouGoCard, PaymentMethodsCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
@@ -64,8 +68,10 @@ import { spark } from '@buildonspark/lightning-mpp-sdk/server'
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
@@ -86,6 +92,7 @@ const mppx = Mppx.create({
 The route handler is identical to a single-method setup. `mppx.charge` advertises all registered methods in the Challenge and verifies whichever Credential the client presents.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import Stripe from 'stripe'
 import { Mppx, tempo, stripe } from 'mppx/server'
 import { spark } from '@buildonspark/lightning-mpp-sdk/server'
@@ -93,8 +100,10 @@ import { spark } from '@buildonspark/lightning-mpp-sdk/server'
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
@@ -148,6 +157,7 @@ The `Mppx.create` configuration is the same across frameworks—only the route h
 ### Hono
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Hono } from 'hono'
 import Stripe from 'stripe'
 import { Mppx, tempo, stripe } from 'mppx/hono'
@@ -157,8 +167,10 @@ const app = new Hono()
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
@@ -183,6 +195,7 @@ app.get(
 ### Express
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import express from 'express'
 import Stripe from 'stripe'
 import { Mppx, tempo, stripe } from 'mppx/express'
@@ -192,8 +205,10 @@ const app = express()
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
@@ -218,6 +233,7 @@ app.get(
 ### Next.js
 
 ```ts [app/api/resource/route.ts]
+import crypto from 'crypto'
 import Stripe from 'stripe'
 import { Mppx, tempo, stripe } from 'mppx/nextjs'
 import { spark } from '@buildonspark/lightning-mpp-sdk/server'
@@ -225,8 +241,10 @@ import { spark } from '@buildonspark/lightning-mpp-sdk/server'
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),

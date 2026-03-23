@@ -1,0 +1,46 @@
+name: Service PR Guide
+
+on:
+  pull_request_target:
+    types: [opened]
+    paths:
+      - "schemas/services.ts"
+
+permissions:
+  pull-requests: write
+
+jobs:
+  comment:
+    name: Post contributor guidance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '👋 Thanks for submitting a service to the MPP directory!',
+              '',
+              'Before we review, please make sure you\'ve completed these steps:',
+              '',
+              '### Required',
+              '- [ ] Your service is **live and accepting payments** via MPP (not a placeholder or coming-soon)',
+              '- [ ] You\'ve added your entry to `schemas/services.ts` following the [contributing guide](https://github.com/tempoxyz/mpp?tab=readme-ov-file#contributing-to-the-service-directory)',
+              '- [ ] Types pass: `pnpm check:types`',
+              '- [ ] Build succeeds: `pnpm build`',
+              '',
+              '### Recommended',
+              '- [ ] Register your service on [MPPScan](https://www.mppscan.com/register) — it follows the standard MPP discovery format and makes your service discoverable by agents immediately, no PR required',
+              '',
+              '### Review criteria',
+              'We prioritize services that are **high quality and novel**. We may not approve services that duplicate existing functionality or aren\'t yet production-ready.',
+              '',
+              '---',
+              '📖 [Contributing guide](https://github.com/tempoxyz/mpp?tab=readme-ov-file#contributing-to-the-service-directory) · 🔍 [MPPScan](https://www.mppscan.com/register) · 📄 [Protocol docs](https://mpp.dev/protocol/)',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });

@@ -7,6 +7,16 @@ import lockupLightRaw from "../assets/lockup-light.svg?raw";
 import logoDarkRaw from "../assets/logo-dark.svg?raw";
 import logoLightRaw from "../assets/logo-light.svg?raw";
 
+if (typeof window !== "undefined") {
+  window.addEventListener("vite:preloadError", (event) => {
+    const key = `vite:preloadError:${(event as unknown as CustomEvent).detail?.message}`;
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, "1");
+      window.location.reload();
+    }
+  });
+}
+
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
 
 const POSTHOG_SNIPPET = POSTHOG_KEY
@@ -42,9 +52,10 @@ function useGoogleAnalytics() {
     document.head.appendChild(script);
 
     window.dataLayer = window.dataLayer || [];
-    function gtag(...args: unknown[]) {
-      window.dataLayer.push(args);
-    }
+    const gtag: (...args: unknown[]) => void = function () {
+      // biome-ignore lint/complexity/noArguments: gtag.js bootstrap requires the native arguments object
+      window.dataLayer.push(arguments);
+    };
     gtag("js", new Date());
     gtag("config", id);
   }, []);

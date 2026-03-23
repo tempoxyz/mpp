@@ -11,6 +11,30 @@ import { Terminal } from "./Terminal";
 
 const ACCENT = "var(--vocs-text-color-heading)";
 
+const JSON_LD = JSON.stringify([
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "MPP",
+    alternateName: "Machine Payments Protocol",
+    url: "https://mpp.dev",
+    description:
+      "The open standard for machine-to-machine payments via HTTP 402.",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Tempo",
+    url: "https://tempo.xyz",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Stripe",
+    url: "https://stripe.com",
+  },
+]);
+
 const TERMINAL_STEPS = [
   Terminal.commands(["./mpp.sh"]),
   Terminal.wizard([
@@ -51,6 +75,11 @@ export function LandingPage() {
 
   return (
     <AgentContext.Provider value={{ activeAgent, setActiveAgent }}>
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: static JSON-LD structured data
+        dangerouslySetInnerHTML={{ __html: JSON_LD }}
+      />
       <div
         className="not-prose landing-page"
         style={{
@@ -275,6 +304,12 @@ function LandingStyles() {
         .landing-hero { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
         .landing-ctas { margin-top: 1.5rem !important; }
         .hero-right .text-base { font-size: 1.0625rem !important; line-height: 1.65 !important; }
+      }
+
+      /* ---- Narrow mobile: stack CTA buttons vertically ---- */
+      @media (max-width: 560px) {
+        .landing-ctas { flex-direction: column !important; align-items: stretch !important; }
+        .landing-ctas a { text-align: center; }
       }
 
       /* ---- Tablet ---- */
@@ -633,9 +668,11 @@ function StripeLogo() {
 function Lockup() {
   return (
     <h1 className="lockup-h1" style={{ margin: 0 }}>
+      {/* sr-only span carries the heading text; images use empty alt to avoid triple-announcement by screen readers */}
+      <span className="sr-only">MPP — Machine Payments Protocol</span>
       <img
         src="/lockup-dark.svg"
-        alt="Machine Payments Protocol"
+        alt=""
         className="lockup-img lockup-for-light"
         style={{
           height: "auto",
@@ -645,7 +682,7 @@ function Lockup() {
       />
       <img
         src="/lockup-light.svg"
-        alt="Machine Payments Protocol"
+        alt=""
         className="lockup-img lockup-for-dark"
         style={{
           height: "auto",
