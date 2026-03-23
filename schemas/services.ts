@@ -1149,7 +1149,8 @@ export const services: ServiceDef[] = [
     name: "Quicknode",
     url: "https://quicknode.com/",
     serviceUrl: "https://mpp.quicknode.com",
-    description: "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+    description:
+      "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
     icon: "https://mpp.quicknode.com/favicon.ico",
     categories: ["blockchain"],
     integration: "first-party",
