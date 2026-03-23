@@ -2310,6 +2310,77 @@
       ]
     },
     {
+      "id": "quicknode",
+      "name": "Quicknode",
+      "url": "https://quicknode.com/",
+      "serviceUrl": "https://mpp.quicknode.com",
+      "description": "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+      "categories": [
+        "rpc",
+        "json-rpc",
+      ],
+      "integration": "first-party",
+      "tags": [
+        "rpc",
+        "json-rpc",
+        "evm",
+        "solana",
+        "tempo",
+        "node"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://quicknode.com/",
+        "llmsTxt": "https://quicknode.com/llms.txt"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge",
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "quicknode.com",
+      "provider": {
+        "name": "Quicknode",
+        "url": "https://quicknode.com/"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/:network",
+          "description": "JSON-RPC calls - $0.001 per call",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "JSON-RPC method",
+            "amount": "1000"
+          },
+          "docs": "https://mpp.quicknode.com/llms.txt"
+        },
+        {
+          "method": "POST",
+          "path": "/session/:network",
+          "description": "JSON-RPC calls - $0.00001 per call",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "JSON-RPC method",
+            "amount": "10"
+          },
+          "docs": "https://mpp.quicknode.com/llms.txt"
+        }
+      ]
+    },
+    {
       "id": "storage",
       "name": "Object Storage",
       "url": "https://mpp.tempo.xyz/storage",

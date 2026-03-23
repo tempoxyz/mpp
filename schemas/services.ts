@@ -1143,6 +1143,41 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Quicknode RPC ──────────────────────────────────────────────────────
+  {
+    id: "quicknode",
+    name: "Quicknode",
+    url: "https://quicknode.com/",
+    serviceUrl: "https://mpp.quicknode.com",
+    description: "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+    icon: "https://mpp.quicknode.com/favicon.ico",
+    categories: ["blockchain"],
+    integration: "first-party",
+    tags: ["rpc", "json-rpc", "evm", "solana", "tempo", "node"],
+    docs: {
+      homepage: "https://quicknode.com/",
+      llmsTxt: "https://quicknode.com/llms.txt",
+    },
+    provider: { name: "Quicknode", url: "https://quicknode.com/" },
+    realm: "quicknode.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /:network",
+        desc: "JSON-RPC calls - $0.001 per call",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /session/:network",
+        desc: "JSON-RPC calls - $0.00001 per call",
+        amount: "10",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Object Storage ─────────────────────────────────────────────────────
   {
     id: "storage",
