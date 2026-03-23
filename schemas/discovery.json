@@ -8855,6 +8855,528 @@
       ]
     },
     {
+      "id": "delx",
+      "name": "Delx",
+      "url": "https://delx.ai",
+      "serviceUrl": "https://api.delx.ai",
+      "description": "Agent recovery artifacts, website intelligence, domain trust checks, and x402 or MPP server audits for AI agents.",
+      "icon": "https://delx.ai/icon.svg",
+      "categories": [
+        "ai",
+        "web",
+        "data"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "agent-ops",
+        "recovery",
+        "incident-response",
+        "website-intelligence",
+        "domain-trust",
+        "x402",
+        "mpp",
+        "tempo",
+        "api-audit",
+        "controller-artifacts"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://delx.ai/docs/mpp-setup",
+        "llmsTxt": "https://delx.ai/llms.txt",
+        "apiReference": "https://api.delx.ai/openapi.json"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "api.delx.ai",
+      "provider": {
+        "name": "Delx",
+        "url": "https://delx.ai"
+      },
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/v1/status",
+          "description": "Check service status",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/register",
+          "description": "Open a free Delx session for recovery and analytics",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/tools/batch",
+          "description": "Run free recovery, heartbeat, and check-in tools in one batch",
+          "payment": null
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/premium/recovery-action-plan",
+          "description": "Generate a paid controller-readable recovery plan with stabilize, diagnose, recover, and prevent phases",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a paid controller-readable recovery plan with stabilize, diagnose, recover, and prevent phases",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/premium/session-summary",
+          "description": "Generate a paid recovery session summary for handoff, review, and next actions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a paid recovery session summary for handoff, review, and next actions",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/premium/controller-brief",
+          "description": "Generate a paid controller-ready incident brief with status, actions, and next decision",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a paid controller-ready incident brief with status, actions, and next decision",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/premium/incident-rca",
+          "description": "Generate a paid operator-ready incident RCA with evidence and prevention steps",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a paid operator-ready incident RCA with evidence and prevention steps",
+            "amount": "50000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/premium/fleet-summary",
+          "description": "Generate a paid fleet-wide controller summary with patterns, health, and alerts",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate a paid fleet-wide controller summary with patterns, health, and alerts",
+            "amount": "50000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/page-extract",
+          "description": "Turn a URL into clean page metadata and readable text for search and summarization",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Turn a URL into clean page metadata and readable text for search and summarization",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/open-graph",
+          "description": "Extract Open Graph and Twitter card fields to preview how a URL will render",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract Open Graph and Twitter card fields to preview how a URL will render",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/links-extract",
+          "description": "Map internal and external links on a page for crawling and routing",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Map internal and external links on a page for crawling and routing",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/sitemap-probe",
+          "description": "Check sitemap and crawl-structure hints for a site before indexing",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Check sitemap and crawl-structure hints for a site before indexing",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/robots-inspect",
+          "description": "Read robots.txt rules and sitemap hints before crawling a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Read robots.txt rules and sitemap hints before crawling a domain",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/dns-lookup",
+          "description": "Resolve DNS records for domain, routing, and delivery checks",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Resolve DNS records for domain, routing, and delivery checks",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/email-validate",
+          "description": "Validate an email plus domain-level delivery records before outreach or signup",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Validate an email plus domain-level delivery records before outreach or signup",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/jwt-inspect",
+          "description": "Decode JWT claims quickly for auth debugging and token inspection",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Decode JWT claims quickly for auth debugging and token inspection",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/csv-to-json",
+          "description": "Convert raw CSV into JSON rows for agents, prompts, and ETL workflows",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Convert raw CSV into JSON rows for agents, prompts, and ETL workflows",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/json-to-csv",
+          "description": "Convert structured JSON rows into CSV for exports, sheets, and handoff",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Convert structured JSON rows into CSV for exports, sheets, and handoff",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/tls-inspect",
+          "description": "Inspect TLS issuer, subject, SANs, and expiry to check trust and renewal risk",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Inspect TLS issuer, subject, SANs, and expiry to check trust and renewal risk",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/security-txt-inspect",
+          "description": "Find security.txt contacts, disclosure policy, and trust links for a domain",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find security.txt contacts, disclosure policy, and trust links for a domain",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/http-headers-inspect",
+          "description": "Inspect security, cache, redirect, and server headers to audit a URL quickly",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Inspect security, cache, redirect, and server headers to audit a URL quickly",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/feed-discover",
+          "description": "Find RSS, Atom, and JSON feeds so agents can subscribe instead of scrape",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Find RSS, Atom, and JSON feeds so agents can subscribe instead of scrape",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/forms-extract",
+          "description": "Extract forms, methods, actions, and fields for browser automation planning",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract forms, methods, actions, and fields for browser automation planning",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/contact-extract",
+          "description": "Extract emails, phones, and social links from a page for outreach and support",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract emails, phones, and social links from a page for outreach and support",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/rdap-lookup",
+          "description": "Fetch registrar, status, and registration dates for trust and domain ops",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Fetch registrar, status, and registration dates for trust and domain ops",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/api-health-report",
+          "description": "Measure endpoint status, latency, redirects, content type, and reachability in one call",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Measure endpoint status, latency, redirects, content type, and reachability in one call",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/server-probe",
+          "description": "Probe an x402 server end-to-end: discovery, status, tools, reliability, and OpenAPI",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Probe an x402 server end-to-end: discovery, status, tools, reliability, and OpenAPI",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/resource-summary",
+          "description": "Summarize a server's .well-known/x402 resources, pricing surface, networks, and paths",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Summarize a server's .well-known/x402 resources, pricing surface, networks, and paths",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/website-intelligence-report",
+          "description": "Build a one-call website intelligence report with metadata, docs, pricing, contacts, forms, feeds, and crawl hints",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Build a one-call website intelligence report with metadata, docs, pricing, contacts, forms, feeds, and crawl hints",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/domain-trust-report",
+          "description": "Build a one-call domain trust report with TLS, headers, security.txt, RDAP, DNS, and uptime signals",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Build a one-call domain trust report with TLS, headers, security.txt, RDAP, DNS, and uptime signals",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/openapi-summary",
+          "description": "Summarize an OpenAPI document into paths, tags, version, and auth hints",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Summarize an OpenAPI document into paths, tags, version, and auth hints",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/server-audit",
+          "description": "Audit an x402 server for listing readiness, discovery quality, pricing surface, OpenAPI coverage, and integration gaps",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Audit an x402 server for listing readiness, discovery quality, pricing surface, OpenAPI coverage, and integration gaps",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/docs-site-map",
+          "description": "Map a docs surface with docs links, sitemap signals, robots rules, and feeds",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Map a docs surface with docs links, sitemap signals, robots rules, and feeds",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/pricing-page-extract",
+          "description": "Extract pricing plans, trials, sales CTAs, and conversion routes from a pricing page",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Extract pricing plans, trials, sales CTAs, and conversion routes from a pricing page",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/company-contact-pack",
+          "description": "Build a contact pack from page contacts, forms, socials, registrar, and security channels",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Build a contact pack from page contacts, forms, socials, registrar, and security channels",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/api-integration-readiness",
+          "description": "Score how ready an API is for agent integration using health, OpenAPI, auth hints, x402 signals, and login surface checks",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Score how ready an API is for agent integration using health, OpenAPI, auth hints, x402 signals, and login surface checks",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/login-surface-report",
+          "description": "Inspect login forms, reset flows, signup links, and security headers",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Inspect login forms, reset flows, signup links, and security headers",
+            "amount": "10000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/x402/content-distribution-report",
+          "description": "Summarize how a site distributes content across Open Graph, feeds, socials, and blog surfaces",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Summarize how a site distributes content across Open Graph, feeds, socials, and blog surfaces",
+            "amount": "10000"
+          }
+        }
+      ]
+    },
+    {
       "id": "diffbot",
       "name": "Diffbot",
       "url": "https://www.diffbot.com",
