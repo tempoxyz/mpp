@@ -4006,6 +4006,76 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── MDShare ────────────────────────────────────────────────────────────
+  {
+    id: "mdshare",
+    name: "MDShare",
+    url: "https://share.yekyos.com",
+    serviceUrl: "https://share.yekyos.com",
+    description:
+      "Temporary Markdown sharing with public, edit, manage, and paid MPP creation endpoints.",
+    categories: ["storage", "web"],
+    integration: "third-party",
+    tags: [
+      "markdown",
+      "sharing",
+      "temporary-links",
+      "password-protection",
+      "burn-after-read",
+      "edit-links",
+      "manage-links",
+      "anonymous-collaboration",
+    ],
+    docs: {
+      homepage: "https://share.yekyos.com/discover/mdshare.md",
+      llmsTxt: "https://share.yekyos.com/llms.txt",
+    },
+    provider: { name: "MDShare", url: "https://share.yekyos.com" },
+    realm: "share.yekyos.com",
+    intent: "charge",
+    payment: {
+      method: "tempo",
+      currency: "0x20c0000000000000000000000000000000000000",
+      decimals: 6,
+    },
+    endpoints: [
+      {
+        route: "POST /api/mpp/shares",
+        desc: "Create a Markdown share with MPP payment",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/shares",
+        desc: "Create a Markdown share without payment",
+      },
+      {
+        route: "GET /api/shares/:slug/public",
+        desc: "Inspect public share availability and gating state",
+      },
+      {
+        route: "POST /api/shares/:slug/public",
+        desc: "Unlock a password-protected or burn-confirmed public share",
+      },
+      {
+        route: "GET /api/shares/:slug/manage",
+        desc: "Open the owner or editor management state for a share",
+      },
+      {
+        route: "PATCH /api/shares/:slug/manage",
+        desc: "Update Markdown content via owner or editor token",
+      },
+      {
+        route: "PATCH /api/shares/:slug/settings",
+        desc: "Update share settings via owner token",
+      },
+      {
+        route: "DELETE /api/shares/:slug/manage",
+        desc: "Delete a share via owner token",
+      },
+    ],
+  },
+
   // ── Judge0 ─────────────────────────────────────────────────────────────
   {
     id: "judge0",
