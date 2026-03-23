@@ -254,14 +254,30 @@ const mppx = Mppx.create({
 
 Use `defaults` to pre-fill request parameters so callers don't repeat them. Fields in `defaults` become optional at the call site.
 
-```ts [methods.server.ts]
+```ts twoslash [methods.server.ts]
+import { Method, Receipt, z } from 'mppx'
+
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
+  schema: {
+    credential: { payload: z.object({ preimage: z.string() }) },
+    request: z.object({ amount: z.string(), currency: z.string(), invoice: z.string(), paymentHash: z.string(), recipient: z.string() }),
+  },
+})
+// ---cut---
 const serverMethod = Method.toServer(lightning, {
   defaults: {
     currency: 'BTC',
     recipient: 'lnbc1...',
   },
   async verify({ credential }) {
-    // ...
+    return Receipt.from({
+      method: 'lightning',
+      reference: credential.payload.preimage,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+    })
   },
 })
 ```
@@ -303,11 +319,25 @@ Callers pass `{ amount: '1.50', decimals: 6 }`, the Challenge contains `{ amount
 
 Declare a `context` schema to accept per-call parameters. The context is validated at runtime before `createCredential` runs.
 
-```ts [methods.client.ts]
+```ts twoslash [methods.client.ts]
+import { Credential, Method, z } from 'mppx'
+
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
+  schema: {
+    credential: { payload: z.object({ preimage: z.string() }) },
+    request: z.object({ amount: z.string(), currency: z.string(), invoice: z.string(), paymentHash: z.string(), recipient: z.string() }),
+  },
+})
+
+declare function payInvoice(invoice: string, maxFeeSats: number): Promise<{ preimage: string }>
+// ---cut---
 const clientMethod = Method.toClient(lightning, {
   context: z.object({ maxFeeSats: z.number() }),
   async createCredential({ challenge, context }) {
-    // context.maxFeeSats is type-safe and validated
+    const result = await payInvoice(challenge.request.invoice, context.maxFeeSats)
+    return Credential.serialize({ challenge, payload: { preimage: result.preimage } })
   },
 })
 ```
@@ -316,14 +346,32 @@ const clientMethod = Method.toClient(lightning, {
 
 Use the `request` hook to enrich parameters before the Challenge is issued:
 
-```ts [methods.server.ts]
+```ts twoslash [methods.server.ts]
+import { Method, Receipt, z } from 'mppx'
+
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
+  schema: {
+    credential: { payload: z.object({ preimage: z.string() }) },
+    request: z.object({ amount: z.string(), currency: z.string(), invoice: z.string(), paymentHash: z.string(), recipient: z.string() }),
+  },
+})
+
+declare function createInvoice(amount: string): Promise<{ invoice: string; hash: string }>
+// ---cut---
 const serverMethod = Method.toServer(lightning, {
   async request({ request }) {
-    const invoice = await createInvoice(request.amount)
-    return { ...request, invoice, paymentHash: invoice.hash }
+    const result = await createInvoice(request.amount)
+    return { ...request, invoice: result.invoice, paymentHash: result.hash }
   },
   async verify({ credential }) {
-    // ...
+    return Receipt.from({
+      method: 'lightning',
+      reference: credential.payload.preimage,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+    })
   },
 })
 ```
@@ -332,9 +380,27 @@ const serverMethod = Method.toServer(lightning, {
 
 Use `respond` to return a Response directly after verification, skipping the route handler. Return `undefined` to let the handler run normally.
 
-```ts [methods.server.ts]
+```ts twoslash [methods.server.ts]
+import { Method, Receipt, z } from 'mppx'
+
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
+  schema: {
+    credential: { payload: z.object({ preimage: z.string() }) },
+    request: z.object({ amount: z.string(), currency: z.string(), invoice: z.string(), paymentHash: z.string(), recipient: z.string() }),
+  },
+})
+// ---cut---
 const serverMethod = Method.toServer(lightning, {
-  async verify({ credential }) { /* ... */ },
+  async verify({ credential }) {
+    return Receipt.from({
+      method: 'lightning',
+      reference: credential.payload.preimage,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+    })
+  },
   respond({ input }) {
     if (input.method === 'POST' && input.headers.get('content-length') === '0') {
       return new Response(null, { status: 204 })
