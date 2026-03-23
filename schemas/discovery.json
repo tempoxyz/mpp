@@ -9479,6 +9479,102 @@
       ]
     },
     {
+      "id": "run402",
+      "name": "Run402",
+      "url": "https://api.run402.com",
+      "serviceUrl": "https://api.run402.com",
+      "description": "Backend-as-a-service for AI agents — provision Postgres databases, deploy functions and sites, and generate images, all paid per-request with USDC.",
+      "categories": [
+        "ai",
+        "web",
+        "data",
+        "storage"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "backend",
+        "postgres",
+        "database",
+        "hosting",
+        "functions",
+        "agent",
+        "x402"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://run402.com"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "charge"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "api.run402.com",
+      "provider": {
+        "name": "Run402",
+        "url": "https://run402.com"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/tiers/v1/prototype",
+          "description": "Subscribe to Prototype tier — 7-day Postgres database with 250MB storage and 8 edge functions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Subscribe to Prototype tier — 7-day Postgres database with 250MB storage and 8 edge functions",
+            "amount": "100000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/tiers/v1/hobby",
+          "description": "Subscribe to Hobby tier — 30-day Postgres database with 1GB storage and 25 edge functions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Subscribe to Hobby tier — 30-day Postgres database with 1GB storage and 25 edge functions",
+            "amount": "5000000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/tiers/v1/team",
+          "description": "Subscribe to Team tier — 30-day Postgres database with 10GB storage and 100 edge functions",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Subscribe to Team tier — 30-day Postgres database with 10GB storage and 100 edge functions",
+            "amount": "20000000"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/generate-image/v1",
+          "description": "Generate an image from a text prompt",
+          "payment": {
+            "intent": "charge",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Generate an image from a text prompt",
+            "amount": "30000"
+          }
+        }
+      ]
+    },
+    {
       "id": "stripe-climate",
       "name": "Stripe Climate",
       "url": "https://climate.stripe.dev",

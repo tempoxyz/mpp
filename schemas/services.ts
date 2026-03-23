@@ -4302,6 +4302,48 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Run402 ──────────────────────────────────────────────────────────────
+  {
+    id: "run402",
+    name: "Run402",
+    url: "https://api.run402.com",
+    serviceUrl: "https://api.run402.com",
+    description:
+      "Backend-as-a-service for AI agents — provision Postgres databases, deploy functions and sites, and generate images, all paid per-request with USDC.",
+    categories: ["ai", "web", "data", "storage"],
+    integration: "first-party",
+    tags: ["backend", "postgres", "database", "hosting", "functions", "agent", "x402"],
+    status: "active",
+    docs: {
+      homepage: "https://run402.com",
+    },
+    provider: { name: "Run402", url: "https://run402.com" },
+    realm: "api.run402.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /tiers/v1/prototype",
+        desc: "Subscribe to Prototype tier — 7-day Postgres database with 250MB storage and 8 edge functions",
+        amount: "100000",
+      },
+      {
+        route: "POST /tiers/v1/hobby",
+        desc: "Subscribe to Hobby tier — 30-day Postgres database with 1GB storage and 25 edge functions",
+        amount: "5000000",
+      },
+      {
+        route: "POST /tiers/v1/team",
+        desc: "Subscribe to Team tier — 30-day Postgres database with 10GB storage and 100 edge functions",
+        amount: "20000000",
+      },
+      {
+        route: "POST /generate-image/v1",
+        desc: "Generate an image from a text prompt",
+        amount: "30000",
+      },
+    ],
+  },
   // ── Stripe Climate ──────────────────────────────────────────────────────
   {
     id: "stripe-climate",
