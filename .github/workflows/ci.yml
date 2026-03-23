@@ -31,11 +31,11 @@ jobs:
       - run: node scripts/gen-icons.cjs
       - name: Check for uncommitted changes
         run: |
-          if ! git diff --exit-code schemas/discovery.json schemas/discovery.example.json public/icons/; then
+          if ! git diff --exit-code schemas/discovery.json schemas/discovery.example.json public/services/llms.txt public/icons/; then
             echo "::error::Generated files are out of date. Run 'node scripts/generate-discovery.ts && node scripts/gen-icons.cjs' and commit the result."
             exit 1
           fi
-          UNTRACKED=$(git ls-files --others --exclude-standard schemas/ public/icons/)
+          UNTRACKED=$(git ls-files --others --exclude-standard schemas/ public/services/ public/icons/)
           if [ -n "$UNTRACKED" ]; then
             echo "::error::Untracked generated files found. Commit these files:${UNTRACKED}"
             exit 1
