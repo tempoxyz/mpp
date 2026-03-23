@@ -344,16 +344,6 @@ const serverMethod = Method.toServer(lightning, {
 })
 ```
 
-## Gotchas
-
-- **Always reject invalid proofs.** Throw an error from `verify` when verification fails. Never return a success Receipt without checking the proof.
-- **Use decimal-safe math for amounts.** Use `parseUnits`/`formatUnits` from viem instead of `Number()` or floating-point arithmetic.
-- **Verify against the original Challenge.** Always check the Credential's proof against the request fields from the Challenge (amount, currency, recipient). Don't trust the payload alone.
-- **Keep secrets server-side.** The Challenge is sent to the client. Don't put API keys, private keys, or other secrets in request fields.
-- **Use `methodDetails` for method-specific fields.** Nest non-standard request fields under a `methodDetails` object to avoid collisions with the base schema.
-- **Make invoice/order creation idempotent.** The `request` hook runs on both the initial `402` and the Credential submission. Don't generate a new invoice if one already exists for the Challenge.
-- **Clean up resources.** If your client method opens WebSocket connections, SDK instances, or listeners, expose a `cleanup()` method so callers can tear them down.
-
 ## First-party SDK
 
 When you want others to use your payment method, package it as a standalone npm module. Users install it and import your method the same way they use `tempo` or `stripe`—a single import gives them both `Mppx` and your method factory.
@@ -513,6 +503,16 @@ export function charge(parameters: charge.Parameters) {
 | SDK | Payment rail | Intents | Source |
 |---|---|---|---|
 | [`@buildonspark/lightning-mpp-sdk`](https://github.com/buildonspark/lightning-mpp-sdk) | Lightning Network | charge, session | [GitHub](https://github.com/buildonspark/lightning-mpp-sdk) |
+
+## Gotchas
+
+- **Always reject invalid proofs.** Throw an error from `verify` when verification fails. Never return a success Receipt without checking the proof.
+- **Use decimal-safe math for amounts.** Use `parseUnits`/`formatUnits` from viem instead of `Number()` or floating-point arithmetic.
+- **Verify against the original Challenge.** Always check the Credential's proof against the request fields from the Challenge (amount, currency, recipient). Don't trust the payload alone.
+- **Keep secrets server-side.** The Challenge is sent to the client. Don't put API keys, private keys, or other secrets in request fields.
+- **Use `methodDetails` for method-specific fields.** Nest non-standard request fields under a `methodDetails` object to avoid collisions with the base schema.
+- **Make invoice/order creation idempotent.** The `request` hook runs on both the initial `402` and the Credential submission. Don't generate a new invoice if one already exists for the Challenge.
+- **Clean up resources.** If your client method opens WebSocket connections, SDK instances, or listeners, expose a `cleanup()` method so callers can tear them down.
 
 ## SDK references
 
