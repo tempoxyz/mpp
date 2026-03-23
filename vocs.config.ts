@@ -286,6 +286,10 @@ export default defineConfig({
             text: "Accept multiple payment methods",
             link: "/guides/multiple-payment-methods",
           },
+          {
+            text: "Token-gate routes",
+            link: "/guides/token-gating",
+          },
         ],
       },
       {

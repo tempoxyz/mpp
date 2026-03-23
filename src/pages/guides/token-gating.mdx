@@ -1,0 +1,120 @@
+# Token-gate routes [Grant free access to token holders]
+
+Give token holders free access to mppx-protected routes. Non-holders pay normally — no client-side changes required.
+
+## How it works
+
+mppx embeds the payer's identity in every credential as a DID (`credential.source`). The [`@insumermodel/mppx-token-gate`](https://github.com/douglasborthwick-crypto/mppx-token-gate) package reads that address, checks on-chain ownership via [InsumerAPI](https://insumermodel.com), and short-circuits the payment flow for holders.
+
+1. Request arrives with a payment credential
+2. Payer address is extracted from `credential.source`
+3. On-chain ownership is checked across 30 EVM chains + Solana + XRPL
+4. **Token holder** → free receipt returned
+5. **Non-holder** → normal payment proceeds
+
+Results are ECDSA P-256 signed and verifiable offline via [JWKS](https://insumermodel.com/.well-known/jwks.json).
+
+## Install
+
+:::code-group
+```bash [npm]
+npm install @insumermodel/mppx-token-gate
+```
+```bash [pnpm]
+pnpm add @insumermodel/mppx-token-gate
+```
+```bash [bun]
+bun add @insumermodel/mppx-token-gate
+```
+:::
+
+## Get an API key
+
+```bash
+curl -X POST https://api.insumermodel.com/v1/keys/create \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","appName":"my-app","tier":"free"}'
+```
+
+Set the returned key as `INSUMER_API_KEY` in your environment, or pass it directly in options.
+
+## Usage
+
+Wrap any `Method.Server` with `tokenGate` — works with tempo, stripe, or any payment method:
+
+```ts
+import { Mppx, tempo } from 'mppx/server'
+import { tokenGate } from '@insumermodel/mppx-token-gate'
+
+const tempoCharge = tempo({
+  currency: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  recipient: '0xYourAddress',
+})
+
+const gatedCharge = tokenGate(tempoCharge, {
+  conditions: [{
+    type: 'nft_ownership',
+    contractAddress: '0xYourNFT',
+    chainId: 8453, // Base
+  }],
+})
+
+const mppx = Mppx.create({ methods: [gatedCharge] })
+```
+
+## Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `apiKey` | `string` | `env.INSUMER_API_KEY` | API key |
+| `conditions` | `TokenCondition[]` | — | Token/NFT conditions to check |
+| `matchMode` | `'any' \| 'all'` | `'any'` | Whether holder must satisfy any or all conditions |
+| `cacheTtlSeconds` | `number` | `300` | In-memory ownership cache TTL |
+| `jwt` | `boolean` | `false` | Include ES256 JWT for downstream verification |
+
+### Condition types
+
+**ERC-20 balance** — holder must have at least `threshold` tokens:
+
+```ts
+{
+  type: 'token_balance',
+  contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  chainId: 1, // Ethereum
+  threshold: 100,
+  decimals: 6,
+}
+```
+
+**ERC-721 ownership** — holder must own at least one NFT from the collection:
+
+```ts
+{
+  type: 'nft_ownership',
+  contractAddress: '0xYourNFT',
+  chainId: 8453, // Base
+}
+```
+
+Conditions work on 30 EVM chains, Solana (SPL tokens), and XRPL (trust lines + NFTs).
+
+## Distinguishing free vs paid access
+
+The receipt `reference` field tells you how access was granted:
+
+```ts
+const receipt = Receipt.fromResponse(response)
+if (receipt.reference.startsWith('token-gate:free:')) {
+  const attestationId = receipt.reference.replace('token-gate:free:', '')
+  console.log(`Free access — attestation ${attestationId}`)
+} else {
+  console.log(`Paid — ${receipt.reference}`)
+}
+```
+
+## Resources
+
+- [npm package](https://www.npmjs.com/package/@insumermodel/mppx-token-gate)
+- [Source code](https://github.com/douglasborthwick-crypto/mppx-token-gate)
+- [InsumerAPI docs](https://insumermodel.com/developers/api-reference/)
+- [JWKS endpoint](https://insumermodel.com/.well-known/jwks.json)
