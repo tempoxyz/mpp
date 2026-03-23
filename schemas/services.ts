@@ -1122,7 +1122,7 @@ export const services: ServiceDef[] = [
     url: "https://lasso.sh",
     serviceUrl: "https://mpp.lasso.sh",
     description:
-      "Smart RPC routing with strategy control — fastest, load-balanced, or latency-weighted across multiple providers with automatic failover. Multi-chain EVM support.",
+      "Geo-distributed EVM JSON-RPC proxy with multi-provider routing, automatic failover, and strategy-based cost/latency control. Three strategies via URL path: /fastest, /load-balanced, /latency-weighted. Open source (AGPL-3.0).",
     categories: ["blockchain"],
     integration: "first-party",
     tags: [
@@ -1132,14 +1132,12 @@ export const services: ServiceDef[] = [
       "multichain",
       "routing",
       "failover",
-      "ethereum",
-      "base",
-      "arbitrum",
-      "tempo",
+      "geo-distributed",
     ],
     docs: {
       homepage: "https://lasso.sh",
       llmsTxt: "https://lasso.sh/llms.txt",
+      apiReference: "https://lasso.sh/SKILL.md",
     },
     provider: { name: "Lasso", url: "https://lasso.sh" },
     realm: "mpp.lasso.sh",
