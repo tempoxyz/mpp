@@ -7,7 +7,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { put } from "@vercel/blob";
-import { logoDevUrl } from "../src/lib/logodev";
+import { logoDevUrl } from "../src/lib/logodev.ts";
 
 // ---------------------------------------------------------------------------
 // Types
