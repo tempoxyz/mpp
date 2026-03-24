@@ -161,7 +161,7 @@ export function NotFoundPage() {
         className="overflow-hidden max-w-full mb-8"
         style={{
           fontFamily: "monospace",
-          lineHeight: 1.15,
+          lineHeight: 1.8,
           whiteSpace: "pre",
           letterSpacing: "1px",
           color: "var(--vocs-text-color-heading)",
@@ -169,7 +169,7 @@ export function NotFoundPage() {
         }}
       >
         <div
-          className="text-[2.5px] sm:text-[4px] md:text-[5px] lg:text-[6px]"
+          className="text-[3px] sm:text-[4px] md:text-[5px] lg:text-[6px]"
           style={{ minWidth: "fit-content" }}
         >
           {mppLines.map((mppLine, lineIdx) => {
