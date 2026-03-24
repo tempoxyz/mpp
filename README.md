@@ -45,10 +45,6 @@ pnpm run preview  # Preview production build
 
 The service directory at [mpp.dev/services](https://mpp.dev/services) is curated for live, production-ready MPP services.
 
-### Fast path (recommended)
-
-Register your service on [MPPScan](https://www.mppscan.com/register) (by Merit Systems) — it follows the standard MPP discovery format and makes your service discoverable by agents immediately, no PR required.
-
 ### Submit a pull request to this repo
 
 If you want your service included in the curated `mpp.dev/services` list, open a PR and complete this checklist:
@@ -96,21 +92,6 @@ We prioritize services that are **high quality and novel**. We may not approve s
   ],
 }
 ```
-
-2. **Regenerate the discovery file**:
-
-```bash
-node scripts/generate-discovery.ts
-```
-
-3. **Validate**:
-
-```bash
-pnpm check:types
-pnpm build
-```
-
-4. **Open a pull request** with both `schemas/services.ts` and `schemas/discovery.json` changes.
 
 ## Contributing
 
