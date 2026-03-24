@@ -11,6 +11,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.1.0
         version: 1.2.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@resvg/resvg-wasm':
+        specifier: ^2.6.2
+        version: 2.6.2
       '@stripe/stripe-js':
         specifier: ^8.9.0
         version: 8.9.0
@@ -666,6 +669,10 @@ packages:
 
   '@remix-run/node-fetch-server@0.13.0':
     resolution: {integrity: sha512-1EsNo0ZpgXu/90AWoRZf/oE3RVTUS80tiTUpt+hv5pjtAkw7icN4WskDwz/KdAw5ARbJLMhZBrO1NqThmy/McA==}
+
+  '@resvg/resvg-wasm@2.6.2':
+    resolution: {integrity: sha512-FqALmHI8D4o6lk/LRWDnhw95z5eO+eAa6ORjVg09YRR7BkcM6oPHU9uyC0gtQG5vpFLvgpeU4+zEAz2H8APHNw==}
+    engines: {node: '>= 10'}
 
   '@rolldown/pluginutils@1.0.0-beta.53':
     resolution: {integrity: sha512-vENRlFU4YbrwVqNDZ7fLvy+JR1CRkyr01jhSiDpE1u6py3OMzQfztQU2jxykW3ALNxO4kSlqIDeYyD0Y9RcQeQ==}
@@ -4316,6 +4323,8 @@ snapshots:
   '@remix-run/headers@0.19.0': {}
 
   '@remix-run/node-fetch-server@0.13.0': {}
+
+  '@resvg/resvg-wasm@2.6.2': {}
 
   '@rolldown/pluginutils@1.0.0-beta.53': {}
 

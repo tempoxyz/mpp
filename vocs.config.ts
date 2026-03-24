@@ -248,7 +248,7 @@ export default defineConfig({
   ogImageUrl: (path, { baseUrl: base } = { baseUrl: "" }) =>
     path === "/"
       ? `${base}/og.png`
-      : `${base}/api/og?title=%title&description=%description`,
+      : `${base}/api/og?title=%title&description=%description&path=${encodeURIComponent(path)}`,
   sidebar: {
     "/": [
       {
