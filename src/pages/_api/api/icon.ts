@@ -1,4 +1,5 @@
 import { list } from "@vercel/blob";
+import { logoDevUrl } from "../../../lib/logodev";
 
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 const LOGODEV_PK = process.env.LOGODEV_PUBLIC_KEY;
@@ -58,7 +59,7 @@ export async function GET(request: Request) {
     if (domain) {
       try {
         const res = await fetch(
-          `https://img.logo.dev/${domain}?token=${LOGODEV_PK}&format=png&size=256&greyscale=true&theme=dark&retina=true`,
+          logoDevUrl(domain, { token: LOGODEV_PK }),
         );
         if (res.ok) {
           return new Response(await res.arrayBuffer(), {
