@@ -11,7 +11,7 @@ function extractOgDescription(content: string): string | null {
   const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
   if (!match) return null;
   const fm = match[1];
-  const descMatch = fm.match(/^ogDescription:\s*"(.+)"\s*$/m);
+  const descMatch = fm.match(/^imageDescription:\s*"(.+)"\s*$/m);
   return descMatch ? descMatch[1] : null;
 }
 
