@@ -4050,6 +4050,226 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Delx ─────────────────────────────────────────────────────────────
+  {
+    id: "delx",
+    name: "Delx",
+    url: "https://delx.ai",
+    serviceUrl: "https://api.delx.ai",
+    description:
+      "Agent recovery artifacts, website intelligence, domain trust checks, and x402 or MPP server audits for AI agents.",
+    icon: "https://delx.ai/icon.svg",
+    categories: ["ai", "web", "data"],
+    integration: "first-party",
+    tags: [
+      "agent-ops",
+      "recovery",
+      "incident-response",
+      "website-intelligence",
+      "domain-trust",
+      "x402",
+      "mpp",
+      "tempo",
+      "api-audit",
+      "controller-artifacts",
+    ],
+    docs: {
+      homepage: "https://delx.ai/docs/mpp-setup",
+      llmsTxt: "https://delx.ai/llms.txt",
+      apiReference: "https://api.delx.ai/openapi.json",
+    },
+    provider: { name: "Delx", url: "https://delx.ai" },
+    realm: "api.delx.ai",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "GET /api/v1/status", desc: "Check service status" },
+      {
+        route: "POST /api/v1/register",
+        desc: "Open a free Delx session for recovery and analytics",
+      },
+      {
+        route: "POST /api/v1/tools/batch",
+        desc: "Run free recovery, heartbeat, and check-in tools in one batch",
+      },
+      {
+        route: "POST /api/v1/premium/recovery-action-plan",
+        desc: "Generate a paid controller-readable recovery plan with stabilize, diagnose, recover, and prevent phases",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/premium/session-summary",
+        desc: "Generate a paid recovery session summary for handoff, review, and next actions",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/premium/controller-brief",
+        desc: "Generate a paid controller-ready incident brief with status, actions, and next decision",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/premium/incident-rca",
+        desc: "Generate a paid operator-ready incident RCA with evidence and prevention steps",
+        amount: "50000",
+      },
+      {
+        route: "POST /api/v1/premium/fleet-summary",
+        desc: "Generate a paid fleet-wide controller summary with patterns, health, and alerts",
+        amount: "50000",
+      },
+      {
+        route: "POST /api/v1/x402/page-extract",
+        desc: "Turn a URL into clean page metadata and readable text for search and summarization",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/open-graph",
+        desc: "Extract Open Graph and Twitter card fields to preview how a URL will render",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/links-extract",
+        desc: "Map internal and external links on a page for crawling and routing",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/sitemap-probe",
+        desc: "Check sitemap and crawl-structure hints for a site before indexing",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/robots-inspect",
+        desc: "Read robots.txt rules and sitemap hints before crawling a domain",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/dns-lookup",
+        desc: "Resolve DNS records for domain, routing, and delivery checks",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/email-validate",
+        desc: "Validate an email plus domain-level delivery records before outreach or signup",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/jwt-inspect",
+        desc: "Decode JWT claims quickly for auth debugging and token inspection",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/csv-to-json",
+        desc: "Convert raw CSV into JSON rows for agents, prompts, and ETL workflows",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/json-to-csv",
+        desc: "Convert structured JSON rows into CSV for exports, sheets, and handoff",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/tls-inspect",
+        desc: "Inspect TLS issuer, subject, SANs, and expiry to check trust and renewal risk",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/security-txt-inspect",
+        desc: "Find security.txt contacts, disclosure policy, and trust links for a domain",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/http-headers-inspect",
+        desc: "Inspect security, cache, redirect, and server headers to audit a URL quickly",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/feed-discover",
+        desc: "Find RSS, Atom, and JSON feeds so agents can subscribe instead of scrape",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/forms-extract",
+        desc: "Extract forms, methods, actions, and fields for browser automation planning",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/contact-extract",
+        desc: "Extract emails, phones, and social links from a page for outreach and support",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/rdap-lookup",
+        desc: "Fetch registrar, status, and registration dates for trust and domain ops",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/api-health-report",
+        desc: "Measure endpoint status, latency, redirects, content type, and reachability in one call",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/server-probe",
+        desc: "Probe an x402 server end-to-end: discovery, status, tools, reliability, and OpenAPI",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/resource-summary",
+        desc: "Summarize a server's .well-known/x402 resources, pricing surface, networks, and paths",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/website-intelligence-report",
+        desc: "Build a one-call website intelligence report with metadata, docs, pricing, contacts, forms, feeds, and crawl hints",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/domain-trust-report",
+        desc: "Build a one-call domain trust report with TLS, headers, security.txt, RDAP, DNS, and uptime signals",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/openapi-summary",
+        desc: "Summarize an OpenAPI document into paths, tags, version, and auth hints",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/server-audit",
+        desc: "Audit an x402 server for listing readiness, discovery quality, pricing surface, OpenAPI coverage, and integration gaps",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/docs-site-map",
+        desc: "Map a docs surface with docs links, sitemap signals, robots rules, and feeds",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/pricing-page-extract",
+        desc: "Extract pricing plans, trials, sales CTAs, and conversion routes from a pricing page",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/company-contact-pack",
+        desc: "Build a contact pack from page contacts, forms, socials, registrar, and security channels",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/api-integration-readiness",
+        desc: "Score how ready an API is for agent integration using health, OpenAPI, auth hints, x402 signals, and login surface checks",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/login-surface-report",
+        desc: "Inspect login forms, reset flows, signup links, and security headers",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/x402/content-distribution-report",
+        desc: "Summarize how a site distributes content across Open Graph, feeds, socials, and blog surfaces",
+        amount: "10000",
+      },
+    ],
+  },
+
   // ── Diffbot ──────────────────────────────────────────────────────────
   {
     id: "diffbot",
