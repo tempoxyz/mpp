@@ -1,7 +1,7 @@
 // @ts-nocheck – server-only, uses Vite ?raw import and resvg native module
 import { initWasm, Resvg } from "@resvg/resvg-wasm";
 import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm?url";
-import ogDescriptions from "../../../../scripts/og-descriptions.json";
+import ogDescriptions from "../../../generated/og-descriptions.json";
 import templateSvg from "./og-template.svg?raw";
 
 const BLOB = "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com";

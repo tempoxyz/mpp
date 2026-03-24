@@ -14,5 +14,8 @@ src/snippets/cli-help.txt
 .DS_Store
 .env.local
 
+# Generated at build time from MDX frontmatter
+src/generated/
+
 # Licensed font files (served via Vercel Blob in production)
 public/fonts/VTCDuBois*
