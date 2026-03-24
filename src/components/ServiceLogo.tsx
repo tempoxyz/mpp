@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import type { Service } from "../data/registry";
-import { iconUrl } from "../data/registry";
+import { useEffect, useState } from "react";
+import type { IconManifest, Service } from "../data/registry";
+import { fetchIconManifest, iconUrl, useIsDark } from "../data/registry";
 
 function domainFrom(s: Service): string | undefined {
   if (!s.provider?.url) return undefined;
@@ -25,10 +25,14 @@ export function ServiceLogo({
   style?: React.CSSProperties;
 }) {
   const [imgError, setImgError] = useState(false);
+  const isDark = useIsDark();
+  const manifest = useIconManifest();
 
   if (!service.id || imgError) {
     return <ServiceLogoFallback name={service.name} size={size} />;
   }
+
+  const needsInvert = isDark === manifest.lightBg.has(service.id);
 
   return (
     <img
@@ -41,6 +45,7 @@ export function ServiceLogo({
         borderRadius: 6,
         objectFit: "contain",
         display: "block",
+        ...(needsInvert ? { filter: "invert(1)" } : {}),
         ...style,
       }}
       onError={() => setImgError(true)}
@@ -85,4 +90,17 @@ export function ServiceLogoFallback({
       {initials || "?"}
     </div>
   );
+}
+
+const EMPTY_MANIFEST: IconManifest = {
+  transparent: new Set(),
+  lightBg: new Set(),
+};
+
+function useIconManifest(): IconManifest {
+  const [manifest, setManifest] = useState<IconManifest>(EMPTY_MANIFEST);
+  useEffect(() => {
+    fetchIconManifest().then(setManifest);
+  }, []);
+  return manifest;
 }
