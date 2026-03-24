@@ -71,7 +71,10 @@ export function ServiceLogoFallback({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: initials.length > 1 ? Math.round(size * 0.36) : Math.round(size * 0.46),
+        fontSize:
+          initials.length > 1
+            ? Math.round(size * 0.36)
+            : Math.round(size * 0.46),
         fontWeight: 600,
         letterSpacing: "-0.02em",
         color: "var(--vocs-text-color-secondary)",

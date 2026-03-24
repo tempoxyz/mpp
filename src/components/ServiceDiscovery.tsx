@@ -78,7 +78,6 @@ function getExamplePayload(ep: Endpoint): string {
   return "'{}'";
 }
 
-
 // ---------------------------------------------------------------------------
 // Filter engine — scores services against a query
 // ---------------------------------------------------------------------------
