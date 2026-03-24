@@ -5581,4 +5581,81 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  
+  // ── AsiaPulse ──────────────────────────────────────────────────────────
+  {
+    id: "asiapulse",
+    name: "AsiaPulse",
+    url: "https://asiapulse.paulc7.workers.dev",
+    serviceUrl: "https://asiapulse.paulc7.workers.dev",
+    description:
+      "Asian macro financial data and Tempo on-chain analytics — kimchi premium, FX rates, central bank interest rates, Korean crypto news in English, and Tempo chain payment flow analysis.",
+    categories: ["data", "blockchain"],
+    integration: "first-party",
+    tags: ["macro", "asia", "korea", "fx", "interest-rates", "tempo-analytics", "kimchi-premium", "stablecoin"],
+    docs: {
+      homepage: "https://asiapulse.paulc7.workers.dev",
+      llmsTxt: "https://asiapulse.paulc7.workers.dev/llms.txt",
+    },
+    provider: { name: "AsiaPulse", url: "https://asiapulse.paulc7.workers.dev" },
+    realm: "asiapulse.paulc7.workers.dev",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /asia-macro/kimchi-premium",
+        desc: "Real-time BTC/ETH kimchi premium (Upbit vs Binance price gap)",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /asia-macro/fx-rates",
+        desc: "Live KRW, JPY, CNY, EUR exchange rates against USD",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        route: "GET /asia-macro/interest-rates",
+        desc: "Central bank policy rates for US, KR, JP, EU, UK, CN, CH — auto-updated daily",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /asia-macro/kr-news",
+        desc: "Korean crypto news headlines translated to English with sentiment analysis",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /tempo/chain-stats",
+        desc: "Tempo chain block height, TPS, and transaction metrics",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        route: "GET /tempo/stablecoin-flows",
+        desc: "PathUSD transfer volume, unique wallets, and flow analysis",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /tempo/top-accounts",
+        desc: "Top payment accounts by volume on Tempo",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /tempo/mpp-activity",
+        desc: "MPP payment traffic and service usage analytics",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /bundle/asia-snapshot",
+        desc: "Combined macro data + Tempo chain analytics in one call",
+        amount: "20000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
