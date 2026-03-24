@@ -1122,7 +1122,7 @@ export const services: ServiceDef[] = [
     url: "https://lasso.sh",
     serviceUrl: "https://mpp.lasso.sh",
     description:
-      "Geo-distributed EVM JSON-RPC proxy with multi-provider routing, automatic failover, and strategy-based cost/latency control. Three strategies via URL path: /fastest, /load-balanced, /latency-weighted. Open source (AGPL-3.0).",
+      "Geo-distributed EVM JSON-RPC with multi-provider routing, automatic failover, and per-request routing strategy control. Create and fund API keys via REST — no signup required. Open source (AGPL-3.0).",
     categories: ["blockchain"],
     integration: "first-party",
     tags: [
@@ -1146,33 +1146,33 @@ export const services: ServiceDef[] = [
     endpoints: [
       {
         route: "POST /fastest/:chain",
-        desc: "RPC routed to lowest-latency provider. Best for trading and time-sensitive operations.",
+        desc: "Lowest-latency RPC for trading, MEV, and time-sensitive execution.",
         amount: "200",
         unitType: "request",
       },
       {
         route: "POST /latency-weighted/:chain",
-        desc: "RPC biased toward faster providers with distribution for reliability. Default strategy.",
+        desc: "Higher-throughput RPC for indexing, production backends, and latency-aware workloads.",
         amount: "150",
         unitType: "request",
       },
       {
         route: "POST /load-balanced/:chain",
-        desc: "RPC distributed across all providers. Lowest cost.",
+        desc: "Lowest-cost general-purpose RPC — even distribution across all providers.",
         amount: "100",
         unitType: "request",
       },
       {
         route: "POST /:chain",
-        desc: "RPC with default routing (latency-weighted).",
+        desc: "Default strategy (latency-weighted).",
         amount: "150",
         unitType: "request",
       },
       {
         route: "GET /pricing",
-        desc: "Method-level pricing with strategy descriptions",
+        desc: "Per-method pricing by strategy.",
       },
-      { route: "GET /chains", desc: "Available chains with chain IDs" },
+      { route: "GET /chains", desc: "Available chains and chain IDs." },
     ],
   },
 
