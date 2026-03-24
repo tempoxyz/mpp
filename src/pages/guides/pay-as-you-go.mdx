@@ -69,10 +69,13 @@ Set up an `Mppx` instance with the `tempo` method.
 - `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [app/api/sessions/photo/route.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/nextjs'
 
 export const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -84,10 +87,13 @@ export const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [app/api/sessions/photo/route.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/nextjs'
 
 export const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -107,10 +113,13 @@ Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [app/api/sessions/photo/route.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/nextjs'
 
 export const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -163,31 +172,33 @@ Set up an `Mppx` instance with the `tempo` method.
 - `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
 ```
 
-#### Create the `/api/sessions/photo` route
-
-Create the gallery route. This route is **currently unpaid**.
-
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -207,13 +218,16 @@ Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -268,10 +282,13 @@ Set up an `Mppx` instance with the `tempo` method.
 - `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [src/index.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -283,10 +300,13 @@ const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [src/index.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -307,10 +327,13 @@ export default {
 Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [src/index.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -370,13 +393,16 @@ Set up an `Mppx` instance with the `tempo` method.
 - `currency` is the token address for payments (in this case, `pathUSD`).
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -388,13 +414,16 @@ const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -414,13 +443,16 @@ Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -483,7 +515,9 @@ Set up an `Mppx` instance with the `tempo` method.
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -495,10 +529,13 @@ const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -519,10 +556,13 @@ Bun.serve({
 Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo({
+    testnet: true,
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],

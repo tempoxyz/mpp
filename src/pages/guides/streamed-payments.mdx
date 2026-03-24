@@ -70,11 +70,14 @@ bun add mppx viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [app/api/sessions/poem/route.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from "mppx/nextjs";
 
 export const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -88,11 +91,14 @@ export const mppx = Mppx.create({
 Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [app/api/sessions/poem/route.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from "mppx/nextjs";
 
 export const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -167,14 +173,17 @@ bun add mppx hono viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Hono } from "hono";
 import { Mppx, tempo } from "mppx/hono";
 
 const app = new Hono();
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -188,14 +197,17 @@ const mppx = Mppx.create({
 Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Hono } from "hono";
 import { Mppx, tempo } from "mppx/hono";
 
 const app = new Hono();
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -272,11 +284,14 @@ bun add mppx viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [src/index.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from "mppx/server";
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -290,11 +305,14 @@ const mppx = Mppx.create({
 Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [src/index.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from "mppx/server";
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -376,14 +394,17 @@ bun add mppx express viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import express from "express";
 import { Mppx, tempo } from "mppx/express";
 
 const app = express();
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -397,14 +418,17 @@ const mppx = Mppx.create({
 Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import express from "express";
 import { Mppx, tempo } from "mppx/express";
 
 const app = express();
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -486,11 +510,14 @@ bun add mppx viem
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from "mppx/server";
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,
@@ -504,11 +531,14 @@ const mppx = Mppx.create({
 Create the route handler. `withReceipt` accepts an async generator—each yielded value becomes one SSE `event: message` and is charged one tick (`$0.001`). If the channel balance runs out mid-stream, the server emits `event: payment-need-voucher` and pauses until the client sends a new voucher.
 
 ```ts [server.ts]
+import crypto from 'crypto'
 import { Mppx, tempo } from "mppx/server";
 
 const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
+      testnet: true,
       currency: "0x20c0000000000000000000000000000000000000",
       recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       sse: true,

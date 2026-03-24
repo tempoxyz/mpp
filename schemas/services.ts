@@ -2,7 +2,8 @@
  * MPP Service Registry
  *
  * Edit this file to add or modify services.
- * Run `node scripts/generate-discovery.ts` to regenerate discovery.json.
+ * Generated artifacts (discovery.json, llms.txt, icons) are built
+ * automatically during `pnpm dev` and `pnpm build`.
  */
 
 // --- Shared constants ---
@@ -1137,6 +1138,42 @@ export const services: ServiceDef[] = [
         route: "POST /",
         desc: "JSON-RPC calls - $0.001 per call",
         amount: "1000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Quicknode RPC ──────────────────────────────────────────────────────
+  {
+    id: "quicknode",
+    name: "Quicknode",
+    url: "https://quicknode.com/",
+    serviceUrl: "https://mpp.quicknode.com",
+    description:
+      "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+    icon: "https://mpp.quicknode.com/favicon.ico",
+    categories: ["blockchain"],
+    integration: "first-party",
+    tags: ["rpc", "json-rpc", "evm", "solana", "tempo", "node"],
+    docs: {
+      homepage: "https://quicknode.com/",
+      llmsTxt: "https://quicknode.com/llms.txt",
+    },
+    provider: { name: "Quicknode", url: "https://quicknode.com/" },
+    realm: "quicknode.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /:network",
+        desc: "JSON-RPC calls - $0.001 per call",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /session/:network",
+        desc: "JSON-RPC calls - $0.00001 per call",
+        amount: "10",
         unitType: "request",
       },
     ],
@@ -3192,451 +3229,384 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Mapbox ──────────────────────────────────────────────────────────────
-  {
-    id: "mapbox",
-    name: "Mapbox",
-    url: "https://mapbox.mpp.paywithlocus.com",
-    serviceUrl: "https://mapbox.mpp.paywithlocus.com",
-    description:
-      "Geocoding, directions, isochrones, map matching, static maps, and tile queries.",
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["maps", "geocoding", "directions", "routing", "geospatial"],
-    docs: { homepage: "https://docs.mapbox.com" },
-    provider: { name: "Mapbox", url: "https://www.mapbox.com" },
-    realm: "mapbox.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /mapbox/geocode-forward",
-        desc: "Convert an address or place name to coordinates",
-        amount: "750",
-        unitType: "request",
-      },
-      {
-        route: "POST /mapbox/geocode-reverse",
-        desc: "Convert coordinates to an address or place name",
-        amount: "750",
-        unitType: "request",
-      },
-      {
-        route: "POST /mapbox/directions",
-        desc: "Get turn-by-turn directions between coordinates",
-        amount: "2000",
-        unitType: "request",
-      },
-      {
-        route: "POST /mapbox/matrix",
-        desc: "Get travel time and distance matrix between coordinates",
-        dynamic: true,
-        amountHint: "$0.002 – $0.50",
-      },
-      {
-        route: "POST /mapbox/isochrone",
-        desc: "Get reachable area polygons from a point within time or distance limits",
-        amount: "2000",
-        unitType: "request",
-      },
-      {
-        route: "POST /mapbox/map-matching",
-        desc: "Snap GPS traces to the road network",
-        amount: "2000",
-        unitType: "request",
-      },
-      {
-        route: "POST /mapbox/static-image",
-        desc: "Generate a static map image",
-        amount: "1000",
-        unitType: "request",
-      },
-      {
-        route: "POST /mapbox/tilequery",
-        desc: "Query map tile features at a location",
-        amount: "2000",
-        unitType: "request",
-      },
-    ],
-  },
+  // =========================================================================
+  // Locus — Pay-per-use API proxy (paywithlocus.com)
+  //
+  // Each provider runs on its own subdomain: {provider}.mpp.paywithlocus.com
+  // Agents pay via Tempo USDC.e, no account needed. Automatic refunds on
+  // upstream failure. Docs: https://paywithlocus.com/mpp/
+  // OpenAPI discovery: GET https://{provider}.mpp.paywithlocus.com/openapi.json
+  // =========================================================================
 
-  // ── RentCast ───────────────────────────────────────────────────────────
+  // ── Alpha Vantage ────────────────────────────────────────────────────
   {
-    id: "rentcast",
-    name: "RentCast",
-    url: "https://rentcast.mpp.paywithlocus.com",
-    serviceUrl: "https://rentcast.mpp.paywithlocus.com",
+    id: "alphavantage",
+    name: "Alpha Vantage",
+    url: "https://www.alphavantage.co",
+    serviceUrl: "https://alphavantage.mpp.paywithlocus.com",
     description:
-      "Real estate data including property records, valuations, rent estimates, sale and rental listings, and market statistics.",
+      "Financial market data — stock prices, forex, crypto, commodities, economic indicators, technical analysis, and news sentiment.",
     categories: ["data"],
     integration: "third-party",
     tags: [
-      "real-estate",
-      "property",
-      "valuation",
-      "listings",
-      "rental",
+      "finance",
+      "stocks",
+      "forex",
+      "crypto",
       "market-data",
+      "technical-analysis",
     ],
-    docs: { homepage: "https://developers.rentcast.io" },
-    provider: { name: "RentCast", url: "https://www.rentcast.io" },
-    realm: "rentcast.mpp.paywithlocus.com",
+    docs: {
+      homepage: "https://www.alphavantage.co/documentation/",
+      llmsTxt: "https://paywithlocus.com/mpp/alphavantage.md",
+    },
+    provider: { name: "Alpha Vantage", url: "https://www.alphavantage.co" },
+    realm: "alphavantage.mpp.paywithlocus.com",
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
-        route: "POST /rentcast/properties",
-        desc: "Search property records by address, city, state, zip, or coordinates",
-        amount: "30000",
+        route: "POST /alphavantage/time-series-intraday",
+        desc: "Intraday Time Series",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/property-by-id",
-        desc: "Get property details by ID",
-        amount: "30000",
+        route: "POST /alphavantage/time-series-daily",
+        desc: "Daily Time Series",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/random-properties",
-        desc: "Get random property records",
-        amount: "30000",
+        route: "POST /alphavantage/time-series-weekly",
+        desc: "Weekly Time Series",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/value-estimate",
-        desc: "Get property value estimate with comparables",
-        amount: "30000",
+        route: "POST /alphavantage/time-series-monthly",
+        desc: "Monthly Time Series",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/rent-estimate",
-        desc: "Get rental price estimate with comparables",
-        amount: "30000",
+        route: "POST /alphavantage/global-quote",
+        desc: "Global Quote",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/sale-listings",
-        desc: "Search active sale listings",
-        amount: "30000",
+        route: "POST /alphavantage/symbol-search",
+        desc: "Symbol Search",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/sale-listing-by-id",
-        desc: "Get sale listing details by ID",
-        amount: "30000",
+        route: "POST /alphavantage/market-status",
+        desc: "Market Status",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/rental-listings",
-        desc: "Search active rental listings",
-        amount: "30000",
+        route: "POST /alphavantage/top-gainers-losers",
+        desc: "Top Gainers & Losers",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/rental-listing-by-id",
-        desc: "Get rental listing details by ID",
-        amount: "30000",
+        route: "POST /alphavantage/news-sentiment",
+        desc: "News Sentiment",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /rentcast/markets",
-        desc: "Get market statistics for a zip code",
-        amount: "30000",
+        route: "POST /alphavantage/earnings-call-transcript",
+        desc: "Earnings Call Transcript",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/company-overview",
+        desc: "Company Overview",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/income-statement",
+        desc: "Income Statement",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/balance-sheet",
+        desc: "Balance Sheet",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/cash-flow",
+        desc: "Cash Flow",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/earnings",
+        desc: "Earnings",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/currency-exchange-rate",
+        desc: "Currency Exchange Rate",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/fx-daily",
+        desc: "FX Daily",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/crypto-exchange-rate",
+        desc: "Crypto Exchange Rate",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/digital-currency-daily",
+        desc: "Digital Currency Daily",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/commodity-price",
+        desc: "Commodity Price",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/economic-indicator",
+        desc: "Economic Indicator",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/sma",
+        desc: "SMA (Simple Moving Average)",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/ema",
+        desc: "EMA (Exponential Moving Average)",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/macd",
+        desc: "MACD",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/rsi",
+        desc: "RSI (Relative Strength Index)",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /alphavantage/bbands",
+        desc: "Bollinger Bands",
+        amount: "8000",
         unitType: "request",
       },
     ],
   },
 
-  // ── Stability AI ───────────────────────────────────────────────────────
+  // ── Apollo ───────────────────────────────────────────────────────────
   {
-    id: "stability-ai",
-    name: "Stability AI",
-    url: "https://stability.mpp.paywithlocus.com",
-    serviceUrl: "https://stability.mpp.paywithlocus.com",
+    id: "apollo",
+    name: "Apollo",
+    url: "https://www.apollo.io",
+    serviceUrl: "https://apollo.mpp.paywithlocus.com",
     description:
-      "Generative AI for images, 3D models, and audio — including generation, editing, upscaling, background removal, style transfer, and more.",
-    categories: ["ai", "media"],
+      "People and company enrichment, lead search, and sales intelligence with 275M+ contacts.",
+    categories: ["data"],
     integration: "third-party",
-    tags: [
-      "ai",
-      "image-generation",
-      "image-editing",
-      "3d",
-      "audio",
-      "upscaling",
-      "style-transfer",
-    ],
-    docs: { homepage: "https://platform.stability.ai" },
-    provider: { name: "Stability AI", url: "https://stability.ai" },
-    realm: "stability.mpp.paywithlocus.com",
+    tags: ["leads", "enrichment", "contacts", "sales-intelligence", "b2b"],
+    docs: {
+      homepage: "https://docs.apollo.io",
+      llmsTxt: "https://paywithlocus.com/mpp/apollo.md",
+    },
+    provider: { name: "Apollo", url: "https://www.apollo.io" },
+    realm: "apollo.mpp.paywithlocus.com",
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
-        route: "POST /stability-ai/generate-ultra",
-        desc: "Generate high-quality images with Ultra model",
-        amount: "92000",
+        route: "POST /apollo/people-enrichment",
+        desc: "People Enrichment",
+        dynamic: true,
+        amountHint: "$0.008-$0.043",
+      },
+      {
+        route: "POST /apollo/bulk-people-enrichment",
+        desc: "Bulk People Enrichment",
+        dynamic: true,
+        amountHint: "$0.008-$0.043/person",
+      },
+      {
+        route: "POST /apollo/org-enrichment",
+        desc: "Organization Enrichment",
+        amount: "8000",
         unitType: "request",
       },
       {
-        route: "POST /stability-ai/generate-core",
-        desc: "Generate images with Core model",
+        route: "POST /apollo/bulk-org-enrichment",
+        desc: "Bulk Organization Enrichment",
+        dynamic: true,
+        amountHint: "$0.008/org",
+      },
+      {
+        route: "POST /apollo/people-search",
+        desc: "People Search",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /apollo/org-search",
+        desc: "Organization Search",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /apollo/job-postings",
+        desc: "Organization Job Postings",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /apollo/news-search",
+        desc: "News Articles Search",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Billboard ────────────────────────────────────────────────────────
+  {
+    id: "billboard",
+    name: "Billboard",
+    url: "https://x.com/MPPBillboard",
+    serviceUrl: "https://billboard.mpp.paywithlocus.com",
+    description:
+      "Post to @MPPBillboard on X. Price starts at $0.01 and doubles with every post. The ultimate AI agent billboard.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["advertising", "billboard", "mpp-billboard"],
+    docs: {
+      homepage: "https://x.com/MPPBillboard",
+      llmsTxt: "https://paywithlocus.com/mpp/billboard.md",
+    },
+    provider: { name: "Billboard", url: "https://x.com/MPPBillboard" },
+    realm: "billboard.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /billboard/post",
+        desc: "Post",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /billboard/get-price",
+        desc: "Get Price",
+      },
+    ],
+  },
+
+  // ── Brave Search ─────────────────────────────────────────────────────
+  {
+    id: "brave",
+    name: "Brave Search",
+    url: "https://brave.com/search",
+    serviceUrl: "https://brave.mpp.paywithlocus.com",
+    description:
+      "Independent web search — web, news, images, videos, AI answers, and LLM context. Privacy-first search from a large independent index.",
+    categories: ["search"],
+    integration: "third-party",
+    tags: ["search", "web-search", "privacy", "news", "images"],
+    docs: {
+      homepage: "https://api.search.brave.com/app/#/documentation",
+      llmsTxt: "https://paywithlocus.com/mpp/brave.md",
+    },
+    provider: { name: "Brave Search", url: "https://brave.com/search" },
+    realm: "brave.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /brave/web-search",
+        desc: "Web Search",
         amount: "35000",
         unitType: "request",
       },
       {
-        route: "POST /stability-ai/generate-sd3",
-        desc: "Generate images with Stable Diffusion 3 — price varies by model variant",
-        dynamic: true,
-        amountHint: "$0.035 – $0.092",
-      },
-      {
-        route: "POST /stability-ai/erase",
-        desc: "Erase objects from an image using a mask",
-        amount: "58000",
+        route: "POST /brave/news-search",
+        desc: "News Search",
+        amount: "35000",
         unitType: "request",
       },
       {
-        route: "POST /stability-ai/inpaint",
-        desc: "Fill in masked regions of an image with new content",
-        amount: "58000",
+        route: "POST /brave/image-search",
+        desc: "Image Search",
+        amount: "35000",
         unitType: "request",
       },
       {
-        route: "POST /stability-ai/outpaint",
-        desc: "Extend an image beyond its original borders",
-        amount: "46000",
+        route: "POST /brave/video-search",
+        desc: "Video Search",
+        amount: "35000",
         unitType: "request",
       },
       {
-        route: "POST /stability-ai/search-and-replace",
-        desc: "Find and replace objects in an image by description",
-        amount: "58000",
+        route: "POST /brave/llm-context",
+        desc: "LLM Context",
+        amount: "35000",
         unitType: "request",
       },
       {
-        route: "POST /stability-ai/search-and-recolor",
-        desc: "Find and recolor objects in an image by description",
-        amount: "58000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/remove-background",
-        desc: "Remove the background from an image",
-        amount: "58000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/replace-background-and-relight",
-        desc: "Replace background and adjust lighting on a subject",
-        amount: "92000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/upscale-fast",
-        desc: "Upscale an image quickly (4x)",
-        amount: "23000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/upscale-conservative",
-        desc: "Upscale an image with conservative detail enhancement",
-        amount: "460000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/upscale-creative",
-        desc: "Upscale an image with creative detail synthesis",
-        amount: "690000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/sketch",
-        desc: "Generate an image guided by a sketch",
-        amount: "58000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/structure",
-        desc: "Generate an image guided by structural input",
-        amount: "58000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/style-guide",
-        desc: "Generate an image guided by a style reference",
-        amount: "58000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/style-transfer",
-        desc: "Transfer the style of one image onto another",
-        amount: "92000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/stable-fast-3d",
-        desc: "Generate a 3D model from a single image (fast)",
-        amount: "115000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/stable-point-aware-3d",
-        desc: "Generate a 3D model from a single image (point-aware)",
-        amount: "46000",
-        unitType: "request",
-      },
-      {
-        route: "POST /stability-ai/text-to-audio",
-        desc: "Generate audio from a text prompt — price varies by duration",
-        dynamic: true,
-        amountHint: "$0.02 – $0.10",
-      },
-      {
-        route: "POST /stability-ai/audio-to-audio",
-        desc: "Transform audio guided by a text prompt — price varies by duration",
-        dynamic: true,
-        amountHint: "$0.02 – $0.10",
-      },
-      {
-        route: "POST /stability-ai/audio-inpaint",
-        desc: "Inpaint a section of audio guided by a text prompt — price varies by duration",
-        dynamic: true,
-        amountHint: "$0.02 – $0.10",
-      },
-      {
-        route: "POST /stability-ai/result",
-        desc: "Retrieve the result of an async generation by ID",
-      },
-    ],
-  },
-
-  // ── Hunter ─────────────────────────────────────────────────────────────
-  {
-    id: "hunter",
-    name: "Hunter",
-    url: "https://hunter.mpp.paywithlocus.com",
-    serviceUrl: "https://hunter.mpp.paywithlocus.com",
-    description:
-      "Email finding, verification, and enrichment — domain search, person lookup, and company intelligence.",
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["email", "enrichment", "leads", "verification", "b2b"],
-    docs: { homepage: "https://hunter.io/api" },
-    provider: { name: "Hunter", url: "https://hunter.io" },
-    realm: "hunter.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /hunter/domain-search",
-        desc: "Find email addresses associated with a domain — price scales with result limit",
-        dynamic: true,
-        amountHint: "$0.01 – $0.10",
-      },
-      {
-        route: "POST /hunter/discover",
-        desc: "Discover contacts matching filters",
-        amount: "5000",
-        unitType: "request",
-      },
-      {
-        route: "POST /hunter/email-finder",
-        desc: "Find the email address of a person at a company",
-        amount: "10000",
-        unitType: "request",
-      },
-      {
-        route: "POST /hunter/email-verifier",
-        desc: "Verify the deliverability of an email address",
-        amount: "5000",
-        unitType: "request",
-      },
-      {
-        route: "POST /hunter/email-enrichment",
-        desc: "Get enriched data about an email address owner",
-        amount: "10000",
-        unitType: "request",
-      },
-      {
-        route: "POST /hunter/company-enrichment",
-        desc: "Get enriched data about a company by domain",
-        amount: "10000",
-        unitType: "request",
-      },
-      {
-        route: "POST /hunter/combined-enrichment",
-        desc: "Get combined person and company enrichment from an email",
-        amount: "20000",
-        unitType: "request",
-      },
-      {
-        route: "POST /hunter/email-count",
-        desc: "Get the count of email addresses for a domain",
-      },
-    ],
-  },
-
-  // ── Replicate ──────────────────────────────────────────────────────────
-  {
-    id: "replicate",
-    name: "Replicate",
-    url: "https://replicate.mpp.paywithlocus.com",
-    serviceUrl: "https://replicate.mpp.paywithlocus.com",
-    description:
-      "Run open-source AI models — image generation, LLMs, video, audio, and more.",
-    categories: ["ai", "media"],
-    integration: "third-party",
-    tags: ["ai", "ml", "models", "inference", "open-source"],
-    docs: { homepage: "https://replicate.com/docs" },
-    provider: { name: "Replicate", url: "https://replicate.com" },
-    realm: "replicate.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /replicate/run",
-        desc: "Run a model prediction — price varies by model",
-        dynamic: true,
-        amountHint: "$0.01 – $1.00",
-      },
-      {
-        route: "POST /replicate/get-prediction",
-        desc: "Get the status and output of a prediction",
-      },
-      {
-        route: "POST /replicate/get-model",
-        desc: "Get details about a model",
-        amount: "1000",
-        unitType: "request",
-      },
-      {
-        route: "POST /replicate/list-models",
-        desc: "List available models",
-        amount: "1000",
+        route: "POST /brave/answers",
+        desc: "AI Answers",
+        amount: "85000",
         unitType: "request",
       },
     ],
   },
 
-  // ── BuiltWith ──────────────────────────────────────────────────────────
+  // ── BuiltWith ────────────────────────────────────────────────────────
   {
     id: "builtwith",
     name: "BuiltWith",
-    url: "https://builtwith.mpp.paywithlocus.com",
+    url: "https://builtwith.com",
     serviceUrl: "https://builtwith.mpp.paywithlocus.com",
     description:
-      "Technology detection and website profiling — discover what technologies websites use, find competitors, and analyze tech trends.",
+      "Technology profiling for websites — detect tech stacks, find sites using specific technologies, discover domain relationships, trends, and competitive intelligence across 100M+ websites.",
     categories: ["data"],
     integration: "third-party",
     tags: [
-      "technology",
-      "detection",
-      "websites",
-      "analytics",
-      "competitive-intelligence",
+      "technology-profiling",
+      "tech-stack",
+      "competitive-intel",
+      "domains",
     ],
-    docs: { homepage: "https://api.builtwith.com" },
+    docs: {
+      homepage: "https://api.builtwith.com",
+      llmsTxt: "https://paywithlocus.com/mpp/builtwith.md",
+    },
     provider: { name: "BuiltWith", url: "https://builtwith.com" },
     realm: "builtwith.mpp.paywithlocus.com",
     intent: "charge",
@@ -3644,462 +3614,94 @@ export const services: ServiceDef[] = [
     endpoints: [
       {
         route: "POST /builtwith/domain",
-        desc: "Get full technology profile for a domain",
-        amount: "50000",
+        desc: "Domain Lookup",
+        amount: "55000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/lists",
-        desc: "Get lists of websites using a specific technology",
-        amount: "50000",
+        desc: "Technology Lists",
+        amount: "55000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/relationships",
-        desc: "Get related websites for a domain",
-        amount: "50000",
+        desc: "Relationships",
+        amount: "55000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/company-to-url",
-        desc: "Find website URLs for a company name",
-        amount: "50000",
+        desc: "Company to URL",
+        amount: "55000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/tags",
-        desc: "Get technology tags for a domain",
-        amount: "50000",
+        desc: "Tags",
+        amount: "55000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/product",
-        desc: "Search for websites using a product or technology",
-        amount: "50000",
+        desc: "Product Search",
+        amount: "55000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/recommendations",
-        desc: "Get technology recommendations for a domain",
-        amount: "30000",
+        desc: "Recommendations",
+        amount: "35000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/redirects",
-        desc: "Get redirect chain for a domain",
-        amount: "30000",
+        desc: "Redirects",
+        amount: "35000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/keywords",
-        desc: "Get keyword analysis for a domain",
-        amount: "30000",
+        desc: "Keywords",
+        amount: "35000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/trends",
-        desc: "Get usage trends for a technology",
-        amount: "30000",
+        desc: "Trends",
+        amount: "35000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/trust",
-        desc: "Get trust and safety signals for a domain",
-        amount: "30000",
+        desc: "Trust",
+        amount: "35000",
         unitType: "request",
       },
       {
         route: "POST /builtwith/free",
-        desc: "Get basic technology profile for a domain (light)",
-        amount: "10000",
-        unitType: "request",
-      },
-      {
-        route: "POST /builtwith/whoami",
-        desc: "Get current API account information",
-      },
-      {
-        route: "POST /builtwith/usage",
-        desc: "Get API usage statistics",
-      },
-    ],
-  },
-
-  // ── Suno ────────────────────────────────────────────────────────────────
-  {
-    id: "suno",
-    name: "Suno",
-    url: "https://suno.mpp.paywithlocus.com",
-    serviceUrl: "https://suno.mpp.paywithlocus.com",
-    description:
-      "AI music and lyrics generation — create songs, instrumentals, and lyrics from text prompts.",
-    categories: ["ai", "media"],
-    integration: "third-party",
-    tags: ["ai", "music", "audio", "lyrics", "generation"],
-    docs: { homepage: "https://docs.suno.com" },
-    provider: { name: "Suno", url: "https://suno.com" },
-    realm: "suno.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /suno/generate-music",
-        desc: "Generate a song from a text prompt or lyrics",
-        amount: "100000",
-        unitType: "request",
-      },
-      {
-        route: "POST /suno/get-music-status",
-        desc: "Check the status of a music generation task",
-      },
-      {
-        route: "POST /suno/generate-lyrics",
-        desc: "Generate song lyrics from a text prompt",
-        amount: "20000",
-        unitType: "request",
-      },
-      {
-        route: "POST /suno/get-lyrics-status",
-        desc: "Check the status of a lyrics generation task",
-      },
-      {
-        route: "POST /suno/get-credits",
-        desc: "Get remaining Suno credits balance",
-      },
-    ],
-  },
-
-  // ── OpenWeather ────────────────────────────────────────────────────────
-  {
-    id: "openweather",
-    name: "OpenWeather",
-    url: "https://weather.mpp.paywithlocus.com",
-    serviceUrl: "https://weather.mpp.paywithlocus.com",
-    description:
-      "Weather data including current conditions, 5-day forecasts, air quality, geocoding, and comprehensive one-call weather.",
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["weather", "forecast", "air-quality", "geocoding", "climate"],
-    docs: { homepage: "https://openweathermap.org/api" },
-    provider: { name: "OpenWeather", url: "https://openweathermap.org" },
-    realm: "weather.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /openweather/current-weather",
-        desc: "Get current weather conditions for a location",
-        amount: "3000",
-        unitType: "request",
-      },
-      {
-        route: "POST /openweather/forecast-5day",
-        desc: "Get 5-day / 3-hour weather forecast",
-        amount: "5000",
-        unitType: "request",
-      },
-      {
-        route: "POST /openweather/air-quality",
-        desc: "Get air quality index and pollutant data",
-        amount: "3000",
-        unitType: "request",
-      },
-      {
-        route: "POST /openweather/geocode",
-        desc: "Convert a place name to coordinates",
-        amount: "2000",
-        unitType: "request",
-      },
-      {
-        route: "POST /openweather/reverse-geocode",
-        desc: "Convert coordinates to a place name",
-        amount: "2000",
-        unitType: "request",
-      },
-      {
-        route: "POST /openweather/onecall",
-        desc: "Get comprehensive weather data (current, minutely, hourly, daily)",
-        amount: "7000",
-        unitType: "request",
-      },
-      {
-        route: "POST /openweather/weather-overview",
-        desc: "Get a human-readable weather summary",
-        amount: "7000",
+        desc: "Free Summary",
+        amount: "15000",
         unitType: "request",
       },
     ],
   },
 
-  // ── Perplexity ─────────────────────────────────────────────────────────
-  {
-    id: "perplexity",
-    name: "Perplexity",
-    url: "https://perplexity.mpp.paywithlocus.com",
-    serviceUrl: "https://perplexity.mpp.paywithlocus.com",
-    description:
-      "AI-powered search and chat with Sonar models — real-time web-grounded answers, search, and embeddings.",
-    categories: ["ai", "search"],
-    integration: "third-party",
-    tags: ["ai", "search", "llm", "chat", "embeddings", "web-grounded"],
-    docs: { homepage: "https://docs.perplexity.ai" },
-    provider: { name: "Perplexity", url: "https://www.perplexity.ai" },
-    realm: "perplexity.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /perplexity/chat",
-        desc: "Chat completion with Sonar models and web citations",
-        dynamic: true,
-        amountHint: "$0.001 – $0.05",
-      },
-      {
-        route: "POST /perplexity/search",
-        desc: "Web search with structured results",
-        dynamic: true,
-        amountHint: "$0.005 – $0.05",
-      },
-      {
-        route: "POST /perplexity/embed",
-        desc: "Generate text embeddings",
-        dynamic: true,
-        amountHint: "$0.001 – $0.01",
-      },
-      {
-        route: "POST /perplexity/context-embed",
-        desc: "Generate contextual embeddings for document chunks",
-        dynamic: true,
-        amountHint: "$0.001 – $0.01",
-      },
-    ],
-  },
-
-  // ── Diffbot ────────────────────────────────────────────────────────────
-  {
-    id: "diffbot",
-    name: "Diffbot",
-    url: "https://diffbot.mpp.paywithlocus.com",
-    serviceUrl: "https://diffbot.mpp.paywithlocus.com",
-    description:
-      "Web data extraction, natural language processing, and knowledge graph — extract structured data from any URL, analyze text entities, and search a global knowledge graph.",
-    categories: ["ai", "data", "web"],
-    integration: "third-party",
-    tags: [
-      "web-scraping",
-      "extraction",
-      "nlp",
-      "knowledge-graph",
-      "entities",
-      "structured-data",
-    ],
-    docs: { homepage: "https://docs.diffbot.com" },
-    provider: { name: "Diffbot", url: "https://www.diffbot.com" },
-    realm: "diffbot.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /diffbot/article",
-        desc: "Extract structured article data from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot/product",
-        desc: "Extract structured product data from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot/discussion",
-        desc: "Extract discussion/comment threads from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot/image",
-        desc: "Extract image metadata from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot/video",
-        desc: "Extract video metadata from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot/analyze",
-        desc: "Auto-detect page type and extract structured data from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot/event",
-        desc: "Extract event data from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot/list",
-        desc: "Extract list items from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot/job",
-        desc: "Extract job listing data from a URL",
-        amount: "1200",
-        unitType: "request",
-      },
-      {
-        route: "POST /diffbot-nl/analyze",
-        desc: "Analyze text for entities, relationships, and sentiment (NLP)",
-        dynamic: true,
-        amountHint: "$0.001 – $0.01",
-      },
-      {
-        route: "POST /diffbot-kg/search",
-        desc: "Search the Diffbot Knowledge Graph for entities",
-        dynamic: true,
-        amountHint: "$0.03 – $1.50",
-      },
-      {
-        route: "POST /diffbot-kg/enhance",
-        desc: "Enrich an entity with Knowledge Graph data",
-        dynamic: true,
-        amountHint: "$0.03 – $0.12",
-      },
-    ],
-  },
-
-  // ── Mathpix ────────────────────────────────────────────────────────────
-  {
-    id: "mathpix",
-    name: "Mathpix",
-    url: "https://mathpix.mpp.paywithlocus.com",
-    serviceUrl: "https://mathpix.mpp.paywithlocus.com",
-    description:
-      "OCR for math and scientific documents — extract LaTeX, MathML, and text from images and handwritten strokes.",
-    categories: ["ai"],
-    integration: "third-party",
-    tags: ["ocr", "math", "latex", "handwriting", "document-processing"],
-    docs: { homepage: "https://docs.mathpix.com" },
-    provider: { name: "Mathpix", url: "https://mathpix.com" },
-    realm: "mathpix.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /mathpix/process-image",
-        desc: "Extract LaTeX and text from an image of math or scientific content",
-        amount: "2000",
-        unitType: "request",
-      },
-      {
-        route: "POST /mathpix/process-strokes",
-        desc: "Convert handwritten strokes to LaTeX and text",
-        amount: "10000",
-        unitType: "request",
-      },
-    ],
-  },
-
-  // ── Judge0 ─────────────────────────────────────────────────────────────
-  {
-    id: "judge0",
-    name: "Judge0",
-    url: "https://judge0.mpp.paywithlocus.com",
-    serviceUrl: "https://judge0.mpp.paywithlocus.com",
-    description:
-      "Online code execution engine — compile and run code in 70+ programming languages with sandboxed execution.",
-    categories: ["compute"],
-    integration: "third-party",
-    tags: ["code-execution", "compiler", "sandbox", "programming", "languages"],
-    docs: { homepage: "https://judge0.com" },
-    provider: { name: "Judge0", url: "https://judge0.com" },
-    realm: "judge0.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /judge0/execute-code",
-        desc: "Execute code synchronously and return the output",
-        amount: "1000",
-        unitType: "request",
-      },
-      {
-        route: "POST /judge0/submit-code",
-        desc: "Submit code for async execution and get a token",
-        amount: "1000",
-        unitType: "request",
-      },
-      {
-        route: "POST /judge0/get-submission",
-        desc: "Get the status and output of a submitted code execution",
-      },
-      {
-        route: "POST /judge0/list-languages",
-        desc: "List all supported programming languages",
-      },
-      {
-        route: "POST /judge0/list-statuses",
-        desc: "List all possible submission statuses",
-      },
-    ],
-  },
-
-  // ── Browser Use ────────────────────────────────────────────────────────
-  {
-    id: "browser-use",
-    name: "Browser Use",
-    url: "https://beta-api.paywithlocus.com/api/browser-use-mpp",
-    serviceUrl: "https://beta-api.paywithlocus.com/api/browser-use-mpp",
-    description:
-      "AI-powered browser automation — run tasks in a cloud browser with LLM agents.",
-    categories: ["ai", "web"],
-    integration: "third-party",
-    tags: ["ai", "browser", "automation", "scraping", "web-agent"],
-    docs: { homepage: "https://docs.cloud.browser-use.com" },
-    provider: { name: "Browser Use", url: "https://browser-use.com" },
-    realm: "browseruse.mpp.paywithlocus.com",
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "POST /api/browser-use-mpp/run-task",
-        desc: "Start an automated browser task with an AI agent",
-        dynamic: true,
-        amountHint: "$0.01 – $10.00",
-      },
-      {
-        route: "POST /api/browser-use-mpp/get-task",
-        desc: "Retrieve the full details and output of a task",
-      },
-      {
-        route: "POST /api/browser-use-mpp/get-task-status",
-        desc: "Check the current status of a running task",
-      },
-      {
-        route: "POST /api/browser-use-mpp/stop-task",
-        desc: "Stop a running browser task",
-      },
-    ],
-  },
-
-  // ── Clado ──────────────────────────────────────────────────────────────
+  // ── Clado ────────────────────────────────────────────────────────────
   {
     id: "clado",
     name: "Clado",
-    url: "https://clado.mpp.paywithlocus.com",
+    url: "https://clado.ai",
     serviceUrl: "https://clado.mpp.paywithlocus.com",
     description:
       "People search, LinkedIn enrichment, and deep research for lead generation.",
     categories: ["data"],
     integration: "third-party",
-    tags: ["people-search", "linkedin", "enrichment", "leads", "deep-research"],
-    docs: { homepage: "https://docs.clado.ai" },
+    tags: ["linkedin", "enrichment", "leads", "deep-research", "people-search"],
+    docs: {
+      homepage: "https://docs.clado.ai",
+      llmsTxt: "https://paywithlocus.com/mpp/clado.md",
+    },
     provider: { name: "Clado", url: "https://clado.ai" },
     realm: "clado.mpp.paywithlocus.com",
     intent: "charge",
@@ -4107,197 +3709,1848 @@ export const services: ServiceDef[] = [
     endpoints: [
       {
         route: "POST /clado/search",
-        desc: "Search for people by query",
+        desc: "Search",
         dynamic: true,
-        amountHint: "$0.01 – $0.30",
+        amountHint: "$0.01/result",
       },
       {
         route: "POST /clado/deep-research",
-        desc: "Start async deep research job",
+        desc: "Deep Research",
         dynamic: true,
-        amountHint: "$0.01 – $0.30",
+        amountHint: "$0.01/result",
       },
       {
         route: "POST /clado/deep-research-status",
-        desc: "Check deep research status and results",
+        desc: "Deep Research Status",
+        amount: "3000",
+        unitType: "request",
       },
       {
         route: "POST /clado/deep-research-cancel",
-        desc: "Cancel a running deep research job",
+        desc: "Cancel Deep Research",
+        amount: "3000",
+        unitType: "request",
       },
       {
         route: "POST /clado/deep-research-more",
-        desc: "Request additional deep research results",
+        desc: "Deep Research More",
         dynamic: true,
-        amountHint: "$0.01 – $0.30",
+        amountHint: "$0.01/result",
       },
       {
         route: "POST /clado/contacts",
-        desc: "Get contact info by LinkedIn URL, email, or phone",
+        desc: "Contact Enrichment",
         dynamic: true,
-        amountHint: "$0.04 – $0.14",
+        amountHint: "$0.04-$0.14",
       },
       {
         route: "POST /clado/scrape",
-        desc: "Scrape a LinkedIn profile",
-        amount: "2000",
+        desc: "Scrape LinkedIn",
+        amount: "23000",
         unitType: "request",
       },
       {
         route: "POST /clado/linkedin-profile",
-        desc: "Get structured LinkedIn profile data",
-        amount: "1000",
+        desc: "LinkedIn Profile",
+        amount: "13000",
         unitType: "request",
       },
       {
         route: "POST /clado/post-reactions",
-        desc: "Get reactions on a LinkedIn post",
-        amount: "1000",
+        desc: "Post Reactions",
+        amount: "13000",
         unitType: "request",
       },
       {
         route: "POST /clado/bulk-contacts",
-        desc: "Enrich contacts in bulk",
+        desc: "Bulk Contact Enrichment",
         dynamic: true,
-        amountHint: "$0.04 – $1.40",
+        amountHint: "$0.04+/contact",
       },
       {
         route: "POST /clado/bulk-contacts-status",
-        desc: "Check bulk enrichment status",
-      },
-      {
-        route: "POST /clado/credits",
-        desc: "Check remaining API credits",
+        desc: "Bulk Contacts Status",
+        amount: "3000",
+        unitType: "request",
       },
     ],
   },
 
-  // ── EDGAR ──────────────────────────────────────────────────────────────
+  // ── CoinGecko ────────────────────────────────────────────────────────
   {
-    id: "edgar",
-    name: "EDGAR",
-    url: "https://edgar.mpp.paywithlocus.com",
-    serviceUrl: "https://edgar.mpp.paywithlocus.com",
+    id: "coingecko",
+    name: "CoinGecko",
+    url: "https://www.coingecko.com",
+    serviceUrl: "https://coingecko.mpp.paywithlocus.com",
     description:
-      "SEC EDGAR public financial data — company filing history, XBRL financial facts, and single-concept time series.",
+      "Cryptocurrency market data — prices, charts, market cap, exchanges, trending coins, global stats, NFTs, derivatives, and on-chain data.",
     categories: ["data"],
     integration: "third-party",
-    tags: ["sec", "edgar", "finance", "filings", "xbrl", "stocks"],
-    docs: { homepage: "https://www.sec.gov/developer" },
-    provider: { name: "SEC EDGAR", url: "https://www.sec.gov/developer" },
+    tags: ["crypto", "prices", "market-cap", "exchanges", "trending"],
+    docs: {
+      homepage: "https://docs.coingecko.com",
+      llmsTxt: "https://paywithlocus.com/mpp/coingecko.md",
+    },
+    provider: { name: "CoinGecko", url: "https://www.coingecko.com" },
+    realm: "coingecko.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /coingecko/simple-price",
+        desc: "Simple Price",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/simple-token-price",
+        desc: "Token Price by Contract",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/coins-markets",
+        desc: "Coins Markets",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/coin-data",
+        desc: "Coin Data",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/coins-list",
+        desc: "Coins List",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/search",
+        desc: "Search",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/trending",
+        desc: "Trending",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/exchange-rates",
+        desc: "Exchange Rates",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/global",
+        desc: "Global",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/global-defi",
+        desc: "Global DeFi",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/market-chart",
+        desc: "Market Chart",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/coin-history",
+        desc: "Coin History",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/categories",
+        desc: "Categories",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/top-gainers-losers",
+        desc: "Top Gainers & Losers",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /coingecko/exchanges",
+        desc: "Exchanges",
+        amount: "60000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Company Enrichment ───────────────────────────────────────────────
+  {
+    id: "abstract-company-enrichment",
+    name: "Company Enrichment",
+    url: "https://www.abstractapi.com/api/company-enrichment",
+    serviceUrl: "https://abstract-company-enrichment.mpp.paywithlocus.com",
+    description: "Enrich company data from a domain name.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["company", "enrichment", "domain-lookup"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/company-enrichment",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-company-enrichment.md",
+    },
+    provider: {
+      name: "Company Enrichment",
+      url: "https://www.abstractapi.com/api/company-enrichment",
+    },
+    realm: "abstract-company-enrichment.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-company-enrichment/lookup",
+        desc: "Lookup",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Deepgram ─────────────────────────────────────────────────────────
+  {
+    id: "deepgram",
+    name: "Deepgram",
+    url: "https://deepgram.com",
+    serviceUrl: "https://deepgram.mpp.paywithlocus.com",
+    description:
+      "Industry-leading speech AI — transcribe audio from URLs with Nova-3, generate natural speech with Aura-2 TTS, and analyze text for sentiment, topics, intents, and summaries.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["speech-to-text", "transcription", "tts", "audio", "sentiment"],
+    docs: {
+      homepage:
+        "https://developers.deepgram.com/reference/deepgram-api-overview",
+      llmsTxt: "https://paywithlocus.com/mpp/deepgram.md",
+    },
+    provider: { name: "Deepgram", url: "https://deepgram.com" },
+    realm: "deepgram.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /deepgram/transcribe",
+        desc: "Transcribe Audio",
+        amount: "53000",
+        unitType: "request",
+      },
+      {
+        route: "POST /deepgram/speak",
+        desc: "Text to Speech",
+        amount: "23000",
+        unitType: "request",
+      },
+      {
+        route: "POST /deepgram/analyze",
+        desc: "Analyze Text",
+        amount: "13000",
+        unitType: "request",
+      },
+      {
+        route: "POST /deepgram/list-models",
+        desc: "List Models",
+        amount: "4000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── DeepL ────────────────────────────────────────────────────────────
+  {
+    id: "deepl",
+    name: "DeepL",
+    url: "https://www.deepl.com",
+    serviceUrl: "https://deepl.mpp.paywithlocus.com",
+    description:
+      "Professional translation and text improvement — translate text between 30+ languages with industry-leading quality, or improve and rephrase text with DeepL Write.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["translation", "languages", "glossary", "document-translation"],
+    docs: {
+      homepage: "https://developers.deepl.com",
+      llmsTxt: "https://paywithlocus.com/mpp/deepl.md",
+    },
+    provider: { name: "DeepL", url: "https://www.deepl.com" },
+    realm: "deepl.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /deepl/translate",
+        desc: "Translate",
+        dynamic: true,
+        amountHint: "$0.025+ (scales with text length)",
+      },
+      {
+        route: "POST /deepl/rephrase",
+        desc: "Rephrase (Write)",
+        dynamic: true,
+        amountHint: "$0.025+ (scales with text length)",
+      },
+      {
+        route: "POST /deepl/languages",
+        desc: "Languages",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── DeepSeek ─────────────────────────────────────────────────────────
+  {
+    id: "deepseek",
+    name: "DeepSeek",
+    url: "https://deepseek.com",
+    serviceUrl: "https://deepseek.mpp.paywithlocus.com",
+    description:
+      "Frontier AI models — DeepSeek-V3 for fast chat and code, DeepSeek-R1 for deep chain-of-thought reasoning. OpenAI-compatible API format. Among the most capable and cost-efficient models available.",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["llm", "reasoning", "code", "chat", "chain-of-thought"],
+    docs: {
+      homepage: "https://api-docs.deepseek.com",
+      llmsTxt: "https://paywithlocus.com/mpp/deepseek.md",
+    },
+    provider: { name: "DeepSeek", url: "https://deepseek.com" },
+    realm: "deepseek.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /deepseek/chat",
+        desc: "Chat",
+        dynamic: true,
+        amountHint: "Model + token dependent (~$0.004–$0.025)",
+      },
+      {
+        route: "POST /deepseek/fim",
+        desc: "Fill-In-the-Middle (FIM)",
+        dynamic: true,
+        amountHint: "Token dependent (~$0.003–$0.005)",
+      },
+      {
+        route: "POST /deepseek/list-models",
+        desc: "List Models",
+        amount: "3000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Diffbot ──────────────────────────────────────────────────────────
+  {
+    id: "diffbot",
+    name: "Diffbot",
+    url: "https://www.diffbot.com",
+    serviceUrl: "https://diffbot.mpp.paywithlocus.com",
+    description:
+      "Web data extraction — articles, products, discussions, images, videos, and auto-detect.",
+    categories: ["web", "data"],
+    integration: "third-party",
+    tags: ["web-scraping", "extraction", "articles", "products"],
+    docs: {
+      homepage: "https://docs.diffbot.com",
+      llmsTxt: "https://paywithlocus.com/mpp/diffbot.md",
+    },
+    provider: { name: "Diffbot", url: "https://www.diffbot.com" },
+    realm: "diffbot.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /diffbot/article",
+        desc: "Article",
+        amount: "4200",
+        unitType: "request",
+      },
+      {
+        route: "POST /diffbot/product",
+        desc: "Product",
+        amount: "4200",
+        unitType: "request",
+      },
+      {
+        route: "POST /diffbot/discussion",
+        desc: "Discussion",
+        amount: "4200",
+        unitType: "request",
+      },
+      {
+        route: "POST /diffbot/image",
+        desc: "Image",
+        amount: "4200",
+        unitType: "request",
+      },
+      {
+        route: "POST /diffbot/video",
+        desc: "Video",
+        amount: "4200",
+        unitType: "request",
+      },
+      {
+        route: "POST /diffbot/analyze",
+        desc: "Analyze",
+        amount: "4200",
+        unitType: "request",
+      },
+      {
+        route: "POST /diffbot/event",
+        desc: "Event",
+        amount: "4200",
+        unitType: "request",
+      },
+      {
+        route: "POST /diffbot/list",
+        desc: "List",
+        amount: "4200",
+        unitType: "request",
+      },
+      {
+        route: "POST /diffbot/job",
+        desc: "Job Posting",
+        amount: "4200",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Diffbot KG ───────────────────────────────────────────────────────
+  {
+    id: "diffbot-kg",
+    name: "Diffbot KG",
+    url: "https://www.diffbot.com",
+    serviceUrl: "https://diffbot-kg.mpp.paywithlocus.com",
+    description:
+      "Knowledge Graph — search 10B+ entities and enrich company/person records.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["knowledge-graph", "entities", "enrichment", "company-data"],
+    docs: {
+      homepage: "https://docs.diffbot.com/reference/knowledge-graph",
+      llmsTxt: "https://paywithlocus.com/mpp/diffbot-kg.md",
+    },
+    provider: { name: "Diffbot KG", url: "https://www.diffbot.com" },
+    realm: "diffbot-kg.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /diffbot-kg/search",
+        desc: "Search (DQL)",
+        dynamic: true,
+        amountHint: "$0.03–$1.50 (25 credits/entity)",
+      },
+      {
+        route: "POST /diffbot-kg/enhance",
+        desc: "Enhance",
+        dynamic: true,
+        amountHint: "$0.03 ($0.12 with refresh)",
+      },
+    ],
+  },
+
+  // ── Diffbot NL ───────────────────────────────────────────────────────
+  {
+    id: "diffbot-nl",
+    name: "Diffbot NL",
+    url: "https://www.diffbot.com",
+    serviceUrl: "https://diffbot-nl.mpp.paywithlocus.com",
+    description:
+      "Natural language processing — NER, sentiment, facts, summarization.",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["nlp", "ner", "sentiment", "summarization"],
+    docs: {
+      homepage: "https://docs.diffbot.com/reference/natural-language",
+      llmsTxt: "https://paywithlocus.com/mpp/diffbot-nl.md",
+    },
+    provider: { name: "Diffbot NL", url: "https://www.diffbot.com" },
+    realm: "diffbot-nl.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /diffbot-nl/analyze",
+        desc: "Analyze Text",
+        dynamic: true,
+        amountHint: "$0.004+ (per 10k chars)",
+      },
+    ],
+  },
+
+  // ── EDGAR (SEC) ──────────────────────────────────────────────────────
+  {
+    id: "edgar",
+    name: "EDGAR (SEC)",
+    url: "https://www.sec.gov/developer",
+    serviceUrl: "https://edgar.mpp.paywithlocus.com",
+    description:
+      "SEC EDGAR public financial data — company filing history, XBRL financial facts (income statements, balance sheets, cash flows), and full-text search across all public filings. No API key required.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["sec", "filings", "company-data", "financials"],
+    docs: {
+      homepage: "https://www.sec.gov/developer",
+      llmsTxt: "https://paywithlocus.com/mpp/edgar.md",
+    },
+    provider: { name: "EDGAR (SEC)", url: "https://www.sec.gov/developer" },
     realm: "edgar.mpp.paywithlocus.com",
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
         route: "POST /edgar/company-submissions",
-        desc: "Get filing history and metadata for a SEC filer",
-        amount: "5000",
+        desc: "Company Submissions",
+        amount: "8000",
         unitType: "request",
       },
       {
         route: "POST /edgar/company-facts",
-        desc: "Get all XBRL financial data for a company",
-        amount: "5000",
+        desc: "Company Facts",
+        amount: "8000",
         unitType: "request",
       },
       {
         route: "POST /edgar/company-concept",
-        desc: "Get time series for a single XBRL financial metric",
-        amount: "5000",
+        desc: "Company Concept",
+        amount: "8000",
         unitType: "request",
       },
     ],
   },
 
-  // ── EDGAR Search ───────────────────────────────────────────────────────
+  // ── EDGAR Full-Text Search ───────────────────────────────────────────
   {
     id: "edgar-search",
-    name: "EDGAR Search",
-    url: "https://edgar-search.mpp.paywithlocus.com",
+    name: "EDGAR Full-Text Search",
+    url: "https://efts.sec.gov",
     serviceUrl: "https://edgar-search.mpp.paywithlocus.com",
     description:
-      "Full-text search across all SEC filings — 10-Ks, 10-Qs, 8-Ks, proxy statements, and more.",
-    categories: ["data", "search"],
+      "Full-text search across all SEC filings — 10-Ks, 10-Qs, 8-Ks, proxy statements, and more. Search by keyword, company name, form type, and date range.",
+    categories: ["data"],
     integration: "third-party",
-    tags: ["sec", "edgar", "search", "filings", "finance"],
-    docs: { homepage: "https://www.sec.gov/developer" },
-    provider: { name: "SEC EDGAR", url: "https://www.sec.gov/developer" },
+    tags: ["sec", "filings", "full-text-search"],
+    docs: {
+      homepage: "https://efts.sec.gov/LATEST/search-index",
+      llmsTxt: "https://paywithlocus.com/mpp/edgar-search.md",
+    },
+    provider: { name: "EDGAR Full-Text Search", url: "https://efts.sec.gov" },
     realm: "edgar-search.mpp.paywithlocus.com",
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
         route: "POST /edgar-search/search",
-        desc: "Search full text of SEC filings by keyword, company, form type, and date range",
+        desc: "Search Filings",
+        amount: "8000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Email Reputation ─────────────────────────────────────────────────
+  {
+    id: "abstract-email-reputation",
+    name: "Email Reputation",
+    url: "https://www.abstractapi.com/api/email-reputation-api",
+    serviceUrl: "https://abstract-email-reputation.mpp.paywithlocus.com",
+    description: "Check the reputation and risk score of an email address.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["email", "reputation", "risk-score"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/email-reputation",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-email-reputation.md",
+    },
+    provider: {
+      name: "Email Reputation",
+      url: "https://www.abstractapi.com/api/email-reputation-api",
+    },
+    realm: "abstract-email-reputation.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-email-reputation/check",
+        desc: "Check",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Exchange Rates ───────────────────────────────────────────────────
+  {
+    id: "abstract-exchange-rates",
+    name: "Exchange Rates",
+    url: "https://www.abstractapi.com/api/exchange-rate-api",
+    serviceUrl: "https://abstract-exchange-rates.mpp.paywithlocus.com",
+    description:
+      "Live, historical, and conversion exchange rates for 150+ currencies.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["forex", "exchange-rates", "currency-conversion"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/exchange-rates",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-exchange-rates.md",
+    },
+    provider: {
+      name: "Exchange Rates",
+      url: "https://www.abstractapi.com/api/exchange-rate-api",
+    },
+    realm: "abstract-exchange-rates.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-exchange-rates/live",
+        desc: "Live Rates",
+        amount: "6000",
+        unitType: "request",
+      },
+      {
+        route: "POST /abstract-exchange-rates/convert",
+        desc: "Convert",
+        amount: "6000",
+        unitType: "request",
+      },
+      {
+        route: "POST /abstract-exchange-rates/historical",
+        desc: "Historical Rates",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Grok ─────────────────────────────────────────────────────────────
+  {
+    id: "grok",
+    name: "Grok",
+    url: "https://x.ai",
+    serviceUrl: "https://grok.mpp.paywithlocus.com",
+    description:
+      "xAI models — chat, web/X search, code execution, image generation/editing, and text-to-speech.",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["llm", "chat", "x-search", "web-search", "image-generation", "tts"],
+    docs: {
+      homepage: "https://docs.x.ai",
+      llmsTxt: "https://paywithlocus.com/mpp/grok.md",
+    },
+    provider: { name: "Grok", url: "https://x.ai" },
+    realm: "grok.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /grok/chat",
+        desc: "Chat Completions",
+        dynamic: true,
+        amountHint: "Model-dependent (~$0.001–$0.02)",
+      },
+      {
+        route: "POST /grok/image-generate",
+        desc: "Image Generation",
+        dynamic: true,
+        amountHint: "$0.02–$0.08 per image",
+      },
+      {
+        route: "POST /grok/image-edit",
+        desc: "Image Editing",
+        dynamic: true,
+        amountHint: "$0.02–$0.08 per image",
+      },
+      {
+        route: "POST /grok/web-search",
+        desc: "Chat with Web Search",
+        dynamic: true,
+        amountHint: "Dynamic (~$0.01–$0.50)",
+      },
+      {
+        route: "POST /grok/x-search",
+        desc: "Chat with X Search",
+        dynamic: true,
+        amountHint: "Dynamic (~$0.01–$0.50)",
+      },
+      {
+        route: "POST /grok/code-execution",
+        desc: "Chat with Code Execution",
+        dynamic: true,
+        amountHint: "Dynamic (~$0.01–$0.50)",
+      },
+      {
+        route: "POST /grok/tts",
+        desc: "Text-to-Speech",
+        dynamic: true,
+        amountHint: "~$0.005 per 1,000 characters",
+      },
+    ],
+  },
+
+  // ── Groq ─────────────────────────────────────────────────────────────
+  {
+    id: "groq",
+    name: "Groq",
+    url: "https://groq.com",
+    serviceUrl: "https://groq.mpp.paywithlocus.com",
+    description:
+      "Ultra-fast LLM inference — Llama 3.3, DeepSeek R1, Gemma 2, GPT-OSS, Qwen, Whisper, and PlayAI TTS. OpenAI-compatible API with industry-leading speed.",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["llm", "fast-inference", "llama", "gemma", "deepseek"],
+    docs: {
+      homepage: "https://console.groq.com/docs",
+      llmsTxt: "https://paywithlocus.com/mpp/groq.md",
+    },
+    provider: { name: "Groq", url: "https://groq.com" },
+    realm: "groq.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /groq/chat",
+        desc: "Chat Completion",
+        dynamic: true,
+        amountHint: "$0.005 – $0.10 (varies by model and tokens)",
+      },
+      {
+        route: "POST /groq/models",
+        desc: "List Models",
         amount: "5000",
         unitType: "request",
       },
     ],
   },
 
-  // ── Laso Finance ───────────────────────────────────────────────────────
+  // ── Holidays ─────────────────────────────────────────────────────────
   {
-    id: "laso",
-    name: "Laso Finance",
-    url: "https://beta-api.paywithlocus.com/api/laso-mpp",
-    serviceUrl: "https://beta-api.paywithlocus.com/api/laso-mpp",
-    description:
-      "AI-powered virtual debit cards, payments via Venmo/PayPal, and balance management.",
+    id: "abstract-holidays",
+    name: "Holidays",
+    url: "https://www.abstractapi.com/api/holidays-api",
+    serviceUrl: "https://abstract-holidays.mpp.paywithlocus.com",
+    description: "Public holiday data for 200+ countries.",
     categories: ["data"],
     integration: "third-party",
-    tags: ["finance", "payments", "debit-card", "venmo", "paypal"],
-    docs: { homepage: "https://docs.paywithlocus.com" },
-    provider: { name: "Laso Finance", url: "https://laso.finance" },
-    realm: "laso.mpp.paywithlocus.com",
+    tags: ["holidays", "countries", "public-holidays"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/holidays",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-holidays.md",
+    },
+    provider: {
+      name: "Holidays",
+      url: "https://www.abstractapi.com/api/holidays-api",
+    },
+    realm: "abstract-holidays.mpp.paywithlocus.com",
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
-        route: "POST /api/laso-mpp/auth",
-        desc: "Authenticate for a session token",
+        route: "POST /abstract-holidays/lookup",
+        desc: "Lookup",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Hunter ───────────────────────────────────────────────────────────
+  {
+    id: "hunter",
+    name: "Hunter",
+    url: "https://hunter.io",
+    serviceUrl: "https://hunter.mpp.paywithlocus.com",
+    description:
+      "Email finding, verification, and company enrichment for outreach and lead generation.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["email", "verification", "enrichment", "outreach"],
+    docs: {
+      homepage: "https://hunter.io/api-documentation/v2",
+      llmsTxt: "https://paywithlocus.com/mpp/hunter.md",
+    },
+    provider: { name: "Hunter", url: "https://hunter.io" },
+    realm: "hunter.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /hunter/domain-search",
+        desc: "Domain Search",
+        dynamic: true,
+        amountHint: "$0.013-$0.103",
+      },
+      {
+        route: "POST /hunter/discover",
+        desc: "Discover Companies",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /hunter/email-finder",
+        desc: "Email Finder",
+        amount: "13000",
+        unitType: "request",
+      },
+      {
+        route: "POST /hunter/email-verifier",
+        desc: "Email Verifier",
+        amount: "8000",
+        unitType: "request",
+      },
+      {
+        route: "POST /hunter/email-enrichment",
+        desc: "Email Enrichment",
+        amount: "13000",
+        unitType: "request",
+      },
+      {
+        route: "POST /hunter/company-enrichment",
+        desc: "Company Enrichment",
+        amount: "13000",
+        unitType: "request",
+      },
+      {
+        route: "POST /hunter/combined-enrichment",
+        desc: "Combined Enrichment",
+        amount: "23000",
+        unitType: "request",
+      },
+      {
+        route: "POST /hunter/email-count",
+        desc: "Email Count",
+        amount: "3000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── IBAN Validation ──────────────────────────────────────────────────
+  {
+    id: "abstract-iban-validation",
+    name: "IBAN Validation",
+    url: "https://www.abstractapi.com/api/iban-validation-api",
+    serviceUrl: "https://abstract-iban-validation.mpp.paywithlocus.com",
+    description: "Validate International Bank Account Numbers (IBANs).",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["iban", "banking", "validation"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/iban-validation",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-iban-validation.md",
+    },
+    provider: {
+      name: "IBAN Validation",
+      url: "https://www.abstractapi.com/api/iban-validation-api",
+    },
+    realm: "abstract-iban-validation.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-iban-validation/validate",
+        desc: "Validate",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── IP Intelligence ──────────────────────────────────────────────────
+  {
+    id: "abstract-ip-intelligence",
+    name: "IP Intelligence",
+    url: "https://www.abstractapi.com/api/ip-intelligence-api",
+    serviceUrl: "https://abstract-ip-intelligence.mpp.paywithlocus.com",
+    description: "Detect VPNs, proxies, bots, and Tor nodes by IP address.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["ip", "vpn-detection", "proxy", "bot-detection"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/ip-intelligence",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-ip-intelligence.md",
+    },
+    provider: {
+      name: "IP Intelligence",
+      url: "https://www.abstractapi.com/api/ip-intelligence-api",
+    },
+    realm: "abstract-ip-intelligence.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-ip-intelligence/lookup",
+        desc: "Lookup",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── IPinfo ───────────────────────────────────────────────────────────
+  {
+    id: "ipinfo",
+    name: "IPinfo",
+    url: "https://ipinfo.io",
+    serviceUrl: "https://ipinfo.mpp.paywithlocus.com",
+    description:
+      "IP intelligence — geolocation, ASN, privacy detection, carrier data, and hosting identification.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["ip", "geolocation", "asn", "privacy-detection"],
+    docs: {
+      homepage: "https://ipinfo.io/developers",
+      llmsTxt: "https://paywithlocus.com/mpp/ipinfo.md",
+    },
+    provider: { name: "IPinfo", url: "https://ipinfo.io" },
+    realm: "ipinfo.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /ipinfo/ip-lite",
+        desc: "IP Lite",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /ipinfo/ip-lookup",
+        desc: "IP Lookup",
+        amount: "1000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Judge0 ───────────────────────────────────────────────────────────
+  {
+    id: "judge0",
+    name: "Judge0",
+    url: "https://judge0.com",
+    serviceUrl: "https://judge0.mpp.paywithlocus.com",
+    description:
+      "Online code execution — run source code in 60+ programming languages with sandboxed isolation.",
+    categories: ["compute"],
+    integration: "third-party",
+    tags: ["code-execution", "sandbox", "programming-languages"],
+    docs: {
+      homepage: "https://ce.judge0.com",
+      llmsTxt: "https://paywithlocus.com/mpp/judge0.md",
+    },
+    provider: { name: "Judge0", url: "https://judge0.com" },
+    realm: "judge0.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /judge0/execute-code",
+        desc: "Execute Code",
+        amount: "6000",
+        unitType: "request",
+      },
+      {
+        route: "POST /judge0/submit-code",
+        desc: "Submit Code (Async)",
+        amount: "6000",
+        unitType: "request",
+      },
+      {
+        route: "POST /judge0/get-submission",
+        desc: "Get Submission",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "POST /api/laso-mpp/get-card",
-        desc: "Provision a virtual debit card",
+        route: "POST /judge0/list-languages",
+        desc: "List Languages",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /judge0/list-statuses",
+        desc: "List Statuses",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Mapbox ───────────────────────────────────────────────────────────
+  {
+    id: "mapbox",
+    name: "Mapbox",
+    url: "https://www.mapbox.com",
+    serviceUrl: "https://mapbox.mpp.paywithlocus.com",
+    description:
+      "Location and mapping APIs — geocoding, directions, isochrones, matrix routing, map matching, static maps, and spatial queries.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["maps", "geocoding", "directions", "routing", "geospatial"],
+    docs: {
+      homepage: "https://docs.mapbox.com/api/",
+      llmsTxt: "https://paywithlocus.com/mpp/mapbox.md",
+    },
+    provider: { name: "Mapbox", url: "https://www.mapbox.com" },
+    realm: "mapbox.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /mapbox/geocode-forward",
+        desc: "Forward Geocode",
+        amount: "3750",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapbox/geocode-reverse",
+        desc: "Reverse Geocode",
+        amount: "3750",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapbox/directions",
+        desc: "Directions",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapbox/matrix",
+        desc: "Matrix",
         dynamic: true,
-        amountHint: "$5.00 – $1000.00",
+        amountHint: "$0.002/element",
       },
       {
-        route: "POST /api/laso-mpp/send-payment",
-        desc: "Send payment via Venmo or PayPal",
+        route: "POST /mapbox/isochrone",
+        desc: "Isochrone",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapbox/map-matching",
+        desc: "Map Matching",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapbox/static-image",
+        desc: "Static Image",
+        amount: "4000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapbox/tilequery",
+        desc: "Tilequery",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Mathpix ──────────────────────────────────────────────────────────
+  {
+    id: "mathpix",
+    name: "Mathpix",
+    url: "https://mathpix.com",
+    serviceUrl: "https://mathpix.mpp.paywithlocus.com",
+    description:
+      "OCR for math, science, and documents — extract LaTeX, MathML, and Mathpix Markdown from images and handwriting.",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["ocr", "math", "latex", "equations", "documents"],
+    docs: {
+      homepage: "https://docs.mathpix.com",
+      llmsTxt: "https://paywithlocus.com/mpp/mathpix.md",
+    },
+    provider: { name: "Mathpix", url: "https://mathpix.com" },
+    realm: "mathpix.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /mathpix/process-image",
+        desc: "Process Image",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mathpix/process-strokes",
+        desc: "Process Strokes",
+        amount: "13000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Mistral AI ───────────────────────────────────────────────────────
+  {
+    id: "mistral",
+    name: "Mistral AI",
+    url: "https://mistral.ai",
+    serviceUrl: "https://mistral.mpp.paywithlocus.com",
+    description:
+      "Premier and open-source LLMs — Mistral Large, Medium, Small, Codestral, Magistral reasoning, Pixtral vision, text embeddings, and content moderation.",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["llm", "chat", "embeddings", "code", "reasoning"],
+    docs: {
+      homepage: "https://docs.mistral.ai",
+      llmsTxt: "https://paywithlocus.com/mpp/mistral.md",
+    },
+    provider: { name: "Mistral AI", url: "https://mistral.ai" },
+    realm: "mistral.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /mistral/chat",
+        desc: "Chat Completion",
         dynamic: true,
-        amountHint: "$5.00 – $1000.00",
+        amountHint: "$0.005 – $0.10 (varies by model and tokens)",
       },
       {
-        route: "POST /api/laso-mpp/get-card-data",
-        desc: "Get card status and details",
+        route: "POST /mistral/embed",
+        desc: "Embeddings",
+        amount: "8000",
+        unitType: "request",
       },
       {
-        route: "POST /api/laso-mpp/get-payment-status",
-        desc: "Check payment status",
+        route: "POST /mistral/moderate",
+        desc: "Moderation",
+        amount: "8000",
+        unitType: "request",
       },
       {
-        route: "POST /api/laso-mpp/get-account-balance",
-        desc: "Check account balance",
+        route: "POST /mistral/models",
+        desc: "List Models",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── OpenWeather ──────────────────────────────────────────────────────
+  {
+    id: "openweather",
+    name: "OpenWeather",
+    url: "https://openweathermap.org",
+    serviceUrl: "https://openweather.mpp.paywithlocus.com",
+    description:
+      "Global weather data — current conditions, 5-day forecasts, hourly forecasts, air quality index with pollutants, geocoding, and One Call 3.0 with full weather suite and government alerts.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["weather", "forecast", "conditions", "temperature"],
+    docs: {
+      homepage: "https://openweathermap.org/api",
+      llmsTxt: "https://paywithlocus.com/mpp/openweather.md",
+    },
+    provider: { name: "OpenWeather", url: "https://openweathermap.org" },
+    realm: "openweather.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /openweather/current-weather",
+        desc: "Current Weather",
+        amount: "6000",
+        unitType: "request",
       },
       {
-        route: "POST /api/laso-mpp/withdraw",
-        desc: "Initiate a withdrawal",
+        route: "POST /openweather/forecast-5day",
+        desc: "5-Day Forecast",
+        amount: "8000",
+        unitType: "request",
       },
       {
-        route: "POST /api/laso-mpp/get-withdrawal-status",
-        desc: "Check withdrawal status",
+        route: "POST /openweather/air-quality",
+        desc: "Air Quality",
+        amount: "6000",
+        unitType: "request",
       },
       {
-        route: "POST /api/laso-mpp/refresh-card-data",
-        desc: "Refresh card data",
+        route: "POST /openweather/geocode",
+        desc: "Geocode",
+        amount: "5000",
+        unitType: "request",
       },
       {
-        route: "POST /api/laso-mpp/refresh",
-        desc: "Exchange refresh token for new ID token",
+        route: "POST /openweather/reverse-geocode",
+        desc: "Reverse Geocode",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /openweather/onecall",
+        desc: "One Call — Full Forecast",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /openweather/weather-overview",
+        desc: "Weather Overview",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Perplexity ───────────────────────────────────────────────────────
+  {
+    id: "perplexity",
+    name: "Perplexity",
+    url: "https://perplexity.ai",
+    serviceUrl: "https://perplexity.mpp.paywithlocus.com",
+    description:
+      "AI-powered search — Sonar chat with real-time web grounding, web search, and embeddings.",
+    categories: ["ai", "search"],
+    integration: "third-party",
+    tags: ["search", "ai-search", "web-grounding", "sonar"],
+    docs: {
+      homepage: "https://docs.perplexity.ai",
+      llmsTxt: "https://paywithlocus.com/mpp/perplexity.md",
+    },
+    provider: { name: "Perplexity", url: "https://perplexity.ai" },
+    realm: "perplexity.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /perplexity/chat",
+        desc: "Sonar Chat",
+        dynamic: true,
+        amountHint: "Model-dependent (~$0.005–$0.02)",
+      },
+      {
+        route: "POST /perplexity/search",
+        desc: "Web Search",
+        dynamic: true,
+        amountHint: "$0.006",
+      },
+      {
+        route: "POST /perplexity/embed",
+        desc: "Embeddings",
+        dynamic: true,
+        amountHint: "~$0.001",
+      },
+      {
+        route: "POST /perplexity/context-embed",
+        desc: "Contextualized Embeddings",
+        dynamic: true,
+        amountHint: "~$0.001",
+      },
+    ],
+  },
+
+  // ── Phone Intelligence ───────────────────────────────────────────────
+  {
+    id: "abstract-phone-intelligence",
+    name: "Phone Intelligence",
+    url: "https://www.abstractapi.com/api/phone-validation-api",
+    serviceUrl: "https://abstract-phone-intelligence.mpp.paywithlocus.com",
+    description: "Validate and get carrier info for phone numbers worldwide.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["phone", "carrier", "validation"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/phone-intelligence",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-phone-intelligence.md",
+    },
+    provider: {
+      name: "Phone Intelligence",
+      url: "https://www.abstractapi.com/api/phone-validation-api",
+    },
+    realm: "abstract-phone-intelligence.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-phone-intelligence/lookup",
+        desc: "Lookup",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── RentCast ─────────────────────────────────────────────────────────
+  {
+    id: "rentcast",
+    name: "RentCast",
+    url: "https://rentcast.io",
+    serviceUrl: "https://rentcast.mpp.paywithlocus.com",
+    description:
+      "US real estate intelligence — property records, AVM valuations, rent estimates, sale/rental listings, and market statistics.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["real-estate", "property", "valuations", "rent-estimates"],
+    docs: {
+      homepage: "https://developers.rentcast.io/reference/introduction",
+      llmsTxt: "https://paywithlocus.com/mpp/rentcast.md",
+    },
+    provider: { name: "RentCast", url: "https://rentcast.io" },
+    realm: "rentcast.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /rentcast/properties",
+        desc: "Property Records",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/property-by-id",
+        desc: "Property by ID",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/random-properties",
+        desc: "Random Properties",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/value-estimate",
+        desc: "Value Estimate (AVM)",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/rent-estimate",
+        desc: "Rent Estimate",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/sale-listings",
+        desc: "Sale Listings",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/sale-listing-by-id",
+        desc: "Sale Listing by ID",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/rental-listings",
+        desc: "Rental Listings",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/rental-listing-by-id",
+        desc: "Rental Listing by ID",
+        amount: "33000",
+        unitType: "request",
+      },
+      {
+        route: "POST /rentcast/markets",
+        desc: "Market Statistics",
+        amount: "33000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Replicate ────────────────────────────────────────────────────────
+  {
+    id: "replicate",
+    name: "Replicate",
+    url: "https://replicate.com",
+    serviceUrl: "https://replicate.mpp.paywithlocus.com",
+    description:
+      "Run thousands of open-source AI models via API — image generation, language models, speech recognition, video, and more. Pay only for what you use.",
+    categories: ["ai", "media"],
+    integration: "third-party",
+    tags: ["ai-models", "open-source", "image-generation", "inference"],
+    docs: {
+      homepage: "https://replicate.com/docs/reference/http",
+      llmsTxt: "https://paywithlocus.com/mpp/replicate.md",
+    },
+    provider: { name: "Replicate", url: "https://replicate.com" },
+    realm: "replicate.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /replicate/run",
+        desc: "Run Model",
+        dynamic: true,
+        amountHint: "Model-dependent ($0.005–$0.05)",
+      },
+      {
+        route: "POST /replicate/get-prediction",
+        desc: "Get Prediction",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        route: "POST /replicate/get-model",
+        desc: "Get Model",
+        amount: "4000",
+        unitType: "request",
+      },
+      {
+        route: "POST /replicate/list-models",
+        desc: "List Models",
+        amount: "4000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── ScreenshotOne ────────────────────────────────────────────────────
+  {
+    id: "screenshotone",
+    name: "ScreenshotOne",
+    url: "https://screenshotone.com",
+    serviceUrl: "https://screenshotone.mpp.paywithlocus.com",
+    description:
+      "Website screenshot API — capture any URL, HTML, or markdown as PNG, JPEG, WebP, or PDF. Full-page, element selection, dark mode, ad blocking, and more.",
+    categories: ["compute"],
+    integration: "third-party",
+    tags: ["screenshots", "webpage-capture", "rendering"],
+    docs: {
+      homepage: "https://screenshotone.com/docs/getting-started/",
+      llmsTxt: "https://paywithlocus.com/mpp/screenshotone.md",
+    },
+    provider: { name: "ScreenshotOne", url: "https://screenshotone.com" },
+    realm: "screenshotone.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /screenshotone/take",
+        desc: "Take Screenshot",
+        amount: "55000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Stability AI ─────────────────────────────────────────────────────
+  {
+    id: "stability-ai",
+    name: "Stability AI",
+    url: "https://stability.ai",
+    serviceUrl: "https://stability-ai.mpp.paywithlocus.com",
+    description:
+      "Generative AI platform for images, 3D models, and audio — text-to-image, editing, upscaling, and more.",
+    categories: ["ai", "media"],
+    integration: "third-party",
+    tags: ["image-generation", "stable-diffusion", "upscaling", "3d"],
+    docs: {
+      homepage: "https://platform.stability.ai/docs/api-reference",
+      llmsTxt: "https://paywithlocus.com/mpp/stability-ai.md",
+    },
+    provider: { name: "Stability AI", url: "https://stability.ai" },
+    realm: "stability-ai.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /stability-ai/generate-ultra",
+        desc: "Generate Ultra",
+        amount: "92000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/generate-core",
+        desc: "Generate Core",
+        amount: "34000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/generate-sd3",
+        desc: "Generate SD3",
+        dynamic: true,
+        amountHint: "$0.029–$0.075 (model-dependent)",
+      },
+      {
+        route: "POST /stability-ai/erase",
+        desc: "Erase",
+        amount: "57000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/inpaint",
+        desc: "Inpaint",
+        amount: "57000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/outpaint",
+        desc: "Outpaint",
+        amount: "46000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/search-and-replace",
+        desc: "Search and Replace",
+        amount: "57000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/search-and-recolor",
+        desc: "Search and Recolor",
+        amount: "57000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/remove-background",
+        desc: "Remove Background",
+        amount: "57000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/replace-background-and-relight",
+        desc: "Replace Background & Relight",
+        amount: "92000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/upscale-fast",
+        desc: "Upscale Fast",
+        amount: "23000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/upscale-conservative",
+        desc: "Upscale Conservative",
+        amount: "460000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/upscale-creative",
+        desc: "Upscale Creative",
+        amount: "690000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/sketch",
+        desc: "Sketch",
+        amount: "57000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/structure",
+        desc: "Structure",
+        amount: "57000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/style-guide",
+        desc: "Style Guide",
+        amount: "57000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/style-transfer",
+        desc: "Style Transfer",
+        amount: "92000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/stable-fast-3d",
+        desc: "Stable Fast 3D",
+        amount: "115000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/stable-point-aware-3d",
+        desc: "Stable Point Aware 3D",
+        amount: "46000",
+        unitType: "request",
+      },
+      {
+        route: "POST /stability-ai/text-to-audio",
+        desc: "Text to Audio",
+        dynamic: true,
+        amountHint: "$0.23 (50 steps, stable-audio-2)",
+      },
+      {
+        route: "POST /stability-ai/audio-to-audio",
+        desc: "Audio to Audio",
+        dynamic: true,
+        amountHint: "$0.23 (50 steps, stable-audio-2)",
+      },
+      {
+        route: "POST /stability-ai/audio-inpaint",
+        desc: "Audio Inpaint",
+        dynamic: true,
+        amountHint: "$0.23 (50 steps, stable-audio-2)",
+      },
+      {
+        route: "POST /stability-ai/result",
+        desc: "Result",
+      },
+    ],
+  },
+
+  // ── Suno ─────────────────────────────────────────────────────────────
+  {
+    id: "suno",
+    name: "Suno",
+    url: "https://sunoapi.org",
+    serviceUrl: "https://suno.mpp.paywithlocus.com",
+    description:
+      "AI music generation — create full songs, generate lyrics, and build custom music tracks with state-of-the-art AI models. Supports custom styles, vocals, and instrumental modes.",
+    categories: ["ai", "media"],
+    integration: "third-party",
+    tags: ["music-generation", "ai-music", "lyrics", "songs"],
+    docs: {
+      homepage: "https://docs.sunoapi.org",
+      llmsTxt: "https://paywithlocus.com/mpp/suno.md",
+    },
+    provider: { name: "Suno", url: "https://sunoapi.org" },
+    realm: "suno.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /suno/generate-music",
+        desc: "Generate Music",
+        amount: "105000",
+        unitType: "request",
+      },
+      {
+        route: "POST /suno/get-music-status",
+        desc: "Get Music Status",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /suno/generate-lyrics",
+        desc: "Generate Lyrics",
+        amount: "25000",
+        unitType: "request",
+      },
+      {
+        route: "POST /suno/get-lyrics-status",
+        desc: "Get Lyrics Status",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Tavily ───────────────────────────────────────────────────────────
+  {
+    id: "tavily",
+    name: "Tavily",
+    url: "https://tavily.com",
+    serviceUrl: "https://tavily.mpp.paywithlocus.com",
+    description:
+      "AI-optimized web search, content extraction, site mapping, and crawling API.",
+    categories: ["search", "web"],
+    integration: "third-party",
+    tags: ["ai-search", "web-search", "extraction", "crawling"],
+    docs: {
+      homepage: "https://docs.tavily.com",
+      llmsTxt: "https://paywithlocus.com/mpp/tavily.md",
+    },
+    provider: { name: "Tavily", url: "https://tavily.com" },
+    realm: "tavily.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /tavily/search",
+        desc: "Search",
+        dynamic: true,
+        amountHint: "$0.09 (basic) / $0.16 (advanced)",
+      },
+      {
+        route: "POST /tavily/extract",
+        desc: "Extract",
+        dynamic: true,
+        amountHint: "$0.11+ (scales with URL count)",
+      },
+      {
+        route: "POST /tavily/map",
+        desc: "Map",
+        amount: "90000",
+        unitType: "request",
+      },
+      {
+        route: "POST /tavily/crawl",
+        desc: "Crawl",
+        dynamic: true,
+        amountHint: "$0.21+ (scales with page limit)",
+      },
+    ],
+  },
+
+  // ── Timezone ─────────────────────────────────────────────────────────
+  {
+    id: "abstract-timezone",
+    name: "Timezone",
+    url: "https://www.abstractapi.com/api/time-date-timezone-api",
+    serviceUrl: "https://abstract-timezone.mpp.paywithlocus.com",
+    description: "Current time and timezone conversion for any location.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["timezone", "time-conversion", "location"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/timezone",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-timezone.md",
+    },
+    provider: {
+      name: "Timezone",
+      url: "https://www.abstractapi.com/api/time-date-timezone-api",
+    },
+    realm: "abstract-timezone.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-timezone/current-time",
+        desc: "Current Time",
+        amount: "6000",
+        unitType: "request",
+      },
+      {
+        route: "POST /abstract-timezone/convert-time",
+        desc: "Convert Time",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── VAT ──────────────────────────────────────────────────────────────
+  {
+    id: "abstract-vat",
+    name: "VAT",
+    url: "https://www.abstractapi.com/api/vat-validation-rates-api",
+    serviceUrl: "https://abstract-vat.mpp.paywithlocus.com",
+    description:
+      "VAT number validation, rate calculation, and category lookup for EU.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["vat", "tax", "eu-compliance"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/vat",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-vat.md",
+    },
+    provider: {
+      name: "VAT",
+      url: "https://www.abstractapi.com/api/vat-validation-rates-api",
+    },
+    realm: "abstract-vat.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-vat/validate",
+        desc: "Validate",
+        amount: "6000",
+        unitType: "request",
+      },
+      {
+        route: "POST /abstract-vat/calculate",
+        desc: "Calculate",
+        amount: "6000",
+        unitType: "request",
+      },
+      {
+        route: "POST /abstract-vat/categories",
+        desc: "Categories",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Web Scraping ─────────────────────────────────────────────────────
+  {
+    id: "abstract-web-scraping",
+    name: "Web Scraping",
+    url: "https://www.abstractapi.com/api/web-scraping-api",
+    serviceUrl: "https://abstract-web-scraping.mpp.paywithlocus.com",
+    description: "Scrape web pages with optional JavaScript rendering.",
+    categories: ["web", "data"],
+    integration: "third-party",
+    tags: ["scraping", "web-pages", "javascript-rendering"],
+    docs: {
+      homepage: "https://docs.abstractapi.com/web-scraping",
+      llmsTxt: "https://paywithlocus.com/mpp/abstract-web-scraping.md",
+    },
+    provider: {
+      name: "Web Scraping",
+      url: "https://www.abstractapi.com/api/web-scraping-api",
+    },
+    realm: "abstract-web-scraping.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /abstract-web-scraping/scrape",
+        desc: "Scrape",
+        amount: "6000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Wolfram|Alpha ────────────────────────────────────────────────────
+  {
+    id: "wolframalpha",
+    name: "Wolfram|Alpha",
+    url: "https://www.wolframalpha.com",
+    serviceUrl: "https://wolframalpha.mpp.paywithlocus.com",
+    description:
+      "Computational knowledge engine — math, science, geography, history, nutrition, finance, and more. Get answers as text, spoken audio, LLM-optimized data, or full structured results.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["computation", "math", "science", "knowledge-engine"],
+    docs: {
+      homepage: "https://products.wolframalpha.com/api",
+      llmsTxt: "https://paywithlocus.com/mpp/wolframalpha.md",
+    },
+    provider: { name: "Wolfram|Alpha", url: "https://www.wolframalpha.com" },
+    realm: "wolframalpha.mpp.paywithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /wolframalpha/short-answer",
+        desc: "Short Answer",
+        amount: "55000",
+        unitType: "request",
+      },
+      {
+        route: "POST /wolframalpha/spoken",
+        desc: "Spoken Result",
+        amount: "55000",
+        unitType: "request",
+      },
+      {
+        route: "POST /wolframalpha/full-results",
+        desc: "Full Results",
+        amount: "55000",
+        unitType: "request",
+      },
+      {
+        route: "POST /wolframalpha/simple",
+        desc: "Simple (Image)",
+        amount: "55000",
+        unitType: "request",
       },
     ],
   },

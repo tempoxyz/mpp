@@ -306,6 +306,12 @@ function LandingStyles() {
         .hero-right .text-base { font-size: 1.0625rem !important; line-height: 1.65 !important; }
       }
 
+      /* ---- Narrow mobile: stack CTA buttons vertically ---- */
+      @media (max-width: 560px) {
+        .landing-ctas { flex-direction: column !important; align-items: stretch !important; }
+        .landing-ctas a { text-align: center; }
+      }
+
       /* ---- Tablet ---- */
       @media (min-width: 768px) and (max-width: 1079px) {
         .landing-hero-part { padding-left: clamp(2rem, 5vw, 4rem); padding-right: clamp(2rem, 5vw, 4rem); }

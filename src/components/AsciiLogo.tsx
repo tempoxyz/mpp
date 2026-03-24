@@ -713,7 +713,7 @@ export function AsciiLogo({
           }}
         >
           <a
-            href="/mpp-brand-assets.zip"
+            href="/brand.zip"
             download
             onClick={closeMenu}
             className="block px-3 py-2 no-underline text-[13px] rounded hover:bg-[var(--vocs-color-background-2)] cursor-pointer"

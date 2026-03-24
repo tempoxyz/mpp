@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "vocs";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { fetchServices } from "../data/registry";
+import { fetchServices, iconUrl } from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
 
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -832,6 +832,12 @@ export function ServicesPage() {
     const id = setTimeout(() => setDebouncedSearch(search), 150);
     return () => clearTimeout(id);
   }, [search]);
+
+  // Reset expanded row when search or category changes so rows don't stay grayed out
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional reset on category change
+  useEffect(() => {
+    setExpandedIds(new Set());
+  }, [debouncedSearch, selectedCategory]);
 
   const stickyObserverReady = !loading && !error;
   useEffect(() => {
@@ -2982,21 +2988,11 @@ function ServiceIcon({ service: s }: { service: Service }) {
     >
       {s.id && !imgError ? (
         <img
-          src={`/icons/${encodeURIComponent(s.id)}.svg`}
+          src={iconUrl(s.id)}
           alt=""
           width={28}
           height={28}
-          style={{
-            borderRadius: 6,
-            display: "block",
-            objectFit: "contain",
-            filter: "invert(var(--icon-invert, 0))",
-            ...(s.id === "twitter"
-              ? { width: 20, height: 20, padding: 0, margin: 4 }
-              : s.id === "digitalocean"
-                ? { padding: 5 }
-                : {}),
-          }}
+          className="svc-icon-img"
           onError={() => setImgError(true)}
         />
       ) : (
@@ -3807,6 +3803,10 @@ function PageStyles() {
         [data-services-table] table td:first-child { padding: 0.75rem 0.5rem 0.75rem 1rem !important; vertical-align: top !important; }
         [data-services-table] table td:last-child { padding: 0 !important; vertical-align: middle !important; text-align: right !important; overflow: visible !important; }
         .svc-icon { align-self: flex-start !important; margin-top: 0 !important; }
+      .svc-icon-img {
+        width: 28px; height: 28px; border-radius: 6px;
+        display: block; object-fit: contain;
+      }
         .svc-name-row { flex-direction: row !important; align-items: center !important; gap: 0.35rem !important; flex-wrap: nowrap !important; }
         .svc-name-text { white-space: nowrap !important; }
         .svc-badge-inline { display: inline !important; flex-shrink: 0 !important; }

@@ -1,0 +1,59 @@
+name: Sync Service Logos
+
+on:
+  push:
+    branches: [main]
+    paths: [schemas/discovery.json]
+  schedule:
+    - cron: "0 6 * * 1" # Every Monday at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - name: Generate discovery.json
+        run: node scripts/generate-discovery.ts
+      - name: Sync logos to Vercel Blob
+        id: sync
+        run: |
+          OUTPUT=$(node scripts/sync-logos.ts 2>&1)
+          echo "$OUTPUT"
+          SUMMARY=$(echo "$OUTPUT" | tail -1)
+          echo "summary=$SUMMARY" >> "$GITHUB_OUTPUT"
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          LOGODEV_PUBLIC_KEY: ${{ secrets.LOGODEV_PUBLIC_KEY }}
+      - name: Post job summary
+        if: always()
+        run: |
+          SUMMARY='${{ steps.sync.outputs.summary }}'
+          FAILED=$(echo "$SUMMARY" | jq -r '.failed // 0')
+          SYNCED=$(echo "$SUMMARY" | jq -r '.synced // 0')
+          TOTAL=$(echo "$SUMMARY" | jq -r '.total // 0')
+          PLACEHOLDERS=$(echo "$SUMMARY" | jq -r '.placeholders // 0')
+          echo "## 🖼️ Logo Sync Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Count |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Total services | $TOTAL |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ✅ Synced | $SYNCED |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ⚠️ Placeholders | $PLACEHOLDERS |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ❌ Failed | $FAILED |" >> "$GITHUB_STEP_SUMMARY"
+      - name: Fail if icons failed
+        if: always()
+        run: |
+          SUMMARY='${{ steps.sync.outputs.summary }}'
+          FAILED=$(echo "$SUMMARY" | jq -r '.failed // 0')
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::$FAILED icon(s) failed to sync"
+            exit 1
+          fi

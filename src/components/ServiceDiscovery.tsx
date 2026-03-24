@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { fetchServices } from "../data/registry";
+import {
+  fetchServices,
+  iconUrl as getIconUrlForService,
+} from "../data/registry";
 import { PINNED_IDS } from "./ServicesPage";
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -78,7 +81,7 @@ function getExamplePayload(ep: Endpoint): string {
 }
 
 function getIconUrl(service: Service): string {
-  return `/icons/${encodeURIComponent(service.id)}.svg`;
+  return getIconUrlForService(service.id);
 }
 
 // ---------------------------------------------------------------------------
@@ -180,6 +183,7 @@ export function ServiceDiscovery({
   const [services, setServices] = useState<Service[]>([]);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [transforms, setTransforms] = useState<
@@ -191,6 +195,7 @@ export function ServiceDiscovery({
   const inputRef = useRef<HTMLInputElement>(null);
   const brokenIcons = useRef(new Set<string>());
   const [, forceIconUpdate] = useState(0);
+
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
   const [dropdownTab, setDropdownTab] = useState<
@@ -982,12 +987,11 @@ function ServiceDetailModal({
                 src={iconUrl}
                 alt=""
                 onError={() => setImgError(true)}
+                className="discovery-card-icon-img"
                 style={{
                   width: 44,
                   height: 44,
                   borderRadius: 10,
-                  objectFit: "contain",
-                  filter: "invert(var(--icon-invert, 0))",
                 }}
               />
             ) : (
@@ -2251,7 +2255,6 @@ function DiscoveryStyles() {
         height: 28px;
         border-radius: 6px;
         object-fit: contain;
-        filter: invert(var(--icon-invert, 0));
       }
       .discovery-card-icon-fallback {
         width: 28px;
