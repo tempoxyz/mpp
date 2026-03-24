@@ -247,6 +247,7 @@ Never use `98865`—that is a deprecated chain ID.
 ## Rules
 
 1. **Alphabetize everything** - Object properties in code examples and ### parameter headings must be alphabetically ordered
+13. **Install code-groups must include npm, pnpm, and bun** - Every `:::code-group` with install commands must have all three tabs: `npm`, `pnpm`, and `bun`. Use `npm install`, `pnpm add`, and `bun add` respectively.
 12. **No `// @noErrors` in twoslash** - NEVER use `// @noErrors` in twoslash code blocks. All snippets must typecheck against the installed mppx types. If a snippet fails, fix the snippet or bump the mppx version — do not suppress the error.
 2. **No code-groups for variants** - Use separate ### sections under ## Usage for different usage patterns (e.g., `### With MCP Transport`), not `:::code-group`
 3. **Keep descriptions concise** - One line for the intro, brief explanations for parameters
