@@ -49,8 +49,6 @@ The service directory at [mpp.dev/services](https://mpp.dev/services) is curated
 
 Register your service on [MPPScan](https://www.mppscan.com/register) (by Merit Systems) — it follows the standard MPP discovery format and makes your service discoverable by agents immediately, no PR required.
 
-Need help registering? Join the [MPPscan support group](https://t.me/+AttteHA281VhOWMy).
-
 ### Submit a pull request to this repo
 
 If you want your service included in the curated `mpp.dev/services` list, open a PR and complete this checklist:
@@ -65,7 +63,6 @@ If you want your service included in the curated `mpp.dev/services` list, open a
 #### Recommended
 
 - [ ] Register your service on [MPPScan](https://www.mppscan.com/register) (by Merit Systems) — it follows the standard MPP discovery format and makes your service discoverable by agents immediately, no PR required
-- [ ] Join the [MPPscan support group](https://t.me/+AttteHA281VhOWMy) if you need help with registration or listing updates
 
 #### Review criteria
 
@@ -114,8 +111,6 @@ pnpm build
 ```
 
 4. **Open a pull request** with both `schemas/services.ts` and `schemas/discovery.json` changes.
-
-Need help? See [MPPscan support group](https://t.me/+AttteHA281VhOWMy).
 
 ## Contributing
 
