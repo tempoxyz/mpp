@@ -355,6 +355,14 @@ export default defineConfig({
               { text: "Session", link: "/payment-methods/lightning/session" },
             ],
           },
+          {
+            text: "Solana",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/solana" },
+              { text: "Charge", link: "/payment-methods/solana/charge" },
+            ],
+          },
           { text: "Custom", link: "/payment-methods/custom" },
         ],
       },

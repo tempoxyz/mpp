@@ -1,0 +1,63 @@
+---
+imageDescription: "One-time Solana payments using signed transactions or confirmed transaction signatures"
+---
+
+import { Cards } from 'vocs'
+import { SpecCard } from '../../../components/SpecCard'
+
+# Solana charge [One-time payments on Solana]
+
+The Solana implementation of the [charge](/intents/charge) intent.
+
+The server issues a charge challenge describing the expected amount, currency, recipient, and Solana-specific `methodDetails`. The client either presents a signed transaction for server broadcast or presents a confirmed transaction signature. The server verifies the transfer on-chain and returns the resource with a receipt.
+
+This method is best for fixed-price API calls, digital goods, and payments that should settle directly on Solana.
+
+## Server
+
+Use `solana.charge` to gate endpoints behind native SOL or SPL token payments.
+
+```ts
+import { Mppx } from 'mppx/server'
+import { solana } from '@solana/mpp/server'
+
+const mppx = Mppx.create({
+  methods: [solana.charge({
+    recipient: '9xAXssX9j7vuK99c7cFwqbixzL3bFrzPy9PUhCtDPAYJ',
+    network: 'devnet',
+  })],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+## Client
+
+Use `solana.charge` with `Mppx.create` to automatically handle Solana charge challenges.
+
+```ts
+import { Mppx } from 'mppx/client'
+import { solana } from '@solana/mpp/client'
+
+const mppx = Mppx.create({
+  methods: [solana.charge()],
+})
+```
+
+## Solana-specific request fields
+
+The Solana charge request extends the base charge schema with `methodDetails` fields such as:
+
+- `network`
+- `decimals`
+- `tokenProgram`
+- `feePayer`
+- `feePayerKey`
+- `splits`
+
+These fields let the server describe whether payment is in SOL or an SPL asset, whether fee sponsorship is available, and whether the payment should be split across multiple recipients.
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-solana-charge-00" />
+</Cards>

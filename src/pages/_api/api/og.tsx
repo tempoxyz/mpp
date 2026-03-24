@@ -24,6 +24,7 @@ const sidebarSubcategories: Record<string, string> = {
   "/payment-methods/stripe": "Stripe",
   "/payment-methods/card": "Card",
   "/payment-methods/lightning": "Lightning",
+  "/payment-methods/solana": "Solana",
   "/payment-methods/custom": "Custom",
   "/intents": "Intents",
   "/protocol/transports": "Transports",

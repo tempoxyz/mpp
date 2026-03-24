@@ -231,6 +231,39 @@ export function LightningSessionCard() {
   );
 }
 
+export function SolanaMethodCard() {
+  return (
+    <Card
+      description="Native SOL and SPL token payments on Solana"
+      icon="simple-icons:solana"
+      title="Solana"
+      to="/payment-methods/solana"
+    />
+  );
+}
+
+export function SolanaChargeCard() {
+  return (
+    <Card
+      description="One-time payments with signed transactions or confirmed signatures"
+      icon="simple-icons:solana"
+      title="Solana charge"
+      to="/payment-methods/solana/charge"
+    />
+  );
+}
+
+export function SolanaSessionCard() {
+  return (
+    <Card
+      description="Coming soon: Solana sessions with off-chain vouchers and on-chain settlement"
+      icon="simple-icons:solana"
+      title="Solana session"
+      to="https://github.com/tempoxyz/mpp-specs/pull/201"
+    />
+  );
+}
+
 export function StripeMethodCard() {
   return (
     <Card
