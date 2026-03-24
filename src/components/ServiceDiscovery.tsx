@@ -80,8 +80,17 @@ function getExamplePayload(ep: Endpoint): string {
   return "'{}'";
 }
 
+function domainFrom(s: Service): string | undefined {
+  if (!s.provider?.url) return undefined;
+  try {
+    return new URL(s.provider.url).hostname;
+  } catch {
+    return undefined;
+  }
+}
+
 function getIconUrl(service: Service): string {
-  return getIconUrlForService(service.id);
+  return getIconUrlForService(service.id, domainFrom(service));
 }
 
 // ---------------------------------------------------------------------------

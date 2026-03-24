@@ -6,6 +6,15 @@ import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices, iconUrl } from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
 
+function domainFrom(s: Service): string | undefined {
+  if (!s.provider?.url) return undefined;
+  try {
+    return new URL(s.provider.url).hostname;
+  } catch {
+    return undefined;
+  }
+}
+
 export const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
   blockchain: "Blockchain",
@@ -2988,7 +2997,7 @@ function ServiceIcon({ service: s }: { service: Service }) {
     >
       {s.id && !imgError ? (
         <img
-          src={iconUrl(s.id)}
+          src={iconUrl(s.id, domainFrom(s))}
           alt=""
           width={28}
           height={28}

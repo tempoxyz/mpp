@@ -1,14 +1,10 @@
 import { list } from "@vercel/blob";
 
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
+const LOGODEV_PK = process.env.LOGODEV_PUBLIC_KEY;
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=86400, stale-while-revalidate",
-};
-
-const FALLBACK_HEADERS = {
-  "Content-Type": "image/svg+xml",
-  "Cache-Control": "public, s-maxage=3600, stale-while-revalidate",
 };
 
 function letterSvg(id: string): string {
@@ -18,7 +14,7 @@ function letterSvg(id: string): string {
 
 async function blobGet(
   id: string,
-): Promise<{ body: ReadableStream; contentType: string } | null> {
+): Promise<{ data: ArrayBuffer; contentType: string } | null> {
   if (!BLOB_TOKEN) return null;
   try {
     for (const ext of ["png", "svg"]) {
@@ -29,11 +25,11 @@ async function blobGet(
       });
       if (blobs.length > 0) {
         const res = await fetch(blobs[0].url);
-        if (res.ok && res.body) {
+        if (res.ok) {
           const ct =
             res.headers.get("content-type") ??
             (ext === "svg" ? "image/svg+xml" : `image/${ext}`);
-          return { body: res.body, contentType: ct };
+          return { data: await res.arrayBuffer(), contentType: ct };
         }
       }
     }
@@ -43,41 +39,43 @@ async function blobGet(
   return null;
 }
 
-async function staticIcon(
-  request: Request,
-  id: string,
-): Promise<Response | null> {
-  try {
-    const origin = new URL(request.url).origin;
-    const res = await fetch(`${origin}/icons/${id}.svg`);
-    if (res.ok) {
-      return new Response(await res.text(), {
-        headers: { ...FALLBACK_HEADERS, ...CACHE_HEADERS },
-      });
-    }
-  } catch {
-    // static file not available
-  }
-  return null;
-}
-
 export async function GET(request: Request) {
-  const id = new URL(request.url).searchParams.get("id");
+  const url = new URL(request.url);
+  const id = url.searchParams.get("id");
   if (!id) return new Response("Missing id parameter", { status: 400 });
 
-  // 1. Static override (public/icons/*.svg) — hand-curated icons take priority
-  const override = await staticIcon(request, id);
-  if (override) return override;
-
-  // 2. Vercel Blob (logo.dev sync)
+  // 1. Vercel Blob (synced from logo.dev)
   const blob = await blobGet(id);
   if (blob) {
-    return new Response(blob.body, {
+    return new Response(blob.data, {
       headers: { "Content-Type": blob.contentType, ...CACHE_HEADERS },
     });
   }
 
+  // 2. Live logo.dev fallback
+  if (LOGODEV_PK) {
+    const domain = url.searchParams.get("domain");
+    if (domain) {
+      try {
+        const res = await fetch(
+          `https://img.logo.dev/${domain}?token=${LOGODEV_PK}&format=png&size=256&greyscale=true&theme=dark&retina=true`,
+        );
+        if (res.ok) {
+          return new Response(await res.arrayBuffer(), {
+            headers: { "Content-Type": "image/png", ...CACHE_HEADERS },
+          });
+        }
+      } catch (e) {
+        console.error(`[icon] logo.dev fallback error for ${domain}:`, e);
+      }
+    }
+  }
+
   // 3. Letter SVG (guaranteed — never 404)
-  console.warn(`[icon] no icon found for ${id}, generating letter fallback`);
-  return new Response(letterSvg(id), { headers: FALLBACK_HEADERS });
+  return new Response(letterSvg(id), {
+    headers: {
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, s-maxage=3600, stale-while-revalidate",
+    },
+  });
 }
