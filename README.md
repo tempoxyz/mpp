@@ -43,7 +43,33 @@ pnpm run preview  # Preview production build
 
 ## Contributing to the service directory
 
-The service directory at [mpp.dev/services](https://mpp.dev/services) lists all MPP-enabled services. To add or update a service, edit the registry source file and open a pull request.
+The service directory at [mpp.dev/services](https://mpp.dev/services) is curated for live, production-ready MPP services.
+
+### Fast path (recommended)
+
+Register your service on [MPPScan](https://www.mppscan.com/register) (by Merit Systems) — it follows the standard MPP discovery format and makes your service discoverable by agents immediately, no PR required.
+
+Need help registering? Join the [MPPscan support group](https://t.me/+AttteHA281VhOWMy).
+
+### Submit a pull request to this repo
+
+If you want your service included in the curated `mpp.dev/services` list, open a PR and complete this checklist:
+
+#### Required
+
+- [ ] Your service is **live and accepting payments** via MPP (not a placeholder or coming-soon)
+- [ ] You've added your entry to `schemas/services.ts`
+- [ ] Types pass: `pnpm check:types`
+- [ ] Build succeeds: `pnpm build`
+
+#### Recommended
+
+- [ ] Register your service on [MPPScan](https://www.mppscan.com/register) (by Merit Systems) — it follows the standard MPP discovery format and makes your service discoverable by agents immediately, no PR required
+- [ ] Join the [MPPscan support group](https://t.me/+AttteHA281VhOWMy) if you need help with registration or listing updates
+
+#### Review criteria
+
+We prioritize services that are **high quality and novel**. We may not approve services that duplicate existing functionality or aren't yet production-ready.
 
 ### Add a new service
 
@@ -89,6 +115,8 @@ pnpm build
 
 4. **Open a pull request** with both `schemas/services.ts` and `schemas/discovery.json` changes.
 
+Need help? See [MPPscan support group](https://t.me/+AttteHA281VhOWMy).
+
 ## Contributing
 
 Contributions to documentation, the service directory, and site improvements are welcome.
@@ -106,7 +134,7 @@ Contributions to documentation, the service directory, and site improvements are
 |-------------|---------|
 | Typo or editorial fix | Direct PR to `main` |
 | New documentation page | Follow existing page structure in `src/pages/` |
-| New service listing | Edit `schemas/services.ts`, regenerate, PR |
+| New service listing | Register on [MPPScan](https://www.mppscan.com/register) for immediate discovery; open a PR to include it in the curated `mpp.dev/services` list |
 | Service update | Edit the service entry in `schemas/services.ts`, regenerate, PR |
 | New component | Follow patterns in `src/components/` |
 | Site configuration | Open an issue first for discussion |
