@@ -2256,6 +2256,117 @@
       ]
     },
     {
+      "id": "lasso",
+      "name": "Lasso RPC",
+      "url": "https://lasso.sh",
+      "serviceUrl": "https://mpp.lasso.sh",
+      "description": "Geo-distributed EVM JSON-RPC with multi-provider routing, automatic failover, and per-request routing strategy control. Create and fund API keys via REST — no signup required. Open source (AGPL-3.0).",
+      "categories": [
+        "blockchain"
+      ],
+      "integration": "first-party",
+      "tags": [
+        "rpc",
+        "json-rpc",
+        "evm",
+        "multichain",
+        "routing",
+        "failover",
+        "geo-distributed"
+      ],
+      "status": "active",
+      "docs": {
+        "homepage": "https://lasso.sh",
+        "llmsTxt": "https://lasso.sh/llms.txt",
+        "apiReference": "https://lasso.sh/SKILL.md"
+      },
+      "methods": {
+        "tempo": {
+          "intents": [
+            "session"
+          ],
+          "assets": [
+            "0x20c000000000000000000000b9537d11c60e8b50"
+          ]
+        }
+      },
+      "realm": "mpp.lasso.sh",
+      "provider": {
+        "name": "Lasso",
+        "url": "https://lasso.sh"
+      },
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/fastest/:chain",
+          "description": "Lowest-latency RPC for trading, MEV, and time-sensitive execution.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Lowest-latency RPC for trading, MEV, and time-sensitive execution.",
+            "amount": "200",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/latency-weighted/:chain",
+          "description": "Higher-throughput RPC for indexing, production backends, and latency-aware workloads.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Higher-throughput RPC for indexing, production backends, and latency-aware workloads.",
+            "amount": "150",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/load-balanced/:chain",
+          "description": "Lowest-cost general-purpose RPC — even distribution across all providers.",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Lowest-cost general-purpose RPC — even distribution across all providers.",
+            "amount": "100",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/:chain",
+          "description": "Default strategy (latency-weighted).",
+          "payment": {
+            "intent": "session",
+            "method": "tempo",
+            "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+            "decimals": 6,
+            "description": "Default strategy (latency-weighted).",
+            "amount": "150",
+            "unitType": "request"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/pricing",
+          "description": "Per-method pricing by strategy.",
+          "payment": null
+        },
+        {
+          "method": "GET",
+          "path": "/chains",
+          "description": "Available chains and chain IDs.",
+          "payment": null
+        }
+      ]
+    },
+    {
       "id": "rpc",
       "name": "Tempo RPC",
       "url": "https://rpc.tempo.xyz",
@@ -2315,9 +2426,9 @@
       "url": "https://quicknode.com/",
       "serviceUrl": "https://mpp.quicknode.com",
       "description": "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+      "icon": "https://mpp.quicknode.com/favicon.ico",
       "categories": [
-        "rpc",
-        "json-rpc",
+        "blockchain"
       ],
       "integration": "first-party",
       "tags": [
@@ -2336,8 +2447,7 @@
       "methods": {
         "tempo": {
           "intents": [
-            "charge",
-            "session"
+            "charge"
           ],
           "assets": [
             "0x20c000000000000000000000b9537d11c60e8b50"
@@ -2359,24 +2469,24 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC method",
-            "amount": "1000"
-          },
-          "docs": "https://mpp.quicknode.com/llms.txt"
+            "description": "JSON-RPC calls - $0.001 per call",
+            "amount": "1000",
+            "unitType": "request"
+          }
         },
         {
           "method": "POST",
           "path": "/session/:network",
           "description": "JSON-RPC calls - $0.00001 per call",
           "payment": {
-            "intent": "session",
+            "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC method",
-            "amount": "10"
-          },
-          "docs": "https://mpp.quicknode.com/llms.txt"
+            "description": "JSON-RPC calls - $0.00001 per call",
+            "amount": "10",
+            "unitType": "request"
+          }
         }
       ]
     },

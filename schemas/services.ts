@@ -1115,6 +1115,67 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Lasso RPC ──────────────────────────────────────────────────────────
+  {
+    id: "lasso",
+    name: "Lasso RPC",
+    url: "https://lasso.sh",
+    serviceUrl: "https://mpp.lasso.sh",
+    description:
+      "Geo-distributed EVM JSON-RPC with multi-provider routing, automatic failover, and per-request routing strategy control. Create and fund API keys via REST — no signup required. Open source (AGPL-3.0).",
+    categories: ["blockchain"],
+    integration: "first-party",
+    tags: [
+      "rpc",
+      "json-rpc",
+      "evm",
+      "multichain",
+      "routing",
+      "failover",
+      "geo-distributed",
+    ],
+    docs: {
+      homepage: "https://lasso.sh",
+      llmsTxt: "https://lasso.sh/llms.txt",
+      apiReference: "https://lasso.sh/SKILL.md",
+    },
+    provider: { name: "Lasso", url: "https://lasso.sh" },
+    realm: "mpp.lasso.sh",
+    intent: "session",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /fastest/:chain",
+        desc: "Lowest-latency RPC for trading, MEV, and time-sensitive execution.",
+        amount: "200",
+        unitType: "request",
+      },
+      {
+        route: "POST /latency-weighted/:chain",
+        desc: "Higher-throughput RPC for indexing, production backends, and latency-aware workloads.",
+        amount: "150",
+        unitType: "request",
+      },
+      {
+        route: "POST /load-balanced/:chain",
+        desc: "Lowest-cost general-purpose RPC — even distribution across all providers.",
+        amount: "100",
+        unitType: "request",
+      },
+      {
+        route: "POST /:chain",
+        desc: "Default strategy (latency-weighted).",
+        amount: "150",
+        unitType: "request",
+      },
+      {
+        route: "GET /pricing",
+        desc: "Per-method pricing by strategy.",
+      },
+      { route: "GET /chains", desc: "Available chains and chain IDs." },
+    ],
+  },
+
   // ── Tempo RPC ──────────────────────────────────────────────────────────
   {
     id: "rpc",
