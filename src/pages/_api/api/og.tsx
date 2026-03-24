@@ -1,7 +1,7 @@
 // @ts-nocheck – server-only, uses Vite ?raw import and resvg native module
 import { initWasm, Resvg } from "@resvg/resvg-wasm";
 import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm?url";
-import ogDescriptions from "../../../generated/og-descriptions.json";
+import imageDescriptions from "../../../generated/og-descriptions.json";
 import templateSvg from "./og-template.svg?raw";
 
 const BLOB = "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com";
@@ -230,7 +230,7 @@ export async function GET(request: Request) {
   const rawDescription = url.searchParams.get("description") || "";
   const path = decodeURIComponent(url.searchParams.get("path") || "");
   const description =
-    (ogDescriptions as Record<string, string>)[path] || rawDescription;
+    (imageDescriptions as Record<string, string>)[path] || rawDescription;
   const category = getCategoryForPath(path);
   const subcategory = getSubcategoryForPath(path);
 
