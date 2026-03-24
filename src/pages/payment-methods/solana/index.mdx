@@ -1,0 +1,219 @@
+import * as SdkBadge from '../../../components/SdkBadge'
+
+# Solana [SOL and SPL token payments on Solana]
+
+The Solana payment method enables payments using native SOL and SPL tokens on the Solana blockchain. Solana currently supports the **charge** intent for one-time payments—gate any HTTP endpoint behind a Solana transaction that settles in ~400ms.
+
+## Payments on Solana
+
+Solana's architecture makes it a natural fit for machine-to-machine payments:
+
+- **Fast finality**—Transactions confirm in ~400ms, keeping payment overhead low
+- **Low fees**—Transaction costs under $0.01, viable for micropayments and per-request billing
+- **SPL token support**—Accept USDC, USDT, or any SPL token alongside native SOL
+- **Auto-created token accounts**—The client automatically creates the recipient's associated token account if it doesn't exist
+- **Memo verification**—Bind payments to specific invoices or orders with on-chain memos
+- **Fee sponsorship**—Servers can sponsor Solana transaction fees so clients only need the payment token, no SOL required
+
+## Choosing a token
+
+| | **Native SOL** | **SPL tokens** |
+|---|---|---|
+| **Currency identifier** | `solana:native` | SPL mint address |
+| **Decimals** | 9 | Varies (6 for USDC) |
+| **Best for** | Simple payments, SOL-native users | Stablecoin billing, predictable pricing |
+| **Token account** | Not needed | Auto-created if missing |
+
+## Intents
+
+<div className="vocs:grid vocs:grid-cols-1 vocs:md:grid-cols-2 vocs:gap-4">
+  <a href="/payment-methods/solana/charge" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
+    <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m13 2-2 2.5h3L12 7"/><path d="M10 14v-3"/><path d="M14 14v-3"/><path d="M11 19c-1.7 0-3-1.3-3-3v-2h8v2c0 1.7-1.3 3-3 3Z"/><path d="M12 22v-3"/></svg>
+    </div>
+    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Solana charge</div>
+    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">One-time payments settled on the Solana blockchain</div>
+  </a>
+</div>
+
+## Fee sponsorship
+
+Solana supports server-sponsored transaction fees for charge payments. When enabled, the client signs only the payment authorization—the server pays the Solana network fee in SOL and the client reimburses the server in the payment token (for example, USDC).
+
+This means clients don't need to hold SOL at all. They pay the API cost plus a small fee surcharge in the same token they are already using.
+
+### How it works
+
+```
+Client                          Server
+  │                               │
+  │  GET /api/resource            │
+  │ ─────────────────────────────►│
+  │                               │
+  │  402 + Challenge              │
+  │  (sponsored=true, sponsorPath)│
+  │ ◄─────────────────────────────│
+  │                               │
+  │  POST /sponsor                │
+  │  { publicKey, request }       │
+  │ ─────────────────────────────►│
+  │                               │
+  │  Partially signed tx          │
+  │  (feePayer=server)            │
+  │ ◄─────────────────────────────│
+  │                               │
+  │  Co-signs & sends tx          │
+  │  Retries with tx signature    │
+  │ ─────────────────────────────►│
+  │                               │
+  │  Verifies tx on-chain         │
+  │  200 + Resource + Receipt     │
+  │ ◄─────────────────────────────│
+```
+
+1. Server returns a `402` Challenge with `sponsored: true` and a `sponsorPath`
+2. Client POSTs its public key to the sponsor endpoint
+3. Server builds the transaction with itself as `feePayer`, includes the payment transfer and a small fee reimbursement transfer from user to server
+4. Server partially signs as fee payer and returns the serialized transaction
+5. Client co-signs as the payment authority and submits
+6. Server verifies the payment on-chain as usual
+
+### Server setup
+
+Pass a `sponsor` config to the Solana server method and expose a sponsor endpoint using `createSponsorHandler`:
+
+```ts [server.ts]
+import { Connection, Keypair } from "@solana/web3.js";
+import { Mppx } from "mppx/server";
+import {
+  createSponsorHandler,
+  server as solanaServer,
+} from "mppx-solana";
+
+const sponsorKeypair = Keypair.fromSecretKey(/* server fee payer key */);
+const connection = new Connection("https://api.mainnet-beta.solana.com");
+
+const mppx = Mppx.create({
+  methods: [
+    solanaServer({
+      cluster: "mainnet-beta",
+      connection,
+      currency: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      decimals: 6,
+      recipient: "MerchantWalletPublicKeyBase58",
+      sponsor: {
+        feePayer: sponsorKeypair,
+        feeTokenAmount: "10000",
+        sponsorPath: "/sponsor",
+      },
+    }),
+  ],
+  realm: "api.example.com",
+  secretKey: process.env.MPP_SECRET_KEY!,
+});
+
+const handleSponsor = createSponsorHandler({
+  connection,
+  feePayer: sponsorKeypair,
+  feeTokenAmount: "10000",
+});
+
+Bun.serve({
+  routes: {
+    "/api/resource": {
+      GET: async (request) => {
+        const result = await mppx.charge({
+          amount: "100000",
+        })(request);
+
+        if (result.status === 402) return result.challenge;
+        return result.withReceipt(Response.json({ data: "paid content" }));
+      },
+    },
+    "/sponsor": {
+      POST: handleSponsor,
+    },
+  },
+});
+```
+
+### Client
+
+No changes needed on the client side. The client automatically detects `sponsored: true` in the Challenge and uses the sponsor endpoint:
+
+```ts [client.ts]
+import { Connection, Keypair } from "@solana/web3.js";
+import { Mppx } from "mppx/client";
+import { client as solanaClient } from "mppx-solana";
+
+const mppx = Mppx.create({
+  methods: [
+    solanaClient({
+      connection: new Connection("https://api.mainnet-beta.solana.com"),
+      signer: Keypair.fromSecretKey(/* user key */),
+    }),
+  ],
+  polyfill: false,
+});
+
+const response = await mppx.fetch("https://api.example.com/api/resource");
+```
+
+### Cost breakdown
+
+For a 0.10 USDC API call with sponsored fees:
+
+| | **Without sponsorship** | **With sponsorship** |
+|---|---|---|
+| **User pays (USDC)** | 0.10 | 0.11 (0.10 + 0.01 fee) |
+| **User pays (SOL)** | ~0.002 SOL (tx fee + ATA rent) | 0 |
+| **Server pays (SOL)** | 0 | ~0.004 SOL (tx fee + ATA rent) |
+| **Server receives (USDC)** | 0 | 0.01 (fee reimbursement) |
+
+The server accumulates token reimbursements and needs to periodically swap them for SOL to stay funded. An initial SOL seed of ~0.1 SOL supports approximately 20,000+ transactions.
+
+### Sponsor configuration
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `sponsor.feePayer` | `Keypair` | Yes | Server keypair that pays Solana transaction fees |
+| `sponsor.feeTokenAmount` | `string` | Yes | Amount in token smallest unit to reimburse (for example, `"10000"` = 0.01 USDC) |
+| `sponsor.sponsorPath` | `string` | Yes | HTTP path for the sponsor endpoint (for example, `"/sponsor"`) |
+
+See [Solana charge](/payment-methods/solana/charge#with-fee-sponsorship) for the full charge integration with sponsorship.
+
+## Package
+
+The Solana payment method is provided by the [`mppx-solana`](https://github.com/nitishxyz/mppx-solana) package, a community extension for `mppx`.
+
+<div className="flex gap-2">
+  <SdkBadge.GitHub repo="nitishxyz/mppx-solana" />
+  <SdkBadge.Maintainer name="Nitish" href="https://github.com/nitishxyz" />
+</div>
+
+### Install
+
+```bash [install.sh]
+$ pnpm add mppx-solana mppx @solana/web3.js @solana/spl-token viem
+```
+
+## Server configuration
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cluster` | `string` | No | `"mainnet-beta"`, `"devnet"`, `"testnet"`, `"localnet"` |
+| `commitment` | `string` | No | `"confirmed"` (default) or `"finalized"` |
+| `connection` | `Connection` | No | Custom RPC connection |
+| `currency` | `string` | Yes | `"solana:native"` for SOL, or SPL mint address |
+| `decimals` | `number` | Yes | Token decimals (9 for SOL, 6 for USDC) |
+| `getConnection` | `function` | No | Dynamic connection factory |
+| `recipient` | `string` | Yes | Wallet address receiving payments |
+| `sponsor` | `SolanaSponsorConfig` | No | Enable sponsored/gasless transactions |
+
+## Client configuration
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `connection` | `Connection` | No | RPC connection |
+| `getConnection` | `function` | No | Dynamic connection factory |
+| `signer` | `Keypair \| SolanaSigner` | Yes | Signs transactions |
