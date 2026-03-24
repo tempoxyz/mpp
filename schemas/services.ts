@@ -5581,4 +5581,51 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── ZK Proof Service ───────────────────────────────────────────────────
+  {
+    id: "zk-proof",
+    name: "ZK Proof Service",
+    url: "https://himess-zk-proof-service.hf.space",
+    serviceUrl: "https://himess-zk-proof-service.hf.space",
+    description:
+      "Groth16 ZK proof generation for private UTXO transactions — JoinSplit circuits on BN254 curve.",
+    categories: ["compute", "blockchain"],
+    integration: "third-party",
+    tags: ["zk", "zero-knowledge", "groth16", "proof", "privacy", "snarkjs"],
+    docs: {
+      homepage: "https://github.com/Himess/zk-proof-service",
+      llmsTxt: "https://himess-zk-proof-service.hf.space/llms.txt",
+    },
+    provider: { name: "Himess", url: "https://github.com/Himess" },
+    realm: "himess-zk-proof-service.hf.space",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /circuits",
+        desc: "List available circuits and pricing",
+      },
+      {
+        route: "POST /prove/1x2",
+        desc: "Generate Groth16 proof for 1-input 2-output JoinSplit (13,726 constraints)",
+        amount: "10000",
+        unitType: "proof",
+      },
+      {
+        route: "POST /prove/2x2",
+        desc: "Generate Groth16 proof for 2-input 2-output JoinSplit (25,877 constraints)",
+        amount: "20000",
+        unitType: "proof",
+      },
+      {
+        route: "POST /verify/1x2",
+        desc: "Verify a 1x2 JoinSplit proof",
+      },
+      {
+        route: "POST /verify/2x2",
+        desc: "Verify a 2x2 JoinSplit proof",
+      },
+    ],
+  },
 ];
