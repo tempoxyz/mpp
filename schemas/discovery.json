@@ -1183,7 +1183,7 @@
             "decimals": 6,
             "description": "Execute a SQL query",
             "dynamic": true,
-            "amountHint": "$0.05-$3"
+            "amountHint": "$0.05-$4"
           }
         },
         {

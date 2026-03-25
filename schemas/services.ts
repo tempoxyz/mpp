@@ -666,7 +666,7 @@ export const services: ServiceDef[] = [
         route: "POST /api/v1/sql/execute",
         desc: "Execute a SQL query",
         dynamic: true,
-        amountHint: "$0.05-$3",
+        amountHint: "$0.05-$4",
       },
       {
         route: "GET /api/v1/execution/:execution_id/csv",
