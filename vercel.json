@@ -1,11 +1,10 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/openapi.json",
-      "destination": "/api/openapi.json"
-    }
-  ],
-  "redirects": [
+      "destination": "/api/openapi.json",
+      "permanent": false
+    },
     {
       "source": "/:path(.*)",
       "has": [{ "type": "host", "value": "mpp.tempo.xyz" }],
