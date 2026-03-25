@@ -5,7 +5,7 @@ imageDescription: "Handle payment-gated resources automatically in your frontend
 
 import { Cards } from 'vocs'
 import { ClientPrompt } from '../../components/QuickstartPrompt'
-import { ServerQuickstartCard, TempoMethodCard, MppxCreateReferenceCard } from '../../components/cards'
+import { ServerQuickstartCard, MppxCreateReferenceCard } from '../../components/cards'
 
 # Use with your app [Handle payment-gated resources automatically]
 
@@ -219,6 +219,5 @@ console.log(receipt.timestamp)
 
 <Cards>
   <ServerQuickstartCard />
-  <TempoMethodCard />
   <MppxCreateReferenceCard to="/sdk/typescript/client/Mppx.create" />
 </Cards>
