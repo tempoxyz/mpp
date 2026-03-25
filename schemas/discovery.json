@@ -1139,7 +1139,7 @@
       "name": "Dune",
       "url": "https://dune.com",
       "serviceUrl": "https://api.dune.com",
-      "description": "Execute SQL queries on Dune and retrieve results or CSV exports from completed executions.",
+      "description": "Query across raw transaction data, decoded smart contract events, stablecoin flows, RWA tracking, protocol analytics, DeFi positions, NFT activity, blockchain market research, and whatever is trending in cryptocurrencies.",
       "categories": [
         "data",
         "blockchain"
@@ -2315,9 +2315,9 @@
       "url": "https://quicknode.com/",
       "serviceUrl": "https://mpp.quicknode.com",
       "description": "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+      "icon": "https://mpp.quicknode.com/favicon.ico",
       "categories": [
-        "rpc",
-        "json-rpc",
+        "blockchain"
       ],
       "integration": "first-party",
       "tags": [
@@ -2336,8 +2336,7 @@
       "methods": {
         "tempo": {
           "intents": [
-            "charge",
-            "session"
+            "charge"
           ],
           "assets": [
             "0x20c000000000000000000000b9537d11c60e8b50"
@@ -2359,24 +2358,24 @@
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC method",
-            "amount": "1000"
-          },
-          "docs": "https://mpp.quicknode.com/llms.txt"
+            "description": "JSON-RPC calls - $0.001 per call",
+            "amount": "1000",
+            "unitType": "request"
+          }
         },
         {
           "method": "POST",
           "path": "/session/:network",
           "description": "JSON-RPC calls - $0.00001 per call",
           "payment": {
-            "intent": "session",
+            "intent": "charge",
             "method": "tempo",
             "currency": "0x20c000000000000000000000b9537d11c60e8b50",
             "decimals": 6,
-            "description": "JSON-RPC method",
-            "amount": "10"
-          },
-          "docs": "https://mpp.quicknode.com/llms.txt"
+            "description": "JSON-RPC calls - $0.00001 per call",
+            "amount": "10",
+            "unitType": "request"
+          }
         }
       ]
     },
