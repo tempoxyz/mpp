@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/openapi.json",
+      "destination": "/api/openapi.json"
+    }
+  ],
   "redirects": [
     {
       "source": "/:path(.*)",
