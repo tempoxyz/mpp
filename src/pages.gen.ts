@@ -8,10 +8,12 @@ import type { PathsForPages, GetConfigResponse } from 'waku/router';
 type Page =
 | { path: '/404'; render: 'static' }
 | { path: '/brand'; render: 'static' }
+| { path: '/extensions'; render: 'static' }
 | { path: '/faq'; render: 'static' }
 | { path: '/'; render: 'static' }
 | { path: '/overview'; render: 'static' }
 | { path: '/services'; render: 'static' }
+| { path: '/sdk/features'; render: 'static' }
 | { path: '/sdk'; render: 'static' }
 | { path: '/sdk/typescript/Method.from'; render: 'static' }
 | { path: '/sdk/typescript/cli'; render: 'static' }
@@ -99,6 +101,8 @@ type Page =
 | { path: '/payment-methods/tempo/session'; render: 'static' }
 | { path: '/payment-methods/stripe/charge'; render: 'static' }
 | { path: '/payment-methods/stripe'; render: 'static' }
+| { path: '/payment-methods/solana/charge'; render: 'static' }
+| { path: '/payment-methods/solana'; render: 'static' }
 | { path: '/payment-methods/lightning/charge'; render: 'static' }
 | { path: '/payment-methods/lightning'; render: 'static' }
 | { path: '/payment-methods/lightning/session'; render: 'static' }
