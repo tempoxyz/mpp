@@ -663,19 +663,19 @@ export const services: ServiceDef[] = [
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
-        route: "POST /v1/sql/execute",
+        route: "POST /api/v1/sql/execute",
         desc: "Execute a SQL query",
         dynamic: true,
         amountHint: "$0.05-$3",
       },
       {
-        route: "GET /v1/execution/:execution_id/csv",
+        route: "GET /api/v1/execution/:execution_id/csv",
         desc: "Download CSV results for an execution",
         dynamic: true,
         amountHint: "$0.05-$10",
       },
       {
-        route: "GET /v1/execution/:execution_id/results",
+        route: "GET /api/v1/execution/:execution_id/results",
         desc: "Fetch JSON results for an execution",
         dynamic: true,
         amountHint: "$0.05-$10",
