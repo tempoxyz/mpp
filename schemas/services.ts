@@ -652,7 +652,7 @@ export const services: ServiceDef[] = [
     url: "https://dune.com",
     serviceUrl: "https://api.dune.com",
     description:
-      "Query across raw transaction data, decoded smart contract events, stablecoin flows, RWA tracking, protocol analytics, DeFi positions, NFT activity, blockchain market research, and whatever is trending in cryptocurrencies.",
+      "Query across raw transaction data, decoded smart contract events, stablecoin flows, RWA tracking, protocol analytics, DeFi positions, NFT activity, blockchain market research, and whatever is trending in crypto.",
     categories: ["data", "blockchain"],
     integration: "first-party",
     tags: ["sql", "analytics", "blockchain", "data", "query"],
