@@ -855,6 +855,36 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── getpeon ────────────────────────────────────────────────────────────
+  {
+    id: "getpeon",
+    name: "getpeon",
+    url: "https://getpeon.xyz",
+    serviceUrl: "https://getpeon.xyz",
+    description:
+      "Token safety scanner for Tempo. Analyzes TIP-20 tokens for risk: honeypot detection, holder concentration, liquidity depth, admin permissions, supply caps, and proxy contracts. Returns a 0–100 risk score with detailed breakdowns.",
+    categories: ["blockchain"],
+    integration: "first-party",
+    tags: ["security", "tokens", "risk", "scanner", "defi", "tempo"],
+    status: "active",
+    docs: {
+      homepage: "https://getpeon.xyz",
+      llmsTxt: "https://getpeon.xyz/llms.txt",
+    },
+    provider: { name: "getpeon", url: "https://getpeon.xyz" },
+    realm: "getpeon.xyz",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /api/scan",
+        desc: "Scan a TIP-20 token for risk",
+        amount: "60000",
+      },
+      { route: "GET /api/status", desc: "Service health and version info" },
+    ],
+  },
+
   // ── Google Gemini ──────────────────────────────────────────────────────
   {
     id: "gemini",
