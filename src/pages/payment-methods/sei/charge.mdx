@@ -32,7 +32,7 @@ const mppx = Mppx.create({
 export async function handler(request: Request) {
   const result = await mppx.charge({
     amount: '1.00',
-    currency: '0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1', // USDC on Sei
+    currency: '0xe15fc38f6d8c56af07bbcbe3baf5708a2bf42392', // USDC on Sei
   })(request)
 
   if (result.status === 402) return result.challenge
