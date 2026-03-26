@@ -313,6 +313,10 @@ export default defineConfig({
       },
 
       {
+        text: "Discovery",
+        items: [{ text: "Overview", link: "/protocol/discovery" }],
+      },
+      {
         text: "Payment Methods & Intents",
         items: [
           { text: "Overview", link: "/payment-methods" },
