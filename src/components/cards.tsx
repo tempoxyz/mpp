@@ -128,6 +128,7 @@ export function ElixirSdkCard() {
       icon="simple-icons:elixir"
       title="Elixir"
       to="/sdk/elixir"
+      topRight={<Badge variant="tip">Community</Badge>}
     />
   );
 }
