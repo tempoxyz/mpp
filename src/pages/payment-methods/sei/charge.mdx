@@ -32,7 +32,7 @@ const mppx = Mppx.create({
 export async function handler(request: Request) {
   const result = await mppx.charge({
     amount: '1.00',
-    currency: '0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F2', // USDC on Sei
+    currency: '0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F1', // USDC on Sei
   })(request)
 
   if (result.status === 402) return result.challenge
@@ -49,17 +49,9 @@ Sei charge supports two credential types:
 
 The client broadcasts the transaction itself and presents the transaction hash. The server confirms the transfer on-chain before returning the resource.
 
-```http
-Authorization: Payment credential_type="hash" credential="0xabc…123"
-```
-
 ### `transaction`
 
 The client signs but does not broadcast. The signed transaction is sent to the server, which broadcasts it and waits for confirmation.
-
-```http
-Authorization: Payment credential_type="transaction" credential="0xdef…456"
-```
 
 ## Client
 
