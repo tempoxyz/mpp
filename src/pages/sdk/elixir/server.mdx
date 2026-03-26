@@ -1,0 +1,146 @@
+---
+imageDescription: "Protect Phoenix and Plug endpoints with payment requirements using MPP middleware"
+---
+
+# Server [Plug middleware for payment-gated endpoints]
+
+Mount `MPP.Plug` in any Phoenix or Plug router to protect endpoints with payment. The plug handles the full 402 challenge/credential/receipt flow.
+
+## Quick start
+
+```elixir
+plug MPP.Plug,
+  secret_key: "your-hmac-secret",
+  realm: "api.example.com",
+  method: MPP.Methods.Stripe,
+  method_config: %{stripe_secret_key: "sk_..."},
+  amount: "1000",
+  currency: "usd"
+```
+
+## Options
+
+### secret_key (required)
+
+- **Type:** `String.t()`
+
+HMAC-SHA256 key for stateless challenge ID binding. The server recomputes the HMAC on verification — no challenge store needed.
+
+### realm (required)
+
+- **Type:** `String.t()`
+
+Server protection space, included in `WWW-Authenticate` headers. Typically your API domain.
+
+### method (required)
+
+- **Type:** module implementing `MPP.Method`
+
+Payment method module for verifying credentials. Built-in: `MPP.Methods.Stripe`.
+
+### amount (required)
+
+- **Type:** `String.t()`
+
+Price in base units (e.g. `"1000"` for $10.00 USD with Stripe).
+
+### currency (required)
+
+- **Type:** `String.t()`
+
+Currency code, normalized to lowercase (e.g. `"usd"`).
+
+### method_config (optional)
+
+- **Type:** `map()`
+
+Server-only configuration passed to `MPP.Method.verify/2` via `charge.method_details`. Use this for secrets like API keys that the payment method needs but clients must not see. Never serialized into challenges.
+
+```elixir
+method_config: %{stripe_secret_key: System.get_env("STRIPE_SECRET_KEY")}
+```
+
+### recipient (optional)
+
+- **Type:** `String.t()`
+
+Payment recipient identifier included in the charge intent.
+
+### description (optional)
+
+- **Type:** `String.t()`
+
+Human-readable description attached to the challenge.
+
+### expires_in (optional)
+
+- **Type:** `integer()`
+
+Challenge TTL in seconds. Defaults to 300 (5 minutes).
+
+### opaque (optional)
+
+- **Type:** `String.t()`
+
+Base64url-encoded server correlation data included in the challenge.
+
+## Phoenix router example
+
+```elixir
+defmodule MyAppWeb.Router do
+  use MyAppWeb, :router
+
+  pipeline :paid do
+    plug MPP.Plug,
+      secret_key: Application.compile_env!(:my_app, :mpp_secret_key),
+      realm: "api.example.com",
+      method: MPP.Methods.Stripe,
+      method_config: %{
+        stripe_secret_key: Application.compile_env!(:my_app, :stripe_secret_key)
+      },
+      amount: "1000",
+      currency: "usd"
+  end
+
+  scope "/api", MyAppWeb do
+    pipe_through [:api, :paid]
+    get "/data", DataController, :show
+    get "/report", ReportController, :show
+  end
+end
+```
+
+## Accessing the receipt
+
+After successful payment verification, the receipt is available in `conn.assigns`:
+
+```elixir
+def show(conn, _params) do
+  receipt = conn.assigns[:mpp_receipt]
+  json(conn, %{data: "paid content", reference: receipt.reference})
+end
+```
+
+## Custom payment methods
+
+Implement the `MPP.Method` behaviour to add new payment methods:
+
+```elixir
+defmodule MyApp.Payments.CustomMethod do
+  @behaviour MPP.Method
+
+  @impl true
+  def verify(credential, charge) do
+    # Verify the payment and return a receipt or error
+    {:ok, %MPP.Receipt{status: "success", reference: "ref_123", ...}}
+  end
+end
+```
+
+Then use it in your plug configuration:
+
+```elixir
+plug MPP.Plug,
+  method: MyApp.Payments.CustomMethod,
+  # ...
+```
