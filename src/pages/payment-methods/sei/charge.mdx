@@ -45,13 +45,13 @@ export async function handler(request: Request) {
 
 Sei charge supports two credential types:
 
-### `hash`
-
-The client broadcasts the transaction itself and presents the transaction hash. The server confirms the transfer on-chain before returning the resource.
-
 ### `transaction`
 
 The client signs but does not broadcast. The signed transaction is sent to the server, which broadcasts it and waits for confirmation.
+
+### `hash`
+
+The client broadcasts the transaction itself and presents the transaction hash. The server confirms the transfer on-chain before returning the resource.
 
 ## Client
 
