@@ -5581,4 +5581,34 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Zinc ──────────────────────────────────────────────────────────────────
+  {
+    id: "zinc",
+    name: "Zinc",
+    url: "https://zinc.com",
+    serviceUrl: "https://api.zinc.com",
+    description:
+      "Buy products from online retailers with an API call. Search, order, track, and return items across Amazon and more — supports AI agent ordering via MPP.",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["ecommerce", "shopping", "orders", "amazon", "retail", "purchasing"],
+    docs: {
+      homepage: "https://zinc.com/docs",
+      llmsTxt: "https://zinc.com/docs/llms.txt",
+      apiReference: "https://api.zinc.com/openapi.json",
+    },
+    provider: { name: "Zinc", url: "https://zinc.com" },
+    realm: "api.zinc.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /agent/orders",
+        desc: "Place an order via MPP — no account required",
+        dynamic: true,
+        amountHint: "Product price + shipping + tax + $1 API fee",
+      },
+    ],
+  },
 ];
