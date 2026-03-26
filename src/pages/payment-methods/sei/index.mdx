@@ -1,0 +1,37 @@
+---
+imageDescription: "ERC-20 stablecoin payments on Sei with sub-second finality"
+---
+
+# Sei [ERC-20 stablecoin payments on Sei]
+
+The Sei payment method enables MPP payments using ERC-20 stablecoins on [Sei](https://sei.io), an EVM-compatible L1 with ~400ms finality. Sei supports the **charge** intent for one-time payments settled directly on-chain.
+
+Because Sei is fully EVM-compatible, it works with standard Ethereum tooling—viem, ethers, and any ERC-20 wallet.
+
+## Why Sei
+
+Sei's architecture provides several properties useful for MPP:
+
+- **~400ms finality**—Deterministic confirmation in under half a second, no probabilistic waiting
+- **EVM compatibility**—Standard ERC-20 transfers using existing Ethereum tooling
+- **Low fees**—Transaction costs suitable for micropayments and per-request billing
+- **USDC and USDT support**—Pay with widely-held stablecoins
+
+## Chain IDs
+
+| Network | Chain ID |
+|---|---|
+| Mainnet | `1329` |
+| Testnet | `713715` |
+
+## Intents
+
+<div className="vocs:grid vocs:grid-cols-1 vocs:md:grid-cols-2 vocs:gap-4">
+  <a href="/payment-methods/sei/charge" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
+    <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+    </div>
+    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Sei charge</div>
+    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">One-time ERC-20 payments settled on Sei</div>
+  </a>
+</div>

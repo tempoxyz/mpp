@@ -367,6 +367,14 @@ export default defineConfig({
               { text: "Charge", link: "/payment-methods/solana/charge" },
             ],
           },
+          {
+            text: "Sei",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/sei" },
+              { text: "Charge", link: "/payment-methods/sei/charge" },
+            ],
+          },
           { text: "Custom", link: "/payment-methods/custom" },
         ],
       },

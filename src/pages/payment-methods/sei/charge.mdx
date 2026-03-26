@@ -1,0 +1,87 @@
+---
+imageDescription: "One-time ERC-20 token transfers on Sei with sub-second on-chain settlement"
+---
+
+import { Cards } from 'vocs'
+import { SpecCard } from '../../../components/SpecCard'
+
+# Sei charge [One-time ERC-20 token transfers on Sei]
+
+The Sei implementation of the [charge](/intents/charge) intent.
+
+The client submits an ERC-20 `transfer` transaction on Sei. The server verifies the transfer on-chain and returns the resource with a receipt. Settlement completes in ~400ms.
+
+This method is best for single API calls, content access, or one-off purchases paid with USDC or USDT on Sei.
+
+## Server
+
+Use `sei.charge` to gate endpoints behind ERC-20 token payments on Sei.
+
+```ts
+import { Mppx } from 'mppx/server'
+import { sei } from '@sei/mpp/server'
+
+const mppx = Mppx.create({
+  methods: [sei.charge({
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    chainId: 1329,
+  })],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({
+    amount: '1.00',
+    currency: '0x3894085Ef7Ff0f0aeDf52E2A2704928d1Ec074F2', // USDC on Sei
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+## Credential types
+
+Sei charge supports two credential types:
+
+### `hash`
+
+The client broadcasts the transaction itself and presents the transaction hash. The server confirms the transfer on-chain before returning the resource.
+
+```http
+Authorization: Payment credential_type="hash" credential="0xabc…123"
+```
+
+### `transaction`
+
+The client signs but does not broadcast. The signed transaction is sent to the server, which broadcasts it and waits for confirmation.
+
+```http
+Authorization: Payment credential_type="transaction" credential="0xdef…456"
+```
+
+## Client
+
+Use `sei.charge` with `Mppx.create` to automatically handle Sei charge challenges. The client parses the challenge, signs an ERC-20 transfer, and retries with the credential.
+
+```ts
+import { Mppx } from 'mppx/client'
+import { sei } from '@sei/mpp/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0xabc…123')
+
+const mppx = Mppx.create({
+  methods: [sei.charge({ account })],
+  polyfill: false,
+})
+
+const response = await mppx.fetch('https://api.example.com/resource')
+```
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-sei-charge-00" />
+</Cards>

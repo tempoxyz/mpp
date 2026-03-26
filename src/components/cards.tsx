@@ -297,6 +297,28 @@ export function CardChargeCard() {
   );
 }
 
+export function SeiMethodCard() {
+  return (
+    <Card
+      description="ERC-20 stablecoin payments on Sei with sub-second finality"
+      icon="lucide:link"
+      title="Sei"
+      to="/payment-methods/sei"
+    />
+  );
+}
+
+export function SeiChargeCard() {
+  return (
+    <Card
+      description="One-time ERC-20 payments settled on Sei"
+      icon="lucide:link"
+      title="Sei charge"
+      to="/payment-methods/sei/charge"
+    />
+  );
+}
+
 export function CustomMethodCard() {
   return (
     <Card
