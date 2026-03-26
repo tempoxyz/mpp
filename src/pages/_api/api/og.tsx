@@ -120,15 +120,15 @@ function wrapText(text: string, maxChars: number, maxLines: number): string[] {
   const lines: string[] = [];
   let cur = "";
   for (const w of words) {
-    if (lines.length >= maxLines - 1 && (cur + " " + w).length > maxChars) {
-      lines.push((cur + " " + w).slice(0, maxChars - 1) + "\u2026");
+    if (lines.length >= maxLines - 1 && `${cur} ${w}`.length > maxChars) {
+      lines.push(`${(`${cur} ${w}`).slice(0, maxChars - 1)}\u2026`);
       return lines;
     }
-    if (cur && (cur + " " + w).length > maxChars) {
+    if (cur && `${cur} ${w}`.length > maxChars) {
       lines.push(cur);
       cur = w;
     } else {
-      cur = cur ? cur + " " + w : w;
+      cur = cur ? `${cur} ${w}` : w;
     }
   }
   if (cur) lines.push(cur);
