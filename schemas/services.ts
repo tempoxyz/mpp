@@ -1218,6 +1218,39 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Pinata IPFS ──────────────────────────────────────────────────────────
+  {
+    id: "pinata",
+    name: "Pinata IPFS",
+    url: "https://pinata.cloud",
+    serviceUrl: "https://mpp.pinata.cloud",
+    description:
+      "Paid Pinata IPFS storage — upload and download public files via MPP.",
+    categories: ["storage"],
+    integration: "first-party",
+    tags: ["ipfs", "pinata", "storage", "files", "upload", "download", "cid"],
+    docs: { homepage: "https://docs.pinata.cloud" },
+    provider: { name: "Pinata", url: "https://pinata.cloud" },
+    realm: "mpp.pinata.cloud",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /v1/pin/public",
+        desc: "Upload file to IPFS — dynamic pricing based on file size ($0.10/GB/month, min $0.001)",
+        dynamic: true,
+        amountHint: "$0.001+",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/pin/public/:cid",
+        desc: "Download file from IPFS — $0.001 per request",
+        amount: "1000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── StableEmail ────────────────────────────────────────────────────────
   {
     id: "stableemail",
