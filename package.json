@@ -23,6 +23,7 @@
     "@base-ui/react": "^1.1.0",
     "@resvg/resvg-wasm": "^2.6.2",
     "@stripe/stripe-js": "^8.9.0",
+    "@upstash/redis": "^1.37.0",
     "@vercel/blob": "^2.3.1",
     "mermaid": "^11.12.2",
     "mppx": "https://pkg.pr.new/mppx@231",
