@@ -114,8 +114,10 @@ function writeSessionCache(data: Service[]) {
 // Logo helpers
 // ---------------------------------------------------------------------------
 
-export function iconUrl(serviceId: string): string {
-  return `/api/icon?id=${encodeURIComponent(serviceId)}`;
+export function iconUrl(serviceId: string, domain?: string): string {
+  const params = new URLSearchParams({ id: serviceId });
+  if (domain) params.set("domain", domain);
+  return `/api/icon?${params}`;
 }
 
 export function useIsDark(): boolean {

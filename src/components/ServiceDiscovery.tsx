@@ -3,10 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
-import {
-  fetchServices,
-  iconUrl as getIconUrlForService,
-} from "../data/registry";
+import { fetchServices } from "../data/registry";
+import { ServiceLogo } from "./ServiceLogo";
 import { PINNED_IDS } from "./ServicesPage";
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -78,10 +76,6 @@ function getExamplePayload(ep: Endpoint): string {
     return '\'{"origin":"SFO","destination":"JFK","date":"2026-04-01"}\'';
   }
   return "'{}'";
-}
-
-function getIconUrl(service: Service): string {
-  return getIconUrlForService(service.id);
 }
 
 // ---------------------------------------------------------------------------
@@ -193,8 +187,6 @@ export function ServiceDiscovery({
   const overlayRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const brokenIcons = useRef(new Set<string>());
-  const [, forceIconUpdate] = useState(0);
 
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
@@ -656,7 +648,6 @@ export function ServiceDiscovery({
         <div className="discovery-grid" ref={gridRef}>
           {stableScored.slice(0, 48).map(({ service, score }) => {
             const isMatch = (!debouncedQuery && !externalCategory) || score > 0;
-            const iconUrl = getIconUrl(service);
             const t = transforms[service.id];
             const isAnimating = hasQuery && isMatch && t;
 
@@ -748,21 +739,11 @@ export function ServiceDiscovery({
                     zIndex: 1,
                   }}
                 >
-                  {iconUrl && !brokenIcons.current.has(service.id) ? (
-                    <img
-                      src={iconUrl}
-                      alt=""
-                      className="discovery-card-icon-img"
-                      onError={() => {
-                        brokenIcons.current.add(service.id);
-                        forceIconUpdate((n) => n + 1);
-                      }}
-                    />
-                  ) : (
-                    <div className="discovery-card-icon-fallback">
-                      {service.name[0]}
-                    </div>
-                  )}
+                  <ServiceLogo
+                    service={service}
+                    size={28}
+                    className="discovery-card-icon-img"
+                  />
                   {service.integration !== "third-party" && (
                     <span
                       className="discovery-card-fp-dot"
@@ -850,7 +831,6 @@ function ServiceDetailModal({
   const [copiedEndpoint, setCopiedEndpoint] = useState<string | null>(null);
   const [copiedJson, setCopiedJson] = useState(false);
   const [showAgentTip, setShowAgentTip] = useState(false);
-  const [imgError, setImgError] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
   const handleClose = useCallback(() => {
@@ -865,8 +845,6 @@ function ServiceDetailModal({
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [handleClose]);
-
-  const iconUrl = getIconUrl(service);
 
   function formatPrice(ep: Endpoint): string {
     const p = ep.payment;
@@ -982,36 +960,12 @@ function ServiceDetailModal({
         {/* Header */}
         <div className="modal-header">
           <div style={{ marginBottom: 12 }}>
-            {iconUrl && !imgError ? (
-              <img
-                src={iconUrl}
-                alt=""
-                onError={() => setImgError(true)}
-                className="discovery-card-icon-img"
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 10,
-                  background: "var(--vocs-border-color-primary)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 20,
-                  fontWeight: 600,
-                  color: "var(--vocs-text-color-secondary)",
-                }}
-              >
-                {service.name[0]}
-              </div>
-            )}
+            <ServiceLogo
+              service={service}
+              size={44}
+              className="discovery-card-icon-img"
+              style={{ borderRadius: 10 }}
+            />
           </div>
           <div
             style={{

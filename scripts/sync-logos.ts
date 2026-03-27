@@ -6,7 +6,9 @@
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import * as zlib from "node:zlib";
 import { put } from "@vercel/blob";
+import { logoDevUrl } from "../src/lib/logodev.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -58,7 +60,7 @@ const DOMAIN_OVERRIDES: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 function decodePngPixels(buf: ArrayBuffer) {
-  const { inflateSync } = require("node:zlib") as typeof import("node:zlib");
+  const { inflateSync } = zlib;
   const bytes = new Uint8Array(buf);
   if (bytes.length < 26) return null;
   const colorType = bytes[25];
@@ -184,7 +186,7 @@ function domainForService(svc: ServiceEntry): string | null {
 }
 
 function logoUrl(domain: string): string {
-  return `https://img.logo.dev/${domain}?token=${LOGODEV_PK}&format=png&size=256&greyscale=true&theme=dark&fallback=monogram&retina=true`;
+  return logoDevUrl(domain, { token: LOGODEV_PK! });
 }
 
 // ---------------------------------------------------------------------------
