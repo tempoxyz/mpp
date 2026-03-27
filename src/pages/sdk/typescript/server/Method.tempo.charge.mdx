@@ -176,3 +176,35 @@ Server-defined correlation data, serialized as `opaque` on the Challenge.
 - **Type:** `string`
 
 Address to receive the payment.
+
+### splits (optional)
+
+- **Type:** `Array<{ amount: string; memo?: string; recipient: string }>`
+
+Split the charge across additional recipients. Each entry specifies an `amount` (in human-readable units) and a `recipient` address. The primary `recipient` receives `amount` minus the sum of all split amounts.
+
+| Constraint | Value |
+|---|---|
+| Array length | 1–10 |
+| Each split amount | Must be > 0 |
+| Sum of splits | Must be strictly less than `amount` |
+| Split memo | Optional, 32-byte hex hash |
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+// ---cut---
+export async function handler(request: Request) {
+  const response = await mppx.charge({
+    amount: '1.00',
+    currency: '0x20c0000000000000000000000000000000000000', // pathUSD
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // seller
+    splits: [ // [!code focus]
+      { amount: '0.10', recipient: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' }, // platform fee // [!code focus]
+    ], // [!code focus]
+  })(request)
+
+  if (response.status === 402) return response.challenge
+  return response.withReceipt(Response.json({ data: '...' }))
+}

@@ -288,6 +288,10 @@ export default defineConfig({
             link: "/guides/streamed-payments",
           },
           {
+            text: "Accept split payments",
+            link: "/guides/split-payments",
+          },
+          {
             text: "Accept multiple payment methods",
             link: "/guides/multiple-payment-methods",
           },
