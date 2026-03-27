@@ -4759,6 +4759,45 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Merx ────────────────────────────────────────────────────────────────
+  {
+    id: "merx",
+    name: "Merx API",
+    url: "https://api.merxprotocol.eu",
+    serviceUrl: "https://api.merxprotocol.eu",
+    description:
+      "European business data — French company verification (SIRET + BODACC risk scoring), EU VAT validation (VIES), and legal search.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["business", "europe", "company", "vat", "legal", "france", "compliance"],
+    docs: {
+      homepage: "https://merxprotocol.eu",
+      llmsTxt: "https://api.merxprotocol.eu/llms.txt",
+      apiReference: "https://api.merxprotocol.eu/v1/endpoints",
+    },
+    provider: { name: "Merx", url: "https://merxprotocol.eu" },
+    realm: "api.merxprotocol.eu",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /v1/company/:siret",
+        desc: "French company check — legal status, directors, BODACC risk score",
+        amount: "100000",
+      },
+      {
+        route: "GET /v1/vat/:country/:number",
+        desc: "EU VAT number validation — all 27 member states via VIES",
+        amount: "50000",
+      },
+      {
+        route: "GET /v1/legal/search",
+        desc: "French legal search — laws, decrees, case law",
+        amount: "150000",
+      },
+    ],
+  },
+
   // ── Mathpix ──────────────────────────────────────────────────────────
   {
     id: "mathpix",
