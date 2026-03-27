@@ -616,6 +616,171 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Build With Locus ───────────────────────────────────────────────────
+  {
+    id: "buildwithlocus",
+    name: "Build With Locus",
+    url: "https://mpp.buildwithlocus.com",
+    serviceUrl: "https://mpp.buildwithlocus.com",
+    description:
+      "Deploy containerized services, Postgres, Redis, and custom domains on demand — all via REST API. Pay-per-use credit billing.",
+    categories: ["compute"],
+    integration: "first-party",
+    tags: [
+      "deploy",
+      "containers",
+      "paas",
+      "hosting",
+      "postgres",
+      "redis",
+      "domains",
+      "monorepo",
+      "github",
+    ],
+    docs: {
+      homepage: "https://docs.paywithlocus.com/build",
+    },
+    provider: { name: "Locus", url: "https://buildwithlocus.com" },
+    realm: "mpp.buildwithlocus.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      // Auth
+      {
+        route: "POST /v1/auth/mpp-sign-up",
+        desc: "Bootstrap workspace via MPP payment — returns JWT and workspace ID",
+        amount: "1000",
+        unitType: "request",
+      },
+      { route: "GET /v1/auth/whoami", desc: "Current user and workspace info" },
+      // Billing
+      {
+        route: "POST /v1/billing/mpp-top-up",
+        desc: "Add credits to workspace via MPP payment",
+        dynamic: true,
+        amountHint: "$1–$100",
+      },
+      {
+        route: "GET /v1/billing/balance",
+        desc: "Credit balance and billing summary",
+      },
+      { route: "GET /v1/billing/transactions", desc: "Credit ledger history" },
+      {
+        route: "GET /v1/billing/services",
+        desc: "Billable services with rate breakdown",
+      },
+      // Projects
+      { route: "POST /v1/projects", desc: "Create a project" },
+      { route: "GET /v1/projects", desc: "List projects" },
+      { route: "GET /v1/projects/:projectId", desc: "Get project" },
+      { route: "PATCH /v1/projects/:projectId", desc: "Update project" },
+      { route: "DELETE /v1/projects/:projectId", desc: "Delete project" },
+      // Environments
+      {
+        route: "POST /v1/projects/:projectId/environments",
+        desc: "Create environment",
+      },
+      {
+        route: "GET /v1/projects/:projectId/environments",
+        desc: "List environments",
+      },
+      {
+        route: "GET /v1/projects/:projectId/environments/:envId",
+        desc: "Get environment",
+      },
+      {
+        route: "DELETE /v1/projects/:projectId/environments/:envId",
+        desc: "Delete environment",
+      },
+      // Services
+      { route: "POST /v1/services", desc: "Create a service" },
+      { route: "GET /v1/services/:serviceId", desc: "Get service status" },
+      { route: "PATCH /v1/services/:serviceId", desc: "Update service" },
+      { route: "DELETE /v1/services/:serviceId", desc: "Delete service" },
+      {
+        route: "GET /v1/services/environment/:environmentId",
+        desc: "List services in environment",
+      },
+      {
+        route: "POST /v1/services/:serviceId/restart",
+        desc: "Rolling restart without rebuild",
+      },
+      {
+        route: "POST /v1/services/:serviceId/redeploy",
+        desc: "Redeploy latest image",
+      },
+      // Deployments
+      { route: "POST /v1/deployments", desc: "Trigger deployment" },
+      {
+        route: "GET /v1/deployments/:deploymentId",
+        desc: "Get deployment status",
+      },
+      {
+        route: "GET /v1/deployments/service/:serviceId",
+        desc: "List deployments for service",
+      },
+      {
+        route: "POST /v1/deployments/:deploymentId/cancel",
+        desc: "Cancel deployment",
+      },
+      {
+        route: "POST /v1/deployments/:deploymentId/rollback",
+        desc: "Rollback to previous image",
+      },
+      {
+        route: "GET /v1/deployments/:deploymentId/logs",
+        desc: "Stream deployment logs (SSE)",
+      },
+      // Variables
+      {
+        route: "PUT /v1/variables/service/:serviceId",
+        desc: "Replace all service variables",
+      },
+      {
+        route: "PATCH /v1/variables/service/:serviceId",
+        desc: "Merge service variables",
+      },
+      {
+        route: "GET /v1/variables/service/:serviceId/resolved",
+        desc: "Resolved variables with addon injections",
+      },
+      // Monorepo
+      {
+        route: "POST /v1/projects/from-repo",
+        desc: "Deploy full stack from GitHub repo",
+      },
+      {
+        route: "POST /v1/projects/from-locusbuild",
+        desc: "Deploy from inline .locusbuild config",
+      },
+      // Addons
+      { route: "POST /v1/addons", desc: "Create Postgres or Redis addon" },
+      { route: "GET /v1/addons/:addonId", desc: "Get addon status" },
+      {
+        route: "GET /v1/addons/environment/:envId",
+        desc: "List addons in environment",
+      },
+      { route: "DELETE /v1/addons/:addonId", desc: "Delete addon" },
+      // Domains
+      { route: "POST /v1/domains", desc: "Register BYOD domain" },
+      { route: "GET /v1/domains", desc: "List all domains" },
+      {
+        route: "POST /v1/domains/:domainId/verify",
+        desc: "Verify domain CNAME and cert",
+      },
+      {
+        route: "POST /v1/domains/:domainId/attach",
+        desc: "Attach domain to service",
+      },
+      { route: "DELETE /v1/domains/:domainId", desc: "Delete domain" },
+      // Webhooks
+      { route: "POST /v1/webhooks", desc: "Create webhook" },
+      { route: "GET /v1/webhooks", desc: "List webhooks" },
+      { route: "PATCH /v1/webhooks/:webhookId", desc: "Update webhook" },
+      { route: "DELETE /v1/webhooks/:webhookId", desc: "Delete webhook" },
+    ],
+  },
+
   // ── Codex ──────────────────────────────────────────────────────────────
   {
     id: "codex",
