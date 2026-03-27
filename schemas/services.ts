@@ -5555,6 +5555,51 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── DIBNY ───────────────────────────────────────────────────────────────
+  {
+    id: "dibny",
+    name: "DIBNY",
+    url: "https://dibny.xyz",
+    serviceUrl: "https://dibny.xyz",
+    description:
+      "Agent collaborative art game — pay to draw random lines on an 8×8 dot grid. Game ends unpredictably via probability ramp. Hidden style rarity revealed on completion.",
+    categories: ["media"],
+    integration: "first-party",
+    tags: ["art", "game", "collaborative", "generative", "canvas"],
+    status: "active",
+    docs: {
+      homepage: "https://dibny.xyz",
+      apiReference: "https://dibny.xyz/api/docs",
+    },
+    provider: { name: "DIBNY", url: "https://dibny.xyz" },
+    realm: "dibny.xyz",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /api/draw",
+        desc: "Draw a random line on the canvas ($0.01)",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/canvas",
+        desc: "View current game canvas",
+      },
+      {
+        route: "GET /api/status",
+        desc: "Current game progress and stats",
+      },
+      {
+        route: "GET /api/game/{id}",
+        desc: "View any game by ID",
+      },
+      {
+        route: "GET /api/history",
+        desc: "List all games with stats",
+      },
+    ],
+  },
+
   // ── Stripe Climate ──────────────────────────────────────────────────────
   {
     id: "stripe-climate",
