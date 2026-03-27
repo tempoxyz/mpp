@@ -391,6 +391,31 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── AgenticTotem ────────────────────────────────────────────────────────
+  {
+    id: "agentic-totem",
+    name: "AgenticTotem",
+    url: "https://agentictotem.com",
+    serviceUrl: "https://agentictotem.com",
+    description:
+      "Structured web data extraction for AI agents. Send URLs and a JSON Schema, get back structured data.",
+    categories: ["web", "data", "ai"],
+    integration: "first-party",
+    tags: ["extraction", "web-scraping", "structured-data", "ai-agents", "mcp"],
+    docs: { homepage: "https://agentictotem.com" },
+    provider: { name: "AgenticTotem", url: "https://agentictotem.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /extract",
+        desc: "Extract structured data from web pages",
+        amount: "10000",
+      },
+    ],
+  },
+
   // ── Allium ──────────────────────────────────────────────────────────────
   {
     id: "allium",
