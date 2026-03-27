@@ -1,0 +1,283 @@
+---
+description: "Advertise your API's payment terms with an OpenAPI discovery document so clients and agents know what endpoints cost before making requests."
+imageDescription: "How MPP services advertise payment terms using OpenAPI discovery documents with x-payment-info extensions"
+---
+
+# Discovery [Advertise your service's payment terms]
+
+MPPs discovery system lets clients learn what your endpoints cost before making a request. You serve a standard [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at `/openapi.json` with `x-payment-info` extensions on each paid operation.
+
+:::info[IETF Specification]
+This page is a developer-friendly overview. For the full normative spec, see [draft-payment-discovery-00](https://paymentauth.org/draft-payment-discovery-00.html) on [paymentauth.org](https://paymentauth.org).
+:::
+
+## How it works
+
+Your server exposes a `GET /openapi.json` endpoint that returns an OpenAPI document. Paid operations include an `x-payment-info` extension with the payment terms, and the document root can include `x-service-info` for service-level metadata.
+
+```json [/openapi.json]
+{
+  "openapi": "3.1.0",
+  "info": { "title": "My API", "version": "1.0.0" },
+  "x-service-info": {
+    "categories": ["ai"],
+    "docs": {
+      "homepage": "https://example.com",
+      "apiReference": "https://example.com/docs",
+      "llms": "/llms.txt"
+    }
+  },
+  "paths": {
+    "/v1/generate": {
+      "post": {
+        "x-payment-info": { // [!code highlight]
+          "amount": "1000000", // [!code highlight]
+          "currency": "0x20c0000000000000000000000000000000000001", // [!code highlight]
+          "description": "Generate text", // [!code highlight]
+          "intent": "charge", // [!code highlight]
+          "method": "tempo" // [!code highlight]
+        }, // [!code highlight]
+        "responses": {
+          "200": { "description": "Successful response" },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    },
+    "/v1/models": {
+      "get": {
+        "responses": {
+          "200": { "description": "Successful response" }
+        }
+      }
+    }
+  }
+}
+```
+
+:::info[Discovery is advisory]
+Discovery documents are informational hints. The runtime `402` Challenge remains the authoritative source of payment terms. Clients use discovery for display and planning, but defer to the Challenge for actual payment.
+:::
+
+### `x-payment-info`
+
+Added to any operation that requires payment:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `amount` | `string` | Payment amount in base units |
+| `currency` | `string` | Currency code or token address |
+| `description` | `string` | Human-readable description of the charge |
+| `intent` | `string` | Payment intent (`charge` or `session`) |
+| `method` | `string` | Payment method identifier (`tempo`, `stripe`) |
+
+### `x-service-info`
+
+Optional root-level metadata about the service:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `categories` | `string[]` | Free-form service categories (for example, `ai`, `payments`) |
+| `docs.homepage` | `string` | Link to the service homepage |
+| `docs.apiReference` | `string` | Link to API documentation |
+| `docs.llms` | `string` | Link to an `llms.txt` file for AI consumption |
+
+## Generate with `mppx`
+
+The `mppx` SDK generates discovery documents from your route configuration. Each framework integration includes a `discovery()` helper.
+
+### Hono
+
+Hono supports automatic route introspection. Set `auto: true` and `mppx` reads payment metadata directly from your registered routes.
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Mppx, discovery } from 'mppx/hono'
+import { tempo } from 'mppx/server'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({ // [!code hl]
+      currency: '0x20c0000000000000000000000000000000000000', // [!code hl]
+      recipient: '0x...', // [!code hl]
+      testnet: true, // [!code hl]
+    }), // [!code hl]
+  ],
+  secretKey: process.env.MPP_SECRET_KEY,
+})
+
+app.get('/v1/fortune', mppx.charge({ amount: '0.01' }), (c) => c.json({ fortune: 'You will be rich' }))
+
+discovery(app, mppx, { // [!code hl]
+  auto: true, // [!code hl]
+  info: { title: 'Fortune API', version: '1.0.0' }, // [!code hl]
+}) // [!code hl]
+```
+
+### Express
+
+```ts [server.ts]
+import express from 'express'
+import { Mppx, discovery } from 'mppx/express'
+import { tempo } from 'mppx/server'
+
+const app = express()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      currency: '0x20c0000000000000000000000000000000000000',
+      recipient: '0x...',
+      testnet: true,
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY,
+})
+
+const pay = mppx.charge({ amount: '0.01' })
+app.get('/v1/fortune', pay, (req, res) => res.json({ fortune: 'You will be rich' }))
+
+discovery(app, mppx, { // [!code hl]
+  info: { title: 'Fortune API', version: '1.0.0' }, // [!code hl]
+  routes: [{ handler: pay, method: 'get', path: '/v1/fortune' }], // [!code hl]
+}) // [!code hl]
+```
+
+### Next.js
+
+In Next.js, `discovery()` returns a route handler you export from an API route.
+
+```ts [app/openapi.json/route.ts]
+import { discovery } from 'mppx/nextjs'
+import { mppx, pay } from '../fortune/route'
+
+export const GET = discovery(mppx, { // [!code hl]
+  info: { title: 'Fortune API', version: '1.0.0' }, // [!code hl]
+  routes: [{ handler: pay, method: 'get', path: '/api/fortune' }], // [!code hl]
+}) // [!code hl]
+```
+
+### CLI
+
+Generate a static discovery document from a config module:
+
+```bash [terminal]
+$ npx mppx discover generate ./discovery.config.ts
+```
+
+Validate an existing discovery document from a file or URL:
+
+```bash [terminal]
+$ npx mppx discover validate https://example.com/openapi.json
+```
+
+## Build manually
+
+You can author a discovery document by hand following the [discovery specification](https://paymentauth.org/draft-payment-discovery-00.html). The document is a standard OpenAPI 3.1 file with two extensions:
+
+::::steps
+
+#### Create the OpenAPI skeleton
+
+Start with a standard OpenAPI 3.1 document:
+
+```json [openapi.json]
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "My API",
+    "version": "1.0.0"
+  },
+  "paths": {}
+}
+```
+
+#### Add `x-payment-info` to paid operations
+
+For each endpoint that requires payment, add the `x-payment-info` extension. Amounts are in base units (for example, `1000000` for $1.00 with 6 decimals).
+
+```json [openapi.json]
+{
+  "paths": {
+    "/v1/generate": {
+      "post": {
+        "summary": "Generate text",
+        "x-payment-info": { // [!code highlight]
+          "amount": "1000000", // [!code highlight]
+          "currency": "0x20c0000000000000000000000000000000000001", // [!code highlight]
+          "intent": "charge", // [!code highlight]
+          "method": "tempo" // [!code highlight]
+        }, // [!code highlight]
+        "responses": {
+          "200": { "description": "Successful response" },
+          "402": { "description": "Payment Required" }
+        }
+      }
+    }
+  }
+}
+```
+
+:::warning[Include a 402 response]
+Operations with `x-payment-info` must include a `402` response in the `responses` object. Validators flag this as an error if missing.
+:::
+
+#### Add `x-service-info` (optional)
+
+Add service-level metadata to the document root:
+
+```json [openapi.json]
+{
+  "x-service-info": { // [!code highlight]
+    "categories": ["ai", "text-generation"], // [!code highlight]
+    "docs": { // [!code highlight]
+      "homepage": "https://example.com", // [!code highlight]
+      "apiReference": "https://example.com/docs/api", // [!code highlight]
+      "llms": "https://example.com/llms.txt" // [!code highlight]
+    } // [!code highlight]
+  } // [!code highlight]
+}
+```
+
+#### Serve at `/openapi.json`
+
+Serve the document at `GET /openapi.json` with appropriate caching:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: public, max-age=300
+```
+
+::::
+
+## Registries
+
+Registries aggregate discovery documents from multiple services, making it easy for clients and agents to find paid APIs.
+
+| Registry | Description |
+|----------|-------------|
+| [MPPScan](https://mppscan.com) | Public registry of MPP-enabled services with search and analytics |
+| [MPP Services directory](https://mpp.dev/services) | Curated list of live services on mpp.dev |
+
+## Validation
+
+Use the `mppx` CLI to validate discovery documents before deploying:
+
+```bash [terminal]
+# Validate a remote endpoint
+$ npx mppx discover validate https://your-api.com/openapi.json
+
+# Validate a local file
+$ npx mppx discover validate ./openapi.json
+```
+
+Common validation issues:
+
+| Issue | Severity | Description |
+|-------|----------|-------------|
+| Missing `402` response | Error | Operations with `x-payment-info` must include a `402` response |
+| Invalid amount format | Error | `amount` must be a non-negative integer string |
+| Missing `requestBody` | Warning | `POST`/`PUT`/`PATCH` operations without a `requestBody` definition |
+| Invalid URI in docs | Error | `docs` links must be valid URIs or absolute paths |

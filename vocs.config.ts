@@ -205,6 +205,11 @@ export default defineConfig({
       destination: "/sdk/typescript/server/Request.toNodeListener",
     },
 
+    // Extensions aliases
+    { source: "/awesome", destination: "/extensions" },
+    { source: "/community", destination: "/extensions" },
+    { source: "/ecosystem", destination: "/extensions" },
+
     // Services aliases
     { source: "/service", destination: "/services" },
     { source: "/marketplace", destination: "/services" },
@@ -243,7 +248,7 @@ export default defineConfig({
   ogImageUrl: (path, { baseUrl: base } = { baseUrl: "" }) =>
     path === "/"
       ? `${base}/og.png`
-      : `${base}/api/og?title=%title&description=%description`,
+      : `${base}/api/og?title=%title&description=%description&path=${encodeURIComponent(path)}`,
   sidebar: {
     "/": [
       {
@@ -308,6 +313,10 @@ export default defineConfig({
       },
 
       {
+        text: "Discovery",
+        items: [{ text: "Overview", link: "/protocol/discovery" }],
+      },
+      {
         text: "Payment Methods & Intents",
         items: [
           { text: "Overview", link: "/payment-methods" },
@@ -348,6 +357,14 @@ export default defineConfig({
               { text: "Overview", link: "/payment-methods/lightning" },
               { text: "Charge", link: "/payment-methods/lightning/charge" },
               { text: "Session", link: "/payment-methods/lightning/session" },
+            ],
+          },
+          {
+            text: "Solana",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/solana" },
+              { text: "Charge", link: "/payment-methods/solana/charge" },
             ],
           },
           { text: "Custom", link: "/payment-methods/custom" },
@@ -715,13 +732,16 @@ export default defineConfig({
       },
       {
         text: "Resources",
-        items: [{ text: "Brand", link: "/brand" }],
+        items: [
+          { text: "Extensions", link: "/extensions" },
+          { text: "Brand", link: "/brand" },
+        ],
       },
     ],
   },
   socials: [
     { icon: "x", link: "https://x.com/mpp" },
-    { icon: "github", link: "https://github.com/tempoxyz/mpp-specs" },
+    { icon: "github", link: "https://github.com/tempoxyz/mpp" },
   ],
   title: "MPP — Machine Payments Protocol",
   titleTemplate: "%s | MPP",

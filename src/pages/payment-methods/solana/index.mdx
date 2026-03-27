@@ -1,0 +1,63 @@
+---
+imageDescription: "Native SOL and SPL token payments on Solana for one-time and session-based billing"
+---
+
+# Solana [Native SOL and SPL token payments]
+
+The Solana payment method enables MPP payments on Solana using native SOL, SPL tokens, and Token-2022 assets. Solana supports two intents: **charge** for one-time payments and **session** for escrowed, pay-as-you-go billing.
+
+The reference implementation is provided by [`@solana/mpp`](https://github.com/solana-foundation/mpp-sdk), which extends [`mppx`](https://github.com/tempoxyz/mpp) with Solana-native client and server handlers.
+
+## Installation
+
+:::code-group
+```bash [npm]
+npm install @solana/mpp mppx @solana/kit
+```
+```bash [pnpm]
+pnpm add @solana/mpp mppx @solana/kit
+```
+```bash [bun]
+bun add @solana/mpp mppx @solana/kit
+```
+:::
+
+## Why Solana
+
+Solana enables several useful capabilities for MPP:
+
+- **Split payouts and richer settlement flows** through multiple instructions per transaction
+- **Fast finality** for low-latency charge flows
+- **Cheap transactions** for micropayments and fee-sponsored UX
+- **Native fee payer support** so servers can sponsor network fees
+- **Token flexibility** across SOL, SPL, and Token-2022 assets
+- **Delegated signer options** including Ed25519 and passkey-friendly secp256r1 flows
+
+## Choosing an intent
+
+| | **Charge** | **Session** |
+|---|---|---|
+| **Pattern** | One-time payment per request | Escrow once, pay incrementally with vouchers |
+| **Latency overhead** | One transaction or confirmed signature per request | Low after open; vouchers are off-chain |
+| **Throughput** | Best for discrete purchases | Best for high-frequency metered usage |
+| **Best for** | Paid API calls, downloads, fixed-price purchases | LLM APIs, streaming, repeated calls |
+| **Settlement** | Immediate on-chain transfer | Escrow on-chain, settle accepted usage later |
+
+## Intents
+
+<div className="vocs:grid vocs:grid-cols-1 vocs:md:grid-cols-2 vocs:gap-4">
+  <a href="/payment-methods/solana/charge" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
+    <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 397.7 311.7" fill="currentColor"><path d="M64.3 237.9c2.4-2.4 5.7-3.8 9.1-3.8h317.6c5.7 0 8.5 6.9 4.5 10.9l-62.7 62.7c-2.4 2.4-5.7 3.8-9.1 3.8H6.1c-5.7 0-8.5-6.9-4.5-10.9l62.7-62.7ZM64.3 3.8C66.7 1.4 70 0 73.4 0H391c5.7 0 8.5 6.9 4.5 10.9l-62.7 62.7c-2.4 2.4-5.7 3.8-9.1 3.8H6.1c-5.7 0-8.5-6.9-4.5-10.9L64.3 3.8Zm268.5 116.2c-2.4-2.4-5.7-3.8-9.1-3.8H6.1c-5.7 0-8.5 6.9-4.5 10.9l62.7 62.7c2.4 2.4 5.7 3.8 9.1 3.8h317.6c5.7 0 8.5-6.9 4.5-10.9L332.8 120Z"/></svg>
+    </div>
+    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Solana charge</div>
+    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">One-time payments with signed transactions or confirmed signatures</div>
+  </a>
+  <a href="https://github.com/tempoxyz/mpp-specs/pull/201" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
+    <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 397.7 311.7" fill="currentColor"><path d="M64.3 237.9c2.4-2.4 5.7-3.8 9.1-3.8h317.6c5.7 0 8.5 6.9 4.5 10.9l-62.7 62.7c-2.4 2.4-5.7 3.8-9.1 3.8H6.1c-5.7 0-8.5-6.9-4.5-10.9l62.7-62.7ZM64.3 3.8C66.7 1.4 70 0 73.4 0H391c5.7 0 8.5 6.9 4.5 10.9l-62.7 62.7c-2.4 2.4-5.7 3.8-9.1 3.8H6.1c-5.7 0-8.5-6.9-4.5-10.9L64.3 3.8Zm268.5 116.2c-2.4-2.4-5.7-3.8-9.1-3.8H6.1c-5.7 0-8.5 6.9-4.5 10.9l62.7 62.7c2.4 2.4 5.7 3.8 9.1 3.8h317.6c5.7 0 8.5-6.9 4.5-10.9L332.8 120Z"/></svg>
+    </div>
+    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Solana session</div>
+    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">Coming soon: Solana sessions with off-chain vouchers and on-chain settlement</div>
+  </a>
+</div>

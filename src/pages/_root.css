@@ -31,7 +31,8 @@
 
 @font-face {
   font-family: "VTC Du Bois";
-  src: url("/fonts/VTCDuBoisTrial-Regular.woff2") format("woff2");
+  src: url("https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Regular.woff2")
+    format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -39,7 +40,8 @@
 
 @font-face {
   font-family: "VTC Du Bois";
-  src: url("/fonts/VTCDuBoisTrial-Bold.woff2") format("woff2");
+  src: url("https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Bold.woff2")
+    format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -88,6 +90,12 @@
  * classes which react to the inline color-scheme set by the blocking script
  * in Head.tsx. No manual overrides needed.
  */
+
+/* Service icons: dark bg baked in; invert for dark mode */
+.discovery-card-icon-img,
+.svc-icon-img {
+  filter: light-dark(none, invert(1));
+}
 
 /* Prevent layout shift when scrollbar appears/disappears between routes */
 html {

@@ -652,7 +652,7 @@ export const services: ServiceDef[] = [
     url: "https://dune.com",
     serviceUrl: "https://api.dune.com",
     description:
-      "Execute SQL queries on Dune and retrieve results or CSV exports from completed executions.",
+      "Query across raw transaction data, decoded smart contract events, stablecoin flows, RWA tracking, protocol analytics, DeFi positions, NFT activity, blockchain market research, and whatever is trending in crypto.",
     categories: ["data", "blockchain"],
     integration: "first-party",
     tags: ["sql", "analytics", "blockchain", "data", "query"],
@@ -663,19 +663,19 @@ export const services: ServiceDef[] = [
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
-        route: "POST /v1/sql/execute",
+        route: "POST /api/v1/sql/execute",
         desc: "Execute a SQL query",
         dynamic: true,
-        amountHint: "$0.05-$3",
+        amountHint: "$0.05-$4",
       },
       {
-        route: "GET /v1/execution/:execution_id/csv",
+        route: "GET /api/v1/execution/:execution_id/csv",
         desc: "Download CSV results for an execution",
         dynamic: true,
         amountHint: "$0.05-$10",
       },
       {
-        route: "GET /v1/execution/:execution_id/results",
+        route: "GET /api/v1/execution/:execution_id/results",
         desc: "Fetch JSON results for an execution",
         dynamic: true,
         amountHint: "$0.05-$10",
@@ -1184,6 +1184,42 @@ export const services: ServiceDef[] = [
         route: "POST /",
         desc: "JSON-RPC calls - $0.001 per call",
         amount: "1000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Quicknode RPC ──────────────────────────────────────────────────────
+  {
+    id: "quicknode",
+    name: "Quicknode",
+    url: "https://quicknode.com/",
+    serviceUrl: "https://mpp.quicknode.com",
+    description:
+      "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
+    icon: "https://mpp.quicknode.com/favicon.ico",
+    categories: ["blockchain"],
+    integration: "first-party",
+    tags: ["rpc", "json-rpc", "evm", "solana", "tempo", "node"],
+    docs: {
+      homepage: "https://quicknode.com/",
+      llmsTxt: "https://quicknode.com/llms.txt",
+    },
+    provider: { name: "Quicknode", url: "https://quicknode.com/" },
+    realm: "quicknode.com",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /:network",
+        desc: "JSON-RPC calls - $0.001 per call",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /session/:network",
+        desc: "JSON-RPC calls - $0.00001 per call",
+        amount: "10",
         unitType: "request",
       },
     ],

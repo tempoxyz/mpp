@@ -1,5 +1,6 @@
 ---
 title: "Stripe payment method"
+imageDescription: "Accept card, wallet, and bank transfer payments through Stripe's global payment infrastructure"
 ---
 
 import { Cards } from 'vocs'
@@ -11,6 +12,10 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 The Stripe payment method enables payments using [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens)—tokens that allow a client to share a customer's payment method with your Stripe account, with configurable expiration and usage limits. SPTs provide you basic visibility into the payment method (such as card brand and last four digits), while keeping the customer's actual payment details separate.
 
 Both the client and server need a Stripe account. The client creates an SPT using the Stripe API or Stripe.js, and the server consumes it to create a Stripe `PaymentIntent`.
+
+::::info[Stripe account setup]
+Machine payments must be enabled on your Stripe account before you can accept MPP payments. [Request access](https://docs.stripe.com/payments/machine#sign-up) through the Stripe Dashboard.
+::::
 
 To learn more, read the [Stripe documentation](https://docs.stripe.com/payments/machine/mpp) on accepting MPP.
 

@@ -1,5 +1,9 @@
+---
+imageDescription: "Available payment methods in MPP and how to choose the right one for your use case"
+---
+
 import { Cards, Tab, Tabs } from 'vocs'
-import { TempoMethodCard, CardMethodCard, LightningMethodCard, StripeMethodCard, CustomMethodCard } from '../../components/cards'
+import { TempoMethodCard, CardMethodCard, LightningMethodCard, SolanaMethodCard, StripeMethodCard, CustomMethodCard } from '../../components/cards'
 
 # Payment methods [Available methods and how to choose one]
 
@@ -34,6 +38,12 @@ HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment method="lightning", intent="charge", ...
 ```
   </Tab>
+  <Tab title="Solana">
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment method="solana", intent="charge", ...
+```
+  </Tab>
 </Tabs>
 
 ## Available methods
@@ -43,5 +53,6 @@ WWW-Authenticate: Payment method="lightning", intent="charge", ...
   <StripeMethodCard />
   <CardMethodCard />
   <LightningMethodCard />
+  <SolanaMethodCard />
   <CustomMethodCard />
 </Cards>

@@ -1,3 +1,7 @@
+---
+imageDescription: "Handle HTTP 402 responses automatically and manage payment flows in Rust clients"
+---
+
 # Client [Handle 402 responses automatically]
 
 The `Fetch` extension trait adds `.send_with_payment()` to any `reqwest::RequestBuilder`—when a server returns `402`, it parses the Challenge, signs a stablecoin transfer, and retries with the Credential.

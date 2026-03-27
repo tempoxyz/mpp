@@ -1,10 +1,11 @@
 ---
 title: "Charge intent for one-time payments"
+imageDescription: "Immediate one-time payments where the full amount is collected in a single request-response cycle"
 ---
 
 import { Cards } from 'vocs'
 import { MermaidDiagram } from '../../components/MermaidDiagram'
-import { TempoChargeCard, StripeMethodCard, LightningMethodCard, CardMethodCard } from '../../components/cards'
+import { TempoChargeCard, StripeMethodCard, LightningMethodCard, SolanaChargeCard, CardMethodCard } from '../../components/cards'
 import { SpecCard } from '../../components/SpecCard'
 
 # Charge [Immediate one-time payments]
@@ -68,6 +69,7 @@ Each payment method defines how charge is fulfilled, verified, and settled on it
   <TempoChargeCard />
   <StripeMethodCard />
   <LightningMethodCard />
+  <SolanaChargeCard />
   <CardMethodCard />
 </Cards>
 

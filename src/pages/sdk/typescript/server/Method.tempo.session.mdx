@@ -6,13 +6,14 @@ Creates a Tempo payment session method for server-side voucher verification and 
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const mppx = Mppx.create({
   // [!code focus:start]
   methods: [
     tempo.session({
+      account: privateKeyToAccount('0x...'),
       currency: '0x20c0000000000000000000000000000000000000',
-      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
   ],
   // [!code focus:end]
@@ -25,11 +26,14 @@ Register both intents on a single server.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
 
 const mppx = Mppx.create({
   methods: [
-    tempo.charge(),
-    tempo.session(),
+    tempo.charge({ account }),
+    tempo.session({ account }),
   ],
 })
 ```
@@ -44,11 +48,11 @@ type ReturnType = Method.Server
 
 ## Parameters
 
-### account (optional)
+### account
 
-- **Type:** `Account | undefined`
+- **Type:** `Account`
 
-Account used as the recipient and for session closure.
+Account used to close and settle payment channels on-chain. The account address is also used as the default recipient. Without this, channel close and settlement will fail.
 
 ### amount (optional)
 

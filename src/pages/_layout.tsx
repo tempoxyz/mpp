@@ -447,14 +447,14 @@ export default function Layout(props: React.PropsWithChildren) {
       )}
       <link
         rel="preload"
-        href="/fonts/VTCDuBoisTrial-Regular.woff2"
+        href="https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Regular.woff2"
         as="font"
         type="font/woff2"
         crossOrigin="anonymous"
       />
       <link
         rel="preload"
-        href="/fonts/VTCDuBoisTrial-Bold.woff2"
+        href="https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Bold.woff2"
         as="font"
         type="font/woff2"
         crossOrigin="anonymous"
