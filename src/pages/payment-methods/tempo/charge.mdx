@@ -78,32 +78,6 @@ const result = await mppx.charge({
 
 When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`) before broadcasting. The client doesn't need gas tokens. See [fee sponsorship](/payment-methods/tempo#fee-sponsorship) for details.
 
-### With split payments
-
-Split a charge across multiple recipients in a single transaction. The primary `recipient` receives `amount` minus the sum of all splits.
-
-```ts twoslash
-import { Mppx, tempo } from "mppx/server";
-
-const mppx = Mppx.create({ methods: [tempo()] });
-
-declare const request: Request;
-// ---cut---
-const result = await mppx.charge({
-  amount: "1.00",
-  currency: "0x20c0000000000000000000000000000000000000", // pathUSD
-  recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", // seller
-  splits: [ // [!code hl]
-    { // [!code hl]
-      amount: "0.10", // [!code hl]
-      recipient: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", // platform fee // [!code hl]
-    }, // [!code hl]
-  ], // [!code hl]
-})(request);
-```
-
-Up to 10 splits per charge. Each split must have a positive amount, and the sum of all splits must be less than the total `amount`. See the [split payments guide](/guides/split-payments) for more details.
-
 ### With Stripe
 
 ```ts twoslash

@@ -76,24 +76,6 @@ Client identifier used to derive the client fingerprint in attribution memos.
 
 Function that returns a viem client for the given chain ID.
 
-### expectedRecipients (optional)
-
-- **Type:** `readonly string[]`
-
-Allowlist of addresses the client will accept as split recipients. When set, the client rejects any Challenge whose split recipients are not in this list, preventing a compromised server from redirecting funds.
-
-```ts twoslash
-import { tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const method = tempo.charge({
-  account: privateKeyToAccount('0xabc…123'),
-  expectedRecipients: [ // [!code focus]
-    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
-  ], // [!code focus]
-})
-```
-
 ### mode (optional)
 
 - **Type:** `'push' | 'pull'`
