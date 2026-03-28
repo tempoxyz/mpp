@@ -2,8 +2,8 @@ name: Close stale service PRs
 
 on:
   schedule:
-    - cron: "0 9 * * *" # daily at 09:00 UTC
-  workflow_dispatch: {} # allow manual runs
+    - cron: "0 9 * * *"
+  workflow_dispatch: {}
 
 permissions:
   pull-requests: write
@@ -18,7 +18,6 @@ jobs:
             const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
             const cutoff = new Date(Date.now() - TWO_WEEKS_MS);
 
-            // Fetch open PRs labeled service-directory
             const prs = await github.paginate(github.rest.pulls.list, {
               owner: context.repo.owner,
               repo: context.repo.repo,
