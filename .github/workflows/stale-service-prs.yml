@@ -1,0 +1,69 @@
+name: Close stale service PRs
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # daily at 09:00 UTC
+  workflow_dispatch: {} # allow manual runs
+
+permissions:
+  pull-requests: write
+
+jobs:
+  close-stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
+            const cutoff = new Date(Date.now() - TWO_WEEKS_MS);
+
+            // Fetch open PRs labeled service-directory
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            const serviceKeywords = /\b(service.directory|service.registry|add .+ to .*(directory|registry)|add .+ service)\b/i;
+
+            const stale = prs.filter((pr) => {
+              const isServiceDir =
+                pr.labels.some((l) => l.name === 'service-directory') ||
+                serviceKeywords.test(pr.title);
+              const isOld = new Date(pr.created_at) < cutoff;
+              return isServiceDir && isOld;
+            });
+
+            console.log(`Found ${stale.length} stale service PRs (created before ${cutoff.toISOString()})`);
+
+            const body = [
+              'Thanks for your interest in listing on the MPP service directory!',
+              '',
+              'We\'re closing service addition PRs that have been open for more than two weeks. The recommended way to list your service is through **[MPPScan](https://mppscan.com/register)**—it follows the standard [MPP discovery format](https://mpp.dev/protocol/discovery) and makes your service immediately discoverable by agents, no PR required. Your service also appears on [mpp.dev/discovery](https://mpp.dev/discovery).',
+              '',
+              '**To get listed:**',
+              '1. Serve an OpenAPI document at `GET /openapi.json` with [`x-payment-info`](https://mpp.dev/protocol/discovery) extensions',
+              '2. Register at [mppscan.com/register](https://mppscan.com/register)',
+            ].join('\n');
+
+            for (const pr of stale) {
+              console.log(`Closing #${pr.number}: ${pr.title} (created ${pr.created_at})`);
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body,
+              });
+
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                state: 'closed',
+              });
+            }
+
+            console.log('Done');
