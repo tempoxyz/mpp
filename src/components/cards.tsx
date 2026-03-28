@@ -121,6 +121,18 @@ export function RustSdkCard() {
   );
 }
 
+export function ElixirSdkCard() {
+  return (
+    <Card
+      description="MPP SDK for Elixir — Plug middleware for Phoenix and Plug apps"
+      icon="simple-icons:elixir"
+      title="Elixir"
+      to="/sdk/elixir"
+      topRight={<Badge variant="tip">Community</Badge>}
+    />
+  );
+}
+
 export function MppxCreateReferenceCard({ to }: { to: string }) {
   return (
     <Card

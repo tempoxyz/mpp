@@ -1,0 +1,118 @@
+---
+title: "Elixir SDK for MPP"
+imageDescription: "The mpp Elixir library for adding payment-gated endpoints to Phoenix and Plug applications"
+---
+
+import * as SdkBadge from '../../../components/SdkBadge'
+import { Callout } from 'vocs'
+
+# Elixir SDK [Plug middleware for Phoenix and Plug apps]
+
+## Overview
+
+The `mpp` Elixir library provides Plug middleware that adds pay-per-call billing to any Phoenix or Plug application. Mount the plug on a route, set a price, and the middleware handles the full 402 challenge/credential/receipt flow.
+
+<div className="flex gap-2">
+  <SdkBadge.GitHub repo="ZenHive/mpp" />
+  <SdkBadge.Maintainer name="ZenHive" href="https://github.com/ZenHive" />
+</div>
+
+<Callout type="info">
+  This is a community-maintained SDK. Check [hex.pm/packages/mpp](https://hex.pm/packages/mpp) for the latest version and [hexdocs.pm/mpp](https://hexdocs.pm/mpp) for full API documentation.
+</Callout>
+
+## Install
+
+Add `mpp` to your dependencies in `mix.exs`:
+
+```elixir [mix.exs]
+defp deps do
+  [
+    {:mpp, "~> 0.1"}  # check hex.pm for latest version
+  ]
+end
+```
+
+Then fetch dependencies:
+
+```bash [install.sh]
+$ mix deps.get
+```
+
+## Requirements
+
+- Elixir 1.17+
+- A Plug-compatible application (Phoenix, Bandit, Cowboy)
+
+## Quick start
+
+### Server
+
+Mount `MPP.Plug` in a Phoenix router to gate endpoints behind payment:
+
+```elixir [router.ex]
+defmodule MyAppWeb.Router do
+  use MyAppWeb, :router
+
+  pipeline :paid do
+    plug MPP.Plug,
+      secret_key: "your-hmac-secret",
+      realm: "api.example.com",
+      method: MPP.Methods.Stripe,
+      method_config: %{
+        "stripe_secret_key" => System.get_env("STRIPE_SECRET_KEY"),
+        "network_id" => System.get_env("STRIPE_NETWORK_ID")
+      },
+      amount: "1000",
+      currency: "usd"
+  end
+
+  scope "/api", MyAppWeb do
+    pipe_through [:api, :paid]
+    get "/data", DataController, :show
+  end
+end
+```
+
+The middleware handles the full flow automatically:
+
+1. Request without `Authorization: Payment` header returns `402` with a `WWW-Authenticate` challenge
+2. Client pays off-band (e.g. via Stripe), retries with `Authorization: Payment <credential>`
+3. Valid credential passes through with a `Payment-Receipt` header attached
+4. Invalid credential returns `402` with a fresh challenge and an RFC 9457 error body
+
+### Per-route pricing
+
+Each route can have its own price — just mount the plug with different options:
+
+```elixir [router.ex]
+scope "/api", MyAppWeb do
+  pipe_through :api
+
+  scope "/basic" do
+    plug MPP.Plug, amount: "100", currency: "usd",
+      secret_key: secret, realm: realm, method: MPP.Methods.Stripe,
+      method_config: stripe_config
+    get "/data", DataController, :show
+  end
+
+  scope "/premium" do
+    plug MPP.Plug, amount: "5000", currency: "usd",
+      secret_key: secret, realm: realm, method: MPP.Methods.Stripe,
+      method_config: stripe_config
+    get "/report", ReportController, :show
+  end
+end
+```
+
+## Design
+
+- **Stateless**: Challenge verification uses HMAC-SHA256 binding — no database or challenge store needed
+- **Explicit configuration**: No `Application.get_env` or ENV fallbacks — pass credentials directly via plug opts
+- **Pluggable methods**: Implement the `MPP.Method` behaviour to add new payment methods beyond Stripe
+
+## Next steps
+
+- [Core types](/sdk/elixir/core): Challenge, Credential, and Receipt modules
+- [Server](/sdk/elixir/server): Plug middleware configuration and usage
+- [Full API docs](https://hexdocs.pm/mpp): Complete module reference on HexDocs

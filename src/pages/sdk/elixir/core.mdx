@@ -1,0 +1,89 @@
+---
+imageDescription: "Challenge, Credential, and Receipt types for working with the MPP protocol in Elixir"
+---
+
+# Core types [Challenge, Credential, and Receipt modules]
+
+These modules map directly to HTTP headers — `WWW-Authenticate`, `Authorization`, and `Payment-Receipt` — and can be used independently of the `MPP.Plug` middleware.
+
+## Challenge
+
+Create an HMAC-bound challenge and format it as a `WWW-Authenticate` header:
+
+```elixir
+alias MPP.{Challenge, Headers}
+
+challenge = Challenge.create(
+  secret_key: "your-hmac-secret",
+  realm: "api.example.com",
+  method: "stripe",
+  intent: "charge",
+  request_b64: Base.url_encode64(Jason.encode!(%{amount: "1000", currency: "usd"}), padding: false)
+)
+
+header = Headers.format_www_authenticate(challenge)
+# → "Payment id=\"abc...\", realm=\"api.example.com\", ..."
+```
+
+Verify a challenge ID on the retry request:
+
+```elixir
+{:ok, true} = Challenge.verify(challenge, "your-hmac-secret")
+```
+
+## Credential
+
+Parse an `Authorization: Payment` header into a credential struct:
+
+```elixir
+alias MPP.{Credential, Headers}
+
+{:ok, credential} = Headers.parse_authorization(auth_header)
+
+# Access the echoed challenge fields
+credential.challenge_id
+credential.method
+credential.intent
+
+# Access the payment payload
+credential.payload
+```
+
+## Receipt
+
+Build a receipt and format it as a `Payment-Receipt` header:
+
+```elixir
+alias MPP.{Receipt, Headers}
+
+receipt = %Receipt{
+  status: "success",
+  challenge_id: challenge.id,
+  method: "stripe",
+  reference: "pi_abc123"
+}
+
+header = Headers.format_receipt(receipt)
+# → base64url-encoded JSON
+```
+
+## Headers
+
+The `MPP.Headers` module handles all header parsing and formatting:
+
+| Function | Description |
+|----------|-------------|
+| `format_www_authenticate/1` | Serialize a Challenge to a `WWW-Authenticate` header value |
+| `format_receipt/1` | Serialize a Receipt to a `Payment-Receipt` header value |
+| `parse_authorization/1` | Parse an `Authorization` header into a Credential |
+
+## Type reference
+
+| Module | Description |
+|--------|-------------|
+| `MPP.Challenge` | Server challenge with HMAC-SHA256 ID binding |
+| `MPP.Credential` | Client credential parsed from `Authorization` header |
+| `MPP.Receipt` | Server receipt for `Payment-Receipt` header |
+| `MPP.Headers` | Header parsing and formatting utilities |
+| `MPP.Intents.Charge` | Charge intent request schema (amount, currency, recipient) |
+| `MPP.Errors` | RFC 9457 Problem Detail error types |

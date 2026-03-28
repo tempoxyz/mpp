@@ -64,6 +64,7 @@ export default defineConfig({
     { source: "/typescript", destination: "/sdk/typescript" },
     { source: "/python", destination: "/sdk/python" },
     { source: "/rust", destination: "/sdk/rust" },
+    { source: "/elixir", destination: "/sdk/elixir" },
     { source: "/reference", destination: "/sdk" },
     { source: "/api", destination: "/sdk" },
 
@@ -730,6 +731,15 @@ export default defineConfig({
               { text: "Core types", link: "/sdk/rust/core" },
               { text: "Client", link: "/sdk/rust/client" },
               { text: "Server", link: "/sdk/rust/server" },
+            ],
+          },
+          {
+            text: "Elixir",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/sdk/elixir" },
+              { text: "Core types", link: "/sdk/elixir/core" },
+              { text: "Server", link: "/sdk/elixir/server" },
             ],
           },
         ],
