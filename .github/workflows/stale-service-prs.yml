@@ -34,7 +34,7 @@ jobs:
             console.log(`Found ${stale.length} stale service PRs (created before ${cutoff.toISOString()})`);
 
             const body = [
-              'Closing this PR. The recommended way to list your service is through **[MPPScan](https://mppscan.com/register)**—it follows the standard [MPP discovery format](https://mpp.dev/protocol/discovery) and makes your service immediately discoverable by agents, no PR required. Your service also appears on [mpp.dev/discovery](https://mpp.dev/discovery).',
+              'Closing this PR. The recommended way to list your service is through **[MPPScan](https://mppscan.com/register)**—it follows the standard [MPP discovery format](https://mpp.dev/protocol/discovery) and makes your service immediately discoverable by agents, no PR required.',
             ].join('\n');
 
             for (const pr of stale) {
