@@ -5581,4 +5581,44 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "costillery",
+    name: "Costillery",
+    url: "https://api.costillery.com",
+    serviceUrl: "https://api.costillery.com",
+    description:
+      "Receipt intelligence for AI agents. Auto-captures MPP and x402 payment receipts, enriches with service metadata, and provides expense dashboards and exports. SDK: npm install costillery",
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: ["receipts", "ai-agents", "x402", "tempo", "payments", "expenses"],
+    docs: {
+      homepage: "https://costillery.com",
+      apiReference: "https://costillery.com/docs/#api-reference",
+    },
+    provider: { name: "The Skramme Company", url: "https://skramme.co" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /v1/receipts",
+        desc: "Submit a receipt for processing — auto-captures MPP and x402 payment metadata",
+        amount: "2000",
+        unitType: "receipt",
+      },
+      {
+        route: "GET /v1/wallet/{address}/receipts",
+        desc: "Query all receipts for a wallet address",
+        amount: "5000",
+        unitType: "query",
+      },
+      {
+        route: "GET /v1/wallet/{address}/summary",
+        desc: "Get expense summary for a wallet address",
+        amount: "5000",
+        unitType: "query",
+      },
+    ],
+  },
+
 ];
