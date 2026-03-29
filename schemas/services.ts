@@ -855,6 +855,52 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── GovLaws ────────────────────────────────────────────────────────────
+  {
+    id: "govlaws",
+    name: "GovLaws",
+    url: "https://govlaws.ai",
+    serviceUrl: "https://govlaws.ai",
+    description:
+      "Current U.S. federal regulation lookup, semantic search, and change tracking with provenance-rich responses from official government sources.",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "legal",
+      "regulatory",
+      "government",
+      "citations",
+      "compliance",
+      "federal",
+    ],
+    docs: {
+      homepage: "https://govlaws.ai/mpp",
+      llmsTxt: "https://govlaws.ai/llms.txt",
+      apiReference: "https://govlaws.ai/api/openapi.json",
+    },
+    provider: { name: "GovLaws", url: "https://govlaws.ai" },
+    realm: "govlaws.ai",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /api/mpp/resolve",
+        desc: "Resolve a CFR citation to current text, provenance, freshness, and recent changes",
+        amount: "50000",
+      },
+      {
+        route: "POST /api/mpp/search",
+        desc: "Semantic search across current U.S. federal regulations",
+        amount: "30000",
+      },
+      {
+        route: "GET /api/mpp/changes",
+        desc: "Recent Federal Register change events filtered by agency, citation, or lookback",
+        amount: "30000",
+      },
+    ],
+  },
+
   // ── Google Gemini ──────────────────────────────────────────────────────
   {
     id: "gemini",
