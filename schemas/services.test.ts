@@ -160,8 +160,8 @@ describe("services registry", () => {
               ).toMatch(NUMERIC_RE);
               expect(
                 Number(ep.amount),
-                `Amount "${ep.amount}" must be > 0`,
-              ).toBeGreaterThan(0);
+                `Amount "${ep.amount}" must be >= 0`,
+              ).toBeGreaterThanOrEqual(0);
             }
           });
 

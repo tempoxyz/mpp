@@ -286,7 +286,8 @@ const paid = await fetch('/api/resource', {
 If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
 
 ```ts twoslash
-
+declare const myOrderId: string
+// ---cut---
 import { loadStripe } from '@stripe/stripe-js'
 import { Mppx, stripe } from 'mppx/client'
 
@@ -297,10 +298,15 @@ const mppx = Mppx.create({
     stripe({
       client: stripeJs,
       createToken: async (params) => {
+        // Send a server-known resource ID instead of raw params.
+        // The server derives amount/currency/expiry from its own records.
         const res = await fetch('/api/create-spt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(params),
+          body: JSON.stringify({
+            orderId: myOrderId,
+            paymentMethod: params.paymentMethod,
+          }),
         })
         return (await res.json()).spt
       },
@@ -314,24 +320,43 @@ const response = await mppx.fetch('https://api.example.com/resource')
 
 ## SPT creation proxy endpoint
 
-The `createToken` callback proxies through your own server because SPT creation requires a Stripe secret key. Here's a minimal implementation:
+The `createToken` callback proxies through your own server because SPT creation requires a Stripe secret key.
+
+:::warning[Security: server-side authorization]
+The server **must** derive SPT parameters (amount, currency, expiry, limits) itself rather than accepting them from the client. A thin proxy that forwards client-supplied parameters effectively delegates payment authorization to an untrusted client.
+
+The client should send only:
+- An authenticated session (cookie or bearer token)
+- A server-known resource identifier (e.g., `orderId`, `quoteId`, `toolCallId`)
+
+The server then looks up the approved amount, currency, recipient, expiry, and rate/spend limits from its own records.
+:::
 
 ```ts
+// Example: server derives all SPT parameters from a known order
 export async function POST(request: Request) {
-  const { paymentMethod, amount, currency, expiresAt, networkId, metadata } =
-    await request.json()
+  // 1. Authenticate the caller (session cookie, bearer token, etc.)
+  const session = await getSession(request)
+  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // 2. Accept only a server-known resource identifier from the client
+  const { orderId, paymentMethod } = await request.json()
+
+  // 3. Look up the authorized payment parameters server-side
+  const order = await db.orders.get(orderId)
+  if (!order) return Response.json({ error: 'Order not found' }, { status: 404 })
+  if (order.userId !== session.userId)
+    return Response.json({ error: 'Forbidden' }, { status: 403 })
+
+  // 4. Server derives SPT parameters — the client never specifies amount/currency/expiry
   const body = new URLSearchParams({
     payment_method: paymentMethod,
-    'usage_limits[currency]': currency,
-    'usage_limits[max_amount]': amount,
-    'usage_limits[expires_at]': expiresAt.toString(),
+    'usage_limits[currency]': order.currency,
+    'usage_limits[max_amount]': order.amount.toString(),
+    'usage_limits[expires_at]': Math.floor(
+      (Date.now() + 5 * 60 * 1000) / 1000,
+    ).toString(),
   })
-  if (metadata) {
-    for (const [key, value] of Object.entries(metadata)) {
-      body.set(`metadata[${key}]`, value)
-    }
-  }
 
   const response = await fetch(
     'https://api.stripe.com/v1/test_helpers/shared_payment/granted_tokens',
