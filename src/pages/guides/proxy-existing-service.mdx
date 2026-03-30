@@ -10,7 +10,7 @@ import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 # Proxy an existing service [Add payments to any API without changing its code]
 
-Put a payment gate in front of an upstream API you don't control—or don't want to modify. The proxy sits between clients and the origin, handles the `402` challenge-credential-receipt flow, injects upstream credentials, and forwards paid requests.
+Put a payment gate in front of an upstream API you don't control—or don't want to modify. The proxy sits between clients and the origin, handles the `402` Challenge→Credential→Receipt flow, injects upstream credentials, and forwards paid requests.
 
 ## How it works
 
@@ -37,8 +37,8 @@ Paste this into your coding agent to build the entire guide in one prompt:
 {`Use https://mpp.dev/guides/proxy-existing-service.md as reference.
 Create an mppx proxy server that gates an upstream REST API
 behind MPP payments. Use Service.from with a bearer token for
-upstream auth. Charge $0.01 per POST request and allow GET
-requests for free. Use the Tempo payment method.`}
+upstream auth. Charge $0.01 for the forecast endpoint and allow
+the status endpoint for free. Use the Tempo payment method.`}
 </PromptBlock>
 
 ## Manual mode
@@ -75,11 +75,11 @@ const proxy = Proxy.create({
       baseUrl: 'https://api.weather.example.com',
       bearer: process.env.WEATHER_API_KEY!,
       description: 'Weather forecast API',
-      title: 'Weather API',
       routes: {
         'GET /v1/forecast': mppx.charge({ amount: '0.01' }),
         'GET /v1/status': true,
       },
+      title: 'Weather API',
     }),
   ],
 })
@@ -90,7 +90,7 @@ const proxy = Proxy.create({
 
 ### Set pricing per route
 
-Each route maps a `"METHOD /pattern"` to a payment intent or `true` for free passthrough. You can set different prices per endpoint.
+Each route maps a `"METHOD /pattern"` to a payment intent or `true` for free passthrough. Set different prices per endpoint.
 
 ```ts [server.ts]
 import { Proxy, Service } from 'mppx/proxy'
@@ -104,12 +104,12 @@ const proxy = Proxy.create({
       baseUrl: 'https://api.weather.example.com',
       bearer: process.env.WEATHER_API_KEY!,
       description: 'Weather forecast API',
-      title: 'Weather API',
       routes: {
         'GET /v1/forecast': mppx.charge({ amount: '0.01' }), // [!code focus]
         'GET /v1/historical/:date': mppx.charge({ amount: '0.05' }), // [!code focus]
         'GET /v1/status': true, // [!code focus]
       },
+      title: 'Weather API',
     }),
   ],
 })
@@ -129,20 +129,20 @@ const mppx = Mppx.create({ methods: [tempo()] })
 
 const proxy = Proxy.create({
   description: 'Payment-gated weather data',
-  title: 'Weather Proxy',
   services: [
     Service.from('weather', {
       baseUrl: 'https://api.weather.example.com',
       bearer: process.env.WEATHER_API_KEY!,
       description: 'Weather forecast API',
-      title: 'Weather API',
       routes: {
         'GET /v1/forecast': mppx.charge({ amount: '0.01' }),
         'GET /v1/historical/:date': mppx.charge({ amount: '0.05' }),
         'GET /v1/status': true,
       },
+      title: 'Weather API',
     }),
   ],
+  title: 'Weather Proxy',
 })
 
 // Bun / Deno
@@ -182,13 +182,12 @@ const mppx = Mppx.create({ methods: [tempo()] })
 
 const proxy = Proxy.create({
   description: 'Multi-service paid API proxy',
-  title: 'My Proxy',
   services: [
     openai({
       apiKey: process.env.OPENAI_API_KEY!,
       routes: {
-        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
         'GET /v1/models': true,
+        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
       },
     }),
     Service.from('internal', {
@@ -199,6 +198,7 @@ const proxy = Proxy.create({
       },
     }),
   ],
+  title: 'My Proxy',
 })
 ```
 
