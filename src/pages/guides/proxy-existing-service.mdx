@@ -1,5 +1,5 @@
 ---
-description: "Put a payment gate in front of any API without changing its code. Use the mppx Proxy SDK or Cloudflare Workers to charge for upstream access."
+description: "Put a payment gate in front of any API without changing its code. Use the mppx Proxy SDK to charge for upstream access."
 imageDescription: "Add payments to any API without changing its code"
 ---
 
@@ -10,7 +10,7 @@ import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 # Proxy an existing service [Add payments to any API without changing its code]
 
-Put a payment gate in front of an upstream API you don't control—or don't want to modify. The proxy sits between clients and the origin, handles the `402` Challenge→Credential→Receipt flow, injects upstream credentials, and forwards paid requests.
+Put a payment gate in front of an existing API without modifying it. The proxy sits between clients and the origin, handles the `402` Challenge→Credential→Receipt flow, injects upstream credentials, and forwards paid requests.
 
 ## How it works
 
@@ -223,76 +223,6 @@ $ curl http://localhost:3000/discover/weather
 ```
 
 See the [Proxy reference](/sdk/typescript/proxy#discovery-endpoints) for the full list of discovery endpoints.
-
-## Alternative: Cloudflare `mpp-proxy`
-
-If you want a zero-code, edge-deployed proxy, use [cloudflare/mpp-proxy](https://github.com/cloudflare/mpp-proxy)—a Cloudflare Worker that gates any origin behind MPP payments.
-
-::::steps
-
-### Deploy to Cloudflare
-
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/mpp-proxy)
-
-Or clone and run locally:
-
-```bash [terminal]
-$ git clone https://github.com/cloudflare/mpp-proxy.git
-$ cd mpp-proxy
-$ npm install
-$ echo "JWT_SECRET=$(openssl rand -hex 32)" > .dev.vars
-$ echo "MPP_SECRET_KEY=$(openssl rand -hex 32)" >> .dev.vars
-$ npm run dev
-```
-
-### Configure protected routes
-
-Edit `wrangler.jsonc` to set the origin, recipient wallet, and which paths require payment:
-
-```json [wrangler.jsonc]
-{
-  "ORIGIN_URL": "https://api.weather.example.com",
-  "PAY_TO": "0xYourWalletAddress",
-  "PROTECTED_PATTERNS": [
-    {
-      "pattern": "/v1/forecast*",
-      "amount": "0.01",
-      "description": "Weather forecast data"
-    }
-  ]
-}
-```
-
-### Test the payment flow
-
-```bash [terminal]
-# Verify the deploy
-$ curl http://localhost:8787/__mpp/health
-
-# Confirm the route is gated
-$ curl -i http://localhost:8787/v1/forecast
-# → 402 Payment Required
-
-# Pay and access
-$ npx mppx http://localhost:8787/v1/forecast
-```
-
-::::
-
-The Cloudflare proxy also issues a 1-hour JWT cookie after payment, so browser clients don't repay on every request.
-
-### When to use each approach
-
-| | `mppx` Proxy SDK | Cloudflare `mpp-proxy` |
-|---|---|---|
-| **Deploy target** | Any runtime (Bun, Deno, Node.js, Cloudflare Workers) | Cloudflare Workers |
-| **Configuration** | TypeScript code | `wrangler.jsonc` |
-| **Multiple upstreams** | Built-in multi-service routing | Single origin |
-| **Route-level pricing** | Per-endpoint in code | JSON pattern matching |
-| **Discovery endpoints** | Auto-generated `/discover`, `/llms.txt` | Built-in health and config endpoints |
-| **Browser session** | Bring your own | 1-hour JWT cookie included |
-
-Use the `mppx` Proxy SDK when you need multi-service routing, per-endpoint pricing in code, or auto-generated discovery endpoints. Use the Cloudflare proxy for a single-origin, deploy-in-one-click setup at the edge.
 
 ## Next steps
 
