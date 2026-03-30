@@ -5748,4 +5748,105 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Sardis Guard ────────────────────────────────────────────────────────
+  {
+    id: "sardis-guard",
+    name: "Sardis Guard",
+    url: "https://sardis-guard-482463483786.us-central1.run.app",
+    serviceUrl: "https://sardis-guard-482463483786.us-central1.run.app",
+    description:
+      "Financial intelligence and governance for AI agent payments. " +
+      "8-gate security pipeline with ML anomaly detection, OFAC sanctions screening, " +
+      "mandate delegation chains, and evidence-grade audit trails.",
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: [
+      "policy",
+      "governance",
+      "compliance",
+      "sanctions",
+      "anomaly-detection",
+      "mandates",
+      "audit",
+      "firewall",
+    ],
+    status: "beta",
+    docs: {
+      homepage: "https://sardis.sh/docs",
+    },
+    provider: { name: "Sardis", url: "https://sardis.sh" },
+    realm: "guard.sardis.sh",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /evaluate",
+        desc: "12-check spending policy evaluation",
+        amount: "1000",
+      },
+      {
+        route: "POST /evaluate/v2",
+        desc:
+          "Full 8-gate intelligence pipeline: governance, sanctions, ML risk, policy",
+        amount: "1000",
+      },
+      {
+        route: "POST /simulate",
+        desc: "Dry-run policy evaluation (no state mutation)",
+        amount: "500",
+      },
+      {
+        route: "GET /mandate",
+        desc: "View current spending mandate",
+        amount: "100",
+      },
+      {
+        route: "PUT /mandate",
+        desc: "Update spending mandate",
+        amount: "1000",
+      },
+      {
+        route: "GET /stats",
+        desc: "Agent spending statistics",
+        amount: "100",
+      },
+      {
+        route: "GET /audit",
+        desc: "Full audit trail with hash-chain integrity",
+        amount: "1000",
+      },
+      { route: "POST /mandates/root", desc: "Create root spending mandate" },
+      {
+        route: "POST /mandates/delegate",
+        desc: "Delegate child mandate with scope narrowing",
+      },
+      {
+        route: "POST /mandates/freeze",
+        desc: "Freeze mandate (with optional cascade to descendants)",
+      },
+      { route: "POST /mandates/resume", desc: "Resume a frozen mandate" },
+      {
+        route: "POST /screen/address",
+        desc: "Screen wallet address against OFAC sanctions",
+      },
+      {
+        route: "POST /screen/entity",
+        desc: "Screen entity name against sanctions lists",
+      },
+      {
+        route: "GET /dashboard/summary",
+        desc: "Aggregate dashboard statistics",
+      },
+      {
+        route: "GET /agents/:agent_id/risk",
+        desc: "Agent risk timeline and summary",
+      },
+      {
+        route: "GET /reports/session/:session_id",
+        desc: "Compliance evidence pack with hash chain validation",
+      },
+      { route: "GET /stream", desc: "SSE live evaluation event stream" },
+      { route: "GET /health", desc: "Health check" },
+    ],
+  },
 ];
