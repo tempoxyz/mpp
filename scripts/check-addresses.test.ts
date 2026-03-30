@@ -25,7 +25,7 @@ const ALLOWED_ADDRESSES: ReadonlySet<string> = new Set(
     // Known Tempo contract addresses
     "0x20c0000000000000000000000000000000000000", // pathUSD
     "0x20c0000000000000000000000000000000000001", // another TIP-20
-    "0x20C000000000000000000000b9537d11c60E8b50", // USDC on Tempo
+    "0x20C000000000000000000000b9537d11c60E8b50", // USDC.e (Bridged USDC) on Tempo
     "0x0000000000000000000000000000000000000001", // native token
     "0x33b901018174DDabE4841042ab76ba85D4e24f25", // Mainnet payment channel
     "0x9d136eEa063eDE5418A6BC7bEafF009bBb6CFa70", // Testnet payment channel (deprecated)

@@ -301,7 +301,7 @@ export const ARTICLE_SUMMARIES = [
   [
     "Tempo launched its mainnet with sub-second finality and transaction",
     "fees under $0.0001. The chain is purpose-built for payments, with",
-    "native USDC and USDT support. Early adopters include three major",
+    "native USDC.e and USDT support. Early adopters include three major",
     "AI inference providers and a dozen API marketplaces.",
   ],
 ];

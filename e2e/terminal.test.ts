@@ -558,7 +558,7 @@ describe("terminal (pay-as-you-go guide)", () => {
     });
 
     // Summary line should show completion
-    await playwrightExpect(terminal.getByText("0.03 USDC")).toBeVisible({
+    await playwrightExpect(terminal.getByText("0.03 USDC.e")).toBeVisible({
       timeout: 10_000,
     });
 

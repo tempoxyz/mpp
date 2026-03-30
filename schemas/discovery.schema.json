@@ -187,7 +187,7 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 18,
-          "description": "Decimal places for the currency (e.g. 6 for USDC). Used to derive human-readable price: amount / 10^decimals."
+          "description": "Decimal places for the currency (e.g. 6 for USDC.e). Used to derive human-readable price: amount / 10^decimals."
         },
         "unitType": {
           "type": "string",

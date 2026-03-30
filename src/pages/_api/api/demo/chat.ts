@@ -12,7 +12,7 @@ const responses = [
   [
     "Stablecoins make micropayments practical in a way credit cards never could.",
     "A credit card transaction costs around $0.30 in fees—that's absurd for a $0.001 API call.",
-    "With USDC on Tempo, transaction fees are fractions of a cent.",
+    "With USDC.e on Tempo, transaction fees are fractions of a cent.",
     "MPP opens payment channels so you can stream thousands of micro-charges efficiently.",
     "The result: APIs can charge per token, per byte, or per request without overhead.",
   ],

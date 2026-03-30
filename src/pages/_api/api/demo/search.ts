@@ -13,7 +13,7 @@ const searchResults = [
     "",
     "  3. Stablecoin Settlement in Under 500ms",
     "     https://tempo.xyz/docs/settlement",
-    "     Tempo achieves near-instant finality for USDC and USDT transfers using optimistic channel networks...",
+    "     Tempo achieves near-instant finality for USDC.e and USDT transfers using optimistic channel networks...",
   ],
   [
     "  1. Building AI Agents That Pay for Their Own Tools",

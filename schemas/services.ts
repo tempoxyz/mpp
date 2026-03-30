@@ -7,7 +7,9 @@
  */
 
 // --- Shared constants ---
-export const USDC = "0x20c000000000000000000000b9537d11c60e8b50";
+export const USDCe = "0x20c000000000000000000000b9537d11c60e8b50";
+/** @deprecated Use `USDCe` instead. */
+export const USDC = USDCe;
 export const MPP_REALM = "mpp.tempo.xyz";
 
 // --- Types ---
@@ -54,14 +56,14 @@ export interface PaymentDefaults {
   method: string;
   /** Currency identifier (e.g. TIP-20 token address for Tempo, ISO 4217 for fiat) */
   currency: string;
-  /** Decimal places for the currency (e.g. 6 for USDC) */
+  /** Decimal places for the currency (e.g. 6 for USDC.e) */
   decimals: number;
 }
 
-/** Common payment defaults for Tempo USDC services */
+/** Common payment defaults for Tempo USDC.e services */
 export const TEMPO_PAYMENT: PaymentDefaults = {
   method: "tempo",
-  currency: USDC,
+  currency: USDCe,
   decimals: 6,
 };
 

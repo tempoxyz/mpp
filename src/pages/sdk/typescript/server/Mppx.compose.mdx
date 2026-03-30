@@ -10,7 +10,7 @@ Present both stablecoin and card payment options for a single endpoint. The clie
 import { Mppx, stripe, tempo } from 'mppx/server'
 
 const pathUSD = '0x20c0000000000000000000000000000000000000'
-const USDC = '0x20C000000000000000000000b9537d11c60E8b50'
+const USDCe = '0x20C000000000000000000000b9537d11c60E8b50'
 const recipient = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 
 const charge = tempo.charge({ recipient })
@@ -25,7 +25,7 @@ const mppx = Mppx.create({ methods: [charge, card] })
 export async function handler(request: Request) {
   const result = await mppx.compose(
     [charge, { amount: '1', currency: pathUSD }],
-    [charge, { amount: '1', currency: USDC }],
+    [charge, { amount: '1', currency: USDCe }],
     [card, { amount: '1', currency: 'usd' }],
   )(request)
 

@@ -87,9 +87,9 @@ Payment sessions match the billing model that high-volume APIs need: pay stablec
 
 A typical flow for a high-volume large language model API:
 
-1. **Client:** opens a channel with a 10 USDC deposit
+1. **Client:** opens a channel with a 10 USDC.e deposit
 2. **Client:** sends a prompt to the API
-3. **Server:** issues Challenges requesting payment for each chunk (for example, 0.000025 USDC per token)
+3. **Server:** issues Challenges requesting payment for each chunk (for example, 0.000025 USDC.e per token)
 4. **Client:** signs a voucher for each chunk—the cumulative amount increases by the cost of tokens received
 5. **Server:** verifies the voucher signature (~microseconds) and sends the next chunk
 6. **Server:** settles on-chain and the client gets the unused deposit back

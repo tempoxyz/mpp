@@ -203,7 +203,7 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 
 **MPP core concepts as proper nouns**: Capitalize Challenge, Credential, and Receipt when referring to these as MPP protocol concepts or SDK types. For example: "Parse a Challenge", "Verify a Credential", "Return a Receipt". These are proper nouns within the MPP domain.
 
-**Terminology**: Use "stablecoins" instead of "crypto" when referring to on-chain payment methods. MPP uses stablecoins (USDC, USDT) on Tempo—not generic cryptocurrency.
+**Terminology**: Use "stablecoins" instead of "crypto" when referring to on-chain payment methods. MPP uses stablecoins (USDC.e, USDT) on Tempo—not generic cryptocurrency.
 
 **Avoid**:
 - Latin abbreviations (use "for example" not "e.g.")
