@@ -5748,4 +5748,33 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── mpps.io ─────────────────────────────────────────────────────
+  {
+    id: "mpps",
+    name: "mpps.io",
+    url: "https://api.mpps.io",
+    serviceUrl: "https://api.mpps.io",
+    description: "Cryptographic attestation for agent commerce. Proof of delivery for every MPP transaction.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["attestation", "proof", "trust", "notarize", "certificate", "audit", "receipt", "delivery"],
+    status: "active",
+    docs: {
+      homepage: "https://mpps.io",
+      llmsTxt: "https://api.mpps.io/llms.txt",
+      apiReference: "https://github.com/gdlg-ai/mpps.io/blob/main/docs/api.md",
+    },
+    provider: { name: "GlideLogic Corp.", url: "https://glidelogic.ai" },
+    realm: "api.mpps.io",
+    intent: "charge",
+    payment: STRIPE_PAYMENT,
+    endpoints: [
+      { route: "POST /v1/notarize", desc: "Free HSM-signed attestation (10/hour)" },
+      { route: "POST /v1/certify", desc: "Certified attestation with metadata and certificate", amount: "1" },
+      { route: "GET /v1/verify/:uuid", desc: "Verify any attestation" },
+      { route: "GET /v1/public-key", desc: "Public key for offline verification" },
+      { route: "GET /v1/health", desc: "Service health check" },
+    ],
+  },
 ];
