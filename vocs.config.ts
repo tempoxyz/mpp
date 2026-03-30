@@ -205,6 +205,22 @@ export default defineConfig({
       destination: "/sdk/typescript/server/Request.toNodeListener",
     },
 
+    // Advanced features aliases
+    {
+      source: "/authentication",
+      destination: "/advanced/identity",
+    },
+    {
+      source: "/advanced/authentication",
+      destination: "/advanced/identity",
+    },
+    { source: "/identity", destination: "/advanced/identity" },
+    {
+      source: "/protocol/discovery",
+      destination: "/advanced/discovery",
+    },
+    { source: "/refunds", destination: "/advanced/refunds" },
+
     // Extensions aliases
     { source: "/awesome", destination: "/extensions" },
     { source: "/community", destination: "/extensions" },
@@ -317,8 +333,12 @@ export default defineConfig({
       },
 
       {
-        text: "Discovery",
-        items: [{ text: "Overview", link: "/protocol/discovery" }],
+        text: "Advanced Features",
+        items: [
+          { text: "Identity", link: "/advanced/identity" },
+          { text: "Discovery", link: "/advanced/discovery" },
+          { text: "Refunds", link: "/advanced/refunds" },
+        ],
       },
       {
         text: "Payment Methods & Intents",

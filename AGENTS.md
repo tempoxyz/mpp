@@ -259,6 +259,7 @@ Never use `98865`—that is a deprecated chain ID.
 9. **TypeScript twoslash** - Always use ` ```ts twoslash ` for TypeScript code blocks, never bare ` ```ts `
 10. **Spec link Cards** - Use the shared `<SpecCard to="..." />` component. Defaults to title `"IETF Specification"` and description `"Read the full specification"`. Override with `title` and `description` props when linking to a specific draft.
 11. **"IETF Specification"** - Use "IETF Specification" (singular) when referring to the specifications collectively, not "Specs" or "Specifications"
+14. **Sequence diagrams** - Use `<MermaidDiagram>` from `../../components/MermaidDiagram` for sequence diagrams and flow visualizations. Never use ASCII art diagrams. Follow the pattern: `<MermaidDiagram chart={\`sequenceDiagram ...\`} />`
 
 ## Vocs Framework Reference
 

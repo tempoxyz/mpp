@@ -1,0 +1,87 @@
+---
+description: "Handle refunds in MPP—how to return funds in the charge flow, and how sessions handle refunds automatically through unclaimed locked funds."
+imageDescription: "How refunds work across MPP payment flows including charge refunds and session-based automatic refunds"
+---
+
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+
+# Refunds [Return funds to clients]
+
+## Overview
+
+MPP does not define a dedicated refund protocol. How refunds work depends on the payment flow your service uses.
+
+## Charge flow
+
+In the charge flow, funds transfer to the server immediately when the client pays. Refunds are **out-of-protocol**—the server sends funds back to the client's address directly.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: Request + Credential
+    Note over Server: Funds transfer
+    Server-->>Client: 200 OK + Receipt
+    Note over Server: Refund triggered
+    Server->>Client: Direct transfer back
+`} />
+
+The server knows the client's address from the Credential's `source` field and can return funds at any time using a standard on-chain transfer.
+
+### Implementation
+
+To refund a charge, send the refund amount back to the client's public key:
+
+```ts twoslash [server.ts]
+// @noEmit
+declare const credential: { source: string }
+declare function sendTransfer(params: { amount: string; to: string }): Promise<void>
+// ---cut---
+async function refundCharge(credential: { source: string }, amount: string) {
+  const clientAddress = credential.source
+  await sendTransfer({ amount, to: clientAddress })
+}
+```
+
+Refund decisions are up to your service. Common triggers include failed processing, service errors, or customer support requests.
+
+## Session flow
+
+In the session flow, funds are locked but not immediately claimed. If the server never claims the locked funds, they automatically return to the client after the session expires.
+
+This gives sessions a **built-in refund mechanism**—unclaimed funds are refunded by default.
+
+| Scenario | Outcome |
+|----------|---------|
+| Server claims funds | Payment completes, no refund |
+| Server never claims | Funds return to client after session expiry |
+| Server claims partial amount | Remaining funds return to client |
+
+### Refunding via channel close
+
+To refund a session, close the channel with the last settled voucher. Any unclaimed deposit returns to the client automatically.
+
+```ts twoslash [server.ts]
+// @noEmit
+declare const session: { close(): Promise<{ txHash: string; refundedToPayer: string }> }
+// ---cut---
+const receipt = await session.close()
+// @log: { txHash: "0xabc...", refundedToPayer: "8500000" }
+```
+
+On the client side, calling `requestClose` followed by `withdraw` after the grace period achieves the same result if the server is unresponsive:
+
+```ts twoslash [client.ts]
+// @noEmit
+declare const escrow: { write: { requestClose(args: [`0x${string}`]): Promise<void>; withdraw(args: [`0x${string}`]): Promise<void> } }
+declare const channelId: `0x${string}`
+// ---cut---
+await escrow.write.requestClose([channelId])
+await escrow.write.withdraw([channelId])
+```
+
+## Best practices
+
+- **Track refunds by Credential** — Use the Challenge `id` and Credential `source` to associate refunds with the original payment.
+- **Refund to the same address** — Always return funds to the `source` address from the Credential. Don't ask the client for a separate refund address.
+- **Treat refunds as a feedback mechanism** — Like traditional payment systems, refunds avoid costly disputes. Handle them promptly through your service's support process.
+- **Log refund transactions** — Keep a record of the original payment and the refund transaction for reconciliation.
