@@ -222,6 +222,27 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 The bracketed text renders as a subtitle in Vocs. Do not remove these taglines or convert them to intro paragraphs.
 
 
+## OG / Social Card Text
+
+Every page has two frontmatter fields that appear in social previews (Slack, Twitter, iMessage):
+
+- **`description`** — Meta description shown below the link. Keep under 160 characters.
+- **`imageDescription`** — Text rendered on the OG image card. Keep under 80 characters.
+
+Both fields should read like marketing copy, not engineering docs:
+
+- **Lead with the benefit or outcome**, not the mechanism
+- **Use active voice and present tense**
+- **Avoid jargon**: no "cryptographic", "off-chain", "state channels", "zero-copy parsing", "control flow", "x-payment-info extensions"
+- **Don't start with "How" or "The"**—lead with an action or value prop
+- **Don't restate the page title**—add context the title doesn't provide
+
+**Examples:**
+- Good: `imageDescription: "Charge for your API in a few lines of code"`
+- Bad: `imageDescription: "Charge for access to protected API resources using challenges, credentials, and receipts"`
+- Good: `imageDescription: "Connect your agent to paid APIs"`
+- Bad: `imageDescription: "Connect your AI agent to MPP-enabled services and handle payments automatically"`
+
 ## Badge Usage in Tables
 
 Use `<Badge variant="...">` in tables to indicate status or maturity. Import from `vocs`.
