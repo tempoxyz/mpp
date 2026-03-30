@@ -1,0 +1,35 @@
+---
+imageDescription: "ERC-20 token payments on Monad with push and pull settlement modes"
+---
+
+# Monad [ERC-20 token payments on Monad]
+
+The Monad payment method enables MPP payments on Monad using ERC-20 tokens. Monad supports the **charge** intent for one-time payments with two settlement modes: **push** where the client broadcasts the transfer, and **pull** where the client signs an ERC-3009 authorization for the server to broadcast.
+
+The reference implementation is provided by [`@monad-crypto/mpp`](https://github.com/monad-crypto/monad-ts), which extends [`mppx`](https://github.com/tempoxyz/mpp) with Monad-native client and server handlers.
+
+## Installation
+
+:::code-group
+```bash [npm]
+npm install @monad-crypto/mpp mppx viem
+```
+```bash [pnpm]
+pnpm add @monad-crypto/mpp mppx viem
+```
+```bash [bun]
+bun add @monad-crypto/mpp mppx viem
+```
+:::
+
+## Intents
+
+<div className="vocs:grid vocs:grid-cols-1 vocs:md:grid-cols-2 vocs:gap-4">
+  <a href="/payment-methods/monad/charge" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
+    <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 105 105" fill="currentColor"><path d="M52.02 0C37 0 0 37.34 0 52.5S37 105 52.02 105c15.02 0 52.02-37.34 52.02-52.5S67.04 0 52.02 0Zm-8.1 82.52c-6.34-1.74-23.37-31.81-21.64-38.2 1.73-6.39 31.52-23.58 37.85-21.84 6.34 1.74 23.37 31.81 21.64 38.2-1.73 6.39-31.52 23.58-37.85 21.84Z"/></svg>
+    </div>
+    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Monad charge</div>
+    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">One-time payments with ERC-20 transfers or ERC-3009 authorizations</div>
+  </a>
+</div>

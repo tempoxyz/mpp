@@ -1,0 +1,88 @@
+---
+imageDescription: "One-time Monad payments using ERC-20 transfers or ERC-3009 authorizations"
+---
+
+import { Cards } from 'vocs'
+import { SpecCard } from '../../../components/SpecCard'
+
+# Monad charge [One-time payments on Monad]
+
+The Monad implementation of the [charge](/intents/charge) intent.
+
+The server issues a charge challenge describing the expected amount, currency, and recipient. The client either broadcasts an ERC-20 `transfer` and returns the transaction hash (**push** mode), or signs an ERC-3009 `transferWithAuthorization` for the server to broadcast (**pull** mode). The server verifies the transfer on-chain and returns the resource with a receipt.
+
+This method is best for fixed-price API calls, digital goods, and payments that should settle directly on Monad.
+
+## Server
+
+Use `monad.charge` to gate any endpoint behind a one-time ERC-20 payment. The method handles Challenge generation, Credential verification, on-chain settlement, and Receipt creation.
+
+```ts
+import { Mppx } from "mppx/server";
+import { monad } from "@monad-crypto/mpp/server";
+
+const mppx = Mppx.create({
+  methods: [monad()],
+});
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({
+    amount: "0.1",
+    currency: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", // USDC
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  })(request);
+
+  if (result.status === 402) return result.challenge;
+
+  return result.withReceipt(Response.json({ data: "..." }));
+}
+```
+
+### With pull mode (ERC-3009)
+
+To accept pull mode credentials, provide an `account` so the server can broadcast `receiveWithAuthorization` and pay gas:
+
+```ts
+import { Mppx } from "mppx/server";
+import { monad } from "@monad-crypto/mpp/server";
+import { privateKeyToAccount } from "viem/accounts";
+
+const account = privateKeyToAccount(process.env.SERVER_PRIVATE_KEY as `0x${string}`);
+
+const mppx = Mppx.create({
+  methods: [monad.charge({
+    account, // [!code hl]
+  })],
+});
+```
+
+## Client
+
+Use `monad.charge` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, creates a credential (either a signed transfer or an ERC-3009 authorization), and retries with the Credential.
+
+```ts
+import { Mppx } from "mppx/client";
+import { monad } from "@monad-crypto/mpp/client";
+import { privateKeyToAccount } from "viem/accounts";
+
+const account = privateKeyToAccount("0xabc…123");
+
+const mppx = Mppx.create({
+  methods: [monad.charge({ account })],
+});
+
+const response = await mppx.fetch("https://api.example.com/resource");
+```
+
+## Settlement modes
+
+Monad charge supports two settlement modes:
+
+- **Push** — the client broadcasts an ERC-20 `transfer(recipient, amount)` transaction on-chain and includes the transaction hash in the credential. The server verifies the transfer by reading `Transfer` event logs.
+- **Pull** — the client signs an ERC-3009 `transferWithAuthorization` off-chain. The server broadcasts the authorization on-chain via `receiveWithAuthorization`, paying the gas. This mode requires the server to hold the recipient key.
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-monad-charge-00" />
+</Cards>
