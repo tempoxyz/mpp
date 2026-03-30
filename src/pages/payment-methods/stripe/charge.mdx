@@ -91,18 +91,6 @@ const mppx = Mppx.create({
     }),
   ],
 })
-
-export async function handler(request: Request) {
-  const result = await mppx.charge({
-    amount: '1',
-    currency: 'usd',
-    decimals: 2,
-  })(request)
-
-  if (result.status === 402) return result.challenge
-
-  return result.withReceipt(Response.json({ data: '...' }))
-}
 ```
 
 ### With multiple payment method types
@@ -236,86 +224,6 @@ const mppx = Mppx.create({
 
 const response = await mppx.fetch('/api/resource')
 const receipt = Receipt.fromResponse(response)
-```
-
-### Manual flow (without Mppx.create)
-
-For full control over each step, use `stripe.charge()` directly with `Challenge.fromResponse`:
-
-```ts twoslash
-import { Challenge } from 'mppx'
-import { stripe } from 'mppx/client'
-
-declare const stripeClient: {
-  createPaymentMethod(opts: any): Promise<{ paymentMethod: { id: string } | null; error: any }>
-}
-declare const elements: any
-// ---cut---
-const charge = stripe.charge({
-  createToken: async (params) => {
-    const res = await fetch('/api/create-spt', {
-      body: JSON.stringify(params),
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-    })
-    return (await res.json()).spt
-  },
-})
-
-// 1. Get the 402 challenge
-const response = await fetch('/api/resource')
-const challenge = Challenge.fromResponse(response, { methods: [charge] })
-
-// 2. Collect payment method from Stripe Elements
-const { paymentMethod } = await stripeClient.createPaymentMethod({ elements })
-
-// 3. Create credential with the collected payment method
-const credential = await charge.createCredential({
-  challenge,
-  context: { paymentMethod: paymentMethod!.id },
-})
-
-// 4. Retry with credential
-const paid = await fetch('/api/resource', {
-  headers: { Authorization: credential },
-})
-```
-
-### Without polyfill
-
-If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
-
-```ts twoslash
-declare const myOrderId: string
-// ---cut---
-import { loadStripe } from '@stripe/stripe-js'
-import { Mppx, stripe } from 'mppx/client'
-
-const stripeJs = (await loadStripe('pk_test_...'))!
-
-const mppx = Mppx.create({
-  methods: [
-    stripe({
-      client: stripeJs,
-      createToken: async (params) => {
-        // Send a server-known resource ID instead of raw params.
-        // The server derives amount/currency/expiry from its own records.
-        const res = await fetch('/api/create-spt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId: myOrderId,
-            paymentMethod: params.paymentMethod,
-          }),
-        })
-        return (await res.json()).spt
-      },
-    }),
-  ],
-  polyfill: false,
-})
-
-const response = await mppx.fetch('https://api.example.com/resource')
 ```
 
 ## SPT creation proxy endpoint
