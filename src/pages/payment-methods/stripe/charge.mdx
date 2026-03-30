@@ -286,7 +286,8 @@ const paid = await fetch('/api/resource', {
 If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
 
 ```ts twoslash
-
+declare const myOrderId: string
+// ---cut---
 import { loadStripe } from '@stripe/stripe-js'
 import { Mppx, stripe } from 'mppx/client'
 
