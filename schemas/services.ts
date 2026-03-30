@@ -825,7 +825,7 @@ export const services: ServiceDef[] = [
     tags: ["domains", "dns"],
     status: "active",
     docs: {
-      homepage: "https://doma.xyz",
+      homepage: "https://docs.doma.xyz",
       llmsTxt: "https://mpp.doma.xyz/SKILL.md",
     },
     provider: { name: "Doma", url: "https://doma.xyz" },
