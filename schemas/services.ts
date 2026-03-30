@@ -5520,8 +5520,8 @@ export const services: ServiceDef[] = [
   {
     id: "tako",
     name: "Tako",
-    url: "https://tako.so",
-    serviceUrl: "https://api.tako.so",
+    url: "https://tako.com",
+    serviceUrl: "https://tako.com",
     description:
       "Data visualization and research platform. Search datasets, generate charts, and build research reports with AI.",
     categories: ["data", "search", "ai"],
@@ -5538,11 +5538,11 @@ export const services: ServiceDef[] = [
     ],
     status: "active",
     docs: {
-      homepage: "https://tako.so",
-      llmsTxt: "https://api.tako.so/.well-known/agent.md",
+      homepage: "https://tako.com",
+      llmsTxt: "https://tako.com/.well-known/agent.md",
     },
-    provider: { name: "Tako", url: "https://tako.so" },
-    realm: "api.tako.so",
+    provider: { name: "Tako", url: "https://tako.com" },
+    realm: "tako.com",
     intent: "charge",
     payment: STRIPE_PAYMENT,
     endpoints: [
