@@ -5516,6 +5516,93 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Tako ──────────────────────────────────────────────────────────────
+  {
+    id: "tako",
+    name: "Tako",
+    url: "https://tako.so",
+    serviceUrl: "https://api.tako.so",
+    description:
+      "Data visualization and research platform. Search datasets, generate charts, and build research reports with AI.",
+    categories: ["data", "search", "ai"],
+    integration: "first-party",
+    tags: [
+      "data",
+      "visualization",
+      "charts",
+      "research",
+      "search",
+      "reports",
+      "datasets",
+      "analytics",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://tako.so",
+      llmsTxt: "https://api.tako.so/.well-known/agent.md",
+    },
+    provider: { name: "Tako", url: "https://tako.so" },
+    realm: "api.tako.so",
+    intent: "charge",
+    payment: STRIPE_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /api/mpp/v1/search/fast",
+        desc: "Fast data search across datasets",
+        amount: "4",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/mpp/v1/visualize",
+        desc: "Visualize data from a search query",
+        amount: "4",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/mpp/v1/thinviz/create",
+        desc: "Create an embeddable ThinViz card",
+        amount: "1",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/mpp/v1/search/deep",
+        desc: "Deep async data search with AI research agent",
+        amount: "55",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/mpp/v1/search/deep/status",
+        desc: "Poll status for async deep search",
+      },
+      {
+        route: "POST /api/mpp/v1/threads/deep",
+        desc: "Deep async knowledge search with full pipeline",
+        amount: "55",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/mpp/v1/threads/status",
+        desc: "Poll status for async knowledge search",
+      },
+      {
+        route: "POST /api/mpp/v1/reports/generate",
+        desc: "Generate a research report (async)",
+        amount: "550",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/mpp/v1/reports/status",
+        desc: "Poll status for report generation",
+      },
+      {
+        route: "POST /api/mpp/v1/charts/edit",
+        desc: "Edit a chart using a natural language prompt",
+        amount: "1",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Tavily ───────────────────────────────────────────────────────────
   {
     id: "tavily",
