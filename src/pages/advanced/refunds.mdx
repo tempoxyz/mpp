@@ -50,6 +50,24 @@ In the session flow, funds are locked but not immediately claimed. If the server
 
 This gives sessions a **built-in refund mechanism**—unclaimed funds are refunded by default.
 
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Tempo
+    Client->>Tempo: Deposit tokens
+    Tempo-->>Client: Channel created
+    Client->>Server: Open credential
+    Server-->>Client: 200 OK (session established)
+    loop Per request
+        Client->>Server: Request + voucher
+        Server-->>Client: 200 OK + Receipt
+    end
+    Note over Server: Close channel with last voucher
+    Server->>Tempo: close(channelId, voucher)
+    Note over Tempo: Settle claimed amount to server
+    Tempo-->>Client: Refund unclaimed deposit
+`} />
+
 | Scenario | Outcome |
 |----------|---------|
 | Server claims funds | Payment completes, no refund |
