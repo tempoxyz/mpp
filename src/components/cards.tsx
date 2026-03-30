@@ -77,6 +77,17 @@ export function PayAsYouGoCard() {
   );
 }
 
+export function ProxyExistingServiceCard() {
+  return (
+    <Card
+      description="Add payments to any API without changing its code"
+      icon="lucide:shield"
+      title="Proxy an existing service"
+      to="/guides/proxy-existing-service"
+    />
+  );
+}
+
 export function ProtocolConceptsCard() {
   return (
     <Card

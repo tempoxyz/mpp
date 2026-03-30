@@ -311,6 +311,10 @@ export default defineConfig({
             text: "Accept multiple payment methods",
             link: "/guides/multiple-payment-methods",
           },
+          {
+            text: "Proxy an existing service",
+            link: "/guides/proxy-existing-service",
+          },
         ],
       },
       {

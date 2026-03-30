@@ -1,0 +1,308 @@
+---
+description: "Put a payment gate in front of any API without changing its code. Use the mppx Proxy SDK or Cloudflare Workers to charge for upstream access."
+imageDescription: "Add payments to any API without changing its code"
+---
+
+import { Card, Cards } from 'vocs'
+import { OneTimePaymentsCard, WalletCliCard } from '../../components/cards'
+import { PromptBlock } from '../../components/PromptBlock'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+
+# Proxy an existing service [Add payments to any API without changing its code]
+
+Put a payment gate in front of an upstream API you don't control—or don't want to modify. The proxy sits between clients and the origin, handles the `402` challenge-credential-receipt flow, injects upstream credentials, and forwards paid requests.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant C as Client
+    participant P as Proxy
+    participant O as Origin API
+    C->>P: GET /my-api/v1/data
+    P-->>C: 402 + WWW-Authenticate: Payment
+    C->>P: GET /my-api/v1/data + Authorization: Payment
+    P->>P: Verify Credential
+    P->>O: GET /v1/data + Authorization: Bearer sk-...
+    O-->>P: 200 + response body
+    P-->>C: 200 + Payment-Receipt + response body
+`} />
+
+The proxy verifies the client's payment Credential, then forwards the request to the origin with the real API key injected. The client never sees the upstream credentials.
+
+## Prompt mode
+
+Paste this into your coding agent to build the entire guide in one prompt:
+
+<PromptBlock>
+{`Use https://mpp.dev/guides/proxy-existing-service.md as reference.
+Create an mppx proxy server that gates an upstream REST API
+behind MPP payments. Use Service.from with a bearer token for
+upstream auth. Charge $0.01 per POST request and allow GET
+requests for free. Use the Tempo payment method.`}
+</PromptBlock>
+
+## Manual mode
+
+::::steps
+
+### Install `mppx`
+
+:::code-group
+```bash [npm]
+npm install mppx viem
+```
+```bash [pnpm]
+pnpm add mppx viem
+```
+```bash [bun]
+bun add mppx viem
+```
+:::
+
+### Define the upstream service
+
+Use `Service.from` to describe the API you want to proxy. The proxy injects upstream credentials so clients never see them.
+
+```ts [server.ts]
+import { Proxy, Service } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const proxy = Proxy.create({
+  services: [
+    Service.from('weather', {
+      baseUrl: 'https://api.weather.example.com',
+      bearer: process.env.WEATHER_API_KEY!,
+      description: 'Weather forecast API',
+      title: 'Weather API',
+      routes: {
+        'GET /v1/forecast': mppx.charge({ amount: '0.01' }),
+        'GET /v1/status': true,
+      },
+    }),
+  ],
+})
+```
+
+- **`bearer`** injects `Authorization: Bearer` on upstream requests. Use `headers` for APIs that expect a custom header like `X-API-Key`.
+- **`true`** marks a route as free passthrough—no payment required, but upstream credentials are still injected.
+
+### Set pricing per route
+
+Each route maps a `"METHOD /pattern"` to a payment intent or `true` for free passthrough. You can set different prices per endpoint.
+
+```ts [server.ts]
+import { Proxy, Service } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const proxy = Proxy.create({
+  services: [
+    Service.from('weather', {
+      baseUrl: 'https://api.weather.example.com',
+      bearer: process.env.WEATHER_API_KEY!,
+      description: 'Weather forecast API',
+      title: 'Weather API',
+      routes: {
+        'GET /v1/forecast': mppx.charge({ amount: '0.01' }), // [!code focus]
+        'GET /v1/historical/:date': mppx.charge({ amount: '0.05' }), // [!code focus]
+        'GET /v1/status': true, // [!code focus]
+      },
+    }),
+  ],
+})
+```
+
+Requests to routes not listed in the map receive `404`.
+
+### Start the proxy
+
+The proxy returns two handlers for different runtimes.
+
+```ts [server.ts]
+import { Proxy, Service } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const proxy = Proxy.create({
+  description: 'Payment-gated weather data',
+  title: 'Weather Proxy',
+  services: [
+    Service.from('weather', {
+      baseUrl: 'https://api.weather.example.com',
+      bearer: process.env.WEATHER_API_KEY!,
+      description: 'Weather forecast API',
+      title: 'Weather API',
+      routes: {
+        'GET /v1/forecast': mppx.charge({ amount: '0.01' }),
+        'GET /v1/historical/:date': mppx.charge({ amount: '0.05' }),
+        'GET /v1/status': true,
+      },
+    }),
+  ],
+})
+
+// Bun / Deno
+export default { fetch: proxy.fetch }
+
+// Node.js
+// import { createServer } from 'node:http'
+// createServer(proxy.listener).listen(3000)
+```
+
+### Test via the `mppx` CLI
+
+```bash [terminal]
+# Create account funded with testnet tokens
+$ npx mppx account create
+
+# Free route — no payment required
+$ npx mppx http://localhost:3000/weather/v1/status
+
+# Paid route — handles 402 automatically
+$ npx mppx http://localhost:3000/weather/v1/forecast
+```
+
+Requests route to `/{serviceId}/`—for example, `/weather/v1/forecast` proxies to `https://api.weather.example.com/v1/forecast`.
+
+::::
+
+## Multiple upstream services
+
+Gate several APIs behind a single proxy by passing multiple services. Each mounts at its own path prefix.
+
+```ts [server.ts]
+import { Proxy, Service, openai } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo()] })
+
+const proxy = Proxy.create({
+  description: 'Multi-service paid API proxy',
+  title: 'My Proxy',
+  services: [
+    openai({
+      apiKey: process.env.OPENAI_API_KEY!,
+      routes: {
+        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
+        'GET /v1/models': true,
+      },
+    }),
+    Service.from('internal', {
+      baseUrl: 'https://api.internal.example.com',
+      headers: { 'X-API-Key': process.env.INTERNAL_API_KEY! },
+      routes: {
+        'POST /v1/analyze': mppx.charge({ amount: '0.10' }),
+      },
+    }),
+  ],
+})
+```
+
+- `/openai/v1/chat/completions` → `https://api.openai.com/v1/chat/completions`
+- `/internal/v1/analyze` → `https://api.internal.example.com/v1/analyze`
+
+Built-in service presets (`openai`, `anthropic`, `stripe`) handle upstream auth conventions automatically. Use `Service.from` for everything else.
+
+## Discovery
+
+The proxy auto-generates discovery endpoints so coding agents and CLI tools can find available services and pricing.
+
+```bash [terminal]
+# Human-readable overview
+$ curl http://localhost:3000/llms.txt
+
+# JSON service list
+$ curl http://localhost:3000/discover
+
+# Single service details
+$ curl http://localhost:3000/discover/weather
+```
+
+See the [Proxy reference](/sdk/typescript/proxy#discovery-endpoints) for the full list of discovery endpoints.
+
+## Alternative: Cloudflare `mpp-proxy`
+
+If you want a zero-code, edge-deployed proxy, use [cloudflare/mpp-proxy](https://github.com/cloudflare/mpp-proxy)—a Cloudflare Worker that gates any origin behind MPP payments.
+
+::::steps
+
+### Deploy to Cloudflare
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/mpp-proxy)
+
+Or clone and run locally:
+
+```bash [terminal]
+$ git clone https://github.com/cloudflare/mpp-proxy.git
+$ cd mpp-proxy
+$ npm install
+$ echo "JWT_SECRET=$(openssl rand -hex 32)" > .dev.vars
+$ echo "MPP_SECRET_KEY=$(openssl rand -hex 32)" >> .dev.vars
+$ npm run dev
+```
+
+### Configure protected routes
+
+Edit `wrangler.jsonc` to set the origin, recipient wallet, and which paths require payment:
+
+```json [wrangler.jsonc]
+{
+  "ORIGIN_URL": "https://api.weather.example.com",
+  "PAY_TO": "0xYourWalletAddress",
+  "PROTECTED_PATTERNS": [
+    {
+      "pattern": "/v1/forecast*",
+      "amount": "0.01",
+      "description": "Weather forecast data"
+    }
+  ]
+}
+```
+
+### Test the payment flow
+
+```bash [terminal]
+# Verify the deploy
+$ curl http://localhost:8787/__mpp/health
+
+# Confirm the route is gated
+$ curl -i http://localhost:8787/v1/forecast
+# → 402 Payment Required
+
+# Pay and access
+$ npx mppx http://localhost:8787/v1/forecast
+```
+
+::::
+
+The Cloudflare proxy also issues a 1-hour JWT cookie after payment, so browser clients don't repay on every request.
+
+### When to use each approach
+
+| | `mppx` Proxy SDK | Cloudflare `mpp-proxy` |
+|---|---|---|
+| **Deploy target** | Any runtime (Bun, Deno, Node.js, Cloudflare Workers) | Cloudflare Workers |
+| **Configuration** | TypeScript code | `wrangler.jsonc` |
+| **Multiple upstreams** | Built-in multi-service routing | Single origin |
+| **Route-level pricing** | Per-endpoint in code | JSON pattern matching |
+| **Discovery endpoints** | Auto-generated `/discover`, `/llms.txt` | Built-in health and config endpoints |
+| **Browser session** | Bring your own | 1-hour JWT cookie included |
+
+Use the `mppx` Proxy SDK when you need multi-service routing, per-endpoint pricing in code, or auto-generated discovery endpoints. Use the Cloudflare proxy for a single-origin, deploy-in-one-click setup at the edge.
+
+## Next steps
+
+<Cards>
+  <OneTimePaymentsCard />
+  <Card
+    description="Full Proxy SDK API documentation"
+    icon="lucide:book-open"
+    title="Proxy reference"
+    to="/sdk/typescript/proxy"
+  />
+  <WalletCliCard />
+</Cards>
