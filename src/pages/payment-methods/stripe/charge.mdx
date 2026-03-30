@@ -297,10 +297,15 @@ const mppx = Mppx.create({
     stripe({
       client: stripeJs,
       createToken: async (params) => {
+        // Send a server-known resource ID instead of raw params.
+        // The server derives amount/currency/expiry from its own records.
         const res = await fetch('/api/create-spt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(params),
+          body: JSON.stringify({
+            orderId: myOrderId,
+            paymentMethod: params.paymentMethod,
+          }),
         })
         return (await res.json()).spt
       },
