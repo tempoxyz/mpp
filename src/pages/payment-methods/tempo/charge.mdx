@@ -9,13 +9,15 @@ import { SpecCard } from "../../../components/SpecCard";
 
 The Tempo implementation of the [charge](/intents/charge) intent.
 
-The client signs a TIP-20 `transfer` transaction, the server broadcasts it to Tempo, and settlement completes in ~500ms with deterministic finality.
+For non-zero charges, the client signs a TIP-20 `transfer` transaction, the server broadcasts it to Tempo, and settlement completes in ~500ms with deterministic finality.
+
+For zero-amount identity flows, the client sends a `proof` Credential payload instead of a real transaction. The server verifies the signed proof message against the client's `source` identity and returns a Receipt without broadcasting anything on-chain.
 
 This method is best for single API calls, content access, or one-off purchases.
 
 ## Server
 
-Use [`mppx.charge`](/sdk/typescript/server/Method.tempo.charge) to gate any endpoint behind a one-time payment. The method handles Challenge generation, Credential verification, transaction broadcast, and Receipt creation.
+Use [`mppx.charge`](/sdk/typescript/server/Method.tempo.charge) to gate any endpoint behind a one-time payment. The method handles Challenge generation, Credential verification, transaction broadcast for paid requests, and Receipt creation.
 
 ```ts twoslash
 import { Mppx, tempo } from "mppx/server";
@@ -77,6 +79,26 @@ const result = await mppx.charge({
 ```
 
 When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`) before broadcasting. The client doesn't need gas tokens. See [fee sponsorship](/payment-methods/tempo#fee-sponsorship) for details.
+
+### Zero-dollar auth
+
+Set `amount: "0"` to issue an identity-only Challenge. The client returns a `proof` payload instead of `transaction` or `hash`, and the server verifies the signature against the `source` DID.
+
+```ts twoslash
+import { Mppx, tempo } from "mppx/server";
+
+const mppx = Mppx.create({ methods: [tempo()] });
+
+declare const request: Request;
+// ---cut---
+const result = await mppx.charge({
+  amount: "0", // [!code hl]
+  currency: "0x20c0000000000000000000000000000000000000",
+  recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+})(request);
+```
+
+Use this for polling, free follow-up requests, and unlock flows after an initial payment. It also removes a griefing vector where an identity-only request could still force the end user to burn a small network fee.
 
 ### With split payments
 
@@ -141,7 +163,7 @@ See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge
 
 ## Client
 
-Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, signs a TIP-20 transfer, and retries with the Credential.
+Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. For non-zero amounts, the client signs a TIP-20 transfer and retries with the Credential. For zero-amount Challenges, it signs a proof message and retries with a `proof` payload instead.
 
 ```ts twoslash
 import { Mppx, tempo } from "mppx/client";

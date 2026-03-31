@@ -2,6 +2,8 @@
 
 The `charge` intent for the Tempo payment method. Requests a one-time payment from the client.
 
+Non-zero charges verify on-chain transfers. Zero-amount charges verify a `proof` payload signed by the client's identity key and return a Receipt without broadcasting a transaction.
+
 ## Usage
 
 ```ts twoslash
@@ -103,6 +105,8 @@ External identifier for the payment.
 
 Account or URL for sponsoring transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), or `true` when the `account` parameter doubles as the fee payer.
 
+This setting only applies to non-zero charges. Zero-amount proof flows do not create a transaction.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
@@ -128,6 +132,8 @@ Testnet mode. Defaults the chain ID to `42431` (Tempo testnet).
 
 Whether to wait for the charge transaction to confirm on-chain before responding. When `false`, the transaction is simulated via `eth_estimateGas` and broadcast without waiting for inclusion. The Receipt optimistically reports `status: 'success'` based on simulation alone.
 
+This option applies only to non-zero charges. Zero-amount proof flows return immediately after signature verification.
+
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
@@ -145,6 +151,8 @@ const mppx = Mppx.create({
 - **Type:** `string`
 
 Payment amount in human-readable units. For example, `'0.1'` represents $0.10 USD.
+
+Set `'0'` to require identity-only zero-dollar auth. In that case, the client submits a `proof` payload instead of a transaction or hash.
 
 ### currency
 
