@@ -18,7 +18,7 @@ jobs:
         with:
           script: |
             const body = [
-              '👋 Thanks for submitting a service to the MPP directory!',
+              'Thanks for submitting a service to the MPP directory!',
               '',
               'If you want your service included in the curated `mpp.dev/services` list, complete this checklist before review:',
               '',
@@ -35,7 +35,7 @@ jobs:
               'We prioritize services that are **high quality and novel**. We may not approve services that duplicate existing functionality or aren\'t yet production-ready.',
               '',
               '---',
-              '📖 [Contributing guide](https://github.com/tempoxyz/mpp?tab=readme-ov-file#contributing-to-the-service-directory) · 🔍 [MPPScan](https://www.mppscan.com/register) · 📄 [Protocol docs](https://mpp.dev/protocol/)',
+              '[Contributing guide](https://github.com/tempoxyz/mpp?tab=readme-ov-file#contributing-to-the-service-directory) · [MPPScan](https://www.mppscan.com/register) · [Protocol docs](https://mpp.dev/protocol/)',
             ].join('\n');
 
             await github.rest.issues.createComment({
