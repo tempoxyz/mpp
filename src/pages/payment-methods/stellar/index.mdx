@@ -1,13 +1,13 @@
 ---
-title: "Stellar SAC token payments"
+title: "Stellar SEP-41 token payments"
 imageDescription: "Accept stablecoin payments on the Stellar network"
 ---
 
 import { Badge } from 'vocs'
 
-# Stellar [SAC token payments on the Stellar network]
+# Stellar [SEP-41 token payments on the Stellar network]
 
-The [Stellar](https://stellar.org) payment method enables payments using Soroban SAC (Stellar Asset Contract) tokens on the Stellar network. Stellar supports two intents—**charge** for one-time on-chain transfers and **channel** for high-frequency off-chain payment channels—covering everything from single API calls to metered billing at token-level granularity.
+The [Stellar](https://stellar.org) payment method enables payments using SEP-41-compliant tokens on the Stellar network. Stellar supports two intents – **charge** for one-time on-chain transfers and **channel** for high-frequency off-chain payment channels – covering everything from single API calls to metered billing at token-level granularity.
 
 The reference implementation is provided by [`@stellar/mpp`](https://github.com/stellar/stellar-mpp-sdk), which extends [`mppx`](https://github.com/wevm/mppx) with Stellar-native client and server handlers.
 
@@ -29,12 +29,12 @@ bun add @stellar/mpp mppx @stellar/stellar-sdk
 
 Stellar enables several useful capabilities for MPP:
 
-- **5-second finality**—Transactions settle with deterministic confirmation, no probabilistic waiting
-- **Sub-cent fees**—Transaction costs low enough for micropayments and per-request billing
-- **Fee sponsorship**—Servers can pay transaction fees on behalf of clients, removing wallet friction entirely
-- **Soroban smart contracts**—Payment channels run as auditable on-chain contracts for secure escrow and settlement
-- **SAC token support**—Native Stellar assets (USDC, XLM) are accessible through Soroban Asset Contracts
-- **Payment channels**—Off-chain cumulative commitments enable high-frequency metered billing without per-request on-chain cost
+- **5-second finality**: Transactions settle with deterministic confirmation, no probabilistic waiting
+- **Sub-cent fees**: Transaction costs low enough for micropayments and per-request billing
+- **Fee sponsorship**: Servers can pay transaction fees on behalf of clients, removing wallet friction entirely
+- **Stellar smart contracts**: Payment channels run as auditable on-chain contracts for secure escrow and settlement
+- **SEP-41 token support**: Any SEP-41-compliant token is supported. SAC is one implementation covering native Stellar assets like USDC and XLM
+- **Payment channels**: Off-chain cumulative commitments enable high-frequency metered billing without per-request on-chain cost
 
 ## Choosing an intent
 
@@ -45,30 +45,30 @@ Stellar enables several useful capabilities for MPP:
 | **Throughput** | One transaction per request | Many commitments per second per channel |
 | **Best for** | Single API calls, content access, one-off purchases | LLM APIs, metered services, usage-based billing |
 | **On-chain cost** | Per request | Amortized across many requests |
-| **Settlement** | Immediate on-chain SAC transfer | Off-chain commitments, on-chain close |
+| **Settlement** | Immediate on-chain token transfer | Off-chain commitments, on-chain close |
 
 ## Intents
 
 <div className="vocs:grid vocs:grid-cols-1 vocs:md:grid-cols-2 vocs:gap-4">
   <a href="/payment-methods/stellar/charge" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
     <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 8-8 8"/><path d="m8 8 8 8"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.003 1.716c-1.37 0-2.7.27-3.948.78A10.18 10.18 0 0 0 2.66 7.901a10.136 10.136 0 0 0-.797 3.954c0 .258.01.516.027.775a1.942 1.942 0 0 1-1.055 1.88L0 14.934v1.902l2.463-1.26.072-.032v.005l.77-.39.758-.385.066-.039 14.807-7.56 1.666-.847 3.392-1.732V2.694L17.792 5.86 3.744 13.025l-.104.055-.017-.115a8.286 8.286 0 0 1-.071-1.105c0-2.255.88-4.377 2.474-5.977a8.462 8.462 0 0 1 2.71-1.82 8.513 8.513 0 0 1 3.2-.654h.067a8.41 8.41 0 0 1 4.09 1.055l1.628-.83.126-.066a10.11 10.11 0 0 0-5.845-1.853zM24 7.143 5.047 16.808l-1.666.847L0 19.382v1.902l3.282-1.671 2.91-1.485 14.058-7.153.105-.055.016.115c.05.369.072.743.072 1.11 0 2.255-.88 4.383-2.475 5.978a8.461 8.461 0 0 1-2.71 1.82 8.305 8.305 0 0 1-3.2.654h-.06c-1.441 0-2.86-.369-4.102-1.061l-.066.033-1.683.857c.594.418 1.232.776 1.903 1.062a10.11 10.11 0 0 0 3.947.797 10.09 10.09 0 0 0 7.17-2.975 10.136 10.136 0 0 0 2.969-7.18c0-.259-.005-.523-.027-.781a1.942 1.942 0 0 1 1.055-1.88L24 9.044z"/></svg>
     </div>
     <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Stellar charge</div>
-    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">One-time SAC token transfers settled on-chain</div>
+    <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">One-time smart contract token transfers settled on-chain</div>
   </a>
   <a href="/payment-methods/stellar/session" className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint">
     <div className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.003 1.716c-1.37 0-2.7.27-3.948.78A10.18 10.18 0 0 0 2.66 7.901a10.136 10.136 0 0 0-.797 3.954c0 .258.01.516.027.775a1.942 1.942 0 0 1-1.055 1.88L0 14.934v1.902l2.463-1.26.072-.032v.005l.77-.39.758-.385.066-.039 14.807-7.56 1.666-.847 3.392-1.732V2.694L17.792 5.86 3.744 13.025l-.104.055-.017-.115a8.286 8.286 0 0 1-.071-1.105c0-2.255.88-4.377 2.474-5.977a8.462 8.462 0 0 1 2.71-1.82 8.513 8.513 0 0 1 3.2-.654h.067a8.41 8.41 0 0 1 4.09 1.055l1.628-.83.126-.066a10.11 10.11 0 0 0-5.845-1.853zM24 7.143 5.047 16.808l-1.666.847L0 19.382v1.902l3.282-1.671 2.91-1.485 14.058-7.153.105-.055.016.115c.05.369.072.743.072 1.11 0 2.255-.88 4.383-2.475 5.978a8.461 8.461 0 0 1-2.71 1.82 8.305 8.305 0 0 1-3.2.654h-.06c-1.441 0-2.86-.369-4.102-1.061l-.066.033-1.683.857c.594.418 1.232.776 1.903 1.062a10.11 10.11 0 0 0 3.947.797 10.09 10.09 0 0 0 7.17-2.975 10.136 10.136 0 0 0 2.969-7.18c0-.259-.005-.523-.027-.781a1.942 1.942 0 0 1 1.055-1.88L24 9.044z"/></svg>
     </div>
-    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Channel</div>
+    <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">Stellar channel</div>
     <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">Pay-as-you-go payments over one-way payment channels</div>
   </a>
 </div>
 
 ## Fee sponsorship
 
-Stellar supports server-paid transaction fees for charge intents. When enabled, the server rebuilds the transaction with its own source account and optionally wraps it in a fee bump. The client signs only the Soroban auth entries—no need to hold XLM for gas.
+Stellar supports server-paid transaction fees for charge intents. When enabled, the server rebuilds the transaction with its own source account and optionally wraps it in a fee bump. The client signs only the Stellar auth entries – no need to hold XLM for gas.
 
 Pass a `feePayer` configuration to `stellar.charge()` to enable this:
 
@@ -95,7 +95,7 @@ const mppx = Mppx.create({
 
 ## Supported assets
 
-The `@stellar/mpp` package exports constants for common SAC token addresses:
+The `@stellar/mpp` package exports constants for common token addresses:
 
 | Asset | Network | Constant |
 |---|---|---|

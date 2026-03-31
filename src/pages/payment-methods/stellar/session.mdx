@@ -11,7 +11,11 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 Stellar uses the term "channel" for its streaming payment intent. This corresponds to the MPP [session](/payment-methods/tempo/session) concept used by other payment methods.
 :::
 
-The `channel` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels on Stellar. Clients deposit tokens into an on-chain Soroban escrow contract and sign off-chain cumulative commitments as they consume resources. The server verifies commitments via contract simulation—no per-request on-chain transactions—and closes the channel to settle the final balance.
+:::warning[Spec in progress]
+The formal specification for the Stellar channel intent is still being drafted. An initial implementation is available in [`@stellar/mpp`](https://github.com/stellar/stellar-mpp-sdk) and this documentation reflects that implementation. Details may change as the spec is finalized.
+:::
+
+The `channel` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels on Stellar. Clients deposit tokens into an on-chain smart contract escrow and sign off-chain cumulative commitments as they consume resources. The server verifies commitments via contract simulation–no per-request on-chain transactions–and closes the channel to settle the final balance.
 
 Payment channels reduce payment verification to a single contract simulation per request, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
@@ -41,7 +45,7 @@ A payment channel has four phases:
 
 ### Open
 
-The client deploys a one-way-channel Soroban contract with a commitment key and USDC deposit. This creates a payment channel between the client (funder) and server (recipient). The channel contract holds the deposited SAC tokens on-chain.
+The client deploys a one-way-channel smart contract with a commitment key and an `asset` deposit. This creates a payment channel between the client (funder) and server (recipient). The channel contract holds the deposited tokens on-chain.
 
 ### Session
 
@@ -103,7 +107,7 @@ const mppx = Mppx.create({
     }),
   ],
 })
-// ---cut---
+
 export async function handler(request: Request) {
   const result = await mppx.session({
     amount: '0.01',
@@ -120,22 +124,23 @@ export async function handler(request: Request) {
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `channel` | `string` | — | On-chain channel contract address (`C...`) |
+| `channel` | `string` | – | On-chain channel contract address (`C...`) |
 | `checkOnChainState` | `boolean` | `false` | Verify on-chain state during voucher verification |
-| `commitmentKey` | `string \| Keypair` | — | Commitment verification public key |
+| `commitmentKey` | `string \| Keypair` | – | Commitment verification public key |
 | `decimals` | `number` | `7` | Token decimal precision |
-| `feeBumpSigner` | `Keypair \| string` | — | Fee bump signer for close transactions |
+| `feePayer` | `object` | – | Fee sponsorship configuration for close transactions |
+| `feePayer.envelopeSigner` | `Keypair \| string` | – | Signer for close transaction envelopes |
+| `feePayer.feeBumpSigner` | `Keypair \| string` | – | Optional fee bump signer for close transactions |
 | `maxFeeBumpStroops` | `number` | `10,000,000` | Maximum fee bump amount |
-| `network` | `string` | — | `'stellar:testnet'` or `'stellar:pubnet'` |
-| `onDisputeDetected` | `function` | — | Callback when on-chain dispute is detected |
+| `network` | `string` | – | `'stellar:testnet'` or `'stellar:pubnet'` |
+| `onDisputeDetected` | `function` | – | Callback when on-chain dispute is detected |
 | `pollDelayMs` | `number` | `1,000` | Delay between poll attempts |
 | `pollMaxAttempts` | `number` | `30` | Maximum poll attempts |
 | `pollTimeoutMs` | `number` | `30,000` | Total poll timeout |
-| `rpcUrl` | `string` | — | Soroban RPC endpoint |
-| `signer` | `Keypair \| string` | — | Signer for close transactions |
+| `rpcUrl` | `string` | – | Stellar RPC endpoint |
 | `simulationTimeoutMs` | `number` | `10,000` | Simulation timeout |
-| `sourceAccount` | `string` | — | Source account for transactions |
-| `store` | `Store` | — | State store for channel data |
+| `sourceAccount` | `string` | – | Source account for transactions |
+| `store` | `Store` | – | State store for channel data |
 
   </div>
   </Tab>
@@ -207,12 +212,12 @@ Mppx.create({
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `commitmentKey` | `Keypair` | — | Ed25519 keypair for signing commitments |
-| `commitmentSecret` | `string` | — | Secret key (alternative to `commitmentKey`) |
-| `onProgress` | `function` | — | Lifecycle event callback |
-| `rpcUrl` | `string` | — | Soroban RPC endpoint |
+| `commitmentKey` | `Keypair` | – | Ed25519 keypair for signing commitments |
+| `commitmentSecret` | `string` | – | Secret key (alternative to `commitmentKey`) |
+| `onProgress` | `function` | – | Lifecycle event callback |
+| `rpcUrl` | `string` | – | Stellar RPC endpoint |
 | `simulationTimeoutMs` | `number` | `10,000` | Simulation timeout |
-| `sourceAccount` | `string` | — | Source account for transactions |
+| `sourceAccount` | `string` | – | Source account for transactions |
 
   </div>
   </Tab>
@@ -230,7 +235,7 @@ const txHash = await close({
   channel: 'CABC...', // channel contract address
   amount: 2000000n, // cumulative amount in base units (bigint)
   signature: lastCommitmentSignature, // Uint8Array
-  signer: Keypair.fromSecret('S...'),
+  feePayer: { envelopeSigner: Keypair.fromSecret('S...') },
   network: 'stellar:testnet',
 })
 ```
@@ -267,11 +272,11 @@ stop()
 
 ## Channel contract
 
-Payment channels use the [one-way-channel](https://github.com/stellar-experimental/one-way-channel) Soroban contract for on-chain deposits, commitment verification, and settlement.
+Payment channels use the [one-way-channel](https://github.com/stellar-experimental/one-way-channel) smart contract for on-chain deposits, commitment verification, and settlement.
 
 The contract lifecycle: **Open** (deploy + deposit) -> **Off-chain payments** (signed commitments) -> **Settle** (partial withdrawal) -> **Close** (final settlement) or **Close Start** -> **Refund** (funder reclaims after waiting period).
 
-Commitment signatures use ed25519 over XDR-encoded `ScVal::Map` containing the amount, channel address, domain separator (`chancmmt`), and network ID—preventing replay across channels and networks.
+Commitment signatures use ed25519 over XDR-encoded `ScVal::Map` containing the amount, channel address, domain separator (`chancmmt`), and network ID–preventing replay across channels and networks.
 
 :::info
 The one-way-channel contract is experimental and has not been audited. See the [repository](https://github.com/stellar-experimental/one-way-channel) for the latest status.

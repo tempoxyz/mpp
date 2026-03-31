@@ -245,7 +245,7 @@ export function LightningSessionCard() {
 export function StellarMethodCard() {
   return (
     <Card
-      description="SAC token payments on the Stellar network with payment channels"
+      description="Smart contract payments on Stellar"
       icon="simple-icons:stellar"
       title="Stellar"
       to="/payment-methods/stellar"
