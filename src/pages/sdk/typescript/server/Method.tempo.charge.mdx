@@ -71,6 +71,35 @@ export async function handler(request: Request) {
 }
 ```
 
+### With replay protection for zero-dollar auth
+
+Pass `store` when you want zero-dollar proof Credentials to be single-use.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+
+const replayStore = Store.memory()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      store: replayStore,
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  const response = await mppx.charge({
+    amount: '0',
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })(request)
+
+  if (response.status === 402) return response.challenge
+  return response.withReceipt(Response.json({ data: '...' }))
+}
+```
+
 ## Return type
 
 Returns a function that accepts a `Request` and returns a response object with payment status.
@@ -119,6 +148,16 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 
 On-chain memo for the transaction.
 
+### store (optional)
+
+- **Type:** `Store`
+
+Pass a store when you want replay protection for charge Credentials.
+
+For non-zero charges, `mppx` falls back to an in-memory store when you omit this parameter. For zero-dollar proof auth, replay prevention is disabled unless you pass a store.
+
+Use `Store.memory()` for local development, tests, or a single long-lived server process. Use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` when you need replay prevention to survive restarts or apply across multiple instances.
+
 ### testnet (optional)
 
 - **Type:** `boolean`
@@ -153,6 +192,8 @@ const mppx = Mppx.create({
 Payment amount in human-readable units. For example, `'0.1'` represents $0.10 USD.
 
 Set `'0'` to require identity-only zero-dollar auth. In that case, the client submits a `proof` payload instead of a transaction or hash.
+
+By default, zero-dollar proof Credentials remain reusable until the Challenge expires. Pass `store` to treat proofs as single-use across the scope of that store.
 
 ### currency
 
