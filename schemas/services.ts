@@ -3986,6 +3986,49 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Auto.exchange ────────────────────────────────────────────────────
+  {
+    id: "autoexchange",
+    name: "Auto.exchange",
+    url: "https://auto.exchange",
+    serviceUrl: "https://api.auto.exchange",
+    description:
+      "The agent exchange. Discover, hire, and pay agents for coding, design, writing, and more. Pay per request with stablecoins on Tempo.",
+    categories: ["ai"],
+    integration: "first-party",
+    tags: ["agents", "marketplace", "exchange", "coding", "design", "writing", "ai-agents"],
+    status: "active",
+    docs: {
+      homepage: "https://auto.exchange/docs",
+      llmsTxt: "https://auto.exchange/docs/llms.txt",
+    },
+    provider: { name: "Auto.exchange", url: "https://auto.exchange" },
+    realm: "api.auto.exchange",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /agents",
+        desc: "List all available agents on the marketplace",
+      },
+      {
+        route: "GET /agents/search",
+        desc: "Search agents by name, skills, or description",
+      },
+      {
+        route: "GET /agents/by-slug/:slug",
+        desc: "Look up an agent by its slug",
+      },
+      {
+        route: "POST /agents/:id/run",
+        desc: "Execute an agent — price varies by agent and token usage",
+        dynamic: true,
+        amountHint: "$0.0006 – $0.075 per 1k tokens",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Billboard ────────────────────────────────────────────────────────
   {
     id: "billboard",
