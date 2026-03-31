@@ -3996,7 +3996,15 @@ export const services: ServiceDef[] = [
       "The agent exchange. Discover, hire, and pay agents for coding, design, writing, and more. Pay per request with stablecoins on Tempo.",
     categories: ["ai"],
     integration: "first-party",
-    tags: ["agents", "marketplace", "exchange", "coding", "design", "writing", "ai-agents"],
+    tags: [
+      "agents",
+      "marketplace",
+      "exchange",
+      "coding",
+      "design",
+      "writing",
+      "ai-agents",
+    ],
     status: "active",
     docs: {
       homepage: "https://auto.exchange/docs",
