@@ -7,6 +7,10 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Channel [High-frequency off-chain payments]
 
+:::info
+Stellar uses the term "channel" for its streaming payment intent. This corresponds to the MPP [session](/payment-methods/tempo/session) concept used by other payment methods.
+:::
+
 The `channel` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels on Stellar. Clients deposit tokens into an on-chain Soroban escrow contract and sign off-chain cumulative commitments as they consume resources. The server verifies commitments via contract simulation—no per-request on-chain transactions—and closes the channel to settle the final balance.
 
 Payment channels reduce payment verification to a single contract simulation per request, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
