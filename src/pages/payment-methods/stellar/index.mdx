@@ -95,11 +95,10 @@ const mppx = Mppx.create({
 
 ## Supported assets
 
-The `@stellar/mpp` package exports constants for common token addresses:
+Any [SEP-41](https://stellar.org/protocol/sep-41) compliant token is supported. This includes classic Stellar assets wrapped via SAC, as well as custom smart contract tokens that implement the SEP-41 interface. A few common examples:
 
-| Asset | Network | Constant |
-|---|---|---|
-| USDC | Mainnet | `USDC_SAC_MAINNET` |
-| USDC | Testnet | `USDC_SAC_TESTNET` |
-| XLM | Mainnet | `XLM_SAC_MAINNET` |
-| XLM | Testnet | `XLM_SAC_TESTNET` |
+- **USDC** – Circle's USD stablecoin on Stellar
+- **XLM** – Stellar's native asset, wrapped as a SEP-41 token via SAC
+- **Any custom SEP-41 token** – smart contracts implementing the SEP-41 token interface
+
+The `@stellar/mpp` package exports constants for commonly used token addresses (`USDC_SAC_MAINNET`, `USDC_SAC_TESTNET`, `XLM_SAC_MAINNET`, `XLM_SAC_TESTNET`).
