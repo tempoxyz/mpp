@@ -71,16 +71,18 @@ const mppx = Mppx.create({ methods: [tempo()] })
 
 const proxy = Proxy.create({
   services: [
+// [!code focus:start]
     Service.from('weather', {
       baseUrl: 'https://api.weather.example.com',
-      bearer: process.env.WEATHER_API_KEY!,
+      bearer: process.env.WEATHER_API_KEY!, // [!code hl]
       description: 'Weather forecast API',
       routes: {
         'GET /v1/forecast': mppx.charge({ amount: '0.01' }),
-        'GET /v1/status': true,
+        'GET /v1/status': true, // [!code hl]
       },
       title: 'Weather API',
     }),
+// [!code focus:end]
   ],
 })
 ```
@@ -128,7 +130,7 @@ import { Mppx, tempo } from 'mppx/server'
 const mppx = Mppx.create({ methods: [tempo()] })
 
 const proxy = Proxy.create({
-  description: 'Payment-gated weather data',
+  description: 'Payment-gated weather data', // [!code hl]
   services: [
     Service.from('weather', {
       baseUrl: 'https://api.weather.example.com',
@@ -142,15 +144,17 @@ const proxy = Proxy.create({
       title: 'Weather API',
     }),
   ],
-  title: 'Weather Proxy',
+  title: 'Weather Proxy', // [!code hl]
 })
 
+// [!code focus:start]
 // Bun / Deno
 export default { fetch: proxy.fetch }
 
 // Node.js
 // import { createServer } from 'node:http'
 // createServer(proxy.listener).listen(3000)
+// [!code focus:end]
 ```
 
 ### Test via the `mppx` CLI
@@ -183,20 +187,22 @@ const mppx = Mppx.create({ methods: [tempo()] })
 const proxy = Proxy.create({
   description: 'Multi-service paid API proxy',
   services: [
-    openai({
+// [!code focus:start]
+    openai({ // [!code hl]
       apiKey: process.env.OPENAI_API_KEY!,
       routes: {
         'GET /v1/models': true,
         'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
       },
     }),
-    Service.from('internal', {
+    Service.from('internal', { // [!code hl]
       baseUrl: 'https://api.internal.example.com',
-      headers: { 'X-API-Key': process.env.INTERNAL_API_KEY! },
+      headers: { 'X-API-Key': process.env.INTERNAL_API_KEY! }, // [!code hl]
       routes: {
         'POST /v1/analyze': mppx.charge({ amount: '0.10' }),
       },
     }),
+// [!code focus:end]
   ],
   title: 'My Proxy',
 })
