@@ -44,10 +44,6 @@ Zero-dollar auth uses the standard Challenge → Credential flow with the amount
 
 For Tempo charge, zero-dollar auth now uses a `proof` Credential payload instead of a real transaction. The client signs a proof message over the Challenge ID, and the server verifies that signature against the `source` DID.
 
-:::info[Why `proof` matters]
-This removes a griefing vector in identity-only flows. A server can no longer make an end user burn about `$0.001` in network fees just to prove key ownership when the end user is the fee payer.
-:::
-
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
     participant Server
