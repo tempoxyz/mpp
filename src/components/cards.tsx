@@ -242,6 +242,39 @@ export function LightningSessionCard() {
   );
 }
 
+export function StellarMethodCard() {
+  return (
+    <Card
+      description="Smart contract payments on Stellar"
+      icon="simple-icons:stellar"
+      title="Stellar"
+      to="/payment-methods/stellar"
+    />
+  );
+}
+
+export function StellarChargeCard() {
+  return (
+    <Card
+      description="One-time SAC token transfers settled on-chain"
+      icon="simple-icons:stellar"
+      title="Stellar charge"
+      to="/payment-methods/stellar/charge"
+    />
+  );
+}
+
+export function StellarChannelCard() {
+  return (
+    <Card
+      description="Pay-as-you-go payments over one-way payment channels"
+      icon="simple-icons:stellar"
+      title="Stellar channel"
+      to="/payment-methods/stellar/session"
+    />
+  );
+}
+
 export function SolanaMethodCard() {
   return (
     <Card

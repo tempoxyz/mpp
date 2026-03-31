@@ -1,0 +1,283 @@
+---
+imageDescription: "High-frequency payments with Stellar payment channels"
+---
+
+import { Cards, Tab, Tabs } from 'vocs'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+
+# Channel [High-frequency off-chain payments]
+
+:::info
+Stellar uses the term "channel" for its streaming payment intent. This corresponds to the MPP [session](/payment-methods/tempo/session) concept used by other payment methods.
+:::
+
+:::warning[Spec in progress]
+The formal specification for the Stellar channel intent is still being drafted. An initial implementation is available in [`@stellar/mpp`](https://github.com/stellar/stellar-mpp-sdk) and this documentation reflects that implementation. Details may change as the spec is finalized.
+:::
+
+The `channel` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels on Stellar. Clients deposit tokens into an on-chain smart contract escrow and sign off-chain cumulative commitments as they consume resources. The server verifies commitments via contract simulation–no per-request on-chain transactions–and closes the channel to settle the final balance.
+
+Payment channels reduce payment verification to a single contract simulation per request, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Stellar
+    Client->>Stellar: (1) Deploy channel + deposit tokens
+    Stellar-->>Client: Channel contract created
+    Client->>Server: (2) Open credential (channel address)
+    Note over Server: Verify on-chain deposit
+    Server-->>Client: 200 OK (session established)
+    loop Per request
+        Client->>Server: (3) Request + commitment signature
+        Note over Server: Verify via prepare_commitment simulation
+        Server-->>Client: 200 OK + Receipt
+    end
+    Server->>Stellar: (4) Close channel with highest commitment
+    Stellar-->>Client: Refund remaining deposit
+`} />
+
+A payment channel has four phases:
+
+::::steps
+
+### Open
+
+The client deploys a one-way-channel smart contract with a commitment key and an `asset` deposit. This creates a payment channel between the client (funder) and server (recipient). The channel contract holds the deposited tokens on-chain.
+
+### Session
+
+The client signs ed25519 cumulative commitment amounts as service is consumed. Each commitment authorizes "I have now consumed up to X total." The server verifies the commitment signature by simulating `prepare_commitment` on the channel contract and checks that the cumulative amount is higher than the previous commitment.
+
+Commitment verification requires a single contract simulation per request. This is what enables per-token LLM billing without significant latency overhead.
+
+### Top up
+
+If the channel runs low on funds, the client deposits additional tokens via the `top_up` function without closing the channel. The session continues uninterrupted.
+
+### Close
+
+Either party can close the channel. The server calls `close()` on the channel contract with the highest commitment amount and signature, settling the final balance on-chain and refunding any unused deposit to the funder.
+
+::::
+
+## Integration
+
+<Tabs stateKey="platform">
+  <Tab title="Server">
+  <div className="space-y-4">
+
+Use `stellar.channel` to accept payment channels. The server needs the channel contract address, commitment public key, and a storage backend for channel state.
+
+```ts
+import { Mppx, Store } from 'mppx/server'
+import { stellar } from '@stellar/mpp/channel/server'
+
+const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY,
+  methods: [
+    stellar.channel({
+      channel: process.env.CHANNEL_CONTRACT, // C... address
+      commitmentKey: process.env.COMMITMENT_PUBLIC_KEY,
+      network: 'stellar:testnet',
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+During a session, the server verifies each commitment by simulating `prepare_commitment` on the channel contract. On-chain interaction only happens during open and close.
+
+Use `mppx.session` in your request handler to meter access:
+
+```ts
+import { Mppx, Store } from 'mppx/server'
+import { stellar } from '@stellar/mpp/channel/server'
+
+const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY,
+  methods: [
+    stellar.channel({
+      channel: process.env.CHANNEL_CONTRACT,
+      commitmentKey: process.env.COMMITMENT_PUBLIC_KEY,
+      network: 'stellar:testnet',
+      store: Store.memory(),
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.session({
+    amount: '0.01',
+    description: 'API access',
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### Server configuration
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `channel` | `string` | – | On-chain channel contract address (`C...`) |
+| `checkOnChainState` | `boolean` | `false` | Verify on-chain state during voucher verification |
+| `commitmentKey` | `string \| Keypair` | – | Commitment verification public key |
+| `decimals` | `number` | `7` | Token decimal precision |
+| `feePayer` | `object` | – | Fee sponsorship configuration for close transactions |
+| `feePayer.envelopeSigner` | `Keypair \| string` | – | Signer for close transaction envelopes |
+| `feePayer.feeBumpSigner` | `Keypair \| string` | – | Optional fee bump signer for close transactions |
+| `maxFeeBumpStroops` | `number` | `10,000,000` | Maximum fee bump amount |
+| `network` | `string` | – | `'stellar:testnet'` or `'stellar:pubnet'` |
+| `onDisputeDetected` | `function` | – | Callback when on-chain dispute is detected |
+| `pollDelayMs` | `number` | `1,000` | Delay between poll attempts |
+| `pollMaxAttempts` | `number` | `30` | Maximum poll attempts |
+| `pollTimeoutMs` | `number` | `30,000` | Total poll timeout |
+| `rpcUrl` | `string` | – | Stellar RPC endpoint |
+| `simulationTimeoutMs` | `number` | `10,000` | Simulation timeout |
+| `sourceAccount` | `string` | – | Source account for transactions |
+| `store` | `Store` | – | State store for channel data |
+
+  </div>
+  </Tab>
+  <Tab title="Client">
+  <div className="space-y-4">
+
+Use `stellar.channel` with `Mppx.create` to sign commitment amounts automatically when the server requests payment channels.
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/channel/client'
+
+Mppx.create({
+  methods: [
+    stellar.channel({
+      commitmentKey: Keypair.fromSecret('S...'),
+      onProgress(event) {
+        console.log(event.type) // challenge → signing → signed
+      },
+    }),
+  ],
+})
+
+const response = await fetch('http://localhost:3000/my-service')
+// Automatically signs cumulative commitments per request
+```
+
+### Without polyfill
+
+If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/channel/client'
+
+const mppx = Mppx.create({
+  methods: [
+    stellar.channel({
+      commitmentKey: Keypair.fromSecret('S...'),
+    }),
+  ],
+  polyfill: false,
+})
+
+const response = await mppx.fetch('http://localhost:3000/my-service')
+```
+
+### With multiple methods
+
+Register both charge and channel methods so the client can handle servers that offer either:
+
+```ts
+import { Keypair } from '@stellar/stellar-sdk'
+import { Mppx } from 'mppx/client'
+import { stellar } from '@stellar/mpp/charge/client'
+import { stellar as stellarChannel } from '@stellar/mpp/channel/client'
+
+Mppx.create({
+  methods: [
+    stellar.charge({ keypair: Keypair.fromSecret('S...') }),
+    stellarChannel.channel({ commitmentKey: Keypair.fromSecret('S...') }),
+  ],
+})
+```
+
+### Client configuration
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `commitmentKey` | `Keypair` | – | Ed25519 keypair for signing commitments |
+| `commitmentSecret` | `string` | – | Secret key (alternative to `commitmentKey`) |
+| `onProgress` | `function` | – | Lifecycle event callback |
+| `rpcUrl` | `string` | – | Stellar RPC endpoint |
+| `simulationTimeoutMs` | `number` | `10,000` | Simulation timeout |
+| `sourceAccount` | `string` | – | Source account for transactions |
+
+  </div>
+  </Tab>
+</Tabs>
+
+## Closing the channel
+
+The server closes the channel by submitting the highest cumulative commitment amount and signature on-chain. The `close` function is exported from the server package:
+
+```ts
+import { close } from '@stellar/mpp/channel/server'
+import { Keypair } from '@stellar/stellar-sdk'
+
+const txHash = await close({
+  channel: 'CABC...', // channel contract address
+  amount: 2000000n, // cumulative amount in base units (bigint)
+  signature: lastCommitmentSignature, // Uint8Array
+  feePayer: { envelopeSigner: Keypair.fromSecret('S...') },
+  network: 'stellar:testnet',
+})
+```
+
+:::warning
+Channels do not close automatically. If you don't call `close()`, the deposit stays locked in the channel contract until the funder initiates a refund after the waiting period expires.
+:::
+
+## Monitoring channels
+
+Use `getChannelState` to query the on-chain state of a channel, and `watchChannel` to poll for contract events:
+
+```ts
+import { getChannelState, watchChannel } from '@stellar/mpp/channel/server'
+
+// Query current state
+const state = await getChannelState({
+  channel: 'CABC...',
+  rpcUrl: 'https://soroban-testnet.stellar.org',
+})
+
+// Watch for events (close, refund, top_up)
+const stop = watchChannel({
+  channel: 'CABC...',
+  rpcUrl: 'https://soroban-testnet.stellar.org',
+  onEvent(event) {
+    console.log(event.type, event.data)
+  },
+})
+
+// Stop watching
+stop()
+```
+
+## Channel contract
+
+Payment channels use the [one-way-channel](https://github.com/stellar-experimental/one-way-channel) smart contract for on-chain deposits, commitment verification, and settlement.
+
+The contract lifecycle: **Open** (deploy + deposit) -> **Off-chain payments** (signed commitments) -> **Settle** (partial withdrawal) -> **Close** (final settlement) or **Close Start** -> **Refund** (funder reclaims after waiting period).
+
+Commitment signatures use ed25519 over XDR-encoded `ScVal::Map` containing the amount, channel address, domain separator (`chancmmt`), and network ID–preventing replay across channels and networks.
+
+:::info
+The one-way-channel contract is experimental and has not been audited. See the [repository](https://github.com/stellar-experimental/one-way-channel) for the latest status.
+:::

@@ -395,6 +395,15 @@ export default defineConfig({
               { text: "Charge", link: "/payment-methods/solana/charge" },
             ],
           },
+          {
+            text: "Stellar",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/stellar" },
+              { text: "Charge", link: "/payment-methods/stellar/charge" },
+              { text: "Channel", link: "/payment-methods/stellar/session" },
+            ],
+          },
           { text: "Custom", link: "/payment-methods/custom" },
         ],
       },
