@@ -433,7 +433,6 @@ export const services: ServiceDef[] = [
       {
         route: "POST /api/v1/submit",
         desc: "Submit a post (stake $0.50–$1000)",
-        amount: "500000",
         dynamic: true,
         amountHint: "$0.50 minimum, higher stake = higher ranking",
         unitType: "request",
