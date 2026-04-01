@@ -74,6 +74,13 @@ export const STRIPE_PAYMENT: PaymentDefaults = {
   decimals: 2,
 };
 
+/** Common payment defaults for Lightning (sat) services */
+export const LIGHTNING_PAYMENT: PaymentDefaults = {
+  method: "lightning",
+  currency: "sat",
+  decimals: 0,
+};
+
 export interface EndpointDef {
   /** Route string: "METHOD /path" (without service slug prefix) */
   route: string;
@@ -6207,6 +6214,80 @@ export const services: ServiceDef[] = [
         desc: "Create a climate contribution",
         dynamic: true,
         amountHint: "$0.01+",
+      },
+    ],
+  },
+
+  // ── Satring ─────────────────────────────────────────────────────────────
+  {
+    id: "satring",
+    name: "Satring",
+    url: "https://satring.com",
+    serviceUrl: "https://satring.com/api/v1",
+    description:
+      "Curated paid API directory for AI agents. Search, rate, and discover L402, x402, and MPP services.",
+    categories: ["search", "data"],
+    integration: "first-party",
+    tags: [
+      "directory",
+      "api",
+      "l402",
+      "x402",
+      "mpp",
+      "lightning",
+      "agents",
+      "ratings",
+      "discovery",
+    ],
+    docs: {
+      homepage: "https://satring.com/docs",
+      llmsTxt: "https://satring.com/llms.txt",
+    },
+    provider: { name: "satring", url: "https://satring.com" },
+    realm: "satring.com",
+    intent: "charge",
+    payment: LIGHTNING_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /services",
+        desc: "List services (free tier: 10/day per IP)",
+      },
+      { route: "GET /search", desc: "Search services by keyword" },
+      { route: "GET /categories", desc: "List all categories" },
+      { route: "GET /services/:slug", desc: "Get service details" },
+      {
+        route: "GET /services/:slug/ratings",
+        desc: "List ratings for a service",
+      },
+      {
+        route: "GET /services/bulk",
+        desc: "Bulk export all services",
+        amount: "5000",
+      },
+      {
+        route: "POST /services",
+        desc: "Submit a new service listing",
+        amount: "1000",
+      },
+      {
+        route: "POST /services/:slug/ratings",
+        desc: "Rate a service",
+        amount: "10",
+      },
+      {
+        route: "GET /analytics",
+        desc: "Directory analytics",
+        amount: "500",
+      },
+      {
+        route: "GET /services/:slug/reputation",
+        desc: "Service reputation report",
+        amount: "100",
+      },
+      {
+        route: "GET /services/:slug/analytics",
+        desc: "Per-service health analytics",
+        amount: "50",
       },
     ],
   },
