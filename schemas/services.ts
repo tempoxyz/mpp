@@ -3996,15 +3996,7 @@ export const services: ServiceDef[] = [
       "The agent exchange. Discover, hire, and pay agents for coding, design, writing, and more. Pay per request with stablecoins on Tempo.",
     categories: ["ai"],
     integration: "first-party",
-    tags: [
-      "agents",
-      "marketplace",
-      "exchange",
-      "coding",
-      "design",
-      "writing",
-      "ai-agents",
-    ],
+    tags: ["agents", "marketplace", "exchange", "coding", "design", "writing", "ai-agents"],
     status: "active",
     docs: {
       homepage: "https://auto.exchange/docs",
@@ -6032,7 +6024,7 @@ export const services: ServiceDef[] = [
     url: "https://tensorpath.io",
     serviceUrl: "https://mpp.tensorpath.io",
     description:
-      "On-demand GPU compute with SSH access for AI and ML workloads — pay per-minute with stablecoins.",
+      "Rent on-demand dedicated GPU with SSH access for AI and ML workloads — pay per-minute with stablecoins.",
     categories: ["ai", "compute"],
     integration: "first-party",
     tags: [
