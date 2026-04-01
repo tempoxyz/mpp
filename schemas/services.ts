@@ -6210,4 +6210,95 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Stableyard ──────────────────────────────────────────────────────────
+  {
+    id: "stableyard",
+    name: "Stableyard",
+    url: "https://api.stableyard.fi",
+    serviceUrl: "https://api.stableyard.fi",
+    description:
+      "Cross-chain stablecoin payment infrastructure. Accept USDC and USDT across 7 EVM chains + Solana with near-instant settlement. Pay from any chain, receive on any chain or fiat to bank.",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: [
+      "payments",
+      "cross-chain",
+      "settlement",
+      "usdc",
+      "usdt",
+      "stablecoin",
+      "multichain",
+      "fiat",
+    ],
+    docs: {
+      homepage: "https://stableyard.fi",
+      llmsTxt: "https://api.stableyard.fi/sdk.json",
+    },
+    provider: { name: "Stableyard", url: "https://stableyard.fi" },
+    realm: "api.stableyard.fi",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    docsBase: "https://api.stableyard.fi/sdk.json",
+    endpoints: [
+      // Sessions — core payment flow
+      {
+        route: "POST /v2/sessions",
+        desc: "Create a payment session. Supports checkout, transfer, and deposit types. Pass sourceChain to get deposit address inline.",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v2/sessions/:id",
+        desc: "Get session details including status, route, deposit info, and settlement data",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v2/sessions/:id/quote",
+        desc: "Preview fees and route for a source chain, or commit to get deposit address and gateway calldata",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v2/sessions/:id/verify",
+        desc: "Verify x402/MPP payment proof for a settled session",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v2/sessions/:id/submit-tx",
+        desc: "Submit transaction hash for faster payment detection",
+        amount: "1000",
+        unitType: "request",
+      },
+      // Network — public chain and balance info
+      {
+        route: "GET /v2/network/portfolio",
+        desc: "Multi-chain portfolio balances for any wallet address across 7 chains + Solana",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v2/network/chains",
+        desc: "List supported chains, tokens, and settlement times",
+        amount: "1000",
+        unitType: "request",
+      },
+      // Accounts — identity and resolution
+      {
+        route: "GET /v2/accounts/resolve",
+        desc: "Resolve wallet address, username (alice@stableyard), or account ID to full account details",
+        amount: "1000",
+        unitType: "request",
+      },
+      // Deposits — reusable deposit addresses
+      {
+        route: "POST /v2/deposits/addresses",
+        desc: "Create a reusable deposit address on any supported chain. Accepts from any chain, auto-routes.",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
