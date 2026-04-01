@@ -6032,7 +6032,7 @@ export const services: ServiceDef[] = [
     url: "https://tensorpath.io",
     serviceUrl: "https://mpp.tensorpath.io",
     description:
-      "Rent dedicated GPUs with SSH access — pay per-minute with stablecoins via MPP.",
+      "On-demand GPU compute with SSH access for AI and ML workloads — pay per-minute with stablecoins.",
     categories: ["ai", "compute"],
     integration: "first-party",
     tags: [
