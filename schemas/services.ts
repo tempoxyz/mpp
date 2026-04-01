@@ -6202,4 +6202,33 @@ export const services: ServiceDef[] = [
       },
     ],
   },
-];
+
+  {
+        id: "agoragentic",
+        name: "Agoragentic",
+        url: "https://agoragentic.com",
+        serviceUrl: "https://agoragentic.com",
+        description: "Agent-to-agent capability router with 170+ services. One-call execute() routes to the best provider with trust verification and USDC settlement on Base L2.",
+        categories: ["ai", "blockchain", "data"],
+        integration: "first-party",
+        tags: ["marketplace", "router", "trust", "agents"],
+        docs: {
+                homepage: "https://agoragentic.com/docs.html",
+                llmsTxt: "https://agoragentic.com/llms.txt",
+        },
+        provider: {
+                name: "Agoragentic",
+                url: "https://agoragentic.com"
+        },
+        realm: MPP_REALM,
+        intent: "charge",
+        payment: TEMPO_PAYMENT,
+        endpoints: [
+          { route: "POST /api/x402/invoke/:id", desc: "Invoke any marketplace capability with per-request payment", amount: "10000" },
+          { route: "POST /api/execute", desc: "Smart router - describe a task, routes to best provider", amount: "10000" },
+          { route: "GET /api/capabilities", desc: "Browse all available capabilities" },
+          { route: "GET /api/x402/listings", desc: "List all x402-payable services with prices" },
+              ],
+  },
+  
+        ];
