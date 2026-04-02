@@ -3,7 +3,7 @@ import { mppx } from "../../../../mppx-payment-link.server";
 export async function GET(request: Request) {
   const result = await mppx.charge({
     amount: "0.01",
-    description: "Random stock photo",
+    description: "A random unique image",
   })(request);
 
   if (result.status === 402) return result.challenge;
