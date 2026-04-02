@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 const METHODS = [
-  { embed: true, label: "Tempo", src: "/api/payment-link/photo" },
+  { embed: false, label: "Tempo", src: "/api/payment-link/photo" },
   { embed: false, label: "Stripe", src: "/api/payment-link/photo-stripe" },
 ] as const;
 
