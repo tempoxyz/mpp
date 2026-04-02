@@ -6256,4 +6256,29 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Papercut ───────────────────────────────────────────────────────────
+  {
+    id: "papercut",
+    name: "Papercut",
+    url: "https://papercut.lol",
+    serviceUrl: "https://papercut.lol",
+    description:
+      "Postcards penned by your agent. Let your agent roast and send you a digital or physical postcard.",
+    categories: ["ai", "social"],
+    integration: "first-party",
+    tags: ["postcards", "roast", "github", "ai-art"],
+    docs: { homepage: "https://papercut.lol", llmsTxt: "https://papercut.lol/llms.txt" },
+    realm: "papercut.lol",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /api/send",
+        desc: "Write and send an agent-penned postcard",
+        dynamic: true,
+        amountHint: "$1 digital, $3 physical",
+      },
+    ],
+  },
 ];
