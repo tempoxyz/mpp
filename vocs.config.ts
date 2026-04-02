@@ -312,7 +312,7 @@ export default defineConfig({
             link: "/guides/multiple-payment-methods",
           },
           {
-            text: "Render rich payment pages",
+            text: "Make payment links",
             link: "/guides/payment-links",
           },
           {
