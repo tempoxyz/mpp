@@ -4,7 +4,7 @@ const baseUrl = (() => {
   if (process.env.VERCEL_ENV === "production")
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  if (process.env.NODE_ENV !== "production") return "http://localhost:5173";
+  if (process.env.NODE_ENV !== "production") return "https://localhost:5173";
   return "";
 })();
 
