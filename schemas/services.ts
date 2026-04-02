@@ -6269,6 +6269,7 @@ export const services: ServiceDef[] = [
     integration: "first-party",
     tags: ["postcards", "roast", "github", "ai-art"],
     docs: { homepage: "https://papercut.lol", llmsTxt: "https://papercut.lol/llms.txt" },
+    provider: { name: "Papercut", url: "https://papercut.lol" },
     realm: "papercut.lol",
     intent: "charge",
     payment: TEMPO_PAYMENT,
