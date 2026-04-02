@@ -6070,6 +6070,71 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── TensorPath ──────────────────────────────────────────────────────
+  {
+    id: "tensorpath",
+    name: "TensorPath",
+    url: "https://tensorpath.io",
+    serviceUrl: "https://mpp.tensorpath.io",
+    description:
+      "Rent on-demand dedicated GPU with SSH access for AI and ML workloads — pay per-minute with stablecoins.",
+    categories: ["ai", "compute"],
+    integration: "first-party",
+    tags: [
+      "ai",
+      "gpu",
+      "compute",
+      "ssh",
+      "rental",
+      "cloud",
+      "machine-learning",
+      "inference",
+    ],
+    docs: {
+      homepage: "https://mpp.tensorpath.io/v1/reference",
+      llmsTxt: "https://mpp.tensorpath.io/llms.txt",
+      apiReference: "https://mpp.tensorpath.io/v1/reference",
+    },
+    provider: { name: "TensorPath", url: "https://tensorpath.io" },
+    realm: "mpp.tensorpath.io",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      // Discovery (free)
+      {
+        route: "GET /v1/catalog",
+        desc: "List available GPU types with pricing and specs",
+      },
+      {
+        route: "GET /v1/catalog/:instanceTypeId",
+        desc: "Get GPU type details and available OS images",
+      },
+      // Instance management (paid)
+      {
+        route: "POST /v1/instances",
+        desc: "Launch a GPU instance — price varies by GPU type and duration",
+        dynamic: true,
+        amountHint: "varies by GPU type and duration",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/instances",
+        desc: "List active GPU rentals",
+      },
+      {
+        route: "GET /v1/instances/:instanceId",
+        desc: "Get instance status and connection details",
+      },
+      {
+        route: "POST /v1/instances/:instanceId/extend",
+        desc: "Extend GPU rental duration",
+        dynamic: true,
+        amountHint: "varies by GPU type and duration",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Timezone ─────────────────────────────────────────────────────────
   {
     id: "abstract-timezone",
