@@ -117,7 +117,7 @@ const mppx = Mppx.create({
 
 ### Payment links
 
-Set `html` on the method to render a Stripe Elements payment form when a browser navigates to the endpoint. The page collects card details, creates a `PaymentMethod`, mints an SPT through your `createTokenUrl`, and submits the Credential via a Service Worker.
+Set `html` on the method to render a Stripe Elements payment form when a browser visits the endpoint.
 
 ```ts twoslash
 
@@ -155,7 +155,7 @@ Your Stripe publishable key (`pk_live_...` or `pk_test_...`), embedded in the pa
 
 Programmatic clients with `Authorization` headers are unaffected.
 
-See the [rich payment pages guide](/guides/payment-links) for a full walkthrough and live demo.
+See the [payment links guide](/guides/payment-links) for a full walkthrough and live demo.
 
 ### Server parameters
 

@@ -63,12 +63,6 @@ bun add mppx viem
 
 #### Set up `Mppx` instance with `html: true`
 
-Set up an `Mppx` instance with the `tempo` method. Add `html: true` to enable payment links for browsers.
-
-- `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
-- `html` enables the browser payment page.
-
 ```ts [app/api/photo/route.ts]
 import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/nextjs'
@@ -114,9 +108,9 @@ export const GET =
 
 #### Test in the browser
 
-Open `http://localhost:3000/api/photo` in your browser. You see a "Payment Required" page with a "Continue with Tempo" button. After payment, the page reloads with the photo URL.
+Open `http://localhost:3000/api/photo` in your browser. The server returns a payment page with a "Continue with Tempo" button. After payment, the page reloads with the photo URL.
 
-Programmatic clients still work as before:
+Programmatic clients work the same way:
 
 ```bash [terminal]
 $ npx mppx http://localhost:3000/api/photo
