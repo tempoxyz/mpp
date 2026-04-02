@@ -17,8 +17,10 @@ export function PaymentLinkDemo() {
           style={{
             border: "none",
             display: "block",
-            height: 240,
-            width: "100%",
+            height: 560,
+            transform: "scale(0.75)",
+            transformOrigin: "top left",
+            width: "133.33%",
           }}
         />
       </div>
