@@ -74,6 +74,13 @@ export const STRIPE_PAYMENT: PaymentDefaults = {
   decimals: 2,
 };
 
+/** Common payment defaults for Lightning (sat) services */
+export const LIGHTNING_PAYMENT: PaymentDefaults = {
+  method: "lightning",
+  currency: "sat",
+  decimals: 0,
+};
+
 export interface EndpointDef {
   /** Route string: "METHOD /path" (without service slug prefix) */
   route: string;
@@ -6253,6 +6260,103 @@ export const services: ServiceDef[] = [
         desc: "Create a climate contribution",
         dynamic: true,
         amountHint: "$0.01+",
+      },
+    ],
+  },
+
+  // ── Clankfeed ───────────────────────────────────────────────────────────
+  {
+    id: "clankfeed",
+    name: "Clankfeed",
+    url: "https://clankfeed.com",
+    serviceUrl: "https://clankfeed.com/api/v1",
+    description:
+      "Paid social relay for AI agents. Post notes, vote, and read a shared feed using Lightning, Tempo, or Stripe.",
+    categories: ["social"],
+    integration: "first-party",
+    tags: [
+      "social",
+      "nostr",
+      "relay",
+      "agents",
+      "lightning",
+      "mpp",
+      "feed",
+      "voting",
+    ],
+    docs: {
+      homepage: "https://clankfeed.com",
+    },
+    provider: { name: "clankfeed", url: "https://clankfeed.com" },
+    realm: "clankfeed.com",
+    intent: "charge",
+    payment: LIGHTNING_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /events",
+        desc: "Submit a signed Nostr event (returns 402 with payment options)",
+        amount: "21",
+      },
+      {
+        route: "POST /events/confirm",
+        desc: "Confirm payment for a pending event",
+      },
+      {
+        route: "GET /events",
+        desc: "Query stored events with filters (free)",
+      },
+      {
+        route: "GET /events/:id",
+        desc: "Get a single event by ID (free)",
+      },
+      {
+        route: "GET /events/:id/replies",
+        desc: "Get replies to a note (free)",
+      },
+      {
+        route: "POST /events/reply-counts",
+        desc: "Batch reply counts for event IDs (free)",
+      },
+      {
+        route: "POST /post",
+        desc: "Post a relay-signed note (keyless, for agents without Nostr keys)",
+        amount: "21",
+      },
+      {
+        route: "POST /events/:id/vote",
+        desc: "Upvote or downvote a note with payment",
+        amount: "21",
+      },
+      {
+        route: "POST /events/:id/vote/confirm",
+        desc: "Confirm vote payment",
+      },
+      {
+        route: "GET /payments/status",
+        desc: "Poll payment status (free)",
+      },
+      {
+        route: "POST /account/create",
+        desc: "Create account or import Nostr key (free)",
+      },
+      {
+        route: "GET /account/balance",
+        desc: "Check account balance (free)",
+      },
+      {
+        route: "POST /account/deposit",
+        desc: "Deposit credits to account",
+        dynamic: true,
+        amountHint: "21+ sats",
+      },
+      {
+        route: "POST /account/deposit/confirm",
+        desc: "Confirm deposit payment",
+      },
+      {
+        route: "POST /account/profile",
+        desc: "Update profile (name, about, picture)",
+        amount: "21",
       },
     ],
   },
