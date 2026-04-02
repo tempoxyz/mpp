@@ -1,42 +1,61 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 const PAYMENT_LINK_URL = "/api/payment-link/photo";
 
 export function PaymentLinkDemo() {
-  return (
-    <div className="not-prose">
-      <div
-        style={{
-          border: "1px solid var(--vocs-color_border)",
-          borderRadius: 12,
-          overflow: "hidden",
-          background: "var(--vocs-color_backgroundDark)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 16,
-          padding: "40px 24px",
-          textAlign: "center",
-        }}
-      >
-        <a
-          href={PAYMENT_LINK_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="no-underline! px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
-          style={{
-            fontSize: "0.9375rem",
-            fontWeight: 500,
-            whiteSpace: "nowrap",
-            color: "light-dark(#fff, #111)",
-            backgroundColor: "light-dark(#111, rgba(255,255,255,0.92))",
-            textDecoration: "none",
-          }}
-        >
-          Open payment link ↗
-        </a>
-      </div>
-    </div>
-  );
+	const ref = useRef<HTMLAnchorElement>(null);
+
+	useEffect(() => {
+		ref.current?.style.setProperty("color", "white", "important");
+	}, []);
+
+	return (
+		<div className="not-prose">
+			<div
+				className="rounded-xl"
+				style={{
+					border: "1px solid light-dark(#e5e5e5, #262626)",
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "center",
+					justifyContent: "center",
+					gap: 16,
+					padding: "40px 24px",
+					textAlign: "center",
+				}}
+			>
+				<a
+					ref={ref}
+					href={PAYMENT_LINK_URL}
+					target="_blank"
+					rel="noopener noreferrer"
+					className="px-5 py-2.5 rounded-lg"
+					style={{
+						backgroundColor: "black",
+						fontSize: "0.9375rem",
+						fontWeight: 500,
+						textDecoration: "none",
+						transition: "background-color 0.15s ease",
+						whiteSpace: "nowrap",
+					}}
+					onMouseEnter={() => {
+						if (ref.current) {
+							ref.current.style.backgroundColor = "#333";
+							ref.current.style.setProperty("color", "white", "important");
+						}
+					}}
+					onMouseLeave={() => {
+						if (ref.current) {
+							ref.current.style.backgroundColor = "black";
+							ref.current.style.setProperty("color", "white", "important");
+						}
+					}}
+				>
+					Open payment link ↗
+				</a>
+			</div>
+		</div>
+	);
 }
