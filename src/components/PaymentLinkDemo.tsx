@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const METHODS = [
   { embed: true, label: "Tempo", src: "/api/payment-link/photo" },
@@ -10,6 +10,15 @@ const METHODS = [
 export function PaymentLinkDemo() {
   const [active, setActive] = useState(0);
   const method = METHODS[active];
+  const onIframeLoad = useCallback((e: React.SyntheticEvent<HTMLIFrameElement>) => {
+    try {
+      const doc = e.currentTarget.contentDocument;
+      if (!doc) return;
+      const style = doc.createElement("style");
+      style.textContent = ".mppx-header { display: none !important; }";
+      doc.head.appendChild(style);
+    } catch (_) {}
+  }, []);
 
   return (
     <div className="not-prose">
@@ -50,6 +59,7 @@ export function PaymentLinkDemo() {
         {method.embed ? (
           <iframe
             key={active}
+            onLoad={onIframeLoad}
             src={method.src}
             title={`Payment link demo — ${method.label}`}
             style={{
