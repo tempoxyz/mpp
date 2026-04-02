@@ -32,10 +32,7 @@ export const mppx = Mppx.create({
           fontFamily: "'Geist', system-ui, sans-serif",
           fontSizeBase: "16px",
           foreground: ["#0a0a0a", "#fafafa"],
-          logo: {
-            dark: "/logo-light.svg",
-            light: "/logo-dark.svg",
-          },
+
           muted: ["#737373", "#a3a3a3"],
           negative: ["#ef4444", "#f87171"],
           positive: ["#22c55e", "#4ade80"],
@@ -44,8 +41,8 @@ export const mppx = Mppx.create({
           surface: ["#f5f5f5", "#171717"],
         },
         text: {
-          paymentRequired: "Payment Required",
-          title: "MPP — Payment Required",
+          paymentRequired: "",
+          title: "Payment link demo",
         },
       },
       sse: true,
