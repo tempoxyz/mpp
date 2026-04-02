@@ -1043,7 +1043,6 @@ export const services: ServiceDef[] = [
     docs: {
       homepage: "https://govlaws.ai/mpp",
       llmsTxt: "https://govlaws.ai/llms.txt",
-      apiReference: "https://govlaws.ai/api/openapi.json",
     },
     provider: { name: "GovLaws", url: "https://govlaws.ai" },
     realm: "govlaws.ai",
