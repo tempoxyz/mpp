@@ -115,6 +115,48 @@ const mppx = Mppx.create({
 })
 ```
 
+### Payment links
+
+Set `html` on the method to render a Stripe Elements payment form when a browser navigates to the endpoint. The page collects card details, creates a `PaymentMethod`, mints an SPT through your `createTokenUrl`, and submits the Credential via a Service Worker.
+
+```ts twoslash
+
+import Stripe from 'stripe'
+import { Mppx, stripe } from 'mppx/server'
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const mppx = Mppx.create({
+  methods: [
+    stripe.charge({
+      client: stripeClient,
+      html: { // [!code hl]
+        createTokenUrl: '/api/create-spt', // [!code hl]
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY!, // [!code hl]
+      }, // [!code hl]
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+  ],
+})
+```
+
+#### html.createTokenUrl
+
+- **Type:** `string`
+
+A same-origin URL on your server that accepts a `POST` with `{ paymentMethod, amount, currency, expiresAt }` and returns `{ spt: string }`. This is the same endpoint used by the [client-side `createToken` callback](#client).
+
+#### html.publishableKey
+
+- **Type:** `string`
+
+Your Stripe publishable key (`pk_live_...` or `pk_test_...`), embedded in the payment page for Stripe.js initialization.
+
+Programmatic clients with `Authorization` headers are unaffected.
+
+See the [rich payment pages guide](/guides/payment-links) for a full walkthrough and live demo.
+
 ### Server parameters
 
 | Parameter | Type | Required | Description |

@@ -111,10 +111,10 @@ export default async function handler(request: Request) {
   const text = poem.join("\t");
   const tokens = tokenize(text);
 
-  return result.withReceipt(async function* (stream) {
+  return result.withReceipt(async function* (stream: any) {
     for (const token of tokens) {
       await stream.charge();
       yield token;
     }
-  });
+  } as any);
 }

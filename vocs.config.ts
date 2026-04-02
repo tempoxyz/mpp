@@ -312,6 +312,10 @@ export default defineConfig({
             link: "/guides/multiple-payment-methods",
           },
           {
+            text: "Render rich payment pages",
+            link: "/guides/payment-links",
+          },
+          {
             text: "Proxy an existing service",
             link: "/guides/proxy-existing-service",
           },

@@ -69,11 +69,11 @@ export default async function handler(request: Request) {
   const poem = poems[Math.floor(Math.random() * poems.length)];
   const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
 
-  return result.withReceipt(async function* (stream) {
+  return result.withReceipt(async function* (stream: any) {
     yield JSON.stringify({ title: poem.title, author: poem.author });
     for (const word of words) {
       await stream.charge();
       yield word;
     }
-  });
+  } as any);
 }

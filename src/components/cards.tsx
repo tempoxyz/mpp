@@ -77,6 +77,17 @@ export function PayAsYouGoCard() {
   );
 }
 
+export function PaymentLinksCard() {
+  return (
+    <Card
+      description="Turn any API endpoint into a shareable payment page"
+      icon="lucide:link"
+      title="Payment links"
+      to="/guides/payment-links"
+    />
+  );
+}
+
 export function ProxyExistingServiceCard() {
   return (
     <Card
