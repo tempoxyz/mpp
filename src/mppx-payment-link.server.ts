@@ -25,6 +25,7 @@ export const mppx = Mppx.create({
       },
       html: {
         theme: {
+          logo: { dark: "/logo-dark.svg", light: "/logo-light.svg" },
           accent: ["#000000", "#ffffff"],
           background: ["#ffffff", "#0a0a0a"],
           border: ["#e5e5e5", "#262626"],
