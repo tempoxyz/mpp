@@ -1,6 +1,6 @@
 ---
-description: "Turn any payment-gated API into a shareable link that works in the browser. Add html and users pay directly from the page."
-imageDescription: "Render rich payment pages for browser visitors"
+description: "Create a payment link for any API endpoint. Share it anywhere—users pay directly from the page, no integration required."
+imageDescription: "Create a payment link. Sell anywhere."
 ---
 
 import { Cards, Tabs, Tab } from 'vocs'
@@ -8,13 +8,9 @@ import { OneTimePaymentsCard, PayAsYouGoCard, ServerQuickstartCard } from '../..
 import { PaymentLinkDemo } from '../../components/PaymentLinkDemo'
 import { PromptBlock } from '../../components/PromptBlock'
 
-# Make payment links [Turn any endpoint into a shareable payment page]
+# Create a payment link [Share a link. Get paid.]
 
-When a browser navigates to a payment-gated endpoint, the server can render a full payment page instead of returning a raw `402` response. The user pays directly from the page and receives the resource—no client SDK or integration required.
-
-:::info
-Payment links are experimental. Theming and customization options are coming in a follow-up release.
-:::
+Create a full payment page for any API endpoint—no frontend required. Share the link anywhere and users pay directly from the page.
 
 ## Supported methods
 
@@ -25,13 +21,13 @@ Payment links are experimental. Theming and customization options are coming in 
 
 ## Demo
 
-Open the payment link below to see the flow in action. The server returns a "Payment Required" page with a "Continue with Tempo" button. After payment, the page reloads with the paid resource—a random photo from [Picsum](https://picsum.photos).
+Try a payment link. The server returns a payment page with a "Continue with Tempo" button. After payment, the page reloads with the paid resource—a random photo from [Picsum](https://picsum.photos).
 
 <PaymentLinkDemo />
 
 ## Prompt mode
 
-Paste this into your coding agent to add payment links in one prompt:
+Paste this into your coding agent to create a payment link in one prompt:
 
 <PromptBlock>
 {`Use https://mpp.dev/guides/payment-links.md as reference.

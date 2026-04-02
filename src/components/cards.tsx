@@ -80,9 +80,9 @@ export function PayAsYouGoCard() {
 export function PaymentLinksCard() {
   return (
     <Card
-      description="Turn any API endpoint into a shareable payment page"
+      description="Create a link. Get paid."
       icon="lucide:link"
-      title="Payment links"
+      title="Create a payment link"
       to="/guides/payment-links"
     />
   );
