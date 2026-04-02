@@ -834,7 +834,7 @@ export const services: ServiceDef[] = [
     payment: TEMPO_PAYMENT,
     endpoints: [
       {
-        route: "GET /register",
+        route: "POST /register",
         desc: "Register a domain — price varies by TLD and domain name",
         dynamic: true,
         amountHint: "Varies by TLD",
