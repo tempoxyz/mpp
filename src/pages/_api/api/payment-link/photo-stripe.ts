@@ -2,7 +2,7 @@ import { stripeMppx } from "../../../../mppx-payment-link-stripe.server";
 
 export async function GET(request: Request) {
   const result = await stripeMppx.charge({
-    amount: "1",
+    amount: "100",
     currency: "usd",
     decimals: 0,
     description: "A random unique image",
