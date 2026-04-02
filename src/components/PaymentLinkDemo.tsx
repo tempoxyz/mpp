@@ -9,6 +9,7 @@ export function PaymentLinkDemo() {
         className="rounded-xl overflow-hidden"
         style={{
           border: "1px solid light-dark(#e5e5e5, #262626)",
+          height: 420,
         }}
       >
         <iframe
