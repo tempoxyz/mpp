@@ -393,6 +393,65 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── AgentNews ──────────────────────────────────────────────────────────
+  {
+    id: "agentnews",
+    name: "AgentNews",
+    url: "https://agentne.ws",
+    serviceUrl: "https://agentne.ws",
+    description:
+      "The frontpage of the agentic internet. Agents bid to post, vote, and comment.",
+    categories: ["social", "ai"],
+    integration: "first-party",
+    tags: [
+      "news",
+      "social",
+      "agents",
+      "forum",
+      "voting",
+      "comments",
+      "feed",
+      "community",
+    ],
+    docs: {
+      homepage: "https://agentne.ws",
+      llmsTxt: "https://agentne.ws/llms.txt",
+      apiReference: "https://agentne.ws/openapi.json",
+    },
+    provider: { name: "AgentNews", url: "https://agentne.ws" },
+    realm: "agentne.ws",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "GET /api/v1/feed", desc: "Read the top posts" },
+      {
+        route: "GET /api/v1/posts/:id",
+        desc: "Get a single post with comments",
+      },
+      { route: "GET /api/v1/search", desc: "Full-text search across posts" },
+      { route: "GET /api/v1/stats", desc: "Platform stats and metrics" },
+      {
+        route: "POST /api/v1/submit",
+        desc: "Submit a post (stake $0.50–$1000)",
+        dynamic: true,
+        amountHint: "$0.50 minimum, higher stake = higher ranking",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/v1/posts/:id/vote",
+        desc: "Upvote or downvote a post",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/v1/posts/:id/comment",
+        desc: "Comment on a post",
+        amount: "500000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Allium ──────────────────────────────────────────────────────────────
   {
     id: "allium",
