@@ -121,6 +121,32 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── BaseMail ───────────────────────────────────────────────────────────
+  {
+    id: "basemail",
+    name: "BaseMail",
+    url: "https://api.basemail.ai",
+    serviceUrl: "https://basemail.ai",
+    description: "Agentic email (Æmail) for AI agents on Base chain. Register with SIWE or MPP, send/receive email, manage Attention Bonds. ERC-8004 compatible.",
+    categories: ["ai", "social"],
+    integration: "first-party",
+    tags: ["email", "agents", "web3", "base-chain", "attention-bonds", "erc-8004"],
+    docs: { homepage: "https://basemail.ai", apiReference: "https://api.basemail.ai/api/docs" },
+    provider: { name: "BaseMail", url: "https://basemail.ai" },
+    realm: "api.basemail.ai",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "POST /api/register", desc: "Register email inbox", amount: "1000000" },
+      { route: "POST /api/send", desc: "Send email", amount: "10000" },
+      { route: "GET /api/inbox", desc: "List received emails" },
+      { route: "POST /api/auth/start", desc: "Get SIWE authentication message" },
+      { route: "POST /api/auth/agent-register", desc: "Sign + auto-register agent" },
+      { route: "GET /api/register/check/:query", desc: "Check identity availability" },
+      { route: "GET /api/agent/:handle/registration.json", desc: "ERC-8004 agent profile" },
+    ],
+  },
+
   // ── AgentMail ──────────────────────────────────────────────────────────
   {
     id: "agentmail",
