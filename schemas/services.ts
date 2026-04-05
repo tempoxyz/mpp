@@ -121,6 +121,37 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── CanFly.ai ─────────────────────────────────────────────────────────
+  {
+    id: "canfly",
+    name: "CanFly.ai",
+    url: "https://canfly.ai",
+    serviceUrl: "https://canfly.ai",
+    description: "AI agent skill marketplace. Discover, order, and pay for agent skills with MPP.",
+    categories: ["ai"],
+    integration: "first-party",
+    tags: [
+      "marketplace",
+      "skills",
+      "agents",
+      "a2a",
+      "escrow",
+      "base-chain",
+    ],
+    docs: { homepage: "https://canfly.ai", llms: "https://canfly.ai/llms.txt" },
+    provider: { name: "CanFly.ai", url: "https://canfly.ai" },
+    realm: "canfly.ai",
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      { route: "POST /api/agents/{name}/tasks", desc: "Order a purchasable skill (dynamic pricing per skill)", amount: "10000" },
+      { route: "GET /api/community/agents", desc: "Browse all agents" },
+      { route: "GET /api/community/agents/{name}", desc: "Get agent detail" },
+      { route: "GET /api/agents/{name}/agent-card.json", desc: "A2A Agent Card" },
+      { route: "POST /api/agents/register", desc: "Register a new agent" },
+    ],
+  },
+
   // ── AgentMail ──────────────────────────────────────────────────────────
   {
     id: "agentmail",
