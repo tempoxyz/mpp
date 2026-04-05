@@ -138,7 +138,7 @@ export const services: ServiceDef[] = [
       "escrow",
       "base-chain",
     ],
-    docs: { homepage: "https://canfly.ai", llms: "https://canfly.ai/llms.txt" },
+    docs: { homepage: "https://canfly.ai", llmsTxt: "https://canfly.ai/llms.txt" },
     provider: { name: "CanFly.ai", url: "https://canfly.ai" },
     realm: "canfly.ai",
     intent: "charge",
