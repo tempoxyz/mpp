@@ -87,62 +87,51 @@ bun add mppx viem
 
 ### Add `mppx` alongside your existing routes
 
-Here's a typical x402 server and how it looks after adding MPP. Your business logic stays the same—you're swapping the payment middleware.
-
-**Your existing x402 server:**
+Here's a typical x402 server with MPP applied. Your business logic stays the same—you swap the payment middleware.
 
 ```ts [server.ts]
+import crypto from 'crypto' // [!code ++]
 import express from 'express'
-import { paymentMiddleware } from '@x402/express'
+import { paymentMiddleware } from '@x402/express' // [!code --]
+import { Mppx, tempo } from 'mppx/express' // [!code ++]
 
 const app = express()
 
-app.use(
-  paymentMiddleware({
-    'GET /api/data': {
-      amount: '10000',
-      asset: '0x20c0000000000000000000000000000000000000',
-      description: 'Premium data access',
-      maxTimeoutSeconds: 60,
-      network: 'eip155:8453',
-      payTo: '0xYourAddress',
-      scheme: 'exact',
-    },
-  }),
-)
+app.use( // [!code --]
+  paymentMiddleware({ // [!code --]
+    'GET /api/data': { // [!code --]
+      amount: '10000', // [!code --]
+      asset: '0x20c0000000000000000000000000000000000000', // [!code --]
+      description: 'Premium data access', // [!code --]
+      maxTimeoutSeconds: 60, // [!code --]
+      network: 'eip155:8453', // [!code --]
+      payTo: '0xYourAddress', // [!code --]
+      scheme: 'exact', // [!code --]
+    }, // [!code --]
+  }), // [!code --]
+) // [!code --]
 
-app.get('/api/data', (req, res) => {
-  res.json({ data: 'premium content' })
-})
-```
+const mppx = Mppx.create({ // [!code ++]
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'), // [!code ++]
+  methods: [ // [!code ++]
+    tempo({ // [!code ++]
+      currency: '0x20c0000000000000000000000000000000000000', // [!code ++]
+      recipient: '0xYourAddress', // [!code ++]
+      testnet: true, // [!code ++]
+    }), // [!code ++]
+  ], // [!code ++]
+}) // [!code ++]
 
-**With MPP:**
-
-```ts [server.ts]
-import crypto from 'crypto'
-import express from 'express'
-import { Mppx, tempo } from 'mppx/express'
-
-const app = express()
-
-const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [
-    tempo({
-      currency: '0x20c0000000000000000000000000000000000000',
-      recipient: '0xYourAddress',
-      testnet: true,
-    }),
-  ],
-})
-
-app.get(
-  '/api/data',
-  mppx.charge({ amount: '0.01', description: 'Premium data access' }),
-  (req, res) => {
-    res.json({ data: 'premium content' }) // Same business logic
-  },
-)
+app.get('/api/data', (req, res) => { // [!code --]
+  res.json({ data: 'premium content' }) // [!code --]
+}) // [!code --]
+app.get( // [!code ++]
+  '/api/data', // [!code ++]
+  mppx.charge({ amount: '0.01', description: 'Premium data access' }), // [!code ++]
+  (req, res) => { // [!code ++]
+    res.json({ data: 'premium content' }) // [!code ++]
+  }, // [!code ++]
+) // [!code ++]
 ```
 
 Key differences:
