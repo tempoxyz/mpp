@@ -64,10 +64,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
-    ],
-    "patchedDependencies": {
-      "mppx@0.5.5": "patches/mppx@0.5.5.patch"
-    }
+    ]
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
