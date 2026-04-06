@@ -746,6 +746,19 @@ export default defineConfig({
                   },
                 ],
               },
+              {
+                text: "HTML reference",
+                items: [
+                  {
+                    text: "Html.init",
+                    link: "/sdk/typescript/Html.init",
+                  },
+                  {
+                    text: "Custom",
+                    link: "/sdk/typescript/html/custom",
+                  },
+                ],
+              },
               { text: "CLI reference", link: "/sdk/typescript/cli" },
             ],
           },

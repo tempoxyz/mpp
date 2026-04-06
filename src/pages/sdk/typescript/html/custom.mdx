@@ -1,0 +1,183 @@
+---
+description: "Add payment link support to a custom payment method with Html.init and Method.toServer"
+imageDescription: "Add payment links to your custom payment method"
+---
+
+# Custom HTML [Add payment links to your method]
+
+Payment methods can serve a payment page when users visit a protected endpoint in a browser. This guide covers how to add HTML support to a [custom payment method](/payment-methods/custom).
+
+For the `Html.init` API reference, see [`Html.init`](/sdk/typescript/Html.init).
+
+Adding HTML support requires two pieces:
+
+1. **Server-side handler** — provide `html` options to `Method.toServer` with a bundled script, amount formatter, and other options.
+2. **Client-side script** — a script embedded in the server-rendered page that uses [`Html.init`](/sdk/typescript/Html.init) to render a payment form and submit credentials via Service Worker.
+
+## Server-side handler
+
+Pass the `html` option to `Method.toServer`. The server embeds your script into a full HTML page and serves it when the request has `Accept: text/html`.
+
+```ts [methods.server.ts]
+import { Method, Receipt, z } from 'mppx'
+import type * as Html from 'mppx/server/internal/html/config'
+import htmlContent from './html/main.js?raw' // bundled client script
+
+const lightning = Method.from({
+  intent: 'charge',
+  name: 'lightning',
+  schema: {
+    credential: { payload: z.object({ preimage: z.string() }) },
+    request: z.object({
+      amount: z.string(),
+      currency: z.string(),
+      invoice: z.string(),
+      paymentHash: z.string(),
+      recipient: z.string(),
+    }),
+  },
+})
+
+export function charge(parameters: {
+  html?: { text?: Html.Text; theme?: Html.Theme } | undefined
+}) {
+  const { html } = parameters
+
+  return Method.toServer(lightning, {
+    // [!code hl:start]
+    html: html
+      ? {
+          config: {},
+          content: htmlContent,
+          formatAmount: (request) => `${request.currency} ${request.amount}`,
+          text: html.text,
+          theme: html.theme,
+        }
+      : undefined,
+    // [!code hl:end]
+    async verify({ credential }) {
+      return Receipt.from({
+        method: 'lightning',
+        reference: credential.payload.preimage,
+        status: 'success',
+        timestamp: new Date().toISOString(),
+      })
+    },
+  })
+}
+```
+
+### Html options
+
+#### config
+
+- **Type:** `Record<string, unknown>`
+
+Method-specific data passed to the client script as `context.config`. For example, Stripe passes `{ publishableKey, createTokenUrl }`. Use `{}` if your method doesn't need extra configuration.
+
+#### content
+
+- **Type:** `string`
+
+The JavaScript bundle for your payment form. Embedded as an inline `<script>` in the HTML page. Import with `?raw` to get the file contents as a string.
+
+#### formatAmount
+
+- **Type:** `(request: any) => string | Promise<string>`
+
+Formats the request into a display amount (for example, `"$10.00"`). Receives the parsed request object from the Challenge.
+
+#### text (optional)
+
+- **Type:** `Html.Text`
+
+Override default UI text strings (`pay`, `expires`, `paymentRequired`, `title`).
+
+#### theme (optional)
+
+- **Type:** `Html.Theme`
+
+Override default theme tokens (colors, typography, spacing).
+
+### Reference implementations
+
+These built-in methods already support HTML. Use them as reference when building your own.
+
+| Method | Source |
+| --- | --- |
+| [`tempo.charge`](/payment-methods/tempo/charge#payment-links) | [GitHub](https://github.com/wevm/mppx/blob/main/src/tempo/server/Charge.ts) |
+| [`stripe.charge`](/payment-methods/stripe/charge#payment-links) | [GitHub](https://github.com/wevm/mppx/blob/main/src/stripe/server/Charge.ts) |
+
+For a guide on using payment links as a consumer, see [Create a payment link](/guides/payment-links).
+
+## Client-side script
+
+Create the JavaScript file that renders your payment form. Call `Html.init` to get a typed context, build your UI, and call `context.submit` with the credential.
+
+```ts [html/main.ts]
+import * as Html from 'mppx/html'
+
+const c = Html.init('lightning')
+
+// Build the payment form
+const container = document.createElement('div')
+
+const amount = document.createElement('p')
+amount.textContent = c.formattedAmount
+
+const button = document.createElement('button')
+button.textContent = c.text.pay
+
+// Style using theme variables
+const style = document.createElement('style')
+style.textContent = `
+  button {
+    background: ${c.vars.accent};
+    border: none;
+    border-radius: ${c.vars.radius};
+    color: ${c.vars.background};
+    cursor: pointer;
+    font-family: ${c.vars.fontFamily};
+    padding: calc(${c.vars.spacingUnit} * 4) calc(${c.vars.spacingUnit} * 8);
+  }
+  button:disabled {
+    opacity: 0.5;
+  }
+`
+
+// Handle payment
+button.onclick = async () => {
+  try {
+    c.error()
+    button.disabled = true
+
+    // Your payment logic here — create a credential from the challenge
+    const credential = await createCredential(c.challenge)
+    await c.submit(credential)
+  } catch (e) {
+    c.error(e instanceof Error ? e.message : 'Payment failed')
+  } finally {
+    button.disabled = false
+  }
+}
+
+container.append(style, amount, button)
+c.root.appendChild(container)
+```
+
+### Bundling the script
+
+`content` expects a single JavaScript string. Bundle your client script into one file, then import with `?raw`:
+
+```ts [methods.server.ts]
+import htmlContent from './html/main.js?raw'
+```
+
+If you use TypeScript, compile `main.ts` to `main.js` as part of your build step.
+
+### Reference implementations
+
+| Method | Source |
+| --- | --- |
+| [`tempo.charge`](/payment-methods/tempo/charge#payment-links) | [GitHub](https://github.com/wevm/mppx/blob/main/src/tempo/server/internal/html/main.ts) |
+| [`stripe.charge`](/payment-methods/stripe/charge#payment-links) | [GitHub](https://github.com/wevm/mppx/blob/main/src/stripe/server/internal/html/main.ts) |
