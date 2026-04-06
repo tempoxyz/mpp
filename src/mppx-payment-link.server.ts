@@ -42,7 +42,6 @@ export const mppx = Mppx.create({
           surface: ["#f5f5f5", "#171717"],
         },
         text: {
-          paymentRequired: "",
           title: "Payment link demo",
         },
       },
