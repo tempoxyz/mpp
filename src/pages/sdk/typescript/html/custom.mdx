@@ -20,7 +20,7 @@ Pass the `html` option to `Method.toServer`. The server embeds your script into 
 
 ```ts [methods.server.ts]
 import { Method, Receipt, z } from 'mppx'
-import type * as Html from 'mppx/server/internal/html/config'
+import type * as Html from 'mppx/html'
 import htmlContent from './html/main.js?raw' // bundled client script
 
 const lightning = Method.from({
@@ -39,7 +39,7 @@ const lightning = Method.from({
 })
 
 export function charge(parameters: {
-  html?: { text?: Html.Text; theme?: Html.Theme } | undefined
+  html?: Html.Config | undefined
 }) {
   const { html } = parameters
 
