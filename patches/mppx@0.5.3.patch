@@ -1,5 +1,5 @@
 diff --git a/dist/server/Transport.js b/dist/server/Transport.js
-index 2fe6ded7573ef6908b739d5494604cbcedf12b45..2f7edcb2528244ec532d1a7d2740f2aa4deb955c 100644
+index 2fe6ded7..2f7edcb2 100644
 --- a/dist/server/Transport.js
 +++ b/dist/server/Transport.js
 @@ -68,6 +68,7 @@ export function http() {
@@ -20,7 +20,7 @@ index 2fe6ded7573ef6908b739d5494604cbcedf12b45..2f7edcb2528244ec532d1a7d2740f2aa
                    <section class="${Html.classNames.summary}" aria-label="Payment summary">
                      <h1 class="${Html.classNames.summaryAmount}">
 diff --git a/src/server/Transport.ts b/src/server/Transport.ts
-index 4bee613078640a599dd732fa68a47a21988264bb..5b9f25bcfac81ffa457f9829ed2c1fc6909a2a55 100644
+index 4bee6130..5b9f25bc 100644
 --- a/src/server/Transport.ts
 +++ b/src/server/Transport.ts
 @@ -159,6 +159,7 @@ export function http(): Http {
