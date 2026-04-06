@@ -35,6 +35,7 @@ export async function GET(request: Request) {
   img {
   max-width: 480px;
   width: 100%;
+  height: auto;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.15);
   }
@@ -45,7 +46,7 @@ export async function GET(request: Request) {
   </style>
   </head>
   <body>
-  <img src="${imageUrl}" alt="Random photo from Picsum" />
+  <img src="${imageUrl}" alt="Random photo from Picsum" height="1024" width="1024" />
   <p>Paid via MPP — $0.01</p>
   </body>
   </html>`;
