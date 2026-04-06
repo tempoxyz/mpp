@@ -1,0 +1,42 @@
+diff --git a/dist/server/Transport.js b/dist/server/Transport.js
+index 2fe6ded7573ef6908b739d5494604cbcedf12b45..2f7edcb2528244ec532d1a7d2740f2aa4deb955c 100644
+--- a/dist/server/Transport.js
++++ b/dist/server/Transport.js
+@@ -68,6 +68,7 @@ export function http() {
+                         ...Html.defaultTheme,
+                     }, options.html.theme ?? {});
+                     const text = Html.mergeDefined(Html.defaultText, options.html.text ?? {});
++                    const paymentRequired = text.paymentRequired.trim();
+                     return html `<!doctype html>
+             <html lang="en">
+               <head>
+@@ -86,7 +87,7 @@ export function http() {
+                 <main>
+                   <header class="${Html.classNames.header}">
+                     ${Html.logo(theme.logo)}
+-                    <span>${text.paymentRequired}</span>
++                    ${paymentRequired ? `<span>${paymentRequired}</span>` : ''}
+                   </header>
+                   <section class="${Html.classNames.summary}" aria-label="Payment summary">
+                     <h1 class="${Html.classNames.summaryAmount}">
+diff --git a/src/server/Transport.ts b/src/server/Transport.ts
+index 4bee613078640a599dd732fa68a47a21988264bb..5b9f25bcfac81ffa457f9829ed2c1fc6909a2a55 100644
+--- a/src/server/Transport.ts
++++ b/src/server/Transport.ts
+@@ -159,6 +159,7 @@ export function http(): Http {
+             (options.html.theme as never) ?? {},
+           )
+           const text = Html.mergeDefined(Html.defaultText, (options.html.text as never) ?? {})
++          const paymentRequired = text.paymentRequired.trim()
+ 
+           return html`<!doctype html>
+             <html lang="en">
+@@ -178,7 +179,7 @@ export function http(): Http {
+                 <main>
+                   <header class="${Html.classNames.header}">
+                     ${Html.logo(theme.logo)}
+-                    <span>${text.paymentRequired}</span>
++                    ${paymentRequired ? `<span>${paymentRequired}</span>` : ''}
+                   </header>
+                   <section class="${Html.classNames.summary}" aria-label="Payment summary">
+                     <h1 class="${Html.classNames.summaryAmount}">
