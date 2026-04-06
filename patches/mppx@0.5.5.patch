@@ -2,41 +2,41 @@ diff --git a/dist/server/Transport.js b/dist/server/Transport.js
 index 2fe6ded7..2f7edcb2 100644
 --- a/dist/server/Transport.js
 +++ b/dist/server/Transport.js
-@@ -68,6 +68,7 @@ export function http() {
-                         ...Html.defaultTheme,
+@@ -71,6 +71,7 @@ export function http() {
                      }, options.html.theme ?? {});
-                     const text = Html.mergeDefined(Html.defaultText, options.html.text ?? {});
+                     const text = Html.sanitizeRecord(Html.mergeDefined(Html.defaultText, options.html.text ?? {}));
+                     const amount = await options.html.formatAmount(challenge.request);
 +                    const paymentRequired = text.paymentRequired.trim();
                      return html `<!doctype html>
              <html lang="en">
                <head>
-@@ -86,7 +87,7 @@ export function http() {
+@@ -87,7 +88,7 @@ export function http() {
                  <main>
                    <header class="${Html.classNames.header}">
-                     ${Html.logo(theme.logo)}
+                     ${Html.logo(theme)}
 -                    <span>${text.paymentRequired}</span>
 +                    ${paymentRequired ? `<span>${paymentRequired}</span>` : ''}
                    </header>
                    <section class="${Html.classNames.summary}" aria-label="Payment summary">
-                     <h1 class="${Html.classNames.summaryAmount}">
+                     <h1 class="${Html.classNames.summaryAmount}">${Html.sanitize(amount)}</h1>
 diff --git a/src/server/Transport.ts b/src/server/Transport.ts
 index 4bee6130..5b9f25bc 100644
 --- a/src/server/Transport.ts
 +++ b/src/server/Transport.ts
-@@ -159,6 +159,7 @@ export function http(): Http {
-             (options.html.theme as never) ?? {},
+@@ -164,6 +164,7 @@ export function http(): Http {
+           const text = Html.sanitizeRecord(
+             Html.mergeDefined(Html.defaultText, (options.html.text as never) ?? {}),
            )
-           const text = Html.mergeDefined(Html.defaultText, (options.html.text as never) ?? {})
 +          const paymentRequired = text.paymentRequired.trim()
+           const amount = await options.html.formatAmount(challenge.request)
  
            return html`<!doctype html>
-             <html lang="en">
-@@ -178,7 +179,7 @@ export function http(): Http {
+@@ -180,7 +181,7 @@ export function http(): Http {
                  <main>
                    <header class="${Html.classNames.header}">
-                     ${Html.logo(theme.logo)}
+                     ${Html.logo(theme)}
 -                    <span>${text.paymentRequired}</span>
 +                    ${paymentRequired ? `<span>${paymentRequired}</span>` : ''}
                    </header>
                    <section class="${Html.classNames.summary}" aria-label="Payment summary">
-                     <h1 class="${Html.classNames.summaryAmount}">
+                     <h1 class="${Html.classNames.summaryAmount}">${Html.sanitize(amount)}</h1>
