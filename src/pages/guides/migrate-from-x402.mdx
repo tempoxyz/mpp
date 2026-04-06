@@ -1,6 +1,6 @@
 ---
-description: "Replace x402 custom headers with MPP's standard HTTP authentication scheme. Keep your business logic, gain multi-method payments and IETF standardization."
-imageDescription: "Upgrade your x402 server to MPP in minutes"
+description: "Add MPP to your x402 server to unlock multi-method payments, sessions, and IETF standardization—without changing your business logic."
+imageDescription: "Add MPP to your x402 server in minutes"
 ---
 
 import { Cards } from 'vocs'
@@ -8,13 +8,13 @@ import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '.
 import { PromptBlock } from '../../components/PromptBlock'
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
-# Upgrade your x402 server to MPP [Replace custom headers with the HTTP payment standard]
+# Upgrade your x402 server to MPP [Add multi-method payments and IETF standardization to your existing server]
 
-Both MPP and x402 use HTTP `402` to gate API access behind payment. MPP standardizes the approach with `WWW-Authenticate` / `Authorization` headers, adds multi-method support (stablecoins, cards, Lightning), and is on the [IETF standards track](https://paymentauth.org). Your existing x402 server maps directly onto MPP's `charge` intent—the migration is a wire-format change, not a rewrite.
+If you already have an x402 server, you're most of the way there. Both protocols use HTTP `402` to gate API access behind payment, and x402's "exact" charge flow maps directly onto MPP's `charge` intent. Adding MPP gives you standard `WWW-Authenticate` / `Authorization` headers, multi-method support (stablecoins, cards, Lightning), sessions for streaming payments, and an [IETF standards track](https://paymentauth.org) foundation—all without changing your business logic.
 
-## What changes
+## What MPP adds
 
-The on-chain payment mechanics stay the same. MPP replaces x402's custom headers with standard HTTP authentication and adds protocol-level features that x402 lacks.
+MPP builds on the same `402` pattern that x402 established, and extends it with standardized headers and new capabilities.
 
 | | x402 | MPP |
 |---|---|---|
@@ -29,7 +29,7 @@ The on-chain payment mechanics stay the same. MPP replaces x402's custom headers
 | **Idempotency** | No | Built-in Challenge binding |
 
 :::info
-MPP is compatible with x402. The x402 "exact" charge flow maps directly onto MPP's `charge` intent. MPP extends beyond x402 with idempotency, Receipts, request binding, multiple payment methods, and efficient sessions.
+MPP is compatible with x402. The x402 "exact" charge flow maps directly onto MPP's `charge` intent. MPP extends beyond x402 with idempotency, Receipts, request binding, multiple payment methods, and efficient payment sessions.
 :::
 
 ## Protocol flow
@@ -55,40 +55,38 @@ The request lifecycle is the same—only the header names and encoding change.
 
 ## Prompt mode
 
-Paste this into your coding agent to migrate in one prompt:
+Paste this into your coding agent to add MPP in one prompt:
 
 <PromptBlock>
 {`Use https://mpp.dev/guides/migrate-from-x402.md as reference.
-Replace the x402 middleware in my server with mppx.
-Use the Tempo payment method with pathUSD. Keep the same
-pricing and route structure. Add mppx.charge to each
-paid endpoint.`}
+Add mppx to my existing x402 server. Use the Tempo payment
+method with USDC. Keep the same pricing and route structure.
+Add mppx.charge to each paid endpoint.`}
 </PromptBlock>
 
-## Migration steps
+## Add MPP to your server
 
 ::::steps
 
-### Install `mppx`, remove `@x402/*`
+### Install `mppx`
 
 :::code-group
 ```bash [npm]
-npm uninstall @x402/express @x402/server
 npm install mppx viem
 ```
 ```bash [pnpm]
-pnpm remove @x402/express @x402/server
 pnpm add mppx viem
 ```
 ```bash [bun]
-bun remove @x402/express @x402/server
 bun add mppx viem
 ```
 :::
 
-### Replace x402 middleware with `mppx`
+### Add `mppx` alongside your existing routes
 
-**Before (x402):**
+Here's a typical x402 server and how it looks after adding MPP. Your business logic stays the same—you're swapping the payment middleware.
+
+**Your existing x402 server:**
 
 ```ts [server.ts]
 import express from 'express'
@@ -115,7 +113,7 @@ app.get('/api/data', (req, res) => {
 })
 ```
 
-**After (MPP):**
+**With MPP:**
 
 ```ts [server.ts]
 import crypto from 'crypto'
@@ -139,35 +137,35 @@ app.get(
   '/api/data',
   mppx.charge({ amount: '0.01', description: 'Premium data access' }),
   (req, res) => {
-    res.json({ data: 'premium content' })
+    res.json({ data: 'premium content' }) // Same business logic
   },
 )
 ```
 
 Key differences:
 
-- **No global middleware map.** Pricing is declared per route using `mppx.charge` as route middleware.
+- **Per-route pricing.** `mppx.charge` is route middleware instead of a global config map.
 - **Amount in dollars, not atomic units.** `'0.01'` instead of `'10000'`.
 - **No header parsing.** The SDK handles `WWW-Authenticate`, `Authorization`, and `Payment-Receipt` headers automatically.
 
-### Remove facilitator calls
+### Simplify verification and settlement
 
-x402 servers typically call a facilitator service for `POST /verify` and `POST /settle`. MPP's `mppx` SDK handles verification and settlement internally—remove any facilitator client code.
+x402 servers typically call a facilitator service for `POST /verify` and `POST /settle`. The `mppx` SDK handles verification and settlement internally, so you don't need a separate facilitator client.
 
 ```ts [server.ts]
-// ❌ Remove — mppx handles this
+// x402 — external facilitator
 import { createFacilitator } from '@x402/server'
 const facilitator = createFacilitator('https://facilitator.x402.org')
 
-// ✅ mppx verifies and settles automatically
+// MPP — built into the SDK
 const mppx = Mppx.create({
   methods: [tempo({ /* ... */ })],
 })
 ```
 
-### Add a second payment method (optional)
+### Add more payment methods
 
-With x402, your server accepts one payment rail. MPP lets you add stablecoins, cards, and Lightning on the same endpoint by registering additional methods. The `402` response advertises all of them, and the client picks one.
+This is where MPP goes beyond x402. You can accept stablecoins, cards, and Lightning on the same endpoint by registering additional methods. The `402` response advertises all of them, and the client picks one.
 
 ```ts [server.ts]
 import crypto from 'crypto'
@@ -219,15 +217,15 @@ $ npx mppx http://localhost:3000/api/data
 
 ## Key concepts
 
-MPP uses three protocol objects in every payment flow:
+MPP uses three protocol objects in every payment flow—the same lifecycle x402 uses, with standardized names:
 
-- **Challenge** — The server's `402` response advertising what payment is required. Sent in the `WWW-Authenticate: Payment` header. Replaces x402's `X-PAYMENT-REQUIRED`.
-- **Credential** — The client's signed payment authorization. Sent in the `Authorization: Payment` header. Replaces x402's `X-PAYMENT`.
-- **Receipt** — The server's confirmation that payment settled. Sent in the `Payment-Receipt` header. Replaces x402's `X-PAYMENT-RESPONSE`.
+- **Challenge** — The server's `402` response advertising what payment is required. Sent in the `WWW-Authenticate: Payment` header. Equivalent to x402's `X-PAYMENT-REQUIRED`.
+- **Credential** — The client's signed payment authorization. Sent in the `Authorization: Payment` header. Equivalent to x402's `X-PAYMENT`.
+- **Receipt** — The server's confirmation that payment settled. Sent in the `Payment-Receipt` header. Equivalent to x402's `X-PAYMENT-RESPONSE`.
 
-## Why migrate
+## What you gain
 
-- **Multi-method payments.** Accept stablecoins, cards, and Lightning on the same endpoint. x402 only supports EVM chains.
+- **Multi-method payments.** Accept stablecoins, cards, and Lightning on the same endpoint—your x402 stablecoin flow continues to work, and new rails are additive.
 - **Sessions.** Stream sub-cent payments with off-chain vouchers instead of one on-chain transaction per request.
 - **IETF standards track.** MPP's [Payment HTTP Authentication Scheme](https://paymentauth.org) is submitted to the IETF—building on a standard that browsers, proxies, and CDNs already understand.
 - **Production primitives.** Idempotency, expiration, request-body binding, and RFC 9457 error responses are built into the protocol.
