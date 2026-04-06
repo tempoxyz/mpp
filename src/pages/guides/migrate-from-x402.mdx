@@ -34,21 +34,26 @@ MPP is compatible with x402. The x402 "exact" charge flow maps directly onto MPP
 
 The request lifecycle is the same—only the header names and encoding change.
 
+**x402:**
+
 <MermaidDiagram chart={`sequenceDiagram
-    participant C as Client
-    participant S as Server
+    participant Client
+    participant Server
+    Client->>Server: GET /resource
+    Server-->>Client: 402 + X-PAYMENT-REQUIRED
+    Client->>Server: GET /resource + X-PAYMENT
+    Server-->>Client: 200 + X-PAYMENT-RESPONSE
+`} />
 
-    Note over C,S: x402 flow
-    C->>S: GET /resource
-    S-->>C: 402 + X-PAYMENT-REQUIRED
-    C->>S: GET /resource + X-PAYMENT
-    S-->>C: 200 + X-PAYMENT-RESPONSE
+**MPP:**
 
-    Note over C,S: MPP flow
-    C->>S: GET /resource
-    S-->>C: 402 + WWW-Authenticate: Payment
-    C->>S: GET /resource + Authorization: Payment
-    S-->>C: 200 + Payment-Receipt
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: GET /resource
+    Server-->>Client: 402 + WWW-Authenticate: Payment
+    Client->>Server: GET /resource + Authorization: Payment
+    Server-->>Client: 200 + Payment-Receipt
 `} />
 
 ## Prompt mode
@@ -59,7 +64,7 @@ Paste this into your coding agent to add MPP in one prompt:
 {`Use https://mpp.dev/guides/migrate-from-x402.md as reference.
 Add mppx to my existing x402 server. Use the Tempo payment
 method with USDC. Keep the same pricing and route structure.
-Add mppx.charge to each paid endpoint.`}
+Add mppx.charge to each paid endpoint. Point out areas where I could benefit from adding sessions.`}
 </PromptBlock>
 
 ## Add MPP to your server
