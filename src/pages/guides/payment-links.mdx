@@ -16,9 +16,11 @@ Create a full payment page for any API endpoint—no frontend required. Share th
 
 | Method | `html` type | What renders |
 | --- | --- | --- |
-| [`tempo.charge`](/payment-methods/tempo/charge#payment-links) | `boolean` | "Continue with Tempo" wallet UI |
-| [`stripe.charge`](/payment-methods/stripe/charge#payment-links) | `{ publishableKey, createTokenUrl }` | Full Stripe Elements card form |
+| [`tempo`](/sdk/typescript/server/Method.tempo) | `boolean` or config object | "Continue with Tempo" wallet UI |
+| [`stripe`](/sdk/typescript/server/Method.stripe) | Config object | Full Stripe Elements card form |
 | [`solana.charge`](/payment-methods/solana/charge#payment-links) | `boolean` | "Continue with Solana" wallet UI |
+
+For Tempo and Stripe, `html` also accepts an object so you can customize page text and theme without building a frontend.
 
 ## Demo
 
@@ -35,7 +37,7 @@ Paste this into your coding agent to create a payment link in one prompt:
 Add mppx to my app with a payment-gated photo endpoint
 that charges $0.01 per request using the Tempo payment method with
 PathUSD. Enable payment links so browsers can pay directly
-from the page by setting html: true on the tempo.charge() method.
+from the page by setting html: true on the tempo() method config.
 When payment is verified, fetch a random photo from
 https://picsum.photos/1024/1024 and return the URL as JSON.`}
 </PromptBlock>
@@ -69,7 +71,7 @@ import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/nextjs'
 
 export const mppx = Mppx.create({
-  methods: [tempo.charge({
+  methods: [tempo({
     currency: '0x20c0000000000000000000000000000000000000',
     html: true, // [!code hl]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -88,7 +90,7 @@ import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/nextjs'
 
 export const mppx = Mppx.create({
-  methods: [tempo.charge({
+  methods: [tempo({
     currency: '0x20c0000000000000000000000000000000000000',
     html: true,
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -146,7 +148,7 @@ import { Mppx, tempo } from 'mppx/hono'
 const app = new Hono()
 
 const mppx = Mppx.create({
-  methods: [tempo.charge({
+  methods: [tempo({
     currency: '0x20c0000000000000000000000000000000000000',
     html: true, // [!code hl]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -166,7 +168,7 @@ import { Mppx, tempo } from 'mppx/hono'
 const app = new Hono()
 
 const mppx = Mppx.create({
-  methods: [tempo.charge({
+  methods: [tempo({
     currency: '0x20c0000000000000000000000000000000000000',
     html: true,
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -224,7 +226,7 @@ import { Mppx, tempo } from 'mppx/express'
 const app = express()
 
 const mppx = Mppx.create({
-  methods: [tempo.charge({
+  methods: [tempo({
     currency: '0x20c0000000000000000000000000000000000000',
     html: true, // [!code hl]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -244,7 +246,7 @@ import { Mppx, tempo } from 'mppx/express'
 const app = express()
 
 const mppx = Mppx.create({
-  methods: [tempo.charge({
+  methods: [tempo({
     currency: '0x20c0000000000000000000000000000000000000',
     html: true,
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -304,7 +306,7 @@ import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo.charge({
+  methods: [tempo({
     currency: '0x20c0000000000000000000000000000000000000',
     html: true, // [!code hl]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -323,7 +325,7 @@ import crypto from 'crypto'
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo.charge({
+  methods: [tempo({
     currency: '0x20c0000000000000000000000000000000000000',
     html: true,
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
