@@ -21,7 +21,7 @@ MPP builds on the same `402` pattern that x402 established, and extends it with 
 | **Challenge** | `X-PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
 | **Credential** | `X-PAYMENT` header | `Authorization: Payment` header |
 | **Receipt** | `X-PAYMENT-RESPONSE` header | `Payment-Receipt` header |
-| **Payment methods** | EVM only | Stablecoins, cards, Lightning, Solana, Stellar, custom |
+| **Payment methods** | Crypto only | Stablecoins, cards, digital wallets, and many other methods |
 | **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
 | **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
 | **Idempotency** | No | Built-in Challenge binding |
@@ -34,7 +34,7 @@ MPP is compatible with x402. The x402 "exact" charge flow maps directly onto MPP
 
 The request lifecycle is the same—only the header names and encoding change.
 
-**x402:**
+**x402**
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
@@ -45,7 +45,7 @@ The request lifecycle is the same—only the header names and encoding change.
     Server-->>Client: 200 + X-PAYMENT-RESPONSE
 `} />
 
-**MPP:**
+**MPP**
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
@@ -90,48 +90,30 @@ bun add mppx viem
 Here's a typical x402 server with MPP applied. Your business logic stays the same—you swap the payment middleware.
 
 ```ts [server.ts]
-import crypto from 'crypto' // [!code ++]
+import crypto from 'crypto'
 import express from 'express'
-import { paymentMiddleware } from '@x402/express' // [!code --]
-import { Mppx, tempo } from 'mppx/express' // [!code ++]
+import { Mppx, tempo } from 'mppx/express' // [!code hl]
 
 const app = express()
 
-app.use( // [!code --]
-  paymentMiddleware({ // [!code --]
-    'GET /api/data': { // [!code --]
-      amount: '10000', // [!code --]
-      asset: '0x20c0000000000000000000000000000000000000', // [!code --]
-      description: 'Premium data access', // [!code --]
-      maxTimeoutSeconds: 60, // [!code --]
-      network: 'eip155:8453', // [!code --]
-      payTo: '0xYourAddress', // [!code --]
-      scheme: 'exact', // [!code --]
-    }, // [!code --]
-  }), // [!code --]
-) // [!code --]
+const mppx = Mppx.create({ // [!code hl]
+  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'), // [!code hl]
+  methods: [ // [!code hl]
+    tempo({ // [!code hl]
+      currency: '0x20c0000000000000000000000000000000000000', // [!code hl]
+      recipient: '0xYourAddress', // [!code hl]
+      testnet: true, // [!code hl]
+    }), // [!code hl]
+  ], // [!code hl]
+}) // [!code hl]
 
-const mppx = Mppx.create({ // [!code ++]
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'), // [!code ++]
-  methods: [ // [!code ++]
-    tempo({ // [!code ++]
-      currency: '0x20c0000000000000000000000000000000000000', // [!code ++]
-      recipient: '0xYourAddress', // [!code ++]
-      testnet: true, // [!code ++]
-    }), // [!code ++]
-  ], // [!code ++]
-}) // [!code ++]
-
-app.get('/api/data', (req, res) => { // [!code --]
-  res.json({ data: 'premium content' }) // [!code --]
-}) // [!code --]
-app.get( // [!code ++]
-  '/api/data', // [!code ++]
-  mppx.charge({ amount: '0.01', description: 'Premium data access' }), // [!code ++]
-  (req, res) => { // [!code ++]
-    res.json({ data: 'premium content' }) // [!code ++]
-  }, // [!code ++]
-) // [!code ++]
+app.get(
+  '/api/data',
+  mppx.charge({ amount: '0.01', description: 'Premium data access' }), // [!code hl]
+  (req, res) => {
+    res.json({ data: 'premium content' })
+  },
+)
 ```
 
 Key differences:
