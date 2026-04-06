@@ -320,8 +320,8 @@ export default defineConfig({
             link: "/guides/proxy-existing-service",
           },
           {
-            text: "Migrate from x402",
-            link: "/guides/migrate-from-x402",
+            text: "Upgrade your x402 integration",
+            link: "/guides/upgrade-x402",
           },
         ],
       },
