@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const defaultFrameHeight = 420;
+const frameStyleId = "payment-link-demo-frame-style";
 
 export function PaymentLinkDemo() {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
@@ -35,6 +36,13 @@ export function PaymentLinkDemo() {
     const doc = frameRef.current?.contentWindow?.document;
 
     if (!doc) return;
+
+    if (!doc.getElementById(frameStyleId)) {
+      const style = doc.createElement("style");
+      style.id = frameStyleId;
+      style.textContent = ".mppx-header span { display: none; }";
+      doc.head.append(style);
+    }
 
     const observer = new ResizeObserver(() => {
       syncFrameHeight();
