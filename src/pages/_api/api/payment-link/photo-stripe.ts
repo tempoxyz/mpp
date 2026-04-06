@@ -35,9 +35,11 @@ export async function GET(request: Request) {
   color: light-dark(#111, #eee);
   }
   img {
-  max-width: 480px;
-  width: 100%;
+  display: block;
   height: auto;
+  max-height: calc(100vh - 112px);
+  max-width: min(100%, 480px);
+  width: min(100%, 480px);
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.15);
   }
