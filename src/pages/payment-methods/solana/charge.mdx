@@ -24,7 +24,7 @@ import { solana } from '@solana/mpp/server'
 const mppx = Mppx.create({
   methods: [solana.charge({
     recipient: '9xAXssX9j7vuK99c7cFwqbixzL3bFrzPy9PUhCtDPAYJ',
-    network: 'devnet',
+    network: 'localnet',
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -42,6 +42,37 @@ const mppx = Mppx.create({
   methods: [solana.charge()],
 })
 ```
+
+## Payment links
+
+Enable `html: true` on `solana.charge()` to turn any endpoint into a shareable payment link. Browsers see a payment page with a "Continue with Solana" button; programmatic clients get the standard `402` flow.
+
+```ts
+import { Mppx } from 'mppx/server'
+import { solana } from '@solana/mpp/server'
+
+const mppx = Mppx.create({
+  methods: [solana.charge({
+    recipient: '9xAXssX9j7vuK99c7cFwqbixzL3bFrzPy9PUhCtDPAYJ',
+    currency: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
+    decimals: 6,
+    network: 'localnet',
+    html: true, // [!code hl]
+  })],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+The `html` option accepts:
+
+| Type | Behavior |
+| --- | --- |
+| `true` | Default Solana-branded payment page with "Continue with Solana" button |
+| `false` / omitted | No payment page — standard JSON `402` only |
+
+On devnet and localnet, the payment page shows a network badge on the button and uses [Surfpool](https://surfpool.run) cheatcodes to fund test accounts automatically.
+
+See the [Payment links guide](/guides/payment-links) for framework-specific setup.
 
 ## Solana-specific request fields
 
