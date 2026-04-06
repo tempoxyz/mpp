@@ -258,7 +258,10 @@ export function parseLink(
     };
   }
 
-  if ((area === "client" || area === "server") && symbolPart.startsWith("Method.")) {
+  if (
+    (area === "client" || area === "server") &&
+    symbolPart.startsWith("Method.")
+  ) {
     const methodParts = symbolPart.slice("Method.".length).split(".");
     const namespace = methodParts[0];
     const rawMember = methodParts.slice(1).join(".") || undefined;
@@ -337,7 +340,12 @@ export async function getSdkExports(
 }
 
 function getSdkEntrypoints(packageName: string): Set<string> {
-  const packageJsonPath = join(rootDir, "node_modules", packageName, "package.json");
+  const packageJsonPath = join(
+    rootDir,
+    "node_modules",
+    packageName,
+    "package.json",
+  );
   if (!existsSync(packageJsonPath)) return new Set();
 
   const pkg = JSON.parse(readFileSync(packageJsonPath, "utf-8")) as {
@@ -447,11 +455,7 @@ async function runDriftCheck(config: DriftCheckConfig): Promise<DriftResult> {
       continue;
     }
 
-    if (
-      ref.entrypoint &&
-      exportArea !== "mcp-sdk/client" &&
-      !ref.member
-    ) {
+    if (ref.entrypoint && exportArea !== "mcp-sdk/client" && !ref.member) {
       if (!entrypoints.has(ref.entrypoint)) {
         result.errors.push({
           type: "missing_export",
