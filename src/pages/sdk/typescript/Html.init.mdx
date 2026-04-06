@@ -1,0 +1,206 @@
+---
+description: "Build custom payment UIs for browser-based 402 flows"
+imageDescription: "Build custom payment UIs with typed context and theming"
+---
+
+# `Html.init` [Initialize a payment UI context]
+
+Sets up a context for building payment method UIs in the browser. Returns challenge data, theme tokens, and helpers for error handling and credential submission.
+
+For a full guide on adding HTML support to a custom payment method, see [Custom HTML](/sdk/typescript/html/custom).
+
+## Usage
+
+```ts [example.ts]
+import * as Html from 'mppx/html'
+
+const context = Html.init('tempo')
+
+// Mount your UI
+const button = document.createElement('button')
+button.textContent = context.text.pay
+context.root.appendChild(button)
+```
+
+### With credential submission
+
+Build a complete payment form that handles errors and submits credentials.
+
+```ts [example.ts]
+import * as Html from 'mppx/html'
+
+const c = Html.init('tempo')
+
+const button = document.createElement('button')
+button.textContent = c.text.pay
+button.onclick = async () => {
+  try {
+    c.error()
+    button.disabled = true
+    const credential = await method.createCredential({
+      challenge: c.challenge,
+      context: {},
+    })
+    await c.submit(credential)
+  } catch (e) {
+    c.error(e instanceof Error ? e.message : 'Payment failed')
+  } finally {
+    button.disabled = false
+  }
+}
+c.root.appendChild(button)
+```
+
+### With CSS theming
+
+Use `context.vars` for CSS custom property references that respect the server-configured theme.
+
+```ts [example.ts]
+import * as Html from 'mppx/html'
+
+const c = Html.init('tempo')
+
+const style = document.createElement('style')
+style.textContent = `
+  button {
+    background: ${c.vars.accent};
+    border-radius: ${c.vars.radius};
+    color: ${c.vars.background};
+    font-family: ${c.vars.fontFamily};
+    padding: calc(${c.vars.spacingUnit} * 4) calc(${c.vars.spacingUnit} * 8);
+  }
+`
+c.root.appendChild(style)
+```
+
+## Return type
+
+```ts
+type Context = {
+  /** The parsed Challenge object for this payment method. */
+  challenge: Challenge
+  /** Handler-specific HTML configuration. */
+  config: Record<string, unknown>
+  /** Show or clear an error message below the root element. */
+  error: (message?: string | null | undefined) => void
+  /** Pre-formatted amount string (for example, "$10.00"). */
+  formattedAmount: string
+  /** Human-readable payment method label. */
+  label: string
+  /** The DOM element to mount your payment UI into. */
+  root: HTMLElement
+  /** Submit a credential and reload the page. */
+  submit: (credential: string) => Promise<void>
+  /** UI text strings with defaults applied. */
+  text: { expires: string; pay: string; paymentRequired: string; title: string }
+  /** Resolved theme tokens (colors, spacing, typography). */
+  theme: Record<string, string>
+  /** CSS custom property references for theming. */
+  vars: {
+    accent: CssVar       // var(--mppx-accent)
+    background: CssVar   // var(--mppx-background)
+    border: CssVar       // var(--mppx-border)
+    fontFamily: CssVar   // var(--mppx-font-family)
+    fontSizeBase: CssVar // var(--mppx-font-size-base)
+    foreground: CssVar   // var(--mppx-foreground)
+    muted: CssVar        // var(--mppx-muted)
+    negative: CssVar     // var(--mppx-negative)
+    positive: CssVar     // var(--mppx-positive)
+    radius: CssVar       // var(--mppx-radius)
+    spacingUnit: CssVar  // var(--mppx-spacing-unit)
+    surface: CssVar      // var(--mppx-surface)
+  }
+}
+```
+
+## Parameters
+
+### methodName
+
+- **Type:** `string`
+
+The payment method name to initialize (for example, `'tempo'`, `'stripe'`). Matches against the challenge data the server embeds in the page.
+
+## Context properties
+
+### challenge
+
+- **Type:** `Challenge`
+
+The parsed Challenge object for this payment method. Contains `intent`, `method`, `realm`, `request`, and other challenge fields.
+
+### config
+
+- **Type:** `Record<string, unknown>`
+
+Method-specific configuration provided by the server. For example, Stripe passes `{ publishableKey: string }`.
+
+### error
+
+- **Type:** `(message?: string | null | undefined) => void`
+
+Shows or clears an error message. Pass a string to display an error below the root element. Call with no arguments (or `null`/`undefined`) to clear the error.
+
+### formattedAmount
+
+- **Type:** `string`
+
+Pre-formatted amount string from the server (for example, `"$10.00"`).
+
+### label
+
+- **Type:** `string`
+
+Payment method label, used for tab labels when multiple methods are available.
+
+### root
+
+- **Type:** `HTMLElement`
+
+The DOM element to mount your payment UI into. Append your form elements here.
+
+### submit
+
+- **Type:** `(credential: string) => Promise<void>`
+
+Sends the credential to the server via a Service Worker, then reloads the page. Call after creating a credential from the challenge.
+
+### text
+
+- **Type:** `{ expires: string; pay: string; paymentRequired: string; title: string }`
+
+UI text strings with defaults applied.
+
+| Key | Default |
+|---|---|
+| `expires` | `"Expires at"` |
+| `pay` | `"Pay"` |
+| `paymentRequired` | `"Payment Required"` |
+| `title` | `"Payment Required"` |
+
+### theme
+
+- **Type:** `Record<string, string>`
+
+Resolved theme tokens with defaults applied. Includes color tokens (`accent`, `background`, `border`, `foreground`, `muted`, `negative`, `positive`, `surface`) and layout tokens (`colorScheme`, `fontFamily`, `fontSizeBase`, `radius`, `spacingUnit`).
+
+### vars
+
+- **Type:** `typeof vars`
+
+CSS custom property references for use in inline styles or `<style>` blocks. Each property returns the corresponding `var(--mppx-*)` value when used in a string.
+
+| Property | CSS variable |
+|---|---|
+| `accent` | `var(--mppx-accent)` |
+| `background` | `var(--mppx-background)` |
+| `border` | `var(--mppx-border)` |
+| `fontFamily` | `var(--mppx-font-family)` |
+| `fontSizeBase` | `var(--mppx-font-size-base)` |
+| `foreground` | `var(--mppx-foreground)` |
+| `muted` | `var(--mppx-muted)` |
+| `negative` | `var(--mppx-negative)` |
+| `positive` | `var(--mppx-positive)` |
+| `radius` | `var(--mppx-radius)` |
+| `spacingUnit` | `var(--mppx-spacing-unit)` |
+| `surface` | `var(--mppx-surface)` |
