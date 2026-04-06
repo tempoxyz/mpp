@@ -75,6 +75,7 @@ export function PaymentLinkDemo() {
         <iframe
           onLoad={observeFrame}
           ref={frameRef}
+          scrolling="no"
           src="/api/payment-link/photo"
           title="Payment link demo — Tempo"
           style={{
@@ -82,6 +83,7 @@ export function PaymentLinkDemo() {
             borderRadius: 12,
             display: "block",
             height: frameHeight,
+            overflow: "hidden",
             width: "100%",
           }}
         />
