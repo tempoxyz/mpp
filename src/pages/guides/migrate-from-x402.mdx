@@ -8,9 +8,9 @@ import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '.
 import { PromptBlock } from '../../components/PromptBlock'
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
-# Upgrade your x402 server to MPP [Add multi-method payments and IETF standardization to your existing server]
+# Upgrade your x402 server to MPP 
 
-If you already have an x402 server, you're most of the way there. Both protocols use HTTP `402` to gate API access behind payment, and x402's "exact" charge flow maps directly onto MPP's `charge` intent. Adding MPP gives you standard `WWW-Authenticate` / `Authorization` headers, multi-method support (stablecoins, cards, Lightning), sessions for streaming payments, and an [IETF standards track](https://paymentauth.org) foundation—all without changing your business logic.
+MPP is easy to add to your existing x402 server. Both protocols use HTTP `402` to gate API access behind payment, and x402's "exact" charge flow maps directly onto MPP's `charge` intent. Adding MPP gives you standard `WWW-Authenticate` / `Authorization` headers, multi-method support (stablecoins, cards, Lightning), sessions for streaming payments, and an [IETF standards track](https://paymentauth.org) foundation—all without changing your business logic.
 
 ## What MPP adds
 
@@ -21,9 +21,7 @@ MPP builds on the same `402` pattern that x402 established, and extends it with 
 | **Challenge** | `X-PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
 | **Credential** | `X-PAYMENT` header | `Authorization: Payment` header |
 | **Receipt** | `X-PAYMENT-RESPONSE` header | `Payment-Receipt` header |
-| **Spec authority** | Proprietary | [IETF draft](https://paymentauth.org) |
 | **Payment methods** | EVM only | Stablecoins, cards, Lightning, Solana, Stellar, custom |
-| **Multi-method** | No | Yes—advertise multiple methods in a single `402` |
 | **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
 | **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
 | **Idempotency** | No | Built-in Challenge binding |
@@ -97,13 +95,13 @@ const app = express()
 app.use(
   paymentMiddleware({
     'GET /api/data': {
-      scheme: 'exact',
-      network: 'eip155:8453',
       amount: '10000',
       asset: '0x20c0000000000000000000000000000000000000',
-      payTo: '0xYourAddress',
-      maxTimeoutSeconds: 60,
       description: 'Premium data access',
+      maxTimeoutSeconds: 60,
+      network: 'eip155:8453',
+      payTo: '0xYourAddress',
+      scheme: 'exact',
     },
   }),
 )
@@ -126,9 +124,9 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
-      testnet: true,
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xYourAddress',
+      testnet: true,
     }),
   ],
 })
@@ -180,9 +178,9 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
-      testnet: true,
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xYourAddress',
+      testnet: true,
     }),
     stripe.charge({ // [!code hl]
       client: stripeClient, // [!code hl]
@@ -227,7 +225,7 @@ MPP uses three protocol objects in every payment flow—the same lifecycle x402 
 
 - **Multi-method payments.** Accept stablecoins, cards, and Lightning on the same endpoint—your x402 stablecoin flow continues to work, and new rails are additive.
 - **Sessions.** Stream sub-cent payments with off-chain vouchers instead of one on-chain transaction per request.
-- **IETF standards track.** MPP's [Payment HTTP Authentication Scheme](https://paymentauth.org) is submitted to the IETF—building on a standard that browsers, proxies, and CDNs already understand.
+- **IETF standards track.** MPP's [Payment HTTP Authentication Scheme](https://paymentauth.org) follows the IETF standards process—building on a standard that browsers, proxies, and CDNs already understand.
 - **Production primitives.** Idempotency, expiration, request-body binding, and RFC 9457 error responses are built into the protocol.
 - **Permissionless extensibility.** Anyone can author and publish a new payment method without approval from a foundation.
 
