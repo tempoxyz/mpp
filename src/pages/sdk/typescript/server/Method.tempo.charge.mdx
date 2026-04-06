@@ -73,7 +73,7 @@ export async function handler(request: Request) {
 
 ### With replay protection for zero-dollar auth
 
-Pass `store` when you want zero-dollar proof Credentials to be single-use.
+Pass `store` when you want zero-dollar proof Credentials to be single-use. The store must support atomic updates.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -150,13 +150,15 @@ On-chain memo for the transaction.
 
 ### store (optional)
 
-- **Type:** `Store`
+- **Type:** `Store.AtomicStore`
 
-Pass a store when you want replay protection for charge Credentials.
+Pass an atomic store when you want replay protection for charge Credentials.
 
 For non-zero charges, `mppx` falls back to an in-memory store when you omit this parameter. For zero-dollar proof auth, replay prevention is disabled unless you pass a store.
 
-Use `Store.memory()` for local development, tests, or a single long-lived server process. Use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` when you need replay prevention to survive restarts or apply across multiple instances.
+Use `Store.memory()` for local development, tests, or a single long-lived server process. For shared deployments, configure `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` with atomic `update` support so they return `Store.AtomicStore`.
+
+`mppx` uses `Store.update()` to write replay markers atomically. Keep `update` callbacks synchronous and side-effect free because adapters may retry them.
 
 ### testnet (optional)
 

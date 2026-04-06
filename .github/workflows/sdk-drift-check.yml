@@ -9,7 +9,7 @@ on:
       sdk_package:
         description: "SDK package to check"
         required: false
-        default: "mpay"
+        default: "mppx"
       sdk_version:
         description: "SDK version to check"
         required: false
@@ -38,7 +38,7 @@ jobs:
         id: drift-check
         uses: ./.github/actions/sdk-drift-check
         with:
-          sdk-package: ${{ github.event.inputs.sdk_package || 'mpay' }}
+          sdk-package: ${{ github.event.inputs.sdk_package || 'mppx' }}
           sdk-version: ${{ github.event.inputs.sdk_version || 'latest' }}
           output-dir: ./drift-results
 

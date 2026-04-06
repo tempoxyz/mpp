@@ -120,6 +120,54 @@ describe("parseLink", () => {
         member: "http",
       });
     });
+
+    it("maps method docs to the actual client export", () => {
+      const result = parseLink(
+        "/sdk/typescript/client/Method.tempo.charge",
+        prefix,
+      );
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/client/Method.tempo.charge",
+        area: "client",
+        namespace: "tempo",
+        member: "charge",
+      });
+    });
+
+    it("maps session manager docs to tempo.session", () => {
+      const result = parseLink(
+        "/sdk/typescript/client/Method.tempo.session-manager",
+        prefix,
+      );
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/client/Method.tempo.session-manager",
+        area: "client",
+        namespace: "tempo",
+        member: "session",
+      });
+    });
+
+    it("maps MCP client docs to the MCP SDK entrypoint", () => {
+      const result = parseLink("/sdk/typescript/client/McpClient.wrap", prefix);
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/client/McpClient.wrap",
+        area: "client",
+        namespace: "McpClient",
+        member: "wrap",
+        entrypoint: "mcp-sdk/client",
+      });
+    });
+
+    it("maps Html docs to the html entrypoint", () => {
+      const result = parseLink("/sdk/typescript/Html.init", prefix);
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/Html.init",
+        area: "core",
+        namespace: "Html",
+        member: "init",
+        entrypoint: "html",
+      });
+    });
   });
 
   describe("server area links", () => {
@@ -133,6 +181,62 @@ describe("parseLink", () => {
         area: "server",
         namespace: "Mpay",
         member: "toNodeListener",
+      });
+    });
+
+    it("maps method docs to the actual server export", () => {
+      const result = parseLink(
+        "/sdk/typescript/server/Method.stripe.charge",
+        prefix,
+      );
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/server/Method.stripe.charge",
+        area: "server",
+        namespace: "stripe",
+        member: "charge",
+      });
+    });
+  });
+
+  describe("special entrypoints", () => {
+    it("parses middleware entrypoints", () => {
+      const result = parseLink("/sdk/typescript/middlewares/hono", prefix);
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/middlewares/hono",
+        area: "middlewares",
+        namespace: "hono",
+        entrypoint: "hono",
+      });
+    });
+
+    it("parses proxy entrypoint", () => {
+      const result = parseLink("/sdk/typescript/proxy", prefix);
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/proxy",
+        area: "proxy",
+        namespace: "proxy",
+        entrypoint: "proxy",
+      });
+    });
+
+    it("parses cli entrypoint", () => {
+      const result = parseLink("/sdk/typescript/cli", prefix);
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/cli",
+        area: "cli",
+        namespace: "cli",
+        entrypoint: "cli",
+      });
+    });
+
+    it("parses html custom docs page as docs-only", () => {
+      const result = parseLink("/sdk/typescript/html/custom", prefix);
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/html/custom",
+        area: "html",
+        namespace: "custom",
+        entrypoint: "html",
+        docsOnly: true,
       });
     });
   });

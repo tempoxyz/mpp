@@ -100,6 +100,8 @@ const result = await mppx.charge({
 
 Use this for polling, free follow-up requests, and unlock flows after an initial payment.
 
+Pass `store` to `tempo.charge()` when you want single-use proofs. The store must support atomic `update()` calls.
+
 ### With split payments
 
 Split a charge across multiple recipients in a single transaction. The primary `recipient` receives `amount` minus the sum of all splits.

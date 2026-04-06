@@ -112,7 +112,7 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
   <Tab title="Server">
   <div className="space-y-4">
 
-Use [`tempo`](/sdk/typescript/server/Method.tempo.session) to accept payment sessions. The server needs an RPC URL for on-chain verification during channel open/close, and a storage backend for channel state.
+Use [`tempo`](/sdk/typescript/server/Method.tempo.session) to accept payment sessions. The server needs an RPC URL for on-chain verification during channel open/close, and an atomic store backend for channel state.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -126,6 +126,8 @@ const mppx = Mppx.create({
   ],
 })
 ```
+
+Use a store that exposes `Store.update()`. `Store.memory()` works for local development, and shared backends need atomic update support.
 
 During a session, the server verifies each voucher with a single `ecrecover`—no RPC calls, no database writes in the hot path. On-chain interaction only happens during open, settlement, and close.
 

@@ -5,7 +5,7 @@ inputs:
   sdk-package:
     description: "npm package name to check"
     required: false
-    default: "mpay"
+    default: "mppx"
   sdk-version:
     description: "SDK version to check (default: latest)"
     required: false
@@ -13,7 +13,7 @@ inputs:
   vocs-config:
     description: "Path to vocs config file"
     required: false
-    default: "./vocs.config.tsx"
+    default: "./vocs.config.ts"
   sdk-path-prefix:
     description: "Sidebar path prefix for SDK references"
     required: false

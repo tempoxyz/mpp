@@ -2,7 +2,7 @@
 /**
  * SDK Manifest Drift Check
  *
- * Validates that sidebar SDK references in vocs.config.tsx match actual exports
+ * Validates that sidebar SDK references in vocs.config.ts match actual exports
  * from the TypeScript SDK package. Runs daily to detect drift between docs and SDK.
  *
  * Usage:
@@ -10,19 +10,16 @@
  *   pnpm check:sdk-drift --output results.json
  *
  * Configuration (via environment or defaults):
- *   SDK_PACKAGE: npm package name to check (default: "mpay")
- *   VOCS_CONFIG: path to vocs config (default: "./vocs.config.tsx")
+ *   SDK_PACKAGE: npm package name to check (default: "mppx")
+ *   VOCS_CONFIG: path to vocs config (default: "./vocs.config.ts")
  *   SDK_PATH_PREFIX: sidebar path prefix for SDK refs (default: "/sdk/typescript")
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
- * Find the workspace root by looking for vocs.config.tsx or package.json
+ * Find the workspace root by looking for a Vocs config.
  * Starts from cwd and walks up
  */
 export function findWorkspaceRoot(): string {
@@ -53,7 +50,9 @@ export interface SidebarReference {
   link: string;
   namespace: string;
   member?: string;
-  area: "core" | "client" | "server";
+  area: string;
+  entrypoint?: string;
+  docsOnly?: boolean;
 }
 
 export interface ExportInfo {
@@ -129,8 +128,8 @@ function emitAnnotation(
 function getConfig(): DriftCheckConfig {
   const args = parseArgs();
   return {
-    sdkPackage: process.env.SDK_PACKAGE || "mpay",
-    vocsConfigPath: process.env.VOCS_CONFIG || join(rootDir, "vocs.config.tsx"),
+    sdkPackage: process.env.SDK_PACKAGE || "mppx",
+    vocsConfigPath: process.env.VOCS_CONFIG || join(rootDir, "vocs.config.ts"),
     sdkPathPrefix: process.env.SDK_PATH_PREFIX || "/sdk/typescript",
     pagesDir: join(rootDir, "src", "pages"),
     outputPath: args.output,
@@ -159,7 +158,7 @@ export function extractSidebarLinksFromContent(
 }
 
 /**
- * Extract sidebar links from vocs.config.tsx using regex
+ * Extract sidebar links from vocs.config.ts using regex
  * (avoids needing to execute the config)
  */
 export function extractSidebarLinks(
@@ -179,6 +178,47 @@ export function parseLink(
   pathPrefix: string,
 ): SidebarReference | null {
   const relativePath = link.slice(pathPrefix.length + 1); // Remove prefix and leading slash
+  if (!relativePath) return null;
+
+  if (relativePath === "cli") {
+    return {
+      link,
+      area: "cli",
+      namespace: "cli",
+      entrypoint: "cli",
+    };
+  }
+
+  if (relativePath === "proxy") {
+    return {
+      link,
+      area: "proxy",
+      namespace: "proxy",
+      entrypoint: "proxy",
+    };
+  }
+
+  if (relativePath.startsWith("middlewares/")) {
+    const namespace = relativePath.slice("middlewares/".length);
+    if (!namespace) return null;
+    return {
+      link,
+      area: "middlewares",
+      namespace,
+      entrypoint: namespace,
+    };
+  }
+
+  if (relativePath === "html/custom") {
+    return {
+      link,
+      area: "html",
+      namespace: "custom",
+      entrypoint: "html",
+      docsOnly: true,
+    };
+  }
+
   const parts = relativePath.split("/");
 
   if (parts.length === 0) return null;
@@ -197,6 +237,39 @@ export function parseLink(
   }
 
   if (!symbolPart) return null;
+
+  if (area === "client" && symbolPart.startsWith("McpClient.")) {
+    return {
+      link,
+      area,
+      namespace: "McpClient",
+      member: symbolPart.slice("McpClient.".length),
+      entrypoint: "mcp-sdk/client",
+    };
+  }
+
+  if (area === "core" && symbolPart.startsWith("Html.")) {
+    return {
+      link,
+      area,
+      namespace: "Html",
+      member: symbolPart.slice("Html.".length),
+      entrypoint: "html",
+    };
+  }
+
+  if ((area === "client" || area === "server") && symbolPart.startsWith("Method.")) {
+    const methodParts = symbolPart.slice("Method.".length).split(".");
+    const namespace = methodParts[0];
+    const rawMember = methodParts.slice(1).join(".") || undefined;
+    if (!namespace) return null;
+    return {
+      link,
+      area,
+      namespace,
+      member: rawMember === "session-manager" ? "session" : rawMember,
+    };
+  }
 
   // Parse Namespace.member or just Namespace
   const dotIndex = symbolPart.indexOf(".");
@@ -229,6 +302,8 @@ export async function getSdkExports(
     { area: "core", path: packageName },
     { area: "client", path: `${packageName}/client` },
     { area: "server", path: `${packageName}/server` },
+    { area: "html", path: `${packageName}/html` },
+    { area: "mcp-sdk/client", path: `${packageName}/mcp-sdk/client` },
   ];
 
   for (const { area, path } of entrypoints) {
@@ -239,16 +314,15 @@ export async function getSdkExports(
         if (name === "default" || name === "z") continue;
 
         const members: string[] = [];
-        if (value && typeof value === "object") {
+        if (
+          value &&
+          (typeof value === "object" || typeof value === "function")
+        ) {
           for (const key of Object.keys(value as object)) {
             if (!key.startsWith("_")) {
               members.push(key);
             }
           }
-        } else if (typeof value === "function") {
-          // Named function export (e.g., `export { tempo }`)
-          // Treat as a namespace with no members for matching
-          // This handles cases like `Method.tempo` where `tempo` is the actual export
         }
 
         const key = `${area}:${name}`;
@@ -260,6 +334,26 @@ export async function getSdkExports(
   }
 
   return exports;
+}
+
+function getSdkEntrypoints(packageName: string): Set<string> {
+  const packageJsonPath = join(rootDir, "node_modules", packageName, "package.json");
+  if (!existsSync(packageJsonPath)) return new Set();
+
+  const pkg = JSON.parse(readFileSync(packageJsonPath, "utf-8")) as {
+    exports?: Record<string, unknown>;
+  };
+
+  const entrypoints = new Set<string>();
+  for (const key of Object.keys(pkg.exports ?? {})) {
+    if (key === ".") {
+      entrypoints.add("core");
+      continue;
+    }
+    if (key.startsWith("./")) entrypoints.add(key.slice(2));
+  }
+
+  return entrypoints;
 }
 
 /**
@@ -288,16 +382,8 @@ async function getSdkVersion(packageName: string): Promise<string> {
  * Check if a documentation page exists for a reference
  */
 function pageExists(ref: SidebarReference, pagesDir: string): boolean {
-  // Build expected page path
-  const pagePath = ref.member
-    ? join(
-        pagesDir,
-        "sdk",
-        "typescript",
-        ref.area,
-        `${ref.namespace}.${ref.member}.mdx`,
-      )
-    : join(pagesDir, "sdk", "typescript", ref.area, `${ref.namespace}.mdx`);
+  const relativePath = ref.link.slice("/sdk/typescript/".length);
+  const pagePath = join(pagesDir, "sdk", "typescript", `${relativePath}.mdx`);
 
   return existsSync(pagePath);
 }
@@ -335,19 +421,65 @@ async function runDriftCheck(config: DriftCheckConfig): Promise<DriftResult> {
 
   // Get SDK exports
   const exports = await getSdkExports(config.sdkPackage);
+  const entrypoints = getSdkEntrypoints(config.sdkPackage);
 
   // Track documented items for undocumented export detection
   const documented = new Set<string>();
 
   // Validate each reference
   for (const ref of refs) {
-    const exportKey = `${ref.area}:${ref.namespace}`;
+    const exportArea = ref.entrypoint ?? ref.area;
+    const exportKey = `${exportArea}:${ref.namespace}`;
     const exportInfo = exports[exportKey];
+
+    if (ref.docsOnly) {
+      if (!pageExists(ref, config.pagesDir)) {
+        result.errors.push({
+          type: "missing_page",
+          link: ref.link,
+          details: `Documentation page not found for ${ref.link}`,
+        });
+        result.summary.missingPages++;
+      }
+
+      result.validRefs.push(ref.link);
+      result.summary.valid++;
+      continue;
+    }
+
+    if (
+      ref.entrypoint &&
+      exportArea !== "mcp-sdk/client" &&
+      !ref.member
+    ) {
+      if (!entrypoints.has(ref.entrypoint)) {
+        result.errors.push({
+          type: "missing_export",
+          link: ref.link,
+          details: `Entrypoint "${config.sdkPackage}/${ref.entrypoint}" is not exported`,
+        });
+        result.summary.invalid++;
+        continue;
+      }
+
+      if (!pageExists(ref, config.pagesDir)) {
+        result.errors.push({
+          type: "missing_page",
+          link: ref.link,
+          details: `Documentation page not found for ${ref.link}`,
+        });
+        result.summary.missingPages++;
+      }
+
+      result.validRefs.push(ref.link);
+      result.summary.valid++;
+      continue;
+    }
 
     // Handle "Namespace.member" pattern where sidebar uses conceptual grouping
     // but SDK exports the member directly (e.g., "Method.tempo" -> SDK has `tempo`)
     if (!exportInfo && ref.member) {
-      const directExportKey = `${ref.area}:${ref.member}`;
+      const directExportKey = `${exportArea}:${ref.member}`;
       const directExport = exports[directExportKey];
       if (directExport) {
         // The member is exported directly - this is valid (conceptual grouping in docs)
@@ -362,7 +494,7 @@ async function runDriftCheck(config: DriftCheckConfig): Promise<DriftResult> {
       result.errors.push({
         type: "missing_export",
         link: ref.link,
-        details: `Namespace "${ref.namespace}" not exported from ${config.sdkPackage}/${ref.area === "core" ? "" : ref.area}`,
+        details: `Namespace "${ref.namespace}" not exported from ${config.sdkPackage}/${exportArea === "core" ? "" : exportArea}`,
       });
       result.summary.invalid++;
       continue;

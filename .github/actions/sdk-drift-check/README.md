@@ -10,7 +10,7 @@ A composite GitHub Action that validates vocs.config sidebar SDK references matc
 - name: Run SDK drift check
   uses: ./.github/actions/sdk-drift-check
   with:
-    sdk-package: mpay
+    sdk-package: mppx
     sdk-version: latest
     output-dir: ./drift-results
 
@@ -32,9 +32,9 @@ pnpm check:sdk-drift --output results.json
 
 | Input | Description | Default |
 |-------|-------------|---------|
-| `sdk-package` | npm package name to check | `mpay` |
+| `sdk-package` | npm package name to check | `mppx` |
 | `sdk-version` | SDK version to check | `latest` |
-| `vocs-config` | Path to vocs config file | `./vocs.config.tsx` |
+| `vocs-config` | Path to vocs config file | `./vocs.config.ts` |
 | `sdk-path-prefix` | Sidebar path prefix for SDK references | `/sdk/typescript` |
 | `output-dir` | Directory to write results | `./drift-results` |
 

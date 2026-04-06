@@ -38,6 +38,7 @@ This repository contains the [mpp.dev](https://mpp.dev) documentation site and s
 pnpm install      # Install dependencies
 pnpm run dev      # Start development server
 pnpm run build    # Production build
+pnpm run check:sdk-drift # Validate SDK reference pages against mppx exports
 pnpm run preview  # Preview production build
 ```
 
@@ -102,7 +103,8 @@ Contributions to documentation, the service directory, and site improvements are
 1. **Types pass**: `pnpm check:types`
 2. **Build succeeds**: `pnpm build`
 3. **Lint passes**: `pnpm check`
-4. **E2E tests pass** (if touching terminal or interactive components): `pnpm test:e2e`
+4. **SDK references stay in sync** (if touching SDK docs or `vocs.config.ts`): `pnpm check:sdk-drift`
+5. **E2E tests pass** (if touching terminal or interactive components): `pnpm test:e2e`
 
 ### Types of contributions
 
