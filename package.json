@@ -31,7 +31,7 @@
     "stripe": "^20.4.1",
     "tailwindcss": "^4.1.18",
     "viem": "^2.47.5",
-    "vocs": "https://pkg.pr.new/wevm/vocs@319c55c",
+    "vocs": "https://pkg.pr.new/wevm/vocs@70a7c8c",
     "wagmi": "^3.4.2",
     "waku": "^1.0.0-alpha.4"
   },
