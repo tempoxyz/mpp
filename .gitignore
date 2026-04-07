@@ -24,3 +24,8 @@ public/services/llms.txt
 
 # Licensed font files (served via Vercel Blob in production)
 public/fonts/VTCDuBois*
+
+bun.lock
+package-lock.json
+yarn.lock
+_
