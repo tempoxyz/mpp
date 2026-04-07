@@ -1,5 +1,6 @@
 "use client";
 
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import lockupDarkRaw from "../assets/lockup-dark.svg?raw";
@@ -476,6 +477,7 @@ export default function Layout(props: React.PropsWithChildren) {
       <MobileNavPortal />
       <LogoContextMenu />
       {props.children}
+      <SpeedInsights />
     </>
   );
 }
