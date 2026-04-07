@@ -122,6 +122,7 @@ type Page =
 | { path: '/guides/proxy-existing-service'; render: 'static' }
 | { path: '/guides/split-payments'; render: 'static' }
 | { path: '/guides/streamed-payments'; render: 'static' }
+| { path: '/guides/upgrade-x402'; render: 'static' }
 | { path: '/advanced/discovery'; render: 'static' }
 | { path: '/advanced/identity'; render: 'static' }
 | { path: '/advanced/refunds'; render: 'static' }
