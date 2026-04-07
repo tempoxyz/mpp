@@ -34,7 +34,9 @@ export function PaymentLinkDemo() {
         }}
       >
         <iframe
+          allow="publickey-credentials-get *; publickey-credentials-create *; payment *; clipboard-write *"
           ref={frameRef}
+          sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
           src="/api/payment-link/photo"
           title="Payment link demo — Tempo"
           style={{
