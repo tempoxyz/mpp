@@ -21,7 +21,7 @@ MPP builds on the same `402` pattern that x402 established, and extends it with 
 | **Challenge** | `X-PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
 | **Credential** | `X-PAYMENT` header | `Authorization: Payment` header |
 | **Receipt** | `X-PAYMENT-RESPONSE` header | `Payment-Receipt` header |
-| **Payment methods** | Crypto only | Stablecoins, cards, digital wallets, and many other methods |
+| **Payment methods** | Stablecoins only | Stablecoins, cards, digital wallets, and many other methods |
 | **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
 | **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
 | **Idempotency** | No | Built-in Challenge binding |
@@ -55,6 +55,54 @@ The request lifecycle is the same—only the header names and encoding change.
     Client->>Server: GET /resource + Authorization: Payment
     Server-->>Client: 200 + Payment-Receipt
 `} />
+
+## Key concepts
+
+MPP uses three protocol objects in every payment flow—the same lifecycle x402 uses, with standardized names:
+
+- **Challenge** — The server's `402` response advertising what payment is required. Sent in the `WWW-Authenticate: Payment` header. Equivalent to x402's `X-PAYMENT-REQUIRED`.
+- **Credential** — The client's signed payment authorization. Sent in the `Authorization: Payment` header. Equivalent to x402's `X-PAYMENT`.
+- **Receipt** — The server's confirmation that payment settled. Sent in the `Payment-Receipt` header. Equivalent to x402's `X-PAYMENT-RESPONSE`.
+
+## Running MPP and x402 side by side
+
+MPP and x402 use completely different HTTP headers (see [comparison above](#what-mpp-adds)), so they coexist on the same server without conflict. This lets you adopt MPP incrementally—add it to new endpoints while existing x402 clients continue working.
+
+A single `402` response can include **both** sets of headers simultaneously. x402 clients read `X-PAYMENT-REQUIRED` and ignore `WWW-Authenticate`, while MPP clients read `WWW-Authenticate: Payment` and ignore the `X-` headers.
+
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment id="abc", realm="api.example.com",
+  method="tempo", intent="charge", request="eyJ..."
+X-PAYMENT-REQUIRED: {"scheme":"exact","network":"base-sepolia",
+  "maxAmountRequired":"10000","resource":"..."}
+```
+
+On the return trip, MPP clients send `Authorization: Payment <credential>` while x402 clients send `X-PAYMENT: <payload>`. Your server checks which header is present and verifies accordingly:
+
+```ts [server.ts]
+app.get('/api/data', (req, res, next) => {
+  const hasPayment = req.headers['authorization']?.startsWith('Payment ')
+  const hasX402 = !!req.headers['x-payment']
+
+  if (hasPayment) {
+    return mppx.charge({ amount: '0.01' })(req, res, next)
+  }
+  if (hasX402) {
+    return handleX402Payment(req, res, next)
+  }
+
+  // No credential — advertise both protocols
+  res.setHeader('X-PAYMENT-REQUIRED', JSON.stringify(x402Challenge))
+  mppx.charge({ amount: '0.01' })(req, res, () => {})
+}, (req, res) => {
+  res.json({ data: 'premium content' })
+})
+```
+
+:::tip
+Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP intermediaries (proxies, CDNs, API gateways) that understand [RFC 7235](https://www.rfc-editor.org/rfc/rfc7235) authentication. x402's custom `X-` headers are opaque to these intermediaries.
+:::
 
 ## Prompt mode
 
@@ -187,14 +235,6 @@ $ npx mppx http://localhost:3000/api/data
 ```
 
 ::::
-
-## Key concepts
-
-MPP uses three protocol objects in every payment flow—the same lifecycle x402 uses, with standardized names:
-
-- **Challenge** — The server's `402` response advertising what payment is required. Sent in the `WWW-Authenticate: Payment` header. Equivalent to x402's `X-PAYMENT-REQUIRED`.
-- **Credential** — The client's signed payment authorization. Sent in the `Authorization: Payment` header. Equivalent to x402's `X-PAYMENT`.
-- **Receipt** — The server's confirmation that payment settled. Sent in the `Payment-Receipt` header. Equivalent to x402's `X-PAYMENT-RESPONSE`.
 
 ## What you gain
 
