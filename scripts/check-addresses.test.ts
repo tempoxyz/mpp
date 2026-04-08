@@ -31,6 +31,9 @@ const ALLOWED_ADDRESSES: ReadonlySet<string> = new Set(
     "0x9d136eEa063eDE5418A6BC7bEafF009bBb6CFa70", // Testnet payment channel (deprecated)
     "0xe1c4d3dce17bc111181ddf716f75bae49e61a336", // Testnet payment channel
 
+    // Known Monad contract addresses
+    "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", // USDC on Monad
+
     // Placeholder/example addresses
     "0x1234567890abcdef1234567890abcdef12345678", // generic placeholder
     "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00", // Challenge.fromMethod example

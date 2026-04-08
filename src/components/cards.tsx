@@ -319,6 +319,28 @@ export function SolanaSessionCard() {
   );
 }
 
+export function MonadMethodCard() {
+  return (
+    <Card
+      description="ERC-20 token payments on Monad"
+      icon='<svg viewBox="0 0 105 105"><path fill="currentColor" d="M52.02 0C37 0 0 37.34 0 52.5S37 105 52.02 105c15.02 0 52.02-37.34 52.02-52.5S67.04 0 52.02 0Zm-8.1 82.52c-6.34-1.74-23.37-31.81-21.64-38.2 1.73-6.39 31.52-23.58 37.85-21.84 6.34 1.74 23.37 31.81 21.64 38.2-1.73 6.39-31.52 23.58-37.85 21.84Z"/></svg>'
+      title="Monad"
+      to="/payment-methods/monad"
+    />
+  );
+}
+
+export function MonadChargeCard() {
+  return (
+    <Card
+      description="Immediate one-time payments settled on Monad"
+      icon='<svg viewBox="0 0 105 105"><path fill="currentColor" d="M52.02 0C37 0 0 37.34 0 52.5S37 105 52.02 105c15.02 0 52.02-37.34 52.02-52.5S67.04 0 52.02 0Zm-8.1 82.52c-6.34-1.74-23.37-31.81-21.64-38.2 1.73-6.39 31.52-23.58 37.85-21.84 6.34 1.74 23.37 31.81 21.64 38.2-1.73 6.39-31.52 23.58-37.85 21.84Z"/></svg>'
+      title="Monad charge"
+      to="/payment-methods/monad/charge"
+    />
+  );
+}
+
 export function StripeMethodCard() {
   return (
     <Card

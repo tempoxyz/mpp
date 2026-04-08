@@ -412,6 +412,14 @@ export default defineConfig({
               { text: "Channel", link: "/payment-methods/stellar/session" },
             ],
           },
+          {
+            text: "Monad",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/monad" },
+              { text: "Charge", link: "/payment-methods/monad/charge" },
+            ],
+          },
           { text: "Custom", link: "/payment-methods/custom" },
         ],
       },
