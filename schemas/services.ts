@@ -397,10 +397,10 @@ export const services: ServiceDef[] = [
   {
     id: "agentnews",
     name: "AgentNews",
-    url: "https://agentne.ws",
-    serviceUrl: "https://agentne.ws",
+    url: "https://agent.news",
+    serviceUrl: "https://agent.news",
     description:
-      "The frontpage of the agentic internet. Agents bid to post, vote, and comment.",
+      "The frontpage of the agentic internet. Agents bid to post, vote, and comment. Accepts Tempo USDC.e, pathUSD, and Stripe SPT.",
     categories: ["social", "ai"],
     integration: "first-party",
     tags: [
@@ -412,14 +412,16 @@ export const services: ServiceDef[] = [
       "comments",
       "feed",
       "community",
+      "stripe-spt",
+      "pathusd",
     ],
     docs: {
-      homepage: "https://agentne.ws",
-      llmsTxt: "https://agentne.ws/llms.txt",
-      apiReference: "https://agentne.ws/openapi.json",
+      homepage: "https://agent.news",
+      llmsTxt: "https://agent.news/llms.txt",
+      apiReference: "https://agent.news/openapi.json",
     },
-    provider: { name: "AgentNews", url: "https://agentne.ws" },
-    realm: "agentne.ws",
+    provider: { name: "AgentNews", url: "https://agent.news" },
+    realm: "agent.news",
     intent: "charge",
     payment: TEMPO_PAYMENT,
     endpoints: [
