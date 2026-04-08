@@ -7,13 +7,13 @@ import { Card, Cards } from 'vocs'
 
 # API monetization [Per-request payments at the protocol level]
 
-MPP replaces API keys, subscription tiers, and billing dashboards with a single protocol-level primitive: HTTP `402`. You set a price on your endpoint, and any client—human, app, or coding agent—pays per request. No signup, no plan selection, no payment form.
+MPP replaces API keys, subscription tiers, and billing dashboards with a single protocol-level primitive: [HTTP `402`](/protocol/http-402). You set a price on your endpoint, and any client—human, app, or coding agent—pays per request. No signup, no plan selection, no payment form.
 
 ## The problem with API keys and subscriptions
 
 Traditional API monetization requires developers to create an account, generate API keys, pick a pricing tier, and enter payment details before making a single request. Each step adds friction and increases drop-off.
 
-For coding agents, this model breaks entirely. Agents can't fill out signup forms, navigate billing dashboards, or manage API key rotation. They need a payment interface that works at the HTTP level—not the browser level.
+For coding agents, this model breaks entirely. Agents can't fill out signup forms, navigate billing dashboards, or manage API key rotation. They need a payment interface that works at the HTTP level—not the browser level. See [agentic payments](/use-cases/agentic-payments) for more on how MPP solves this.
 
 ## Monetize your API with MPP
 
@@ -26,7 +26,7 @@ There's no billing dashboard to build, no user database to manage, no API key in
 MPP supports multiple pricing strategies out of the box:
 
 - **Per-request charges**—Set a fixed price per endpoint. Each request is a standalone payment.
-- **Pay-as-you-go sessions**—Open a session for streaming or high-frequency APIs. Clients pay incrementally via off-chain vouchers with on-chain settlement.
+- **Pay-as-you-go sessions**—Open a session for streaming or high-frequency APIs. Clients pay incrementally via off-chain vouchers with on-chain settlement. This is what makes [micropayments](/use-cases/micropayments) viable.
 - **Split payments**—Route portions of each payment to multiple recipients, enabling marketplace and referral models.
 
 ## Next steps

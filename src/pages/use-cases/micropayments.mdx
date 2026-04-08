@@ -7,7 +7,7 @@ import { Card, Cards } from 'vocs'
 
 # Micropayments [Sub-cent payments without the fee problem]
 
-Micropayments have been impractical because traditional payment rails charge fixed fees that exceed the transaction value. MPP makes sub-cent payments viable through stablecoin settlement and off-chain payment sessions. Clients pay per request or per token—no subscriptions, no minimums.
+Micropayments have been impractical because traditional payment rails charge fixed fees that exceed the transaction value. MPP makes sub-cent payments viable through stablecoin settlement and off-chain payment sessions. Clients—including autonomous [agents](/use-cases/agentic-payments)—pay per request or per token without subscriptions or minimums.
 
 ## Why micropayments failed before
 
@@ -19,9 +19,9 @@ Subscription bundling became the workaround. Instead of charging $0.001 per arti
 
 MPP provides two mechanisms depending on the transaction size:
 
-- **One-time charges**—For per-request payments above a few cents, MPP uses on-chain stablecoin transfers on Tempo. Transaction fees on Tempo are sub-cent, so a $0.05 charge remains economical. The client pays and receives the resource in the same HTTP request.
+- **One-time charges**—For per-request payments above a few cents, MPP uses on-chain stablecoin transfers on [Tempo](/payment-methods/tempo). Transaction fees on Tempo are sub-cent, so a $0.05 charge remains economical. The client pays and receives the resource in the same HTTP request.
 
-- **Sessions**—For sub-cent payments (per-token LLM billing, per-query search), MPP uses off-chain payment channels. The client deposits funds into a session once, and subsequent requests use signed vouchers—no on-chain transaction per request. Settlement happens periodically, so thousands of $0.0001 interactions cost a single transaction fee.
+- **[Sessions](/payment-methods/tempo/session)**—For sub-cent payments (per-token LLM billing, per-query search), MPP uses off-chain payment channels. The client deposits funds into a session once, and subsequent requests use signed vouchers—no on-chain transaction per request. Settlement happens periodically, so thousands of $0.0001 interactions cost a single transaction fee.
 
 ## Use cases
 
