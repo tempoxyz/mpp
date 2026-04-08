@@ -789,6 +789,23 @@ export default defineConfig({
         ],
       },
       {
+        text: "Use Cases",
+        items: [
+          {
+            text: "Agentic payments",
+            link: "/use-cases/agentic-payments",
+          },
+          {
+            text: "API monetization",
+            link: "/use-cases/api-monetization",
+          },
+          {
+            text: "Micropayments",
+            link: "/use-cases/micropayments",
+          },
+        ],
+      },
+      {
         text: "Resources",
         items: [
           { text: "Extensions", link: "/extensions" },
