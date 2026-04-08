@@ -424,7 +424,11 @@ function useLogoFullReload() {
   }, []);
 }
 
-export default function Layout(props: React.PropsWithChildren) {
+export default function Layout(
+  props: React.PropsWithChildren<{
+    path: string;
+  }>,
+) {
   usePostHog();
   useGoogleAnalytics();
   useLogoFullReload();
@@ -477,7 +481,7 @@ export default function Layout(props: React.PropsWithChildren) {
       <MobileNavPortal />
       <LogoContextMenu />
       {props.children}
-      <SpeedInsights />
+      <SpeedInsights route={props.path} />
     </>
   );
 }
