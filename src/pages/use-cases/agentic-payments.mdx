@@ -1,0 +1,42 @@
+---
+description: "Learn how coding agents pay for APIs autonomously with MPP. No API keys, no signup forms—agents handle payments inline via HTTP 402."
+imageDescription: "How agents pay for APIs with MPP"
+---
+
+import { Cards } from 'vocs'
+
+# Agentic payments [Let agents pay for services autonomously]
+
+Agentic payments are transactions initiated and completed by software agents without human intervention. As coding agents take on more complex tasks—calling LLM APIs, running web searches, generating images—they need a way to pay for these services on the fly. MPP gives them that capability.
+
+## Why agents need a payment protocol
+
+Traditional payment flows are designed for humans. They involve checkout forms, CAPTCHAs, browser redirects, and manual API key provisioning. None of these work for an autonomous agent.
+
+When an agent encounters a paid service today, it has two options: fail, or wait for a human to set up credentials. Both break the autonomous workflow. Agents need a payment interface that's native to HTTP—one they can negotiate and complete programmatically in a single request cycle.
+
+## How MPP enables agentic payments
+
+MPP uses HTTP 402 to create a three-step payment flow built for machines:
+
+1. **Challenge**—The agent requests a resource. The server responds with `402 Payment Required` and a Challenge describing the price and accepted payment methods.
+2. **Credential**—The agent selects a payment method—stablecoins, card, or Lightning—and constructs a Credential proving payment.
+3. **Receipt**—The server verifies the Credential, fulfills the request, and returns a Receipt confirming the transaction.
+
+This all happens in a single HTTP round-trip. The agent doesn't need pre-provisioned API keys, an account, or a human in the loop.
+
+## Use cases
+
+- **LLM inference**—Pay per token for access to language models from any provider.
+- **Web search**—Pay per query for real-time search results without rate-limited free tiers.
+- **Image generation**—Pay per image across multiple providers without separate accounts.
+- **Data APIs**—Access market data, geospatial data, or analytics on a per-request basis.
+- **Compute**—Rent GPU time or serverless execution and pay only for what you use.
+
+## Next steps
+
+<Cards>
+  <Cards.Card title="Add payments to your API" description="Charge for API access" href="/quickstart/server" />
+  <Cards.Card title="Use with agents" description="Connect your agent to paid APIs" href="/quickstart/agent" />
+  <Cards.Card title="Protocol overview" description="Learn how MPP works" href="/overview" />
+</Cards>

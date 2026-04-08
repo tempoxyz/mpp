@@ -1,0 +1,40 @@
+---
+description: "MPP makes micropayments viable with stablecoin settlement and off-chain payment sessions—no minimum transaction size, no fixed per-transaction fees."
+imageDescription: "Sub-cent payments that work at scale"
+---
+
+import { Cards } from 'vocs'
+
+# Micropayments [Sub-cent payments without the fee problem]
+
+Micropayments have been impractical because traditional payment rails charge fixed fees that exceed the transaction value. MPP makes sub-cent payments viable through stablecoin settlement and off-chain payment sessions. Clients pay per request or per token—no subscriptions, no minimums.
+
+## Why micropayments failed before
+
+Credit card processing charges a fixed fee per transaction—typically $0.30 plus 2.9%. That fee structure makes anything under ~$1 uneconomical for the merchant, and anything under ~$0.50 a net loss.
+
+Subscription bundling became the workaround. Instead of charging $0.001 per article or $0.0001 per query, services charge $10–20/month for unlimited access. Users overpay for access they don't fully use, and services lose potential customers who'd pay for occasional use but won't commit to a subscription.
+
+## How MPP enables micropayments
+
+MPP provides two mechanisms depending on the transaction size:
+
+- **One-time charges**—For per-request payments above a few cents, MPP uses on-chain stablecoin transfers on Tempo. Transaction fees on Tempo are sub-cent, so a $0.05 charge remains economical. The client pays and receives the resource in the same HTTP request.
+
+- **Sessions**—For sub-cent payments (per-token LLM billing, per-query search), MPP uses off-chain payment channels. The client deposits funds into a session once, and subsequent requests use signed vouchers—no on-chain transaction per request. Settlement happens periodically, so thousands of $0.0001 interactions cost a single transaction fee.
+
+## Use cases
+
+- **Per-token LLM inference**—Pay for the tokens you generate, not a monthly seat
+- **Per-query web search**—Charge fractions of a cent per search result
+- **Per-pixel image generation**—Bill based on resolution and compute used
+- **Metered data access**—Price API calls by the row, record, or byte returned
+- **Pay-per-article content**—Readers pay cents per article instead of subscribing
+
+## Next steps
+
+<Cards>
+  <Cards.Card title="Accept one-time payments" description="Charge per request with on-chain settlement" href="/guides/one-time-payments" />
+  <Cards.Card title="Accept pay-as-you-go payments" description="Sub-cent billing with payment sessions" href="/guides/pay-as-you-go" />
+  <Cards.Card title="Accept streamed payments" description="Bill per token in real time" href="/guides/streamed-payments" />
+</Cards>

@@ -1,0 +1,38 @@
+---
+description: "Monetize your API with per-request payments using HTTP 402. No API keys, subscriptions, or billing dashboards required."
+imageDescription: "Monetize any API with per-request payments via MPP"
+---
+
+import { Cards } from 'vocs'
+
+# API monetization [Per-request payments at the protocol level]
+
+MPP replaces API keys, subscription tiers, and billing dashboards with a single protocol-level primitive: HTTP `402`. You set a price on your endpoint, and any client—human, app, or coding agent—pays per request. No signup, no plan selection, no payment form.
+
+## The problem with API keys and subscriptions
+
+Traditional API monetization requires developers to create an account, generate API keys, pick a pricing tier, and enter payment details before making a single request. Each step adds friction and increases drop-off.
+
+For coding agents, this model breaks entirely. Agents can't fill out signup forms, navigate billing dashboards, or manage API key rotation. They need a payment interface that works at the HTTP level—not the browser level.
+
+## Monetize your API with MPP
+
+Add a few lines of middleware to your API, set a price per endpoint, and start accepting payments. When a client hits a paid endpoint, your server returns a `402` Challenge with the price and accepted payment methods. The client pays and retries—your server verifies the Credential and returns the response with a Receipt.
+
+There's no billing dashboard to build, no user database to manage, no API key infrastructure to maintain. MPP supports stablecoins, cards, and Lightning—clients pay with whatever rail they have.
+
+## Pricing models
+
+MPP supports multiple pricing strategies out of the box:
+
+- **Per-request charges**—Set a fixed price per endpoint. Each request is a standalone payment.
+- **Pay-as-you-go sessions**—Open a session for streaming or high-frequency APIs. Clients pay incrementally via off-chain vouchers with on-chain settlement.
+- **Split payments**—Route portions of each payment to multiple recipients, enabling marketplace and referral models.
+
+## Next steps
+
+<Cards>
+  <Cards.Card title="Add payments to your API" description="Start charging in minutes" href="/quickstart/server" />
+  <Cards.Card title="Accept pay-as-you-go payments" description="Session-based billing for high-frequency APIs" href="/guides/pay-as-you-go" />
+  <Cards.Card title="Proxy an existing service" description="Add payments without changing your API code" href="/guides/proxy-existing-service" />
+</Cards>
