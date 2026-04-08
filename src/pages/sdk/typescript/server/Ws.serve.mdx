@@ -1,0 +1,167 @@
+# `Ws.serve` [WebSocket session transport]
+
+Bridges a WebSocket connection to a Tempo session payment flow. Handles in-band authorization, voucher top-ups, per-unit charging, and cooperative close over a single socket.
+
+The initial `402` challenge is still served over HTTP — the client probes the endpoint, receives the challenge, then upgrades to WebSocket for the rest of the session.
+
+:::info
+
+`Ws.serve` does not perform the HTTP upgrade itself. Use your framework's WebSocket upgrade mechanism (e.g. `ws`, Bun, Deno, Cloudflare) and pass the accepted socket.
+
+:::
+
+## Usage
+
+```ts
+import { Mppx, Store, tempo } from 'mppx/server'
+import { WebSocketServer } from 'ws'
+
+const store = Store.memory()
+
+const mppx = Mppx.create({
+  methods: [tempo.session({ account: '0x...', store })],
+  secretKey: 'my-secret',
+})
+
+const route = mppx.session({
+  amount: '0.000075',
+  unitType: 'token',
+})
+
+const wss = new WebSocketServer({ noServer: true })
+
+wss.on('connection', (socket, req) => {
+  const url = new URL(req.url ?? '/', `ws://${req.headers.host}`)
+
+  tempo.Ws.serve({
+    socket,
+    store,
+    url,
+    route,
+    generate: async function* (stream) {
+      for await (const token of getTokens()) {
+        await stream.charge()
+        yield token
+      }
+    },
+  })
+})
+```
+
+### With HTTP 402 probe
+
+The same `route` handler serves both the initial HTTP `402` challenge and the WebSocket credential verification:
+
+```ts
+import { Mppx, Store, tempo } from 'mppx/server'
+
+const store = Store.memory()
+
+const mppx = Mppx.create({
+  methods: [tempo.session({ account: '0x...', store })],
+  secretKey: 'my-secret',
+})
+
+const route = mppx.session({ amount: '0.001', unitType: 'request' })
+
+export async function handler(request: Request): Promise<Response> {
+  const result = await route(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(new Response('Use the WebSocket endpoint for streaming.'))
+}
+```
+
+### With amount validation
+
+Pin the per-tick price when the route is backed by `Mppx.compose()` with multiple offers. Without this, a client could select the cheapest composed offer for the same stream.
+
+```ts
+import { Store, tempo } from 'mppx/server'
+
+const store = Store.memory()
+
+tempo.Ws.serve({
+  amount: '0.000075',
+  socket,
+  store,
+  url: 'ws://localhost/ws/chat',
+  route,
+  generate: async function* (stream) {
+    yield 'hello'
+  },
+})
+```
+
+## How it works
+
+1. **Client probes** the HTTP endpoint and receives a `402` challenge
+2. **Client opens** a WebSocket and sends the signed credential as the first frame
+3. **Server verifies** the credential by routing it through the same `route` handler as a synthetic `POST` with only the `Authorization` header
+4. **Server streams** application data, calling `stream.charge()` before each unit
+5. When the voucher is exhausted, the server sends a **`payment-need-voucher`** control frame and pauses until the client sends a higher cumulative voucher
+6. When the stream ends or the client sends a **`payment-close-request`**, the server sends a `payment-close-ready` frame with the final receipt
+7. The client signs a **close credential** and the server settles the channel
+
+## Parameters
+
+### socket
+
+- **Type:** `Socket`
+
+The WebSocket connection. Accepts any implementation with `send`, `close`, and either `addEventListener`/`removeEventListener` (browser-style) or `on`/`off` (Node-style) methods.
+
+### store
+
+- **Type:** `Store.Store | ChannelStore`
+
+Channel store for persisting session state. Must be the same store instance used by `tempo.session()`.
+
+### url
+
+- **Type:** `string | URL`
+
+The WebSocket URL. Used to construct synthetic requests for credential verification. `ws:` and `wss:` protocols are normalized to `http:` and `https:`.
+
+### route
+
+- **Type:** `(request: Request) => Promise<SessionRouteResult>`
+
+The session route handler from `mppx.session()`. Receives synthetic `POST` requests carrying only the `Authorization` header — no cookies, bodies, or upgrade headers.
+
+### generate
+
+- **Type:** `AsyncIterable<string> | ((stream: SessionController) => AsyncIterable<string>)`
+
+The content generator. When passed a function, it receives a `SessionController` with a `charge()` method that must be called before yielding each billable unit. When passed a bare `AsyncIterable`, charging happens automatically before each yielded value.
+
+### amount (optional)
+
+- **Type:** `string`
+
+Expected per-tick amount in raw units. When set, credentials whose challenge amount does not match are rejected with a `402` error.
+
+### pollIntervalMs (optional)
+
+- **Type:** `number`
+- **Default:** `100`
+
+Interval in milliseconds for polling the channel store when waiting for a voucher top-up. Only used when the store does not support `waitForUpdate`.
+
+## Control frame protocol
+
+All WebSocket frames are JSON objects with an `mpp` discriminator field. Application data and payment control frames share the same socket but are fully isolated — the managed socket returned by `session.ws()` on the client only surfaces application messages.
+
+| Frame | Direction | Purpose |
+|---|---|---|
+| `authorization` | Client → Server | Signed credential (open, top-up, or close) |
+| `payment-receipt` | Server → Client | Voucher receipt after successful verification |
+| `payment-need-voucher` | Server → Client | Request a higher cumulative voucher |
+| `payment-close-request` | Client → Server | Request graceful close |
+| `payment-close-ready` | Server → Client | Final receipt before close credential |
+| `payment-error` | Server → Client | Error with status code and message |
+| `message` | Server → Client | Application data (content) |
+
+## Related
+
+- [tempo.session (client manager)](/sdk/typescript/client/Method.tempo.session-manager) — client-side `session.ws()` method
+- [tempo.session (server)](/sdk/typescript/server/Method.tempo.session) — server-side session method configuration

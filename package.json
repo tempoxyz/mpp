@@ -54,7 +54,7 @@
     "tiktoken": "^1.0.22",
     "typescript": "^5",
     "unplugin-icons": "^23.0.1",
-    "vite": "^7",
+    "vite": "^8.0.5",
     "vite-plugin-mkcert": "^1.17.10",
     "vitest": "^4.0.18"
   },

@@ -67,6 +67,56 @@ for await (const message of stream) {
 await session.close()
 ```
 
+### With WebSocket streaming
+
+Open a paid WebSocket session. The session manager handles the HTTP `402` probe, channel open, and in-band voucher signing. Payment control frames are intercepted internally — your socket listeners only see application messages.
+
+```ts
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const session = tempo.session({
+  account: privateKeyToAccount('0x...'),
+  maxDeposit: '1',
+})
+
+const url = new URL('wss://api.example.com/ws/chat')
+url.searchParams.set('prompt', 'Tell me something interesting')
+
+const socket = await session.ws(url, {
+  onReceipt(receipt) {
+    console.log('Receipt:', receipt)
+  },
+})
+
+socket.addEventListener('message', (event) => {
+  process.stdout.write(event.data)
+})
+
+await new Promise<void>((resolve) => {
+  socket.addEventListener('close', () => resolve(), { once: true })
+})
+
+const receipt = await session.close()
+```
+
+:::tip
+In Node.js or other server-side runtimes without a global `WebSocket`, pass the constructor to `tempo.session()`:
+
+```ts
+import { WebSocket } from 'isows'
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const session = tempo.session({
+  account: privateKeyToAccount('0x...'),
+  maxDeposit: '1',
+  webSocket: WebSocket,
+})
+```
+
+:::
+
 ### With explicit open
 
 Open the channel before the first request. This separates the on-chain deposit transaction from the first API call.
@@ -110,6 +160,14 @@ type SessionManager = {
       signal?: AbortSignal
     },
   ): Promise<AsyncIterable<string>>
+  ws(
+    input: string | URL,
+    init?: {
+      onReceipt?: (receipt: SessionReceipt) => void
+      protocols?: string | string[]
+      signal?: AbortSignal
+    },
+  ): Promise<WebSocket>
   close(): Promise<SessionReceipt | undefined>
 }
 ```
@@ -208,6 +266,21 @@ Function that returns a viem client for the given chain ID.
 
 Maximum deposit in human-readable units (for example `"10"` for 10 tokens). Caps the server's suggested deposit and enables automatic channel management.
 
+### webSocket (optional)
+
+- **Type:** `WebSocketConstructor`
+
+WebSocket constructor for runtimes without a global `WebSocket` (e.g. Node.js). Required for `session.ws()` in non-browser environments. Use [`isows`](https://github.com/nickmccurdy/isows) for isomorphic support.
+
+```ts
+import { WebSocket } from 'isows'
+
+const session = tempo.session({
+  account,
+  webSocket: WebSocket,
+})
+```
+
 ## Methods
 
 ### `session.close()`
@@ -232,7 +305,7 @@ console.log(response.cumulative)
 
 ### `session.open(options?)`
 
-Opens the payment channel explicitly. You must make at least one `fetch()` or `sse()` call first to receive a 402 Challenge from the server.
+Opens the payment channel explicitly. You must make at least one `fetch()`, `sse()`, or `ws()` call first to receive a 402 Challenge from the server.
 
 - **options.deposit** (`bigint`, optional) — Raw deposit amount in token units.
 
@@ -260,6 +333,31 @@ for await (const message of stream) {
   console.log(message)
 }
 ```
+
+### `session.ws(input, init?)`
+
+Opens a paid WebSocket connection. Performs the HTTP `402` probe, creates the first credential, opens the socket, and sends the auth frame. Returns a `WebSocket` that only surfaces application messages — payment control frames are handled internally.
+
+- **input** (`string | URL`) — The WebSocket URL (`ws:` or `wss:`).
+- **init.onReceipt** (`(receipt: SessionReceipt) => void`, optional) — Called when the server sends a payment Receipt.
+- **init.protocols** (`string | string[]`, optional) — WebSocket sub-protocols.
+- **init.signal** (`AbortSignal`, optional) — Aborts the payment flow and closes the socket.
+
+```ts
+const socket = await session.ws('wss://api.example.com/ws/chat', {
+  onReceipt: (receipt) => console.log('paid:', receipt),
+})
+
+socket.addEventListener('message', (event) => {
+  console.log(event.data)
+})
+```
+
+:::info
+
+The returned `WebSocket` is a managed wrapper. Messages are buffered until the first listener is installed, so you won't miss frames between `await session.ws()` and adding your `message` listener.
+
+:::
 
 ## Properties
 

@@ -572,6 +572,16 @@ export default defineConfig({
                     ],
                   },
                   {
+                    text: "WebSocket",
+                    collapsed: true,
+                    items: [
+                      {
+                        text: "Ws.serve",
+                        link: "/sdk/typescript/server/Ws.serve",
+                      },
+                    ],
+                  },
+                  {
                     text: "Utilities",
                     collapsed: true,
                     items: [
