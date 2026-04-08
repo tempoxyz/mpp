@@ -71,7 +71,7 @@ await session.close()
 
 Open a paid WebSocket session. The session manager handles the HTTP `402` probe, channel open, and in-band voucher signing. Payment control frames are intercepted internally — your socket listeners only see application messages.
 
-```ts twoslash
+```ts
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -341,7 +341,7 @@ Opens a paid WebSocket connection. Performs the HTTP `402` probe, creates the fi
 - **init.protocols** (`string | string[]`, optional) — WebSocket sub-protocols.
 - **init.signal** (`AbortSignal`, optional) — Aborts the payment flow and closes the socket.
 
-```ts twoslash
+```ts
 const socket = await session.ws('wss://api.example.com/ws/chat', {
   onReceipt: (receipt) => console.log('paid:', receipt),
 })

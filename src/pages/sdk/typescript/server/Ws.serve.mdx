@@ -12,7 +12,7 @@ The initial `402` challenge is still served over HTTP — the client probes the 
 
 ## Usage
 
-```ts twoslash
+```ts
 import { Mppx, Store, tempo } from 'mppx/server'
 import { WebSocketServer } from 'ws'
 
@@ -52,7 +52,7 @@ wss.on('connection', (socket, req) => {
 
 The same `route` handler serves both the initial HTTP `402` challenge and the WebSocket credential verification:
 
-```ts twoslash
+```ts
 import { Mppx, Store, tempo } from 'mppx/server'
 
 const store = Store.memory()
@@ -75,17 +75,17 @@ export async function handler(request: Request): Promise<Response> {
 
 Pin the per-tick price when the route is backed by `Mppx.compose()` with multiple offers. Without this, a client could select the cheapest composed offer for the same stream.
 
-```ts twoslash
+```ts
 import { Store, tempo } from 'mppx/server'
 
 const store = Store.memory()
 
 tempo.Ws.serve({
-  amount: '0.000075', // reject credentials that don't match
-  socket: {} as any,
+  amount: '0.000075',
+  socket,
   store,
   url: 'ws://localhost/ws/chat',
-  route: async () => ({} as any),
+  route,
   generate: async function* (stream) {
     yield 'hello'
   },
