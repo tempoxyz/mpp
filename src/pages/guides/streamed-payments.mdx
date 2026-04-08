@@ -644,6 +644,12 @@ for await (const word of stream) {
 const receipt = await session.close()
 ```
 
+## WebSocket alternative
+
+The examples above use Server-Sent Events (SSE) for streaming. If your use case benefits from a persistent bidirectional connection — for example, interactive chat or real-time sessions — you can stream over WebSocket instead. The session payment flow is the same (channel open, voucher signing, close), but vouchers and content travel over a single socket rather than separate HTTP requests.
+
+On the server, use [`tempo.Ws.serve()`](/sdk/typescript/server/Ws.serve) to bridge a WebSocket to the session payment flow. On the client, use [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#sessionwsinput-init) instead of `session.sse()`.
+
 ## Next steps
 
 <Cards>

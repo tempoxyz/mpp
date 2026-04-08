@@ -161,6 +161,10 @@ Whether to wait for open transactions to confirm on-chain before responding. Whe
 
 ## Related
 
+### `tempo.Ws.serve`
+
+WebSocket transport for session streams. Bridges a WebSocket connection to the same session payment flow, with in-band authorization, voucher top-ups, and cooperative close over a single socket. See [`Ws.serve`](/sdk/typescript/server/Ws.serve) for full documentation.
+
 ### `tempo.settle`
 
 One-shot settlement: reads the highest voucher from the store and submits it on-chain. Use this for periodic batch settlement outside the request handler.
