@@ -3,7 +3,7 @@ description: "MPP makes micropayments viable with stablecoin settlement and off-
 imageDescription: "Sub-cent payments that work at scale"
 ---
 
-import { Cards } from 'vocs'
+import { Card, Cards } from 'vocs'
 
 # Micropayments [Sub-cent payments without the fee problem]
 
@@ -34,7 +34,7 @@ MPP provides two mechanisms depending on the transaction size:
 ## Next steps
 
 <Cards>
-  <Cards.Card title="Accept one-time payments" description="Charge per request with on-chain settlement" href="/guides/one-time-payments" />
-  <Cards.Card title="Accept pay-as-you-go payments" description="Sub-cent billing with payment sessions" href="/guides/pay-as-you-go" />
-  <Cards.Card title="Accept streamed payments" description="Bill per token in real time" href="/guides/streamed-payments" />
+  <Card title="Accept one-time payments" description="Charge per request with on-chain settlement" to="/guides/one-time-payments" />
+  <Card title="Accept pay-as-you-go payments" description="Sub-cent billing with payment sessions" to="/guides/pay-as-you-go" />
+  <Card title="Accept streamed payments" description="Bill per token in real time" to="/guides/streamed-payments" />
 </Cards>
