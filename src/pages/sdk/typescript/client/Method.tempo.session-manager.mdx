@@ -105,9 +105,11 @@ In Node.js or other server-side runtimes without a global `WebSocket`, pass the 
 
 ```ts
 import { WebSocket } from 'isows'
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const session = tempo.session({
-  account,
+  account: privateKeyToAccount('0x...'),
   maxDeposit: '1',
   webSocket: WebSocket,
 })
