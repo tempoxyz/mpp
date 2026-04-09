@@ -1,4 +1,5 @@
-import { Mppx, tempo } from "mppx/server";
+import { Redis } from "@upstash/redis";
+import { Mppx, Store, tempo } from "mppx/server";
 import { createClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { tempoModerato } from "viem/chains";
@@ -8,6 +9,13 @@ const account = privateKeyToAccount(
   (process.env.FEE_PAYER_PRIVATE_KEY ??
     "0x0000000000000000000000000000000000000000000000000000000000000001") as `0x${string}`,
 );
+
+const kvUrl = process.env.KV_REST_API_URL;
+const kvToken = process.env.KV_REST_API_TOKEN;
+const distributed = !!(kvUrl && kvToken);
+const store = distributed
+  ? Store.upstash(new Redis({ url: kvUrl, token: kvToken }))
+  : Store.memory();
 
 export const mppx = Mppx.create({
   methods: [
@@ -23,7 +31,8 @@ export const mppx = Mppx.create({
           ),
         });
       },
-      sse: true,
+      sse: distributed ? { poll: true } : true,
+      store,
       testnet: true,
     }),
   ],
