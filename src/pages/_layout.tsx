@@ -256,7 +256,7 @@ function LogoMenu({
 
   const isDark =
     typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
+    getComputedStyle(document.documentElement).colorScheme.includes("dark");
 
   const maxX = typeof window !== "undefined" ? window.innerWidth - 240 : pos.x;
   const left = Math.min(pos.x, maxX);
