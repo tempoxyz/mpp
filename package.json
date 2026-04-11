@@ -7,7 +7,7 @@
     "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && node scripts/generate-og-descriptions.ts && vite build",
     "check": "biome check --write",
     "check:ci": "biome check",
-    "check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
+    "check:sdk-drift": "corepack pnpm dlx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
     "check:types": "tsc --noEmit",
     "dev": "node scripts/generate-discovery.ts && vite dev",
     "generate:discovery": "node scripts/generate-discovery.ts",

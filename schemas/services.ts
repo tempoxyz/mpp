@@ -6322,7 +6322,8 @@ export const services: ServiceDef[] = [
     name: "Agoragentic",
     url: "https://agoragentic.com",
     serviceUrl: "https://agoragentic.com",
-    description: "Capability router, payment stack, and trust layer for AI agents.",
+    description:
+      "Capability router, payment stack, and trust layer for AI agents.",
     categories: ["ai"],
     integration: "third-party",
     tags: ["router", "marketplace", "capability-discovery", "agent-to-agent"],
@@ -6334,7 +6335,6 @@ export const services: ServiceDef[] = [
     realm: "agoragentic.com",
     intent: "charge",
     payment: TEMPO_PAYMENT,
-    pricing: { model: "per_request", currency: "USDC" },
     endpoints: [
       {
         route: "POST /api/invoke/:id",

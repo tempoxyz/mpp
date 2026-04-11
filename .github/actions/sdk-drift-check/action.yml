@@ -13,7 +13,7 @@ inputs:
   vocs-config:
     description: "Path to vocs config file"
     required: false
-    default: "./vocs.config.tsx"
+    default: "./vocs.config.ts"
   sdk-path-prefix:
     description: "Sidebar path prefix for SDK references"
     required: false
@@ -60,11 +60,13 @@ runs:
         mkdir -p ${{ inputs.output-dir }}
         
         # Run the check script bundled with this action
+        set +e
         pnpm dlx tsx ${{ github.action_path }}/check-sdk-drift.ts \
           --output ${{ inputs.output-dir }}/drift-report.json \
           2>&1 | tee ${{ inputs.output-dir }}/drift-report.txt
         
         EXIT_CODE=${PIPESTATUS[0]}
+        set -e
         
         # Parse results for outputs
         if [ -f "${{ inputs.output-dir }}/drift-report.json" ]; then

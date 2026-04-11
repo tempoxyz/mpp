@@ -2,7 +2,7 @@
 /**
  * SDK Manifest Drift Check
  *
- * Validates that sidebar SDK references in vocs.config.tsx match actual exports
+ * Validates that sidebar SDK references in the Vocs config match actual exports
  * from the TypeScript SDK package. Runs daily to detect drift between docs and SDK.
  *
  * Usage:
@@ -11,18 +11,18 @@
  *
  * Configuration (via environment or defaults):
  *   SDK_PACKAGE: npm package name to check (default: "mpay")
- *   VOCS_CONFIG: path to vocs config (default: "./vocs.config.tsx")
+ *   VOCS_CONFIG: path to vocs config (default: repo vocs.config.ts or vocs.config.tsx)
  *   SDK_PATH_PREFIX: sidebar path prefix for SDK refs (default: "/sdk/typescript")
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
- * Find the workspace root by looking for vocs.config.tsx or package.json
+ * Find the workspace root by looking for a Vocs config or package.json
  * Starts from cwd and walks up
  */
 export function findWorkspaceRoot(): string {
@@ -40,6 +40,31 @@ export function findWorkspaceRoot(): string {
 }
 
 const rootDir = findWorkspaceRoot();
+
+function resolveVocsConfigPath(configPath?: string): string {
+  if (configPath) {
+    const resolvedPath = isAbsolute(configPath)
+      ? configPath
+      : join(rootDir, configPath);
+    if (existsSync(resolvedPath)) {
+      return resolvedPath;
+    }
+  }
+
+  const defaultCandidates = ["vocs.config.ts", "vocs.config.tsx"];
+  for (const candidate of defaultCandidates) {
+    const resolvedPath = join(rootDir, candidate);
+    if (existsSync(resolvedPath)) {
+      return resolvedPath;
+    }
+  }
+
+  return configPath
+    ? isAbsolute(configPath)
+      ? configPath
+      : join(rootDir, configPath)
+    : join(rootDir, "vocs.config.ts");
+}
 
 export interface DriftCheckConfig {
   sdkPackage: string;
@@ -130,7 +155,7 @@ function getConfig(): DriftCheckConfig {
   const args = parseArgs();
   return {
     sdkPackage: process.env.SDK_PACKAGE || "mpay",
-    vocsConfigPath: process.env.VOCS_CONFIG || join(rootDir, "vocs.config.tsx"),
+    vocsConfigPath: resolveVocsConfigPath(process.env.VOCS_CONFIG),
     sdkPathPrefix: process.env.SDK_PATH_PREFIX || "/sdk/typescript",
     pagesDir: join(rootDir, "src", "pages"),
     outputPath: args.output,
@@ -159,7 +184,7 @@ export function extractSidebarLinksFromContent(
 }
 
 /**
- * Extract sidebar links from vocs.config.tsx using regex
+ * Extract sidebar links from the Vocs config using regex
  * (avoids needing to execute the config)
  */
 export function extractSidebarLinks(
