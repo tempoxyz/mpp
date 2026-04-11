@@ -150,13 +150,13 @@ On-chain memo for the transaction.
 
 ### store (optional)
 
-- **Type:** `Store.Store`
+- **Type:** `Store.AtomicStore`
 
-Pass a store when you want replay protection for charge Credentials.
+Pass a store when you want replay protection for charge Credentials. A `Store` provides async key-value operations (`get`, `put`, `delete`). An `AtomicStore` extends `Store` with an atomic `update(key, fn)` method for safe concurrent replay checks.
 
 For non-zero charges, `mppx` falls back to an in-memory store when you omit this parameter. For zero-dollar proof auth, replay prevention is disabled unless you pass a store.
 
-Use `Store.memory()` for local development, tests, or a single long-lived server process. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` so replay markers are shared across processes.
+Use `Store.memory()` for local development, tests, or a single long-lived server process. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()`. All built-in factories return `AtomicStore` — for custom backends, provide an `update` function alongside `get`, `put`, and `delete`.
 
 ### testnet (optional)
 

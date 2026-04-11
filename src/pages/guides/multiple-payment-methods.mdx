@@ -269,6 +269,41 @@ export const GET =
 
 Each payment method has its own parameters. Refer to the individual method docs for the full configuration reference:
 
+## Client preferences
+
+Clients can declare which payment methods they prefer by passing `paymentPreferences` to `Mppx.create`. This sends an `Accept-Payment` header on every request, and the server uses it to filter Challenges down to the methods the client supports.
+
+```ts twoslash
+import { Mppx, stripe, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+Mppx.create({
+  methods: [
+    tempo({ account }),
+    stripe.charge({
+      createToken: async (opts) => {
+        const res = await fetch('/api/create-spt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(opts),
+        })
+        const { spt } = await res.json() as { spt: string }
+        return spt
+      },
+    }),
+  ],
+  paymentPreferences: ({ tempo, stripe }) => ({ // [!code hl:start]
+    [tempo.charge]: 1,
+    [stripe.charge]: 0.5,
+    [tempo.session]: 0.2,
+  }), // [!code hl:end]
+})
+```
+
+See the [`paymentPreferences` parameter reference](/sdk/typescript/client/Mppx.create#paymentpreferences-optional) for the full configuration options.
+
 ## Next steps
 
 <Cards>

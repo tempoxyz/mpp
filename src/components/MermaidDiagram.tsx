@@ -400,7 +400,13 @@ export function wrapText(
 // SVG renderer
 // ---------------------------------------------------------------------------
 
-export function render(lo: Layout, th: ThemeColors): string {
+export type MessageColors = Record<string, { light: string; dark: string }>;
+
+export function render(
+  lo: Layout,
+  th: ThemeColors,
+  resolvedMessageColors?: Record<string, string>,
+): string {
   const L = LAYOUT;
   const o: string[] = [];
   const sz = L.arrowSize;
@@ -540,16 +546,35 @@ export function render(lo: Layout, th: ThemeColors): string {
     const da = m.dashed ? ' stroke-dasharray="6 4"' : "";
     const goingRight = m.x2 > m.x1;
     const lineEndX = goingRight ? m.x2 - sz : m.x2 + sz;
-    const lineStroke = m.isLast ? "url(#grad-success)" : th.line;
+
+    // Per-message color override: match label against resolvedMessageColors keys
+    const colorOverride = resolvedMessageColors
+      ? Object.keys(resolvedMessageColors).find((k) =>
+          m.label.toLowerCase().includes(k.toLowerCase()),
+        )
+        ? resolvedMessageColors[
+            Object.keys(resolvedMessageColors).find((k) =>
+              m.label.toLowerCase().includes(k.toLowerCase()),
+            )!
+          ]
+        : undefined
+      : undefined;
+
+    const lineStroke =
+      colorOverride ?? (m.isLast ? "url(#grad-success)" : th.line);
     // Solid arrows (->>): filled triangle; dashed arrows (-->>): outline triangle
-    const arrowFill = m.isLast
+    const arrowFill = colorOverride
       ? m.dashed
         ? th.actorFill
-        : th.successArrow
-      : m.dashed
-        ? th.actorFill
-        : th.line;
-    const arrowStroke = m.isLast ? th.successArrow : th.line;
+        : colorOverride
+      : m.isLast
+        ? m.dashed
+          ? th.actorFill
+          : th.successArrow
+        : m.dashed
+          ? th.actorFill
+          : th.line;
+    const arrowStroke = colorOverride ?? (m.isLast ? th.successArrow : th.line);
 
     // Line
     o.push(
@@ -929,7 +954,13 @@ export function lineLen(el: SVGElement): number {
 // React component
 // ---------------------------------------------------------------------------
 
-export function MermaidDiagram({ chart }: { chart: string }) {
+export function MermaidDiagram({
+  chart,
+  messageColors,
+}: {
+  chart: string;
+  messageColors?: MessageColors;
+}) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<AnimationHandle | null>(null);
@@ -959,7 +990,13 @@ export function MermaidDiagram({ chart }: { chart: string }) {
       const parsed = parse(chart);
       const lo = doLayout(parsed);
       const th = isDark ? THEMES.dark : THEMES.light;
-      el.innerHTML = render(lo, th);
+      const mode = isDark ? "dark" : "light";
+      const resolved = messageColors
+        ? Object.fromEntries(
+            Object.entries(messageColors).map(([k, v]) => [k, v[mode]]),
+          )
+        : undefined;
+      el.innerHTML = render(lo, th, resolved);
       const svg = el.querySelector("svg");
       if (!svg) return;
       svg.style.maxWidth = "100%";
@@ -974,7 +1011,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
     } catch (err) {
       console.error("MermaidDiagram:", err);
     }
-  }, [chart, isDark]);
+  }, [chart, isDark, messageColors]);
 
   useEffect(() => {
     const el = svgRef.current;

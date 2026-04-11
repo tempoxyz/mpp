@@ -339,6 +339,7 @@ export default defineConfig({
             items: [
               { text: "HTTP", link: "/protocol/transports/http" },
               { text: "MCP and JSON-RPC", link: "/protocol/transports/mcp" },
+              { text: "WebSocket", link: "/protocol/transports/websocket" },
             ],
           },
         ],

@@ -1,0 +1,92 @@
+---
+description: "The WebSocket transport streams paid data over a persistent connection, with in-band voucher top-ups and JSON message framing."
+imageDescription: "Stream paid data over WebSocket connections"
+---
+
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+
+# WebSocket transport [Bidirectional payment streams over WebSocket]
+
+The WebSocket transport binds MPP payment flows to a persistent WebSocket connection using JSON message framing. Unlike the HTTP transport, the client and server exchange payment messages in-band—no separate requests needed for voucher top-ups.
+
+## Message protocol
+
+All messages are JSON objects with an `mpp` field as a discriminator:
+
+| Direction | `mpp` value | Payload | Purpose |
+|-----------|-------------|---------|---------|
+| Client → Server | `authorization` | `authorization: string` | Send Credential or top-up voucher |
+| Server → Client | `message` | `data: string` | Application data |
+| Client → Server | `payment-close-request` | — | Request session close |
+| Server → Client | `payment-close-ready` | `data: SessionReceipt` | Acknowledge close with final Receipt |
+| Server → Client | `payment-error` | `status: number, message: string` | Report error |
+| Server → Client | `payment-need-voucher` | `data: NeedVoucherEvent` | Request more funds |
+| Server → Client | `payment-receipt` | `data: SessionReceipt` | Confirm Credential |
+
+### Example messages
+
+```json
+// Client sends Credential
+{ "mpp": "authorization", "authorization": "eyJjaGFsbGVuZ2UiOi..." }
+
+// Server confirms payment
+{ "mpp": "payment-receipt", "data": { "status": "success", ... } }
+
+// Server streams data
+{ "mpp": "message", "data": "chunk of application data" }
+
+// Server requests top-up
+{ "mpp": "payment-need-voucher", "data": { "remaining": "0", ... } }
+
+// Client requests close
+{ "mpp": "payment-close-request" }
+
+// Server acknowledges close
+{ "mpp": "payment-close-ready", "data": { "status": "success", ... } }
+```
+
+## Connection flow
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant C as Client
+    participant S as Server
+    C->>S: WebSocket connect
+    C->>S: authorization (Credential)
+    S->>C: payment-receipt
+    S-->>C: message (data)
+    S-->>C: message (data)
+    S->>C: payment-need-voucher
+    C->>S: authorization (top-up voucher)
+    S->>C: payment-receipt
+    S-->>C: message (data)
+    C->>S: payment-close-request
+    S->>C: payment-close-ready (final Receipt)
+`} messageColors={{
+  'authorization': { light: '#16a34a', dark: '#4ade80' },
+  'payment-receipt': { light: '#16a34a', dark: '#4ade80' },
+  'payment-close-ready': { light: '#16a34a', dark: '#4ade80' },
+  'payment-need-voucher': { light: '#dc2626', dark: '#f87171' },
+}} />
+
+> **Green** arrows represent payment flow (`authorization`, `payment-receipt`). **Red** arrows indicate a payment is required (`payment-need-voucher`). Black arrows are data messages.
+
+1. The client opens a WebSocket connection (`ws://` or `wss://`)
+2. The client sends an `authorization` message containing the session Credential
+3. The server verifies the Credential and responds with a `payment-receipt`
+4. The server streams `message` events with application data
+5. When the channel balance depletes, the server sends `payment-need-voucher`
+6. The client tops up by sending a new `authorization` with a voucher
+7. When the stream ends, the server sends `payment-close-ready` with the final Receipt
+8. The client can also initiate close at any time via `payment-close-request`
+
+## When to use WebSocket vs SSE
+
+| Aspect | WebSocket | Server-Sent Events |
+|--------|-----------|---------------------|
+| Direction | Bidirectional | Server → Client only |
+| Voucher top-ups | In-band `authorization` message | Separate HTTP request |
+| Overhead | Single persistent connection | HTTP connection + side-channel |
+| High-frequency metering | Lower overhead per message | Higher overhead per top-up |
+| Environment support | Broad (browsers, agents, servers) | Limited in some runtimes |
+
+Use the WebSocket transport when you need bidirectional communication—for example, streaming sessions where the client tops up vouchers frequently. Use SSE when the server only needs to push data and top-ups are infrequent.
