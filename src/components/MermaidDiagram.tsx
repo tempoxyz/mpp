@@ -560,7 +560,8 @@ export function render(
         : undefined
       : undefined;
 
-    const lineStroke = colorOverride ?? (m.isLast ? "url(#grad-success)" : th.line);
+    const lineStroke =
+      colorOverride ?? (m.isLast ? "url(#grad-success)" : th.line);
     // Solid arrows (->>): filled triangle; dashed arrows (-->>): outline triangle
     const arrowFill = colorOverride
       ? m.dashed
@@ -956,7 +957,10 @@ export function lineLen(el: SVGElement): number {
 export function MermaidDiagram({
   chart,
   messageColors,
-}: { chart: string; messageColors?: MessageColors }) {
+}: {
+  chart: string;
+  messageColors?: MessageColors;
+}) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<AnimationHandle | null>(null);
