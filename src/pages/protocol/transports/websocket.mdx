@@ -51,9 +51,6 @@ All messages are JSON objects with an `mpp` field as a discriminator:
     participant C as Client
     participant S as Server
     C->>S: WebSocket connect
-    rect rgba(0,0,0,0.03)
-    Note right of C: solid = payment, dashed = data
-    end
     C->>S: authorization (Credential)
     S->>C: payment-receipt
     S-->>C: message (data)
@@ -64,7 +61,14 @@ All messages are JSON objects with an `mpp` field as a discriminator:
     S-->>C: message (data)
     C->>S: payment-close-request
     S->>C: payment-close-ready (final Receipt)
-`} />
+`} messageColors={{
+  'authorization': { light: '#16a34a', dark: '#4ade80' },
+  'payment-receipt': { light: '#16a34a', dark: '#4ade80' },
+  'payment-close-ready': { light: '#16a34a', dark: '#4ade80' },
+  'payment-need-voucher': { light: '#dc2626', dark: '#f87171' },
+}} />
+
+> **Green** arrows represent payment flow (`authorization`, `payment-receipt`). **Red** arrows indicate a payment is required (`payment-need-voucher`). Black arrows are data messages.
 
 1. The client opens a WebSocket connection (`ws://` or `wss://`)
 2. The client sends an `authorization` message containing the session Credential
