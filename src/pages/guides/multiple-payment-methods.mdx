@@ -30,7 +30,7 @@ When payment is verified via any method, return a JSON response.`}
 
 When multiple methods are registered, the `402` response includes a `WWW-Authenticate` header for each one. The client picks the method it supports and sends the appropriate Credential.
 
-```
+```http
 HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment method="tempo", intent="charge", ...
 WWW-Authenticate: Payment method="stripe", intent="charge", ...
