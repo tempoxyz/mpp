@@ -186,6 +186,74 @@ const mppx = Mppx.create({
 })
 ```
 
+### paymentPreferences (optional)
+
+- **Type:** `AcceptPayment.Config<methods>`
+
+Configures which payment methods the client prefers when a server offers multiple options via `Mppx.compose`. Emits an `Accept-Payment` header on requests so the server can filter Challenges to the client's preferred methods.
+
+Accepts a definition map or a callback that receives a typed key tree. Each key is a `method/intent` string (like `'tempo/charge'`). Values are q-values from 0 to 1—higher means more preferred. Set to 0 to explicitly opt out.
+
+```ts twoslash
+import { Mppx, stripe, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+Mppx.create({
+  methods: [
+    tempo({ account }),
+    stripe.charge({
+      createToken: async (opts) => {
+        const res = await fetch('/api/create-spt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(opts),
+        })
+        const { spt } = await res.json() as { spt: string }
+        return spt
+      },
+    }),
+  ],
+  paymentPreferences: ({ tempo, stripe }) => ({ // [!code focus:start]
+    [tempo.charge]: 1,
+    [stripe.charge]: 0.5,
+    [tempo.session]: 0.2,
+  }), // [!code focus:end]
+})
+```
+
+With a plain definition map:
+
+```ts twoslash
+import { Mppx, stripe, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+Mppx.create({
+  methods: [
+    tempo({ account }),
+    stripe.charge({
+      createToken: async (opts) => {
+        const res = await fetch('/api/create-spt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(opts),
+        })
+        const { spt } = await res.json() as { spt: string }
+        return spt
+      },
+    }),
+  ],
+  paymentPreferences: { // [!code focus:start]
+    'tempo/charge': 1,
+    'stripe/charge': 0.5,
+    'tempo/session': 0.2,
+  }, // [!code focus:end]
+})
+```
+
 ### transport (optional)
 
 - **Type:** `Transport`

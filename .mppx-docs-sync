@@ -1,0 +1,8 @@
+# mppx documentation sync bookmark
+#
+# Tracks the last mppx commit SHA (on main) that was reviewed for documentation.
+# When updating docs from mppx changes, bump this SHA to HEAD of mppx main
+# after incorporating the new features/changes into the docs site.
+
+mppx_version=0.5.12
+mppx_sha=d670f4b81ef21edb7b0917f6a7a1802476015ced

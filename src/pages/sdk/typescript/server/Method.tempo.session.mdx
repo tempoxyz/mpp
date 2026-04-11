@@ -119,10 +119,10 @@ Enable SSE streaming. Pass `true` to enable with defaults, or an options object 
 
 ### store (optional)
 
-- **Type:** `Store.Store`
+- **Type:** `Store.AtomicStore`
 - **Default:** `Store.memory()`
 
-Store backend for persisting channel and session state. `mppx` handles concurrency internally.
+Store backend for persisting channel and session state. A `Store` provides async key-value operations (`get`, `put`, `delete`). An `AtomicStore` extends `Store` with an atomic `update(key, fn)` method for safe concurrent read-modify-write — required for session channel state where multiple instances may process vouchers concurrently.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
@@ -132,7 +132,7 @@ const method = tempo.session({
 })
 ```
 
-Use `Store.memory()` for local development and tests. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` so channel state is shared across processes.
+Use `Store.memory()` for local development and tests. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()`. All built-in factories return `AtomicStore` — for custom backends, provide an `update` function alongside `get`, `put`, and `delete`.
 
 ### suggestedDeposit (optional)
 

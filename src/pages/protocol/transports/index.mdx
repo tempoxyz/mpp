@@ -1,9 +1,9 @@
 ---
-description: "MPP defines transport bindings for HTTP and MCP. Learn how Challenges, Credentials, and Receipts map to headers and JSON-RPC messages."
-imageDescription: "Payment flows over HTTP and MCP transports"
+description: "MPP defines transport bindings for HTTP, MCP, and WebSocket. Learn how Challenges, Credentials, and Receipts map to headers, JSON-RPC messages, and WebSocket frames."
+imageDescription: "Payment flows over HTTP, MCP, and WebSocket transports"
 ---
 
-# Transports [HTTP and MCP bindings for payment flows]
+# Transports [HTTP, MCP, and WebSocket bindings for payment flows]
 
 MPP defines how the Payment authentication scheme operates over different transport protocols. The core protocol targets HTTP, with extensions for other transports like MCP and JSON-RPC.
 
@@ -13,6 +13,7 @@ MPP defines how the Payment authentication scheme operates over different transp
 |-----------|----------|------|
 | [HTTP](/protocol/transports/http) | REST APIs, web resources | [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-11) |
 | [MCP](/protocol/transports/mcp) | AI tool calls using Model Context Protocol | [MCP Transport Spec](https://paymentauth.org) |
+| [WebSocket](/protocol/transports/websocket) | Bidirectional payment streams | [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455) |
 | JSON-RPC | Non-MCP JSON-RPC services | [JSON-RPC 2.0](https://www.jsonrpc.org/specification) |
 
 ## Transport-agnostic design
@@ -21,5 +22,6 @@ MPP's core concepts—Challenges, Credentials, and Receipts—remain the same ac
 
 - **HTTP** uses standard headers (`WWW-Authenticate`, `Authorization`, `Payment-Receipt`)
 - **MCP** uses JSON-RPC error codes and `_meta` fields
+- **WebSocket** uses JSON message framing with an `mpp` discriminator
 
-Choose the transport that matches your protocol. HTTP for REST APIs, MCP for AI agent tool calls, or JSON-RPC for non-MCP JSON-RPC services.
+Choose the transport that matches your protocol. HTTP for REST APIs, MCP for AI agent tool calls, WebSocket for bidirectional payment streams, or JSON-RPC for non-MCP JSON-RPC services.
