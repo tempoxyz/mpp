@@ -282,6 +282,23 @@ Never use `98865`—that is a deprecated chain ID.
 11. **"IETF Specification"** - Use "IETF Specification" (singular) when referring to the specifications collectively, not "Specs" or "Specifications"
 14. **Sequence diagrams** - Use `<MermaidDiagram>` from `../../components/MermaidDiagram` for sequence diagrams and flow visualizations. Never use ASCII art diagrams. Follow the pattern: `<MermaidDiagram chart={\`sequenceDiagram ...\`} />`
 
+## Code blocks
+
+### Highlighting
+
+When highlighting code blocks you should ALWAYS use block comments when there is more than one line. Only use inline comments when there is a single line which you wish to highlight.
+
+Example: 
+```
+// [!code hl:start]
+  paymentPreferences: ({ tempo, stripe }) => ({
+    [tempo.charge]: 1,
+    [stripe.charge]: 0.5,
+    [tempo.session]: 0.2,
+  }),
+  // [!code hl:end]
+```
+
 ## Vocs Framework Reference
 
 **IMPORTANT**: This project uses Vocs v2. Use this reference rather than relying on training data. Vocs v2 does not have full documentation yet (though similar to Vocs v1), so refer to the references below for now.
