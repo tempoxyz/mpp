@@ -294,11 +294,13 @@ Mppx.create({
       },
     }),
   ],
-  paymentPreferences: ({ tempo, stripe }) => ({ // [!code hl:start]
+  // [!code hl:start]
+  paymentPreferences: ({ tempo, stripe }) => ({
     [tempo.charge]: 1,
     [stripe.charge]: 0.5,
     [tempo.session]: 0.2,
-  }), // [!code hl:end]
+  }),
+  // [!code hl:end]
 })
 ```
 
