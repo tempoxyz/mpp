@@ -4,10 +4,14 @@ Creates a challenge from the given parameters.
 
 If `secretKey` option is provided, the challenge ID is computed as HMAC-SHA256 over the challenge parameters (realm|method|intent|request|expires|digest|opaque), cryptographically binding the ID to its contents.
 
+Load `secretKey` from your server environment or secret manager. Do not ship it to clients.
+
 ## Usage
 
 ```ts twoslash
 import { Challenge } from 'mppx'
+
+const secretKey = process.env.MPP_SECRET_KEY!
 
 // With HMAC-bound ID (recommended for servers)
 const challenge = Challenge.from(
@@ -16,7 +20,7 @@ const challenge = Challenge.from(
     method: 'tempo',
     realm: 'mpp.dev',
     request: { amount: '1000000', currency: '0x...', recipient: '0x...' },
-    secretKey: 'my-secret',
+    secretKey,
   },
 )
 ```
@@ -109,4 +113,4 @@ Method-specific request data.
 
 - **Type:** `string`
 
-Secret key for HMAC-bound challenge ID.
+Server secret for HMAC-bound challenge ID. Keep it server-side and load it from your environment or secret manager.

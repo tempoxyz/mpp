@@ -2,11 +2,15 @@
 
 Creates a validated Challenge from a method definition.
 
+Load `secretKey` from your server environment or secret manager. Do not ship it to clients.
+
 ## Usage
 
 ```ts twoslash
 import { Challenge } from 'mppx'
 import { Methods } from 'mppx/tempo'
+
+const secretKey = process.env.MPP_SECRET_KEY!
 
 const challenge = Challenge.fromMethod(
   Methods.charge,
@@ -18,7 +22,7 @@ const challenge = Challenge.fromMethod(
       decimals: 6,
       recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
     },
-    secretKey: 'my-secret',
+    secretKey,
   },
 )
 ```
@@ -89,4 +93,4 @@ Method-specific request data, validated against the method's schema.
 
 - **Type:** `string`
 
-Secret key for HMAC-bound challenge ID.
+Server secret for HMAC-bound challenge ID. Keep it server-side and load it from your environment or secret manager.

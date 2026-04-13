@@ -19,7 +19,7 @@ let challenge = mpp.charge("0.10")?;
 let receipt = mpp.verify_credential(&credential).await?;
 ```
 
-`Mpp::create()` auto-detects `realm` from environment variables (`VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others) and reads `MPP_SECRET_KEY` for stateless HMAC verification. Pass explicit values with the builder to override:
+`Mpp::create()` auto-detects `realm` from environment variables (`VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others) and reads `MPP_SECRET_KEY` for stateless HMAC verification. Treat `MPP_SECRET_KEY` as root-of-trust material: store it in your secret manager, keep it server-side, and rotate it immediately if it is exposed. See [Security](/advanced/security). Pass explicit values with the builder to override:
 
 ```rust
 let mpp = Mpp::create(
@@ -128,7 +128,7 @@ Tempo RPC endpoint URL. Also auto-detects chain ID from the URL.
 
 - **Type:** `&str`
 
-HMAC secret for stateless Challenge ID verification. Reads `MPP_SECRET_KEY` environment variable if omitted.
+HMAC secret for stateless Challenge ID verification. Reads `MPP_SECRET_KEY` if omitted. Keep it server-side, never log it, and rotate it with an overlap window during rollovers. See [Security](/advanced/security).
 
 ## `charge()` parameters
 

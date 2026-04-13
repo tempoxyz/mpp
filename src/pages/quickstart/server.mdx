@@ -23,6 +23,10 @@ Paste this into your coding agent to set up a server with `mppx` in one prompt:
 
 <ServerPrompt />
 
+:::warning[Set `MPP_SECRET_KEY` before you start]
+`Mppx.create()` reads `MPP_SECRET_KEY` by default. Store it in your platform secret manager, keep it server-side, and never log it. See [Security](/advanced/security).
+:::
+
 ## Framework mode
 
 Use the framework-specific middleware from `mppx` to integrate payment into your server. Each middleware handles the `402` Challenge/Credential flow and attaches receipts automatically.

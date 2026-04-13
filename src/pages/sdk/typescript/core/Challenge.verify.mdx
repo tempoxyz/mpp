@@ -2,20 +2,24 @@
 
 Verifies that a challenge ID matches the expected HMAC for the given parameters.
 
+Use the same server-managed secret that produced the Challenge ID.
+
 ## Usage
 
 ```ts twoslash
 import { Challenge } from 'mppx'
+
+const secretKey = process.env.MPP_SECRET_KEY!
 
 const challenge = Challenge.from({
   intent: 'charge',
   method: 'tempo',
   realm: 'mpp.dev',
   request: { amount: '1000000', currency: '0x...', recipient: '0x...' },
-  secretKey: 'my-secret',
+  secretKey,
 })
 
-const isValid = Challenge.verify(challenge, { secretKey: 'my-secret' })
+const isValid = Challenge.verify(challenge, { secretKey })
 // => true
 ```
 
@@ -41,4 +45,4 @@ The challenge to verify.
 
 - **Type:** `string`
 
-Secret key for HMAC-bound challenge ID verification.
+Server secret for HMAC-bound challenge ID verification. Keep it server-side and load it from your environment or secret manager.

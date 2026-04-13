@@ -75,7 +75,7 @@ const payment = Mppx.create({
 - **Type:** `string`
 - **Default:** Auto-detected from `MPP_SECRET_KEY` environment variable. Throws if neither provided nor set.
 
-Secret key for HMAC-bound challenge IDs. Enables stateless verification—the server verifies that a Challenge was issued by itself without storing state.
+Secret key for HMAC-bound challenge IDs. Enables stateless verification—the server verifies that a Challenge was issued by itself without storing state. Treat it as root-of-trust material: store it in your secret manager, keep it server-side, never log it, and rotate it immediately if it is exposed. See [Security](/advanced/security).
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'

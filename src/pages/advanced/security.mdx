@@ -1,0 +1,63 @@
+---
+description: "Protect MPP server secrets and payment credentials. Keep MPP_SECRET_KEY server-side, never log it, and rotate it safely."
+imageDescription: "Protect MPP server secrets"
+---
+
+# Security [Protect server secrets and payment credentials]
+
+The core Payment HTTP Authentication Scheme already requires TLS and treats payment Credentials and Receipts as sensitive data. This page covers the operational practices around `MPP_SECRET_KEY` and server deployments.
+
+## Treat `MPP_SECRET_KEY` as root-of-trust material
+
+`MPP_SECRET_KEY` binds HMAC-backed Challenge IDs to your server configuration. If an attacker gets the key, they can mint Challenges that appear server-issued for your `realm`.
+
+- Keep it on trusted servers only.
+- Never ship it to browsers, mobile apps, MCP clients, or frontend bundles.
+- Use a different key for each environment.
+- Never commit it to git or bake it into container images.
+
+## Store it in a secrets manager
+
+Use your platform's secret store as the system of record—AWS Secrets Manager, GCP Secret Manager, Azure Key Vault, HashiCorp Vault, or an equivalent service.
+
+Environment variables are a good delivery mechanism at runtime, but they are not a secrets management strategy by themselves. Inject `MPP_SECRET_KEY` into your process from a managed secret store instead of treating `.env` files or deployment manifests as the source of truth.
+
+## Never log secrets or payment credentials
+
+Do not log:
+
+- `MPP_SECRET_KEY`
+- `Authorization: Payment` headers
+- `Payment-Receipt` headers
+
+Keep them out of error messages, debugging output, analytics, traces, and support logs. If you need observability, log stable metadata such as request IDs, challenge IDs, status codes, or payment method names instead.
+
+## Rotate with overlap
+
+When you rotate `MPP_SECRET_KEY`, use a staged rollout so in-flight Challenges keep working:
+
+1. Start issuing new Challenges with the new key.
+2. Continue verifying the previous key during a short overlap window.
+3. Remove the old key after outstanding Challenges have expired.
+
+If your deployment does not support current-and-previous-key verification yet, do a coordinated rollout and wait for the old Challenge TTL window to pass before invalidating the previous key.
+
+## Respond to exposure immediately
+
+If `MPP_SECRET_KEY` is exposed:
+
+1. Rotate it immediately.
+2. Remove the old key after your overlap window ends.
+3. Scrub logs, traces, and crash reports if the secret landed there.
+4. Review issuance and verification telemetry for suspicious activity.
+5. Replace the key in every environment where it was reused.
+
+## Keep local development separate
+
+A local `.env` file is fine for development if it stays local and out of git. Commit only `.env.example` with placeholders, use a separate development key, and never reuse production secrets in staging or local environments.
+
+## Read the underlying guidance
+
+- [Payment HTTP Authentication Scheme](/protocol/http-402)
+- [Frequently asked questions](/faq)
+- [OWASP Secrets Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
