@@ -52,6 +52,7 @@ export interface Service {
   url: string;
   serviceUrl?: string;
   description?: string;
+  paymentMethods?: string[];
   icon?: string;
   categories?: Category[];
   integration?: "first-party" | "third-party";

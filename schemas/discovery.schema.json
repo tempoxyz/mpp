@@ -47,6 +47,11 @@
           "type": "string",
           "description": "Short description of what the service offers."
         },
+        "paymentMethods": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Accepted payment method identifiers (e.g. ['tempo', 'stripe'])."
+        },
         "icon": {
           "type": "string",
           "format": "uri",

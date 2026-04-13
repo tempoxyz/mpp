@@ -181,6 +181,7 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
     url: svc.url,
     serviceUrl: svc.serviceUrl,
     description: svc.description,
+    paymentMethods: svc.paymentMethods,
   };
   if (svc.icon) entry.icon = svc.icon;
   entry.categories = svc.categories;
