@@ -1660,7 +1660,8 @@ export const services: ServiceDef[] = [
     tags: ["rpc", "json-rpc", "evm", "multichain"],
     docs: {
       homepage: "https://docs.conduit.xyz/",
-      llmsTxt: "https://github.com/conduitxyz/skills/blob/main/skills/conduit-rpc-gateway/SKILL.md",
+      llmsTxt:
+        "https://github.com/conduitxyz/skills/blob/main/skills/conduit-rpc-gateway/SKILL.md",
     },
     provider: { name: "Conduit", url: "https://mpp.conduit.xyz/" },
     realm: "conduit.xyz",
