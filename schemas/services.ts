@@ -93,8 +93,6 @@ export interface EndpointDef {
   docs?: string | false;
 }
 
-
-
 export interface ServiceDef {
   id: string;
   name: string;
