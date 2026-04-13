@@ -351,7 +351,12 @@ export default defineConfig({
           { text: "Discovery", link: "/advanced/discovery" },
           { text: "Identity", link: "/advanced/identity" },
           { text: "Refunds", link: "/advanced/refunds" },
-          { text: "Security", link: "/advanced/security" },
+        ],
+      },
+      {
+        text: "Security",
+        items: [
+          { text: "Security Best Practices", link: "/advanced/security" },
         ],
       },
       {
