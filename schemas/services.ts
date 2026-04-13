@@ -73,6 +73,13 @@ export const STRIPE_PAYMENT: PaymentDefaults = {
   currency: "usd",
   decimals: 2,
 };
+/** Common payment defaults for AlgoVoi (Algorand/VOI on-chain USDC) */
+export const ALGOVOI_PAYMENT: PaymentDefaults = {
+  method: "algovoi",
+  currency: "31566704", // Algorand USDC ASA ID; VOI aUSDC ARC200 ID: 302190
+  decimals: 6,
+};
+
 
 export interface EndpointDef {
   /** Route string: "METHOD /path" (without service slug prefix) */
@@ -6522,6 +6529,54 @@ export const services: ServiceDef[] = [
         desc: "Write and send an agent-penned postcard",
         dynamic: true,
         amountHint: "$1 digital, $3 physical",
+      },
+    ],
+  },
+
+  // ── AlgoVoi ─────────────────────────────────────────────────────────────
+  {
+    id: "algovoi",
+    name: "AlgoVoi",
+    url: "https://www.algovoi.co.uk",
+    serviceUrl: "https://api1.ilovechicken.co.uk",
+    description:
+      "Multi-tenant MPP payment infrastructure for Algorand, VOI, Hedera, and Stellar. " +
+      "AI agents pay with on-chain USDC (no EVM required) to access payment-gated resources. " +
+      "Open-source adapters available for 17+ eCommerce platforms.",
+    categories: ["blockchain", "web"],
+    integration: "first-party",
+    status: "beta",
+    tags: [
+      "algorand",
+      "voi",
+      "hedera",
+      "stellar",
+      "usdc",
+      "payments",
+      "mpp",
+      "non-evm",
+      "avm",
+    ],
+    docs: {
+      homepage:
+        "https://github.com/chopmob-cloud/AlgoVoi-Platform-Adapters",
+    },
+    provider: { name: "AlgoVoi", url: "https://www.algovoi.co.uk" },
+    realm: "api1.ilovechicken.co.uk",
+    intent: "charge",
+    payment: ALGOVOI_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /protected/{resource_id}",
+        desc: "Access a payment-gated resource",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /x402/verify",
+        desc: "Verify an on-chain payment proof",
+        dynamic: true,
+        amountHint: "0.01+ USDC",
       },
     ],
   },
