@@ -1647,6 +1647,35 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Conduit ────────────────────────────────────────────────────────────
+  {
+    id: "conduit",
+    name: "Conduit",
+    url: "https://mpp.conduit.xyz/",
+    serviceUrl: "https://mpp.conduit.xyz",
+    description:
+      "EVM JSON-RPC access to Conduit Nodes across 59+ networks including Zora, Mode, and BOB.",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["rpc", "json-rpc", "evm", "multichain"],
+    docs: {
+      homepage: "https://docs.conduit.xyz/",
+      llmsTxt: "https://github.com/conduitxyz/skills/blob/main/skills/conduit-rpc-gateway/SKILL.md",
+    },
+    provider: { name: "Conduit", url: "https://mpp.conduit.xyz/" },
+    realm: "conduit.xyz",
+    intent: "session",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /:network/",
+        desc: "JSON-RPC calls - $0.00005 per call",
+        amount: "50",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Tempo RPC ──────────────────────────────────────────────────────────
   {
     id: "rpc",
