@@ -93,8 +93,7 @@ export interface EndpointDef {
   docs?: string | false;
 }
 
-export const PAYMENT_METHODS = ["tempo", "stripe"] as const;
-export type PaymentMethodId = (typeof PAYMENT_METHODS)[number];
+
 
 export interface ServiceDef {
   id: string;
@@ -104,8 +103,7 @@ export interface ServiceDef {
   /** MPP service URL — where this service is accessed through the proxy (e.g. "https://openai.mpp.tempo.xyz") */
   serviceUrl: string;
   description: string;
-  /** Accepted payment methods for this service (e.g. ["tempo", "stripe"]) */
-  paymentMethods: PaymentMethodId[];
+
   icon?: string;
   categories: Category[];
   integration: Integration;
@@ -117,8 +115,8 @@ export interface ServiceDef {
   realm: string;
   /** Default payment intent for paid endpoints in this service */
   intent: Intent;
-  /** Payment method, currency, decimals, and recipient for this service's paid endpoints */
-  payment: PaymentDefaults;
+  /** Payment methods accepted by this service — first entry is primary for endpoint-level payment info */
+  payments: PaymentDefaults[];
   /** Base URL for auto-generating per-endpoint docs links */
   docsBase?: string;
   endpoints: EndpointDef[];
@@ -133,7 +131,7 @@ export const services: ServiceDef[] = [
     url: "https://mpp.api.agentmail.to",
     serviceUrl: "https://mpp.api.agentmail.to",
     description: "Email inboxes for AI agents.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "social"],
     integration: "first-party",
     tags: [
@@ -149,7 +147,7 @@ export const services: ServiceDef[] = [
     provider: { name: "AgentMail", url: "https://agentmail.to" },
     realm: "mpp.api.agentmail.to",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // Inboxes
       { route: "GET /v0/inboxes", desc: "List inboxes" },
@@ -407,7 +405,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://agents.allium.so",
     description:
       "System of record for onchain finance. Real-time blockchain data: token prices, wallet balances, transactions, PnL, and SQL explorer.",
-    paymentMethods: ["tempo"],
+
     categories: ["blockchain", "data"],
     integration: "first-party",
     tags: [
@@ -428,7 +426,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Allium", url: "https://allium.so" },
     realm: "agents.allium.so",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // Realtime - Prices
       {
@@ -537,7 +535,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://anthropic.${MPP_REALM}`,
     description:
       "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "third-party",
     tags: ["llm", "claude", "sonnet", "opus", "haiku", "chat"],
@@ -549,7 +547,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Anthropic", url: "https://anthropic.com" },
     realm: MPP_REALM,
     intent: "session",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /v1/messages",
@@ -572,7 +570,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mpp.browserbase.com",
     description:
       "Headless browser sessions, web search, and page fetching for AI agents.",
-    paymentMethods: ["tempo", "stripe"],
+
     categories: ["web", "compute", "search"],
     integration: "first-party",
     tags: ["browser", "scraping", "automation", "headless", "search", "fetch"],
@@ -583,7 +581,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Browserbase", url: "https://browserbase.com" },
     realm: "mpp.browserbase.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
     docsBase: "https://docs.browserbase.com/features",
     endpoints: [
       {
@@ -635,7 +633,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mpp.buildwithlocus.com",
     description:
       "Deploy containerized services, Postgres, Redis, and custom domains on demand — all via REST API. Pay-per-use credit billing.",
-    paymentMethods: ["tempo"],
+
     categories: ["compute"],
     integration: "first-party",
     tags: [
@@ -655,7 +653,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Locus", url: "https://buildwithlocus.com" },
     realm: "mpp.buildwithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // Auth
       {
@@ -801,7 +799,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://graph.codex.io",
     description:
       "Comprehensive onchain data API for tokens and prediction markets. Real-time prices, charts, trades, and wallet analytics across 80+ networks via GraphQL.",
-    paymentMethods: ["tempo"],
+
     categories: ["blockchain", "data"],
     integration: "first-party",
     tags: ["graphql", "defi", "tokens", "trades", "nft"],
@@ -812,7 +810,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Codex", url: "https://codex.io" },
     realm: "graph.codex.io",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     docsBase: "https://context7.com/websites/codex_io/llms.txt",
     endpoints: [
       {
@@ -831,7 +829,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mpp.doma.xyz",
     description:
       "Domain registration on the Doma blockchain. Instantly register .com, .xyz, .ai, .io, and .net domains.",
-    paymentMethods: ["tempo"],
+
     categories: ["web", "blockchain"],
     integration: "first-party",
     tags: ["domains", "dns"],
@@ -843,7 +841,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Doma", url: "https://doma.xyz" },
     realm: "mpp.doma.xyz",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /register",
@@ -863,7 +861,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://api.dune.com",
     description:
       "Query across raw transaction data, decoded smart contract events, stablecoin flows, RWA tracking, protocol analytics, DeFi positions, NFT activity, blockchain market research, and whatever is trending in crypto.",
-    paymentMethods: ["tempo"],
+
     categories: ["data", "blockchain"],
     integration: "first-party",
     tags: ["sql", "analytics", "blockchain", "data", "query"],
@@ -871,7 +869,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Dune", url: "https://dune.com" },
     realm: "api.dune.com",
     intent: "session",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /api/v1/sql/execute",
@@ -901,7 +899,7 @@ export const services: ServiceDef[] = [
     url: "https://api.exa.ai",
     serviceUrl: `https://exa.${MPP_REALM}`,
     description: "AI-powered web search, content retrieval, and answers.",
-    paymentMethods: ["tempo"],
+
     categories: ["search", "ai"],
     integration: "third-party",
     tags: ["search", "web", "content", "ai-search"],
@@ -912,7 +910,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Exa", url: "https://exa.ai" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     docsBase: "https://context7.com/websites/exa_ai/llms.txt",
     endpoints: [
       { route: "POST /search", desc: "Search the web", amount: "5000" },
@@ -938,7 +936,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://fal.${MPP_REALM}`,
     description:
       "Image, video, and audio generation with 600+ models (Flux, SD, Recraft, Grok).",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "media"],
     integration: "third-party",
     tags: ["image", "video", "flux", "stable-diffusion", "grok", "generation"],
@@ -949,7 +947,7 @@ export const services: ServiceDef[] = [
     provider: { name: "fal.ai", url: "https://fal.ai" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     docsBase: "https://context7.com/websites/fal_ai/llms.txt",
     endpoints: [
       {
@@ -1043,7 +1041,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://firecrawl.${MPP_REALM}`,
     description:
       "Web scraping, crawling, and structured data extraction for LLMs.",
-    paymentMethods: ["tempo"],
+
     categories: ["web", "data"],
     integration: "third-party",
     tags: ["scraping", "crawling", "extraction", "llm"],
@@ -1054,7 +1052,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Firecrawl", url: "https://firecrawl.dev" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     docsBase: "https://context7.com/websites/firecrawl_dev/llms.txt",
     endpoints: [
       { route: "POST /v1/scrape", desc: "Scrape a URL", amount: "2000" },
@@ -1077,7 +1075,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://govlaws.ai",
     description:
       "Current U.S. federal regulation lookup, semantic search, and change tracking with provenance-rich responses from official government sources.",
-    paymentMethods: ["tempo"],
+
     categories: ["data", "search"],
     integration: "first-party",
     tags: [
@@ -1095,7 +1093,7 @@ export const services: ServiceDef[] = [
     provider: { name: "GovLaws", url: "https://govlaws.ai" },
     realm: "govlaws.ai",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "GET /api/mpp/resolve",
@@ -1123,7 +1121,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://gemini.${MPP_REALM}`,
     description:
       "Gemini text generation, Veo video, and Nano Banana image generation with model-tier pricing.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "media"],
     integration: "third-party",
     tags: ["llm", "gemini", "veo", "imagen", "video", "multimodal"],
@@ -1131,7 +1129,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Google", url: "https://ai.google.dev" },
     realm: MPP_REALM,
     intent: "session",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /:version/models/*",
@@ -1178,7 +1176,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://modal.${MPP_REALM}`,
     description:
       "Serverless GPU compute for sandboxed code execution and AI/ML workloads.",
-    paymentMethods: ["tempo"],
+
     categories: ["compute"],
     integration: "third-party",
     tags: ["gpu", "serverless", "sandbox", "compute"],
@@ -1189,7 +1187,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Modal", url: "https://modal.com" },
     realm: MPP_REALM,
     intent: "session",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     docsBase: "https://context7.com/websites/modal/llms.txt",
     endpoints: [
       {
@@ -1223,7 +1221,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://api.nansen.ai",
     description:
       "Blockchain analytics and smart money intelligence. Token data, wallet profiling, DEX trades, PnL, and flow analysis across multiple chains.",
-    paymentMethods: ["tempo"],
+
     categories: ["blockchain", "data"],
     integration: "first-party",
     tags: [
@@ -1246,7 +1244,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Nansen", url: "https://nansen.ai" },
     realm: "api.nansen.ai",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     docsBase: "https://docs.nansen.ai/api",
     endpoints: [
       // Account
@@ -1513,7 +1511,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://openai.${MPP_REALM}`,
     description:
       "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
-    paymentMethods: ["tempo"],
+
     icon: "https://mpp.tempo.xyz/icons/openai.svg",
     categories: ["ai", "media"],
     integration: "third-party",
@@ -1526,7 +1524,7 @@ export const services: ServiceDef[] = [
     provider: { name: "OpenAI", url: "https://openai.com" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     docsBase: "https://context7.com/websites/platform_openai/llms.txt",
     endpoints: [
       {
@@ -1571,7 +1569,7 @@ export const services: ServiceDef[] = [
     url: "https://openrouter.ai/api",
     serviceUrl: `https://openrouter.${MPP_REALM}`,
     description: "Unified API for 100+ LLMs with live per-model pricing.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "third-party",
     tags: ["llm", "unified", "multi-model", "chat"],
@@ -1582,7 +1580,7 @@ export const services: ServiceDef[] = [
     provider: { name: "OpenRouter", url: "https://openrouter.ai" },
     realm: MPP_REALM,
     intent: "session",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     docsBase: "https://context7.com/websites/openrouter_ai/llms.txt",
     endpoints: [
       {
@@ -1600,7 +1598,7 @@ export const services: ServiceDef[] = [
     url: "https://parallelmpp.dev",
     serviceUrl: `https://parallelmpp.dev`,
     description: "Web search, page extraction, and multi-hop web research.",
-    paymentMethods: ["tempo"],
+
     categories: ["search", "ai"],
     integration: "first-party",
     tags: ["search", "web", "extraction", "research"],
@@ -1608,7 +1606,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Parallel", url: "https://parallel.ai" },
     realm: "parallelmpp.dev",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /api/search",
@@ -1639,7 +1637,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mpp.alchemy.com",
     description:
       "Blockchain data APIs including Core RPC APIs, Prices API, Portfolio API, and NFT API across 100+ chains.",
-    paymentMethods: ["tempo", "stripe"],
+
     categories: ["blockchain", "data"],
     integration: "first-party",
     tags: ["rpc", "json-rpc", "nft", "evm", "multichain"],
@@ -1650,7 +1648,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Alchemy", url: "https://agents.alchemy.com/" },
     realm: "alchemy.com",
     intent: "session",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
     docsBase: "https://www.alchemy.com/llms.txt",
     endpoints: [
       {
@@ -1678,7 +1676,7 @@ export const services: ServiceDef[] = [
     url: "https://rpc.tempo.xyz",
     serviceUrl: `https://rpc.${MPP_REALM}`,
     description: "Tempo blockchain JSON-RPC access (mainnet and testnet).",
-    paymentMethods: ["tempo"],
+
     categories: ["blockchain"],
     integration: "first-party",
     tags: ["rpc", "json-rpc", "evm", "tempo", "node"],
@@ -1689,7 +1687,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Tempo", url: "https://tempo.xyz" },
     realm: MPP_REALM,
     intent: "session",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /",
@@ -1708,7 +1706,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mpp.quicknode.com",
     description:
       "Quicknode Core Node API for 80+ blockchains and 140+ networks.",
-    paymentMethods: ["tempo"],
+
     icon: "https://mpp.quicknode.com/favicon.ico",
     categories: ["blockchain"],
     integration: "first-party",
@@ -1720,7 +1718,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Quicknode", url: "https://quicknode.com/" },
     realm: "quicknode.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /:network",
@@ -1745,7 +1743,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://storage.${MPP_REALM}`,
     description:
       "S3/R2-compatible object storage with dynamic per-size pricing.",
-    paymentMethods: ["tempo"],
+
     categories: ["storage"],
     integration: "first-party",
     tags: ["s3", "r2", "objects", "blobs", "files"],
@@ -1753,7 +1751,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Tempo", url: "https://tempo.xyz" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "GET /:key",
@@ -1785,7 +1783,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mpp.pinata.cloud",
     description:
       "Paid Pinata IPFS storage — upload and download public files via MPP.",
-    paymentMethods: ["tempo"],
+
     categories: ["storage"],
     integration: "first-party",
     tags: ["ipfs", "pinata", "storage", "files", "upload", "download", "cid"],
@@ -1793,7 +1791,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Pinata", url: "https://pinata.cloud" },
     realm: "mpp.pinata.cloud",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /v1/pin/public",
@@ -1821,7 +1819,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://stableemail.dev",
     description:
       "Pay-per-send email delivery, forwarding inboxes, and custom subdomains — no API keys or accounts.",
-    paymentMethods: ["tempo"],
+
     categories: ["social"],
     integration: "first-party",
     tags: ["email", "send", "inbox", "forwarding", "subdomain"],
@@ -1832,7 +1830,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Merit Systems", url: "https://stableemail.dev" },
     realm: "stableemail.dev",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /api/send",
@@ -1948,7 +1946,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://stableenrich.dev",
     description:
       "Pay-per-request research APIs — people, companies, web search, scraping, places, social media, and contact enrichment.",
-    paymentMethods: ["tempo"],
+
     categories: ["data", "search", "social"],
     integration: "first-party",
     tags: [
@@ -1968,7 +1966,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Merit Systems", url: "https://stableenrich.dev" },
     realm: "stableenrich.dev",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // Apollo
       {
@@ -2126,7 +2124,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://stabletravel.dev",
     description:
       "Pay-per-request travel APIs — flights, hotels, activities, transfers, and real-time flight tracking. Powered by Amadeus and FlightAware.",
-    paymentMethods: ["tempo"],
+
     categories: ["data", "web"],
     integration: "first-party",
     tags: [
@@ -2145,7 +2143,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Merit Systems", url: "https://stabletravel.dev" },
     realm: "stabletravel.dev",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // Flights
       {
@@ -2508,7 +2506,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://stablephone.dev",
     description:
       "AI phone calls, dedicated phone numbers, and iMessage/FaceTime lookup — pay per request.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "social"],
     integration: "first-party",
     tags: ["phone", "call", "voice", "ai-call", "imessage"],
@@ -2519,7 +2517,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Merit Systems", url: "https://stablephone.dev" },
     realm: "stablephone.dev",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /api/call",
@@ -2555,7 +2553,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://stablesocial.dev",
     description:
       "Pay-per-request social media data from TikTok, Instagram, Facebook, and Reddit.",
-    paymentMethods: ["tempo"],
+
     categories: ["social", "data"],
     integration: "first-party",
     tags: ["tiktok", "instagram", "facebook", "reddit", "scraping", "social"],
@@ -2566,7 +2564,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Merit Systems", url: "https://stablesocial.dev" },
     realm: "stablesocial.dev",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // TikTok
       {
@@ -2765,7 +2763,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://stablestudio.dev",
     description:
       "Pay-per-generation AI image and video creation — Nano Banana, GPT Image, Grok, Flux, Sora, Veo, Seedance, and Wan.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "media"],
     integration: "first-party",
     tags: [
@@ -2788,7 +2786,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Merit Systems", url: "https://stablestudio.dev" },
     realm: "stablestudio.dev",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // Nano Banana
       {
@@ -2937,7 +2935,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://stableupload.dev",
     description:
       "Pay-per-upload file hosting and static site hosting with custom domains — 6 month TTL.",
-    paymentMethods: ["tempo"],
+
     categories: ["storage"],
     integration: "first-party",
     tags: ["upload", "files", "hosting", "static-site", "cdn"],
@@ -2948,7 +2946,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Merit Systems", url: "https://stableupload.dev" },
     realm: "stableupload.dev",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /api/upload",
@@ -2991,14 +2989,14 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://aviationstack.${MPP_REALM}`,
     description:
       "Real-time and historical flight tracking, airports, airlines, and schedules.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["flights", "aviation", "tracking", "airports", "airlines"],
     provider: { name: "AviationStack", url: "https://aviationstack.com" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "GET /v1/aircraft_types",
@@ -3030,7 +3028,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://codestorage.${MPP_REALM}`,
     description:
       "Paid Git repository creation — create repos and get authenticated clone URLs.",
-    paymentMethods: ["tempo"],
+
     categories: ["storage"],
     integration: "third-party",
     tags: ["git", "repos", "code", "storage"],
@@ -3040,7 +3038,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Code Storage", url: "https://code.storage" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "GET /repos/:id",
@@ -3063,14 +3061,14 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://flightapi.${MPP_REALM}`,
     description:
       "Real-time flight prices, tracking, and airport schedules from 700+ airlines.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["flights", "prices", "tracking", "airports", "airlines"],
     provider: { name: "FlightAPI", url: "https://flightapi.io" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       { route: "GET /airline/:rest*", desc: "Track a flight", amount: "2000" },
       {
@@ -3114,14 +3112,14 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://goflightlabs.${MPP_REALM}`,
     description:
       "Real-time flight tracking, prices, schedules, and airline data.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["flights", "tracking", "prices", "airlines", "airports"],
     provider: { name: "GoFlightLabs", url: "https://goflightlabs.com" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "GET /airports-by-filters",
@@ -3197,7 +3195,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://oxylabs.${MPP_REALM}`,
     description:
       "Web scraping API with geo-targeting by country, state, and city. Fetch any public URL with JavaScript rendering support.",
-    paymentMethods: ["tempo"],
+
     categories: ["web", "data"],
     integration: "third-party",
     tags: ["scraping", "web-scraping", "geo-targeting", "data-extraction"],
@@ -3208,7 +3206,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Oxylabs", url: "https://oxylabs.io" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /v1/proxy",
@@ -3226,7 +3224,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://spyfu.${MPP_REALM}`,
     description:
       "Competitor keyword research — SEO rankings, PPC ads, ad history, and domain analytics. 18+ years of historical data.",
-    paymentMethods: ["tempo"],
+
     categories: ["data", "search"],
     integration: "third-party",
     tags: ["seo", "ppc", "keyword-research", "competitor-analysis", "ads"],
@@ -3237,7 +3235,7 @@ export const services: ServiceDef[] = [
     provider: { name: "SpyFu", url: "https://spyfu.com" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "GET /apis/domain_stats_api/v2/*",
@@ -3295,14 +3293,14 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://serpapi.${MPP_REALM}`,
     description:
       "Google Flights search — real-time prices, schedules, and booking options.",
-    paymentMethods: ["tempo"],
+
     categories: ["search", "data"],
     integration: "third-party",
     tags: ["search", "flights", "google", "prices"],
     provider: { name: "SerpApi", url: "https://serpapi.com" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       { route: "GET /search", desc: "Google Flights search", amount: "15000" },
     ],
@@ -3316,7 +3314,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://googlemaps.${MPP_REALM}`,
     description:
       "Google Maps Platform — geocoding, directions, places, routes, tiles, weather, air quality, and more.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: [
@@ -3343,7 +3341,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Google", url: "https://developers.google.com/maps" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // Legacy REST (maps.googleapis.com/maps/api)
       {
@@ -3576,7 +3574,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://kicksdb.${MPP_REALM}`,
     description:
       "Sneaker & streetwear market data — prices, sales history, and availability from StockX, GOAT, and more.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["sneakers", "streetwear", "prices", "stockx", "goat"],
@@ -3588,7 +3586,7 @@ export const services: ServiceDef[] = [
     provider: { name: "KicksDB", url: "https://kicks.dev" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       // Standard API — StockX
       {
@@ -3752,7 +3750,7 @@ export const services: ServiceDef[] = [
     serviceUrl: `https://twocaptcha.${MPP_REALM}`,
     description:
       "CAPTCHA solving API — reCAPTCHA, Turnstile, hCaptcha, image captchas, and more.",
-    paymentMethods: ["tempo"],
+
     categories: ["web"],
     integration: "third-party",
     tags: ["captcha", "automation", "solving"],
@@ -3763,7 +3761,7 @@ export const services: ServiceDef[] = [
     provider: { name: "2Captcha", url: "https://2captcha.com" },
     realm: MPP_REALM,
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /createTask",
@@ -3781,7 +3779,7 @@ export const services: ServiceDef[] = [
     url: "https://postalform.com",
     serviceUrl: "https://postalform.com",
     description: "Print and mail real letters and documents via AI agents.",
-    paymentMethods: ["tempo", "stripe"],
+
     categories: ["web"],
     integration: "first-party",
     tags: ["mail", "print", "letters", "physical", "postal"],
@@ -3791,7 +3789,7 @@ export const services: ServiceDef[] = [
     provider: { name: "PostalForm", url: "https://postalform.com" },
     realm: "postalform.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
     endpoints: [
       {
         route: "POST /api/machine/mpp/orders/validate",
@@ -3818,7 +3816,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://agents.prospectbutcher.shop",
     description:
       "Order sandwiches for pickup in Brooklyn — the first food purchase made entirely by an AI agent.",
-    paymentMethods: ["tempo"],
+
     categories: ["web"],
     integration: "first-party",
     tags: ["food", "ordering", "sandwiches", "physical", "restaurant"],
@@ -3832,7 +3830,7 @@ export const services: ServiceDef[] = [
     },
     realm: "agents.prospectbutcher.shop",
     intent: "charge",
-    payment: STRIPE_PAYMENT,
+    payments: [STRIPE_PAYMENT],
     endpoints: [
       {
         route: "GET /buy/:slug",
@@ -3860,7 +3858,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://alphavantage.mpp.paywithlocus.com",
     description:
       "Financial market data — stock prices, forex, crypto, commodities, economic indicators, technical analysis, and news sentiment.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: [
@@ -3878,7 +3876,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Alpha Vantage", url: "https://www.alphavantage.co" },
     realm: "alphavantage.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /alphavantage/time-series-intraday",
@@ -4047,7 +4045,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://apollo.mpp.paywithlocus.com",
     description:
       "People and company enrichment, lead search, and sales intelligence with 275M+ contacts.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["leads", "enrichment", "contacts", "sales-intelligence", "b2b"],
@@ -4058,7 +4056,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Apollo", url: "https://www.apollo.io" },
     realm: "apollo.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /apollo/people-enrichment",
@@ -4119,7 +4117,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://api.auto.exchange",
     description:
       "The agent exchange. Discover, hire, and pay agents for coding, design, writing, and more. Pay per request with stablecoins on Tempo.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "first-party",
     tags: [
@@ -4139,7 +4137,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Auto.exchange", url: "https://auto.exchange" },
     realm: "api.auto.exchange",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "GET /agents",
@@ -4171,7 +4169,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://billboard.mpp.paywithlocus.com",
     description:
       "Post to @MPPBillboard on X. Price starts at $0.01 and doubles with every post. The ultimate AI agent billboard.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["advertising", "billboard", "mpp-billboard"],
@@ -4182,7 +4180,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Billboard", url: "https://x.com/MPPBillboard" },
     realm: "billboard.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /billboard/post",
@@ -4205,7 +4203,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://brave.mpp.paywithlocus.com",
     description:
       "Independent web search — web, news, images, videos, AI answers, and LLM context. Privacy-first search from a large independent index.",
-    paymentMethods: ["tempo"],
+
     categories: ["search"],
     integration: "third-party",
     tags: ["search", "web-search", "privacy", "news", "images"],
@@ -4216,7 +4214,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Brave Search", url: "https://brave.com/search" },
     realm: "brave.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /brave/web-search",
@@ -4265,7 +4263,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://builtwith.mpp.paywithlocus.com",
     description:
       "Technology profiling for websites — detect tech stacks, find sites using specific technologies, discover domain relationships, trends, and competitive intelligence across 100M+ websites.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: [
@@ -4281,7 +4279,7 @@ export const services: ServiceDef[] = [
     provider: { name: "BuiltWith", url: "https://builtwith.com" },
     realm: "builtwith.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /builtwith/domain",
@@ -4366,7 +4364,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://clado.mpp.paywithlocus.com",
     description:
       "People search, LinkedIn enrichment, and deep research for lead generation.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["linkedin", "enrichment", "leads", "deep-research", "people-search"],
@@ -4377,7 +4375,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Clado", url: "https://clado.ai" },
     realm: "clado.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /clado/search",
@@ -4456,7 +4454,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://coingecko.mpp.paywithlocus.com",
     description:
       "Cryptocurrency market data — prices, charts, market cap, exchanges, trending coins, global stats, NFTs, derivatives, and on-chain data.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["crypto", "prices", "market-cap", "exchanges", "trending"],
@@ -4467,7 +4465,7 @@ export const services: ServiceDef[] = [
     provider: { name: "CoinGecko", url: "https://www.coingecko.com" },
     realm: "coingecko.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /coingecko/simple-price",
@@ -4569,7 +4567,7 @@ export const services: ServiceDef[] = [
     url: "https://www.abstractapi.com/api/company-enrichment",
     serviceUrl: "https://abstract-company-enrichment.mpp.paywithlocus.com",
     description: "Enrich company data from a domain name.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["company", "enrichment", "domain-lookup"],
@@ -4583,7 +4581,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-company-enrichment.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-company-enrichment/lookup",
@@ -4602,7 +4600,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://deepgram.mpp.paywithlocus.com",
     description:
       "Industry-leading speech AI — transcribe audio from URLs with Nova-3, generate natural speech with Aura-2 TTS, and analyze text for sentiment, topics, intents, and summaries.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["speech-to-text", "transcription", "tts", "audio", "sentiment"],
@@ -4614,7 +4612,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Deepgram", url: "https://deepgram.com" },
     realm: "deepgram.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /deepgram/transcribe",
@@ -4651,7 +4649,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://deepl.mpp.paywithlocus.com",
     description:
       "Professional translation and text improvement — translate text between 30+ languages with industry-leading quality, or improve and rephrase text with DeepL Write.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["translation", "languages", "glossary", "document-translation"],
@@ -4662,7 +4660,7 @@ export const services: ServiceDef[] = [
     provider: { name: "DeepL", url: "https://www.deepl.com" },
     realm: "deepl.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /deepl/translate",
@@ -4693,7 +4691,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://deepseek.mpp.paywithlocus.com",
     description:
       "Frontier AI models — DeepSeek-V3 for fast chat and code, DeepSeek-R1 for deep chain-of-thought reasoning. OpenAI-compatible API format. Among the most capable and cost-efficient models available.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "third-party",
     tags: ["llm", "reasoning", "code", "chat", "chain-of-thought"],
@@ -4704,7 +4702,7 @@ export const services: ServiceDef[] = [
     provider: { name: "DeepSeek", url: "https://deepseek.com" },
     realm: "deepseek.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /deepseek/chat",
@@ -4735,7 +4733,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://diffbot.mpp.paywithlocus.com",
     description:
       "Web data extraction — articles, products, discussions, images, videos, and auto-detect.",
-    paymentMethods: ["tempo"],
+
     categories: ["web", "data"],
     integration: "third-party",
     tags: ["web-scraping", "extraction", "articles", "products"],
@@ -4746,7 +4744,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Diffbot", url: "https://www.diffbot.com" },
     realm: "diffbot.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /diffbot/article",
@@ -4813,7 +4811,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://diffbot-kg.mpp.paywithlocus.com",
     description:
       "Knowledge Graph — search 10B+ entities and enrich company/person records.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["knowledge-graph", "entities", "enrichment", "company-data"],
@@ -4824,7 +4822,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Diffbot KG", url: "https://www.diffbot.com" },
     realm: "diffbot-kg.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /diffbot-kg/search",
@@ -4849,7 +4847,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://diffbot-nl.mpp.paywithlocus.com",
     description:
       "Natural language processing — NER, sentiment, facts, summarization.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "third-party",
     tags: ["nlp", "ner", "sentiment", "summarization"],
@@ -4860,7 +4858,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Diffbot NL", url: "https://www.diffbot.com" },
     realm: "diffbot-nl.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /diffbot-nl/analyze",
@@ -4879,7 +4877,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://edgar.mpp.paywithlocus.com",
     description:
       "SEC EDGAR public financial data — company filing history, XBRL financial facts (income statements, balance sheets, cash flows), and full-text search across all public filings. No API key required.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["sec", "filings", "company-data", "financials"],
@@ -4890,7 +4888,7 @@ export const services: ServiceDef[] = [
     provider: { name: "EDGAR (SEC)", url: "https://www.sec.gov/developer" },
     realm: "edgar.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /edgar/company-submissions",
@@ -4921,7 +4919,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://edgar-search.mpp.paywithlocus.com",
     description:
       "Full-text search across all SEC filings — 10-Ks, 10-Qs, 8-Ks, proxy statements, and more. Search by keyword, company name, form type, and date range.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["sec", "filings", "full-text-search"],
@@ -4932,7 +4930,7 @@ export const services: ServiceDef[] = [
     provider: { name: "EDGAR Full-Text Search", url: "https://efts.sec.gov" },
     realm: "edgar-search.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /edgar-search/search",
@@ -4950,7 +4948,7 @@ export const services: ServiceDef[] = [
     url: "https://www.abstractapi.com/api/email-reputation-api",
     serviceUrl: "https://abstract-email-reputation.mpp.paywithlocus.com",
     description: "Check the reputation and risk score of an email address.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["email", "reputation", "risk-score"],
@@ -4964,7 +4962,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-email-reputation.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-email-reputation/check",
@@ -4983,7 +4981,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://abstract-exchange-rates.mpp.paywithlocus.com",
     description:
       "Live, historical, and conversion exchange rates for 150+ currencies.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["forex", "exchange-rates", "currency-conversion"],
@@ -4997,7 +4995,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-exchange-rates.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-exchange-rates/live",
@@ -5028,7 +5026,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://grok.mpp.paywithlocus.com",
     description:
       "xAI models — chat, web/X search, code execution, image generation/editing, and text-to-speech.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "third-party",
     tags: ["llm", "chat", "x-search", "web-search", "image-generation", "tts"],
@@ -5039,7 +5037,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Grok", url: "https://x.ai" },
     realm: "grok.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /grok/chat",
@@ -5094,7 +5092,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://groq.mpp.paywithlocus.com",
     description:
       "Ultra-fast LLM inference — Llama 3.3, DeepSeek R1, Gemma 2, GPT-OSS, Qwen, Whisper, and PlayAI TTS. OpenAI-compatible API with industry-leading speed.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "third-party",
     tags: ["llm", "fast-inference", "llama", "gemma", "deepseek"],
@@ -5105,7 +5103,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Groq", url: "https://groq.com" },
     realm: "groq.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /groq/chat",
@@ -5129,7 +5127,7 @@ export const services: ServiceDef[] = [
     url: "https://www.abstractapi.com/api/holidays-api",
     serviceUrl: "https://abstract-holidays.mpp.paywithlocus.com",
     description: "Public holiday data for 200+ countries.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["holidays", "countries", "public-holidays"],
@@ -5143,7 +5141,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-holidays.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-holidays/lookup",
@@ -5162,7 +5160,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://hunter.mpp.paywithlocus.com",
     description:
       "Email finding, verification, and company enrichment for outreach and lead generation.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["email", "verification", "enrichment", "outreach"],
@@ -5173,7 +5171,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Hunter", url: "https://hunter.io" },
     realm: "hunter.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /hunter/domain-search",
@@ -5233,7 +5231,7 @@ export const services: ServiceDef[] = [
     url: "https://www.abstractapi.com/api/iban-validation-api",
     serviceUrl: "https://abstract-iban-validation.mpp.paywithlocus.com",
     description: "Validate International Bank Account Numbers (IBANs).",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["iban", "banking", "validation"],
@@ -5247,7 +5245,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-iban-validation.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-iban-validation/validate",
@@ -5265,7 +5263,7 @@ export const services: ServiceDef[] = [
     url: "https://www.abstractapi.com/api/ip-intelligence-api",
     serviceUrl: "https://abstract-ip-intelligence.mpp.paywithlocus.com",
     description: "Detect VPNs, proxies, bots, and Tor nodes by IP address.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["ip", "vpn-detection", "proxy", "bot-detection"],
@@ -5279,7 +5277,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-ip-intelligence.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-ip-intelligence/lookup",
@@ -5298,7 +5296,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://ipinfo.mpp.paywithlocus.com",
     description:
       "IP intelligence — geolocation, ASN, privacy detection, carrier data, and hosting identification.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["ip", "geolocation", "asn", "privacy-detection"],
@@ -5309,7 +5307,7 @@ export const services: ServiceDef[] = [
     provider: { name: "IPinfo", url: "https://ipinfo.io" },
     realm: "ipinfo.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /ipinfo/ip-lite",
@@ -5334,7 +5332,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://judge0.mpp.paywithlocus.com",
     description:
       "Online code execution — run source code in 60+ programming languages with sandboxed isolation.",
-    paymentMethods: ["tempo"],
+
     categories: ["compute"],
     integration: "third-party",
     tags: ["code-execution", "sandbox", "programming-languages"],
@@ -5345,7 +5343,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Judge0", url: "https://judge0.com" },
     realm: "judge0.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /judge0/execute-code",
@@ -5388,7 +5386,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mapbox.mpp.paywithlocus.com",
     description:
       "Location and mapping APIs — geocoding, directions, isochrones, matrix routing, map matching, static maps, and spatial queries.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["maps", "geocoding", "directions", "routing", "geospatial"],
@@ -5399,7 +5397,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Mapbox", url: "https://www.mapbox.com" },
     realm: "mapbox.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /mapbox/geocode-forward",
@@ -5460,7 +5458,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mathpix.mpp.paywithlocus.com",
     description:
       "OCR for math, science, and documents — extract LaTeX, MathML, and Mathpix Markdown from images and handwriting.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "third-party",
     tags: ["ocr", "math", "latex", "equations", "documents"],
@@ -5471,7 +5469,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Mathpix", url: "https://mathpix.com" },
     realm: "mathpix.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /mathpix/process-image",
@@ -5496,7 +5494,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://mistral.mpp.paywithlocus.com",
     description:
       "Premier and open-source LLMs — Mistral Large, Medium, Small, Codestral, Magistral reasoning, Pixtral vision, text embeddings, and content moderation.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai"],
     integration: "third-party",
     tags: ["llm", "chat", "embeddings", "code", "reasoning"],
@@ -5507,7 +5505,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Mistral AI", url: "https://mistral.ai" },
     realm: "mistral.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /mistral/chat",
@@ -5544,7 +5542,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://openweather.mpp.paywithlocus.com",
     description:
       "Global weather data — current conditions, 5-day forecasts, hourly forecasts, air quality index with pollutants, geocoding, and One Call 3.0 with full weather suite and government alerts.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["weather", "forecast", "conditions", "temperature"],
@@ -5555,7 +5553,7 @@ export const services: ServiceDef[] = [
     provider: { name: "OpenWeather", url: "https://openweathermap.org" },
     realm: "openweather.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /openweather/current-weather",
@@ -5610,7 +5608,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://perplexity.mpp.paywithlocus.com",
     description:
       "AI-powered search — Sonar chat with real-time web grounding, web search, and embeddings.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "search"],
     integration: "third-party",
     tags: ["search", "ai-search", "web-grounding", "sonar"],
@@ -5621,7 +5619,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Perplexity", url: "https://perplexity.ai" },
     realm: "perplexity.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /perplexity/chat",
@@ -5657,7 +5655,7 @@ export const services: ServiceDef[] = [
     url: "https://www.abstractapi.com/api/phone-validation-api",
     serviceUrl: "https://abstract-phone-intelligence.mpp.paywithlocus.com",
     description: "Validate and get carrier info for phone numbers worldwide.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["phone", "carrier", "validation"],
@@ -5671,7 +5669,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-phone-intelligence.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-phone-intelligence/lookup",
@@ -5690,7 +5688,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://rentcast.mpp.paywithlocus.com",
     description:
       "US real estate intelligence — property records, AVM valuations, rent estimates, sale/rental listings, and market statistics.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["real-estate", "property", "valuations", "rent-estimates"],
@@ -5701,7 +5699,7 @@ export const services: ServiceDef[] = [
     provider: { name: "RentCast", url: "https://rentcast.io" },
     realm: "rentcast.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /rentcast/properties",
@@ -5774,7 +5772,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://replicate.mpp.paywithlocus.com",
     description:
       "Run thousands of open-source AI models via API — image generation, language models, speech recognition, video, and more. Pay only for what you use.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "media"],
     integration: "third-party",
     tags: ["ai-models", "open-source", "image-generation", "inference"],
@@ -5785,7 +5783,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Replicate", url: "https://replicate.com" },
     realm: "replicate.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /replicate/run",
@@ -5822,7 +5820,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://screenshotone.mpp.paywithlocus.com",
     description:
       "Website screenshot API — capture any URL, HTML, or markdown as PNG, JPEG, WebP, or PDF. Full-page, element selection, dark mode, ad blocking, and more.",
-    paymentMethods: ["tempo"],
+
     categories: ["compute"],
     integration: "third-party",
     tags: ["screenshots", "webpage-capture", "rendering"],
@@ -5833,7 +5831,7 @@ export const services: ServiceDef[] = [
     provider: { name: "ScreenshotOne", url: "https://screenshotone.com" },
     realm: "screenshotone.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /screenshotone/take",
@@ -5852,7 +5850,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://stability-ai.mpp.paywithlocus.com",
     description:
       "Generative AI platform for images, 3D models, and audio — text-to-image, editing, upscaling, and more.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "media"],
     integration: "third-party",
     tags: ["image-generation", "stable-diffusion", "upscaling", "3d"],
@@ -5863,7 +5861,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Stability AI", url: "https://stability.ai" },
     realm: "stability-ai.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /stability-ai/generate-ultra",
@@ -6012,7 +6010,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://suno.mpp.paywithlocus.com",
     description:
       "AI music generation — create full songs, generate lyrics, and build custom music tracks with state-of-the-art AI models. Supports custom styles, vocals, and instrumental modes.",
-    paymentMethods: ["tempo"],
+
     categories: ["ai", "media"],
     integration: "third-party",
     tags: ["music-generation", "ai-music", "lyrics", "songs"],
@@ -6023,7 +6021,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Suno", url: "https://sunoapi.org" },
     realm: "suno.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /suno/generate-music",
@@ -6060,7 +6058,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://tako.com",
     description:
       "Data visualization and research platform. Search datasets, generate charts, and build research reports with AI.",
-    paymentMethods: ["tempo"],
+
     categories: ["data", "search", "ai"],
     integration: "first-party",
     tags: [
@@ -6081,7 +6079,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Tako", url: "https://tako.com" },
     realm: "tako.com",
     intent: "charge",
-    payment: STRIPE_PAYMENT,
+    payments: [STRIPE_PAYMENT],
     endpoints: [
       {
         route: "POST /api/mpp/v1/search/fast",
@@ -6148,7 +6146,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://tavily.mpp.paywithlocus.com",
     description:
       "AI-optimized web search, content extraction, site mapping, and crawling API.",
-    paymentMethods: ["tempo"],
+
     categories: ["search", "web"],
     integration: "third-party",
     tags: ["ai-search", "web-search", "extraction", "crawling"],
@@ -6159,7 +6157,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Tavily", url: "https://tavily.com" },
     realm: "tavily.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /tavily/search",
@@ -6195,7 +6193,7 @@ export const services: ServiceDef[] = [
     url: "https://www.abstractapi.com/api/time-date-timezone-api",
     serviceUrl: "https://abstract-timezone.mpp.paywithlocus.com",
     description: "Current time and timezone conversion for any location.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["timezone", "time-conversion", "location"],
@@ -6209,7 +6207,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-timezone.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-timezone/current-time",
@@ -6234,7 +6232,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://abstract-vat.mpp.paywithlocus.com",
     description:
       "VAT number validation, rate calculation, and category lookup for EU.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["vat", "tax", "eu-compliance"],
@@ -6248,7 +6246,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-vat.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-vat/validate",
@@ -6278,7 +6276,7 @@ export const services: ServiceDef[] = [
     url: "https://www.abstractapi.com/api/web-scraping-api",
     serviceUrl: "https://abstract-web-scraping.mpp.paywithlocus.com",
     description: "Scrape web pages with optional JavaScript rendering.",
-    paymentMethods: ["tempo"],
+
     categories: ["web", "data"],
     integration: "third-party",
     tags: ["scraping", "web-pages", "javascript-rendering"],
@@ -6292,7 +6290,7 @@ export const services: ServiceDef[] = [
     },
     realm: "abstract-web-scraping.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /abstract-web-scraping/scrape",
@@ -6311,7 +6309,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://wolframalpha.mpp.paywithlocus.com",
     description:
       "Computational knowledge engine — math, science, geography, history, nutrition, finance, and more. Get answers as text, spoken audio, LLM-optimized data, or full structured results.",
-    paymentMethods: ["tempo"],
+
     categories: ["data"],
     integration: "third-party",
     tags: ["computation", "math", "science", "knowledge-engine"],
@@ -6322,7 +6320,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Wolfram|Alpha", url: "https://www.wolframalpha.com" },
     realm: "wolframalpha.mpp.paywithlocus.com",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /wolframalpha/short-answer",
@@ -6358,7 +6356,7 @@ export const services: ServiceDef[] = [
     url: "https://climate.stripe.dev",
     serviceUrl: "https://climate.stripe.dev",
     description: "Fund permanent carbon removal projects via Stripe Climate.",
-    paymentMethods: ["tempo", "stripe"],
+
     categories: ["web"],
     integration: "first-party",
     tags: ["climate", "carbon", "sustainability", "stripe"],
@@ -6368,7 +6366,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Stripe", url: "https://stripe.com/climate" },
     realm: "climate.stripe.dev",
     intent: "charge",
-    payment: STRIPE_PAYMENT,
+    payments: [STRIPE_PAYMENT, TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /api/contribute",
@@ -6387,7 +6385,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://papercut.lol",
     description:
       "Postcards penned by your agent. Let your agent roast and send you a digital or physical postcard.",
-    paymentMethods: ["tempo", "stripe"],
+
     categories: ["ai", "social"],
     integration: "first-party",
     tags: ["postcards", "roast", "github", "ai-art"],
@@ -6398,7 +6396,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Papercut", url: "https://papercut.lol" },
     realm: "papercut.lol",
     intent: "charge",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
     endpoints: [
       {
         route: "POST /api/send",

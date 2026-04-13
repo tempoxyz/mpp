@@ -77,9 +77,9 @@ export function buildPayment(
 
   const base: Record<string, unknown> = {
     intent: ep.intent ?? svc.intent,
-    method: svc.payment.method,
-    currency: svc.payment.currency,
-    decimals: svc.payment.decimals,
+    method: svc.payments[0].method,
+    currency: svc.payments[0].currency,
+    decimals: svc.payments[0].decimals,
     description: ep.desc,
   };
 
@@ -181,7 +181,6 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
     url: svc.url,
     serviceUrl: svc.serviceUrl,
     description: svc.description,
-    paymentMethods: svc.paymentMethods,
   };
   if (svc.icon) entry.icon = svc.icon;
   entry.categories = svc.categories;
@@ -189,12 +188,14 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   entry.tags = svc.tags;
   entry.status = svc.status ?? "active";
   if (svc.docs) entry.docs = svc.docs;
-  entry.methods = {
-    [svc.payment.method]: {
+  const methods: Record<string, { intents: string[]; assets: string[] }> = {};
+  for (const pm of svc.payments) {
+    methods[pm.method] = {
       intents: [...intents].sort(),
-      assets: [svc.payment.currency],
-    },
-  };
+      assets: [pm.currency],
+    };
+  }
+  entry.methods = methods;
   entry.realm = svc.realm;
   if (svc.provider) entry.provider = svc.provider;
 

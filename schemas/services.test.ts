@@ -106,11 +106,13 @@ describe("services registry", () => {
       });
 
       // Payment
-      it("has payment defaults", () => {
-        expect(svc.payment).toBeDefined();
-        expect(svc.payment.method).toBeTruthy();
-        expect(svc.payment.currency).toBeTruthy();
-        expect(svc.payment.decimals).toBeGreaterThanOrEqual(0);
+      it("has at least one payment method", () => {
+        expect(svc.payments.length).toBeGreaterThan(0);
+        for (const pm of svc.payments) {
+          expect(pm.method).toBeTruthy();
+          expect(pm.currency).toBeTruthy();
+          expect(pm.decimals).toBeGreaterThanOrEqual(0);
+        }
       });
 
       it("has realm and intent", () => {
