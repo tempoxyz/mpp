@@ -1688,7 +1688,7 @@ export const services: ServiceDef[] = [
     provider: { name: "Conduit", url: "https://mpp.conduit.xyz/" },
     realm: "conduit.xyz",
     intent: "session",
-    payment: TEMPO_PAYMENT,
+    payments: [TEMPO_PAYMENT],
     endpoints: [
       {
         route: "POST /:network/",
