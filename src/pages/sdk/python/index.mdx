@@ -38,6 +38,7 @@ $ pip install "pympp[tempo]"
 ### Server
 
 ```python [server.py]
+import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from mpp import Challenge
@@ -49,9 +50,10 @@ app = FastAPI()
 mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
-        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         intents={"charge": ChargeIntent()},
+        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ),
+    secret_key=os.environ["MPP_SECRET_KEY"],
 )
 
 @app.get("/resource")
@@ -71,6 +73,8 @@ async def get_resource(request: Request):
     credential, receipt = result
     return {"data": "paid content", "payer": credential.source}
 ```
+
+Set `MPP_SECRET_KEY` in your environment before you start the server, or pass `secret_key` explicitly to `Mpp.create()`.
 
 ### Client
 

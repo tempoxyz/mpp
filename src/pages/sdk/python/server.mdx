@@ -11,6 +11,7 @@ Protect endpoints with payment requirements.
 Create an `Mpp` instance with `Mpp.create()` and call `charge()` with a human-readable amount. The `tempo()` factory creates a Tempo payment method—configure `currency` and `recipient` once, then every `charge()` call uses those defaults.
 
 ```python [server.py]
+import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from mpp import Challenge
@@ -22,9 +23,10 @@ app = FastAPI()
 mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
-        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         intents={"charge": ChargeIntent()},
+        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ),
+    secret_key=os.environ["MPP_SECRET_KEY"],
 )
 
 @app.get("/resource")
@@ -45,14 +47,14 @@ async def get_resource(request: Request):
     return {"data": "paid content", "payer": credential.source}
 ```
 
-`Mpp.create()` auto-detects `realm` from environment variables (`VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others) and auto-generates a `secret_key` persisted to `.env`. Pass explicit values to override:
+`Mpp.create()` auto-detects `realm` from environment variables (`VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others). It reads `MPP_SECRET_KEY` from the environment unless you pass `secret_key` explicitly:
 
 ```python [server.py]
 mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
-        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         intents={"charge": ChargeIntent()},
+        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ),
     realm="api.example.com",
     secret_key="my-server-secret",
@@ -84,7 +86,6 @@ from mpp.methods.tempo.stream.storage import MemoryStorage
 mpp = Mpp.create(
     method=tempo(
         currency="0x20c0000000000000000000000000000000000000",
-        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         intents={
             "charge": ChargeIntent(),
             "stream": StreamIntent(
@@ -92,6 +93,7 @@ mpp = Mpp.create(
                 rpc_url="https://rpc.tempo.xyz",
             ),
         },
+        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ),
 )
 ```
@@ -148,7 +150,7 @@ Server realm for `WWW-Authenticate` headers. Auto-detected from environment if o
 
 - **Type:** `str`
 
-HMAC secret for stateless Challenge ID verification. Auto-generated and persisted to `.env` if omitted.
+HMAC secret for stateless Challenge ID verification. Reads `MPP_SECRET_KEY` if omitted. Raises if neither is set.
 
 ## `charge()` parameters
 
