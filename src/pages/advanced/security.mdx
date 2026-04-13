@@ -32,6 +32,23 @@ Do not log:
 
 Keep them out of error messages, debugging output, analytics, traces, and support logs. If you need observability, log stable metadata such as request IDs, challenge IDs, status codes, or payment method names instead.
 
+## Handle proxies and caches safely
+
+Treat reverse proxies, CDNs, API gateways, and observability pipelines as part of your threat surface.
+
+- Send `Cache-Control: no-store` with `402` responses so intermediaries do not cache Challenges.
+- Send `Cache-Control: private` on successful responses that include `Payment-Receipt`.
+- Redact `Authorization: Payment` and `Payment-Receipt` headers in proxy logs, trace exporters, and edge analytics.
+- Do not rely on intermediary-specific `402` handling—verify that your deployment forwards `WWW-Authenticate` headers correctly.
+
+## Bind paid requests to the actual request
+
+Use Challenge binding to make sure the paid request matches what your server intended to charge for.
+
+- Include a `digest` parameter for `POST`, `PUT`, and `PATCH` requests so clients cannot change the request body after receiving a Challenge.
+- Verify the expected amount, currency, recipient, and route-level business context when checking a Credential.
+- Do not use `description` as an authorization input. It is display text, not a security control.
+
 ## Rotate with overlap
 
 When you rotate `MPP_SECRET_KEY`, use a staged rollout so in-flight Challenges keep working:
@@ -52,9 +69,23 @@ If `MPP_SECRET_KEY` is exposed:
 4. Review issuance and verification telemetry for suspicious activity.
 5. Replace the key in every environment where it was reused.
 
+## Prevent replay in production
+
+Replay protection must survive concurrency and multi-instance deployments.
+
+- Use a shared atomic store when your server runs on more than one instance.
+- Do not rely on process-local memory for replay protection in distributed deployments.
+- Check that zero-amount proof flows have explicit replay protection before you use them for production identity or access control.
+
 ## Keep local development separate
 
 A local `.env` file is fine for development if it stays local and out of git. Commit only `.env.example` with placeholders, use a separate development key, and never reuse production secrets in staging or local environments.
+
+## Related security topics
+
+- [Protocol overview](/protocol)
+- [HTTP 402](/protocol/http-402)
+- [Tempo charge replay protection](/sdk/typescript/server/Method.tempo.charge)
 
 ## Read the underlying guidance
 
