@@ -1654,7 +1654,7 @@ export const services: ServiceDef[] = [
     url: "https://mpp.conduit.xyz/",
     serviceUrl: "https://mpp.conduit.xyz",
     description:
-      "EVM JSON-RPC access to Conduit Nodes across 59+ networks including Tempo, Zora, and BOB.",
+      "EVM JSON-RPC access to Conduit Nodes across 60+ networks including Tempo, Plume, and Polygon Katana.",
     categories: ["blockchain", "data"],
     integration: "first-party",
     tags: ["rpc", "json-rpc", "evm", "multichain"],
