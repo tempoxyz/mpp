@@ -513,9 +513,9 @@ const SKIP_ANIMATION = import.meta.env.VITE_SKIP_ANIMATION === "true";
 const STREAM_DELAY = SKIP_ANIMATION ? 0 : 30;
 
 export type {
-  StepConfig,
-  PaymentStepConfig,
   CommandsStepConfig,
+  PaymentStepConfig,
+  StepConfig,
   WizardStepConfig,
 };
 export { COST_PER_TOKEN, LOOKUP_COST, shuffle };

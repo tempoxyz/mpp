@@ -562,6 +562,7 @@ function SearchWithDropdown({
                 // biome-ignore lint/a11y/useKeyWithClickEvents: dropdown item
                 // biome-ignore lint/a11y/noStaticElementInteractions: dropdown item
                 <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: filtered list with no stable id
                   key={`${result.type}-${idx}`}
                   onClick={() => handleSelect(result)}
                   onMouseEnter={() => setActiveIndex(idx)}

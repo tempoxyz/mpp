@@ -849,6 +849,7 @@ export default defineConfig({
     twoslashOptions: {
       compilerOptions: {
         moduleResolution: 100,
+        types: ["node"],
       },
     },
   },

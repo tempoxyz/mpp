@@ -591,6 +591,7 @@ export function ServiceDiscovery({
                       )
                       .map((r, i) => (
                         <button
+                          // biome-ignore lint/suspicious/noArrayIndexKey: filtered list with no stable id
                           key={`${r.type}-${i}`}
                           type="button"
                           className={`discovery-dropdown-item${i === activeIndex ? " discovery-dropdown-active" : ""}`}

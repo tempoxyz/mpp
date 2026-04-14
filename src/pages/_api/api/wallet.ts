@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const { action, address } = body;
 
     if (action === "fund") {
-      if (!address || !address.startsWith("0x")) {
+      if (!address?.startsWith("0x")) {
         console.warn(`[wallet] invalid fund address: ${address || "<empty>"}`);
         return Response.json({ error: "Invalid address" }, { status: 400 });
       }
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     if (action === "balance") {
-      if (!address || !address.startsWith("0x")) {
+      if (!address?.startsWith("0x")) {
         console.warn(
           `[wallet] invalid balance address: ${address || "<empty>"}`,
         );

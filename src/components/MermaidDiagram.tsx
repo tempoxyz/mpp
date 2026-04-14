@@ -984,7 +984,7 @@ export function MermaidDiagram({
 
   const renderDiagram = useCallback(() => {
     const el = svgRef.current;
-    if (!el || !el.isConnected) return;
+    if (!el?.isConnected) return;
     setPhase("idle");
     try {
       const parsed = parse(chart);

@@ -138,7 +138,7 @@ function MobileNavPortal() {
     return () => observer.disconnect();
   }, []);
 
-  if (!target || !target.isConnected) return null;
+  if (!target?.isConnected) return null;
   return createPortal(<MobileNav />, target);
 }
 
