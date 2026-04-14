@@ -18,7 +18,7 @@ export function getProxyFetch(): typeof globalThis.fetch | null {
     return null;
   }
 
-  const { fetch } = Mppx.create({
+  const { fetch: mppxFetch } = Mppx.create({
     polyfill: false,
     methods: [
       tempo({
@@ -35,6 +35,15 @@ export function getProxyFetch(): typeof globalThis.fetch | null {
     ],
   });
 
-  _proxyFetch = fetch;
-  return fetch;
+  const proxyApiKey = process.env.MPP_PROXY_API_KEY;
+
+  _proxyFetch = proxyApiKey
+    ? (input, init) => {
+        const headers = new Headers(init?.headers);
+        headers.set("x-api-key", proxyApiKey);
+        return mppxFetch(input, { ...init, headers });
+      }
+    : mppxFetch;
+
+  return _proxyFetch;
 }
