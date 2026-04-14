@@ -190,7 +190,7 @@ function LandingStyles() {
         flex-direction: column;
         align-items: center;
         min-height: 0;
-        padding: 0 0.75rem;
+        padding: 0 0.75rem 2rem;
       }
 
       .landing-terminal {
