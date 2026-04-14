@@ -874,7 +874,7 @@ function ServiceDetailModal({
     const v = Number(p.amount) / 10 ** (p.decimals ?? 0);
     if (Number.isNaN(v)) return "—";
     if (v >= 0.01) return `$${v.toFixed(2)}`;
-    let s = v.toFixed(4);
+    let s = v.toFixed(6);
     s = s.replace(/0+$/, "");
     if (s.endsWith(".")) s += "00";
     else {

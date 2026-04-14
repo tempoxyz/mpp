@@ -46,7 +46,7 @@ export function formatPrice(ep: Endpoint): string {
   if (Number.isNaN(v)) return "\u2014";
   if (v === 0) return "$0";
   if (v >= 1) return `$${v.toFixed(2)}`;
-  let s = v.toFixed(4);
+  let s = v.toFixed(6);
   s = s.replace(/0+$/, "");
   if (s.endsWith(".")) s += "00";
   else {
