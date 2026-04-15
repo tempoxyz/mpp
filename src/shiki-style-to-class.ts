@@ -1,5 +1,3 @@
-import type { Plugin } from "vite";
-
 const COLOR_PROPS = new Set([
   "color",
   "background-color",
@@ -52,7 +50,8 @@ function walkSpans(node: HastNode, cb: (span: HastNode) => void) {
 /**
  * Global color→class registry shared across all code blocks.
  * Since the same Shiki themes produce the same color strings site-wide,
- * a single global map deduplicates them into one stylesheet.
+ * a single global map deduplicates them into one set of class names.
+ * Only the first code block that encounters a new color emits a CSS rule.
  */
 const colorToClass = new Map<string, string>();
 let classIndex = 0;
@@ -65,9 +64,9 @@ let classIndex = 0;
  * With only ~8 unique color combinations repeated 20K–40K times, this bloats
  * uncompressed page size by 1.6–3.2 MB — especially in the RSC flight payload.
  *
- * This transformer deduplicates those styles into global CSS classes, and
- * {@link shikiColorsPlugin} injects the collected rules as a single `<style>`
- * in the HTML `<head>`.
+ * This transformer deduplicates those styles into global CSS classes. Class names
+ * are shared across all code blocks, and CSS rules are only emitted once per
+ * unique color combination (in whichever block first encounters it).
  */
 export function shikiStyleToClass() {
   return {
@@ -84,6 +83,8 @@ export function shikiStyleToClass() {
       );
       if (!code) return;
 
+      const newRules: [string, string][] = [];
+
       walkSpans(code, (span: HastNode) => {
         const style =
           typeof span.properties.style === "string"
@@ -98,6 +99,7 @@ export function shikiStyleToClass() {
         if (!cls) {
           cls = `sc${classIndex++}`;
           colorToClass.set(color, cls);
+          newRules.push([color, cls]);
         }
 
         const spanClasses = span.properties.class
@@ -111,31 +113,20 @@ export function shikiStyleToClass() {
           delete span.properties.style;
         }
       });
-    },
-  };
-}
 
-/**
- * Vite plugin that injects a single global `<style>` with all collected
- * Shiki color classes into the HTML `<head>`.
- */
-export function shikiColorsPlugin(): Plugin {
-  return {
-    name: "shiki-colors",
-    enforce: "post",
-    transformIndexHtml() {
-      if (colorToClass.size === 0) return [];
-      const rules = Array.from(colorToClass.entries())
+      if (newRules.length === 0) return;
+
+      const rules = newRules
         .map(([style, cls]) => `.${cls}{${style}}`)
         .join("");
-      return [
-        {
-          tag: "style",
-          attrs: { "data-shiki-colors": "" },
-          children: rules,
-          injectTo: "head",
-        },
-      ];
+
+      const preIndex = root.children.indexOf(pre);
+      root.children.splice(preIndex, 0, {
+        type: "element",
+        tagName: "style",
+        properties: { "data-shiki-colors": "" },
+        children: [{ type: "text", value: rules }],
+      });
     },
   };
 }

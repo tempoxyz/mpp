@@ -49,12 +49,17 @@ describe("shikiStyleToClass", () => {
 
     transformer.root.call({} as any, root as any);
 
-    // No per-block <style> injection — CSS is collected globally
-    expect(root.children.length).toBe(1);
-    expect(root.children[0].tagName).toBe("pre");
+    // Should have injected a <style> element before <pre>
+    expect(root.children.length).toBe(2);
+    expect(root.children[0].tagName).toBe("style");
+    expect(root.children[1].tagName).toBe("pre");
+
+    // Check CSS content
+    const css = root.children[0].children[0].value;
+    expect(css).toContain("color:light-dark(#D73A49, #F47067)");
 
     // Check spans no longer have style, but have class
-    const code = root.children[0].children[0];
+    const code = root.children[1].children[0];
     for (const span of code.children) {
       expect(span.properties.style).toBeUndefined();
       expect(span.properties.class).toMatch(/sc\d+/);
@@ -79,7 +84,10 @@ describe("shikiStyleToClass", () => {
 
     transformer.root.call({} as any, root as any);
 
-    const span = root.children[0].children[0].children[0];
+    const pre = root.children.find(
+      (n: any) => n.type === "element" && n.tagName === "pre",
+    );
+    const span = pre.children[0].children[0];
     // Should keep font-style inline
     expect(span.properties.style).toBe("font-style:italic");
     // Should also have a class for the color
