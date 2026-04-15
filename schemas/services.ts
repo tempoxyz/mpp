@@ -5840,6 +5840,39 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Rungate ──────────────────────────────────────────────────────────
+  {
+    id: "rungate",
+    name: "Rungate",
+    url: "https://api.rungate.ai",
+    serviceUrl: "https://api.rungate.ai",
+    description:
+      "OpenAI-compatible LLM inference aggregator across 9 upstream providers (Chutes, DeepInfra, Novita, Together, SambaNova, Mistral, AtlasCloud, Parasail, Fireworks). Supports streaming via Tempo Sessions.",
+
+    categories: ["ai"],
+    integration: "first-party",
+    tags: ["llm", "chat", "inference", "openai-compatible", "streaming", "aggregator"],
+    docs: { homepage: "https://rungate.xyz" },
+    provider: { name: "Rungate", url: "https://rungate.xyz" },
+    realm: "api.rungate.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/models",
+        desc: "List available models (free)",
+        docs: false,
+      },
+      {
+        route: "POST /v1/chat/completions",
+        desc: "Chat completions (streaming and non-streaming) — price varies by model and token usage",
+        dynamic: true,
+        amountHint: "Model-dependent",
+        intent: "session",
+      },
+    ],
+  },
+
   // ── ScreenshotOne ────────────────────────────────────────────────────
   {
     id: "screenshotone",
