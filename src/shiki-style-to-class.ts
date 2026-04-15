@@ -165,7 +165,10 @@ export function shikiStyleToClass() {
 
       if (blockRules.size === 0) return;
 
-      const css = Array.from(blockRules, ([cls, style]) => `.${cls}{${style}}`).join("");
+      const css = Array.from(
+        blockRules,
+        ([cls, style]) => `.${cls}{${style}}`,
+      ).join("");
 
       // Attach CSS rules to the <pre> as a data attribute.
       //

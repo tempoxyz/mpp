@@ -86,7 +86,9 @@ describe("shikiStyleToClass", () => {
     transformer.root.call({} as any, secondRoot as any);
 
     const secondPre = secondRoot.children[0];
-    expect(secondPre.properties["data-shiki-css"]).toContain(`.${cls}{${style}}`);
+    expect(secondPre.properties["data-shiki-css"]).toContain(
+      `.${cls}{${style}}`,
+    );
   });
 
   it("preserves non-color style properties", () => {
