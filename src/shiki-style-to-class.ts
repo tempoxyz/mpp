@@ -1,3 +1,42 @@
+/**
+ * Shiki Style-to-Class Transformer
+ *
+ * Problem:
+ * Shiki's dual-theme output puts a ~77-char inline `style` attribute on every
+ * token <span>. There are only ~8 unique color combinations, but they repeat
+ * 20K–40K times per page. This bloats uncompressed page size by 1.6–3.2 MB,
+ * especially in the RSC flight payload where every span is serialized twice.
+ *
+ * Solution:
+ * A two-phase approach:
+ *
+ * 1. BUILD TIME (Shiki transformer — `shikiStyleToClass`):
+ *    Runs during MDX compilation. Walks every token <span>, extracts color
+ *    styles into a global Map, replaces `style` with `class`, and stores
+ *    the CSS rules as a `data-shiki-css` attribute on the <pre> element.
+ *    Data attributes survive RSC serialization (raw <style> HAST elements
+ *    get stripped by the MDX/RSC pipeline).
+ *
+ * 2. RUNTIME (inline script — `injectShikiColors`):
+ *    A tiny self-executing script injected via `_layout.tsx`. Creates a single
+ *    shared <style> tag, reads `data-shiki-css` from every <pre>, appends the
+ *    rules, and removes the attribute. A MutationObserver handles code blocks
+ *    that appear after client-side navigation.
+ *
+ * Why not simpler approaches?
+ * - Vite `transformIndexHtml`: Vocs uses RSC/Waku — no traditional index.html
+ *   to transform. The hook never fires for rendered pages.
+ * - HAST <style> sibling: MDX component overrides in Vocs don't map <style>
+ *   elements, so they get stripped during React rendering.
+ * - Per-block scoped styles: Works but creates N <style> tags. The global map
+ *   approach deduplicates across all blocks — only the first block to encounter
+ *   a new color combination emits its CSS rule.
+ *
+ * @see https://github.com/shikijs/shiki/issues/671#issuecomment-3605208867
+ */
+
+// CSS properties that represent token colors in Shiki's dual-theme output.
+// These get extracted into classes; everything else stays inline.
 const COLOR_PROPS = new Set([
   "color",
   "background-color",
@@ -7,6 +46,15 @@ const COLOR_PROPS = new Set([
   "--shiki-dark-bg",
 ]);
 
+/**
+ * Splits a CSS style string into color-related declarations (to be classified)
+ * and non-color declarations (to remain inline on the element).
+ *
+ * Example:
+ *   "color:#D73A49;--shiki-dark:#F47067;font-style:italic"
+ *   → color: "color:#D73A49;--shiki-dark:#F47067"
+ *   → rest:  "font-style:italic"
+ */
 function splitStyle(style: string): {
   color: string;
   rest: string;
@@ -33,9 +81,10 @@ function splitStyle(style: string): {
   };
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: HAST node types
+// biome-ignore lint/suspicious/noExplicitAny: HAST node types are untyped
 type HastNode = any;
 
+/** Recursively walk all <span> elements with a style attribute. */
 function walkSpans(node: HastNode, cb: (span: HastNode) => void) {
   if (!node.children) return;
   for (const child of node.children) {
@@ -48,26 +97,28 @@ function walkSpans(node: HastNode, cb: (span: HastNode) => void) {
 }
 
 /**
- * Global color→class registry shared across all code blocks.
- * Since the same Shiki themes produce the same color strings site-wide,
- * a single global map deduplicates them into one set of class names.
- * Only the first code block that encounters a new color emits a CSS rule.
+ * Global color→class registry, shared across ALL code blocks at build time.
+ *
+ * The same Shiki themes produce the same ~8 color strings site-wide, so a
+ * global map means each unique style only generates one CSS class and one
+ * CSS rule. Subsequent blocks that use the same color reuse the existing
+ * class without emitting duplicate rules.
  */
 const colorToClass = new Map<string, string>();
 let classIndex = 0;
 
 /**
- * Shiki transformer that replaces repeated inline color styles with CSS classes.
+ * Shiki transformer (build time).
  *
- * Shiki's dual-theme output puts a ~77-char `style` attribute on every token span
- * (e.g. `color:light-dark(#D73A49,#F47067);--shiki-light:#D73A49;--shiki-dark:#F47067`).
- * With only ~8 unique color combinations repeated 20K–40K times, this bloats
- * uncompressed page size by 1.6–3.2 MB — especially in the RSC flight payload.
+ * Registered in `vocs.config.ts` via `codeHighlight.transformers`. Runs after
+ * all other transformers (`enforce: "post"`) so it sees the final HAST output.
  *
- * This transformer deduplicates those styles into global CSS classes. New CSS
- * rules are stored on the `<pre>` element via a `data-shiki-css` attribute,
- * then injected into a shared `<style>` tag at runtime by
- * {@link injectShikiColors}.
+ * For each code block:
+ * 1. Find the <pre> → <code> structure
+ * 2. Walk every <span> with an inline style
+ * 3. Split the style into color vs. non-color parts
+ * 4. Replace color styles with a class name (from the global map)
+ * 5. Store any *new* CSS rules as `data-shiki-css` on the <pre>
  */
 export function shikiStyleToClass() {
   return {
@@ -84,6 +135,7 @@ export function shikiStyleToClass() {
       );
       if (!code) return;
 
+      // Collect CSS rules for colors we haven't seen before
       const newRules: [string, string][] = [];
 
       walkSpans(code, (span: HastNode) => {
@@ -96,6 +148,7 @@ export function shikiStyleToClass() {
         const { color, rest } = splitStyle(style);
         if (!color) return;
 
+        // Reuse existing class or create a new one
         let cls = colorToClass.get(color);
         if (!cls) {
           cls = `sc${classIndex++}`;
@@ -103,11 +156,13 @@ export function shikiStyleToClass() {
           newRules.push([color, cls]);
         }
 
+        // Replace inline style with class reference
         const spanClasses = span.properties.class
           ? `${span.properties.class} ${cls}`
           : cls;
         span.properties.class = spanClasses;
 
+        // Keep non-color styles (e.g. font-style:italic) inline
         if (rest) {
           span.properties.style = rest;
         } else {
@@ -115,13 +170,17 @@ export function shikiStyleToClass() {
         }
       });
 
+      // No new colors in this block — nothing to emit
       if (newRules.length === 0) return;
 
       const css = newRules.map(([style, cls]) => `.${cls}{${style}}`).join("");
 
-      // Store CSS on the <pre> element as a data attribute.
-      // A <style> HAST element would be stripped by the MDX/RSC pipeline,
-      // but data attributes survive through React rendering.
+      // Attach CSS rules to the <pre> as a data attribute.
+      //
+      // We can't inject a <style> HAST element here because Vocs's MDX pipeline
+      // maps <pre>, <code>, <span>, <div>, etc. to React components but has no
+      // mapping for <style> — so it gets silently dropped during RSC rendering.
+      // Data attributes on <pre> survive because CodeBlock spreads all props.
       const existing = pre.properties["data-shiki-css"];
       pre.properties["data-shiki-css"] = existing ? `${existing}${css}` : css;
     },
@@ -129,10 +188,18 @@ export function shikiStyleToClass() {
 }
 
 /**
- * Inline script that reads `data-shiki-css` attributes from `<pre>` elements
- * and injects the rules into a shared `<style>` tag. Call this once in the
- * page layout. It handles both initial load and client-side navigation via
- * MutationObserver.
+ * Client-side script that activates the CSS classes (runtime).
+ *
+ * Injected via `_layout.tsx` using dangerouslySetInnerHTML. This runs once
+ * per page load and:
+ *
+ * 1. Creates a single shared <style data-shiki-colors> in <head>
+ * 2. Finds all <pre data-shiki-css="..."> elements
+ * 3. Appends their CSS rules to the shared <style> (deduplicating by content)
+ * 4. Removes the data-shiki-css attribute (cleanup)
+ * 5. Sets up a MutationObserver to handle code blocks added during
+ *    client-side navigation (Vocs uses RSC streaming, so new <pre>
+ *    elements can appear after the initial render)
  */
 export const injectShikiColors = `
 (function(){

@@ -846,6 +846,8 @@ export default defineConfig({
   ],
   title: "MPP — Machine Payments Protocol",
   titleTemplate: "%s | MPP",
+  // Replaces repeated inline Shiki color styles with CSS classes, reducing
+  // uncompressed page size by ~1.5 MB. See src/shiki-style-to-class.ts.
   codeHighlight: {
     transformers: [shikiStyleToClass()],
   },

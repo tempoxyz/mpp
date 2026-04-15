@@ -3,11 +3,11 @@
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { injectShikiColors } from "../shiki-style-to-class.js";
 import lockupDarkRaw from "../assets/lockup-dark.svg?raw";
 import lockupLightRaw from "../assets/lockup-light.svg?raw";
 import logoDarkRaw from "../assets/logo-dark.svg?raw";
 import logoLightRaw from "../assets/logo-light.svg?raw";
+import { injectShikiColors } from "../shiki-style-to-class.js";
 
 if (typeof window !== "undefined") {
   window.addEventListener("vite:preloadError", (event) => {
@@ -444,6 +444,9 @@ export default function Layout(
           __html: `(function(){var o=Element.prototype.scrollTo;Element.prototype.scrollTo=function(a){if(a&&typeof a==='object'&&this.matches&&this.matches('[data-v-sidebar-container]')){a=Object.assign({},a,{behavior:'instant'})}return o.apply(this,arguments)};})();`,
         }}
       />
+      {/* Shiki style-to-class: reads data-shiki-css from <pre> elements and
+          injects the rules into a shared <style> tag. See shiki-style-to-class.ts
+          for the full architecture explanation. */}
       <script
         // biome-ignore lint/security/noDangerouslySetInnerHtml: injects Shiki color CSS from data attributes
         dangerouslySetInnerHTML={{ __html: injectShikiColors }}
