@@ -29,8 +29,8 @@ importers:
         specifier: ^11.14.0
         version: 11.14.0
       mppx:
-        specifier: 0.5.12
-        version: 0.5.12(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.6))(express@5.2.1)(hono@4.12.12)(typescript@6.0.2)(viem@2.47.10(typescript@6.0.2)(zod@4.3.6))
+        specifier: 0.5.13
+        version: 0.5.13(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.6))(express@5.2.1)(hono@4.12.12)(typescript@6.0.2)(viem@2.47.10(typescript@6.0.2)(zod@4.3.6))
       react:
         specifier: ^19
         version: 19.2.4
@@ -3335,8 +3335,8 @@ packages:
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
 
-  mppx@0.5.12:
-    resolution: {integrity: sha512-pr6epOYJd8Q6D+MRMc27G48IMh0naAGMMyY1cZYrxMXVwH8PPn1ZaqUwv31svcjOV+UpSrSAe/MP2hRWJ0KQ7A==}
+  mppx@0.5.13:
+    resolution: {integrity: sha512-HZnsrL2HGJb6Utxhq8tNzw53yQKZqFGVJH5qxepd11icRe4RmoU/HCaOz1t9sq9BI05F8NJeXPBZYb2w3V2FzQ==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
@@ -7784,7 +7784,7 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mppx@0.5.12(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.6))(express@5.2.1)(hono@4.12.12)(typescript@6.0.2)(viem@2.47.10(typescript@6.0.2)(zod@4.3.6)):
+  mppx@0.5.13(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.6))(express@5.2.1)(hono@4.12.12)(typescript@6.0.2)(viem@2.47.10(typescript@6.0.2)(zod@4.3.6)):
     dependencies:
       incur: 0.3.25
       ox: 0.14.10(typescript@6.0.2)(zod@4.3.6)

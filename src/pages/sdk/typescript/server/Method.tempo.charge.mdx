@@ -71,6 +71,29 @@ export async function handler(request: Request) {
 }
 ```
 
+### With a custom fee-payer policy
+
+Override the default fee-sponsor limits when you co-sign charges locally.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      account,
+      feePayer: true,
+      feePayerPolicy: {
+        maxPriorityFeePerGas: 50_000_000_000n,
+      },
+    }),
+  ],
+})
+```
+
 ### With replay protection for zero-dollar auth
 
 Pass `store` when you want zero-dollar proof Credentials to be single-use.
@@ -135,6 +158,16 @@ External identifier for the payment.
 Account or URL for sponsoring transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), or `true` when the `account` parameter doubles as the fee payer.
 
 This setting only applies to non-zero charges. Zero-amount proof flows do not create a transaction.
+
+### feePayerPolicy (optional)
+
+- **Type:** `{ maxGas?: bigint; maxFeePerGas?: bigint; maxPriorityFeePerGas?: bigint; maxTotalFee?: bigint; maxValidityWindowSeconds?: number }`
+
+Override the fee-sponsor policy when you co-sign charge transactions locally.
+
+Defaults resolve per chain. In `mppx@0.5.13`, Moderato (`42431`) uses a higher default `maxPriorityFeePerGas` ceiling than Tempo mainnet so sponsored charges keep working when testnet tips spike.
+
+If you raise `maxGas` or `maxFeePerGas`, also review `maxTotalFee` so the combined fee budget still fits your policy.
 
 ### getClient (optional)
 
