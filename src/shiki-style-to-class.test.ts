@@ -99,16 +99,10 @@ describe("shikiStyleToClass", () => {
     const style2 =
       "color:light-dark(#24292E, #ADBAC7);--shiki-light:#24292E;--shiki-dark:#ADBAC7";
 
-    const firstRoot = makeRoot([
-      { style: style1 },
-      { style: style2 },
-    ]);
+    const firstRoot = makeRoot([{ style: style1 }, { style: style2 }]);
     transformer.root.call({} as any, firstRoot as any);
 
-    const secondRoot = makeRoot([
-      { style: style2 },
-      { style: style1 },
-    ]);
+    const secondRoot = makeRoot([{ style: style2 }, { style: style1 }]);
     transformer.root.call({} as any, secondRoot as any);
 
     const firstPre = firstRoot.children[0];
