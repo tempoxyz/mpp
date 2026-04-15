@@ -47,26 +47,17 @@ describe("shikiStyleToClass", () => {
       { style: style2 }, // duplicate
     ]);
 
-    // Call root hook
     transformer.root.call({} as any, root as any);
 
-    // Should have injected a <style> element before <pre>
-    expect(root.children.length).toBe(2); // <style> + <pre>
-    expect(root.children[0].tagName).toBe("style");
-    expect(root.children[1].tagName).toBe("pre");
-
-    // Check CSS content
-    const css = root.children[0].children[0].value;
-    expect(css).toContain(".s0{");
-    expect(css).toContain(".s1{");
-    expect(css).toContain("color:light-dark(#D73A49, #F47067)");
-    console.log("Generated CSS:", css);
+    // No per-block <style> injection — CSS is collected globally
+    expect(root.children.length).toBe(1);
+    expect(root.children[0].tagName).toBe("pre");
 
     // Check spans no longer have style, but have class
-    const code = root.children[1].children[0];
+    const code = root.children[0].children[0];
     for (const span of code.children) {
       expect(span.properties.style).toBeUndefined();
-      expect(span.properties.class).toMatch(/s\d/);
+      expect(span.properties.class).toMatch(/sc\d+/);
     }
 
     // Check deduplication: 2 unique styles -> 2 classes
@@ -88,11 +79,11 @@ describe("shikiStyleToClass", () => {
 
     transformer.root.call({} as any, root as any);
 
-    const span = root.children[1].children[0].children[0];
+    const span = root.children[0].children[0].children[0];
     // Should keep font-style inline
     expect(span.properties.style).toBe("font-style:italic");
     // Should also have a class for the color
-    expect(span.properties.class).toMatch(/s\d/);
+    expect(span.properties.class).toMatch(/sc\d+/);
   });
 
   it("does nothing when no <pre> found", () => {

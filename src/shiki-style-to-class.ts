@@ -1,3 +1,5 @@
+import type { Plugin } from "vite";
+
 const COLOR_PROPS = new Set([
   "color",
   "background-color",
@@ -47,7 +49,13 @@ function walkSpans(node: HastNode, cb: (span: HastNode) => void) {
   }
 }
 
-let scopeCounter = 0;
+/**
+ * Global color→class registry shared across all code blocks.
+ * Since the same Shiki themes produce the same color strings site-wide,
+ * a single global map deduplicates them into one stylesheet.
+ */
+const colorToClass = new Map<string, string>();
+let classIndex = 0;
 
 /**
  * Shiki transformer that replaces repeated inline color styles with CSS classes.
@@ -56,7 +64,10 @@ let scopeCounter = 0;
  * (e.g. `color:light-dark(#D73A49,#F47067);--shiki-light:#D73A49;--shiki-dark:#F47067`).
  * With only ~8 unique color combinations repeated 20K–40K times, this bloats
  * uncompressed page size by 1.6–3.2 MB — especially in the RSC flight payload.
- * This transformer deduplicates those styles into scoped CSS classes.
+ *
+ * This transformer deduplicates those styles into global CSS classes, and
+ * {@link shikiColorsPlugin} injects the collected rules as a single `<style>`
+ * in the HTML `<head>`.
  */
 export function shikiStyleToClass() {
   return {
@@ -73,21 +84,6 @@ export function shikiStyleToClass() {
       );
       if (!code) return;
 
-      const colorToClass = new Map<string, string>();
-      let classIndex = 0;
-      const scopeId = `sc${scopeCounter++}`;
-
-      // Add scope class to <pre>
-      const existing = pre.properties?.class;
-      const classes = Array.isArray(existing)
-        ? [...existing]
-        : typeof existing === "string"
-          ? existing.split(" ")
-          : [];
-      classes.push(scopeId);
-      pre.properties.class = classes.join(" ");
-
-      // Walk all spans and replace color styles with classes
       walkSpans(code, (span: HastNode) => {
         const style =
           typeof span.properties.style === "string"
@@ -100,11 +96,10 @@ export function shikiStyleToClass() {
 
         let cls = colorToClass.get(color);
         if (!cls) {
-          cls = `s${classIndex++}`;
+          cls = `sc${classIndex++}`;
           colorToClass.set(color, cls);
         }
 
-        // Replace style with class
         const spanClasses = span.properties.class
           ? `${span.properties.class} ${cls}`
           : cls;
@@ -116,22 +111,31 @@ export function shikiStyleToClass() {
           delete span.properties.style;
         }
       });
+    },
+  };
+}
 
-      if (colorToClass.size === 0) return;
-
-      // Build CSS rules scoped to this code block
+/**
+ * Vite plugin that injects a single global `<style>` with all collected
+ * Shiki color classes into the HTML `<head>`.
+ */
+export function shikiColorsPlugin(): Plugin {
+  return {
+    name: "shiki-colors",
+    enforce: "post",
+    transformIndexHtml() {
+      if (colorToClass.size === 0) return [];
       const rules = Array.from(colorToClass.entries())
-        .map(([style, cls]) => `.${scopeId} .${cls}{${style}}`)
+        .map(([style, cls]) => `.${cls}{${style}}`)
         .join("");
-
-      // Inject <style> as sibling before <pre> in the root
-      const preIndex = root.children.indexOf(pre);
-      root.children.splice(preIndex, 0, {
-        type: "element",
-        tagName: "style",
-        properties: { "data-shiki-colors": "" },
-        children: [{ type: "text", value: rules }],
-      });
+      return [
+        {
+          tag: "style",
+          attrs: { "data-shiki-colors": "" },
+          children: rules,
+          injectTo: "head",
+        },
+      ];
     },
   };
 }
