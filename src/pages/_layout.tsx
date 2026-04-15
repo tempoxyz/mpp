@@ -3,6 +3,7 @@
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { injectShikiColors } from "../shiki-style-to-class.js";
 import lockupDarkRaw from "../assets/lockup-dark.svg?raw";
 import lockupLightRaw from "../assets/lockup-light.svg?raw";
 import logoDarkRaw from "../assets/logo-dark.svg?raw";
@@ -442,6 +443,10 @@ export default function Layout(
         dangerouslySetInnerHTML={{
           __html: `(function(){var o=Element.prototype.scrollTo;Element.prototype.scrollTo=function(a){if(a&&typeof a==='object'&&this.matches&&this.matches('[data-v-sidebar-container]')){a=Object.assign({},a,{behavior:'instant'})}return o.apply(this,arguments)};})();`,
         }}
+      />
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: injects Shiki color CSS from data attributes
+        dangerouslySetInnerHTML={{ __html: injectShikiColors }}
       />
       <meta
         name="viewport"

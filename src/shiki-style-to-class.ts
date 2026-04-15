@@ -64,9 +64,10 @@ let classIndex = 0;
  * With only ~8 unique color combinations repeated 20K–40K times, this bloats
  * uncompressed page size by 1.6–3.2 MB — especially in the RSC flight payload.
  *
- * This transformer deduplicates those styles into global CSS classes. Class names
- * are shared across all code blocks, and CSS rules are only emitted once per
- * unique color combination (in whichever block first encounters it).
+ * This transformer deduplicates those styles into global CSS classes. New CSS
+ * rules are stored on the `<pre>` element via a `data-shiki-css` attribute,
+ * then injected into a shared `<style>` tag at runtime by
+ * {@link injectShikiColors}.
  */
 export function shikiStyleToClass() {
   return {
@@ -116,17 +117,37 @@ export function shikiStyleToClass() {
 
       if (newRules.length === 0) return;
 
-      const rules = newRules
-        .map(([style, cls]) => `.${cls}{${style}}`)
-        .join("");
+      const css = newRules.map(([style, cls]) => `.${cls}{${style}}`).join("");
 
-      const preIndex = root.children.indexOf(pre);
-      root.children.splice(preIndex, 0, {
-        type: "element",
-        tagName: "style",
-        properties: { "data-shiki-colors": "" },
-        children: [{ type: "text", value: rules }],
-      });
+      // Store CSS on the <pre> element as a data attribute.
+      // A <style> HAST element would be stripped by the MDX/RSC pipeline,
+      // but data attributes survive through React rendering.
+      const existing = pre.properties["data-shiki-css"];
+      pre.properties["data-shiki-css"] = existing ? `${existing}${css}` : css;
     },
   };
 }
+
+/**
+ * Inline script that reads `data-shiki-css` attributes from `<pre>` elements
+ * and injects the rules into a shared `<style>` tag. Call this once in the
+ * page layout. It handles both initial load and client-side navigation via
+ * MutationObserver.
+ */
+export const injectShikiColors = `
+(function(){
+  var s=document.createElement('style');
+  s.dataset.shikiColors='';
+  document.head.appendChild(s);
+  var seen=new Set();
+  function flush(){
+    document.querySelectorAll('pre[data-shiki-css]').forEach(function(pre){
+      var css=pre.getAttribute('data-shiki-css');
+      if(css&&!seen.has(css)){seen.add(css);s.textContent+=css}
+      pre.removeAttribute('data-shiki-css');
+    });
+  }
+  flush();
+  new MutationObserver(flush).observe(document.body,{childList:true,subtree:true});
+})();
+`;
