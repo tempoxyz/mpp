@@ -1,4 +1,5 @@
 import { defineConfig, McpSource } from "vocs/config";
+import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
 const baseUrl = (() => {
   if (process.env.VERCEL_ENV === "production")
@@ -845,6 +846,11 @@ export default defineConfig({
   ],
   title: "MPP — Machine Payments Protocol",
   titleTemplate: "%s | MPP",
+  // Replaces repeated inline Shiki color styles with CSS classes, reducing
+  // uncompressed page size by ~1.5 MB. See src/shiki-style-to-class.ts.
+  codeHighlight: {
+    transformers: [shikiStyleToClass()],
+  },
   twoslash: {
     twoslashOptions: {
       compilerOptions: {
