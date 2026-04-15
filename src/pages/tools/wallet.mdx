@@ -1,0 +1,251 @@
+---
+description: "Agent wallets for MPP—compare Tempo Wallet, Privy Agent CLI, and AgentCash for managing funds, signing transactions, and paying for APIs."
+imageDescription: "Give your agent a wallet and a spending limit"
+---
+
+import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
+
+# Wallets [Give your agent a wallet]
+
+Agents need a wallet to pay for MPP-enabled services. Choose the wallet that fits your use case.
+
+| Wallet | Best for | Supported methods | Setup |
+|--------|----------|-------------------|-------|
+| [Tempo Wallet](#tempo-wallet) | MPP services with spend controls and service discovery | `tempo` | `tempo wallet login` |
+| [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `tempo`, `solana` | `privy-agent-wallets login` |
+| [AgentCash](#agentcash) | Instant access to 300+ premium APIs via MPP | `tempo` | `npx agentcash onboard` |
+| [`mppx` CLI](#mppx) | Lightweight MPP client for development and debugging | All | `mppx account create` |
+
+## Tempo Wallet <Badge variant="info" data-toc-exclude>Recommended</Badge>
+
+The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built-in spend controls and service discovery. Agents use `tempo wallet` to pay for capabilities on demand.
+
+<Tabs>
+<Tab title="Agent">
+
+Paste this into your agent:
+
+```
+Read https://tempo.xyz/SKILL.md and set up tempo
+```
+
+</Tab>
+<Tab title="Human">
+::::steps
+
+### Install the CLI
+
+```bash
+curl -fsSL https://tempo.xyz/install | bash
+```
+
+### Connect your wallet
+
+```bash
+tempo wallet login
+```
+
+### Verify setup
+
+```bash
+tempo wallet whoami
+```
+
+### List available services
+
+```bash
+tempo wallet services
+```
+
+### Make a paid request
+
+```bash
+tempo request -X POST \
+  --json '{"prompt": "a sunset over the ocean"}' \
+  https://fal.mpp.tempo.xyz/fal-ai/flux/dev
+```
+
+::::
+</Tab>
+</Tabs>
+
+**Supported methods:** <Badge variant="note">tempo.charge</Badge> <Badge variant="note">tempo.session</Badge>
+
+**Key features:**
+
+- **Service discovery**—`tempo wallet services` lists endpoints, pricing, and request schemas
+- **Spend controls**—scoped access keys enforce per-key spending limits
+- **Dry-run previews**—`tempo request --dry-run` validates cost before committing funds
+- **TOON output**—`-t` flag gives compact, machine-readable output for agent tooling
+
+## Privy Agent CLI
+
+[Privy Agent CLI](https://docs.privy.io/recipes/agent-integrations/agent-cli) gives agents a CLI-first way to create, fund, and manage wallets with no integration code. It pairs with the [Agent Sandbox](https://agents.privy.io/) where users track spending, manage funds, and revoke access.
+
+The agent never holds the wallet private key—each session generates a P-256 keypair used to sign authorization payloads.
+
+<Tabs>
+<Tab title="Agent">
+
+Paste this into your agent:
+
+```
+Set up https://agents.privy.io/skill.md
+```
+
+</Tab>
+<Tab title="Human">
+::::steps
+
+### Install
+
+```bash
+npm install -g @privy-io/agent-wallet-cli
+```
+
+### Log in
+
+```bash
+privy-agent-wallets login
+```
+
+This opens a browser flow—complete Privy auth, approve signer access, then paste the credential back into the terminal.
+
+### Fund wallets
+
+```bash
+privy-agent-wallets fund
+```
+
+### List wallets
+
+```bash
+privy-agent-wallets list-wallets
+```
+
+### Send a transaction
+
+```bash
+privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to": "0xRecipient", "value": "0.01"}}'
+```
+
+::::
+</Tab>
+</Tabs>
+
+**Supported methods:** <Badge variant="note">tempo.charge</Badge> <Badge variant="note">tempo.session</Badge> <Badge variant="note">solana.charge</Badge>
+
+**Key features:**
+
+- **No private key exposure**—each session generates a P-256 keypair; the agent signs authorization payloads, never holds the wallet key
+- **Browser-based funding**—the human owner retains a visual dashboard to check balances, view history, and onramp funds
+- **Session management**—sessions stored in the OS credential manager, expire after seven days, revocable from [agents.privy.io/manage](https://agents.privy.io/manage)
+
+## AgentCash
+
+[AgentCash](https://agentcash.dev/docs/introduction) gives agents instant access to 300+ premium APIs—enrichment, social data, image generation, web scraping, email—paid per-request with USDC micropayments via MPP. No API keys or subscriptions.
+
+<Tabs>
+<Tab title="Agent">
+
+Paste this into your agent:
+
+```
+Set up agentcash.dev/skill.md
+```
+
+</Tab>
+<Tab title="Human">
+::::steps
+
+### Onboard and get free credits
+
+Visit [agentcash.dev/onboard](https://agentcash.dev/onboard) to claim a sign-up bonus, then redeem:
+
+```bash
+npx agentcash onboard <CODE>
+```
+
+### Discover available services
+
+```bash
+npx agentcash discover
+```
+
+### Install as MCP server (optional)
+
+```bash
+claude mcp add agentcash --scope user -- npx -y agentcash@latest
+```
+
+::::
+</Tab>
+</Tabs>
+
+**Supported methods:** <Badge variant="note">tempo.charge</Badge>
+
+**Key features:**
+
+- **300+ premium APIs**—enrichment, social data, image generation, web scraping, email, all accessible instantly
+- **No API keys**—pay per request with USDC micropayments, no subscriptions or manual sign-up flows
+- **MPP compatible**—any service that implements MPP is automatically discoverable and usable
+
+## `mppx`
+
+The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It handles `402` responses automatically using a local keychain account—ideal for development, testing, and debugging.
+
+::::steps
+
+### Install
+
+:::code-group
+```bash [npm]
+npm install -g mppx
+```
+```bash [pnpm]
+pnpm add -g mppx
+```
+```bash [bun]
+bun add -g mppx
+```
+:::
+
+### Create an account
+
+```bash
+mppx account create
+```
+
+### Make a paid request
+
+```bash
+mppx https://mpp.dev/api/ping/paid
+```
+
+::::
+
+**Supported methods:** <Badge variant="note">tempo.charge</Badge> <Badge variant="note">tempo.session</Badge> <Badge variant="note">stripe.charge</Badge> <Badge variant="note">solana.charge</Badge>
+
+**Key features:**
+
+- **Zero config**—create an account and start making paid requests immediately
+- **All payment methods**—supports every payment method implemented in the `mppx` SDK
+- **Local keychain**—private keys stored in the OS keychain, configurable via `MPPX_PRIVATE_KEY` env var
+- **Development-first**—designed for testing and debugging MPP integrations
+
+## Next steps
+
+<Cards>
+  <Card
+    description="Connect your agent to MPP-enabled services"
+    icon="lucide:bot"
+    title="Use with agents"
+    to="/quickstart/agent"
+  />
+  <Card
+    description="Browse available MPP services and their endpoints"
+    icon="lucide:list"
+    title="Services"
+    to="/services"
+  />
+</Cards>

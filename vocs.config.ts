@@ -815,6 +815,10 @@ export default defineConfig({
         ],
       },
       {
+        text: "Tools",
+        items: [{ text: "Wallets", link: "/tools/wallet" }],
+      },
+      {
         text: "Use Cases",
         items: [
           {
