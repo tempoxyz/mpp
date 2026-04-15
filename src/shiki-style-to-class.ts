@@ -166,7 +166,7 @@ export function shikiStyleToClass() {
       if (blockRules.size === 0) return;
 
       const css = Array.from(
-        blockRules,
+        Array.from(blockRules.entries()).sort(([a], [b]) => a.localeCompare(b)),
         ([cls, style]) => `.${cls}{${style}}`,
       ).join("");
 

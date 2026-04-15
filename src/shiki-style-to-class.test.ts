@@ -91,6 +91,33 @@ describe("shikiStyleToClass", () => {
     );
   });
 
+  it("canonicalizes CSS rule order for equivalent blocks", () => {
+    const transformer = shikiStyleToClass();
+
+    const style1 =
+      "color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067";
+    const style2 =
+      "color:light-dark(#24292E, #ADBAC7);--shiki-light:#24292E;--shiki-dark:#ADBAC7";
+
+    const firstRoot = makeRoot([
+      { style: style1 },
+      { style: style2 },
+    ]);
+    transformer.root.call({} as any, firstRoot as any);
+
+    const secondRoot = makeRoot([
+      { style: style2 },
+      { style: style1 },
+    ]);
+    transformer.root.call({} as any, secondRoot as any);
+
+    const firstPre = firstRoot.children[0];
+    const secondPre = secondRoot.children[0];
+    expect(secondPre.properties["data-shiki-css"]).toBe(
+      firstPre.properties["data-shiki-css"],
+    );
+  });
+
   it("preserves non-color style properties", () => {
     const transformer = shikiStyleToClass();
 
