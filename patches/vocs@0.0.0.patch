@@ -1,0 +1,29 @@
+diff --git a/dist/waku/internal/patches/vite-plugins/fs-router-typegen.js b/dist/waku/internal/patches/vite-plugins/fs-router-typegen.js
+index a7b7d3960968f311765cbd2d5c4eb22e1dfa2a44..100d2078687b30987758e899f4b1b0b33be18f70 100644
+--- a/dist/waku/internal/patches/vite-plugins/fs-router-typegen.js
++++ b/dist/waku/internal/patches/vite-plugins/fs-router-typegen.js
+@@ -1,6 +1,6 @@
+ import { existsSync, readFileSync } from 'node:fs';
+ import { readdir, writeFile } from 'node:fs/promises';
+-import { parseAstAsync, transformWithEsbuild } from 'vite';
++import { parseAstAsync, transformWithOxc } from 'vite';
+ import { EXTENSIONS, SRC_PAGES, SRC_SERVER_ENTRY } from '../constants.js';
+ import { getGrouplessPath } from '../utils/create-pages.js';
+ import { isIgnoredPath } from '../utils/fs-router.js';
+@@ -50,13 +50,13 @@ export function getImportModuleNames(filePaths) {
+ }
+ const parseModule = async (filePath) => {
+     const source = readFileSync(filePath, 'utf8');
+-    const loader = filePath.endsWith('.tsx')
++    const lang = filePath.endsWith('.tsx')
+         ? 'tsx'
+         : filePath.endsWith('.ts')
+             ? 'ts'
+             : 'jsx';
+-    const transformed = await transformWithEsbuild(source, filePath, {
+-        loader,
++    const transformed = await transformWithOxc(source, filePath, {
++        lang,
+         jsx: 'preserve',
+     });
+     return parseAstAsync(transformed.code, { jsx: true });
