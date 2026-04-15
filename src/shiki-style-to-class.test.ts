@@ -70,6 +70,25 @@ describe("shikiStyleToClass", () => {
     expect(uniqueClasses.size).toBe(2);
   });
 
+  it("emits CSS for reused colors on later code blocks", () => {
+    const transformer = shikiStyleToClass();
+
+    const style =
+      "color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067";
+
+    const firstRoot = makeRoot([{ style }]);
+    transformer.root.call({} as any, firstRoot as any);
+
+    const firstSpan = firstRoot.children[0].children[0].children[0];
+    const cls = firstSpan.properties.class;
+
+    const secondRoot = makeRoot([{ style }]);
+    transformer.root.call({} as any, secondRoot as any);
+
+    const secondPre = secondRoot.children[0];
+    expect(secondPre.properties["data-shiki-css"]).toContain(`.${cls}{${style}}`);
+  });
+
   it("preserves non-color style properties", () => {
     const transformer = shikiStyleToClass();
 
