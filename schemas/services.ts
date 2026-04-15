@@ -5847,11 +5847,11 @@ export const services: ServiceDef[] = [
     url: "https://api.rungate.ai",
     serviceUrl: "https://api.rungate.ai",
     description:
-      "OpenAI-compatible LLM inference API. Supports streaming via Tempo Sessions.",
+      "OpenAI-compatible LLM inference API.",
 
     categories: ["ai"],
     integration: "first-party",
-    tags: ["llm", "chat", "inference", "openai-compatible", "streaming", "aggregator"],
+    tags: ["llm", "chat", "inference", "openai-compatible", "streaming"],
     docs: { homepage: "https://rungate.xyz" },
     provider: { name: "Rungate", url: "https://rungate.xyz" },
     realm: "api.rungate.ai",
