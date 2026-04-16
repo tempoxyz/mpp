@@ -597,38 +597,7 @@ $ npx mppx http://localhost:3000
 
 ## With Stripe
 
-Create a dynamic recipient address to link each transaction to a backing Payment Intent in Stripe.
-
-```ts twoslash
-// @noErrors
-import { Mppx, tempo } from "mppx/server";
-
-function async createPayToAddress(request: Request) {
-  // Create Stripe PaymentIntent
-}
-
-export async function handler(request: Request) {
-  const recipientAddress = await createPayToAddress(request)
-  const mppx = Mppx.create({
-    secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-    methods: [
-      tempo.charge({
-        testnet: true,
-        currency: "0x20c0000000000000000000000000000000000000",
-        recipient: recipientAddress,
-      }),
-    ],
-  });
-
-  const result = await mppx.charge({ amount: "0.01" })(request);
-
-  if (result.status === 402) return result.challenge;
-
-  return result.withReceipt(Response.json({ data: "..." }));
-}
-```
-
-Refunds, reporting, and multi-currency payouts work the same as any other payment in Stripe. Read the [Stripe documentation](https://docs.stripe.com/payments/machine/mpp) on accepting MPP.
+Accept MPP payments through Stripe for refunds, reporting, and multi-currency payouts. Read the [Stripe documentation](https://docs.stripe.com/payments/machine/mpp) for the full integration walkthrough.
 
 ## Next steps
 

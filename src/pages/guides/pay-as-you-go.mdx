@@ -16,7 +16,7 @@ but you could imagine generating images with an AI model instead like [OpenAI Im
 
 :::info
 Unlike [one-time payments](/guides/one-time-payments), sessions open a payment channel once and
-use offchain vouchers for each subsequent request—vouchers are **not bottlenecked by blockchain throughput**, they are processed in pure CPU-bound signature checks.
+use off-chain vouchers for each subsequent request—vouchers are **not bottlenecked by blockchain throughput**, they are processed in pure CPU-bound signature checks.
 :::
 
 ## Demo
@@ -187,6 +187,10 @@ const mppx = Mppx.create({
   })],
 })
 ```
+
+#### Create the `/api/sessions/photo` route
+
+Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
 import crypto from 'crypto'
