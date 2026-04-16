@@ -1,17 +1,17 @@
 ---
-description: "Agent wallets for MPP—compare Tempo Wallet, Privy Agent CLI, and AgentCash for managing funds, signing transactions, and paying for APIs."
-imageDescription: "Give your agent a wallet and a spending limit"
+description: "Agent wallets for MPP -- enable your agent to pay for services."
+imageDescription: "Enable your agent to pay for services"
 ---
 
 import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
 
 # Wallets [Give your agent a wallet]
 
-Agents need a wallet to pay for MPP-enabled services. Choose the wallet that fits your use case.
+Agents need a wallet to pay for MPP-enabled services. Choose the wallet that fits your use case best.
 
 | Wallet | Best for | Supported methods | Setup |
 |--------|----------|-------------------|-------|
-| [Tempo Wallet](#tempo-wallet) | MPP services with spend controls and service discovery | `tempo` | `tempo wallet login` |
+| [Tempo Wallet](#tempo-wallet) | Tempo MPP services with spend controls and service discovery | `tempo` | `tempo wallet login` |
 | [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `tempo`, `solana` | `privy-agent-wallets login` |
 | [AgentCash](#agentcash) | Instant access to 300+ premium APIs via MPP | `tempo` | `npx agentcash onboard` |
 | [`mppx` CLI](#mppx) | Lightweight MPP client for development and debugging | All | `mppx account create` |
@@ -80,7 +80,7 @@ tempo request -X POST \
 
 ## Privy Agent CLI
 
-[Privy Agent CLI](https://docs.privy.io/recipes/agent-integrations/agent-cli) gives agents a CLI-first way to create, fund, and manage wallets with no integration code. It pairs with the [Agent Sandbox](https://agents.privy.io/) where users track spending, manage funds, and revoke access.
+[Privy Agent CLI](https://docs.privy.io/recipes/agent-integrations/agent-cli) gives agents a CLI-first way to create, fund, and manage wallets with no integration code. It pairs with the [Privy Agent Sandbox](https://agents.privy.io/) where users track spending, manage funds, and revoke access.
 
 The agent never holds the wallet private key—each session generates a P-256 keypair used to sign authorization payloads.
 
@@ -143,7 +143,7 @@ privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to
 
 ## AgentCash
 
-[AgentCash](https://agentcash.dev/docs/introduction) gives agents instant access to 300+ premium APIs—enrichment, social data, image generation, web scraping, email—paid per-request with USDC micropayments via MPP. No API keys or subscriptions.
+[AgentCash](https://agentcash.dev/docs/introduction) gives agents instant access to 300+ premium APIs—enrichment, social data, image generation, web scraping, email—paid per-request with USDC micropayments via MPP. No API keys or subscriptions required.
 
 <Tabs>
 <Tab title="Agent">
