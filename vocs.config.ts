@@ -308,6 +308,10 @@ export default defineConfig({
             text: "Advanced",
             items: [
               {
+                text: "Accept card payments",
+                link: "/guides/accept-card-payments",
+              },
+              {
                 text: "Accept split payments",
                 link: "/guides/split-payments",
               },
