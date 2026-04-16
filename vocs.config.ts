@@ -305,24 +305,33 @@ export default defineConfig({
             link: "/guides/streamed-payments",
           },
           {
-            text: "Accept split payments",
-            link: "/guides/split-payments",
-          },
-          {
-            text: "Accept multiple payment methods",
-            link: "/guides/multiple-payment-methods",
-          },
-          {
-            text: "Create a payment link",
-            link: "/guides/payment-links",
-          },
-          {
-            text: "Proxy an existing service",
-            link: "/guides/proxy-existing-service",
-          },
-          {
-            text: "Upgrade your x402 integration",
-            link: "/guides/upgrade-x402",
+            text: "Advanced",
+            items: [
+              {
+                text: "Accept split payments",
+                link: "/guides/split-payments",
+              },
+              {
+                text: "Accept multiple payment methods",
+                link: "/guides/multiple-payment-methods",
+              },
+              {
+                text: "Create a payment link",
+                link: "/guides/payment-links",
+              },
+              {
+                text: "Monetize your MCP server",
+                link: "/guides/monetize-mcp-server",
+              },
+              {
+                text: "Proxy an existing service",
+                link: "/guides/proxy-existing-service",
+              },
+              {
+                text: "Upgrade your x402 integration",
+                link: "/guides/upgrade-x402",
+              },
+            ],
           },
         ],
       },
