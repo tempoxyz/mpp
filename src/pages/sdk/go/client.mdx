@@ -1,0 +1,135 @@
+---
+imageDescription: "Handle paid APIs automatically in Go"
+---
+
+# Client [Handle 402 responses automatically]
+
+The `client.Client` wraps `http.Client` and intercepts `402` responses—it parses the Challenge, signs a stablecoin transfer, and retries with the Credential.
+
+## Quick start
+
+```go [client.go]
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/tempoxyz/mpp-go/pkg/client"
+	charge "github.com/tempoxyz/mpp-go/pkg/tempo/client"
+)
+
+method, err := charge.New(charge.Config{
+	PrivateKey: "0xac0974bec...",
+	RPCURL:     "https://rpc.tempo.xyz",
+})
+if err != nil {
+	log.Fatal(err)
+}
+c := client.New([]client.Method{method})
+
+resp, err := c.Get(context.Background(), "https://api.example.com/resource")
+if err != nil {
+	log.Fatal(err)
+}
+defer resp.Body.Close()
+fmt.Println("Status:", resp.StatusCode)
+```
+
+When the server returns `402`, the client:
+
+1. Parses the Challenge from the `WWW-Authenticate` header
+2. Calls `CreateCredential` on the matching method to sign a stablecoin transfer
+3. Retries the request with the Credential in the `Authorization` header
+
+## `charge.Config` parameters
+
+### ChainID (optional)
+
+- **Type:** `int64`
+
+Explicitly set the chain ID. Auto-detected from the RPC URL if omitted.
+
+### ClientID (optional)
+
+- **Type:** `string`
+
+Attach an identifier to transactions for attribution.
+
+### CredentialType (optional)
+
+- **Type:** `tempo.CredentialType`
+
+Credential type to use: `transaction`, `hash`, or `proof`. Defaults to `transaction`.
+
+### PrivateKey
+
+- **Type:** `string`
+
+Hex-encoded private key for signing transactions.
+
+### RPC (optional)
+
+- **Type:** `tempo.RPCClient`
+
+Custom RPC client instance. Takes precedence over `RPCURL`.
+
+### RPCURL (optional)
+
+- **Type:** `string`
+- **Default:** auto-detected from chain
+
+Tempo RPC endpoint URL.
+
+### Signer (optional)
+
+- **Type:** `*temposigner.Signer`
+
+Custom signer instance. Takes precedence over `PrivateKey`.
+
+## Custom HTTP client
+
+Pass an existing `http.Client` with `client.WithHTTPClient`:
+
+```go
+c := client.New(
+	[]client.Method{method},
+	client.WithHTTPClient(&http.Client{Timeout: 30 * time.Second}),
+)
+```
+
+## Transport
+
+For composing with an existing `http.Client`, use `client.NewTransport` to wrap a base `http.RoundTripper`:
+
+```go
+transport := client.NewTransport([]client.Method{method}, http.DefaultTransport)
+httpClient := &http.Client{Transport: transport}
+
+req, _ := http.NewRequest("GET", "https://api.example.com/resource", nil)
+resp, err := httpClient.Do(req)
+```
+
+## Convenience methods
+
+| Method | Description |
+|--------|-------------|
+| `Get(ctx, url)` | GET request with automatic `402` handling |
+| `Post(ctx, url, contentType, body)` | POST request with automatic `402` handling |
+| `Do(req)` | Execute any `*http.Request` with automatic `402` handling |
+
+## Payment Receipts
+
+Parse the `Payment-Receipt` header from the response:
+
+```go
+import "github.com/tempoxyz/mpp-go/pkg/mpp"
+
+receipt, err := mpp.ParseReceipt(resp.Header.Get("Payment-Receipt"))
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println("Status:", receipt.Status)
+fmt.Println("Reference:", receipt.Reference)
+```
+
+For manual Challenge and Credential handling, see [Core types](/sdk/go/core).

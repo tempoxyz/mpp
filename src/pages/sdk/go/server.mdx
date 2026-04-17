@@ -1,0 +1,318 @@
+---
+imageDescription: "Charge for your Go API endpoints"
+---
+
+# Server [Protect endpoints with payment requirements]
+
+Create a payment handler with `server.New()` and use `ChargeMiddleware` or call `Charge()` directly. The `charge.NewMethod` factory configures `Currency` and `Recipient` once, then every charge uses those defaults.
+
+## Quick start
+
+```go [server.go]
+import (
+	"github.com/tempoxyz/mpp-go/pkg/server"
+	charge "github.com/tempoxyz/mpp-go/pkg/tempo/server"
+)
+
+intent, _ := charge.NewIntent(charge.IntentConfig{
+	RPCURL: "https://rpc.tempo.xyz",
+})
+method := charge.NewMethod(charge.MethodConfig{
+	Intent:    intent,
+	Currency:  "0x20c0000000000000000000000000000000000000",
+	Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+})
+payment := server.New(method, "api.example.com", "my-server-secret")
+
+result, err := payment.Charge(ctx, server.ChargeParams{
+	Authorization: r.Header.Get("Authorization"),
+	Amount:        "0.50",
+})
+
+if result.IsChallenge() {
+	server.WriteChallenge(w, result.Challenge, payment.Realm())
+	return
+}
+// result.Receipt is the verified Receipt
+```
+
+## Framework middleware
+
+### net/http
+
+Use `server.ChargeMiddleware` to wrap any `http.Handler`:
+
+```go
+mux := http.NewServeMux()
+mux.Handle("/resource", server.ChargeMiddleware(payment, server.ChargeParams{
+	Amount:      "0.50",
+	Description: "Paid resource",
+})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	credential := server.CredentialFromContext(r.Context())
+	json.NewEncoder(w).Encode(map[string]any{
+		"data":  "paid content",
+		"payer": credential.Source,
+	})
+})))
+```
+
+### Gin
+
+Use `ginadapter.ChargeMiddleware` from `pkg/server/gin`:
+
+```go
+import ginadapter "github.com/tempoxyz/mpp-go/pkg/server/gin"
+
+r := gin.Default()
+r.GET("/resource", ginadapter.ChargeMiddleware(payment, server.ChargeParams{
+	Amount: "0.50",
+}), func(c *gin.Context) {
+	credential := server.CredentialFromContext(c.Request.Context())
+	c.JSON(200, gin.H{"payer": credential.Source})
+})
+```
+
+### Echo
+
+Use `echoadapter.ChargeMiddleware` from `pkg/server/echo`:
+
+```go
+import echoadapter "github.com/tempoxyz/mpp-go/pkg/server/echo"
+
+e := echo.New()
+e.GET("/resource", func(c echo.Context) error {
+	credential := server.CredentialFromContext(c.Request().Context())
+	return c.JSON(200, map[string]any{"payer": credential.Source})
+}, echoadapter.ChargeMiddleware(payment, server.ChargeParams{
+	Amount: "0.50",
+}))
+```
+
+### Chi
+
+Use `server.ChargeMiddleware` with `chi.With`:
+
+```go
+r := chi.NewRouter()
+r.With(server.ChargeMiddleware(payment, server.ChargeParams{
+	Amount: "0.50",
+})).Get("/resource", func(w http.ResponseWriter, r *http.Request) {
+	credential := server.CredentialFromContext(r.Context())
+	json.NewEncoder(w).Encode(map[string]any{"payer": credential.Source})
+})
+```
+
+## `MethodConfig` parameters
+
+### ChainID (optional)
+
+- **Type:** `int64`
+
+Explicitly set the chain ID. Auto-detected from the RPC URL if omitted.
+
+### Currency (optional)
+
+- **Type:** `string`
+- **Default:** USDC.e on mainnet, pathUSD on testnet
+
+TIP-20 token address for charges.
+
+### Decimals (optional)
+
+- **Type:** `int`
+- **Default:** `6`
+
+Token decimal places for dollar-to-base-unit conversion.
+
+### FeePayer (optional)
+
+- **Type:** `bool`
+- **Default:** `false`
+
+Enable fee sponsorship for all Challenges. When enabled, the server co-signs and sponsors transaction gas fees.
+
+### FeePayerURL (optional)
+
+- **Type:** `string`
+
+URL of a remote co-signer when the server does not sign locally.
+
+### Intent
+
+- **Type:** `*charge.Intent`
+
+Intent instance created by `charge.NewIntent`.
+
+### Memo (optional)
+
+- **Type:** `string`
+
+Default memo attached to Challenges.
+
+### Recipient (optional)
+
+- **Type:** `string`
+
+Default recipient address for charges.
+
+### SupportedModes (optional)
+
+- **Type:** `[]tempo.ChargeMode`
+
+Supported Credential submission modes (for example, `pull`, `push`).
+
+## `IntentConfig` parameters
+
+### FeePayerPrivateKey (optional)
+
+- **Type:** `string`
+
+Hex-encoded private key for fee sponsorship. The server co-signs and sponsors transaction gas fees.
+
+### FeePayerSigner (optional)
+
+- **Type:** `*temposigner.Signer`
+
+Custom signer for fee sponsorship. Takes precedence over `FeePayerPrivateKey`.
+
+### RPC (optional)
+
+- **Type:** `tempo.RPCClient`
+
+Custom RPC client instance. Takes precedence over `RPCURL`.
+
+### RPCURL (optional)
+
+- **Type:** `string`
+- **Default:** `"https://rpc.tempo.xyz"`
+
+Tempo RPC endpoint URL.
+
+### Store (optional)
+
+- **Type:** `tempo.Store`
+
+Replay-protection store for hash and proof Credentials. Defaults to an in-memory store.
+
+## `ChargeParams` parameters
+
+### Amount
+
+- **Type:** `string`
+
+Payment amount in dollars (for example, `"0.50"` for $0.50). Automatically converted to base units using the configured decimals.
+
+### Authorization (optional)
+
+- **Type:** `string`
+
+The `Authorization` header value from the incoming request.
+
+### ChainID (optional)
+
+- **Type:** `int64`
+
+Override the method's default chain ID for this charge.
+
+### Currency (optional)
+
+- **Type:** `string`
+
+Override the method's default currency address.
+
+### Description (optional)
+
+- **Type:** `string`
+
+Human-readable description attached to the Challenge.
+
+### Expires (optional)
+
+- **Type:** `string`
+
+Challenge expiration as ISO 8601 timestamp. Defaults to 5 minutes from now.
+
+### ExternalID (optional)
+
+- **Type:** `string`
+
+Merchant reference ID for reconciliation.
+
+### FeePayer (optional)
+
+- **Type:** `bool`
+
+Override the method's default fee sponsorship setting for this charge.
+
+### FeePayerURL (optional)
+
+- **Type:** `string`
+
+Override the method's default fee payer URL for this charge.
+
+### Memo (optional)
+
+- **Type:** `string`
+
+Memo attached to this Challenge.
+
+### Meta (optional)
+
+- **Type:** `map[string]string`
+
+Arbitrary metadata attached to the Challenge.
+
+### Recipient (optional)
+
+- **Type:** `string`
+
+Override the method's default recipient address.
+
+### Splits (optional)
+
+- **Type:** `[]tempo.SplitParams`
+
+Split the payment across multiple recipients.
+
+### SupportedModes (optional)
+
+- **Type:** `[]tempo.ChargeMode`
+
+Override supported submission modes for this charge.
+
+## Fee sponsorship
+
+Sponsor gas fees so clients do not need native tokens. Pass `FeePayerPrivateKey` in the `IntentConfig`:
+
+```go
+intent, _ := charge.NewIntent(charge.IntentConfig{
+	RPCURL:             "https://rpc.tempo.xyz",
+	FeePayerPrivateKey: os.Getenv("FEE_PAYER_KEY"),
+})
+method := charge.NewMethod(charge.MethodConfig{
+	Intent:    intent,
+	Currency:  "0x20c0000000000000000000000000000000000000",
+	Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+})
+```
+
+When fee sponsorship is enabled, the server co-signs transactions and covers gas fees on behalf of the client.
+
+## Context helpers
+
+| Function | Description |
+|----------|-------------|
+| `CredentialFromContext(ctx)` | Extract the verified Credential from request context |
+| `ReceiptFromContext(ctx)` | Extract the verified Receipt from request context |
+| `ContextWithPayment(ctx, credential, receipt)` | Store payment data in context |
+
+## Key types
+
+| Type | Description |
+|------|-------------|
+| `ChargeParams` | Parameters for a single charge |
+| `IntentConfig` | Configuration for `charge.NewIntent` |
+| `MethodConfig` | Configuration for `charge.NewMethod` |
+| `Mpp` | Server handler binding method, realm, and secret |
+| `ChargeResult` | Charge result containing either a Challenge or a Receipt |
+| `SplitParams` | Payment split recipient and amount |

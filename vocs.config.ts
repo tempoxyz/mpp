@@ -825,6 +825,16 @@ export default defineConfig({
               { text: "Server", link: "/sdk/rust/server" },
             ],
           },
+          {
+            text: "Go",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/sdk/go" },
+              { text: "Core types", link: "/sdk/go/core" },
+              { text: "Client", link: "/sdk/go/client" },
+              { text: "Server", link: "/sdk/go/server" },
+            ],
+          },
         ],
       },
       {
