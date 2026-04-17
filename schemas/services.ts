@@ -3905,6 +3905,61 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Martin Estate Winery ────────────────────────────────────────────────
+  {
+    id: "martin-estate",
+    name: "Martin Estate Winery",
+    url: "https://www.martinestate.com",
+    serviceUrl: "https://agents.martinestate.com",
+    description:
+      "Estate-grown Napa Valley wine. AI agents can browse and purchase wine with identity verification (KYC, age 21+, US only) via AgentScore.",
+
+    categories: ["web"],
+    integration: "first-party",
+    tags: [
+      "wine",
+      "commerce",
+      "alcohol",
+      "age-restricted",
+      "physical-goods",
+      "napa-valley",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://www.martinestate.com",
+      llmsTxt: "https://agents.martinestate.com/llms.txt",
+      apiReference: "https://agents.martinestate.com/openapi.json",
+    },
+    provider: { name: "Martin Estate", url: "https://www.martinestate.com" },
+    realm: "agents.martinestate.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /catalog",
+        desc: "List purchasable wines",
+      },
+      {
+        route: "GET /catalog/{slug}",
+        desc: "Get wine details by slug",
+      },
+      {
+        route: "POST /purchase",
+        desc: "Purchase wine with identity verification via AgentScore and MPP payment",
+        dynamic: true,
+        amountHint: "Variable depending on wine and quantity",
+      },
+      {
+        route: "GET /orders/{id}",
+        desc: "Retrieve order details",
+      },
+      {
+        route: "GET /orders/{id}/status",
+        desc: "Check payment status",
+      },
+    ],
+  },
+
   // =========================================================================
   // Locus — Pay-per-use API proxy (paywithlocus.com)
   //
