@@ -789,6 +789,44 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── C2PAVerify ─────────────────────────────────────────────────────────
+  {
+    id: "c2paverify",
+    name: "C2PAVerify",
+    url: "https://c2pa.mppfy.com",
+    serviceUrl: "https://c2pa.mppfy.com",
+    description:
+      "Verify C2PA (Coalition for Content Provenance and Authenticity) manifests on images, video, and audio. Extracts embedded manifest, validates the signature chain against the CAI trust list, returns a structured provenance report with trust_chain classification (valid | partial | unknown).",
+    categories: ["media"],
+    integration: "third-party",
+    tags: [
+      "c2pa",
+      "provenance",
+      "authenticity",
+      "content-credentials",
+      "deepfake",
+      "ai-generated",
+      "compliance",
+      "cai",
+    ],
+    docs: {
+      homepage: "https://c2pa.mppfy.com",
+      llmsTxt: "https://c2pa.mppfy.com/llms.txt",
+      apiReference: "https://github.com/mppfy/C2PAVerify",
+    },
+    provider: { name: "MPPFY", url: "https://mppfy.com" },
+    realm: "c2pa.mppfy.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /verify",
+        desc: "Verify C2PA manifest on uploaded asset (multipart) or fetched URL (JSON)",
+        amount: "10000",
+      },
+    ],
+  },
+
   // ── Codex ──────────────────────────────────────────────────────────────
   {
     id: "codex",
