@@ -851,6 +851,43 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── DripStack ────────────────────────────────────────────────────────────────
+  {
+    id: "dripstack",
+    name: "DripStack",
+    url: "https://dripstack.xyz",
+    serviceUrl: "https://dripstack.xyz",
+    description:
+      "MPP-enabled content retrieval from Substack publications.",
+    categories: ["web", "data"],
+    integration: "third-party",
+    tags: ["substack", "blog", "publication", "post", "data", "query"],
+    docs: {
+      homepage: "https://dripstack.xyz/?tab=agents",
+      llmsTxt: "https://dripstack.xyz/SKILL.md"
+    },
+    provider: { name: "DripStack", url: "https://dripstack.xyz/" },
+    realm: "dripstack.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/v1/publications",
+        desc: "List publications (free)",
+      },
+      {
+        route: "GET /api/v1/publications/:publicationSlug",
+        desc: "Get list of posts for a publication (free)",
+      },
+      {
+        route: "GET /api/v1/publications/:publicationSlug/:postSlug",
+        desc: "Get post content",
+        dynamic: true,
+        amountHint: "$0.05-$10",
+      },
+    ],
+  },
+
   // ── Dune ────────────────────────────────────────────────────────────────
   {
     id: "dune",
