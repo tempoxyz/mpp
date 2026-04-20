@@ -12,10 +12,11 @@
  *
  * 1. BUILD TIME (Shiki transformer — `shikiStyleToClass`):
  *    Runs during MDX compilation. Walks every token <span>, extracts color
- *    styles into a global Map, replaces `style` with `class`, and stores
- *    the CSS rules as a `data-shiki-css` attribute on the <pre> element.
- *    Data attributes survive RSC serialization (raw <style> HAST elements
- *    get stripped by the MDX/RSC pipeline).
+ *    styles into a shared class registry, replaces `style` with `class`, and
+ *    stores the CSS rules needed by that code block as a `data-shiki-css`
+ *    attribute on the <pre> element. Data attributes survive RSC
+ *    serialization (raw <style> HAST elements get stripped by the MDX/RSC
+ *    pipeline).
  *
  * 2. RUNTIME (inline script — `injectShikiColors`):
  *    A tiny self-executing script injected via `_layout.tsx`. Creates a single
@@ -28,9 +29,9 @@
  *   to transform. The hook never fires for rendered pages.
  * - HAST <style> sibling: MDX component overrides in Vocs don't map <style>
  *   elements, so they get stripped during React rendering.
- * - Per-block scoped styles: Works but creates N <style> tags. The global map
- *   approach deduplicates across all blocks — only the first block to encounter
- *   a new color combination emits its CSS rule.
+ * - Per-block scoped styles: Works but creates N <style> tags. This approach
+ *   keeps shared class names across the build, but each block still carries
+ *   the rules it needs so a page never depends on another page's code block.
  *
  * @see https://github.com/shikijs/shiki/issues/671#issuecomment-3605208867
  */
@@ -97,17 +98,6 @@ function walkSpans(node: HastNode, cb: (span: HastNode) => void) {
 }
 
 /**
- * Global color→class registry, shared across ALL code blocks at build time.
- *
- * The same Shiki themes produce the same ~8 color strings site-wide, so a
- * global map means each unique style only generates one CSS class and one
- * CSS rule. Subsequent blocks that use the same color reuse the existing
- * class without emitting duplicate rules.
- */
-const colorToClass = new Map<string, string>();
-let classIndex = 0;
-
-/**
  * Shiki transformer (build time).
  *
  * Registered in `vocs.config.ts` via `codeHighlight.transformers`. Runs after
@@ -118,9 +108,12 @@ let classIndex = 0;
  * 2. Walk every <span> with an inline style
  * 3. Split the style into color vs. non-color parts
  * 4. Replace color styles with a class name (from the global map)
- * 5. Store any *new* CSS rules as `data-shiki-css` on the <pre>
+ * 5. Store the CSS rules used by this block as `data-shiki-css` on the <pre>
  */
 export function shikiStyleToClass() {
+  const colorToClass = new Map<string, string>();
+  let classIndex = 0;
+
   return {
     name: "mpp:style-to-class",
     enforce: "post" as const,
@@ -135,8 +128,8 @@ export function shikiStyleToClass() {
       );
       if (!code) return;
 
-      // Collect CSS rules for colors we haven't seen before
-      const newRules: [string, string][] = [];
+      // Collect CSS rules needed by this block.
+      const blockRules = new Map<string, string>();
 
       walkSpans(code, (span: HastNode) => {
         const style =
@@ -153,8 +146,8 @@ export function shikiStyleToClass() {
         if (!cls) {
           cls = `sc${classIndex++}`;
           colorToClass.set(color, cls);
-          newRules.push([color, cls]);
         }
+        blockRules.set(cls, color);
 
         // Replace inline style with class reference
         const spanClasses = span.properties.class
@@ -170,10 +163,12 @@ export function shikiStyleToClass() {
         }
       });
 
-      // No new colors in this block — nothing to emit
-      if (newRules.length === 0) return;
+      if (blockRules.size === 0) return;
 
-      const css = newRules.map(([style, cls]) => `.${cls}{${style}}`).join("");
+      const css = Array.from(
+        Array.from(blockRules.entries()).sort(([a], [b]) => a.localeCompare(b)),
+        ([cls, style]) => `.${cls}{${style}}`,
+      ).join("");
 
       // Attach CSS rules to the <pre> as a data attribute.
       //

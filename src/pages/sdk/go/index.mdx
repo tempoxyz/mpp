@@ -1,0 +1,128 @@
+---
+imageDescription: "MPP client and server library for Go"
+---
+
+import * as SdkBadge from '../../../components/SdkBadge'
+
+# Go SDK [The mpp-go library]
+
+## Overview
+
+The `mpp-go` library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+
+<div className="flex gap-2">
+  <SdkBadge.GitHub repo="tempoxyz/mpp-go" />
+  <SdkBadge.Maintainer name="Tempo" href="https://github.com/tempoxyz" />
+</div>
+
+## Install
+
+```bash [install.sh]
+$ go get github.com/tempoxyz/mpp-go
+```
+
+## Requirements
+
+- Go 1.21+
+- `go-ethereum` for Tempo signing
+
+## Quick start
+
+### Server
+
+```go [server.go]
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/tempoxyz/mpp-go/pkg/server"
+	charge "github.com/tempoxyz/mpp-go/pkg/tempo/server"
+)
+
+func main() {
+	intent, _ := charge.NewIntent(charge.IntentConfig{
+		RPCURL: "https://rpc.tempo.xyz",
+	})
+	method := charge.NewMethod(charge.MethodConfig{
+		Intent:    intent,
+		Currency:  "0x20c0000000000000000000000000000000000000",
+		Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+	})
+	payment := server.New(method, "api.example.com", os.Getenv("MPP_SECRET_KEY"))
+
+	mux := http.NewServeMux()
+	mux.Handle("/resource", server.ChargeMiddleware(payment, server.ChargeParams{
+		Amount:      "0.50",
+		Description: "Paid resource",
+	})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		credential := server.CredentialFromContext(r.Context())
+		json.NewEncoder(w).Encode(map[string]any{
+			"data":  "paid content",
+			"payer": credential.Source,
+		})
+	})))
+
+	log.Fatal(http.ListenAndServe(":3000", mux))
+}
+```
+
+### Client
+
+```go [client.go]
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/tempoxyz/mpp-go/pkg/client"
+	charge "github.com/tempoxyz/mpp-go/pkg/tempo/client"
+)
+
+func main() {
+	method, err := charge.New(charge.Config{
+		PrivateKey: os.Getenv("PRIVATE_KEY"),
+		RPCURL:     "https://rpc.tempo.xyz",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	c := client.New([]client.Method{method})
+
+	resp, err := c.Get(context.Background(), "https://api.example.com/resource")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	fmt.Println("Status:", resp.StatusCode)
+}
+```
+
+## Package layout
+
+| Package | Description |
+|---------|-------------|
+| `pkg/client` | HTTP client with automatic `402` handling |
+| `pkg/mpp` | Core protocol primitives (Challenge, Credential, Receipt) |
+| `pkg/server` | Server-side payment handler and middleware |
+| `pkg/server/echo` | Echo framework middleware |
+| `pkg/server/gin` | Gin framework middleware |
+| `pkg/tempo/client` | Tempo charge client method |
+| `pkg/tempo/server` | Tempo charge server method |
+
+## Next steps
+
+import { Cards } from 'vocs'
+import { GoCoreTypesCard, GoClientCard, GoServerCard } from '../../../components/cards'
+
+<Cards>
+  <GoCoreTypesCard />
+  <GoClientCard />
+  <GoServerCard />
+</Cards>

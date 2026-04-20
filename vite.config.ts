@@ -68,6 +68,28 @@ function stubRehypeMermaid(): Plugin {
   };
 }
 
+// Stub the mermaid library to prevent Vocs's built-in Mermaid.client from
+// bundling the full mermaid package (~2.5 MB of JS chunks). No page uses
+// Vocs's ```mermaid code blocks — all diagrams use the custom
+// MermaidDiagram component which renders pure SVG without mermaid.
+function stubMermaid(): Plugin {
+  return {
+    name: "stub-mermaid",
+    enforce: "pre",
+    resolveId(id) {
+      if (id === "mermaid") return "\0mermaid-stub";
+    },
+    load(id) {
+      if (id === "\0mermaid-stub") {
+        return `export default {
+          initialize() {},
+          async render() { return { svg: '<svg></svg>' } },
+        }`;
+      }
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   for (const key of Object.keys(env)) {
@@ -84,6 +106,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       preloadFonts(),
       stubRehypeMermaid(),
+      stubMermaid(),
       Icons({ compiler: "jsx", jsx: "react" }),
       react(),
       vocs(),

@@ -305,24 +305,37 @@ export default defineConfig({
             link: "/guides/streamed-payments",
           },
           {
-            text: "Accept split payments",
-            link: "/guides/split-payments",
-          },
-          {
-            text: "Accept multiple payment methods",
-            link: "/guides/multiple-payment-methods",
-          },
-          {
-            text: "Create a payment link",
-            link: "/guides/payment-links",
-          },
-          {
-            text: "Proxy an existing service",
-            link: "/guides/proxy-existing-service",
-          },
-          {
-            text: "Upgrade your x402 integration",
-            link: "/guides/upgrade-x402",
+            text: "Advanced",
+            items: [
+              {
+                text: "Accept card payments",
+                link: "/guides/accept-card-payments",
+              },
+              {
+                text: "Accept split payments",
+                link: "/guides/split-payments",
+              },
+              {
+                text: "Accept multiple payment methods",
+                link: "/guides/multiple-payment-methods",
+              },
+              {
+                text: "Create a payment link",
+                link: "/guides/payment-links",
+              },
+              {
+                text: "Monetize your MCP server",
+                link: "/guides/monetize-mcp-server",
+              },
+              {
+                text: "Proxy an existing service",
+                link: "/guides/proxy-existing-service",
+              },
+              {
+                text: "Upgrade your x402 integration",
+                link: "/guides/upgrade-x402",
+              },
+            ],
           },
         ],
       },
@@ -810,6 +823,16 @@ export default defineConfig({
               { text: "Core types", link: "/sdk/rust/core" },
               { text: "Client", link: "/sdk/rust/client" },
               { text: "Server", link: "/sdk/rust/server" },
+            ],
+          },
+          {
+            text: "Go",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/sdk/go" },
+              { text: "Core types", link: "/sdk/go/core" },
+              { text: "Client", link: "/sdk/go/client" },
+              { text: "Server", link: "/sdk/go/server" },
             ],
           },
         ],

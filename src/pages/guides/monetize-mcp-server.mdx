@@ -1,0 +1,280 @@
+---
+description: "Add payments to your MCP server. Charge per tool call with stablecoins—no API keys or billing portals required"
+imageDescription: "Charge for your MCP tools in a few lines of code"
+---
+
+import { Cards, Card } from 'vocs'
+import { OneTimePaymentsCard, WalletCliCard } from '../../components/cards'
+import { PromptBlock } from '../../components/PromptBlock'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { SpecCard } from '../../components/SpecCard'
+
+# Monetize your MCP server [Charge for tool calls with MPP]
+
+Add per-call payments to any [MCP](https://modelcontextprotocol.io) server. When an agent calls a paid tool, the server issues a Challenge, the agent pays, and the tool executes—all within the MCP protocol. No API keys or billing portals required.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant A as Agent
+    participant S as MCP Server
+    participant N as Payment Network
+    A->>S: (1) tools/call
+    S-->>A: (2) {"error":{"code":-32042}} + Challenge
+    Note over A: (3) Create Credential
+    A->>S: (4) tools/call + {"_meta":{"credential"}}
+    S->>N: (5) Settle payment
+    N-->>S: (6) Confirmed
+    S-->>A: (7) {"result":{}} + Receipt
+`} />
+
+1. **Agent** calls a tool on the MCP server
+2. **Server** responds with JSON-RPC error code `-32042` and a Challenge specifying the price
+3. **Agent** creates a Credential (payment proof) from the Challenge
+4. **Agent** retries the tool call with the Credential in `_meta`
+5. **Server** verifies the Credential and settles the payment on-chain
+6. **Network** confirms the payment
+7. **Server** returns the tool result with a Receipt in `_meta`
+
+This maps directly to the standard MPP challenge → credential → receipt flow, encoded as JSON-RPC instead of HTTP headers. See the [MCP transport spec](/protocol/transports/mcp) for the full encoding.
+
+## Prompt mode
+
+Paste this into your coding agent to build a paid MCP server in one prompt:
+
+<PromptBlock>
+{`Use https://mpp.dev/guides/monetize-mcp-server.md as reference.
+Build an MCP server with mppx that charges $0.01 per tool call 
+using the Tempo payment method. Use @modelcontextprotocol/sdk 
+for the MCP server and Transport.mcpSdk() for the payment transport.`}
+</PromptBlock>
+
+## Manual mode
+
+::::steps
+
+### Install dependencies
+
+:::code-group
+```bash [npm]
+npm install mppx @modelcontextprotocol/sdk viem
+```
+```bash [pnpm]
+pnpm add mppx @modelcontextprotocol/sdk viem
+```
+```bash [bun]
+bun add mppx @modelcontextprotocol/sdk viem
+```
+:::
+
+### Create the MCP server
+
+Set up a standard MCP server with a tool. This tool is **currently free**.
+
+```ts [server.ts]
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+
+const server = new McpServer({ name: 'my-service', version: '1.0.0' })
+
+// [!code focus:start]
+server.registerTool(
+  'search',
+  { description: 'Search the web' },
+  async ({ query }) => ({
+    content: [{ type: 'text', text: `Results for: ${query}` }],
+  }),
+)
+// [!code focus:end]
+
+const transport = new StdioServerTransport()
+await server.connect(transport)
+```
+
+### Add `mppx` with the MCP transport
+
+Create an `Mppx` instance with `Transport.mcpSdk()`. This tells `mppx` to encode Challenges and Receipts as JSON-RPC messages instead of HTTP headers.
+
+```ts [server.ts]
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+import { Mppx, tempo, Transport } from 'mppx/server' // [!code ++]
+
+// [!code focus:start]
+const mppx = Mppx.create({
+  methods: [tempo({
+    testnet: true,
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })],
+  transport: Transport.mcpSdk(), // [!code hl]
+})
+// [!code focus:end]
+
+const server = new McpServer({ name: 'my-service', version: '1.0.0' })
+
+server.registerTool(
+  'search',
+  { description: 'Search the web' },
+  async ({ query }) => ({
+    content: [{ type: 'text', text: `Results for: ${query}` }],
+  }),
+)
+
+const transport = new StdioServerTransport()
+await server.connect(transport)
+```
+
+### Add `.charge` to the tool handler
+
+Call `mppx.charge` inside the tool handler. If the agent hasn't paid, throw the Challenge. Otherwise, attach a Receipt to the result.
+
+```ts [server.ts]
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+import { Mppx, tempo, Transport } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    testnet: true,
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })],
+  transport: Transport.mcpSdk(),
+})
+
+const server = new McpServer({ name: 'my-service', version: '1.0.0' })
+
+// [!code focus:start]
+server.registerTool(
+  'search',
+  { description: 'Search the web' },
+  async ({ query }, extra) => {
+    const result = await mppx.charge({ // [!code ++]
+      amount: '0.01', // [!code ++]
+      description: 'Web search query', // [!code ++]
+    })(extra) // [!code ++]
+
+    if (result.status === 402) throw result.challenge // [!code ++]
+
+    return result.withReceipt({ // [!code ++]
+      content: [{ type: 'text', text: `Results for: ${query}` }],
+    })
+  },
+)
+// [!code focus:end]
+
+const mcpTransport = new StdioServerTransport()
+await server.connect(mcpTransport)
+```
+
+Three lines turn a free tool into a paid one:
+
+- **`mppx.charge()`** checks for a valid Credential in the tool call's `_meta`
+- **`throw result.challenge`** sends a `-32042` error with the payment requirements
+- **`result.withReceipt()`** attaches a Receipt to the tool result
+
+### Test with the `mppx` CLI
+
+```bash [terminal]
+# Create account funded with testnet tokens
+$ npx mppx account create
+
+# Start the server and call the tool
+$ echo '{"method":"tools/call","params":{"name":"search","arguments":{"query":"hello"}}}' | node server.ts
+```
+
+::::
+
+## Multiple tools with different prices
+
+Set different prices per tool. Free tools don't need `mppx.charge` at all.
+
+```ts [server.ts]
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+import { Mppx, tempo, Transport } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    testnet: true,
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })],
+  transport: Transport.mcpSdk(),
+})
+
+const server = new McpServer({ name: 'my-service', version: '1.0.0' })
+
+// [!code focus:start]
+// Free tool — no payment required
+server.registerTool(
+  'status',
+  { description: 'Check service status' },
+  async () => ({
+    content: [{ type: 'text', text: 'OK' }],
+  }),
+)
+
+// $0.01 per call
+server.registerTool(
+  'search',
+  { description: 'Search the web' },
+  async ({ query }, extra) => {
+    const result = await mppx.charge({ amount: '0.01' })(extra)
+    if (result.status === 402) throw result.challenge
+    return result.withReceipt({
+      content: [{ type: 'text', text: `Results for: ${query}` }],
+    })
+  },
+)
+
+// $0.10 per call
+server.registerTool(
+  'generate-image',
+  { description: 'Generate an image from a prompt' },
+  async ({ prompt }, extra) => {
+    const result = await mppx.charge({ amount: '0.10' })(extra)
+    if (result.status === 402) throw result.challenge
+    return result.withReceipt({
+      content: [{ type: 'text', text: `Image generated for: ${prompt}` }],
+    })
+  },
+)
+// [!code focus:end]
+
+const transport = new StdioServerTransport()
+await server.connect(transport)
+```
+
+## What the agent sees
+
+Under the hood, the MCP transport encodes MPP Challenges, Credentials, and Receipts as JSON-RPC fields:
+
+| MPP concept | MCP encoding |
+|---|---|
+| Challenge | Error code `-32042` with challenges in `error.data` |
+| Credential | `_meta["org.paymentauth/credential"]` on the tool call |
+| Receipt | `_meta["org.paymentauth/receipt"]` on the tool result |
+
+A payment-aware MCP client like [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap) handles this automatically—the agent doesn't need to know the encoding details.
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-payment-transport-mcp-00" title="MCP Transport" description="JSON-RPC encoding for Challenges, Credentials, and Receipts" />
+  <SpecCard to="https://paymentauth.org/draft-payment-intent-charge-00" title="Charge Intent" description="One-time payment request schema" />
+</Cards>
+
+## Next steps
+
+<Cards>
+  <Card
+    description="Read the full MCP transport encoding"
+    icon="lucide:book-open"
+    title="MCP transport"
+    to="/protocol/transports/mcp"
+  />
+  <OneTimePaymentsCard />
+  <WalletCliCard />
+</Cards>

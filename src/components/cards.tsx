@@ -143,6 +143,17 @@ export function RustSdkCard() {
   );
 }
 
+export function GoSdkCard() {
+  return (
+    <Card
+      description="Get started with `mpp-go`, the official MPP SDK for Go"
+      icon="simple-icons:go"
+      title="Go"
+      to="/sdk/go"
+    />
+  );
+}
+
 export function MppxCreateReferenceCard({ to }: { to: string }) {
   return (
     <Card
@@ -415,6 +426,39 @@ export function StripeChargeCard() {
       icon="lucide:credit-card"
       title="Charge"
       to="/payment-methods/stripe/charge"
+    />
+  );
+}
+
+export function GoCoreTypesCard() {
+  return (
+    <Card
+      description="Challenge, Credential, Receipt types"
+      icon="lucide:box"
+      title="Core types"
+      to="/sdk/go/core"
+    />
+  );
+}
+
+export function GoClientCard() {
+  return (
+    <Card
+      description="Handle 402 responses automatically"
+      icon="lucide:send"
+      title="Client"
+      to="/sdk/go/client"
+    />
+  );
+}
+
+export function GoServerCard() {
+  return (
+    <Card
+      description="Protect endpoints with payments"
+      icon="lucide:server"
+      title="Server"
+      to="/sdk/go/server"
     />
   );
 }

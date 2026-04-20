@@ -1,0 +1,74 @@
+---
+imageDescription: "Core MPP types for Go"
+---
+
+# Core types [Challenge, Credential, and Receipt primitives]
+
+These types map directly to HTTP headers—`WWW-Authenticate`, `Authorization`, and `Payment-Receipt`—and can be used independently of the higher-level client and server APIs.
+
+```go
+import "github.com/tempoxyz/mpp-go/pkg/mpp"
+```
+
+## Parse a Challenge
+
+Parse a `WWW-Authenticate` header into a typed `Challenge`:
+
+```go
+challenge, err := mpp.ParseChallenge(
+	`Payment id="...", realm="...", method="tempo", intent="charge", request="eyJ..."`,
+)
+if err != nil {
+	log.Fatal(err)
+}
+
+fmt.Println("Method:", challenge.Method)
+fmt.Println("Intent:", challenge.Intent)
+```
+
+## Create and serialize a Credential
+
+Build a `Credential` from a Challenge echo and payment proof:
+
+```go
+credential := &mpp.Credential{
+	Challenge: challenge.ToEcho(),
+	Payload: map[string]any{
+		"type":      "transaction",
+		"signature": "0x...",
+	},
+	Source: "did:pkh:eip155:4217:0xa726a1...",
+}
+
+header := credential.ToAuthorization()
+// header = "Payment eyJ..."
+```
+
+## Parse and serialize a Receipt
+
+Parse the `Payment-Receipt` response header:
+
+```go
+receipt, err := mpp.ParseReceipt(headerValue)
+if err != nil {
+	log.Fatal(err)
+}
+
+fmt.Println("Status:", receipt.Status)
+fmt.Println("Reference:", receipt.Reference)
+```
+
+Serialize a Receipt back to a header value:
+
+```go
+header := receipt.ToPaymentReceipt()
+```
+
+## Type reference
+
+| Type | Description |
+|------|-------------|
+| `Challenge` | Server Challenge parsed from `WWW-Authenticate` |
+| `ChallengeEcho` | Echoed Challenge fields in a Credential |
+| `Credential` | Client Credential for the `Authorization` header |
+| `Receipt` | Server Receipt parsed from `Payment-Receipt` |

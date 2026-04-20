@@ -71,23 +71,23 @@ export async function handler(request: Request) {
 }
 ```
 
-### With a custom fee-payer policy
+### With a custom fee payer policy
 
-Override the default fee-sponsor limits when you co-sign charges locally.
+Override the local fee-sponsor limits when you co-sign charge transactions.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
-
 const mppx = Mppx.create({
   methods: [
     tempo.charge({
-      account,
-      feePayer: true,
+      feePayer: privateKeyToAccount(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ),
       feePayerPolicy: {
         maxPriorityFeePerGas: 50_000_000_000n,
+        maxTotalFee: 100_000_000_000_000_000n,
       },
     }),
   ],
@@ -161,13 +161,32 @@ This setting only applies to non-zero charges. Zero-amount proof flows do not cr
 
 ### feePayerPolicy (optional)
 
-- **Type:** `{ maxGas?: bigint; maxFeePerGas?: bigint; maxPriorityFeePerGas?: bigint; maxTotalFee?: bigint; maxValidityWindowSeconds?: number }`
+- **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
 
-Override the fee-sponsor policy when you co-sign charge transactions locally.
+Override the local fee-sponsor policy used when the server co-signs Tempo charge transactions. Remote fee payer services enforce their own policy.
 
-Defaults resolve per chain. In `mppx@0.5.13`, Moderato (`42431`) uses a higher default `maxPriorityFeePerGas` ceiling than Tempo mainnet so sponsored charges keep working when testnet tips spike.
+`mppx` resolves defaults per chain automatically. On mainnet (`4217`), the defaults are `maxFeePerGas: 100_000_000_000n`, `maxGas: 2_000_000n`, `maxPriorityFeePerGas: 10_000_000_000n`, `maxTotalFee: 50_000_000_000_000_000n`, and `maxValidityWindowSeconds: 900`. On Moderato (`42431`), `maxPriorityFeePerGas` increases to `50_000_000_000n` and the other limits stay the same.
 
-If you raise `maxGas` or `maxFeePerGas`, also review `maxTotalFee` so the combined fee budget still fits your policy.
+If you raise `maxFeePerGas` or `maxGas`, you may also need to raise `maxTotalFee` so the combined fee budget stays within policy.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      feePayer: privateKeyToAccount(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ),
+      feePayerPolicy: {
+        maxPriorityFeePerGas: 50_000_000_000n,
+        maxTotalFee: 100_000_000_000_000_000n,
+      },
+    }),
+  ],
+})
+```
 
 ### getClient (optional)
 
@@ -290,3 +309,4 @@ export async function handler(request: Request) {
   if (response.status === 402) return response.challenge
   return response.withReceipt(Response.json({ data: '...' }))
 }
+```

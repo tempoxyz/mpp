@@ -1,11 +1,11 @@
 ---
 title: "SDKs and client libraries"
-description: "Official MPP SDKs in TypeScript, Python, and Rust, plus community SDKs in other languages."
+description: "Official MPP SDKs in TypeScript, Python, Rust, and Go, plus community SDKs in other languages."
 imageDescription: "Official and community SDKs for MPP"
 ---
 
 import { Badge, Cards } from 'vocs'
-import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, WalletCliCard } from '../../components/cards'
+import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, GoSdkCard, WalletCliCard } from '../../components/cards'
 
 # SDKs [Official implementations in multiple languages]
 
@@ -13,7 +13,24 @@ import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, WalletCliCard } from '..
   <TypeScriptSdkCard />
   <PythonSdkCard />
   <RustSdkCard />
+  <GoSdkCard />
 </Cards>
+
+## Capabilities
+
+| Capability | TypeScript | Python | Rust | Go |
+|---|---|---|---|---|
+| **Client** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Server** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Core types** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Charge intent** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Session intent** | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> |
+| **Stripe method** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> |
+| **Fee sponsorship** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Proof credentials** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **MCP support** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> |
+| **Framework middleware** | Next.js, Hono, Express, Elysia | FastAPI | Axum, Tower | net/http, Gin, Echo, Chi |
+| **HTTP transport** | fetch polyfill | httpx transport | reqwest-middleware | http.RoundTripper |
 
 ## Other languages
 
