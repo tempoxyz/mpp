@@ -14,17 +14,16 @@ Agents can automatically interact with MPP-enabled services, paying for API call
 | [Tempo Wallet](#tempo-wallet) | MPP services with spend controls and service discovery | `tempo wallet login` |
 | [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `privy-agent-wallets login` |
 | [AgentCash](#agentcash) | Instant access to 300+ premium APIs via MPP | `npx agentcash onboard` |
-| [`mppx` CLI](#mppx) | Lightweight MPP client for development and debugging | `mppx account create` |
+| [`mppx` CLI](#mppx) | Development and debugging | `mppx account create` |
 
 ## Tempo Wallet <Badge variant="info" data-toc-exclude>Recommended</Badge>
 
-The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery. Agents can use `tempo wallet` to pay for powerful new capabilities on demand.
+The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery. Agents can use `tempo wallet` to discovery and pay for MPP-enabled services on demand.
 
 <Tabs>
 <Tab title="Agent">
 
 Paste this into your agent to set up Tempo Wallet:
-
 
 ```
 Read https://tempo.xyz/SKILL.md and set up tempo
@@ -69,40 +68,6 @@ tempo request -X POST \
 ::::
 </Tab>
 </Tabs>
-
-## mppx
-
-The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
-
-::::steps
-
-### Install
-
-:::code-group
-```bash [npm]
-npm install -g mppx
-```
-```bash [pnpm]
-pnpm add -g mppx
-```
-```bash [bun]
-bun add -g mppx
-```
-:::
-
-### Create an account
-
-```bash
-mppx account create
-```
-
-### Make a paid request
-
-```bash
-mppx https://mpp.dev/api/ping/paid
-```
-
-::::
 
 ## Privy Agent CLI
 
@@ -199,6 +164,41 @@ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 ::::
 </Tab>
 </Tabs>
+
+## mppx
+
+The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
+
+::::steps
+
+### Install
+
+:::code-group
+```bash [npm]
+npm install -g mppx
+```
+```bash [pnpm]
+pnpm add -g mppx
+```
+```bash [bun]
+bun add -g mppx
+```
+:::
+
+### Create an account
+
+```bash
+mppx account create
+```
+
+### Make a paid request
+
+```bash
+mppx https://mpp.dev/api/ping/paid
+```
+
+::::
+
 
 ## Next steps
 

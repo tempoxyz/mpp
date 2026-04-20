@@ -14,11 +14,11 @@ Agents need a wallet to pay for MPP-enabled services. Choose the wallet that fit
 | [Tempo Wallet](#tempo-wallet) | Tempo MPP services with spend controls and service discovery | `tempo` | `tempo wallet login` |
 | [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `tempo`, `solana` | `privy-agent-wallets login` |
 | [AgentCash](#agentcash) | Instant access to 300+ premium APIs via MPP | `tempo` | `npx agentcash onboard` |
-| [`mppx` CLI](#mppx) | Lightweight MPP client for development and debugging | All | `mppx account create` |
+| [`mppx` CLI](#mppx) | Development and debugging | All | `mppx account create` |
 
-## Tempo Wallet <Badge variant="info" data-toc-exclude>Recommended</Badge>
+## Tempo Wallet 
 
-The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built-in spend controls and service discovery. Agents use `tempo wallet` to pay for capabilities on demand.
+The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built-in spend controls and service discovery. Agents use `tempo wallet` to discovery and pay for MPP-enabled services on demand.
 
 <Tabs>
 <Tab title="Agent">
@@ -69,14 +69,14 @@ tempo request -X POST \
 </Tab>
 </Tabs>
 
-**Supported methods:** <Badge variant="note">tempo.charge</Badge> <Badge variant="note">tempo.session</Badge>
+**Supported methods:** <Badge variant="info">tempo.charge</Badge> <Badge variant="info">tempo.session</Badge>
 
 **Key features:**
 
 - **Service discovery**—`tempo wallet services` lists endpoints, pricing, and request schemas
 - **Spend controls**—scoped access keys enforce per-key spending limits
 - **Dry-run previews**—`tempo request --dry-run` validates cost before committing funds
-- **TOON output**—`-t` flag gives compact, machine-readable output for agent tooling
+- **Efficient output**—`-t` flag gives compact, machine-readable output for agent tooling
 
 ## Privy Agent CLI
 
@@ -133,7 +133,7 @@ privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to
 </Tab>
 </Tabs>
 
-**Supported methods:** <Badge variant="note">tempo.charge</Badge> <Badge variant="note">tempo.session</Badge> <Badge variant="note">solana.charge</Badge>
+**Supported methods:** <Badge variant="info">tempo.charge</Badge> <Badge variant="info">tempo.session</Badge> <Badge variant="info">solana.charge</Badge>
 
 **Key features:**
 
@@ -182,7 +182,7 @@ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 </Tab>
 </Tabs>
 
-**Supported methods:** <Badge variant="note">tempo.charge</Badge>
+**Supported methods:** <Badge variant="info">tempo.charge</Badge>
 
 **Key features:**
 
@@ -224,7 +224,7 @@ mppx https://mpp.dev/api/ping/paid
 
 ::::
 
-**Supported methods:** <Badge variant="note">tempo.charge</Badge> <Badge variant="note">tempo.session</Badge> <Badge variant="note">stripe.charge</Badge> <Badge variant="note">solana.charge</Badge>
+**Supported methods:** <Badge variant="info">tempo.charge</Badge> <Badge variant="info">tempo.session</Badge> <Badge variant="info">stripe.charge</Badge> <Badge variant="info">solana.charge</Badge>
 
 **Key features:**
 
