@@ -857,14 +857,13 @@ export const services: ServiceDef[] = [
     name: "DripStack",
     url: "https://dripstack.xyz",
     serviceUrl: "https://dripstack.xyz",
-    description:
-      "MPP-enabled content retrieval from Substack publications.",
+    description: "MPP-enabled content retrieval from Substack publications.",
     categories: ["web", "data"],
     integration: "third-party",
     tags: ["substack", "blog", "publication", "post", "data", "query"],
     docs: {
       homepage: "https://dripstack.xyz/?tab=agents",
-      llmsTxt: "https://dripstack.xyz/SKILL.md"
+      llmsTxt: "https://dripstack.xyz/SKILL.md",
     },
     provider: { name: "DripStack", url: "https://dripstack.xyz/" },
     realm: "dripstack.xyz",
