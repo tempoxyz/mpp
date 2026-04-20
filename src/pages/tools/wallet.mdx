@@ -13,7 +13,7 @@ Agents need a wallet to pay for MPP-enabled services. Choose the wallet that fit
 |--------|----------|-------------------|-------|
 | [Tempo Wallet](#tempo-wallet) | Tempo MPP services with spend controls and service discovery | `tempo` | `tempo wallet login` |
 | [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `tempo`, `solana` | `privy-agent-wallets login` |
-| [AgentCash](#agentcash) | Instant access to 300+ premium APIs via MPP | `tempo` | `npx agentcash onboard` |
+| [AgentCash](#agentcash) | Discover and use 300+ premium APIs via MPP | `tempo` | `npx agentcash onboard` |
 | [`mppx` CLI](#mppx) | Development and debugging | All | `mppx account create` |
 
 ## Tempo Wallet 
@@ -143,7 +143,7 @@ privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to
 
 ## AgentCash
 
-[AgentCash](https://agentcash.dev/docs/introduction) gives agents instant access to 300+ premium APIs—enrichment, social data, image generation, web scraping, email—paid per-request with USDC micropayments via MPP. No API keys or subscriptions required.
+[AgentCash](https://agentcash.dev) gives agents instant access to 300+ premium APIs for data enrichment, social data, image generation, web scraping, email, and much more, all through one USDC balance.
 
 <Tabs>
 <Tab title="Agent">
@@ -160,16 +160,24 @@ Set up agentcash.dev/skill.md
 
 ### Onboard and get free credits
 
-Visit [agentcash.dev/onboard](https://agentcash.dev/onboard) to claim a sign-up bonus, then redeem:
+Visit [agentcash.dev/onboard](https://agentcash.dev/onboard) to claim a sign-up bonus, then redeem in your terminal:
 
 ```bash
 npx agentcash onboard <CODE>
 ```
 
-### Discover available services
+### Search for services
 
 ```bash
-npx agentcash discover
+npx agentcash search "image generation"
+```
+
+### Use a service
+
+```bash
+npx agentcash fetch https://stableenrich.dev/api/exa/search \
+    --method POST \
+    --body '{"query":"agentcash.dev"}'
 ```
 
 ### Install as MCP server (optional)
@@ -186,9 +194,10 @@ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 
 **Key features:**
 
-- **300+ premium APIs**—enrichment, social data, image generation, web scraping, email, all accessible instantly
-- **No API keys**—pay per request with USDC micropayments, no subscriptions or manual sign-up flows
-- **MPP compatible**—any service that implements MPP is automatically discoverable and usable
+- **300+ premium APIs** - enrichment, social data, image generation, web scraping, email, all accessible instantly
+- **No human required** - pay per request with USDC, no subscriptions or manual sign-up flows
+- **API and tool discovery** - any service that implements MPP is automatically discoverable and usable
+- **MPPScan integration** — easily discover and use services via [mppscan.com](https://www.mppscan.com/)
 
 ## `mppx`
 
