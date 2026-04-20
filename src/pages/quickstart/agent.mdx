@@ -1,5 +1,5 @@
 ---
-description: "Connect your coding agent to MPP-enabled services. Set up Tempo Wallet or the mppx SDK to handle 402 payment flows automatically."
+description: "Connect your coding agent to MPP-enabled services. Set up a wallet to handle payment flows automatically."
 imageDescription: "Connect your agent to paid APIs"
 ---
 
@@ -9,15 +9,21 @@ import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
 
 Agents can automatically interact with MPP-enabled services, paying for API calls without human intervention. Learn more about [agentic payments](/use-cases/agentic-payments) or get started below.
 
+| Tool | Best for | Setup |
+|------|----------|-------|
+| [Tempo Wallet](#tempo-wallet) | MPP services with spend controls and service discovery | `tempo wallet login` |
+| [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `privy-agent-wallets login` |
+| [AgentCash](#agentcash) | Discover and use 300+ premium APIs via MPP | `npx agentcash onboard` |
+| [`mppx` CLI](#mppx) | Development and debugging | `mppx account create` |
+
 ## Tempo Wallet <Badge variant="info" data-toc-exclude>Recommended</Badge>
 
-The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery. Agents can use `tempo wallet` to pay for powerful new capabilities on demand.
+The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery. Agents can use `tempo wallet` to discovery and pay for MPP-enabled services on demand.
 
 <Tabs>
 <Tab title="Agent">
 
 Paste this into your agent to set up Tempo Wallet:
-
 
 ```
 Read https://tempo.xyz/SKILL.md and set up tempo
@@ -63,6 +69,110 @@ tempo request -X POST \
 </Tab>
 </Tabs>
 
+## Privy Agent CLI
+
+[Privy Agent CLI](https://docs.privy.io/recipes/agent-integrations/agent-cli) gives agents a CLI-first way to create, fund, and manage wallets with no integration code. It pairs with the [Agent Sandbox](https://agents.privy.io/) where users track agent spending, manage funds, and revoke access.
+
+The agent never holds the wallet private key—each CLI session generates a P-256 keypair used to sign authorization payloads.
+
+<Tabs>
+<Tab title="Agent">
+
+Paste this into your agent to set up Privy Agent CLI:
+
+```
+Set up https://agents.privy.io/skill.md
+```
+
+</Tab>
+<Tab title="Human">
+::::steps
+
+#### Install
+
+```bash
+npm install -g @privy-io/agent-wallet-cli
+```
+
+#### Log in
+
+```bash
+privy-agent-wallets login
+```
+
+This opens a browser flow—complete Privy auth, approve signer access, then paste the credential back into the terminal.
+
+#### Fund wallets
+
+```bash
+privy-agent-wallets fund
+```
+
+#### List wallets
+
+```bash
+privy-agent-wallets list-wallets
+```
+
+#### Send a transaction
+
+```bash
+privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to": "0xRecipient", "value": "0.01"}}'
+```
+
+::::
+</Tab>
+</Tabs>
+
+## AgentCash
+
+[AgentCash](https://agentcash.dev) gives agents instant access to 300+ premium APIs for data enrichment, social data, image generation, web scraping, email, and much more, all through one USDC balance.
+
+<Tabs>
+<Tab title="Agent">
+
+Paste this into your agent to set up AgentCash:
+
+```
+Set up agentcash.dev/skill.md
+```
+
+</Tab>
+<Tab title="Human">
+::::steps
+
+#### Onboard and get free credits
+
+Visit [agentcash.dev/onboard](https://agentcash.dev/onboard) to claim a sign-up bonus, then redeem in your terminal:
+
+```bash
+npx agentcash onboard <CODE>
+```
+
+#### Search for services
+
+```bash
+npx agentcash search "image generation"
+```
+
+#### Use a service
+
+```bash
+npx agentcash fetch https://stableenrich.dev/api/exa/search \
+    --method POST \
+    --body '{"query":"agentcash.dev"}'
+```
+
+#### Install as MCP server (optional)
+
+```bash
+claude mcp add agentcash --scope user -- npx -y agentcash@latest
+```
+
+::::
+</Tab>
+</Tabs>
+
 ## mppx
 
 The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
@@ -97,6 +207,7 @@ mppx https://mpp.dev/api/ping/paid
 
 ::::
 
+
 ## Next steps
 
 <Cards>
@@ -105,5 +216,11 @@ mppx https://mpp.dev/api/ping/paid
     icon="lucide:list"
     title="Services"
     to="/services"
+  />
+  <Card
+    description="Agent wallets, funding, and spend controls"
+    icon="lucide:wallet"
+    title="Wallets"
+    to="/tools/wallet"
   />
 </Cards>
