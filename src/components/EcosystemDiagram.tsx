@@ -29,12 +29,6 @@ export function EcosystemDiagram() {
     const th = isDark ? THEMES.dark : THEMES.light;
     const L = LAYOUT;
 
-    // Set dashed border on wrapper
-    const wrapper = el.parentElement;
-    if (wrapper) {
-      wrapper.style.border = `1px dashed ${th.blockStroke}`;
-    }
-
     const W = 820;
     const H = 370;
     const nw = 120;
@@ -152,26 +146,8 @@ export function EcosystemDiagram() {
         true,
       ) +
       // Discovery edges (dashed muted)
-      line(
-        s1.x,
-        s1.y,
-        reg.x,
-        reg.y,
-        "/openapi.json",
-        th.line,
-        "eco-muted",
-        true,
-      ) +
-      line(
-        s2.x,
-        s2.y,
-        reg.x,
-        reg.y,
-        "/openapi.json",
-        th.line,
-        "eco-muted",
-        true,
-      ) +
+      line(s1.x, s1.y, reg.x, reg.y, "", th.line, "eco-muted", true) +
+      line(s2.x, s2.y, reg.x, reg.y, "", th.line, "eco-muted", true) +
       // Discovers edge (curved below, ends at Registry bottom)
       `<path d="M ${discX1} ${client.y + nh / 2} C ${discX1} ${discY}, ${discX2} ${discY}, ${discX2} ${reg.y + nh / 2 + sz}" fill="none" stroke="${th.line}" stroke-width="${L.messageStroke}" stroke-dasharray="6 4" marker-end="url(#eco-muted)"/>` +
       `<text x="${discMx}" y="${discY - 10}" text-anchor="middle" font-size="${L.labelFontSize}" font-weight="${L.labelFontWeight}" fill="${th.textMuted}">discovers</text>` +
