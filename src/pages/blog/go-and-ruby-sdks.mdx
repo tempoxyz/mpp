@@ -18,7 +18,7 @@ imageDescription: "MPP SDKs for Go and Ruby"
 
 MPP now has official SDKs for Go and Ruby. Both implement the full MPP flow: core types, payment methods, server middleware, and client transports.
 
-[**mpp-go**](https://github.com/tempoxyz/mpp-go) is maintained by Tempo Labs. [**mpp-rb**](https://github.com/stripe/mpp-rb) is maintained by Stripe. They join the existing [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust) SDKs, as well as the [community SDKs](/sdk) in other languages.
+[**mpp-go**](https://github.com/tempoxyz/mpp-go) is maintained by Tempo Labs, and [**mpp-rb**](https://github.com/stripe/mpp-rb) is maintained by Stripe. They join the existing [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust) SDKs, as well as the [community SDKs](/sdk) in other languages.
 
 ## Go
 
@@ -95,7 +95,7 @@ func main() {
 }
 ```
 
-The middleware returns a `402` with a Challenge; the client handles it automatically and retries with a Credential. mpp-go ships with adapters for Gin, Echo, and Chi (via `net/http` compatibility). Full docs at [mpp.dev/sdk/go](/sdk/go).
+The middleware returns a `402` with a Challenge; the client handles it automatically and retries with a Credential. `mpp-go` ships with adapters for Gin, Echo, and Chi (via `net/http` compatibility). Full docs at [mpp.dev/sdk/go](/sdk/go).
 
 ## Ruby
 
@@ -162,7 +162,7 @@ transport = Mpp::Client::Transport.new(
 response = transport.request(:get, "https://api.example.com/paid")
 ```
 
-mpp-rb supports both Tempo and Stripe payment methods. It works with any Rack-based framework—Rails, Sinatra, or plain Rack. Full docs at [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb).
+`mpp-rb` supports both Tempo and Stripe payment methods. It works with any Rack-based framework—Rails, Sinatra, or plain Rack. Full docs at [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb).
 
 ## Get started
 
