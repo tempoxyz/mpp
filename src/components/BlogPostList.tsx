@@ -12,7 +12,6 @@ type BlogPost = {
 function ArrowIcon() {
   return (
     <svg
-      className="blog-post-row__arrow"
       width="16"
       height="16"
       viewBox="0 0 24 24"
@@ -22,6 +21,11 @@ function ArrowIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      style={{
+        alignSelf: "center",
+        color: "var(--vocs-text-color-muted)",
+        flexShrink: 0,
+      }}
     >
       <path d="M5 12h14" />
       <path d="m12 5 7 7-7 7" />
@@ -33,42 +37,46 @@ function BlogPostRow({ date, description, title, to }: BlogPost) {
   return (
     <Link
       to={to}
-      className="blog-post-row no-underline!"
+      className="blog-post-row info-card-link no-underline!"
       style={{
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "space-between",
-        gap: "1rem",
-        padding: "1.25rem 1.5rem",
-        borderRadius: 12,
+        gap: "0.55rem",
+        padding: "0.65rem 0.85rem",
+        borderRadius: 8,
+        border: "1px solid var(--vocs-border-color-primary)",
+        background: "light-dark(rgba(0,0,0,0.02), rgba(255,255,255,0.03))",
+        color: "var(--vocs-text-color-heading)",
         textDecoration: "none",
         cursor: "pointer",
+        transition: "background 0.15s, border-color 0.15s",
       }}
     >
       <div style={{ minWidth: 0 }}>
         <div
           style={{
             fontSize: 13,
-            color: "var(--vocs-color_text3)",
-            marginBottom: 4,
+            color: "var(--vocs-text-color-muted)",
+            marginBottom: "0.1rem",
           }}
         >
           {date}
         </div>
         <div
           style={{
-            fontSize: 16,
-            fontWeight: 600,
-            color: "var(--vocs-color_text)",
+            fontSize: 13,
+            fontWeight: 500,
+            marginBottom: "0.1rem",
           }}
         >
           {title}
         </div>
         <div
           style={{
-            fontSize: 14,
-            color: "var(--vocs-color_text3)",
-            marginTop: 4,
+            fontSize: 13,
+            color: "var(--vocs-text-color-muted)",
+            lineHeight: 1.6,
           }}
         >
           {description}
@@ -81,7 +89,7 @@ function BlogPostRow({ date, description, title, to }: BlogPost) {
 
 export function BlogPostList({ posts }: { posts: BlogPost[] }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       {posts.map((post) => (
         <BlogPostRow key={post.to} {...post} />
       ))}

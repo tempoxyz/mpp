@@ -714,46 +714,13 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] > div:last-child {
 }
 
 .blog-post-row {
-  border: 1px solid
-    color-mix(in srgb, var(--vocs-color_border2) 68%, transparent);
-  background: light-dark(rgba(0, 0, 0, 0.012), rgba(255, 255, 255, 0.022));
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  transition:
-    background 0.16s ease,
-    border-color 0.16s ease,
-    box-shadow 0.16s ease,
-    transform 0.16s ease;
+  box-sizing: border-box;
 }
 
 .blog-post-row:hover,
 .blog-post-row:focus-visible {
-  border-color: var(--vocs-color_border3);
-  background: light-dark(rgba(0, 0, 0, 0.024), rgba(255, 255, 255, 0.042));
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-  transform: translateY(-1px);
-}
-
-.blog-post-row:focus-visible {
-  outline: 2px solid
-    color-mix(in srgb, var(--vocs-color_text2) 30%, transparent);
-  outline-offset: 2px;
-}
-
-.blog-post-row__arrow {
-  color: var(--vocs-color_text3);
-  flex-shrink: 0;
-  opacity: 0.72;
-  transition:
-    opacity 0.16s ease,
-    transform 0.16s ease,
-    color 0.16s ease;
-}
-
-.blog-post-row:hover .blog-post-row__arrow,
-.blog-post-row:focus-visible .blog-post-row__arrow {
-  color: var(--vocs-color_text2);
-  opacity: 1;
-  transform: translateX(2px);
+  background: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.06)) !important;
+  border-color: light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.15)) !important;
 }
 
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover {
