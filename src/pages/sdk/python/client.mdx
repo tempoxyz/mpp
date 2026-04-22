@@ -42,35 +42,6 @@ response = await get(
 )
 ```
 
-## Payment sessions
-
-For payment session channels, use `StreamMethod` instead of `tempo()`. The client opens a payment channel and sends incremental vouchers as it consumes content:
-
-```python [stream.py]
-import httpx
-from mpp.client import PaymentTransport
-from mpp.methods.tempo import StreamMethod, TempoAccount
-
-account = TempoAccount.from_key("0x...")
-
-method = StreamMethod(
-    account=account,
-    currency="0x20c0000000000000000000000000000000000000",
-    deposit=10_000_000,
-)
-
-transport = PaymentTransport(methods=[method])
-async with httpx.AsyncClient(transport=transport, timeout=60.0) as client:
-    async with client.stream("GET", "https://api.example.com/chat",
-        params={"prompt": "Explain payment channels"},
-    ) as response:
-        async for line in response.aiter_lines():
-            if line.startswith("data: "):
-                print(line[6:], end="", flush=True)
-```
-
-`StreamMethod` auto-manages the channel lifecycle—opening the channel on the first request and sending cumulative vouchers on subsequent requests to the same server.
-
 ## Custom httpx transport
 
 `PaymentTransport` wraps any `httpx.AsyncBaseTransport`, so you can compose it with custom transports:
