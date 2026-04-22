@@ -6496,6 +6496,63 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Tack ──────────────────────────────────────────────────────────────────
+  {
+    id: "tack",
+    name: "Tack",
+    url: "https://tack.taiko.xyz",
+    serviceUrl: "https://tack.taiko.xyz",
+    description:
+      "IPFS pinning and content retrieval for agents. Pin by CID or upload files — pay by size and duration, no account needed.",
+
+    categories: ["storage"],
+    integration: "first-party",
+    tags: ["ipfs", "pinning", "storage", "files", "upload", "cid", "taiko"],
+    docs: {
+      homepage: "https://tack.taiko.xyz",
+      llmsTxt: "https://tack.taiko.xyz/llms.txt",
+      apiReference: "https://ipfs.github.io/pinning-services-api-spec/",
+    },
+    provider: { name: "Taiko", url: "https://taiko.xyz" },
+    realm: "tack.taiko.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /pins",
+        desc: "Pin content by CID — dynamic pricing based on size and duration ($0.10/GB/month, min $0.001)",
+        dynamic: true,
+        amountHint: "$0.001+",
+      },
+      {
+        route: "POST /upload",
+        desc: "Upload and pin a file (multipart/form-data) — dynamic pricing ($0.10/GB/month, min $0.001)",
+        dynamic: true,
+        amountHint: "$0.001+",
+      },
+      {
+        route: "GET /ipfs/:cid",
+        desc: "Retrieve content by CID — free by default, optionally gated by owner-set retrieval price",
+      },
+      {
+        route: "GET /pins",
+        desc: "List your pins (owner bearer token required)",
+      },
+      {
+        route: "GET /pins/:requestid",
+        desc: "Get a specific pin (owner bearer token required)",
+      },
+      {
+        route: "POST /pins/:requestid",
+        desc: "Replace a pin (owner bearer token required)",
+      },
+      {
+        route: "DELETE /pins/:requestid",
+        desc: "Delete a pin (owner bearer token required)",
+      },
+    ],
+  },
+
   // ── Papercut ───────────────────────────────────────────────────────────
   {
     id: "papercut",
