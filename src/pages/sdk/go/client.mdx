@@ -13,13 +13,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/tempoxyz/mpp-go/pkg/client"
 	charge "github.com/tempoxyz/mpp-go/pkg/tempo/client"
 )
 
 method, err := charge.New(charge.Config{
-	PrivateKey: "0xac0974bec...",
+	PrivateKey: os.Getenv("MPP_PRIVATE_KEY"),
 	RPCURL:     "https://rpc.tempo.xyz",
 })
 if err != nil {

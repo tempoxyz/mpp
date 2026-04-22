@@ -5,7 +5,7 @@ showAskAi: false
 showFeedback: false
 showSearch: false
 description: "Two new MPP SDKs: `mpp-go` maintained by Tempo Labs and `mpp-rb` maintained by Stripe."
-imageDescription: "MPP SDKs for Go and Ruby"
+imageDescription: "Accept stablecoin payments in Go and Ruby"
 ---
 
 <div className="blog-narrow">
@@ -146,7 +146,7 @@ Make a paid request:
 ```ruby [client.rb]
 require "mpp"
 
-account = Mpp::Methods::Tempo::Account.from_key(os.Getenv("MPP_PRIVATE_KEY"))
+account = Mpp::Methods::Tempo::Account.from_key(ENV.fetch("MPP_PRIVATE_KEY"))
 
 transport = Mpp::Client::Transport.new(
   methods: [
@@ -162,11 +162,11 @@ transport = Mpp::Client::Transport.new(
 response = transport.request(:get, "https://api.example.com/paid")
 ```
 
-`mpp-rb` supports both Tempo and Stripe payment methods. It works with any Rack-based framework—Rails, Sinatra, or plain Rack. Full docs at [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb).
+`mpp-rb` supports both Tempo and Stripe payment methods. It works with any Rack-based framework—Rails, Sinatra, or plain Rack. Full docs at [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb). Ruby SDK reference docs are coming soon to [mpp.dev/sdk](/sdk).
 
 ## Get started
 
-Both SDKs support the full MPP flow: core types, payment methods, server middleware, and client transports. Pick the one that fits your stack:
+Pick the SDK that fits your stack:
 
 - **Go**: [github.com/tempoxyz/mpp-go](https://github.com/tempoxyz/mpp-go)
 - **Ruby**: [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb)
