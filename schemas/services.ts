@@ -3940,7 +3940,7 @@ export const services: ServiceDef[] = [
         desc: "List purchasable wines",
       },
       {
-        route: "GET /catalog/{slug}",
+        route: "GET /catalog/:slug",
         desc: "Get wine details by slug",
       },
       {
@@ -3950,11 +3950,11 @@ export const services: ServiceDef[] = [
         amountHint: "Variable depending on wine and quantity",
       },
       {
-        route: "GET /orders/{id}",
+        route: "GET /orders/:id",
         desc: "Retrieve order details",
       },
       {
-        route: "GET /orders/{id}/status",
+        route: "GET /orders/:id/status",
         desc: "Check payment status",
       },
     ],
