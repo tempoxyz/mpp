@@ -719,8 +719,14 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] > div:last-child {
 
 .blog-post-row:hover,
 .blog-post-row:focus-visible {
-  background: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.06)) !important;
-  border-color: light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.15)) !important;
+  background: light-dark(
+    rgba(0, 0, 0, 0.05),
+    rgba(255, 255, 255, 0.06)
+  ) !important;
+  border-color: light-dark(
+    rgba(0, 0, 0, 0.15),
+    rgba(255, 255, 255, 0.15)
+  ) !important;
 }
 
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover {
