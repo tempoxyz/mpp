@@ -1,0 +1,79 @@
+---
+imageDescription: "Handle paid APIs automatically in Ruby"
+---
+
+# Client [Handle 402 responses automatically]
+
+The `Mpp::Client::Transport` wraps HTTP and intercepts `402` responses—it parses the Challenge, signs a stablecoin transfer, and retries with the Credential.
+
+## Quick start
+
+```ruby [client.rb]
+require "mpp"
+
+account = Mpp::Methods::Tempo::Account.from_key("0x...")
+
+transport = Mpp::Client::Transport.new(
+  methods: [Mpp::Methods::Tempo.tempo(account: account)],
+)
+
+response = transport.get("https://api.example.com/resource")
+puts response.body
+```
+
+When the server returns `402`, the client:
+
+1. Parses the Challenge from the `WWW-Authenticate` header
+2. Calls `create_credential` on the matching method to sign a stablecoin transfer
+3. Retries the request with the Credential in the `Authorization` header
+
+## Common methods
+
+| Method | Description |
+|--------|-------------|
+| `delete(url, **kwargs)` | DELETE request with payment handling |
+| `get(url, **kwargs)` | GET request with payment handling |
+| `post(url, **kwargs)` | POST request with payment handling |
+| `put(url, **kwargs)` | PUT request with payment handling |
+| `request(method, url, **kwargs)` | Generic request |
+
+## Account setup
+
+Load an account from a hex-encoded private key:
+
+```ruby
+account = Mpp::Methods::Tempo::Account.from_key("0x...")
+```
+
+Or from an environment variable (defaults to `TEMPO_PRIVATE_KEY`):
+
+```ruby
+account = Mpp::Methods::Tempo::Account.from_env
+```
+
+## Credential modes
+
+The Tempo method supports three credential modes:
+
+```ruby
+# Pull mode (default): Server broadcasts transaction
+credential = method.create_credential(challenge)
+
+# Push mode: Client broadcasts transaction
+credential = method.create_credential(challenge, mode: :push)
+
+# Proof mode: Zero-amount ownership proof
+credential = method.create_credential(challenge, mode: :proof)
+```
+
+## Payment Receipts
+
+Parse the `Payment-Receipt` header from the response:
+
+```ruby
+receipt = Mpp::Receipt.from_payment_receipt(
+  response.headers["Payment-Receipt"]
+)
+```
+
+For manual Challenge and Credential handling, see [Core types](/sdk/ruby/core).

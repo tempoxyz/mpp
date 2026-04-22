@@ -1,0 +1,107 @@
+---
+imageDescription: "MPP client and server library for Ruby"
+---
+
+import * as SdkBadge from '../../../components/SdkBadge'
+
+# Ruby SDK [The mpp-rb library]
+
+## Overview
+
+The `mpp` Ruby gem provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+
+<div className="flex gap-2">
+  <SdkBadge.GitHub repo="tempoxyz/mpp-rb" />
+  <SdkBadge.Maintainer name="Tempo" href="https://github.com/tempoxyz" />
+</div>
+
+## Install
+
+```bash [install.sh]
+$ gem install mpp
+```
+
+Or add to your Gemfile:
+
+```ruby [Gemfile]
+gem "mpp"
+```
+
+## Requirements
+
+- Ruby 3.3+
+- `eth` for Tempo signing (optional)
+- `stripe` for Stripe method (optional)
+- `async` + `async-http` for async HTTP (optional)
+
+## Quick start
+
+### Server
+
+```ruby [server.rb]
+require "mpp"
+
+server = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    currency: "0x20c0000000000000000000000000000000000000",
+    intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  ),
+  secret_key: ENV["MPP_SECRET_KEY"],
+)
+
+# In your request handler
+result = server.charge(
+  request.get_header("HTTP_AUTHORIZATION"),
+  "0.50",
+  description: "Paid resource",
+)
+
+if result.is_a?(Mpp::Challenge)
+  resp = Mpp::Server::Decorator.make_challenge_response(result, server.realm)
+  [resp["status"], resp["headers"], [resp["body"]]]
+else
+  credential, receipt = result
+  [200, { "Payment-Receipt" => receipt.to_payment_receipt }, [{ data: "paid content", payer: credential.source }.to_json]]
+end
+```
+
+Set `MPP_SECRET_KEY` in your environment before you start the server, or pass `secret_key` explicitly to `Mpp.create()`.
+
+### Client
+
+```ruby [client.rb]
+require "mpp"
+
+account = Mpp::Methods::Tempo::Account.from_env
+
+transport = Mpp::Client::Transport.new(
+  methods: [Mpp::Methods::Tempo.tempo(account: account)],
+)
+
+response = transport.get("https://mpp.dev/api/ping/paid")
+puts response.body
+```
+
+## Module layout
+
+| Module | Description |
+|--------|-------------|
+| `Mpp::Challenge` | Challenge parsed from `WWW-Authenticate` |
+| `Mpp::Credential` | Credential for the `Authorization` header |
+| `Mpp::Receipt` | Receipt parsed from `Payment-Receipt` |
+| `Mpp::Client::Transport` | HTTP client with automatic `402` handling |
+| `Mpp::Server::Middleware` | Rack middleware for payment-gated endpoints |
+| `Mpp::Methods::Tempo` | Tempo payment method (client and server) |
+| `Mpp::Methods::Stripe` | Stripe payment method (client and server) |
+
+## Next steps
+
+import { Cards } from 'vocs'
+import { RubyCoreTypesCard, RubyClientCard, RubyServerCard } from '../../../components/cards'
+
+<Cards>
+  <RubyCoreTypesCard />
+  <RubyClientCard />
+  <RubyServerCard />
+</Cards>

@@ -495,3 +495,47 @@ export function PythonServerCard() {
     />
   );
 }
+
+export function RubySdkCard() {
+  return (
+    <Card
+      description="Get started with `mpp-rb`, the official MPP SDK for Ruby"
+      icon="simple-icons:ruby"
+      title="Ruby"
+      to="/sdk/ruby"
+    />
+  );
+}
+
+export function RubyCoreTypesCard() {
+  return (
+    <Card
+      description="Challenge, Credential, Receipt types"
+      icon="lucide:box"
+      title="Core types"
+      to="/sdk/ruby/core"
+    />
+  );
+}
+
+export function RubyClientCard() {
+  return (
+    <Card
+      description="Handle 402 responses automatically"
+      icon="lucide:send"
+      title="Client"
+      to="/sdk/ruby/client"
+    />
+  );
+}
+
+export function RubyServerCard() {
+  return (
+    <Card
+      description="Protect endpoints with payments"
+      icon="lucide:server"
+      title="Server"
+      to="/sdk/ruby/server"
+    />
+  );
+}

@@ -1,0 +1,210 @@
+---
+imageDescription: "Charge for your Ruby API endpoints"
+---
+
+# Server [Protect endpoints with payment requirements]
+
+Create an `Mpp` handler with `Mpp.create()` and call `charge()` with a human-readable amount. The `Mpp::Methods::Tempo.tempo()` factory creates a Tempo payment method—configure `currency` and `recipient` once, then every `charge()` call uses those defaults.
+
+## Quick start
+
+```ruby [server.rb]
+require "mpp"
+
+server = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    currency: "0x20c0000000000000000000000000000000000000",
+    intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  ),
+  secret_key: ENV["MPP_SECRET_KEY"],
+)
+
+result = server.charge(
+  request.get_header("HTTP_AUTHORIZATION"),
+  "0.50",
+  description: "Paid resource",
+)
+
+if result.is_a?(Mpp::Challenge)
+  resp = Mpp::Server::Decorator.make_challenge_response(result, server.realm)
+  [resp["status"], resp["headers"], [resp["body"]]]
+else
+  credential, receipt = result
+  [200, { "Payment-Receipt" => receipt.to_payment_receipt }, [{ data: "paid content", payer: credential.source }.to_json]]
+end
+```
+
+`Mpp.create()` auto-detects `realm` from environment variables (`FLY_APP_NAME`, `HEROKU_APP_NAME`, `VERCEL_URL`, and others). It reads `MPP_SECRET_KEY` from the environment unless you pass `secret_key` explicitly:
+
+```ruby [server.rb]
+server = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    currency: "0x20c0000000000000000000000000000000000000",
+    intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  ),
+  realm: "api.example.com",
+  secret_key: "my-server-secret",
+)
+```
+
+## `Mpp::Methods::Tempo.tempo()` factory
+
+`tempo()` creates a method that bundles a payment network, its intents, and default parameters together. Each intent must be explicitly registered via the `intents` parameter.
+
+```ruby [server.rb]
+method = Mpp::Methods::Tempo.tempo(
+  currency: "0x20c0000000000000000000000000000000000000",
+  recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+)
+```
+
+### `tempo()` parameters
+
+### currency (optional)
+
+- **Type:** `String`
+
+Default TIP-20 token address for charges.
+
+### decimals (optional)
+
+- **Type:** `Integer`
+- **Default:** `6`
+
+Token decimal places for amount conversion (6 for pathUSD).
+
+### intents
+
+- **Type:** `Hash`
+
+Intents to register (for example, `"charge"`). Each intent must be explicitly provided.
+
+### recipient (optional)
+
+- **Type:** `String`
+
+Default recipient address for charges.
+
+### rpc_url (optional)
+
+- **Type:** `String`
+- **Default:** `"https://rpc.tempo.xyz"`
+
+Tempo RPC endpoint URL.
+
+## `Mpp.create()` parameters
+
+### method
+
+- **Type:** `Method`
+
+Payment method instance returned by `tempo()`.
+
+### realm (optional)
+
+- **Type:** `String`
+
+Server realm for `WWW-Authenticate` headers. Auto-detected from environment if omitted.
+
+### secret_key (optional)
+
+- **Type:** `String`
+
+HMAC secret for stateless Challenge ID verification. Reads `MPP_SECRET_KEY` if omitted.
+
+## `charge()` parameters
+
+### amount
+
+- **Type:** `String`
+
+Payment amount in human-readable units (for example, `"0.50"` for $0.50). Automatically converted to base units using the method's decimal precision (6 decimals for pathUSD).
+
+### authorization
+
+- **Type:** `String | nil`
+
+The `Authorization` header value from the incoming request.
+
+### currency (optional)
+
+- **Type:** `String`
+
+Override the method's default currency address.
+
+### description (optional)
+
+- **Type:** `String`
+
+Human-readable description attached to the Challenge.
+
+### expires (optional)
+
+- **Type:** `String`
+
+Challenge expiration as ISO 8601 timestamp. Defaults to 5 minutes from now.
+
+### recipient (optional)
+
+- **Type:** `String`
+
+Override the method's default recipient address.
+
+### memo (optional)
+
+- **Type:** `String`
+
+Memo for memo-enabled transfers.
+
+### fee_payer (optional)
+
+- **Type:** `Boolean`
+- **Default:** `false`
+
+Enable fee sponsorship for this charge.
+
+## Rack middleware
+
+Use `Mpp::Server::Middleware` to add payment requirements to any Rack application:
+
+```ruby [config.ru]
+require "mpp"
+
+handler = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    currency: "0x20c0000000000000000000000000000000000000",
+    intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  ),
+)
+
+use Mpp::Server::Middleware, handler: handler
+```
+
+In your application, signal that a request requires payment by setting `env["mpp.charge"]`:
+
+```ruby
+env["mpp.charge"] = { amount: "0.50", description: "Premium endpoint" }
+```
+
+The middleware intercepts the response, returns a `402` Challenge on the first request, then processes the Credential on retry.
+
+## Fee sponsorship
+
+Sponsor gas fees so clients do not need native tokens. Pass a `fee_payer` account in the Tempo method:
+
+```ruby [server.rb]
+fee_payer = Mpp::Methods::Tempo::Account.from_env("FEE_PAYER_KEY")
+
+method = Mpp::Methods::Tempo.tempo(
+  currency: "0x20c0000000000000000000000000000000000000",
+  recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+  fee_payer: fee_payer,
+)
+```
+
+When fee sponsorship is enabled, the server co-signs transactions and covers gas fees on behalf of the client.
