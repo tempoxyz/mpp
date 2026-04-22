@@ -866,6 +866,7 @@ export default defineConfig({
         ],
       },
     ],
+
   },
   socials: [
     { icon: "x", link: "https://x.com/mpp" },
@@ -876,6 +877,7 @@ export default defineConfig({
   // Replaces repeated inline Shiki color styles with CSS classes, reducing
   // uncompressed page size by ~1.5 MB. See src/shiki-style-to-class.ts.
   codeHighlight: {
+    langs: ["ruby"],
     transformers: [shikiStyleToClass()],
   },
   twoslash: {
@@ -889,6 +891,7 @@ export default defineConfig({
   topNav: [
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
     { text: "Services", link: "/services" },
+    { text: "Blog", link: "/blog" },
     { text: "IETF Specs", link: "https://paymentauth.org" },
     {
       text: "GitHub",
