@@ -1265,6 +1265,23 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 .blog-narrow [data-v-code-container] {
   margin-bottom: 1rem;
 }
+.blog-narrow .blog-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 14px;
+  color: var(--vocs-color_text3);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+}
+.blog-narrow .blog-back::before {
+  content: "←";
+  font-size: 13px;
+}
+.blog-narrow .blog-back:hover {
+  color: var(--vocs-color_text);
+  text-decoration: none;
+}
 .blog-narrow .blog-date {
   margin-bottom: 0;
 }

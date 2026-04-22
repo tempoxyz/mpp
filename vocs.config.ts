@@ -897,6 +897,8 @@ export default defineConfig({
       text: "GitHub",
       items: [
         { text: "mppx (TypeScript)", link: "https://github.com/wevm/mppx" },
+        { text: "mpp-go (Go)", link: "https://github.com/tempoxyz/mpp-go" },
+        { text: "mpp-rb (Ruby)", link: "https://github.com/stripe/mpp-rb" },
         { text: "mpp-rs (Rust)", link: "https://github.com/tempoxyz/mpp-rs" },
         { text: "pympp (Python)", link: "https://github.com/tempoxyz/pympp" },
       ],
