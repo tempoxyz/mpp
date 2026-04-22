@@ -26,9 +26,51 @@ Install:
 $ go get github.com/tempoxyz/mpp-go
 ```
 
+Charge for a route:
+
+```go [server.go]
+package main
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/tempoxyz/mpp-go/pkg/server"
+	"github.com/tempoxyz/mpp-go/pkg/tempo"
+	charge "github.com/tempoxyz/mpp-go/pkg/tempo/server"
+)
+
+func main() {
+	intent, _ := charge.NewIntent(charge.IntentConfig{
+		RPCURL: "https://rpc.moderato.tempo.xyz",
+	})
+
+	method := charge.NewMethod(charge.MethodConfig{
+		ChainID:   42431,
+		Currency:  tempo.DefaultCurrencyForChain(42431),
+		Intent:    intent,
+		Recipient: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+	})
+
+	payment := server.New(method, "api.example.com", "replace-me")
+
+	handler := server.ChargeMiddleware(payment, server.ChargeParams{
+		Amount:      "0.50",
+		Description: "Paid content",
+	})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"data":  "paid content",
+			"payer": server.CredentialFromContext(r.Context()).Source,
+		})
+	}))
+
+	_ = http.ListenAndServe(":8080", handler)
+}
+```
+
 Make a paid request:
 
-```go [main.go]
+```go [client.go]
 package main
 
 import (
@@ -54,7 +96,7 @@ func main() {
 }
 ```
 
-The client detects a `402` response, constructs a payment Credential, and retries the request—all in one call. mpp-go ships with first-class adapters for Gin, Echo, and Chi (via `net/http` compatibility). Full docs at [mpp.dev/sdk/go](/sdk/go).
+The middleware returns a `402` with a Challenge; the client handles it automatically and retries with a Credential. mpp-go ships with adapters for Gin, Echo, and Chi (via `net/http` compatibility). Full docs at [mpp.dev/sdk/go](/sdk/go).
 
 ## Ruby
 
@@ -68,6 +110,31 @@ Or add to your Gemfile:
 
 ```ruby [Gemfile]
 gem "mpp"
+```
+
+Charge for a route:
+
+```ruby [server.rb]
+require "mpp"
+
+server = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    intents: {"charge" => Mpp::Methods::Tempo::ChargeIntent.new},
+    recipient: "0x742d35Cc6634c0532925a3b844bC9e7595F8fE00",
+  ),
+)
+
+# In your request handler (Sinatra, Rails, Rack, etc.)
+result = server.charge(authorization_header, "0.50", description: "Paid endpoint")
+
+if result.is_a?(Mpp::Challenge)
+  # Return 402 with WWW-Authenticate header
+  resp = Mpp::Server::Decorator.make_challenge_response(result, server.realm)
+else
+  credential, receipt = result
+  # credential.source — payer address
+  # receipt.to_payment_receipt — Payment-Receipt header value
+end
 ```
 
 Make a paid request:

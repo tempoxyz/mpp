@@ -1,4 +1,5 @@
 import { defineConfig, McpSource } from "vocs/config";
+import ruby from "shiki/langs/ruby.mjs";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
 const baseUrl = (() => {
@@ -877,7 +878,7 @@ export default defineConfig({
   // Replaces repeated inline Shiki color styles with CSS classes, reducing
   // uncompressed page size by ~1.5 MB. See src/shiki-style-to-class.ts.
   codeHighlight: {
-    langs: ["ruby"],
+    langs: ruby,
     transformers: [shikiStyleToClass()],
   },
   twoslash: {
