@@ -38,7 +38,6 @@ import (
 	"net/http"
 
 	"github.com/tempoxyz/mpp-go/pkg/server"
-	"github.com/tempoxyz/mpp-go/pkg/tempo"
 	charge "github.com/tempoxyz/mpp-go/pkg/tempo/server"
 )
 
@@ -48,10 +47,8 @@ func main() {
 	})
 
 	method := charge.NewMethod(charge.MethodConfig{
-		ChainID:   42431,
-		Currency:  tempo.DefaultCurrencyForChain(42431),
 		Intent:    intent,
-		Recipient: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+		Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
 	})
 
 	payment := server.New(method, "api.example.com", "replace-me")
@@ -77,6 +74,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"fmt"
 
 	"github.com/tempoxyz/mpp-go/pkg/client"
@@ -85,8 +83,7 @@ import (
 
 func main() {
 	method, _ := charge.New(charge.Config{
-		ChainID:    42431,
-		PrivateKey: "0x...",
+		PrivateKey: os.Getenv("MPP_PRIVATE_KEY"),
 		RPCURL:     "https://rpc.moderato.tempo.xyz",
 	})
 
@@ -94,7 +91,7 @@ func main() {
 	resp, _ := c.Get(context.Background(), "https://api.example.com/paid")
 	defer resp.Body.Close()
 
-	fmt.Println(resp.StatusCode) // 200
+	fmt.Println(resp.StatusCode)
 }
 ```
 
@@ -121,21 +118,26 @@ require "mpp"
 
 server = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
-    intents: {"charge" => Mpp::Methods::Tempo::ChargeIntent.new},
+    intents: {
+			"charge" => Mpp::Methods::Tempo::ChargeIntent.new,
+		},
     recipient: "0x742d35Cc6634c0532925a3b844bC9e7595F8fE00",
   ),
 )
 
-# In your request handler (Sinatra, Rails, Rack, etc.)
-result = server.charge(authorization_header, "0.50", description: "Paid endpoint")
+result = server.charge(
+	authorization_header,
+	"0.50",
+	description: "Paid endpoint",
+)
 
 if result.is_a?(Mpp::Challenge)
-  # Return 402 with WWW-Authenticate header
-  resp = Mpp::Server::Decorator.make_challenge_response(result, server.realm)
+  resp = Mpp::Server::Decorator.make_challenge_response(
+		result,
+		server.realm,
+	)
 else
   credential, receipt = result
-  # credential.source — payer address
-  # receipt.to_payment_receipt — Payment-Receipt header value
 end
 ```
 
@@ -144,13 +146,15 @@ Make a paid request:
 ```ruby [client.rb]
 require "mpp"
 
-account = Mpp::Methods::Tempo::Account.from_key("0x...")
+account = Mpp::Methods::Tempo::Account.from_key(os.Getenv("MPP_PRIVATE_KEY"))
 
 transport = Mpp::Client::Transport.new(
   methods: [
     Mpp::Methods::Tempo.tempo(
       account: account,
-      intents: {"charge" => Mpp::Methods::Tempo::ChargeIntent.new},
+      intents: {
+				"charge" => Mpp::Methods::Tempo::ChargeIntent.new,
+			},
     ),
   ],
 )
