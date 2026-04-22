@@ -36,6 +36,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 
 	"github.com/tempoxyz/mpp-go/pkg/server"
 	charge "github.com/tempoxyz/mpp-go/pkg/tempo/server"
@@ -51,7 +52,11 @@ func main() {
 		Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
 	})
 
-	payment := server.New(method, "api.example.com", "replace-me")
+	payment := server.New(
+		method,
+		"api.example.com",
+		os.Getenv("MPP_SECRET_KEY"),
+	)
 
 	handler := server.ChargeMiddleware(payment, server.ChargeParams{
 		Amount:      "0.50",
@@ -166,7 +171,7 @@ response = transport.request(:get, "https://api.example.com/paid")
 
 ## Get started
 
-Pick the SDK that fits your stack:
+Pick the SDK that fits your application, or learn more about MPP.
 
 - **Go**: [github.com/tempoxyz/mpp-go](https://github.com/tempoxyz/mpp-go)
 - **Ruby**: [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb)
