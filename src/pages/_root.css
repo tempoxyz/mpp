@@ -714,7 +714,8 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] > div:last-child {
 }
 
 .blog-post-row {
-  border: 1px solid color-mix(in srgb, var(--vocs-color_border2) 68%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--vocs-color_border2) 68%, transparent);
   background: light-dark(rgba(0, 0, 0, 0.012), rgba(255, 255, 255, 0.022));
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   transition:
@@ -733,7 +734,8 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] > div:last-child {
 }
 
 .blog-post-row:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--vocs-color_text2) 30%, transparent);
+  outline: 2px solid
+    color-mix(in srgb, var(--vocs-color_text2) 30%, transparent);
   outline-offset: 2px;
 }
 
