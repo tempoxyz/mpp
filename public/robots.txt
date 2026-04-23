@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+Content-Signal: ai-train=yes, ai-input=yes, search=yes
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://mpp.dev/sitemap.xml

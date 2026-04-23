@@ -1,6 +1,16 @@
 import { discovery } from "mppx/nextjs";
 import { mppx } from "../../../mppx.server";
 
+const AGENT_SKILLS_INDEX_URL =
+  "https://mpp.dev/.well-known/agent-skills/index.json";
+const API_CATALOG_URL = "https://mpp.dev/.well-known/api-catalog";
+const MCP_SERVER_CARD_URL = "https://mpp.dev/.well-known/mcp.json";
+const OPENAPI_LINK_HEADER_VALUE = [
+  '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"',
+  '</.well-known/mcp.json>; rel="describedby"; type="application/json"',
+  '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
+].join(", ");
+const OPENAPI_URL = "https://mpp.dev/api/openapi.json";
 const USDCe = "0x20c000000000000000000000b9537d11c60e8b50";
 
 const discoveryRoute = discovery(mppx, {
@@ -20,6 +30,7 @@ const discoveryRoute = discovery(mppx, {
   serviceInfo: {
     categories: ["web"],
     docs: {
+      apiReference: OPENAPI_URL,
       homepage: "https://mpp.dev",
       llms: "https://mpp.dev/llms.txt",
     },
@@ -31,11 +42,29 @@ export async function GET(request: Request) {
   const document = (await response.json()) as Record<string, unknown>;
 
   normalizeDiscoveryDocument(document);
+  normalizeServiceInfo(document);
+
+  const headers = new Headers(response.headers);
+  headers.set("Link", OPENAPI_LINK_HEADER_VALUE);
 
   return Response.json(document, {
-    headers: new Headers(response.headers),
+    headers,
     status: response.status,
   });
+}
+
+function normalizeServiceInfo(document: Record<string, unknown>) {
+  const serviceInfo = document["x-service-info"];
+  if (!isRecord(serviceInfo)) return;
+
+  serviceInfo.apiCatalog = API_CATALOG_URL;
+  serviceInfo.agentSkills = AGENT_SKILLS_INDEX_URL;
+  serviceInfo.mcpServerCard = MCP_SERVER_CARD_URL;
+
+  const docs = serviceInfo.docs;
+  if (!isRecord(docs)) return;
+
+  docs.apiReference = OPENAPI_URL;
 }
 
 function normalizeDiscoveryDocument(document: Record<string, unknown>) {
