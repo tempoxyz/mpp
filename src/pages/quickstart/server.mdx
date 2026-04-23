@@ -288,6 +288,34 @@ const mppx = Mppx.create({
 Optimistic verification simulates the transaction but does not wait for inclusion. If the transaction reverts onchain after broadcast, the Receipt does not reflect the failure. Only use this when latency matters more than guaranteed confirmation.
 :::
 
+## Discovery
+
+After your server is running, add [discovery](/advanced/discovery) so agents can find your API and its payment terms automatically. The `discovery()` helper generates a `GET /openapi.json` endpoint from your route configuration:
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Mppx, discovery } from 'mppx/hono'
+import { tempo } from 'mppx/server'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currency: '0x20c0000000000000000000000000000000000000',
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })],
+})
+
+app.get('/resource', mppx.charge({ amount: '0.1' }), (c) => c.json({ data: '...' }))
+
+discovery(app, mppx, { // [!code hl]
+  auto: true, // [!code hl]
+  info: { title: 'My API', version: '1.0.0' }, // [!code hl]
+}) // [!code hl]
+```
+
+Register your service on [MPPScan](https://mppscan.com) or the [MPP Services directory](/services) so agents and registries can discover it. See [Discovery](/advanced/discovery) for the full guide.
+
 ## Testing your server
 
 After your server is running, test it with the `mppx` CLI:

@@ -75,29 +75,6 @@ method = tempo(
 )
 ```
 
-### With charge and session
-
-Register both intents on a single method:
-
-```python [server.py]
-from mpp.methods.tempo import tempo, ChargeIntent, StreamIntent
-from mpp.methods.tempo.stream.storage import MemoryStorage
-
-mpp = Mpp.create(
-    method=tempo(
-        currency="0x20c0000000000000000000000000000000000000",
-        intents={
-            "charge": ChargeIntent(),
-            "stream": StreamIntent(
-                storage=MemoryStorage(),
-                rpc_url="https://rpc.tempo.xyz",
-            ),
-        },
-        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    ),
-)
-```
-
 ### `tempo()` parameters
 
 ### currency (optional)
@@ -117,7 +94,7 @@ Token decimal places for amount conversion (6 for pathUSD).
 
 - **Type:** `dict[str, Intent]`
 
-Intents to register (for example, `charge`, `session`). Each intent must be explicitly provided.
+Intents to register (for example, `charge`). Each intent must be explicitly provided.
 
 ### recipient (optional)
 
@@ -189,114 +166,6 @@ Challenge expiration as ISO 8601 timestamp. Defaults to 5 minutes from now.
 - **Type:** `str`
 
 Override the method's default recipient address.
-
-## `session()` parameters
-
-### amount
-
-- **Type:** `str`
-
-Price per unit in human-readable units (for example, `"0.000075"` for $0.000075 per token). Automatically converted to base units.
-
-### authorization
-
-- **Type:** `str | None`
-
-The `Authorization` header value from the incoming request.
-
-### currency (optional)
-
-- **Type:** `str`
-
-Override the method's default currency address.
-
-### description (optional)
-
-- **Type:** `str`
-
-Human-readable description attached to the Challenge.
-
-### recipient (optional)
-
-- **Type:** `str`
-
-Override the method's default recipient address.
-
-### unit_type (optional)
-
-- **Type:** `str`
-- **Default:** `"token"`
-
-Service unit type label (for example, `"token"`, `"byte"`, `"request"`).
-
-## Session example
-
-`StreamIntent` requires a `storage` backend that implements the `ChannelStorage` protocol to persist channel and session state. The SDK ships `MemoryStorage` for development and testing—state lives in a Python dict and is lost on restart. For production, implement `ChannelStorage` backed by your database (Postgres, Redis, and others). The protocol has four methods:
-
-| Method | Description |
-|--------|-------------|
-| `get_channel(channel_id)` | Look up a channel by ID |
-| `get_session(challenge_id)` | Look up a session by Challenge ID |
-| `update_channel(channel_id, fn)` | Atomic read-modify-write for channel state |
-| `update_session(challenge_id, fn)` | Atomic read-modify-write for session state |
-
-A full SSE endpoint with per-token payment sessions:
-
-```python [server.py]
-import asyncio
-import json
-
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse
-from mpp import Challenge
-from mpp.methods.tempo import StreamIntent, tempo
-from mpp.methods.tempo.stream.storage import MemoryStorage
-from mpp.server import Mpp
-
-app = FastAPI()
-
-mpp = Mpp.create(
-    method=tempo(
-        currency="0x20c0000000000000000000000000000000000000",
-        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        intents={
-            "stream": StreamIntent(
-                storage=MemoryStorage(),
-                rpc_url="https://rpc.tempo.xyz",
-            ),
-        },
-    ),
-)
-
-@app.get("/api/chat")
-async def chat(request: Request, prompt: str = "Hello!"):
-    result = await mpp.stream(
-        authorization=request.headers.get("Authorization"),
-        amount="0.000075",
-        unit_type="token",
-    )
-
-    if isinstance(result, Challenge):
-        return JSONResponse(
-            status_code=402,
-            content={"error": "Payment required"},
-            headers={"WWW-Authenticate": result.to_www_authenticate(mpp.realm)},
-        )
-
-    credential, receipt = result
-
-    async def event_stream():
-        for token in ["The", " answer", " is", " 42."]:
-            yield f"data: {json.dumps({'token': token})}\n\n"
-            await asyncio.sleep(0.05)
-        yield "data: [DONE]\n\n"
-
-    return StreamingResponse(
-        event_stream(),
-        media_type="text/event-stream",
-        headers={"Payment-Receipt": receipt.to_payment_receipt()},
-    )
-```
 
 ## `@requires_payment` decorator
 

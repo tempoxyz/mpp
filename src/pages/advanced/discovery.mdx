@@ -1,16 +1,19 @@
 ---
 description: "Advertise your API's payment terms with an OpenAPI discovery document so clients and agents know what endpoints cost before making requests."
-imageDescription: "Let clients discover your API's pricing automatically"
+imageDescription: "Let clients automatically discover your API's pricing"
 ---
 
 import { Cards } from 'vocs'
 import { SpecCard } from '../../components/SpecCard'
+import { EcosystemDiagram } from '../../components/EcosystemDiagram'
 
-# Discovery [Advertise your service's payment terms]
+# Discovery [Let clients automatically discover your API's pricing]
 
 ## Overview
 
-MPP's discovery system lets clients and agents learn what your endpoints cost before making a request. You serve a standard [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at `/openapi.json` with `x-payment-info` extensions on each paid operation. Registries aggregate these documents so agents can find paid APIs automatically.
+MPP's discovery system lets clients and agents learn what your endpoints cost before making a request. You serve a standard [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at `/openapi.json` with `x-payment-info` extensions on each paid operation. Registries aggregate these documents so agents can find paid APIs automatically, and provide value added services like reputation, search, and analytics.
+
+<EcosystemDiagram />
 
 :::info[Discovery is advisory]
 Discovery documents are informational hints. The runtime `402` Challenge remains the authoritative source of payment terms. Clients use discovery for display and planning, but defer to the Challenge for actual payment.
