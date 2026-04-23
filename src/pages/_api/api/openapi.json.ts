@@ -1,9 +1,14 @@
 import { discovery } from "mppx/nextjs";
 import { mppx } from "../../../mppx.server";
 
+const AGENT_SKILLS_INDEX_URL =
+  "https://mpp.dev/.well-known/agent-skills/index.json";
+const API_CATALOG_URL = "https://mpp.dev/.well-known/api-catalog";
+const MCP_SERVER_CARD_URL = "https://mpp.dev/.well-known/mcp.json";
+const OPENAPI_URL = "https://mpp.dev/api/openapi.json";
 const USDCe = "0x20c000000000000000000000b9537d11c60e8b50";
 
-export const GET = discovery(mppx, {
+const discoveryRoute = discovery(mppx, {
   info: { title: "mpp.dev", version: "1.0.0" },
   routes: [
     {
@@ -20,8 +25,39 @@ export const GET = discovery(mppx, {
   serviceInfo: {
     categories: ["web"],
     docs: {
+      apiReference: OPENAPI_URL,
       homepage: "https://mpp.dev",
       llms: "https://mpp.dev/llms.txt",
     },
   },
 });
+
+export async function GET(request: Request) {
+  const response = await discoveryRoute(request);
+  const document = (await response.json()) as Record<string, unknown>;
+
+  normalizeServiceInfo(document);
+
+  return Response.json(document, {
+    headers: new Headers(response.headers),
+    status: response.status,
+  });
+}
+
+function normalizeServiceInfo(document: Record<string, unknown>) {
+  const serviceInfo = document["x-service-info"];
+  if (!isRecord(serviceInfo)) return;
+
+  serviceInfo.apiCatalog = API_CATALOG_URL;
+  serviceInfo.agentSkills = AGENT_SKILLS_INDEX_URL;
+  serviceInfo.mcpServerCard = MCP_SERVER_CARD_URL;
+
+  const docs = serviceInfo.docs;
+  if (!isRecord(docs)) return;
+
+  docs.apiReference = OPENAPI_URL;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}

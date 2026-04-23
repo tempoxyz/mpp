@@ -1,4 +1,213 @@
 {
+  "headers": [
+    {
+      "source": "/.well-known/:path*",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/overview",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/quickstart",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/quickstart/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/guides/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/protocol",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/protocol/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/sdk",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/sdk/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/advanced",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/advanced/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/payment-methods",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/payment-methods/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/use-cases/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/tools/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/services",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/services/:path*",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", </llms.txt>; rel=\"alternate\"; type=\"text/plain\", </llms-full.txt>; rel=\"alternate\"; type=\"text/plain\""
+        }
+      ]
+    },
+    {
+      "source": "/openapi.json",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\""
+        }
+      ]
+    },
+    {
+      "source": "/api/openapi.json",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "</.well-known/api-catalog>; rel=\"api-catalog\"; type=\"application/linkset+json\", </.well-known/mcp.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\""
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/.well-known/api-catalog",
+      "destination": "/api/api-catalog"
+    }
+  ],
   "redirects": [
     {
       "source": "/openapi.json",
