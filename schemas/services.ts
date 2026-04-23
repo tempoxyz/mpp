@@ -2029,7 +2029,7 @@ export const services: ServiceDef[] = [
         route: "POST /api/coozie",
         desc: "Order custom printed coozies",
         dynamic: true,
-        amountHint: "$10 - $12",
+        amountHint: "$5 - $8",
       },
     ],
   },
