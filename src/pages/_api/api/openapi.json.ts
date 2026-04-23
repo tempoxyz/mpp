@@ -5,6 +5,11 @@ const AGENT_SKILLS_INDEX_URL =
   "https://mpp.dev/.well-known/agent-skills/index.json";
 const API_CATALOG_URL = "https://mpp.dev/.well-known/api-catalog";
 const MCP_SERVER_CARD_URL = "https://mpp.dev/.well-known/mcp.json";
+const OPENAPI_LINK_HEADER_VALUE = [
+  '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"',
+  '</.well-known/mcp.json>; rel="describedby"; type="application/json"',
+  '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
+].join(", ");
 const OPENAPI_URL = "https://mpp.dev/api/openapi.json";
 const USDCe = "0x20c000000000000000000000b9537d11c60e8b50";
 
@@ -39,8 +44,11 @@ export async function GET(request: Request) {
   normalizeDiscoveryDocument(document);
   normalizeServiceInfo(document);
 
+  const headers = new Headers(response.headers);
+  headers.set("Link", OPENAPI_LINK_HEADER_VALUE);
+
   return Response.json(document, {
-    headers: new Headers(response.headers),
+    headers,
     status: response.status,
   });
 }
