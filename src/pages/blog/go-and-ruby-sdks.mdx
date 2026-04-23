@@ -107,19 +107,19 @@ The middleware returns a `402` with a Challenge; the client handles it automatic
 Install:
 
 ```bash [terminal]
-$ gem install mpp
+$ gem install mpp-rb
 ```
 
 Or add to your Gemfile:
 
 ```ruby [Gemfile]
-gem "mpp"
+gem "mpp-rb"
 ```
 
 Charge for a route:
 
 ```ruby [server.rb]
-require "mpp"
+require "mpp-rb"
 
 server = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
@@ -149,7 +149,7 @@ end
 Make a paid request:
 
 ```ruby [client.rb]
-require "mpp"
+require "mpp-rb"
 
 account = Mpp::Methods::Tempo::Account.from_key(ENV.fetch("MPP_PRIVATE_KEY"))
 
@@ -167,7 +167,7 @@ transport = Mpp::Client::Transport.new(
 response = transport.request(:get, "https://api.example.com/paid")
 ```
 
-`mpp-rb` supports both Tempo and Stripe payment methods. It works with any Rack-based framework—Rails, Sinatra, or plain Rack. Full docs at [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb). Ruby SDK reference docs are coming soon to [mpp.dev/sdk](/sdk).
+`mpp-rb` supports both Tempo and Stripe payment methods. It works with any Rack-based framework—Rails, Sinatra, or plain Rack. Full docs at [mpp.dev/sdk/ruby](/sdk/ruby).
 
 ## Get started
 

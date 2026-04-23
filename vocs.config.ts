@@ -836,6 +836,16 @@ export default defineConfig({
               { text: "Server", link: "/sdk/go/server" },
             ],
           },
+          {
+            text: "Ruby",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/sdk/ruby" },
+              { text: "Core types", link: "/sdk/ruby/core" },
+              { text: "Client", link: "/sdk/ruby/client" },
+              { text: "Server", link: "/sdk/ruby/server" },
+            ],
+          },
         ],
       },
       {
