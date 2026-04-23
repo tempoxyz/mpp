@@ -1,0 +1,57 @@
+---
+imageDescription: "Core MPP types for Ruby"
+---
+
+# Core Types [Challenge, Credential, and Receipt primitives]
+
+These types map directly to HTTP headers—`WWW-Authenticate`, `Authorization`, and `Payment-Receipt`—and can be used independently of the higher-level client and server APIs.
+
+```ruby
+require "mpp-rb"
+```
+
+## Parse a Challenge
+
+Parse a `WWW-Authenticate` header into a typed `Challenge`:
+
+```ruby
+challenge = Mpp::Challenge.from_www_authenticate(
+  'Payment id="...", realm="...", method="tempo", intent="charge", request="eyJ..."'
+)
+
+challenge.method  # => "tempo"
+challenge.intent  # => "charge"
+```
+
+## Create and serialize a Credential
+
+Build a `Credential` and serialize it to an `Authorization` header:
+
+```ruby
+credential = Mpp::Credential.new(
+  id: "challenge-id",
+  payload: { "type" => "transaction", "signature" => "0x..." },
+  source: "did:pkh:eip155:42431:0xa726a1...",
+)
+
+header = credential.to_authorization
+# header = "Payment eyJ..."
+```
+
+## Parse and serialize a Receipt
+
+Parse the `Payment-Receipt` response header:
+
+```ruby
+receipt = Mpp::Receipt.from_payment_receipt(header_value)
+header = receipt.to_payment_receipt
+```
+
+## Type reference
+
+| Type | Description |
+|------|-------------|
+| `Mpp::Challenge` | Server Challenge parsed from `WWW-Authenticate` |
+| `Mpp::ChallengeEcho` | Echoed Challenge fields in a Credential |
+| `Mpp::Credential` | Client Credential for the `Authorization` header |
+| `Mpp::Receipt` | Server Receipt parsed from `Payment-Receipt` |
