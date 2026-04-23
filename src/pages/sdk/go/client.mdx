@@ -13,13 +13,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/tempoxyz/mpp-go/pkg/client"
 	charge "github.com/tempoxyz/mpp-go/pkg/tempo/client"
 )
 
 method, err := charge.New(charge.Config{
-	PrivateKey: "0xac0974bec...",
+	PrivateKey: os.Getenv("MPP_PRIVATE_KEY"),
 	RPCURL:     "https://rpc.tempo.xyz",
 })
 if err != nil {
@@ -47,7 +48,7 @@ When the server returns `402`, the client:
 
 - **Type:** `int64`
 
-Explicitly set the chain ID. Auto-detected from the RPC URL if omitted.
+Explicitly set the expected chain ID. If omitted, `mpp-go` infers it from `RPCURL` when it matches a known Tempo RPC endpoint, or uses the challenge and live RPC response at runtime.
 
 ### ClientID (optional)
 
@@ -76,7 +77,7 @@ Custom RPC client instance. Takes precedence over `RPCURL`.
 ### RPCURL (optional)
 
 - **Type:** `string`
-- **Default:** auto-detected from chain
+- **Default:** challenge chain when present, otherwise `https://rpc.tempo.xyz`
 
 Tempo RPC endpoint URL.
 

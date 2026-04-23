@@ -31,7 +31,7 @@
     "stripe": "^22.0.1",
     "tailwindcss": "^4.2.2",
     "viem": "^2.47.17",
-    "vocs": "https://pkg.pr.new/wevm/vocs@2fb25c2",
+    "vocs": "https://pkg.pr.new/vocs@425",
     "wagmi": "^3.6.1",
     "waku": "^1.0.0-alpha.7"
   },
@@ -50,6 +50,7 @@
     "ajv-formats": "^3.0.1",
     "happy-dom": "^20.9.0",
     "playwright": "^1.59.1",
+    "shiki": "3.22.0",
     "simple-git-hooks": "^2.13.1",
     "tiktoken": "^1.0.22",
     "typescript": "^6",

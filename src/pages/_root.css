@@ -713,6 +713,22 @@ a[class*="vocs:rounded-md"][class*="vocs:border"] > div:last-child {
   flex: 1 !important;
 }
 
+.blog-post-row {
+  box-sizing: border-box;
+}
+
+.blog-post-row:hover,
+.blog-post-row:focus-visible {
+  background: light-dark(
+    rgba(0, 0, 0, 0.05),
+    rgba(255, 255, 255, 0.06)
+  ) !important;
+  border-color: light-dark(
+    rgba(0, 0, 0, 0.15),
+    rgba(255, 255, 255, 0.15)
+  ) !important;
+}
+
 a[class*="vocs:rounded-md"][class*="vocs:border"]:hover {
   border-color: var(--vocs-border-color-primary) !important;
   transform: translateY(-1px);
@@ -1225,4 +1241,67 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
    traps sticky elements below the nav (z-index: 50). */
 [data-layout="minimal"] main > article {
   animation: none;
+}
+
+/* Blog pages: narrower content column with restored MDX spacing */
+.blog-narrow {
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.blog-narrow h1 {
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.blog-narrow hgroup {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.blog-narrow h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+.blog-narrow h3 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+.blog-narrow p {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  line-height: 1.75;
+}
+.blog-narrow ul,
+.blog-narrow ol {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+.blog-narrow li {
+  margin-bottom: 0.5rem;
+}
+.blog-narrow [data-v-code-container] {
+  margin-bottom: 1rem;
+}
+.blog-narrow .blog-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 14px;
+  color: var(--vocs-color_text3);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+}
+.blog-narrow .blog-back::before {
+  content: "←";
+  font-size: 13px;
+}
+.blog-narrow .blog-back:hover {
+  color: var(--vocs-color_text);
+  text-decoration: none;
+}
+.blog-narrow .blog-date {
+  margin-bottom: 0;
+}
+.blog-narrow hr {
+  margin-top: 0.75rem;
+  margin-bottom: 1.5rem;
 }

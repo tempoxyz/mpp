@@ -1,3 +1,4 @@
+import ruby from "shiki/langs/ruby.mjs";
 import { defineConfig, McpSource } from "vocs/config";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
@@ -876,6 +877,7 @@ export default defineConfig({
   // Replaces repeated inline Shiki color styles with CSS classes, reducing
   // uncompressed page size by ~1.5 MB. See src/shiki-style-to-class.ts.
   codeHighlight: {
+    langs: ruby,
     transformers: [shikiStyleToClass()],
   },
   twoslash: {
@@ -889,11 +891,14 @@ export default defineConfig({
   topNav: [
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
     { text: "Services", link: "/services" },
+    { text: "Blog", link: "/blog" },
     { text: "IETF Specs", link: "https://paymentauth.org" },
     {
       text: "GitHub",
       items: [
         { text: "mppx (TypeScript)", link: "https://github.com/wevm/mppx" },
+        { text: "mpp-go (Go)", link: "https://github.com/tempoxyz/mpp-go" },
+        { text: "mpp-rb (Ruby)", link: "https://github.com/stripe/mpp-rb" },
         { text: "mpp-rs (Rust)", link: "https://github.com/tempoxyz/mpp-rs" },
         { text: "pympp (Python)", link: "https://github.com/tempoxyz/pympp" },
       ],

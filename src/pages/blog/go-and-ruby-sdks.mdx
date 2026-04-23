@@ -1,0 +1,181 @@
+---
+layout: minimal
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "Two new MPP SDKs: `mpp-go` maintained by Tempo Labs and `mpp-rb` maintained by Stripe."
+imageDescription: "Accept stablecoin payments in Go and Ruby"
+---
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Apr 21, 2026</p>
+
+# Go and Ruby SDKs [Two new SDKs for the Machine Payments Protocol]
+
+MPP now has official SDKs for Go and Ruby. Both implement the full MPP flow: core types, payment methods, server middleware, and client transports.
+
+[**`mpp-go`**](https://github.com/tempoxyz/mpp-go) is maintained by Tempo Labs, and [**`mpp-rb`**](https://github.com/stripe/mpp-rb) is maintained by Stripe. They join the existing [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust) SDKs, as well as the [community SDKs](/sdk) in other languages.
+
+## Go
+
+Install:
+
+```bash [terminal]
+$ go get github.com/tempoxyz/mpp-go
+```
+
+Charge for a route:
+
+```go [server.go]
+package main
+
+import (
+	"encoding/json"
+	"net/http"
+	"os"
+
+	"github.com/tempoxyz/mpp-go/pkg/server"
+	charge "github.com/tempoxyz/mpp-go/pkg/tempo/server"
+)
+
+func main() {
+	intent, _ := charge.NewIntent(charge.IntentConfig{
+		RPCURL: "https://rpc.moderato.tempo.xyz",
+	})
+
+	method := charge.NewMethod(charge.MethodConfig{
+		Intent:    intent,
+		Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+	})
+
+	payment := server.New(
+		method,
+		"api.example.com",
+		os.Getenv("MPP_SECRET_KEY"),
+	)
+
+	handler := server.ChargeMiddleware(payment, server.ChargeParams{
+		Amount:      "0.50",
+		Description: "Paid content",
+	})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"data":  "paid content",
+			"payer": server.CredentialFromContext(r.Context()).Source,
+		})
+	}))
+
+	_ = http.ListenAndServe(":8080", handler)
+}
+```
+
+Make a paid request:
+
+```go [client.go]
+package main
+
+import (
+	"context"
+	"os"
+	"fmt"
+
+	"github.com/tempoxyz/mpp-go/pkg/client"
+	charge "github.com/tempoxyz/mpp-go/pkg/tempo/client"
+)
+
+func main() {
+	method, _ := charge.New(charge.Config{
+		PrivateKey: os.Getenv("MPP_PRIVATE_KEY"),
+		RPCURL:     "https://rpc.moderato.tempo.xyz",
+	})
+
+	c := client.New([]client.Method{method})
+	resp, _ := c.Get(context.Background(), "https://api.example.com/paid")
+	defer resp.Body.Close()
+
+	fmt.Println(resp.StatusCode)
+}
+```
+
+The middleware returns a `402` with a Challenge; the client handles it automatically and retries with a Credential. `mpp-go` ships with adapters for Gin, Echo, and Chi (via `net/http` compatibility). Full docs at [mpp.dev/sdk/go](/sdk/go).
+
+## Ruby
+
+Install:
+
+```bash [terminal]
+$ gem install mpp
+```
+
+Or add to your Gemfile:
+
+```ruby [Gemfile]
+gem "mpp"
+```
+
+Charge for a route:
+
+```ruby [server.rb]
+require "mpp"
+
+server = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    intents: {
+			"charge" => Mpp::Methods::Tempo::ChargeIntent.new,
+		},
+    recipient: "0x742d35Cc6634c0532925a3b844bC9e7595F8fE00",
+  ),
+)
+
+result = server.charge(
+	authorization_header,
+	"0.50",
+	description: "Paid endpoint",
+)
+
+if result.is_a?(Mpp::Challenge)
+  resp = Mpp::Server::Decorator.make_challenge_response(
+		result,
+		server.realm,
+	)
+else
+  credential, receipt = result
+end
+```
+
+Make a paid request:
+
+```ruby [client.rb]
+require "mpp"
+
+account = Mpp::Methods::Tempo::Account.from_key(ENV.fetch("MPP_PRIVATE_KEY"))
+
+transport = Mpp::Client::Transport.new(
+  methods: [
+    Mpp::Methods::Tempo.tempo(
+      account: account,
+      intents: {
+				"charge" => Mpp::Methods::Tempo::ChargeIntent.new,
+			},
+    ),
+  ],
+)
+
+response = transport.request(:get, "https://api.example.com/paid")
+```
+
+`mpp-rb` supports both Tempo and Stripe payment methods. It works with any Rack-based framework—Rails, Sinatra, or plain Rack. Full docs at [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb). Ruby SDK reference docs are coming soon to [mpp.dev/sdk](/sdk).
+
+## Get started
+
+Pick the SDK that fits your application, or learn more about MPP.
+
+- **Go**: [github.com/tempoxyz/mpp-go](https://github.com/tempoxyz/mpp-go)
+- **Ruby**: [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb)
+- **Quickstart**: [mpp.dev/quickstart](/quickstart)
+- **IETF Specification**: [paymentauth.org](https://paymentauth.org)
+
+</div>
