@@ -308,13 +308,17 @@ const mppx = Mppx.create({
 
 app.get('/resource', mppx.charge({ amount: '0.1' }), (c) => c.json({ data: '...' }))
 
-discovery(app, mppx, { // [!code hl]
-  auto: true, // [!code hl]
-  info: { title: 'My API', version: '1.0.0' }, // [!code hl]
-}) // [!code hl]
+// [!code hl:start]
+discovery(app, mppx, {
+  auto: true,
+  info: { title: 'My API', version: '1.0.0' },
+})
+// [!code hl:end]
 ```
 
-Register your service on [MPPScan](https://mppscan.com) or the [MPP Services directory](/services) so agents and registries can discover it. See [Discovery](/advanced/discovery) for the full guide.
+The generated document advertises each paid route with canonical `x-payment-info.offers[]` entries. See [Discovery](/advanced/discovery) for the full document shape, multi-offer examples, and flat-shorthand compatibility notes.
+
+Register your service on [MPPScan](https://mppscan.com) or the [MPP Services directory](/services) so agents and registries can discover it.
 
 ## Testing your server
 

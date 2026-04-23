@@ -11,7 +11,7 @@ import { EcosystemDiagram } from '../../components/EcosystemDiagram'
 
 ## Overview
 
-MPP's discovery system lets clients and agents learn what your endpoints cost before making a request. You serve a standard [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at `/openapi.json` with `x-payment-info` extensions on each paid operation. Registries aggregate these documents so agents can find paid APIs automatically, and provide value added services like reputation, search, and analytics.
+MPP's discovery system lets clients and agents learn what your endpoints cost before making a request. You serve a standard [OpenAPI 3.1](https://spec.openapis.org/oas/v3.1.0) document at `/openapi.json` with `x-payment-info` extensions that advertise one or more payment offers for each paid operation. Registries aggregate these documents so agents can find paid APIs automatically, and provide value-added services like reputation, search, and analytics.
 
 <EcosystemDiagram />
 
@@ -52,13 +52,15 @@ const mppx = Mppx.create({
 
 app.get('/v1/fortune', mppx.charge({ amount: '0.01' }), (c) => c.json({ fortune: 'You will be rich' }))
 
-discovery(app, mppx, { // [!code hl]
-  auto: true, // [!code hl]
-  info: { title: 'Fortune API', version: '1.0.0' }, // [!code hl]
-}) // [!code hl]
+// [!code hl:start]
+discovery(app, mppx, {
+  auto: true,
+  info: { title: 'Fortune API', version: '1.0.0' },
+})
+// [!code hl:end]
 ```
 
-This generates a `GET /openapi.json` endpoint with `x-payment-info` on each paid route.
+This generates a `GET /openapi.json` endpoint with canonical `x-payment-info.offers[]` entries on each paid route.
 
 ### Express
 
@@ -83,10 +85,12 @@ const mppx = Mppx.create({
 const pay = mppx.charge({ amount: '0.01' })
 app.get('/v1/fortune', pay, (req, res) => res.json({ fortune: 'You will be rich' }))
 
-discovery(app, mppx, { // [!code hl]
-  info: { title: 'Fortune API', version: '1.0.0' }, // [!code hl]
-  routes: [{ handler: pay, method: 'get', path: '/v1/fortune' }], // [!code hl]
-}) // [!code hl]
+// [!code hl:start]
+discovery(app, mppx, {
+  info: { title: 'Fortune API', version: '1.0.0' },
+  routes: [{ handler: pay, method: 'get', path: '/v1/fortune' }],
+})
+// [!code hl:end]
 ```
 
 ### Next.js
@@ -97,15 +101,17 @@ In Next.js, `discovery()` returns a route handler you export from an API route.
 import { discovery } from 'mppx/nextjs'
 import { mppx, pay } from '../fortune/route'
 
-export const GET = discovery(mppx, { // [!code hl]
-  info: { title: 'Fortune API', version: '1.0.0' }, // [!code hl]
-  routes: [{ handler: pay, method: 'get', path: '/api/fortune' }], // [!code hl]
-}) // [!code hl]
+// [!code hl:start]
+export const GET = discovery(mppx, {
+  info: { title: 'Fortune API', version: '1.0.0' },
+  routes: [{ handler: pay, method: 'get', path: '/api/fortune' }],
+})
+// [!code hl:end]
 ```
 
 ## How it works
 
-Your server exposes a `GET /openapi.json` endpoint that returns an OpenAPI document. Paid operations include an `x-payment-info` extension with the payment terms, and the document root can include `x-service-info` for service-level metadata.
+Your server exposes a `GET /openapi.json` endpoint that returns an OpenAPI document. Paid operations include an `x-payment-info` extension with one or more payment offers, and the document root can include `x-service-info` for service-level metadata.
 
 ```json [/openapi.json]
 {
@@ -122,13 +128,26 @@ Your server exposes a `GET /openapi.json` endpoint that returns an OpenAPI docum
   "paths": {
     "/v1/generate": {
       "post": {
-        "x-payment-info": { // [!code highlight]
-          "amount": "1000000", // [!code highlight]
-          "currency": "0x20c0000000000000000000000000000000000001", // [!code highlight]
-          "description": "Generate text", // [!code highlight]
-          "intent": "charge", // [!code highlight]
-          "method": "tempo" // [!code highlight]
-        }, // [!code highlight]
+        // [!code hl:start]
+        "x-payment-info": {
+          "offers": [
+            {
+              "amount": "1000000",
+              "currency": "0x20c0000000000000000000000000000000000001",
+              "description": "Generate text with Tempo",
+              "intent": "charge",
+              "method": "tempo"
+            },
+            {
+              "amount": "100",
+              "currency": "usd",
+              "description": "Generate text with Stripe",
+              "intent": "charge",
+              "method": "stripe"
+            }
+          ]
+        },
+        // [!code hl:end]
         "responses": {
           "200": { "description": "Successful response" },
           "402": { "description": "Payment Required" }
@@ -148,15 +167,39 @@ Your server exposes a `GET /openapi.json` endpoint that returns an OpenAPI docum
 
 ### `x-payment-info`
 
-Added to any operation that requires payment:
+Add this extension to any operation that requires payment. Prefer the canonical multi-offer shape:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `amount` | `string` | Payment amount in base units |
+| `offers` | `Offer[]` | Ordered list of payment offers the client can choose from |
+
+#### `offers[]`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `amount` | `string \| null` | Payment amount in base units |
 | `currency` | `string` | Currency code or token address |
 | `description` | `string` | Human-readable description of the charge |
 | `intent` | `string` | Payment intent (`charge` or `session`) |
 | `method` | `string` | Payment method identifier (`tempo`, `stripe`) |
+
+:::note[Compatibility shorthand]
+The flat single-offer form is still valid as shorthand for older emitters, but use it only for backward compatibility. New documents should write the same data under `offers[]`.
+
+```json [openapi.json]
+{
+  // [!code hl:start]
+  "x-payment-info": {
+    "amount": "1000000",
+    "currency": "0x20c0000000000000000000000000000000000001",
+    "description": "Generate text with Tempo",
+    "intent": "charge",
+    "method": "tempo"
+  }
+  // [!code hl:end]
+}
+```
+:::
 
 ### `x-service-info`
 
@@ -192,7 +235,7 @@ Start with a standard OpenAPI 3.1 document:
 
 #### Add `x-payment-info` to paid operations
 
-For each endpoint that requires payment, add the `x-payment-info` extension. Amounts are in base units (for example, `1000000` for $1.00 with 6 decimals).
+For each endpoint that requires payment, add the `x-payment-info` extension with an `offers` array. Add more objects to `offers[]` when the client can choose between alternative payment methods or currencies. Amounts are in base units (for example, `1000000` for $1.00 with 6 decimals).
 
 ```json [openapi.json]
 {
@@ -200,12 +243,18 @@ For each endpoint that requires payment, add the `x-payment-info` extension. Amo
     "/v1/generate": {
       "post": {
         "summary": "Generate text",
-        "x-payment-info": { // [!code highlight]
-          "amount": "1000000", // [!code highlight]
-          "currency": "0x20c0000000000000000000000000000000000001", // [!code highlight]
-          "intent": "charge", // [!code highlight]
-          "method": "tempo" // [!code highlight]
-        }, // [!code highlight]
+        // [!code hl:start]
+        "x-payment-info": {
+          "offers": [
+            {
+              "amount": "1000000",
+              "currency": "0x20c0000000000000000000000000000000000001",
+              "intent": "charge",
+              "method": "tempo"
+            }
+          ]
+        },
+        // [!code hl:end]
         "responses": {
           "200": { "description": "Successful response" },
           "402": { "description": "Payment Required" }
@@ -226,14 +275,16 @@ Add service-level metadata to the document root:
 
 ```json [openapi.json]
 {
-  "x-service-info": { // [!code highlight]
-    "categories": ["ai", "text-generation"], // [!code highlight]
-    "docs": { // [!code highlight]
-      "homepage": "https://example.com", // [!code highlight]
-      "apiReference": "https://example.com/docs/api", // [!code highlight]
-      "llms": "https://example.com/llms.txt" // [!code highlight]
-    } // [!code highlight]
-  } // [!code highlight]
+  // [!code hl:start]
+  "x-service-info": {
+    "categories": ["ai", "text-generation"],
+    "docs": {
+      "homepage": "https://example.com",
+      "apiReference": "https://example.com/docs/api",
+      "llms": "https://example.com/llms.txt"
+    }
+  }
+  // [!code hl:end]
 }
 ```
 
@@ -270,7 +321,7 @@ Common validation issues:
 | Issue | Severity | Description |
 |-------|----------|-------------|
 | Missing `402` response | Error | Operations with `x-payment-info` must include a `402` response |
-| Invalid amount format | Error | `amount` must be a non-negative integer string |
+| Invalid amount format | Error | Each `offers[].amount` value must be a non-negative integer string |
 | Missing `requestBody` | Warning | `POST`/`PUT`/`PATCH` operations without a `requestBody` definition |
 | Invalid URI in docs | Error | `docs` links must be valid URIs or absolute paths |
 
