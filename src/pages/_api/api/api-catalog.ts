@@ -1,6 +1,8 @@
 const API_CATALOG_PROFILE = "https://www.rfc-editor.org/info/rfc9727";
 const CACHE_CONTROL = "public, max-age=300";
 const API_CATALOG_URL = "https://mpp.dev/.well-known/api-catalog";
+const MCP_API_URL = "https://mpp.dev/api/mcp";
+const STATUS_URL = "https://mpp.dev/api/ping";
 
 const apiCatalog = {
   linkset: [
@@ -8,14 +10,21 @@ const apiCatalog = {
       anchor: API_CATALOG_URL,
       item: [
         {
-          href: "https://mpp.dev/api/mcp",
+          href: MCP_API_URL,
           title: "MPP documentation MCP server",
           type: "text/event-stream",
         },
       ],
     },
     {
-      anchor: "https://mpp.dev/api/mcp",
+      anchor: MCP_API_URL,
+      "service-desc": [
+        {
+          href: "https://mpp.dev/.well-known/mcp.json",
+          title: "MCP server card",
+          type: "application/json",
+        },
+      ],
       "service-doc": [
         {
           href: "https://mpp.dev/guides/building-with-an-llm",
@@ -23,10 +32,17 @@ const apiCatalog = {
           type: "text/html",
         },
       ],
+      status: [
+        {
+          href: STATUS_URL,
+          title: "Service status",
+          type: "text/plain",
+        },
+      ],
       "service-meta": [
         {
-          href: "https://mpp.dev/.well-known/mcp.json",
-          title: "MCP server card",
+          href: "https://mpp.dev/.well-known/agent-skills/index.json",
+          title: "Agent Skills discovery index",
           type: "application/json",
         },
       ],
