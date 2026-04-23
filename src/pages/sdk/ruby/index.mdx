@@ -8,7 +8,7 @@ import * as SdkBadge from '../../../components/SdkBadge'
 
 ## Overview
 
-The `mpp` Ruby gem provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+The `mpp-rb` Ruby gem provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
 
 <div className="flex gap-2">
   <SdkBadge.GitHub repo="tempoxyz/mpp-rb" />
@@ -18,13 +18,13 @@ The `mpp` Ruby gem provides a typed interface over the Machine Payments Protocol
 ## Install
 
 ```bash [install.sh]
-$ gem install mpp
+$ gem install mpp-rb
 ```
 
 Or add to your Gemfile:
 
 ```ruby [Gemfile]
-gem "mpp"
+gem "mpp-rb"
 ```
 
 ## Requirements
@@ -39,7 +39,7 @@ gem "mpp"
 ### Server
 
 ```ruby [server.rb]
-require "mpp"
+require "mpp-rb"
 
 server = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
@@ -71,7 +71,7 @@ Set `MPP_SECRET_KEY` in your environment before you start the server, or pass `s
 ### Client
 
 ```ruby [client.rb]
-require "mpp"
+require "mpp-rb"
 
 account = Mpp::Methods::Tempo::Account.from_env
 

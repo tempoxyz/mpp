@@ -9,7 +9,7 @@ Create an `Mpp` handler with `Mpp.create()` and call `charge()` with a human-rea
 ## Quick start
 
 ```ruby [server.rb]
-require "mpp"
+require "mpp-rb"
 
 server = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
@@ -170,8 +170,8 @@ Enable fee sponsorship for this charge.
 
 Use `Mpp::Server::Middleware` to add payment requirements to any Rack application:
 
-```ruby [config.ru]
-require "mpp"
+```ruby [config.rb]
+require "mpp-rb"
 
 handler = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
