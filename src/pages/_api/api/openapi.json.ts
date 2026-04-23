@@ -36,6 +36,7 @@ export async function GET(request: Request) {
   const response = await discoveryRoute(request);
   const document = (await response.json()) as Record<string, unknown>;
 
+  normalizeDiscoveryDocument(document);
   normalizeServiceInfo(document);
 
   return Response.json(document, {
@@ -56,6 +57,24 @@ function normalizeServiceInfo(document: Record<string, unknown>) {
   if (!isRecord(docs)) return;
 
   docs.apiReference = OPENAPI_URL;
+}
+
+function normalizeDiscoveryDocument(document: Record<string, unknown>) {
+  const paths = document.paths;
+  if (!isRecord(paths)) return;
+
+  for (const pathItem of Object.values(paths)) {
+    if (!isRecord(pathItem)) continue;
+
+    for (const operation of Object.values(pathItem)) {
+      if (!isRecord(operation)) continue;
+
+      const paymentInfo = operation["x-payment-info"];
+      if (!isRecord(paymentInfo) || "offers" in paymentInfo) continue;
+
+      operation["x-payment-info"] = { offers: [paymentInfo] };
+    }
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

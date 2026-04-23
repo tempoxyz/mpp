@@ -1,54 +1,16 @@
 const API_CATALOG_PROFILE = "https://www.rfc-editor.org/info/rfc9727";
 const CACHE_CONTROL = "public, max-age=300";
+const API_CATALOG_URL = "https://mpp.dev/.well-known/api-catalog";
 
 const apiCatalog = {
   linkset: [
     {
-      anchor: "https://mpp.dev/.well-known/api-catalog",
+      anchor: API_CATALOG_URL,
       item: [
-        {
-          href: "https://mpp.dev/api/ping/paid",
-          title: "Paid ping endpoint",
-          type: "application/json",
-        },
         {
           href: "https://mpp.dev/api/mcp",
           title: "MPP documentation MCP server",
           type: "text/event-stream",
-        },
-      ],
-    },
-    {
-      anchor: "https://mpp.dev/api/ping/paid",
-      "service-desc": [
-        {
-          href: "https://mpp.dev/api/openapi.json",
-          title: "OpenAPI description",
-          type: "application/json",
-        },
-      ],
-      "service-doc": [
-        {
-          href: "https://mpp.dev/overview",
-          title: "MPP overview",
-          type: "text/html",
-        },
-        {
-          href: "https://mpp.dev/quickstart/server",
-          title: "Add payments to your API",
-          type: "text/html",
-        },
-      ],
-      "service-meta": [
-        {
-          href: "https://mpp.dev/.well-known/mcp.json",
-          title: "MCP server card",
-          type: "application/json",
-        },
-        {
-          href: "https://mpp.dev/.well-known/agent-skills/index.json",
-          title: "Agent Skills discovery index",
-          type: "application/json",
         },
       ],
     },
@@ -87,6 +49,7 @@ function getHeaders() {
     "Access-Control-Allow-Origin": "*",
     "Cache-Control": CACHE_CONTROL,
     "Content-Type": `application/linkset+json; profile="${API_CATALOG_PROFILE}"`,
+    Link: `<${API_CATALOG_URL}>; rel="api-catalog"; type="application/linkset+json"`,
     "X-Content-Type-Options": "nosniff",
   };
 }
