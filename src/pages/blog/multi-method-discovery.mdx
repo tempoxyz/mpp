@@ -16,13 +16,13 @@ imageDescription: "Advertise multiple payment methods in one discovery document"
 
 # Multi-method discovery [Advertise every payment option in your OpenAPI document]
 
-It has been a month since MPP launched, and the ecosystem is growing fast. Over ten payment methods are live across the protocol, spanning stablecoins, cards, and even Bitcoin. The most interesting pattern we see: many services accept multiple payment methods, multiple currencies, and multiple intent types on the same endpoint.
+It has been a month since MPP launched, and the ecosystem is growing fast. Over ten payment methods are live across the protocol, spanning stablecoins on very EVM network, cards, and even Bitcoin. As more methods have been added, we have seen more services accepting multiple payment methods, multiple currencies, and multiple intent types on the same endpoint.
 
-Until now, MPP's [discovery extension](https://paymentauth.org/draft-payment-discovery-00.html) only described a single payment offer per route. That meant registries and clients had to hit the endpoint and parse a `402` Challenge to learn the full set of payment options. With this update to the discovery spec, servers can declare all of their payment offers ahead of time and ensure that registries always have up to date information.
+Until now, MPP's [discovery extension](https://paymentauth.org/draft-payment-discovery-00.html) only described a single payment offer per route. That meant registries and clients had to dynamically hit the endpoint and parse a `402` Challenge to learn the full set of payment options. With this update to the discovery spec, servers can declare all of their payment offers ahead of time and ensure that registries always have up to date information.
 
 ## What changed
 
-MPP enabled services can now declare all of their payment offers ahead of time in a single OpenAPI metadata object. Each entry describes one payment alternative—a combination of method, intent, amount, and currency. Clients and registries read the array to understand every way they can pay for an operation before making a request.
+MPP enabled services can now declare all of their payment offers ahead of time in a single OpenAPI metadata object. Each entry describes one payment alternative -- a combination of method, intent, amount, and currency. Clients and registries read the array to understand every way they can pay for an operation before making a request.
 
 ```json [openapi.json]
 {
@@ -113,7 +113,13 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY,
 })
 
-app.get('/v1/generate', mppx.charge({ amount: '0.01' }), (c) => c.json({ result: 'ok' }))
+app.get(
+  '/v1/generate',
+  mppx.charge(
+    { amount: '0.01' }
+  ),
+  (c) => c.json({ result: 'ok' })
+)
 
 // [!code hl:start]
 discovery(app, mppx, {
