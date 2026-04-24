@@ -27,7 +27,7 @@ type ReturnType = string
 
 A string suitable for the WWW-Authenticate header value.
 
-The serialized string includes optional fields when present: `description`, `digest`, `expires`, and `opaque` (server-defined correlation data set via `meta` in `Challenge.from`).
+The serialized string includes optional fields when present: `description`, `digest`, `expires`, and `opaque` (server-defined correlation data set via `meta` in `Challenge.from`). In HTTP headers, `request` and `opaque` are emitted as base64url-encoded JCS JSON strings.
 
 ## Parameters
 

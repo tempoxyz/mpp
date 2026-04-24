@@ -63,7 +63,7 @@ Content-Type: application/json
 
 ## Header encoding
 
-Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#section-11.2) in `WWW-Authenticate`. Credentials and receipts use base64url-encoded JSON.
+Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#section-11.2) in `WWW-Authenticate`. The `request` and `opaque` auth-params use base64url-encoded JCS JSON strings. Credentials echo those same challenge values inside the base64url-encoded `Authorization` payload, and receipts use base64url-encoded JSON in `Payment-Receipt`.
 
 ## Full specification
 

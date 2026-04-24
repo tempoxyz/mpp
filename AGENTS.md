@@ -28,6 +28,13 @@ Current protocol context from this repo:
 - Receipts acknowledge successful payment
 - Transports include HTTP and MCP
 
+When documenting HTTP Payment auth parameters, follow `paymentauth.org` as the source of truth:
+
+- `request` and `opaque` are base64url-encoded JCS JSON on the wire
+- In the credential `challenge` object, `opaque` is a `string`, not an expanded JSON object
+- Clients MUST return `id` unchanged and MUST return `opaque` unchanged when present
+- Challenge binding includes `opaque` as the final optional slot, using an empty string when absent
+
 ## File Location
 
 Reference pages live under `src/pages/sdk/typescript/`:

@@ -38,6 +38,10 @@ Add per-call payments to any [MCP](https://modelcontextprotocol.io) server. When
 
 This maps directly to the standard MPP challenge → credential → receipt flow, encoded as JSON-RPC instead of HTTP headers. See the [MCP transport spec](/protocol/transports/mcp) for the full encoding.
 
+:::info
+This guide uses the MCP transport, so Challenge, Credential, and Receipt data travel as native JSON in `error.data` and `_meta`. The base64url-encoded `request` and `opaque` auth-params apply to the HTTP transport.
+:::
+
 ## Prompt mode
 
 Paste this into your coding agent to build a paid MCP server in one prompt:

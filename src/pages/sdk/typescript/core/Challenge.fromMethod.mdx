@@ -75,7 +75,7 @@ Explicit challenge ID.
 
 - **Type:** `Record<string, string>`
 
-Server-defined correlation data. Serialized as `opaque` on the Challenge.
+Server-defined correlation data. `mppx` serializes it as the base64url-encoded `opaque` auth-param in HTTP Challenges.
 
 #### realm
 
@@ -87,7 +87,7 @@ Server realm (for example, hostname).
 
 - **Type:** `z.input<method['schema']['request']>`
 
-Method-specific request data, validated against the method's schema.
+Method-specific request data, validated against the method's schema. `mppx` serializes it as base64url-encoded JCS JSON in the HTTP `request` auth-param.
 
 #### secretKey (when not using id)
 

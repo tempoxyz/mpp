@@ -14,6 +14,7 @@ WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk",
     method="tempo",
     intent="charge",
     expires="2025-01-15T12:05:00Z",
+    opaque="eyJyb3V0ZSI6Ii92MS9zZWFyY2gifQ",
     request="eyJhbW91bnQiOiIxMDAwIiwiY3VycmVuY3kiOiJ1c2QifQ"
 ```
 
@@ -25,7 +26,7 @@ WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk",
 | `realm` | Protection space identifier (typically the API domain) |
 | `method` | Payment method identifier (such as `tempo` or `stripe`) |
 | `intent` | Payment intent type (such as `charge` or `session`) |
-| `request` | Base64url-encoded JSON with payment details |
+| `request` | Base64url-encoded JCS JSON with payment details |
 
 ### Optional parameters
 
@@ -33,10 +34,15 @@ WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk",
 |-----------|-------------|
 | `expires` | ISO 8601 timestamp when the challenge expires |
 | `description` | Human-readable description of what's being paid for |
+| `opaque` | Base64url-encoded JCS JSON for server-defined correlation data |
+
+## `request` and `opaque` encoding
+
+In HTTP headers, both `request` and `opaque` use base64url-encoded [JCS](https://www.rfc-editor.org/rfc/rfc8785) JSON strings. Parse them after header processing to recover the structured values.
 
 ## `request` object
 
-The `request` parameter contains method-specific payment details encoded as base64url JSON:
+The `request` parameter contains method-specific payment details encoded as base64url JCS JSON:
 
 ```json [Decoded request object]
 {
@@ -45,6 +51,16 @@ The `request` parameter contains method-specific payment details encoded as base
   "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 }
 ```
+
+Servers can also attach correlation data in `opaque`:
+
+```json [Decoded opaque object]
+{
+  "route": "/v1/search"
+}
+```
+
+Clients must echo `opaque` back unchanged when they submit a Credential.
 
 Common fields across payment methods:
 
@@ -75,8 +91,12 @@ Challenges must be cryptographically bound to their parameters through the `id` 
 Typical binding includes:
 
 - `realm`, `method`, `intent`
-- Hash of the `request` object
-- `expires` timestamp
+- `request`
+- `expires`
+- `digest`
+- `opaque`
+
+For HMAC-bound IDs, the canonical input sequence is `realm | method | intent | request | expires | digest | opaque`. When `expires`, `digest`, or `opaque` is absent, use an empty string for that slot.
 
 Use an [HMAC-bound](https://en.wikipedia.org/wiki/HMAC) challenge ID to prevent clients from reusing a challenge ID with modified payment terms.
 

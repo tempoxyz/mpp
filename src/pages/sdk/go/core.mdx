@@ -26,6 +26,8 @@ fmt.Println("Method:", challenge.Method)
 fmt.Println("Intent:", challenge.Intent)
 ```
 
+On the wire, `request` and optional `opaque` are base64url-encoded JSON strings in the `WWW-Authenticate` header. `ParseChallenge` decodes them into structured fields for application code.
+
 ## Create and serialize a Credential
 
 Build a `Credential` from a Challenge echo and payment proof:
@@ -43,6 +45,8 @@ credential := &mpp.Credential{
 header := credential.ToAuthorization()
 // header = "Payment eyJ..."
 ```
+
+`challenge.ToEcho()` preserves the original wire values. In the serialized Credential, `challenge.request` and `challenge.opaque` remain base64url strings inside the `Authorization` payload.
 
 ## Parse and serialize a Receipt
 

@@ -270,7 +270,7 @@ ISO 8601 timestamp for when the payment challenge expires.
 
 - **Type:** `Record<string, string>`
 
-Server-defined correlation data, serialized as `opaque` on the Challenge.
+Server-defined correlation data. `mppx` serializes it as the base64url-encoded `opaque` auth-param on the Challenge, and clients echo that same string back in the Credential.
 
 ### recipient
 

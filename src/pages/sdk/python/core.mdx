@@ -18,6 +18,8 @@ challenge = Challenge.from_www_authenticate(
 )
 ```
 
+On the wire, `request` and optional `opaque` are base64url-encoded JSON strings in the `WWW-Authenticate` header. `Challenge.from_www_authenticate(...)` decodes them for application code.
+
 ## Create and serialize a Credential
 
 ```python
@@ -29,6 +31,8 @@ credential = Credential(
 
 header = credential.to_authorization()
 ```
+
+When a Credential echoes a Challenge, `challenge.request` and `challenge.opaque` stay in their base64url string form inside the serialized `Authorization` payload.
 
 ## Parse and serialize a Receipt
 

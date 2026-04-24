@@ -20,6 +20,8 @@ type ReturnType = Record<string, string> | undefined
 
 The `opaque` field from the Challenge, or `undefined` if not set.
 
+On HTTP transport, the same data travels in the `opaque` auth-param as base64url-encoded JCS JSON.
+
 ## Parameters
 
 ### challenge

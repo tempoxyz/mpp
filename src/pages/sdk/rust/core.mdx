@@ -24,6 +24,8 @@ println!("Method: {}", challenge.method);
 println!("Intent: {}", challenge.intent);
 ```
 
+On the wire, `request` and optional `opaque` are base64url-encoded JSON strings in the `WWW-Authenticate` header. `mpp-rs` stores them as `Base64UrlJson`, so you can decode them when you need structured values.
+
 Decode the base64url-encoded request to a typed struct:
 
 ```rust
@@ -49,6 +51,8 @@ let credential = PaymentCredential::with_source(
 let header = format_authorization(&credential)?;
 // header = "Payment eyJ..."
 ```
+
+`challenge.to_echo()` preserves the original wire values. In the serialized Credential, `challenge.request` and `challenge.opaque` remain base64url strings inside the `Authorization` payload.
 
 ## Parse a Receipt
 
