@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Content-Signal: ai-train=yes, ai-input=yes, search=yes
+Content-Signal: ai-train=no, search=yes, ai-input=no
 
 User-agent: ClaudeBot
 Allow: /

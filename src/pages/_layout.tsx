@@ -425,6 +425,295 @@ function useLogoFullReload() {
   }, []);
 }
 
+interface WebMcpTool {
+  name: string;
+  title: string;
+  description: string;
+  inputSchema: Record<string, unknown>;
+  execute: (input: Record<string, unknown>) => Promise<unknown>;
+  annotations?: {
+    readOnlyHint?: boolean;
+    untrustedContentHint?: boolean;
+  };
+}
+
+interface ModelContext {
+  provideContext?: (context: { tools: WebMcpTool[] }) => void;
+  registerTool?: (tool: WebMcpTool, options?: { signal?: AbortSignal }) => void;
+}
+
+declare global {
+  interface Navigator {
+    modelContext?: ModelContext;
+  }
+}
+
+type ServiceRecord = {
+  id: string;
+  name: string;
+  url: string;
+  serviceUrl?: string;
+  description?: string;
+  categories?: string[];
+  tags?: string[];
+  endpoints?: Array<{
+    method: string;
+    path: string;
+    description?: string;
+    payment?: {
+      intent?: string;
+      amount?: string;
+      decimals?: number;
+      currency?: string;
+      dynamic?: true;
+      amountHint?: string;
+    } | null;
+  }>;
+};
+
+function docToolsReadOnly() {
+  return { readOnlyHint: true, untrustedContentHint: false };
+}
+
+async function fetchJson<T>(path: string): Promise<T> {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+  return response.json() as Promise<T>;
+}
+
+async function fetchServicesForTools(): Promise<ServiceRecord[]> {
+  const data = await fetchJson<{ services: ServiceRecord[] }>("/api/services");
+  return data.services;
+}
+
+function normalizeToolPath(value: unknown): string {
+  const path = String(value ?? "").trim();
+  if (!path) return "/";
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    const url = new URL(path);
+    return `${url.pathname}${url.search}${url.hash}` || "/";
+  }
+  return path.startsWith("/") ? path : `/${path}`;
+}
+
+function serviceToolSummary(service: ServiceRecord) {
+  const endpoints = service.endpoints ?? [];
+  return {
+    id: service.id,
+    name: service.name,
+    url: service.url,
+    serviceUrl: service.serviceUrl,
+    description: service.description,
+    categories: service.categories ?? [],
+    tags: service.tags ?? [],
+    endpointCount: endpoints.length,
+    paidEndpointCount: endpoints.filter((endpoint) => endpoint.payment).length,
+    endpoints: endpoints.map((endpoint) => ({
+      method: endpoint.method,
+      path: endpoint.path,
+      description: endpoint.description,
+      payment: endpoint.payment
+        ? {
+            intent: endpoint.payment.intent,
+            amount: endpoint.payment.amount,
+            amountHint:
+              endpoint.payment.amountHint ??
+              (endpoint.payment.dynamic ? "dynamic" : undefined),
+            currency: endpoint.payment.currency,
+          }
+        : null,
+    })),
+  };
+}
+
+function createWebMcpTools(): WebMcpTool[] {
+  const readOnly = docToolsReadOnly();
+
+  return [
+    {
+      name: "mpp.search_docs",
+      title: "Search MPP docs",
+      description:
+        "Search the MPP documentation index for pages about protocol concepts, SDKs, guides, payment methods, and services.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description: "Case-insensitive search text.",
+          },
+        },
+        required: ["query"],
+        additionalProperties: false,
+      },
+      annotations: readOnly,
+      async execute(input) {
+        const query = String(input.query ?? "")
+          .trim()
+          .toLowerCase();
+        if (!query) throw new Error("query is required");
+
+        const response = await fetch("/llms.txt");
+        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        const text = await response.text();
+        const matches = text
+          .split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line.toLowerCase().includes(query))
+          .slice(0, 20);
+
+        return { query, matches };
+      },
+    },
+    {
+      name: "mpp.open_page",
+      title: "Open MPP docs page",
+      description:
+        "Navigate the browser to an MPP documentation path, such as /quickstart/client, /sdk/typescript, or /advanced/discovery.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          path: {
+            type: "string",
+            description: "Docs path or mpp.dev URL to open.",
+          },
+        },
+        required: ["path"],
+        additionalProperties: false,
+      },
+      async execute(input) {
+        const path = normalizeToolPath(input.path);
+        window.history.pushState({}, "", path);
+        window.dispatchEvent(new PopStateEvent("popstate"));
+        return { opened: true, path };
+      },
+    },
+    {
+      name: "mpp.list_services",
+      title: "List MPP services",
+      description:
+        "List services available through MPP, including ids, names, categories, service URLs, and endpoint counts.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description:
+              "Optional case-insensitive filter across service id, name, description, categories, tags, and endpoint paths.",
+          },
+        },
+        additionalProperties: false,
+      },
+      annotations: readOnly,
+      async execute(input) {
+        const query = String(input.query ?? "")
+          .trim()
+          .toLowerCase();
+        const services = await fetchServicesForTools();
+        const filtered = query
+          ? services.filter((service) =>
+              [
+                service.id,
+                service.name,
+                service.description,
+                service.serviceUrl,
+                ...(service.categories ?? []),
+                ...(service.tags ?? []),
+                ...(service.endpoints ?? []).map(
+                  (endpoint) =>
+                    `${endpoint.method} ${endpoint.path} ${endpoint.description ?? ""}`,
+                ),
+              ]
+                .join(" ")
+                .toLowerCase()
+                .includes(query),
+            )
+          : services;
+
+        return filtered.map((service) => {
+          const endpoints = service.endpoints ?? [];
+          return {
+            id: service.id,
+            name: service.name,
+            serviceUrl: service.serviceUrl,
+            description: service.description,
+            categories: service.categories ?? [],
+            endpointCount: endpoints.length,
+            paidEndpointCount: endpoints.filter((endpoint) => endpoint.payment)
+              .length,
+          };
+        });
+      },
+    },
+    {
+      name: "mpp.get_service",
+      title: "Get MPP service",
+      description:
+        "Return endpoint and payment details for one service in the MPP service catalog.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          serviceId: {
+            type: "string",
+            description:
+              "Service id, such as openai, anthropic, exa, or storage.",
+          },
+        },
+        required: ["serviceId"],
+        additionalProperties: false,
+      },
+      annotations: readOnly,
+      async execute(input) {
+        const serviceId = String(input.serviceId ?? "")
+          .trim()
+          .toLowerCase();
+        if (!serviceId) throw new Error("serviceId is required");
+
+        const services = await fetchServicesForTools();
+        const service = services.find((item) => item.id === serviceId);
+        if (!service) throw new Error(`Unknown service: ${serviceId}`);
+        return serviceToolSummary(service);
+      },
+    },
+    {
+      name: "mpp.get_api_catalog",
+      title: "Get MPP API catalog",
+      description:
+        "Return the RFC 9727 API catalog with links to MPP machine-readable descriptions, documentation, and status endpoints.",
+      inputSchema: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
+      annotations: readOnly,
+      async execute() {
+        return fetchJson("/.well-known/api-catalog");
+      },
+    },
+  ];
+}
+
+function useWebMcpTools() {
+  useEffect(() => {
+    const modelContext = navigator.modelContext;
+    if (!modelContext) return;
+
+    const tools = createWebMcpTools();
+    if (typeof modelContext.provideContext === "function") {
+      modelContext.provideContext({ tools });
+      return () => modelContext.provideContext?.({ tools: [] });
+    }
+
+    if (typeof modelContext.registerTool === "function") {
+      const controller = new AbortController();
+      for (const tool of tools) {
+        modelContext.registerTool(tool, { signal: controller.signal });
+      }
+      return () => controller.abort();
+    }
+  }, []);
+}
+
 export default function Layout(
   props: React.PropsWithChildren<{
     path: string;
@@ -433,6 +722,7 @@ export default function Layout(
   usePostHog();
   useGoogleAnalytics();
   useLogoFullReload();
+  useWebMcpTools();
 
   const ahrefsKey = import.meta.env.VITE_AHREFS_VERIFICATION;
 

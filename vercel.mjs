@@ -12,6 +12,20 @@ const OPENAPI_DISCOVERY_LINK_VALUE = [
   '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
 ].join(", ");
 
+const API_CATALOG_HEADERS = [
+  header("Access-Control-Allow-Origin", "*"),
+  header("Cache-Control", "public, max-age=300"),
+  header(
+    "Content-Type",
+    'application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"',
+  ),
+  header(
+    "Link",
+    '</.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"',
+  ),
+  header("X-Content-Type-Options", "nosniff"),
+];
+
 const CACHE_HEADERS = [
   header("Cache-Control", "public, max-age=300"),
   header("X-Content-Type-Options", "nosniff"),
@@ -37,6 +51,7 @@ const DISCOVERY_PAGE_SOURCES = [
 
 export const config = {
   headers: [
+    headerRule("/.well-known/api-catalog", API_CATALOG_HEADERS),
     headerRule("/.well-known/:path*", [
       header("Access-Control-Allow-Origin", "*"),
       ...CACHE_HEADERS,
@@ -46,12 +61,6 @@ export const config = {
     ...DISCOVERY_PAGE_SOURCES.map((source) =>
       headerRule(source, [header("Link", DOC_DISCOVERY_LINK_VALUE)]),
     ),
-  ],
-  rewrites: [
-    {
-      source: "/.well-known/api-catalog",
-      destination: "/api/api-catalog",
-    },
   ],
   redirects: [
     {

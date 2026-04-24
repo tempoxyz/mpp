@@ -1,0 +1,45 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://mpp.dev/.well-known/api-catalog",
+      "item": [
+        {
+          "href": "https://mpp.dev/api/mcp",
+          "title": "MPP documentation MCP server",
+          "type": "text/event-stream"
+        }
+      ]
+    },
+    {
+      "anchor": "https://mpp.dev/api/mcp",
+      "service-desc": [
+        {
+          "href": "https://mpp.dev/.well-known/mcp.json",
+          "title": "MCP server card",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://mpp.dev/guides/building-with-an-llm",
+          "title": "Build with an LLM",
+          "type": "text/html"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://mpp.dev/api/ping",
+          "title": "Service status",
+          "type": "text/plain"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://mpp.dev/.well-known/agent-skills/index.json",
+          "title": "Agent Skills discovery index",
+          "type": "application/json"
+        }
+      ]
+    }
+  ]
+}
