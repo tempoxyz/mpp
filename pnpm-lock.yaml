@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   vocs@0.0.0:
-    hash: 5b340733de5440b4e6ed05bb7181d1dcb81e595422ba76d685a4c14062177323
+    hash: bd60f23f65929b4a79f45dddd2ffe1175c3e8a53f3975423f2095a3090a4efa8
     path: patches/vocs@0.0.0.patch
 
 importers:
@@ -48,7 +48,7 @@ importers:
         version: 2.47.17(typescript@6.0.2)(zod@4.3.6)
       vocs:
         specifier: https://pkg.pr.new/vocs@425
-        version: https://pkg.pr.new/vocs@425(patch_hash=5b340733de5440b4e6ed05bb7181d1dcb81e595422ba76d685a4c14062177323)(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(mermaid@11.14.0)(react-dom@19.2.5(react@19.2.5))(react-server-dom-webpack@19.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.5)(rollup@4.60.1)(typescript@6.0.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.7(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(react-dom@19.2.5(react@19.2.5))(react-server-dom-webpack@19.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.5)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))
+        version: https://pkg.pr.new/vocs@425(patch_hash=bd60f23f65929b4a79f45dddd2ffe1175c3e8a53f3975423f2095a3090a4efa8)(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(mermaid@11.14.0)(react-dom@19.2.5(react@19.2.5))(react-server-dom-webpack@19.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.5)(rollup@4.60.1)(typescript@6.0.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.7(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(react-dom@19.2.5(react@19.2.5))(react-server-dom-webpack@19.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.5)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))
       wagmi:
         specifier: ^3.6.1
         version: 3.6.1(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.21(react@19.2.5))(@types/react@19.2.14)(ox@0.14.15(typescript@6.0.2)(zod@4.3.6))(react@19.2.5)(typescript@6.0.2)(viem@2.47.17(typescript@6.0.2)(zod@4.3.6))
@@ -7979,7 +7979,7 @@ snapshots:
     transitivePeerDependencies:
       - msw
 
-  vocs@https://pkg.pr.new/vocs@425(patch_hash=5b340733de5440b4e6ed05bb7181d1dcb81e595422ba76d685a4c14062177323)(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(mermaid@11.14.0)(react-dom@19.2.5(react@19.2.5))(react-server-dom-webpack@19.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.5)(rollup@4.60.1)(typescript@6.0.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.7(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(react-dom@19.2.5(react@19.2.5))(react-server-dom-webpack@19.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.5)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)):
+  vocs@https://pkg.pr.new/vocs@425(patch_hash=bd60f23f65929b4a79f45dddd2ffe1175c3e8a53f3975423f2095a3090a4efa8)(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(mermaid@11.14.0)(react-dom@19.2.5(react@19.2.5))(react-server-dom-webpack@19.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.5)(rollup@4.60.1)(typescript@6.0.2)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.7(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(react-dom@19.2.5(react@19.2.5))(react-server-dom-webpack@19.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.5)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@base-ui/react': 1.4.0(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)

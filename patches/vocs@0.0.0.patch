@@ -1,5 +1,18 @@
+diff --git a/dist/internal/vite-plugins.js b/dist/internal/vite-plugins.js
+index 7a4e11786d59dc23595eb04bfcbbd058571a6a12..220d1ed34c94c9d587a33a30c892a8c8a47ab631 100644
+--- a/dist/internal/vite-plugins.js
++++ b/dist/internal/vite-plugins.js
+@@ -312,6 +312,8 @@ export function sitemap(config) {
+             'User-agent: *',
+             'Allow: /',
+             '',
++            'Content-Signal: ai-train=no, search=yes, ai-input=no',
++            '',
+             `Sitemap: ${siteUrl.replace(/\/$/, '')}/sitemap.xml`,
+             '',
+         ].join('\n');
 diff --git a/dist/waku/internal/patches/vite-plugins/fs-router-typegen.js b/dist/waku/internal/patches/vite-plugins/fs-router-typegen.js
-index a7b7d3960968f311765cbd2d5c4eb22e1dfa2a44..100d2078687b30987758e899f4b1b0b33be18f70 100644
+index a7b7d3960968f311765cbd2d5c4eb22e1dfa2a44..43650f5a2770ee7e9700a83beb752c617e714ca9 100644
 --- a/dist/waku/internal/patches/vite-plugins/fs-router-typegen.js
 +++ b/dist/waku/internal/patches/vite-plugins/fs-router-typegen.js
 @@ -1,6 +1,6 @@
@@ -27,3 +40,16 @@ index a7b7d3960968f311765cbd2d5c4eb22e1dfa2a44..100d2078687b30987758e899f4b1b0b3
          jsx: 'preserve',
      });
      return parseAstAsync(transformed.code, { jsx: true });
+diff --git a/src/internal/vite-plugins.ts b/src/internal/vite-plugins.ts
+index 99e16501f703aa4ed4c0184093c05bdc5d4b48d0..34ac6c50beee9e01d33e8a5f1117eb6bcab6a6f5 100644
+--- a/src/internal/vite-plugins.ts
++++ b/src/internal/vite-plugins.ts
+@@ -338,6 +338,8 @@ export function sitemap(config: Config.Config): PluginOption {
+       'User-agent: *',
+       'Allow: /',
+       '',
++      'Content-Signal: ai-train=no, search=yes, ai-input=no',
++      '',
+       `Sitemap: ${siteUrl.replace(/\/$/, '')}/sitemap.xml`,
+       '',
+     ].join('\n')
