@@ -6540,8 +6540,11 @@ export const services: ServiceDef[] = [
     url: "https://www.algovoi.co.uk",
     serviceUrl: "https://api1.ilovechicken.co.uk",
     description:
-      "Multi-tenant MPP payment infrastructure for Algorand, VOI, Hedera, and Stellar. " +
-      "AI agents pay with on-chain USDC (no EVM required) to access payment-gated resources. " +
+      "Multi-tenant MPP payment infrastructure spanning both EVM and non-EVM chains: " +
+      "Algorand, VOI, Hedera, Stellar, Base, Solana, and Tempo. " +
+      "AI agents pay with on-chain USDC (SPL on Solana, ERC-20 on Base, TIP-20 on Tempo, " +
+      "ARC-3 on Algorand, etc.) to access payment-gated resources. Solana flow uses " +
+      "Solana Pay `reference` pubkey binding for cryptographic tx-to-order correlation. " +
       "Open-source adapters available for 17+ eCommerce platforms.",
     categories: ["blockchain", "web"],
     integration: "first-party",
@@ -6551,11 +6554,16 @@ export const services: ServiceDef[] = [
       "voi",
       "hedera",
       "stellar",
+      "base",
+      "solana",
+      "tempo",
       "usdc",
       "payments",
       "mpp",
-      "non-evm",
+      "multi-chain",
       "avm",
+      "evm",
+      "svm",
     ],
     docs: {
       homepage:
