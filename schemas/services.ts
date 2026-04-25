@@ -74,6 +74,13 @@ export const STRIPE_PAYMENT: PaymentDefaults = {
   decimals: 2,
 };
 
+/** x402 Base mainnet USDC payments (LoneStarOracle services) */
+export const BASE_USDC_PAYMENT: PaymentDefaults = {
+  method: "x402",
+  currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base mainnet
+  decimals: 6,
+};
+
 export interface EndpointDef {
   /** Route string: "METHOD /path" (without service slug prefix) */
   route: string;
@@ -6522,6 +6529,272 @@ export const services: ServiceDef[] = [
         desc: "Write and send an agent-penned postcard",
         dynamic: true,
         amountHint: "$1 digital, $3 physical",
+      },
+    ],
+  },
+
+  // ── LoneStarOracle ─────────────────────────────────────────────────────
+
+  {
+    id: "lonestaroracle-tokenscope",
+    name: "LoneStarOracle — TokenScope",
+    url: "https://token.lonestaroracle.xyz",
+    serviceUrl: "https://token.lonestaroracle.xyz",
+    description:
+      "On-chain due diligence reports for ERC-20 tokens. Returns risk score, honeypot detection, liquidity, holder concentration, buy/sell tax, and ownership status. Supports Ethereum, Base, BSC, Arbitrum, and Polygon.",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: ["crypto", "defi", "token", "risk", "due-diligence", "honeypot", "erc20"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "token.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /report",
+        desc: "Full token DD report: risk score, flags, liquidity, holder stats, CEX listing status",
+        amount: "50",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-weatheroracle",
+    name: "LoneStarOracle — WeatherOracle",
+    url: "https://weather.lonestaroracle.xyz",
+    serviceUrl: "https://weather.lonestaroracle.xyz",
+    description:
+      "GFS ensemble weather forecasts with Gumbel extreme-value probability. Returns the probability that the daily high exceeds a given threshold — calibrated to NWS ASOS station coordinates used by Kalshi and prediction markets. Covers 10 US cities.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["weather", "forecast", "prediction-market", "kalshi", "probability", "gfs", "temperature"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "weather.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /forecast",
+        desc: "GFS ensemble forecast with Gumbel probability for temperature threshold markets",
+        amount: "50",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-walletrisk",
+    name: "LoneStarOracle — WalletRisk",
+    url: "https://wallet.lonestaroracle.xyz",
+    serviceUrl: "https://wallet.lonestaroracle.xyz",
+    description:
+      "On-chain wallet risk scoring for EVM addresses. Combines GoPlus Security data with public RPC analysis — returns risk score, flags, token approvals, interaction history, and chain coverage.",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: ["wallet", "risk", "security", "evm", "goplus", "approvals"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "wallet.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /score",
+        desc: "Wallet risk score, flags, token approvals, and on-chain interaction summary",
+        amount: "51",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-contractcheck",
+    name: "LoneStarOracle — ContractCheck",
+    url: "https://contract.lonestaroracle.xyz",
+    serviceUrl: "https://contract.lonestaroracle.xyz",
+    description:
+      "Smart contract risk verification for EVM token contracts. Returns verification status, proxy patterns, owner controls, mint authority, and known risk signatures across Ethereum, Base, BSC, Arbitrum, and Polygon.",
+    categories: ["blockchain"],
+    integration: "third-party",
+    tags: ["smart-contract", "security", "verification", "evm", "audit", "proxy", "ownership"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "contract.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /verify",
+        desc: "Contract verification, proxy detection, owner/mint controls, and risk flags",
+        amount: "50",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-newssentiment",
+    name: "LoneStarOracle — NewsSentiment",
+    url: "https://news.lonestaroracle.xyz",
+    serviceUrl: "https://news.lonestaroracle.xyz",
+    description:
+      "AI-powered news sentiment distribution for stocks, crypto, and any topic. Returns bullish/bearish/neutral breakdown with confidence scores, top headlines, and source attribution.",
+    categories: ["ai", "data"],
+    integration: "third-party",
+    tags: ["news", "sentiment", "nlp", "stocks", "crypto", "headlines", "analysis"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "news.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /news",
+        desc: "Sentiment distribution (bullish/bearish/neutral), confidence, and top headlines for any query",
+        amount: "51",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-equityscope",
+    name: "LoneStarOracle — EquityScope",
+    url: "https://equity.lonestaroracle.xyz",
+    serviceUrl: "https://equity.lonestaroracle.xyz",
+    description:
+      "Real-time stock fundamentals for US equities, ETFs, and mutual funds. Returns price, P/E, market cap, EPS, revenue, analyst ratings, 52-week range, dividend yield, short interest, and institutional ownership.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["stocks", "equity", "fundamentals", "yfinance", "etf", "analyst", "dividends"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "equity.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /equity",
+        desc: "Full fundamentals snapshot for any US ticker: price, valuation, earnings, ownership, dividends",
+        amount: "50",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-optionsflow",
+    name: "LoneStarOracle — OptionsFlow",
+    url: "https://options.lonestaroracle.xyz",
+    serviceUrl: "https://options.lonestaroracle.xyz",
+    description:
+      "Unusual options activity, put/call ratios, and IV skew for any US equity ticker. Scans near-term expirations for volume spikes, OI changes, and in/out-of-the-money positioning.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["options", "flow", "put-call-ratio", "iv-skew", "unusual-activity", "derivatives"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "options.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /flow",
+        desc: "Options flow analysis: PCR, IV skew, unusual volume/OI spikes by strike and expiration",
+        amount: "50",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-portfoliorisk",
+    name: "LoneStarOracle — PortfolioRisk",
+    url: "https://portfolio.lonestaroracle.xyz",
+    serviceUrl: "https://portfolio.lonestaroracle.xyz",
+    description:
+      "Portfolio risk analysis for any basket of US equities. Returns annualized volatility, beta, VaR, correlation matrix, sector exposure, and diversification score.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["portfolio", "risk", "volatility", "beta", "var", "correlation", "diversification"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "portfolio.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /analyze",
+        desc: "Portfolio risk metrics: volatility, beta, VaR, correlations, sector breakdown",
+        amount: "50",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-macropulse",
+    name: "LoneStarOracle — MacroPulse",
+    url: "https://macro.lonestaroracle.xyz",
+    serviceUrl: "https://macro.lonestaroracle.xyz",
+    description:
+      "Live macro dashboard: Fed funds rate, 10Y/2Y/3M Treasury yields, yield curve signal, 30Y mortgage, unemployment, GDP growth, VIX, gold, oil WTI, DXY, SPY, and BTC. Powered by FRED + market APIs.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["macro", "fed", "yields", "treasury", "vix", "gdp", "unemployment", "inflation", "fred"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "macro.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /macro",
+        desc: "Full macro snapshot: rates, yields, curve signal, inflation, growth, and market indicators",
+        amount: "50",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-earningscalendar",
+    name: "LoneStarOracle — EarningsCalendar",
+    url: "https://earnings.lonestaroracle.xyz",
+    serviceUrl: "https://earnings.lonestaroracle.xyz",
+    description:
+      "Upcoming earnings dates, EPS and revenue estimates for any watchlist of US tickers. Returns next report date, consensus estimates, TTM EPS, forward EPS, and YoY growth.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["earnings", "calendar", "eps", "estimates", "revenue", "guidance"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "earnings.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /calendar",
+        desc: "Earnings dates, EPS/revenue consensus estimates, and growth for a watchlist of tickers",
+        amount: "50",
+      },
+    ],
+  },
+
+  {
+    id: "lonestaroracle-insiderflow",
+    name: "LoneStarOracle — InsiderFlow",
+    url: "https://insider.lonestaroracle.xyz",
+    serviceUrl: "https://insider.lonestaroracle.xyz",
+    description:
+      "Corporate insider trades from SEC EDGAR Form 4 filings. Returns buy/sell counts, transaction values, officer/director names, roles, and a net signal (accumulating/distributing/neutral).",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["insider-trading", "sec", "edgar", "form-4", "officers", "directors", "filings"],
+    status: "active",
+    provider: { name: "LoneStarOracle", url: "https://lonestaroracle.xyz" },
+    realm: "insider.lonestaroracle.xyz",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /trades",
+        desc: "SEC insider trades: buy/sell counts, values, roles, and net accumulation signal",
+        amount: "51",
       },
     ],
   },
