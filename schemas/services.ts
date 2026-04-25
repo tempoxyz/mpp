@@ -6525,4 +6525,54 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "macro-agent",
+    name: "Macro Agent",
+    url: "https://web-production-60258.up.railway.app",
+    serviceUrl: "https://web-production-60258.up.railway.app",
+    description:
+      "Macroeconomic data endpoints for AI agents — GDP, inflation, employment, rates, and yield curve. Sourced from FRED, BEA, and Treasury. No accounts, no API keys. Per-query pricing via x402 (Base) or MPP (Tempo).",
+    categories: ["data"],
+    integration: "first-party",
+    status: "active",
+    tags: ["macroeconomics", "gdp", "inflation", "fred", "rates", "yield-curve"],
+    realm: "web-production-60258.up.railway.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    docs: {
+      apiReference:
+        "https://web-production-60258.up.railway.app/openapi.json",
+    },
+    provider: {
+      name: "Macro Agent",
+      url: "https://web-production-60258.up.railway.app",
+    },
+    endpoints: [
+      {
+        route: "GET /macro/snapshot",
+        desc: "All 13 key macro indicators in one call — GDP, CPI, Core PCE, unemployment, payrolls, Fed funds, 2Y/10Y yields, yield curve, TIPS, M2.",
+        amount: "10000",
+      },
+      {
+        route: "GET /macro/series",
+        desc: "Historical observations for any of 43 named FRED series. Query by name (e.g. 'inflation') or raw FRED ID (e.g. 'CPIAUCSL'). Omit params to list all available.",
+        amount: "5000",
+      },
+      {
+        route: "GET /macro/derived",
+        desc: "Computed indicators: 10Y real yield (TIPS), 10Y breakeven inflation, 10Y-2Y yield curve spread, average hourly earnings, BEA real GDP growth rate.",
+        amount: "10000",
+      },
+      {
+        route: "GET /macro/releases",
+        desc: "FRED data releases published in the last 30 days, sorted by recency. Use to check data freshness before querying.",
+        amount: "2000",
+      },
+      {
+        route: "GET /macro/delta",
+        desc: "Period-over-period % change across 8 key indicators (CPI, unemployment, payrolls, Fed funds, 10Y yield, yield curve, M2). Or a single series via ?series=.",
+        amount: "5000",
+      },
+    ],
+  },
 ];
