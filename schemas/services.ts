@@ -2002,6 +2002,38 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── StableCoozie ──────────────────────────────────────────────────────
+  {
+    id: "stablecoozie",
+    name: "StableCoozie",
+    url: "https://stablemerch-coozies.vercel.app",
+    serviceUrl: "https://stablemerch-coozies.vercel.app",
+    description:
+      "Custom printed coozies (can coolers) via x402. Upload your image, pick a size, get coozies shipped.",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["merch", "print-on-demand", "coozies", "ecommerce", "printify"],
+    docs: {
+      homepage: "https://stablemerch-coozies.vercel.app",
+      llmsTxt: "https://stablemerch-coozies.vercel.app/llms.txt",
+    },
+    provider: {
+      name: "StableCoozie",
+      url: "https://stablemerch-coozies.vercel.app",
+    },
+    realm: "stablemerch-coozies.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/coozie",
+        desc: "Order custom printed coozies",
+        dynamic: true,
+        amountHint: "$5 - $8",
+      },
+    ],
+  },
+
   // ── StableEnrich ───────────────────────────────────────────────────────
   {
     id: "stableenrich",
