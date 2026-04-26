@@ -1,0 +1,138 @@
+---
+layout: minimal
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "MPP's discovery schema now supports multiple payment offers per route—declare every method, currency, and intent ahead of time."
+imageDescription: "Advertise multiple payment methods in one discovery document"
+---
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Apr 27, 2026</p>
+
+# Multi-method discovery [Advertise multiple payment methods in one discovery document]
+
+It has been a month since MPP launched, and the ecosystem is growing fast. Over ten payment methods are live across the protocol, spanning stablecoins on every EVM network, cards, and even Bitcoin. As more methods have been added to the protocol, we have seen an increase in services accepting multiple payment methods, multiple currencies, and multiple intent types on the same endpoint.
+
+Until now, MPP's [discovery extension](https://paymentauth.org/draft-payment-discovery-00.html) only described a single payment offer per route. That meant registries and clients had to dynamically hit the endpoint and parse a `402` Challenge to learn the full set of payment options. With this update to the discovery spec, servers can declare all of their payment offers ahead of time and ensure that registries always have up to date information.
+
+## What changed
+
+MPP enabled services can now declare all of their payment offers ahead of time in a single OpenAPI metadata object. Each entry describes one payment alternative -- a combination of method, intent, amount, and currency. Clients and registries read the array to understand every way they can pay for an operation before making a request.
+
+```json [openapi.json]
+{
+  "x-payment-info": {
+    "offers": [ 
+      {
+        "amount": "1000000",
+        "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+        "intent": "charge", // [!code hl]
+        "method": "tempo"
+      },
+      {
+        "amount": "5000000",
+        "currency": "0x20c000000000000000000000b9537d11c60e8b50",
+        "intent": "session", // [!code hl]
+        "method": "tempo"
+      }
+    ]
+  }
+}
+```
+
+The flat single-offer form remains valid for backward compatibility, but new documents should use the multi-offer form.
+
+## Why it matters
+
+Registries like [MPPScan](https://mppscan.com) aggregate discovery documents from across the ecosystem. With multi-offer support, a registry can import your full pricing surface in a single fetch. Agents can filter services by the methods and currencies they support before making any requests.
+
+This is especially useful for services that mix fixed and dynamic pricing, or combine per-request charges with session-based billing. For example, the following listing shows a service that offers both fixed and dynamic pricing, across multiple currencies and intent types:
+
+```json [openapi.json]
+{
+  "x-payment-info": {
+    "offers": [ 
+      {
+        "amount": "1000000",
+        "currency": "0x20c000000000000000000000b9537d11c60e8b50", // [!code hl]
+        "intent": "charge",
+        "method": "tempo"
+      },
+      {
+        "amount": "1000000",
+        "currency": "0x20c0000000000000000000000000000000000000", // [!code hl]
+        "intent": "charge",
+        "method": "tempo"
+      },
+      {
+        "amount": "5000000",
+        "currency": "0x20c0000000000000000000000000000000000000",
+        "intent": "session", // [!code hl]
+        "method": "tempo"
+      },
+      {
+        "amount": "100",
+        "currency": "usd",
+        "intent": "charge",
+        "method": "stripe" // [!code hl]
+      }
+    ]
+  }
+}
+```
+
+## SDK support
+
+The `mppx` SDK already generates multi-offer discovery documents. If you use `discovery()` with multiple methods configured, the `offers` array is populated automatically:
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Mppx, discovery } from 'mppx/hono'
+import { tempo, stripe } from 'mppx/server'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      currency: '0x20c0000000000000000000000000000000000000',
+      recipient: '0x...',
+      testnet: true,
+    }),
+    stripe.charge({
+      client: stripeClient,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY,
+})
+
+app.get(
+  '/v1/generate',
+  mppx.charge(
+    { amount: '0.01' }
+  ),
+  (c) => c.json({ result: 'ok' })
+)
+
+// [!code hl:start]
+discovery(app, mppx, {
+  auto: true,
+  info: { title: 'My API', version: '1.0.0' },
+})
+// [!code hl:end]
+```
+
+## Learn more
+
+- **Discovery docs**: [mpp.dev/advanced/discovery](/advanced/discovery)
+- **Multiple payment methods guide**: [mpp.dev/guides/multiple-payment-methods](/guides/multiple-payment-methods)
+- **IETF Specification**: [paymentauth.org/draft-payment-discovery-00](https://paymentauth.org/draft-payment-discovery-00)
+
+</div>
