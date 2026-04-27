@@ -22,7 +22,7 @@ Until now, MPP's [discovery extension](https://paymentauth.org/draft-payment-dis
 
 ## What changed
 
-MPP enabled services can now declare all of their payment offers ahead of time in a single OpenAPI metadata object. Each entry describes one payment alternative -- a combination of method, intent, amount, and currency. Clients and registries read the array to understand every way they can pay for an operation before making a request.
+MPP enabled services can now declare all of their payment offers ahead of time in a single OpenAPI metadata object. Each entry describes one payment option -- a combination of method, intent, amount, and currency. Clients and registries read the array to understand every way they can pay for an operation before making a request.
 
 ```json [openapi.json]
 {
