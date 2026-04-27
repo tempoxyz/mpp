@@ -16,7 +16,7 @@ imageDescription: "Advertise multiple payment methods in one discovery document"
 
 # Multi-method discovery [Advertise multiple payment methods in one discovery document]
 
-One of the core tenants of MPP's design is that it is payment-method and currency agnostic. As of date, over ten payment methods are live across the protocol, spanning stablecoins on every EVM network, cards, and even Bitcoin. As more methods have been added to the protocol, we have seen an increase in services accepting multiple payment methods, multiple currencies, and multiple intent types on the same endpoint.
+One of the core tenants of MPP's design is that it is payment-method and currency agnostic. As of date, over ten payment methods are live across the protocol, spanning stablecoins on every EVM network, cards, and even Bitcoin. As more methods have been added to the protocol, we have seen an increase in services accepting multiple payment methods, multiple currencies, and even multiple intent types on the same endpoint.
 
 Until now, MPP's [discovery extension](https://paymentauth.org/draft-payment-discovery-00.html) only described a single payment offer per route. That meant registries and clients had to dynamically hit the endpoint and parse a `402` Challenge to learn the full set of payment options. With this update to the discovery spec, servers can declare all of their payment offers ahead of time and ensure that registries always have up to date information.
 
