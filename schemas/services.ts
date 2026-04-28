@@ -3947,7 +3947,7 @@ export const services: ServiceDef[] = [
         route: "POST /purchase",
         desc: "Purchase wine with identity verification via AgentScore and MPP payment",
         dynamic: true,
-        amountHint: "Variable depending on wine and quantity",
+        amountHint: "Variable",
       },
       {
         route: "GET /orders/:id",
