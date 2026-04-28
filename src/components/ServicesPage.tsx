@@ -3642,22 +3642,32 @@ function ExpandedDetail({ service: s }: { service: Service }) {
                       fontSize: 14,
                       fontVariantNumeric: "tabular-nums",
                       color: "var(--vocs-text-color-secondary)",
-                      whiteSpace: "nowrap",
                       alignSelf: "stretch",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "flex-end",
+                      minWidth: 0,
                     }}
                   >
                     {ep.payment?.intent && (
                       <span
                         className="intent-badge-price"
-                        style={{ marginRight: "0.35rem" }}
+                        style={{ marginRight: "0.35rem", flexShrink: 0 }}
                       >
                         <Badge>{ep.payment.intent}</Badge>
                       </span>
                     )}
-                    <span className="ep-price-text">{formatPrice(ep)}</span>
+                    <span
+                      className="ep-price-text"
+                      style={{
+                        textAlign: "right",
+                        overflowWrap: "anywhere",
+                        minWidth: 0,
+                      }}
+                      title={ep.payment?.amountHint}
+                    >
+                      {formatPrice(ep)}
+                    </span>
 
                     {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
                     {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
