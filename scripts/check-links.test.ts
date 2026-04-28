@@ -54,7 +54,8 @@ describe("classifyLink", () => {
 
     expect(link).toMatchObject({
       kind: "external",
-      normalizedTarget: "https://paymentauth.org/draft-payment-intent-charge-00",
+      normalizedTarget:
+        "https://paymentauth.org/draft-payment-intent-charge-00",
     });
   });
 });

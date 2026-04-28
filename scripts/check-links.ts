@@ -56,9 +56,7 @@ export function extractLinks(content: string, file: string): LinkOccurrence[] {
 
   for (const match of content.matchAll(jsxLinkPattern)) {
     const target =
-      match.groups?.double ??
-      match.groups?.single ??
-      match.groups?.template;
+      match.groups?.double ?? match.groups?.single ?? match.groups?.template;
     if (!target || match.index === undefined) continue;
     links.push({
       file,
@@ -154,7 +152,8 @@ async function loadRedirectSources() {
 }
 
 function pageCandidatesForPath(cleanPath: string) {
-  const trimmedPath = cleanPath === "/" ? "/index" : cleanPath.replace(/\/$/, "");
+  const trimmedPath =
+    cleanPath === "/" ? "/index" : cleanPath.replace(/\/$/, "");
   const withoutExtension = trimmedPath.replace(/\.(md|mdx)$/u, "");
   const candidates = [withoutExtension];
 
@@ -165,7 +164,11 @@ function pageCandidatesForPath(cleanPath: string) {
   return candidates;
 }
 
-async function internalTargetExists(target: string, sourceFile: string, redirects: Set<string>) {
+async function internalTargetExists(
+  target: string,
+  sourceFile: string,
+  redirects: Set<string>,
+) {
   const [pathPart] = target.split(/[?#]/, 1);
   const cleanPath = pathPart || "/";
   if (redirects.has(cleanPath)) return true;
@@ -174,7 +177,10 @@ async function internalTargetExists(target: string, sourceFile: string, redirect
   if (cleanPath.startsWith("/")) {
     const absoluteRootPath = path.join(ROOT_DIR, cleanPath.slice(1));
     const absolutePublicPath = path.join(PUBLIC_DIR, cleanPath.slice(1));
-    const absoluteDistPublicPath = path.join(DIST_PUBLIC_DIR, cleanPath.slice(1));
+    const absoluteDistPublicPath = path.join(
+      DIST_PUBLIC_DIR,
+      cleanPath.slice(1),
+    );
 
     if (await fileExists(absoluteRootPath)) return true;
     if (await fileExists(absolutePublicPath)) return true;
@@ -270,7 +276,9 @@ async function runLimited<T, R>(
   }
 
   await Promise.all(
-    Array.from({ length: Math.min(concurrency, values.length) }, () => runWorker()),
+    Array.from({ length: Math.min(concurrency, values.length) }, () =>
+      runWorker(),
+    ),
   );
   return results;
 }
