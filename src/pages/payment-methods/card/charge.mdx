@@ -57,7 +57,7 @@ export async function handler(request: Request) {
 
 Use `MppCard.create` to automatically handle `402` responses. The client parses the Challenge, requests an encrypted network token from the credential issuer, and retries with the Credential.
 
-Before making payments, enroll a card through a tokenization provider (e.g., a secure card collection form or vault API) to obtain a `cardId`.
+For production payments, enroll a card through a tokenization provider (a secure card collection form or vault API) to obtain a `cardId`.
 
 ```ts
 import { MppCard } from 'mpp-card/client'
@@ -75,6 +75,10 @@ MppCard.create({
 // Global fetch now handles 402 automatically
 const res = await fetch('https://api.merchant.com/data')
 ```
+
+### Dev mode
+
+Omit `enabler` to use the SDK's built-in dev mode. The client generates test network tokens encrypted with the server's published public key—no card enrollment or credential issuer required.
 
 ### Without polyfill
 
@@ -96,7 +100,7 @@ const res = await mppCard.fetch('https://api.example.com/resource')
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | `cardId` | `string` | Required | Card identifier from your tokenization provider |
-| `enabler` | `ClientEnabler` | Required | Credential issuer for token provisioning |
+| `enabler` | `ClientEnabler` | Optional | Credential issuer for token provisioning. Omit for dev mode. |
 
 ## Request fields
 
