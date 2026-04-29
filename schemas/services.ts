@@ -6536,11 +6536,11 @@ export const services: ServiceDef[] = [
     url: "https://headlessdomains.com",
     serviceUrl: "https://headlessdomains.com",
     description:
-      ".agent domain registrar for autonomous AI agents on the Handshake network. Register and renew domains instantly via MPP.",
+      "API for registering and managing agent identities on Headless Domains, optimized for autonomous AI agents.",
 
     categories: ["domains", "identity", "infrastructure"],
     integration: "third-party",
-    tags: ["domains", "agent", "handshake", ".agent", "web3"],
+    tags: ["domains", "agent", "handshake", ".agent", "agentic-identity"],
     docs: {
       homepage: "https://headlessdomains.com",
       apiReference: "https://headlessdomains.com/openapi.json",
