@@ -18,6 +18,9 @@ export const CATEGORIES = [
   "blockchain",
   "compute",
   "data",
+  "domains",
+  "identity",
+  "infrastructure",
   "media",
   "search",
   "social",
@@ -6524,5 +6527,32 @@ export const services: ServiceDef[] = [
         amountHint: "$1 digital, $3 physical",
       },
     ],
+  },
+
+  // ── Headless Domains ───────────────────────────────────────────────────
+  {
+    id: "headlessdomains",
+    name: "Headless Domains",
+    url: "https://headlessdomains.com",
+    serviceUrl: "https://headlessdomains.com",
+    description:
+      ".agent domain registrar for autonomous AI agents on the Handshake network. Register and renew domains instantly via MPP.",
+
+    categories: ["domains", "identity", "infrastructure"],
+    integration: "third-party",
+    tags: ["domains", "agent", "handshake", ".agent", "web3"],
+    docs: {
+      homepage: "https://headlessdomains.com",
+      apiReference: "https://headlessdomains.com/openapi.json",
+      llmsTxt: "https://headlessdomains.com/llms.txt",
+    },
+    provider: {
+      name: "Headless Domains",
+      url: "https://headlessdomains.com",
+    },
+    realm: "headlessdomains.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [],
   },
 ];
