@@ -6525,4 +6525,66 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── dropspace ──────────────────────────────────────────────────────────
+  {
+    id: "dropspace",
+    name: "dropspace",
+    url: "https://api.dropspace.dev",
+    serviceUrl: "https://www.dropspace.dev",
+    description:
+      "Schedule multi-platform social media launches across Twitter, LinkedIn, Reddit, Instagram, TikTok, Facebook, YouTube, Substack, Product Hunt, and Hacker News. AI-generated content per platform, or bring your own.",
+
+    categories: ["social", "ai", "web"],
+    integration: "first-party",
+    tags: [
+      "social-media",
+      "marketing",
+      "automation",
+      "scheduling",
+      "ai-content",
+      "twitter",
+      "linkedin",
+      "reddit",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://www.dropspace.dev",
+      llmsTxt: "https://www.dropspace.dev/llms.txt",
+      apiReference: "https://www.dropspace.dev/docs",
+    },
+    provider: { name: "dropspace", url: "https://www.dropspace.dev" },
+    realm: "api.dropspace.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /launches",
+        desc: "Create and publish a multi-platform launch (5 free launches/month per agent identity, then $0.60 via MPP credit pack or $0.55 via x402 USDC on Base)",
+        dynamic: true,
+        amountHint: "$0.60 per launch via 20-credit pack ($12 USD)",
+      },
+      {
+        route: "GET /launches",
+        desc: "List launches",
+      },
+      {
+        route: "POST /launches/:id/retry",
+        desc: "Retry a failed launch",
+      },
+      {
+        route: "POST /credits/purchase",
+        desc: "Buy a 20-credit pack ($12 USD) — one credit per launch",
+        amount: "1200",
+      },
+      {
+        route: "GET /personas",
+        desc: "List writing-style personas",
+      },
+      {
+        route: "POST /personas",
+        desc: "Create a writing-style persona",
+      },
+    ],
+  },
 ];
