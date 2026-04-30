@@ -1202,6 +1202,81 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── HiveCompute ────────────────────────────────────────────────────────
+  {
+    id: "hivecompute",
+    name: "HiveCompute",
+    url: "https://hivecompute-g2g7.onrender.com",
+    serviceUrl: "https://hivecompute-g2g7.onrender.com",
+    description:
+      "OpenAI-compatible inference for autonomous agents. Per-call USDC settlement on Tempo and Base, with Spectral receipts emitted on every paid request.",
+
+    categories: ["ai", "compute"],
+    integration: "first-party",
+    tags: [
+      "inference",
+      "chat",
+      "completions",
+      "embeddings",
+      "images",
+      "audio",
+      "openai-compatible",
+      "agents",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://github.com/srotzin/hivecompute",
+    },
+    provider: { name: "Hive Civilization", url: "https://thehiveryiq.com" },
+    realm: "hivecompute-g2g7.onrender.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      { route: "POST /v1/compute/chat/completions", desc: "Chat completions (OpenAI-compatible)", amount: "50000" },
+      { route: "POST /v1/compute/completions", desc: "Text completions", amount: "50000" },
+      { route: "POST /v1/compute/embeddings", desc: "Embeddings", amount: "50000" },
+      { route: "POST /v1/compute/images", desc: "Image generation", amount: "50000" },
+      { route: "POST /v1/compute/audio", desc: "Audio (transcription / synthesis)", amount: "50000" },
+      { route: "GET /openapi.json", desc: "Service discovery (free)" },
+    ],
+  },
+
+  // ── HiveTrust ──────────────────────────────────────────────────────────
+  {
+    id: "hivetrust",
+    name: "HiveTrust",
+    url: "https://hivetrust.onrender.com",
+    serviceUrl: "https://hivetrust.onrender.com",
+    description:
+      "Trust scoring, identity attestation, and DID resolution for autonomous agents. Issues Spectral receipts on every paid call.",
+
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: [
+      "trust",
+      "identity",
+      "did",
+      "attestation",
+      "reputation",
+      "agents",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://github.com/srotzin/hivetrust",
+    },
+    provider: { name: "Hive Civilization", url: "https://thehiveryiq.com" },
+    realm: "hivetrust.onrender.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      { route: "POST /v1/trust/score", desc: "Compute trust score for a DID", amount: "100000" },
+      { route: "POST /v1/trust/attest", desc: "Issue trust attestation", amount: "250000" },
+      { route: "GET /v1/trust/resolve/:did", desc: "Resolve DID document", amount: "50000" },
+      { route: "POST /v1/trust/verify", desc: "Verify presented credential", amount: "100000" },
+      { route: "GET /openapi.json", desc: "Service discovery (free)" },
+    ],
+  },
+
   // ── Modal ──────────────────────────────────────────────────────────────
   {
     id: "modal",
