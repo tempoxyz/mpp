@@ -6525,4 +6525,68 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── iris ───────────────────────────────────────────────────────────────
+  {
+    id: "iris",
+    name: "iris",
+    url: "https://api.iris-ai.dev",
+    serviceUrl: "https://www.iris-ai.dev",
+    description:
+      "AI-powered multi-channel outreach automation across email, Twitter DM, Instagram DM, and LinkedIn. Discovers contacts via Google Maps and social platforms, drafts personalized messages with Claude, and delivers them end-to-end from one paid call.",
+
+    categories: ["ai", "social"],
+    integration: "first-party",
+    tags: [
+      "outreach",
+      "marketing",
+      "automation",
+      "messaging",
+      "ai-content",
+      "email",
+      "twitter",
+      "instagram",
+      "linkedin",
+      "campaigns",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://www.iris-ai.dev",
+      llmsTxt: "https://www.iris-ai.dev/llms.txt",
+      apiReference: "https://www.iris-ai.dev/docs",
+    },
+    provider: { name: "iris", url: "https://www.iris-ai.dev" },
+    realm: "api.iris-ai.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /campaigns",
+        desc: "Create a multi-channel outreach campaign — discovers contacts, drafts AI messages, and delivers across email/Twitter DM/Instagram DM/LinkedIn ($2.40 via MPP credit pack or $2.25 via x402 USDC on Base)",
+        dynamic: true,
+        amountHint: "$2.40 per campaign via 5-credit pack ($12 USD)",
+      },
+      {
+        route: "GET /campaigns",
+        desc: "List campaigns",
+      },
+      {
+        route: "GET /campaigns/:id",
+        desc: "Get a specific campaign with full details",
+      },
+      {
+        route: "PATCH /campaigns/:id",
+        desc: "Update a campaign (status, settings)",
+      },
+      {
+        route: "POST /agent/credits",
+        desc: "Buy a 5-credit pack ($12 USD) — one credit per campaign",
+        amount: "1200",
+      },
+      {
+        route: "GET /agent/credits",
+        desc: "Check the agent's current credit balance",
+      },
+    ],
+  },
 ];
