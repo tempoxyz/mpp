@@ -3960,6 +3960,41 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Megapot ─────────────────────────────────────────────────────────────
+  {
+    id: "megapot",
+    name: "Megapot",
+    url: "https://megapot.io",
+    serviceUrl: "https://megapot.mpp.paysponge.com",
+    description:
+      "Global internet lottery tickets. AI agents can purchase Megapot tickets and check ticket status through MPP.",
+
+    categories: ["web", "blockchain"],
+    integration: "third-party",
+    tags: ["lottery", "gaming", "tickets", "base", "agent-commerce"],
+    status: "active",
+    docs: {
+      homepage: "https://megapot.io",
+      apiReference: "https://megapot.mpp.paysponge.com/openapi.json",
+    },
+    provider: { name: "Megapot", url: "https://megapot.io" },
+    realm: "megapot.mpp.paysponge.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /purchase",
+        desc: "Purchase a Megapot lottery ticket for a recipient wallet",
+        amount: "1000000",
+      },
+      {
+        route: "POST /status",
+        desc: "Check Megapot ticket status and winnings",
+        amount: "0",
+      },
+    ],
+  },
+
   // =========================================================================
   // Locus — Pay-per-use API proxy (paywithlocus.com)
   //
