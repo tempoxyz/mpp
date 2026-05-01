@@ -1875,6 +1875,63 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Tack ───────────────────────────────────────────────────────────────
+  {
+    id: "tack",
+    name: "Tack",
+    url: "https://tack.inferenceroom.ai",
+    serviceUrl: "https://tack.inferenceroom.ai",
+    description:
+      "Storage for agents. Upload files or pin CIDs, pay per use — no account or API key required.",
+
+    categories: ["storage"],
+    integration: "first-party",
+    tags: ["ipfs", "pinning", "storage", "files", "upload", "cid", "gateway"],
+    docs: {
+      homepage: "https://tack.inferenceroom.ai",
+      llmsTxt: "https://tack.inferenceroom.ai/llms.txt",
+      apiReference: "https://ipfs.github.io/pinning-services-api-spec/",
+    },
+    provider: { name: "Inference Room", url: "https://inferenceroom.ai" },
+    realm: "tack.inferenceroom.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /pins",
+        desc: "Pin content by CID — dynamic pricing based on size and duration ($0.10/GB/month, min $0.001)",
+        dynamic: true,
+        amountHint: "$0.001+",
+      },
+      {
+        route: "POST /upload",
+        desc: "Upload and pin a file (multipart/form-data, max 100MB) — dynamic pricing ($0.10/GB/month, min $0.001)",
+        dynamic: true,
+        amountHint: "$0.001+",
+      },
+      {
+        route: "GET /ipfs/:cid",
+        desc: "Retrieve content by CID — free by default; owners may attach a paywall via meta.retrievalPrice",
+      },
+      {
+        route: "GET /pins",
+        desc: "List your pins (owner auth token required)",
+      },
+      {
+        route: "GET /pins/:requestid",
+        desc: "Get a specific pin (owner auth token required)",
+      },
+      {
+        route: "POST /pins/:requestid",
+        desc: "Replace a pin (owner auth token required)",
+      },
+      {
+        route: "DELETE /pins/:requestid",
+        desc: "Delete a pin (owner auth token required)",
+      },
+    ],
+  },
+
   // ── StableEmail ────────────────────────────────────────────────────────
   {
     id: "stableemail",
