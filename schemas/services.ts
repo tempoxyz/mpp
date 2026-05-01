@@ -843,7 +843,10 @@ export const services: ServiceDef[] = [
       homepage: "https://api.aitrailblazer.net/help",
       apiReference: "https://api.aitrailblazer.net/openapi.json",
     },
-    provider: { name: "AITrailblazer", url: "https://aitrailblazer.net" },
+    provider: {
+      name: "AITrailblazer",
+      url: "https://aitrailblazer.com",
+    },
     realm: "api.aitrailblazer.net",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
