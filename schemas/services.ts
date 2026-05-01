@@ -819,6 +819,88 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── DeltaSignal ────────────────────────────────────────────────────────
+  {
+    id: "deltasignal",
+    name: "DeltaSignal",
+    url: "https://api.aitrailblazer.net",
+    serviceUrl: "https://api.aitrailblazer.net",
+    description:
+      "Crypto public-company financial intelligence powered by SEC XBRL data, issuer-specific Calculation Linkbases, ATLAS covenant stress, peer ranking, alpha signals, and daily BTC/ETH live-price overlays.",
+
+    categories: ["data", "blockchain"],
+    integration: "first-party",
+    tags: [
+      "crypto",
+      "public-companies",
+      "sec-filings",
+      "xbrl",
+      "risk",
+      "financial-data",
+      "alpha-signals",
+    ],
+    docs: {
+      homepage: "https://api.aitrailblazer.net/help",
+      apiReference: "https://api.aitrailblazer.net/openapi.json",
+    },
+    provider: { name: "AITrailblazer", url: "https://aitrailblazer.net" },
+    realm: "api.aitrailblazer.net",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /mpp/v1/company-fundamentals/:ticker",
+        desc: "Provenance-rich company fundamentals for a single crypto public issuer.",
+        amount: "50000",
+      },
+      {
+        route: "GET /mpp/v1/alpha-signals/:ticker",
+        desc: "Deterministic Phase 1 alpha, resilience, treasury-strength, and regime-fit signals for one issuer.",
+        amount: "70000",
+      },
+      {
+        route: "GET /mpp/v1/alpha-opportunities",
+        desc: "Rank the active DeltaSignal slice by deterministic Phase 1 alpha score.",
+        amount: "50000",
+      },
+      {
+        route: "GET /mpp/v1/covenant-stress/:ticker",
+        desc: "ATLAS covenant stress detail for one issuer.",
+        amount: "100000",
+      },
+      {
+        route: "GET /mpp/v1/covenant-stress",
+        desc: "Screen the latest DeltaSignal covenant stress slice.",
+        amount: "80000",
+      },
+      {
+        route: "GET /mpp/v1/top-stressed",
+        desc: "Top stressed crypto issuers from the current DeltaSignal slice.",
+        amount: "50000",
+      },
+      {
+        route: "GET /mpp/v1/peer-ranking/:ticker",
+        desc: "Peer covenant ranking for a single issuer.",
+        amount: "60000",
+      },
+      {
+        route: "GET /mpp/v1/risk-distribution",
+        desc: "Risk-tier distribution for the active DeltaSignal slice.",
+        amount: "40000",
+      },
+      {
+        route: "GET /mpp/v1/readiness",
+        desc: "Freshness and readiness of the current DeltaSignal slice.",
+        amount: "40000",
+      },
+      {
+        route: "GET /mpp/v1/daily-changes/latest",
+        desc: "Latest published SEC daily-changes snapshot for the tracked slice.",
+        amount: "30000",
+      },
+    ],
+  },
+
   // ── Doma ────────────────────────────────────────────────────────────────
   {
     id: "doma",
