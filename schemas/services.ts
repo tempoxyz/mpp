@@ -6525,4 +6525,88 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── PreFlyte ───────────────────────────────────────────────────────────
+  {
+    id: "preflyte",
+    name: "PreFlyte",
+    url: "https://pay.preflyte.xyz",
+    serviceUrl: "https://pay.preflyte.xyz",
+    description:
+      "DeFi financial intelligence for AI agents — empirical returns oracle and real-time market verification. Answers 'where should I deploy capital?' before an agent signs a transaction.",
+
+    categories: ["data", "blockchain"],
+    integration: "third-party",
+    tags: [
+      "defi",
+      "lending",
+      "aave",
+      "compound",
+      "uniswap",
+      "lido",
+      "ethereum",
+      "arbitrum",
+      "yields",
+      "returns",
+      "rates",
+      "gas",
+      "market-data",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://preflyte.xyz",
+      apiReference: "https://pay.preflyte.xyz/openapi.json",
+    },
+    provider: { name: "PreFlyte", url: "https://preflyte.xyz" },
+    realm: "pay.preflyte.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /assess_opportunity",
+        desc: "Cold-start orientation — ranked opportunities for a given position size and strategy",
+        amount: "50000",
+      },
+      {
+        route: "GET /estimate_net_position",
+        desc: "Net yield projection with gas costs, break-even days, and risk metrics",
+        amount: "30000",
+      },
+      {
+        route: "GET /market_snapshot",
+        desc: "Current rates, risk params, price, gas, and 7-day anomaly detection",
+        amount: "20000",
+      },
+      {
+        route: "GET /check_entry_viability",
+        desc: "Can I enter this lending position? Cap checks and frozen/inactive detection",
+        amount: "20000",
+      },
+      {
+        route: "GET /check_pool_viability",
+        desc: "Uniswap V3 pool depth and trade impact assessment",
+        amount: "20000",
+      },
+      {
+        route: "GET /gas_timing",
+        desc: "Is now a good time to transact? Current gas vs historical averages",
+        amount: "10000",
+      },
+      {
+        route: "GET /verify_claim",
+        desc: "Fact-check market beliefs (supply/borrow rate, price, gas, utilization)",
+        amount: "10000",
+      },
+      {
+        route: "GET /profitlens/returns",
+        desc: "Historical DeFi lending returns by chain, protocol, asset, and window",
+        amount: "10000",
+      },
+      {
+        route: "GET /profitlens/ranking",
+        desc: "Ranked list of best-performing strategies by net APY",
+        amount: "10000",
+      },
+    ],
+  },
 ];
