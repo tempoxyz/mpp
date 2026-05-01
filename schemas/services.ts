@@ -18,6 +18,9 @@ export const CATEGORIES = [
   "blockchain",
   "compute",
   "data",
+  "domains",
+  "identity",
+  "infrastructure",
   "media",
   "search",
   "social",
@@ -6524,5 +6527,32 @@ export const services: ServiceDef[] = [
         amountHint: "$1 digital, $3 physical",
       },
     ],
+  },
+
+  // ── Headless Domains ───────────────────────────────────────────────────
+  {
+    id: "headlessdomains",
+    name: "Headless Domains",
+    url: "https://headlessdomains.com",
+    serviceUrl: "https://headlessdomains.com",
+    description:
+      "API for registering and managing agent identities on Headless Domains, optimized for autonomous AI agents.",
+
+    categories: ["domains", "identity", "infrastructure"],
+    integration: "third-party",
+    tags: ["domains", "agent", "handshake", ".agent", "agentic-identity"],
+    docs: {
+      homepage: "https://headlessdomains.com",
+      apiReference: "https://headlessdomains.com/openapi.json",
+      llmsTxt: "https://headlessdomains.com/llms.txt",
+    },
+    provider: {
+      name: "Headless Domains",
+      url: "https://headlessdomains.com",
+    },
+    realm: "headlessdomains.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [],
   },
 ];
