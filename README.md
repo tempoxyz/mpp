@@ -38,7 +38,7 @@ This repository contains the [mpp.dev](https://mpp.dev) documentation site and s
 pnpm install      # Install dependencies
 pnpm run dev      # Start development server
 pnpm run build    # Production build
-pnpm run check:links # Validate docs links
+pnpm run check:links # Validate internal docs links
 pnpm run check:sdk-drift # Validate SDK reference pages against mppx exports
 pnpm run preview  # Preview production build
 ```

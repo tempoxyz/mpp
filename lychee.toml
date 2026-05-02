@@ -1,0 +1,46 @@
+# lychee configuration for the MPP docs site.
+# Validates external links in markdown, MDX, and config sources.
+# See https://lychee.cli.rs/usage/config/
+
+# Network settings
+max_redirects = 10
+max_concurrency = 16
+timeout = 20
+retry_wait_time = 2
+
+# Some hosts (Twitter, LinkedIn, Cloudflare-protected sites) reject the default UA.
+user_agent = "Mozilla/5.0 (compatible; mpp-docs-link-checker/1.0; +https://mpp.dev)"
+
+# Auth-walled or rate-limited statuses are still "reachable".
+accept = ["200..=299", "401", "403", "429"]
+
+exclude_path = [
+  "node_modules",
+  "dist",
+  ".vocs",
+  ".vercel",
+  "playwright-report",
+  "test-results",
+  "patches",
+]
+
+exclude = [
+  # Internal docs routes are validated by scripts/check-links.ts.
+  "^/",
+  "^\\./",
+  "^\\.\\./",
+  "^https?://(www\\.)?mpp\\.dev",
+  # Local / placeholder hosts.
+  "^https?://localhost",
+  "^https?://127\\.0\\.0\\.1",
+  "^https?://0\\.0\\.0\\.0",
+  "^https?://\\[::1\\]",
+  "^https?://([a-z0-9-]+\\.)*example\\.(com|org|net)",
+  # SVG xmlns reference, not a real link.
+  "^http://www\\.w3\\.org/2000/svg$",
+]
+
+# Reuse cached results across runs.
+cache = true
+max_cache_age = "1d"
+no_progress = true

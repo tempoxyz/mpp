@@ -1,0 +1,59 @@
+name: External Links
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly link-rot check, independent of code changes.
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: links-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lychee:
+    name: Lychee
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: lychee-${{ github.sha }}
+          restore-keys: lychee-
+
+      - name: Run lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # README.md is a GitHub-only artifact with pre-existing
+          # broken references (LICENSE files, lockup paths); excluded
+          # from this check. Docs site content lives in src/pages/.
+          args: >-
+            --root-dir ${{ github.workspace }}
+            'src/pages/**/*.{md,mdx}'
+            'vocs.config.ts'
+          fail: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Open issue on scheduled failure
+        if: failure() && github.event_name == 'schedule'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Broken external links detected"
+          content-filepath: ./lychee/out.md
+          labels: docs, links

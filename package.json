@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && node scripts/generate-og-descriptions.ts && vite build && node scripts/check-links.ts",
+    "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && node scripts/generate-og-descriptions.ts && vite build && pnpm check:links",
     "check": "biome check --write",
-    "check:ci": "biome check && node scripts/check-links.ts",
+    "check:ci": "biome check && pnpm check:links",
     "check:links": "node scripts/check-links.ts",
     "check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
     "check:types": "tsc --noEmit",

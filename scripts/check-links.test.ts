@@ -45,7 +45,17 @@ describe("classifyLink", () => {
     expect(link).toBeNull();
   });
 
-  it("keeps real external urls", () => {
+  it("skips loopback ipv6 urls", () => {
+    const link = classifyLink({
+      file: "/tmp/example.mdx",
+      line: 1,
+      target: "http://[::1]/docs",
+    });
+
+    expect(link).toBeNull();
+  });
+
+  it("keeps real external urls for lychee", () => {
     const link = classifyLink({
       file: "/tmp/example.mdx",
       line: 1,
