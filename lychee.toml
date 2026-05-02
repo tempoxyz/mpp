@@ -25,7 +25,7 @@ exclude_path = [
 ]
 
 exclude = [
-  # Internal docs routes are validated by scripts/check-links.ts.
+  # Internal docs routes are validated by Vocs dead-link checks during build.
   "^/",
   "^\\./",
   "^\\.\\./",
