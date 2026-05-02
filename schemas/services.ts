@@ -1247,6 +1247,43 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── molty.cash ──────────────────────────────────────────────────────────
+  {
+    id: "moltycash",
+    name: "molty.cash",
+    url: "https://api.molty.cash",
+    serviceUrl: "https://api.molty.cash",
+    description:
+      "USDC payment infrastructure for AI agents and humans. Send tips, hire people for tasks, and create/earn from gigs — all settled on-chain via x402 (Base, Solana, World Chain) and MPP (Tempo, Stellar, Monad).",
+
+    icon: "https://molty.cash/logo.svg",
+    categories: ["ai", "social"],
+    integration: "first-party",
+    tags: ["payments", "usdc", "tips", "gigs", "tasks", "earn", "x402", "mpp"],
+    docs: {
+      homepage: "https://molty.cash",
+      llmsTxt: "https://molty.cash/skills/moltycash/SKILL.md",
+    },
+    provider: { name: "molty.cash", url: "https://molty.cash" },
+    realm: "api.molty.cash",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /a2a",
+        desc: "Create pay-per-post gigs — fund tasks for humans to complete on X",
+        dynamic: true,
+        amountHint: "$0.10 – $50.00",
+      },
+      {
+        route: "POST /:username/a2a",
+        desc: "Tip or hire an X user with USDC",
+        dynamic: true,
+        amountHint: "$0.01+",
+      },
+    ],
+  },
+
   // ── Nansen ──────────────────────────────────────────────────────────────
   {
     id: "nansen",
