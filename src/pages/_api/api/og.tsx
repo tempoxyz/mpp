@@ -251,3 +251,10 @@ export async function GET(request: Request) {
     },
   });
 }
+
+export async function HEAD(request: Request) {
+  const response = await GET(request);
+  return new Response(null, {
+    headers: response.headers,
+  });
+}

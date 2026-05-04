@@ -1,4 +1,5 @@
 ---
+description: "Accept one-time Monad payments with ERC-20 transfers or ERC-3009 authorizations."
 imageDescription: "One-time Monad payments using ERC-20 transfers or ERC-3009 authorizations"
 ---
 
@@ -79,4 +80,3 @@ Monad charge supports two settlement modes:
 
 - **Push** — the client broadcasts an ERC-20 `transfer(recipient, amount)` transaction on-chain and includes the transaction hash in the credential. The server verifies the transfer by reading `Transfer` event logs.
 - **Pull** — the client signs an ERC-3009 `transferWithAuthorization` off-chain. The server broadcasts the authorization on-chain via `transferWithAuthorization`, paying the gas. The server account does not need to match the recipient address.
-

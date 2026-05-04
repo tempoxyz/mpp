@@ -116,6 +116,30 @@ function contentSignalsRobotsTxt(): Plugin {
   };
 }
 
+function pruneSitemap(): Plugin {
+  return {
+    name: "prune-sitemap",
+    enforce: "post",
+    async writeBundle(options) {
+      if (!options.dir?.endsWith("/public")) return;
+
+      const sitemapPath = path.join(options.dir, "sitemap.xml");
+      const current = await fs.readFile(sitemapPath, "utf8").catch((error) => {
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+        throw error;
+      });
+      if (!current) return;
+
+      const next = current.replace(
+        /\s*<url>\s*<loc>[^<]*\/404<\/loc>\s*<lastmod>[^<]+<\/lastmod>\s*<\/url>/,
+        "",
+      );
+
+      if (next !== current) await fs.writeFile(sitemapPath, next, "utf8");
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   for (const key of Object.keys(env)) {
@@ -137,6 +161,7 @@ export default defineConfig(({ mode }) => {
       react(),
       vocs(),
       contentSignalsRobotsTxt(),
+      pruneSitemap(),
       ...(mode !== "production"
         ? [mkcert({ force: true, hosts: ["localhost"] })]
         : []),

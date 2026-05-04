@@ -15,6 +15,8 @@ export default defineConfig({
   colorScheme: "light dark",
   baseUrl,
   redirects: [
+    { source: "/index", destination: "/" },
+
     // Aliases for overview
     { source: "/docs", destination: "/overview" },
     { source: "/documentation", destination: "/overview" },

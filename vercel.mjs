@@ -12,6 +12,8 @@ const OPENAPI_DISCOVERY_LINK_VALUE = [
   '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
 ].join(", ");
 
+const CONTENT_NEGOTIATION_HEADERS = [header("Vary", "Accept, User-Agent")];
+
 const API_CATALOG_HEADERS = [
   header("Access-Control-Allow-Origin", "*"),
   header("Cache-Control", "public, max-age=300"),
@@ -59,10 +61,18 @@ export const config = {
     headerRule("/robots.txt", CACHE_HEADERS),
     headerRule("/openapi.json", [header("Link", OPENAPI_DISCOVERY_LINK_VALUE)]),
     ...DISCOVERY_PAGE_SOURCES.map((source) =>
-      headerRule(source, [header("Link", DOC_DISCOVERY_LINK_VALUE)]),
+      headerRule(source, [
+        header("Link", DOC_DISCOVERY_LINK_VALUE),
+        ...CONTENT_NEGOTIATION_HEADERS,
+      ]),
     ),
   ],
   redirects: [
+    {
+      source: "/index",
+      destination: "/",
+      permanent: true,
+    },
     {
       source: "/openapi.json",
       destination: "/api/openapi.json",
