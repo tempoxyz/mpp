@@ -124,14 +124,16 @@ Mppx.create({
 
 ```ts twoslash [config.ts]
 import { createConfig, http } from 'wagmi'
-import { webAuthn, KeyManager } from 'wagmi/tempo'
+import { webAuthn } from 'wagmi/tempo'
 import { tempoModerato } from 'viem/chains'
 
-declare const keyManager: KeyManager.KeyManager
-// ---cut---
 export const config = createConfig({
-  connectors: [webAuthn({ keyManager })],
   chains: [tempoModerato],
+  connectors: [
+    webAuthn({
+      authUrl: 'https://accounts.tempo.xyz',
+    }),
+  ],
   transports: {
     [tempoModerato.id]: http(),
   },
