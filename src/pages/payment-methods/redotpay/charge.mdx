@@ -1,0 +1,106 @@
+---
+title: "RedotPay charge"
+description: "One-time payments with the RedotPay payment method."
+imageDescription: "Accept one-time payments via RedotPay"
+---
+
+# Charge [One-time payments]
+
+The RedotPay `charge` intent is a one-time payment flow using MPP's `402 -> Credential -> 200` pattern.
+
+## Method / intent
+
+- `method="redotpay"`
+- `intent="charge"`
+
+## Install
+
+```bash
+npm i @redotpay/mpp mppx
+```
+
+## Server integration
+
+Use a single import to get both `Mppx` and the RedotPay method factory:
+
+```ts
+import * as mppx from 'mppx'
+import { Mppx, charge } from '@redotpay/mpp/server'
+
+const consumed = new Set<string>()
+
+const payment = Mppx.create({
+  methods: [
+    charge({
+      consumeReference: async ({ reference }) => {
+        if (consumed.has(reference)) return false
+        consumed.add(reference)
+        return true
+      },
+      verifyBalance: async ({ rdt }) => Boolean(rdt),
+      verifyCrypto: async ({ hash }) => Boolean(hash),
+    }),
+  ],
+  realm: process.env.MPP_REALM,
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+export async function handler(req: Request) {
+  const authorization = req.headers.get('Authorization')
+  if (!authorization) {
+    const challenge = await payment.challenge.redotpay.charge({
+      amount: '1.00',
+      decimal: 0,
+      currency: 'usd',
+      methodDetails: { balance: {} },
+    } as any)
+
+    return new Response(null, {
+      status: 402,
+      headers: { 'WWW-Authenticate': mppx.Challenge.serialize(challenge) },
+    })
+  }
+
+  const receipt = await payment.verifyCredential(authorization)
+  return new Response(JSON.stringify({ ok: true, receipt }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}
+```
+
+## Client integration
+
+The client handles `402 -> Credential -> retry`:
+
+```ts
+import * as mppx from 'mppx'
+import { charge } from '@redotpay/mpp/client'
+
+export async function fetchWithAutoPay(url: string) {
+  const first = await fetch(url)
+  if (first.status !== 402) return first
+
+  const wwwAuthenticate = first.headers.get('www-authenticate')
+  if (!wwwAuthenticate) throw new Error('missing WWW-Authenticate')
+
+  const method = charge({ payload: { type: 'balance', rdt: 'rdt_xxx' } })
+  const challenge = mppx.Challenge.deserialize(wwwAuthenticate, { methods: [method] })
+  const authorization = await method.createCredential({ challenge })
+
+  return fetch(url, { headers: { Authorization: authorization } })
+}
+```
+
+## Request shape (decoded Challenge request)
+
+- `amount`: string
+- `decimal`: number (default 0)
+- `currency`: string (lowercased)
+- `methodDetails.balance` and/or `methodDetails.crypto[]`
+
+## Credential payload (decoded Credential payload)
+
+- Balance rail: `{ type: "balance", rdt: string, externalId?: string }`
+- Crypto rail: `{ type: "crypto", chainId: number, currency: string, hash: string, externalId?: string }`
+

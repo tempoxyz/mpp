@@ -1,0 +1,51 @@
+---
+title: "RedotPay payment method"
+description: "Accept MPP payments using RedotPay balance or crypto rails."
+imageDescription: "Accept payments with RedotPay"
+---
+import { Cards } from 'vocs'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+import { RedotPayChargeCard } from '../../../components/cards'
+
+# RedotPay [Balance and crypto rails]
+
+The RedotPay payment method enables MPP payments using either a RedotPay balance proof (`rdt`) or a crypto proof (transaction hash), carried inside the MPP Credential payload.
+
+This method is implemented as `method="redotpay"`, with a single intent: `intent="charge"`.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant RedotPay
+    Client->>Server: (1) GET /resource
+    Server-->>Client: (2) 402 + Challenge (method=redotpay, intent=charge)
+    Client->>RedotPay: (3) Obtain payment proof (rdt or tx hash)
+    RedotPay-->>Client: (4) proof
+    Client->>Server: (5) GET /resource + Credential (Authorization: Payment ...)
+    Server->>RedotPay: (6) Verify proof (merchant callbacks)
+    RedotPay-->>Server: (7) verified
+    Server-->>Client: (8) 200 OK + Receipt
+`} />
+
+1. **Server** responds with `402` and a Challenge containing amount/currency and RedotPay method details.
+2. **Client** obtains a payment proof from RedotPay rails (balance `rdt` or crypto transaction hash).
+3. **Client** retries the request with `Authorization: Payment ...` containing a Credential with the proof in `payload`.
+4. **Server** verifies the proof, enforces replay protection, and returns the resource with a Receipt.
+
+## SDK
+
+The first-party SDK re-exports `Mppx` so users only need one import:
+
+```ts
+import { Mppx, charge } from '@redotpay/mpp/server'
+import { charge as clientCharge } from '@redotpay/mpp/client'
+```
+
+## Intents
+
+<Cards>
+  <RedotPayChargeCard />
+</Cards>
+
