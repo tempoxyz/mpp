@@ -352,6 +352,28 @@ export function MonadChargeCard() {
   );
 }
 
+export function RedotPayMethodCard() {
+  return (
+    <Card
+      description="Payments with RedotPay balance and stablecoin rails"
+      icon="lucide:wallet-cards"
+      title="RedotPay"
+      to="/payment-methods/redotpay"
+    />
+  );
+}
+
+export function RedotPayChargeCard() {
+  return (
+    <Card
+      description="One-time payments with RedotPay payment proofs"
+      icon="lucide:wallet-cards"
+      title="RedotPay charge"
+      to="/payment-methods/redotpay/charge"
+    />
+  );
+}
+
 export function StripeMethodCard() {
   return (
     <Card

@@ -26,6 +26,7 @@ const sidebarSubcategories: Record<string, string> = {
   "/payment-methods/lightning": "Lightning",
   "/payment-methods/solana": "Solana",
   "/payment-methods/monad": "Monad",
+  "/payment-methods/redotpay": "RedotPay",
   "/payment-methods/custom": "Custom",
   "/intents": "Intents",
   "/protocol/transports": "Transports",

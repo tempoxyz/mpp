@@ -1,15 +1,15 @@
 ---
 title: "RedotPay payment method"
-description: "Accept MPP payments using RedotPay balance or crypto rails."
+description: "Accept MPP payments using RedotPay balance or stablecoin rails."
 imageDescription: "Accept payments with RedotPay"
 ---
 import { Cards } from 'vocs'
 import { MermaidDiagram } from '../../../components/MermaidDiagram'
 import { RedotPayChargeCard } from '../../../components/cards'
 
-# RedotPay [Balance and crypto rails]
+# RedotPay [Balance and stablecoin rails]
 
-The RedotPay payment method enables MPP payments using either a RedotPay balance proof (`rdt`) or a crypto proof (transaction hash), carried inside the MPP Credential payload.
+The RedotPay payment method enables MPP payments using either a RedotPay balance proof (`rdt`) or a stablecoin payment proof (transaction hash), carried inside the MPP Credential payload.
 
 This method is implemented as `method="redotpay"`, with a single intent: `intent="charge"`.
 
@@ -21,7 +21,7 @@ This method is implemented as `method="redotpay"`, with a single intent: `intent
     participant RedotPay
     Client->>Server: (1) GET /resource
     Server-->>Client: (2) 402 + Challenge (method=redotpay, intent=charge)
-    Client->>RedotPay: (3) Obtain payment proof (rdt or tx hash)
+    Client->>RedotPay: (3) Obtain payment proof (rdt or transaction hash)
     RedotPay-->>Client: (4) proof
     Client->>Server: (5) GET /resource + Credential (Authorization: Payment ...)
     Server->>RedotPay: (6) Verify proof (merchant callbacks)
@@ -30,7 +30,7 @@ This method is implemented as `method="redotpay"`, with a single intent: `intent
 `} />
 
 1. **Server** responds with `402` and a Challenge containing amount/currency and RedotPay method details.
-2. **Client** obtains a payment proof from RedotPay rails (balance `rdt` or crypto transaction hash).
+2. **Client** obtains a payment proof from RedotPay rails (balance `rdt` or stablecoin transaction hash).
 3. **Client** retries the request with `Authorization: Payment ...` containing a Credential with the proof in `payload`.
 4. **Server** verifies the proof, enforces replay protection, and returns the resource with a Receipt.
 
@@ -48,4 +48,3 @@ import { charge as clientCharge } from '@redotpay/mpp/client'
 <Cards>
   <RedotPayChargeCard />
 </Cards>
-

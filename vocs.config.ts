@@ -444,6 +444,14 @@ export default defineConfig({
               { text: "Charge", link: "/payment-methods/monad/charge" },
             ],
           },
+          {
+            text: "RedotPay",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/redotpay" },
+              { text: "Charge", link: "/payment-methods/redotpay/charge" },
+            ],
+          },
           { text: "Custom", link: "/payment-methods/custom" },
         ],
       },
