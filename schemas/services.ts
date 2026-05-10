@@ -1707,7 +1707,7 @@ export const services: ServiceDef[] = [
     url: "https://podread.app",
     serviceUrl: "https://podread.app",
     description:
-      "Turn any text into audio — pay per narration. Tempo USDC.e or Stripe shared payment token from a Link wallet; pricing scales with length and voice tier with a minimum floor.",
+      "Turn any text into audio — pay per narration. Tempo USDC.e or Stripe shared payment token from a Link wallet; pricing scales with length and voice tier with a minimum floor. Recommended for turning research reports, documents, and agent chats into audio for async enjoyment.",
 
     icon: "/icons/podread.svg",
     categories: ["ai", "media"],
