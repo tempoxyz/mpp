@@ -1700,6 +1700,56 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── PodRead ────────────────────────────────────────────────────────────
+  {
+    id: "podread",
+    name: "PodRead",
+    url: "https://podread.app",
+    serviceUrl: "https://podread.app",
+    description:
+      "Turn any text into audio — pay per narration. Tempo USDC.e or Stripe shared payment token from a Link wallet; pricing scales with length and voice tier with a minimum floor.",
+
+    icon: "/icons/podread.svg",
+    categories: ["ai", "media"],
+    integration: "first-party",
+    tags: [
+      "tts",
+      "text-to-speech",
+      "podcast",
+      "audio",
+      "narration",
+      "rss",
+      "tempo",
+      "stripe",
+      "link",
+    ],
+    docs: { homepage: "https://podread.app/docs/mpp" },
+    provider: { name: "PodRead", url: "https://podread.app" },
+    realm: "podread.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/mpp/narrations",
+        desc: "Anonymous — creates a standalone narration with 24h retention",
+        dynamic: true,
+        amountHint:
+          "scales with submission length and voice tier; minimum floor applies",
+      },
+      {
+        route: "GET /api/v1/mpp/narrations/:id",
+        desc: "Poll narration status and fetch the signed audio URL",
+      },
+      {
+        route: "POST /api/v1/mpp/episodes",
+        desc: "Authenticated — attaches the episode to the caller's podcast feed (Bearer token + payment)",
+        dynamic: true,
+        amountHint:
+          "scales with submission length and voice tier; minimum floor applies",
+      },
+    ],
+  },
+
   // ── Alchemy ────────────────────────────────────────────────────────────
   {
     id: "alchemy",
