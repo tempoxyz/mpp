@@ -65,6 +65,26 @@ if (response.status === 402) {
 // [!code hl:end]
 ```
 
+Pass `acceptPayment` to override method selection for this one response:
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mppx = Mppx.create({
+  methods: [tempo()],
+  polyfill: false,
+})
+
+const response = await fetch('https://mpp.dev/api/ping/paid')
+
+const credential = await mppx.createCredential(
+  response,
+  { account: privateKeyToAccount('0x...') },
+  { acceptPayment: 'tempo/charge;q=1, tempo/session;q=0' }, // [!code focus]
+)
+```
+
 ## Return type
 
 ```ts
@@ -81,6 +101,7 @@ type Mppx = {
   createCredential: (
     response: Response,
     context?: Context,
+    options?: { acceptPayment?: string | AcceptPayment.Entry[] },
   ) => Promise<string>
 }
 ```
@@ -105,6 +126,29 @@ const raw = await mppx.rawFetch('https://api.example.com/ws-auth') // [!code foc
 ```
 
 ## Parameters
+
+### acceptPaymentPolicy (optional)
+
+- **Type:** `'always' | 'same-origin' | 'never' | { origins: readonly string[] }`
+- **Default:** `'same-origin'` when `polyfill` is `true` in browsers, `'always'` otherwise
+
+Controls when `mppx` injects `Accept-Payment` on outgoing requests. Browser polyfills default to same-origin injection to avoid CORS preflight failures on APIs that don't support payment discovery.
+
+Use `{ origins }` for cross-origin paid APIs. Origin patterns support `*.` subdomain wildcards.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+Mppx.create({
+  acceptPaymentPolicy: {
+    origins: ['https://api.example.com', '*.paid.example.com'],
+  }, // [!code focus]
+  methods: [tempo({ account })],
+})
+```
 
 ### fetch (optional)
 
@@ -253,6 +297,14 @@ Mppx.create({
   }, // [!code focus:end]
 })
 ```
+
+## Manual credential options
+
+### acceptPayment (optional)
+
+- **Type:** `string | readonly AcceptPayment.Entry[]`
+
+Request-local method preference override for `mppx.createCredential(response, context, options)`. Use this when you manually fetch a `402` response and want to select from the returned Challenges without changing the client's default `paymentPreferences`.
 
 ### transport (optional)
 

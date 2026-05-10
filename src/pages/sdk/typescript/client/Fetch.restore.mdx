@@ -1,0 +1,33 @@
+---
+description: "Restore the original fetch after installing the MPP fetch polyfill."
+imageDescription: "Restore the original fetch"
+---
+
+# `Fetch.restore` [Restore global fetch]
+
+Restores the original `globalThis.fetch` after `Fetch.polyfill` or `Mppx.create` installs a payment-aware wrapper.
+
+## Usage
+
+```ts twoslash
+import { Fetch, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+Fetch.polyfill({
+  methods: [tempo({ account })],
+})
+
+Fetch.restore()
+```
+
+## Return type
+
+```ts
+type ReturnType = void
+```
+
+## Parameters
+
+None.

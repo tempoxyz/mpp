@@ -73,6 +73,26 @@ $ mppx example.com/content -M channel=0x123 -M deposit=1000000
 
 For Tempo session payments, use `channel` and `deposit`. For Stripe, use `paymentMethod`.
 
+## JSON output
+
+Pass `--format json` to commands that support structured output. This is useful when another tool calls `mppx`.
+
+```bash [terminal]
+$ mppx account list --format json
+```
+
+```json
+{
+  "accounts": [
+    {
+      "address": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+      "isDefault": true,
+      "name": "main"
+    }
+  ]
+}
+```
+
 ## Init command
 
 Create an `mppx.config.ts` file in the current directory:
@@ -104,6 +124,27 @@ Use `--dry-run` to validate and parse a Challenge without signing:
 ```bash [terminal]
 $ mppx sign --challenge 'Payment method="tempo-session";...' --dry-run
 ```
+
+## Account commands
+
+Manage local keychain-backed accounts with `mppx account`.
+
+```bash [terminal]
+$ mppx account create --account main
+$ mppx account default --account main
+$ mppx account list
+$ mppx account view --account main
+```
+
+Export a local account private key when you need to import it into another wallet or tool:
+
+```bash [terminal]
+$ mppx account export --account main
+```
+
+:::warning
+`mppx account export` prints the private key. Don't commit it, paste it into shared logs, or use it in client-side code.
+:::
 
 ## Stripe payments
 

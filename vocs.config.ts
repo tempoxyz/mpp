@@ -193,16 +193,6 @@ export default defineConfig({
       destination: "/sdk/typescript",
     },
 
-    // Old Fetch.* client pages (removed)
-    {
-      source: "/sdk/typescript/client/Fetch.from",
-      destination: "/sdk/typescript",
-    },
-    {
-      source: "/sdk/typescript/client/Fetch.polyfill",
-      destination: "/sdk/typescript",
-    },
-
     // Old server page
     {
       source: "/sdk/typescript/server/Request.fromNodeListener",
@@ -513,6 +503,24 @@ export default defineConfig({
                     ],
                   },
                   {
+                    text: "Fetch",
+                    collapsed: true,
+                    items: [
+                      {
+                        text: ".from",
+                        link: "/sdk/typescript/client/Fetch.from",
+                      },
+                      {
+                        text: ".polyfill",
+                        link: "/sdk/typescript/client/Fetch.polyfill",
+                      },
+                      {
+                        text: ".restore",
+                        link: "/sdk/typescript/client/Fetch.restore",
+                      },
+                    ],
+                  },
+                  {
                     text: "Transport",
                     collapsed: true,
                     items: [
@@ -586,6 +594,10 @@ export default defineConfig({
                       {
                         text: ".toNodeListener",
                         link: "/sdk/typescript/server/Mppx.toNodeListener",
+                      },
+                      {
+                        text: ".verifyCredential",
+                        link: "/sdk/typescript/server/Mppx.verifyCredential",
                       },
                     ],
                   },

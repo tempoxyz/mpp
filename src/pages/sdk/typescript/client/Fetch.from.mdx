@@ -1,0 +1,88 @@
+---
+description: "Wrap fetch with automatic MPP payments without changing global fetch."
+imageDescription: "Wrap fetch for paid API calls"
+---
+
+# `Fetch.from` [Create a payment-aware fetch wrapper]
+
+Creates a scoped `fetch` wrapper that handles `402` Payment Required responses without modifying `globalThis.fetch`.
+
+## Usage
+
+```ts twoslash
+import { Fetch, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const fetch = Fetch.from({
+  methods: [tempo({ account })],
+})
+
+const response = await fetch('https://mpp.dev/api/ping/paid')
+console.log(response.status)
+// @log: 200
+```
+
+### With allowed origins
+
+Use `acceptPaymentPolicy` to control where the wrapper injects `Accept-Payment`.
+
+```ts twoslash
+import { Fetch, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const fetch = Fetch.from({
+  acceptPaymentPolicy: {
+    origins: ['https://api.example.com', '*.paid.example.com'],
+  },
+  methods: [tempo({ account })],
+})
+```
+
+## Return type
+
+```ts
+type ReturnType = (
+  input: RequestInfo | URL,
+  init?: RequestInit & { context?: AnyContextFor<methods> }
+) => Promise<Response>
+```
+
+## Parameters
+
+### acceptPayment (optional)
+
+- **Type:** `AcceptPayment.Resolved<methods>`
+
+Resolved `Accept-Payment` header and preference data. Most callers should use `methods` and `paymentPreferences` on `Mppx.create` instead.
+
+### acceptPaymentPolicy (optional)
+
+- **Type:** `'always' | 'same-origin' | 'never' | { origins: readonly string[] }`
+- **Default:** `'always'`
+
+Controls when `Accept-Payment` is injected.
+
+Use `'same-origin'` in browsers when you only want same-origin payment discovery. Use `{ origins }` when paid APIs live on specific origins. Origin patterns support `*.` subdomain wildcards.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Custom fetch function to wrap.
+
+### methods
+
+- **Type:** `readonly Method.AnyClient[]`
+
+Array of payment methods to use for `402` responses.
+
+### onChallenge (optional)
+
+- **Type:** `(challenge, helpers) => Promise<string | undefined>`
+
+Called after a `402` Challenge is selected and before the wrapper retries the request. Return a Credential string to override the default credential flow.

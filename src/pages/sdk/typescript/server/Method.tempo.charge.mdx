@@ -278,6 +278,12 @@ Server-defined correlation data. `mppx` serializes it as the base64url-encoded `
 
 Address to receive the payment.
 
+### scope (optional)
+
+- **Type:** `string`
+
+Route or resource scope bound into the Challenge metadata. Use this to prevent a Credential issued for one route from being replayed against another route with the same payment terms.
+
 ### splits (optional)
 
 - **Type:** `Array<{ amount: string; memo?: string; recipient: string }>`
