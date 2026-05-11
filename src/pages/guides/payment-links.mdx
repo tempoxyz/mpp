@@ -50,21 +50,21 @@ Select your framework to follow a step-by-step guide. If your framework isn't li
   <Tab title="Next.js">
 ::::steps
 
-#### Install `mppx`
+### Install `mppx`
 
 :::code-group
 ```bash [npm]
-npm install mppx viem
+$ npm install mppx viem
 ```
 ```bash [pnpm]
-pnpm add mppx viem
+$ pnpm add mppx viem
 ```
 ```bash [bun]
-bun add mppx viem
+$ bun add mppx viem
 ```
 :::
 
-#### Set up `Mppx` instance with `html: true`
+### Set up `Mppx` instance with `html: true`
 
 ```ts [app/api/photo/route.ts]
 import crypto from 'crypto'
@@ -81,7 +81,7 @@ export const mppx = Mppx.create({
 })
 ```
 
-#### Create the `/api/photo` route
+### Create the `/api/photo` route
 
 Create the photo route with `mppx.charge`. Browsers see a payment page; programmatic clients get the standard `402` flow.
 
@@ -109,7 +109,7 @@ export const GET =
 // [!code focus:end]
 ```
 
-#### Test in the browser
+### Test in the browser
 
 Open `http://localhost:3000/api/photo` in your browser. The server returns a payment page with a "Continue with Tempo" button. After payment, the page reloads with the photo URL.
 
@@ -124,21 +124,21 @@ $ npx mppx http://localhost:3000/api/photo
   <Tab title="Hono">
 ::::steps
 
-#### Install `mppx` and `hono`
+### Install `mppx` and `hono`
 
 :::code-group
 ```bash [npm]
-npm install mppx hono viem
+$ npm install mppx hono viem
 ```
 ```bash [pnpm]
-pnpm add mppx hono viem
+$ pnpm add mppx hono viem
 ```
 ```bash [bun]
-bun add mppx hono viem
+$ bun add mppx hono viem
 ```
 :::
 
-#### Set up `Mppx` instance with `html: true`
+### Set up `Mppx` instance with `html: true`
 
 ```ts [server.ts]
 import crypto from 'crypto'
@@ -158,7 +158,7 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Create the `/api/photo` route
+### Create the `/api/photo` route
 
 ```ts [server.ts]
 import crypto from 'crypto'
@@ -189,7 +189,7 @@ app.get(
 // [!code focus:end]
 ```
 
-#### Test in the browser
+### Test in the browser
 
 Open `http://localhost:3000/api/photo` in your browser.
 
@@ -202,21 +202,21 @@ $ npx mppx http://localhost:3000/api/photo
   <Tab title="Express">
 ::::steps
 
-#### Install `mppx` and `express`
+### Install `mppx` and `express`
 
 :::code-group
 ```bash [npm]
-npm install mppx express viem
+$ npm install mppx express viem
 ```
 ```bash [pnpm]
-pnpm add mppx express viem
+$ pnpm add mppx express viem
 ```
 ```bash [bun]
-bun add mppx express viem
+$ bun add mppx express viem
 ```
 :::
 
-#### Set up `Mppx` instance with `html: true`
+### Set up `Mppx` instance with `html: true`
 
 ```ts [server.ts]
 import crypto from 'crypto'
@@ -236,7 +236,7 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Create the `/api/photo` route
+### Create the `/api/photo` route
 
 ```ts [server.ts]
 import crypto from 'crypto'
@@ -267,7 +267,7 @@ app.get(
 // [!code focus:end]
 ```
 
-#### Test in the browser
+### Test in the browser
 
 Open `http://localhost:3000/api/photo` in your browser.
 
@@ -285,21 +285,21 @@ This guide walks through using `mppx/server` directly with any [Fetch API](https
 
 ::::steps
 
-#### Install `mppx`
+### Install `mppx`
 
 :::code-group
 ```bash [npm]
-npm install mppx viem
+$ npm install mppx viem
 ```
 ```bash [pnpm]
-pnpm add mppx viem
+$ pnpm add mppx viem
 ```
 ```bash [bun]
-bun add mppx viem
+$ bun add mppx viem
 ```
 :::
 
-#### Set up `Mppx` instance with `html: true`
+### Set up `Mppx` instance with `html: true`
 
 ```ts [server.ts]
 import crypto from 'crypto'
@@ -316,7 +316,7 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Create the handler
+### Create the handler
 
 The server detects the `Accept` header and returns a payment page for browsers. Programmatic clients get the standard `402` flow.
 
@@ -351,7 +351,7 @@ Bun.serve({
 // [!code focus:end]
 ```
 
-#### Test in the browser
+### Test in the browser
 
 Open `http://localhost:3000` in your browser.
 

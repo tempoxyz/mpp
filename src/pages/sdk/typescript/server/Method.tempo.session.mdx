@@ -52,7 +52,7 @@ type ReturnType = Method.Server
 
 - **Type:** `Account`
 
-Account used to close and settle payment channels on-chain. The account address is also used as the default recipient. Without this, channel close and settlement will fail.
+Account used to close and settle payment channels on-chain. The account address is also used as the default recipient. Without this, channel close and settlement fails.
 
 ### amount (optional)
 
@@ -188,7 +188,7 @@ const store = Store.memory()
 const txHash = await tempo.settle(store, client, '0xchannelId...')
 ```
 
-#### Parameters
+### Parameters
 
 - **store** — `ChannelStore` — The channel store instance.
 - **client** — `Client` — A viem client for on-chain interaction.
@@ -196,6 +196,6 @@ const txHash = await tempo.settle(store, client, '0xchannelId...')
 - **options.escrowContract** (optional) — `Address` — Escrow contract override.
 - **options.feePayer** (optional) — `Account | string` — Fee payer account or relay URL.
 
-#### Return type
+### Return type
 
 - **Type:** `Hex` — The settlement transaction hash.

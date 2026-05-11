@@ -11,7 +11,7 @@ The Monad implementation of the [charge](/intents/charge) intent.
 
 The server issues a charge challenge describing the expected amount, currency, and recipient. The client either broadcasts an ERC-20 `transfer` and returns the transaction hash (**push** mode), or signs an ERC-3009 `transferWithAuthorization` for the server to broadcast (**pull** mode). The server verifies the transfer on-chain and returns the resource with a receipt.
 
-This method is best for fixed-price API calls, digital goods, and payments that should settle directly on Monad.
+This method is best for fixed-price API calls, digital goods, and payments that settle directly on Monad.
 
 ## Server
 

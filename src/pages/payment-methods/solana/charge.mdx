@@ -12,7 +12,7 @@ The Solana implementation of the [charge](/intents/charge) intent.
 
 The server issues a charge challenge describing the expected amount, currency, recipient, and Solana-specific `methodDetails`. The client either presents a signed transaction for server broadcast or presents a confirmed transaction signature. The server verifies the transfer on-chain and returns the resource with a receipt.
 
-This method is best for fixed-price API calls, digital goods, and payments that should settle directly on Solana.
+This method is best for fixed-price API calls, digital goods, and payments that settle directly on Solana.
 
 ## Server
 
@@ -86,7 +86,7 @@ The Solana charge request extends the base charge schema with `methodDetails` fi
 - `feePayerKey`
 - `splits`
 
-These fields let the server describe whether payment is in SOL or an SPL asset, whether fee sponsorship is available, and whether the payment should be split across multiple recipients.
+These fields let the server describe whether payment is in SOL or an SPL asset, whether fee sponsorship is available, and whether the payment is split across multiple recipients.
 
 ## Specification
 

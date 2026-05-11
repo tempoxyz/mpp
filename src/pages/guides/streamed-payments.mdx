@@ -47,25 +47,25 @@ Select your framework to follow a step-by-step guide. If your framework isn't li
   <Tab title="Next.js">
 ::::steps
 
-#### Install `mppx`
+### Install `mppx`
 
 :::code-group
 
 ```bash [npm]
-npm install mppx viem
+$ npm install mppx viem
 ```
 
 ```bash [pnpm]
-pnpm add mppx viem
+$ pnpm add mppx viem
 ```
 
 ```bash [bun]
-bun add mppx viem
+$ bun add mppx viem
 ```
 
 :::
 
-#### Set up `Mppx` instance with streaming
+### Set up `Mppx` instance with streaming
 
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
@@ -86,7 +86,7 @@ export const mppx = Mppx.create({
 });
 ```
 
-#### Create the `/api/sessions/poem` route
+### Create the `/api/sessions/poem` route
 
 Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
 
@@ -134,7 +134,7 @@ export const GET = mppx.session({ amount: "0.001", unitType: "word" })(
 // [!code focus:end]
 ```
 
-#### Test via the `mppx` CLI
+### Test via the `mppx` CLI
 
 ```bash [terminal]
 # Create account funded with testnet tokens
@@ -150,25 +150,25 @@ $ npx mppx http://localhost:3000/api/sessions/poem
   <Tab title="Hono">
 ::::steps
 
-#### Install `mppx` and `hono`
+### Install `mppx` and `hono`
 
 :::code-group
 
 ```bash [npm]
-npm install mppx hono viem
+$ npm install mppx hono viem
 ```
 
 ```bash [pnpm]
-pnpm add mppx hono viem
+$ pnpm add mppx hono viem
 ```
 
 ```bash [bun]
-bun add mppx hono viem
+$ bun add mppx hono viem
 ```
 
 :::
 
-#### Set up `Mppx` instance with streaming
+### Set up `Mppx` instance with streaming
 
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
@@ -192,7 +192,7 @@ const mppx = Mppx.create({
 });
 ```
 
-#### Create the `/api/sessions/poem` route
+### Create the `/api/sessions/poem` route
 
 Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
 
@@ -245,7 +245,7 @@ app.get(
 // [!code focus:end]
 ```
 
-#### Test via the `mppx` CLI
+### Test via the `mppx` CLI
 
 ```bash [terminal]
 # Create account funded with testnet tokens
@@ -261,25 +261,25 @@ $ npx mppx http://localhost:3000/api/sessions/poem
   <Tab title="Workers">
 ::::steps
 
-#### Install `mppx`
+### Install `mppx`
 
 :::code-group
 
 ```bash [npm]
-npm install mppx viem
+$ npm install mppx viem
 ```
 
 ```bash [pnpm]
-pnpm add mppx viem
+$ pnpm add mppx viem
 ```
 
 ```bash [bun]
-bun add mppx viem
+$ bun add mppx viem
 ```
 
 :::
 
-#### Set up `Mppx` instance with streaming
+### Set up `Mppx` instance with streaming
 
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
@@ -300,7 +300,7 @@ const mppx = Mppx.create({
 });
 ```
 
-#### Create the `/api/sessions/poem` route
+### Create the `/api/sessions/poem` route
 
 Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
 
@@ -355,7 +355,7 @@ export default {
 // [!code focus:end]
 ```
 
-#### Test via the `mppx` CLI
+### Test via the `mppx` CLI
 
 ```bash [terminal]
 # Create account funded with testnet tokens
@@ -371,25 +371,25 @@ $ npx mppx http://localhost:8787
   <Tab title="Express">
 ::::steps
 
-#### Install `mppx` and `express`
+### Install `mppx` and `express`
 
 :::code-group
 
 ```bash [npm]
-npm install mppx express viem
+$ npm install mppx express viem
 ```
 
 ```bash [pnpm]
-pnpm add mppx express viem
+$ pnpm add mppx express viem
 ```
 
 ```bash [bun]
-bun add mppx express viem
+$ bun add mppx express viem
 ```
 
 :::
 
-#### Set up `Mppx` instance with streaming
+### Set up `Mppx` instance with streaming
 
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
@@ -413,7 +413,7 @@ const mppx = Mppx.create({
 });
 ```
 
-#### Create the `/api/sessions/poem` route
+### Create the `/api/sessions/poem` route
 
 Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
 
@@ -466,7 +466,7 @@ app.get(
 // [!code focus:end]
 ```
 
-#### Test via the `mppx` CLI
+### Test via the `mppx` CLI
 
 ```bash [terminal]
 # Create account funded with testnet tokens
@@ -487,25 +487,25 @@ This guide walks through using `mppx/server` directly with any [Fetch API](https
 
 ::::steps
 
-#### Install `mppx`
+### Install `mppx`
 
 :::code-group
 
 ```bash [npm]
-npm install mppx viem
+$ npm install mppx viem
 ```
 
 ```bash [pnpm]
-pnpm add mppx viem
+$ pnpm add mppx viem
 ```
 
 ```bash [bun]
-bun add mppx viem
+$ bun add mppx viem
 ```
 
 :::
 
-#### Set up `Mppx` instance with streaming
+### Set up `Mppx` instance with streaming
 
 Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
 
@@ -526,7 +526,7 @@ const mppx = Mppx.create({
 });
 ```
 
-#### Create the streaming poem route
+### Create the streaming poem route
 
 Create the route handler. `withReceipt` accepts an async generator—each yielded value becomes one SSE `event: message` and is charged one tick (`$0.001`). If the channel balance runs out mid-stream, the server emits `event: payment-need-voucher` and pauses until the client sends a new voucher.
 
@@ -581,7 +581,7 @@ Bun.serve({
 // [!code focus:end]
 ```
 
-#### Test via the `mppx` CLI
+### Test via the `mppx` CLI
 
 ```bash [terminal]
 # Create account funded with testnet tokens

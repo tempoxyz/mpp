@@ -69,7 +69,7 @@ A service accepts a paid request to start work, then lets the client poll for re
 
 ::::steps
 
-#### Client submits a job (paid)
+### Client submits a job (paid)
 
 The client sends a request with payment to create a new job. The Credential includes both payment proof and the client's public key.
 
@@ -84,7 +84,7 @@ const { jobId } = await response.json()
 
 The server records the job and associates it with the client's public key from the Credential.
 
-#### Server stores the public key
+### Server stores the public key
 
 After the payment middleware verifies the Credential, extract the client's identity from the request:
 
@@ -103,7 +103,7 @@ export async function handler(request: Request) {
 }
 ```
 
-#### Client polls for status (zero-dollar auth)
+### Client polls for status (zero-dollar auth)
 
 The client polls the job endpoint. The server issues a zero-dollar Challenge—the client signs it to prove they own the same key.
 
@@ -131,7 +131,7 @@ A service charges once to unlock a resource, then grants repeated free access ti
 
 ::::steps
 
-#### Client pays to unlock
+### Client pays to unlock
 
 The client pays once to gain access. The server records the public key as an authorized user.
 
@@ -147,7 +147,7 @@ export async function unlockHandler(request: Request) {
 }
 ```
 
-#### Client accesses the resource (zero-dollar auth)
+### Client accesses the resource (zero-dollar auth)
 
 Subsequent requests use zero-dollar auth. The server checks the client's identity against the access list.
 
@@ -173,7 +173,7 @@ An agent orchestrates a pipeline where one paid step kicks off several follow-up
 
 ::::steps
 
-#### Agent starts the pipeline (paid)
+### Agent starts the pipeline (paid)
 
 The agent pays to kick off generation. The server returns a pipeline ID tied to the agent's public key.
 
@@ -189,7 +189,7 @@ export async function createPipelineHandler(request: Request) {
 }
 ```
 
-#### Agent retrieves intermediate results (zero-dollar auth)
+### Agent retrieves intermediate results (zero-dollar auth)
 
 The agent polls each stage of the pipeline. Every request proves the same identity without additional payment.
 
@@ -210,7 +210,7 @@ export async function stageHandler(request: Request) {
 }
 ```
 
-#### Agent downloads the final artifact (zero-dollar auth)
+### Agent downloads the final artifact (zero-dollar auth)
 
 The final download also uses zero-dollar auth—the server already collected payment at the start.
 

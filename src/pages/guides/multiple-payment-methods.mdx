@@ -43,21 +43,21 @@ The server verifies whichever Credential it receives. Your route handler stays t
 
 ::::steps
 
-#### Install dependencies
+### Install dependencies
 
 :::code-group
 ```bash [npm]
-npm install mppx stripe @buildonspark/lightning-mpp-sdk viem
+$ npm install mppx stripe @buildonspark/lightning-mpp-sdk viem
 ```
 ```bash [pnpm]
-pnpm add mppx stripe @buildonspark/lightning-mpp-sdk viem
+$ pnpm add mppx stripe @buildonspark/lightning-mpp-sdk viem
 ```
 ```bash [bun]
-bun add mppx stripe @buildonspark/lightning-mpp-sdk viem
+$ bun add mppx stripe @buildonspark/lightning-mpp-sdk viem
 ```
 :::
 
-#### Configure payment methods
+### Configure payment methods
 
 Register all three methods in a single `Mppx.create` call. Each method has its own configuration—Tempo needs a recipient address and currency, Stripe needs API credentials, and Lightning needs a wallet mnemonic.
 
@@ -88,7 +88,7 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Create a payment-gated route
+### Create a payment-gated route
 
 The route handler is identical to a single-method setup. `mppx.charge` advertises all registered methods in the Challenge and verifies whichever Credential the client presents.
 
@@ -137,7 +137,7 @@ Bun.serve({
 // [!code focus:end]
 ```
 
-#### Test via the `mppx` CLI
+### Test via the `mppx` CLI
 
 The `mppx` CLI uses Tempo by default. Each payment method has its own client SDK—see the individual method docs for client setup.
 

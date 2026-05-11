@@ -145,7 +145,7 @@ const serverMethod = Method.toServer(lightning, {
 
 ### Use in your app
 
-#### Client
+### Client
 
 Pass the client method to `Mppx.create`:
 
@@ -195,7 +195,7 @@ const { fetch } = Mppx.create({
 const response = await fetch('https://api.example.com/premium')
 ```
 
-#### Server
+### Server
 
 Pass the server method to `Mppx.create`:
 
@@ -252,7 +252,7 @@ const mppx = Mppx.create({
 
 ### Advanced options
 
-#### Pre-fill defaults
+### Pre-fill defaults
 
 Use `defaults` to pre-fill request parameters so callers don't repeat them. Fields in `defaults` become optional at the call site.
 
@@ -284,7 +284,7 @@ const serverMethod = Method.toServer(lightning, {
 })
 ```
 
-#### Transform with `z.pipe`
+### Transform with `z.pipe`
 
 Use `z.pipe` to accept human-readable input and emit a normalized wire format. The built-in `tempo` method uses this to convert dollar amounts to atomic units.
 
@@ -317,7 +317,7 @@ export const charge = Method.from({
 
 Callers pass `{ amount: '1.50', decimals: 6 }`, the Challenge contains `{ amount: '1500000' }`. Use `parseUnits` from viem for decimal-safe conversion—never use `Number()` for monetary amounts.
 
-#### Client context
+### Client context
 
 Declare a `context` schema to accept per-call parameters. The context is validated at runtime before `createCredential` runs.
 
@@ -344,7 +344,7 @@ const clientMethod = Method.toClient(lightning, {
 })
 ```
 
-#### Request hook
+### Request hook
 
 Use the `request` hook to enrich parameters before the Challenge is issued:
 
@@ -378,7 +378,7 @@ const serverMethod = Method.toServer(lightning, {
 })
 ```
 
-#### Respond hook
+### Respond hook
 
 Use `respond` to return a Response directly after verification, skipping the route handler. Return `undefined` to let the handler run normally.
 
@@ -514,7 +514,7 @@ const mppx = Mppx.create({
 
 ### Advanced SDK patterns
 
-#### Method namespace
+### Method namespace
 
 When your SDK supports multiple intents, export a namespace that groups them under a single name. Calling the namespace directly defaults to `charge`.
 
@@ -541,7 +541,7 @@ myMethod.charge(opts)      // explicit charge
 myMethod.session(opts)     // explicit session
 ```
 
-#### Augment the returned method
+### Augment the returned method
 
 Use `Object.assign` to attach lifecycle methods (like `cleanup` or `close`) to the method object returned by `Method.toClient` or `Method.toServer`:
 

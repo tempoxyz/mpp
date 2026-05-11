@@ -55,21 +55,21 @@ Stripe payment method. When payment is verified, return a JSON response.`}
 
 ::::steps
 
-#### Install dependencies
+### Install dependencies
 
 :::code-group
 ```bash [npm]
-npm install mppx stripe viem
+$ npm install mppx stripe viem
 ```
 ```bash [pnpm]
-pnpm add mppx stripe viem
+$ pnpm add mppx stripe viem
 ```
 ```bash [bun]
-bun add mppx stripe viem
+$ bun add mppx stripe viem
 ```
 :::
 
-#### Set environment variables
+### Set environment variables
 
 Set your Stripe secret key and [Business Network](https://docs.stripe.com/get-started/account/profile) profile ID.
 
@@ -78,7 +78,7 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_NETWORK_ID=your_network_id
 ```
 
-#### Create the server with Stripe payments
+### Create the server with Stripe payments
 
 Set up an `Mppx` instance with the `stripe.charge` method. The `networkId` is your Stripe Business Network profile ID, and `paymentMethodTypes` controls which card types you accept.
 
@@ -99,7 +99,7 @@ const mppx = Mppx.create({
 })
 ```
 
-#### Add a paid endpoint
+### Add a paid endpoint
 
 Use `mppx.charge` to gate your endpoint. Set the `amount` in the smallest currency unit (cents for USD), and specify `currency` and `decimals`.
 
