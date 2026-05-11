@@ -211,25 +211,6 @@ const mppx = Mppx.create({
 })
 ```
 
-### polyfill (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Whether to polyfill `globalThis.fetch` with the payment-aware wrapper.
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x...')
-
-const mppx = Mppx.create({
-  methods: [tempo({ account })],
-  polyfill: false, // [!code focus]
-})
-```
-
 ### paymentPreferences (optional)
 
 - **Type:** `AcceptPayment.Config<methods>`
@@ -295,6 +276,25 @@ Mppx.create({
     'stripe/charge': 0.5,
     'tempo/session': 0.2,
   }, // [!code focus:end]
+})
+```
+
+### polyfill (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to polyfill `globalThis.fetch` with the payment-aware wrapper.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  polyfill: false, // [!code focus]
 })
 ```
 

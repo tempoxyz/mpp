@@ -61,6 +61,18 @@ A client-configured method that can be passed to `Mppx.create`.
 
 ## Parameters
 
+### context (optional)
+
+- **Type:** `ZodMiniType`
+
+Zod schema for additional context passed to `createCredential`.
+
+### createCredential
+
+- **Type:** `(parameters: { challenge: Challenge; context?: context }) => Promise<string>`
+
+Function that creates a serialized Credential string from a Challenge.
+
 ### method
 
 - **Type:** `Method`
@@ -68,15 +80,3 @@ A client-configured method that can be passed to `Mppx.create`.
 The base payment method definition (created with `Method.from`).
 
 ### options
-
-#### context (optional)
-
-- **Type:** `ZodMiniType`
-
-Zod schema for additional context passed to `createCredential`.
-
-#### createCredential
-
-- **Type:** `(parameters: { challenge: Challenge; context?: context }) => Promise<string>`
-
-Function that creates a serialized Credential string from a Challenge.

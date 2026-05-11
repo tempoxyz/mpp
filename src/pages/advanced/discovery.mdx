@@ -173,7 +173,7 @@ Add this extension to any operation that requires payment. Prefer the canonical 
 |-------|------|-------------|
 | `offers` | `Offer[]` | Ordered list of payment offers the client can choose from |
 
-#### `offers[]`
+### `offers[]`
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -184,7 +184,7 @@ Add this extension to any operation that requires payment. Prefer the canonical 
 | `method` | `string` | Payment method identifier (`tempo`, `stripe`) |
 
 :::note[Compatibility shorthand]
-The flat single-offer form is still valid as shorthand for older emitters, but use it only for backward compatibility. New documents should write the same data under `offers[]`.
+The flat single-offer form is still valid as shorthand for older emitters, but use it only for backward compatibility. New documents write the same data under `offers[]`.
 
 ```json [openapi.json]
 {
@@ -218,7 +218,7 @@ You can author a discovery document by hand following the [discovery specificati
 
 ::::steps
 
-#### Create the OpenAPI skeleton
+### Create the OpenAPI skeleton
 
 Start with a standard OpenAPI 3.1 document:
 
@@ -233,7 +233,7 @@ Start with a standard OpenAPI 3.1 document:
 }
 ```
 
-#### Add `x-payment-info` to paid operations
+### Add `x-payment-info` to paid operations
 
 For each endpoint that requires payment, add the `x-payment-info` extension with an `offers` array. Add more objects to `offers[]` when the client can choose between alternative payment methods or currencies. Amounts are in base units (for example, `1000000` for $1.00 with 6 decimals).
 
@@ -269,7 +269,7 @@ For each endpoint that requires payment, add the `x-payment-info` extension with
 Operations with `x-payment-info` must include a `402` response in the `responses` object. Validators flag this as an error if missing.
 :::
 
-#### Add `x-service-info` (optional)
+### Add `x-service-info` (optional)
 
 Add service-level metadata to the document root:
 
@@ -288,7 +288,7 @@ Add service-level metadata to the document root:
 }
 ```
 
-#### Serve at `/openapi.json`
+### Serve at `/openapi.json`
 
 Serve the document at `GET /openapi.json` with appropriate caching:
 

@@ -69,31 +69,31 @@ export function charge(parameters: {
 
 ### Html options
 
-#### config
+### config
 
 - **Type:** `Record<string, unknown>`
 
 Method-specific data passed to the client script as `context.config`. For example, Stripe passes `{ publishableKey, createTokenUrl }`. Use `{}` if your method doesn't need extra configuration.
 
-#### content
+### content
 
 - **Type:** `string`
 
 The JavaScript bundle for your payment form. Embedded as an inline `<script>` in the HTML page. Import with `?raw` to get the file contents as a string.
 
-#### formatAmount
+### formatAmount
 
 - **Type:** `(request: any) => string | Promise<string>`
 
 Formats the request into a display amount (for example, `"$10.00"`). Receives the parsed request object from the Challenge.
 
-#### text (optional)
+### text (optional)
 
 - **Type:** `Html.Text`
 
 Override default UI text strings (`pay`, `expires`, `paymentRequired`, `title`).
 
-#### theme (optional)
+### theme (optional)
 
 - **Type:** `Html.Theme`
 

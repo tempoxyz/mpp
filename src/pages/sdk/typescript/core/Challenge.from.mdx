@@ -51,65 +51,65 @@ A challenge object.
 
 ## Parameters
 
-### parameters
-
-Challenge parameters. Must include either `id` or `secretKey`.
-
-#### description (optional)
+### description (optional)
 
 - **Type:** `string`
 
 Human-readable description of the payment.
 
-#### digest (optional)
+### digest (optional)
 
 - **Type:** `string`
 
 Digest of the request body.
 
-#### expires (optional)
+### expires (optional)
 
 - **Type:** `string`
 
 Expiration timestamp (ISO 8601).
 
-#### id (when not using secretKey)
+### id (when not using secretKey)
 
 - **Type:** `string`
 
 Explicit challenge ID.
 
-#### intent
+### intent
 
 - **Type:** `string`
 
 Intent type (for example, `"charge"`, `"session"`).
 
-#### meta (optional)
+### meta (optional)
 
 - **Type:** `Record<string, string>`
 
 Server-defined correlation data. `mppx` serializes it as the base64url-encoded `opaque` auth-param in HTTP Challenges.
 
-#### method
+### method
 
 - **Type:** `string`
 
 Payment method (for example, "tempo", "stripe").
 
-#### realm
+### parameters
+
+Challenge parameters. Must include either `id` or `secretKey`.
+
+### realm
 
 - **Type:** `string`
 
 Server realm (for example, hostname).
 
-#### request
+### request
 
 - **Type:** `Record<string, unknown>`
 
 Method-specific request data. `mppx` serializes it as base64url-encoded JCS JSON in the HTTP `request` auth-param.
 
-#### secretKey (when not using id)
+### secretKey (when not using id)
 
 - **Type:** `string`
 

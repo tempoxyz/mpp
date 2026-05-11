@@ -158,15 +158,15 @@ See the [payment links guide](/guides/payment-links) for a full walkthrough with
 ### With Stripe
 
 ```ts twoslash
-// @noErrors
 import { Mppx, tempo } from "mppx/server";
 
-function async createPayToAddress(request: Request) {
-   // Create Stripe PaymentIntent
+async function createPayToAddress(request: Request): Promise<`0x${string}`> {
+  void request;
+  return "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 }
 
 export async function handler(request: Request) {
-  const recipientAddress = await createPayToAddress(request)
+  const recipientAddress = await createPayToAddress(request);
   const mppx = Mppx.create({
     methods: [
       tempo.charge({

@@ -37,6 +37,36 @@ A Challenge typed to the method's request schema output.
 
 ## Parameters
 
+### description (optional)
+
+- **Type:** `string`
+
+Human-readable description of the payment.
+
+### digest (optional)
+
+- **Type:** `string`
+
+Digest of the request body.
+
+### expires (optional)
+
+- **Type:** `string`
+
+Expiration timestamp (ISO 8601).
+
+### id (when not using secretKey)
+
+- **Type:** `string`
+
+Explicit challenge ID.
+
+### meta (optional)
+
+- **Type:** `Record<string, string>`
+
+Server-defined correlation data. `mppx` serializes it as the base64url-encoded `opaque` auth-param in HTTP Challenges.
+
 ### method
 
 - **Type:** `Method`
@@ -47,49 +77,19 @@ The method definition to validate against (for example, `Methods.charge`).
 
 Challenge parameters. Must include either `id` or `secretKey`.
 
-#### description (optional)
-
-- **Type:** `string`
-
-Human-readable description of the payment.
-
-#### digest (optional)
-
-- **Type:** `string`
-
-Digest of the request body.
-
-#### expires (optional)
-
-- **Type:** `string`
-
-Expiration timestamp (ISO 8601).
-
-#### id (when not using secretKey)
-
-- **Type:** `string`
-
-Explicit challenge ID.
-
-#### meta (optional)
-
-- **Type:** `Record<string, string>`
-
-Server-defined correlation data. `mppx` serializes it as the base64url-encoded `opaque` auth-param in HTTP Challenges.
-
-#### realm
+### realm
 
 - **Type:** `string`
 
 Server realm (for example, hostname).
 
-#### request
+### request
 
 - **Type:** `z.input<method['schema']['request']>`
 
 Method-specific request data, validated against the method's schema. `mppx` serializes it as base64url-encoded JCS JSON in the HTTP `request` auth-param.
 
-#### secretKey (when not using id)
+### secretKey (when not using id)
 
 - **Type:** `string`
 

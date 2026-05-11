@@ -22,15 +22,15 @@ The `mppx` TypeScript library provides a typed interface over the Machine Paymen
 :::code-group
 
 ```bash [npm]
-npm install mppx
+$ npm install mppx
 ```
 
 ```bash [pnpm]
-pnpm add mppx
+$ pnpm add mppx
 ```
 
 ```bash [bun]
-bun add mppx
+$ bun add mppx
 ```
 
 :::
@@ -47,23 +47,23 @@ You can apply the same patterns to [other payment methods](/payment-methods).
 
 ::::steps
 
-#### Install peer dependencies
+### Install peer dependencies
 
 In this example, you use the `viem` library to instantiate an account.
 
 :::code-group
 ```bash [npm]
-npm install viem
+$ npm install viem
 ```
 ```bash [pnpm]
-pnpm add viem
+$ pnpm add viem
 ```
 ```bash [bun]
-bun add viem
+$ bun add viem
 ```
 :::
 
-#### Define an account
+### Define an account
 
 Next, define an account to sign payments.
 
@@ -77,7 +77,7 @@ const account = privateKeyToAccount('0xabc…123')
 When using Tempo, you can also use [Passkey or WebCrypto accounts](https://viem.sh/tempo/accounts).
 :::
 
-#### Create payment handler
+### Create payment handler
 
 Call `Mppx.create` at startup. This polyfills the global `fetch` to automatically handle `402` payment challenges.
 
@@ -105,7 +105,7 @@ const response = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 ```
 :::
 
-#### Request protected resources
+### Request protected resources
 
 Use `fetch`. Payment happens when a server returns `402`.
 
@@ -120,7 +120,7 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 <Tab title="Server">
 <div className="space-y-4">
 
-#### Framework mode
+### Framework mode
 
 Use the framework-specific middleware from `mppx` to integrate payment into your server. Each middleware handles the `402` challenge/credential flow and attaches receipts automatically.
 
@@ -230,7 +230,7 @@ Don't see your framework? `mppx` is designed to be framework-agnostic. See [Manu
 
 <div className="h-px" />
 
-#### Manual mode
+### Manual mode
 
 If you prefer full control over the payment flow, use `mppx/server` directly with the Fetch API.
 
@@ -325,7 +325,7 @@ The `mppx` package install automatically includes a [CLI tool](/sdk/typescript/c
 
 ::::steps
 
-#### Create an account
+### Create an account
 
 Create a Tempo account to sign payments. The account is auto-funded on testnet and key is stored in your system keychain.
 
@@ -341,7 +341,7 @@ $ bunx mppx account create
 ```
 :::
 
-#### Make a paid request
+### Make a paid request
 
 Run the CLI with a URL to make a paid request. Payment is handled automatically when the server returns `402`.
 

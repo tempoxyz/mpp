@@ -33,34 +33,34 @@ Read https://tempo.xyz/SKILL.md and set up tempo
 <Tab title="Human">
 ::::steps
 
-#### Install the CLI
+### Install the CLI
 
-```bash
-curl -fsSL https://tempo.xyz/install | bash
+```bash [terminal]
+$ curl -fsSL https://tempo.xyz/install | bash
 ```
 
-#### Connect your wallet
+### Connect your wallet
 
-```bash
-tempo wallet login
+```bash [terminal]
+$ tempo wallet login
 ```
 
-#### Verify setup
+### Verify setup
 
-```bash
-tempo wallet whoami
+```bash [terminal]
+$ tempo wallet whoami
 ```
 
-#### List available services
+### List available services
 
-```bash
-tempo wallet services
+```bash [terminal]
+$ tempo wallet services
 ```
 
-#### Make a paid request
+### Make a paid request
 
-```bash
-tempo request -X POST \
+```bash [terminal]
+$ tempo request -X POST \
   --json '{"prompt": "a sunset over the ocean"}' \
   https://fal.mpp.tempo.xyz/fal-ai/flux/dev
 ```
@@ -88,36 +88,36 @@ Set up https://agents.privy.io/skill.md
 <Tab title="Human">
 ::::steps
 
-#### Install
+### Install
 
-```bash
-npm install -g @privy-io/agent-wallet-cli
+```bash [terminal]
+$ npm install -g @privy-io/agent-wallet-cli
 ```
 
-#### Log in
+### Log in
 
-```bash
-privy-agent-wallets login
+```bash [terminal]
+$ privy-agent-wallets login
 ```
 
 This opens a browser flow—complete Privy auth, approve signer access, then paste the credential back into the terminal.
 
-#### Fund wallets
+### Fund wallets
 
-```bash
-privy-agent-wallets fund
+```bash [terminal]
+$ privy-agent-wallets fund
 ```
 
-#### List wallets
+### List wallets
 
-```bash
-privy-agent-wallets list-wallets
+```bash [terminal]
+$ privy-agent-wallets list-wallets
 ```
 
-#### Send a transaction
+### Send a transaction
 
-```bash
-privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to": "0xRecipient", "value": "0.01"}}'
+```bash [terminal]
+$ privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to": "0xRecipient", "value": "0.01"}}'
 ```
 
 ::::
@@ -126,7 +126,7 @@ privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to
 
 ## AgentCash
 
-[AgentCash](https://agentcash.dev) gives agents instant access to 300+ premium APIs for data enrichment, social data, image generation, web scraping, email, and much more, all through one USDC balance.
+[AgentCash](https://agentcash.dev) gives agents instant access to 300+ premium APIs for data enrichment, social data, image generation, web scraping, email, and much more, all through one USDC.e balance.
 
 <Tabs>
 <Tab title="Agent">
@@ -141,32 +141,32 @@ Set up agentcash.dev/skill.md
 <Tab title="Human">
 ::::steps
 
-#### Onboard and get free credits
+### Onboard and get free credits
 
 Visit [agentcash.dev/onboard](https://agentcash.dev/onboard) to claim a sign-up bonus, then redeem in your terminal:
 
-```bash
-npx agentcash onboard <CODE>
+```bash [terminal]
+$ npx agentcash onboard <CODE>
 ```
 
-#### Search for services
+### Search for services
 
-```bash
-npx agentcash search "image generation"
+```bash [terminal]
+$ npx agentcash search "image generation"
 ```
 
-#### Use a service
+### Use a service
 
-```bash
-npx agentcash fetch https://stableenrich.dev/api/exa/search \
+```bash [terminal]
+$ npx agentcash fetch https://stableenrich.dev/api/exa/search \
     --method POST \
     --body '{"query":"agentcash.dev"}'
 ```
 
-#### Install as MCP server (optional)
+### Install as MCP server (optional)
 
-```bash
-claude mcp add agentcash --scope user -- npx -y agentcash@latest
+```bash [terminal]
+$ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 ```
 
 ::::
@@ -183,26 +183,26 @@ The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with t
 
 :::code-group
 ```bash [npm]
-npm install -g mppx
+$ npm install -g mppx
 ```
 ```bash [pnpm]
-pnpm add -g mppx
+$ pnpm add -g mppx
 ```
 ```bash [bun]
-bun add -g mppx
+$ bun add -g mppx
 ```
 :::
 
 ### Create an account
 
-```bash
-mppx account create
+```bash [terminal]
+$ mppx account create
 ```
 
 ### Make a paid request
 
-```bash
-mppx https://mpp.dev/api/ping/paid
+```bash [terminal]
+$ mppx https://mpp.dev/api/ping/paid
 ```
 
 ::::

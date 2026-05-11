@@ -272,6 +272,12 @@ Always use these chain IDs when referencing Tempo networks:
 
 Never use `98865`—that is a deprecated chain ID.
 
+When showing token or contract addresses in code examples, add a short inline comment naming the currency or contract whenever the name is not obvious from surrounding text:
+
+```ts
+currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+```
+
 ## Rules
 
 1. **Alphabetize everything** - Object properties in code examples and ### parameter headings must be alphabetically ordered
@@ -284,7 +290,7 @@ Never use `98865`—that is a deprecated chain ID.
 6. **Document all parameters** - Mark optional ones with "(optional)"
 7. **Include type information** - Always show the Type for each parameter
 8. **Bash terminal blocks** - Use ` ```bash [test.sh] ` with `$` prefixes for shell commands
-9. **TypeScript twoslash** - Always use ` ```ts twoslash ` for TypeScript code blocks, never bare ` ```ts `
+9. **TypeScript twoslash** - Use ` ```ts twoslash ` for TypeScript snippets that are expected to typecheck as valid, self-contained examples. Use bare ` ```ts ` for partial snippets, pseudo-code, package skeletons, illustrative fragments, or examples that depend on modules or symbols not installed in this repo.
 10. **Spec link Cards** - Use the shared `<SpecCard to="..." />` component. Defaults to title `"IETF Specification"` and description `"Read the full specification"`. Override with `title` and `description` props when linking to a specific draft.
 11. **"IETF Specification"** - Use "IETF Specification" (singular) when referring to the specifications collectively, not "Specs" or "Specifications"
 14. **Sequence diagrams** - Use `<MermaidDiagram>` from `../../components/MermaidDiagram` for sequence diagrams and flow visualizations. Never use ASCII art diagrams. Follow the pattern: `<MermaidDiagram chart={\`sequenceDiagram ...\`} />`

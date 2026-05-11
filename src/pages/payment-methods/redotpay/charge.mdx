@@ -15,8 +15,8 @@ The RedotPay `charge` intent is a one-time payment flow using MPP's `402 -> Cred
 
 ## Install
 
-```bash
-npm i @redotpay/mpp mppx
+```bash [terminal]
+$ npm i @redotpay/mpp mppx
 ```
 
 ## Server integration
@@ -102,4 +102,4 @@ export async function fetchWithAutoPay(url: string) {
 ## Credential payload (decoded Credential payload)
 
 - Balance rail: `{ type: "balance", rdt: string, externalId?: string }`
-- Crypto rail: `{ type: "crypto", chainId: number, currency: string, hash: string, externalId?: string }`
+- Stablecoin rail: `{ type: "crypto", chainId: number, currency: string, hash: string, externalId?: string }`

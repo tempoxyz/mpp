@@ -65,6 +65,12 @@ A server-configured method that can be passed to `Mppx.create`.
 
 ## Parameters
 
+### defaults (optional)
+
+- **Type:** `Partial<request>`
+
+Default request parameters merged into every Challenge issued for this method.
+
 ### method
 
 - **Type:** `Method`
@@ -73,31 +79,25 @@ The base payment method definition (created with `Method.from`).
 
 ### options
 
-#### defaults (optional)
-
-- **Type:** `Partial<request>`
-
-Default request parameters merged into every Challenge issued for this method.
-
-#### request (optional)
+### request (optional)
 
 - **Type:** `(options: { credential?: Credential; request: request }) => request`
 
 Transform function called before Challenge creation. Use to modify or enrich request parameters.
 
-#### respond (optional)
+### respond (optional)
 
 - **Type:** `(parameters: { credential: Credential; input: Request; receipt: Receipt; request: request }) => Response | undefined`
 
 Called after `verify` succeeds. Return a `Response` to short-circuit the handler (for example, for channel open/close management responses). Return `undefined` to let the server handler serve content via `withReceipt(response)`. HTTP-only—MCP transports do not invoke this hook.
 
-#### transport (optional)
+### transport (optional)
 
 - **Type:** `Transport`
 
 Override the transport for this method.
 
-#### verify
+### verify
 
 - **Type:** `(parameters: { credential: Credential; request: request }) => Promise<Receipt>`
 
