@@ -1,0 +1,95 @@
+---
+title: "The subscription intent for recurring payments"
+description: "The subscription intent defines recurring fixed payments in MPP. Use it when access renews across billing periods."
+imageDescription: "Collect recurring payments"
+---
+
+import { Cards } from 'vocs'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { TempoSubscriptionCard } from '../../components/cards'
+import { SpecCard } from '../../components/SpecCard'
+
+# Subscription [Recurring paid access]
+
+The `subscription` intent mediates recurring paid access. The client authorizes a fixed payment amount once, and the server reuses that authorization to collect at most one charge per billing period.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Store
+    participant Network as Payment Network
+    Client->>Server: (1) GET /resource
+    Server->>Store: (2) Resolve subscription
+    Server-->>Client: (3) 402 + subscription Challenge
+    Note over Client: (4) Authorize recurring access
+    Client->>Server: (5) GET /resource + Credential
+    Server->>Network: (6) Activate subscription and charge first period
+    Network-->>Server: (7) Confirmed
+    Server->>Store: (8) Store subscription state
+    Server-->>Client: (9) 200 OK + Receipt
+    Client->>Server: (10) Later request
+    Server->>Store: (11) Find active subscription
+    Server-->>Client: (12) 200 OK + Receipt
+`} />
+
+1. **Client:** requests a protected resource
+2. **Server:** resolves whether the request already has an active subscription
+3. **Server:** responds with `402` and a subscription Challenge when no usable subscription exists
+4. **Client:** authorizes the recurring payment terms
+5. **Client:** retries the request with a Credential
+6. **Server:** verifies the Credential, activates the subscription, and charges the first billing period
+7. **Server:** stores durable subscription state and returns a Receipt
+8. **Server:** reuses the active subscription for later requests while the current period is paid
+
+## When to use subscription
+
+Subscription is the best intent when access renews on a fixed schedule:
+
+- **API plans**—Charge a fixed amount per day, week, or month
+- **Memberships**—Keep access active across many requests
+- **Recurring MCP access**—Bill for tool access that renews by period
+- **Usage bundles**—Renew a fixed bundle on a schedule
+
+Use `charge` when each request maps to one payment. Use `session` when usage is metered and the final cost isn't known upfront.
+
+## Request schema
+
+The subscription intent defines the following request fields:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Required | Fixed payment amount per billing period in base units |
+| `currency` | string | Required | Currency identifier (token address, currency code) |
+| `description` | string | Optional | Human-readable subscription description |
+| `externalId` | string | Optional | Server-defined subscription reference |
+| `methodDetails` | object | Optional | Method-specific extension data |
+| `periodCount` | string | Required | Positive integer count of `periodUnit` values per billing period |
+| `periodUnit` | string | Required | Billing period unit: `day`, `week`, or `month` |
+| `recipient` | string | Optional | Recipient identifier (address, account ID) |
+| `subscriptionExpires` | string | Optional | RFC 3339 timestamp that bounds the recurring authorization |
+
+Payment methods extend this schema through `methodDetails`. They must reject subscription requests they can't represent exactly.
+
+## Lifecycle
+
+Activation starts the first billing period and collects the first charge. The server returns a Receipt with a `subscriptionId` only after activation succeeds.
+
+Renewal collects at most one charge for each later billing period. Before granting access in an unpaid period, the server must collect the renewal charge or fail the request with `402`.
+
+Reuse is application-defined. Servers use authenticated session state, account identity, resource scope, or another local selector to associate later requests with an active subscription. A `subscriptionId` alone doesn't grant access.
+
+## Method integrations
+
+Each payment method defines how subscription authorization, activation, renewal, and cancellation map to its underlying network.
+
+<Cards>
+  <TempoSubscriptionCard />
+</Cards>
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-payment-intent-subscription-00" />
+</Cards>

@@ -377,7 +377,10 @@ export default defineConfig({
           {
             text: "Intents",
             collapsed: true,
-            items: [{ text: "Charge", link: "/intents/charge" }],
+            items: [
+              { text: "Charge", link: "/intents/charge" },
+              { text: "Subscription", link: "/intents/subscription" },
+            ],
           },
           {
             text: "Tempo",
