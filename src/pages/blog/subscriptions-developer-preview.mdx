@@ -4,8 +4,8 @@ outline: false
 showAskAi: false
 showFeedback: false
 showSearch: false
-description: "Tempo subscriptions bring recurring stablecoin access to MPP for plans, memberships, and paid API tiers."
-imageDescription: "Recurring API access with Tempo subscriptions"
+description: "Subscriptions bring recurring access to MPP for plans, memberships, and paid API tiers."
+imageDescription: "Recurring access with subscriptions"
 ---
 
 import { MermaidDiagram } from "../../components/MermaidDiagram";
@@ -27,7 +27,7 @@ This preview is for developers who want to test recurring API access, paid plan 
 MPP already supports one-time charges and usage-based sessions. Subscriptions add a third billing pattern: recurring access.
 
 - **Charges** work best when each request has a fixed one-time price.
-- **Sessions** work best when usage changes during a request, such as streamed tokens or bytes.
+- **Sessions** work best when usage and costs change during a request, such as streamed tokens or bytes.
 - **Subscriptions** work best when access has a fixed price per billing period.
 
 With subscriptions, the client doesn't sign every paid request. The client authorizes an access key for a specific subscription, and the server uses its stored subscription record to grant access while the current period is paid. Subscriptions are scoped to a specific merchant and have enforced limits on the amount of access that can be used during each billing period.
