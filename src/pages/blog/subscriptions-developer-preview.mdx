@@ -1,0 +1,70 @@
+---
+layout: minimal
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "Tempo subscriptions bring recurring stablecoin access to MPP for plans, memberships, and paid API tiers."
+imageDescription: "Recurring API access with Tempo subscriptions"
+---
+
+import { MermaidDiagram } from "../../components/MermaidDiagram";
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>May 12, 2026</p>
+
+# Developer Preview: Subscriptions [Recurring payments]
+
+MPP now supports a developer preview of subscriptions, beginning with Tempo stablecoin payments. Subscriptions let a client authorize recurring payments once, then reuse paid access across requests.
+
+This preview is for developers who want to test recurring API access, paid plan gates, memberships, recurring MCP tools, and usage bundles that renew on a schedule.
+
+## What subscriptions cover
+
+MPP already supports one-time charges and usage-based sessions. Subscriptions add a third billing pattern: recurring access.
+
+- **Charges** work best when each request has a fixed one-time price.
+- **Sessions** work best when usage changes during a request, such as streamed tokens or bytes.
+- **Subscriptions** work best when access has a fixed price per billing period.
+
+With subscriptions, the client doesn't sign every paid request. The client authorizes an access key for a specific subscription, and the server uses its stored subscription record to grant access while the current period is paid. Subscriptions are scoped to a specific merchant and have enforced limits on the amount of access that can be used during each billing period.
+
+## How they work
+
+The first request activates the subscription. The server maps the request to a stable subscription key, such as a user and plan, then returns a `402` Challenge with subscription terms. The client signs a Credential that authorizes a scoped access key. The server charges the first billing period, stores the subscription record, and returns the protected response with a Receipt.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Store
+    participant Tempo
+    Client->>Server: Request paid access
+    Server->>Store: Resolve subscription key
+    Server-->>Client: 402 subscription Challenge
+    Client->>Server: Retry with Credential
+    Server->>Tempo: Charge first billing period
+    Server->>Store: Store subscription record
+    Server-->>Client: 200 OK + Receipt
+`} />
+
+After activation, the server can grant access without asking for another Credential. It resolves the same subscription key, checks the stored record, validates that the request still matches the subscription terms, and returns a Receipt.
+
+When a billing period ends, the server renews the subscription before granting access. You can renew during the request path, or run renewals from a background worker with [`tempo.renewSubscription`](/sdk/typescript/server/Method.tempo.renewSubscription).
+
+## Try it
+
+Start with the subscription guide and API references:
+
+- [Subscription integration guide](/guides/subscription-payments)
+- [Tempo subscription overview](/payment-methods/tempo/subscription)
+- [`tempo.subscription` server API](/sdk/typescript/server/Method.tempo.subscription)
+- [`tempo.subscription` client API](/sdk/typescript/client/Method.tempo.subscription)
+
+## What's next
+
+We are excited to see what you build with subscriptions and are actively working to add support for new billing engines, such as Stripe. Please share your feedback and ideas on [GitHub](https://github.com/tempoxyz/mpp-specs).
+
+</div>
