@@ -24,10 +24,10 @@ export const CATEGORIES = [
   "storage",
   "web",
 ] as const;
-export type Category = (typeof CATEGORIES)[number];
+export type Category = (typeof CATEGORIES)[number
 
 export const INTEGRATIONS = ["first-party", "third-party"] as const;
-export type Integration = (typeof INTEGRATIONS)[number];
+export type Integration = (typeof INTEGRATIONS)[number
 
 export const STATUSES = [
   "active",
@@ -35,10 +35,10 @@ export const STATUSES = [
   "deprecated",
   "maintenance",
 ] as const;
-export type Status = (typeof STATUSES)[number];
+export type Status = (typeof STATUSES)[number
 
 export const INTENTS = ["charge", "session"] as const;
-export type Intent = (typeof INTENTS)[number];
+export type Intent = (typeof INTENTS)[number
 
 export const HTTP_METHODS = [
   "GET",
@@ -49,7 +49,7 @@ export const HTTP_METHODS = [
   "HEAD",
   "OPTIONS",
 ] as const;
-export type HttpMethod = (typeof HTTP_METHODS)[number];
+export type HttpMethod = (typeof HTTP_METHODS)[number
 
 export interface PaymentDefaults {
   /** Payment method identifier (e.g. "tempo") */
@@ -103,9 +103,9 @@ export interface ServiceDef {
   description: string;
 
   icon?: string;
-  categories: Category[];
+  categories: Category[
   integration: Integration;
-  tags: string[];
+  tags: string[
   status?: Status;
   docs?: { homepage?: string; llmsTxt?: string; apiReference?: string };
   provider?: { name: string; url: string };
@@ -114,10 +114,10 @@ export interface ServiceDef {
   /** Default payment intent for paid endpoints in this service */
   intent: Intent;
   /** Payment methods accepted by this service — first entry is primary for endpoint-level payment info */
-  payments: PaymentDefaults[];
+  payments: PaymentDefaults[
   /** Base URL for auto-generating per-endpoint docs links */
   docsBase?: string;
-  endpoints: EndpointDef[];
+  endpoints: EndpointDef[
 }
 
 // prettier-ignore
@@ -6594,6 +6594,40 @@ export const services: ServiceDef[] = [
         desc: "Write and send an agent-penned postcard",
         dynamic: true,
         amountHint: "$1 digital, $3 physical",
+      },
+    ],
+  },
+
+
+  // ── AlgoVoi ────────────────────────────────────────────────────────────────────
+  {
+    id: "algovoi",
+    name: "AlgoVoi",
+    url: "https://api.algovoi.co.uk",
+    serviceUrl: "https://api.algovoi.co.uk",
+    description:
+      "Multi-chain crypto payment gateway for e-commerce and AI agents. USDC.e on Tempo, plus Algorand, VOI, Hedera, Stellar, Base, and Solana on a single endpoint.",
+
+    categories: ["blockchain", "web"],
+    integration: "third-party",
+    tags: ["payments", "usdc", "multi-chain", "algorand", "tempo", "x402", "mpp", "e-commerce", "ai-agents"],
+    docs: {
+      homepage: "https://docs.algovoi.co.uk",
+    },
+    provider: { name: "AlgoVoi", url: "https://algovoi.co.uk" },
+    realm: "api.algovoi.co.uk",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /mpp/{resource_id}",
+        desc: "MPP-gated resource — 401 Payment challenge then 200 content",
+        amount: "10000",
+      },
+      {
+        route: "POST /mpp/challenge",
+        desc: "Explicit challenge pre-fetch for pipeline agents",
+        amount: "0",
       },
     ],
   },
