@@ -132,7 +132,7 @@ const mppx = Mppx.create({
         return userId ? { key: `user:${userId}:plan:pro` } : null
       },
       store,
-      subscriptionExpires: '2027-01-01T00:00:00.000Z',
+      subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
     }),
   ],
 })

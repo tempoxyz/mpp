@@ -23,7 +23,7 @@ const mppx = Mppx.create({
         return userId ? { key: `user:${userId}:plan:pro` } : null
       },
       store,
-      subscriptionExpires: '2027-01-01T00:00:00.000Z',
+      subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
     }),
     // [!code focus:end]
   ],
@@ -59,7 +59,7 @@ const mppx = Mppx.create({
         return userId ? { key: `user:${userId}:plan:pro` } : null
       },
       store,
-      subscriptionExpires: '2027-01-01T00:00:00.000Z',
+      subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
     }),
   ],
 })
@@ -115,7 +115,7 @@ const mppx = Mppx.create({
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       resolve: async () => ({ key: 'user:123:plan:pro' }),
       store,
-      subscriptionExpires: '2027-01-01T00:00:00.000Z',
+      subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
     }),
   ],
 })
