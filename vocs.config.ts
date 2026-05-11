@@ -298,6 +298,10 @@ export default defineConfig({
             link: "/guides/streamed-payments",
           },
           {
+            text: "Manage subscriptions",
+            link: "/guides/subscription-payments",
+          },
+          {
             text: "Advanced",
             items: [
               {
@@ -382,6 +386,10 @@ export default defineConfig({
               { text: "Overview", link: "/payment-methods/tempo" },
               { text: "Charge", link: "/payment-methods/tempo/charge" },
               { text: "Session", link: "/payment-methods/tempo/session" },
+              {
+                text: "Subscription",
+                link: "/payment-methods/tempo/subscription",
+              },
             ],
           },
           {
@@ -479,6 +487,10 @@ export default defineConfig({
                         link: "/sdk/typescript/client/Method.tempo.session-manager",
                       },
                       {
+                        text: "tempo.subscription",
+                        link: "/sdk/typescript/client/Method.tempo.subscription",
+                      },
+                      {
                         text: "stripe",
                         link: "/sdk/typescript/client/Method.stripe",
                       },
@@ -570,6 +582,10 @@ export default defineConfig({
                         link: "/sdk/typescript/server/Method.tempo.session",
                       },
                       {
+                        text: "tempo.subscription",
+                        link: "/sdk/typescript/server/Method.tempo.subscription",
+                      },
+                      {
                         text: "stripe",
                         link: "/sdk/typescript/server/Method.stripe",
                       },
@@ -637,6 +653,10 @@ export default defineConfig({
                     text: "Utilities",
                     collapsed: true,
                     items: [
+                      {
+                        text: "tempo.renewSubscription",
+                        link: "/sdk/typescript/server/Method.tempo.renewSubscription",
+                      },
                       {
                         text: "Response.requirePayment",
                         link: "/sdk/typescript/server/Response.requirePayment",

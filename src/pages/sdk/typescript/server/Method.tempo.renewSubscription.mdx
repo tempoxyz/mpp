@@ -1,0 +1,106 @@
+# `Method.tempo.renewSubscription` [Renew subscriptions outside requests]
+
+Renews an overdue Tempo subscription from a background worker or cron job.
+
+## Usage
+
+```ts twoslash
+import { Store, tempo } from 'mppx/server'
+
+const store = Store.memory()
+
+const result = await tempo.renewSubscription({
+  store,
+  subscriptionId: 'sub_abc123',
+})
+
+console.log(result?.receipt.status)
+// @log: success
+```
+
+The function returns `null` when the subscription is already current.
+
+### With custom renewal
+
+Pass `renew` when your application owns settlement.
+
+```ts twoslash
+import { Store, tempo } from 'mppx/server'
+
+const store = Store.memory()
+
+const result = await tempo.renewSubscription({
+  renew: async ({ inFlightReference, periodIndex, subscription }) => {
+    const timestamp = new Date().toISOString()
+    return {
+      receipt: {
+        method: 'tempo',
+        reference: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        status: 'success',
+        subscriptionId: subscription.subscriptionId,
+        timestamp,
+      },
+      subscription: {
+        ...subscription,
+        inFlightReference,
+        lastChargedPeriod: periodIndex,
+        reference: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        timestamp,
+      },
+    }
+  },
+  store,
+  subscriptionId: 'sub_abc123',
+})
+```
+
+## Return type
+
+```ts
+type ReturnType = Promise<
+  | {
+      receipt: SubscriptionReceipt
+      subscription: SubscriptionRecord
+    }
+  | null
+>
+```
+
+## Parameters
+
+### getClient (optional)
+
+- **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
+
+Function that returns a viem client for the subscription's Tempo chain ID.
+
+### renew (optional)
+
+- **Type:** `(parameters: { inFlightReference: string; periodIndex: number; subscription: SubscriptionRecord }) => Promise<RenewalResult>`
+
+Custom renewal hook. The `inFlightReference` is stable for the subscription period and works as an idempotency key.
+
+### renewalTimeoutMs (optional)
+
+- **Type:** `number`
+- **Default:** `900000`
+
+Milliseconds before an in-flight renewal lock can be replaced.
+
+### store
+
+- **Type:** `Store.AtomicStore<Record<string, unknown>>`
+
+Atomic store containing subscription records.
+
+### subscriptionId
+
+- **Type:** `string`
+
+Subscription to renew.
+
+### waitForConfirmation (optional)
+
+- **Type:** `boolean`
+
+Whether to wait for the renewal transfer to confirm before returning a Receipt.

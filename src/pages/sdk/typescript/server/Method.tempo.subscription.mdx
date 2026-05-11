@@ -1,0 +1,359 @@
+# `Method.tempo.subscription` [Recurring stablecoin payments]
+
+Creates a Tempo subscription method for server-side activation, access reuse, and renewal.
+
+## Usage
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+
+const store = Store.memory()
+
+const mppx = Mppx.create({
+  methods: [
+    // [!code focus:start]
+    tempo.subscription({
+      amount: '1.00',
+      currency: '0x20c0000000000000000000000000000000000000',
+      periodCount: '1',
+      periodUnit: 'week',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      resolve: async ({ input }) => {
+        const userId = input.headers.get('X-User-Id')
+        return userId ? { key: `user:${userId}:plan:pro` } : null
+      },
+      store,
+      subscriptionExpires: '2027-01-01T00:00:00.000Z',
+    }),
+    // [!code focus:end]
+  ],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.tempo.subscription({})(request)
+
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ plan: 'pro' }))
+}
+```
+
+### With background renewals
+
+Use a durable store and call [`tempo.renewSubscription`](/sdk/typescript/server/Method.tempo.renewSubscription) from a worker.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+
+const store = Store.memory()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.subscription({
+      amount: '1.00',
+      currency: '0x20c0000000000000000000000000000000000000',
+      periodCount: '1',
+      periodUnit: 'week',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      resolve: async ({ input }) => {
+        const userId = input.headers.get('X-User-Id')
+        return userId ? { key: `user:${userId}:plan:pro` } : null
+      },
+      store,
+      subscriptionExpires: '2027-01-01T00:00:00.000Z',
+    }),
+  ],
+})
+
+await tempo.renewSubscription({
+  store,
+  subscriptionId: 'sub_abc123',
+})
+```
+
+### With custom activation
+
+Pass `activate` when your app owns first-period settlement and subscription record creation.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+
+const store = Store.memory()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.subscription({
+      activate: async ({ request, resolved }) => {
+        const timestamp = new Date().toISOString()
+        return {
+          receipt: {
+            method: 'tempo',
+            reference: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            status: 'success',
+            subscriptionId: 'sub_abc123',
+            timestamp,
+          },
+          subscription: {
+            amount: request.amount,
+            billingAnchor: timestamp,
+            currency: request.currency,
+            lastChargedPeriod: 0,
+            lookupKey: resolved.key,
+            periodCount: request.periodCount,
+            periodUnit: request.periodUnit,
+            recipient: request.recipient,
+            reference: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            subscriptionExpires: request.subscriptionExpires,
+            subscriptionId: 'sub_abc123',
+            timestamp,
+          },
+        }
+      },
+      amount: '1.00',
+      currency: '0x20c0000000000000000000000000000000000000',
+      periodCount: '1',
+      periodUnit: 'week',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      resolve: async () => ({ key: 'user:123:plan:pro' }),
+      store,
+      subscriptionExpires: '2027-01-01T00:00:00.000Z',
+    }),
+  ],
+})
+```
+
+## Return type
+
+```ts
+import type { Method } from 'mppx'
+
+type ReturnType = Method.Server
+```
+
+## Configuration
+
+These parameters configure `tempo.subscription()`.
+
+### accessKey (optional)
+
+- **Type:** `(parameters: { input: Request; request: SubscriptionRequest; resolved: SubscriptionLookup }) => MaybePromise<SubscriptionAccessKey>`
+
+Returns the access key to include in the Challenge. Omit this for the recommended path: `mppx` generates and stores a server-owned access key per resolved subscription key.
+
+### account (optional)
+
+- **Type:** `Account`
+
+Account used as the default `recipient` and local transaction signer.
+
+### activationTimeoutMs (optional)
+
+- **Type:** `number`
+- **Default:** `900000`
+
+Milliseconds before an in-flight activation lock can be replaced.
+
+### amount (optional)
+
+- **Type:** `string`
+
+Default amount to charge per period.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Tempo chain ID. Use `4217` for mainnet and `42431` for testnet.
+
+### currency (optional)
+
+- **Type:** `Address`
+
+Default TIP-20 token address.
+
+### decimals (optional)
+
+- **Type:** `number`
+- **Default:** `6`
+
+Decimal places for amount parsing.
+
+### description (optional)
+
+- **Type:** `string`
+
+Human-readable subscription description.
+
+### externalId (optional)
+
+- **Type:** `string`
+
+Application-defined identifier for reconciliation.
+
+### getClient (optional)
+
+- **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
+
+Function that returns a viem client for the given Tempo chain ID.
+
+### hooks (optional)
+
+- **Type:** `{ activated?: (parameters) => MaybePromise<void>; renewed?: (parameters) => MaybePromise<void> }`
+
+Callbacks that run after activation or renewal commits.
+
+### periodCount (optional)
+
+- **Type:** `string`
+
+Number of period units per billing period.
+
+### periodUnit (optional)
+
+- **Type:** `'day' | 'week'`
+
+Billing period unit.
+
+### recipient (optional)
+
+- **Type:** `Address`
+
+Address that receives subscription payments.
+
+### renew (optional)
+
+- **Type:** `(parameters: { inFlightReference: string; periodIndex: number; subscription: SubscriptionRecord }) => Promise<RenewalResult>`
+
+Custom renewal hook. Use this when your app owns period settlement and subscription record updates.
+
+### renewalTimeoutMs (optional)
+
+- **Type:** `number`
+- **Default:** `900000`
+
+Milliseconds before an in-flight renewal lock can be replaced.
+
+### resolve
+
+- **Type:** `(parameters: { input: Request; request: SubscriptionRequest }) => MaybePromise<SubscriptionLookup | null>`
+
+Maps a request to a subscription lookup key. Return the same key for every route covered by the same subscription.
+
+### store (optional)
+
+- **Type:** `Store.AtomicStore<Record<string, unknown>>`
+- **Default:** `Store.memory()`
+
+Atomic store for access keys, activation locks, renewal locks, and subscription records.
+
+### subscriptionExpires (optional)
+
+- **Type:** `string | Date`
+
+Maximum authorization expiry. The client authorization cannot outlive this timestamp.
+
+### testnet (optional)
+
+- **Type:** `boolean`
+
+Uses Tempo testnet defaults. Testnet chain ID is `42431`.
+
+### waitForConfirmation (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to wait for activation and automatic renewal transfers to confirm before returning a Receipt.
+
+## Request parameters
+
+These parameters configure each `mppx.tempo.subscription()` call.
+
+### accessKey (optional)
+
+- **Type:** `SubscriptionAccessKey`
+
+Access key to authorize. Most apps let the server method generate this value.
+
+### amount (optional)
+
+- **Type:** `string`
+
+Amount to charge per billing period.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Tempo chain ID for the subscription.
+
+### currency (optional)
+
+- **Type:** `Address`
+
+TIP-20 token address for payments.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Decimal places for amount parsing.
+
+### description (optional)
+
+- **Type:** `string`
+
+Human-readable subscription description.
+
+### expires (optional)
+
+- **Type:** `string`
+
+Challenge expiry timestamp.
+
+### externalId (optional)
+
+- **Type:** `string`
+
+Application-defined identifier for reconciliation.
+
+### meta (optional)
+
+- **Type:** `Record<string, string>`
+
+Server-defined correlation data serialized as the Challenge `opaque` auth-param.
+
+### periodCount (optional)
+
+- **Type:** `string`
+
+Number of period units per billing period.
+
+### periodUnit (optional)
+
+- **Type:** `'day' | 'week'`
+
+Billing period unit.
+
+### recipient (optional)
+
+- **Type:** `Address`
+
+Address that receives payments.
+
+### scope (optional)
+
+- **Type:** `string`
+
+Route or resource scope bound into the Challenge metadata.
+
+### subscriptionExpires (optional)
+
+- **Type:** `string | Date`
+
+Maximum authorization expiry.
+
+## Related
+
+### `tempo.renewSubscription`
+
+Renews an overdue subscription outside the request path. See [`tempo.renewSubscription`](/sdk/typescript/server/Method.tempo.renewSubscription).

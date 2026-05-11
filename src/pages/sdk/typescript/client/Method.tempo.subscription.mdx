@@ -1,0 +1,138 @@
+# `Method.tempo.subscription` [Recurring stablecoin payments]
+
+Creates a Tempo subscription client method for signing access-key authorizations.
+
+## Usage
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0xabc…123')
+
+Mppx.create({
+  methods: [
+    // [!code focus:start]
+    tempo.subscription({ account }),
+    // [!code focus:end]
+  ],
+})
+
+const response = await fetch('https://api.example.com/pro')
+console.log(response.status)
+// @log: 200
+```
+
+### With request validation
+
+Use `validateRequest` to enforce local client policy before signing.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0xabc…123')
+
+Mppx.create({
+  methods: [
+    tempo.subscription({
+      account,
+      validateRequest: (request) => {
+        if (request.periodUnit !== 'week') {
+          throw new Error('Expected weekly billing')
+        }
+      },
+    }),
+  ],
+})
+```
+
+### With explicit access key
+
+Most servers include an access key in the Challenge. Pass `accessKey` only when the server expects the client to supply a specific key.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0xabc…123')
+
+Mppx.create({
+  methods: [
+    tempo.subscription({
+      accessKey: {
+        accessKeyAddress: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+        keyType: 'secp256k1',
+      },
+      account,
+    }),
+  ],
+})
+```
+
+## Return type
+
+```ts twoslash
+import type { Method } from 'mppx'
+
+type ReturnType = Method.Client
+```
+
+## Parameters
+
+### accessKey (optional)
+
+- **Type:** `SubscriptionAccessKey`
+
+Access key authorized by the root account. Omit this when the Challenge includes `methodDetails.accessKey`.
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account that signs the key authorization. You can override this per request with fetch context.
+
+### getClient (optional)
+
+- **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
+
+Function that returns a viem client for the given Tempo chain ID.
+
+### validateRequest (optional)
+
+- **Type:** `(request: SubscriptionRequest) => MaybePromise<void>`
+
+Runs before the client signs the key authorization. Throw to reject subscription terms.
+
+## Context
+
+Pass request-specific values through fetch context when needed.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0xabc…123')
+
+const mppx = Mppx.create({
+  methods: [tempo.subscription()],
+})
+
+await mppx.fetch('https://api.example.com/pro', {
+  context: {
+    account,
+  },
+})
+```
+
+### accessKey (optional)
+
+- **Type:** `SubscriptionAccessKey`
+
+Access key to use for this request.
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account to use for this request.
