@@ -298,7 +298,7 @@ export default defineConfig({
             link: "/guides/streamed-payments",
           },
           {
-            text: "Manage subscriptions",
+            text: "Create and manage subscriptions",
             link: "/guides/subscription-payments",
           },
           {
