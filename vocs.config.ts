@@ -298,7 +298,7 @@ export default defineConfig({
             link: "/guides/streamed-payments",
           },
           {
-            text: "Manage subscriptions",
+            text: "Create and manage subscriptions",
             link: "/guides/subscription-payments",
           },
           {
@@ -377,7 +377,10 @@ export default defineConfig({
           {
             text: "Intents",
             collapsed: true,
-            items: [{ text: "Charge", link: "/intents/charge" }],
+            items: [
+              { text: "Charge", link: "/intents/charge" },
+              { text: "Subscription", link: "/intents/subscription" },
+            ],
           },
           {
             text: "Tempo",

@@ -441,6 +441,18 @@ export function TempoSessionCard() {
   );
 }
 
+export function TempoSubscriptionCard() {
+  return (
+    <Card
+      description="Recurring stablecoin payments for paid API plans"
+      icon="lucide:calendar-check"
+      title="Tempo subscription"
+      to="/payment-methods/tempo/subscription"
+      topRight={<Badge variant="info">New</Badge>}
+    />
+  );
+}
+
 export function StripeChargeCard() {
   return (
     <Card

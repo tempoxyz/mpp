@@ -8,7 +8,7 @@ import { Badge } from 'vocs'
 
 # Tempo [Stablecoin payments on the Tempo blockchain]
 
-The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain. Tempo supports multiple intents—**charge** for one-time payments and **session** for pay-as-you-go payment channels—covering everything from simple API access to high-frequency metered billing.
+The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain. Tempo supports **charge** for one-time payments, **session** for pay-as-you-go payment channels, and **subscription** for recurring access.
 
 ## Payments on Tempo
 
@@ -62,7 +62,7 @@ Tempo is purpose-built for the payment patterns MPP enables:
 
 ## Fee sponsorship
 
-Tempo supports server-paid transaction fees for both charge and session intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The client doesn't need to hold gas tokens or understand fee mechanics.
+Tempo supports server-paid transaction fees for charge, session, and subscription intents. When enabled, the client signs only the payment authorization and the server covers gas costs. The client doesn't need to hold gas tokens or understand fee mechanics.
 
 Pass a `feePayer` account to `tempo()` to enable this:
 

@@ -5,11 +5,15 @@ imageDescription: "Build recurring paid API access"
 
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
-# Manage subscriptions [Recurring access for paid APIs]
+# Create and manage subscriptions [Recurring access for paid APIs]
 
 Build a subscription-gated API that charges $1 for access using `mppx` and Tempo subscriptions.
 
-## How it works
+## Overview
+
+Subscriptions separate access from billing. The client authorizes recurring access once, then keeps using the paid API without paying again on every request.
+
+Your server stores the subscription after the first payment succeeds. Later requests check that stored subscription and return the protected response immediately when access is active. Billing happens on its own schedule: the next request after a billing period ends can renew the subscription, or a background job can renew subscriptions before clients return. This keeps normal API requests simple while recurring payments happen asynchronously.
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
@@ -28,9 +32,6 @@ Build a subscription-gated API that charges $1 for access using `mppx` and Tempo
     Server-->>Client: 200 OK + Receipt
 `} />
 
-Subscriptions separate access from billing. The client authorizes recurring access once, then keeps using the paid API without paying again on every request.
-
-Your server stores the subscription after the first payment succeeds. Later requests check that stored subscription and return the protected response immediately when access is active. Billing happens on its own schedule: the next request after a billing period ends can renew the subscription, or a background job can renew subscriptions before clients return. This keeps normal API requests simple while recurring payments happen asynchronously.
 
 ## Install `mppx`
 
