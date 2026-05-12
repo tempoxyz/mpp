@@ -40,12 +40,12 @@ The first request activates the subscription. The server maps the request to a s
     participant Client
     participant Server
     participant Store
-    participant Tempo
+    participant Settlement layer
     Client->>Server: Request paid access
     Server->>Store: Resolve subscription key
     Server-->>Client: 402 subscription Challenge
     Client->>Server: Retry with Credential
-    Server->>Tempo: Charge first billing period
+    Server->>Settlement layer: Charge first billing period
     Server->>Store: Store subscription record
     Server-->>Client: 200 OK + Receipt
 `} />
