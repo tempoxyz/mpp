@@ -1,5 +1,6 @@
-
-
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - mppx
+blockExoticSubdeps: true
+strictDepBuilds: true
+trustPolicy: no-downgrade
