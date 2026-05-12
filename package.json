@@ -25,7 +25,7 @@
     "@stripe/stripe-js": "^9.3.1",
     "@vercel/blob": "^2.3.3",
     "mermaid": "^11.14.0",
-    "mppx": "https://pkg.pr.new/wevm/mppx@dc93a275f132e07211fa4a2c8a656779c9f4bd0f",
+    "mppx": "0.6.20",
     "react": "^19",
     "react-dom": "^19",
     "stripe": "^22.1.0",

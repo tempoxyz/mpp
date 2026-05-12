@@ -29,8 +29,8 @@ importers:
         specifier: ^11.14.0
         version: 11.14.0
       mppx:
-        specifier: https://pkg.pr.new/wevm/mppx@dc93a275f132e07211fa4a2c8a656779c9f4bd0f
-        version: https://pkg.pr.new/wevm/mppx@dc93a275f132e07211fa4a2c8a656779c9f4bd0f(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.6))(express@5.2.1)(hono@4.12.18)(typescript@6.0.3)(viem@2.48.4(typescript@6.0.3)(zod@4.3.6))
+        specifier: 0.6.20
+        version: 0.6.20(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.6))(express@5.2.1)(hono@4.12.18)(typescript@6.0.3)(viem@2.48.4(typescript@6.0.3)(zod@4.3.6))
       react:
         specifier: ^19
         version: 19.2.5
@@ -3022,9 +3022,8 @@ packages:
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
 
-  mppx@https://pkg.pr.new/wevm/mppx@dc93a275f132e07211fa4a2c8a656779c9f4bd0f:
-    resolution: {tarball: https://pkg.pr.new/wevm/mppx@dc93a275f132e07211fa4a2c8a656779c9f4bd0f}
-    version: 0.6.19
+  mppx@0.6.20:
+    resolution: {integrity: sha512-RNXcY64QQVuDo3BqFEQAfp8ciF9O+DVIazDzZsf8vd9g4xqO1BRvTBLEcSO0WcEo6HcmQSL3Qsv3zgdM8vb3Eg==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
@@ -7227,7 +7226,7 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mppx@https://pkg.pr.new/wevm/mppx@dc93a275f132e07211fa4a2c8a656779c9f4bd0f(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.6))(express@5.2.1)(hono@4.12.18)(typescript@6.0.3)(viem@2.48.4(typescript@6.0.3)(zod@4.3.6)):
+  mppx@0.6.20(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.3.6))(express@5.2.1)(hono@4.12.18)(typescript@6.0.3)(viem@2.48.4(typescript@6.0.3)(zod@4.3.6)):
     dependencies:
       incur: 0.4.5
       ox: 0.14.20(typescript@6.0.3)(zod@4.4.3)
