@@ -102,7 +102,6 @@ export function LandingPage() {
               <div
                 className="landing-terminal-inner"
                 style={{
-                  height: 510,
                   width: "100%",
                   maxWidth: 960,
                   position: "relative",
@@ -155,8 +154,9 @@ function LandingStyles() {
         flex-direction: column;
         justify-content: center;
         align-items: stretch;
-        gap: 40px;
-        min-height: calc(100dvh - var(--vocs-spacing-topNav, 56px) - 100px);
+        gap: clamp(16px, 3dvh, 40px);
+        height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
+        min-height: 0;
         position: relative;
       }
 
@@ -206,7 +206,8 @@ function LandingStyles() {
 
       .landing-terminal-inner {
         flex: 1;
-        min-height: 300px;
+        height: 100%;
+        min-height: min(300px, 100%);
         max-height: 510px;
         border: 1px solid oklch(from var(--vocs-text-color-secondary) l c h / 0.12);
         border-radius: 12px;
@@ -329,11 +330,11 @@ function LandingStyles() {
         .hero-right { padding-right: 2rem !important; }
       }
 
-      /* ---- Tablet+ layout ---- */
+      /* ---- Tablet+ layout: let the terminal fill available viewport space ---- */
       @media (min-width: 768px) {
-        .landing-terminal-part { flex: 0 1 auto !important; }
-        .landing-terminal { flex: 0 1 auto !important; }
-        .landing-terminal-inner { flex: 0 0 auto !important; }
+        .landing-terminal-part { flex: 1 1 auto !important; }
+        .landing-terminal { flex: 1 1 auto !important; }
+        .landing-terminal-inner { flex: 1 1 auto !important; }
       }
 
       /* ---- Transparent header on tablet+ ---- */
@@ -372,17 +373,23 @@ function LandingStyles() {
         /* ---- Mobile layout ---- */
 
         .landing-main-section {
-          min-height: auto !important;
-          padding: 0 !important;
-          display: block !important;
+          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
+          min-height: 0 !important;
+          padding: 0.75rem 0 0.875rem !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: flex-start !important;
+          gap: 0.625rem !important;
+          overflow: hidden !important;
         }
 
         .landing-hero-part {
           display: flex !important;
           flex-direction: column !important;
-          justify-content: center !important;
-          padding: 0 1.75rem 2rem !important;
-          margin-top: 2rem !important;
+          justify-content: flex-start !important;
+          padding: 0 1.25rem !important;
+          margin-top: 0 !important;
+          overflow: visible !important;
           z-index: 1 !important;
         }
         .landing-hero-part .landing-hero {
@@ -394,7 +401,7 @@ function LandingStyles() {
         .landing-try-cta {
           display: flex !important;
           font-size: 0.75rem !important;
-          margin-top: 2rem !important;
+          margin-top: 0 !important;
           flex-shrink: 0 !important;
           padding: 0 0.5rem !important;
           opacity: 0.6 !important;
@@ -402,29 +409,56 @@ function LandingStyles() {
         }
 
         .landing-terminal-part {
+          flex: 1 1 auto !important;
+          height: auto !important;
+          min-height: 0 !important;
           display: flex !important;
           flex-direction: column !important;
           align-items: center !important;
+          justify-content: flex-start !important;
           padding: 0 1rem !important;
+          overflow: hidden !important;
         }
         .landing-terminal-part .landing-terminal {
+          flex: 1 1 auto !important;
+          min-height: 0 !important;
           display: flex !important;
           flex-direction: column !important;
           align-items: center !important;
+          justify-content: flex-start !important;
           width: 100% !important;
-          gap: 24px;
+          overflow: hidden !important;
+          gap: 0.625rem !important;
         }
         .landing-terminal-inner {
-          max-height: 65vh !important;
-          min-height: 420px !important;
+          flex: 1 1 auto !important;
+          height: 100% !important;
+          min-height: 0 !important;
+          max-height: none !important;
           min-width: 90vw !important;
         }
 
         /* Hero content styles */
         .hero-row { align-items: center !important; text-align: center; gap: 1.5rem !important; }
-        .hero-right { align-items: center !important; max-width: 90vw; gap: 0.75rem; }
-        .landing-ctas { justify-content: center !important; margin-top: 1.5rem !important; }
-        .lockup-img { width: clamp(260px, 72vw, 380px) !important; }
+        .hero-right { align-items: center !important; max-width: 90vw; gap: 0.65rem; }
+        .hero-right .leading-relaxed {
+          font-size: 0.95rem !important;
+          line-height: 1.45 !important;
+        }
+        .landing-ctas {
+          flex-direction: row !important;
+          align-items: center !important;
+          justify-content: center !important;
+          margin-top: 0.75rem !important;
+        }
+        .landing-ctas a {
+          padding: 0.625rem 1rem !important;
+          font-size: 0.875rem !important;
+        }
+        .lockup-img {
+          width: clamp(235px, 68vw, 340px) !important;
+          margin-top: 0 !important;
+        }
 
         /* DesignedBy row */
         .designed-by {
@@ -435,22 +469,39 @@ function LandingStyles() {
           width: 100%;
           justify-content: center !important;
         }
-        .designed-by-mobile { margin-top: 0rem; margin-bottom: 50px; display: flex; flex-direction: row; }
+        .designed-by-mobile { display: none !important; }
 
         /* Terminal font sizes */
         .term-wizard-list { padding-left: 0 !important; }
         .term-wizard-btn {
           display: block !important;
           width: 100% !important;
-          padding: 0.5rem 0.75rem !important;
-          margin: 0.2rem 0 !important;
+          min-height: 38px !important;
+          padding: 0.4rem 0.65rem !important;
+          margin: 0.15rem 0 !important;
           border: 1px solid var(--term-gray4) !important;
           border-radius: 6px !important;
-          line-height: 1.5 !important;
-          font-size: 13.5px !important;
+          line-height: 1.35 !important;
+          font-size: 12.5px !important;
         }
 
-        .landing-scroll-cta { font-size: 0.8rem !important; margin-top: 0.5rem !important; margin-bottom: 0.25rem !important; }
+        .landing-scroll-cta { font-size: 0.72rem !important; margin-top: 0.25rem !important; margin-bottom: 0 !important; }
+      }
+
+      @media (max-width: 767px) and (max-height: 760px) {
+        .landing-main-section { gap: 0.45rem !important; padding-top: 0.5rem !important; padding-bottom: 0.625rem !important; }
+        .hero-row { gap: 0.85rem !important; }
+        .hero-right .leading-relaxed {
+          font-size: 0.875rem !important;
+          line-height: 1.35 !important;
+        }
+        .landing-ctas { margin-top: 0.35rem !important; }
+        .landing-ctas a {
+          padding: 0.55rem 0.875rem !important;
+          font-size: 0.82rem !important;
+        }
+        .lockup-img { width: clamp(220px, 63vw, 300px) !important; }
+        .landing-try-cta { display: none !important; }
       }
     `}</style>
   );
