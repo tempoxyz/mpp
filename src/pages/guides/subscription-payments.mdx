@@ -155,6 +155,63 @@ console.log(response.status)
 
 ## Advanced options
 
+### Cancel a subscription
+
+Cancellation is a server-side state change. Have the client call your cancellation endpoint, then mark the active subscription record with `canceledAt`; the next paid request returns `402` and requires a new subscription activation.
+
+```ts [client.ts]
+await fetch('/api/subscription/cancel', {
+  method: 'POST',
+})
+```
+
+```ts twoslash [cancel.ts]
+import { Store } from 'mppx/server'
+import { Subscription } from 'mppx/tempo'
+
+const store = Store.memory()
+const subscriptions = Subscription.fromStore(store)
+
+export async function cancelSubscription(userId: string) {
+  const subscription = await subscriptions.getByKey(`user:${userId}:plan:pro`)
+  if (!subscription) return false
+
+  await subscriptions.put({
+    ...subscription,
+    canceledAt: new Date().toISOString(),
+  })
+
+  return true
+}
+```
+
+Keep the canceled record instead of deleting it. That preserves receipts and prevents in-flight renewals from clearing the cancellation marker.
+
+### Revoke the access key
+
+On Tempo, clients can also revoke the authorized access key. Do this after server cancellation when you want a wallet-level backstop against future renewals.
+
+```ts twoslash [revoke.ts]
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+import { Actions } from 'viem/tempo'
+
+const client = createClient({
+  account: privateKeyToAccount(
+    '0x0000000000000000000000000000000000000000000000000000000000000001', // your account
+  ),
+  chain: tempo,
+  transport: http(),
+})
+
+await Actions.accessKey.revokeSync(client, {
+  accessKey: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+})
+```
+
+Revoking the access key doesn't cancel the merchant-side subscription record. If the client only revokes the key, the server can still reuse an already-paid period until it tries to renew.
+
 ### Renew in the background
 
 Subscriptions renew when a request arrives after the next billing period starts. For proactive billing, run `tempo.renewSubscription()` from a background job.
@@ -176,6 +233,7 @@ if (result) console.log(result.receipt.status)
 ## Production checklist
 
 - Store subscription records in a durable atomic store.
+- Mark canceled subscriptions with `canceledAt` and keep their records for audit.
 - Use authenticated user or organization IDs in `resolve`.
 - Set `subscriptionExpires` to the maximum authorization lifetime you accept.
 - Add webhook or cron coverage for background renewals if access must stay warm.

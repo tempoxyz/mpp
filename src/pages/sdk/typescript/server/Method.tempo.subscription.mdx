@@ -121,6 +121,30 @@ const mppx = Mppx.create({
 })
 ```
 
+### With cancellation
+
+Mark the stored subscription record with `canceledAt`. `mppx` no longer reuses or renews that record, and the next protected request returns a new subscription Challenge. If the client also revokes the Tempo access key, still update the server record so access and billing state stay aligned.
+
+```ts twoslash
+import { Store } from 'mppx/server'
+import { Subscription } from 'mppx/tempo'
+
+const store = Store.memory()
+const subscriptions = Subscription.fromStore(store)
+
+export async function cancelSubscription(userId: string) {
+  const subscription = await subscriptions.getByKey(`user:${userId}:plan:pro`)
+  if (!subscription) return false
+
+  await subscriptions.put({
+    ...subscription,
+    canceledAt: new Date().toISOString(),
+  })
+
+  return true
+}
+```
+
 ## Return type
 
 ```ts
@@ -243,7 +267,7 @@ Maps a request to a subscription lookup key. Return the same key for every route
 - **Type:** `Store.AtomicStore<Record<string, unknown>>`
 - **Default:** `Store.memory()`
 
-Atomic store for access keys, activation locks, renewal locks, and subscription records.
+Atomic store for access keys, activation locks, renewal locks, and subscription records. Use [`Subscription.fromStore`](/payment-methods/tempo/subscription#cancellation) from `mppx/tempo` when you need to update subscription records directly, such as marking `canceledAt`.
 
 ### subscriptionExpires (optional)
 

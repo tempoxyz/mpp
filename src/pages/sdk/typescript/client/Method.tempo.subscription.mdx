@@ -136,3 +136,34 @@ Access key to use for this request.
 - **Type:** `Account | Address`
 
 Account to use for this request.
+
+## Cancellation
+
+`tempo.subscription()` doesn't expose a client-side cancel method. Call the service's cancellation endpoint so the server can mark the subscription `canceledAt`. You can also revoke the Tempo access key from the payer account as a wallet-level backstop.
+
+```ts [client.ts]
+await fetch('https://api.example.com/subscription/cancel', {
+  method: 'POST',
+})
+```
+
+```ts twoslash [revoke.ts]
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+import { Actions } from 'viem/tempo'
+
+const client = createClient({
+  account: privateKeyToAccount(
+    '0x0000000000000000000000000000000000000000000000000000000000000001', // your account
+  ),
+  chain: tempo,
+  transport: http(),
+})
+
+await Actions.accessKey.revokeSync(client, {
+  accessKey: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+})
+```
+
+Revocation blocks future access-key charges, but it doesn't update the merchant's subscription record. Treat it as a backstop, not the primary cancellation flow.
