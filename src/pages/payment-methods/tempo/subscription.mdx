@@ -95,6 +95,55 @@ When the next billing period starts, the server renews the subscription before g
 
 You can renew in the request path with `renew`, or run renewals from a background worker with [`tempo.renewSubscription`](/sdk/typescript/server/Method.tempo.renewSubscription).
 
+## Cancellation
+
+Cancel a Tempo subscription by marking its stored `SubscriptionRecord` with `canceledAt`. `mppx` treats records with `canceledAt` or `revokedAt` as inactive, so later protected requests return a new `402` Challenge instead of reusing or renewing the old subscription.
+
+The recommended client flow is to call your cancellation endpoint first, then optionally revoke the Tempo access key as a backstop. Server cancellation controls product access. Access-key revocation blocks future on-chain renewal attempts, but it doesn't update the merchant's stored subscription record by itself.
+
+```ts twoslash
+import { Store } from 'mppx/server'
+import { Subscription } from 'mppx/tempo'
+
+const store = Store.memory()
+const subscriptions = Subscription.fromStore(store)
+
+export async function cancelSubscription(userId: string) {
+  const subscription = await subscriptions.getByKey(`user:${userId}:plan:pro`)
+  if (!subscription) return false
+
+  await subscriptions.put({
+    ...subscription,
+    canceledAt: new Date().toISOString(),
+  })
+
+  return true
+}
+```
+
+Keep the canceled record for audit and reconciliation. If the client subscribes again, activation creates a new `subscriptionId` for the same resolved lookup key.
+
+On Tempo, clients that know the authorized access key can revoke it from the payer account:
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+import { Actions } from 'viem/tempo'
+
+const client = createClient({
+  account: privateKeyToAccount(
+    '0x0000000000000000000000000000000000000000000000000000000000000001', // your account
+  ),
+  chain: tempo,
+  transport: http(),
+})
+
+await Actions.accessKey.revokeSync(client, {
+  accessKey: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+})
+```
+
 ## Receipts
 
 Subscription Receipts confirm activation or renewal. The `reference` field is the Tempo transaction hash for the period payment.
