@@ -17,6 +17,7 @@ const sidebarCategories: Record<string, string> = {
   "/sdk": "SDKs",
   "/brand": "Resources",
   "/services": "Services",
+  "/blog": "Blog",
 };
 
 const sidebarSubcategories: Record<string, string> = {
