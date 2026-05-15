@@ -63,6 +63,12 @@ Resolved `Accept-Payment` header and preference data.
 
 Controls when `Accept-Payment` is injected.
 
+### eventDispatcher (optional)
+
+- **Type:** `ClientEventDispatcher<methods>`
+
+Advanced shared event dispatcher. `challenge.received` handlers run before `onChallenge`; the first returned Credential string skips `onChallenge`.
+
 ### fetch (optional)
 
 - **Type:** `typeof globalThis.fetch`

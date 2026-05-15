@@ -68,6 +68,12 @@ Controls when `Accept-Payment` is injected.
 
 Use `'same-origin'` in browsers when you only want same-origin payment discovery. Use `{ origins }` when paid APIs live on specific origins. Origin patterns support `*.` subdomain wildcards.
 
+### eventDispatcher (optional)
+
+- **Type:** `ClientEventDispatcher<methods>`
+
+Advanced shared event dispatcher. `challenge.received` handlers run before `onChallenge`; the first returned Credential string skips `onChallenge`.
+
 ### fetch (optional)
 
 - **Type:** `typeof globalThis.fetch`

@@ -1,0 +1,211 @@
+---
+layout: minimal
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "mppx now exposes typed payment hooks for logging, monitoring, observability, and request context."
+imageDescription: "Observe paid requests with mppx hooks"
+---
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>May 18, 2026</p>
+
+# Payment hooks [Observe paid requests with typed lifecycle events]
+
+"Payment hooks" are out for client and server payment flows. Use them to record what happened around a paid request without rewriting your payment handler.
+
+Hooks are useful when you need payment telemetry in the same place as the rest of your application telemetry: logs, metrics, traces, audit records, support dashboards, or local debugging context.
+
+## What changed
+
+Client handlers can now observe Challenge selection, Credential creation, retry responses, and failures:
+
+```ts [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(process.env.MPP_PRIVATE_KEY as `0x${string}`)
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const log = (event: string, data: Record<string, unknown>) => {
+  console.log(event, data)
+}
+
+mppx.onChallengeReceived(({ challenge }) => {
+  log('payment.challenge.received', {
+    challengeId: challenge.id,
+    intent: challenge.intent,
+    method: challenge.method,
+  })
+})
+
+mppx.onCredentialCreated(({ challenge }) => {
+  log('payment.credential.created', {
+    challengeId: challenge.id,
+    intent: challenge.intent,
+    method: challenge.method,
+  })
+})
+
+mppx.onPaymentResponse(({ challenge, response }) => {
+  log('payment.response', {
+    challengeId: challenge.id,
+    status: response.status,
+  })
+})
+
+mppx.onPaymentFailed(({ error, input }) => {
+  log('payment.failed', {
+    error: error instanceof Error ? error.message : String(error),
+    input: String(input),
+  })
+})
+
+const response = await mppx.fetch('https://api.example.com/report')
+```
+
+Server handlers can observe when your API creates a Challenge, accepts a payment, or rejects a submitted Credential:
+
+```ts [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.charge()],
+})
+
+const log = (event: string, data: Record<string, unknown>) => {
+  console.log(event, data)
+}
+
+payment.onChallengeCreated(({ challenge, request }) => {
+  log('payment.challenge.created', {
+    amount: request.amount,
+    challengeId: challenge.id,
+    currency: request.currency,
+  })
+})
+
+payment.onPaymentSuccess(({ receipt, request }) => {
+  log('payment.success', {
+    amount: request.amount,
+    currency: request.currency,
+    reference: receipt.reference,
+    status: receipt.status,
+  })
+})
+
+payment.onPaymentFailed(({ challenge, error, request }) => {
+  log('payment.failed', {
+    amount: request.amount,
+    challengeId: challenge.id,
+    error: error.name,
+  })
+})
+```
+
+You can use the convenience helpers above, or register the canonical event names directly:
+
+```ts [events.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(process.env.MPP_PRIVATE_KEY as `0x${string}`)
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+mppx.on('challenge.received', ({ challenge }) => {
+  console.log('client challenge:', challenge.id)
+})
+
+mppx.on('credential.created', ({ challenge }) => {
+  console.log('client credential:', challenge.id)
+})
+
+mppx.on('payment.response', ({ response }) => {
+  console.log('client response:', response.status)
+})
+
+mppx.on('payment.failed', ({ error }) => {
+  console.error('client failure:', error)
+})
+```
+
+Server events use the same `on` pattern:
+
+```ts [server-events.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.charge()],
+})
+
+payment.on('challenge.created', ({ challenge }) => {
+  console.log('server challenge:', challenge.id)
+})
+
+payment.on('payment.success', ({ receipt }) => {
+  console.log('server success:', receipt.reference)
+})
+
+payment.on('payment.failed', ({ error }) => {
+  console.error('server failure:', error.name)
+})
+```
+
+Wildcard handlers receive every payment event with its event name and payload:
+
+```ts [wildcards.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.charge()],
+})
+
+payment.on('*', ({ name, payload }) => {
+  console.log('server payment event:', {
+    challengeId: payload.challenge.id,
+    intent: payload.method.intent,
+    name,
+  })
+})
+```
+
+## Why hooks matter
+
+MPP keeps the payment flow close to the request flow. That makes integration simple, but production systems still need visibility.
+
+Hooks give you a typed place to attach that visibility:
+
+- **Monitoring**: Count Challenges, successful payments, failed Credentials, and paid retry responses.
+- **Observability**: Attach Challenge IDs, method names, intents, amounts, currencies, and Receipt references to traces.
+- **Logging**: Record enough context to debug a failed payment without logging secrets.
+- **Support**: Connect a user-facing request to the payment attempt that authorized it.
+
+The hook context is intentionally payment-shaped. You get the Challenge, method descriptor, parsed request, Receipt, Credential, response, or error depending on the event.
+
+## Use hooks carefully
+
+Client observation hooks don't change payment handling. If a client observation hook throws, `mppx` ignores the error and continues the payment flow.
+
+`onChallengeReceived` is the one client hook that can affect handling: return a Credential string to use it for the retry. This lets advanced clients create Credentials with custom context before falling back to `onChallenge` or the default flow.
+
+Server hooks run inline on the payment request path. Keep them short, or hand work to your logger, metrics client, or queue. `mppx` ignores thrown server hook errors so observability code doesn't block payment verification, but slow hooks still delay the response.
+
+## What's next
+
+This release starts with core payment lifecycle events. We plan to expand the hook surface over the next few months with more context and more places to observe payment behavior across transports.
+
+If there is an event or payload field you need, leave feedback on [GitHub](https://github.com/wevm/mppx/issues).
+
+</div>

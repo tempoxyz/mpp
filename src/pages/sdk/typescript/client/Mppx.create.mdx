@@ -18,6 +18,37 @@ Mppx.create({
 const res = await fetch('https://mpp.dev/api/ping/paid')
 ```
 
+### With payment hooks
+
+Register hooks on the returned `mppx` instance to observe the payment flow.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const offFailure = mppx.onPaymentFailed(({ error, input }) => {
+  console.error('payment failed:', input, error)
+})
+
+const offResponse = mppx.onPaymentResponse(({ challenge, response }) => {
+  console.log('payment response:', challenge.id, response.status)
+})
+
+const res = await mppx.fetch('https://mpp.dev/api/ping/paid')
+console.log(res.status)
+// @log: 200
+
+offFailure()
+offResponse()
+```
+
 ### Without polyfill
 
 Set `polyfill: false` to get a scoped fetch without modifying the global:
@@ -103,6 +134,16 @@ type Mppx = {
     context?: Context,
     options?: { acceptPayment?: string | AcceptPayment.Entry[] },
   ) => Promise<string>
+  /** Register a handler for any client payment event. */
+  on(name: ClientEventName | '*', handler: ClientEventHandler): Unsubscribe
+  /** Register a handler for received payment Challenges. */
+  onChallengeReceived(handler: ChallengeReceivedHandler): Unsubscribe
+  /** Register a handler for created Credentials. */
+  onCredentialCreated(handler: CredentialCreatedHandler): Unsubscribe
+  /** Register a handler for failed automatic payment handling. */
+  onPaymentFailed(handler: PaymentFailedHandler): Unsubscribe
+  /** Register a handler for payment retry responses. */
+  onPaymentResponse(handler: PaymentResponseHandler): Unsubscribe
 }
 ```
 
@@ -123,6 +164,41 @@ const mppx = Mppx.create({
 
 // Bypass payment interception
 const raw = await mppx.rawFetch('https://api.example.com/ws-auth') // [!code focus]
+```
+
+## Payment hooks
+
+Payment hooks are for logging, monitoring, tracing, and request-local context. Each registration returns an unsubscribe function.
+
+| Hook | Runs when |
+|---|---|
+| `onChallengeReceived` | A `402` Challenge is selected |
+| `onCredentialCreated` | A Credential is created for the selected Challenge |
+| `onPaymentResponse` | The retry after payment returns a successful response |
+| `onPaymentFailed` | Challenge parsing, credential creation, or retry handling fails |
+| `on('*', handler)` | Any client payment event fires |
+
+`onChallengeReceived` runs before `onChallenge`. It can return a Credential string to override the default credential flow. Other hooks are observers: thrown errors are ignored and don't change payment handling.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+mppx.onChallengeReceived(async ({ challenge, createCredential }) => {
+  console.log('challenge received:', challenge.id)
+  return createCredential()
+})
+
+mppx.on('*', ({ name }) => {
+  console.log('payment event:', name)
+})
 ```
 
 ## Parameters
