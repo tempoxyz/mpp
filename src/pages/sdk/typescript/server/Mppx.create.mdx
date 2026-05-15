@@ -25,6 +25,30 @@ const payment = Mppx.create({
 })
 ```
 
+### With payment hooks
+
+Register hooks on the returned `payment` instance to observe Challenges, successful payments, and failures.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.charge()],
+})
+
+payment.onChallengeCreated(({ challenge, request }) => {
+  console.log('challenge created:', challenge.id, request.amount)
+})
+
+payment.onPaymentFailed(({ challenge, error }) => {
+  console.error('payment failed:', challenge.id, error.name)
+})
+
+payment.onPaymentSuccess(({ receipt, request }) => {
+  console.log('payment success:', receipt.reference, request.amount)
+})
+```
+
 ## Return type
 
 ```ts
@@ -34,7 +58,7 @@ import type { Mppx, Transport } from 'mppx/server'
 type ReturnType = Mppx<[Method.Server], Transport.Http>
 ```
 
-The returned object includes the method's intent functions (for example, `charge`), `compose`, and `verifyCredential`.
+The returned object includes the method's intent functions (for example, `charge`), `challenge`, `compose`, payment hooks, and `verifyCredential`.
 
 ## Parameters
 
