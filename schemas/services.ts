@@ -6568,6 +6568,41 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Tempo Wallet Snapshot ──────────────────────────────────────────────
+  {
+    id: "tempocheck",
+    name: "Tempo Wallet Snapshot",
+    url: "https://tempocheck.xyz",
+    serviceUrl: "https://tempocheck.xyz",
+    description:
+      "Paid API returning Tempo wallet stats: TIP-20 stablecoin balances, account type, nonce, and (in deep mode) 7-day activity. Charges USDC.e via MPP.",
+
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["wallet", "balance", "tempo", "blockchain", "snapshot", "tip-20", "usdc"],
+    docs: {
+      homepage: "https://tempocheck.xyz",
+      llmsTxt: "https://tempocheck.xyz/llms.txt",
+      apiReference: "https://tempocheck.xyz/openapi.json",
+    },
+    provider: { name: "tempocheck", url: "https://tempocheck.xyz" },
+    realm: "tempocheck.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/snapshot",
+        desc: "Wallet snapshot — TIP-20 balances, nonce, account type. Add ?deep=true for 7-day activity ($0.02).",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/tokens",
+        desc: "Full TIP-20 token registry for Tempo Mainnet. Free, no payment required.",
+      },
+    ],
+  },
+
   // ── Papercut ───────────────────────────────────────────────────────────
   {
     id: "papercut",
