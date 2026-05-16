@@ -990,6 +990,11 @@ export const services: ServiceDef[] = [
         amount: "25000",
       },
       {
+        route: "POST /fal-ai/flux/dev/image-to-image",
+        desc: "FLUX.1 [dev] - Image-to-image editing and transformations",
+        amount: "25000",
+      },
+      {
         route: "POST /fal-ai/flux/schnell",
         desc: "FLUX.1 [schnell] - Fast text-to-image (1-4 steps)",
         amount: "3000",
