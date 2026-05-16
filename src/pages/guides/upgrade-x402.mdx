@@ -18,9 +18,9 @@ MPP builds on the same `402` pattern that x402 established, and extends it with 
 
 | | x402 | MPP |
 |---|---|---|
-| **Challenge** | `X-PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
-| **Credential** | `X-PAYMENT` header | `Authorization: Payment` header |
-| **Receipt** | `X-PAYMENT-RESPONSE` header | `Payment-Receipt` header |
+| **Challenge** | `PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
+| **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` header |
+| **Receipt** | `PAYMENT-RESPONSE` header | `Payment-Receipt` header |
 | **Payment methods** | Stablecoins only | Stablecoins, cards, digital wallets, and many other methods |
 | **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
 | **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
@@ -40,9 +40,9 @@ The request lifecycle is the same—only the header names and encoding change.
     participant Client
     participant Server
     Client->>Server: GET /resource
-    Server-->>Client: 402 + X-PAYMENT-REQUIRED
-    Client->>Server: GET /resource + X-PAYMENT
-    Server-->>Client: 200 + X-PAYMENT-RESPONSE
+    Server-->>Client: 402 + PAYMENT-REQUIRED
+    Client->>Server: GET /resource + PAYMENT-SIGNATURE
+    Server-->>Client: 200 + PAYMENT-RESPONSE
 `} />
 
 **MPP**
@@ -60,30 +60,30 @@ The request lifecycle is the same—only the header names and encoding change.
 
 MPP uses three protocol objects in every payment flow—the same lifecycle x402 uses, with standardized names:
 
-- **Challenge** — The server's `402` response advertising what payment is required. Sent in the `WWW-Authenticate: Payment` header. Equivalent to x402's `X-PAYMENT-REQUIRED`.
-- **Credential** — The client's signed payment authorization. Sent in the `Authorization: Payment` header. Equivalent to x402's `X-PAYMENT`.
-- **Receipt** — The server's confirmation that payment settled. Sent in the `Payment-Receipt` header. Equivalent to x402's `X-PAYMENT-RESPONSE`.
+- **Challenge** — The server's `402` response advertising what payment is required. Sent in the `WWW-Authenticate: Payment` header. Equivalent to x402's `PAYMENT-REQUIRED`.
+- **Credential** — The client's signed payment authorization. Sent in the `Authorization: Payment` header. Equivalent to x402's `PAYMENT-SIGNATURE`.
+- **Receipt** — The server's confirmation that payment settled. Sent in the `Payment-Receipt` header. Equivalent to x402's `PAYMENT-RESPONSE`.
 
 ## Running MPP and x402 side by side
 
 MPP and x402 use completely different HTTP headers (see [comparison above](#what-mpp-adds)), so they coexist on the same server without conflict. This lets you adopt MPP incrementally—add it to new endpoints while existing x402 clients continue working.
 
-A single `402` response can include **both** sets of headers simultaneously. x402 clients read `X-PAYMENT-REQUIRED` and ignore `WWW-Authenticate`, while MPP clients read `WWW-Authenticate: Payment` and ignore the `X-` headers.
+A single `402` response can include **both** sets of headers simultaneously. x402 clients read `PAYMENT-REQUIRED` and ignore `WWW-Authenticate`, while MPP clients read `WWW-Authenticate: Payment` and ignore the x402 headers.
 
 ```http
 HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment id="abc", realm="api.example.com",
   method="tempo", intent="charge", request="eyJ..."
-X-PAYMENT-REQUIRED: {"scheme":"exact","network":"base-sepolia",
+PAYMENT-REQUIRED: {"scheme":"exact","network":"base-sepolia",
   "maxAmountRequired":"10000","resource":"..."}
 ```
 
-On the return trip, MPP clients send `Authorization: Payment <credential>` while x402 clients send `X-PAYMENT: <payload>`. Your server checks which header is present and verifies accordingly:
+On the return trip, MPP clients send `Authorization: Payment <credential>` while x402 clients send `PAYMENT-SIGNATURE: <payload>`. Your server checks which header is present and verifies accordingly:
 
 ```ts [server.ts]
 app.get('/api/data', (req, res, next) => {
   const hasPayment = req.headers['authorization']?.startsWith('Payment ')
-  const hasX402 = !!req.headers['x-payment']
+  const hasX402 = !!req.headers['payment-signature']
 
   if (hasPayment) {
     return mppx.charge({ amount: '0.01' })(req, res, next)
@@ -93,7 +93,7 @@ app.get('/api/data', (req, res, next) => {
   }
 
   // No credential — advertise both protocols
-  res.setHeader('X-PAYMENT-REQUIRED', JSON.stringify(x402Challenge))
+  res.setHeader('PAYMENT-REQUIRED', JSON.stringify(x402Challenge))
   mppx.charge({ amount: '0.01' })(req, res, () => {})
 }, (req, res) => {
   res.json({ data: 'premium content' })
@@ -101,7 +101,7 @@ app.get('/api/data', (req, res, next) => {
 ```
 
 :::tip
-Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP intermediaries (proxies, CDNs, API gateways) that understand [RFC 7235](https://www.rfc-editor.org/rfc/rfc7235) authentication. x402's custom `X-` headers are opaque to these intermediaries.
+Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP intermediaries (proxies, CDNs, API gateways) that understand [RFC 7235](https://www.rfc-editor.org/rfc/rfc7235) authentication. x402's custom `PAYMENT-*` headers are opaque to these intermediaries.
 :::
 
 ## Prompt mode

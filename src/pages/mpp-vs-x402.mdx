@@ -23,9 +23,9 @@ Choose **x402** only if you explicitly want a narrow, stablecoin-focused paywall
 |---|---|---|
 | **Core model** | Stablecoin payment attached to a request | General payment protocol for machine-to-machine payments |
 | **HTTP status** | `402 Payment Required` | `402 Payment Required` |
-| **Challenge header** | `X-PAYMENT-REQUIRED` | `WWW-Authenticate: Payment` |
-| **Credential header** | `X-PAYMENT` | `Authorization: Payment` |
-| **Receipt header** | `X-PAYMENT-RESPONSE` | `Payment-Receipt` |
+| **Challenge header** | `PAYMENT-REQUIRED` | `WWW-Authenticate: Payment` |
+| **Credential header** | `PAYMENT-SIGNATURE` | `Authorization: Payment` |
+| **Receipt header** | `PAYMENT-RESPONSE` | `Payment-Receipt` |
 | **Payment methods** | Blockchain-based methods | Stablecoins, cards, Lightning, wallets, and custom methods |
 | **Sessions / streaming** | No native session flow | Yes—session intent for pay-as-you-go billing |
 | **Request binding** | Narrower | First-class Challenge binding and request digest support |
