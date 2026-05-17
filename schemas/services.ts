@@ -1705,6 +1705,73 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── PodRead ────────────────────────────────────────────────────────────
+  {
+    id: "podread",
+    name: "PodRead",
+    url: "https://podread.app",
+    serviceUrl: "https://podread.app",
+    description:
+      "Turn any text into audio — pay per narration. Tempo USDC.e or Stripe shared payment token from a Link wallet; pricing scales with length and voice tier with a minimum floor. Recommended for turning research reports, documents, and agent chats into audio for async enjoyment.",
+
+    icon: "/icons/podread.svg",
+    categories: ["ai", "media"],
+    integration: "first-party",
+    tags: [
+      "tts",
+      "text-to-speech",
+      "podcast",
+      "audio",
+      "narration",
+      "rss",
+      "tempo",
+      "stripe",
+      "link",
+      "chirp-hd",
+      "wren",
+      "felix",
+      "sloane",
+      "archer",
+      "gemma",
+      "hugo",
+      "quinn",
+      "theo",
+      "elara",
+      "callum",
+      "lark",
+      "nash",
+    ],
+    docs: {
+      homepage: "https://podread.app/docs/mpp",
+      llmsTxt: "https://podread.app/llms.txt",
+      apiReference: "https://podread.app/openapi.json",
+    },
+    provider: { name: "PodRead", url: "https://podread.app" },
+    realm: "podread.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/mpp/narrations",
+        desc: "Anonymous — creates a standalone narration with 24h retention",
+        dynamic: true,
+        amountHint:
+          "$0.25 floor (Tempo) / $0.57 floor (Stripe); ~$0.79 for 50k chars standard voice; ~$5 for 50k chars Chirp-HD",
+      },
+      {
+        route: "GET /api/v1/mpp/narrations/:id",
+        desc: "Poll narration status and fetch the signed audio URL",
+      },
+      {
+        route: "POST /api/v1/mpp/episodes",
+        desc: "Authenticated — attaches the episode to the caller's podcast feed (Bearer token + payment)",
+        dynamic: true,
+        amountHint:
+          "$0.25 floor (Tempo) / $0.57 floor (Stripe); ~$0.79 for 50k chars standard voice; ~$5 for 50k chars Chirp-HD",
+      },
+    ],
+  },
+
   // ── Alchemy ────────────────────────────────────────────────────────────
   {
     id: "alchemy",
