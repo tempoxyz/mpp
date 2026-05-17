@@ -1667,6 +1667,63 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── P402 ───────────────────────────────────────────────────────────────
+  {
+    id: "p402",
+    name: "P402 Router",
+    url: "https://p402.io",
+    serviceUrl: "https://p402.io",
+    description:
+      "OpenAI-compatible AI router with per-request micropayment billing. Route prompts to 13 LLM providers — OpenAI, Anthropic, Gemini, Groq, and more — with intelligent cost/speed/quality routing. Pay per inference in USDC.e on Tempo or USDC on Base. No subscription required.",
+
+    categories: ["ai"],
+    integration: "first-party",
+    tags: [
+      "llm",
+      "router",
+      "openai-compatible",
+      "micropayments",
+      "x402",
+      "multi-provider",
+      "anthropic",
+      "openai",
+      "gemini",
+      "groq",
+      "usdc",
+      "base",
+      "tempo",
+    ],
+    status: "beta",
+    docs: {
+      homepage: "https://p402.io/docs/api",
+      llmsTxt: "https://p402.io/llms.txt",
+      apiReference: "https://p402.io/docs/api",
+    },
+    provider: { name: "P402", url: "https://p402.io" },
+    realm: "p402.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v2/chat/completions",
+        desc: "OpenAI-compatible chat completions routed to the best provider — price varies by model and token count",
+        dynamic: true,
+        amountHint: "$0.001 base + model token cost",
+        docs: "https://p402.io/docs/api",
+      },
+      {
+        route: "GET /api/v2/models",
+        desc: "List available models across all 13 supported providers",
+        docs: false,
+      },
+      {
+        route: "GET /api/health",
+        desc: "Service and mppx payment gate health status",
+        docs: false,
+      },
+    ],
+  },
+
   // ── Parallel ───────────────────────────────────────────────────────────
   {
     id: "parallel",
