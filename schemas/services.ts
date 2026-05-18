@@ -5730,6 +5730,77 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── mppgas ───────────────────────────────────────────────────────────
+  {
+    id: "mppgas",
+    name: "mppgas",
+    url: "https://gas.ivan-tempo.xyz",
+    serviceUrl: "https://gas.ivan-tempo.xyz",
+    description:
+      "Multi-chain gas tracker. Returns current slow/standard/fast gas prices in gwei, native token USD price, and estimated 21k-gas transfer cost in USD for Ethereum, Base, Arbitrum, Optimism, Polygon, BSC, and Tempo.",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: [
+      "gas",
+      "gas-price",
+      "ethereum",
+      "base",
+      "arbitrum",
+      "optimism",
+      "polygon",
+      "bsc",
+      "tempo",
+      "multichain",
+      "defi",
+      "evm",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://gas.ivan-tempo.xyz",
+      apiReference: "https://gas.ivan-tempo.xyz/openapi.json",
+    },
+    provider: { name: "mppgas", url: "https://gas.ivan-tempo.xyz" },
+    realm: "gas.ivan-tempo.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/gas",
+        desc: "Gas prices (slow/standard/fast gwei), native token USD price, and 21k-gas transfer cost for all 7 chains. Cached 10s per chain.",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/gas/deep",
+        desc: "EIP-1559 breakdown: baseFee, priorityFee (slow/standard/fast), maxFeePerGas recommendations, block number and timestamp. Falls back to legacy gasPrice for non-EIP-1559 chains.",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/gas/forecast",
+        desc: "30-min linear trend forecast based on rolling 10-min sample buffer. Returns now / in15min / in30min gwei per chain. Falls back to 'insufficient data' on cold start.",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/gas/spike?chain=ethereum",
+        desc: "Spike detector. Compares current standard gwei against rolling 1h average. Returns isSpike=true if current > avg + 2*stddev. Supports all 7 chains via query param.",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/gas/best-time?chain=ethereum",
+        desc: "Finds cheapest UTC hour from 24h rolling buffer. Returns currentVsCheapest percentage and recommendation 'send now' or 'wait'.",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/info",
+        desc: "Service metadata — payment details, gas-abstraction status (free)",
+      },
+    ],
+  },
+
   // ── OpenWeather ──────────────────────────────────────────────────────
   {
     id: "openweather",
