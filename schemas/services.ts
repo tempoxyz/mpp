@@ -103,9 +103,9 @@ export interface ServiceDef {
   description: string;
 
   icon?: string;
-  categories: Category[
+  categories: Category[];
   integration: Integration;
-  tags: string[
+  tags: string[];
   status?: Status;
   docs?: { homepage?: string; llmsTxt?: string; apiReference?: string };
   provider?: { name: string; url: string };
@@ -114,10 +114,10 @@ export interface ServiceDef {
   /** Default payment intent for paid endpoints in this service */
   intent: Intent;
   /** Payment methods accepted by this service — first entry is primary for endpoint-level payment info */
-  payments: PaymentDefaults[
+  payments: PaymentDefaults[];
   /** Base URL for auto-generating per-endpoint docs links */
   docsBase?: string;
-  endpoints: EndpointDef[
+  endpoints: EndpointDef[];
 }
 
 // prettier-ignore
