@@ -5734,8 +5734,8 @@ export const services: ServiceDef[] = [
   {
     id: "mppgas",
     name: "mppgas",
-    url: "https://mppgas.vercel.app",
-    serviceUrl: "https://mppgas.vercel.app",
+    url: "https://gas.ivan-tempo.xyz",
+    serviceUrl: "https://gas.ivan-tempo.xyz",
     description:
       "Multi-chain gas tracker. Returns current slow/standard/fast gas prices in gwei, native token USD price, and estimated 21k-gas transfer cost in USD for Ethereum, Base, Arbitrum, Optimism, Polygon, BSC, and Tempo.",
     categories: ["blockchain", "data"],
@@ -5756,11 +5756,11 @@ export const services: ServiceDef[] = [
     ],
     status: "active",
     docs: {
-      homepage: "https://mppgas.vercel.app",
-      apiReference: "https://mppgas.vercel.app/openapi.json",
+      homepage: "https://gas.ivan-tempo.xyz",
+      apiReference: "https://gas.ivan-tempo.xyz/openapi.json",
     },
-    provider: { name: "mppgas", url: "https://mppgas.vercel.app" },
-    realm: "mppgas.vercel.app",
+    provider: { name: "mppgas", url: "https://gas.ivan-tempo.xyz" },
+    realm: "gas.ivan-tempo.xyz",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
     endpoints: [
