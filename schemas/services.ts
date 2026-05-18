@@ -5730,6 +5730,53 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── mppgas ───────────────────────────────────────────────────────────
+  {
+    id: "mppgas",
+    name: "mppgas",
+    url: "https://mppgas.vercel.app",
+    serviceUrl: "https://mppgas.vercel.app",
+    description:
+      "Multi-chain gas tracker. Returns current slow/standard/fast gas prices in gwei, native token USD price, and estimated 21k-gas transfer cost in USD for Ethereum, Base, Arbitrum, Optimism, Polygon, BSC, and Tempo.",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: [
+      "gas",
+      "gas-price",
+      "ethereum",
+      "base",
+      "arbitrum",
+      "optimism",
+      "polygon",
+      "bsc",
+      "tempo",
+      "multichain",
+      "defi",
+      "evm",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://mppgas.vercel.app",
+      apiReference: "https://mppgas.vercel.app/openapi.json",
+    },
+    provider: { name: "mppgas", url: "https://mppgas.vercel.app" },
+    realm: "mppgas.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/gas",
+        desc: "Gas prices (slow/standard/fast gwei), native token USD price, and 21k-gas transfer cost for all 7 chains. Cached 10s per chain.",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/info",
+        desc: "Service metadata — payment details, gas-abstraction status (free)",
+      },
+    ],
+  },
+
   // ── OpenWeather ──────────────────────────────────────────────────────
   {
     id: "openweather",
