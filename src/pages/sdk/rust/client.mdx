@@ -58,7 +58,7 @@ let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?
 For automatic `402` handling on all requests, use `PaymentMiddleware` with `reqwest-middleware`. Requires the `middleware` feature.
 
 ```toml
-mpp = { version = "0.1", features = ["tempo", "client", "middleware"] }
+mpp = { version = "0.10.3", features = ["tempo", "client", "middleware"] }
 ```
 
 ```rust
@@ -74,6 +74,44 @@ let client = ClientBuilder::new(reqwest::Client::new())
 // All requests through this client handle 402 automatically
 let response = client.get("https://api.example.com/paid").send().await?;
 ```
+
+## Event handling
+
+Use `ClientEvents` to observe the automatic `402` flow. Typed helpers cover common events, `on()` registers a specific event kind, and `on_any()` receives every client event.
+
+```rust
+use mpp::client::{
+    ClientEvent, ClientEventKind, ClientEvents, PaymentMiddleware, TempoProvider,
+};
+use reqwest_middleware::ClientBuilder;
+
+let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
+let events = ClientEvents::default();
+
+// Observe the selected Challenge before the provider creates a Credential.
+let _challenge = events.on_challenge_received(|ctx| async move {
+    println!("challenge received: {}", ctx.challenge.id);
+    None
+});
+
+// Observe the retried response after payment.
+let _response = events.on(ClientEventKind::PaymentResponse, |event| async move {
+    if let ClientEvent::PaymentResponse(ctx) = event {
+        println!("payment response: {}", ctx.status);
+    }
+});
+
+// Catch every client payment event in one handler.
+let _all = events.on_any(|event| async move {
+    println!("payment event: {}", event.kind().as_str());
+});
+
+let client = ClientBuilder::new(reqwest::Client::new())
+    .with(PaymentMiddleware::new(provider).with_events(events))
+    .build();
+```
+
+`on_challenge_received` can return `Some(PaymentCredential)` to override the default provider payment flow. Other handlers only observe payment handling. Keep the returned subscription handles alive while handlers should remain registered.
 
 ## Multiple providers
 

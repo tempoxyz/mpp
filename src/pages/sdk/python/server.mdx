@@ -62,6 +62,57 @@ mpp = Mpp.create(
 )
 ```
 
+## Event handling
+
+Register event handlers to monitor issued Challenges, successful payments, and rejected Credentials. Typed helpers cover common events, string names map to the lifecycle event names, and `*` receives every server event.
+
+```python [server.py]
+from mpp.events import PAYMENT_SUCCESS
+from mpp.methods.tempo import tempo, ChargeIntent
+from mpp.server import Mpp
+
+mpp = Mpp.create(
+    method=tempo(
+        currency="0x20c0000000000000000000000000000000000000",
+        intents={"charge": ChargeIntent()},
+        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    ),
+    secret_key="my-server-secret",
+)
+
+def log(event: str, data: dict[str, object]) -> None:
+    print(event, data)
+
+# Observe each Challenge issued by your API.
+mpp.on_challenge_created(
+    lambda payload: log(
+        "payment.challenge.created",
+        {
+            "amount": payload["request"]["amount"],
+            "currency": payload["request"]["currency"],
+            "method": payload["method"],
+        },
+    )
+)
+
+# Observe successful Credential verification.
+mpp.on(
+    PAYMENT_SUCCESS,
+    lambda payload: log(
+        "payment.success",
+        {
+            "intent": payload["intent"],
+            "reference": payload["receipt"].reference,
+        },
+    ),
+)
+
+# Catch every server payment event in one handler.
+mpp.on("*", lambda event: log("payment.event", {"name": event.name}))
+```
+
+Server handlers run inline on the payment request path. Keep them short, or send work to your logger, metrics client, or queue. Each registration returns an unsubscribe function.
+
 ## `tempo()` factory
 
 `tempo()` creates a `TempoMethod` that bundles a payment network, its intents, and default parameters together. Each intent must be explicitly registered via the `intents` parameter.
