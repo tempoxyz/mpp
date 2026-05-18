@@ -69,11 +69,13 @@ export default async function handler(request: Request) {
   const poem = poems[Math.floor(Math.random() * poems.length)];
   const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
 
+  // biome-ignore lint/suspicious/noExplicitAny: mppx withReceipt stream type not yet exported
   return result.withReceipt(async function* (stream: any) {
     yield JSON.stringify({ title: poem.title, author: poem.author });
     for (const word of words) {
       await stream.charge();
       yield word;
     }
+    // biome-ignore lint/suspicious/noExplicitAny: mppx withReceipt callback cast required
   } as any);
 }

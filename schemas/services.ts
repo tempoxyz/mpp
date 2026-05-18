@@ -6602,4 +6602,47 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── AlgoVoi ────────────────────────────────────────────────────────────────────
+  {
+    id: "algovoi",
+    name: "AlgoVoi",
+    url: "https://api.algovoi.co.uk",
+    serviceUrl: "https://api.algovoi.co.uk",
+    description:
+      "Multi-chain crypto payment gateway for e-commerce and AI agents. USDC.e on Tempo, plus Algorand, VOI, Hedera, Stellar, Base, and Solana on a single endpoint.",
+
+    categories: ["blockchain", "web"],
+    integration: "third-party",
+    tags: [
+      "payments",
+      "usdc",
+      "multi-chain",
+      "algorand",
+      "tempo",
+      "x402",
+      "mpp",
+      "e-commerce",
+      "ai-agents",
+    ],
+    docs: {
+      homepage: "https://docs.algovoi.co.uk",
+    },
+    provider: { name: "AlgoVoi", url: "https://algovoi.co.uk" },
+    realm: "api.algovoi.co.uk",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /mpp/:resource_id",
+        desc: "MPP-gated resource — 401 Payment challenge then 200 content",
+        amount: "10000",
+      },
+      {
+        route: "POST /mpp/challenge",
+        desc: "Explicit challenge pre-fetch for pipeline agents",
+        amount: "0",
+      },
+    ],
+  },
 ];
