@@ -117,6 +117,6 @@ export default async function handler(request: Request) {
       await stream.charge();
       yield token;
     }
-  // biome-ignore lint/suspicious/noExplicitAny: mppx withReceipt callback cast required
+    // biome-ignore lint/suspicious/noExplicitAny: mppx withReceipt callback cast required
   } as any);
 }

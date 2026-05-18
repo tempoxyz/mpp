@@ -114,11 +114,13 @@ export default async function handler(request: Request) {
           const text = content.replaceAll("\n", "\t");
           const tokens = tokenize(text);
 
+          // biome-ignore lint/suspicious/noExplicitAny: mppx withReceipt stream type not yet exported
           return result.withReceipt(async function* (stream: any) {
             for (const token of tokens) {
               await stream.charge();
               yield token;
             }
+            // biome-ignore lint/suspicious/noExplicitAny: mppx withReceipt callback cast required
           } as any);
         }
         console.warn(
@@ -151,10 +153,12 @@ export default async function handler(request: Request) {
   ].join("\t");
   const tokens = tokenize(text);
 
+  // biome-ignore lint/suspicious/noExplicitAny: mppx withReceipt stream type not yet exported
   return result.withReceipt(async function* (stream: any) {
     for (const token of tokens) {
       await stream.charge();
       yield token;
     }
+    // biome-ignore lint/suspicious/noExplicitAny: mppx withReceipt callback cast required
   } as any);
 }
