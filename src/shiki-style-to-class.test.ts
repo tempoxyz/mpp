@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shikiStyleToClass } from "./shiki-style-to-class.js";
 
-// biome-ignore lint/suspicious/noExplicitAny: test helpers
 function makeRoot(spans: { style: string }[]): any {
   return {
     type: "root",

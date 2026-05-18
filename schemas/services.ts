@@ -6598,7 +6598,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-
   // ── AlgoVoi ────────────────────────────────────────────────────────────────────
   {
     id: "algovoi",
@@ -6610,7 +6609,17 @@ export const services: ServiceDef[] = [
 
     categories: ["blockchain", "web"],
     integration: "third-party",
-    tags: ["payments", "usdc", "multi-chain", "algorand", "tempo", "x402", "mpp", "e-commerce", "ai-agents"],
+    tags: [
+      "payments",
+      "usdc",
+      "multi-chain",
+      "algorand",
+      "tempo",
+      "x402",
+      "mpp",
+      "e-commerce",
+      "ai-agents",
+    ],
     docs: {
       homepage: "https://docs.algovoi.co.uk",
     },
