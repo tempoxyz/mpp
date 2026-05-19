@@ -77,7 +77,7 @@ let response = client.get("https://api.example.com/paid").send().await?;
 
 ## Event handling
 
-Use `ClientEvents` to observe the automatic `402` flow. Typed helpers cover common events, `on()` registers a specific event kind, and `on_any()` receives every client event.
+Use `ClientEvents` to record the automatic `402` flow. Use helper methods for named events, `on()` for one event kind, and `on_any()` for every client event.
 
 ```rust
 use mpp::client::{
@@ -88,13 +88,13 @@ use reqwest_middleware::ClientBuilder;
 let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
 let events = ClientEvents::default();
 
-// Observe the selected Challenge before the provider creates a Credential.
+// Record the selected Challenge before the provider creates a Credential.
 let _challenge = events.on_challenge_received(|ctx| async move {
     println!("challenge received: {}", ctx.challenge.id);
     None
 });
 
-// Observe the retried response after payment.
+// Record the retried response after payment.
 let _response = events.on(ClientEventKind::PaymentResponse, |event| async move {
     if let ClientEvent::PaymentResponse(ctx) = event {
         println!("payment response: {}", ctx.status);
@@ -111,7 +111,7 @@ let client = ClientBuilder::new(reqwest::Client::new())
     .build();
 ```
 
-`on_challenge_received` can return `Some(PaymentCredential)` to override the default provider payment flow. Other handlers only observe payment handling. Keep the returned subscription handles alive while handlers should remain registered.
+`on_challenge_received` can return `Some(PaymentCredential)` to override the default provider payment flow. Other handlers only record payment handling. Keep the returned subscription handles alive while handlers remain registered.
 
 ## Multiple providers
 

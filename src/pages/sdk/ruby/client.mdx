@@ -30,7 +30,7 @@ When the server returns `402`, the client:
 
 ## Event handling
 
-Register event handlers to log or trace the automatic `402` flow. Typed helpers cover common events, event constants map to the lifecycle event names, and `*` receives every client event.
+Register event handlers to record the automatic `402` flow. Use helper methods for named events, event constants for shared wiring, and `*` for every client event.
 
 ```ruby [client.rb]
 require "json"
@@ -44,7 +44,7 @@ transport = Mpp::Client::Transport.new(
 
 log = ->(event, data) { puts({ event: event, **data }.to_json) }
 
-# Observe the selected Challenge before the client creates a Credential.
+# Record the selected Challenge before the client creates a Credential.
 transport.on_challenge_received do |payload|
   log.call(
     "payment.challenge.received",
@@ -57,7 +57,7 @@ transport.on_challenge_received do |payload|
   nil
 end
 
-# Observe the retried response after payment.
+# Record the retried response after payment.
 transport.on(Mpp::Events::PAYMENT_RESPONSE) do |payload|
   log.call("payment.response", { status: payload[:response].code })
 end
@@ -70,7 +70,7 @@ end
 response = transport.get("https://api.example.com/resource")
 ```
 
-`on_challenge_received` can return a `Credential` or `Payment` authorization string to override the default Credential creation path. Other handlers only observe payment handling. Each registration returns an unsubscribe proc.
+`on_challenge_received` can return a `Credential` or `Payment` authorization string to override the default Credential creation path. Other handlers only record payment handling. Each registration returns an unsubscribe proc.
 
 ## Common methods
 

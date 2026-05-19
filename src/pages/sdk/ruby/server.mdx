@@ -52,7 +52,7 @@ server = Mpp.create(
 
 ## Event handling
 
-Register event handlers to monitor issued Challenges, successful payments, and rejected Credentials. Typed helpers cover common events, event constants map to the lifecycle event names, and `*` receives every server event.
+Register event handlers to record issued Challenges, successful payments, and rejected Credentials. Use helper methods for named events, event constants for shared wiring, and `*` for every server event.
 
 ```ruby [server.rb]
 require "json"
@@ -69,7 +69,7 @@ server = Mpp.create(
 
 log = ->(event, data) { puts({ event: event, **data }.to_json) }
 
-# Observe each Challenge issued by your API.
+# Record each Challenge issued by your API.
 server.on_challenge_created do |payload|
   log.call(
     "payment.challenge.created",
@@ -81,7 +81,7 @@ server.on_challenge_created do |payload|
   )
 end
 
-# Observe successful Credential verification.
+# Record successful Credential verification.
 server.on(Mpp::Events::PAYMENT_SUCCESS) do |payload|
   log.call(
     "payment.success",

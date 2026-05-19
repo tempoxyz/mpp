@@ -64,7 +64,7 @@ mpp = Mpp.create(
 
 ## Event handling
 
-Register event handlers to monitor issued Challenges, successful payments, and rejected Credentials. Typed helpers cover common events, string names map to the lifecycle event names, and `*` receives every server event.
+Register event handlers to record issued Challenges, successful payments, and rejected Credentials. Use helper methods for named events, event constants for shared wiring, and `*` for every server event.
 
 ```python [server.py]
 from mpp.events import PAYMENT_SUCCESS
@@ -83,7 +83,7 @@ mpp = Mpp.create(
 def log(event: str, data: dict[str, object]) -> None:
     print(event, data)
 
-# Observe each Challenge issued by your API.
+# Record each Challenge issued by your API.
 mpp.on_challenge_created(
     lambda payload: log(
         "payment.challenge.created",
@@ -95,7 +95,7 @@ mpp.on_challenge_created(
     )
 )
 
-# Observe successful Credential verification.
+# Record successful Credential verification.
 mpp.on(
     PAYMENT_SUCCESS,
     lambda payload: log(

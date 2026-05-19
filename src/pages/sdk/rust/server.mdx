@@ -206,7 +206,7 @@ let receipt = mpp
 
 ## Event handling
 
-Register event handlers to observe successful Credential verification. Use the typed helper for `payment.success`, `on()` for a specific event kind, or `on_any()` to receive every server event.
+Register event handlers to record successful Credential verification. Use the helper method for `payment.success`, `on()` for one event kind, and `on_any()` for every server event.
 
 ```rust
 use mpp::server::{Mpp, ServerEvent, ServerEventKind, TempoConfig, tempo};
@@ -215,7 +215,7 @@ let mpp = Mpp::create(tempo(TempoConfig {
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
 }))?;
 
-// Observe successful Credential verification.
+// Record successful Credential verification.
 let _success = mpp.on_payment_success(|ctx| async move {
     println!("payment success: {}", ctx.receipt.reference);
 });
@@ -232,7 +232,7 @@ let _all = mpp.on_any(|event| async move {
 });
 ```
 
-Server handlers run inline with verification. Keep the returned subscription handles alive while handlers should remain registered.
+Server handlers run inline with verification. Keep the returned subscription handles alive while handlers remain registered.
 
 ## Axum extractor
 
