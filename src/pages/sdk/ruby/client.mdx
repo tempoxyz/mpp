@@ -28,6 +28,50 @@ When the server returns `402`, the client:
 2. Calls `create_credential` on the matching method to sign a stablecoin transfer
 3. Retries the request with the Credential in the `Authorization` header
 
+## Event handling
+
+Register event handlers to log or trace the automatic `402` flow. Typed helpers cover common events, event constants map to the lifecycle event names, and `*` receives every client event.
+
+```ruby [client.rb]
+require "json"
+require "mpp-rb"
+
+account = Mpp::Methods::Tempo::Account.from_key("0x...")
+
+transport = Mpp::Client::Transport.new(
+  methods: [Mpp::Methods::Tempo.tempo(account: account)],
+)
+
+log = ->(event, data) { puts({ event: event, **data }.to_json) }
+
+# Observe the selected Challenge before the client creates a Credential.
+transport.on_challenge_received do |payload|
+  log.call(
+    "payment.challenge.received",
+    {
+      challenge_id: payload[:challenge].id,
+      intent: payload[:challenge].intent,
+      method: payload[:challenge].method,
+    },
+  )
+  nil
+end
+
+# Observe the retried response after payment.
+transport.on(Mpp::Events::PAYMENT_RESPONSE) do |payload|
+  log.call("payment.response", { status: payload[:response].code })
+end
+
+# Catch every client payment event in one handler.
+transport.on("*") do |event|
+  log.call("payment.event", { name: event.name })
+end
+
+response = transport.get("https://api.example.com/resource")
+```
+
+`on_challenge_received` can return a `Credential` or `Payment` authorization string to override the default Credential creation path. Other handlers only observe payment handling. Each registration returns an unsubscribe proc.
+
 ## Common methods
 
 | Method | Description |
