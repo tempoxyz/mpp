@@ -5348,6 +5348,81 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── honeypot ─────────────────────────────────────────────────────────
+  {
+    id: "honeypot",
+    name: "honeypot",
+    url: "https://honeypot.ivan-tempo.xyz",
+    serviceUrl: "https://honeypot.ivan-tempo.xyz",
+    description:
+      "Multi-chain token honeypot and security checker. Detects honeypots, taxes, owner privileges, blacklist functions, contract vulnerabilities, and wallet risk scores via GoPlus Security across 8 EVM chains (Ethereum, BSC, Polygon, Avalanche, Arbitrum, Optimism, Base, Fantom).",
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: [
+      "honeypot",
+      "security",
+      "token-safety",
+      "goplus",
+      "rugcheck",
+      "wallet-risk",
+      "ethereum",
+      "bsc",
+      "polygon",
+      "evm",
+      "multichain",
+      "defi",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://honeypot.ivan-tempo.xyz",
+      apiReference: "https://honeypot.ivan-tempo.xyz/openapi.json",
+    },
+    provider: { name: "honeypot", url: "https://honeypot.ivan-tempo.xyz" },
+    realm: "honeypot.ivan-tempo.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/check?token=0x...&chain=1",
+        desc: "Basic honeypot check: isHoneypot, buy/sellTax, isOpenSource, isProxy, isMintable, ownerCanChangeBalance, hasBlacklist, antiWhale, transferPausable. Supports 8 EVM chains. Results cached 5 min.",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/check/deep?token=0x...&chain=1",
+        desc: "Deep analysis: all basic fields plus LP analysis (lockedPercent, dex list, pair addresses), top 10 token holders, creator and owner info, cannotSellAll, tradingCooldown, hiddenOwner. Results cached 5 min.",
+        amount: "40000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/check/batch?tokens=0x...,0x...&chain=1",
+        desc: "Batch basic honeypot check for up to 20 tokens in one request. Price is dynamic: N tokens × $0.01. Results cached 5 min per token.",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/wallet-risk?address=0x...&chain=1",
+        desc: "Address security check via GoPlus: cybercrime, money_laundering, sanctioned, phishing, blackmail, darkweb_transactions flags. Returns riskScore 0–100 and riskLevel (clean/low/medium/high). Results cached 5 min.",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/lp?token=0x...&chain=1",
+        desc: "Liquidity pool details: dex list, pair addresses, liquidity amounts, LP holders, and locked LP percentage. Results cached 5 min.",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/info",
+        desc: "Service metadata — payment details, supported chains, endpoint list (free)",
+      },
+      {
+        route: "GET /openapi.json",
+        desc: "OpenAPI 3.1 spec for agent discovery (free)",
+      },
+    ],
+  },
+
   // ── Hunter ───────────────────────────────────────────────────────────
   {
     id: "hunter",
