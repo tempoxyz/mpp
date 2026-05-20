@@ -4,7 +4,7 @@ outline: false
 showAskAi: false
 showFeedback: false
 showSearch: false
-description: "SDKs now expose typed payment hooks for logging, monitoring, and request context."
+description: "SDKs now expose typed payment hooks for logging, monitoring, and observing request context."
 imageDescription: "Monitor request status with SDK hooks"
 ---
 
@@ -20,7 +20,7 @@ MPP's core SDKs now expose typed payment hooks for client and server payment flo
 
 ## Why hooks matter
 
-MPP puts the payment flow close to the request flow. That makes basic integration simple, but becomes fragile when used in production applications and existing tech stacks.
+MPP puts the payment flow close to the request flow in REST APIs and MCP servers. That makes basic integration simple, but becomes fragile when used in production applications and existing tech stacks.
 
 Hooks give you a typed place to attach that visibility:
 
@@ -30,7 +30,7 @@ Hooks give you a typed place to attach that visibility:
 
 ## What changed
 
-Client hooks observe the entire MPP payment lifecycle. Use typed helpers for common events, canonical strings for direct event names, or `*` for a single catch-all handler:
+Client hooks observe the entire MPP payment lifecycle. Use typed helpers for common events, canonical strings for direct event names, or `*` for a single catch-all handler for generic logging:
 
 ```ts twoslash [client.ts]
 import { Mppx, tempo } from 'mppx/client'
@@ -137,6 +137,6 @@ payment.onPaymentFailed(({ challenge, error, request }) => {
 
 ## What's next
 
-This release starts with core lifecycle events. If there is an event or payload field you need, leave feedback on [GitHub](https://github.com/wevm/mppx/issues).
+This release starts with core lifecycle events of the MPP request flow. If there is an event or payload field which you would like to monitor, please leave feedback on [GitHub](https://github.com/wevm/mppx/issues).
 
 </div>
