@@ -6573,6 +6573,35 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── bluerails402 ───────────────────────────────────────────────────────
+  {
+    id: "bluerails402",
+    name: "bluerails402 Publisher Registry",
+    url: "https://bluerails402.com",
+    serviceUrl: "https://bluerails402.com/mcp",
+    description:
+      "EU news and media publisher registry for AI agents. Discover publishers accepting agentic payments via MCP — EU-first, MiCA-aligned, x402-native.",
+
+    categories: ["media", "data"],
+    integration: "third-party",
+    tags: ["publishers", "news", "media", "mcp", "x402", "eu", "mica"],
+    docs: {
+      homepage: "https://bluerails402.com",
+      llmsTxt: "https://bluerails402.com/llms.txt",
+    },
+    provider: { name: "Bluerails", url: "https://bluerails402.com" },
+    realm: "bluerails402.com",
+    intent: "charge",
+    payments: [],
+    endpoints: [
+      {
+        route: "POST /mcp",
+        desc: "MCP JSON-RPC — list_publishers, get_publisher (public); get_fx_quote, fetch_content (X-API-Key required)",
+        docs: "https://bluerails402.com/openapi.json",
+      },
+    ],
+  },
+
   // ── Papercut ───────────────────────────────────────────────────────────
   {
     id: "papercut",
