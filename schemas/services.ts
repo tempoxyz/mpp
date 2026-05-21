@@ -74,6 +74,13 @@ export const STRIPE_PAYMENT: PaymentDefaults = {
   decimals: 2,
 };
 
+/** EVM payment defaults — USDC on Base mainnet (per `draft-evm-charge-00`) */
+export const EVM_USDC_BASE_PAYMENT: PaymentDefaults = {
+  method: "evm",
+  currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  decimals: 6,
+};
+
 export interface EndpointDef {
   /** Route string: "METHOD /path" (without service slug prefix) */
   route: string;
@@ -6599,6 +6606,49 @@ export const services: ServiceDef[] = [
         desc: "Write and send an agent-penned postcard",
         dynamic: true,
         amountHint: "$1 digital, $3 physical",
+      },
+    ],
+  },
+
+  // ── JustaName ───────────────────────────────────────────────────────────
+  {
+    id: "justaname",
+    name: "JustaName ENS Resolver",
+    url: "https://api.justaname.id",
+    serviceUrl: "https://api.justaname.id",
+    description:
+      "ENS forward and reverse resolution with on-chain CCIP-Read. Batch up to 50 names or addresses per call with per-name chain scoping via interop addresses. Optional BYO-RPC bypass (caller pays upstream RPC compute, request becomes free).",
+
+    categories: ["blockchain", "web"],
+    integration: "third-party",
+    tags: [
+      "ens",
+      "resolver",
+      "ccip-read",
+      "ensip-19",
+      "base",
+      "reverse-resolution",
+      "subnames",
+      "x402",
+      "evm",
+    ],
+    docs: { homepage: "https://docs.justaname.id" },
+    provider: { name: "JustaName", url: "https://www.justaname.id" },
+    realm: "api.justaname.id",
+    intent: "charge",
+    payments: [EVM_USDC_BASE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /ens/v2/resolve",
+        desc: "Resolve ENS name(s) into addresses, text records, and content hash. Repeat ?ens=a.eth&ens=b.eth to batch up to 50 names.",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "GET /ens/v2/reverse",
+        desc: "ENSIP-19 reverse resolution with a 3-step fallback chain (on-chain primary name → ENSIP-19 default coinType → offchain primary-name store). Batch up to 50 addresses.",
+        amount: "1000",
+        unitType: "request",
       },
     ],
   },
