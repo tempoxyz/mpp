@@ -4002,6 +4002,61 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Sayer & Stone ───────────────────────────────────────────────────────
+  {
+    id: "sayer-and-stone",
+    name: "Sayer & Stone",
+    url: "https://www.sayerandstone.com",
+    serviceUrl: "https://agents.sayerandstone.com",
+    description:
+      "Lab-grown diamond fine jewelry, made to order. AI agents can browse and purchase pieces.",
+
+    categories: ["web"],
+    integration: "first-party",
+    tags: [
+      "jewelry",
+      "commerce",
+      "physical-goods",
+      "lab-grown-diamond",
+      "made-to-order",
+      "luxury",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://www.sayerandstone.com",
+      llmsTxt: "https://agents.sayerandstone.com/llms.txt",
+      apiReference: "https://agents.sayerandstone.com/openapi.json",
+    },
+    provider: { name: "Sayer & Stone", url: "https://www.sayerandstone.com" },
+    realm: "agents.sayerandstone.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /catalog",
+        desc: "List products with embedded variants",
+      },
+      {
+        route: "GET /catalog/:slug",
+        desc: "Get product detail by slug, including all variants",
+      },
+      {
+        route: "POST /purchase",
+        desc: "Purchase a jewelry piece",
+        dynamic: true,
+        amountHint: "Variable",
+      },
+      {
+        route: "GET /orders/:id",
+        desc: "Retrieve order details",
+      },
+      {
+        route: "GET /orders/:id/status",
+        desc: "Check payment status",
+      },
+    ],
+  },
+
   // ── Megapot ─────────────────────────────────────────────────────────────
   {
     id: "megapot",
