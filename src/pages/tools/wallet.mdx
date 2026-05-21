@@ -14,6 +14,7 @@ Agents need a wallet to pay for MPP-enabled services. Choose the wallet that fit
 | [Tempo Wallet](#tempo-wallet) | Tempo MPP services with spend controls and service discovery | `tempo` | `tempo wallet login` |
 | [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `tempo`, `solana` | `privy-agent-wallets login` |
 | [AgentCash](#agentcash) | Discover and use 300+ premium APIs via MPP | `tempo` | `npx agentcash onboard` |
+| [Link CLI](#link-cli) | Stripe payments via Link wallet | `stripe` | `link-cli auth login` |
 | [`mppx` CLI](#mppx) | Development and debugging | All | `mppx account create` |
 
 ## Tempo Wallet 
@@ -198,6 +199,66 @@ $ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 - **No human required** - pay per request with USDC.e, no subscriptions or manual sign-up flows
 - **API and tool discovery** - any service that implements MPP is automatically discoverable and usable
 - **MPPScan integration** — easily discover and use services via [mppscan.com](https://www.mppscan.com/)
+
+## Link CLI
+
+[Link CLI](https://github.com/stripe/link-cli) lets agents pay for MPP services using a [Link](https://link.co) wallet. The agent authenticates with Link, then `link-cli mpp pay` handles the full `402` → SPT → retry flow automatically—no Stripe integration code required.
+
+The user approves each purchase via the Link app, and credentials are one-time-use tokens scoped to a specific merchant and amount.
+
+<Tabs>
+<Tab title="Agent">
+
+Paste this into your agent:
+
+```
+Read https://github.com/stripe/link-cli/blob/main/SKILL.md and set up link-cli
+```
+
+</Tab>
+<Tab title="Human">
+::::steps
+
+### Install
+
+```bash [terminal]
+$ npm install -g @stripe/link-cli
+```
+
+### Log in
+
+```bash [terminal]
+$ link-cli auth login --client-name "My Agent"
+```
+
+This displays a verification URL and phrase. Approve in the Link app to complete authentication.
+
+### List payment methods
+
+```bash [terminal]
+$ link-cli payment-methods list
+```
+
+### Make a paid request
+
+```bash [terminal]
+$ link-cli mpp pay https://api.example.com/resource \
+  --method POST \
+  --data '{"prompt": "hello"}'
+```
+
+::::
+</Tab>
+</Tabs>
+
+**Supported methods:** <Badge variant="info">stripe.charge</Badge>
+
+**Key features:**
+
+- **End-to-end 402 handling**—`link-cli mpp pay` parses the Challenge, creates an SPT, and retries with the Credential
+- **User approval**—each purchase requires explicit approval in the Link app
+- **One-time-use credentials**—SPTs are scoped to a specific merchant, amount, and context
+- **MCP server mode**—run as `link-cli --mcp` for integration with Claude Code and other MCP-compatible agents
 
 ## `mppx`
 

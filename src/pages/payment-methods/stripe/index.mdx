@@ -20,6 +20,10 @@ Machine payments must be enabled on your Stripe account before you can accept MP
 
 To learn more, read the [Stripe documentation](https://docs.stripe.com/payments/machine/mpp) on accepting MPP.
 
+::::tip[For agents]
+Use the [Link CLI](/tools/wallet#link-cli) to pay for `stripe.charge` services from a Link wallet without writing integration code. `link-cli mpp pay` handles the full 402 → SPT → retry flow automatically.
+::::
+
 ## How it works
 
 <MermaidDiagram chart={`sequenceDiagram
