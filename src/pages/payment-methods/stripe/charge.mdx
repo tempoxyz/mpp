@@ -170,6 +170,10 @@ See the [payment links guide](/guides/payment-links) for a full walkthrough and 
 
 ## Client
 
+::::tip[For agents]
+The [Link CLI](/tools/wallet#link-cli) handles `stripe.charge` end-to-end—`link-cli mpp pay` parses the 402 Challenge, creates an SPT from the user's Link wallet, and retries the request with the Credential. No code required.
+::::
+
 Use `stripe` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, creates an SPT through the `createToken` callback, and retries with the Credential.
 
 SPT creation requires a Stripe secret key, so the client accepts a `createToken` callback that proxies through a server endpoint. You can optionally pass a `client` (a Stripe.js instance from `@stripe/stripe-js`) which is forwarded to the `createToken` callback for use with Elements.
