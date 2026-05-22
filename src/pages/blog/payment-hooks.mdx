@@ -1,0 +1,73 @@
+---
+layout: minimal
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "Core SDKs now expose typed payment hooks for logging, monitoring, and request context."
+imageDescription: "Monitor request status with SDK hooks"
+---
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Thursday, May 21, 2026</p>
+
+# Payment hooks [Observe MPP requests with typed lifecycle events]
+
+MPP's core SDKs now expose typed payment hooks for client and server payment flows. Use them to record what happened around an MPP request without rewriting your payment handler.
+
+## Why hooks matter
+
+MPP puts the payment flow close to the request flow in REST APIs and MCP servers. That makes basic integration simple, but becomes fragile when used in production applications and existing tech stacks.
+
+Hooks give you a typed place to attach that visibility:
+
+- **Monitoring and observability**: Count `Challenge`s, successful payments, failed `Credential`s, and paid retry responses, then attach `Challenge` IDs, method names, intents, amounts, currencies, and `Receipt` references to traces.
+- **Logging**: Record enough context to debug a failed payment without logging secrets.
+- **Support**: Connect a user-facing request to the payment attempt that authorized it.
+
+## What changed
+
+Server hooks observe issued Challenges, successful payments, and rejected Credentials. Use typed helpers for common events, canonical strings for direct event names, or `*` for a single catch-all handler:
+
+```ts twoslash [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.charge()],
+})
+
+const log = (event: string, data: Record<string, unknown>) => {
+  console.log(event, data)
+}
+
+payment.onChallengeCreated(({ challenge, request }) => { // [!code hl]
+  log('payment.challenge.created', {
+    amount: request.amount,
+    challengeId: challenge.id,
+  })
+})
+
+payment.on('payment.success', ({ receipt, request }) => { // [!code hl]
+  log('payment.success', {
+    amount: request.amount,
+    reference: receipt.reference,
+  })
+})
+
+payment.onPaymentFailed(({ challenge, error, request }) => { // [!code hl]
+  log('payment.failed', {
+    amount: request.amount,
+    challengeId: challenge.id,
+    error: error.name,
+  })
+})
+```
+
+## What's next
+
+This release starts with core lifecycle events of the MPP request flow. If there is an event or payload field which you would like to monitor, please leave feedback on [GitHub](https://github.com/wevm/mppx/issues).
+
+</div>

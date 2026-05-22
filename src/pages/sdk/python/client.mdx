@@ -21,6 +21,50 @@ async with Client(methods=[tempo(account=account, intents={"charge": ChargeInten
     print(response.json())
 ```
 
+## Event handling
+
+Register event handlers to record the automatic `402` flow. Use helper methods for named events, event constants for shared wiring, and `*` for every client event.
+
+```python [client.py]
+from mpp.client import Client
+from mpp.events import PAYMENT_RESPONSE
+from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
+
+account = TempoAccount.from_key("0x...")
+
+async with Client(methods=[tempo(account=account, intents={"charge": ChargeIntent()})]) as client:
+    def log(event: str, data: dict[str, object]) -> None:
+        print(event, data)
+
+    # Record the selected Challenge before the client creates a Credential.
+    client.on_challenge_received(
+        lambda payload: log(
+            "payment.challenge.received",
+            {
+                "challenge_id": payload["challenge"].id,
+                "intent": payload["challenge"].intent,
+                "method": payload["challenge"].method,
+            },
+        )
+    )
+
+    # Record the retried response after payment.
+    client.on(
+        PAYMENT_RESPONSE,
+        lambda payload: log(
+            "payment.response",
+            {"status": payload["response"].status_code},
+        ),
+    )
+
+    # Catch every client payment event in one handler.
+    client.on("*", lambda event: log("payment.event", {"name": event.name}))
+
+    response = await client.get("https://api.example.com/resource")
+```
+
+`on_challenge_received` can return a `Credential` to override the default Credential creation path. Other handlers only record payment handling. Each registration returns an unsubscribe function.
+
 ## Common methods
 
 | Method | Description |

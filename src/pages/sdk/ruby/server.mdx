@@ -50,6 +50,56 @@ server = Mpp.create(
 )
 ```
 
+## Event handling
+
+Register event handlers to record issued Challenges, successful payments, and rejected Credentials. Use helper methods for named events, event constants for shared wiring, and `*` for every server event.
+
+```ruby [server.rb]
+require "json"
+require "mpp-rb"
+
+server = Mpp.create(
+  method: Mpp::Methods::Tempo.tempo(
+    currency: "0x20c0000000000000000000000000000000000000",
+    intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
+    recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  ),
+  secret_key: "my-server-secret",
+)
+
+log = ->(event, data) { puts({ event: event, **data }.to_json) }
+
+# Record each Challenge issued by your API.
+server.on_challenge_created do |payload|
+  log.call(
+    "payment.challenge.created",
+    {
+      amount: payload[:request]["amount"],
+      currency: payload[:request]["currency"],
+      method: payload[:method][:name],
+    },
+  )
+end
+
+# Record successful Credential verification.
+server.on(Mpp::Events::PAYMENT_SUCCESS) do |payload|
+  log.call(
+    "payment.success",
+    {
+      intent: payload[:method][:intent],
+      reference: payload[:receipt].reference,
+    },
+  )
+end
+
+# Catch every server payment event in one handler.
+server.on("*") do |event|
+  log.call("payment.event", { name: event.name })
+end
+```
+
+Server handlers run inline on the payment request path. Keep them short, or send work to your logger, metrics client, or queue. Each registration returns an unsubscribe proc.
+
 ## `Mpp::Methods::Tempo.tempo()` factory
 
 `tempo()` creates a method that bundles a payment network, its intents, and default parameters together. Each intent must be explicitly registered via the `intents` parameter.
