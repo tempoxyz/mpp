@@ -1106,6 +1106,61 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Fuse AI ──────────────────────────────────────────────────────────
+  {
+    id: "fuse-ai",
+    name: "Fuse AI",
+    url: "https://fuse.io",
+    serviceUrl: "https://ai.fuse.io",
+    description:
+      "Pay-per-request access to Fuse Network blockchain data and business payment infrastructure — network stats, wallet analysis, DeFi yield opportunities, and loyalty/payment token deployment.",
+
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["fuse", "wallet", "defi", "loyalty", "erc20", "stats"],
+    docs: {
+      homepage: "https://docs.fuse.io",
+      llmsTxt: "https://ai.fuse.io/llms.txt",
+      apiReference: "https://ai.fuse.io/openapi.json",
+    },
+    provider: { name: "Fuse Network", url: "https://fuse.io" },
+    realm: "ai.fuse.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/fuse/stats",
+        desc: "Real-time Fuse network statistics",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/fuse/wallet/{address}",
+        desc: "Complete Fuse wallet analysis",
+        amount: "50000",
+      },
+      {
+        route: "GET /api/fuse/defi/opportunities",
+        desc: "Fuse DeFi yield opportunities",
+        amount: "100000",
+      },
+      {
+        route: "POST /api/fuse/loyalty/create",
+        desc: "Deploy a loyalty/payment token on Fuse",
+        amount: "5000000",
+      },
+      {
+        route: "POST /api/fuse/loyalty/mint",
+        desc: "Mint loyalty tokens to a recipient",
+        amount: "500000",
+      },
+      {
+        route: "GET /api/fuse/loyalty/balance/{token}/{address}",
+        desc: "Read any Fuse ERC-20 balance",
+        amount: "20000",
+      },
+    ],
+  },
+
   // ── GovLaws ────────────────────────────────────────────────────────────
   {
     id: "govlaws",
