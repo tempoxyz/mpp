@@ -6657,4 +6657,41 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Error Therapist ────────────────────────────────────────────────────────
+  {
+    id: "error-therapist",
+    name: "Error Therapist",
+    url: "https://mpp-service-one.vercel.app",
+    serviceUrl: "https://mpp-service-one.vercel.app",
+    description:
+      "Psychological analysis of error messages. Send any error message or stack trace, receive a complete personality profile, diagnosis, and reconciliation advice.",
+
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: [
+      "errors",
+      "debugging",
+      "psychology",
+      "analysis",
+      "diagnosis",
+      "developer-tools",
+      "humor",
+    ],
+    docs: { homepage: "https://mpp-service-one.vercel.app" },
+    provider: {
+      name: "Error Therapist",
+      url: "https://mpp-service-one.vercel.app",
+    },
+    realm: "mpp-service-one.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/therapy",
+        desc: "Psychological analysis of an error message or stack trace. Returns Myers-Briggs personality type, emotional subtext, root trauma, diagnosis, and reconciliation advice.",
+        amount: "10000",
+      },
+    ],
+  },
 ];
