@@ -6657,4 +6657,62 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Weftly ─────────────────────────────────────────────────────────────
+  {
+    id: "weftly",
+    name: "Weftly",
+    url: "https://weftly.ai",
+    serviceUrl: "https://api.weftly.ai",
+    description:
+      "Pay-per-job audio/video processing: transcribe, summarize, find clips, and cut horizontal or 9:16 vertical clips for short-form social. Per-call MPP payment — no API keys or accounts.",
+
+    categories: ["media", "ai"],
+    integration: "first-party",
+    tags: [
+      "transcription",
+      "video",
+      "audio",
+      "clips",
+      "summarization",
+      "subtitles",
+      "mcp",
+    ],
+    docs: {
+      homepage: "https://weftly.ai",
+      apiReference: "https://api.weftly.ai/openapi.json",
+    },
+    provider: { name: "Woven Record Media", url: "https://weftly.ai" },
+    realm: "api.weftly.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/jobs",
+        desc: "Create a transcribe, summarize, find_clips, extract_clip, or extract_vertical_clip job",
+        dynamic: true,
+        amountHint: "$0.50 – $2.00 depending on job type",
+      },
+      {
+        route: "POST /api/v1/jobs/:job_id/complete-upload",
+        desc: "Confirm upload and start processing — upload-based jobs (transcribe, summarize, find_clips)",
+        dynamic: true,
+        amountHint: "$0.50 – $2.00 depending on job type",
+      },
+      {
+        route: "POST /api/v1/jobs/:job_id/process",
+        desc: "Verify payment and start processing — derivative jobs (extract_clip, extract_vertical_clip)",
+        amount: "500000",
+      },
+      {
+        route: "GET /api/v1/jobs/:job_id",
+        desc: "Get job status and output download URLs",
+      },
+      {
+        route: "GET /api/test",
+        desc: "MPP smoke test endpoint",
+        amount: "10000",
+      },
+    ],
+  },
 ];
