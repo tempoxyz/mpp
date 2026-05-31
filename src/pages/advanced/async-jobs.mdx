@@ -63,38 +63,3 @@ export async function poll(request: Request) {
 ```
 
 This keeps both requests on the standard MPP `402` → Credential → retry path. Clients that use `mppx` don't need a second authentication implementation to retrieve work they already paid for.
-
-## StableStudio video
-
-StableStudio video generation follows the same async shape:
-
-| Step | Endpoint | Auth |
-|---|---|---|
-| Submit | `POST /api/generate/{model}/{op}` | MPP charge Credential |
-| Poll | `GET /api/jobs/{jobId}` | Prefer zero-dollar MPP Credential tied to the submit wallet |
-
-Avoid gating the poll endpoint only with Sign-In-With-X when the submit endpoint used MPP. A charge-based client already has a verified wallet identity in the MPP Credential, and polling only needs to prove continuity with that identity.
-
-If the poll endpoint must support Sign-In-With-X, also support the MPP polling contract above for clients that paid through MPP.
-
-## Chain support
-
-For jobs paid on Tempo, any identity challenge used for polling must accept Tempo:
-
-```txt
-eip155:4217
-```
-
-Do not advertise only Base (`eip155:8453`) or Solana for a Tempo-paid job. The polling challenge must accept the chain the client used to pay, otherwise an MPP client can submit the job and then fail to retrieve it.
-
-## If you use Sign-In-With-X
-
-A Sign-In-With-X fallback should be symmetric with the account used for payment:
-
-1. Return a `402` response that includes the `sign-in-with-x` extension.
-2. Include `eip155:4217` in `supportedChains` when the submit payment settled on Tempo.
-3. Build the CAIP-122 message from the challenge.
-4. Sign with the same account using EIP-191 `personal_sign`.
-5. Send the base64-encoded result in the `Sign-In-With-X` header.
-
-First-class `mppx` client support should parse the extension, select a supported chain for the configured account, sign the CAIP-122 message, and attach `Sign-In-With-X` automatically in the same wrapper that handles MPP Challenges and Credentials.
