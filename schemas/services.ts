@@ -122,6 +122,37 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── agentfax ───────────────────────────────────────────────────────────
+  {
+    id: "agentfax",
+    name: "agentfax",
+    url: "https://agentfax.val.run",
+    serviceUrl: "https://agentfax.val.run",
+    description: "Send a fax to any phone number, priced per page. Pay-per-fax for AI agents — no signup, no API key; documents are never stored.",
+
+    categories: ["social"],
+    integration: "third-party",
+    tags: ["fax", "documents", "pdf", "communication"],
+    status: "active",
+    docs: {
+      homepage: "https://agentfax.val.run",
+      llmsTxt: "https://agentfax.val.run/llms.txt",
+      apiReference: "https://agentfax.val.run/v1/info",
+    },
+    provider: { name: "agentfax", url: "https://agentfax.val.run" },
+    realm: "agentfax.val.run",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/fax",
+        desc: "Send a fax to any phone number — priced per page",
+        dynamic: true,
+        amountHint: "$0.20/page",
+        unitType: "page",
+      },
+    ],
+  },
   // ── AgentMail ──────────────────────────────────────────────────────────
   {
     id: "agentmail",
