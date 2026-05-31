@@ -4892,6 +4892,76 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── ElevenLabs ───────────────────────────────────────────────────────
+  {
+    id: "elevenlabs",
+    name: "ElevenLabs",
+    url: "https://api.elevenlabs.io",
+    serviceUrl: `https://elevenlabs.${MPP_REALM}`,
+    description:
+      "Creator audio APIs for text-to-speech, speech-to-text, sound effects, music, dubbing, and conversational voice agents.",
+
+    categories: ["ai", "media"],
+    integration: "third-party",
+    tags: [
+      "voice",
+      "tts",
+      "speech-to-text",
+      "sound-effects",
+      "music",
+      "dubbing",
+      "agents",
+    ],
+    docs: {
+      homepage: "https://elevenlabs.io/docs",
+      apiReference: "https://elevenlabs.io/docs/api-reference",
+    },
+    provider: { name: "ElevenLabs", url: "https://elevenlabs.io" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/text-to-speech/:voice_id",
+        desc: "Generate speech from text",
+        dynamic: true,
+        amountHint: "Character and model dependent",
+      },
+      {
+        route: "POST /v1/speech-to-text",
+        desc: "Transcribe speech to text",
+        dynamic: true,
+        amountHint: "Audio length and model dependent",
+      },
+      {
+        route: "POST /v1/sound-generation",
+        desc: "Generate sound effects from text",
+        dynamic: true,
+        amountHint: "Duration dependent",
+      },
+      {
+        route: "POST /v1/music",
+        desc: "Compose music from a prompt",
+        dynamic: true,
+        amountHint: "Duration and model dependent",
+      },
+      {
+        route: "POST /v1/dubbing",
+        desc: "Dub video or audio into another language",
+        dynamic: true,
+        amountHint: "Media length and language dependent",
+      },
+      {
+        route: "POST /v1/convai/agents/create",
+        desc: "Create a conversational voice agent",
+        dynamic: true,
+        amountHint: "Agent and usage dependent",
+      },
+      { route: "GET /v1/models", desc: "List available models" },
+      { route: "GET /v1/voices", desc: "List voices" },
+    ],
+  },
+
   // ── DeepL ────────────────────────────────────────────────────────────
   {
     id: "deepl",
@@ -6059,6 +6129,202 @@ export const services: ServiceDef[] = [
         desc: "List Models",
         amount: "4000",
         unitType: "request",
+      },
+    ],
+  },
+
+  // ── Runway ───────────────────────────────────────────────────────────
+  {
+    id: "runway",
+    name: "Runway",
+    url: "https://api.dev.runwayml.com",
+    serviceUrl: `https://runway.${MPP_REALM}`,
+    description:
+      "Creative AI generation APIs for video, images, avatars, voice, sound effects, and published workflows.",
+
+    categories: ["ai", "media"],
+    integration: "third-party",
+    tags: [
+      "video-generation",
+      "image-generation",
+      "avatars",
+      "voice",
+      "sound-effects",
+      "workflows",
+    ],
+    docs: {
+      homepage: "https://docs.dev.runwayml.com",
+      apiReference: "https://docs.dev.runwayml.com/api",
+    },
+    provider: { name: "Runway", url: "https://runwayml.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/image_to_video",
+        desc: "Generate video from an image",
+        dynamic: true,
+        amountHint: "Model, duration, and resolution dependent",
+      },
+      {
+        route: "POST /v1/text_to_video",
+        desc: "Generate video from text",
+        dynamic: true,
+        amountHint: "Model, duration, and resolution dependent",
+      },
+      {
+        route: "POST /v1/video_to_video",
+        desc: "Transform a source video",
+        dynamic: true,
+        amountHint: "Model, duration, and resolution dependent",
+      },
+      {
+        route: "POST /v1/text_to_image",
+        desc: "Generate or edit images from text and image inputs",
+        dynamic: true,
+        amountHint: "Model and output dependent",
+      },
+      {
+        route: "POST /v1/text_to_speech",
+        desc: "Generate speech from text",
+        dynamic: true,
+        amountHint: "Character and voice dependent",
+      },
+      {
+        route: "POST /v1/sound_effects",
+        desc: "Generate sound effects",
+        dynamic: true,
+        amountHint: "Duration dependent",
+      },
+      {
+        route: "POST /v1/avatar_videos",
+        desc: "Generate avatar video from audio or text",
+        dynamic: true,
+        amountHint: "Duration and avatar dependent",
+      },
+      {
+        route: "POST /v1/workflows/:workflow_id/run",
+        desc: "Run a published creative workflow",
+        dynamic: true,
+        amountHint: "Workflow dependent",
+      },
+      { route: "GET /v1/tasks/:task_id", desc: "Get task detail" },
+      { route: "DELETE /v1/tasks/:task_id", desc: "Cancel or delete a task" },
+      { route: "POST /v1/uploads", desc: "Upload a source media file" },
+    ],
+  },
+
+  // ── Luma AI ──────────────────────────────────────────────────────────
+  {
+    id: "luma",
+    name: "Luma AI",
+    url: "https://api.lumalabs.ai",
+    serviceUrl: `https://luma.${MPP_REALM}`,
+    description:
+      "Dream Machine APIs for text-to-video, image-to-video, video extension, and image generation.",
+
+    categories: ["ai", "media"],
+    integration: "third-party",
+    tags: ["video-generation", "image-generation", "dream-machine", "ray2"],
+    docs: {
+      homepage: "https://docs.lumalabs.ai",
+      apiReference: "https://docs.lumalabs.ai/docs/api",
+    },
+    provider: { name: "Luma AI", url: "https://lumalabs.ai" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /dream-machine/v1/generations",
+        desc: "Create a video generation, image-to-video generation, or video extension",
+        dynamic: true,
+        amountHint: "Model, duration, resolution, and keyframes dependent",
+      },
+      {
+        route: "GET /dream-machine/v1/generations",
+        desc: "List generations",
+        amount: "100",
+        unitType: "request",
+      },
+      {
+        route: "GET /dream-machine/v1/generations/:generation_id",
+        desc: "Get generation status and assets",
+        amount: "100",
+        unitType: "request",
+      },
+      {
+        route: "DELETE /dream-machine/v1/generations/:generation_id",
+        desc: "Delete a generation",
+      },
+      {
+        route: "GET /dream-machine/v1/generations/concepts/list",
+        desc: "List available generation concepts",
+      },
+      {
+        route: "GET /dream-machine/v1/generations/camera_motion/list",
+        desc: "List supported camera motions",
+      },
+      {
+        route: "POST /dream-machine/v1/images/generations",
+        desc: "Create an image generation",
+        dynamic: true,
+        amountHint: "Model and output dependent",
+      },
+    ],
+  },
+
+  // ── Kling AI ─────────────────────────────────────────────────────────
+  {
+    id: "kling",
+    name: "Kling AI",
+    url: "https://api.klingapi.com",
+    serviceUrl: `https://kling.${MPP_REALM}`,
+    description:
+      "AI video generation APIs for text-to-video, image-to-video, video extension, and lip sync.",
+
+    categories: ["ai", "media"],
+    integration: "third-party",
+    tags: ["video-generation", "text-to-video", "image-to-video", "lip-sync"],
+    docs: {
+      homepage: "https://klingapi.com/docs",
+      apiReference: "https://klingapi.com/docs",
+    },
+    provider: { name: "Kling AI", url: "https://klingapi.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/videos/text2video",
+        desc: "Generate video from a text prompt",
+        dynamic: true,
+        amountHint: "Model, duration, and mode dependent",
+      },
+      {
+        route: "POST /v1/videos/image2video",
+        desc: "Generate video from an image",
+        dynamic: true,
+        amountHint: "Model, duration, and mode dependent",
+      },
+      {
+        route: "GET /v1/videos/:task_id",
+        desc: "Get video generation status",
+        amount: "100",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/videos/extend",
+        desc: "Extend an existing video",
+        dynamic: true,
+        amountHint: "Model, duration, and mode dependent",
+      },
+      {
+        route: "POST /v1/videos/lip-sync",
+        desc: "Add lip sync to a video",
+        dynamic: true,
+        amountHint: "Duration and mode dependent",
       },
     ],
   },
