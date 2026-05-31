@@ -1,0 +1,100 @@
+---
+description: "Use MPP with asynchronous APIs that submit paid jobs and poll for results."
+imageDescription: "Authorize async job polling after an MPP payment"
+---
+
+# Async jobs [Submit paid work and poll for results]
+
+Asynchronous APIs split work across two request families:
+
+1. `POST /api/generate/{model}/{op}` creates the job.
+2. `GET /api/jobs/{jobId}` polls until the job completes.
+
+Use MPP for the paid submit request. For the polling request, prefer the same MPP identity surface over a separate sign-in flow: either accept the original payment Credential for the created job, or require a zero-dollar MPP Challenge that proves the caller controls the same wallet.
+
+## Recommended contract
+
+The submit endpoint returns a normal `402` Challenge. The client pays, retries with a Credential, and receives a job ID:
+
+```http
+POST /api/generate/video/text-to-video HTTP/1.1
+Authorization: Payment ...
+```
+
+```json
+{
+  "jobId": "job_123",
+  "status": "pending"
+}
+```
+
+The server stores the verified Credential `source` with the job. Polling then verifies the caller against that stored owner:
+
+```ts [server.ts]
+import { Credential } from 'mppx'
+
+export async function submit(request: Request) {
+  const result = await mppx.charge({ amount: '0.25' })(request)
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  const jobId = await createJob({ owner: credential.source })
+
+  return result.withReceipt(Response.json({ jobId, status: 'pending' }))
+}
+```
+
+```ts [server.ts]
+import { Credential } from 'mppx'
+
+export async function poll(request: Request) {
+  const result = await mppx.charge({ amount: '0' })(request)
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  const job = await getJob(jobIdFromUrl(request))
+
+  if (job.owner !== credential.source) {
+    return Response.json({ error: 'Not your job' }, { status: 403 })
+  }
+
+  return result.withReceipt(Response.json(job.status))
+}
+```
+
+This keeps both requests on the standard MPP `402` → Credential → retry path. Clients that use `mppx` don't need a second authentication implementation to retrieve work they already paid for.
+
+## StableStudio video
+
+StableStudio video generation follows the same async shape:
+
+| Step | Endpoint | Auth |
+|---|---|---|
+| Submit | `POST /api/generate/{model}/{op}` | MPP charge Credential |
+| Poll | `GET /api/jobs/{jobId}` | Prefer zero-dollar MPP Credential tied to the submit wallet |
+
+Avoid gating the poll endpoint only with Sign-In-With-X when the submit endpoint used MPP. A charge-based client already has a verified wallet identity in the MPP Credential, and polling only needs to prove continuity with that identity.
+
+If the poll endpoint must support Sign-In-With-X, also support the MPP polling contract above for clients that paid through MPP.
+
+## Chain support
+
+For jobs paid on Tempo, any identity challenge used for polling must accept Tempo:
+
+```txt
+eip155:4217
+```
+
+Do not advertise only Base (`eip155:8453`) or Solana for a Tempo-paid job. The polling challenge must accept the chain the client used to pay, otherwise an MPP client can submit the job and then fail to retrieve it.
+
+## If you use Sign-In-With-X
+
+A Sign-In-With-X fallback should be symmetric with the account used for payment:
+
+1. Return a `402` response that includes the `sign-in-with-x` extension.
+2. Include `eip155:4217` in `supportedChains` when the submit payment settled on Tempo.
+3. Build the CAIP-122 message from the challenge.
+4. Sign with the same account using EIP-191 `personal_sign`.
+5. Send the base64-encoded result in the `Sign-In-With-X` header.
+
+First-class `mppx` client support should parse the extension, select a supported chain for the configured account, sign the CAIP-122 message, and attach `Sign-In-With-X` automatically in the same wrapper that handles MPP Challenges and Credentials.

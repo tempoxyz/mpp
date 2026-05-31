@@ -65,6 +65,8 @@ For Tempo, the server rejects `transaction` and `hash` payloads for zero-amount 
 
 ### Case study: long-running jobs
 
+For a complete async API contract, including StableStudio-style submit and poll endpoints, see [Async jobs](/advanced/async-jobs).
+
 A service accepts a paid request to start work, then lets the client poll for results using zero-dollar auth. The server keys workloads on the client's public key.
 
 ::::steps
