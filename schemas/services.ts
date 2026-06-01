@@ -128,7 +128,8 @@ export const services: ServiceDef[] = [
     name: "agentfax",
     url: "https://agentfax.val.run",
     serviceUrl: "https://agentfax.val.run",
-    description: "Send a fax to any phone number, priced per page. Pay-per-fax for AI agents — no signup, no API key; documents are never stored.",
+    description:
+      "Send a fax to any phone number, priced per page. Pay-per-fax for AI agents — no signup, no API key; documents are never stored.",
 
     categories: ["social"],
     integration: "third-party",

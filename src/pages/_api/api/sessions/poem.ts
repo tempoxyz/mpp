@@ -54,6 +54,18 @@ const poems = [
   },
 ];
 
+type PaymentStream = {
+  charge(): Promise<void>;
+};
+
+type PaymentStreamFactory = (
+  stream: PaymentStream,
+) => AsyncGenerator<string, void, unknown>;
+
+function streamReceipt(factory: PaymentStreamFactory): Response {
+  return factory as unknown as Response;
+}
+
 export default async function handler(request: Request) {
   const result = await mppx.session({
     amount: "0.001",
@@ -69,11 +81,13 @@ export default async function handler(request: Request) {
   const poem = poems[Math.floor(Math.random() * poems.length)];
   const words = poem.lines.flatMap((line) => [...line.split(" "), "\\n"]);
 
-  return result.withReceipt(async function* (stream: any) {
-    yield JSON.stringify({ title: poem.title, author: poem.author });
-    for (const word of words) {
-      await stream.charge();
-      yield word;
-    }
-  } as any);
+  return result.withReceipt(
+    streamReceipt(async function* (stream: PaymentStream) {
+      yield JSON.stringify({ title: poem.title, author: poem.author });
+      for (const word of words) {
+        await stream.charge();
+        yield word;
+      }
+    }),
+  );
 }
