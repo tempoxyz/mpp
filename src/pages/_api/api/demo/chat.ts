@@ -61,6 +61,18 @@ function tokenize(text: string): string[] {
   return tokens;
 }
 
+type PaymentStream = {
+  charge(): Promise<void>;
+};
+
+type PaymentStreamFactory = (
+  stream: PaymentStream,
+) => AsyncGenerator<string, void, unknown>;
+
+function streamReceipt(factory: PaymentStreamFactory): Response {
+  return factory as unknown as Response;
+}
+
 export default async function handler(request: Request) {
   const result = await mppx.session({
     amount: "0.0001",
@@ -114,12 +126,14 @@ export default async function handler(request: Request) {
           const text = content.replaceAll("\n", "\t");
           const tokens = tokenize(text);
 
-          return result.withReceipt(async function* (stream: any) {
-            for (const token of tokens) {
-              await stream.charge();
-              yield token;
-            }
-          } as any);
+          return result.withReceipt(
+            streamReceipt(async function* (stream: PaymentStream) {
+              for (const token of tokens) {
+                await stream.charge();
+                yield token;
+              }
+            }),
+          );
         }
         console.warn(
           "[demo/chat] OpenAI response did not contain message content",
@@ -151,10 +165,12 @@ export default async function handler(request: Request) {
   ].join("\t");
   const tokens = tokenize(text);
 
-  return result.withReceipt(async function* (stream: any) {
-    for (const token of tokens) {
-      await stream.charge();
-      yield token;
-    }
-  } as any);
+  return result.withReceipt(
+    streamReceipt(async function* (stream: PaymentStream) {
+      for (const token of tokens) {
+        await stream.charge();
+        yield token;
+      }
+    }),
+  );
 }

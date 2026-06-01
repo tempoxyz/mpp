@@ -1,10 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { shikiStyleToClass } from "./shiki-style-to-class.js";
 
-// biome-ignore lint/suspicious/noExplicitAny: test helpers
-function makeRoot(spans: { style: string }[]): any {
+type TestNode = {
+  children: TestNode[];
+  properties: Record<string, string | undefined>;
+  tagName?: string;
+  type: string;
+  value?: string;
+};
+
+function text(value: string): TestNode {
+  return { children: [], properties: {}, type: "text", value };
+}
+
+function makeRoot(spans: { style: string }[]): TestNode {
   return {
     type: "root",
+    properties: {},
     children: [
       {
         type: "element",
@@ -21,7 +33,7 @@ function makeRoot(spans: { style: string }[]): any {
               type: "element",
               tagName: "span",
               properties: { style: s.style },
-              children: [{ type: "text", value: "token" }],
+              children: [text("token")],
             })),
           },
         ],
@@ -47,7 +59,7 @@ describe("shikiStyleToClass", () => {
       { style: style2 }, // duplicate
     ]);
 
-    transformer.root.call({} as any, root as any);
+    transformer.root(root);
 
     // CSS rules stored on <pre> via data attribute
     const pre = root.children[0];
@@ -65,7 +77,7 @@ describe("shikiStyleToClass", () => {
 
     // Check deduplication: 2 unique styles -> 2 classes
     const uniqueClasses = new Set(
-      code.children.map((s: any) => s.properties.class),
+      code.children.map((span) => span.properties.class),
     );
     expect(uniqueClasses.size).toBe(2);
   });
@@ -77,13 +89,13 @@ describe("shikiStyleToClass", () => {
       "color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067";
 
     const firstRoot = makeRoot([{ style }]);
-    transformer.root.call({} as any, firstRoot as any);
+    transformer.root(firstRoot);
 
     const firstSpan = firstRoot.children[0].children[0].children[0];
     const cls = firstSpan.properties.class;
 
     const secondRoot = makeRoot([{ style }]);
-    transformer.root.call({} as any, secondRoot as any);
+    transformer.root(secondRoot);
 
     const secondPre = secondRoot.children[0];
     expect(secondPre.properties["data-shiki-css"]).toContain(
@@ -100,10 +112,10 @@ describe("shikiStyleToClass", () => {
       "color:light-dark(#24292E, #ADBAC7);--shiki-light:#24292E;--shiki-dark:#ADBAC7";
 
     const firstRoot = makeRoot([{ style: style1 }, { style: style2 }]);
-    transformer.root.call({} as any, firstRoot as any);
+    transformer.root(firstRoot);
 
     const secondRoot = makeRoot([{ style: style2 }, { style: style1 }]);
-    transformer.root.call({} as any, secondRoot as any);
+    transformer.root(secondRoot);
 
     const firstPre = firstRoot.children[0];
     const secondPre = secondRoot.children[0];
@@ -122,7 +134,7 @@ describe("shikiStyleToClass", () => {
       },
     ]);
 
-    transformer.root.call({} as any, root as any);
+    transformer.root(root);
 
     const span = root.children[0].children[0].children[0];
     // Should keep font-style inline
@@ -135,11 +147,17 @@ describe("shikiStyleToClass", () => {
     const transformer = shikiStyleToClass();
     const root = {
       type: "root",
+      properties: {},
       children: [
-        { type: "element", tagName: "div", properties: {}, children: [] },
+        {
+          type: "element",
+          tagName: "div",
+          properties: {},
+          children: [],
+        },
       ],
     };
-    transformer.root.call({} as any, root as any);
+    transformer.root(root);
     expect(root.children.length).toBe(1);
   });
 });

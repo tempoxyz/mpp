@@ -1,6 +1,11 @@
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - mppx
+  - vocs
+  - vite
+  - waku
 blockExoticSubdeps: true
 strictDepBuilds: true
 trustPolicy: no-downgrade
+trustPolicyExclude:
+  - semver@6.3.1

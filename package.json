@@ -31,9 +31,9 @@
     "stripe": "^22.1.0",
     "tailwindcss": "^4.2.4",
     "viem": "^2.50.4",
-    "vocs": "https://pkg.pr.new/vocs@425",
+    "vocs": "^2.0.10",
     "wagmi": "^3.6.5",
-    "waku": "^1.0.0-alpha.8"
+    "waku": "1.0.0-beta.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
@@ -45,7 +45,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vercel/speed-insights": "^2.0.0",
-    "@vitejs/plugin-react": "^6",
+    "@vitejs/plugin-react": "^6.0.2",
     "ajv": "8",
     "ajv-formats": "^3.0.1",
     "happy-dom": "^20.9.0",
@@ -56,7 +56,7 @@
     "tiktoken": "^1.0.22",
     "typescript": "^6",
     "unplugin-icons": "^23.0.1",
-    "vite": "^8.0.10",
+    "vite": "^8.0.16",
     "vite-plugin-mkcert": "^2.0.0",
     "vitest": "^4.1.5"
   },
@@ -71,10 +71,7 @@
     "ignoredBuiltDependencies": [
       "es5-ext",
       "simple-git-hooks"
-    ],
-    "patchedDependencies": {
-      "vocs@0.0.0": "patches/vocs@0.0.0.patch"
-    }
+    ]
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
