@@ -66,7 +66,7 @@ MPP uses three protocol objects in every payment flow—the same lifecycle x402 
 
 ## Running x402 servers with mppx
 
-Use `evm.charge` when you to support both MPP "charge" intents as well as x402 "exact" intents with a single `mppx` import. 
+Use `evm.charge` when you want to support both MPP "charge" intents as well as x402 "exact" intents with a single `mppx` import.
 
 :::info
 For exact x402 flows, `evm.charge` replaces custom Challenge builders, `PAYMENT-*` header parsing, facilitator verification calls, settlement response handling, and route binding. Configure the asset, recipient, and facilitator once; each route supplies a display-unit `amount`.
@@ -81,6 +81,7 @@ import { evm, Mppx } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [
+    // [!code hl:start]
     evm.charge({
       currency: evm.assets.baseSepolia.USDC,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -88,15 +89,18 @@ const mppx = Mppx.create({
         facilitator: 'https://x402.org/facilitator',
       },
     }),
+    // [!code hl:end]
   ],
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })
 
 export async function GET(request: Request) {
+  // [!code hl:start]
   const result = await mppx.evm.charge({
     amount: '0.01',
     description: 'Premium data access',
   })(request)
+  // [!code hl:end]
 
   if (result.status === 402) return result.challenge
 
@@ -113,6 +117,7 @@ import { evm, Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [
+    // [!code hl:start]
     evm.charge({
       currency: evm.assets.baseSepolia.USDC,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -120,6 +125,7 @@ const mppx = Mppx.create({
         facilitator: 'https://x402.org/facilitator',
       },
     }),
+    // [!code hl:end]
     tempo.charge({
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -129,10 +135,12 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })
 
+// [!code hl:start]
 const paid = mppx.compose(
   [mppx.evm.charge, { amount: '0.01', description: 'Premium data access' }],
   [mppx.tempo.charge, { amount: '0.01', description: 'Premium data access' }],
 )
+// [!code hl:end]
 
 export async function GET(request: Request) {
   const result = await paid(request)
@@ -155,6 +163,7 @@ const app = new Hono()
 
 const mppx = Mppx.create({
   methods: [
+    // [!code hl:start]
     evm.charge({
       currency: evm.assets.baseSepolia.USDC,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -162,13 +171,16 @@ const mppx = Mppx.create({
         facilitator: 'https://x402.org/facilitator',
       },
     }),
+    // [!code hl:end]
   ],
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })
 
+// [!code hl:start]
 app.get('/paid', mppx.evm.charge({ amount: '0.01' }), (c) =>
   c.json({ ok: true }),
 )
+// [!code hl:end]
 ```
 
 ### Call with the mppx client
@@ -181,6 +193,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const fetch = Fetch.from({
   methods: [
+    // [!code hl:start]
     evm.charge({
       account: privateKeyToAccount(
         '0x0123456789012345678901234567890123456789012345678901234567890123',
@@ -188,6 +201,7 @@ const fetch = Fetch.from({
       currencies: [evm.assets.baseSepolia.USDC],
       maxAmount: '1.00',
     }),
+    // [!code hl:end]
   ],
 })
 
