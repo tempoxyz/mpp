@@ -147,15 +147,19 @@ const response = await session.fetch('https://api.example.com/resource')
 `tempo.session()` returns a `SessionManager` object:
 
 ```ts
+type SessionRequestInit = RequestInit & {
+  orderChallenges?: SessionOrderChallenges
+}
+
 type SessionManager = {
   readonly channelId: Hex | undefined
   readonly cumulative: bigint
   readonly opened: boolean
   open(options?: { deposit?: bigint }): Promise<void>
-  fetch(input: RequestInfo | URL, init?: RequestInit): Promise<PaymentResponse>
+  fetch(input: RequestInfo | URL, init?: SessionRequestInit): Promise<PaymentResponse>
   sse(
     input: RequestInfo | URL,
-    init?: RequestInit & {
+    init?: SessionRequestInit & {
       onReceipt?: (receipt: SessionReceipt) => void
       signal?: AbortSignal
     },
@@ -164,6 +168,7 @@ type SessionManager = {
     input: string | URL,
     init?: {
       onReceipt?: (receipt: SessionReceipt) => void
+      orderChallenges?: SessionOrderChallenges
       protocols?: string | string[]
       signal?: AbortSignal
     },
@@ -222,12 +227,6 @@ The `reference` field contains the channel ID, not a transaction hash. To get th
 
 Account to sign vouchers with.
 
-### authorizedSigner (optional)
-
-- **Type:** `Address`
-
-Address authorized to sign vouchers. Defaults to the account address. Use when a separate access key signs vouchers while the root account funds the channel.
-
 ### client (optional)
 
 - **Type:** `Client`
@@ -265,6 +264,18 @@ Function that returns a viem client for the given chain ID.
 - **Type:** `string`
 
 Maximum deposit in human-readable units (for example `"10"` for 10 tokens). Caps the server's suggested deposit and enables automatic channel management.
+
+### orderChallenges (optional)
+
+- **Type:** `OrderChallenges<[SessionMethod]>`
+
+Filters and sorts supported session Challenges before Credential creation.
+
+### voucherSigner (optional)
+
+- **Type:** `Account`
+
+Account that signs voucher digests. Defaults to `account`. Access-key accounts sign raw vouchers as their access-key address.
 
 ### webSocket (optional)
 
