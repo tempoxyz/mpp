@@ -11,7 +11,7 @@ import { EvmChargeCard } from '../../../components/cards'
 
 The EVM payment method enables MPP payments using EIP-3009 token authorizations. It supports the **charge** intent for one-time stablecoin payments and can accept x402 exact flows when x402 options are enabled.
 
-Use `evm.charge` when you want one payment method that handles native MPP EVM charge Challenges and existing x402 exact Challenges.
+Use `evm.charge` when you want one payment method that handles native MPP EVM charge Challenges and existing x402 exact Challenges. Read the [EVM charge protocol spec](https://paymentauth.org/draft-evm-charge-00) for the wire format.
 
 ## Installation
 
@@ -35,4 +35,4 @@ $ bun add mppx viem
 
 ## x402 compatibility
 
-Configure `x402.facilitator` on the server to return x402-compatible Challenges and accept x402 exact Credentials. See [running x402 servers with mppx](/guides/upgrade-x402#add-x402-to-your-mpp-server-with-mppx) for the migration guide.
+Configure `x402.facilitator` on the server to return x402-compatible Challenges and accept x402 exact Credentials. See [running x402 servers with mppx](/guides/use-mpp-with-x402#add-x402-to-your-mpp-server-with-mppx) for more details.

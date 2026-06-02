@@ -21,7 +21,7 @@ For Tempo payments, you need a stablecoin wallet to sign transactions. The SDK a
 
 Both MPP and x402 use HTTP `402` to signal that a request requires payment. The key differences:
 
-See [MPP vs x402](/mpp-vs-x402) for a full side-by-side comparison, or [Add x402 to your MPP server with mppx](/guides/upgrade-x402#add-x402-to-your-mpp-server-with-mppx) for an implementation guide.
+See [MPP vs x402](/mpp-vs-x402) for a full side-by-side comparison, or [Use MPP with x402](/guides/use-mpp-with-x402) for an implementation guide.
 
 - **Payment-method agnostic.** MPP supports stablecoins, cards, wallets, and custom rails through extensible payment method specifications. x402 only supports blockchains.
 - **Designed for production.** MPP supports idempotency, expiration, request-body binding (digest), and request-tampering mitigations as first-class primitives.
@@ -31,7 +31,7 @@ See [MPP vs x402](/mpp-vs-x402) for a full side-by-side comparison, or [Add x402
 
 ## Is MPP compatible with x402?
 
-Yes. The core x402 "exact" flows map directly onto MPP's charge intent. `mppx` can serve x402 and MPP clients from the same route. See [Add x402 to your MPP server with mppx](/guides/upgrade-x402#add-x402-to-your-mpp-server-with-mppx).
+Yes. The core x402 "exact" flows map directly onto MPP's charge intent. `mppx` can serve x402 and MPP clients from the same route. See [Use MPP with x402](/guides/use-mpp-with-x402).
 
 ## Why build MPP on Tempo?
 

@@ -1,13 +1,13 @@
 ---
-description: "Upgrade from the x402 protocol to MPP for multi-method payments, sessions, and IETF standardization. Migration guide with side-by-side comparison."
-imageDescription: "Migrate from x402 to MPP"
+description: "Use MPP with x402 to support exact stablecoin flows, multi-method payments, sessions, and IETF standardization."
+imageDescription: "Use MPP with existing x402 flows"
 ---
 
 import { Cards } from 'vocs'
 import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
 
-# Upgrade your x402 server to MPP [Migrate from x402 in minutes]
+# Use MPP with x402 [Run both payment flows together]
 
 MPP plugs into your existing x402 server. Both protocols use HTTP `402` to gate API access behind payment, and x402's "exact" charge flow maps directly onto MPP's `charge` intent. Adding MPP gives you standard `WWW-Authenticate` / `Authorization` headers, multi-method support (stablecoins, cards, Lightning), sessions for streaming payments, and an [IETF standards track](https://paymentauth.org) foundation—all without changing your business logic.
 
@@ -190,7 +190,7 @@ Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP inte
 Paste this into your coding agent to add MPP in one prompt:
 
 <PromptBlock>
-{`Use https://mpp.dev/guides/upgrade-x402.md#add-x402-to-your-mpp-server-with-mppx as reference.
+{`Use https://mpp.dev/guides/use-mpp-with-x402.md#add-x402-to-your-mpp-server-with-mppx as reference.
 Add mppx to my existing x402 server. Use the Tempo payment
 method with USDC.e. Keep the same pricing and route structure.
 Add mppx.charge to each paid endpoint. Point out areas where I could benefit from adding sessions.`}
