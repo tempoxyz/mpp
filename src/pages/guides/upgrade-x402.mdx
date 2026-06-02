@@ -66,19 +66,15 @@ MPP uses three protocol objects in every payment flow—the same lifecycle x402 
 
 ## Running x402 servers with mppx
 
-Use `evm.charge` when you want existing x402 clients to keep paying while you move payment logic into the MPP SDK. x402 clients read `PAYMENT-REQUIRED` and send `PAYMENT-SIGNATURE`. MPP clients read `WWW-Authenticate` and send `Authorization`.
+Use `evm.charge` when you to support both MPP "charge" intents as well as x402 "exact" intents with a single `mppx` import. 
 
 :::info
 For exact x402 flows, `evm.charge` replaces custom Challenge builders, `PAYMENT-*` header parsing, facilitator verification calls, settlement response handling, and route binding. Configure the asset, recipient, and facilitator once; each route supplies a display-unit `amount`.
 :::
 
-### `evm.charge`
-
-`evm.charge` creates an EVM charge payment method. On the server, pass `currency`, `recipient`, and either `x402.facilitator` or `settle`. On the route, call `mppx.evm.charge({ amount })`. See the [`evm.charge` server reference](/sdk/typescript/server/Method.evm.charge) and [`evm.charge` client reference](/sdk/typescript/client/Method.evm.charge) for full parameters.
-
 ### Run an x402-compatible endpoint
 
-Configure `evm.charge` with a known x402 asset and a facilitator. The route returns x402-compatible Challenges and accepts x402 exact Credentials on retry.
+Configure `evm.charge` with a known x402 asset and a facilitator. The route returns x402-compatible Challenges in addition to MPP Challenges, and accepts x402 exact Credentials if clients choose to pay with x402 as well as MPP.
 
 ```ts twoslash [server.ts]
 import { evm, Mppx } from 'mppx/server'
@@ -149,7 +145,7 @@ export async function GET(request: Request) {
 
 ### Use Hono middleware
 
-Import from `mppx/hono` when your x402 server already uses Hono. The middleware handles Challenge creation, Credential verification, settlement, and Receipt headers.
+Import from `mppx/hono` when your x402 server already uses Hono. 
 
 ```ts twoslash [server.ts]
 import { Hono } from 'hono'
