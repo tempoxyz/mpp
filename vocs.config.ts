@@ -55,7 +55,7 @@ export default defineConfig({
     { source: "/402", destination: "/protocol/http-402" },
     {
       source: "/x402",
-      destination: "/guides/upgrade-x402#running-x402-servers-with-mppx",
+      destination: "/guides/upgrade-x402#add-x402-to-your-mpp-server-with-mppx",
     },
     { source: "/challenges", destination: "/protocol/challenges" },
     { source: "/challenge", destination: "/protocol/challenges" },
@@ -305,6 +305,10 @@ export default defineConfig({
             link: "/guides/subscription-payments",
           },
           {
+            text: "Upgrade your x402 integration",
+            link: "/guides/upgrade-x402",
+          },
+          {
             text: "Advanced",
             items: [
               {
@@ -330,10 +334,6 @@ export default defineConfig({
               {
                 text: "Proxy an existing service",
                 link: "/guides/proxy-existing-service",
-              },
-              {
-                text: "Upgrade your x402 integration",
-                link: "/guides/upgrade-x402",
               },
             ],
           },

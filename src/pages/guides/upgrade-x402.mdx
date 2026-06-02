@@ -6,7 +6,6 @@ imageDescription: "Migrate from x402 to MPP"
 import { Cards } from 'vocs'
 import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
-import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 # Upgrade your x402 server to MPP [Migrate from x402 in minutes]
 
@@ -30,32 +29,6 @@ MPP builds on the same `402` pattern that x402 established, and extends it with 
 MPP is compatible with x402. The x402 "exact" charge flow maps directly onto MPP's `charge` intent. MPP extends beyond x402 with idempotency, Receipts, request binding, multiple payment methods, and efficient payment sessions.
 :::
 
-## Protocol flow
-
-The request lifecycle is the same—only the header names and encoding change.
-
-**x402**
-
-<MermaidDiagram chart={`sequenceDiagram
-    participant Client
-    participant Server
-    Client->>Server: GET /resource
-    Server-->>Client: 402 + PAYMENT-REQUIRED
-    Client->>Server: GET /resource + PAYMENT-SIGNATURE
-    Server-->>Client: 200 + PAYMENT-RESPONSE
-`} />
-
-**MPP**
-
-<MermaidDiagram chart={`sequenceDiagram
-    participant Client
-    participant Server
-    Client->>Server: GET /resource
-    Server-->>Client: 402 + WWW-Authenticate: Payment
-    Client->>Server: GET /resource + Authorization: Payment
-    Server-->>Client: 200 + Payment-Receipt
-`} />
-
 ## Key concepts
 
 MPP uses three protocol objects in every payment flow—the same lifecycle x402 uses, with standardized names:
@@ -64,9 +37,9 @@ MPP uses three protocol objects in every payment flow—the same lifecycle x402 
 - **Credential** — The client's signed payment authorization. Sent in the `Authorization: Payment` header. Equivalent to x402's `PAYMENT-SIGNATURE`.
 - **Receipt** — The server's confirmation that payment settled. Sent in the `Payment-Receipt` header. Equivalent to x402's `PAYMENT-RESPONSE`.
 
-## Running x402 servers with mppx
+## Add x402 to your MPP server with `mppx`
 
-Use `evm.charge` when you want to support both MPP "charge" intents as well as x402 "exact" intents with a single `mppx` import.
+Use `evm.charge` when you want to support both MPP "charge" intents and x402 "exact" intents with a single `mppx` import.
 
 :::info
 For exact x402 flows, `evm.charge` replaces custom Challenge builders, `PAYMENT-*` header parsing, facilitator verification calls, settlement response handling, and route binding. Configure the asset, recipient, and facilitator once; each route supplies a display-unit `amount`.
@@ -74,7 +47,7 @@ For exact x402 flows, `evm.charge` replaces custom Challenge builders, `PAYMENT-
 
 ### Run an x402-compatible endpoint
 
-Configure `evm.charge` with a known x402 asset and a facilitator. The route returns x402-compatible Challenges in addition to MPP Challenges, and accepts x402 exact Credentials if clients choose to pay with x402 as well as MPP.
+Configure `evm.charge` with a known x402 asset and a facilitator. The route returns x402-compatible Challenges in addition to MPP Challenges, and accepts x402 exact Credentials.
 
 ```ts twoslash [server.ts]
 import { evm, Mppx } from 'mppx/server'
@@ -153,8 +126,6 @@ export async function GET(request: Request) {
 
 ### Use Hono middleware
 
-Import from `mppx/hono` when your x402 server already uses Hono. 
-
 ```ts twoslash [server.ts]
 import { Hono } from 'hono'
 import { evm, Mppx } from 'mppx/hono'
@@ -219,13 +190,13 @@ Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP inte
 Paste this into your coding agent to add MPP in one prompt:
 
 <PromptBlock>
-{`Use https://mpp.dev/guides/upgrade-x402.md#running-x402-servers-with-mppx as reference.
+{`Use https://mpp.dev/guides/upgrade-x402.md#add-x402-to-your-mpp-server-with-mppx as reference.
 Add mppx to my existing x402 server. Use the Tempo payment
 method with USDC.e. Keep the same pricing and route structure.
 Add mppx.charge to each paid endpoint. Point out areas where I could benefit from adding sessions.`}
 </PromptBlock>
 
-## Add MPP to your server
+## Advanced: Add MPP to your existing x402 server
 
 ::::steps
 
