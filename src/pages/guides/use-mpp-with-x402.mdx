@@ -1,14 +1,13 @@
 ---
-description: "Upgrade from the x402 protocol to MPP for multi-method payments, sessions, and IETF standardization. Migration guide with side-by-side comparison."
-imageDescription: "Migrate from x402 to MPP"
+description: "Use MPP with x402 to support exact stablecoin flows, multi-method payments, sessions, and IETF standardization."
+imageDescription: "Use MPP with existing x402 flows"
 ---
 
 import { Cards } from 'vocs'
 import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
-import { MermaidDiagram } from '../../components/MermaidDiagram'
 
-# Upgrade your x402 server to MPP [Migrate from x402 in minutes]
+# Use MPP with x402 [Run both payment flows together]
 
 MPP plugs into your existing x402 server. Both protocols use HTTP `402` to gate API access behind payment, and x402's "exact" charge flow maps directly onto MPP's `charge` intent. Adding MPP gives you standard `WWW-Authenticate` / `Authorization` headers, multi-method support (stablecoins, cards, Lightning), sessions for streaming payments, and an [IETF standards track](https://paymentauth.org) foundation—all without changing your business logic.
 
@@ -30,32 +29,6 @@ MPP builds on the same `402` pattern that x402 established, and extends it with 
 MPP is compatible with x402. The x402 "exact" charge flow maps directly onto MPP's `charge` intent. MPP extends beyond x402 with idempotency, Receipts, request binding, multiple payment methods, and efficient payment sessions.
 :::
 
-## Protocol flow
-
-The request lifecycle is the same—only the header names and encoding change.
-
-**x402**
-
-<MermaidDiagram chart={`sequenceDiagram
-    participant Client
-    participant Server
-    Client->>Server: GET /resource
-    Server-->>Client: 402 + PAYMENT-REQUIRED
-    Client->>Server: GET /resource + PAYMENT-SIGNATURE
-    Server-->>Client: 200 + PAYMENT-RESPONSE
-`} />
-
-**MPP**
-
-<MermaidDiagram chart={`sequenceDiagram
-    participant Client
-    participant Server
-    Client->>Server: GET /resource
-    Server-->>Client: 402 + WWW-Authenticate: Payment
-    Client->>Server: GET /resource + Authorization: Payment
-    Server-->>Client: 200 + Payment-Receipt
-`} />
-
 ## Key concepts
 
 MPP uses three protocol objects in every payment flow—the same lifecycle x402 uses, with standardized names:
@@ -64,44 +37,152 @@ MPP uses three protocol objects in every payment flow—the same lifecycle x402 
 - **Credential** — The client's signed payment authorization. Sent in the `Authorization: Payment` header. Equivalent to x402's `PAYMENT-SIGNATURE`.
 - **Receipt** — The server's confirmation that payment settled. Sent in the `Payment-Receipt` header. Equivalent to x402's `PAYMENT-RESPONSE`.
 
-## Running MPP and x402 side by side
+## Add x402 to your MPP server with `mppx`
 
-MPP and x402 use completely different HTTP headers (see [comparison above](#what-mpp-adds)), so they coexist on the same server without conflict. This lets you adopt MPP incrementally—add it to new endpoints while existing x402 clients continue working.
+Use `evm.charge` when you want to support both MPP "charge" intents and x402 "exact" intents with a single `mppx` import.
 
-A single `402` response can include **both** sets of headers simultaneously. x402 clients read `PAYMENT-REQUIRED` and ignore `WWW-Authenticate`, while MPP clients read `WWW-Authenticate: Payment` and ignore the x402 headers.
+:::info
+When x402 options are enabled, the server automatically handles MPP charge and x402 exact flows.
+:::
 
-```http
-HTTP/1.1 402 Payment Required
-WWW-Authenticate: Payment id="abc", realm="api.example.com",
-  method="tempo", intent="charge", request="eyJ..."
-PAYMENT-REQUIRED: {"scheme":"exact","network":"base-sepolia",
-  "maxAmountRequired":"10000","resource":"..."}
+### Run an x402-compatible endpoint
+
+Configure `evm.charge` with a known x402 asset and a facilitator. The route returns x402-compatible Challenges in addition to MPP Challenges, and accepts both MPP and x402 Credentials.
+
+```ts twoslash [server.ts]
+import { evm, Mppx } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      x402: {
+        facilitator: 'https://x402.org/facilitator',
+      },
+    }),
+    // [!code hl:end]
+  ],
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
+})
+
+export async function GET(request: Request) {
+  // [!code hl:start]
+  const result = await mppx.evm.charge({
+    amount: '0.01',
+    description: 'Premium data access',
+  })(request)
+  // [!code hl:end]
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ ok: true }))
+}
 ```
 
-On the return trip, MPP clients send `Authorization: Payment <credential>` while x402 clients send `PAYMENT-SIGNATURE: <payload>`. Your server checks which header is present and verifies accordingly:
+### Add MPP to the same endpoint
 
-```ts [server.ts]
-app.get('/api/data', (req, res, next) => {
-  const hasPayment = req.headers['authorization']?.startsWith('Payment ')
-  const hasX402 = !!req.headers['payment-signature']
+Use `mppx.compose` when one endpoint should support x402 EVM charges and another MPP method. The same route verifies either wire format.
 
-  if (hasPayment) {
-    return mppx.charge({ amount: '0.01' })(req, res, next)
-  }
-  if (hasX402) {
-    return handleX402Payment(req, res, next)
-  }
+```ts twoslash [server.ts]
+import { evm, Mppx, tempo } from 'mppx/server'
 
-  // No credential — advertise both protocols
-  res.setHeader('PAYMENT-REQUIRED', JSON.stringify(x402Challenge))
-  mppx.charge({ amount: '0.01' })(req, res, () => {})
-}, (req, res) => {
-  res.json({ data: 'premium content' })
+const mppx = Mppx.create({
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      x402: {
+        facilitator: 'https://x402.org/facilitator',
+      },
+    }),
+    // [!code hl:end]
+    tempo.charge({
+      currency: '0x20c0000000000000000000000000000000000000',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      testnet: true,
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })
+
+// [!code hl:start]
+const paid = mppx.compose(
+  [mppx.evm.charge, { amount: '0.01', description: 'Premium data access' }],
+  [mppx.tempo.charge, { amount: '0.01', description: 'Premium data access' }],
+)
+// [!code hl:end]
+
+export async function GET(request: Request) {
+  const result = await paid(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ ok: true }))
+}
+```
+
+### Use Hono middleware
+
+```ts twoslash [server.ts]
+import { Hono } from 'hono'
+import { evm, Mppx } from 'mppx/hono'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      x402: {
+        facilitator: 'https://x402.org/facilitator',
+      },
+    }),
+    // [!code hl:end]
+  ],
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
+})
+
+// [!code hl:start]
+app.get('/paid', mppx.evm.charge({ amount: '0.01' }), (c) =>
+  c.json({ ok: true }),
+)
+// [!code hl:end]
+```
+
+### Call with the mppx client
+
+`evm.charge` on the client signs both native MPP EVM charge Challenges and x402 exact Challenges.
+
+```ts twoslash [client.ts]
+import { Fetch, evm } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const fetch = Fetch.from({
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      account: privateKeyToAccount(
+        '0x0123456789012345678901234567890123456789012345678901234567890123',
+      ),
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+    // [!code hl:end]
+  ],
+})
+
+const response = await fetch('https://api.example.com/paid')
+console.log(response.status)
+// @log: 200
 ```
 
 :::tip
-Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP intermediaries (proxies, CDNs, API gateways) that understand [RFC 7235](https://www.rfc-editor.org/rfc/rfc7235) authentication. x402's custom `PAYMENT-*` headers are opaque to these intermediaries.
+Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP intermediaries (proxies, CDNs, API gateways) that understand [RFC 7235](https://www.rfc-editor.org/rfc/rfc7235) authentication.
 :::
 
 ## Prompt mode
@@ -109,13 +190,13 @@ Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP inte
 Paste this into your coding agent to add MPP in one prompt:
 
 <PromptBlock>
-{`Use https://mpp.dev/guides/upgrade-x402.md as reference.
+{`Use https://mpp.dev/guides/use-mpp-with-x402.md#add-x402-to-your-mpp-server-with-mppx as reference.
 Add mppx to my existing x402 server. Use the Tempo payment
 method with USDC.e. Keep the same pricing and route structure.
 Add mppx.charge to each paid endpoint. Point out areas where I could benefit from adding sessions.`}
 </PromptBlock>
 
-## Add MPP to your server
+## Advanced: Add MPP to your existing x402 server
 
 ::::steps
 
@@ -138,20 +219,19 @@ $ bun add mppx viem
 Here's a typical x402 server with MPP applied. Your business logic stays the same—you swap the payment middleware.
 
 ```ts [server.ts]
-import crypto from 'crypto'
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express' // [!code hl]
 
 const app = express()
 
 const mppx = Mppx.create({ // [!code hl]
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'), // [!code hl]
   methods: [ // [!code hl]
     tempo({ // [!code hl]
       currency: '0x20c0000000000000000000000000000000000000', // [!code hl]
       recipient: '0xYourAddress', // [!code hl]
     }), // [!code hl]
   ], // [!code hl]
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret', // [!code hl]
 }) // [!code hl]
 
 app.get(
@@ -189,7 +269,6 @@ const mppx = Mppx.create({
 This is where MPP goes beyond x402. You can accept stablecoins, cards, and Lightning on the same endpoint by registering additional methods. The `402` response advertises all of them, and the client picks one.
 
 ```ts [server.ts]
-import crypto from 'crypto'
 import express from 'express'
 import Stripe from 'stripe'
 import { Mppx, tempo, stripe } from 'mppx/express'
@@ -198,7 +277,6 @@ const app = express()
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
     tempo({
       currency: '0x20c0000000000000000000000000000000000000',
@@ -211,6 +289,7 @@ const mppx = Mppx.create({
       paymentMethodTypes: ['card'], // [!code hl]
     }), // [!code hl]
   ],
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })
 
 app.get(

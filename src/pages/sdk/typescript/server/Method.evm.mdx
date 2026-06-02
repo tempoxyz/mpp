@@ -1,0 +1,65 @@
+---
+title: "evm server method"
+---
+
+# `evm` [Create EVM charge Challenges]
+
+Namespace for EVM payment methods and known asset metadata.
+
+## Usage
+
+```ts twoslash
+import { Mppx, evm } from 'mppx/server'
+
+Mppx.create({
+  methods: [
+    // [!code focus:start]
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      x402: {
+        facilitator: 'https://x402.org/facilitator',
+      },
+    }),
+    // [!code focus:end]
+  ],
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
+})
+```
+
+## Exports
+
+### assets
+
+- **Type:** `typeof import('mppx/server').evm.assets`
+
+Known EVM asset metadata. Use `evm.assets.base.USDC` for Base mainnet and `evm.assets.baseSepolia.USDC` for Base Sepolia.
+
+Use `evm.assets.define` for custom EVM assets:
+
+```ts twoslash
+import { evm } from 'mppx/server'
+
+const USDC = evm.assets.define({
+  address: '0x1234567890abcdef1234567890abcdef12345678',
+  decimals: 6,
+  network: 'eip155:84532',
+  transfer: {
+    name: 'USD Coin',
+    type: 'eip3009',
+    version: '2',
+  },
+})
+```
+
+### chains
+
+- **Type:** `typeof import('mppx/server').evm.chains`
+
+Known EVM chain IDs. Use `evm.chains.base` for Base mainnet and `evm.chains.baseSepolia` for Base Sepolia.
+
+### charge
+
+- **Type:** `typeof evm.charge`
+
+Creates an EVM charge payment method. See [`evm.charge`](/sdk/typescript/server/Method.evm.charge).

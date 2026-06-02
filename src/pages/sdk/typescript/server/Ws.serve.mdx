@@ -1,4 +1,4 @@
-# `Session.Ws.serve` [WebSocket session payments]
+# `tempo.Ws.serve` [WebSocket session payments]
 
 Bridges a WebSocket connection to a Tempo session payment flow. Credential verification is performed by routing each in-band authorization frame through `route` as a synthetic POST request that carries only the Authorization header. The synthetic request does not include cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
 
@@ -22,7 +22,7 @@ const mppx = Mppx.create({
 declare const socket: Session.Ws.Socket
 
 // In your WebSocket handler:
-Session.Ws.serve({
+tempo.Ws.serve({
   generate: async function* (stream) {
     for (const word of words) {
       await stream.charge()

@@ -53,7 +53,15 @@ export default defineConfig({
 
     // Protocol concept shortcuts
     { source: "/402", destination: "/protocol/http-402" },
-    { source: "/x402", destination: "/protocol/http-402" },
+    {
+      source: "/x402",
+      destination:
+        "/guides/use-mpp-with-x402#add-x402-to-your-mpp-server-with-mppx",
+    },
+    {
+      source: "/guides/upgrade-x402",
+      destination: "/guides/use-mpp-with-x402",
+    },
     { source: "/challenges", destination: "/protocol/challenges" },
     { source: "/challenge", destination: "/protocol/challenges" },
     { source: "/credentials", destination: "/protocol/credentials" },
@@ -302,6 +310,10 @@ export default defineConfig({
             link: "/guides/subscription-payments",
           },
           {
+            text: "Use MPP with x402",
+            link: "/guides/use-mpp-with-x402",
+          },
+          {
             text: "Advanced",
             items: [
               {
@@ -327,10 +339,6 @@ export default defineConfig({
               {
                 text: "Proxy an existing service",
                 link: "/guides/proxy-existing-service",
-              },
-              {
-                text: "Upgrade your x402 integration",
-                link: "/guides/upgrade-x402",
               },
             ],
           },
@@ -393,6 +401,14 @@ export default defineConfig({
                 text: "Subscription",
                 link: "/payment-methods/tempo/subscription",
               },
+            ],
+          },
+          {
+            text: "EVM",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/evm" },
+              { text: "Charge", link: "/payment-methods/evm/charge" },
             ],
           },
           {
@@ -473,6 +489,14 @@ export default defineConfig({
                     text: "Methods",
                     collapsed: true,
                     items: [
+                      {
+                        text: "evm",
+                        link: "/sdk/typescript/client/Method.evm",
+                      },
+                      {
+                        text: "evm.charge",
+                        link: "/sdk/typescript/client/Method.evm.charge",
+                      },
                       {
                         text: "tempo",
                         link: "/sdk/typescript/client/Method.tempo",
@@ -572,6 +596,14 @@ export default defineConfig({
                     text: "Methods",
                     collapsed: true,
                     items: [
+                      {
+                        text: "evm",
+                        link: "/sdk/typescript/server/Method.evm",
+                      },
+                      {
+                        text: "evm.charge",
+                        link: "/sdk/typescript/server/Method.evm.charge",
+                      },
                       {
                         text: "tempo",
                         link: "/sdk/typescript/server/Method.tempo",

@@ -4,7 +4,7 @@ imageDescription: "Choose a payment method for your service"
 ---
 
 import { Cards, Tab, Tabs } from 'vocs'
-import { TempoMethodCard, CardMethodCard, LightningMethodCard, MonadMethodCard, RedotPayMethodCard, StellarMethodCard, SolanaMethodCard, StripeMethodCard, CustomMethodCard } from '../../components/cards'
+import { TempoMethodCard, CardMethodCard, EvmMethodCard, LightningMethodCard, MonadMethodCard, RedotPayMethodCard, StellarMethodCard, SolanaMethodCard, StripeMethodCard, CustomMethodCard } from '../../components/cards'
 
 # Payment methods [Available methods and how to choose one]
 
@@ -25,6 +25,12 @@ WWW-Authenticate: Payment method="tempo" intent="charge", ...
 ```http
 HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment method="stripe", intent="charge", ...
+```
+  </Tab>
+  <Tab title="EVM">
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment method="evm", intent="charge", ...
 ```
   </Tab>
   <Tab title="Card">
@@ -69,6 +75,7 @@ WWW-Authenticate: Payment method="redotpay", intent="charge", ...
 
 <Cards>
   <TempoMethodCard />
+  <EvmMethodCard />
   <StripeMethodCard />
   <CardMethodCard />
   <LightningMethodCard />

@@ -1,0 +1,115 @@
+---
+title: "evm.charge client method"
+---
+
+# `Method.evm.charge` [Sign EVM charge Credentials]
+
+Creates an EVM charge payment method for client-side EIP-3009 authorization signing.
+
+## Usage
+
+```ts twoslash
+import { Fetch, evm } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const fetch = Fetch.from({
+  methods: [
+    // [!code focus:start]
+    evm.charge({
+      account: privateKeyToAccount(
+        '0x0123456789012345678901234567890123456789012345678901234567890123',
+      ),
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+    // [!code focus:end]
+  ],
+})
+
+const response = await fetch('https://api.example.com/paid')
+console.log(response.status)
+// @log: 200
+```
+
+The client signs native MPP EVM charge Challenges and x402 exact Challenges for compatible assets.
+
+## Return type
+
+```ts
+import type { Method } from 'mppx'
+
+type ReturnType = Method.Client
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Account`
+
+Account that signs EVM charge Credentials.
+
+```ts twoslash
+import { evm } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = evm.charge({
+  account: privateKeyToAccount(
+    '0x0123456789012345678901234567890123456789012345678901234567890123',
+  ), // [!code focus]
+})
+```
+
+### assets (optional)
+
+- **Type:** `readonly (Address | KnownAsset)[]`
+
+Legacy alias for `currencies`.
+
+### authorization (optional)
+
+- **Type:** `{ name: string; version: string }`
+
+EIP-3009 token domain metadata for custom currencies. Known assets infer this value.
+
+### currencies (optional)
+
+- **Type:** `readonly (Address | KnownAsset)[]`
+
+Allowlist of EVM currencies the client accepts. Use known assets when possible so mppx can infer chain, decimals, and transfer metadata.
+
+```ts twoslash
+import { evm } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = evm.charge({
+  account: privateKeyToAccount(
+    '0x0123456789012345678901234567890123456789012345678901234567890123',
+  ),
+  currencies: [evm.assets.baseSepolia.USDC], // [!code focus]
+})
+```
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimal places used to parse `maxAmount` when currency metadata doesn't provide decimals.
+
+### maxAmount (optional)
+
+- **Type:** `string`
+
+Maximum display-unit amount the client pays.
+
+### maxAtomicAmount (optional)
+
+- **Type:** `string`
+
+Maximum atomic-unit amount the client pays.
+
+### networks (optional)
+
+- **Type:** `readonly number[]`
+
+Allowlist of EVM chain IDs the client accepts.

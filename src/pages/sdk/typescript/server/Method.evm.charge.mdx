@@ -1,0 +1,129 @@
+---
+title: "evm.charge server method"
+---
+
+# `Method.evm.charge` [One-time EVM payments]
+
+Creates an EVM charge payment method for native MPP and x402 exact payment flows.
+
+## Usage
+
+```ts twoslash
+import { Mppx, evm } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      x402: {
+        facilitator: 'https://x402.org/facilitator',
+      },
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
+})
+
+export async function handler(request: Request) {
+  // [!code focus:start]
+  const response = await mppx.evm.charge({
+    amount: '0.01',
+    description: 'Premium API access',
+  })(request)
+  // [!code focus:end]
+
+  if (response.status === 402) return response.challenge
+  return response.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+Use `x402.facilitator` for x402 exact settlement. Use `settle` when you want to verify and settle Credentials yourself.
+
+## Return type
+
+Returns a function that accepts a `Request` and returns a response object with payment status.
+
+```ts
+type ReturnType = (request: Request) => Promise<
+  | { status: 402; challenge: Response }
+  | { status: 200; withReceipt: <T>(response: T) => T }
+>
+```
+
+## Configuration
+
+These parameters configure the `evm.charge()` constructor.
+
+### authorization (optional)
+
+- **Type:** `{ name: string; version: string }`
+
+EIP-3009 token domain metadata. Required for custom currency addresses and inferred for known assets.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+EVM chain ID. Required for custom currency addresses and inferred for known assets.
+
+### currency
+
+- **Type:** `Address | KnownAsset`
+
+Token contract address or known EVM asset metadata.
+
+```ts twoslash
+import { evm } from 'mppx/server'
+
+const method = evm.charge({
+  currency: evm.assets.baseSepolia.USDC, // [!code focus]
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  x402: {
+    facilitator: 'https://x402.org/facilitator',
+  },
+})
+```
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimal places. Required for custom currency addresses and inferred for known assets.
+
+### recipient
+
+- **Type:** `Address`
+
+Wallet address that receives the payment.
+
+### settle (optional)
+
+- **Type:** `(parameters: SettleAuthorizationParameters) => Promise<{ reference: string; timestamp?: string }>`
+
+Custom settlement callback. Use this instead of `x402.facilitator` when you settle EIP-3009 authorization Credentials yourself.
+
+### x402 (optional)
+
+- **Type:** `{ facilitator: string | Facilitator }`
+
+x402 compatibility options. Pass a facilitator URL to verify and settle x402 exact payments.
+
+## Request parameters
+
+### amount
+
+- **Type:** `string`
+
+Payment amount in display units.
+
+### description (optional)
+
+- **Type:** `string`
+
+Human-readable description of the payment request.
+
+### externalId (optional)
+
+- **Type:** `string`
+
+External correlation ID for the payment request.
