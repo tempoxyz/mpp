@@ -399,6 +399,14 @@ export default defineConfig({
             ],
           },
           {
+            text: "EVM",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/evm" },
+              { text: "Charge", link: "/payment-methods/evm/charge" },
+            ],
+          },
+          {
             text: "Stripe",
             collapsed: true,
             items: [
