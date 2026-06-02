@@ -42,7 +42,7 @@ MPP uses three protocol objects in every payment flow—the same lifecycle x402 
 Use `evm.charge` when you want to support both MPP "charge" intents and x402 "exact" intents with a single `mppx` import.
 
 :::info
-For exact x402 flows, `evm.charge` replaces custom Challenge builders, `PAYMENT-*` header parsing, facilitator verification calls, settlement response handling, and route binding. Configure the asset, recipient, and facilitator once; each route supplies a display-unit `amount`.
+When x402 options are enabled, the server automatically handles MPP charge and x402 exact flows.
 :::
 
 ### Run an x402-compatible endpoint
