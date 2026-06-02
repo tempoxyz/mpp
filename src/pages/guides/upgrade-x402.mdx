@@ -47,7 +47,7 @@ When x402 options are enabled, the server automatically handles MPP charge and x
 
 ### Run an x402-compatible endpoint
 
-Configure `evm.charge` with a known x402 asset and a facilitator. The route returns x402-compatible Challenges in addition to MPP Challenges, and accepts x402 exact Credentials.
+Configure `evm.charge` with a known x402 asset and a facilitator. The route returns x402-compatible Challenges in addition to MPP Challenges, and accepts both MPP and x402 Credentials.
 
 ```ts twoslash [server.ts]
 import { evm, Mppx } from 'mppx/server'
