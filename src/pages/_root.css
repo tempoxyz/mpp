@@ -1305,3 +1305,19 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   margin-top: 0.75rem;
   margin-bottom: 1.5rem;
 }
+
+.blog-index-title {
+  font-family: "VTC Du Bois", var(--font-sans);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 0.25rem !important;
+}
+
+.blog-index-description {
+  color: var(--vocs-text-color-secondary);
+  font-size: 17px;
+  line-height: 1.4;
+  margin: 0 0 2.75rem;
+}
