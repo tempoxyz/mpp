@@ -1,4 +1,5 @@
 import { mppx } from "../../../../mppx.server";
+import { sessionUpdateResponse } from "../../../../session-response";
 
 const poems = [
   [
@@ -116,7 +117,7 @@ export default async function handler(request: Request) {
   if (result.status === 402) return result.challenge;
 
   // POST = voucher update (no body needed)
-  if (request.method === "POST") return result.withReceipt();
+  if (request.method === "POST") return sessionUpdateResponse(result);
 
   // GET = stream a poem
   const poem = poems[Math.floor(Math.random() * poems.length)];
