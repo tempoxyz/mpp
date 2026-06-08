@@ -4,7 +4,7 @@ title: "evm.charge server method"
 
 # `Method.evm.charge` [One-time EVM payments]
 
-Creates an EVM charge payment method for native MPP and x402 exact payment flows.
+Creates an EVM charge payment method for native MPP and inline x402 exact payment flows.
 
 ## Usage
 
@@ -37,7 +37,7 @@ export async function handler(request: Request) {
 }
 ```
 
-Use `x402.facilitator` for x402 exact settlement. Use `settle` when you want to verify and settle Credentials yourself.
+Use `x402.facilitator` to run x402 exact settlement inline with the MPP route. Use `settle` when you want to verify and settle Credentials yourself.
 
 ## Return type
 
@@ -106,7 +106,7 @@ Custom settlement callback. Use this instead of `x402.facilitator` when you sett
 
 - **Type:** `{ facilitator: string | Facilitator }`
 
-x402 compatibility options. Pass a facilitator URL to verify and settle x402 exact payments.
+x402 compatibility options. Pass a facilitator URL to verify and settle x402 exact payments inline.
 
 ## Request parameters
 

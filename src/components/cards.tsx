@@ -58,7 +58,7 @@ export function TempoMethodCard() {
 export function EvmMethodCard() {
   return (
     <Card
-      description="Stablecoin payments on EVM chains with x402 exact compatibility"
+      description="Stablecoin payments on EVM chains with inline x402 exact compatibility"
       icon="lucide:coins"
       title="EVM"
       to="/payment-methods/evm"
@@ -69,7 +69,7 @@ export function EvmMethodCard() {
 export function EvmChargeCard() {
   return (
     <Card
-      description="One-time EVM stablecoin payments with x402 exact support"
+      description="One-time EVM stablecoin payments with inline x402 exact support"
       icon="lucide:coins"
       title="EVM charge"
       to="/payment-methods/evm/charge"
