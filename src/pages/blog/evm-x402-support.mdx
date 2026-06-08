@@ -14,17 +14,15 @@ imageDescription: "Accept MPP payments on any EVM compatible network"
 
 <p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Monday, June 8, 2026</p>
 
-# EVM and x402 support [Use one SDK for MPP and x402 payments on any EVM blockchain]
+# EVM and x402 support [Use one SDK for EVM and x402 payments]
 
-Today, MPP supports `charge` payments on any EVM network including Ethereum, Base, and Polygon. In addition, `mppx` now supports x402 [`exact`](https://docs.x402.org/schemes/exact) flows, using the same primitives and security model as the rest of the `mppx` SDK.
+MPP now supports `charge` payments on any EVM network, including Ethereum, Base, and Polygon. `mppx` also supports x402 [`exact`](https://docs.x402.org/schemes/exact) flows through the same payment-method interface.
 
-Many MPP-enabled APIs and services support x402 in addition to MPP, serving similar requests and responses for the limited subset of stablecoin payment methods supported by x402.
-
-Building on the [`evm.charge`](https://paymentauth.org/draft-evm-charge-00.html) payment method, `mppx` now supports rendering both MPP and x402 payment requests under a single integration. The server can advertise both protocols, then verify whichever Credential the client returns. 
+Use `evm.charge` when you want one integration for MPP Challenges and compatible x402 payment requests. The server advertises both protocols, then verifies whichever Credential the client returns.
 
 ## Server
 
-Configure an EVM charge method once. Add `x402.facilitator` when the same endpoint accepts x402 `exact` payments.
+Configure one EVM charge method. Add `x402.facilitator` when the endpoint accepts x402 `exact` payments.
 
 ```ts [server.ts]
 import { Mppx, evm } from 'mppx/server'
@@ -51,7 +49,7 @@ const paid = mppx.evm.charge({
 
 ## Client
 
-The client signs MPP Challenges and compatible x402 Challenges. Clients automatically select which protocol to use based on the payment methods they have available.
+The client signs MPP Challenges and compatible x402 Challenges. It selects a protocol from the payment methods available to the request.
 
 ```ts [client.ts]
 import { Fetch, evm } from 'mppx/client'
