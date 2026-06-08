@@ -16,15 +16,15 @@ imageDescription: "Accept MPP payments on any EVM compatible network"
 
 # EVM and x402 support [Use one SDK for MPP and x402 payments]
 
-Today, MPP supports generic EVM payments, including x402 exact flows.
+Today, MPP supports generic EVM payments, including x402 [`exact`](https://docs.x402.org/schemes/exact) flows.
 
-Many paid APIs already expose x402 while adding MPP for standard HTTP auth, Receipts, sessions, cards, and other payment methods. `evm.charge` keeps that migration additive: one SDK config, one paid route, two compatible `402` flows.
+Many MPP-enabled APIs and services support x402 in addition to MPP, serving similar requests and responses for the limited subset of stablecoin payment methods supported by x402.
 
-Use `evm.charge` when you want one SDK surface for native MPP Challenges and existing x402 payment clients. The server can advertise both protocols, then verify whichever Credential the client returns.
+Building on the [`evm.charge`](https://paymentauth.org/draft-evm-charge-00.html) payment method, `mppx` now supports rendering both MPP and x402 payment requests under a single integration. The server can advertise both protocols, then verify whichever Credential the client returns. 
 
 ## Server
 
-Configure an EVM charge method once. Add `x402.facilitator` when the same endpoint accepts x402 exact payments.
+Configure an EVM charge method once. Add `x402.facilitator` when the same endpoint accepts x402 `exact` payments.
 
 ```ts [server.ts]
 import { Mppx, evm } from 'mppx/server'
@@ -76,6 +76,7 @@ console.log(response.status)
 // @log: 200
 ```
 
-Start with [Use MPP with x402](/guides/use-mpp-with-x402).
+## Learn more
 
-</div>
+* [Use MPP with x402](/guides/use-mpp-with-x402).
+* [`evm.charge` payment method](payment-methods/evm/charge#evm-charge)
