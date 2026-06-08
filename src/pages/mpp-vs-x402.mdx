@@ -76,9 +76,9 @@ For low-volume one-off stablecoin payments, x402 can work. For search, inference
 
 MPP is compatible with existing x402-style charge flows.
 
-The x402 "exact" model maps cleanly onto MPP's `charge` intent, which means you can migrate incrementally instead of replacing your integration all at once. A server can also support both protocols side by side because the headers do not conflict.
+The x402 "exact" model maps cleanly onto MPP's `charge` intent. With `mppx`, you can run x402-compatible EVM charges inline with an MPP route: the server emits both MPP and x402 Challenges, accepts either Credential format, and returns the matching Receipt header.
 
-For a working server setup, see [Use MPP with x402](/guides/use-mpp-with-x402).
+For a working inline server setup, see [Use MPP with x402](/guides/use-mpp-with-x402#run-x402-inline-with-mppx).
 
 ## Which one should you choose?
 
@@ -100,7 +100,7 @@ Choose **x402** only if:
 ## Next steps
 
 <Cards>
-  <Card title="Use MPP with x402" description="Serve x402 and MPP from one route" to="/guides/use-mpp-with-x402" />
+  <Card title="Use MPP with x402" description="Run x402 inline with an MPP route" to="/guides/use-mpp-with-x402" />
   <Card title="Protocol overview" description="Learn the core Challenge-Credential-Receipt flow" to="/protocol" />
   <Card title="Accept pay-as-you-go payments" description="Use sessions for high-frequency APIs" to="/guides/pay-as-you-go" />
 </Cards>

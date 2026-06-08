@@ -1,6 +1,6 @@
 ---
 title: "EVM charge payment method"
-description: "Accept one-time EVM stablecoin payments with MPP and x402 exact compatibility."
+description: "Accept one-time EVM stablecoin payments with MPP and inline x402 exact compatibility."
 imageDescription: "Accept one-time EVM stablecoin payments"
 ---
 
@@ -11,13 +11,13 @@ import { EvmMethodCard } from '../../../components/cards'
 
 The EVM implementation of the [charge](/intents/charge) intent.
 
-The server issues a Challenge describing the amount, currency, and recipient. The client signs an EIP-3009 authorization and returns it as a Credential. When x402 options are enabled, the server also handles x402 exact flows.
+The server issues a Challenge describing the amount, currency, and recipient. The client signs an EIP-3009 authorization and returns it as a Credential. When x402 options are enabled, the same route also handles x402 exact flows.
 
-This method is best for fixed-price API calls, paid content, and x402-compatible stablecoin payments.
+This method is best for fixed-price API calls, paid content, and inline x402-compatible stablecoin payments.
 
 ## Server
 
-Use `evm.charge` to gate an endpoint behind a one-time EVM stablecoin payment. Configure `x402.facilitator` when the endpoint also accepts x402 exact Credentials.
+Use `evm.charge` to gate an endpoint behind a one-time EVM stablecoin payment. Configure `x402.facilitator` when the same endpoint also accepts x402 exact Credentials.
 
 ```ts twoslash [server.ts]
 import { Mppx, evm } from 'mppx/server'
@@ -51,7 +51,7 @@ export async function handler(request: Request) {
 
 ## Client
 
-Use `evm.charge` with `Fetch.from` to automatically handle `402` responses. The client signs native MPP EVM charge Challenges and x402 exact Challenges for compatible assets.
+Use `evm.charge` with `Fetch.from` to automatically handle `402` responses. The client signs native MPP EVM charge Challenges and inline x402 exact Challenges for compatible assets.
 
 ```ts twoslash [client.ts]
 import { Fetch, evm } from 'mppx/client'
@@ -112,7 +112,7 @@ const method = evm.charge({
 
 ## x402 compatibility
 
-When `x402.facilitator` is configured, the server returns MPP and x402 Challenges and accepts both MPP and x402 Credentials. See [running x402 servers with mppx](/guides/use-mpp-with-x402#add-x402-to-your-mpp-server-with-mppx) for the full guide.
+When `x402.facilitator` is configured, the server returns MPP and x402 Challenges and accepts both MPP and x402 Credentials inline. See [running x402 inline with mppx](/guides/use-mpp-with-x402#run-x402-inline-with-mppx) for the full guide.
 
 ## Related resources
 

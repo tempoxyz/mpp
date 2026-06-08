@@ -55,8 +55,7 @@ export default defineConfig({
     { source: "/402", destination: "/protocol/http-402" },
     {
       source: "/x402",
-      destination:
-        "/guides/use-mpp-with-x402#add-x402-to-your-mpp-server-with-mppx",
+      destination: "/guides/use-mpp-with-x402#run-x402-inline-with-mppx",
     },
     {
       source: "/guides/upgrade-x402",
