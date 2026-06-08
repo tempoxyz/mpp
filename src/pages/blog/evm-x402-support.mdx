@@ -1,0 +1,81 @@
+---
+layout: minimal
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "MPP now supports generic EVM payments and x402 exact flows from one SDK."
+imageDescription: "Accept MPP payments on any EVM compatible network"
+---
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Monday, June 8, 2026</p>
+
+# EVM and x402 support [Use one SDK for MPP and x402 payments]
+
+Today, MPP supports generic EVM payments, including x402 exact flows.
+
+Many paid APIs already expose x402 while adding MPP for standard HTTP auth, Receipts, sessions, cards, and other payment methods. `evm.charge` keeps that migration additive: one SDK config, one paid route, two compatible `402` flows.
+
+Use `evm.charge` when you want one SDK surface for native MPP Challenges and existing x402 payment clients. The server can advertise both protocols, then verify whichever Credential the client returns.
+
+## Server
+
+Configure an EVM charge method once. Add `x402.facilitator` when the same endpoint accepts x402 exact payments.
+
+```ts [server.ts]
+import { Mppx, evm } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xYourAddress',
+      x402: {
+        facilitator: 'https://example.com/facilitator',
+      },
+    }),
+    // [!code hl:end]
+  ],
+})
+
+const paid = mppx.evm.charge({
+  amount: '0.01',
+  description: 'Premium API access',
+})
+```
+
+## Client
+
+The client signs MPP Challenges and compatible x402 Challenges. Clients automatically select which protocol to use based on the payment methods they have available.
+
+```ts [client.ts]
+import { Fetch, evm } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const fetch = Fetch.from({
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      account: privateKeyToAccount(
+        '0x0123456789012345678901234567890123456789012345678901234567890123',
+      ),
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+    // [!code hl:end]
+  ],
+})
+
+const response = await fetch('https://api.example.com/paid')
+console.log(response.status)
+// @log: 200
+```
+
+Start with [Use MPP with x402](/guides/use-mpp-with-x402).
+
+</div>
