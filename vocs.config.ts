@@ -75,6 +75,7 @@ export default defineConfig({
     { source: "/typescript", destination: "/sdk/typescript" },
     { source: "/python", destination: "/sdk/python" },
     { source: "/rust", destination: "/sdk/rust" },
+    { source: "/swift", destination: "/sdk/swift" },
     { source: "/reference", destination: "/sdk" },
     { source: "/api", destination: "/sdk" },
 
@@ -84,6 +85,10 @@ export default defineConfig({
     {
       source: "/mpp-rs",
       destination: "https://github.com/tempoxyz/mpp-rs",
+    },
+    {
+      source: "/mpp-swift",
+      destination: "https://github.com/amitach/mpp-swift",
     },
 
     // Payment methods aliases
@@ -922,6 +927,16 @@ export default defineConfig({
               { text: "Server", link: "/sdk/ruby/server" },
             ],
           },
+          {
+            text: "Swift",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/sdk/swift" },
+              { text: "Core types", link: "/sdk/swift/core" },
+              { text: "Client", link: "/sdk/swift/client" },
+              { text: "Server", link: "/sdk/swift/server" },
+            ],
+          },
         ],
       },
       {
@@ -986,6 +1001,10 @@ export default defineConfig({
         { text: "mpp-go (Go)", link: "https://github.com/tempoxyz/mpp-go" },
         { text: "mpp-rb (Ruby)", link: "https://github.com/stripe/mpp-rb" },
         { text: "mpp-rs (Rust)", link: "https://github.com/tempoxyz/mpp-rs" },
+        {
+          text: "mpp-swift (Swift)",
+          link: "https://github.com/amitach/mpp-swift",
+        },
         { text: "pympp (Python)", link: "https://github.com/tempoxyz/pympp" },
       ],
     },

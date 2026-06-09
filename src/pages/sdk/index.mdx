@@ -1,11 +1,11 @@
 ---
 title: "SDKs and client libraries"
-description: "Official MPP SDKs in TypeScript, Python, Rust, Go, and Ruby, plus community SDKs in other languages."
+description: "MPP SDKs in TypeScript, Python, Rust, Go, Ruby, and Swift, plus community SDKs in other languages."
 imageDescription: "Official and community SDKs for MPP"
 ---
 
 import { Badge, Cards } from 'vocs'
-import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, GoSdkCard, RubySdkCard, WalletCliCard } from '../../components/cards'
+import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, GoSdkCard, RubySdkCard, SwiftSdkCard, WalletCliCard } from '../../components/cards'
 
 # SDKs [Official implementations in multiple languages]
 
@@ -15,24 +15,25 @@ import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, GoSdkCard, RubySdkCard, 
   <RustSdkCard />
   <GoSdkCard />
   <RubySdkCard />
+  <SwiftSdkCard />
 </Cards>
 
 ## Capabilities
 
-| Capability | TypeScript | Python | Rust | Go | Ruby |
-|---|---|---|---|---|---|
-| **Client** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
-| **Server** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
-| **Core types** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
-| **Charge intent** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
-| **Event handling** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> | <Badge variant="success">✓</Badge> |
-| **Session intent** | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> | <Badge variant="warning">—</Badge> |
-| **Stripe method** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> | <Badge variant="success">✓</Badge> |
-| **Fee sponsorship** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
-| **Proof credentials** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
-| **MCP support** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">—</Badge> | <Badge variant="success">✓</Badge> |
-| **Framework middleware** | Next.js, Hono, Express, Elysia | FastAPI | Axum, Tower | net/http, Gin, Echo, Chi | Rack |
-| **HTTP transport** | fetch polyfill | httpx transport | reqwest-middleware | http.RoundTripper | async-http |
+| Capability | TypeScript | Python | Rust | Go | Ruby | Swift |
+|---|---|---|---|---|---|---|
+| **Client** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Server** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Core types** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Charge intent** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Event handling** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">–</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Session intent** | <Badge variant="success">✓</Badge> | <Badge variant="warning">–</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">–</Badge> | <Badge variant="warning">–</Badge> | <Badge variant="success">✓</Badge> |
+| **Stripe method** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">–</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Fee sponsorship** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Proof credentials** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **MCP support** | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="warning">–</Badge> | <Badge variant="success">✓</Badge> | <Badge variant="success">✓</Badge> |
+| **Framework middleware** | Next.js, Hono, Express, Elysia | FastAPI | Axum, Tower | net/http, Gin, Echo, Chi | Rack | Hummingbird |
+| **HTTP transport** | fetch polyfill | httpx transport | reqwest-middleware | http.RoundTripper | async-http | URLSession, async-http |
 
 ## Other languages
 

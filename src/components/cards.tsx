@@ -165,6 +165,17 @@ export function RustSdkCard() {
   );
 }
 
+export function SwiftSdkCard() {
+  return (
+    <Card
+      description="Get started with `mpp-swift`, the MPP SDK for Swift"
+      icon="simple-icons:swift"
+      title="Swift"
+      to="/sdk/swift"
+    />
+  );
+}
+
 export function GoSdkCard() {
   return (
     <Card

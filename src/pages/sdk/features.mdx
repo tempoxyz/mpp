@@ -1,70 +1,70 @@
 ---
 title: "SDK features"
-description: "Feature parity across TypeScript, Python, Rust, and Ruby MPP SDKs."
+description: "Feature parity across TypeScript, Python, Rust, Ruby, and Swift MPP SDKs."
 imageDescription: "Compare MPP SDK feature support"
 ---
 
-# SDK features [Parity across TypeScript, Python, Rust, and Ruby]
+# SDK features [Parity across TypeScript, Python, Rust, Ruby, and Swift]
 
 This page tracks which features are implemented in each official SDK.
 
 ## Core
 
-| Component | [TypeScript](https://github.com/wevm/mppx) | [Rust](https://github.com/tempoxyz/mpp-rs) | [Python](https://github.com/tempoxyz/pympp) | [Ruby](https://github.com/stripe/mpp-rb) |
-|---|---|---|---|---|
-| Client | ✓ | ✓ | ✓ | ✓ |
-| Event handling | ✓ | ✓ | ✓ | ✓ |
-| Proxy | ✓ | ✓ | — | — |
-| Server | ✓ | ✓ | ✓ | ✓ |
+| Component | [TypeScript](https://github.com/wevm/mppx) | [Rust](https://github.com/tempoxyz/mpp-rs) | [Python](https://github.com/tempoxyz/pympp) | [Ruby](https://github.com/stripe/mpp-rb) | [Swift](https://github.com/amitach/mpp-swift) |
+|---|---|---|---|---|---|
+| Client | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Event handling | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Proxy | ✓ | ✓ | – | – | ✓ |
+| Server | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ## Payment methods
 
-| Method | TypeScript | Rust | Python | Ruby |
-|---|---|---|---|---|
-| [Tempo](/payment-methods/tempo) | ✓ | ✓ | ✓ | ✓ |
-| [Stripe](/payment-methods/stripe) | ✓ | ✓ | ✓ | ✓ |
+| Method | TypeScript | Rust | Python | Ruby | Swift |
+|---|---|---|---|---|---|
+| [Tempo](/payment-methods/tempo) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| [Stripe](/payment-methods/stripe) | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 Additional payment methods implement their own SDKs. Refer to the maintaining organizations for support and availability.
 
 ## Intents
 
-| Intent | TypeScript | Rust | Python | Ruby |
-|---|---|---|---|---|
-| [Charge](/intents/charge) | ✓ | ✓ | ✓ | ✓ |
-| [Session](/payment-methods/tempo/session) | ✓ | ✓ | — | — |
-| [Subscription](/intents/subscription) | ✓ | — | — | — |
+| Intent | TypeScript | Rust | Python | Ruby | Swift |
+|---|---|---|---|---|---|
+| [Charge](/intents/charge) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| [Session](/payment-methods/tempo/session) | ✓ | ✓ | – | – | ✓ |
+| [Subscription](/intents/subscription) | ✓ | – | – | – | ✓ |
 
 ## Transports
 
-| Transport | TypeScript | Rust | Python | Ruby |
-|---|---|---|---|---|
-| [HTTP](/protocol/transports/http) | ✓ | ✓ | ✓ | ✓ |
-| [MCP](/protocol/transports/mcp) | ✓ | ✓ | ✓ | ✓ |
+| Transport | TypeScript | Rust | Python | Ruby | Swift |
+|---|---|---|---|---|---|
+| [HTTP](/protocol/transports/http) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| [MCP](/protocol/transports/mcp) | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### HTTP framework integrations
 
-| Role | TypeScript | Rust | Python | Ruby |
-|---|---|---|---|---|
-| **Client** | fetch | reqwest | httpx | async-http |
-| **Server** | Elysia, Express, Hono, Next.js | Axum, Tower | Decorator (`@server.pay`) | Rack |
+| Role | TypeScript | Rust | Python | Ruby | Swift |
+|---|---|---|---|---|---|
+| **Client** | fetch | reqwest | httpx | async-http | URLSession, async-http |
+| **Server** | Elysia, Express, Hono, Next.js | Axum, Tower | Decorator (`@server.pay`) | Rack | Hummingbird |
 
 ### MCP framework integrations
 
-| Role | TypeScript | Rust | Python | Ruby |
-|---|---|---|---|---|
-| **Client** | MCP SDK transport | — | MCP SDK transport | — |
-| **Server** | MCP SDK transport | — | FastMCP (`@pay` decorator) | — |
+| Role | TypeScript | Rust | Python | Ruby | Swift |
+|---|---|---|---|---|---|
+| **Client** | MCP SDK transport | – | MCP SDK transport | – | MCP SDK transport |
+| **Server** | MCP SDK transport | – | FastMCP (`@pay` decorator) | – | MCP SDK transport |
 
 ## Tempo features
 
-| Feature | TypeScript | Rust | Python | Ruby |
-|---|---|---|---|---|
-| Charge verification (server) | ✓ | ✓ | ✓ | ✓ |
-| Credential creation (client) | ✓ | ✓ | ✓ | ✓ |
-| `transaction` payload type | ✓ | ✓ | ✓ | ✓ |
-| `hash` payload type | ✓ | ✓ | ✓ | ✓ |
-| `proof` payload type | ✓ | — | — | ✓ |
-| Fee payer co-signing | ✓ | ✓ | ✓ | ✓ |
-| Session channels (open/voucher/topUp/close) | ✓ | ✓ | — | — |
-| SSE metered streaming | ✓ | ✓ | — | — |
-| Attribution memo | ✓ | ✓ | ✓ | ✓ |
+| Feature | TypeScript | Rust | Python | Ruby | Swift |
+|---|---|---|---|---|---|
+| Charge verification (server) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Credential creation (client) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `transaction` payload type | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `hash` payload type | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `proof` payload type | ✓ | – | – | ✓ | ✓ |
+| Fee payer co-signing | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Session channels (open/voucher/topUp/close) | ✓ | ✓ | – | – | ✓ |
+| SSE metered streaming | ✓ | ✓ | – | – | ✓ |
+| Attribution memo | ✓ | ✓ | ✓ | ✓ | ✓ |

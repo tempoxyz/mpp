@@ -1,0 +1,90 @@
+---
+description: "Use the Swift server SDK to protect endpoints with MPP payment requirements, verification, and the built-in hardening seams."
+imageDescription: "Charge for your Swift API endpoints"
+---
+
+# Server [Protect endpoints with payment requirements]
+
+`MPPServerMiddleware` is framework-agnostic: it mints `402` Challenges, verifies Credentials against one or more `PaymentMethodServer` methods, attaches the `Payment-Receipt`, and enforces the protocol's hardening rules. The `make` factory wires a stateless HMAC minter + verifier in one call.
+
+## Quick start
+
+```swift
+import MPPCore
+import MPPServer
+import MPPTempoServer
+
+let middleware = MPPServerMiddleware.make(
+    secret: secret,                                  // HMAC root-of-trust (Data)
+    binding: RouteBinding(
+        realm: "api.example.com",
+        method: try MethodName("tempo"),
+        intent: try IntentName("proof")
+    ),
+    request: EncodedJSON(json: .object([:])),
+    methods: [TempoProofVerifier()]
+)
+```
+
+`secret` is root-of-trust material for stateless Challenge-id verification: keep it server-side, never log it, and rotate it with an overlap window. (`MPPSensitiveSurfaces` names `Authorization`, `Payment-Receipt`, and `MPP_SECRET_KEY` as redact-on-log.)
+
+## Evaluate a request
+
+`evaluate` is HTTP-type-free and returns a `Decision` you map to a response:
+
+```swift
+switch await middleware.evaluate(authorization: authHeader, body: body, now: .now) {
+case let .challenge(challenges, problem):
+    // 402: emit one `WWW-Authenticate: \(c.headerValue)` per challenge, plus the problem+json body
+case let .proceed(verified):
+    // 200: run the protected handler; attach the `Payment-Receipt`
+case .problem(let problem):
+    // a terminal settlement problem, for example 410 for a closed channel; no retry challenge
+case .payloadTooLarge:
+    // 413: the body exceeded `maxBodyBytes`, rejected before any payment work
+}
+```
+
+For the full request lifecycle (rate-limit → body cap → idempotent replay → verify → handler), use `handle(_:body:now:handler:)`, which runs your handler only for a verified credential and applies the hardening seams in order.
+
+## Payment methods
+
+Each rail is a `PaymentMethodServer` you pass in `methods`:
+
+| Verifier | Module | Verifies |
+|----------|--------|----------|
+| `TempoProofVerifier` | `MPPTempoServer` | Tempo zero-amount `proof` (wallet control) |
+| `TempoSettledChargeVerifier` | `MPPTempoServer` | Tempo non-zero `charge` (recovers + settles the transfer) |
+| `SessionMethod` | `MPPTempoServer` | Tempo `session` channels (open / topUp / voucher / close) |
+| `TempoSubscriptionVerifier` | `MPPTempoServer` | Tempo `subscription` (re-encode-and-compare key authorization) |
+| `StripeChargeVerifier` | `MPPStripeServer` | Stripe `charge` (SPT → PaymentIntent; Connect parity) |
+| `X402ChargeVerifier` | `MPPX402Server` | x402 `exact` on Base (recover EIP-3009, settle via a facilitator seam) |
+
+## Hardening
+
+The middleware composes the protocol's defenses; each is an injectable seam:
+
+- **Single-use replay**: `ReplayStore` (`InMemoryReplayStore`, `FileReplayStore`) burns a Credential's id so it cannot be replayed.
+- **Idempotency (409)**: `IdempotencyStore` replays a settled response for a repeated `Idempotency-Key` and answers `409` while one is in flight.
+- **Rate limiting (429)**: `RateLimiter` throttles by a request-derived key before any payment work.
+- **Body cap (413)**: `maxBodyBytes` bounds the body before parsing or digesting.
+- **Redaction**: `MPPSensitiveSurfaces` names the credential/secret surfaces to keep out of logs.
+
+## HTML payment page
+
+Pass a `presenter` to content-negotiate a human-facing page: `MPPHTMLServer`'s `PaymentPagePresenter` renders a self-contained, themeable HTML `402` (multi-method tabs + a service worker) when the client prefers HTML, and falls back to `application/problem+json` otherwise.
+
+## Reverse proxy
+
+`MPPProxy` is a framework-neutral `402`-protected reverse proxy: it gates `/{service}/...` routes with the middleware, scrubs credential/cookie/hop-by-hop headers both ways, and serves `/openapi.json` + `/llms.txt`. `MPPHummingbird` is the live HTTP-server binding (Hummingbird 2).
+
+## Key types
+
+| Type | Description |
+|------|-------------|
+| `MPPServerMiddleware` | Mint / verify / receipt middleware; `make(...)`, `evaluate(...)`, `handle(...)` |
+| `MPPServerMiddleware.Decision` | `challenge` / `proceed` / `problem` / `payloadTooLarge` |
+| `PaymentMethodServer` | Protocol for a charge/session/subscription verifier |
+| `ReplayStore` / `IdempotencyStore` / `RateLimiter` | The hardening seams |
+| `ChallengePresenter` | The HTML payment-page seam (`MPPHTMLServer`) |
+| `MPPProxy` / `MPPHummingbird` | The reverse proxy and its live server binding |

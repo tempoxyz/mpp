@@ -1,0 +1,94 @@
+---
+description: "Use the Swift client to handle HTTP 402 responses, pay with Tempo, Stripe, or x402, and retry requests automatically."
+imageDescription: "Handle paid APIs automatically in Swift"
+---
+
+# Client [Handle 402 responses automatically]
+
+`PaymentClient.send` wraps a transport with the full `402` flow: when a server answers `402`, it parses every `Payment` Challenge, selects a method, consults the authorizer, builds the Credential, retries with the `Authorization` header, and records the `Payment-Receipt`.
+
+## Quick start
+
+```swift
+import MPPClient
+import MPPTempo
+
+let client = PaymentClient(
+    transport: URLSessionTransport(),
+    methods: [/* one or more PaymentMethodClient, for example TempoChannelMethod(...) */],
+    authorizer: SpendingCapAuthorizer(limit: try Amount("5.00"), currency: usdc),
+    receiptStore: InMemoryReceiptStore(),
+    onEvent: { event in print("mpp:", event) }
+)
+
+let (response, body) = try await client.send(request, body: Data())
+```
+
+When the server returns `402`, `send`:
+
+1. Parses every Challenge across all `WWW-Authenticate` values (a value may pack several).
+2. Selects the first method that supports the Challenge's `method` + `intent`.
+3. Consults the `PaymentAuthorizer`. A denial throws before anything is signed.
+4. Builds the Credential, retries with `Authorization`, and records the Receipt.
+
+Any `2xx`/non-`402` response is returned unchanged.
+
+## Payment methods
+
+Each rail is a `PaymentMethodClient` you pass in `methods`. The client routes by the Challenge's `method` and `intent`.
+
+| Method | Module | Pays |
+|--------|--------|------|
+| `TempoChannelMethod` | `MPPTempo` | Tempo `session` channels (auto open + accumulating vouchers, topUp/close) |
+| `TempoSettledChargeMethod` | `MPPTempo` | Tempo non-zero `charge` (pull `transaction` / push `hash`) |
+| `TempoSubscriptionMethod` | `MPPTempo` | Tempo `subscription` (signed key authorization) |
+| `MPPStripe` | `MPPStripe` | Stripe `charge` (presents a Shared Payment Token) |
+| `X402ChargeMethod` | `MPPX402` | x402 `exact` on Base (EIP-3009 over USDC) |
+
+## Authorization (budget + consent)
+
+The `PaymentAuthorizer` seam is consulted once at the credential-build chokepoint, before any method signs. It is where a broker enforces a budget or a margin.
+
+| Authorizer | Behavior |
+|-----------|----------|
+| `AllowAllAuthorizer` | Approves every request (the default) |
+| `SpendingCapAuthorizer` | Denies anything over a per-request cap |
+| `BudgetAuthorizer` | An atomic running-budget check-and-debit (TOCTOU-safe): the spending-cap / margin enforcer for a long-lived process |
+
+```swift
+let authorizer = BudgetAuthorizer(limit: try Amount("20.00"), currency: usdc)
+let client = PaymentClient(transport: URLSessionTransport(), methods: methods, authorizer: authorizer)
+```
+
+A denial throws out of `send` (like a method error), and no Credential is built.
+
+## Receipts
+
+Pass a `ReceiptStore` and the client records every `Payment-Receipt` after settle (auditing, never a gate). `InMemoryReceiptStore` ships; implement `ReceiptStore` over a durable store for production.
+
+## Transports
+
+`send` runs over any `MPPHTTPTransport`:
+
+- **`URLSessionTransport`** (`MPPClient`): the default, with redirect-downgrade protection.
+- **`MPPClientAsyncHTTP`**: a SwiftNIO `AsyncHTTPClient` transport, the Linux/server-native counterpart for a long-lived broker or gateway (connection pooling, redirects disallowed).
+
+Both enforce the shared transport-security policy (https-only, with an `allowInsecureLocal` loopback opt-in).
+
+## MCP client
+
+`MPPMCP` wraps a Model Context Protocol client so a `402`-gated `tools/call` is paid transparently, conformance-proven both directions over stdio.
+
+## Events
+
+`onEvent` records the automatic `402` flow (`ClientEvent`): the selected Challenge, payment failures, and the paid response.
+
+## Key types
+
+| Type | Description |
+|------|-------------|
+| `PaymentClient` | The `402` client flow over an `MPPHTTPTransport` |
+| `PaymentMethodClient` | Protocol for a payment method (rail) |
+| `PaymentAuthorizer` | Consent/budget seam (`AllowAllAuthorizer`, `SpendingCapAuthorizer`, `BudgetAuthorizer`) |
+| `ReceiptStore` | Receipt persistence seam (`InMemoryReceiptStore`) |
+| `URLSessionTransport` / `MPPClientAsyncHTTP` | The Foundation and SwiftNIO transports |

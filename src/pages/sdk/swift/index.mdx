@@ -1,0 +1,104 @@
+---
+title: "Swift SDK for MPP"
+description: "Use the Swift SDK to build MPP clients and servers with typed Challenge, Credential, and Receipt primitives on macOS, iOS, and Linux."
+imageDescription: "MPP library for Swift"
+---
+
+import * as SdkBadge from '../../../components/SdkBadge'
+
+# Swift SDK [The mpp-swift library]
+
+## Overview
+
+`mpp-swift` is the canonical Swift implementation of the Machine Payments Protocol, from the high-level client/server flow down to the EVM message-signing primitives. The **client** and **server** are independent products: a Swift client can pay any MPP server in any language, and a Swift server can charge any client. It targets macOS, iOS, and Linux.
+
+Every rail and transport with a reference peer is **cross-SDK conformance-proven against the reference TypeScript SDK (`mppx`) in both directions**: offline in CI and, for the on-chain Tempo paths, live on the Moderato testnet.
+
+<div className="flex gap-2">
+  <SdkBadge.GitHub repo="amitach/mpp-swift" />
+  <SdkBadge.Maintainer name="Amit Acharya" href="https://github.com/amitach" />
+</div>
+
+## Install
+
+Add the package with Swift Package Manager, then depend only on the products you need:
+
+```swift [Package.swift]
+.package(url: "https://github.com/amitach/mpp-swift", from: "1.0.0")
+```
+
+```swift [Target dependencies]
+.product(name: "MPPClient", package: "mpp-swift"),   // pay
+.product(name: "MPPServer", package: "mpp-swift"),   // charge
+.product(name: "MPPTempo", package: "mpp-swift"),    // the Tempo rail (client)
+```
+
+## Requirements
+
+- Swift 6.2+ (Xcode 26+ on Apple platforms, or the Swift 6.2 toolchain on Linux). The floor comes from `MPPMCP`'s dependency on the official MCP Swift SDK.
+- A consumer that *builds* Tempo channel transactions (a wallet) additionally depends on `MPPTempoFFI`; on Apple this downloads a checksum-pinned `tempo-tx-ffi` xcframework (no Rust toolchain). Every other product links zero Rust.
+
+## Quick start
+
+### Server
+
+Mint a `402` Challenge when there is no Credential, and verify the Credential on the retry. `MPPServerMiddleware.make` wires a stateless HMAC minter + verifier over one or more `PaymentMethodServer` methods.
+
+```swift
+import MPPCore
+import MPPServer
+import MPPTempoServer
+
+let middleware = MPPServerMiddleware.make(
+    secret: secret,                                  // HMAC root-of-trust (Data); keep it server-side
+    binding: RouteBinding(
+        realm: "api.example.com",
+        method: try MethodName("tempo"),
+        intent: try IntentName("proof")
+    ),
+    request: EncodedJSON(json: .object([:])),        // the per-route challenge request
+    methods: [TempoProofVerifier()]                  // a PaymentMethodServer
+)
+
+// In your HTTP handler:
+switch await middleware.evaluate(authorization: authHeader, body: body, now: .now) {
+case let .challenge(challenges, problem):
+    // → 402: one `WWW-Authenticate: \(challenges[0].headerValue)` per challenge + the problem+json body
+case let .proceed(verified):
+    // → 200: your paid content + a `Payment-Receipt` header
+case .problem, .payloadTooLarge:
+    // → a terminal status (410 / 413 / 400)
+}
+```
+
+### Client
+
+`PaymentClient.send` runs the whole `402` dance: it detects the `402`, parses and selects a Challenge, consults the authorizer, builds the Credential, retries, and records the Receipt.
+
+```swift
+import MPPClient
+import MPPTempo
+
+let client = PaymentClient(
+    transport: URLSessionTransport(),
+    methods: [/* a PaymentMethodClient, for example TempoChannelMethod(...) */],
+    authorizer: SpendingCapAuthorizer(limit: try Amount("5.00"), currency: usdc),
+    receiptStore: InMemoryReceiptStore()
+)
+
+let (response, body) = try await client.send(request, body: Data())
+// 200 on success; the Receipt is in the `Payment-Receipt` header and the ReceiptStore.
+```
+
+## Rails and transports
+
+- **Tempo (EVM)**: a zero-amount **proof** charge, a full **payment-channel session** (open / voucher / topUp / close, settled on-chain), the non-zero **`charge`** settled transfer (pull + push), a **subscription** rail with an on-chain renewer and fee-payer gas sponsorship, and **metered streaming** over SSE and WebSocket.
+- **Stripe**: a Shared Payment Token charge into a PaymentIntent, with full Stripe Connect parity (`application_fee_amount`), live-verified.
+- **x402 on Base**: the Coinbase x402 `exact` scheme (EIP-3009 `transferWithAuthorization` over USDC on Base), a version-negotiated bridge between MPP and x402 (v1 + v2), and an x402-facilitator settler.
+- **MCP**: `MPPMCP` gates a `tools/call` behind `402` and pays it transparently, conformance-proven both directions over stdio.
+
+## Next steps
+
+- [Core types](/sdk/swift/core): Challenge, Credential, and Receipt primitives
+- [Client](/sdk/swift/client): handle `402` responses automatically
+- [Server](/sdk/swift/server): protect endpoints with payments
