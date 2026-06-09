@@ -92,6 +92,11 @@
           "$ref": "#/$defs/Docs",
           "description": "Documentation and reference links."
         },
+        "supportsCredits": {
+          "type": "boolean",
+          "const": true,
+          "description": "Whether the service can be paid with MPP Credits."
+        },
         "methods": {
           "type": "object",
           "description": "Supported payment methods, keyed by method identifier (aligns with /.well-known/payment spec).",

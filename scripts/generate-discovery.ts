@@ -10,6 +10,7 @@ import { dirname, resolve } from "node:path";
 import {
   type EndpointDef,
   HTTP_METHODS,
+  MPP_REALM,
   type HttpMethod,
   type ServiceDef,
   services,
@@ -188,6 +189,7 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   entry.tags = svc.tags;
   entry.status = svc.status ?? "active";
   if (svc.docs) entry.docs = svc.docs;
+  if (svc.realm === MPP_REALM) entry.supportsCredits = true;
   const methods: Record<string, { intents: string[]; assets: string[] }> = {};
   for (const pm of svc.payments) {
     methods[pm.method] = {
