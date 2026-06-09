@@ -10,8 +10,8 @@ import { dirname, resolve } from "node:path";
 import {
   type EndpointDef,
   HTTP_METHODS,
-  MPP_REALM,
   type HttpMethod,
+  MPP_REALM,
   type ServiceDef,
   services,
 } from "../schemas/services.ts";
