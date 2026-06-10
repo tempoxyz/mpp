@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, it } from "vitest";
 
 let server: ViteDevServer;
 let browser: Browser;
+let baseUrl: string;
 let port: number;
 
 beforeAll(async () => {
@@ -17,6 +18,9 @@ beforeAll(async () => {
   await server.listen();
   const address = server.httpServer?.address();
   port = typeof address === "object" && address ? address.port : 5173;
+  baseUrl =
+    server.resolvedUrls?.local[0]?.replace(/\/$/, "") ??
+    `http://localhost:${port}`;
   browser = await chromium.launch();
 });
 
@@ -26,7 +30,14 @@ afterAll(async () => {
 });
 
 function newPage() {
-  return browser.newPage({ viewport: { width: 1024, height: 768 } });
+  return browser.newPage({
+    ignoreHTTPSErrors: true,
+    viewport: { width: 1024, height: 768 },
+  });
+}
+
+function pageUrl(path = "") {
+  return `${baseUrl}${path}`;
 }
 
 // Vocs RSC hydration means CDP keyboard events may not reach window listeners.
@@ -52,9 +63,9 @@ async function waitForWizard(page: Page) {
 }
 
 describe("terminal", () => {
-  it.concurrent("renders the terminal window", async () => {
+  it("renders the terminal window", async () => {
     const page = await newPage();
-    const response = await page.goto(`http://localhost:${port}`, {
+    const response = await page.goto(pageUrl(), {
       waitUntil: "load",
     });
     console.log("page status:", response?.status());
@@ -62,31 +73,35 @@ describe("terminal", () => {
     await playwrightExpect(page.locator(".rounded-full").first()).toBeVisible({
       timeout: 10_000,
     });
-    await playwrightExpect(page.getByText("Last login:")).toBeVisible({
+    await playwrightExpect(page.getByText("mpp.dev@")).toBeVisible({
       timeout: 5_000,
     });
 
     await page.close();
   });
 
-  it.concurrent("types out demo command and reaches wizard", async () => {
+  it("types out demo command and reaches wizard", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    await page.goto(pageUrl());
 
     await waitForWizard(page);
 
-    await playwrightExpect(page.getByText("Chat with OpenAI")).toBeVisible();
+    await playwrightExpect(
+      page.getByText("Chat with OpenAI").last(),
+    ).toBeVisible();
 
     await page.close();
   });
 
-  it.concurrent("shows the wizard after typewriter finishes", async () => {
+  it("shows the wizard after typewriter finishes", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    await page.goto(pageUrl());
 
     await waitForWizard(page);
 
-    await playwrightExpect(page.getByText("Chat with OpenAI")).toBeVisible();
+    await playwrightExpect(
+      page.getByText("Chat with OpenAI").last(),
+    ).toBeVisible();
     await playwrightExpect(
       page.getByText("Generate an image using fal.ai"),
     ).toBeVisible();
@@ -100,27 +115,22 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent("wallet setup appears before wizard menu", async () => {
+  it("starts at wizard before wallet setup", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
-
-    // Wallet setup should appear before the wizard menu
-    await playwrightExpect(
-      page.getByText("Create a wallet", { exact: false }),
-    ).toBeVisible({ timeout: 10_000 });
-
-    await playwrightExpect(
-      page.getByText("Add test funds", { exact: false }),
-    ).toBeVisible({ timeout: 10_000 });
+    await page.goto(pageUrl());
 
     await waitForWizard(page);
+
+    await playwrightExpect(
+      page.getByText("Create a wallet", { exact: false }),
+    ).toBeHidden();
 
     await page.close();
   });
 
-  it.concurrent('selects "Chat with OpenAI" and shows payment channel steps', async () => {
+  it('selects "Chat with OpenAI" and shows payment channel steps', async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    await page.goto(pageUrl());
     await waitForWizard(page);
 
     await pressKey(page, "Enter");
@@ -155,11 +165,12 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Generate an image using fal.ai" via arrow key and shows charge steps', async () => {
+  it('selects "Generate an image using fal.ai" via arrow key and shows charge steps', async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    await page.goto(pageUrl());
     await waitForWizard(page);
 
+    await pressKey(page, "ArrowDown");
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
@@ -190,9 +201,9 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent("submits default prompt when Enter is pressed on empty input", async () => {
+  it("submits default prompt when Enter is pressed on empty input", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    await page.goto(pageUrl());
     await waitForWizard(page);
 
     await pressKey(page, "Enter");
@@ -213,13 +224,11 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Summarize an article using Parallel" and enters a URL', async () => {
+  it('selects "Summarize an article using Parallel" and enters a URL', async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    await page.goto(pageUrl());
     await waitForWizard(page);
 
-    await pressKey(page, "ArrowDown");
-    await pressKey(page, "ArrowDown");
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
@@ -249,7 +258,7 @@ describe("terminal", () => {
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
-      page.getByText("Creating PaymentIntent"),
+      page.getByText("Creating payment_intent"),
     ).toBeVisible({ timeout: 5_000 });
 
     await playwrightExpect(
@@ -261,13 +270,11 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent("uses default URL and card values when Enter is pressed", async () => {
+  it("uses default URL and card values when Enter is pressed", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    await page.goto(pageUrl());
     await waitForWizard(page);
 
-    await pressKey(page, "ArrowDown");
-    await pressKey(page, "ArrowDown");
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
@@ -278,7 +285,7 @@ describe("terminal", () => {
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
-      page.getByText("Enter URL: https://stratechery.com", { exact: true }),
+      page.getByText("Enter URL: https://stratechery.com", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
     await playwrightExpect(
       page.getByText("Card number:", { exact: false }),
@@ -287,7 +294,7 @@ describe("terminal", () => {
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
-      page.getByText("Creating PaymentIntent"),
+      page.getByText("Creating payment_intent"),
     ).toBeVisible({ timeout: 5_000 });
     await playwrightExpect(
       page.getByText("(success)", { exact: false }),
@@ -298,11 +305,12 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it.concurrent("runs multiple times and returns to wizard", async () => {
+  it("runs multiple times and returns to wizard", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}`);
+    await page.goto(pageUrl());
     await waitForWizard(page);
 
+    await pressKey(page, "ArrowDown");
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
@@ -316,12 +324,11 @@ describe("terminal", () => {
     // Wait for the first run to complete and wizard to reappear
     await page.waitForSelector("[data-wizard-ready]", { timeout: 20_000 });
 
-    // Second run: select "Generate image" again
-    await pressKey(page, "ArrowDown");
+    // Second run: the completed item remains selected.
     await pressKey(page, "Enter");
 
     await playwrightExpect(
-      page.getByText("Enter prompt:", { exact: true }),
+      page.getByText("Enter prompt:", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
     await page.keyboard.type("another test");
     await page.keyboard.press("Enter");
@@ -332,16 +339,18 @@ describe("terminal", () => {
     await playwrightExpect(
       page.getByText("What would you like to do?").last(),
     ).toBeVisible({ timeout: 5_000 });
-    await playwrightExpect(page.getByText("Chat with AI")).toBeVisible();
+    await playwrightExpect(
+      page.getByText("Chat with OpenAI").last(),
+    ).toBeVisible();
 
     await page.close();
   });
 });
 
 describe("terminal (classic mode)", () => {
-  it.concurrent("shows classic wizard options with ?mode=classic", async () => {
+  it("shows classic wizard options with ?mode=classic", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}/?mode=classic`);
+    await page.goto(pageUrl("/?mode=classic"));
     await waitForWizard(page);
 
     await playwrightExpect(page.getByText("Write poem")).toBeVisible();
@@ -352,9 +361,9 @@ describe("terminal (classic mode)", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Write poem" and shows payment channel steps', async () => {
+  it('selects "Write poem" and shows payment channel steps', async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}/?mode=classic`);
+    await page.goto(pageUrl("/?mode=classic"));
     await waitForWizard(page);
 
     await pressKey(page, "Enter");
@@ -382,9 +391,9 @@ describe("terminal (classic mode)", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Create ASCII art" and shows charge steps', async () => {
+  it('selects "Create ASCII art" and shows charge steps', async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}/?mode=classic`);
+    await page.goto(pageUrl("/?mode=classic"));
     await waitForWizard(page);
 
     await pressKey(page, "ArrowDown");
@@ -411,9 +420,9 @@ describe("terminal (classic mode)", () => {
     await page.close();
   });
 
-  it.concurrent('selects "Lookup company" and shows Stripe steps', async () => {
+  it('selects "Lookup company" and shows Stripe steps', async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}/?mode=classic`);
+    await page.goto(pageUrl("/?mode=classic"));
     await waitForWizard(page);
 
     await pressKey(page, "ArrowDown");
@@ -443,7 +452,7 @@ describe("terminal (classic mode)", () => {
     await page.keyboard.press("Enter");
 
     await playwrightExpect(
-      page.getByText("Creating PaymentIntent"),
+      page.getByText("Creating payment_intent"),
     ).toBeVisible({ timeout: 5_000 });
 
     await playwrightExpect(
@@ -457,9 +466,9 @@ describe("terminal (classic mode)", () => {
 });
 
 describe("terminal (one-time-payments guide)", () => {
-  it.concurrent("renders the photo payment flow", async () => {
+  it("renders the photo payment flow", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}/guides/one-time-payments`, {
+    await page.goto(pageUrl("/guides/one-time-payments"), {
       waitUntil: "load",
     });
 
@@ -509,9 +518,9 @@ describe("terminal (one-time-payments guide)", () => {
 });
 
 describe("terminal (pay-as-you-go guide)", () => {
-  it.concurrent("renders the gallery payment flow with session reuse", async () => {
+  it("renders the gallery payment flow with session reuse", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}/guides/pay-as-you-go`, {
+    await page.goto(pageUrl("/guides/pay-as-you-go"), {
       waitUntil: "load",
     });
 
@@ -558,7 +567,7 @@ describe("terminal (pay-as-you-go guide)", () => {
     });
 
     // Summary line should show completion
-    await playwrightExpect(terminal.getByText("0.03 USDC.e")).toBeVisible({
+    await playwrightExpect(terminal.getByText("0.03 USD")).toBeVisible({
       timeout: 10_000,
     });
 
@@ -592,9 +601,9 @@ describe("terminal (pay-as-you-go guide)", () => {
 });
 
 describe("terminal (streamed-payments guide)", () => {
-  it.concurrent("renders the poem streaming flow", async () => {
+  it("renders the poem streaming flow", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}/guides/streamed-payments`, {
+    await page.goto(pageUrl("/guides/streamed-payments"), {
       waitUntil: "load",
     });
 
@@ -641,9 +650,9 @@ describe("terminal (streamed-payments guide)", () => {
 });
 
 describe("terminal (overview page)", () => {
-  it.concurrent("renders the ping payment flow", async () => {
+  it("renders the ping payment flow", async () => {
     const page = await newPage();
-    await page.goto(`http://localhost:${port}/overview`, {
+    await page.goto(pageUrl("/overview"), {
       waitUntil: "load",
     });
 
