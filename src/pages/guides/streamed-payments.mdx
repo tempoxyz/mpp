@@ -67,20 +67,23 @@ $ bun add mppx viem
 
 ### Set up `Mppx` instance with streaming
 
-Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
+Set up an `Mppx` instance with the current `tempo.session` method and `sse: true`.
 
 ```ts [app/api/sessions/poem/route.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Mppx, tempo } from "mppx/nextjs";
+import { privateKeyToAccount } from 'viem/accounts'
 
-export const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -91,17 +94,20 @@ export const mppx = Mppx.create({
 Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [app/api/sessions/poem/route.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Mppx, tempo } from "mppx/nextjs";
+import { privateKeyToAccount } from 'viem/accounts'
 
-export const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -170,23 +176,26 @@ $ bun add mppx hono viem
 
 ### Set up `Mppx` instance with streaming
 
-Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
+Set up an `Mppx` instance with the current `tempo.session` method and `sse: true`.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Hono } from "hono";
 import { Mppx, tempo } from "mppx/hono";
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = new Hono();
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -197,20 +206,23 @@ const mppx = Mppx.create({
 Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Hono } from "hono";
 import { Mppx, tempo } from "mppx/hono";
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = new Hono();
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -281,20 +293,22 @@ $ bun add mppx viem
 
 ### Set up `Mppx` instance with streaming
 
-Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
+Set up an `Mppx` instance with the current `tempo.session` method and `sse: true`.
 
 ```ts [src/index.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from "mppx/server";
+import { Mppx, Store, tempo } from "mppx/server";
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -305,17 +319,19 @@ const mppx = Mppx.create({
 Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [src/index.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from "mppx/server";
+import { Mppx, Store, tempo } from "mppx/server";
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -391,23 +407,26 @@ $ bun add mppx express viem
 
 ### Set up `Mppx` instance with streaming
 
-Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
+Set up an `Mppx` instance with the current `tempo.session` method and `sse: true`.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import express from "express";
 import { Mppx, tempo } from "mppx/express";
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = express();
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -418,20 +437,23 @@ const mppx = Mppx.create({
 Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import express from "express";
 import { Mppx, tempo } from "mppx/express";
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = express();
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -507,20 +529,22 @@ $ bun add mppx viem
 
 ### Set up `Mppx` instance with streaming
 
-Set up an `Mppx` instance with `sse: true` to enable SSE support on the session method.
+Set up an `Mppx` instance with the current `tempo.session` method and `sse: true`.
 
 ```ts [server.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from "mppx/server";
+import { Mppx, Store, tempo } from "mppx/server";
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });
@@ -531,17 +555,19 @@ const mppx = Mppx.create({
 Create the route handler. `withReceipt` accepts an async generator—each yielded value becomes one SSE `event: message` and is charged one tick (`$0.001`). If the channel balance runs out mid-stream, the server emits `event: payment-need-voucher` and pauses until the client sends a new voucher.
 
 ```ts [server.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from "mppx/server";
+import { Mppx, Store, tempo } from "mppx/server";
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [
-    tempo({
-      testnet: true,
-      currency: "0x20c0000000000000000000000000000000000000",
-      recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
       sse: true,
+      store: Store.memory(),
     }),
   ],
 });

@@ -34,10 +34,21 @@ const res = await mppx.fetch('https://api.example.com/resource')
 ## Server
 
 ```ts
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
 
 const mppx = Mppx.create({
-  methods: [tempo({ currency: '0x...', recipient: '0x...' })],
+  methods: [
+    tempo.charge({ currency: '0x...', recipient: '0x...' }),
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x...',
+      store: Store.memory(),
+    }),
+  ],
   secretKey: process.env.MPP_SECRET_KEY,
 })
 
@@ -56,7 +67,7 @@ async function handler(request: Request): Promise<Response> {
 | `tempo.session` | `session` | Streaming payments via payment channels on Tempo |
 | `stripe.charge` | `charge` | One-time payment via Stripe |
 
-`tempo()` returns `[tempo.charge, tempo.session]` as a tuple. Use `tempo.charge()` or `tempo.session()` individually if you only need one intent.
+`tempo()` returns `[tempo.charge, tempo.session]` as a tuple using the current v2 Sessions implementation. Use `tempo.charge()` or `tempo.session()` individually if you only need one intent. Use `tempo.sessionLegacy` only for Legacy Sessions v1 compatibility.
 
 ## Exports
 

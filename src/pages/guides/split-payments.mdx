@@ -35,7 +35,7 @@ Add a `splits` array to any `mppx.charge` call. Each entry specifies a `recipien
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 // ---cut---
 export async function handler(request: Request) {
   const result = await mppx.charge({
@@ -63,7 +63,7 @@ Each split can carry its own on-chain memo for reconciliation:
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 declare const request: Request
 // ---cut---
@@ -89,7 +89,7 @@ Split payments work with [fee sponsorship](/payment-methods/tempo#fee-sponsorshi
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 declare const request: Request
 // ---cut---

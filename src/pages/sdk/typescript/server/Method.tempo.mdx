@@ -17,12 +17,21 @@ Register [`tempo.subscription`](/sdk/typescript/server/Method.tempo.subscription
 ## Usage
 
 ```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo(),
+    tempo({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      store: Store.memory(),
+    }),
     // [!code focus:end]
   ],
 })
@@ -31,12 +40,23 @@ Mppx.create({
 This is equivalent to:
 
 ```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 Mppx.create({
   methods: [
-    tempo.charge(),
-    tempo.session(),
+    tempo.charge({
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    }),
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
   ],
 })
 ```

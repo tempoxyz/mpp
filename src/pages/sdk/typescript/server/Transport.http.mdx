@@ -8,7 +8,7 @@ HTTP transport for server-side payment handling.
 import { Mppx, tempo, Transport } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo()],
+  methods: [tempo.charge()],
   transport: Transport.http(),
 })
 ```
