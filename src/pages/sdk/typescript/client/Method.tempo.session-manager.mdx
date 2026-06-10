@@ -172,7 +172,7 @@ Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.met
 import { Mppx, tempo } from 'mppx/client'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
+import { tempo as tempoMainnet } from 'viem/chains'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
@@ -182,8 +182,8 @@ const { fetch: mppxFetch } = Mppx.create({
       account,
       getClient: () =>
         createClient({
-          chain: tempoModerato,
-          transport: http('https://rpc.moderato.tempo.xyz'),
+          chain: tempoMainnet,
+          transport: http('https://rpc.tempo.xyz'),
         }),
       maxDeposit: '1',
     }),
