@@ -28,6 +28,7 @@ const ALLOWED_ADDRESSES: ReadonlySet<string> = new Set(
     "0x20C000000000000000000000b9537d11c60E8b50", // USDC.e (Bridged USDC) on Tempo
     "0x0000000000000000000000000000000000000001", // native token
     "0x33b901018174DDabE4841042ab76ba85D4e24f25", // Mainnet payment channel
+    "0x4d50500000000000000000000000000000000000", // TIP-1034 reserve precompile
     "0x9d136eEa063eDE5418A6BC7bEafF009bBb6CFa70", // Testnet payment channel (deprecated)
     "0xe1c4d3dce17bc111181ddf716f75bae49e61a336", // Testnet payment channel
 

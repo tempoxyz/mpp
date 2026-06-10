@@ -18,11 +18,11 @@ export async function createDemoClient() {
 
   const { fetch } = Mppx.create({
     fetch: globalThis.fetch,
+    methods: [tempo({ account, getClient, maxDeposit })],
     polyfill: false,
-    methods: [tempo({ account, maxDeposit, getClient })],
   });
 
-  const session = tempo.session({
+  const session = tempo.session.manager({
     account,
     maxDeposit,
     getClient,

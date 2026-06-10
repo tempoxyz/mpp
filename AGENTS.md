@@ -212,6 +212,8 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 
 **Terminology**: Use "stablecoins" instead of "crypto" when referring to on-chain payment methods. MPP uses stablecoins (USDC.e, USDT) on Tempo—not generic cryptocurrency. Always use "USDC.e" (not "USDC") when referring to the bridged USDC token on Tempo. The only exception is when referring to Circle's USDC stablecoin in general (not Tempo-specific) contexts.
 
+**Session funds terminology**: Never use "escrow" in prose. Use "reserve" for the noun and "reserve" or "lock up" for the verb, depending on context. Only use `escrow` when documenting an actual code identifier, parameter, or contract name that contains that word.
+
 **Avoid**:
 - Latin abbreviations (use "for example" not "e.g.")
 - Future tense ("will") and conditional ("should")
@@ -271,6 +273,8 @@ Always use these chain IDs when referencing Tempo networks:
 - **Testnet (Moderato)**: `42431`
 
 Never use `98865`—that is a deprecated chain ID.
+
+Keep code examples within a single page on one Tempo network unless the section is explicitly comparing networks. For Sessions docs, default runnable examples to Tempo mainnet (`4217`, `tempo` from `viem/chains`, and `https://rpc.tempo.xyz`) and reserve Moderato (`42431`) for parameter descriptions, network reference tables, or pages that are specifically about testnet setup.
 
 When showing token or contract addresses in code examples, add a short inline comment naming the currency or contract whenever the name is not obvious from surrounding text:
 

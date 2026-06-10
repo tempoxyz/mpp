@@ -1,9 +1,13 @@
-# `Method.tempo.session` [Low-cost high-throughput payments]
+# `tempo.session` [Sessions client method]
 
-Creates a Tempo payment session method for client-side voucher signing. Pass the result to `Mppx.create` for automatic 402 handling.
+Creates the low-level Tempo Sessions client method for `Mppx.create`.
 
 :::info
-For standalone session management with explicit `.fetch()`, `.close()`, and `.sse()` methods, see [`tempo.session` manager](/sdk/typescript/client/Method.tempo.session-manager).
+Use `tempo.session()` when you need to register only the current Sessions intent in `Mppx.create`. Use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) when you need a standalone object with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`.
+:::
+
+:::warning[Legacy Sessions]
+`tempo.session` is the current Sessions implementation, backed by the [TIP-1034](https://tips.sh/1034-1) reserve precompile. The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
 :::
 
 ## Usage
@@ -12,7 +16,7 @@ For standalone session management with explicit `.fetch()`, `.close()`, and `.ss
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0xabc…123')
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 Mppx.create({
   methods: [
@@ -25,25 +29,53 @@ Mppx.create({
 
 ### With charge and session
 
-Register both intents on a single client.
+Use the `tempo()` convenience function when you want the default Tempo charge and Sessions methods.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0xabc…123')
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+Mppx.create({
+  methods: [tempo({ account })],
+})
+```
+
+### With Legacy Sessions
+
+Use `tempo.sessionLegacy.method()` only for servers that still issue Legacy Sessions Challenges.
+
+If a client must support both current and Legacy Sessions during migration, register both methods:
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 Mppx.create({
   methods: [
-    tempo.charge({ account }),
-    tempo.session({ account }),
+    tempo.session({ account, maxDeposit: '1' }),
+    tempo.sessionLegacy.method({ account, maxDeposit: '1' }),
   ],
+})
+```
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+Mppx.create({
+  methods: [tempo.sessionLegacy.method({ account })],
 })
 ```
 
 ## Return type
 
-```ts twoslash
+```ts
 import type { Method } from 'mppx'
 
 type ReturnType = Method.Client
@@ -55,16 +87,22 @@ type ReturnType = Method.Client
 
 - **Type:** `Account`
 
-Account to sign vouchers with. You can override this per call using the context.
+Account to sign channel transactions and vouchers with. You can override this per call using the context.
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
-  account: privateKeyToAccount('0xabc…123'), // [!code focus]
+  account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'), // [!code focus]
 })
 ```
+
+### authorizedSigner (optional)
+
+- **Type:** `Address`
+
+Address authorized to sign vouchers. Defaults to the account access-key address when available, otherwise the account address.
 
 ### decimals (optional)
 
@@ -73,21 +111,15 @@ const method = tempo.session({
 
 Token decimals for parsing human-readable amounts.
 
-### deposit (optional)
-
-- **Type:** `string`
-
-Initial deposit amount in human-readable units (for example `"10"` for 10 tokens). When set, the client handles the full channel lifecycle (open, voucher, cumulative tracking) automatically.
-
-### escrowContract (optional)
+### escrow (optional)
 
 - **Type:** `Address`
 
-Escrow contract address override. Derived from the server challenge if not provided.
+Reserve precompile address override.
 
 ### getClient (optional)
 
-- **Type:** `(parameters: { chainId: number }) => MaybePromise<Client>`
+- **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
 
@@ -95,16 +127,10 @@ Function that returns a viem client for the given chain ID.
 
 - **Type:** `string`
 
-Maximum deposit in human-readable units (for example `"10"`). Caps the server's `suggestedDeposit`. Enables auto-management like `deposit`.
+Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups.
 
 ### onChannelUpdate (optional)
 
 - **Type:** `(entry: ChannelEntry) => void`
 
-Called whenever channel state changes (open, voucher, close, recovery).
-
-### voucherSigner (optional)
-
-- **Type:** `Account`
-
-Account that signs voucher digests. Defaults to `account`. Access-key accounts sign raw vouchers as their access-key address.
+Called whenever channel state changes.
