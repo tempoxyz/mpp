@@ -27,8 +27,8 @@ importers:
         specifier: ^11.15.0
         version: 11.15.0
       mppx:
-        specifier: file:vendor/mppx-6ae92c4e9417e8324740b8bdb883f8856ca84bf9.tgz
-        version: file:vendor/mppx-6ae92c4e9417e8324740b8bdb883f8856ca84bf9.tgz(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.0(typescript@6.0.3)(zod@4.4.3))
+        specifier: https://pkg.pr.new/mppx@530
+        version: https://pkg.pr.new/mppx@530(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.0(typescript@6.0.3)(zod@4.4.3))
       react:
         specifier: ^19
         version: 19.2.7
@@ -2919,8 +2919,8 @@ packages:
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
 
-  mppx@file:vendor/mppx-6ae92c4e9417e8324740b8bdb883f8856ca84bf9.tgz:
-    resolution: {integrity: sha512-P+TLYlNwmoVN9ldRp5N8fMgMHZ6sl1KcV3z1ieGRhTourQcuFONCEi4WHgoQi6DWYjWNUnHHbdH5NrCYooNhiw==, tarball: file:vendor/mppx-6ae92c4e9417e8324740b8bdb883f8856ca84bf9.tgz}
+  mppx@https://pkg.pr.new/mppx@530:
+    resolution: {tarball: https://pkg.pr.new/mppx@530}
     version: 0.6.31
     hasBin: true
     peerDependencies:
@@ -7009,7 +7009,7 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mppx@file:vendor/mppx-6ae92c4e9417e8324740b8bdb883f8856ca84bf9.tgz(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.0(typescript@6.0.3)(zod@4.4.3)):
+  mppx@https://pkg.pr.new/mppx@530(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.0(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
       incur: 0.4.8
       ox: 0.14.27(typescript@6.0.3)(zod@4.4.3)

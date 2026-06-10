@@ -229,6 +229,26 @@ const response = await mppx.fetch("https://api.example.com/resource");
 See [`tempo.charge` client reference](/sdk/typescript/client/Method.tempo.charge) for the full parameter list.
 :::
 
+### Chain pinning
+
+Set `expectedChainId` when the client should only pay on a specific Tempo network. The client rejects Challenges for other chains and uses this chain when the Challenge doesn't include `chainId`.
+
+```ts twoslash
+import { Mppx, tempo } from "mppx/client";
+import { privateKeyToAccount } from "viem/accounts";
+
+const account = privateKeyToAccount("0xabc…123");
+
+Mppx.create({
+  methods: [
+    tempo.charge({
+      account,
+      expectedChainId: 4217, // Tempo mainnet // [!code hl]
+    }),
+  ],
+});
+```
+
 ### Auto-swap
 
 When the client doesn't hold the requested currency, `autoSwap` automatically swaps from a fallback stablecoin (pathUSD, USDC.e) via the Tempo DEX before transferring.

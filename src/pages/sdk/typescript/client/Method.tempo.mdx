@@ -42,20 +42,20 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     tempo.charge({ account }),
-    tempo.session.method({ account }),
+    tempo.session({ account }),
   ],
 })
 ```
 
 ### Standalone session manager
 
-`tempo.session()` creates the recommended standalone Sessions manager with explicit `.fetch()`, `.topUp()`, `.close()`, `.sse()`, and `.ws()` methods—no `Mppx.create` required:
+`tempo.session.manager()` creates the recommended standalone Sessions manager with explicit `.fetch()`, `.topUp()`, `.close()`, `.sse()`, and `.ws()` methods—no `Mppx.create` required:
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session({
+const session = tempo.session.manager({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '1',
 })
@@ -64,7 +64,7 @@ const res = await session.fetch('https://api.example.com/resource')
 await session.close()
 ```
 
-See [`tempo.session` manager](/sdk/typescript/client/Method.tempo.session-manager) for the full API.
+See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manager) for the full API.
 
 ## Return type
 
@@ -76,7 +76,7 @@ A tuple of `[charge, session]` methods. `Mppx.create` accepts tuples in the `met
 
 ## Parameters
 
-Accepts the union of [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) and [`tempo.session.method`](/sdk/typescript/client/Method.tempo.session) parameters. The most common are listed below.
+Accepts the union of [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) and [`tempo.session`](/sdk/typescript/client/Method.tempo.session) parameters. The most common are listed below.
 
 ### account (optional)
 
@@ -89,6 +89,12 @@ Account to sign transactions and vouchers with.
 - **Type:** `Address`
 
 Address authorized to sign Sessions vouchers.
+
+### expectedChainId (optional)
+
+- **Type:** `number`
+
+Tempo chain ID this client accepts for charges. When set, the client rejects Challenges for other chains and uses this chain when a charge Challenge omits `chainId`.
 
 ### getClient (optional)
 

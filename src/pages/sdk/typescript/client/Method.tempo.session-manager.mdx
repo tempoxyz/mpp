@@ -1,11 +1,11 @@
-# `tempo.session` [Sessions manager]
+# `tempo.session.manager` [Sessions manager]
 
 Creates a Sessions manager that handles channel open, paid fetches, streaming, top-ups, and close.
 
 Use this for client-side pay-as-you-go flows. The manager opens a TIP-1034 channel lazily after the first `402` Challenge, signs cumulative vouchers, tops up when needed, and closes the channel when you call `.close()`.
 
 :::warning[Legacy Sessions]
-`tempo.session` is the current Sessions manager. The previous contract-backed manager is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
+`tempo.session.manager` is the current Sessions manager. The previous contract-backed manager is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
 :::
 
 ## Usage
@@ -16,7 +16,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
-const session = tempo.session({
+const session = tempo.session.manager({
   account,
   maxDeposit: '1',
 })
@@ -46,7 +46,7 @@ Stream server-sent events with automatic voucher handling. The manager signs inc
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session({
+const session = tempo.session.manager({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '5',
 })
@@ -73,7 +73,7 @@ Open a paid WebSocket session. The manager handles the HTTP `402` probe, channel
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session({
+const session = tempo.session.manager({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '1',
 })
@@ -99,14 +99,14 @@ const receipt = await session.close()
 ```
 
 :::tip
-In Node.js or other server-side runtimes without a global `WebSocket`, pass the constructor to `tempo.session()`:
+In Node.js or other server-side runtimes without a global `WebSocket`, pass the constructor to `tempo.session.manager()`:
 
 ```ts
 import { WebSocket } from 'isows'
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session({
+const session = tempo.session.manager({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '1',
   webSocket: WebSocket,
@@ -123,7 +123,7 @@ Add deposit to the active channel without closing it.
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session({
+const session = tempo.session.manager({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '10',
 })
@@ -157,7 +157,7 @@ const channelStore = {
   },
 }
 
-const session = tempo.session({
+const session = tempo.session.manager({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '1',
   sessionStore: channelStore,
@@ -166,7 +166,7 @@ const session = tempo.session({
 
 ## Migrate from Legacy Sessions
 
-Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()`. Use `tempo.session()` for a standalone manager, or `tempo()` when you want the same fetch wrapper to handle one-time charges and Sessions.
+Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()`. Use `tempo.session.manager()` for a standalone manager, or `tempo()` when you want the same fetch wrapper to handle one-time charges and Sessions.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -198,7 +198,7 @@ Use `tempo.sessionLegacy()` only while the server still emits Legacy Sessions Ch
 
 ## Return type
 
-`tempo.session()` returns a `SessionManager` object:
+`tempo.session.manager()` returns a `SessionManager` object:
 
 ```ts
 type SessionManager = {

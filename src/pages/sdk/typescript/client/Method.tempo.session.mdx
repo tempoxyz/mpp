@@ -1,9 +1,9 @@
-# `tempo.session.method` [Sessions client method]
+# `tempo.session` [Sessions client method]
 
 Creates the low-level Tempo Sessions client method for `Mppx.create`.
 
 :::info
-Use [`tempo.session()`](/sdk/typescript/client/Method.tempo.session-manager) for the recommended standalone session manager. Use `tempo.session.method()` only when you need to register the session intent directly in `Mppx.create`.
+Use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) for the recommended standalone session manager. Use `tempo.session()` when you need to register the session intent directly in `Mppx.create`.
 :::
 
 :::warning[Legacy Sessions]
@@ -21,7 +21,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo.session.method({ account }),
+    tempo.session({ account }),
     // [!code focus:end]
   ],
 })
@@ -77,7 +77,7 @@ Account to sign channel transactions and vouchers with. You can override this pe
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const method = tempo.session.method({
+const method = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'), // [!code focus]
 })
 ```
