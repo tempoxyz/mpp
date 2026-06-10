@@ -35,7 +35,7 @@ import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
-const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 app.get(
   '/premium', 
@@ -46,14 +46,27 @@ app.get(
 
 ### Session payments
 
-Use `mppx.session()` to gate routes behind session-based payment intents.
+Use `mppx.session()` with `tempo.session()` to gate routes behind current v2 Sessions.
 
 ```ts [server.ts]
+import { Store } from 'mppx'
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = express()
-const mppx = Mppx.create({ methods: [tempo()] })
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
 
 app.get(
   '/content',
@@ -72,7 +85,7 @@ import { Credential } from 'mppx'
 import { Mppx, tempo } from 'mppx/express'
 
 const app = express()
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 app.get(
   '/premium',

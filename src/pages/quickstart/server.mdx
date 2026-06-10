@@ -38,7 +38,7 @@ import { Mppx, tempo } from 'mppx/nextjs'
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -58,7 +58,7 @@ const app = new Hono()
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -78,7 +78,7 @@ import { Mppx, tempo } from 'mppx/elysia'
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -100,7 +100,7 @@ const app = express()
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -139,7 +139,7 @@ If you prefer full control over the payment flow, use `mppx/server` directly wit
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -189,7 +189,7 @@ Use the `Mppx.toNodeListener` helper to transform the handler into a Node.js-com
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -227,7 +227,7 @@ If you would like to force a specific mode, you can set the `mode` parameter to 
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     mode: 'push', // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -239,14 +239,14 @@ The `mode` parameter only affects non-zero charges. When `amount` is `0`, the cl
 
 ### Fee sponsorship
 
-To sponsor gas fees for pull-mode clients, pass a `feePayer` account to `tempo()`:
+To sponsor gas fees for pull-mode clients, pass a `feePayer` account to `tempo.charge()`:
 
 ```ts
 import { Mppx, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     feePayer: privateKeyToAccount('0x…'), // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -260,7 +260,7 @@ It is possible to pass a [fee payer service](https://docs.tempo.xyz/sdk/typescri
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     feePayer: 'https://sponsor.example.com', // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -276,7 +276,7 @@ By default, the server waits for onchain confirmation before returning a Receipt
 
 ```ts
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     waitForConfirmation: false, // [!code focus]
@@ -300,7 +300,7 @@ import { tempo } from 'mppx/server'
 const app = new Hono()
 
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],

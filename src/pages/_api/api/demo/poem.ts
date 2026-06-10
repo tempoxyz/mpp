@@ -46,7 +46,7 @@ const poems = [
     "A stream of data onward drifts.",
     "No human hand to slow the pace,",
     "Just math and trust in empty space.",
-    "The escrow holds, the channel clears,",
+    "The reserve holds, the channel clears,",
     "A settlement in milliseconds, not years.",
   ],
   [

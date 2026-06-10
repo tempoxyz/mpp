@@ -131,7 +131,7 @@ import { Mppx, tempo } from 'mppx/nextjs'
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -151,7 +151,7 @@ const app = new Hono()
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -171,7 +171,7 @@ import { Mppx, tempo } from 'mppx/elysia'
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -193,7 +193,7 @@ const app = express()
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -238,7 +238,7 @@ If you prefer full control over the payment flow, use `mppx/server` directly wit
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
@@ -294,7 +294,7 @@ Use the `Mppx.toNodeListener` helper to transform the handler into a Node.js-com
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],

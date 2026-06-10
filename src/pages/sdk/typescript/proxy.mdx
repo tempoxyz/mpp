@@ -34,7 +34,7 @@ Import `Proxy` and a service preset from `mppx/proxy`, then create an `Mppx` ser
 import { Proxy, openai } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const proxy = Proxy.create({
   services: [
@@ -69,7 +69,7 @@ Pass multiple services to gate several upstream APIs behind a single proxy.
 import { Proxy, anthropic, openai, stripe } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const proxy = Proxy.create({
   description: 'Multi-service paid API proxy',
@@ -186,7 +186,7 @@ Use `Service.from` (or its alias `custom`) to define a service for any upstream 
 import { Proxy, Service } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const proxy = Proxy.create({
   services: [

@@ -63,22 +63,28 @@ $ bun add mppx viem
 
 ### Set up `Mppx` instance
 
-Set up an `Mppx` instance with the `tempo` method.
+Set up an `Mppx` instance with the current `tempo.session` method.
 
-- `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `account` signs server-side session settlement and close transactions.
+- `currency` is the token address for payments, in this case `pathUSD`.
+- `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [app/api/sessions/photo/route.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Mppx, tempo } from 'mppx/nextjs'
+import { privateKeyToAccount } from 'viem/accounts'
 
-export const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 ```
 
@@ -87,16 +93,21 @@ export const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [app/api/sessions/photo/route.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Mppx, tempo } from 'mppx/nextjs'
+import { privateKeyToAccount } from 'viem/accounts'
 
-export const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -113,16 +124,21 @@ Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [app/api/sessions/photo/route.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Mppx, tempo } from 'mppx/nextjs'
+import { privateKeyToAccount } from 'viem/accounts'
 
-export const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -166,25 +182,31 @@ $ bun add mppx hono viem
 
 ### Set up `Mppx` instance
 
-Set up an `Mppx` instance with the `tempo` method.
+Set up an `Mppx` instance with the current `tempo.session` method.
 
-- `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `account` signs server-side session settlement and close transactions.
+- `currency` is the token address for payments, in this case `pathUSD`.
+- `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = new Hono()
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 ```
 
@@ -193,19 +215,24 @@ const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = new Hono()
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -222,19 +249,24 @@ Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import { Hono } from 'hono'
 import { Mppx, tempo } from 'mppx/hono'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = new Hono()
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -280,22 +312,27 @@ $ bun add mppx viem
 
 ### Set up `Mppx` instance
 
-Set up an `Mppx` instance with the `tempo` method.
+Set up an `Mppx` instance with the current `tempo.session` method.
 
-- `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `account` signs server-side session settlement and close transactions.
+- `currency` is the token address for payments, in this case `pathUSD`.
+- `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [src/index.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 ```
 
@@ -304,16 +341,20 @@ const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [src/index.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -331,16 +372,20 @@ export default {
 Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [src/index.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -391,25 +436,31 @@ $ bun add mppx express viem
 
 ### Set up `Mppx` instance
 
-Set up an `Mppx` instance with the `tempo` method.
+Set up an `Mppx` instance with the current `tempo.session` method.
 
-- `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `account` signs server-side session settlement and close transactions.
+- `currency` is the token address for payments, in this case `pathUSD`.
+- `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = express()
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 ```
 
@@ -418,19 +469,24 @@ const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = express()
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -447,19 +503,24 @@ Add payment verification using `mppx.session` as route middleware.
 The handler runs only after payment is verified.
 
 ```ts [server.ts]
-import crypto from 'crypto'
+import { Store } from 'mppx'
 import express from 'express'
 import { Mppx, tempo } from 'mppx/express'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = express()
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -510,21 +571,27 @@ $ bun add mppx viem
 
 ### Set up `Mppx` instance
 
-Set up an `Mppx` instance with the `tempo` method.
+Set up an `Mppx` instance with the current `tempo.session` method.
 
-- `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `account` signs server-side session settlement and close transactions.
+- `currency` is the token address for payments, in this case `pathUSD`.
+- `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [server.ts]
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 ```
 
@@ -533,16 +600,20 @@ const mppx = Mppx.create({
 Create the gallery route. This route is **currently unpaid**.
 
 ```ts [server.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]
@@ -560,16 +631,20 @@ Bun.serve({
 Add payment verification using `mppx.session`. If the status is `402`, return the Challenge. Otherwise, fetch the photo and attach a Receipt to the response.
 
 ```ts [server.ts]
-import crypto from 'crypto'
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
-  methods: [tempo({
-    testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  })],
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
 })
 
 // [!code focus:start]

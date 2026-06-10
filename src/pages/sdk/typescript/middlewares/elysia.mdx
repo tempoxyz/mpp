@@ -34,7 +34,7 @@ Import `Mppx` and `tempo` from `mppx/elysia` to create an Elysia-aware payment h
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const app = new Elysia()
   .guard(
@@ -51,7 +51,7 @@ Use `.onBeforeHandle()` to apply payment to all routes.
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
 
-const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 const app = new Elysia()
   .onBeforeHandle(mppx.charge({ amount: '1' })) // [!code hl]
@@ -61,13 +61,26 @@ const app = new Elysia()
 
 ### Session payments
 
-Use `mppx.session()` to gate routes behind session-based payment intents.
+Use `mppx.session()` with `tempo.session()` to gate routes behind current v2 Sessions.
 
 ```ts [server.ts]
+import { Store } from 'mppx'
 import { Elysia } from 'elysia'
 import { Mppx, tempo } from 'mppx/elysia'
+import { privateKeyToAccount } from 'viem/accounts'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
 
 const app = new Elysia()
   .guard(
