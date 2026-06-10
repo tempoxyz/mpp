@@ -10,6 +10,8 @@ Convenience function that creates both `tempo.charge` and Sessions method intent
 
 Register [`tempo.subscription`](/sdk/typescript/client/Method.tempo.subscription) separately for recurring payments.
 
+Use this helper when you want `Mppx.create` to handle both one-time charges and current Sessions through the same fetch wrapper. If you need to close, top up, or stream a single channel explicitly, use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) instead.
+
 :::warning[Legacy Sessions]
 `tempo.session` is the current Sessions implementation. The previous contract-backed flow is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
 :::
@@ -49,7 +51,7 @@ Mppx.create({
 
 ### Standalone session manager
 
-`tempo.session.manager()` creates the recommended standalone Sessions manager with explicit `.fetch()`, `.topUp()`, `.close()`, `.sse()`, and `.ws()` methods—no `Mppx.create` required:
+`tempo.session.manager()` creates a standalone Sessions manager with explicit `.fetch()`, `.topUp()`, `.close()`, `.sse()`, and `.ws()` methods. It does not register a method in `Mppx.create`; it owns one channel lifecycle directly.
 
 ```ts twoslash
 import { tempo } from 'mppx/client'

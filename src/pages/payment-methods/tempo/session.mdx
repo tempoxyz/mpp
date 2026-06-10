@@ -17,6 +17,17 @@ Payment sessions reduce payment verification to near constant time, making it po
 `tempo.session` is the current Sessions implementation in `mppx`. The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
 :::
 
+## Which client API should I use?
+
+There are two current Sessions client APIs:
+
+| API | Use it when |
+|---|---|
+| `tempo({ account, maxDeposit })` | You want a fetch wrapper that handles both one-time charges and Sessions. This expands to `tempo.charge()` plus the current `tempo.session()` client method. |
+| `tempo.session({ account, maxDeposit })` | You want to register only the current Sessions client method in `Mppx.create`. |
+| `tempo.session.manager({ account, maxDeposit })` | You want direct lifecycle control with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`. Use this when your code must explicitly close or top up a channel. |
+| `tempo.sessionLegacy` / `tempo.sessionLegacy.method()` | You still need compatibility with contract-backed Sessions v1. Do not use this for new integrations. |
+
 ## Why Sessions matter in MPP
 
 Traditional payment rails target human purchase flows: a buyer decides, pays, and receives goods. Usage-based billing—the model that powers cloud infrastructure, LLM APIs, and metered services—requires something fundamentally different. It needs payment verification that can keep pace with the service itself.
@@ -378,6 +389,18 @@ Legacy Sessions, also called Sessions v1, is the contract-backed session flow. U
 - Keep `tempo.sessionLegacy` registered beside `tempo.session` during migration so existing clients keep working.
 - Use `tempo()` on the client when the same fetch wrapper should handle charges and Sessions.
 - Register `tempo.session()` and `tempo.sessionLegacy.method()` explicitly when the client must support both Sessions implementations.
+
+### Compatibility matrix
+
+| Server methods | Client methods | Result |
+|---|---|---|
+| `tempo.session()` only | `tempo.session()` or `tempo()` | Current Sessions flow. New integrations should target this. |
+| `tempo.sessionLegacy()` only | `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` | Legacy Sessions v1 flow. Use only until the server migrates. |
+| `tempo.session()` only | `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` | Not compatible. The client cannot answer current Sessions Challenges. |
+| `tempo.sessionLegacy()` only | `tempo.session()` or `tempo()` | Not compatible for Sessions. The client cannot answer Legacy Sessions Challenges unless `tempo.sessionLegacy.method()` is also registered. |
+| `tempo.session()` and `tempo.sessionLegacy()` | `tempo.session()` and `tempo.sessionLegacy.method()` | Migration mode. Both current and Legacy Sessions Challenges can be handled while clients roll forward. |
+
+Current Sessions Challenges advertise `sessionProtocol: "v2"` in method details and use TIP-1034 reserve channels. Legacy Sessions Challenges use the contract-backed Sessions v1 flow. Channel state is not reusable across implementations; let old channels close or settle under `tempo.sessionLegacy`, and open new channels with `tempo.session`.
 
 ### Server
 

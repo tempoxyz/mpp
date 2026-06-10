@@ -77,6 +77,14 @@ const mppx = Mppx.create({
 
 Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so existing clients keep working while new clients use Sessions.
 
+| Server methods | Compatible client methods |
+|---|---|
+| `tempo.session()` only | `tempo.session()` or `tempo()` |
+| `tempo.sessionLegacy()` only | `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` |
+| `tempo.session()` and `tempo.sessionLegacy()` | `tempo.session()` plus `tempo.sessionLegacy.method()` when clients may see both Challenge types |
+
+Current Sessions Challenges include `sessionProtocol: "v2"` and use TIP-1034 reserve channels. Legacy Sessions use the contract-backed Sessions v1 flow. Channel state is not portable between them, so close or settle Legacy channels with `tempo.sessionLegacy` and open new channels with `tempo.session`.
+
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -283,7 +291,5 @@ Settles multiple precompile-backed channels on-chain.
 ```ts
 import { tempo } from 'mppx/server'
 
-const receipts = await tempo.session.settleBatch(store, client, {
-  limit: 100,
-})
+const txHashes = await tempo.session.settleBatch(store, client, channelIds)
 ```
