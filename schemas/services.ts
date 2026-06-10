@@ -1709,6 +1709,55 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── researcher-now ────────────────────────────────────────────────────────
+  {
+    id: "researcher-now",
+    name: "researcher-now",
+    url: "https://researcher.now",
+    serviceUrl: "https://researcher.now",
+    description:
+      "Article and video analysis plus deep research for agents — formatted content with structured claims, facts, and quotes; multi-source cited Research Reports. Pay per call, no signup.",
+
+    categories: ["ai", "search", "data"],
+    integration: "first-party",
+    tags: [
+      "research",
+      "deep-research",
+      "youtube-transcript",
+      "article-analysis",
+      "video-analysis",
+      "reports",
+      "evidence",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://researcher.now/agent/",
+      llmsTxt: "https://researcher.now/llms.txt",
+      apiReference: "https://researcher.now/openapi.json",
+    },
+    provider: { name: "Researcher", url: "https://researcher.now" },
+    realm: "researcher.now",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/analyze",
+        desc: "Article or video analysis — formatted content plus structured claims, facts, and quotes",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/runs",
+        desc: "Deep research — cited Research Report from a multi-source corpus",
+        intent: "session",
+        dynamic: true,
+        amountHint: "$1 – $25 by depth",
+      },
+      { route: "GET /v1/library/search", desc: "Recall prior research — claims and evidence with citations" },
+      { route: "POST /v1/keys/trial", desc: "Free trial key — 10 analyze calls" },
+    ],
+  },
+
   // ── StableEmail ────────────────────────────────────────────────────────
   {
     id: "stableemail",
