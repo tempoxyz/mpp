@@ -26,7 +26,8 @@ describe("Tempo chain IDs in Sessions docs", () => {
 
       for (const [index, line] of lines.entries()) {
         for (const pattern of TESTNET_EXAMPLE_PATTERNS) {
-          if (pattern.test(line)) violations.push(`${file}:${index + 1}  ${line.trim()}`);
+          if (pattern.test(line))
+            violations.push(`${file}:${index + 1}  ${line.trim()}`);
         }
       }
     }
