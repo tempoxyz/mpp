@@ -6689,4 +6689,61 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── JMPR ───────────────────────────────────────────────────────────────
+  {
+    id: "jmpr",
+    name: "JMPR",
+    url: "https://agent.jmpr.world",
+    serviceUrl: "https://agent.jmpr.world",
+    description:
+      "Luxury hotel booking for AI agents — curated 5-star, ultra-luxury, and boutique properties with live rates and real availability. Pay-per-call discovery and full-amount room booking via wallet (Tempo USDC) or end-user card checkout — no API keys, no accounts.",
+
+    categories: ["data", "web"],
+    integration: "third-party",
+    tags: ["hotels", "luxury", "travel", "booking", "5-star"],
+    status: "active",
+    docs: {
+      homepage: "https://agent.jmpr.world",
+      apiReference: "https://agent.jmpr.world/openapi.json",
+    },
+    provider: { name: "Quantum Temple", url: "https://jmpr.world" },
+    realm: "agent.jmpr.world",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/hotels/search",
+        desc: "Search luxury hotels worldwide by city + dates",
+        amount: "20000",
+      },
+      {
+        route: "POST /v1/hotels/detail",
+        desc: "Hotel record + bookable rate ladder for a stay window",
+        amount: "20000",
+      },
+      {
+        route: "POST /v1/bookings/reserve",
+        desc: "Reserve a room — returns payment_options for the end-user",
+        amount: "50000",
+      },
+      {
+        route: "GET /v1/bookings/:booking_id",
+        desc: "Booking status + lifecycle (identity-gated by the reserving wallet)",
+        amount: "10000",
+      },
+      {
+        route: "POST /v1/bookings/:booking_id/cancel",
+        desc: "Cancel a reservation before the cancel deadline",
+        amount: "50000",
+      },
+      {
+        route: "POST /v1/bookings/:booking_id/pay/tempo",
+        desc: "Settle the full room rate via wallet (Tempo USDC)",
+        dynamic: true,
+        amountHint: "Full room rate (typically $300–$20,000)",
+        unitType: "booking",
+      },
+    ],
+  },
 ];
