@@ -21,13 +21,16 @@ const session = tempo.session({
   maxDeposit: '1',
 })
 
+// Make a paid request — opens a channel on first call
 const response = await session.fetch('https://api.example.com/resource')
 console.log(response.status)
 // @log: 200
 
+// Access payment metadata
 console.log(response.receipt)
 console.log(response.cumulative)
 
+// Close the channel and settle on-chain
 const receipt = await session.close()
 ```
 

@@ -1,6 +1,6 @@
 ---
-description: "Accept pay-as-you-go stablecoin payments with channel reserves and off-chain vouchers."
-imageDescription: "Stream payments with Sessions"
+description: "Accept pay-as-you-go stablecoin payments with Sessions."
+imageDescription: "Stream payments with low-cost sessions on Tempo"
 ---
 
 import { Cards, Tab, Tabs } from 'vocs'
@@ -9,7 +9,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 # Sessions [Low-cost high-throughput payments]
 
-The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Sessions use the [TIP-1034](https://tips.sh/1034-1) precompile. Clients deposit funds into a channel reserve and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
+The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Sessions use the [TIP-1034](https://tips.sh/1034-1) precompile for low cost and high reliability. Clients deposit funds into a channel reserve and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
 
 Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
@@ -56,7 +56,7 @@ A payment session has four phases:
 
 ### Open
 
-The client deposits funds into a channel reserve through the [TIP-1034 precompile](https://tips.sh/1034-1), creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and tracks the deposited TIP-20 tokens.
+The client deposits funds into a channel reserve through the [TIP-1034 precompile](https://tips.sh/1034-1), creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and tracks the deposited stablecoins.
 
 ### Session
 
@@ -261,6 +261,8 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 
 const mppx = Mppx.create({
   methods: [
+    // Keep both registered during migration so current and Legacy Sessions clients work.
+    // [!code hl:start]
     tempo.session({
       account,
       chainId: 42431,
@@ -272,6 +274,7 @@ const mppx = Mppx.create({
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       store: Store.memory(),
     }),
+    // [!code hl:end]
   ],
 })
 ```
@@ -310,8 +313,8 @@ Sessions use the [TIP-1034 precompile](https://tips.sh/1034-1) for on-chain depo
 
 | Network | Chain ID | Precompile address |
 |---|---|---|
-| Mainnet | 4217 | `0x4d50500000000000000000000000000000000000` |
-| Testnet (Moderato) | 42431 | `0x4d50500000000000000000000000000000000000` |
+| Mainnet | 4217 | [`0x4d50500000000000000000000000000000000000`](https://explore.mainnet.tempo.xyz/address/0x4d50500000000000000000000000000000000000) |
+| Testnet (Moderato) | 42431 | [`0x4d50500000000000000000000000000000000000`](https://explore.testnet.tempo.xyz/address/0x4d50500000000000000000000000000000000000) |
 
 ## Specification
 

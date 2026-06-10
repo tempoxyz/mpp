@@ -212,6 +212,8 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 
 **Terminology**: Use "stablecoins" instead of "crypto" when referring to on-chain payment methods. MPP uses stablecoins (USDC.e, USDT) on Tempo—not generic cryptocurrency. Always use "USDC.e" (not "USDC") when referring to the bridged USDC token on Tempo. The only exception is when referring to Circle's USDC stablecoin in general (not Tempo-specific) contexts.
 
+**Session funds terminology**: Never use "escrow" in prose. Use "reserve" for the noun and "reserve" or "lock up" for the verb, depending on context. Only use `escrow` when documenting an actual code identifier, parameter, or contract name that contains that word.
+
 **Avoid**:
 - Latin abbreviations (use "for example" not "e.g.")
 - Future tense ("will") and conditional ("should")
