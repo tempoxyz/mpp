@@ -2,7 +2,9 @@
 
 Creates a Sessions manager that handles channel open, paid fetches, streaming, top-ups, and close.
 
-Use this for client-side pay-as-you-go flows. The manager opens a TIP-1034 channel lazily after the first `402` Challenge, signs cumulative vouchers, tops up when needed, and closes the channel when you call `.close()`.
+Use this when application code needs direct lifecycle control for one channel. The manager opens a TIP-1034 channel lazily after the first `402` Challenge, signs cumulative vouchers, tops up when needed, and closes the channel when you call `.close()`.
+
+Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
 
 :::warning[Legacy Sessions]
 `tempo.session.manager` is the current Sessions manager. The previous contract-backed manager is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
@@ -167,6 +169,8 @@ const session = tempo.session.manager({
 ## Migrate from Legacy Sessions
 
 Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()`. Use `tempo.session.manager()` for a standalone manager, or `tempo()` when you want the same fetch wrapper to handle one-time charges and Sessions.
+
+Current Sessions and Legacy Sessions do not share channel state. Existing Legacy channels should be closed or settled through `tempo.sessionLegacy`; new channels should be opened through `tempo.session` or `tempo.session.manager()`. During a rolling migration, register both `tempo.session()` and `tempo.sessionLegacy.method()` if the client may talk to both server versions.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
