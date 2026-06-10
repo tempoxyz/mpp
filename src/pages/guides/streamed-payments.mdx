@@ -598,13 +598,13 @@ $ npx mppx http://localhost:3000
 
 ## Client setup
 
-Use `tempo.session.manager()` from `mppx/client` to create a session manager. The `.sse()` method connects to the SSE endpoint and handles voucher renewal automatically—if the server requests a new voucher mid-stream, the client signs and sends one without interrupting the stream.
+Use `tempo.session()` from `mppx/client` to create a session manager. The `.sse()` method connects to the SSE endpoint and handles voucher renewal automatically—if the server requests a new voucher mid-stream, the client signs and sends one without interrupting the stream.
 
 ```ts [client.ts]
 import { tempo } from "mppx/client";
 import { privateKeyToAccount } from "viem/accounts";
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account: privateKeyToAccount("0x..."),
   maxDeposit: "1", // Reserve up to 1 pathUSD per channel
 });
@@ -617,7 +617,7 @@ for await (const word of stream) {
 }
 ```
 
-- **`tempo.session.manager()`** — Creates a session manager that handles the full Sessions lifecycle.
+- **`tempo.session()`** — Creates a session manager that handles the full Sessions lifecycle.
 - **`.sse()`** — Connects to an SSE endpoint. Automatically sends new vouchers when the server emits `payment-need-voucher` events.
 - **`maxDeposit: '1'`** — Reserves up to 1 pathUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
 
@@ -629,7 +629,7 @@ After streaming completes, close the channel to settle and reclaim unspent depos
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account: privateKeyToAccount('0x...'),
   maxDeposit: '1',
 })

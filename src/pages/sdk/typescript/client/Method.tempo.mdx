@@ -10,7 +10,7 @@ Convenience function that creates both `tempo.charge` and Sessions method intent
 
 Register [`tempo.subscription`](/sdk/typescript/client/Method.tempo.subscription) separately for recurring payments.
 
-Use this helper when you want `Mppx.create` to handle both one-time charges and current Sessions through the same fetch wrapper. If you need to close, top up, or stream a single channel explicitly, use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) instead.
+Use this helper when you want `Mppx.create` to handle both one-time charges and current Sessions through the same fetch wrapper. If you need to close or stream a single channel explicitly, use [`tempo.session()`](/sdk/typescript/client/Method.tempo.session-manager) instead.
 
 :::warning[Legacy Sessions]
 `tempo.session` is the current Sessions implementation. The previous contract-backed flow is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
@@ -51,13 +51,13 @@ Mppx.create({
 
 ### Standalone session manager
 
-`tempo.session.manager()` creates a standalone Sessions manager with explicit `.fetch()`, `.topUp()`, `.close()`, `.sse()`, and `.ws()` methods. It does not register a method in `Mppx.create`; it owns one channel lifecycle directly.
+`tempo.session()` creates a standalone Sessions manager with explicit `.fetch()`, `.close()`, `.sse()`, and `.ws()` methods. It does not register a method in `Mppx.create`; it owns one channel lifecycle directly.
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '1',
 })
@@ -66,7 +66,7 @@ const res = await session.fetch('https://api.example.com/resource')
 await session.close()
 ```
 
-See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manager) for the full API.
+See [`tempo.session`](/sdk/typescript/client/Method.tempo.session-manager) for the full API.
 
 ## Return type
 
@@ -91,12 +91,6 @@ Account to sign transactions and vouchers with.
 - **Type:** `Address`
 
 Address authorized to sign Sessions vouchers.
-
-### expectedChainId (optional)
-
-- **Type:** `number`
-
-Tempo chain ID this client accepts for charges. When set, the client rejects Challenges for other chains and uses this chain when a charge Challenge omits `chainId`.
 
 ### getClient (optional)
 

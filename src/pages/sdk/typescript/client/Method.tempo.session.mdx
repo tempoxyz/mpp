@@ -3,7 +3,7 @@
 Creates the low-level Tempo Sessions client method for `Mppx.create`.
 
 :::info
-Use `tempo.session()` when you need to register only the current Sessions intent in `Mppx.create`. Use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) when you need a standalone object with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`.
+Use `tempo.session()` when you need to register only the current Sessions intent in `Mppx.create`. Use [`tempo.session()`](/sdk/typescript/client/Method.tempo.session-manager) when you need a standalone object with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`.
 :::
 
 :::warning[Legacy Sessions]
@@ -48,7 +48,7 @@ Use `tempo.sessionLegacy.method()` only for servers that still issue Legacy Sess
 
 If a client must support both current and Legacy Sessions during migration, register both methods:
 
-```ts twoslash
+```ts
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -62,7 +62,7 @@ Mppx.create({
 })
 ```
 
-```ts twoslash
+```ts
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 

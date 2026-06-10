@@ -22,7 +22,7 @@ export async function createDemoClient() {
     polyfill: false,
   });
 
-  const session = tempo.session.manager({
+  const session = tempo.session({
     account,
     maxDeposit,
     getClient,

@@ -56,7 +56,7 @@ const mppx = Mppx.create({
 
 Use `tempo.sessionLegacy()` only for clients that still send Legacy Sessions Credentials.
 
-```ts twoslash
+```ts
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -85,7 +85,7 @@ Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so ex
 
 Current Sessions Challenges include `sessionProtocol: "v2"` and use TIP-1034 reserve channels. Legacy Sessions use the contract-backed Sessions v1 flow. Channel state is not portable between them, so close or settle Legacy channels with `tempo.sessionLegacy` and open new channels with `tempo.session`.
 
-```ts twoslash
+```ts
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -219,12 +219,6 @@ Default recipient address for payments. Defaults to the `account` address.
 
 Function that resolves a reusable channel ID from request identity when no Credential or request channel ID is present.
 
-### settlementSchedule (optional)
-
-- **Type:** `{ amount?: string | bigint; intervalMs?: number; units?: number }`
-
-Server-owned automatic settlement cadence. Clients don't receive or control this schedule.
-
 ### sse (optional)
 
 - **Type:** `boolean | { poll?: boolean; pollingInterval?: number }`
@@ -264,32 +258,34 @@ Unit type label, such as `"token"`, `"byte"`, or `"request"`.
 
 ## Related
 
-### `tempo.session.charge`
+### `session.charge`
 
 Charges against a precompile-backed channel's stored balance outside an HTTP handler.
 
 ```ts
-import { tempo } from 'mppx/server'
+import { session } from 'mppx/server'
 
-const state = await tempo.session.charge(store, channelId, 10_000n)
+const state = await session.charge(store, channelId, 10_000n)
 ```
 
-### `tempo.session.settle`
+### `tempo.settle`
 
 Settles a single precompile-backed channel on-chain.
 
 ```ts
 import { tempo } from 'mppx/server'
 
-const txHash = await tempo.session.settle(store, client, channelId)
+const txHash = await tempo.settle(store, client, channelId)
 ```
 
-### `tempo.session.settleBatch`
+### Batch settlement
 
 Settles multiple precompile-backed channels on-chain.
 
 ```ts
 import { tempo } from 'mppx/server'
 
-const txHashes = await tempo.session.settleBatch(store, client, channelIds)
+const txHashes = await Promise.all(
+  channelIds.map((channelId) => tempo.settle(store, client, channelId)),
+)
 ```

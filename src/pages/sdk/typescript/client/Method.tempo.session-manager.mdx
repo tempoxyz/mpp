@@ -1,13 +1,13 @@
-# `tempo.session.manager` [Sessions manager]
+# `tempo.session` [Sessions manager]
 
-Creates a Sessions manager that handles channel open, paid fetches, streaming, top-ups, and close.
+Creates a Sessions manager that handles channel open, paid fetches, streaming, and close.
 
-Use this when application code needs direct lifecycle control for one channel. The manager opens a TIP-1034 channel lazily after the first `402` Challenge, signs cumulative vouchers, tops up when needed, and closes the channel when you call `.close()`.
+Use this when application code needs direct lifecycle control for one channel. The manager opens a TIP-1034 channel lazily after the first `402` Challenge, signs cumulative vouchers, and closes the channel when you call `.close()`.
 
-Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
+Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
 
 :::warning[Legacy Sessions]
-`tempo.session.manager` is the current Sessions manager. The previous contract-backed manager is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
+`tempo.session` is the current Sessions manager. The previous contract-backed manager is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
 :::
 
 ## Usage
@@ -18,7 +18,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account,
   maxDeposit: '1',
 })
@@ -48,7 +48,7 @@ Stream server-sent events with automatic voucher handling. The manager signs inc
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '5',
 })
@@ -75,7 +75,7 @@ Open a paid WebSocket session. The manager handles the HTTP `402` probe, channel
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '1',
 })
@@ -101,14 +101,14 @@ const receipt = await session.close()
 ```
 
 :::tip
-In Node.js or other server-side runtimes without a global `WebSocket`, pass the constructor to `tempo.session.manager()`:
+In Node.js or other server-side runtimes without a global `WebSocket`, pass the constructor to `tempo.session()`:
 
 ```ts
 import { WebSocket } from 'isows'
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '1',
   webSocket: WebSocket,
@@ -117,60 +117,11 @@ const session = tempo.session.manager({
 
 :::
 
-### With top-up
-
-Add deposit to the active channel without closing it.
-
-```ts twoslash
-import { tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const session = tempo.session.manager({
-  account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
-  maxDeposit: '10',
-})
-
-await session.fetch('https://api.example.com/resource')
-
-const receipt = await session.topUp('2')
-console.log(receipt?.status)
-// @log: success
-```
-
-### With session resumption
-
-Pass `sessionStore` to persist channel hints between manager instances. The next manager sends the stored channel ID as a hint and hydrates from server snapshots when the server supports them.
-
-```ts twoslash
-import type { Session } from 'mppx/tempo'
-import { tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const channelStore = {
-  channel: null as Session.Client.StoredSessionChannel | null,
-  delete() {
-    this.channel = null
-  },
-  get() {
-    return this.channel
-  },
-  set(channel: Session.Client.StoredSessionChannel) {
-    this.channel = channel
-  },
-}
-
-const session = tempo.session.manager({
-  account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
-  maxDeposit: '1',
-  sessionStore: channelStore,
-})
-```
-
 ## Migrate from Legacy Sessions
 
-Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()`. Use `tempo.session.manager()` for a standalone manager, or `tempo()` when you want the same fetch wrapper to handle one-time charges and Sessions.
+Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()`. Use `tempo.session()` for a standalone manager, or `tempo()` when you want the same fetch wrapper to handle one-time charges and Sessions.
 
-Current Sessions and Legacy Sessions do not share channel state. Existing Legacy channels should be closed or settled through `tempo.sessionLegacy`; new channels should be opened through `tempo.session` or `tempo.session.manager()`. During a rolling migration, register both `tempo.session()` and `tempo.sessionLegacy.method()` if the client may talk to both server versions.
+Current Sessions and Legacy Sessions do not share channel state. Existing Legacy channels should be closed or settled through `tempo.sessionLegacy`; new channels should be opened through `tempo.session` or `tempo.session()`. During a rolling migration, register both `tempo.session()` and `tempo.sessionLegacy.method()` if the client may talk to both server versions.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -202,18 +153,16 @@ Use `tempo.sessionLegacy()` only while the server still emits Legacy Sessions Ch
 
 ## Return type
 
-`tempo.session.manager()` returns a `SessionManager` object:
+`tempo.session()` returns a `SessionManager` object:
 
 ```ts
 type SessionManager = {
   readonly channelId: Hex | undefined
   readonly cumulative: bigint
   readonly opened: boolean
-  readonly state: SessionState
   close(): Promise<SessionReceipt | undefined>
   fetch(input: RequestInfo | URL, init?: RequestInit): Promise<PaymentResponse>
   sse(input: RequestInfo | URL, init?: SessionManagerSseOptions): Promise<AsyncIterable<string>>
-  topUp(amount: string | bigint): Promise<SessionReceipt | undefined>
   ws(input: string | URL, init?: SessionManagerWebSocketOptions): Promise<SessionManagedWebSocket>
 }
 ```
@@ -269,12 +218,6 @@ Account to sign channel transactions and vouchers with.
 
 Address authorized to sign vouchers. Defaults to the account access-key address when available, otherwise the account address.
 
-### bootstrap (optional)
-
-- **Type:** `boolean`
-
-Enables a same-route `HEAD` bootstrap from a server session snapshot before opening a new channel.
-
 ### client (optional)
 
 - **Type:** `Client`
@@ -288,7 +231,7 @@ Viem client instance. Shorthand for `getClient: () => client`.
 
 Token decimals used to convert `maxDeposit` to raw units.
 
-### escrow (optional)
+### escrowContract (optional)
 
 - **Type:** `Address`
 
@@ -312,12 +255,6 @@ Function that returns a viem client for the given chain ID.
 - **Type:** `string`
 
 Maximum deposit in human-readable units. Converted to raw units via `decimals`.
-
-### sessionStore (optional)
-
-- **Type:** `SessionStore`
-
-Per-manager store for persisted channel hints and restart recovery.
 
 ### webSocket (optional)
 

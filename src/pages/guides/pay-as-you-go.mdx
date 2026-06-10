@@ -637,7 +637,7 @@ After you're done making requests, close the channel to settle on-chain and recl
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account: privateKeyToAccount('0x...'),
   maxDeposit: '1',
 })

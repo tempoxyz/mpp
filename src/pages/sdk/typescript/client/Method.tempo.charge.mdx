@@ -72,22 +72,6 @@ const method = tempo.charge({
 
 Client identifier used to derive the client fingerprint in attribution memos.
 
-### expectedChainId (optional)
-
-- **Type:** `number`
-
-Chain ID this client accepts for Tempo charges. When set, the client rejects any Challenge with a different `chainId`, and uses this chain when the Challenge omits one.
-
-```ts twoslash
-import { tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const method = tempo.charge({
-  account: privateKeyToAccount('0xabc…123'),
-  expectedChainId: 4217, // Tempo mainnet // [!code focus]
-})
-```
-
 ### expectedRecipients (optional)
 
 - **Type:** `readonly string[]`

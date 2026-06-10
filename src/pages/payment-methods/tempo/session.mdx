@@ -25,7 +25,7 @@ There are two current Sessions client APIs:
 |---|---|
 | `tempo({ account, maxDeposit })` | You want a fetch wrapper that handles both one-time charges and Sessions. This expands to `tempo.charge()` plus the current `tempo.session()` client method. |
 | `tempo.session({ account, maxDeposit })` | You want to register only the current Sessions client method in `Mppx.create`. |
-| `tempo.session.manager({ account, maxDeposit })` | You want direct lifecycle control with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`. Use this when your code must explicitly close or top up a channel. |
+| `tempo.session({ account, maxDeposit })` | You want direct lifecycle control with `.fetch()`, `.close()`, `.sse()`, or `.ws()`. Use this when your code must explicitly close a channel. |
 | `tempo.sessionLegacy` / `tempo.sessionLegacy.method()` | You still need compatibility with contract-backed Sessions v1. Do not use this for new integrations. |
 
 ## Why Sessions matter in MPP
@@ -117,7 +117,7 @@ Sessions separate payment verification from on-chain settlement. During a reques
 
 ### Automatic settlement
 
-Use automatic settlement when the server should periodically settle accepted usage while a session remains active. The `settlementSchedule` is server-owned and can trigger by spend amount, metered units, or elapsed time. Clients don't receive the schedule and can't change it.
+Use automatic settlement when the server should periodically settle accepted usage while a session remains active. Run settlement from a background job using the highest accepted voucher stored by the server.
 
 Automatic settlement is the default operational model for high-volume APIs: the hot path stays off-chain, while the server settles in the background as usage accumulates.
 
@@ -133,33 +133,29 @@ const mppx = Mppx.create({
       account,
       chainId: 4217, // optional; pins Challenges to Tempo mainnet
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      settlementSchedule: { // [!code hl]
-        amount: '10',
-        intervalMs: 60_000,
-        units: 10_000,
-      },
       store: Store.memory(),
     }),
   ],
 })
 ```
 
-Any threshold can trigger settlement. Use `amount` to settle after a token-denominated spend threshold, `units` to settle after metered usage, and `intervalMs` to settle after elapsed time since the previous scheduled settlement.
+Any threshold can trigger your settlement job. Use spend amount, metered units, or elapsed time to decide when to call `tempo.settle`.
 
 ### Manual settlement
 
-Use manual settlement from an admin workflow, job queue, or close-out process when you want explicit control over timing. `tempo.session.settle` settles one channel by submitting its highest accepted voucher. `tempo.session.settleBatch` repeats that operation for a list of channel IDs.
+Use manual settlement from an admin workflow, job queue, or close-out process when you want explicit control over timing. `tempo.settle` settles one channel by submitting its highest accepted voucher.
 
 Manual settlement is useful for end-of-period reconciliation, draining channels before maintenance, or forcing settlement after detecting unusual channel activity.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
+import { Session } from 'mppx/tempo'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempo as tempoMainnet } from 'viem/chains'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-const store = Store.memory()
+const store = Session.ChannelStore.fromStore(Store.memory())
 
 const client = createWalletClient({
   account,
@@ -168,21 +164,22 @@ const client = createWalletClient({
 })
 
 const channelId = '0x0000000000000000000000000000000000000000000000000000000000000000'
-const txHash = await tempo.session.settle(store, client, channelId, { account }) // [!code hl]
+const txHash = await tempo.settle(store, client, channelId, { account }) // [!code hl]
 console.log(txHash)
 // @log: 0x...
 ```
 
-Settle multiple channels from the same job with `tempo.session.settleBatch`.
+Settle multiple channels from the same job with `Promise.all`.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
+import { Session } from 'mppx/tempo'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempo as tempoMainnet } from 'viem/chains'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-const store = Store.memory()
+const store = Session.ChannelStore.fromStore(Store.memory())
 
 const client = createWalletClient({
   account,
@@ -195,7 +192,9 @@ const channelIds = [
   '0x1111111111111111111111111111111111111111111111111111111111111111',
 ] as const
 
-const txHashes = await tempo.session.settleBatch(store, client, channelIds, { account }) // [!code hl]
+const txHashes = await Promise.all(
+  channelIds.map((channelId) => tempo.settle(store, client, channelId, { account })),
+) // [!code hl]
 console.log(txHashes)
 // @log: ['0x...', '0x...']
 ```
@@ -309,7 +308,7 @@ const response = await mppxFetch('https://api.example.com/v1/chat/completions')
 
 ### With explicit Sessions
 
-Register `tempo.session()` when this client should only handle Sessions. Use `tempo.session.manager()` for the standalone lifecycle manager shown in [closing the channel](#closing-the-channel).
+Register `tempo.session()` when this client should only handle Sessions. Use `tempo.session()` for the standalone lifecycle manager shown in [closing the channel](#closing-the-channel).
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -354,7 +353,7 @@ Mppx.create({
 
 ### Closing the channel
 
-Use `tempo.session.manager()` when you want direct lifecycle control. Channels remain open for reuse across requests. Call `session.close()` to settle on-chain and reclaim unspent deposit.
+Use `tempo.session()` when you want direct lifecycle control. Channels remain open for reuse across requests. Call `session.close()` to settle on-chain and reclaim unspent deposit.
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
@@ -362,7 +361,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
-const session = tempo.session.manager({
+const session = tempo.session({
   account,
   maxDeposit: '1',
 })
@@ -375,7 +374,7 @@ const receipt = await session.close()
 Channels do not close automatically. If you don't call `close()`, the deposit stays reserved until the channel expires, the server closes it, or it is manually closed.
 :::
 
-See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manager) for the full session lifecycle API.
+See [`tempo.session`](/sdk/typescript/client/Method.tempo.session-manager) for the full session lifecycle API.
 
   </div>
   </Tab>
@@ -404,7 +403,7 @@ Current Sessions Challenges advertise `sessionProtocol: "v2"` in method details 
 
 ### Server
 
-```ts twoslash
+```ts
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -432,7 +431,7 @@ const mppx = Mppx.create({
 
 ### Client
 
-```ts twoslash
+```ts
 import { Mppx, tempo } from 'mppx/client'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
