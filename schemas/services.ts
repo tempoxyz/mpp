@@ -1742,7 +1742,7 @@ export const services: ServiceDef[] = [
     endpoints: [
       {
         route: "POST /v1/analyze",
-        desc: "Article or video analysis — formatted content plus structured claims, facts, and quotes",
+        desc: "Article or video analysis — formatted content plus structured claims, facts, and quotes. Also accepts session payments for repeat callers (deposit once, $0.05 deducted per call).",
         amount: "50000",
         unitType: "request",
       },
