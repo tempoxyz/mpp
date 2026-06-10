@@ -1,25 +1,29 @@
 ---
-description: "Accept pay-as-you-go stablecoin payments on Tempo with payment channels and off-chain vouchers."
-imageDescription: "Stream payments with low-cost sessions on Tempo"
+description: "Accept pay-as-you-go stablecoin payments with channel reserves and off-chain vouchers."
+imageDescription: "Stream payments with Sessions"
 ---
 
 import { Cards, Tab, Tabs } from 'vocs'
 import { MermaidDiagram } from '../../../components/MermaidDiagram'
 import { SpecCard } from '../../../components/SpecCard'
 
-# Session [Low-cost high-throughput payments]
+# Sessions [Low-cost high-throughput payments]
 
-The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Clients deposit funds into an on-chain escrow and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
+The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Sessions use the [TIP-1034](https://tips.sh/1034-1) precompile. Clients deposit funds into a channel reserve and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
 
 Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
-## Why sessions matter in MPP
+:::warning[Legacy Sessions]
+`tempo.session` is the current Sessions implementation in `mppx`. The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
+:::
+
+## Why Sessions matter in MPP
 
 Traditional payment rails target human purchase flows: a buyer decides, pays, and receives goods. Usage-based billing—the model that powers cloud infrastructure, LLM APIs, and metered services—requires something fundamentally different. It needs payment verification that can keep pace with the service itself.
 
 Consider an LLM API: a single inference request can generate hundreds of tokens over several seconds. Each token has a known cost, but the total cost isn't known when the request begins. Standard billing models handle this by accumulating usage and charging after the fact, introducing credit risk, reconciliation complexity, and billing disputes. Prepaid credit systems require the client to guess consumption upfront and lose unused funds.
 
-Sessions on Tempo solve this by making payment a continuous, inline part of the HTTP request. The client signs a cumulative voucher for each increment of service consumed, and the server verifies it in microseconds. The server delays on-chain settlement to whenever it chooses, batching hundreds or thousands of vouchers into a single on-chain transaction. This reduces both the latency and the cost of payment verification to near zero.
+Sessions solve this by making payment a continuous, inline part of the HTTP request. The client signs a cumulative voucher for each increment of service consumed, and the server verifies it in microseconds. The server delays on-chain settlement to whenever it chooses, batching hundreds or thousands of vouchers into a single on-chain transaction. This reduces both the latency and the cost of payment verification to near zero.
 
 ## How it works
 
@@ -52,7 +56,7 @@ A payment session has four phases:
 
 ### Open
 
-The client deposits funds into an on-chain escrow contract, creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and holds the deposited TIP-20 tokens.
+The client deposits funds into a channel reserve through the [TIP-1034 precompile](https://tips.sh/1034-1), creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and tracks the deposited TIP-20 tokens.
 
 ### Session
 
@@ -62,11 +66,11 @@ Voucher verification is CPU-bound: a single `ecrecover` call against the EIP-712
 
 ### Top up
 
-If the channel runs low on funds, the client deposits additional tokens without closing the channel. The session continues uninterrupted.
+If the channel runs low on funds, the client tops up the channel without closing it. The session continues uninterrupted.
 
 ### Close
 
-Either party can close the channel. The server calls `close()` on the escrow contract with the highest voucher, settling the final balance on-chain and refunding any unused deposit to the client.
+Either party can close the channel. The server closes the precompile-backed channel with the highest voucher, settling the final balance on-chain and refunding any unused deposit to the client.
 
 ::::
 
@@ -84,7 +88,7 @@ To get the settlement transaction hash, close the channel via `session.close()` 
 
 ## High volume API billing
 
-Payment sessions match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
+Sessions match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
 
 A typical flow for a high-volume large language model API:
 
@@ -95,7 +99,7 @@ A typical flow for a high-volume large language model API:
 5. **Server:** verifies the voucher signature (~microseconds) and sends the next chunk
 6. **Server:** settles on-chain and the client gets the unused deposit back
 
-The server never touches the chain during inference. Payment verification adds microseconds of CPU overhead per chunk, not hundreds of milliseconds of network latency. 
+The server never touches the chain during inference. Payment verification adds microseconds of CPU overhead per chunk, not hundreds of milliseconds of network latency.
 
 :::info[Why Tempo]
 Tempo handles payments at scale and has properties that make it a uniquely good fit for payment sessions:
@@ -113,16 +117,21 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
   <Tab title="Server">
   <div className="space-y-4">
 
-Use [`tempo`](/sdk/typescript/server/Method.tempo.session) to accept payment sessions. The server needs an RPC URL for on-chain verification during channel open/close, and a store backend for channel state.
+Use [`tempo.session`](/sdk/typescript/server/Method.tempo.session) to accept Sessions. The server needs an RPC URL for channel open, top-up, settlement, and close operations, plus an atomic store backend for channel state.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
   methods: [
-    tempo({
-      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      store: Store.memory(),
+    tempo.session({
+      account, // signs server-side reserve settlement and close transactions
+      chainId: 42431,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(), // use Redis, Upstash, or Cloudflare for production
     }),
   ],
 })
@@ -135,13 +144,18 @@ During a session, the server verifies each voucher with a single `ecrecover`—n
 Use `mppx.session` in your request handler to meter access:
 
 ```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
   methods: [
     tempo.session({
-      currency: '0x20c0000000000000000000000000000000000000',
-      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      account, // signs server-side reserve settlement and close transactions
+      chainId: 42431,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(), // use Redis, Upstash, or Cloudflare for production
     }),
   ],
 })
@@ -163,20 +177,20 @@ export async function handler(request: Request) {
   <Tab title="Client">
   <div className="space-y-4">
 
-Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mppx.create` to sign vouchers automatically when the server requests payment sessions.
+Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mppx.create` to sign Sessions vouchers automatically when the server requests payment.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0xabc…123')
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 Mppx.create({
   methods: [tempo({ account })],
 })
 
 const response = await fetch('https://api.example.com/v1/chat/completions')
-// Automatically opens channel, signs vouchers per chunk
+// Automatically opens the channel reserve and signs vouchers per chunk
 ```
 
 ### Without polyfill
@@ -187,10 +201,10 @@ If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0xabc…123')
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
-  methods: [tempo.session({ account })],
+  methods: [tempo.session.method({ account })],
   polyfill: false,
 })
 
@@ -199,7 +213,7 @@ const response = await mppx.fetch('https://api.example.com/v1/chat/completions')
 
 ### With multiple methods
 
-Register multiple methods so the client can handle servers that offer multiple payment methods. 
+Register multiple methods so the client can handle servers that offer multiple payment methods.
 
 For example, to accept both charge and payment sessions:
 
@@ -207,12 +221,12 @@ For example, to accept both charge and payment sessions:
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0xabc…123')
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 Mppx.create({
   methods: [
     tempo.charge({ account }),
-    tempo.session({ account }),
+    tempo.session.method({ account }),
   ],
 })
 ```
@@ -222,7 +236,7 @@ Mppx.create({
 Channels remain open for reuse across requests. Call `session.close()` to settle on-chain and reclaim unspent deposit.
 
 :::warning
-Channels do not close automatically. If you don't call `close()`, the deposit stays locked in the escrow contract until the channel expires or is manually closed.
+Channels do not close automatically. If you don't call `close()`, the deposit stays reserved until the channel expires or is manually closed.
 :::
 
 See [`tempo.session` manager](/sdk/typescript/client/Method.tempo.session-manager) for the full session lifecycle API.
@@ -231,14 +245,73 @@ See [`tempo.session` manager](/sdk/typescript/client/Method.tempo.session-manage
   </Tab>
 </Tabs>
 
-## Escrow contract
+## Migrate from Legacy Sessions
 
-Sessions use the `TempoStreamChannel` escrow contract for on-chain deposits, settlement, and channel close. The [IETF Specification](https://paymentauth.org/draft-tempo-session-00) documents the escrow model and voucher format.
+Legacy Sessions, also called Sessions v1, is the contract-backed session flow. Use `tempo.sessionLegacy` only when you need compatibility with clients or servers that haven't moved to Sessions.
 
-| Network | Chain ID | Contract Address |
+For new integrations, register `tempo.session` on the server and use `tempo()` or `tempo.session()` on the client. During migration, keep `tempo.sessionLegacy` registered beside `tempo.session` so existing clients keep working. The proxy client in this repo follows this pattern: it registers the default Tempo methods with `tempo({ account, maxDeposit, getClient })`, so charge and Sessions Challenges work through one fetch wrapper.
+
+### Server
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 42431,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+    tempo.sessionLegacy({
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+### Client
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const { fetch: mppxFetch } = Mppx.create({
+  methods: [
+    tempo({
+      account,
+      getClient: () =>
+        createClient({
+          chain: tempoModerato,
+          transport: http('https://rpc.moderato.tempo.xyz'),
+        }),
+      maxDeposit: '1',
+    }),
+  ],
+  polyfill: false,
+})
+
+const response = await mppxFetch('https://api.example.com/resource')
+```
+
+## Reserve precompile
+
+Sessions use the [TIP-1034 precompile](https://tips.sh/1034-1) for on-chain deposits, settlement, top-ups, and channel close. The IETF Specification documents the voucher format and HTTP authentication flow.
+
+| Network | Chain ID | Precompile address |
 |---|---|---|
-| [Mainnet](https://explore.mainnet.tempo.xyz/address/0x33b901018174DDabE4841042ab76ba85D4e24f25?tab=contract) | 4217 | `0x33b901018174DDabE4841042ab76ba85D4e24f25` |
-| [Testnet (Moderato)](https://explore.testnet.tempo.xyz/address/0xe1c4d3dce17bc111181ddf716f75bae49e61a336?tab=contract) | 42431 | `0xe1c4d3dce17bc111181ddf716f75bae49e61a336` |
+| Mainnet | 4217 | `0x4d50500000000000000000000000000000000000` |
+| Testnet (Moderato) | 42431 | `0x4d50500000000000000000000000000000000000` |
 
 ## Specification
 

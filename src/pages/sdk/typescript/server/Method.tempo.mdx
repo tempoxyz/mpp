@@ -6,9 +6,13 @@ imageDescription: "Accept Tempo payments in TypeScript servers"
 
 # `tempo` [Register default Tempo intents]
 
-Convenience function that creates both `tempo.charge` and `tempo.session` method intents with shared configuration.
+Convenience function that creates both `tempo.charge` and Sessions method intents with shared configuration.
 
 Register [`tempo.subscription`](/sdk/typescript/server/Method.tempo.subscription) separately for recurring payments.
+
+:::warning[Legacy Sessions]
+`tempo.session` is the current Sessions implementation. The previous contract-backed flow is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
+:::
 
 ## Usage
 
@@ -48,6 +52,18 @@ A tuple of `[charge, session]` methods. `Mppx.create` accepts tuples in the `met
 ## Parameters
 
 Accepts the union of [`tempo.charge`](/sdk/typescript/server/Method.tempo.charge) and [`tempo.session`](/sdk/typescript/server/Method.tempo.session) parameters. The most common are listed below.
+
+### account (optional)
+
+- **Type:** `Account`
+
+Account used to sign Tempo transactions and receive payments by default.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Tempo chain ID used for Sessions Challenges. Use `4217` for mainnet and `42431` for Moderato testnet.
 
 ### currency (optional)
 

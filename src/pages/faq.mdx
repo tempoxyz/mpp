@@ -48,7 +48,7 @@ These properties make Tempo well-suited as a settlement layer for machine paymen
 
 ## What are sessions?
 
-Sessions are a Tempo-specific payment intent that enables streaming, pay-as-you-go payments. Instead of paying per request, a client opens a session (depositing funds into an escrow contract), then makes many requests by issuing signed vouchers off-chain. The server periodically settles the accumulated vouchers on-chain. Sessions are the mechanism that makes [micropayments](/use-cases/micropayments) viable—sub-cent transactions cost nothing individually because only net settlement hits the chain. See the [session documentation](/payment-methods/tempo/session) for details.
+Sessions are a payment intent that enables streaming, pay-as-you-go payments. Instead of paying per request, a client opens a session by depositing funds into a channel reserve, then makes many requests by issuing signed vouchers off-chain. The server periodically settles the accumulated vouchers on-chain. Sessions are the mechanism that makes [micropayments](/use-cases/micropayments) viable—sub-cent transactions cost nothing individually because only net settlement hits the chain. See the [session documentation](/payment-methods/tempo/session) for details.
 
 Because sessions bypass consensus for individual interactions, they achieve client-to-server latency (low double-digit milliseconds), near-zero per-request fees, and horizontally scalable throughput. The bottleneck is CPU, not blockchain TPS.
 

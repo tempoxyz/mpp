@@ -606,7 +606,7 @@ import { privateKeyToAccount } from "viem/accounts";
 
 const session = tempo.session({
   account: privateKeyToAccount("0x..."),
-  maxDeposit: "1", // Lock up to 1 pathUSD per channel
+  maxDeposit: "1", // Reserve up to 1 pathUSD per channel
 });
 
 // .sse() returns an async iterable of SSE data payloads
@@ -619,7 +619,7 @@ for await (const word of stream) {
 
 - **`tempo.session()`** — Creates a session manager that handles the full channel lifecycle: open, voucher signing, and close.
 - **`.sse()`** — Connects to an SSE endpoint. Automatically sends new vouchers when the server emits `payment-need-voucher` events.
-- **`maxDeposit: '1'`** — Locks up to 1 pathUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
+- **`maxDeposit: '1'`** — Reserves up to 1 pathUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
 
 ### Closing the channel
 

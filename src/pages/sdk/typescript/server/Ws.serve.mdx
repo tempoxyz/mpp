@@ -6,7 +6,6 @@ Bridges a WebSocket connection to a Tempo session payment flow. Credential verif
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
-import { Session } from 'mppx/tempo'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const words = ['hello', 'world']
@@ -14,12 +13,12 @@ const words = ['hello', 'world']
 const mppx = Mppx.create({
   methods: [
     tempo.session({
-      account: privateKeyToAccount('0x...'),
+      account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
     }),
   ],
 })
 
-declare const socket: Session.Ws.Socket
+declare const socket: Parameters<typeof tempo.Ws.serve>[0]['socket']
 
 // In your WebSocket handler:
 tempo.Ws.serve({
@@ -67,26 +66,29 @@ Polling interval in milliseconds for voucher balance checks.
 
 ### route
 
-- **Type:** `SessionRoute`
+- **Type:** `Parameters<typeof tempo.Ws.serve>[0]['route']`
 
 Session route handler. Receives synthetic POST requests constructed from in-band authorization frames. The synthetic request carries only the `Authorization` header—no cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
-import { Session } from 'mppx/tempo'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const mppx = Mppx.create({
-  methods: [tempo.session({ account: privateKeyToAccount('0x...') })],
+  methods: [
+    tempo.session({
+      account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+    }),
+  ],
 })
 
-const route: Session.Ws.SessionRoute = (request) =>
+const route: Parameters<typeof tempo.Ws.serve>[0]['route'] = (request) =>
   mppx.session({ amount: '0.001', currency: 'pathUSD', unitType: 'word' })(request)
 ```
 
 ### socket
 
-- **Type:** `Session.Ws.Socket`
+- **Type:** `Parameters<typeof tempo.Ws.serve>[0]['socket']`
 
 WebSocket instance. Accepts a browser `WebSocket`, a `ws` library socket, or any object implementing `send`/`close` with either `addEventListener`/`removeEventListener` or `on`/`off`.
 
@@ -104,52 +106,52 @@ URL used for constructing synthetic route requests. `ws://` and `wss://` schemes
 
 ## Helper functions
 
-### `Session.Ws.parseMessage`
+### `tempo.Ws.parseMessage`
 
 Parses a raw WebSocket message string into a typed `Message`.
 
 ```ts
-const message = Session.Ws.parseMessage(raw)
+const message = tempo.Ws.parseMessage(raw)
 ```
 
-### `Session.Ws.formatAuthorizationMessage`
+### `tempo.Ws.formatAuthorizationMessage`
 
 Formats an authorization string into a message frame.
 
 ```ts
-const frame = Session.Ws.formatAuthorizationMessage(authorization)
+const frame = tempo.Ws.formatAuthorizationMessage(authorization)
 ```
 
-### `Session.Ws.formatApplicationMessage`
+### `tempo.Ws.formatApplicationMessage`
 
 Formats application data into a message frame.
 
 ```ts
-const frame = Session.Ws.formatApplicationMessage(data)
+const frame = tempo.Ws.formatApplicationMessage(data)
 ```
 
-### `Session.Ws.formatCloseRequestMessage`
+### `tempo.Ws.formatCloseRequestMessage`
 
 Formats a close request message frame.
 
 ```ts
-const frame = Session.Ws.formatCloseRequestMessage()
+const frame = tempo.Ws.formatCloseRequestMessage()
 ```
 
-### `Session.Ws.formatReceiptMessage`
+### `tempo.Ws.formatReceiptMessage`
 
 Formats a Receipt into a message frame.
 
 ```ts
-const frame = Session.Ws.formatReceiptMessage(receipt)
+const frame = tempo.Ws.formatReceiptMessage(receipt)
 ```
 
-### `Session.Ws.formatErrorMessage`
+### `tempo.Ws.formatErrorMessage`
 
 Formats an error into a message frame.
 
 ```ts
-const frame = Session.Ws.formatErrorMessage({ message, status })
+const frame = tempo.Ws.formatErrorMessage({ message, status })
 ```
 
 ## Types

@@ -6,9 +6,13 @@ imageDescription: "Handle Tempo payments in TypeScript clients"
 
 # `tempo` [Register default Tempo intents]
 
-Convenience function that creates both `tempo.charge` and `tempo.session` method intents with shared configuration.
+Convenience function that creates both `tempo.charge` and Sessions method intents with shared configuration.
 
 Register [`tempo.subscription`](/sdk/typescript/client/Method.tempo.subscription) separately for recurring payments.
+
+:::warning[Legacy Sessions]
+`tempo.session` is the current Sessions implementation. The previous contract-backed flow is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
+:::
 
 ## Usage
 
@@ -16,7 +20,7 @@ Register [`tempo.subscription`](/sdk/typescript/client/Method.tempo.subscription
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0xabc…123')
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 Mppx.create({
   methods: [
@@ -33,26 +37,26 @@ This is equivalent to:
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0xabc…123')
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 Mppx.create({
   methods: [
     tempo.charge({ account }),
-    tempo.session({ account }),
+    tempo.session.method({ account }),
   ],
 })
 ```
 
 ### Standalone session manager
 
-`tempo.session()` also creates a standalone session manager with explicit `.fetch()`, `.close()`, and `.sse()` methods—no `Mppx.create` required:
+`tempo.session()` creates the recommended standalone Sessions manager with explicit `.fetch()`, `.topUp()`, `.close()`, `.sse()`, and `.ws()` methods—no `Mppx.create` required:
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const session = tempo.session({
-  account: privateKeyToAccount('0x...'),
+  account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   maxDeposit: '1',
 })
 
@@ -72,7 +76,7 @@ A tuple of `[charge, session]` methods. `Mppx.create` accepts tuples in the `met
 
 ## Parameters
 
-Accepts the union of [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) and [`tempo.session`](/sdk/typescript/client/Method.tempo.session) parameters. The most common are listed below.
+Accepts the union of [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) and [`tempo.session.method`](/sdk/typescript/client/Method.tempo.session) parameters. The most common are listed below.
 
 ### account (optional)
 
@@ -80,11 +84,11 @@ Accepts the union of [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge
 
 Account to sign transactions and vouchers with.
 
-### deposit (optional)
+### authorizedSigner (optional)
 
-- **Type:** `string`
+- **Type:** `Address`
 
-Initial deposit amount in human-readable units (for example `"10"` for 10 tokens). Enables automatic session channel management.
+Address authorized to sign Sessions vouchers.
 
 ### getClient (optional)
 
@@ -96,4 +100,4 @@ Function that returns a viem client for the given chain ID.
 
 - **Type:** `string`
 
-Maximum deposit in human-readable units. Caps the server's `suggestedDeposit`. Enables auto-management like `deposit`.
+Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups.

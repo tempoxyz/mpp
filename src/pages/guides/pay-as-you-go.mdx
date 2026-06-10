@@ -606,7 +606,7 @@ $ npx mppx http://localhost:3000
 
 ## Client setup
 
-When using sessions from a client, set `maxDeposit` to enable automatic channel management. This is the maximum amount of tokens the client locks into the payment channel's escrow contract. Any unspent deposit is refunded when the channel closes.
+When using sessions from a client, set `maxDeposit` to enable automatic channel management. This is the maximum amount of tokens the client reserves in the payment channel. Any unspent deposit is refunded when the channel closes.
 
 ```ts [client.ts]
 import { Mppx, tempo } from 'mppx/client'
@@ -615,7 +615,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const mppx = Mppx.create({
   methods: [tempo({
     account: privateKeyToAccount('0x...'),
-    maxDeposit: '1', // Lock up to 1 pathUSD per channel
+    maxDeposit: '1', // Reserve up to 1 pathUSD per channel
   })],
 })
 
@@ -625,7 +625,7 @@ const mppx = Mppx.create({
 const res = await fetch('http://localhost:3000/api/sessions/photo')
 ```
 
-- **`maxDeposit: '1'`**: Locks up to 1 pathUSD into the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
+- **`maxDeposit: '1'`**: Reserves up to 1 pathUSD in the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
 - The client handles the full session lifecycle automatically: channel open, voucher signing, and retry after `402` responses.
 - If the server sets `suggestedDeposit`, the client uses `min(suggestedDeposit, maxDeposit)`.
 

@@ -1,42 +1,106 @@
-# `Method.tempo.session` [Low-cost high-throughput payments]
+# `Method.tempo.session` [Sessions server method]
 
-Creates a Tempo payment session method for server-side voucher verification and channel management.
+Creates a Tempo Sessions server method for voucher verification, channel accounting, top-ups, and settlement.
+
+:::info
+`tempo.session()` is the default Sessions implementation. It uses the [TIP-1034](https://tips.sh/1034-1) reserve precompile and advertises `sessionProtocol: "v2"` in Challenge method details.
+:::
+
+:::warning[Legacy Sessions]
+The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`. Use Sessions for new integrations.
+:::
 
 ## Usage
 
 ```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
 const mppx = Mppx.create({
-  // [!code focus:start]
   methods: [
+    // [!code focus:start]
     tempo.session({
-      account: privateKeyToAccount('0x...'),
-      currency: '0x20c0000000000000000000000000000000000000',
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
     }),
+    // [!code focus:end]
   ],
-  // [!code focus:end]
 })
 ```
 
 ### With charge and session
 
-Register both intents on a single server.
+Use the `tempo()` convenience function to register both one-time charges and Sessions.
 
 ```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const account = privateKeyToAccount('0x...')
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
 
 const mppx = Mppx.create({
   methods: [
-    tempo.charge({ account }),
-    tempo.session({ account }),
+    tempo({
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
   ],
 })
 ```
+
+### With Legacy Sessions
+
+Use `tempo.sessionLegacy()` only for clients that still send Legacy Sessions Credentials.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.sessionLegacy({
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+## Migrate from Legacy Sessions
+
+Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so existing clients keep working while new clients use Sessions.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 42431,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+    tempo.sessionLegacy({
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+Use `tempo.sessionLegacy()` only while clients still send Legacy Sessions Credentials.
 
 ## Return type
 
@@ -52,7 +116,7 @@ type ReturnType = Method.Server
 
 - **Type:** `Account`
 
-Account used to close and settle payment channels on-chain. The account address is also used as the default recipient. Without this, channel close and settlement fails.
+Account used for server-driven settlement and close transactions. The account address is also used as the default recipient.
 
 ### amount (optional)
 
@@ -60,10 +124,22 @@ Account used to close and settle payment channels on-chain. The account address 
 
 Default amount to charge per unit.
 
+### bootstrap (optional)
+
+- **Type:** `boolean`
+
+Enables same-route `HEAD` bootstrap using a zero-amount identity proof. Clients can use this to recover a session snapshot before opening a new channel.
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Tempo chain ID used for Sessions Challenges. Use `4217` for mainnet and `42431` for Moderato testnet.
+
 ### channelStateTtl (optional)
 
 - **Type:** `number`
-- **Default:** `60000`
+- **Default:** `5000`
 
 TTL in milliseconds for cached on-chain channel state. After this duration, the server re-queries on-chain state during voucher handling to detect forced close requests.
 
@@ -84,23 +160,29 @@ Decimal places for amount parsing.
 
 - **Type:** `Address`
 
-Escrow contract address for the payment channel. Defaults to the canonical escrow contract for the given chain ID.
+Reserve precompile address override.
 
 ### feePayer (optional)
 
 - **Type:** `Account | string | true`
 
-Account or URL for sponsoring open and top-up transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), or `true` when the `account` parameter doubles as the fee payer.
+Account or URL for sponsoring open, top-up, settlement, and close transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote fee payer service, or `true` when the `account` parameter doubles as the fee payer.
 
 ### feePayerPolicy (optional)
 
 - **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
 
-Override the local fee-sponsor policy used when the server co-signs session open and top-up transactions. Remote fee payer services enforce their own policy.
+Override the local fee-sponsor policy used for sponsored open and top-up transactions and server-driven close transactions.
+
+### feeToken (optional)
+
+- **Type:** `Address`
+
+Optional fee token used for server-driven close transactions.
 
 ### getClient (optional)
 
-- **Type:** `(parameters: { chainId: number }) => MaybePromise<Client>`
+- **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
 
@@ -111,91 +193,97 @@ Function that returns a viem client for the given chain ID.
 
 Minimum voucher delta to accept as a numeric string. Rejects vouchers where the increment over the previous highest voucher is below this threshold.
 
+### operator (optional)
+
+- **Type:** `Address`
+
+Payee-side operator authorized for channel operations.
+
 ### recipient (optional)
 
 - **Type:** `Address`
 
-Default recipient address for payments.
+Default recipient address for payments. Defaults to the `account` address.
+
+### resolveChannelId (optional)
+
+- **Type:** `ResolveSessionChannelId`
+
+Function that resolves a reusable channel ID from request identity when no Credential or request channel ID is present.
+
+### settlementSchedule (optional)
+
+- **Type:** `{ amount?: string | bigint; intervalMs?: number; units?: number }`
+
+Server-owned automatic settlement cadence. Clients don't receive or control this schedule.
 
 ### sse (optional)
 
 - **Type:** `boolean | { poll?: boolean; pollingInterval?: number }`
 
-Enable SSE streaming. Pass `true` to enable with defaults, or an options object to configure SSE (for example, `{ poll: true }` for Cloudflare Workers compatibility).
+Enable SSE streaming. Pass `true` to enable with defaults, or pass an options object to configure SSE.
 
 ### store (optional)
 
 - **Type:** `Store.AtomicStore`
 - **Default:** `Store.memory()`
 
-Store backend for persisting channel and session state. A `Store` provides async key-value operations (`get`, `put`, `delete`). An `AtomicStore` extends `Store` with an atomic `update(key, fn)` method for safe concurrent read-modify-write — required for session channel state where multiple instances may process vouchers concurrently.
+Atomic store backend for channel state. Session mutations must be linearizable across instances so voucher, top-up, spend, and close updates cannot race.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.session({
+  account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
   store: Store.memory(), // [!code focus]
 })
 ```
 
-Use `Store.memory()` for local development and tests. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()`. All built-in factories return `AtomicStore` — for custom backends, provide an `update` function alongside `get`, `put`, and `delete`.
+Use `Store.memory()` for local development and tests. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()`.
 
 ### suggestedDeposit (optional)
 
 - **Type:** `string`
 
-Suggested deposit amount communicated to clients in the challenge.
-
-### testnet (optional)
-
-- **Type:** `boolean`
-
-Testnet mode.
+Suggested deposit amount communicated to clients in the Challenge.
 
 ### unitType (optional)
 
 - **Type:** `string`
 
-Unit type label (for example, "token", "byte", "request").
-
-### waitForConfirmation (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Whether to wait for open transactions to confirm on-chain before responding. When `false`, the transaction is simulated and broadcast without waiting for inclusion.
+Unit type label, such as `"token"`, `"byte"`, or `"request"`.
 
 ## Related
 
-### `tempo.Ws.serve`
+### `tempo.session.charge`
 
-WebSocket transport for session streams. Bridges a WebSocket connection to the same session payment flow, with in-band authorization, voucher top-ups, and cooperative close over a single socket. See [`Ws.serve`](/sdk/typescript/server/Ws.serve) for full documentation.
-
-### `tempo.settle`
-
-One-shot settlement: reads the highest voucher from the store and submits it on-chain. Use this for periodic batch settlement outside the request handler.
+Charges against a precompile-backed channel's stored balance outside an HTTP handler.
 
 ```ts
 import { tempo } from 'mppx/server'
-import { Store } from 'mppx/server'
-import { createClient, http } from 'viem'
-import { tempo as tempoChain } from 'viem/chains'
 
-const client = createClient({ chain: tempoChain, transport: http() })
-const store = Store.memory()
-
-// Settle a specific channel
-const txHash = await tempo.settle(store, client, '0xchannelId...')
+const state = await tempo.session.charge(store, channelId, 10_000n)
 ```
 
-### Parameters
+### `tempo.session.settle`
 
-- **store** — `ChannelStore` — The channel store instance.
-- **client** — `Client` — A viem client for on-chain interaction.
-- **channelId** — `Hex` — The channel to settle.
-- **options.escrowContract** (optional) — `Address` — Escrow contract override.
-- **options.feePayer** (optional) — `Account | string` — Fee payer account or relay URL.
+Settles a single precompile-backed channel on-chain.
 
-### Return type
+```ts
+import { tempo } from 'mppx/server'
 
-- **Type:** `Hex` — The settlement transaction hash.
+const txHash = await tempo.session.settle(store, client, channelId)
+```
+
+### `tempo.session.settleBatch`
+
+Settles multiple precompile-backed channels on-chain.
+
+```ts
+import { tempo } from 'mppx/server'
+
+const receipts = await tempo.session.settleBatch(store, client, {
+  limit: 100,
+})
+```
