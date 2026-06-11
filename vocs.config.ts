@@ -368,6 +368,7 @@ export default defineConfig({
         items: [
           { text: "Discovery", link: "/advanced/discovery" },
           { text: "Identity", link: "/advanced/identity" },
+          { text: "Async jobs", link: "/advanced/async-jobs" },
           { text: "Refunds", link: "/advanced/refunds" },
         ],
       },

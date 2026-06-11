@@ -1,0 +1,65 @@
+---
+description: "Use MPP with asynchronous APIs that submit paid jobs and poll for results."
+imageDescription: "Authorize async job polling after an MPP payment"
+---
+
+# Async jobs [Submit paid work and poll for results]
+
+Asynchronous APIs split work across two request families:
+
+1. `POST /api/generate/{model}/{op}` creates the job.
+2. `GET /api/jobs/{jobId}` polls until the job completes.
+
+Use MPP for the paid submit request. For the polling request, prefer the same MPP identity surface over a separate sign-in flow: either accept the original payment Credential for the created job, or require a zero-dollar MPP Challenge that proves the caller controls the same wallet.
+
+## Recommended contract
+
+The submit endpoint returns a normal `402` Challenge. The client pays, retries with a Credential, and receives a job ID:
+
+```http
+POST /api/generate/video/text-to-video HTTP/1.1
+Authorization: Payment ...
+```
+
+```json
+{
+  "jobId": "job_123",
+  "status": "pending"
+}
+```
+
+The server stores the verified Credential `source` with the job. Polling then verifies the caller against that stored owner:
+
+```ts [server.ts]
+import { Credential } from 'mppx'
+
+export async function submit(request: Request) {
+  const result = await mppx.charge({ amount: '0.25' })(request)
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  const jobId = await createJob({ owner: credential.source })
+
+  return result.withReceipt(Response.json({ jobId, status: 'pending' }))
+}
+```
+
+```ts [server.ts]
+import { Credential } from 'mppx'
+
+export async function poll(request: Request) {
+  const result = await mppx.charge({ amount: '0' })(request)
+  if (result.status === 402) return result.challenge
+
+  const credential = Credential.fromRequest(request)
+  const job = await getJob(jobIdFromUrl(request))
+
+  if (job.owner !== credential.source) {
+    return Response.json({ error: 'Not your job' }, { status: 403 })
+  }
+
+  return result.withReceipt(Response.json(job.status))
+}
+```
+
+This keeps both requests on the standard MPP `402` → Credential → retry path. Clients that use `mppx` don't need a second authentication implementation to retrieve work they already paid for.
