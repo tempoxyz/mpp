@@ -20,10 +20,10 @@ import { MermaidDiagram } from "../../components/MermaidDiagram";
 
 Sessions are one of MPP's core primitives. They power the cost-efficient, high-throughput, usage-based billing that modern APIs and services depend on—metering payment at the granularity of a single LLM token, API call, or byte transferred.
 
-Today we're shipping two improvements that make sessions the cheapest and easiest machine-payments primitive to integrate:
+Today we're shipping two improvements that make sessions the cheapest and easiest machine payments primitive to integrate:
 
 1. **The session intent is now a formal spec.** Sessions are standardized as an MPP intent (`session`), so extending them to new payment methods and networks is faster and more predictable.
-2. **Sessions on Tempo are faster and cheaper.** The new [TIP-1034](https://tips.sh/1034-1) precompile path cuts channel costs by as much as 72% and improves reliability.
+2. **Sessions on Tempo are faster and cheaper.** The new [TIP-1034](https://tips.sh/1034) precompile path cuts channel costs by as much as 72% and greatly improves reliability.
 
 ## An overview of sessions
 
@@ -64,20 +64,19 @@ Each payment method has different mechanics, but the model is shared: open a fun
 To make sessions easier to integrate, we have simplified the SDK and made several improvements for common use-cases, including:
 
 - **Automatic settlement** lets the server settle accepted usage in the background. A server-owned `settlementSchedule` triggers settlement by spend amount, metered units, or elapsed time, so the hot path stays off-chain while usage accumulates—no manual settlement job required.
-- **Session resumption** lets a client reuse an existing channel across restarts. Pass a `sessionStore` to persist channel hints, and the next `tempo.session.manager()` resumes from the stored channel and server snapshot instead of opening and funding a new one.
+- **Session resumption** lets a client reuse an existing channel across restarts. Pass a `sessionStore` to persist channel hints, and the next session resumes from the stored channel and server snapshot instead of opening and funding a new one.
 
 All of these changes are backwards compatible with the existing interface, so you and your clients can migrate gradually.
 
 ## Performance and improvements
 
-Moving the channel lifecycle onto the [TIP-1034 reserve precompile](https://tips.sh/1034-1) makes the common operations dramatically cheaper. 
+Moving the channel lifecycle onto the [TIP-1034 reserve precompile](https://tips.sh/1034) makes session operations dramatically cheaper.
 
 | Operation | Legacy Sessions | Improved sessions | Change |
 |---|---:|---:|---:|
 | Open, existing reserve balance | 1,055,229 | 294,425 | -72.1% |
 | Open, first reserve balance | 1,302,429 | 791,625 | -39.2% |
 | Settle, existing payee balance | 312,037 | 301,631 | -3.3% |
-| Settle, new payee balance | 312,037 | 559,871 | +79.4% |
 | Top up existing channel | 53,724 | 46,805 | -12.9% |
 | Request close | 31,752 | 30,123 | -5.1% |
 | Close after settlement | 85,118 | 62,913 | -26.1% |
@@ -86,7 +85,7 @@ In addition to lower costs, the new implementation makes channel operations paym
 
 ## How to integrate
 
-On the server, use an account from the local account store, register `tempo.session`, and call `mppx.session`:
+On the server, use an account from the local account store and register `tempo.session`:
 
 ```ts [server.ts]
 import { resolveAccount } from 'mppx/cli'
@@ -112,7 +111,7 @@ const mppx = Mppx.create({
 export async function handler(request: Request) {
   // [!code hl:start]
   const result = await mppx.session({
-    amount: '25',
+    amount: '0.00001',
     unitType: 'llm_token',
   })(request)
   // [!code hl:end]
@@ -159,8 +158,6 @@ console.log(response.status)
 
 - [Tempo session IETF Specification](https://paymentauth.org/draft-tempo-session-00)
 - [Sessions guide](/payment-methods/tempo/session)
-- [`tempo.session` server API](/sdk/typescript/server/Method.tempo.session)
-- [`tempo.session` client API](/sdk/typescript/client/Method.tempo.session)
-- [TIP-1034](https://tips.sh/1034-1)
+- [TIP-1034](https://tips.sh/1034)
 
 </div>
