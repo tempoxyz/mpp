@@ -9,6 +9,8 @@ import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
 
 Agents can automatically interact with MPP-enabled services, paying for API calls without human intervention. Learn more about [agentic payments](/use-cases/agentic-payments) or get started below.
 
+If you're building an agent with a partner SDK, see [Cloudflare Agents](/partner-sdks/cloudflare-agents) for a framework-specific integration.
+
 | Tool | Best for | Setup |
 |------|----------|-------|
 | [Tempo Wallet](#tempo-wallet) | MPP services with spend controls and service discovery | `tempo wallet login` |
@@ -222,5 +224,11 @@ $ mppx https://mpp.dev/api/ping/paid
     icon="lucide:wallet"
     title="Wallets"
     to="/tools/wallet"
+  />
+  <Card
+    description="Pay for MPP-enabled services from a Cloudflare Agent"
+    icon="lucide:cloud"
+    title="Cloudflare Agents"
+    to="/partner-sdks/cloudflare-agents"
   />
 </Cards>
