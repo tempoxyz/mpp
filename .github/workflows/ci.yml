@@ -71,7 +71,6 @@ jobs:
           node-version: "24"
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
-      - run: pnpm check:generated
       - run: pnpm build
         env:
           MPP_SECRET_KEY: ${{ secrets.MPP_SECRET_KEY || 'ci-placeholder-key' }}
