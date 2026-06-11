@@ -6689,4 +6689,24 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "india-rainfall-historic-api",
+    name: "India Rainfall Historic Data API",
+    url: "https://india-rainfall-historic-api.mpp-historic-data-demo.workers.dev",
+    serviceUrl: "https://india-rainfall-historic-api.mpp-historic-data-demo.workers.dev",
+    description: "Alternative regional dataset tracking ground-truth historical climate variables, monthly monsoon indices, and localized rainfall volumes across rural India markets.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["agriculture", "telemetry", "india", "macro-economics"],
+    realm: "mpp-historic-data-demo.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /historic-rainfall",
+        desc: "Retrieve historical climate metrics and regional rainfall tracking records for agrarian analytics.",
+        amount: "20", // Pricing set to 20 cents ($0.20) per agent request
+      },
+    ],
+  },
 ];
