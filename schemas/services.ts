@@ -1239,6 +1239,97 @@ export const services: ServiceDef[] = [
     ],
   },
 
+
+  // ── glim.sh ────────────────────────────────────────────────────────────
+  {
+    id: "glim",
+    name: "glim.sh",
+    url: "https://glim.sh",
+    serviceUrl: "https://glim.sh",
+    description:
+      "Live data from Twitter, Reddit, the web, GitHub, Amazon, and YouTube for AI agents. No API keys, no scraping stack - one endpoint, pay per call.",
+
+    categories: ["data", "search", "social", "web"],
+    integration: "first-party",
+    tags: [
+      "twitter",
+      "reddit",
+      "web-search",
+      "web-fetch",
+      "github",
+      "amazon",
+      "youtube",
+      "mcp",
+      "live-data",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://glim.sh/docs",
+      llmsTxt: "https://glim.sh/llms.txt",
+      apiReference: "https://glim.sh/openapi.json",
+    },
+    provider: { name: "glim.sh", url: "https://glim.sh" },
+    realm: "glim.sh",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/twitter/search",
+        desc: "Search tweets with advanced query operators",
+        amount: "5000",
+      },
+      {
+        route: "POST /api/v1/twitter/get",
+        desc: "Fetch a tweet with thread context, or a user profile",
+        amount: "5000",
+      },
+      {
+        route: "POST /api/v1/reddit/search",
+        desc: "Search Reddit posts",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/reddit/get",
+        desc: "Fetch a Reddit post with comments, subreddit feed, or user",
+        amount: "15000",
+      },
+      {
+        route: "POST /api/v1/web/search",
+        desc: "Run a semantic web search",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/web/fetch",
+        desc: "Fetch a web page as clean extracted content",
+        amount: "2000",
+      },
+      {
+        route: "POST /api/v1/github/search",
+        desc: "Search GitHub repos, conversations, or code",
+        amount: "2000",
+      },
+      {
+        route: "POST /api/v1/github/get",
+        desc: "Fetch GitHub repo metadata, files, PRs, or issues",
+        amount: "2000",
+      },
+      {
+        route: "POST /api/v1/amazon/search",
+        desc: "Search Amazon product listings",
+        amount: "5000",
+      },
+      {
+        route: "POST /api/v1/amazon/get",
+        desc: "Fetch Amazon product details by ASIN",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/youtube/get",
+        desc: "Fetch YouTube subtitles/transcript",
+        amount: "10000",
+      },
+    ],
+  },
   // ── Modal ──────────────────────────────────────────────────────────────
   {
     id: "modal",
