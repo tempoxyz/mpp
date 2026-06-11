@@ -1,0 +1,166 @@
+---
+layout: minimal
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "Improved sessions make pay-as-you-go API billing cheaper and easier to integrate."
+imageDescription: "Pay-as-you-go billing with improved sessions"
+---
+
+import { MermaidDiagram } from "../../components/MermaidDiagram";
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Friday, June 12, 2026</p>
+
+# Improved sessions [Faster, cheaper billing and formally specified]
+
+Sessions are one of MPP's core primitives. They power the cost-efficient, high-throughput, usage-based billing that modern APIs and services depend on—metering payment at the granularity of a single LLM token, API call, or byte transferred.
+
+Today we're shipping two improvements that make sessions the cheapest and easiest machine-payments primitive to integrate:
+
+1. **The session intent is now a formal spec.** Sessions are standardized as an MPP intent (`session`), so extending them to new payment methods and networks is faster and more predictable.
+2. **Sessions on Tempo are faster and cheaper.** The new [TIP-1034](https://tips.sh/1034-1) precompile path cuts channel costs by as much as 72% and improves reliability.
+
+## An overview of sessions
+
+A session lets a client authorize spending once, then incrementally increase the authorized amount as it consumes a service—paying exactly for what it uses. Instead of one payment per request, the client and server maintain a single running authorization that grows with usage.
+
+By keeping payment verification close to instant, sessions make metering at the granularity of a single LLM token, API call, or byte transferred practical and remove credit risk, reconciliation complexity, and complex credit-based billing workflows.
+
+The HTTP shape is the same as every MPP flow: the server returns a `402` Challenge, the client answers with an authorization Credential, and the server returns a Receipt confirming payment.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Network as Payment Network
+    Client->>Server: Request metered resource
+    Server-->>Client: 402 session Challenge
+    Client->>Server: Authorize initial amount (Credential)
+    Server-->>Client: 200 OK
+    loop Per unit
+        Client->>Server: Increase authorization (Credential)
+        Note over Server: Verify locally
+        Server-->>Client: Data + Receipt
+    end
+    Server->>Network: Settle authorized total
+    Client->>Server: Close
+    Server-->>Client: Return unused authorization
+`} />
+
+## Changes with the new session interface
+
+### A formal, cross-network intent
+
+Sessions are now a [formal MPP intent](https://github.com/tempoxyz/mpp-specs/pull/280) rather than a Tempo-only feature. The [Tempo session IETF Specification](https://paymentauth.org/draft-tempo-session-00) defines the unidirectional channel and cumulative voucher model normatively, so the same developer experience can map onto different settlement layers well beyond blockchains.
+
+Each payment method has different mechanics, but the model is shared: open a funded session, meter usage, top up if needed, and close with unused funds returned to the client.
+
+### A simpler SDK surface
+
+To make sessions easier to integrate, we have simplified the SDK and made several improvements for common use-cases, including:
+
+- **Automatic settlement** lets the server settle accepted usage in the background. A server-owned `settlementSchedule` triggers settlement by spend amount, metered units, or elapsed time, so the hot path stays off-chain while usage accumulates—no manual settlement job required.
+- **Session resumption** lets a client reuse an existing channel across restarts. Pass a `sessionStore` to persist channel hints, and the next `tempo.session.manager()` resumes from the stored channel and server snapshot instead of opening and funding a new one.
+
+All of these changes are backwards compatible with the existing interface, so you and your clients can migrate gradually.
+
+## Performance and improvements
+
+Moving the channel lifecycle onto the [TIP-1034 reserve precompile](https://tips.sh/1034-1) makes the common operations dramatically cheaper. 
+
+| Operation | Legacy Sessions | Improved sessions | Change |
+|---|---:|---:|---:|
+| Open, existing reserve balance | 1,055,229 | 294,425 | -72.1% |
+| Open, first reserve balance | 1,302,429 | 791,625 | -39.2% |
+| Settle, existing payee balance | 312,037 | 301,631 | -3.3% |
+| Settle, new payee balance | 312,037 | 559,871 | +79.4% |
+| Top up existing channel | 53,724 | 46,805 | -12.9% |
+| Request close | 31,752 | 30,123 | -5.1% |
+| Close after settlement | 85,118 | 62,913 | -26.1% |
+
+In addition to lower costs, the new implementation makes channel operations payment-lane traffic on Tempo. Opens, top-ups, settlements, close requests, closes, and withdrawals get the same congestion treatment as payments, so providers can settle many channels while the network is busy.
+
+## How to integrate
+
+On the server, use an account from the local account store, register `tempo.session`, and call `mppx.session`:
+
+```ts [server.ts]
+import { resolveAccount } from 'mppx/cli'
+import { Mppx, Store, tempo } from 'mppx/server'
+
+const account = await resolveAccount('server')
+
+const mppx = Mppx.create({
+  methods: [
+    // [!code hl:start]
+    tempo.session({
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      settlementSchedule: {
+        amount: '10', // settle in the background after $10 of accepted usage
+      },
+      store: Store.memory(),
+    }),
+    // [!code hl:end]
+  ],
+})
+
+export async function handler(request: Request) {
+  // [!code hl:start]
+  const result = await mppx.session({
+    amount: '25',
+    unitType: 'llm_token',
+  })(request)
+  // [!code hl:end]
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+On the client, connect with the Tempo Accounts SDK, then register `tempo.session` with the connector client:
+
+```ts [client.ts]
+import { Fetch, tempo } from 'mppx/client'
+import { createConfig, http } from 'wagmi'
+import { getConnectorClient } from 'wagmi/actions'
+import { tempo as tempoChain } from 'wagmi/chains'
+import { tempoWallet } from 'wagmi/connectors'
+
+const config = createConfig({
+  chains: [tempoChain],
+  connectors: [tempoWallet()],
+  transports: {
+    [tempoChain.id]: http(),
+  },
+})
+
+const fetch = Fetch.from({
+  methods: [
+    // [!code hl:start]
+    tempo.session({
+      getClient: (parameters) => getConnectorClient(config, parameters),
+      maxDeposit: '1',
+    }),
+    // [!code hl:end]
+  ],
+})
+
+const response = await fetch('https://openai.mpp.tempo.xyz/v1/responses')
+console.log(response.status)
+```
+
+## Learn more
+
+- [Tempo session IETF Specification](https://paymentauth.org/draft-tempo-session-00)
+- [Sessions guide](/payment-methods/tempo/session)
+- [`tempo.session` server API](/sdk/typescript/server/Method.tempo.session)
+- [`tempo.session` client API](/sdk/typescript/client/Method.tempo.session)
+- [TIP-1034](https://tips.sh/1034-1)
+
+</div>
