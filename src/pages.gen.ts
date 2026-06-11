@@ -1,139 +1,182 @@
 // deno-fmt-ignore-file
 // biome-ignore format: generated types do not need formatting
 // prettier-ignore
-import type { PathsForPages, GetConfigResponse } from 'waku/router';
-
+import type { PathsForPages } from 'waku/router'
 
 // prettier-ignore
 type Page =
-| { path: '/404'; render: 'static' }
-| { path: '/brand'; render: 'static' }
-| { path: '/extensions'; render: 'static' }
-| { path: '/faq'; render: 'static' }
-| { path: '/'; render: 'static' }
-| { path: '/overview'; render: 'static' }
-| { path: '/services'; render: 'static' }
-| { path: '/sdk/features'; render: 'static' }
-| { path: '/sdk'; render: 'static' }
-| { path: '/sdk/typescript/Html.init'; render: 'static' }
-| { path: '/sdk/typescript/Method.from'; render: 'static' }
-| { path: '/sdk/typescript/cli'; render: 'static' }
-| { path: '/sdk/typescript'; render: 'static' }
-| { path: '/sdk/typescript/proxy'; render: 'static' }
-| { path: '/sdk/typescript/server/Method.stripe.charge'; render: 'static' }
-| { path: '/sdk/typescript/server/Method.stripe'; render: 'static' }
-| { path: '/sdk/typescript/server/Method.tempo.charge'; render: 'static' }
-| { path: '/sdk/typescript/server/Method.tempo'; render: 'static' }
-| { path: '/sdk/typescript/server/Method.tempo.session'; render: 'static' }
-| { path: '/sdk/typescript/server/Mppx.compose'; render: 'static' }
-| { path: '/sdk/typescript/server/Mppx.create'; render: 'static' }
-| { path: '/sdk/typescript/server/Mppx.toNodeListener'; render: 'static' }
-| { path: '/sdk/typescript/server/Request.toNodeListener'; render: 'static' }
-| { path: '/sdk/typescript/server/Response.requirePayment'; render: 'static' }
-| { path: '/sdk/typescript/server/Transport.from'; render: 'static' }
-| { path: '/sdk/typescript/server/Transport.http'; render: 'static' }
-| { path: '/sdk/typescript/server/Transport.mcp'; render: 'static' }
-| { path: '/sdk/typescript/server/Transport.mcpSdk'; render: 'static' }
-| { path: '/sdk/typescript/middlewares/elysia'; render: 'static' }
-| { path: '/sdk/typescript/middlewares/express'; render: 'static' }
-| { path: '/sdk/typescript/middlewares/hono'; render: 'static' }
-| { path: '/sdk/typescript/middlewares/nextjs'; render: 'static' }
-| { path: '/sdk/typescript/html/custom'; render: 'static' }
-| { path: '/sdk/typescript/core/BodyDigest.compute'; render: 'static' }
-| { path: '/sdk/typescript/core/BodyDigest.verify'; render: 'static' }
-| { path: '/sdk/typescript/core/Challenge.deserialize'; render: 'static' }
-| { path: '/sdk/typescript/core/Challenge.from'; render: 'static' }
-| { path: '/sdk/typescript/core/Challenge.fromHeaders'; render: 'static' }
-| { path: '/sdk/typescript/core/Challenge.fromMethod'; render: 'static' }
-| { path: '/sdk/typescript/core/Challenge.fromResponse'; render: 'static' }
-| { path: '/sdk/typescript/core/Challenge.meta'; render: 'static' }
-| { path: '/sdk/typescript/core/Challenge.serialize'; render: 'static' }
-| { path: '/sdk/typescript/core/Challenge.verify'; render: 'static' }
-| { path: '/sdk/typescript/core/Credential.deserialize'; render: 'static' }
-| { path: '/sdk/typescript/core/Credential.from'; render: 'static' }
-| { path: '/sdk/typescript/core/Credential.fromRequest'; render: 'static' }
-| { path: '/sdk/typescript/core/Credential.serialize'; render: 'static' }
-| { path: '/sdk/typescript/core/Expires'; render: 'static' }
-| { path: '/sdk/typescript/core/Method.from'; render: 'static' }
-| { path: '/sdk/typescript/core/Method.toClient'; render: 'static' }
-| { path: '/sdk/typescript/core/Method.toServer'; render: 'static' }
-| { path: '/sdk/typescript/core/PaymentRequest.deserialize'; render: 'static' }
-| { path: '/sdk/typescript/core/PaymentRequest.from'; render: 'static' }
-| { path: '/sdk/typescript/core/PaymentRequest.serialize'; render: 'static' }
-| { path: '/sdk/typescript/core/Receipt.deserialize'; render: 'static' }
-| { path: '/sdk/typescript/core/Receipt.from'; render: 'static' }
-| { path: '/sdk/typescript/core/Receipt.fromResponse'; render: 'static' }
-| { path: '/sdk/typescript/core/Receipt.serialize'; render: 'static' }
-| { path: '/sdk/typescript/client/McpClient.wrap'; render: 'static' }
-| { path: '/sdk/typescript/client/Method.stripe.charge'; render: 'static' }
-| { path: '/sdk/typescript/client/Method.stripe'; render: 'static' }
-| { path: '/sdk/typescript/client/Method.tempo.charge'; render: 'static' }
-| { path: '/sdk/typescript/client/Method.tempo'; render: 'static' }
-| { path: '/sdk/typescript/client/Method.tempo.session-manager'; render: 'static' }
-| { path: '/sdk/typescript/client/Method.tempo.session'; render: 'static' }
-| { path: '/sdk/typescript/client/Mppx.create'; render: 'static' }
-| { path: '/sdk/typescript/client/Mppx.restore'; render: 'static' }
-| { path: '/sdk/typescript/client/Transport.from'; render: 'static' }
-| { path: '/sdk/typescript/client/Transport.http'; render: 'static' }
-| { path: '/sdk/typescript/client/Transport.mcp'; render: 'static' }
-| { path: '/sdk/rust/client'; render: 'static' }
-| { path: '/sdk/rust/core'; render: 'static' }
-| { path: '/sdk/rust'; render: 'static' }
-| { path: '/sdk/rust/server'; render: 'static' }
-| { path: '/sdk/python/client'; render: 'static' }
-| { path: '/sdk/python/core'; render: 'static' }
-| { path: '/sdk/python'; render: 'static' }
-| { path: '/sdk/python/server'; render: 'static' }
-| { path: '/quickstart/agent'; render: 'static' }
-| { path: '/quickstart/client'; render: 'static' }
-| { path: '/quickstart'; render: 'static' }
-| { path: '/quickstart/server'; render: 'static' }
-| { path: '/protocol/challenges'; render: 'static' }
-| { path: '/protocol/credentials'; render: 'static' }
-| { path: '/protocol/http-402'; render: 'static' }
-| { path: '/protocol'; render: 'static' }
-| { path: '/protocol/receipts'; render: 'static' }
-| { path: '/protocol/transports/http'; render: 'static' }
-| { path: '/protocol/transports'; render: 'static' }
-| { path: '/protocol/transports/mcp'; render: 'static' }
-| { path: '/payment-methods/custom'; render: 'static' }
-| { path: '/payment-methods'; render: 'static' }
-| { path: '/payment-methods/tempo/charge'; render: 'static' }
-| { path: '/payment-methods/tempo'; render: 'static' }
-| { path: '/payment-methods/tempo/session'; render: 'static' }
-| { path: '/payment-methods/stripe/charge'; render: 'static' }
-| { path: '/payment-methods/stripe'; render: 'static' }
-| { path: '/payment-methods/stellar/charge'; render: 'static' }
-| { path: '/payment-methods/stellar'; render: 'static' }
-| { path: '/payment-methods/stellar/session'; render: 'static' }
-| { path: '/payment-methods/solana/charge'; render: 'static' }
-| { path: '/payment-methods/solana'; render: 'static' }
-| { path: '/payment-methods/lightning/charge'; render: 'static' }
-| { path: '/payment-methods/lightning'; render: 'static' }
-| { path: '/payment-methods/lightning/session'; render: 'static' }
-| { path: '/payment-methods/card/charge'; render: 'static' }
-| { path: '/payment-methods/card'; render: 'static' }
-| { path: '/intents/charge'; render: 'static' }
-| { path: '/guides/building-with-an-llm'; render: 'static' }
-| { path: '/guides/multiple-payment-methods'; render: 'static' }
-| { path: '/guides/one-time-payments'; render: 'static' }
-| { path: '/guides/pay-as-you-go'; render: 'static' }
-| { path: '/guides/payment-links'; render: 'static' }
-| { path: '/guides/proxy-existing-service'; render: 'static' }
-| { path: '/guides/split-payments'; render: 'static' }
-| { path: '/guides/streamed-payments'; render: 'static' }
-| { path: '/guides/upgrade-x402'; render: 'static' }
-| { path: '/advanced/discovery'; render: 'static' }
-| { path: '/advanced/identity'; render: 'static' }
-| { path: '/advanced/refunds'; render: 'static' }
-| { path: '/_api/api/og'; render: 'static' };
+  | { path: '/404'; render: 'static' }
+  | { path: '/_api/api/og'; render: 'static' }
+  | { path: '/advanced/discovery'; render: 'static' }
+  | { path: '/advanced/identity'; render: 'static' }
+  | { path: '/advanced/refunds'; render: 'static' }
+  | { path: '/advanced/security'; render: 'static' }
+  | { path: '/blog/evm-x402-support'; render: 'static' }
+  | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
+  | { path: '/blog'; render: 'static' }
+  | { path: '/blog/multi-method-discovery'; render: 'static' }
+  | { path: '/blog/payment-hooks'; render: 'static' }
+  | { path: '/blog/subscriptions'; render: 'static' }
+  | { path: '/brand'; render: 'static' }
+  | { path: '/extensions'; render: 'static' }
+  | { path: '/faq'; render: 'static' }
+  | { path: '/guides/accept-card-payments'; render: 'static' }
+  | { path: '/guides/building-with-an-llm'; render: 'static' }
+  | { path: '/guides/monetize-mcp-server'; render: 'static' }
+  | { path: '/guides/multiple-payment-methods'; render: 'static' }
+  | { path: '/guides/one-time-payments'; render: 'static' }
+  | { path: '/guides/pay-as-you-go'; render: 'static' }
+  | { path: '/guides/payment-links'; render: 'static' }
+  | { path: '/guides/proxy-existing-service'; render: 'static' }
+  | { path: '/guides/split-payments'; render: 'static' }
+  | { path: '/guides/streamed-payments'; render: 'static' }
+  | { path: '/guides/subscription-payments'; render: 'static' }
+  | { path: '/guides/use-mpp-with-x402'; render: 'static' }
+  | { path: '/'; render: 'static' }
+  | { path: '/intents/charge'; render: 'static' }
+  | { path: '/intents/subscription'; render: 'static' }
+  | { path: '/mpp-vs-x402'; render: 'static' }
+  | { path: '/overview'; render: 'static' }
+  | { path: '/payment-methods/card/charge'; render: 'static' }
+  | { path: '/payment-methods/card'; render: 'static' }
+  | { path: '/payment-methods/custom'; render: 'static' }
+  | { path: '/payment-methods/evm/charge'; render: 'static' }
+  | { path: '/payment-methods/evm'; render: 'static' }
+  | { path: '/payment-methods'; render: 'static' }
+  | { path: '/payment-methods/lightning/charge'; render: 'static' }
+  | { path: '/payment-methods/lightning'; render: 'static' }
+  | { path: '/payment-methods/lightning/session'; render: 'static' }
+  | { path: '/payment-methods/monad/charge'; render: 'static' }
+  | { path: '/payment-methods/monad'; render: 'static' }
+  | { path: '/payment-methods/redotpay/charge'; render: 'static' }
+  | { path: '/payment-methods/redotpay'; render: 'static' }
+  | { path: '/payment-methods/solana/charge'; render: 'static' }
+  | { path: '/payment-methods/solana'; render: 'static' }
+  | { path: '/payment-methods/stellar/charge'; render: 'static' }
+  | { path: '/payment-methods/stellar'; render: 'static' }
+  | { path: '/payment-methods/stellar/session'; render: 'static' }
+  | { path: '/payment-methods/stripe/charge'; render: 'static' }
+  | { path: '/payment-methods/stripe'; render: 'static' }
+  | { path: '/payment-methods/tempo/charge'; render: 'static' }
+  | { path: '/payment-methods/tempo'; render: 'static' }
+  | { path: '/payment-methods/tempo/session'; render: 'static' }
+  | { path: '/payment-methods/tempo/subscription'; render: 'static' }
+  | { path: '/protocol/challenges'; render: 'static' }
+  | { path: '/protocol/credentials'; render: 'static' }
+  | { path: '/protocol/http-402'; render: 'static' }
+  | { path: '/protocol'; render: 'static' }
+  | { path: '/protocol/receipts'; render: 'static' }
+  | { path: '/protocol/transports/http'; render: 'static' }
+  | { path: '/protocol/transports'; render: 'static' }
+  | { path: '/protocol/transports/mcp'; render: 'static' }
+  | { path: '/protocol/transports/websocket'; render: 'static' }
+  | { path: '/quickstart/agent'; render: 'static' }
+  | { path: '/quickstart/client'; render: 'static' }
+  | { path: '/quickstart'; render: 'static' }
+  | { path: '/quickstart/server'; render: 'static' }
+  | { path: '/sdk/features'; render: 'static' }
+  | { path: '/sdk/go/client'; render: 'static' }
+  | { path: '/sdk/go/core'; render: 'static' }
+  | { path: '/sdk/go'; render: 'static' }
+  | { path: '/sdk/go/server'; render: 'static' }
+  | { path: '/sdk'; render: 'static' }
+  | { path: '/sdk/python/client'; render: 'static' }
+  | { path: '/sdk/python/core'; render: 'static' }
+  | { path: '/sdk/python'; render: 'static' }
+  | { path: '/sdk/python/server'; render: 'static' }
+  | { path: '/sdk/ruby/client'; render: 'static' }
+  | { path: '/sdk/ruby/core'; render: 'static' }
+  | { path: '/sdk/ruby'; render: 'static' }
+  | { path: '/sdk/ruby/server'; render: 'static' }
+  | { path: '/sdk/rust/client'; render: 'static' }
+  | { path: '/sdk/rust/core'; render: 'static' }
+  | { path: '/sdk/rust'; render: 'static' }
+  | { path: '/sdk/rust/server'; render: 'static' }
+  | { path: '/sdk/typescript/Html.init'; render: 'static' }
+  | { path: '/sdk/typescript/Method.from'; render: 'static' }
+  | { path: '/sdk/typescript/cli'; render: 'static' }
+  | { path: '/sdk/typescript/client/Fetch.from'; render: 'static' }
+  | { path: '/sdk/typescript/client/Fetch.polyfill'; render: 'static' }
+  | { path: '/sdk/typescript/client/Fetch.restore'; render: 'static' }
+  | { path: '/sdk/typescript/client/McpClient.wrap'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.evm.charge'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.evm'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.stripe.charge'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.stripe'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.tempo.charge'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.tempo'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.tempo.session-manager'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.tempo.session'; render: 'static' }
+  | { path: '/sdk/typescript/client/Method.tempo.subscription'; render: 'static' }
+  | { path: '/sdk/typescript/client/Mppx.create'; render: 'static' }
+  | { path: '/sdk/typescript/client/Mppx.restore'; render: 'static' }
+  | { path: '/sdk/typescript/client/Transport.from'; render: 'static' }
+  | { path: '/sdk/typescript/client/Transport.http'; render: 'static' }
+  | { path: '/sdk/typescript/client/Transport.mcp'; render: 'static' }
+  | { path: '/sdk/typescript/core/BodyDigest.compute'; render: 'static' }
+  | { path: '/sdk/typescript/core/BodyDigest.verify'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.deserialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.from'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.fromHeaders'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.fromMethod'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.fromResponse'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.meta'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.verify'; render: 'static' }
+  | { path: '/sdk/typescript/core/Credential.deserialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Credential.from'; render: 'static' }
+  | { path: '/sdk/typescript/core/Credential.fromRequest'; render: 'static' }
+  | { path: '/sdk/typescript/core/Credential.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Expires'; render: 'static' }
+  | { path: '/sdk/typescript/core/Method.from'; render: 'static' }
+  | { path: '/sdk/typescript/core/Method.toClient'; render: 'static' }
+  | { path: '/sdk/typescript/core/Method.toServer'; render: 'static' }
+  | { path: '/sdk/typescript/core/PaymentRequest.deserialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/PaymentRequest.from'; render: 'static' }
+  | { path: '/sdk/typescript/core/PaymentRequest.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Receipt.deserialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Receipt.from'; render: 'static' }
+  | { path: '/sdk/typescript/core/Receipt.fromResponse'; render: 'static' }
+  | { path: '/sdk/typescript/core/Receipt.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/html/custom'; render: 'static' }
+  | { path: '/sdk/typescript'; render: 'static' }
+  | { path: '/sdk/typescript/middlewares/elysia'; render: 'static' }
+  | { path: '/sdk/typescript/middlewares/express'; render: 'static' }
+  | { path: '/sdk/typescript/middlewares/hono'; render: 'static' }
+  | { path: '/sdk/typescript/middlewares/nextjs'; render: 'static' }
+  | { path: '/sdk/typescript/proxy'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.evm.charge'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.evm'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.stripe.charge'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.stripe'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.tempo.charge'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.tempo'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.tempo.renewSubscription'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.tempo.session'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.tempo.subscription'; render: 'static' }
+  | { path: '/sdk/typescript/server/Mppx.compose'; render: 'static' }
+  | { path: '/sdk/typescript/server/Mppx.create'; render: 'static' }
+  | { path: '/sdk/typescript/server/Mppx.toNodeListener'; render: 'static' }
+  | { path: '/sdk/typescript/server/Mppx.verifyCredential'; render: 'static' }
+  | { path: '/sdk/typescript/server/Request.toNodeListener'; render: 'static' }
+  | { path: '/sdk/typescript/server/Response.requirePayment'; render: 'static' }
+  | { path: '/sdk/typescript/server/Transport.from'; render: 'static' }
+  | { path: '/sdk/typescript/server/Transport.http'; render: 'static' }
+  | { path: '/sdk/typescript/server/Transport.mcp'; render: 'static' }
+  | { path: '/sdk/typescript/server/Transport.mcpSdk'; render: 'static' }
+  | { path: '/sdk/typescript/server/Ws.serve'; render: 'static' }
+  | { path: '/services'; render: 'static' }
+  | { path: '/tools/wallet'; render: 'static' }
+  | { path: '/use-cases/agentic-payments'; render: 'static' }
+  | { path: '/use-cases/api-monetization'; render: 'static' }
+  | { path: '/use-cases/micropayments'; render: 'static' }
 
 // prettier-ignore
 declare module 'waku/router' {
   interface RouteConfig {
-    paths: PathsForPages<Page>;
+    paths: PathsForPages<Page>
   }
   interface CreatePagesConfig {
-    pages: Page;
+    pages: Page
   }
 }

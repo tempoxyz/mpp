@@ -67,7 +67,7 @@ Use `Service.from` to describe the API you want to proxy. The proxy injects upst
 import { Proxy, Service } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const proxy = Proxy.create({
   services: [
@@ -98,7 +98,7 @@ Each route maps a `"METHOD /pattern"` to a payment intent or `true` for free pas
 import { Proxy, Service } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const proxy = Proxy.create({
   services: [
@@ -127,7 +127,7 @@ The proxy returns two handlers for different runtimes.
 import { Proxy, Service } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const proxy = Proxy.create({
   description: 'Payment-gated weather data', // [!code hl]
@@ -182,7 +182,7 @@ Gate several APIs behind a single proxy by passing multiple services. Each mount
 import { Proxy, Service, openai } from 'mppx/proxy'
 import { Mppx, tempo } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const proxy = Proxy.create({
   description: 'Multi-service paid API proxy',

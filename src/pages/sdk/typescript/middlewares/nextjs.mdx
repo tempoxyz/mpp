@@ -33,7 +33,7 @@ Import `Mppx` and `tempo` from `mppx/nextjs` to create a Next.js-aware payment h
 ```ts twoslash [app/api/premium/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 
-const mppx = Mppx.create({ methods: [tempo()] }) // [!code hl]
+const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 export const GET = 
   mppx.charge({ amount: '1' }) // [!code hl]
@@ -42,12 +42,25 @@ export const GET =
 
 ### Session payments
 
-Use `mppx.session()` to gate routes behind session-based payment intents.
+Use `mppx.session()` with `tempo.session()` to gate routes behind current v2 Sessions.
 
 ```ts twoslash [app/api/content/route.ts]
+import { Store } from 'mppx'
 import { Mppx, tempo } from 'mppx/nextjs'
+import { privateKeyToAccount } from 'viem/accounts'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      chainId: 4217,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store: Store.memory(),
+    }),
+  ],
+})
 
 export const GET =
   mppx.session({ amount: '1', unitType: 'token' })
@@ -62,7 +75,7 @@ After the handler verifies payment, the `Authorization` header is still on the r
 import { Credential } from 'mppx'
 import { Mppx, tempo } from 'mppx/nextjs'
 
-const mppx = Mppx.create({ methods: [tempo()] })
+const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 export const GET =
   mppx.charge({ amount: '1' })

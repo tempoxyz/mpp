@@ -41,7 +41,7 @@ const app = new Hono()
 
 const mppx = Mppx.create({
   methods: [
-    tempo({
+    tempo.charge({
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0x...',
       testnet: true,
@@ -73,7 +73,7 @@ const app = express()
 
 const mppx = Mppx.create({
   methods: [
-    tempo({
+    tempo.charge({
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0x...',
       testnet: true,

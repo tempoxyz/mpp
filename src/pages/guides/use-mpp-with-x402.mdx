@@ -234,7 +234,7 @@ const mppx = Mppx.create({
         facilitator: 'https://facilitator.x402.org',
       },
     }),
-    tempo({
+    tempo.charge({
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xYourAddress',
     }),
@@ -298,7 +298,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    tempo({
+    tempo.charge({
       currency: '0x20c0000000000000000000000000000000000000',
       recipient: '0xYourAddress',
       testnet: true,
