@@ -1,0 +1,117 @@
+---
+description: "Use mppx to let a Cloudflare Agent pay for MPP-enabled MCP tools and HTTP requests."
+imageDescription: "Connect Cloudflare Agents to paid MPP MCP tools and HTTP APIs"
+---
+
+# Cloudflare Agents [Pay for MCP tools and HTTP requests from your agent]
+
+Use [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap) and [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let a [Cloudflare Agent](https://developers.cloudflare.com/agents/) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the wrapped client creates a Credential, retries the call, and returns the result. A [Tempo Accounts](https://accounts.tempo.xyz/docs) wallet settles each payment with a scoped access key.
+
+## Install
+
+:::code-group
+```bash [npm]
+$ npm install agents mppx accounts
+```
+```bash [pnpm]
+$ pnpm add agents mppx accounts
+```
+```bash [bun]
+$ bun add agents mppx accounts
+```
+:::
+
+## Connect a wallet
+
+Both payment paths share one wallet. `connectWallet` runs a headless [Tempo Accounts](https://accounts.tempo.xyz/docs) wallet beside the Agent and returns the `account` and `getClient` you pass to `tempo(...)`:
+
+```ts [src/accounts.ts]
+import { Expiry, Provider, Storage, secp256k1 } from 'accounts'
+import { createClient, custom } from 'viem'
+import { tempo } from 'viem/tempo/chains'
+
+export async function connectWallet(env: { ACCOUNTS_PRIVATE_KEY: string }) {
+  const provider = Provider.create({
+    adapter: secp256k1({ privateKey: env.ACCOUNTS_PRIVATE_KEY as `0x${string}` }),
+    accessKey: { authorize: { expiry: Expiry.days(7) } },
+    storage: Storage.memory(),
+  })
+  const { accounts: [{ address: account }] } = await provider.request({ method: 'wallet_connect' })
+  return { account, getClient: () => createClient({ account, chain: tempo, transport: custom(provider) }) }
+}
+```
+
+`Storage.memory()` re-authorizes a key on each cold start; wrap KV or a Durable Object with `Storage.from(...)` to persist keys across restarts.
+
+## Pay for MCP tools
+
+Connect an MPP-enabled MCP server in `onStart`, then wrap the connected client. `McpClient.wrap` mutates it in place and returns the same client, retyped so `this.mcp.getAITools(...)` and `this.mcp.callTool(...)` become payment-aware—paid calls carry the MPP Receipt on `result.receipt`.
+
+```ts [src/index.ts]
+import { Agent } from 'agents'
+import { tempo } from 'mppx/client'
+import { McpClient } from 'mppx/mcp/client'
+import { connectWallet } from './accounts'
+
+type Env = { MCP_SERVER_URL: string; ACCOUNTS_PRIVATE_KEY: string }
+
+export class MyAgent extends Agent<Env> {
+  async onStart() {
+    const { id } = await this.mcp.connect(this.env.MCP_SERVER_URL)
+    const { account, getClient } = await connectWallet(this.env)
+    const client = McpClient.wrap(this.mcp.mcpConnections[id].client, {
+      methods: [tempo({ account, getClient })],
+      onPaymentRequired: (challenge) => Number(challenge.request.amount) < 1_000_000, // per-call spend policy
+    })
+
+    // Every tool call is now payment-aware; paid calls carry an MPP Receipt.
+    const result = await client.callTool({ name: 'premium_search', arguments: { query: 'tempo' } })
+    console.log(result.receipt)
+  }
+}
+```
+
+`onPaymentRequired` runs before each payment; return `false` to decline (the call rejects with `Payment declined.`).
+
+## Pay for HTTP requests
+
+The same wallet pays for plain HTTP requests. `Mppx.create` returns a payment-aware `fetch` that automatically pays an MPP 402 and retries. Call it from a request context (Workers forbid I/O at module top level):
+
+```ts [src/pay.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { connectWallet } from './accounts'
+
+export async function payFetch(env: { ACCOUNTS_PRIVATE_KEY: string }, url: string) {
+  const { account, getClient } = await connectWallet(env)
+  const mppx = Mppx.create({
+    methods: [tempo({ account, getClient })],
+    polyfill: false, // Workers' globalThis.fetch is read-only, so wrap the fetch you call
+  })
+  return mppx.fetch(url) // auto-pays an MPP 402
+}
+```
+
+Pass `onChallenge` to inspect a challenge (e.g. `challenge.request.amount`) before it pays.
+
+## Environment setup
+
+Store the wallet key as a [Workers secret](https://developers.cloudflare.com/workers/configuration/secrets/) and fund it with testnet tokens while developing:
+
+```bash [terminal]
+$ npx wrangler secret put ACCOUNTS_PRIVATE_KEY
+```
+
+For local development, you can skip Accounts and pass a viem account straight to `tempo({ account })`—see [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap).
+
+## Access keys vs. your root key
+
+`connectWallet` authorizes a scoped, revocable [access key](https://accounts.tempo.xyz/docs) and pays every tool call and HTTP request with it—never your account's root key. Set its expiry once and revoke it any time; inspect or gate each payment with `onPaymentRequired` (MCP) or `onChallenge` (HTTP). If you add on-chain spend limits to the key, size them to include network fees, not just the charge amount.
+
+## Related
+
+- [`Mppx.create`](/sdk/typescript/client/Mppx.create) and [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap)
+- [Cloudflare MCP client API](https://developers.cloudflare.com/agents/model-context-protocol/apis/client-api/)
+- [Cloudflare MPP payment overview](https://developers.cloudflare.com/agents/tools/payments/mpp/)
+- [Charge for HTTP content with MPP](https://developers.cloudflare.com/agents/tools/payments/mpp-charge-for-http-content/)
+- [Use with agents](/quickstart/agent)
+
