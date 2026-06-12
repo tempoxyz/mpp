@@ -16,9 +16,9 @@ import { MermaidDiagram } from "../../components/MermaidDiagram";
 
 <p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Friday, June 12, 2026</p>
 
-# Improved sessions [Faster, cheaper billing and formally specified]
+# An improved sessions experience [Faster, cheaper billing and formally specified]
 
-Sessions are one of MPP's core primitives. They power the cost-efficient, high-throughput, usage-based billing that modern APIs and services depend on—metering payment at the granularity of a single LLM token, API call, or byte transferred.
+Sessions are one of MPP's core primitives. They power the cost-efficient, high-throughput, usage-based billing that modern APIs and services depend on: metering payment at the granularity of a single LLM token, API call, or byte transferred.
 
 Today we're shipping two improvements that make sessions the cheapest and easiest machine payments primitive to integrate:
 
@@ -27,9 +27,9 @@ Today we're shipping two improvements that make sessions the cheapest and easies
 
 ## An overview of sessions
 
-A session lets a client authorize spending once, then incrementally increase the authorized amount as it consumes a service—paying exactly for what it uses. Instead of one payment per request, the client and server maintain a single running authorization that grows with usage.
+A session lets a client authorize spending once, then incrementally increase the authorized amount as it consumes a service, paying exactly for what it uses. Instead of one payment per request, the client and server maintain a single running authorization that grows with usage.
 
-By keeping payment verification close to instant, sessions make metering at the granularity of a single LLM token, API call, or byte transferred practical and remove credit risk, reconciliation complexity, and complex credit-based billing workflows.
+By keeping payment verification close to instant, sessions make metering at the granularity of a single LLM token, API call, or byte transferred practical and remove credit risk, reconciliation complexity, and complex billing workflows.
 
 The HTTP shape is the same as every MPP flow: the server returns a `402` Challenge, the client answers with an authorization Credential, and the server returns a Receipt confirming payment.
 
@@ -63,7 +63,7 @@ Each payment method has different mechanics, but the model is shared: open a fun
 
 To make sessions easier to integrate, we have simplified the SDK and made several improvements for common use-cases, including:
 
-- **Automatic settlement** lets the server settle accepted usage in the background. A server-owned `settlementSchedule` triggers settlement by spend amount, metered units, or elapsed time, so the hot path stays off-chain while usage accumulates—no manual settlement job required.
+- **Automatic settlement** lets the server settle accepted usage in the background. A server-owned `settlementSchedule` triggers settlement by spend amount, metered units, or elapsed time, so the hot path stays off-chain while usage accumulates. No manual settlement job is required.
 - **Session resumption** lets a client reuse an existing channel across restarts. Pass a `sessionStore` to persist channel hints, and the next session resumes from the stored channel and server snapshot instead of opening and funding a new one.
 
 All of these changes are backwards compatible with the existing interface, so you and your clients can migrate gradually.
@@ -72,16 +72,19 @@ All of these changes are backwards compatible with the existing interface, so yo
 
 Moving the channel lifecycle onto the [TIP-1034 reserve precompile](https://tips.sh/1034) makes session operations dramatically cheaper.
 
-| Operation | Legacy Sessions | Improved sessions | Change |
+| Operation | Legacy Sessions (gas used) | Improved sessions (gas used) | Change |
 |---|---:|---:|---:|
 | Open, existing reserve balance | 1,055,229 | 294,425 | -72.1% |
 | Open, first reserve balance | 1,302,429 | 791,625 | -39.2% |
 | Settle, existing payee balance | 312,037 | 301,631 | -3.3% |
+| Settle, new payee balance | 312,037 | 559,871 | +79.4% |
 | Top up existing channel | 53,724 | 46,805 | -12.9% |
 | Request close | 31,752 | 30,123 | -5.1% |
 | Close after settlement | 85,118 | 62,913 | -26.1% |
 
-In addition to lower costs, the new implementation makes channel operations payment-lane traffic on Tempo. Opens, top-ups, settlements, close requests, closes, and withdrawals get the same congestion treatment as payments, so providers can settle many channels while the network is busy.
+The new payee balance case costs more because it writes a fresh storage slot for the payee balance. That is a one-time cost for a new payee, not the steady-state settlement path.
+
+In addition to lower costs, the new implementation makes channel operations payment-lane traffic on Tempo. Opens, top-ups, settlements, close requests, closes, and withdrawals get the same congestion treatment as payments. That matters because session settlement is not crowded out by other onchain activity during congestion, so providers can settle many channels while the network is busy.
 
 ## How to integrate
 
