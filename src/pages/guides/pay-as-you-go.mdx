@@ -683,6 +683,33 @@ $ npx mppx http://localhost:3000
 
 When using sessions from a client, set `maxDeposit` to enable automatic channel management. This is the maximum amount of tokens the client reserves in the payment channel. Any unspent deposit is refunded when the channel closes.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    account: provider.getAccount({ signable: true }),
+    getClient: provider.getClient,
+    maxDeposit: '1', // Reserve up to 1 pathUSD per channel
+  })],
+})
+
+// Each fetch automatically manages the session lifecycle:
+// 1st request: opens channel on-chain, sends initial voucher
+// 2nd+ requests: sends off-chain vouchers (no on-chain tx)
+const res = await fetch('http://localhost:3000/api/sessions/photo')
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts [client.ts]
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -700,6 +727,9 @@ const mppx = Mppx.create({
 const res = await fetch('http://localhost:3000/api/sessions/photo')
 ```
 
+</Tab>
+</Tabs>
+
 - **`maxDeposit: '1'`**: Reserves up to 1 pathUSD in the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
 - The client handles the full session lifecycle automatically: channel open, voucher signing, and retry after `402` responses.
 - If the server sets `suggestedDeposit`, the client uses `min(suggestedDeposit, maxDeposit)`.
@@ -707,6 +737,31 @@ const res = await fetch('http://localhost:3000/api/sessions/photo')
 ### Closing the channel
 
 After you're done making requests, close the channel to settle on-chain and reclaim unspent deposit:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash [client.ts]
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+})
+
+const res = await session.fetch('http://localhost:3000/api/sessions/photo')
+
+// Settle on-chain and reclaim unspent deposit
+const receipt = await session.close()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash [client.ts]
 import { tempo } from 'mppx/client'
@@ -722,6 +777,9 @@ const res = await session.fetch('http://localhost:3000/api/sessions/photo')
 // Settle on-chain and reclaim unspent deposit
 const receipt = await session.close()
 ```
+
+</Tab>
+</Tabs>
 
 :::info
 Channels remain open for reuse. Closing is not required between individual requests—only when you're done with the session entirely.

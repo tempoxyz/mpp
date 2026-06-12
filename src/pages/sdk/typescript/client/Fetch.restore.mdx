@@ -3,11 +3,36 @@ description: "Restore the original fetch after installing the MPP fetch polyfill
 imageDescription: "Restore the original fetch"
 ---
 
+import { Tab, Tabs } from 'vocs'
+
 # `Fetch.restore` [Restore global fetch]
 
 Restores the original `globalThis.fetch` after `Fetch.polyfill` or `Mppx.create` installs a payment-aware wrapper.
 
 ## Usage
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from 'accounts'
+import { Fetch, tempo } from 'mppx/client'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Fetch.polyfill({
+  methods: [tempo({
+    account: provider.getAccount({ signable: true }),
+    getClient: provider.getClient,
+  })],
+})
+
+Fetch.restore()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Fetch, tempo } from 'mppx/client'
@@ -21,6 +46,9 @@ Fetch.polyfill({
 
 Fetch.restore()
 ```
+
+</Tab>
+</Tabs>
 
 ## Return type
 

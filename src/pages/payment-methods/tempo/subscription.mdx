@@ -3,7 +3,7 @@ description: "Accept recurring stablecoin payments on Tempo with subscriptions b
 imageDescription: "Recurring stablecoin billing for APIs"
 ---
 
-import { Badge, Card, Cards } from 'vocs'
+import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
 import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Tempo subscription [Recurring billing]
@@ -206,6 +206,31 @@ Use a durable atomic store such as Redis, Upstash, or Cloudflare KV for producti
 
 Register `tempo.subscription()` on the client. The SDK signs the access-key authorization and retries the request after the server returns a subscription Challenge.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [tempo.subscription({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+})
+
+const response = await fetch('https://api.example.com/pro')
+console.log(response.status)
+// @log: 200
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -220,6 +245,9 @@ const response = await fetch('https://api.example.com/pro')
 console.log(response.status)
 // @log: 200
 ```
+
+</Tab>
+</Tabs>
 
 ## Advanced options
 

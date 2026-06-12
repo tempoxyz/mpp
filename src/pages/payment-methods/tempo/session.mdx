@@ -292,6 +292,32 @@ export async function handler(request: Request) {
 
 Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mppx.create` when the same fetch wrapper should handle one-time charges and Sessions. The `tempo()` helper expands to both `tempo.charge()` and `tempo.session()`, so you don't need to declare Sessions separately.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const { fetch: mppxFetch } = Mppx.create({
+  methods: [tempo({
+    account: provider.getAccount({ signable: true }),
+    getClient: provider.getClient,
+    maxDeposit: '1',
+  })],
+  polyfill: false,
+})
+
+const response = await mppxFetch('https://api.example.com/v1/chat/completions')
+// Automatically opens the channel reserve and signs vouchers per chunk
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -307,9 +333,41 @@ const response = await mppxFetch('https://api.example.com/v1/chat/completions')
 // Automatically opens the channel reserve and signs vouchers per chunk
 ```
 
+</Tab>
+</Tabs>
+
 ### With explicit Sessions
 
 Register `tempo.session()` when this client should only handle Sessions. Use `tempo.session.manager()` for the standalone lifecycle manager shown in [closing the channel](#closing-the-channel).
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [
+    // [!code hl:start]
+    tempo.session({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+      maxDeposit: '1',
+    }),
+    // [!code hl:end]
+  ],
+  polyfill: false,
+})
+
+const response = await mppx.fetch('https://api.example.com/v1/chat/completions')
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -332,11 +390,42 @@ const mppx = Mppx.create({
 const response = await mppx.fetch('https://api.example.com/v1/chat/completions')
 ```
 
+</Tab>
+</Tabs>
+
 ### With multiple methods
 
 Register multiple methods so the client can handle servers that offer multiple payment methods.
 
 For example, to accept both charge and payment sessions:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [
+    tempo.charge({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    }),
+    tempo.session({ // [!code hl]
+      account: provider.getAccount({ signable: true }), // [!code hl]
+      getClient: provider.getClient, // [!code hl]
+      maxDeposit: '1', // [!code hl]
+    }), // [!code hl]
+  ],
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -352,9 +441,35 @@ Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 ### Closing the channel
 
 Use `tempo.session.manager()` when you want direct lifecycle control. Channels remain open for reuse across requests. Call `session.close()` to settle on-chain and reclaim unspent deposit.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+})
+
+const response = await session.fetch('https://api.example.com/v1/chat/completions')
+const receipt = await session.close()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
@@ -370,6 +485,9 @@ const session = tempo.session.manager({
 const response = await session.fetch('https://api.example.com/v1/chat/completions')
 const receipt = await session.close()
 ```
+
+</Tab>
+</Tabs>
 
 :::warning
 Channels do not close automatically. If you don't call `close()`, the deposit stays reserved until the channel expires, the server closes it, or it is manually closed.
@@ -432,6 +550,48 @@ const mppx = Mppx.create({
 
 ### Client
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { Provider } from 'accounts'
+import { tempo as tempoMainnet } from 'viem/chains'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const { fetch: mppxFetch } = Mppx.create({
+  methods: [
+    tempo.session({
+      account: provider.getAccount({ signable: true }),
+      getClient: () =>
+        createClient({
+          chain: tempoMainnet,
+          transport: http('https://rpc.tempo.xyz'),
+        }),
+      maxDeposit: '1',
+    }),
+    tempo.sessionLegacy.method({
+      account: provider.getAccount({ signable: true }),
+      getClient: () =>
+        createClient({
+          chain: tempoMainnet,
+          transport: http('https://rpc.tempo.xyz'),
+        }),
+      maxDeposit: '1',
+    }),
+  ],
+  polyfill: false,
+})
+
+const response = await mppxFetch('https://api.example.com/resource')
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
 import { createClient, http } from 'viem'
@@ -466,6 +626,9 @@ const { fetch: mppxFetch } = Mppx.create({
 
 const response = await mppxFetch('https://api.example.com/resource')
 ```
+
+</Tab>
+</Tabs>
 
 ## Reserve precompile
 

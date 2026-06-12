@@ -3,7 +3,7 @@ description: "Accept one-time stablecoin payments on Tempo with signed TIP-20 to
 imageDescription: "One-time stablecoin payments on Tempo"
 ---
 
-import { Cards } from "vocs";
+import { Cards, Tab, Tabs } from "vocs";
 import { SpecCard } from "../../../components/SpecCard";
 
 # Tempo charge [One-time TIP-20 token transfers]
@@ -194,6 +194,29 @@ See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge
 
 Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. For non-zero amounts, the client signs a TIP-20 transfer and retries with the Credential. For zero-amount Challenges, it signs a proof message and retries with a `proof` payload instead.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from "accounts";
+import { Mppx, tempo } from "mppx/client";
+
+const provider = Provider.create({ mpp: false }); // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: "wallet_connect" });
+
+Mppx.create({
+  methods: [tempo.charge({
+    account: provider.getAccount({ signable: true }),
+    getClient: provider.getClient,
+  })],
+});
+
+const response = await fetch("https://api.example.com/resource");
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash
 import { Mppx, tempo } from "mppx/client";
 import { privateKeyToAccount } from "viem/accounts";
@@ -207,9 +230,36 @@ Mppx.create({
 const response = await fetch("https://api.example.com/resource");
 ```
 
+</Tab>
+</Tabs>
+
 ### Without polyfill
 
 If you don't want to patch `globalThis.fetch`, use `mppx.fetch` directly:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from "accounts";
+import { Mppx, tempo } from "mppx/client";
+
+const provider = Provider.create({ mpp: false }); // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: "wallet_connect" });
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({
+    account: provider.getAccount({ signable: true }),
+    getClient: provider.getClient,
+  })],
+  polyfill: false,
+});
+
+const response = await mppx.fetch("https://api.example.com/resource");
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from "mppx/client";
@@ -225,6 +275,9 @@ const mppx = Mppx.create({
 const response = await mppx.fetch("https://api.example.com/resource");
 ```
 
+</Tab>
+</Tabs>
+
 :::info
 See [`tempo.charge` client reference](/sdk/typescript/client/Method.tempo.charge) for the full parameter list.
 :::
@@ -232,6 +285,30 @@ See [`tempo.charge` client reference](/sdk/typescript/client/Method.tempo.charge
 ### Chain pinning
 
 Set `expectedChainId` when the client should only pay on a specific Tempo network. The client rejects Challenges for other chains and uses this chain when the Challenge doesn't include `chainId`.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from "mppx/client";
+import { Provider } from "accounts";
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: "wallet_connect" })
+
+Mppx.create({
+  methods: [
+    tempo.charge({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+      expectedChainId: 4217, // Tempo mainnet // [!code hl]
+    }),
+  ],
+});
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from "mppx/client";
@@ -249,9 +326,36 @@ Mppx.create({
 });
 ```
 
+</Tab>
+</Tabs>
+
 ### Auto-swap
 
 When the client doesn't hold the requested currency, `autoSwap` automatically swaps from a fallback stablecoin (pathUSD, USDC.e) via the Tempo DEX before transferring.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from "accounts";
+import { Mppx, tempo } from "mppx/client";
+
+const provider = Provider.create({ mpp: false }); // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: "wallet_connect" });
+
+Mppx.create({
+  methods: [
+    tempo.charge({
+      account: provider.getAccount({ signable: true }),
+      autoSwap: true, // [!code hl]
+      getClient: provider.getClient,
+    }),
+  ],
+});
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from "mppx/client";
@@ -269,7 +373,38 @@ Mppx.create({
 });
 ```
 
+</Tab>
+</Tabs>
+
 Pass an object for custom fallback tokens or slippage:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from "accounts";
+import { Mppx, tempo } from "mppx/client";
+
+const provider = Provider.create({ mpp: false }); // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: "wallet_connect" });
+
+Mppx.create({
+  methods: [
+    tempo.charge({
+      account: provider.getAccount({ signable: true }),
+      autoSwap: {
+        // [!code hl]
+        slippage: 2, // max slippage % (default: 1) // [!code hl]
+        tokenIn: ["0x0000000000000000000000000000000000000001"], // [!code hl]
+      }, // [!code hl]
+      getClient: provider.getClient,
+    }),
+  ],
+});
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from "mppx/client";
@@ -290,6 +425,9 @@ Mppx.create({
   ],
 });
 ```
+
+</Tab>
+</Tabs>
 
 See [auto-swap](/payment-methods/tempo#auto-swap) for more details.
 

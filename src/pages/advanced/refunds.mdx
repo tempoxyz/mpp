@@ -3,6 +3,8 @@ description: "Return funds to clients after a charge, or let sessions refund unu
 imageDescription: "Return funds to clients in charge and session flows"
 ---
 
+import { Tab, Tabs } from 'vocs'
+
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 # Refunds [Return funds to clients]
@@ -78,6 +80,32 @@ This gives sessions a **built-in refund mechanism**—unclaimed funds are refund
 
 To refund a session, close the channel with the last accepted voucher. Any unclaimed deposit returns to the client automatically.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts [client.ts]
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '10',
+})
+
+await session.fetch('https://api.example.com/resource')
+
+const receipt = await session.close()
+console.log(receipt?.txHash)
+// @log: 0x...
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts [client.ts]
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -93,6 +121,9 @@ const receipt = await session.close()
 console.log(receipt?.txHash)
 // @log: 0x...
 ```
+
+</Tab>
+</Tabs>
 
 ## Best practices
 

@@ -3,7 +3,7 @@ description: "Split a single charge across multiple recipients in one atomic tra
 imageDescription: "Split payments across multiple recipients"
 ---
 
-import { Cards } from 'vocs'
+import { Cards, Tab, Tabs } from 'vocs'
 import { OneTimePaymentsCard, PayAsYouGoCard, ServerQuickstartCard } from '../../components/cards'
 
 # Accept split payments [Distribute a charge across multiple recipients]
@@ -113,6 +113,33 @@ The client SDK handles split payments automatically — no client-side configura
 
 Use `expectedRecipients` to restrict which split recipients the client signs for. This prevents a compromised server from redirecting funds to unexpected addresses.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from 'accounts'
+import { Mppx, tempo } from 'mppx/client'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+// ---cut---
+Mppx.create({
+  methods: [
+    tempo.charge({
+      account: provider.getAccount({ signable: true }),
+      expectedRecipients: [ // [!code hl]
+        '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // platform // [!code hl]
+        '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', // referrer // [!code hl]
+      ], // [!code hl]
+      getClient: provider.getClient,
+    }),
+  ],
+})
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -131,6 +158,9 @@ Mppx.create({
   ],
 })
 ```
+
+</Tab>
+</Tabs>
 
 If the server sends a Challenge with a split recipient not in the allowlist, the client throws an error instead of signing.
 

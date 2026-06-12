@@ -1,8 +1,34 @@
+import { Tab, Tabs } from 'vocs'
+
 # `Mppx.create` [Create a payment-aware fetch client]
 
 Creates a client-side payment handler. Returns a payment handler with a `fetch` function that automatically handles `402` Payment Required responses. By default, also polyfills `globalThis.fetch`.
 
 ## Usage
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+})
+
+// Global fetch now handles 402 automatically
+const res = await fetch('https://mpp.dev/api/ping/paid')
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -18,9 +44,49 @@ Mppx.create({
 const res = await fetch('https://mpp.dev/api/ping/paid')
 ```
 
+</Tab>
+</Tabs>
+
 ### With payment hooks
 
 Register hooks on the returned `mppx` instance to observe the payment flow.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+  polyfill: false,
+})
+
+const offFailure = mppx.onPaymentFailed(({ error, input }) => {
+  console.error('payment failed:', input, error)
+})
+
+const offResponse = mppx.onPaymentResponse(({ challenge, response }) => {
+  console.log('payment response:', challenge.id, response.status)
+})
+
+const res = await mppx.fetch('https://mpp.dev/api/ping/paid')
+console.log(res.status)
+// @log: 200
+
+offFailure()
+offResponse()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -49,9 +115,37 @@ offFailure()
 offResponse()
 ```
 
+</Tab>
+</Tabs>
+
 ### Without polyfill
 
 Set `polyfill: false` to get a scoped fetch without modifying the global:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+  polyfill: false, // [!code hl]
+})
+
+// Use the returned fetch // [!code hl]
+const res = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -68,9 +162,47 @@ const mppx = Mppx.create({
 const res = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 ```
 
+</Tab>
+</Tabs>
+
 ### Manual credential handling
 
 For full control over the payment flow:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    getClient: provider.getClient,
+  })],
+  polyfill: false, // [!code hl]
+})
+
+// [!code hl:start]
+const response = await fetch('https://mpp.dev/api/ping/paid')
+
+if (response.status === 402) {
+  const credential = await mppx.createCredential(response, {
+    account: provider.getAccount({ signable: true }),
+  })
+
+  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', {
+    headers: { Authorization: credential },
+  })
+}
+// [!code hl:end]
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -96,7 +228,37 @@ if (response.status === 402) {
 // [!code hl:end]
 ```
 
+</Tab>
+</Tabs>
+
 Pass `acceptPayment` to override method selection for this one response:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo()],
+  polyfill: false,
+})
+
+const response = await fetch('https://mpp.dev/api/ping/paid')
+
+const credential = await mppx.createCredential(
+  response,
+  { account: provider.getAccount({ signable: true }) },
+  { acceptPayment: 'tempo/charge;q=1, tempo/session;q=0' }, // [!code focus]
+)
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -115,6 +277,9 @@ const credential = await mppx.createCredential(
   { acceptPayment: 'tempo/charge;q=1, tempo/session;q=0' }, // [!code focus]
 )
 ```
+
+</Tab>
+</Tabs>
 
 ## Return type
 
@@ -151,6 +316,31 @@ type Mppx = {
 
 The original `fetch` function, before payment interception. Use `rawFetch` when you need to make requests that bypass the 402 handler—for example, probing a 402 endpoint for websocket auth tokens or calling APIs that return 402 for non-payment reasons.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  polyfill: false,
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+})
+
+// Bypass payment interception
+const raw = await mppx.rawFetch('https://api.example.com/ws-auth') // [!code focus]
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -166,6 +356,9 @@ const mppx = Mppx.create({
 const raw = await mppx.rawFetch('https://api.example.com/ws-auth') // [!code focus]
 ```
 
+</Tab>
+</Tabs>
+
 ## Payment hooks
 
 Payment hooks are for logging, monitoring, tracing, and request-local context. Each registration returns an unsubscribe function.
@@ -179,6 +372,37 @@ Payment hooks are for logging, monitoring, tracing, and request-local context. E
 | `on('*', handler)` | Any client payment event fires |
 
 `onChallengeReceived` runs before `onChallenge`. It can return a non-empty Credential string to override the default credential flow. Other hooks are observers: thrown errors are ignored and don't change payment handling.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+  polyfill: false,
+})
+
+mppx.onChallengeReceived(async ({ challenge, createCredential }) => {
+  console.log('challenge received:', challenge.id)
+  return createCredential()
+})
+
+mppx.on('*', ({ name }) => {
+  console.log('payment event:', name)
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -201,6 +425,9 @@ mppx.on('*', ({ name }) => {
 })
 ```
 
+</Tab>
+</Tabs>
+
 ## Parameters
 
 ### acceptPaymentPolicy (optional)
@@ -211,6 +438,30 @@ mppx.on('*', ({ name }) => {
 Controls when `mppx` injects `Accept-Payment` on outgoing requests. Browser polyfills default to same-origin injection to avoid CORS preflight failures on APIs that don't support payment discovery.
 
 Use `{ origins }` for cross-origin paid APIs. Origin patterns support `*.` subdomain wildcards.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  acceptPaymentPolicy: {
+    origins: ['https://api.example.com', '*.paid.example.com'],
+  }, // [!code focus]
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -226,12 +477,39 @@ Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 ### fetch (optional)
 
 - **Type:** `typeof globalThis.fetch`
 - **Default:** `globalThis.fetch`
 
 Custom fetch function to wrap.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const customFetch = globalThis.fetch
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  fetch: customFetch, // [!code focus]
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -247,11 +525,37 @@ const mppx = Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 ### methods
 
 - **Type:** `readonly Method.Client[]`
 
 Array of payment methods to use.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  // [!code focus:start]
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+  // [!code focus:end]
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -266,11 +570,39 @@ const mppx = Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 ### onChallenge (optional)
 
 - **Type:** `(challenge: Challenge, helpers: { createCredential: (context?) => Promise<string> }) => Promise<string | undefined>`
 
 Called when a `402` challenge is received, before credential creation. Return a credential string to use it directly, or `undefined` to fall back to the default credential flow.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+  onChallenge: async (challenge, { createCredential }) => { // [!code focus:start]
+    console.log('Challenge received:', challenge.method)
+    return createCredential()
+  }, // [!code focus:end]
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -287,6 +619,9 @@ const mppx = Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 ### paymentPreferences (optional)
 
 - **Type:** `AcceptPayment.Config<methods>`
@@ -294,6 +629,45 @@ const mppx = Mppx.create({
 Configures which payment methods the client prefers when a server offers multiple options via `Mppx.compose`. Emits an `Accept-Payment` header on requests so the server can filter Challenges to the client's preferred methods.
 
 Accepts a definition map or a callback that receives a typed key tree. Each key is a `method/intent` string (like `'tempo/charge'`). Values are q-values from 0 to 1—higher means more preferred. Set to 0 to explicitly opt out.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, stripe, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [
+    tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    }),
+    stripe.charge({
+      createToken: async (opts) => {
+        const res = await fetch('/api/create-spt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(opts),
+        })
+        const { spt } = await res.json() as { spt: string }
+        return spt
+      },
+    }),
+  ],
+  paymentPreferences: ({ tempo, stripe }) => ({ // [!code focus:start]
+    [tempo.charge]: 1,
+    [stripe.charge]: 0.5,
+    [tempo.session]: 0.2,
+  }), // [!code focus:end]
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, stripe, tempo } from 'mppx/client'
@@ -324,7 +698,49 @@ Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 With a plain definition map:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, stripe, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [
+    tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    }),
+    stripe.charge({
+      createToken: async (opts) => {
+        const res = await fetch('/api/create-spt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(opts),
+        })
+        const { spt } = await res.json() as { spt: string }
+        return spt
+      },
+    }),
+  ],
+  paymentPreferences: { // [!code focus:start]
+    'tempo/charge': 1,
+    'stripe/charge': 0.5,
+    'tempo/session': 0.2,
+  }, // [!code focus:end]
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, stripe, tempo } from 'mppx/client'
@@ -355,12 +771,37 @@ Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 ### polyfill (optional)
 
 - **Type:** `boolean`
 - **Default:** `true`
 
 Whether to polyfill `globalThis.fetch` with the payment-aware wrapper.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+  polyfill: false, // [!code focus]
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -373,6 +814,9 @@ const mppx = Mppx.create({
   polyfill: false, // [!code focus]
 })
 ```
+
+</Tab>
+</Tabs>
 
 ## Manual credential options
 
@@ -389,6 +833,28 @@ Request-local method preference override for `mppx.createCredential(response, co
 
 Transport to use for extracting challenges and attaching credentials.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, Transport, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+  transport: Transport.mcp(), // [!code focus]
+})
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash
 import { Mppx, Transport, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -400,3 +866,6 @@ const mppx = Mppx.create({
   transport: Transport.mcp(), // [!code focus]
 })
 ```
+
+</Tab>
+</Tabs>
