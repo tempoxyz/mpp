@@ -49,7 +49,25 @@ You can apply the same patterns to [other payment methods](/payment-methods).
 
 ### Install peer dependencies
 
-In this example, you use the `viem` library to instantiate an account.
+In this example, you use the Tempo Accounts SDK to connect an account. You can also use a viem account directly.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+:::code-group
+```bash [npm]
+$ npm install accounts
+```
+```bash [pnpm]
+$ pnpm add accounts
+```
+```bash [bun]
+$ bun add accounts
+```
+:::
+
+</Tab>
+<Tab title="viem">
 
 :::code-group
 ```bash [npm]
@@ -63,9 +81,25 @@ $ bun add viem
 ```
 :::
 
-### Define an account
+</Tab>
+</Tabs>
 
-Next, define an account to sign payments.
+### Connect an account
+
+Next, connect a Tempo account to sign payments.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash [define-account.ts]
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash [define-account.ts]
 import { privateKeyToAccount } from 'viem/accounts'
@@ -73,13 +107,33 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0xabc…123')
 ```
 
-:::tip
-When using Tempo, you can also use [Passkey or WebCrypto accounts](https://viem.sh/tempo/accounts).
-:::
+</Tab>
+</Tabs>
 
 ### Create payment handler
 
 Call `Mppx.create` at startup. This polyfills the global `fetch` to automatically handle `402` payment challenges.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash [create-paid-fetch.ts]
+import { Provider } from 'accounts'
+import { Mppx, tempo } from 'mppx/client' // [!code hl]
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({ // [!code hl]
+  methods: [tempo({ // [!code hl]
+    account: provider.getAccount({ signable: true }), // [!code hl]
+    getClient: provider.getClient, // [!code hl]
+  })], // [!code hl]
+}) // [!code hl]
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash [create-paid-fetch.ts]
 import { privateKeyToAccount } from 'viem/accounts'
@@ -92,17 +146,52 @@ Mppx.create({ // [!code hl]
 }) // [!code hl]
 ```
 
+</Tab>
+</Tabs>
+
 :::tip
 If you want to avoid polyfilling, use the returned `fetch` instead.
 
-```ts 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from 'accounts'
+import { Mppx, tempo } from 'mppx/client'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
 const mppx = Mppx.create({
+  methods: [tempo({
+    account: provider.getAccount({ signable: true }),
+    getClient: provider.getClient,
+  })],
   polyfill: false, // [!code hl]
-  methods: [tempo({ account })]
 })
 
 const response = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
 ```
+
+</Tab>
+<Tab title="viem">
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { Mppx, tempo } from 'mppx/client'
+
+const account = privateKeyToAccount('0xabc…123')
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  polyfill: false, // [!code hl]
+})
+
+const response = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
+```
+
+</Tab>
+</Tabs>
 :::
 
 ### Request protected resources

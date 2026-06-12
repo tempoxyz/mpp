@@ -1,8 +1,32 @@
+import { Tab, Tabs } from 'vocs'
+
 # `Transport.http` [HTTP transport for payments]
 
 HTTP transport for client-side payment handling.
 
 ## Usage
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from 'accounts'
+import { Mppx, Transport, tempo } from 'mppx/client'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    account: provider.getAccount({ signable: true }),
+    getClient: provider.getClient,
+  })],
+  transport: Transport.http(), // [!code focus]
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, Transport, tempo } from 'mppx/client'
@@ -15,6 +39,9 @@ const mppx = Mppx.create({
   transport: Transport.http(), // [!code focus]
 })
 ```
+
+</Tab>
+</Tabs>
 
 ## Behavior
 

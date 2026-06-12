@@ -3,7 +3,7 @@ description: "Accept Tempo stablecoins, Stripe cards, and Lightning Bitcoin on a
 imageDescription: "Accept stablecoins, cards, and Lightning on one endpoint"
 ---
 
-import { Cards } from 'vocs'
+import { Cards, Tab, Tabs } from 'vocs'
 import { OneTimePaymentsCard, PayAsYouGoCard, PaymentMethodsCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
 
@@ -273,6 +273,47 @@ Each payment method has its own parameters. Refer to the individual method docs 
 
 Clients can declare which payment methods they prefer by passing `paymentPreferences` to `Mppx.create`. This sends an `Accept-Payment` header on every request, and the server uses it to filter Challenges down to the methods the client supports.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Provider } from 'accounts'
+import { Mppx, stripe, tempo } from 'mppx/client'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [
+    tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    }),
+    stripe.charge({
+      createToken: async (opts) => {
+        const res = await fetch('/api/create-spt', {
+          body: JSON.stringify(opts),
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        })
+        const { spt } = await res.json() as { spt: string }
+        return spt
+      },
+    }),
+  ],
+  // [!code hl:start]
+  paymentPreferences: ({ tempo, stripe }) => ({
+    [tempo.charge]: 1,
+    [stripe.charge]: 0.5,
+    [tempo.session]: 0.2,
+  }),
+  // [!code hl:end]
+})
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash
 import { Mppx, stripe, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -303,6 +344,9 @@ Mppx.create({
   // [!code hl:end]
 })
 ```
+
+</Tab>
+</Tabs>
 
 See the [`paymentPreferences` parameter reference](/sdk/typescript/client/Mppx.create#paymentpreferences-optional) for the full configuration options.
 

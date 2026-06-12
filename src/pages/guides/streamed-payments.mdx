@@ -626,6 +626,33 @@ $ npx mppx http://localhost:3000
 
 Use `tempo.session.manager()` from `mppx/client` to create a session manager. The `.sse()` method connects to the SSE endpoint and handles voucher renewal automatically—if the server requests a new voucher mid-stream, the client signs and sends one without interrupting the stream.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts [client.ts]
+import { tempo } from "mppx/client";
+import { Provider } from "accounts";
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: "wallet_connect" })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: "1", // Reserve up to 1 pathUSD per channel
+});
+
+// .sse() returns an async iterable of SSE data payloads
+const stream = await session.sse("http://localhost:3000/api/sessions/poem");
+
+for await (const word of stream) {
+  process.stdout.write(word + " ");
+}
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts [client.ts]
 import { tempo } from "mppx/client";
 import { privateKeyToAccount } from "viem/accounts";
@@ -643,6 +670,9 @@ for await (const word of stream) {
 }
 ```
 
+</Tab>
+</Tabs>
+
 - **`tempo.session.manager()`** — Creates a session manager that handles the full Sessions lifecycle.
 - **`.sse()`** — Connects to an SSE endpoint. Automatically sends new vouchers when the server emits `payment-need-voucher` events.
 - **`maxDeposit: '1'`** — Reserves up to 1 pathUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
@@ -650,6 +680,35 @@ for await (const word of stream) {
 ### Closing the channel
 
 After streaming completes, close the channel to settle and reclaim unspent deposit:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash [client.ts]
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+})
+
+const stream = await session.sse('http://localhost:3000/api/sessions/poem')
+
+for await (const word of stream) {
+  process.stdout.write(word + ' ')
+}
+
+// Settle on-chain and reclaim unspent deposit
+const receipt = await session.close()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash [client.ts]
 import { tempo } from 'mppx/client'
@@ -669,6 +728,9 @@ for await (const word of stream) {
 // Settle on-chain and reclaim unspent deposit
 const receipt = await session.close()
 ```
+
+</Tab>
+</Tabs>
 
 ## WebSocket alternative
 

@@ -1,3 +1,5 @@
+import { Tab, Tabs } from 'vocs'
+
 # `tempo.session.manager` [Sessions manager]
 
 Creates a Sessions manager that handles channel open, paid fetches, streaming, top-ups, and close.
@@ -11,6 +13,38 @@ Use `tempo.session()` instead when you only need to register the current Session
 :::
 
 ## Usage
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+})
+
+// Make a paid request — opens a channel on first call
+const response = await session.fetch('https://api.example.com/resource')
+console.log(response.status)
+// @log: 200
+
+// Access payment metadata
+console.log(response.receipt)
+console.log(response.cumulative)
+
+// Close the channel and settle on-chain
+const receipt = await session.close()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
@@ -36,6 +70,9 @@ console.log(response.cumulative)
 const receipt = await session.close()
 ```
 
+</Tab>
+</Tabs>
+
 :::warning
 Channels remain open until you call `session.close()`. Close sessions when done to settle on-chain and reclaim unspent deposit.
 :::
@@ -43,6 +80,39 @@ Channels remain open until you call `session.close()`. Close sessions when done 
 ### With SSE streaming
 
 Stream server-sent events with automatic voucher handling. The manager signs incremental vouchers as the server requests more payment during the stream.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '5',
+})
+
+const stream = await session.sse('https://api.example.com/stream', {
+  onReceipt(receipt) {
+    console.log('Receipt:', receipt)
+  },
+  signal: AbortSignal.timeout(30_000),
+})
+
+for await (const message of stream) {
+  console.log(message)
+}
+
+await session.close()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
@@ -67,9 +137,51 @@ for await (const message of stream) {
 await session.close()
 ```
 
+</Tab>
+</Tabs>
+
 ### With WebSocket streaming
 
 Open a paid WebSocket session. The manager handles the HTTP `402` probe, channel open, in-band voucher signing, and payment control frames.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+})
+
+const url = new URL('wss://api.example.com/ws/chat')
+url.searchParams.set('prompt', 'Tell me something interesting')
+
+const socket = await session.ws(url, {
+  onReceipt(receipt) {
+    console.log('Receipt:', receipt)
+  },
+})
+
+socket.addEventListener('message', (event) => {
+  process.stdout.write(event.data)
+})
+
+await new Promise<void>((resolve) => {
+  socket.addEventListener('close', () => resolve(), { once: true })
+})
+
+const receipt = await session.close()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts
 import { tempo } from 'mppx/client'
@@ -100,8 +212,33 @@ await new Promise<void>((resolve) => {
 const receipt = await session.close()
 ```
 
+</Tab>
+</Tabs>
+
 :::tip
 In Node.js or other server-side runtimes without a global `WebSocket`, pass the constructor to `tempo.session.manager()`:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts
+import { WebSocket } from 'isows'
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+  webSocket: WebSocket,
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts
 import { WebSocket } from 'isows'
@@ -115,11 +252,40 @@ const session = tempo.session.manager({
 })
 ```
 
+</Tab>
+</Tabs>
+
 :::
 
 ### With top-up
 
 Add deposit to the active channel without closing it.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '10',
+})
+
+await session.fetch('https://api.example.com/resource')
+
+const receipt = await session.topUp('2')
+console.log(receipt?.status)
+// @log: success
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
@@ -137,9 +303,47 @@ console.log(receipt?.status)
 // @log: success
 ```
 
+</Tab>
+</Tabs>
+
 ### With session resumption
 
 Pass `sessionStore` to persist channel hints between manager instances. The next manager sends the stored channel ID as a hint and hydrates from server snapshots when the server supports them.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import type { Session } from 'mppx/tempo'
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const channelStore = {
+  channel: null as Session.Client.StoredSessionChannel | null,
+  delete() {
+    this.channel = null
+  },
+  get() {
+    return this.channel
+  },
+  set(channel: Session.Client.StoredSessionChannel) {
+    this.channel = channel
+  },
+}
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+  sessionStore: channelStore,
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import type { Session } from 'mppx/tempo'
@@ -166,11 +370,47 @@ const session = tempo.session.manager({
 })
 ```
 
+</Tab>
+</Tabs>
+
 ## Migrate from Legacy Sessions
 
 Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()`. Use `tempo.session.manager()` for a standalone manager, or `tempo()` when you want the same fetch wrapper to handle one-time charges and Sessions.
 
 Current Sessions and Legacy Sessions do not share channel state. Existing Legacy channels should be closed or settled through `tempo.sessionLegacy`; new channels should be opened through `tempo.session` or `tempo.session.manager()`. During a rolling migration, register both `tempo.session()` and `tempo.sessionLegacy.method()` if the client may talk to both server versions.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { Provider } from 'accounts'
+import { tempo as tempoMainnet } from 'viem/chains'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const { fetch: mppxFetch } = Mppx.create({
+  methods: [
+    tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: () =>
+        createClient({
+          chain: tempoMainnet,
+          transport: http('https://rpc.tempo.xyz'),
+        }),
+      maxDeposit: '1',
+    }),
+  ],
+  polyfill: false,
+})
+
+const response = await mppxFetch('https://api.example.com/resource')
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -197,6 +437,9 @@ const { fetch: mppxFetch } = Mppx.create({
 
 const response = await mppxFetch('https://api.example.com/resource')
 ```
+
+</Tab>
+</Tabs>
 
 Use `tempo.sessionLegacy()` only while the server still emits Legacy Sessions Challenges.
 

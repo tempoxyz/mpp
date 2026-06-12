@@ -3,6 +3,8 @@ description: "Build a subscription-gated API with MPP. Let clients authorize rec
 imageDescription: "Build recurring paid API access"
 ---
 
+import { Tab, Tabs } from 'vocs'
+
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 # Create and manage subscriptions [Recurring access for paid APIs]
@@ -135,6 +137,34 @@ The first unpaid request returns `402`. After the client activates the subscript
 
 Register `tempo.subscription()` on the client. The SDK handles the `402` response, signs the key authorization, and retries the request.
 
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [tempo.subscription({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    })],
+})
+
+const response = await fetch('https://api.example.com/api/pro', {
+  headers: { 'X-User-Id': 'user_123' },
+})
+
+console.log(response.status)
+// @log: 200
+```
+
+</Tab>
+<Tab title="viem">
+
 ```ts twoslash [client.ts]
 import { Mppx, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -152,6 +182,9 @@ const response = await fetch('https://api.example.com/api/pro', {
 console.log(response.status)
 // @log: 200
 ```
+
+</Tab>
+</Tabs>
 
 ## Advanced options
 

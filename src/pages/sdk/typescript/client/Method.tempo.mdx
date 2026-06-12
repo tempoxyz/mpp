@@ -4,6 +4,8 @@ description: "Register Tempo charge and session support in an MPP TypeScript cli
 imageDescription: "Handle Tempo payments in TypeScript clients"
 ---
 
+import { Tab, Tabs } from 'vocs'
+
 # `tempo` [Register default Tempo intents]
 
 Convenience function that creates both `tempo.charge` and Sessions method intents with shared configuration.
@@ -17,6 +19,31 @@ Use this helper when you want `Mppx.create` to handle both one-time charges and 
 :::
 
 ## Usage
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [
+    // [!code focus:start]
+    tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    }),
+    // [!code focus:end]
+  ],
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -33,7 +60,37 @@ Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 This is equivalent to:
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+Mppx.create({
+  methods: [
+    tempo.charge({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    }),
+    tempo.session({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    }),
+  ],
+})
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'
@@ -49,9 +106,35 @@ Mppx.create({
 })
 ```
 
+</Tab>
+</Tabs>
+
 ### Standalone session manager
 
 `tempo.session.manager()` creates a standalone Sessions manager with explicit `.fetch()`, `.topUp()`, `.close()`, `.sse()`, and `.ws()` methods. It does not register a method in `Mppx.create`; it owns one channel lifecycle directly.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+})
+
+const res = await session.fetch('https://api.example.com/resource')
+await session.close()
+```
+
+</Tab>
+<Tab title="viem">
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
@@ -65,6 +148,9 @@ const session = tempo.session.manager({
 const res = await session.fetch('https://api.example.com/resource')
 await session.close()
 ```
+
+</Tab>
+</Tabs>
 
 See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manager) for the full API.
 
