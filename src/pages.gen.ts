@@ -16,6 +16,7 @@ type Page =
   | { path: '/blog'; render: 'static' }
   | { path: '/blog/multi-method-discovery'; render: 'static' }
   | { path: '/blog/payment-hooks'; render: 'static' }
+  | { path: '/blog/sessions-improved'; render: 'static' }
   | { path: '/blog/subscriptions'; render: 'static' }
   | { path: '/brand'; render: 'static' }
   | { path: '/extensions'; render: 'static' }
