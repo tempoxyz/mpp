@@ -1,5 +1,6 @@
 import { mppx } from "../../../../mppx.server";
 import { getProxyFetch } from "../../../../mppx-proxy-client";
+import { sessionUpdateResponse } from "../../../../session-response";
 
 const responses = [
   [
@@ -82,7 +83,7 @@ export default async function handler(request: Request) {
   if (result.status === 402) return result.challenge;
 
   // POST = voucher update (no body needed)
-  if (request.method === "POST") return result.withReceipt();
+  if (request.method === "POST") return sessionUpdateResponse(result);
 
   // GET = stream a chat response
   const proxyFetch = getProxyFetch();
