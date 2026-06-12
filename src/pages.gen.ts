@@ -37,6 +37,7 @@ type Page =
   | { path: '/intents/subscription'; render: 'static' }
   | { path: '/mpp-vs-x402'; render: 'static' }
   | { path: '/overview'; render: 'static' }
+  | { path: '/partner-sdks/cloudflare-agents'; render: 'static' }
   | { path: '/payment-methods/card/charge'; render: 'static' }
   | { path: '/payment-methods/card'; render: 'static' }
   | { path: '/payment-methods/custom'; render: 'static' }
