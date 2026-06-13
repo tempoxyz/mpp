@@ -1,0 +1,73 @@
+---
+description: "Use Swift core types for MPP Challenges, Credentials, and Receipts, independent of the client and server APIs."
+imageDescription: "Core MPP types for Swift"
+---
+
+# Core types [Challenge, Credential, and Receipt primitives]
+
+The `MPPCore` module holds the protocol primitives. They map directly to the three HTTP headers (`WWW-Authenticate`, `Authorization`, and `Payment-Receipt`) and can be used independently of the higher-level `MPPClient` and `MPPServer` APIs.
+
+```swift
+import MPPCore
+```
+
+## Parse a Challenge
+
+A single `WWW-Authenticate` value may pack several comma-separated `Payment` challenges (RFC 9110 §11.6.1), so parsing returns an array:
+
+```swift
+let header = #"Payment id="abc", realm="api.example.com", method="tempo", intent="charge", request="eyJ...""#
+let challenges = Challenge.challenges(inHeaderValue: header)
+
+for challenge in challenges {
+    print(challenge.method, challenge.intent)
+}
+```
+
+## Serialize a Challenge
+
+`headerValue` renders a `Challenge` back to a `WWW-Authenticate` value:
+
+```swift
+let value = challenge.headerValue
+// → respond with `WWW-Authenticate: \(value)` and a 402 status
+```
+
+## Build a Credential
+
+A `Credential` echoes the Challenge and carries the payment payload plus an optional `did:pkh` source naming the payer. It serializes into the `Authorization` header; the server parses it back on the retry.
+
+```swift
+let credential = Credential(/* challenge echo + payload + source */)
+```
+
+## Parse a Receipt
+
+A `Receipt` is the parsed `Payment-Receipt` response header: a status plus a `reference` (the settlement id / transaction hash).
+
+```swift
+print(receipt.status, receipt.reference)
+```
+
+## Building blocks
+
+- **`Amount`**: a fixed-point token amount with safe decimal/base-unit conversion (comparable; never silently lossy).
+- **`RouteBinding`**: the per-route identity (`realm`, `MethodName`, `IntentName`) the Challenge is bound to, so a Credential cannot be replayed across routes.
+- **`EncodedJSON`**: the base64url-encoded JSON the `request` / `opaque` wire fields carry; build one from a raw string or a `JSONValue`.
+- **`MethodName` / `IntentName`**: validated identifiers (`1*LOWERALPHA`), for example `try MethodName("tempo")`, `try IntentName("charge")`.
+- **`ProblemDetails`**: the RFC 9457 `application/problem+json` body that accompanies a `402` or a terminal error.
+- **JCS (`MPPBodyDigest`)**: RFC 8785 canonical JSON and the RFC 9530 `Content-Digest` (SHA-256) the protocol binds requests with.
+
+## Type reference
+
+| Type | Description |
+|------|-------------|
+| `Challenge` | Server challenge parsed from / serialized to `WWW-Authenticate` (`headerValue`, `challenges(inHeaderValue:)`) |
+| `Credential` | Client credential for the `Authorization` header |
+| `Receipt` | Server receipt from the `Payment-Receipt` header (`status`, `reference`) |
+| `Amount` | Fixed-point token amount with base-unit conversion |
+| `RouteBinding` | `realm` + `MethodName` + `IntentName` the challenge binds to |
+| `EncodedJSON` | base64url-encoded JSON wire value (`request` / `opaque`) |
+| `MethodName` / `IntentName` | Validated `1*LOWERALPHA` identifiers |
+| `ProblemDetails` | RFC 9457 problem body for a `402` / terminal error |
+| `ReceiptStore` | Persistence seam the client records each Receipt to after settle |

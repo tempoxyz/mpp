@@ -48,6 +48,7 @@ Other SDK docs live here:
 - SDK index: `src/pages/sdk/index.mdx`
 - Python: `src/pages/sdk/python/*.mdx`
 - Rust: `src/pages/sdk/rust/*.mdx`
+- Swift: `src/pages/sdk/swift/*.mdx`
 
 When editing Python or Rust pages, keep the structure aligned with the existing indexes:
 
@@ -61,6 +62,7 @@ When editing Python or Rust pages, keep the structure aligned with the existing 
 - Typescript: <https://github.com/wevm/mppx>
 - Python: <https://github.com/tempoxyz/pympp>
 - Rust: <https://github.com/tempoxyz/mpp-rs>
+- Swift: <https://github.com/amitach/mpp-swift>
 
 ## Be Opinionated
 
