@@ -6689,4 +6689,41 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── WC2026 Prediction Engine ─────────────────────────────────────────────
+  {
+    id: "wc2026",
+    name: "WC2026 Prediction Engine",
+    url: "https://wc2026mpp.xyz",
+    serviceUrl: "https://wc2026mpp.xyz",
+    description:
+      "Probabilistic match intelligence for FIFA World Cup 2026. Poisson-modelled win probabilities, BTTS, correct scores, halftime splits, live in-play updates, H2H history, parlay combiners and tournament winner forecasts across 48 nations — $0.02 per call, no signup.",
+    categories: ["data", "ai"],
+    integration: "third-party",
+    tags: ["football", "soccer", "world-cup", "sports", "prediction", "betting", "wc2026"],
+    status: "active",
+    docs: {
+      homepage: "https://wc2026mpp.xyz",
+      llmsTxt: "https://wc2026mpp.xyz/llms.txt",
+      apiReference: "https://wc2026mpp.xyz/openapi.json",
+    },
+    provider: { name: "WC2026 Prediction Engine", url: "https://wc2026mpp.xyz" },
+    realm: "wc2026mpp.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      { route: "POST /api/service",       desc: "Full ensemble prediction — Poisson 45% + market 35% + H2H 20%", amount: "20000" },
+      { route: "POST /api/btts",          desc: "Both teams to score probability", amount: "20000" },
+      { route: "POST /api/goals",         desc: "Expected goals and over/under thresholds (0.5–4.5)", amount: "20000" },
+      { route: "POST /api/correct-score", desc: "Top 8 exact scoreline probabilities", amount: "20000" },
+      { route: "POST /api/halftime",      desc: "Half-time H/D/A result prediction", amount: "20000" },
+      { route: "POST /api/live",          desc: "In-play win probability given current score and minute", amount: "20000" },
+      { route: "POST /api/form",          desc: "Team form and stats profile", amount: "20000" },
+      { route: "POST /api/h2h",           desc: "Head-to-head history between two teams", amount: "20000" },
+      { route: "POST /api/upset",         desc: "Upset and underdog probability with value rating", amount: "20000" },
+      { route: "POST /api/winner",        desc: "Tournament winner probabilities for all 48 teams", amount: "20000" },
+      { route: "POST /api/final",         desc: "Knockout reach probabilities — R16 through winner", amount: "20000" },
+      { route: "POST /api/parlay",        desc: "Parlay / accumulator analyser for 2–8 matches", amount: "20000" },
+    ],
+  },
 ];
