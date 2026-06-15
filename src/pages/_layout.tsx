@@ -72,6 +72,9 @@ function MobileNav() {
       <a href="/services" data-mobile-nav-item="">
         Services
       </a>
+      <a href="/blog" data-mobile-nav-item="">
+        Blog
+      </a>
       <a
         href="https://paymentauth.org"
         target="_blank"
