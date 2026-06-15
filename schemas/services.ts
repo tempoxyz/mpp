@@ -5571,6 +5571,38 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── ip402 ───────────────────────────────────────────────────────────
+  {
+    id: "ip402",
+    name: "ip402.xyz",
+    url: "https://ip402.xyz",
+    serviceUrl: "https://ip402.xyz",
+    description:
+      "Paid IP geolocation and ASN lookup for agents. Send an IPv4/IPv6 address, get normalized geolocation (country, city, location, time zone) and network (ASN, organization) data back. Payment is the access control — no accounts, no API keys.",
+
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["ip", "geoip", "geolocation", "asn", "network"],
+    status: "active",
+    docs: {
+      homepage: "https://ip402.xyz/",
+      llmsTxt: "https://ip402.xyz/llms.txt",
+      apiReference: "https://ip402.xyz/openapi.json",
+    },
+    provider: { name: "ip402.xyz", url: "https://ip402.xyz" },
+    realm: "ip402.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/geo",
+        desc: "Geolocate a single IPv4 or IPv6 address — country, city, location, time zone, and ASN/organization",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── IPinfo ───────────────────────────────────────────────────────────
   {
     id: "ipinfo",
