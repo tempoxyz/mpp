@@ -6689,4 +6689,94 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Tempo Price Feed ─────────────────────────────────────────────────────
+  {
+    id: "tempo-price-feed",
+    name: "Tempo Price Feed",
+    url: "https://tempo-price-feed-one.vercel.app",
+    serviceUrl: "https://tempo-price-feed-one.vercel.app",
+    description:
+      "Current USD prices for all Tempo stablecoins in a single call. Reads the official Tempo token list and resolves live prices via CoinGecko — no API key, pay-per-request.",
+
+    categories: ["data", "blockchain"],
+    integration: "third-party",
+    tags: ["prices", "stablecoins", "defi", "tempo", "coingecko"],
+    status: "active",
+    docs: {
+      homepage: "https://tempo-price-feed-one.vercel.app",
+      apiReference: "https://tempo-price-feed-one.vercel.app/openapi.json",
+    },
+    provider: { name: "dmitrykmak", url: "https://github.com/dmitrykmak" },
+    realm: "tempo-price-feed-one.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/service",
+        desc: "Get current USD prices of all Tempo stablecoins",
+        amount: "10000",
+      },
+    ],
+  },
+
+  // ── Tempo Gas Estimator ──────────────────────────────────────────────────
+  {
+    id: "tempo-gas-estimator",
+    name: "Tempo Gas Estimator",
+    url: "https://tempo-gas-estimator-snowy.vercel.app",
+    serviceUrl: "https://tempo-gas-estimator-snowy.vercel.app",
+    description:
+      "Estimates the stablecoin gas cost of common Tempo operations (transfers, contract calls) from the live gas price — no API key, pay-per-request.",
+
+    categories: ["data", "blockchain"],
+    integration: "third-party",
+    tags: ["gas", "fees", "estimate", "tempo", "infrastructure"],
+    status: "active",
+    docs: {
+      homepage: "https://tempo-gas-estimator-snowy.vercel.app",
+      apiReference: "https://tempo-gas-estimator-snowy.vercel.app/openapi.json",
+    },
+    provider: { name: "dmitrykmak", url: "https://github.com/dmitrykmak" },
+    realm: "tempo-gas-estimator-snowy.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/service",
+        desc: "Estimate gas costs on Tempo for common operations",
+        amount: "5000",
+      },
+    ],
+  },
+
+  // ── Random Stable Fact ───────────────────────────────────────────────────
+  {
+    id: "random-stable-fact",
+    name: "Random Stable Fact",
+    url: "https://random-stable-fact-snowy.vercel.app",
+    serviceUrl: "https://random-stable-fact-snowy.vercel.app",
+    description:
+      "Returns a random, sourced fact about stablecoins and the Tempo network on each call — a minimal reference MPP service. No API key, pay-per-request.",
+
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["facts", "stablecoins", "tempo", "trivia"],
+    status: "active",
+    docs: {
+      homepage: "https://random-stable-fact-snowy.vercel.app",
+      apiReference: "https://random-stable-fact-snowy.vercel.app/openapi.json",
+    },
+    provider: { name: "dmitrykmak", url: "https://github.com/dmitrykmak" },
+    realm: "random-stable-fact-snowy.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/service",
+        desc: "Get a random stablecoin fact",
+        amount: "5000",
+      },
+    ],
+  },
 ];
