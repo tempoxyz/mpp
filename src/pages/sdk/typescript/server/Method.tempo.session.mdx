@@ -110,6 +110,36 @@ const mppx = Mppx.create({
 
 Use `tempo.sessionLegacy()` only while clients still send Legacy Sessions Credentials.
 
+### With same-route bootstrap
+
+Set `bootstrap: true` and provide `resolveChannelId` when clients should recover a previous channel before opening a new one. Bootstrap uses the protected route itself: the client sends `HEAD`, answers a `$0` Tempo charge Challenge, and the server uses the verified `source` plus request metadata to look up an existing channel.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const store = Store.memory()
+const channelIdsBySource = new Map<string, string>()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      bootstrap: true,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store,
+      resolveChannelId({ request, source }) {
+        return (source ? channelIdsBySource.get(source) : undefined) ?? request?.headers.get('Payment-Session') ?? undefined
+      },
+    }),
+  ],
+})
+```
+
+If the resolver returns a known channel ID, the server responds with `Payment-Session` and `Payment-Session-Snapshot`. If it returns `undefined`, the server returns `204` without a snapshot and the client falls back to opening a new channel.
+
 ## Return type
 
 ```ts
@@ -218,6 +248,27 @@ Default recipient address for payments. Defaults to the `account` address.
 - **Type:** `ResolveSessionChannelId`
 
 Function that resolves a reusable channel ID from request identity when no Credential or request channel ID is present.
+
+```ts
+type ResolveSessionChannelId = (
+  parameters: ResolveSessionChannelIdParameters,
+) => Promise<string | null | undefined> | string | null | undefined
+
+type ResolveSessionChannelIdParameters = {
+  request?: {
+    readonly headers: Headers
+    readonly hasBody?: boolean
+    readonly method: string
+    readonly url?: URL
+  }
+  credential: Credential | null | undefined
+  source?: string
+  paymentRequest: SessionPaymentRequestInput
+  store: ChannelStore
+}
+```
+
+Use `source` for identity bootstrap. It is only set after the server verifies the client's zero-amount proof. Use `request.headers` for app session cookies or explicit `Payment-Session` hints. The returned channel ID is treated as a hint; the server still verifies that the channel exists and matches the current payment request.
 
 ### settlementSchedule (optional)
 

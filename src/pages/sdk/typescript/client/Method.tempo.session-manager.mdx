@@ -373,6 +373,38 @@ const session = tempo.session.manager({
 </Tab>
 </Tabs>
 
+In browsers, scope the key to the authenticated user and API origin so one user's channel hint is not reused for another user.
+
+```ts
+import type { Session } from 'mppx/tempo'
+import { tempo } from 'mppx/client'
+
+const storageKey = 'mppx-session:api.example.com:user-123'
+
+const sessionStore: Session.Client.SessionStore = {
+  get() {
+    const value = localStorage.getItem(storageKey)
+    return value ? (JSON.parse(value) as Session.Client.StoredSessionChannel) : null
+  },
+  set(channel) {
+    localStorage.setItem(storageKey, JSON.stringify(channel))
+  },
+  delete() {
+    localStorage.removeItem(storageKey)
+  },
+}
+
+const session = tempo.session.manager({
+  account,
+  client,
+  bootstrap: true,
+  maxDeposit: '1',
+  sessionStore,
+})
+```
+
+When `bootstrap: true` is enabled, the manager first sends a same-route `HEAD` request if it has no active channel and no stored channel. Servers that enable bootstrap can answer with a `$0` identity Challenge and then return a `Payment-Session-Snapshot` header. The manager hydrates from that snapshot and persists it through `sessionStore`.
+
 ## Migrate from Legacy Sessions
 
 Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()`. Use `tempo.session.manager()` for a standalone manager, or `tempo()` when you want the same fetch wrapper to handle one-time charges and Sessions.
@@ -460,6 +492,44 @@ type SessionManager = {
   ws(input: string | URL, init?: SessionManagerWebSocketOptions): Promise<SessionManagedWebSocket>
 }
 ```
+
+### `SessionStore`
+
+`sessionStore` is optional client persistence for channel hints. It does not authorize payment by itself; the server still verifies the channel snapshot and voucher signatures.
+
+```ts
+type SessionStore = {
+  get(): Promise<StoredSessionChannel | null | undefined> | StoredSessionChannel | null | undefined
+  set(channel: StoredSessionChannel): Promise<void> | void
+  delete?(): Promise<void> | void
+}
+```
+
+### `StoredSessionChannel`
+
+```ts
+type StoredSessionChannel = {
+  channelId: Hex
+  cumulativeAmount: string
+  deposit: string
+  descriptor: ChannelDescriptor
+  escrow: Address
+  chainId: number
+  opened: boolean
+  updatedAt: number
+}
+```
+
+| Field | Description |
+|---|---|
+| `channelId` | Latest known channel ID. Sent as a `Payment-Session` hint on the next request. |
+| `cumulativeAmount` | Latest local cumulative voucher authorization in raw token units. |
+| `deposit` | Latest known deposit in raw token units. |
+| `descriptor` | TIP-1034 descriptor used if the server cannot provide a snapshot. |
+| `escrow` | Escrow precompile address used to derive the channel ID. |
+| `chainId` | Tempo chain ID used to derive the channel ID and voucher domain. |
+| `opened` | Whether the channel was open when stored. Closed channels are ignored. |
+| `updatedAt` | Client timestamp for debugging or app-level eviction. |
 
 ### `PaymentResponse`
 
