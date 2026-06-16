@@ -6779,4 +6779,64 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Tempo Token Info ─────────────────────────────────────────────────────
+  {
+    id: "tempo-token-info",
+    name: "Tempo Token Info",
+    url: "https://tempo-token-info.vercel.app",
+    serviceUrl: "https://tempo-token-info.vercel.app",
+    description:
+      "Look up TIP-20 token metadata on Tempo — symbol, name, decimals, and total supply — from a token contract address. No API key, pay-per-request.",
+
+    categories: ["data", "blockchain"],
+    integration: "third-party",
+    tags: ["token", "tip-20", "metadata", "tempo", "erc20"],
+    status: "active",
+    docs: {
+      homepage: "https://tempo-token-info.vercel.app",
+      apiReference: "https://tempo-token-info.vercel.app/openapi.json",
+    },
+    provider: { name: "dmitrykmak", url: "https://github.com/dmitrykmak" },
+    realm: "tempo-token-info.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/service",
+        desc: "Get TIP-20 token metadata (symbol, name, decimals, total supply)",
+        amount: "10000",
+      },
+    ],
+  },
+
+  // ── Tempo Activity Score ─────────────────────────────────────────────────
+  {
+    id: "tempo-activity-score",
+    name: "Tempo Activity Score",
+    url: "https://tempo-activity-score.vercel.app",
+    serviceUrl: "https://tempo-activity-score.vercel.app",
+    description:
+      "Heuristic 0-100 activity score for any Tempo wallet, derived from transaction count and USDC.e balance. No API key, pay-per-request.",
+
+    categories: ["data", "blockchain"],
+    integration: "third-party",
+    tags: ["wallet", "score", "activity", "tempo", "analytics"],
+    status: "active",
+    docs: {
+      homepage: "https://tempo-activity-score.vercel.app",
+      apiReference: "https://tempo-activity-score.vercel.app/openapi.json",
+    },
+    provider: { name: "dmitrykmak", url: "https://github.com/dmitrykmak" },
+    realm: "tempo-activity-score.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/service",
+        desc: "Get a 0-100 activity score for a Tempo wallet",
+        amount: "10000",
+      },
+    ],
+  },
 ];
