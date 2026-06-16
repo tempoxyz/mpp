@@ -7289,7 +7289,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
-        route: "GET /api/v1/business_records/list/{id_type}",
+        route: "GET /api/v1/business_records/list/:id_type",
         desc: "Fetch full business records by openmart_id or google_place_id. Up to 100 IDs.",
         amount: "10000",
         unitType: "request",
@@ -7646,7 +7646,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /companies/{company_uid}/employees",
+        route: "GET /companies/:company_uid/employees",
         desc: "List employees of a given company. Returns paginated results. The company_uid path parameter is the LinkedIn company ID",
         amount: "2290000",
         unitType: "request",
@@ -8137,7 +8137,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /api/v1/organizations/{organization_id}/job_postings",
+        route: "GET /api/v1/organizations/:organization_id/job_postings",
         desc: "Get current job postings for a company by Apollo organization ID.",
         amount: "10000",
         unitType: "request",
@@ -8149,7 +8149,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /api/v1/organizations/{id}",
+        route: "GET /api/v1/organizations/:id",
         desc: "Get complete organization info by Apollo organization ID.",
         amount: "10000",
         unitType: "request",
@@ -8383,7 +8383,7 @@ export const services: ServiceDef[] = [
         dynamic: true,
       },
       {
-        route: "GET /api/v1/map/{serviceName}/ImageServer/tile/{z}/{y}/{x}",
+        route: "GET /api/v1/map/:serviceName/ImageServer/tile/:z/:y/:x",
         desc: "Map tiles compatible with most web mapping or GIS tools. Software such as Mapbox, Google Maps, ArcGIS, Leaflet",
         dynamic: true,
       },
@@ -8653,13 +8653,13 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
-        route: "GET /deals/{id}",
+        route: "GET /deals/:id",
         desc: "Get funding round by id",
         amount: "66000",
         unitType: "request",
       },
       {
-        route: "GET /deals/{id}/investors",
+        route: "GET /deals/:id/investors",
         desc: "Get investors in a funding round by id",
         amount: "66000",
         unitType: "request",
@@ -9107,13 +9107,13 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
-        route: "POST /sessions/{session_id}/page/screenshot",
+        route: "POST /sessions/:session_id/page/screenshot",
         desc: "Take a screenshot of the current page.",
         amount: "1000",
         unitType: "request",
       },
       {
-        route: "POST /sessions/{session_id}/page/observe",
+        route: "POST /sessions/:session_id/page/observe",
         desc: "Observe the current page state and get available actions.",
         amount: "5000",
         unitType: "request",
@@ -9125,13 +9125,13 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "POST /sessions/{session_id}/page/execute",
+        route: "POST /sessions/:session_id/page/execute",
         desc: "Execute an action on the page (click, type, navigate, etc.).",
         amount: "2000",
         unitType: "request",
       },
       {
-        route: "POST /sessions/{session_id}/cookies",
+        route: "POST /sessions/:session_id/cookies",
         desc: "Set cookies in the browser session.",
         amount: "1000",
         unitType: "request",
@@ -9153,7 +9153,7 @@ export const services: ServiceDef[] = [
         dynamic: true,
       },
       {
-        route: "POST /sessions/{session_id}/page/scrape",
+        route: "POST /sessions/:session_id/page/scrape",
         desc: "Scrape content from the current page in the session.",
         amount: "3000",
         unitType: "request",
@@ -9179,13 +9179,13 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
-        route: "GET /v2/company_base/collect/{profile_url}",
+        route: "GET /v2/company_base/collect/:profile_url",
         desc: "Get a full company profile by its professional network URL. Pass the URL-encoded company page URL in the path. Returns",
         amount: "42000",
         unitType: "request",
       },
       {
-        route: "GET /v2/employee_clean/collect/{employee_id}",
+        route: "GET /v2/employee_clean/collect/:employee_id",
         desc: "Get a cleaned, deduplicated employee profile by its Coresignal numeric ID. Use IDs returned by the search endpoints",
         amount: "42000",
         unitType: "request",
@@ -9197,31 +9197,31 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v2/company_clean/collect/{company_id}",
+        route: "GET /v2/company_clean/collect/:company_id",
         desc: "Get a cleaned, deduplicated company profile by its Coresignal numeric ID. Use IDs returned by the search endpoints or",
         amount: "42000",
         unitType: "request",
       },
       {
-        route: "GET /v2/company_multi_source/collect/{company_id}",
+        route: "GET /v2/company_multi_source/collect/:company_id",
         desc: "Get the most comprehensive company profile by its Coresignal numeric ID. Multi-source data is aggregated from",
         amount: "84000",
         unitType: "request",
       },
       {
-        route: "GET /v2/company_multi_source/collect/{profile_url}",
+        route: "GET /v2/company_multi_source/collect/:profile_url",
         desc: "Get a comprehensive multi-source company profile by its professional network URL. Pass the URL-encoded company page URL",
         amount: "84000",
         unitType: "request",
       },
       {
-        route: "GET /v2/employee_multi_source/collect/{employee_id}",
+        route: "GET /v2/employee_multi_source/collect/:employee_id",
         desc: "Get the most comprehensive employee profile by its Coresignal numeric ID. Multi-source data is aggregated from multiple",
         amount: "84000",
         unitType: "request",
       },
       {
-        route: "GET /v2/employee_post/collect/{post_id}",
+        route: "GET /v2/employee_post/collect/:post_id",
         desc: "Get a full professional network post by its numeric post ID. Use IDs returned by the 'Employee Posts Search (Filter)'",
         amount: "42000",
         unitType: "request",
@@ -9245,13 +9245,13 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v2/employee_multi_source/collect/{profile_url}",
+        route: "GET /v2/employee_multi_source/collect/:profile_url",
         desc: "Get a comprehensive multi-source employee profile by their professional network URL. Pass the URL-encoded profile URL",
         amount: "84000",
         unitType: "request",
       },
       {
-        route: "GET /v2/employee_base/collect/{profile_url}",
+        route: "GET /v2/employee_base/collect/:profile_url",
         desc: "Get a full employee profile by their professional network URL. Pass the URL-encoded profile URL in the path. Returns",
         amount: "42000",
         unitType: "request",
@@ -9263,13 +9263,13 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v2/job_base/collect/{job_id}",
+        route: "GET /v2/job_base/collect/:job_id",
         desc: "Get a full job listing by its Coresignal numeric ID. Use IDs returned by the 'Base Jobs Search (Filter)' or Preview",
         amount: "42000",
         unitType: "request",
       },
       {
-        route: "GET /v2/company_base/collect/{company_id}",
+        route: "GET /v2/company_base/collect/:company_id",
         desc: "Get a full company profile by its Coresignal numeric ID. Use IDs returned by the 'Base Company Search (Filter)' or",
         amount: "42000",
         unitType: "request",
@@ -9293,7 +9293,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v2/employee_base/collect/{employee_id}",
+        route: "GET /v2/employee_base/collect/:employee_id",
         desc: "Get a full employee/professional profile by its Coresignal numeric ID. Use IDs returned by the 'Base Employee Search",
         amount: "42000",
         unitType: "request",
@@ -10007,7 +10007,7 @@ export const services: ServiceDef[] = [
   // ── Tako (Orthogonal) ──
   {
     id: "orth-tako",
-    name: "Tako",
+    name: "Tako via Orthogonal",
     url: "https://trytako.com/api",
     serviceUrl: "https://mpp.orthogonal.com/tako",
     description:
@@ -10365,7 +10365,7 @@ export const services: ServiceDef[] = [
   // ── AgentMail (Orthogonal) ──
   {
     id: "orth-agentmail",
-    name: "AgentMail",
+    name: "AgentMail via Orthogonal",
     url: "https://api.agentmail.to",
     serviceUrl: "https://mpp.orthogonal.com/agentmail",
     description:
@@ -10386,31 +10386,31 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "POST /v0/inboxes/{inbox_id}/drafts",
+        route: "POST /v0/inboxes/:inbox_id/drafts",
         desc: "Create a new draft in an inbox. The draft can be edited later and sent with Send Draft.",
         amount: "10000",
         unitType: "request",
       },
       {
-        route: "POST /v0/inboxes/{inbox_id}/messages/send",
+        route: "POST /v0/inboxes/:inbox_id/messages/send",
         desc: "Send an email message from an inbox. At least one recipient (to, cc, or bcc) is required. Returns the message_id and",
         amount: "10000",
         unitType: "request",
       },
       {
-        route: "POST /v0/inboxes/{inbox_id}/messages/{message_id}/reply-all",
+        route: "POST /v0/inboxes/:inbox_id/messages/:message_id/reply-all",
         desc: "Reply to all recipients of a message. Includes all original To and CC recipients automatically.",
         amount: "10000",
         unitType: "request",
       },
       {
-        route: "POST /v0/inboxes/{inbox_id}/messages/{message_id}/reply",
+        route: "POST /v0/inboxes/:inbox_id/messages/:message_id/reply",
         desc: "Reply to a specific message. Automatically sets In-Reply-To and References headers for proper threading.",
         amount: "10000",
         unitType: "request",
       },
       {
-        route: "POST /v0/inboxes/{inbox_id}/messages/{message_id}/forward",
+        route: "POST /v0/inboxes/:inbox_id/messages/:message_id/forward",
         desc: "Forward a message to new recipients. Includes the original message content and any attachments.",
         amount: "10000",
         unitType: "request",
@@ -10436,19 +10436,19 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
-        route: "GET /v3/companies/{id_or_domain}",
+        route: "GET /v3/companies/:id_or_domain",
         desc: "Get company profile by ID or domain",
         amount: "40000",
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/similar_companies",
+        route: "GET /v3/companies/:company_id_or_domain/similar_companies",
         desc: "Find companies similar to a given company",
         amount: "40000",
         unitType: "request",
       },
       {
-        route: "GET /v3/job_openings/{id}",
+        route: "GET /v3/job_openings/:id",
         desc: "Get a single job opening by ID",
         amount: "40000",
         unitType: "request",
@@ -10460,19 +10460,19 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v3/news_events/{id}",
+        route: "GET /v3/news_events/:id",
         desc: "Get a single news event by ID",
         amount: "40000",
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/products",
+        route: "GET /v3/companies/:company_id_or_domain/products",
         desc: "Get products associated with a company",
         amount: "40000",
         unitType: "request",
       },
       {
-        route: "GET /v3/products/{id}",
+        route: "GET /v3/products/:id",
         desc: "Get a single product by ID",
         amount: "40000",
         unitType: "request",
@@ -10484,19 +10484,19 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/github_repositories",
+        route: "GET /v3/companies/:company_id_or_domain/github_repositories",
         desc: "Get GitHub repositories associated with a company",
         amount: "40000",
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/website_evolution",
+        route: "GET /v3/companies/:company_id_or_domain/website_evolution",
         desc: "Track website changes over time for a specific company",
         amount: "40000",
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/technology_detections",
+        route: "GET /v3/companies/:company_id_or_domain/technology_detections",
         desc: "Get technology stack detections for a specific company",
         amount: "40000",
         unitType: "request",
@@ -10508,7 +10508,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v3/technologies/{id_or_fuzzy_name}",
+        route: "GET /v3/technologies/:id_or_fuzzy_name",
         desc: "Get a specific technology by ID or name",
         amount: "40000",
         unitType: "request",
@@ -10533,7 +10533,7 @@ export const services: ServiceDef[] = [
       },
       {
         route:
-          "GET /v3/discover/technologies/{technology_id_or_fuzzy_name}/technology_detections",
+          "GET /v3/discover/technologies/:technology_id_or_fuzzy_name/technology_detections",
         desc: "Find companies using a specific technology",
         amount: "40000",
         unitType: "request",
@@ -10545,7 +10545,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/news_events",
+        route: "GET /v3/companies/:company_id_or_domain/news_events",
         desc: "Get news events for a specific company",
         amount: "40000",
         unitType: "request",
@@ -10557,19 +10557,19 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/financing_events",
+        route: "GET /v3/companies/:company_id_or_domain/financing_events",
         desc: "Get financing/funding events for a specific company",
         amount: "40000",
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/job_openings",
+        route: "GET /v3/companies/:company_id_or_domain/job_openings",
         desc: "Get job openings for a specific company",
         amount: "40000",
         unitType: "request",
       },
       {
-        route: "GET /v3/companies/{company_id_or_domain}/connections",
+        route: "GET /v3/companies/:company_id_or_domain/connections",
         desc: "Get business connections for a specific company",
         amount: "40000",
         unitType: "request",
@@ -10759,19 +10759,19 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /social/post/{postUrn}/reactions",
+        route: "GET /social/post/:postUrn/reactions",
         desc: "Get reactions for a LinkedIn post.",
         amount: "80000",
         unitType: "request",
       },
       {
-        route: "GET /social/post/{postUrn}/reshares",
+        route: "GET /social/post/:postUrn/reshares",
         desc: "Get reshares for a LinkedIn post.",
         amount: "80000",
         unitType: "request",
       },
       {
-        route: "GET /social/post/{postUrn}/comments",
+        route: "GET /social/post/:postUrn/comments",
         desc: "Get comments for a LinkedIn post.",
         amount: "80000",
         unitType: "request",
@@ -10863,25 +10863,25 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v1/agents/{agentId}",
+        route: "GET /v1/agents/:agentId",
         desc: "Get details for a specific agent.",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "PATCH /v1/agents/{agentId}",
+        route: "PATCH /v1/agents/:agentId",
         desc: "Update agent fields. Only sent fields change.",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "POST /v1/agents/{agentId}/numbers",
+        route: "POST /v1/agents/:agentId/numbers",
         desc: "Attach a phone number to an agent.",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "DELETE /v1/agents/{agentId}/numbers/{numberId}",
+        route: "DELETE /v1/agents/:agentId/numbers/:numberId",
         desc: "Detach a phone number from an agent.",
         amount: "0",
         unitType: "request",
@@ -10899,7 +10899,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "DELETE /v1/numbers/{numberId}",
+        route: "DELETE /v1/numbers/:numberId",
         desc: "Release a phone number. Irreversible.",
         amount: "0",
         unitType: "request",
@@ -10911,37 +10911,37 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v1/numbers/{numberId}/messages",
+        route: "GET /v1/numbers/:numberId/messages",
         desc: "List messages for a phone number.",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "GET /v1/agents/{agentId}/conversations",
+        route: "GET /v1/agents/:agentId/conversations",
         desc: "List SMS conversations for a specific agent.",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "GET /v1/conversations/{conversationId}",
+        route: "GET /v1/conversations/:conversationId",
         desc: "Get a conversation with all messages.",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "GET /v1/agents/{agentId}/calls",
+        route: "GET /v1/agents/:agentId/calls",
         desc: "List calls for a specific agent.",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "GET /v1/agents/{agentId}/webhook",
+        route: "GET /v1/agents/:agentId/webhook",
         desc: "Get webhook URL for a specific agent.",
         amount: "5000",
         unitType: "request",
       },
       {
-        route: "POST /v1/agents/{agentId}/webhook",
+        route: "POST /v1/agents/:agentId/webhook",
         desc: "Set webhook URL for a specific agent.",
         amount: "5000",
         unitType: "request",
@@ -10959,7 +10959,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "DELETE /v1/agents/{agentId}",
+        route: "DELETE /v1/agents/:agentId",
         desc: "Permanently delete an agent. Cannot be undone.",
         amount: "0",
         unitType: "request",
@@ -10971,7 +10971,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /v1/calls/{callId}",
+        route: "GET /v1/calls/:callId",
         desc: "Get call details and transcript. Poll until status is completed or failed.",
         amount: "5000",
         unitType: "request",
