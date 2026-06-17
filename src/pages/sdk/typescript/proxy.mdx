@@ -41,7 +41,7 @@ const proxy = Proxy.create({
     openai({
       apiKey: process.env.OPENAI_API_KEY!,
       routes: {
-        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
+        'POST /v1/chat/completions': mppx.tempo.charge({ amount: '0.05' }),
         'GET /v1/models': true,
       },
     }),
@@ -78,19 +78,19 @@ const proxy = Proxy.create({
     openai({
       apiKey: process.env.OPENAI_API_KEY!,
       routes: {
-        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
+        'POST /v1/chat/completions': mppx.tempo.charge({ amount: '0.05' }),
       },
     }),
     anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY!,
       routes: {
-        'POST /v1/messages': mppx.charge({ amount: '0.03' }),
+        'POST /v1/messages': mppx.tempo.charge({ amount: '0.03' }),
       },
     }),
     stripe({
       apiKey: process.env.STRIPE_API_KEY!,
       routes: {
-        'POST /v1/charges': mppx.charge({ amount: '1' }),
+        'POST /v1/charges': mppx.tempo.charge({ amount: '1' }),
         'GET /v1/customers/:id': true,
       },
     }),
@@ -112,9 +112,9 @@ import { openai } from 'mppx/proxy'
 openai({
   apiKey: 'sk-...',
   routes: {
-    'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
-    'POST /v1/embeddings': mppx.charge({ amount: '0.01' }),
-    'POST /v1/images/generations': mppx.charge({ amount: '0.10' }),
+    'POST /v1/chat/completions': mppx.tempo.charge({ amount: '0.05' }),
+    'POST /v1/embeddings': mppx.tempo.charge({ amount: '0.01' }),
+    'POST /v1/images/generations': mppx.tempo.charge({ amount: '0.10' }),
     'GET /v1/models': true,
   },
 })
@@ -138,8 +138,8 @@ import { anthropic } from 'mppx/proxy'
 anthropic({
   apiKey: 'sk-ant-...',
   routes: {
-    'POST /v1/messages': mppx.charge({ amount: '0.03' }),
-    'POST /v1/complete': mppx.charge({ amount: '0.02' }),
+    'POST /v1/messages': mppx.tempo.charge({ amount: '0.03' }),
+    'POST /v1/complete': mppx.tempo.charge({ amount: '0.02' }),
   },
 })
 ```
@@ -162,7 +162,7 @@ import { stripe } from 'mppx/proxy'
 stripe({
   apiKey: 'sk-...',
   routes: {
-    'POST /v1/charges': mppx.charge({ amount: '1' }),
+    'POST /v1/charges': mppx.tempo.charge({ amount: '1' }),
     'GET /v1/customers/:id': true,
   },
 })
@@ -196,7 +196,7 @@ const proxy = Proxy.create({
       description: 'Example upstream API',
       title: 'My API',
       routes: {
-        'POST /v1/generate': mppx.charge({ amount: '0.01' }),
+        'POST /v1/generate': mppx.tempo.charge({ amount: '0.01' }),
         'GET /v1/status': true,
       },
     }),
@@ -216,7 +216,7 @@ Service.from('custom-api', {
     'X-Org-Id': 'org-123',
   },
   routes: {
-    'POST /v1/query': mppx.charge({ amount: '0.02' }),
+    'POST /v1/query': mppx.tempo.charge({ amount: '0.02' }),
   },
 })
 ```
@@ -235,7 +235,7 @@ Service.from('advanced-api', {
     return request
   },
   routes: {
-    'POST /v1/generate': mppx.charge({ amount: '0.05' }),
+    'POST /v1/generate': mppx.tempo.charge({ amount: '0.05' }),
   },
 })
 ```

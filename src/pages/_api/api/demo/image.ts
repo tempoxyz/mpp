@@ -25,7 +25,7 @@ const imageResults = [
 ];
 
 export async function GET(request: Request) {
-  const result = await mppx.charge({
+  const result = await mppx.tempo.charge({
     amount: "0.003",
     description: "Image generation",
   })(request);

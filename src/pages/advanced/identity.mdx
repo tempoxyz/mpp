@@ -92,7 +92,7 @@ After the payment middleware verifies the Credential, extract the client's ident
 import { Credential } from 'mppx'
 
 export async function handler(request: Request) {
-  const result = await mppx.charge({ amount: '1.00' })(request)
+  const result = await mppx.tempo.charge({ amount: '1.00' })(request)
   if (result.status === 402) return result.challenge
 
   const credential = Credential.fromRequest(request)
@@ -109,7 +109,7 @@ The client polls the job endpoint. The server issues a zero-dollar Challenge—t
 
 ```ts [server.ts]
 export async function statusHandler(request: Request) {
-  const result = await mppx.charge({ amount: '0' })(request) // [!code hl]
+  const result = await mppx.tempo.charge({ amount: '0' })(request) // [!code hl]
   if (result.status === 402) return result.challenge
 
   const credential = Credential.fromRequest(request)
@@ -137,7 +137,7 @@ The client pays once to gain access. The server records the public key as an aut
 
 ```ts [server.ts]
 export async function unlockHandler(request: Request) {
-  const result = await mppx.charge({ amount: '50.00' })(request)
+  const result = await mppx.tempo.charge({ amount: '50.00' })(request)
   if (result.status === 402) return result.challenge
 
   const credential = Credential.fromRequest(request)
@@ -153,7 +153,7 @@ Subsequent requests use zero-dollar auth. The server checks the client's identit
 
 ```ts [server.ts]
 export async function accessHandler(request: Request) {
-  const result = await mppx.charge({ amount: '0' })(request) // [!code hl]
+  const result = await mppx.tempo.charge({ amount: '0' })(request) // [!code hl]
   if (result.status === 402) return result.challenge
 
   const credential = Credential.fromRequest(request)
@@ -179,7 +179,7 @@ The agent pays to kick off generation. The server returns a pipeline ID tied to 
 
 ```ts [server.ts]
 export async function createPipelineHandler(request: Request) {
-  const result = await mppx.charge({ amount: '5.00' })(request)
+  const result = await mppx.tempo.charge({ amount: '5.00' })(request)
   if (result.status === 402) return result.challenge
 
   const credential = Credential.fromRequest(request)
@@ -195,7 +195,7 @@ The agent polls each stage of the pipeline. Every request proves the same identi
 
 ```ts [server.ts]
 export async function stageHandler(request: Request) {
-  const result = await mppx.charge({ amount: '0' })(request) // [!code hl]
+  const result = await mppx.tempo.charge({ amount: '0' })(request) // [!code hl]
   if (result.status === 402) return result.challenge
 
   const credential = Credential.fromRequest(request)
@@ -216,7 +216,7 @@ The final download also uses zero-dollar auth—the server already collected pay
 
 ```ts [server.ts]
 export async function resultHandler(request: Request) {
-  const result = await mppx.charge({ amount: '0' })(request) // [!code hl]
+  const result = await mppx.tempo.charge({ amount: '0' })(request) // [!code hl]
   if (result.status === 402) return result.challenge
 
   const credential = Credential.fromRequest(request)

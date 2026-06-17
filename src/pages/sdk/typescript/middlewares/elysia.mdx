@@ -38,7 +38,7 @@ const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const app = new Elysia()
   .guard(
-    { beforeHandle: mppx.charge({ amount: '1' }) },
+    { beforeHandle: mppx.tempo.charge({ amount: '1' }) },
     (app) => app.get('/premium', () => ({ data: 'paid content' })),
   )
 ```
@@ -54,7 +54,7 @@ import { Mppx, tempo } from 'mppx/elysia'
 const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 const app = new Elysia()
-  .onBeforeHandle(mppx.charge({ amount: '1' })) // [!code hl]
+  .onBeforeHandle(mppx.tempo.charge({ amount: '1' })) // [!code hl]
   .get('/premium', () => ({ data: 'paid content' }))
   .get('/another', () => ({ data: 'also paid' }))
 ```
