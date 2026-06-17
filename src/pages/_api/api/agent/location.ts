@@ -2,7 +2,7 @@ import { Expires } from "mppx/server";
 import { mppx } from "../../../../mppx.server";
 
 export async function GET(request: Request) {
-  const result = await mppx.tempo.charge({
+  const result = await mppx.charge({
     amount: "0.001",
     currency: import.meta.env.VITE_DEFAULT_CURRENCY!,
     expires: Expires.minutes(5),

@@ -70,7 +70,7 @@ const searchResults = [
 ];
 
 export async function GET(request: Request) {
-  const result = await mppx.tempo.charge({
+  const result = await mppx.charge({
     amount: "0.005",
     description: "Web search",
   })(request);

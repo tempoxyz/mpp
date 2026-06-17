@@ -27,7 +27,7 @@ const asciiArts = [
 ];
 
 export async function GET(request: Request) {
-  const result = await mppx.tempo.charge({
+  const result = await mppx.charge({
     amount: "0.001",
     description: "ASCII art",
   })(request);

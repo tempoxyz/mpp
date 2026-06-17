@@ -21,7 +21,7 @@ const mppx = Mppx.create({
 
 export async function handler(request: Request) {
   // [!code focus:start]
-  const response = await mppx.stripe.charge({
+  const response = await mppx.charge({
     amount: '1',
     currency: 'usd',
     decimals: 2,

@@ -14,7 +14,7 @@ const mppx = Mppx.create({
 
 http.createServer(async (req, res) => {
   const result = await Mppx.toNodeListener(
-    mppx.tempo.charge({
+    mppx.charge({
       amount: '0.1', 
       currency: '0x...', 
       recipient: '0x...',
@@ -60,7 +60,7 @@ const mppx = Mppx.create({
 http.createServer(async (req, res) => {
   const result = await Mppx.toNodeListener(
     // [!code focus:start]
-    mppx.tempo.charge({
+    mppx.charge({
       amount: '0.1',
       currency: '0x...',
       recipient: '0x...',

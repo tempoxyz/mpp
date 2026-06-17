@@ -39,7 +39,7 @@ const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 app.get(
   '/premium', 
-  mppx.tempo.charge({ amount: '1' }), // [!code hl]
+  mppx.charge({ amount: '1' }), // [!code hl]
   (c) => c.json({ data: 'paid content' }),
 )
 ```
@@ -89,7 +89,7 @@ const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 app.get(
   '/premium',
-  mppx.tempo.charge({ amount: '1' }),
+  mppx.charge({ amount: '1' }),
   (c) => {
     const credential = Credential.deserialize(c.req.header('Authorization')!)
     const payer = credential.source // "did:pkh:eip155:1:0x..."

@@ -16,7 +16,7 @@ const mppx = Mppx.create({
 const server = new McpServer({ name: 'example', version: '1.0.0' })
 
 server.registerTool('premium', { description: 'A premium tool' }, async (extra) => {
-  const result = await mppx.tempo.charge({
+  const result = await mppx.charge({
     amount: '0.1', currency: '0x...', recipient: '0x...',
   })(extra)
 

@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const placeId = url.searchParams.get("place") || "place_001";
 
-  const result = await mppx.tempo.charge({
+  const result = await mppx.charge({
     amount: "0.003",
     currency: import.meta.env.VITE_DEFAULT_CURRENCY!,
     expires: Expires.minutes(5),

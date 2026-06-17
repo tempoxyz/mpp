@@ -63,7 +63,7 @@ app.get('/my-service', async (req, res) => {
     headers: new Headers(req.headers as Record<string, string>),
   })
 
-  const result = await mppx.stellar.charge({
+  const result = await mppx.charge({
     amount: '0.01',
     description: 'Premium API access',
   })(webReq)

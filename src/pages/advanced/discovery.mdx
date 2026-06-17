@@ -50,7 +50,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY,
 })
 
-app.get('/v1/fortune', mppx.tempo.charge({ amount: '0.01' }), (c) => c.json({ fortune: 'You will be rich' }))
+app.get('/v1/fortune', mppx.charge({ amount: '0.01' }), (c) => c.json({ fortune: 'You will be rich' }))
 
 // [!code hl:start]
 discovery(app, mppx, {
@@ -82,7 +82,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY,
 })
 
-const pay = mppx.tempo.charge({ amount: '0.01' })
+const pay = mppx.charge({ amount: '0.01' })
 app.get('/v1/fortune', pay, (req, res) => res.json({ fortune: 'You will be rich' }))
 
 // [!code hl:start]

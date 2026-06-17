@@ -131,7 +131,7 @@ await server.connect(transport)
 
 ### Add `.charge` to the tool handler
 
-Call `mppx.tempo.charge` inside the tool handler. If the agent hasn't paid, throw the Challenge. Otherwise, attach a Receipt to the result.
+Call `mppx.charge` inside the tool handler. If the agent hasn't paid, throw the Challenge. Otherwise, attach a Receipt to the result.
 
 ```ts [server.ts]
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
@@ -154,7 +154,7 @@ server.registerTool(
   'search',
   { description: 'Search the web' },
   async ({ query }, extra) => {
-    const result = await mppx.tempo.charge({ // [!code ++]
+    const result = await mppx.charge({ // [!code ++]
       amount: '0.01', // [!code ++]
       description: 'Web search query', // [!code ++]
     })(extra) // [!code ++]
@@ -174,7 +174,7 @@ await server.connect(mcpTransport)
 
 Three lines turn a free tool into a paid one:
 
-- **`mppx.tempo.charge()`** checks for a valid Credential in the tool call's `_meta`
+- **`mppx.charge()`** checks for a valid Credential in the tool call's `_meta`
 - **`throw result.challenge`** sends a `-32042` error with the payment requirements
 - **`result.withReceipt()`** attaches a Receipt to the tool result
 
@@ -192,7 +192,7 @@ $ echo '{"method":"tools/call","params":{"name":"search","arguments":{"query":"h
 
 ## Multiple tools with different prices
 
-Set different prices per tool. Free tools don't need `mppx.tempo.charge` at all.
+Set different prices per tool. Free tools don't need `mppx.charge` at all.
 
 ```ts [server.ts]
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
@@ -225,7 +225,7 @@ server.registerTool(
   'search',
   { description: 'Search the web' },
   async ({ query }, extra) => {
-    const result = await mppx.tempo.charge({ amount: '0.01' })(extra)
+    const result = await mppx.charge({ amount: '0.01' })(extra)
     if (result.status === 402) throw result.challenge
     return result.withReceipt({
       content: [{ type: 'text', text: `Results for: ${query}` }],
@@ -238,7 +238,7 @@ server.registerTool(
   'generate-image',
   { description: 'Generate an image from a prompt' },
   async ({ prompt }, extra) => {
-    const result = await mppx.tempo.charge({ amount: '0.10' })(extra)
+    const result = await mppx.charge({ amount: '0.10' })(extra)
     if (result.status === 402) throw result.challenge
     return result.withReceipt({
       content: [{ type: 'text', text: `Image generated for: ${prompt}` }],
