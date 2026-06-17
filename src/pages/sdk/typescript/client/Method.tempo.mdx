@@ -6,13 +6,15 @@ imageDescription: "Handle Tempo payments in TypeScript clients"
 
 import { Tab, Tabs } from 'vocs'
 
-# `tempo` [Register default Tempo intents]
+# `tempo.common` [Register default Tempo intents]
 
-Convenience function that creates both `tempo.charge` and Sessions method intents with shared configuration.
+Explicit alias that creates both `tempo.charge` and Sessions method intents with shared configuration.
+
+Use `tempo.common()` when a client should handle both one-time payments and Sessions through the same fetch wrapper. The older `tempo()` callable form remains available for compatibility, but `tempo.common()` makes it clear that this helper registers the common bundle, not every Tempo intent.
 
 Register [`tempo.subscription`](/sdk/typescript/client/Method.tempo.subscription) separately for recurring payments.
 
-Use this helper when you want `Mppx.create` to handle both one-time charges and current Sessions through the same fetch wrapper. If you need to close, top up, or stream a single channel explicitly, use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) instead.
+If you need to close, top up, or stream a single channel explicitly, use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) instead.
 
 :::warning[Legacy Sessions]
 `tempo.session` is the current Sessions implementation. The previous contract-backed flow is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
@@ -33,7 +35,7 @@ await provider.request({ method: 'wallet_connect' })
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo({
+    tempo.common({
       account: provider.getAccount({ signable: true }),
       getClient: provider.getClient,
     }),
@@ -54,7 +56,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo({ account }),
+    tempo.common({ account }),
     // [!code focus:end]
   ],
 })

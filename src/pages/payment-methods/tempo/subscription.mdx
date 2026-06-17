@@ -161,7 +161,7 @@ Subscription Receipts confirm activation or renewal. The `reference` field is th
 
 ### Server
 
-Register `tempo.subscription()` explicitly. The `tempo()` convenience helper registers charge and session intents, but it doesn't register subscriptions.
+Register `tempo.subscription()` explicitly. The `tempo.common()` helper registers charge and session intents, but it doesn't register subscriptions.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
