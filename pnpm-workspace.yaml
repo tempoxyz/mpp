@@ -1,3 +1,6 @@
+packages:
+  - "workers/*"
+
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - mppx
@@ -6,6 +9,17 @@ minimumReleaseAgeExclude:
   - waku
 blockExoticSubdeps: true
 strictDepBuilds: true
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - workerd
+ignoredBuiltDependencies:
+  - es5-ext
+  - simple-git-hooks
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - semver@6.3.1

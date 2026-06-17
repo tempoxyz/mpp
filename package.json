@@ -13,6 +13,8 @@
     "dev": "node scripts/generate-discovery.ts && vite dev",
     "generate:discovery": "node scripts/generate-discovery.ts",
     "generate:pages": "node scripts/generate-pages.ts",
+    "mcp-services:check": "pnpm --filter mpp-services-mcp check",
+    "mcp-services:deploy": "pnpm --filter mpp-services-mcp deploy",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "preview": "vite preview",
@@ -70,7 +72,9 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "sharp",
+      "workerd"
     ],
     "ignoredBuiltDependencies": [
       "es5-ext",

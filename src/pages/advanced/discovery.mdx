@@ -28,6 +28,11 @@ Registries aggregate discovery documents from multiple services, making it easy 
 | [MPPScan](https://mppscan.com) | Public registry of MPP-enabled services with search and analytics | [Manually register](https://www.mppscan.com/register) in one click |
 | [MPP Services directory](https://mpp.dev/services) | Curated list of live services on mpp.dev | [Submit a PR](https://github.com/tempoxyz/mpp) to add your service |
 
+Agents can query the curated services directory over MCP at
+`https://mpp.dev/mcp/services`. The server is read-only and exposes tools to
+list services, search by category or payment method, inspect endpoint offers,
+and fetch advisory OpenAPI summaries.
+
 ## Quick start
 
 The `mppx` SDK generates discovery documents from your route configuration. Add `discovery()` to your server and it serves `/openapi.json` automatically.

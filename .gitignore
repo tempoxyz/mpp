@@ -6,6 +6,7 @@ src/pages.gen.ts
 .dev.vars*
 .env
 worker-configuration.d.ts
+wrangler.deploy.jsonc
 public/specs/
 src/pages/specs/index.mdx
 src/pages/_vocs.generated.css
