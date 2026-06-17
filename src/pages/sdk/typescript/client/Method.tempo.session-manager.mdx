@@ -531,6 +531,37 @@ type StoredSessionChannel = {
 | `opened` | Whether the channel was open when stored. Closed channels are ignored. |
 | `updatedAt` | Client timestamp for debugging or app-level eviction. |
 
+### `SessionSnapshot`
+
+`SessionSnapshot` is the server-provided channel state used by `bootstrap` and `sessionStore` hydration.
+
+```ts
+type SessionSnapshot = {
+  acceptedCumulative: string
+  chainId: number
+  channelId: Hex
+  closeRequestedAt?: string
+  deposit: string
+  descriptor: ChannelDescriptor
+  escrow: Address
+  requiredCumulative: string
+  settled: string
+  spent: string
+  units?: number
+}
+```
+
+### Snapshot helpers
+
+Use these helpers when you need to read or write the `Payment-Session-Snapshot` header yourself.
+
+```ts
+import { tempo } from 'mppx/client'
+
+const header = tempo.session.manager.serializeSnapshot(snapshot)
+const snapshot = tempo.session.manager.deserializeSnapshot(header)
+```
+
 ### `PaymentResponse`
 
 `session.fetch()` returns a standard `Response` extended with payment metadata:
@@ -543,6 +574,68 @@ type PaymentResponse = Response & {
   receipt: SessionReceipt | null
 }
 ```
+
+### `SessionManagerSseOptions`
+
+`session.sse()` accepts standard `RequestInit` fields plus receipt and cancellation hooks.
+
+```ts
+type SessionManagerSseOptions = RequestInit & {
+  onReceipt?: (receipt: SessionReceipt) => void
+  signal?: AbortSignal
+}
+```
+
+### `SessionManagerWebSocketOptions`
+
+```ts
+type SessionManagerWebSocketOptions = {
+  onReceipt?: (receipt: SessionReceipt) => void
+  protocols?: string | string[]
+  signal?: AbortSignal
+}
+```
+
+### `SessionManagedWebSocket`
+
+`session.ws()` returns a managed WebSocket facade. Payment protocol frames are handled internally; application listeners only receive application messages and close/error/open events.
+
+```ts
+type SessionManagedWebSocket = {
+  readonly bufferedAmount: number
+  readonly extensions: string
+  readonly protocol: string
+  readonly readyState: number
+  readonly url: string
+  onclose: ((event: CloseEvent) => void) | null
+  onerror: ((event: Event) => void) | null
+  onmessage: ((event: MessageEvent<string>) => void) | null
+  onopen: ((event: Event) => void) | null
+  addEventListener(type: string, listener: EventListener, options?: boolean | AddEventListenerOptions): void
+  close(code?: number, reason?: string): void
+  removeEventListener(type: string, listener: EventListener): void
+  send(data: string): void
+}
+```
+
+### `SessionState`
+
+`session.state` exposes the reducer state for UI, logs, or app-level orchestration.
+
+| Status | Meaning |
+|---|---|
+| `idle` | No session challenge has been handled yet. |
+| `challenged` | A `tempo/session` Challenge was selected. |
+| `hydrating` | A server snapshot is being used to restore a reusable channel. |
+| `opening` | An opening channel credential is being created or submitted. |
+| `active` | Channel is open or hydrated and can sign vouchers. |
+| `voucherNeeded` | Server requested a larger voucher and no top-up is required. |
+| `toppingUp` | Server-requested cumulative spend exceeds current deposit. |
+| `settling` | Accepted voucher spend is being settled on-chain. |
+| `closeRequested` | Unilateral close has been requested and withdrawal is not yet available. |
+| `withdrawable` | Close delay elapsed and funds can be withdrawn. |
+| `closing` | Cooperative close credential or close transaction is in flight. |
+| `closed` | Channel close finalized. |
 
 ### `SessionReceipt`
 

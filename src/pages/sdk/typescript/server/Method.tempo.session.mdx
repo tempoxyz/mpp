@@ -282,6 +282,8 @@ Server-owned automatic settlement cadence. Clients don't receive or control this
 
 Enable SSE streaming. Pass `true` to enable with defaults, or pass an options object to configure SSE.
 
+When `poll` is enabled, the stream checks the store at `pollingInterval` instead of waiting on store notifications. Use this for runtimes where promises cannot be resolved across request contexts.
+
 ### store (optional)
 
 - **Type:** `Store.AtomicStore`
@@ -315,6 +317,33 @@ Unit type label, such as `"token"`, `"byte"`, or `"request"`.
 
 ## Related
 
+### Snapshot helpers
+
+Use these helpers when you need to read or write the `Payment-Session-Snapshot` header yourself.
+
+```ts
+import { tempo } from 'mppx/server'
+
+const header = tempo.session.serializeSnapshot(snapshot)
+const snapshot = tempo.session.deserializeSnapshot(header)
+```
+
+```ts
+type SessionSnapshot = {
+  acceptedCumulative: string
+  chainId: number
+  channelId: Hex
+  closeRequestedAt?: string
+  deposit: string
+  descriptor: ChannelDescriptor
+  escrow: Address
+  requiredCumulative: string
+  settled: string
+  spent: string
+  units?: number
+}
+```
+
 ### `tempo.session.charge`
 
 Charges against a precompile-backed channel's stored balance outside an HTTP handler.
@@ -324,6 +353,8 @@ import { tempo } from 'mppx/server'
 
 const state = await tempo.session.charge(store, channelId, 10_000n)
 ```
+
+This returns the updated channel state and throws if the channel is missing, closed, or does not have enough unspent deposit.
 
 ### `tempo.session.settle`
 
@@ -335,6 +366,8 @@ import { tempo } from 'mppx/server'
 const txHash = await tempo.session.settle(store, client, channelId)
 ```
 
+The sender must be the channel payee or a nonzero operator. You can pass an account or fee-payer options as the fourth argument.
+
 ### `tempo.session.settleBatch`
 
 Settles multiple precompile-backed channels on-chain.
@@ -344,3 +377,5 @@ import { tempo } from 'mppx/server'
 
 const txHashes = await tempo.session.settleBatch(store, client, channelIds)
 ```
+
+`settleBatch` applies the same validation as `settle` to each channel and returns the settlement transaction hashes in order.
