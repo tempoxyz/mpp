@@ -42,6 +42,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 // [!code hl:end]
 
@@ -62,6 +63,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 // [!code hl:end]
 
@@ -82,6 +84,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 // [!code hl:end]
 
@@ -104,6 +107,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 // [!code hl:end]
 
@@ -143,6 +147,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 
 // [!code focus:start]
@@ -193,6 +198,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 
 type IncomingMessage = import('node:http').IncomingMessage
@@ -232,6 +238,7 @@ const mppx = Mppx.create({
     mode: 'push', // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 ```
 
@@ -251,6 +258,7 @@ const mppx = Mppx.create({
     feePayer: privateKeyToAccount('0x…'), // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 ```
 
@@ -265,6 +273,7 @@ const mppx = Mppx.create({
     feePayer: 'https://sponsor.example.com', // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 ```
 
@@ -281,6 +290,7 @@ const mppx = Mppx.create({
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     waitForConfirmation: false, // [!code focus]
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 ```
 
@@ -304,6 +314,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 
 app.get('/resource', mppx.charge({ amount: '0.1' }), (c) => c.json({ data: '...' }))
