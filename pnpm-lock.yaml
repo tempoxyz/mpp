@@ -30,8 +30,8 @@ importers:
         specifier: ^11.15.0
         version: 11.15.0
       mppx:
-        specifier: https://pkg.pr.new/mppx@530
-        version: https://pkg.pr.new/mppx@530(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3))
+        specifier: https://pkg.pr.new/mppx@557
+        version: https://pkg.pr.new/mppx@557(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3))
       react:
         specifier: ^19
         version: 19.2.7
@@ -2984,15 +2984,15 @@ packages:
       hono:
         optional: true
 
-  mppx@https://pkg.pr.new/mppx@530:
-    resolution: {tarball: https://pkg.pr.new/mppx@530}
-    version: 0.6.31
+  mppx@https://pkg.pr.new/mppx@557:
+    resolution: {tarball: https://pkg.pr.new/mppx@557}
+    version: 0.7.0
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
       elysia: '>=1'
       express: '>=5'
-      hono: '>=4.12.18'
+      hono: '>=4.12.25'
       viem: '>=2.51.0'
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
@@ -7158,8 +7158,9 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  mppx@https://pkg.pr.new/mppx@530(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3)):
+  mppx@https://pkg.pr.new/mppx@557(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
+      '@stripe/stripe-js': 9.7.0
       incur: 0.4.8
       ox: 0.14.27(typescript@6.0.3)(zod@4.4.3)
       viem: 2.52.2(typescript@6.0.3)(zod@4.4.3)
@@ -8252,7 +8253,7 @@ snapshots:
       '@noble/ciphers': 2.2.0
       '@noble/hashes': 2.2.0
       hono: 4.12.23
-      ox: 0.14.27(typescript@6.0.3)(zod@4.4.3)
+      ox: 0.14.29(typescript@6.0.3)(zod@4.4.3)
       rettime: 0.11.11
       zod: 4.4.3
     transitivePeerDependencies:
@@ -8265,7 +8266,7 @@ snapshots:
 
   webauthx@0.1.2(typescript@6.0.3)(zod@4.4.3):
     dependencies:
-      ox: 0.14.27(typescript@6.0.3)(zod@4.4.3)
+      ox: 0.14.29(typescript@6.0.3)(zod@4.4.3)
     transitivePeerDependencies:
       - typescript
       - zod
