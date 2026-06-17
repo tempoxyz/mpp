@@ -1,7 +1,7 @@
 import { mppx } from "../../../mppx.server";
 
 export async function GET(request: Request) {
-  const result = await mppx.tempo.charge({
+  const result = await mppx.charge({
     amount: "0.01",
     description: "Random stock photo",
   })(request);

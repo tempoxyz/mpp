@@ -13,7 +13,7 @@ const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 export async function handler(request: Request) {
   // [!code focus:start]
-  const response = await mppx.tempo.charge({
+  const response = await mppx.charge({
     amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -37,7 +37,7 @@ const mppx = Mppx.create({ methods: [tempo.charge()] })
 import { Expires } from 'mppx'
 
 export async function handler(request: Request) {
-  const response = await mppx.tempo.charge({
+  const response = await mppx.charge({
     amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000000',
     expires: Expires.minutes(10), // [!code focus]
@@ -59,7 +59,7 @@ import { Mppx, tempo } from 'mppx/server'
 const mppx = Mppx.create({ methods: [tempo.charge()] })
 // ---cut---
 export async function handler(request: Request) {
-  const response = await mppx.tempo.charge({
+  const response = await mppx.charge({
     amount: '0.1',
     currency: '0x20c0000000000000000000000000000000000000',
     description: 'API access for /resource', // [!code focus]
@@ -112,7 +112,7 @@ const mppx = Mppx.create({
 })
 
 export async function handler(request: Request) {
-  const response = await mppx.tempo.charge({
+  const response = await mppx.charge({
     amount: '0',
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -303,7 +303,7 @@ import { Mppx, tempo } from 'mppx/server'
 const mppx = Mppx.create({ methods: [tempo.charge()] })
 // ---cut---
 export async function handler(request: Request) {
-  const response = await mppx.tempo.charge({
+  const response = await mppx.charge({
     amount: '1.00',
     currency: '0x20c0000000000000000000000000000000000000', // pathUSD
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // seller

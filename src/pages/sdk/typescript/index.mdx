@@ -228,8 +228,8 @@ const mppx = Mppx.create({
 })
 // [!code hl:end]
 
-export const GET =
-  mppx.tempo.charge({ amount: '0.1' }) // [!code hl]
+export const GET = 
+  mppx.charge({ amount: '0.1' }) // [!code hl]
   (() => Response.json({ data: '...' }))
 ```
 
@@ -250,8 +250,8 @@ const mppx = Mppx.create({
 // [!code hl:end]
 
 app.get(
-  '/resource',
-  mppx.tempo.charge({ amount: '0.1' }), // [!code hl]
+  '/resource', 
+  mppx.charge({ amount: '0.1' }), // [!code hl]
   (c) => c.json({ data: '...' }),
 )
 ```
@@ -272,7 +272,7 @@ const mppx = Mppx.create({
 
 const app = new Elysia()
   .guard(
-    { beforeHandle: mppx.tempo.charge({ amount: '0.1' }) }, // [!code hl]
+    { beforeHandle: mppx.charge({ amount: '0.1' }) }, // [!code hl]
     (app) => app.get('/resource', () => ({ data: '...' })),
   )
 ```
@@ -294,8 +294,8 @@ const mppx = Mppx.create({
 // [!code hl:end]
 
 app.get(
-  '/resource',
-  mppx.tempo.charge({ amount: '0.1' }), // [!code hl]
+  '/resource', 
+  mppx.charge({ amount: '0.1' }), // [!code hl]
   (req, res) => res.json({ data: '...' }))
 ```
 
@@ -305,8 +305,8 @@ app.get(
 You can also override `currency` and `recipient` per call if different routes need different payment configurations.
 
 ```ts
-mppx.tempo.charge({
-  amount: '0.1',
+mppx.charge({ 
+  amount: '0.1', 
   currency: '0x…', // [!code ++]
   recipient: '0x…', // [!code ++]
 })
@@ -339,16 +339,16 @@ const mppx = Mppx.create({
 })
 
 // [!code focus:start]
-export async function handler(request: Request) {
-  const response = await mppx.tempo.charge({ amount: '0.1' })(request)
+export async function handler(request: Request) { 
+  const response = await mppx.charge({ amount: '0.1' })(request) 
   // [!code focus:end]
 
-  // Payment required: send 402 response with challenge
-  if (response.status === 402) return response.challenge
+  // Payment required: send 402 response with challenge 
+  if (response.status === 402) return response.challenge 
 
-  // Payment verified: attach receipt and return resource
-  return response.withReceipt(Response.json({ data: '...' }))
-}
+  // Payment verified: attach receipt and return resource 
+  return response.withReceipt(Response.json({ data: '...' })) 
+} 
 ```
 
 :::info[Currency and recipient values]
@@ -364,11 +364,11 @@ The Fetch API is compatible with most server frameworks, including: [Hono](https
 You can also override `currency` and `recipient` per call if different routes need different payment configurations.
 
 ```ts
-const response = await mppx.tempo.charge({
-  amount: '0.1',
+const response = await mppx.charge({ 
+  amount: '0.1', 
   currency: '0x…', // [!code ++]
   recipient: '0x…', // [!code ++]
-})(request)
+})(request) 
 ```
 :::
 
@@ -398,17 +398,17 @@ const mppx = Mppx.create({
 type IncomingMessage = import('node:http').IncomingMessage
 type ServerResponse = import('node:http').ServerResponse
 // ---cut---
-export async function handler(req: IncomingMessage, res: ServerResponse) {
+export async function handler(req: IncomingMessage, res: ServerResponse) { 
   const response = await Mppx.toNodeListener( // [!code ++]
-    mppx.tempo.charge({ amount: '0.1' })
+    mppx.charge({ amount: '0.1' })
   )(req, res) // [!code ++]
 
-  // Payment required: send 402 response with challenge
-  if (response.status === 402) return response.challenge
+  // Payment required: send 402 response with challenge 
+  if (response.status === 402) return response.challenge 
 
-  // Payment verified: attach receipt and return resource
-  return response.withReceipt(Response.json({ data: '...' }))
-}
+  // Payment verified: attach receipt and return resource 
+  return response.withReceipt(Response.json({ data: '...' })) 
+} 
 ```
 
 </div>
