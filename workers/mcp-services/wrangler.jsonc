@@ -1,0 +1,33 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "mpp-services-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "account_id": "ba6ee3674b03f08481e57ff9992c601e",
+  "workers_dev": true,
+  "preview_urls": true,
+  "keep_vars": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true
+    }
+  },
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "MPP_CATALOG_CACHE",
+      "id": "REPLACE_WITH_PRODUCTION_KV_NAMESPACE_ID"
+    }
+  ],
+  "vars": {
+    "MPP_SERVICES_URL": "https://mpp.dev/api/services",
+    "PUBLIC_MCP_ENDPOINT": "https://mpp.dev/mcp/services"
+  }
+}

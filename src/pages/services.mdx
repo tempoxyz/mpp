@@ -10,3 +10,10 @@ imageDescription: "Browse live APIs that accept machine payments"
 import { ServicesPage } from "../components/ServicesPage";
 
 <ServicesPage />
+
+## Agent discovery
+
+Agents can query the read-only services MCP server at
+`https://mpp.dev/mcp/services` to list and search the catalog, inspect payment
+offers, and fetch advisory OpenAPI summaries. Runtime `402` Challenges remain
+the authoritative source of payment terms.

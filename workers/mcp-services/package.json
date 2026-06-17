@@ -1,0 +1,21 @@
+{
+  "name": "mpp-services-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "node scripts/prepare-deploy-config.mjs && wrangler deploy --config wrangler.deploy.jsonc",
+    "deploy:dry-run": "node scripts/prepare-deploy-config.mjs --dry-run && wrangler deploy --dry-run --config wrangler.deploy.jsonc",
+    "gen:types": "wrangler types",
+    "check:types": "tsc --noEmit",
+    "test": "vitest --run",
+    "check": "pnpm gen:types && pnpm check:types && pnpm test"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8",
+    "wrangler": "^4.101.0"
+  }
+}

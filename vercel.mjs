@@ -12,6 +12,18 @@ const OPENAPI_DISCOVERY_LINK_VALUE = [
   '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
 ].join(", ");
 
+const MPP_SERVICES_MCP_WORKER_ORIGIN =
+  process.env.MPP_SERVICES_MCP_WORKER_ORIGIN?.replace(/\/+$/, "");
+
+if (
+  process.env.VERCEL_ENV === "production" &&
+  !MPP_SERVICES_MCP_WORKER_ORIGIN
+) {
+  throw new Error(
+    "MPP_SERVICES_MCP_WORKER_ORIGIN must be set for production Vercel builds",
+  );
+}
+
 const CONTENT_NEGOTIATION_HEADERS = [header("Vary", "Accept, User-Agent")];
 
 const API_CATALOG_HEADERS = [
@@ -67,6 +79,20 @@ export const config = {
       ]),
     ),
   ],
+  ...(MPP_SERVICES_MCP_WORKER_ORIGIN
+    ? {
+        rewrites: [
+          rewriteRule(
+            "/mcp/services",
+            `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
+          ),
+          rewriteRule(
+            "/mcp/services/:path*",
+            `${MPP_SERVICES_MCP_WORKER_ORIGIN}/mcp/services`,
+          ),
+        ],
+      }
+    : {}),
   redirects: [
     {
       source: "/index",
@@ -93,4 +119,8 @@ function header(key, value) {
 
 function headerRule(source, headers) {
   return { source, headers };
+}
+
+function rewriteRule(source, destination) {
+  return { source, destination };
 }

@@ -162,7 +162,7 @@ export default defineConfig(({ mode }) => {
       vocs(),
       contentSignalsRobotsTxt(),
       pruneSitemap(),
-      ...(mode !== "production"
+      ...(mode !== "production" && mode !== "test"
         ? [mkcert({ force: true, hosts: ["localhost"] })]
         : []),
     ],
@@ -181,7 +181,7 @@ export default defineConfig(({ mode }) => {
       external: ["typescript"],
     },
     test: {
-      exclude: [...configDefaults.exclude, "e2e/**"],
+      exclude: [...configDefaults.exclude, "e2e/**", "workers/**"],
     },
   };
 });
