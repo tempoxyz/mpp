@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const destination = url.searchParams.get("to") || "The Coffee Movement";
 
-  const result = await mppx.charge({
+  const result = await mppx.tempo.charge({
     amount: "0.002",
     currency: import.meta.env.VITE_DEFAULT_CURRENCY!,
     expires: Expires.minutes(5),

@@ -26,7 +26,7 @@ const mppx = Mppx.create({
 });
 
 export async function handler(request: Request) {
-  const result = await mppx.charge({
+  const result = await mppx.monad.charge({
     amount: "0.1",
     currency: "0x754704Bc059F8C67012fEd69BC8A327a5aafb603", // USDC
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",

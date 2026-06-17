@@ -101,7 +101,7 @@ const mppx = Mppx.create({
 
 ### Add a paid endpoint
 
-Use `mppx.charge` to gate your endpoint. Set the `amount` in the smallest currency unit (cents for USD), and specify `currency` and `decimals`.
+Use `mppx.stripe.charge` to gate your endpoint. Set the `amount` in the smallest currency unit (cents for USD), and specify `currency` and `decimals`.
 
 ```ts twoslash
 import Stripe from 'stripe'
@@ -121,7 +121,7 @@ const mppx = Mppx.create({
 
 // ---cut---
 export async function handler(request: Request) {
-  const result = await mppx.charge({
+  const result = await mppx.stripe.charge({
     amount: '100',
     currency: 'usd',
     decimals: 2,

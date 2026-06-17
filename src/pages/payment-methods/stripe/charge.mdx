@@ -40,7 +40,7 @@ const mppx = Mppx.create({
 })
 
 export async function handler(request: Request) {
-  const result = await mppx.charge({
+  const result = await mppx.stripe.charge({
     amount: '1',
     currency: 'usd',
     decimals: 2,

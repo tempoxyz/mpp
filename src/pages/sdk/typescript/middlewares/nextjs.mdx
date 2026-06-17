@@ -36,7 +36,7 @@ import { Mppx, tempo } from 'mppx/nextjs'
 const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 export const GET = 
-  mppx.charge({ amount: '1' }) // [!code hl]
+  mppx.tempo.charge({ amount: '1' }) // [!code hl]
   (() => Response.json({ data: 'paid content' }))
 ```
 
@@ -78,7 +78,7 @@ import { Mppx, tempo } from 'mppx/nextjs'
 const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 export const GET =
-  mppx.charge({ amount: '1' })
+  mppx.tempo.charge({ amount: '1' })
   ((request) => {
     const credential = Credential.deserialize(request.headers.get('Authorization')!)
     const payer = credential.source // "did:pkh:eip155:1:0x..."

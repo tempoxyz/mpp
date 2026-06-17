@@ -29,7 +29,7 @@ const mppx = Mppx.create({
 })
 
 export async function handler(request: Request) {
-  const result = await mppx.charge({
+  const result = await mppx.spark.charge({
     amount: '100',
     currency: 'BTC',
     description: 'Premium API access',
@@ -52,7 +52,7 @@ const mppx = Mppx.create({
 })
 
 export async function handler(request: Request) {
-  const result = await mppx.charge({
+  const result = await mppx.spark.charge({
     amount: '100',
     currency: 'BTC',
     expires: Expires.minutes(10), // [!code hl]

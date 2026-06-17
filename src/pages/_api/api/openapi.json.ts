@@ -17,7 +17,7 @@ const discoveryRoute = discovery(mppx, {
   info: { title: "mpp.dev", version: "1.0.0" },
   routes: [
     {
-      handler: mppx.charge({
+      handler: mppx.tempo.charge({
         amount: "0.1",
         currency: USDCe,
         description: "Ping endpoint access",
