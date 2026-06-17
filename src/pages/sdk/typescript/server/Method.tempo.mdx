@@ -4,9 +4,11 @@ description: "Register Tempo charge and session support in an MPP TypeScript ser
 imageDescription: "Accept Tempo payments in TypeScript servers"
 ---
 
-# `tempo` [Register default Tempo intents]
+# `tempo.common` [Register default Tempo intents]
 
-Convenience function that creates both `tempo.charge` and Sessions method intents with shared configuration.
+Explicit alias that creates both `tempo.charge` and Sessions method intents with shared configuration.
+
+Use `tempo.common()` when a server should accept both one-time payments and Sessions from the same shared Tempo configuration. The older `tempo()` callable form remains available for compatibility, but `tempo.common()` makes it clear that this helper registers the common bundle, not every Tempo intent.
 
 Register [`tempo.subscription`](/sdk/typescript/server/Method.tempo.subscription) separately for recurring payments.
 
@@ -25,7 +27,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo({
+    tempo.common({
       account,
       chainId: 4217,
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
