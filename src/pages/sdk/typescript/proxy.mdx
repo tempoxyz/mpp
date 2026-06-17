@@ -61,6 +61,12 @@ The proxy returns two handlers:
 - **`fetch`** — Fetch API handler. Works with Bun, Deno, Next.js, Hono, Elysia, and SvelteKit.
 - **`listener`** — Node.js request listener. Works with Express, Fastify, and `http.createServer`.
 
+Route values use the current `EndpointMap` shape:
+
+- Use an mppx intent handler like `mppx.charge({ amount: '0.05' })` for paid routes.
+- Use `true` for free passthrough routes.
+- Use a method-specific handler, such as `mppx.tempo.session({ amount, unitType })`, for session-priced routes.
+
 ### Multiple services
 
 Pass multiple services to gate several upstream APIs behind a single proxy.
