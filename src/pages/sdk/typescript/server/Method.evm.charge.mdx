@@ -39,6 +39,8 @@ export async function handler(request: Request) {
 
 Use `x402.facilitator` to run x402 exact settlement inline with the MPP route. Use `settle` when you want to verify and settle Credentials yourself.
 
+Use lowercase `evm.assets` and `evm.chains` for known asset and chain metadata. Uppercase aliases remain available for compatibility, but new code should use the lowercase namespaces.
+
 ## Return type
 
 Returns a function that accepts a `Request` and returns a response object with payment status.
