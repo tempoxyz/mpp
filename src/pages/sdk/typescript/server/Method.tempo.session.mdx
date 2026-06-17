@@ -110,6 +110,36 @@ const mppx = Mppx.create({
 
 Use `tempo.sessionLegacy()` only while clients still send Legacy Sessions Credentials.
 
+### With same-route bootstrap
+
+Set `bootstrap: true` and provide `resolveChannelId` when clients should recover a previous channel before opening a new one. Bootstrap uses the protected route itself: the client sends `HEAD`, answers a `$0` Tempo charge Challenge, and the server uses the verified `source` plus request metadata to look up an existing channel.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const store = Store.memory()
+const channelIdsBySource = new Map<string, string>()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      bootstrap: true,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      store,
+      resolveChannelId({ request, source }) {
+        return (source ? channelIdsBySource.get(source) : undefined) ?? request?.headers.get('Payment-Session') ?? undefined
+      },
+    }),
+  ],
+})
+```
+
+If the resolver returns a known channel ID, the server responds with `Payment-Session` and `Payment-Session-Snapshot`. If it returns `undefined`, the server returns `204` without a snapshot and the client falls back to opening a new channel.
+
 ## Return type
 
 ```ts
@@ -219,6 +249,27 @@ Default recipient address for payments. Defaults to the `account` address.
 
 Function that resolves a reusable channel ID from request identity when no Credential or request channel ID is present.
 
+```ts
+type ResolveSessionChannelId = (
+  parameters: ResolveSessionChannelIdParameters,
+) => Promise<string | null | undefined> | string | null | undefined
+
+type ResolveSessionChannelIdParameters = {
+  request?: {
+    readonly headers: Headers
+    readonly hasBody?: boolean
+    readonly method: string
+    readonly url?: URL
+  }
+  credential: Credential | null | undefined
+  source?: string
+  paymentRequest: SessionPaymentRequestInput
+  store: ChannelStore
+}
+```
+
+Use `source` for identity bootstrap. It is only set after the server verifies the client's zero-amount proof. Use `request.headers` for app session cookies or explicit `Payment-Session` hints. The returned channel ID is treated as a hint; the server still verifies that the channel exists and matches the current payment request.
+
 ### settlementSchedule (optional)
 
 - **Type:** `{ amount?: string | bigint; intervalMs?: number; units?: number }`
@@ -230,6 +281,8 @@ Server-owned automatic settlement cadence. Clients don't receive or control this
 - **Type:** `boolean | { poll?: boolean; pollingInterval?: number }`
 
 Enable SSE streaming. Pass `true` to enable with defaults, or pass an options object to configure SSE.
+
+When `poll` is enabled, the stream checks the store at `pollingInterval` instead of waiting on store notifications. Use this for runtimes where promises cannot be resolved across request contexts.
 
 ### store (optional)
 
@@ -264,6 +317,33 @@ Unit type label, such as `"token"`, `"byte"`, or `"request"`.
 
 ## Related
 
+### Snapshot helpers
+
+Use these helpers when you need to read or write the `Payment-Session-Snapshot` header yourself.
+
+```ts
+import { tempo } from 'mppx/server'
+
+const header = tempo.session.serializeSnapshot(snapshot)
+const snapshot = tempo.session.deserializeSnapshot(header)
+```
+
+```ts
+type SessionSnapshot = {
+  acceptedCumulative: string
+  chainId: number
+  channelId: Hex
+  closeRequestedAt?: string
+  deposit: string
+  descriptor: ChannelDescriptor
+  escrow: Address
+  requiredCumulative: string
+  settled: string
+  spent: string
+  units?: number
+}
+```
+
 ### `tempo.session.charge`
 
 Charges against a precompile-backed channel's stored balance outside an HTTP handler.
@@ -273,6 +353,8 @@ import { tempo } from 'mppx/server'
 
 const state = await tempo.session.charge(store, channelId, 10_000n)
 ```
+
+This returns the updated channel state and throws if the channel is missing, closed, or does not have enough unspent deposit.
 
 ### `tempo.session.settle`
 
@@ -284,6 +366,8 @@ import { tempo } from 'mppx/server'
 const txHash = await tempo.session.settle(store, client, channelId)
 ```
 
+The sender must be the channel payee or a nonzero operator. You can pass an account or fee-payer options as the fourth argument.
+
 ### `tempo.session.settleBatch`
 
 Settles multiple precompile-backed channels on-chain.
@@ -293,3 +377,5 @@ import { tempo } from 'mppx/server'
 
 const txHashes = await tempo.session.settleBatch(store, client, channelIds)
 ```
+
+`settleBatch` applies the same validation as `settle` to each channel and returns the settlement transaction hashes in order.

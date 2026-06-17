@@ -266,3 +266,35 @@ Maximum deposit in human-readable units. Caps server-suggested channel opens and
 - **Type:** `(entry: ChannelEntry) => void`
 
 Called whenever channel state changes.
+
+## Credential context
+
+Most clients should omit context and let `tempo.session()` open, recover, top up, and voucher automatically from server Challenges. Advanced callers can pass context to `method.createCredential()` for manual credentials or per-call overrides.
+
+```ts
+type SessionContext = {
+  account?: Account
+  action?: 'open' | 'topUp' | 'voucher' | 'close'
+  channelId?: Hex
+  cumulativeAmount?: string
+  cumulativeAmountRaw?: string
+  transaction?: Hex
+  descriptor?: ChannelDescriptor
+  additionalDeposit?: string
+  additionalDepositRaw?: string
+  depositRaw?: string
+}
+```
+
+| Field | Description |
+|---|---|
+| `account` | Account override for this credential only. |
+| `action` | Manual credential action. Omit for automatic session management. |
+| `channelId` | Channel ID to reuse or manually operate on. |
+| `descriptor` | TIP-1034 descriptor required for recovery and manual credentials. |
+| `transaction` | Signed Tempo transaction for manual `open` or `topUp` credentials. |
+| `cumulativeAmount` | Human-readable cumulative voucher authorization, parsed with `decimals`. |
+| `cumulativeAmountRaw` | Raw cumulative voucher authorization. Takes precedence over `cumulativeAmount`. |
+| `additionalDeposit` | Human-readable top-up amount, parsed with `decimals`. |
+| `additionalDepositRaw` | Raw top-up amount. Takes precedence over `additionalDeposit`. |
+| `depositRaw` | Raw opening deposit override for automatic open credentials. |
