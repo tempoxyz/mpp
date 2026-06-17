@@ -9,15 +9,21 @@ imageDescription: "Updates on the Machine Payments Protocol"
 ---
 
 <h1 className="blog-index-title">Blog</h1>
-<p className="blog-index-description">
+<div className="blog-index-description">
   Updates from the MPP team on protocol development, integrations, and the future of machine payments.
-</p>
+</div>
 
 {/* TODO: Replace with ::blog-posts directive when Vocs v2 adds blog support */}
 
 import { BlogPostList } from "../../components/BlogPostList";
 
 <BlogPostList posts={[
+  {
+    date: "Wednesday, June 17, 2026",
+    title: "Hermes agents can now pay for APIs with MPP",
+    description: <>Nous Research added an MPP skill to Hermes so agents can pay per request for APIs.</>,
+    to: "/blog/hermes-mpp",
+  },
   {
     date: "Wednesday, June 17, 2026",
     title: "An improved sessions experience",

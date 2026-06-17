@@ -1,0 +1,59 @@
+---
+layout: minimal
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "Nous Research added an MPP skill to Hermes so agents can pay per request for APIs."
+imageDescription: "Hermes agents can pay for APIs with MPP"
+---
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Wednesday, June 17, 2026</p>
+
+# Hermes agents can now pay for APIs with MPP [Nous Research adds an MPP skill for per-request agent payments]
+
+Nous Research has added an MPP payments skill to Hermes. With `mpp-agent`, a Hermes agent can pay APIs that charge per request, settling each call as it happens instead of relying on a subscription, shared API key, or manual checkout.
+
+The skill is part of a broader set of payments capabilities built with Stripe, and it uses the Machine Payments Protocol for the `402` payment flow.
+
+## What MPP does
+
+MPP is an open standard for machine payments. It defines how a client pays for a resource over HTTP. A server responds with `402 Payment Required` and a Challenge describing the price, the client submits a Credential, and the server fulfills the request with a Receipt.
+
+The same pattern supports one-time charges, variable usage within a single request, and recurring subscriptions. MPP was co-authored by Tempo and Stripe.
+
+## What the skill does
+
+The `mpp-agent` skill is a client for these flows. It installs on its own, with no changes to Hermes itself:
+
+```bash [terminal]
+$ hermes skills install official/payments/mpp-agent
+```
+
+Once installed, Hermes can pay `402`-gated endpoints using the `mppx` client and a wallet of the user's choosing, including Tempo Wallet. Users who don't need payments don't have new core tools or configuration to manage.
+
+## The agent acts, the user sets the spending bound
+
+Nous designed the skill so autonomy doesn't mean losing control of spend. Wallet keys never enter the agent's transcript, logs, or memory. Spend approvals sit outside the agent and can't be bypassed by it. Final amounts are confirmed before any payment goes through.
+
+That split makes machine payments workable in production. The agent decides what to pay for, request by request, within limits the user sets and the agent can't override.
+
+## Why an open standard matters
+
+Nous built this without involvement from the MPP team. That's what an open standard is for. Any agent framework, wallet, or API can implement MPP and interoperate with the rest, without asking permission and without locking into a single provider.
+
+The `mpp-agent` skill supports more than one wallet, and MPP works across payment methods and chains.
+
+## Build with MPP
+
+If you're building an agent that needs to pay for things, you can add MPP the same way Nous did. If you run an API, you can price it per request and accept MPP payments directly.
+
+- [Connect an agent to MPP services](/quickstart/agent)
+- [Accept MPP payments on your API](/quickstart/server)
+- [Browse MPP-enabled services](/services)
+
+</div>
