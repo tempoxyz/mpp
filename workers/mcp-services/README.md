@@ -8,8 +8,8 @@ Production endpoint:
 https://mpp.dev/mcp/services
 ```
 
-The production URL is served by the `mpp.dev` Vercel app through a rewrite to
-this Worker. Set the Vercel environment variable
+The production URL is served by the `mpp.dev` Vercel app through its MCP
+services proxy route. Set the Vercel environment variable
 `MPP_SERVICES_MCP_WORKER_ORIGIN` to the production Worker origin.
 
 Dev mirror:
@@ -78,20 +78,28 @@ pnpm --filter mpp-services-mcp check
 pnpm --filter mpp-services-mcp dev
 ```
 
-Deploys are pinned to the Tempo Production Cloudflare account:
+Production deploys run from the `production` GitHub Environment. Configure:
 
 ```text
-Tempo Production Resources / ba6ee3674b03f08481e57ff9992c601e
+CLOUDFLARE_ACCOUNT_ID=<production-account-id>  # GitHub Environment variable
+CLOUDFLARE_API_TOKEN=<deploy-token>            # GitHub Environment secret
 ```
 
-Deploy:
+The token is provisioned through `tempoxyz/secrets`; request `account: prd`
+with `account_settings_read`, `workers_scripts_write`, and
+`workers_kv_storage_write`.
+
+Local deployments use the same environment variables:
 
 ```bash
+export CLOUDFLARE_ACCOUNT_ID=<account-id>
+export CLOUDFLARE_API_TOKEN=<deploy-token>
 pnpm --filter mpp-services-mcp deploy:dry-run
 pnpm --filter mpp-services-mcp deploy
 ```
 
 The deploy script creates `wrangler.deploy.jsonc` locally, resolving or creating
 the production `MPP_CATALOG_CACHE` KV namespace before invoking Wrangler. It
-requires `CLOUDFLARE_API_TOKEN` with Account Read, Workers Scripts Write, and
-Workers KV Storage Write permissions. Zone permissions are not required.
+requires `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` with Account Read,
+Workers Scripts Write, and Workers KV Storage Write permissions. Zone
+permissions are not required.
