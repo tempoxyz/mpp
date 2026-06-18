@@ -499,7 +499,9 @@ function SearchWithDropdown({
             position: "absolute",
             top: "calc(100% + 6px)",
             left: 0,
-            right: 0,
+            right: "auto",
+            width: "min(960px, calc(100vw - 2rem))",
+            maxWidth: "calc(100vw - 2rem)",
             zIndex: 100,
             borderRadius: 12,
             border: "1px solid var(--vocs-border-color-primary)",
@@ -584,6 +586,7 @@ function SearchWithDropdown({
                     fontSize: 13,
                     color: "var(--vocs-text-color-heading)",
                     transition: "background 0.1s",
+                    minWidth: 0,
                   }}
                 >
                   {result.type === "category" && (
@@ -629,7 +632,7 @@ function SearchWithDropdown({
                       >
                         Service
                       </span>
-                      <span style={{ fontWeight: 500 }}>
+                      <span style={{ fontWeight: 500, flexShrink: 0 }}>
                         {result.service.name}
                       </span>
                       <span
@@ -665,7 +668,7 @@ function SearchWithDropdown({
                       >
                         Endpoint
                       </span>
-                      <span style={{ fontWeight: 500 }}>
+                      <span style={{ fontWeight: 500, flexShrink: 0 }}>
                         {result.service.name}
                       </span>
                       <span
@@ -674,7 +677,7 @@ function SearchWithDropdown({
                           display: "flex",
                           alignItems: "center",
                           gap: 6,
-                          flexShrink: 0,
+                          minWidth: 0,
                         }}
                       >
                         <span
