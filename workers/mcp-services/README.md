@@ -55,6 +55,8 @@ paid API remains authoritative.
 - `list_services(limit?, offset?)`
 - `search_services(query?, category?, method?, integration?, status?, limit?, offset?)`
 - `search_offers(query?, category?, method?, currency?, maxAmount?, unitType?, dynamic?, recipient?, integration?, status?, limit?, offset?)`
+- `recommend_services(task, constraints?)`
+- `get_usage_recipe(service, route?)`
 - `get_facets()`
 - `get_services_by_recipient(recipient, limit?, offset?)`
 - `get_catalog_status()`
@@ -67,6 +69,15 @@ endpoint rather than a provider. It returns endpoint-level offers with service
 metadata, normalized display pricing where possible, match metadata, and
 ranking signals such as active status, first-party integration, fixed pricing,
 and OpenAPI availability.
+
+`recommend_services` is the preferred tool when an agent has a natural-language
+task and needs a ranked shortlist. It applies optional exact constraints and
+returns reasons, matched task terms, top payment offers, and follow-up MCP
+actions.
+
+`get_usage_recipe` is the preferred follow-up after an agent chooses a service.
+It returns payable endpoint candidates, target URLs, and the HTTP/`402` steps
+needed to use the service. It does not proxy requests or execute payments.
 
 ## MCP client config
 
