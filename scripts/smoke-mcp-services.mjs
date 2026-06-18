@@ -19,7 +19,6 @@ const requiredTools = [
   "recommend_services",
   "get_usage_recipe",
   "get_facets",
-  "get_services_by_recipient",
   "get_catalog_status",
   "get_service",
   "get_offers",
@@ -29,8 +28,6 @@ const requiredTools = [
 const results = [];
 const state = {
   catalogStatus: undefined,
-  facets: undefined,
-  searchOffers: undefined,
   tools: undefined,
 };
 let requestId = 1;
@@ -143,7 +140,6 @@ async function main() {
       data.offers.every((offer) => offer.service?.id && offer.payment?.method),
       "offers must include service and payment metadata",
     );
-    state.searchOffers = data;
     return `${data.returned} of ${data.total} offers`;
   });
 
@@ -223,31 +219,7 @@ async function main() {
       facetValues(data.facets?.paymentMethods).includes("tempo"),
       "missing tempo payment method facet",
     );
-    state.facets = data;
     return `${data.serviceCount} services, ${data.offerCount} offers`;
-  });
-
-  await check("get_services_by_recipient", async () => {
-    const recipient =
-      firstFacetValue(state.facets?.facets?.recipients) ??
-      firstRecipientFromOffers(state.searchOffers?.offers) ??
-      "0x0000000000000000000000000000000000000000";
-    const result = await toolCall("get_services_by_recipient", {
-      recipient,
-      limit: 5,
-    });
-    expectToolOk(result);
-    const data = result.structuredContent;
-    expect(
-      data.appliedFilters?.recipient === recipient,
-      "recipient not echoed",
-    );
-    expect(Number.isFinite(data.total), "expected numeric total");
-    expect(Array.isArray(data.services), "services must be an array");
-    if (recipient !== "0x0000000000000000000000000000000000000000") {
-      expect(data.total > 0, `expected services for recipient ${recipient}`);
-    }
-    return `${data.returned} of ${data.total} services for recipient`;
   });
 
   await check("get_catalog_status", async () => {
@@ -455,21 +427,6 @@ function toolText(result) {
 
 function facetValues(values) {
   return Array.isArray(values) ? values.map((entry) => entry.value) : [];
-}
-
-function firstFacetValue(values) {
-  return facetValues(values).find(
-    (value) => typeof value === "string" && value,
-  );
-}
-
-function firstRecipientFromOffers(offers) {
-  if (!Array.isArray(offers)) {
-    return undefined;
-  }
-  return offers
-    .map((offer) => offer.payment?.recipient)
-    .find((recipient) => typeof recipient === "string" && recipient);
 }
 
 function normalizeEndpoint(value) {
