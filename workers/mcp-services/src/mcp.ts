@@ -154,7 +154,7 @@ export function jsonHeaders(extra?: HeadersInit): Headers {
   const headers = new Headers(extra);
   headers.set("content-type", "application/json");
   headers.set("access-control-allow-origin", "*");
-  headers.set("access-control-allow-methods", "GET,POST,OPTIONS");
+  headers.set("access-control-allow-methods", "GET,HEAD,POST,OPTIONS");
   headers.set(
     "access-control-allow-headers",
     "content-type,mcp-protocol-version",

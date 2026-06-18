@@ -41,6 +41,10 @@ export default {
       });
     }
 
+    if (url.pathname === "/mcp/services" && request.method === "HEAD") {
+      return new Response(null, { status: 200, headers: jsonHeaders() });
+    }
+
     return Response.json(
       { error: "not found" },
       { status: 404, headers: jsonHeaders() },

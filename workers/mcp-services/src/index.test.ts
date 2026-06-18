@@ -38,6 +38,22 @@ describe("worker routes", () => {
     );
   });
 
+  it("serves HEAD health checks from /mcp/services", async () => {
+    const response = await worker.fetch(
+      new Request("https://worker.example.com/mcp/services", {
+        method: "HEAD",
+      }),
+      envWithCatalog(),
+      testContext(),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("access-control-allow-methods")).toContain(
+      "HEAD",
+    );
+    expect(await response.text()).toBe("");
+  });
+
   it("handles MCP JSON-RPC at /mcp/services", async () => {
     const response = await worker.fetch(
       new Request("https://worker.example.com/mcp/services", {
