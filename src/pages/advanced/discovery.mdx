@@ -31,7 +31,39 @@ Registries aggregate discovery documents from multiple services, making it easy 
 Agents can query the curated services directory over MCP at
 `https://mpp.dev/mcp/services`. The server is read-only and exposes tools to
 list services, search by category or payment method, inspect endpoint offers,
-and fetch advisory OpenAPI summaries.
+search offer-level payment terms, look up services by payment recipient, inspect
+available filters, and fetch advisory OpenAPI summaries.
+
+### Services MCP
+
+The services MCP server is the agent-facing discovery surface for the curated
+MPP directory:
+
+```text
+https://mpp.dev/mcp/services
+```
+
+Use it when an agent needs to:
+
+- find paid APIs by task, category, integration, or payment method
+- compare endpoint-level payment offers before constructing a request
+- identify which services publish offers for a payment recipient from a `402`
+  Challenge
+- inspect catalog facets before narrowing a search
+- fetch a live OpenAPI summary or registry-derived endpoint view
+
+```json
+{
+  "mcpServers": {
+    "mpp-services": {
+      "url": "https://mpp.dev/mcp/services"
+    }
+  }
+}
+```
+
+The MCP server is advisory and read-only. After discovery, clients call the
+target service directly and treat the runtime `402` Challenge as authoritative.
 
 ## Quick start
 

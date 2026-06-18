@@ -13,7 +13,15 @@ import { ServicesPage } from "../components/ServicesPage";
 
 ## Agent discovery
 
-Agents can query the read-only services MCP server at
-`https://mpp.dev/mcp/services` to list and search the catalog, inspect payment
-offers, and fetch advisory OpenAPI summaries. Runtime `402` Challenges remain
-the authoritative source of payment terms.
+Agents can use the MPP services catalog before choosing which paid API to call:
+
+| Surface | URL | Use it for |
+| --- | --- | --- |
+| Web directory | [`https://mpp.dev/services`](https://mpp.dev/services) | Browse services, categories, providers, endpoints, and examples. |
+| Public catalog API | [`https://mpp.dev/api/services`](https://mpp.dev/api/services) | Fetch the JSON catalog directly from scripts, CLIs, or custom agents. |
+| Services MCP | [`https://mpp.dev/mcp/services`](https://mpp.dev/mcp/services) | Let an MCP-capable agent search services, search payment offers, inspect recipients, and fetch advisory OpenAPI summaries. |
+
+The services MCP server is read-only. It does not register services, execute
+payments, sign transactions, or proxy paid API calls. Runtime `402` Challenges
+from the target service remain the authoritative source of current payment
+terms.
