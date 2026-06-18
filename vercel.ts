@@ -12,12 +12,17 @@ const OPENAPI_DISCOVERY_LINK_VALUE = [
   '</.well-known/agent-skills/index.json>; rel="describedby"; type="application/json"',
 ].join(", ");
 
-const DEFAULT_MPP_SERVICES_MCP_WORKER_ORIGIN =
-  "https://mpp-services-mcp.porto.workers.dev";
-const MPP_SERVICES_MCP_WORKER_ORIGIN = (
-  process.env.MPP_SERVICES_MCP_WORKER_ORIGIN ||
-  DEFAULT_MPP_SERVICES_MCP_WORKER_ORIGIN
-).replace(/\/+$/, "");
+const MPP_SERVICES_MCP_WORKER_ORIGIN =
+  process.env.MPP_SERVICES_MCP_WORKER_ORIGIN?.replace(/\/+$/, "");
+
+if (
+  !MPP_SERVICES_MCP_WORKER_ORIGIN &&
+  process.env.VERCEL_ENV === "production"
+) {
+  throw new Error(
+    "MPP_SERVICES_MCP_WORKER_ORIGIN is required for production Vercel builds",
+  );
+}
 
 const CONTENT_NEGOTIATION_HEADERS = [header("Vary", "Accept, User-Agent")];
 

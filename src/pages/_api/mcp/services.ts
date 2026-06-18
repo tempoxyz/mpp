@@ -1,7 +1,3 @@
-const DEFAULT_WORKER_ORIGIN = "https://mpp-services-mcp.porto.workers.dev";
-const WORKER_ORIGIN = (
-  process.env.MPP_SERVICES_MCP_WORKER_ORIGIN || DEFAULT_WORKER_ORIGIN
-).replace(/\/+$/, "");
 const WORKER_PATH = "/mcp/services";
 
 export function OPTIONS() {
@@ -20,8 +16,16 @@ export async function POST(request: Request) {
 }
 
 async function proxyToWorker(request: Request) {
+  const workerOrigin = getWorkerOrigin();
+  if (!workerOrigin) {
+    return new Response("MPP_SERVICES_MCP_WORKER_ORIGIN is required", {
+      status: 500,
+      headers: corsHeaders(),
+    });
+  }
+
   const requestUrl = new URL(request.url);
-  const upstreamUrl = `${WORKER_ORIGIN}${WORKER_PATH}${requestUrl.search}`;
+  const upstreamUrl = `${workerOrigin}${WORKER_PATH}${requestUrl.search}`;
   const upstreamHeaders = new Headers(request.headers);
   upstreamHeaders.delete("host");
 
@@ -49,6 +53,18 @@ async function proxyToWorker(request: Request) {
     statusText: upstream.statusText,
     headers: responseHeaders,
   });
+}
+
+function getWorkerOrigin() {
+  const value = process.env.MPP_SERVICES_MCP_WORKER_ORIGIN?.trim();
+  if (!value) return undefined;
+
+  const url = new URL(value);
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error("MPP_SERVICES_MCP_WORKER_ORIGIN must be an HTTP(S) origin");
+  }
+
+  return url.origin.replace(/\/+$/, "");
 }
 
 function corsHeaders() {

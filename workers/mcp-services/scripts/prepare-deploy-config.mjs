@@ -7,18 +7,15 @@ const DRY_RUN_PLACEHOLDER_ID = "00000000000000000000000000000000";
 const dryRun = process.argv.includes("--dry-run");
 
 const config = JSON.parse(await readFile(CONFIG_PATH, "utf8"));
-const accountId = config.account_id;
-const envAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+const accountId = expectAccountId();
 
-if (!accountId) {
-  throw new Error("wrangler.jsonc must include the production account_id");
-}
-
-if (envAccountId && envAccountId !== accountId) {
+if (config.account_id) {
   throw new Error(
-    `CLOUDFLARE_ACCOUNT_ID (${envAccountId}) does not match wrangler.jsonc account_id (${accountId})`,
+    "wrangler.jsonc must not include account_id; set CLOUDFLARE_ACCOUNT_ID in the deploy environment",
   );
 }
+
+config.account_id = accountId;
 
 const namespace = config.kv_namespaces?.find(
   (binding) => binding.binding === "MPP_CATALOG_CACHE",
@@ -44,6 +41,20 @@ await writeFile(DEPLOY_CONFIG_PATH, `${JSON.stringify(config, null, 2)}\n`);
 
 console.log(`Prepared ${DEPLOY_CONFIG_PATH.pathname}`);
 console.log(`Using KV namespace ${namespace.binding} (${namespaceId})`);
+
+function expectAccountId() {
+  const value = process.env.CLOUDFLARE_ACCOUNT_ID;
+
+  if (!value) {
+    throw new Error("CLOUDFLARE_ACCOUNT_ID is required");
+  }
+
+  if (!/^[0-9a-f]{32}$/i.test(value)) {
+    throw new Error("CLOUDFLARE_ACCOUNT_ID must be a 32-character hex id");
+  }
+
+  return value;
+}
 
 async function ensureKvNamespace(accountId, title) {
   const token = process.env.CLOUDFLARE_API_TOKEN;

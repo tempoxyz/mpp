@@ -4,7 +4,6 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-06-17",
   "compatibility_flags": ["nodejs_compat"],
-  "account_id": "ba6ee3674b03f08481e57ff9992c601e",
   "workers_dev": true,
   "preview_urls": true,
   "keep_vars": true,
