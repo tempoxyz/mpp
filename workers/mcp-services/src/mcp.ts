@@ -1,11 +1,16 @@
 import { getCatalog } from "./cache.js";
 import {
+  countPaymentOffers,
   findService,
+  getFacets,
   listServiceSummaries,
   offersForService,
   registryOpenApiView,
+  type SearchOffersArgs,
   type SearchServicesArgs,
+  searchOffers,
   searchServices,
+  servicesByRecipient,
 } from "./discovery.js";
 import { CATEGORIES, INTEGRATIONS, type Service, STATUSES } from "./types.js";
 
@@ -32,7 +37,7 @@ const HTTP_METHODS = [
 
 const INITIALIZE_INSTRUCTIONS = [
   "Use this read-only MCP server to discover MPP paid API services and payment terms from https://mpp.dev/api/services.",
-  "Call list_services for a catalog overview, search_services to filter by query/category/payment method/integration/status, get_service for a full service record, get_offers for endpoint payment offers, and get_openapi for a service OpenAPI document or registry-derived endpoint view.",
+  "Call list_services for a catalog overview, search_services to filter providers, search_offers to find payable endpoints, get_facets to inspect valid filters, get_services_by_recipient to map a payment recipient to services, get_catalog_status to inspect freshness, get_service for a full service record, get_offers for endpoint payment offers, and get_openapi for a service OpenAPI document or registry-derived endpoint view.",
   ADVISORY,
   "This server does not register services, execute payments, authorize requests, or replace runtime 402 Challenge validation.",
 ].join(" ");
@@ -255,6 +260,75 @@ async function handleToolCall(
           services: page,
         },
         `Returned ${page.length} of ${services.length} MPP services. ${ADVISORY}`,
+      );
+    }
+
+    if (name === "search_offers") {
+      const filters = searchOfferArgs(args);
+      const pagination = paginationArgs(args);
+      const offers = searchOffers(catalog.services, filters);
+      const page = paginate(offers, pagination);
+      return toolResult(
+        {
+          ...meta,
+          appliedFilters: filters,
+          searchMethod: searchMethod(filters),
+          partialResults: pagination.offset + page.length < offers.length,
+          total: offers.length,
+          returned: page.length,
+          offset: pagination.offset,
+          limit: pagination.limit,
+          offers: page,
+        },
+        `Returned ${page.length} of ${offers.length} MPP payment offers. ${ADVISORY}`,
+      );
+    }
+
+    if (name === "get_facets") {
+      const facets = getFacets(catalog.services);
+      return toolResult(
+        {
+          ...meta,
+          serviceCount: catalog.services.length,
+          offerCount: countPaymentOffers(catalog.services),
+          facets,
+        },
+        `Returned MPP catalog facets for ${catalog.services.length} services. ${ADVISORY}`,
+      );
+    }
+
+    if (name === "get_services_by_recipient") {
+      const recipient = requiredString(args, "recipient");
+      const pagination = paginationArgs(args);
+      const services = servicesByRecipient(catalog.services, recipient);
+      const page = paginate(services, pagination);
+      return toolResult(
+        {
+          ...meta,
+          appliedFilters: { recipient },
+          total: services.length,
+          returned: page.length,
+          offset: pagination.offset,
+          limit: pagination.limit,
+          services: page,
+        },
+        `Returned ${page.length} of ${services.length} services with payment offers for recipient ${recipient}. ${ADVISORY}`,
+      );
+    }
+
+    if (name === "get_catalog_status") {
+      return toolResult(
+        {
+          ...meta,
+          serviceCount: catalog.services.length,
+          offerCount: countPaymentOffers(catalog.services),
+          cacheAgeSeconds: cacheAgeSeconds(catalog.fetchedAt),
+          lastSuccessfulRefreshAt: catalog.fetchedAt,
+          ...(catalog.refreshError
+            ? { refreshError: catalog.refreshError }
+            : {}),
+        },
+        `Catalog has ${catalog.services.length} services and ${countPaymentOffers(catalog.services)} payment offers. ${ADVISORY}`,
       );
     }
 
@@ -655,6 +729,114 @@ function toolSchemas() {
       execution: { taskSupport: "forbidden" },
     },
     {
+      name: "search_offers",
+      description:
+        "Search endpoint-level MPP payment offers by task, category, payment method, currency, max amount, unit type, dynamic pricing, recipient, integration, and status." +
+        advisory,
+      inputSchema: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description:
+              "Substring query over service, endpoint, and payment metadata.",
+          },
+          category: {
+            type: "string",
+            enum: CATEGORIES,
+            description: "Exact service category filter.",
+          },
+          method: {
+            type: "string",
+            description: "Exact payment method filter, for example tempo.",
+          },
+          currency: {
+            type: "string",
+            description:
+              "Exact payment currency filter, such as a token address or currency code.",
+          },
+          maxAmount: {
+            type: "string",
+            pattern: "^[0-9]+$",
+            description:
+              "Maximum fixed payment amount in base units. Dynamic or non-numeric offers are excluded when this is set.",
+          },
+          unitType: {
+            type: "string",
+            description: "Exact payment unit type filter.",
+          },
+          dynamic: {
+            type: "boolean",
+            description: "Filter dynamic pricing offers.",
+          },
+          recipient: {
+            type: "string",
+            description: "Exact payment recipient/payee filter.",
+          },
+          integration: {
+            type: "string",
+            enum: INTEGRATIONS,
+            description: "Exact integration filter.",
+          },
+          status: {
+            type: "string",
+            enum: STATUSES,
+            description: "Exact service status filter.",
+          },
+          ...paginationInputProperties(),
+        },
+        additionalProperties: false,
+      },
+      outputSchema: offerSearchOutputSchema(),
+      execution: { taskSupport: "forbidden" },
+    },
+    {
+      name: "get_facets",
+      description:
+        "Return valid filter values and counts for service categories, integrations, statuses, payment methods, currencies, unit types, intents, recipients, and dynamic pricing." +
+        advisory,
+      inputSchema: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
+      outputSchema: facetsOutputSchema(),
+      execution: { taskSupport: "forbidden" },
+    },
+    {
+      name: "get_services_by_recipient",
+      description:
+        "Find services that publish payment offers for a recipient/payee address or identifier from discovery metadata." +
+        advisory,
+      inputSchema: {
+        type: "object",
+        properties: {
+          recipient: {
+            type: "string",
+            description: "Payment recipient or payee identifier.",
+          },
+          ...paginationInputProperties(),
+        },
+        required: ["recipient"],
+        additionalProperties: false,
+      },
+      outputSchema: recipientServicesOutputSchema(),
+      execution: { taskSupport: "forbidden" },
+    },
+    {
+      name: "get_catalog_status",
+      description:
+        "Return MPP catalog source, version, service count, offer count, cache status, cache age, and last successful refresh time." +
+        advisory,
+      inputSchema: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
+      outputSchema: catalogStatusOutputSchema(),
+      execution: { taskSupport: "forbidden" },
+    },
+    {
       name: "get_service",
       description: `Get the full MPP Service record by id or name.${advisory}`,
       inputSchema: {
@@ -761,6 +943,163 @@ function paginatedServicesOutputSchema() {
       "offset",
       "limit",
       "services",
+    ],
+    additionalProperties: false,
+  });
+}
+
+function offerSearchOutputSchema() {
+  return oneOfSuccessOrError({
+    type: "object",
+    properties: {
+      ...commonEnvelopeProperties(),
+      appliedFilters: { type: "object", additionalProperties: true },
+      searchMethod: {
+        type: "string",
+        enum: ["all", "text", "filter", "recipient"],
+      },
+      partialResults: { type: "boolean" },
+      total: { type: "integer", minimum: 0 },
+      returned: { type: "integer", minimum: 0 },
+      offset: { type: "integer", minimum: 0 },
+      limit: { type: "integer", minimum: 1, maximum: MAX_LIMIT },
+      offers: {
+        type: "array",
+        items: offerSearchResultSchema(),
+      },
+    },
+    required: [
+      "advisory",
+      "catalogVersion",
+      "cacheStatus",
+      "fetchedAt",
+      "sourceUrl",
+      "appliedFilters",
+      "searchMethod",
+      "partialResults",
+      "total",
+      "returned",
+      "offset",
+      "limit",
+      "offers",
+    ],
+    additionalProperties: false,
+  });
+}
+
+function facetsOutputSchema() {
+  return oneOfSuccessOrError({
+    type: "object",
+    properties: {
+      ...commonEnvelopeProperties(),
+      serviceCount: { type: "integer", minimum: 0 },
+      offerCount: { type: "integer", minimum: 0 },
+      facets: {
+        type: "object",
+        properties: {
+          categories: facetValuesSchema(),
+          integrations: facetValuesSchema(),
+          statuses: facetValuesSchema(),
+          paymentMethods: facetValuesSchema(),
+          currencies: facetValuesSchema(),
+          unitTypes: facetValuesSchema(),
+          intents: facetValuesSchema(),
+          recipients: facetValuesSchema(),
+          dynamic: facetValuesSchema(),
+        },
+        required: [
+          "categories",
+          "integrations",
+          "statuses",
+          "paymentMethods",
+          "currencies",
+          "unitTypes",
+          "intents",
+          "recipients",
+          "dynamic",
+        ],
+        additionalProperties: false,
+      },
+    },
+    required: [
+      "advisory",
+      "catalogVersion",
+      "cacheStatus",
+      "fetchedAt",
+      "sourceUrl",
+      "serviceCount",
+      "offerCount",
+      "facets",
+    ],
+    additionalProperties: false,
+  });
+}
+
+function recipientServicesOutputSchema() {
+  return oneOfSuccessOrError({
+    type: "object",
+    properties: {
+      ...commonEnvelopeProperties(),
+      appliedFilters: { type: "object", additionalProperties: true },
+      total: { type: "integer", minimum: 0 },
+      returned: { type: "integer", minimum: 0 },
+      offset: { type: "integer", minimum: 0 },
+      limit: { type: "integer", minimum: 1, maximum: MAX_LIMIT },
+      services: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            service: serviceSummarySchema(),
+            count: { type: "integer", minimum: 0 },
+            offers: {
+              type: "array",
+              items: offerSchema(),
+            },
+          },
+          required: ["service", "count", "offers"],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: [
+      "advisory",
+      "catalogVersion",
+      "cacheStatus",
+      "fetchedAt",
+      "sourceUrl",
+      "appliedFilters",
+      "total",
+      "returned",
+      "offset",
+      "limit",
+      "services",
+    ],
+    additionalProperties: false,
+  });
+}
+
+function catalogStatusOutputSchema() {
+  return oneOfSuccessOrError({
+    type: "object",
+    properties: {
+      ...commonEnvelopeProperties(),
+      serviceCount: { type: "integer", minimum: 0 },
+      offerCount: { type: "integer", minimum: 0 },
+      cacheAgeSeconds: { type: "integer", minimum: 0 },
+      lastSuccessfulRefreshAt: { type: "string" },
+      refreshError: { type: "string" },
+    },
+    required: [
+      "advisory",
+      "catalogVersion",
+      "cacheStatus",
+      "fetchedAt",
+      "sourceUrl",
+      "serviceCount",
+      "offerCount",
+      "cacheAgeSeconds",
+      "lastSuccessfulRefreshAt",
     ],
     additionalProperties: false,
   });
@@ -951,6 +1290,63 @@ function offerSchema() {
   };
 }
 
+function offerSearchResultSchema() {
+  return {
+    type: "object",
+    properties: {
+      ...offerSchema().properties,
+      service: serviceSummarySchema(),
+      price: {
+        type: "object",
+        properties: {
+          amount: { type: "string" },
+          currency: { type: "string" },
+          decimals: { type: "integer", minimum: 0 },
+          display: { type: "string" },
+          unitType: { type: "string" },
+          dynamic: { type: "boolean" },
+          amountHint: { type: "string" },
+        },
+        required: ["dynamic"],
+        additionalProperties: false,
+      },
+      matchedOn: {
+        type: "array",
+        items: { type: "string" },
+      },
+      rankingSignals: {
+        type: "array",
+        items: { type: "string" },
+      },
+    },
+    required: [
+      "method",
+      "path",
+      "payment",
+      "service",
+      "price",
+      "matchedOn",
+      "rankingSignals",
+    ],
+    additionalProperties: false,
+  };
+}
+
+function facetValuesSchema() {
+  return {
+    type: "array",
+    items: {
+      type: "object",
+      properties: {
+        value: {},
+        count: { type: "integer", minimum: 0 },
+      },
+      required: ["value", "count"],
+      additionalProperties: false,
+    },
+  };
+}
+
 function oneOfSuccessOrError(successSchema: Record<string, unknown>) {
   return {
     type: "object",
@@ -1001,11 +1397,54 @@ function searchArgs(args: Record<string, unknown>): SearchServicesArgs {
   };
 }
 
+function searchOfferArgs(args: Record<string, unknown>): SearchOffersArgs {
+  const query = optionalString(args, "query");
+  const method = optionalString(args, "method");
+  const currency = optionalString(args, "currency");
+  const maxAmount = optionalAmountString(args, "maxAmount");
+  const unitType = optionalString(args, "unitType");
+  const recipient = optionalString(args, "recipient");
+  const dynamic = optionalBoolean(args, "dynamic");
+  const category = optionalEnumArg(args, "category", CATEGORIES);
+  const integration = optionalEnumArg(args, "integration", INTEGRATIONS);
+  const status = optionalEnumArg(args, "status", STATUSES);
+
+  return {
+    ...(query ? { query } : {}),
+    ...(category ? { category } : {}),
+    ...(method ? { method } : {}),
+    ...(currency ? { currency } : {}),
+    ...(maxAmount ? { maxAmount } : {}),
+    ...(unitType ? { unitType } : {}),
+    ...(dynamic !== undefined ? { dynamic } : {}),
+    ...(recipient ? { recipient } : {}),
+    ...(integration ? { integration } : {}),
+    ...(status ? { status } : {}),
+  };
+}
+
+function searchMethod(filters: SearchOffersArgs): string {
+  if (filters.recipient) return "recipient";
+  if (filters.query) return "text";
+  if (Object.keys(filters).length > 0) return "filter";
+  return "all";
+}
+
 function paginationArgs(args: Record<string, unknown>): Pagination {
   return {
     limit: integerArg(args, "limit", DEFAULT_LIMIT, 1, MAX_LIMIT),
     offset: integerArg(args, "offset", 0, 0),
   };
+}
+
+function optionalBoolean(
+  args: Record<string, unknown>,
+  key: string,
+): boolean | undefined {
+  if (!(key in args)) return undefined;
+  const value = args[key];
+  if (typeof value !== "boolean") throw new Error(`${key} must be a boolean`);
+  return value;
 }
 
 function booleanArg(
@@ -1019,8 +1458,32 @@ function booleanArg(
   return value;
 }
 
+function optionalAmountString(
+  args: Record<string, unknown>,
+  key: string,
+): string | undefined {
+  if (!(key in args)) return undefined;
+  const value = args[key];
+  const parsed =
+    typeof value === "string"
+      ? value.trim()
+      : typeof value === "number" && Number.isInteger(value) && value >= 0
+        ? String(value)
+        : "";
+  if (!parsed || !/^\d+$/.test(parsed)) {
+    throw new Error(`${key} must be a non-negative integer string`);
+  }
+  return parsed;
+}
+
 function paginate<T>(items: T[], pagination: Pagination): T[] {
   return items.slice(pagination.offset, pagination.offset + pagination.limit);
+}
+
+function cacheAgeSeconds(fetchedAt: string): number {
+  const timestamp = Date.parse(fetchedAt);
+  if (!Number.isFinite(timestamp)) return 0;
+  return Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
 }
 
 function requireService(services: Service[], idOrName: string): Service {

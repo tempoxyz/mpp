@@ -24,6 +24,11 @@ const services: Service[] = [
           intent: "charge",
           method: "tempo",
           amount: "2000000",
+          currency: "USDG",
+          decimals: 6,
+          recipient: "0xagentmail",
+          unitType: "request",
+          description: "Create paid inbox",
         },
       },
     ],
@@ -47,6 +52,10 @@ const services: Service[] = [
           intent: "session",
           method: "tempo",
           dynamic: true,
+          currency: "USDG",
+          recipient: "0xanthropic",
+          unitType: "token",
+          amountHint: "Usage-based model billing",
         },
       },
     ],
@@ -72,7 +81,18 @@ describe("mcp handler", () => {
   it("advertises outputSchema for every tool", async () => {
     const body = await mcp("tools/list", {}, envWithCatalog());
     const tools = body.result.tools ?? [];
-    expect(tools).toHaveLength(5);
+    expect(tools).toHaveLength(9);
+    expect(tools.map((tool) => tool.name)).toEqual([
+      "list_services",
+      "search_services",
+      "search_offers",
+      "get_facets",
+      "get_services_by_recipient",
+      "get_catalog_status",
+      "get_service",
+      "get_offers",
+      "get_openapi",
+    ]);
     for (const tool of tools) {
       expect(tool.outputSchema).toEqual(
         expect.objectContaining({ type: "object" }),
@@ -85,6 +105,134 @@ describe("mcp handler", () => {
         properties: expect.objectContaining({
           raw: expect.objectContaining({ type: "boolean" }),
         }),
+      }),
+    );
+  });
+
+  it("searches endpoint-level payment offers with matching and ranking metadata", async () => {
+    const body = await callTool("search_offers", {
+      query: "inbox",
+      category: "ai",
+      method: "tempo",
+      currency: "usdg",
+      maxAmount: "2000000",
+      dynamic: false,
+    });
+
+    expect(body.result.structuredContent).toEqual(
+      expect.objectContaining({
+        appliedFilters: {
+          query: "inbox",
+          category: "ai",
+          method: "tempo",
+          currency: "usdg",
+          maxAmount: "2000000",
+          dynamic: false,
+        },
+        searchMethod: "text",
+        partialResults: false,
+        total: 1,
+        returned: 1,
+      }),
+    );
+    expect(body.result.structuredContent.offers).toEqual([
+      expect.objectContaining({
+        method: "POST",
+        path: "/v0/inboxes",
+        service: expect.objectContaining({ id: "agentmail" }),
+        payment: expect.objectContaining({
+          amount: "2000000",
+          currency: "USDG",
+          recipient: "0xagentmail",
+        }),
+        price: {
+          amount: "2000000",
+          currency: "USDG",
+          decimals: 6,
+          display: "2 USDG",
+          unitType: "request",
+          dynamic: false,
+        },
+        matchedOn: expect.arrayContaining([
+          "endpoint.path",
+          "service.categories",
+          "payment.method",
+          "payment.currency",
+          "payment.dynamic",
+          "payment.amount",
+        ]),
+        rankingSignals: expect.arrayContaining([
+          "active",
+          "first_party",
+          "fixed_price",
+          "has_payment_offer",
+        ]),
+      }),
+    ]);
+  });
+
+  it("returns facets, recipient lookup, and catalog status for agent planning", async () => {
+    const facetsBody = await callTool("get_facets", {});
+    expect(facetsBody.result.structuredContent).toEqual(
+      expect.objectContaining({
+        serviceCount: 3,
+        offerCount: 2,
+        facets: expect.objectContaining({
+          categories: expect.arrayContaining([
+            { value: "ai", count: 2 },
+            { value: "data", count: 1 },
+          ]),
+          paymentMethods: [{ value: "tempo", count: 2 }],
+          currencies: [{ value: "USDG", count: 2 }],
+          unitTypes: expect.arrayContaining([
+            { value: "request", count: 1 },
+            { value: "token", count: 1 },
+          ]),
+          recipients: expect.arrayContaining([
+            { value: "0xagentmail", count: 1 },
+            { value: "0xanthropic", count: 1 },
+          ]),
+          dynamic: expect.arrayContaining([
+            { value: false, count: 1 },
+            { value: true, count: 1 },
+          ]),
+        }),
+      }),
+    );
+
+    const recipientBody = await callTool("get_services_by_recipient", {
+      recipient: "0xagentmail",
+    });
+    expect(recipientBody.result.structuredContent).toEqual(
+      expect.objectContaining({
+        appliedFilters: { recipient: "0xagentmail" },
+        total: 1,
+        returned: 1,
+        services: [
+          expect.objectContaining({
+            service: expect.objectContaining({ id: "agentmail" }),
+            count: 1,
+            offers: [
+              expect.objectContaining({
+                path: "/v0/inboxes",
+                payment: expect.objectContaining({ recipient: "0xagentmail" }),
+              }),
+            ],
+          }),
+        ],
+      }),
+    );
+
+    const statusBody = await callTool("get_catalog_status", {});
+    expect(statusBody.result.structuredContent).toEqual(
+      expect.objectContaining({
+        catalogVersion: 1,
+        serviceCount: 3,
+        offerCount: 2,
+        sourceUrl: "https://mpp.dev/api/services",
+        cacheStatus: "fresh",
+        lastSuccessfulRefreshAt: expect.any(String),
+        cacheAgeSeconds: expect.any(Number),
       }),
     );
   });
@@ -399,6 +547,7 @@ async function mcp(method: string, params: Record<string, unknown>, env: Env) {
         limit?: number;
         source?: string;
         services: Array<{ id: string }>;
+        offers: unknown[];
         openapi?: unknown;
       };
     };

@@ -54,9 +54,19 @@ paid API remains authoritative.
 
 - `list_services(limit?, offset?)`
 - `search_services(query?, category?, method?, integration?, status?, limit?, offset?)`
+- `search_offers(query?, category?, method?, currency?, maxAmount?, unitType?, dynamic?, recipient?, integration?, status?, limit?, offset?)`
+- `get_facets()`
+- `get_services_by_recipient(recipient, limit?, offset?)`
+- `get_catalog_status()`
 - `get_service(id_or_name)`
 - `get_offers(service, route?)`
 - `get_openapi(service, raw?)`
+
+`search_offers` is the preferred tool when an agent needs to choose a payable
+endpoint rather than a provider. It returns endpoint-level offers with service
+metadata, normalized display pricing where possible, match metadata, and
+ranking signals such as active status, first-party integration, fixed pricing,
+and OpenAPI availability.
 
 ## MCP client config
 
