@@ -13,6 +13,7 @@ type Page =
   | { path: '/advanced/security'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
+  | { path: '/blog/hermes-mpp'; render: 'static' }
   | { path: '/blog'; render: 'static' }
   | { path: '/blog/multi-method-discovery'; render: 'static' }
   | { path: '/blog/payment-hooks'; render: 'static' }
