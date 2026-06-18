@@ -30,9 +30,9 @@ Registries aggregate discovery documents from multiple services, making it easy 
 
 Agents can query the curated services directory over MCP at
 `https://mpp.dev/mcp/services`. The server is read-only and exposes tools to
-list services, search by category or payment method, inspect endpoint offers,
-search offer-level payment terms, look up services by payment recipient, inspect
-available filters, and fetch advisory OpenAPI summaries.
+list services, rank services for an agent task, inspect endpoint offers, get
+usage recipes, look up services by payment recipient, inspect available filters,
+and fetch advisory OpenAPI summaries.
 
 ### Services MCP
 
@@ -45,7 +45,8 @@ https://mpp.dev/mcp/services
 
 Use it when an agent needs to:
 
-- find paid APIs by task, category, integration, or payment method
+- rank paid APIs by task, category, integration, or payment method
+- turn a selected service into a usage recipe with endpoint candidates
 - compare endpoint-level payment offers before constructing a request
 - identify which services publish offers for a payment recipient from a `402`
   Challenge
@@ -64,6 +65,9 @@ Use it when an agent needs to:
 
 The MCP server is advisory and read-only. After discovery, clients call the
 target service directly and treat the runtime `402` Challenge as authoritative.
+
+For agent setup, MCP Inspector smoke tests, example prompts, and recipes, see
+[Discover MPP services on Tempo docs](https://docs.tempo.xyz/guide/machine-payments/discover-services).
 
 ## Quick start
 
