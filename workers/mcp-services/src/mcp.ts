@@ -4,6 +4,7 @@ import {
   findService,
   getFacets,
   listServiceSummaries,
+  type OfferSearchResult,
   offersForService,
   registryOpenApiView,
   type SearchOffersArgs,
@@ -20,6 +21,8 @@ const ADVISORY =
   "Discovery is advisory; the runtime 402 Challenge is authoritative.";
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
+const DEFAULT_RECOMMENDATION_LIMIT = 5;
+const MAX_RECOMMENDATION_LIMIT = 20;
 const OPENAPI_FETCH_TIMEOUT_MS = 3000;
 const MAX_OPENAPI_RAW_BYTES = 256 * 1024;
 const MAX_OPENAPI_FETCH_BYTES = 1024 * 1024;
@@ -34,10 +37,35 @@ const HTTP_METHODS = [
   "options",
   "trace",
 ] as const;
+const TASK_STOP_WORDS = new Set([
+  "about",
+  "agent",
+  "agents",
+  "and",
+  "api",
+  "apis",
+  "can",
+  "find",
+  "for",
+  "from",
+  "get",
+  "need",
+  "paid",
+  "service",
+  "services",
+  "that",
+  "the",
+  "tool",
+  "tools",
+  "use",
+  "using",
+  "want",
+  "with",
+]);
 
 const INITIALIZE_INSTRUCTIONS = [
   "Use this read-only MCP server to discover MPP paid API services and payment terms from https://mpp.dev/api/services.",
-  "Call list_services for a catalog overview, search_services to filter providers, search_offers to find payable endpoints, get_facets to inspect valid filters, get_services_by_recipient to map a payment recipient to services, get_catalog_status to inspect freshness, get_service for a full service record, get_offers for endpoint payment offers, and get_openapi for a service OpenAPI document or registry-derived endpoint view.",
+  "Call list_services for a catalog overview, search_services to filter providers, search_offers to find payable endpoints, recommend_services to rank services for an agent task, get_usage_recipe to turn a chosen service into next MCP and HTTP steps, get_facets to inspect valid filters, get_services_by_recipient to map a payment recipient to services, get_catalog_status to inspect freshness, get_service for a full service record, get_offers for endpoint payment offers, and get_openapi for a service OpenAPI document or registry-derived endpoint view.",
   ADVISORY,
   "This server does not register services, execute payments, authorize requests, or replace runtime 402 Challenge validation.",
 ].join(" ");
@@ -281,6 +309,58 @@ async function handleToolCall(
           offers: page,
         },
         `Returned ${page.length} of ${offers.length} MPP payment offers. ${ADVISORY}`,
+      );
+    }
+
+    if (name === "recommend_services") {
+      const { task, filters, limit } = recommendArgs(args);
+      const offers = searchOffers(catalog.services, filters);
+      const recommendations = rankServiceRecommendations(
+        catalog.services,
+        task,
+        offers,
+        filters,
+      );
+      const page = recommendations.slice(0, limit);
+      return toolResult(
+        {
+          ...meta,
+          appliedFilters: { task, constraints: filters },
+          searchMethod: "task_recommendation",
+          total: recommendations.length,
+          returned: page.length,
+          limit,
+          recommendations: page,
+        },
+        `Recommended ${page.length} of ${recommendations.length} MPP services for "${task}". ${ADVISORY}`,
+      );
+    }
+
+    if (name === "get_usage_recipe") {
+      const serviceName = requiredString(args, "service");
+      const route = optionalString(args, "route");
+      const service = requireService(catalog.services, serviceName);
+      const offers = offersForService(service, route);
+      return toolResult(
+        {
+          ...meta,
+          appliedFilters: { service: serviceName, ...(route ? { route } : {}) },
+          service: serviceRef(service),
+          ...(route ? { route } : {}),
+          baseUrl: service.serviceUrl ?? service.url,
+          docs: service.docs ?? {},
+          count: offers.length,
+          offers,
+          endpointCandidates: offers.map((offer) =>
+            usageEndpointCandidate(service, offer),
+          ),
+          recipe: usageRecipe(
+            service,
+            route,
+            env.PUBLIC_MCP_ENDPOINT ?? "https://mpp.dev/mcp/services",
+          ),
+        },
+        `Returned usage recipe for ${service.id} with ${offers.length} payable endpoint candidates. ${ADVISORY}`,
       );
     }
 
@@ -677,6 +757,281 @@ function serverInfo() {
   };
 }
 
+function rankServiceRecommendations(
+  services: Service[],
+  task: string,
+  offers: OfferSearchResult[],
+  filters: SearchOffersArgs,
+) {
+  const terms = taskTerms(task);
+  const serviceById = new Map(services.map((service) => [service.id, service]));
+  const grouped = new Map<string, OfferSearchResult[]>();
+  for (const offer of offers) {
+    const group = grouped.get(offer.service.id);
+    if (group) {
+      group.push(offer);
+    } else {
+      grouped.set(offer.service.id, [offer]);
+    }
+  }
+
+  const recommendations = [...grouped.entries()]
+    .map(([serviceId, serviceOffers]) => {
+      const service = serviceById.get(serviceId);
+      if (!service) return undefined;
+      const matchedTerms = matchedTaskTerms(service, serviceOffers, terms);
+      const topOffers = serviceOffers.slice(0, 3);
+      const score = recommendationScore(
+        service,
+        topOffers,
+        terms,
+        matchedTerms,
+        filters,
+      );
+      return {
+        service: serviceOffers[0].service,
+        score,
+        matchedTerms,
+        reasons: recommendationReasons(
+          service,
+          topOffers,
+          matchedTerms,
+          filters,
+        ),
+        topOffers,
+        nextActions: [
+          `Call get_usage_recipe with {"service":"${service.id}"}.`,
+          `Call get_openapi with {"service":"${service.id}"} if request or response schemas are needed.`,
+          "Make the target HTTP request and treat the runtime 402 Challenge as authoritative before paying.",
+        ],
+      };
+    })
+    .filter(
+      (recommendation): recommendation is NonNullable<typeof recommendation> =>
+        Boolean(recommendation),
+    );
+
+  const hasTaskMatches = recommendations.some(
+    (recommendation) => recommendation.matchedTerms.length > 0,
+  );
+
+  return recommendations
+    .filter(
+      (recommendation) =>
+        !hasTaskMatches ||
+        recommendation.matchedTerms.length > 0 ||
+        Object.keys(filters).length > 0,
+    )
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        left.service.name.localeCompare(right.service.name),
+    );
+}
+
+function recommendationScore(
+  service: Service,
+  offers: OfferSearchResult[],
+  terms: string[],
+  matchedTerms: string[],
+  filters: SearchOffersArgs,
+): number {
+  let score = 0;
+  score += matchedTerms.length * 35;
+  if ((service.status ?? "active") === "active") score += 20;
+  if (service.integration === "first-party") score += 12;
+  if (service.docs?.openapi || service.docs?.apiReference) score += 8;
+  if (offers.some((offer) => offer.rankingSignals.includes("fixed_price"))) {
+    score += 6;
+  }
+  if (offers.some((offer) => offer.rankingSignals.includes("dynamic_price"))) {
+    score += 3;
+  }
+  if (
+    filters.category &&
+    (service.categories ?? []).includes(filters.category)
+  ) {
+    score += 12;
+  }
+  if (filters.integration && service.integration === filters.integration) {
+    score += 8;
+  }
+  if (filters.status && (service.status ?? "active") === filters.status) {
+    score += 8;
+  }
+  const paymentMethod = filters.method;
+  if (
+    paymentMethod &&
+    offers.some((offer) =>
+      equalsIgnoreCase(offer.payment.method, paymentMethod),
+    )
+  ) {
+    score += 8;
+  }
+  if (terms.some((term) => normalizedText(service.name).includes(term))) {
+    score += 25;
+  }
+  if (
+    terms.some((term) =>
+      (service.tags ?? []).some((tag) => normalizedText(tag).includes(term)),
+    )
+  ) {
+    score += 15;
+  }
+  return score;
+}
+
+function recommendationReasons(
+  service: Service,
+  offers: OfferSearchResult[],
+  matchedTerms: string[],
+  filters: SearchOffersArgs,
+): string[] {
+  return [
+    matchedTerms.length
+      ? `Matched task terms: ${matchedTerms.join(", ")}.`
+      : "No direct task-term match; ranked by catalog quality and filters.",
+    (service.status ?? "active") === "active"
+      ? "Service is active."
+      : undefined,
+    service.integration === "first-party"
+      ? "First-party integration."
+      : undefined,
+    service.docs?.openapi || service.docs?.apiReference
+      ? "Has OpenAPI or API reference metadata."
+      : undefined,
+    offers.some((offer) => offer.rankingSignals.includes("fixed_price"))
+      ? "Includes fixed-price payment offers."
+      : undefined,
+    offers.some((offer) => offer.rankingSignals.includes("dynamic_price"))
+      ? "Includes dynamic pricing offers."
+      : undefined,
+    filters.category ? `Filtered to category ${filters.category}.` : undefined,
+    filters.method
+      ? `Filtered to payment method ${filters.method}.`
+      : undefined,
+  ].filter((reason): reason is string => Boolean(reason));
+}
+
+function matchedTaskTerms(
+  service: Service,
+  offers: OfferSearchResult[],
+  terms: string[],
+): string[] {
+  if (terms.length === 0) return [];
+  const text = normalizedText([
+    service.id,
+    service.name,
+    service.description,
+    ...(service.tags ?? []),
+    ...(service.categories ?? []),
+    service.provider?.name,
+    ...offers.flatMap((offer) => [
+      offer.method,
+      offer.path,
+      offer.description,
+      offer.docs,
+      offer.payment.intent,
+      offer.payment.method,
+      offer.payment.currency,
+      offer.payment.recipient,
+      offer.payment.unitType,
+      offer.payment.description,
+      offer.payment.amountHint,
+    ]),
+  ]);
+  return terms.filter((term) => text.includes(term));
+}
+
+function taskTerms(task: string): string[] {
+  const terms = normalizedText(task).match(/[a-z0-9]+/g) ?? [];
+  return [
+    ...new Set(
+      terms.filter((term) => term.length > 2 && !TASK_STOP_WORDS.has(term)),
+    ),
+  ];
+}
+
+function usageEndpointCandidate(
+  service: Service,
+  offer: ReturnType<typeof offersForService>[number],
+) {
+  return {
+    method: offer.method,
+    path: offer.path,
+    url: endpointUrl(service.serviceUrl ?? service.url, offer.path),
+    ...(offer.description ? { description: offer.description } : {}),
+    ...(offer.docs ? { docs: offer.docs } : {}),
+    payment: offer.payment,
+  };
+}
+
+function usageRecipe(
+  service: Service,
+  route: string | undefined,
+  endpoint: string,
+) {
+  return {
+    mcpServer: endpoint,
+    mode: "read-only-discovery",
+    paymentAuthority: ADVISORY,
+    suggestedMcpCalls: [
+      {
+        tool: "get_service",
+        arguments: { id_or_name: service.id },
+      },
+      {
+        tool: "get_offers",
+        arguments: { service: service.id, ...(route ? { route } : {}) },
+      },
+      {
+        tool: "get_openapi",
+        arguments: { service: service.id },
+      },
+    ],
+    httpSteps: [
+      "Choose a candidate endpoint and build the target API request from the service documentation or OpenAPI summary.",
+      "Send the ordinary HTTP request to the target service.",
+      "If the target service returns 402 Payment Required, parse the runtime Challenge and choose a compatible payment method.",
+      "Fulfill the Challenge with the calling agent's payment client or wallet, then retry the target request with the resulting Credential.",
+      "Validate the returned Receipt according to the payment method used by the target service.",
+    ],
+    warnings: [
+      ADVISORY,
+      "This MCP server does not proxy requests, execute payments, issue credentials, or validate receipts.",
+    ],
+  };
+}
+
+function endpointUrl(baseUrl: string, path: string): string {
+  try {
+    return new URL(
+      path,
+      baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`,
+    ).toString();
+  } catch {
+    return `${baseUrl.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
+  }
+}
+
+function normalizedText(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value
+      .filter((item) => item !== undefined && item !== null)
+      .map((item) => String(item))
+      .join(" ")
+      .trim()
+      .toLowerCase();
+  }
+  return String(value ?? "")
+    .trim()
+    .toLowerCase();
+}
+
+function equalsIgnoreCase(left: string, right: string): boolean {
+  return normalizedText(left) === normalizedText(right);
+}
+
 function toolSchemas() {
   const advisory = ` ${ADVISORY}`;
   return [
@@ -788,6 +1143,101 @@ function toolSchemas() {
         additionalProperties: false,
       },
       outputSchema: offerSearchOutputSchema(),
+      execution: { taskSupport: "forbidden" },
+    },
+    {
+      name: "recommend_services",
+      description:
+        "Rank MPP paid API services for an agent task using deterministic catalog metadata, optional exact constraints, and endpoint payment-offer signals." +
+        advisory,
+      inputSchema: {
+        type: "object",
+        properties: {
+          task: {
+            type: "string",
+            description:
+              "Natural-language agent task, for example send email, search the web, run an LLM, or store a file.",
+          },
+          constraints: {
+            type: "object",
+            properties: {
+              category: {
+                type: "string",
+                enum: CATEGORIES,
+                description: "Exact service category filter.",
+              },
+              method: {
+                type: "string",
+                description: "Exact payment method filter, for example tempo.",
+              },
+              currency: {
+                type: "string",
+                description:
+                  "Exact payment currency filter, such as a token address or currency code.",
+              },
+              maxAmount: {
+                type: "string",
+                pattern: "^[0-9]+$",
+                description:
+                  "Maximum fixed payment amount in base units. Dynamic or non-numeric offers are excluded when this is set.",
+              },
+              unitType: {
+                type: "string",
+                description: "Exact payment unit type filter.",
+              },
+              dynamic: {
+                type: "boolean",
+                description: "Filter dynamic pricing offers.",
+              },
+              recipient: {
+                type: "string",
+                description: "Exact payment recipient/payee filter.",
+              },
+              integration: {
+                type: "string",
+                enum: INTEGRATIONS,
+                description: "Exact integration filter.",
+              },
+              status: {
+                type: "string",
+                enum: STATUSES,
+                description: "Exact status filter.",
+              },
+              limit: {
+                type: "integer",
+                minimum: 1,
+                maximum: MAX_RECOMMENDATION_LIMIT,
+                default: DEFAULT_RECOMMENDATION_LIMIT,
+                description: `Maximum number of ranked services to return, up to ${MAX_RECOMMENDATION_LIMIT}.`,
+              },
+            },
+            additionalProperties: false,
+          },
+        },
+        required: ["task"],
+        additionalProperties: false,
+      },
+      outputSchema: recommendationsOutputSchema(),
+      execution: { taskSupport: "forbidden" },
+    },
+    {
+      name: "get_usage_recipe",
+      description:
+        "Return a practical read-only recipe for using a discovered service: candidate payable endpoints, follow-up MCP calls, and the target HTTP/402 payment flow." +
+        advisory,
+      inputSchema: {
+        type: "object",
+        properties: {
+          service: { type: "string", description: "Service id or name." },
+          route: {
+            type: "string",
+            description: "Optional route substring such as POST /v1/messages.",
+          },
+        },
+        required: ["service"],
+        additionalProperties: false,
+      },
+      outputSchema: usageRecipeOutputSchema(),
       execution: { taskSupport: "forbidden" },
     },
     {
@@ -982,6 +1432,156 @@ function offerSearchOutputSchema() {
       "offset",
       "limit",
       "offers",
+    ],
+    additionalProperties: false,
+  });
+}
+
+function recommendationsOutputSchema() {
+  return oneOfSuccessOrError({
+    type: "object",
+    properties: {
+      ...commonEnvelopeProperties(),
+      appliedFilters: { type: "object", additionalProperties: true },
+      searchMethod: {
+        type: "string",
+        enum: ["task_recommendation"],
+      },
+      total: { type: "integer", minimum: 0 },
+      returned: { type: "integer", minimum: 0 },
+      limit: {
+        type: "integer",
+        minimum: 1,
+        maximum: MAX_RECOMMENDATION_LIMIT,
+      },
+      recommendations: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            service: serviceSummarySchema(),
+            score: { type: "number" },
+            matchedTerms: {
+              type: "array",
+              items: { type: "string" },
+            },
+            reasons: {
+              type: "array",
+              items: { type: "string" },
+            },
+            topOffers: {
+              type: "array",
+              items: offerSearchResultSchema(),
+            },
+            nextActions: {
+              type: "array",
+              items: { type: "string" },
+            },
+          },
+          required: [
+            "service",
+            "score",
+            "matchedTerms",
+            "reasons",
+            "topOffers",
+            "nextActions",
+          ],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: [
+      "advisory",
+      "catalogVersion",
+      "cacheStatus",
+      "fetchedAt",
+      "sourceUrl",
+      "appliedFilters",
+      "searchMethod",
+      "total",
+      "returned",
+      "limit",
+      "recommendations",
+    ],
+    additionalProperties: false,
+  });
+}
+
+function usageRecipeOutputSchema() {
+  return oneOfSuccessOrError({
+    type: "object",
+    properties: {
+      ...commonEnvelopeProperties(),
+      appliedFilters: { type: "object", additionalProperties: true },
+      service: serviceRefSchema(),
+      route: { type: "string" },
+      baseUrl: { type: "string" },
+      docs: { type: "object", additionalProperties: true },
+      count: { type: "integer", minimum: 0 },
+      offers: {
+        type: "array",
+        items: offerSchema(),
+      },
+      endpointCandidates: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            method: { type: "string" },
+            path: { type: "string" },
+            url: { type: "string" },
+            description: { type: "string" },
+            docs: { type: "string" },
+            payment: { type: "object", additionalProperties: true },
+          },
+          required: ["method", "path", "url", "payment"],
+          additionalProperties: false,
+        },
+      },
+      recipe: {
+        type: "object",
+        properties: {
+          mcpServer: { type: "string" },
+          mode: { type: "string", enum: ["read-only-discovery"] },
+          paymentAuthority: { type: "string", const: ADVISORY },
+          suggestedMcpCalls: {
+            type: "array",
+            items: { type: "object", additionalProperties: true },
+          },
+          httpSteps: {
+            type: "array",
+            items: { type: "string" },
+          },
+          warnings: {
+            type: "array",
+            items: { type: "string" },
+          },
+        },
+        required: [
+          "mcpServer",
+          "mode",
+          "paymentAuthority",
+          "suggestedMcpCalls",
+          "httpSteps",
+          "warnings",
+        ],
+        additionalProperties: false,
+      },
+    },
+    required: [
+      "advisory",
+      "catalogVersion",
+      "cacheStatus",
+      "fetchedAt",
+      "sourceUrl",
+      "appliedFilters",
+      "service",
+      "baseUrl",
+      "docs",
+      "count",
+      "offers",
+      "endpointCandidates",
+      "recipe",
     ],
     additionalProperties: false,
   });
@@ -1423,6 +2023,23 @@ function searchOfferArgs(args: Record<string, unknown>): SearchOffersArgs {
   };
 }
 
+function recommendArgs(args: Record<string, unknown>) {
+  const task = requiredString(args, "task");
+  const constraints = optionalObjectArg(args, "constraints");
+  const limit = integerArg(
+    constraints,
+    "limit",
+    DEFAULT_RECOMMENDATION_LIMIT,
+    1,
+    MAX_RECOMMENDATION_LIMIT,
+  );
+  return {
+    task,
+    filters: searchOfferArgs(constraints),
+    limit,
+  };
+}
+
 function searchMethod(filters: SearchOffersArgs): string {
   if (filters.recipient) return "recipient";
   if (filters.query) return "text";
@@ -1455,6 +2072,16 @@ function booleanArg(
   if (!(key in args)) return defaultValue;
   const value = args[key];
   if (typeof value !== "boolean") throw new Error(`${key} must be a boolean`);
+  return value;
+}
+
+function optionalObjectArg(
+  args: Record<string, unknown>,
+  key: string,
+): Record<string, unknown> {
+  if (!(key in args)) return {};
+  const value = args[key];
+  if (!isRecord(value)) throw new Error(`${key} must be an object`);
   return value;
 }
 

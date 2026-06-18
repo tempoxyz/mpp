@@ -81,11 +81,13 @@ describe("mcp handler", () => {
   it("advertises outputSchema for every tool", async () => {
     const body = await mcp("tools/list", {}, envWithCatalog());
     const tools = body.result.tools ?? [];
-    expect(tools).toHaveLength(9);
+    expect(tools).toHaveLength(11);
     expect(tools.map((tool) => tool.name)).toEqual([
       "list_services",
       "search_services",
       "search_offers",
+      "recommend_services",
+      "get_usage_recipe",
       "get_facets",
       "get_services_by_recipient",
       "get_catalog_status",
@@ -169,6 +171,89 @@ describe("mcp handler", () => {
         ]),
       }),
     ]);
+  });
+
+  it("recommends services for an agent task with exact constraints", async () => {
+    const body = await callTool("recommend_services", {
+      task: "send email to users",
+      constraints: { category: "ai", method: "tempo", limit: 2 },
+    });
+
+    expect(body.result.structuredContent).toEqual(
+      expect.objectContaining({
+        appliedFilters: {
+          task: "send email to users",
+          constraints: { category: "ai", method: "tempo" },
+        },
+        searchMethod: "task_recommendation",
+        total: 2,
+        returned: 2,
+        limit: 2,
+      }),
+    );
+    const recommendations = body.result.structuredContent.recommendations ?? [];
+    expect(recommendations[0]).toEqual(
+      expect.objectContaining({
+        service: expect.objectContaining({ id: "agentmail" }),
+        matchedTerms: expect.arrayContaining(["email"]),
+        reasons: expect.arrayContaining([
+          "Service is active.",
+          "First-party integration.",
+          "Includes fixed-price payment offers.",
+          "Filtered to category ai.",
+          "Filtered to payment method tempo.",
+        ]),
+        topOffers: [
+          expect.objectContaining({
+            path: "/v0/inboxes",
+            payment: expect.objectContaining({ method: "tempo" }),
+          }),
+        ],
+        nextActions: expect.arrayContaining([
+          'Call get_usage_recipe with {"service":"agentmail"}.',
+        ]),
+      }),
+    );
+    expect(body.result.content[0]?.text).toContain("Recommended 2 of 2");
+  });
+
+  it("returns a route-specific usage recipe for a discovered service", async () => {
+    const body = await callTool("get_usage_recipe", {
+      service: "agentmail",
+      route: "POST /v0/inboxes",
+    });
+
+    expect(body.result.structuredContent).toEqual(
+      expect.objectContaining({
+        appliedFilters: {
+          service: "agentmail",
+          route: "POST /v0/inboxes",
+        },
+        service: expect.objectContaining({ id: "agentmail" }),
+        baseUrl: "https://mpp.api.agentmail.to",
+        count: 1,
+        endpointCandidates: [
+          expect.objectContaining({
+            method: "POST",
+            path: "/v0/inboxes",
+            url: "https://mpp.api.agentmail.to/v0/inboxes",
+            payment: expect.objectContaining({ method: "tempo" }),
+          }),
+        ],
+        recipe: expect.objectContaining({
+          mcpServer: "https://mpp.dev/mcp/services",
+          mode: "read-only-discovery",
+          paymentAuthority:
+            "Discovery is advisory; the runtime 402 Challenge is authoritative.",
+          httpSteps: expect.arrayContaining([
+            expect.stringContaining("402 Payment Required"),
+          ]),
+          warnings: expect.arrayContaining([
+            expect.stringContaining("does not proxy requests"),
+          ]),
+        }),
+      }),
+    );
   });
 
   it("returns facets, recipient lookup, and catalog status for agent planning", async () => {
@@ -539,7 +624,7 @@ async function mcp(method: string, params: Record<string, unknown>, env: Env) {
       }>;
       content: Array<{ type: string; text: string }>;
       isError?: boolean;
-      structuredContent: {
+      structuredContent: Record<string, unknown> & {
         count?: number;
         total?: number;
         returned?: number;
@@ -549,6 +634,9 @@ async function mcp(method: string, params: Record<string, unknown>, env: Env) {
         services: Array<{ id: string }>;
         offers: unknown[];
         openapi?: unknown;
+        recommendations?: unknown[];
+        endpointCandidates?: unknown[];
+        recipe?: unknown;
       };
     };
   }>;
