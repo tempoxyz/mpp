@@ -31,6 +31,16 @@ const services: Service[] = [
           amount: "2000000",
         },
       },
+      {
+        method: "POST",
+        path: "/v0/inboxes/:inbox_id/messages/send",
+        description: "Send message",
+        payment: {
+          intent: "charge",
+          method: "tempo",
+          amount: "10000",
+        },
+      },
     ],
   },
   {
@@ -103,7 +113,7 @@ describe("discovery helpers", () => {
   it("returns only paid offers and supports route filtering", () => {
     const service = findService(services, "agentmail");
     if (!service) throw new Error("missing fixture");
-    expect(offersForService(service)).toHaveLength(1);
+    expect(offersForService(service)).toHaveLength(2);
     expect(offersForService(service, "POST /v0/inboxes")).toEqual([
       expect.objectContaining({
         method: "POST",
@@ -111,6 +121,7 @@ describe("discovery helpers", () => {
         payment: expect.objectContaining({ amount: "2000000" }),
       }),
     ]);
+    expect(offersForService(service, "inboxes")).toHaveLength(2);
   });
 
   it("builds a registry fallback view for services without openapi", () => {
