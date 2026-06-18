@@ -24,6 +24,89 @@ const OPENAPI_FETCH_TIMEOUT_MS = 3000;
 const MAX_OPENAPI_RAW_BYTES = 256 * 1024;
 const MAX_OPENAPI_FETCH_BYTES = 1024 * 1024;
 const MAX_OPENAPI_REDIRECTS = 3;
+const CODEMODE_HELPER = `type MppService = {
+  id: string;
+  name: string;
+  url: string;
+  categories?: string[];
+  integration?: string;
+  status?: string;
+  endpoints: Array<{
+    method: string;
+    path: string;
+    description?: string;
+    payment?: {
+      intent: string;
+      method: string;
+      amount?: string;
+      currency?: string;
+      decimals?: number;
+      recipient?: string;
+      unitType?: string;
+      dynamic?: true;
+      amountHint?: string;
+    } | null;
+  }>;
+};
+
+type ServicesResponse = { version: number; services: MppService[] };
+
+const MPP_SERVICES_URL = "https://mpp.dev/api/services";
+
+export async function fetchMppServices(): Promise<ServicesResponse> {
+  const response = await fetch(MPP_SERVICES_URL, {
+    headers: { accept: "application/json" },
+  });
+  if (!response.ok) {
+    throw new Error("MPP catalog fetch failed: " + response.status);
+  }
+  return response.json() as Promise<ServicesResponse>;
+}
+
+export function findPaidOffers(
+  catalog: ServicesResponse,
+  filters: {
+    query?: string;
+    category?: string;
+    method?: string;
+    currency?: string;
+    maxAmount?: bigint;
+    recipient?: string;
+  } = {},
+) {
+  const query = filters.query?.toLowerCase();
+  return catalog.services.flatMap((service) =>
+    service.endpoints
+      .filter((endpoint) => endpoint.payment)
+      .map((endpoint) => ({ service, endpoint, payment: endpoint.payment! }))
+      .filter(({ service, endpoint, payment }) => {
+        if (filters.category && !service.categories?.includes(filters.category)) return false;
+        if (filters.method && payment.method !== filters.method) return false;
+        if (filters.currency && payment.currency !== filters.currency) return false;
+        if (filters.recipient && payment.recipient !== filters.recipient) return false;
+        if (filters.maxAmount !== undefined) {
+          if (payment.dynamic || !payment.amount) return false;
+          if (BigInt(payment.amount) > filters.maxAmount) return false;
+        }
+        if (!query) return true;
+        return [
+          service.id,
+          service.name,
+          service.url,
+          endpoint.method,
+          endpoint.path,
+          endpoint.description,
+          payment.description,
+          payment.unitType,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(query));
+      }),
+  );
+}
+
+// Discovery is advisory. Before paying, call the target endpoint and treat its
+// runtime 402 Challenge as the authoritative payment terms.`;
 const HTTP_METHODS = [
   "get",
   "put",
@@ -379,6 +462,22 @@ async function handleToolCall(
           openapi,
         },
         `${openapi.source === "registry" ? "Returned registry endpoint view" : `Fetched ${openapi.source} OpenAPI candidate`} for ${service.id}. ${ADVISORY}`,
+      );
+    }
+
+    if (name === "get_codemode") {
+      return toolResult(
+        {
+          ...meta,
+          language: "typescript",
+          catalogEndpoint: "https://mpp.dev/api/services",
+          module: CODEMODE_HELPER,
+          usage: [
+            "const catalog = await fetchMppServices()",
+            "const offers = findPaidOffers(catalog, { query: 'email', method: 'tempo' })",
+          ],
+        },
+        `Returned TypeScript Code Mode helper for the MPP services catalog. ${ADVISORY}`,
       );
     }
 
@@ -894,6 +993,19 @@ function toolSchemas() {
       outputSchema: openApiOutputSchema(),
       execution: { taskSupport: "forbidden" },
     },
+    {
+      name: "get_codemode",
+      description:
+        "Return a compact TypeScript helper module for Code Mode agents to fetch and filter the MPP services catalog programmatically." +
+        advisory,
+      inputSchema: {
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      },
+      outputSchema: codemodeOutputSchema(),
+      execution: { taskSupport: "forbidden" },
+    },
   ] as const;
 }
 
@@ -1218,6 +1330,34 @@ function openApiOutputSchema() {
       "count",
       "source",
       "openapi",
+    ],
+    additionalProperties: false,
+  });
+}
+
+function codemodeOutputSchema() {
+  return oneOfSuccessOrError({
+    type: "object",
+    properties: {
+      ...commonEnvelopeProperties(),
+      language: { type: "string", const: "typescript" },
+      catalogEndpoint: { type: "string" },
+      module: { type: "string" },
+      usage: {
+        type: "array",
+        items: { type: "string" },
+      },
+    },
+    required: [
+      "advisory",
+      "catalogVersion",
+      "cacheStatus",
+      "fetchedAt",
+      "sourceUrl",
+      "language",
+      "catalogEndpoint",
+      "module",
+      "usage",
     ],
     additionalProperties: false,
   });

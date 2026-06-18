@@ -81,7 +81,7 @@ describe("mcp handler", () => {
   it("advertises outputSchema for every tool", async () => {
     const body = await mcp("tools/list", {}, envWithCatalog());
     const tools = body.result.tools ?? [];
-    expect(tools).toHaveLength(9);
+    expect(tools).toHaveLength(10);
     expect(tools.map((tool) => tool.name)).toEqual([
       "list_services",
       "search_services",
@@ -92,6 +92,7 @@ describe("mcp handler", () => {
       "get_service",
       "get_offers",
       "get_openapi",
+      "get_codemode",
     ]);
     for (const tool of tools) {
       expect(tool.outputSchema).toEqual(
@@ -106,6 +107,26 @@ describe("mcp handler", () => {
           raw: expect.objectContaining({ type: "boolean" }),
         }),
       }),
+    );
+  });
+
+  it("returns a compact Code Mode helper for programmatic discovery", async () => {
+    const body = await callTool("get_codemode", {});
+
+    expect(body.result.structuredContent).toEqual(
+      expect.objectContaining({
+        language: "typescript",
+        catalogEndpoint: "https://mpp.dev/api/services",
+        module: expect.stringContaining(
+          "export async function fetchMppServices",
+        ),
+        usage: expect.arrayContaining([
+          "const catalog = await fetchMppServices()",
+        ]),
+      }),
+    );
+    expect(String(body.result.structuredContent.module)).toContain(
+      "findPaidOffers",
     );
   });
 
@@ -546,6 +567,10 @@ async function mcp(method: string, params: Record<string, unknown>, env: Env) {
         offset?: number;
         limit?: number;
         source?: string;
+        language?: string;
+        catalogEndpoint?: string;
+        module?: string;
+        usage?: string[];
         services: Array<{ id: string }>;
         offers: unknown[];
         openapi?: unknown;

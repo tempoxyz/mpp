@@ -51,6 +51,7 @@ Use it when an agent needs to:
   Challenge
 - inspect catalog facets before narrowing a search
 - fetch a live OpenAPI summary or registry-derived endpoint view
+- fetch a compact TypeScript Code Mode helper for programmatic catalog queries
 
 ```json
 {
@@ -64,6 +65,11 @@ Use it when an agent needs to:
 
 The MCP server is advisory and read-only. After discovery, clients call the
 target service directly and treat the runtime `402` Challenge as authoritative.
+
+For agents that prefer Code Mode, call `get_codemode()` to retrieve a small
+TypeScript module that fetches `https://mpp.dev/api/services` and filters paid
+offers locally by query, category, payment method, currency, amount, or
+recipient.
 
 ## Quick start
 

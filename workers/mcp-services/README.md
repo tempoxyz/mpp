@@ -61,12 +61,19 @@ paid API remains authoritative.
 - `get_service(id_or_name)`
 - `get_offers(service, route?)`
 - `get_openapi(service, raw?)`
+- `get_codemode()`
 
 `search_offers` is the preferred tool when an agent needs to choose a payable
 endpoint rather than a provider. It returns endpoint-level offers with service
 metadata, normalized display pricing where possible, match metadata, and
 ranking signals such as active status, first-party integration, fixed pricing,
 and OpenAPI availability.
+
+`get_codemode` returns a compact TypeScript helper module for agents that work
+better by writing code. The helper fetches `https://mpp.dev/api/services` and
+filters endpoint-level payment offers locally. It is still advisory; callers
+must treat the runtime `402 Challenge` from the target paid API as
+authoritative before paying.
 
 ## MCP client config
 
