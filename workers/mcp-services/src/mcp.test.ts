@@ -587,10 +587,11 @@ describe("mcp handler", () => {
     );
   });
 
-  it("uses the advanced discovery documentation URL in the server card", () => {
+  it("uses the agent-facing documentation URL in the server card", () => {
     expect(serverCard("https://mpp.dev/mcp/services")).toEqual(
       expect.objectContaining({
-        documentationUrl: "https://mpp.dev/advanced/discovery",
+        documentationUrl:
+          "https://docs.tempo.xyz/guide/machine-payments/discover-services",
         serverInfo: expect.objectContaining({ name: "mpp-services-mcp" }),
         transport: {
           type: "streamable-http",

@@ -11,6 +11,10 @@ export async function GET(request: Request) {
   return proxyToWorker(request);
 }
 
+export async function HEAD(request: Request) {
+  return proxyToWorker(request);
+}
+
 export async function POST(request: Request) {
   return proxyToWorker(request);
 }
@@ -70,7 +74,7 @@ function getWorkerOrigin() {
 function corsHeaders() {
   return new Headers({
     "Access-Control-Allow-Headers": "content-type,mcp-protocol-version",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
     "Access-Control-Allow-Origin": "*",
   });
 }

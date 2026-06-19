@@ -204,18 +204,29 @@ export function findService(
 }
 
 export function offersForService(service: Service, route?: string): Offer[] {
-  return service.endpoints
+  const paidEndpoints = service.endpoints
     .filter((endpoint): endpoint is Endpoint & { payment: EndpointPayment } =>
       Boolean(endpoint.payment),
     )
-    .filter((endpoint) => endpointMatchesRoute(endpoint, route))
-    .map((endpoint) => ({
-      method: endpoint.method,
-      path: endpoint.path,
-      ...(endpoint.description ? { description: endpoint.description } : {}),
-      ...(endpoint.docs ? { docs: endpoint.docs } : {}),
-      payment: endpoint.payment,
-    }));
+    .filter((endpoint) => endpointMatchesRoute(endpoint, route));
+
+  const exactEndpoints =
+    route &&
+    paidEndpoints.some((endpoint) =>
+      endpointExactlyMatchesRoute(endpoint, route),
+    )
+      ? paidEndpoints.filter((endpoint) =>
+          endpointExactlyMatchesRoute(endpoint, route),
+        )
+      : paidEndpoints;
+
+  return exactEndpoints.map((endpoint) => ({
+    method: endpoint.method,
+    path: endpoint.path,
+    ...(endpoint.description ? { description: endpoint.description } : {}),
+    ...(endpoint.docs ? { docs: endpoint.docs } : {}),
+    payment: endpoint.payment,
+  }));
 }
 
 export function registryOpenApiView(service: Service) {
@@ -567,6 +578,17 @@ function endpointMatchesRoute(endpoint: Endpoint, route?: string): boolean {
   const fullRoute = normalize(`${endpoint.method} ${endpoint.path}`);
   return (
     fullRoute.includes(wanted) || normalize(endpoint.path).includes(wanted)
+  );
+}
+
+function endpointExactlyMatchesRoute(
+  endpoint: Endpoint,
+  route: string,
+): boolean {
+  const wanted = normalize(route);
+  return (
+    normalize(`${endpoint.method} ${endpoint.path}`) === wanted ||
+    normalize(endpoint.path) === wanted
   );
 }
 

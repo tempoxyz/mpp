@@ -160,7 +160,8 @@ export function serverCard(endpoint: string) {
     serverInfo: serverInfo(),
     description:
       "Read-only MCP server exposing the MPP service discovery catalog and payment terms as advisory MCP tools.",
-    documentationUrl: "https://mpp.dev/advanced/discovery",
+    documentationUrl:
+      "https://docs.tempo.xyz/guide/machine-payments/discover-services",
     iconUrl: "https://mpp.dev/favicon.svg",
     transport: {
       type: "streamable-http",
@@ -1231,7 +1232,8 @@ function toolSchemas() {
           service: { type: "string", description: "Service id or name." },
           route: {
             type: "string",
-            description: "Optional route substring such as POST /v1/messages.",
+            description:
+              "Optional route filter such as POST /v1/messages. Exact METHOD /path matches are preferred; otherwise substring matching is used.",
           },
         },
         required: ["service"],
@@ -1306,7 +1308,7 @@ function toolSchemas() {
     {
       name: "get_offers",
       description:
-        "Return endpoint payment offers for a service, optionally filtered by route substring." +
+        "Return endpoint payment offers for a service, optionally filtered by exact route or route substring." +
         advisory,
       inputSchema: {
         type: "object",
@@ -1314,7 +1316,8 @@ function toolSchemas() {
           service: { type: "string", description: "Service id or name." },
           route: {
             type: "string",
-            description: "Optional route substring such as POST /v1/messages.",
+            description:
+              "Optional route filter such as POST /v1/messages. Exact METHOD /path matches are preferred; otherwise substring matching is used.",
           },
         },
         required: ["service"],
