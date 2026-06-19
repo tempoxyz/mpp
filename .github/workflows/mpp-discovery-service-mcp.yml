@@ -1,4 +1,4 @@
-name: MCP Services Smoke
+name: MPP Discovery Service MCP
 
 on:
   schedule:
@@ -9,15 +9,15 @@ permissions:
   contents: read
 
 concurrency:
-  group: mcp-services-smoke
+  group: mpp-discovery-service-mcp
   cancel-in-progress: false
 
 env:
   MCP_SERVICES_URL: https://mpp.dev/mcp/services
 
 jobs:
-  smoke:
-    name: Production smoke
+  health:
+    name: Production health
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -39,7 +39,7 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_ENG_DEVELOPERS_MONITOR }}
 
-      - name: Run smoke test
-        run: node scripts/smoke-mcp-services.mjs
+      - name: Run health check
+        run: node scripts/check-mpp-discovery-service-mcp.mjs
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_ENG_DEVELOPERS_MONITOR }}
