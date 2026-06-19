@@ -39,7 +39,7 @@
     "viem": "^2.52.2",
     "vocs": "^2.0.12",
     "wagmi": "^3.6.16",
-    "waku": "1.0.0-beta.2"
+    "waku": "1.0.0-beta.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
