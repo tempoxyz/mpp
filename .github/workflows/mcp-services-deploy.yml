@@ -1,4 +1,4 @@
-name: Deploy MPP Services MCP
+name: Deploy MPP Discovery Service MCP
 
 on:
   push:

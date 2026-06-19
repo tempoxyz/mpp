@@ -4,12 +4,14 @@ import { appendFile } from "node:fs/promises";
 
 const DEFAULT_ENDPOINT = "https://mpp.dev/mcp/services";
 const endpoint = normalizeEndpoint(
-  process.env.MCP_SERVICES_URL ?? DEFAULT_ENDPOINT,
+  process.env.MPP_DISCOVERY_MCP_URL ?? DEFAULT_ENDPOINT,
 );
 const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
-const requestTimeoutMs = Number(process.env.MCP_SMOKE_TIMEOUT_MS ?? 30_000);
+const requestTimeoutMs = Number(
+  process.env.MPP_DISCOVERY_MCP_TIMEOUT_MS ?? 30_000,
+);
 const maxCacheAgeSeconds = Number(
-  process.env.MCP_SMOKE_MAX_CACHE_AGE_SECONDS ?? 3 * 60 * 60,
+  process.env.MPP_DISCOVERY_MCP_MAX_CACHE_AGE_SECONDS ?? 3 * 60 * 60,
 );
 
 const requiredTools = [
@@ -67,7 +69,7 @@ async function main() {
     const result = await rpc("initialize", {
       protocolVersion: "2025-06-18",
       capabilities: {},
-      clientInfo: { name: "mpp-services-smoke", version: "1.0.0" },
+      clientInfo: { name: "mpp-discovery-service-mcp-check", version: "1.0.0" },
     });
     expect(result?.serverInfo?.name === "mpp-services-mcp", "wrong serverInfo");
     const instructions = String(result?.instructions ?? "").toLowerCase();
@@ -457,7 +459,9 @@ function errorMessage(error) {
 function buildSummaryText() {
   const failed = results.filter((result) => !result.ok);
   const passed = results.length - failed.length;
-  const status = failed.length > 0 ? "unhealthy" : "healthy";
+  const healthy = failed.length === 0;
+  const statusIcon = healthy ? "✅" : "🚨";
+  const status = healthy ? "healthy" : "unhealthy";
   const catalog = state.catalogStatus;
   const runUrl =
     process.env.GITHUB_SERVER_URL &&
@@ -466,28 +470,28 @@ function buildSummaryText() {
       ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
       : undefined;
   const lines = [
-    `MPP services MCP smoke: ${status}`,
-    `Endpoint: ${endpoint}`,
-    `Checks: ${passed}/${results.length} passed`,
+    `${statusIcon} *MPP Discovery Service MCP is ${status}*`,
+    `🌐 Endpoint: ${endpoint}`,
+    `✅ Checks: ${passed}/${results.length} passed`,
   ];
   if (catalog) {
     lines.push(
-      `Catalog: ${catalog.serviceCount} services, ${catalog.offerCount} offers, cache age ${formatDuration(catalog.cacheAgeSeconds)}`,
+      `📚 Catalog: ${catalog.serviceCount} services, ${catalog.offerCount} offers, cache age ${formatDuration(catalog.cacheAgeSeconds)}`,
     );
   }
   if (state.tools) {
-    lines.push(`Tools: ${state.tools.length}`);
+    lines.push(`🧰 Tools advertised: ${state.tools.length}`);
   }
   if (failed.length > 0) {
     lines.push(
-      `Failures: ${failed
+      `❌ Failures: ${failed
         .slice(0, 5)
         .map((result) => `${result.name} (${result.detail})`)
         .join("; ")}`,
     );
   }
   if (runUrl) {
-    lines.push(`Run: ${runUrl}`);
+    lines.push(`🔎 Run: ${runUrl}`);
   }
   return lines.join("\n");
 }
@@ -506,7 +510,7 @@ async function writeStepSummary() {
     )
     .join("\n");
   const summary = [
-    "# MPP services MCP smoke",
+    "# MPP Discovery Service MCP",
     "",
     buildSummaryText(),
     "",
