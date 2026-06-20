@@ -3723,6 +3723,22 @@ function PageStyles() {
       
       [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; }
       [data-layout="minimal"] main > article { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+      .services-agent-discovery {
+        box-sizing: border-box;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 1.5rem 5rem;
+        width: 100%;
+      }
+      .services-agent-discovery > * {
+        max-width: calc(100% - 360px - 3rem);
+      }
+      .services-agent-discovery h2 + p {
+        margin-bottom: 0.75rem;
+      }
+      .services-agent-discovery h2 + p + table {
+        margin-top: 0;
+      }
 
       /* Hide logo when search bar is stuck and overlaps it at mid-wide viewports */
       @media (min-width: 1500px) and (max-width: 1730px) {
@@ -3735,6 +3751,13 @@ function PageStyles() {
       @media (max-width: 900px) {
         [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: clip !important; }
         [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
+        .services-agent-discovery {
+          padding-left: 1.25rem !important;
+          padding-right: 1.25rem !important;
+        }
+        .services-agent-discovery > * {
+          max-width: none;
+        }
       }
       /* Filter: always show dropdown, search bar taller */
       .filter-dropdown-wrap { display: block; }
