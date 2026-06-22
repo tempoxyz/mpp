@@ -10978,4 +10978,49 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "stacktree",
+    name: "Stacktree",
+    url: "https://stacktr.ee",
+    serviceUrl: "https://api.stacktr.ee",
+    description:
+      "Private-by-default HTML hosting for AI agents. Pay $1 once to provision a persistent API key, then publish static HTML or Markdown (or a zip) and get back a private, shareable link — password, email-gate, expiry, and custom domains supported. MCP-native.",
+    categories: ["web", "storage"],
+    integration: "third-party",
+    tags: [
+      "hosting",
+      "html",
+      "static-site",
+      "publishing",
+      "private",
+      "share-link",
+      "mcp",
+      "agents",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://stacktr.ee",
+      llmsTxt: "https://stacktr.ee/llms.txt",
+      apiReference: "https://api.stacktr.ee/openapi.json",
+    },
+    provider: { name: "Stacktree", url: "https://stacktr.ee" },
+    realm: "api.stacktr.ee",
+    intent: "charge",
+    // EIP-3009 USDC on Base mainnet (eip155:8453), settled via an x402 facilitator.
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "POST /provision",
+        desc: "Provision a persistent Stacktree API key (returned once in the body). Pay $1 once over the evm method.",
+        amount: "1000000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
