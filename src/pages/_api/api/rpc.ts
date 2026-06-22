@@ -42,7 +42,7 @@ export async function POST(request: Request) {
         result,
       );
     }
-    return Response.json(result);
+    return Response.json(result, { status: response.status });
   } catch (error) {
     console.error("[rpc] proxy request failed:", error);
     return Response.json(
