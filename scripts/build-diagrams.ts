@@ -187,11 +187,12 @@ async function buildDiagrams() {
       fs.writeFileSync(outputPath, processedSvg);
     } catch (error) {
       console.error(`  Error building ${file}:`, error);
-      process.exit(1);
+      process.exitCode = 1;
+      return;
+    } finally {
+      // Always clean up the temp config, even when a build fails
+      fs.unlinkSync(configPath);
     }
-
-    // Clean up temp config
-    fs.unlinkSync(configPath);
   }
 
   console.log("Diagrams built successfully!");
