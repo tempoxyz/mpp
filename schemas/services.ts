@@ -1138,6 +1138,60 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── AnyAPI ─────────────────────────────────────────────────────────────
+  {
+    id: "getanyapi",
+    name: "AnyAPI",
+    url: "https://api.getanyapi.com",
+    serviceUrl: "https://api.getanyapi.com",
+    description:
+      "Unified marketplace for scraping and data APIs. Reach hundreds of third-party data APIs through one key, pay per request in USD, with normalized schemas and automatic failover. Agents pay inline per call with no account.",
+
+    categories: ["data", "search", "web", "social"],
+    integration: "first-party",
+    tags: [
+      "data",
+      "scraping",
+      "web-scraping",
+      "search",
+      "social-media",
+      "ai-agents",
+      "api-gateway",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://getanyapi.com",
+      llmsTxt: "https://getanyapi.com/llms.txt",
+      apiReference: "https://api.getanyapi.com/openapi.json",
+    },
+    provider: { name: "AnyAPI", url: "https://getanyapi.com" },
+    realm: "api.getanyapi.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/run/web.scrape",
+        desc: "Scrape a URL",
+        amount: "1000",
+      },
+      {
+        route: "POST /v1/run/google.search",
+        desc: "Google web search results",
+        dynamic: true,
+      },
+      {
+        route: "POST /v1/run/youtube.video_transcript",
+        desc: "Fetch a YouTube video transcript",
+        dynamic: true,
+      },
+      {
+        route: "POST /v1/run/reddit.subreddit_posts",
+        desc: "List posts from a subreddit",
+        dynamic: true,
+      },
+    ],
+  },
+
   // ── GovLaws ────────────────────────────────────────────────────────────
   {
     id: "govlaws",
