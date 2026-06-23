@@ -10978,4 +10978,33 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── StartupHub.ai ─────────────────────────────────────────────────────────
+  {
+    id: "startuphub",
+    name: "StartupHub.ai",
+    url: "https://www.startuphub.ai/api/mpp",
+    serviceUrl: "https://www.startuphub.ai/api/mpp",
+    description:
+      "Pay-per-call AI startup intelligence: company profile, sectors, funding history, and detected tech stack for 23k+ AI companies.",
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: ["startups", "company-data", "funding", "tech-stack", "enrichment", "x402", "mpp"],
+    docs: { homepage: "https://www.startuphub.ai/api-docs/keyless-payment" },
+    provider: { name: "StartupHub.ai", url: "https://www.startuphub.ai" },
+    realm: "www.startuphub.ai",
+    intent: "charge",
+    payments: [
+      { method: "x402", currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", decimals: 6 },
+      STRIPE_PAYMENT,
+    ],
+    endpoints: [
+      {
+        route: "GET /company",
+        desc: "Company intelligence for an AI startup (profile, sectors, funding history, detected tech stack). Pass ?slug= or ?domain=.",
+        amount: "20000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
