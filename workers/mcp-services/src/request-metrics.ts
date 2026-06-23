@@ -1,9 +1,9 @@
 import {
-  type DatadogMetric,
-  metricName,
-  sendDatadogMetrics,
+  count,
+  type DatadogMetricsClient,
+  gauge,
+  type MetricPoint,
 } from "./datadog.js";
-import type { WorkerEnv } from "./types.js";
 
 type McpRequestSummary = {
   method?: string;
@@ -24,134 +24,118 @@ const KNOWN_TOOLS = new Set([
   "get_openapi",
 ]);
 
-export async function withRequestMetrics(
-  request: Request,
-  env: WorkerEnv,
-  ctx: ExecutionContext,
-  route: string,
-  handler: () => Promise<Response>,
-): Promise<Response> {
-  const startedAt = Date.now();
-  const mcpSummaryPromise =
-    route === "mcp" ? summarizeMcpRequest(request) : Promise.resolve(undefined);
-  let response: Response;
-  try {
-    response = await handler();
-  } catch (error) {
-    queueRequestMetrics(
-      env,
-      ctx,
-      mcpSummaryPromise,
-      request,
-      route,
-      500,
-      Date.now() - startedAt,
-      true,
-    );
-    throw error;
-  }
+export class RequestMetricsRecorder {
+  constructor(private readonly metrics: DatadogMetricsClient) {}
 
-  queueRequestMetrics(
-    env,
-    ctx,
-    mcpSummaryPromise,
-    request,
-    route,
-    response.status,
-    Date.now() - startedAt,
-    false,
-  );
-  return response;
-}
+  async trace(
+    request: Request,
+    ctx: ExecutionContext,
+    route: string,
+    handler: () => Promise<Response>,
+  ): Promise<Response> {
+    const startedAt = Date.now();
+    const summaryPromise =
+      route === "mcp"
+        ? summarizeMcpRequest(request)
+        : Promise.resolve(undefined);
 
-function queueRequestMetrics(
-  env: WorkerEnv,
-  ctx: ExecutionContext,
-  summaryPromise: Promise<McpRequestSummary | undefined>,
-  request: Request,
-  route: string,
-  status: number,
-  durationMs: number,
-  thrown: boolean,
-): void {
-  ctx.waitUntil(
-    summaryPromise
-      .then((summary) =>
-        sendDatadogMetrics(
-          env,
-          requestMetrics(request, route, status, durationMs, summary, thrown),
-        ),
-      )
-      .catch((error) => {
-        console.error(
-          JSON.stringify({
-            message: "datadog.request_metrics_failed",
-            error: errorMessage(error),
-          }),
-        );
-      }),
-  );
-}
-
-function requestMetrics(
-  request: Request,
-  route: string,
-  status: number,
-  durationMs: number,
-  summary: McpRequestSummary | undefined,
-  thrown: boolean,
-): DatadogMetric[] {
-  const tags = [
-    `route:${route}`,
-    `method:${request.method}`,
-    `status_class:${statusClass(status)}`,
-  ];
-  const metrics: DatadogMetric[] = [
-    {
-      metric: metricName("http.request.count"),
-      type: "count",
-      value: 1,
-      tags,
-    },
-    {
-      metric: metricName("http.response.duration_ms"),
-      type: "gauge",
-      value: durationMs,
-      tags,
-    },
-  ];
-
-  if (summary?.method) {
-    const mcpTags = [
-      `mcp_method:${summary.method}`,
-      ...(summary.tool ? [`tool:${summary.tool}`] : []),
-      `status:${thrown || status >= 500 ? "server_error" : "ok"}`,
-    ];
-    metrics.push(
-      {
-        metric: metricName("mcp.request.count"),
-        type: "count",
-        value: 1,
-        tags: mcpTags,
-      },
-      {
-        metric: metricName("mcp.response.duration_ms"),
-        type: "gauge",
-        value: durationMs,
-        tags: mcpTags,
-      },
-    );
-    if (thrown || status >= 500) {
-      metrics.push({
-        metric: metricName("mcp.error.count"),
-        type: "count",
-        value: 1,
-        tags: [...mcpTags, "error_class:server"],
+    try {
+      const response = await handler();
+      this.queue(ctx, {
+        request,
+        route,
+        status: response.status,
+        durationMs: Date.now() - startedAt,
+        summaryPromise,
+        thrown: false,
       });
+      return response;
+    } catch (error) {
+      this.queue(ctx, {
+        request,
+        route,
+        status: 500,
+        durationMs: Date.now() - startedAt,
+        summaryPromise,
+        thrown: true,
+      });
+      throw error;
     }
   }
 
+  private queue(ctx: ExecutionContext, sample: RequestMetricSample): void {
+    ctx.waitUntil(
+      sample.summaryPromise
+        .then((summary) =>
+          this.metrics.send(
+            buildRequestMetrics({
+              ...sample,
+              summary,
+            }),
+          ),
+        )
+        .catch((error) => {
+          console.error(
+            JSON.stringify({
+              message: "datadog.request_metrics_failed",
+              error: errorMessage(error),
+            }),
+          );
+        }),
+    );
+  }
+}
+
+type RequestMetricSample = {
+  request: Request;
+  route: string;
+  status: number;
+  durationMs: number;
+  summaryPromise: Promise<McpRequestSummary | undefined>;
+  thrown: boolean;
+};
+
+type ResolvedRequestMetricSample = Omit<
+  RequestMetricSample,
+  "summaryPromise"
+> & {
+  summary?: McpRequestSummary;
+};
+
+function buildRequestMetrics(
+  sample: ResolvedRequestMetricSample,
+): MetricPoint[] {
+  const tags = [
+    `route:${sample.route}`,
+    `method:${sample.request.method}`,
+    `status_class:${statusClass(sample.status)}`,
+  ];
+  const metrics = [
+    count("http.request.count", 1, tags),
+    gauge("http.response.duration_ms", sample.durationMs, tags),
+  ];
+
+  if (sample.summary?.method) {
+    metrics.push(...mcpMetrics(sample));
+  }
+
   return metrics;
+}
+
+function mcpMetrics(sample: ResolvedRequestMetricSample): MetricPoint[] {
+  const status = sample.thrown || sample.status >= 500 ? "server_error" : "ok";
+  const tags = [
+    `mcp_method:${sample.summary?.method}`,
+    ...(sample.summary?.tool ? [`tool:${sample.summary.tool}`] : []),
+    `status:${status}`,
+  ];
+  return [
+    count("mcp.request.count", 1, tags),
+    gauge("mcp.response.duration_ms", sample.durationMs, tags),
+    ...(status === "server_error"
+      ? [count("mcp.error.count", 1, [...tags, "error_class:server"])]
+      : []),
+  ];
 }
 
 async function summarizeMcpRequest(
@@ -161,7 +145,7 @@ async function summarizeMcpRequest(
     const body = await request.clone().json();
     const message = Array.isArray(body) ? body[0] : body;
     if (typeof message !== "object" || message === null) return undefined;
-    const method = valueAsString((message as { method?: unknown }).method);
+    const method = stringValue((message as { method?: unknown }).method);
     const params = (message as { params?: unknown }).params;
     if (
       method !== "tools/call" ||
@@ -170,15 +154,17 @@ async function summarizeMcpRequest(
     ) {
       return method ? { method } : undefined;
     }
-    const rawTool = valueAsString((params as { name?: unknown }).name);
-    const tool = rawTool && KNOWN_TOOLS.has(rawTool) ? rawTool : "unknown";
-    return { method, tool };
+    const rawTool = stringValue((params as { name?: unknown }).name);
+    return {
+      method,
+      tool: rawTool && KNOWN_TOOLS.has(rawTool) ? rawTool : "unknown",
+    };
   } catch {
     return undefined;
   }
 }
 
-function valueAsString(value: unknown): string | undefined {
+function stringValue(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 

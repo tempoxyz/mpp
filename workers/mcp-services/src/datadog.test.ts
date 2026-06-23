@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { datadogEnabled, metricName, sendDatadogMetrics } from "./datadog.js";
+import { DatadogMetricsClient, gauge } from "./datadog.js";
 import type { WorkerEnv } from "./types.js";
 
 describe("datadog metrics", () => {
@@ -17,13 +17,8 @@ describe("datadog metrics", () => {
       }),
     );
 
-    await sendDatadogMetrics(env(), [
-      {
-        metric: metricName("health.ok"),
-        type: "gauge",
-        value: 1,
-        tags: ["check:initialize"],
-      },
+    await new DatadogMetricsClient(env()).send([
+      gauge("health.ok", 1, ["check:initialize"]),
     ]);
 
     expect(requests).toHaveLength(1);
@@ -53,17 +48,23 @@ describe("datadog metrics", () => {
     const fetch = vi.fn();
     vi.stubGlobal("fetch", fetch);
 
-    await sendDatadogMetrics({ ...env(), DATADOG_ENABLED: "false" }, [
-      { metric: metricName("health.ok"), type: "gauge", value: 1 },
-    ]);
+    await new DatadogMetricsClient({
+      ...env(),
+      DATADOG_ENABLED: "false",
+    }).send([gauge("health.ok", 1)]);
 
     expect(fetch).not.toHaveBeenCalled();
   });
 
   it("requires explicit enablement or an API key", () => {
-    expect(datadogEnabled({} as WorkerEnv)).toBe(false);
-    expect(datadogEnabled({ DATADOG_ENABLED: "true" } as WorkerEnv)).toBe(true);
-    expect(datadogEnabled({ DATADOG_API_KEY: "key" } as WorkerEnv)).toBe(true);
+    expect(new DatadogMetricsClient({} as WorkerEnv).enabled).toBe(false);
+    expect(
+      new DatadogMetricsClient({ DATADOG_ENABLED: "true" } as WorkerEnv)
+        .enabled,
+    ).toBe(true);
+    expect(
+      new DatadogMetricsClient({ DATADOG_API_KEY: "key" } as WorkerEnv).enabled,
+    ).toBe(true);
   });
 });
 

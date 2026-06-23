@@ -1,9 +1,9 @@
 import { refreshCatalog } from "./cache.js";
-import { emitDatadogMetrics, metricName } from "./datadog.js";
+import { DatadogMetricsClient, gauge, type MetricPoint } from "./datadog.js";
 import { countPaymentOffers } from "./discovery.js";
-import { runPublicHealthCheck } from "./health.js";
+import { McpHealthChecker } from "./health.js";
 import { handleMcp, jsonHeaders, optionsResponse, serverCard } from "./mcp.js";
-import { withRequestMetrics } from "./request-metrics.js";
+import { RequestMetricsRecorder } from "./request-metrics.js";
 import type { WorkerEnv } from "./types.js";
 
 export default {
@@ -14,10 +14,11 @@ export default {
   ): Promise<Response> {
     const url = new URL(request.url);
     const publicEndpoint = publicMcpEndpoint(url, env);
+    const metrics = new DatadogMetricsClient(env);
+    const requestMetrics = new RequestMetricsRecorder(metrics);
 
-    return withRequestMetrics(
+    return requestMetrics.trace(
       request,
-      env,
       ctx,
       routeName(url.pathname, request.method),
       async () => {
@@ -68,8 +69,10 @@ export default {
     env: WorkerEnv,
     ctx: ExecutionContext,
   ) {
+    const metrics = new DatadogMetricsClient(env);
+
     if (event.cron === "* * * * *") {
-      ctx.waitUntil(runScheduledHealthCheck(event, env, ctx));
+      ctx.waitUntil(runScheduledHealthCheck(event, env, metrics, ctx));
       return;
     }
 
@@ -77,33 +80,15 @@ export default {
     ctx.waitUntil(
       refreshCatalog(env)
         .then((catalog) => {
-          emitDatadogMetrics(env, ctx, [
-            {
-              metric: metricName("catalog.refresh.ok"),
-              type: "gauge",
-              value: 1,
-            },
-            {
-              metric: metricName("catalog.refresh.duration_ms"),
-              type: "gauge",
-              value: Date.now() - startedAt,
-            },
-            {
-              metric: metricName("catalog.services"),
-              type: "gauge",
-              value: catalog.services.length,
-            },
-            {
-              metric: metricName("catalog.offers"),
-              type: "gauge",
-              value: countPaymentOffers(catalog.services),
-            },
-            {
-              metric: metricName("catalog.cache_age_seconds"),
-              type: "gauge",
-              value: 0,
-            },
-          ]);
+          metrics.queue(
+            ctx,
+            catalogRefreshMetrics({
+              ok: true,
+              durationMs: Date.now() - startedAt,
+              services: catalog.services.length,
+              offers: countPaymentOffers(catalog.services),
+            }),
+          );
           console.log(
             JSON.stringify({
               message: "catalog.refresh_complete",
@@ -117,18 +102,13 @@ export default {
           );
         })
         .catch((error) => {
-          emitDatadogMetrics(env, ctx, [
-            {
-              metric: metricName("catalog.refresh.ok"),
-              type: "gauge",
-              value: 0,
-            },
-            {
-              metric: metricName("catalog.refresh.duration_ms"),
-              type: "gauge",
-              value: Date.now() - startedAt,
-            },
-          ]);
+          metrics.queue(
+            ctx,
+            catalogRefreshMetrics({
+              ok: false,
+              durationMs: Date.now() - startedAt,
+            }),
+          );
           console.error(
             JSON.stringify({
               message: "catalog.refresh_failed",
@@ -150,11 +130,12 @@ function publicMcpEndpoint(url: URL, env: WorkerEnv): string {
 async function runScheduledHealthCheck(
   event: ScheduledController,
   env: WorkerEnv,
+  metrics: DatadogMetricsClient,
   ctx: ExecutionContext,
 ): Promise<void> {
   const startedAt = Date.now();
-  const metrics = await runPublicHealthCheck(env);
-  emitDatadogMetrics(env, ctx, metrics);
+  const healthMetrics = await McpHealthChecker.fromEnv(env).metrics();
+  metrics.queue(ctx, healthMetrics);
   console.log(
     JSON.stringify({
       message: "mcp.health_complete",
@@ -176,4 +157,28 @@ function routeName(pathname: string, method: string): string {
   if (pathname === "/mcp/services") return "mcp_services_card";
   if (pathname === "/") return "root";
   return "not_found";
+}
+
+function catalogRefreshMetrics({
+  ok,
+  durationMs,
+  services,
+  offers,
+}: {
+  ok: boolean;
+  durationMs: number;
+  services?: number;
+  offers?: number;
+}): MetricPoint[] {
+  return [
+    gauge("catalog.refresh.ok", ok ? 1 : 0),
+    gauge("catalog.refresh.duration_ms", durationMs),
+    ...(ok && services !== undefined && offers !== undefined
+      ? [
+          gauge("catalog.services", services),
+          gauge("catalog.offers", offers),
+          gauge("catalog.cache_age_seconds", 0),
+        ]
+      : []),
+  ];
 }

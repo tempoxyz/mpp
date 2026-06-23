@@ -93,19 +93,8 @@ Production Worker secret:
 DATADOG_API_KEY=<datadog-api-key>
 ```
 
-`DATADOG_APP_KEY` must not be configured on the Worker. It is only used outside
-runtime to provision monitors:
-
-```bash
-DATADOG_API_KEY=<datadog-api-key> \
-DATADOG_APP_KEY=<datadog-app-key> \
-DATADOG_ALERT_TARGET=@slack-eng-developers-monitor \
-pnpm mcp-services:datadog:provision
-```
-
-The provisioner creates or updates Datadog monitors for missing health metrics,
-failed health checks, stale catalog cache, low service/offer counts, and
-server-side MCP errors. Alerts route through Datadog's Slack integration.
+Only the Worker metrics API key is required by this package. Configure Datadog
+notifications manually from these emitted metrics.
 
 ## Tools
 
