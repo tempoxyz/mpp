@@ -9,7 +9,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 # Sessions [Low-cost high-throughput payments]
 
-The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Sessions use the [TIP-1034](https://tips.sh/1034-1) precompile for low cost and high reliability. Clients deposit funds into a channel reserve and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
+The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Sessions use the [TIP-1034](https://tips.sh/1034) precompile for low cost and high reliability. Clients deposit funds into a channel reserve and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
 
 Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
@@ -69,7 +69,7 @@ A payment session has four phases:
 
 ### Open
 
-The client deposits funds into a channel reserve through the [TIP-1034 precompile](https://tips.sh/1034-1), creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and tracks the deposited stablecoins.
+The client deposits funds into a channel reserve through the [TIP-1034 precompile](https://tips.sh/1034), creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and tracks the deposited stablecoins.
 
 ### Session
 
@@ -225,7 +225,7 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
 - **High throughput**—When a server settles thousands of channels, Tempo's throughput handles the settlement volume without congestion or fee spikes.
 - **Fee sponsorship**—Servers can pay channel management fees on behalf of clients, making the client-side integration purely off-chain after the initial deposit.
 - **Enshrined tokens**—TIP-20 tokens are precompile-based, not smart contracts. Token operations are cheaper and more predictable than ERC-20 interactions on other chains.
-- **Enshrined Tempo**—[TIP-1034](https://tips.sh/1034-1) makes Sessions a native Tempo precompile at the canonical `0x4D5050…` address, whose prefix spells "MPP". The precompile reduces execution overhead, removes the separate approval flow, and keeps session lifecycle operations in the payment lane under congestion.
+- **Enshrined Tempo**—[TIP-1034](https://tips.sh/1034) makes Sessions a native Tempo precompile at the canonical `0x4D5050…` address, whose prefix spells "MPP". The precompile reduces execution overhead, removes the separate approval flow, and keeps session lifecycle operations in the payment lane under congestion.
 :::
 
 ## Integration
@@ -634,7 +634,7 @@ const response = await mppxFetch('https://api.example.com/resource')
 
 ## Reserve precompile
 
-Sessions use the [TIP-1034 precompile](https://tips.sh/1034-1) for on-chain deposits, settlement, top-ups, and channel close. The IETF Specification documents the voucher format and HTTP authentication flow.
+Sessions use the [TIP-1034 precompile](https://tips.sh/1034) for on-chain deposits, settlement, top-ups, and channel close. The IETF Specification documents the voucher format and HTTP authentication flow.
 
 | Network | Chain ID | Precompile address |
 |---|---|---|
