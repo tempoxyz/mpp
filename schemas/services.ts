@@ -557,6 +557,41 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Ando ───────────────────────────────────────────────────────────────
+  {
+    id: "ando",
+    name: "Ando",
+    url: "https://andoai.xyz",
+    serviceUrl: "https://inference.andoai.xyz",
+    description:
+      "First-party accountless LLM inference through Tempo MPP session payments. Agents can pay per request without an Ando API key.",
+
+    categories: ["ai"],
+    integration: "first-party",
+    tags: ["llm", "inference", "chat", "agents", "tempo", "mpp", "qwen"],
+    status: "active",
+    docs: {
+      homepage: "https://docs.andoai.xyz/docs/agents/tempo-mpp-inference",
+      llmsTxt: "https://docs.andoai.xyz/llms.txt",
+      apiReference:
+        "https://docs.andoai.xyz/docs/developers/api-reference/mpp-chat-completions",
+    },
+    provider: { name: "Ando", url: "https://andoai.xyz" },
+    realm: "inference.andoai.xyz",
+    intent: "session",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/mpp/chat/completions",
+        desc: "Buffered chat completions with token-metered Tempo MPP session billing",
+        dynamic: true,
+        amountHint:
+          "Token-metered; 1 USDC.e cumulative voucher bucket with 5 USDC.e suggested reusable session deposit",
+        unitType: "token",
+      },
+    ],
+  },
+
   // ── Anthropic ──────────────────────────────────────────────────────────
   {
     id: "anthropic",
