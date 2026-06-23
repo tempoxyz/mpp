@@ -207,10 +207,7 @@ async function handleMessage(
 
   switch (request.method) {
     case "initialize":
-      return jsonRpcResult(
-        request.id ?? null,
-        initializeResult(request.params),
-      );
+      return jsonRpcResult(request.id ?? null, initializeResult());
     case "notifications/initialized":
       return undefined;
     case "ping":
@@ -727,21 +724,12 @@ function isRecord(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function initializeResult(params: unknown) {
-  const requested =
-    typeof params === "object" && params !== null
-      ? (params as { protocolVersion?: unknown }).protocolVersion
-      : undefined;
-  const protocolVersion =
-    typeof requested === "string" && requested.length > 0
-      ? requested
-      : PROTOCOL_VERSION;
-
+function initializeResult() {
+  // This server supports exactly one protocol version, so the response always
+  // advertises PROTOCOL_VERSION. Per the MCP spec this is the correct reply
+  // whether or not the client requested that same version.
   return {
-    protocolVersion:
-      protocolVersion === PROTOCOL_VERSION
-        ? PROTOCOL_VERSION
-        : PROTOCOL_VERSION,
+    protocolVersion: PROTOCOL_VERSION,
     capabilities: {
       tools: {},
     },
