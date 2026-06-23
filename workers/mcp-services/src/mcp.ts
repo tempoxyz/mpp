@@ -13,7 +13,13 @@ import {
   searchServices,
   servicesByRecipient,
 } from "./discovery.js";
-import { CATEGORIES, INTEGRATIONS, type Service, STATUSES } from "./types.js";
+import {
+  CATEGORIES,
+  INTEGRATIONS,
+  type Service,
+  STATUSES,
+  type WorkerEnv,
+} from "./types.js";
 
 const PROTOCOL_VERSION = "2025-06-18";
 const SERVER_VERSION = "1.0.0";
@@ -126,7 +132,7 @@ type FetchedOpenApi = {
 
 export async function handleMcp(
   request: Request,
-  env: Env,
+  env: WorkerEnv,
   ctx: ExecutionContext,
 ): Promise<Response> {
   let payload: unknown;
@@ -198,7 +204,7 @@ export function optionsResponse(): Response {
 
 async function handleMessage(
   request: JsonRpcRequest | undefined,
-  env: Env,
+  env: WorkerEnv,
   ctx: ExecutionContext,
 ): Promise<JsonRpcResponsePayload | undefined> {
   if (request?.jsonrpc !== "2.0" || typeof request.method !== "string") {
@@ -239,7 +245,7 @@ async function handleMessage(
 
 async function handleToolCall(
   params: ToolCallParams,
-  env: Env,
+  env: WorkerEnv,
   ctx: ExecutionContext,
 ) {
   const name = typeof params.name === "string" ? params.name : "";

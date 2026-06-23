@@ -17,7 +17,7 @@
     }
   },
   "triggers": {
-    "crons": ["0 * * * *"]
+    "crons": ["* * * * *", "0 * * * *"]
   },
   "kv_namespaces": [
     {
@@ -26,6 +26,10 @@
     }
   ],
   "vars": {
+    "DATADOG_ENABLED": "true",
+    "DATADOG_ENV": "production",
+    "DATADOG_SERVICE": "mpp-discovery-service-mcp",
+    "DATADOG_SITE": "us5.datadoghq.com",
     "MPP_SERVICES_URL": "https://mpp.dev/api/services",
     "PUBLIC_MCP_ENDPOINT": "https://mpp.dev/mcp/services"
   }

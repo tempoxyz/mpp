@@ -39,12 +39,73 @@ authoritative.
 - KV binding: `MPP_CATALOG_CACHE`
 - Cache key: `mpp:services:v1`
 - Hourly cron: `0 * * * *`
+- Health cron: `* * * * *`
 - Requests use fresh KV data when it is less than one hour old.
 - If KV data is stale, requests serve the last-good cached catalog and refresh
   in the background.
 - If `mpp.dev` is unreachable during cron refresh, the Worker logs the failure
   and keeps the last-good KV value.
 - There is no public write, sync, registration, payment, or auth path.
+
+## Datadog monitoring
+
+The Worker emits custom Datadog metrics directly from production. Runtime
+request metrics are emitted with `ctx.waitUntil()` so user-facing MCP responses
+do not wait on Datadog ingestion.
+
+The one-minute health cron calls the public endpoint
+`https://mpp.dev/mcp/services`, then checks:
+
+- `GET /mcp/services`
+- `HEAD /mcp/services`
+- JSON-RPC `initialize`
+- JSON-RPC `tools/list`
+- JSON-RPC `tools/call` for `get_catalog_status`
+- JSON-RPC `tools/call` for `search_services`
+
+Metrics use the `mpp.discovery_mcp.*` namespace. Important metrics include:
+
+- `mpp.discovery_mcp.http.request.count`
+- `mpp.discovery_mcp.http.response.duration_ms`
+- `mpp.discovery_mcp.mcp.request.count`
+- `mpp.discovery_mcp.mcp.response.duration_ms`
+- `mpp.discovery_mcp.mcp.error.count`
+- `mpp.discovery_mcp.health.ok`
+- `mpp.discovery_mcp.health.check.ok`
+- `mpp.discovery_mcp.health.check.duration_ms`
+- `mpp.discovery_mcp.catalog.services`
+- `mpp.discovery_mcp.catalog.offers`
+- `mpp.discovery_mcp.catalog.cache_age_seconds`
+- `mpp.discovery_mcp.catalog.refresh.ok`
+
+Production Worker vars:
+
+```text
+DATADOG_ENABLED=true
+DATADOG_ENV=production
+DATADOG_SERVICE=mpp-discovery-service-mcp
+DATADOG_SITE=us5.datadoghq.com
+```
+
+Production Worker secret:
+
+```text
+DATADOG_API_KEY=<datadog-api-key>
+```
+
+`DATADOG_APP_KEY` must not be configured on the Worker. It is only used outside
+runtime to provision monitors:
+
+```bash
+DATADOG_API_KEY=<datadog-api-key> \
+DATADOG_APP_KEY=<datadog-app-key> \
+DATADOG_ALERT_TARGET=@slack-eng-developers-monitor \
+pnpm mcp-services:datadog:provision
+```
+
+The provisioner creates or updates Datadog monitors for missing health metrics,
+failed health checks, stale catalog cache, low service/offer counts, and
+server-side MCP errors. Alerts route through Datadog's Slack integration.
 
 ## Tools
 
