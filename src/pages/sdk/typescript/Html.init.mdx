@@ -5,7 +5,7 @@ imageDescription: "Build custom payment UIs with typed context and theming"
 
 # `Html.init` [Initialize a payment UI context]
 
-Sets up a context for building payment method UIs in the browser. Returns challenge data, theme tokens, and helpers for error handling and credential submission.
+Sets up a context for building payment method UIs in the browser. Returns Challenge data, theme tokens, and helpers for error handling and Credential submission.
 
 For a full guide on adding HTML support to a custom payment method, see [Custom HTML](/sdk/typescript/html/custom).
 
@@ -22,9 +22,9 @@ button.textContent = context.text.pay
 context.root.appendChild(button)
 ```
 
-### With credential submission
+### With Credential submission
 
-Build a complete payment form that handles errors and submits credentials.
+Build a complete payment form that handles errors and submits Credentials.
 
 ```ts [example.ts]
 import * as Html from 'mppx/html'
@@ -119,7 +119,7 @@ type Context = {
 
 - **Type:** `string`
 
-The payment method name to initialize (for example, `'tempo'`, `'stripe'`). Matches against the challenge data the server embeds in the page.
+The payment method name to initialize (for example, `'tempo'`, `'stripe'`). Matches against the Challenge data the server embeds in the page.
 
 ## Context properties
 
@@ -127,7 +127,7 @@ The payment method name to initialize (for example, `'tempo'`, `'stripe'`). Matc
 
 - **Type:** `Challenge`
 
-The parsed Challenge object for this payment method. Contains `intent`, `method`, `realm`, `request`, and other challenge fields.
+The parsed Challenge object for this payment method. Contains `intent`, `method`, `realm`, `request`, and other Challenge fields.
 
 ### config
 
@@ -163,7 +163,7 @@ The DOM element to mount your payment UI into. Append your form elements here.
 
 - **Type:** `(credential: string) => Promise<void>`
 
-Sends the credential to the server via a Service Worker, then reloads the page. Call after creating a credential from the challenge.
+Sends the Credential to the server via a Service Worker, then reloads the page. Call after creating a Credential from the Challenge.
 
 ### text
 

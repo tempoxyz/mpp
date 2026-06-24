@@ -63,7 +63,7 @@ const method = stripe.charge({
 
 - **Type:** `(params: OnChallengeParameters) => Promise<string>`
 
-Callback invoked when a Stripe challenge is received. Must return an SPT token string (`spt_...`). Typically proxied through a server endpoint since SPT creation requires a Stripe secret key.
+Callback invoked when a Stripe Challenge is received. Must return an SPT token string (`spt_...`). Typically proxied through a server endpoint since SPT creation requires a Stripe secret key.
 
 The callback receives:
 
@@ -88,7 +88,7 @@ Client reference ID included in the Credential payload.
 
 - **Type:** `string`
 
-Default Stripe payment method ID (for example `pm_card_visa`). Overridden by `context.paymentMethod` at credential-creation time.
+Default Stripe payment method ID (for example `pm_card_visa`). Overridden by `context.paymentMethod` at Credential-creation time.
 
 ```ts twoslash
 

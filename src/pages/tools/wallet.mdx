@@ -204,7 +204,7 @@ $ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 
 [Link CLI](https://github.com/stripe/link-cli) lets agents pay for MPP services using a [Link](https://link.co) wallet. The agent authenticates with Link, then `link-cli mpp pay` handles the full `402` → SPT → retry flow automatically—no Stripe integration code required.
 
-The user approves each purchase via the Link app, and credentials are one-time-use tokens scoped to a specific merchant and amount.
+The user approves each purchase via the Link app, and Credentials are one-time-use tokens scoped to a specific merchant and amount.
 
 <Tabs>
 <Tab title="Agent">
@@ -257,7 +257,7 @@ $ link-cli mpp pay https://api.example.com/resource \
 
 - **End-to-end 402 handling**—`link-cli mpp pay` parses the Challenge, creates an SPT, and retries with the Credential
 - **User approval**—each purchase requires explicit approval in the Link app
-- **One-time-use credentials**—SPTs are scoped to a specific merchant, amount, and context
+- **One-time-use Credentials**—SPTs are scoped to a specific merchant, amount, and context
 - **MCP server mode**—run as `link-cli --mcp` for integration with Claude Code and other MCP-compatible agents
 
 ## `mppx`

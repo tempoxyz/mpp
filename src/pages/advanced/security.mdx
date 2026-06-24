@@ -1,9 +1,9 @@
 ---
-description: "Protect MPP server secrets and payment credentials. Keep MPP_SECRET_KEY server-side, never log it, and rotate it safely."
+description: "Protect MPP server secrets and payment Credentials. Keep MPP_SECRET_KEY server-side, never log it, and rotate it safely."
 imageDescription: "Protect MPP server secrets"
 ---
 
-# Security [Protect server secrets and payment credentials]
+# Security [Protect server secrets and payment Credentials]
 
 The core Payment HTTP Authentication Scheme already requires TLS and treats payment Credentials and Receipts as sensitive data. This page covers the operational practices around `MPP_SECRET_KEY` and server deployments.
 
@@ -22,7 +22,7 @@ Use your platform's secret store as the system of record—AWS Secrets Manager, 
 
 Environment variables are a good delivery mechanism at runtime, but they are not a secrets management strategy by themselves. Inject `MPP_SECRET_KEY` into your process from a managed secret store instead of treating `.env` files or deployment manifests as the source of truth.
 
-## Never log secrets or payment credentials
+## Never log secrets or payment Credentials
 
 Do not log:
 
@@ -30,7 +30,7 @@ Do not log:
 - `Authorization: Payment` headers
 - `Payment-Receipt` headers
 
-Keep them out of error messages, debugging output, analytics, traces, and support logs. If you need observability, log stable metadata such as request IDs, challenge IDs, status codes, or payment method names instead.
+Keep them out of error messages, debugging output, analytics, traces, and support logs. If you need observability, log stable metadata such as request IDs, Challenge IDs, status codes, or payment method names instead.
 
 ## Handle proxies and caches safely
 

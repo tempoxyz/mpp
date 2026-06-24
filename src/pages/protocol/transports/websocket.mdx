@@ -52,18 +52,18 @@ All messages are JSON objects with an `mpp` field as a discriminator:
     participant S as Server
     C->>S: WebSocket connect
     C->>S: authorization (Credential)
-    S->>C: payment-receipt
+    S->>C: payment-Receipt
     S-->>C: message (data)
     S-->>C: message (data)
     S->>C: payment-need-voucher
     C->>S: authorization (top-up voucher)
-    S->>C: payment-receipt
+    S->>C: payment-Receipt
     S-->>C: message (data)
     C->>S: payment-close-request
     S->>C: payment-close-ready (final Receipt)
 `} messageColors={{
   'authorization': { light: '#16a34a', dark: '#4ade80' },
-  'payment-receipt': { light: '#16a34a', dark: '#4ade80' },
+  'payment-Receipt': { light: '#16a34a', dark: '#4ade80' },
   'payment-close-ready': { light: '#16a34a', dark: '#4ade80' },
   'payment-need-voucher': { light: '#dc2626', dark: '#f87171' },
 }} />

@@ -86,9 +86,11 @@ const mppx = Mppx.create({
       recipient: process.env.STELLAR_RECIPIENT,
       currency: USDC_SAC_TESTNET,
       network: 'stellar:testnet',
-      feePayer: { // [!code hl]
-        envelopeSigner: Keypair.fromSecret('S...'), // [!code hl]
-      }, // [!code hl]
+      // [!code hl:start]
+      feePayer: {
+        envelopeSigner: Keypair.fromSecret('S...'),
+      },
+      // [!code hl:end]
     }),
   ],
 })

@@ -1,12 +1,12 @@
 ---
-title: "Payment receipts and verification"
+title: "Payment Receipts and verification"
 description: "Receipts confirm successful payment in MPP. Return them in the Payment-Receipt header so clients can verify that the server accepted their Credential."
-imageDescription: "Confirm payments with verifiable receipts"
+imageDescription: "Confirm payments with verifiable Receipts"
 ---
 
 # Receipts [Server acknowledgment of successful payment]
 
-A **Receipt** is the server's acknowledgment of successful payment. Return receipts in the `Payment-Receipt` header on successful responses.
+A **Receipt** is the server's acknowledgment of successful payment. Return Receipts in the `Payment-Receipt` header on successful responses.
 
 :::info
 The `Payment-Receipt` header is optional. Servers typically include it for auditability, but clients don't need it for correct operation.
@@ -22,7 +22,7 @@ Content-Type: application/json
 { "data": "Payment received." }
 ```
 
-The receipt is a base64url-encoded JSON object.
+The Receipt is a base64url-encoded JSON object.
 
 ## Structure
 
@@ -44,7 +44,7 @@ The receipt is a base64url-encoded JSON object.
 
 | Field | Description |
 |-------|-------------|
-| `challengeId` | The challenge this receipt responds to |
+| `challengeId` | The Challenge this Receipt responds to |
 | `method` | Payment method used |
 | `reference` | Method-specific payment reference (for example, transaction hash or invoice ID) |
 | `settlement` | Actual amount and currency settled |

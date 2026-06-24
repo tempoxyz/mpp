@@ -28,9 +28,9 @@ server.registerTool('premium', { description: 'A premium tool' }, async (extra) 
 
 ## Behavior
 
-- Reads credentials from `_meta["org.paymentauth/credential"]`
-- Issues challenges as `McpError` with code `-32042` and challenge in `error.data`
-- Attaches receipts in `_meta["org.paymentauth/receipt"]` on tool results
+- Reads Credentials from `_meta["org.paymentauth/credential"]`
+- Issues Challenges as `McpError` with code `-32042` and Challenge in `error.data`
+- Attaches Receipts in `_meta["org.paymentauth/receipt"]` on tool results
 
 ## Return type
 

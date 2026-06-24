@@ -12,7 +12,7 @@ For the `Html.init` API reference, see [`Html.init`](/sdk/typescript/Html.init).
 Adding HTML support requires two pieces:
 
 1. **Server-side handler** — provide `html` options to `Method.toServer` with a bundled script, amount formatter, and other options.
-2. **Client-side script** — a script embedded in the server-rendered page that uses [`Html.init`](/sdk/typescript/Html.init) to render a payment form and submit credentials via Service Worker.
+2. **Client-side script** — a script embedded in the server-rendered page that uses [`Html.init`](/sdk/typescript/Html.init) to render a payment form and submit Credentials via Service Worker.
 
 ## Server-side handler
 
@@ -112,7 +112,7 @@ For a guide on using payment links as a consumer, see [Create a payment link](/g
 
 ## Client-side script
 
-Create the JavaScript file that renders your payment form. Call `Html.init` to get a typed context, build your UI, and call `context.submit` with the credential.
+Create the JavaScript file that renders your payment form. Call `Html.init` to get a typed context, build your UI, and call `context.submit` with the Credential.
 
 ```ts [html/main.ts]
 import * as Html from 'mppx/html'

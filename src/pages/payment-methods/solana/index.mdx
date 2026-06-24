@@ -38,11 +38,11 @@ Solana enables several useful capabilities for MPP:
 
 | | **Charge** | **Session** |
 |---|---|---|
-| **Pattern** | One-time payment per request | Escrow once, pay incrementally with vouchers |
+| **Pattern** | One-time payment per request | Reserve funds once, pay incrementally with vouchers |
 | **Latency overhead** | One transaction or confirmed signature per request | Low after open; vouchers are off-chain |
 | **Throughput** | Best for discrete purchases | Best for high-frequency metered usage |
 | **Best for** | Paid API calls, downloads, fixed-price purchases | LLM APIs, streaming, repeated calls |
-| **Settlement** | Immediate on-chain transfer | Escrow on-chain, settle accepted usage later |
+| **Settlement** | Immediate on-chain transfer | Reserve on-chain, settle accepted usage later |
 
 ## Intents
 

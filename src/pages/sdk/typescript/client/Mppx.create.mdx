@@ -140,8 +140,10 @@ const mppx = Mppx.create({
   polyfill: false, // [!code hl]
 })
 
-// Use the returned fetch // [!code hl]
-const res = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
+// [!code hl:start]
+// Use the returned fetch
+const res = await mppx.fetch('https://mpp.dev/api/ping/paid')
+// [!code hl:end]
 ```
 
 </Tab>
@@ -158,14 +160,16 @@ const mppx = Mppx.create({
   polyfill: false, // [!code hl]
 })
 
-// Use the returned fetch // [!code hl]
-const res = await mppx.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
+// [!code hl:start]
+// Use the returned fetch
+const res = await mppx.fetch('https://mpp.dev/api/ping/paid')
+// [!code hl:end]
 ```
 
 </Tab>
 </Tabs>
 
-### Manual credential handling
+### Manual Credential handling
 
 For full control over the payment flow:
 
@@ -368,10 +372,10 @@ Payment hooks are for logging, monitoring, tracing, and request-local context. E
 | `onChallengeReceived` | A `402` Challenge is selected |
 | `onCredentialCreated` | A Credential is created for the selected Challenge |
 | `onPaymentResponse` | The retry after payment returns a successful response |
-| `onPaymentFailed` | Challenge parsing, credential creation, or retry handling fails |
+| `onPaymentFailed` | Challenge parsing, Credential creation, or retry handling fails |
 | `on('*', handler)` | Any client payment event fires |
 
-`onChallengeReceived` runs before `onChallenge`. It can return a non-empty Credential string to override the default credential flow. Other hooks are observers: thrown errors are ignored and don't change payment handling.
+`onChallengeReceived` runs before `onChallenge`. It can return a non-empty Credential string to override the default Credential flow. Other hooks are observers: thrown errors are ignored and don't change payment handling.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -577,7 +581,7 @@ const mppx = Mppx.create({
 
 - **Type:** `(challenge: Challenge, helpers: { createCredential: (context?) => Promise<string> }) => Promise<string | undefined>`
 
-Called when a `402` challenge is received, before credential creation. Return a credential string to use it directly, or `undefined` to fall back to the default credential flow.
+Called when a `402` Challenge is received, before Credential creation. Return a Credential string to use it directly, or `undefined` to fall back to the default Credential flow.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -818,7 +822,7 @@ const mppx = Mppx.create({
 </Tab>
 </Tabs>
 
-## Manual credential options
+## Manual Credential options
 
 ### acceptPayment (optional)
 
@@ -831,7 +835,7 @@ Request-local method preference override for `mppx.createCredential(response, co
 - **Type:** `Transport`
 - **Default:** `Transport.http()`
 
-Transport to use for extracting challenges and attaching credentials.
+Transport to use for extracting Challenges and attaching Credentials.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">

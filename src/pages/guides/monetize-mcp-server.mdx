@@ -22,7 +22,7 @@ Add per-call payments to any [MCP](https://modelcontextprotocol.io) server. When
     A->>S: (1) tools/call
     S-->>A: (2) {"error":{"code":-32042}} + Challenge
     Note over A: (3) Create Credential
-    A->>S: (4) tools/call + {"_meta":{"credential"}}
+    A->>S: (4) tools/call + {"_meta":{"Credential"}}
     S->>N: (5) Settle payment
     N-->>S: (6) Confirmed
     S-->>A: (7) {"result":{}} + Receipt
@@ -36,7 +36,7 @@ Add per-call payments to any [MCP](https://modelcontextprotocol.io) server. When
 6. **Network** confirms the payment
 7. **Server** returns the tool result with a Receipt in `_meta`
 
-This maps directly to the standard MPP challenge → credential → receipt flow, encoded as JSON-RPC instead of HTTP headers. See the [MCP transport spec](/protocol/transports/mcp) for the full encoding.
+This maps directly to the standard MPP Challenge → Credential → Receipt flow, encoded as JSON-RPC instead of HTTP headers. See the [MCP transport spec](/protocol/transports/mcp) for the full encoding.
 
 :::info
 This guide uses the MCP transport, so Challenge, Credential, and Receipt data travel as native JSON in `error.data` and `_meta`. The base64url-encoded `request` and `opaque` auth-params apply to the HTTP transport.
@@ -257,7 +257,7 @@ Under the hood, the MCP transport encodes MPP Challenges, Credentials, and Recei
 
 | MPP concept | MCP encoding |
 |---|---|
-| Challenge | Error code `-32042` with challenges in `error.data` |
+| Challenge | Error code `-32042` with Challenges in `error.data` |
 | Credential | `_meta["org.paymentauth/credential"]` on the tool call |
 | Receipt | `_meta["org.paymentauth/receipt"]` on the tool result |
 

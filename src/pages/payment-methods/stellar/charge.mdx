@@ -12,7 +12,7 @@ The Stellar implementation of the [charge](/intents/charge) intent.
 
 The client signs a SEP-41 `transfer` invocation, and the server verifies and broadcasts the transaction on-chain. Settlement completes in ~5 seconds with deterministic finality.
 
-Stellar charge supports two credential modes:
+Stellar charge supports two Credential modes:
 
 - **Pull mode** (default): The client signs Stellar auth entries and sends the transaction XDR. The server broadcasts it. Two variants: sponsored (server holds an envelope signer and optionally wraps with a fee bump) or unsponsored (server broadcasts the transaction as-is, without modification).
 - **Push mode**: The client builds, signs, and broadcasts the transaction itself, then sends the transaction hash. The server polls for confirmation.
@@ -101,10 +101,12 @@ const mppx = Mppx.create({
       recipient: process.env.STELLAR_RECIPIENT,
       currency: USDC_SAC_TESTNET,
       network: 'stellar:testnet',
-      feePayer: { // [!code hl]
-        envelopeSigner: Keypair.fromSecret(process.env.FEE_PAYER_SECRET), // [!code hl]
-        feeBumpSigner: Keypair.fromSecret(process.env.FEE_BUMP_SECRET), // optional // [!code hl]
-      }, // [!code hl]
+      // [!code hl:start]
+      feePayer: {
+        envelopeSigner: Keypair.fromSecret(process.env.FEE_PAYER_SECRET),
+        feeBumpSigner: Keypair.fromSecret(process.env.FEE_BUMP_SECRET), // optional
+      },
+      // [!code hl:end]
     }),
   ],
 })

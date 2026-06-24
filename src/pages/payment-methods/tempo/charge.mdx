@@ -118,12 +118,14 @@ const result = await mppx.charge({
   amount: "1.00",
   currency: "0x20c0000000000000000000000000000000000000", // pathUSD
   recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", // seller
-  splits: [ // [!code hl]
-    { // [!code hl]
-      amount: "0.10", // [!code hl]
-      recipient: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", // platform fee // [!code hl]
-    }, // [!code hl]
-  ], // [!code hl]
+  // [!code hl:start]
+  splits: [
+    {
+      amount: "0.10",
+      recipient: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", // platform fee
+    },
+  ],
+  // [!code hl:end]
 })(request);
 ```
 
@@ -392,11 +394,12 @@ Mppx.create({
   methods: [
     tempo.charge({
       account: provider.getAccount({ signable: true }),
+      // [!code hl:start]
       autoSwap: {
-        // [!code hl]
-        slippage: 2, // max slippage % (default: 1) // [!code hl]
-        tokenIn: ["0x0000000000000000000000000000000000000001"], // [!code hl]
-      }, // [!code hl]
+        slippage: 2, // max slippage % (default: 1)
+        tokenIn: ["0x0000000000000000000000000000000000000001"],
+      },
+      // [!code hl:end]
       getClient: provider.getClient,
     }),
   ],
@@ -416,11 +419,12 @@ Mppx.create({
   methods: [
     tempo.charge({
       account,
+      // [!code hl:start]
       autoSwap: {
-        // [!code hl]
-        slippage: 2, // max slippage % (default: 1) // [!code hl]
-        tokenIn: ["0x0000000000000000000000000000000000000001"], // [!code hl]
-      }, // [!code hl]
+        slippage: 2, // max slippage % (default: 1)
+        tokenIn: ["0x0000000000000000000000000000000000000001"],
+      },
+      // [!code hl:end]
     }),
   ],
 });
