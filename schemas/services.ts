@@ -5607,6 +5607,159 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Influship ────────────────────────────────────────────────────────
+  {
+    id: "influship",
+    name: "Influship",
+    url: "https://api.influship.com",
+    serviceUrl: "https://api.influship.com",
+    description:
+      "Search and discover millions of Instagram and TikTok creators by any semantic criteria — niche, life events, location, brand fit, or audience demographics. Look up creator profiles, find lookalikes, match creators to campaigns, and access raw social posts and video transcripts.",
+
+    categories: ["data", "search", "social"],
+    integration: "third-party",
+    tags: [
+      "influencer",
+      "creator",
+      "discovery",
+      "instagram",
+      "tiktok",
+      "social media",
+      "campaign",
+      "search",
+      "analytics",
+      "lookalike",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://docs.influship.com",
+      apiReference: "https://api.influship.com/openapi.json",
+    },
+    provider: { name: "Influship", url: "https://influship.com" },
+    realm: "api.influship.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    docsBase: "https://docs.influship.com",
+    endpoints: [
+      // Creator search & discovery
+      {
+        route: "POST /v1/search",
+        desc: "Semantic creator search — find creators matching any natural-language criteria",
+        dynamic: true,
+        amountHint: "$0.30 base + $0.024/result",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/creators/autocomplete",
+        desc: "Autocomplete creator names and usernames",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/creators/:id",
+        desc: "Get a creator profile by ID",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/creators/lookalike",
+        desc: "Find creators similar to one or more seed creators",
+        dynamic: true,
+        amountHint: "$0.018/result",
+        unitType: "result",
+      },
+      {
+        route: "POST /v1/creators/match",
+        desc: "Score and rank a list of creators for campaign fit",
+        dynamic: true,
+        amountHint: "$0.012/creator",
+        unitType: "creator",
+      },
+      // Profile lookup
+      {
+        route: "GET /v1/profiles/:platform/:username",
+        desc: "Get an enriched creator profile by platform and username",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/profiles/lookup",
+        desc: "Bulk profile lookup by platform and username list",
+        dynamic: true,
+        amountHint: "$0.0012/profile",
+        unitType: "profile",
+      },
+      // Posts
+      {
+        route: "GET /v1/posts",
+        desc: "Fetch posts for a creator",
+        dynamic: true,
+        amountHint: "$0.0006/post",
+        unitType: "post",
+      },
+      // Raw Instagram data
+      {
+        route: "GET /v1/raw/instagram/profile/:username",
+        desc: "Raw live Instagram profile data",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/raw/instagram/post/:shortcode",
+        desc: "Raw live Instagram post data",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/raw/instagram/posts",
+        desc: "Bulk raw Instagram post data",
+        dynamic: true,
+        amountHint: "$0.012/post",
+        unitType: "post",
+      },
+      {
+        route: "GET /v1/raw/instagram/transcript/:shortcode",
+        desc: "Video transcript for an Instagram Reel",
+        amount: "60000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/raw/instagram/transcripts",
+        desc: "Bulk video transcripts for Instagram Reels",
+        dynamic: true,
+        amountHint: "$0.06/reel",
+        unitType: "reel",
+      },
+      // Raw YouTube data
+      {
+        route: "GET /v1/raw/youtube/channel/:handle",
+        desc: "Raw YouTube channel data",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/raw/youtube/transcript/:video_id",
+        desc: "YouTube video transcript",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/raw/youtube/channel-transcripts/:handle",
+        desc: "Bulk transcripts for a YouTube channel's recent videos",
+        dynamic: true,
+        amountHint: "$0.006/transcript",
+        unitType: "transcript",
+      },
+      {
+        route: "GET /v1/raw/youtube/search",
+        desc: "YouTube search results",
+        dynamic: true,
+        amountHint: "$0.006/result",
+        unitType: "result",
+      },
+    ],
+  },
+
   // ── Judge0 ───────────────────────────────────────────────────────────
   {
     id: "judge0",
