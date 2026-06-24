@@ -70,7 +70,9 @@ function decodePngPixels(buf: ArrayBuffer) {
     (bytes[20] << 24) | (bytes[21] << 16) | (bytes[22] << 8) | bytes[23];
   const idatChunks: Buffer[] = [];
   let offset = 8;
-  while (offset < bytes.length - 4) {
+  // A chunk header is 8 bytes (4-byte length + 4-byte type), so we need at
+  // least 8 bytes remaining to read one safely.
+  while (offset <= bytes.length - 8) {
     const len =
       (bytes[offset] << 24) |
       (bytes[offset + 1] << 16) |
