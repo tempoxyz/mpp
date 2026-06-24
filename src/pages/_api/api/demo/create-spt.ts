@@ -7,6 +7,18 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+  if (!isTestModeSecretKey(secretKey)) {
+    console.error(
+      "[demo/create-spt] Stripe test-helper endpoint requires a test-mode secret key",
+    );
+    return Response.json(
+      {
+        error:
+          "Stripe SPT test-helper endpoint requires STRIPE_SECRET_KEY=sk_test_...",
+      },
+      { status: 500 },
+    );
+  }
 
   const params = (await request.json()) as {
     amount: string;
@@ -48,4 +60,8 @@ export async function POST(request: Request) {
 
   const { id } = (await response.json()) as { id: string };
   return Response.json({ spt: id });
+}
+
+function isTestModeSecretKey(secretKey: string) {
+  return secretKey.startsWith("sk_test_") || secretKey.startsWith("rk_test_");
 }
