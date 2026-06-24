@@ -9,13 +9,13 @@ imageDescription: "Answers to common MPP questions"
 
 No. MPP is payment-method agnostic—the protocol works with any payment rail.
 
-Today, [Tempo](/payment-methods/tempo) stablecoin payments, [Stripe](/payment-methods/stripe) (Visa, Mastercard, and other card networks), and [Lightning](/payment-methods/lightning) (Bitcoin over the Lightning Network) are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail. See the full list of payment methods and specifications at [paymentauth.org](https://paymentauth.org).
+Today, [Tempo](/payment-methods/tempo) stablecoin payments, card payments through [Card](/payment-methods/card) or [Stripe](/payment-methods/stripe), and [Lightning](/payment-methods/lightning) payments are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail. See the full list of payment methods and specifications at [paymentauth.org](https://paymentauth.org).
 
 ## Do I need a stablecoin wallet?
 
-No. With Stripe, you can pay with cards without stablecoins. With Lightning, you can pay with Bitcoin.
+No. With Card or Stripe, you can pay with cards without stablecoins. With Lightning, you can pay with Bitcoin.
 
-For Tempo payments, you need a stablecoin wallet to sign transactions. The SDK and the `tempo wallet` CLI handle key management for you.
+For stablecoin payments, you need a wallet to sign transactions. SDKs and wallet CLIs can handle key management for you.
 
 ## How is MPP different from x402?
 
@@ -35,7 +35,7 @@ Yes. The core x402 "exact" flows map directly onto MPP's charge intent. `mppx` c
 
 ## Why build MPP on Tempo?
 
-MPP works with any payment rail—Stripe for cards, Lightning for Bitcoin, or any custom method. You don't have to use Tempo.
+MPP works with any payment rail—cards, Lightning, stablecoins, or any custom method. You don't have to use Tempo.
 
 That said, high-throughput, low-value transactions benefit from specific properties that Tempo provides:
 
@@ -62,7 +62,7 @@ The protocol itself is free and open. There are no licensing fees for implementi
 
 MPP requires TLS 1.2+ for all connections. Challenge IDs are cryptographically bound to prevent replay attacks. The protocol never performs side effects on unpaid requests—your client only pays after verifying what it is paying for.
 
-Payments use the same security model as the underlying payment method. For Tempo, that means cryptographic signatures over every transaction. For Stripe, it means Stripe's existing fraud and dispute infrastructure.
+Payments use the same security model as the underlying payment method. Stablecoin methods typically use cryptographic signatures over every transaction. Card methods typically use the provider's existing fraud and dispute infrastructure.
 
 For operational guidance on `MPP_SECRET_KEY`, logging, and rotation, see [Security](/advanced/security).
 
