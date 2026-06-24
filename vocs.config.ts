@@ -88,8 +88,7 @@ export default defineConfig({
     // Payment methods aliases
     { source: "/methods", destination: "/payment-methods" },
     { source: "/payment-method", destination: "/payment-methods" },
-    { source: "/intents", destination: "/intents/charge" },
-    { source: "/intent", destination: "/intents/charge" },
+    { source: "/intent", destination: "/intents" },
 
     // Stream → session renames
     {
@@ -377,17 +376,18 @@ export default defineConfig({
         ],
       },
       {
-        text: "Payment Methods & Intents",
+        text: "Intents",
+        items: [
+          { text: "Overview", link: "/intents" },
+          { text: "Charge", link: "/intents/charge" },
+          { text: "Session", link: "/intents/session" },
+          { text: "Subscription", link: "/intents/subscription" },
+        ],
+      },
+      {
+        text: "Payment Methods",
         items: [
           { text: "Overview", link: "/payment-methods" },
-          {
-            text: "Intents",
-            collapsed: true,
-            items: [
-              { text: "Charge", link: "/intents/charge" },
-              { text: "Subscription", link: "/intents/subscription" },
-            ],
-          },
           {
             text: "Tempo",
             collapsed: true,

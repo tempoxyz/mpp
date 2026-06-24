@@ -1,0 +1,52 @@
+---
+description: "Compare MPP payment intents and choose the right payment pattern for one-time, metered, or recurring access."
+imageDescription: "Choose the right payment pattern"
+---
+
+import { Card, Cards } from 'vocs'
+
+# Intents [Payment patterns for MPP]
+
+Intents define what kind of payment a server requests. Each intent specifies the shared request fields, Credential requirements, and settlement semantics that payment methods implement.
+
+## Overview
+
+When a server responds with `402` Payment Required, the `WWW-Authenticate` header includes an `intent` parameter. The intent tells the client whether the request is a one-time payment, recurring authorization, or another payment pattern.
+
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment method="tempo", intent="charge", ...
+```
+
+Payment methods implement intents on top of a payment rail. For example, Tempo supports `charge`, `session`, and `subscription`, while Stripe currently supports `charge`.
+
+## Available intents
+
+<Cards>
+  <Card
+    description="Collect a fixed one-time payment before returning the resource"
+    icon="lucide:zap"
+    title="Charge"
+    to="/intents/charge"
+  />
+  <Card
+    description="Meter high-frequency usage with reusable payment state"
+    icon="lucide:waves"
+    title="Session"
+    to="/intents/session"
+  />
+  <Card
+    description="Collect recurring fixed payments across billing periods"
+    icon="lucide:calendar-check"
+    title="Subscription"
+    to="/intents/subscription"
+  />
+</Cards>
+
+## Choose an intent
+
+| Intent | Best for | Example methods |
+|---|---|---|
+| [`charge`](/intents/charge) | One request, one payment, known price | [Tempo charge](/payment-methods/tempo/charge), [Stripe charge](/payment-methods/stripe/charge), [Lightning charge](/payment-methods/lightning/charge) |
+| [`session`](/intents/session) | High-frequency metered usage with costs calculated over time | [Tempo session](/payment-methods/tempo/session), [Lightning session](/payment-methods/lightning/session) |
+| [`subscription`](/intents/subscription) | Fixed recurring access by billing period | [Tempo subscription](/payment-methods/tempo/subscription) |
