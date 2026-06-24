@@ -96,8 +96,10 @@ export async function handler(request: Request) {
   if (result.status === 402) return result.challenge
 
   const credential = Credential.fromRequest(request)
-  const pubkey = credential.source // [!code hl]
-  const jobId = createJob({ owner: pubkey }) // [!code hl]
+  // [!code hl:start]
+  const pubkey = credential.source
+  const jobId = createJob({ owner: pubkey })
+  // [!code hl:end]
 
   return result.withReceipt(Response.json({ jobId }))
 }

@@ -58,7 +58,7 @@ This gives sessions a **built-in refund mechanism**—unclaimed funds are refund
     participant Tempo
     Client->>Tempo: Deposit tokens
     Tempo-->>Client: Channel created
-    Client->>Server: Open credential
+    Client->>Server: Open Credential
     Server-->>Client: 200 OK (session established)
     loop Per request
         Client->>Server: Request + voucher

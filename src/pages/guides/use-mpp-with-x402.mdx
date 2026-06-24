@@ -303,11 +303,13 @@ const mppx = Mppx.create({
       recipient: '0xYourAddress',
       testnet: true,
     }),
-    stripe.charge({ // [!code hl]
-      client: stripeClient, // [!code hl]
-      networkId: 'internal', // [!code hl]
-      paymentMethodTypes: ['card'], // [!code hl]
-    }), // [!code hl]
+    // [!code hl:start]
+    stripe.charge({
+      client: stripeClient,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+    // [!code hl:end]
   ],
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })

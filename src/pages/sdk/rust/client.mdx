@@ -115,7 +115,7 @@ let client = ClientBuilder::new(reqwest::Client::new())
 
 ## Multiple providers
 
-`MultiProvider` wraps multiple payment providers and picks the right one based on the challenge's `method` and `intent`:
+`MultiProvider` wraps multiple payment providers and picks the right one based on the Challenge's `method` and `intent`:
 
 ```rust
 use mpp::client::{MultiProvider, TempoProvider};

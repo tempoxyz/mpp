@@ -49,7 +49,7 @@ When the server returns `402`, the client:
 
 - **Type:** `int64`
 
-Explicitly set the expected chain ID. If omitted, `mpp-go` infers it from `RPCURL` when it matches a known Tempo RPC endpoint, or uses the challenge and live RPC response at runtime.
+Explicitly set the expected chain ID. If omitted, `mpp-go` infers it from `RPCURL` when it matches a known Tempo RPC endpoint, or uses the Challenge and live RPC response at runtime.
 
 ### ClientID (optional)
 
@@ -78,7 +78,7 @@ Custom RPC client instance. Takes precedence over `RPCURL`.
 ### RPCURL (optional)
 
 - **Type:** `string`
-- **Default:** challenge chain when present, otherwise `https://rpc.tempo.xyz`
+- **Default:** Challenge chain when present, otherwise `https://rpc.tempo.xyz`
 
 Tempo RPC endpoint URL.
 

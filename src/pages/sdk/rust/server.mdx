@@ -180,7 +180,7 @@ Override the server-level fee sponsorship setting for this Challenge.
 
 ## Verify a Credential
 
-`verify_credential` decodes the charge request from the echoed challenge automatically—no need to reconstruct the request:
+`verify_credential` decodes the charge request from the echoed Challenge automatically—no need to reconstruct the request:
 
 ```rust
 let receipt = mpp.verify_credential(&credential).await?;
@@ -236,7 +236,7 @@ Server handlers run inline with verification. Keep the returned subscription han
 
 ## Axum extractor
 
-The `MppCharge<C>` extractor handles the full `402` challenge/verify flow automatically. Requires the `axum` feature.
+The `MppCharge<C>` extractor handles the full `402` Challenge/verify flow automatically. Requires the `axum` feature.
 
 Define a `ChargeConfig` type for each price point:
 
@@ -297,7 +297,7 @@ let challenge = mpp.session_challenge_with_details(
 )?;
 ```
 
-Verify session credentials (vouchers):
+Verify session Credentials (vouchers):
 
 ```rust
 let result = mpp.verify_session(&credential).await?;

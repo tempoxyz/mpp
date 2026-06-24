@@ -1,6 +1,6 @@
 # `Challenge.verify` [Verify a Challenge HMAC]
 
-Verifies that a challenge ID matches the expected HMAC for the given parameters.
+Verifies that a Challenge ID matches the expected HMAC for the given parameters.
 
 Use the same server-managed secret that produced the Challenge ID.
 
@@ -29,7 +29,7 @@ const isValid = Challenge.verify(challenge, { secretKey })
 type ReturnType = boolean
 ```
 
-`true` if the challenge ID is valid, `false` otherwise.
+`true` if the Challenge ID is valid, `false` otherwise.
 
 ## Parameters
 
@@ -37,7 +37,7 @@ type ReturnType = boolean
 
 - **Type:** `Challenge`
 
-The challenge to verify.
+The Challenge to verify.
 
 ### options
 
@@ -45,4 +45,4 @@ The challenge to verify.
 
 - **Type:** `string`
 
-Server secret for HMAC-bound challenge ID verification. Keep it server-side and load it from your environment or secret manager.
+Server secret for HMAC-bound Challenge ID verification. Keep it server-side and load it from your environment or secret manager.

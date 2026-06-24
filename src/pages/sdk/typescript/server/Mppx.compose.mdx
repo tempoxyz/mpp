@@ -36,7 +36,7 @@ export async function handler(request: Request) {
 
 ## Behavior
 
-- **No Credential present:** Calls all handlers and merges their `402` challenges into a single response with multiple `WWW-Authenticate` headers.
+- **No Credential present:** Calls all handlers and merges their `402` Challenges into a single response with multiple `WWW-Authenticate` headers.
 - **`Accept-Payment` present:** Ranks and filters the merged Challenges by the client's supported `method/intent` entries. Entries with `q=0` are excluded. If the header is invalid or filters out every Challenge, all Challenges are returned.
 - **Credential present:** Dispatches to the handler matching the Credential's `method` and `intent`.
 

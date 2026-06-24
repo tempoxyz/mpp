@@ -1,8 +1,8 @@
 # `Challenge.from` [Create a new Challenge]
 
-Creates a challenge from the given parameters.
+Creates a Challenge from the given parameters.
 
-If `secretKey` option is provided, the challenge ID is computed as HMAC-SHA256 over the challenge parameters (realm|method|intent|request|expires|digest|opaque), cryptographically binding the ID to its contents. When `expires`, `digest`, or `opaque` is absent, that slot is an empty string.
+If `secretKey` option is provided, the Challenge ID is computed as HMAC-SHA256 over the Challenge parameters (realm|method|intent|request|expires|digest|opaque), cryptographically binding the ID to its contents. When `expires`, `digest`, or `opaque` is absent, that slot is an empty string.
 
 Load `secretKey` from your server environment or secret manager. Do not ship it to clients.
 
@@ -27,7 +27,7 @@ const challenge = Challenge.from(
 
 ### With explicit ID
 
-Use an explicit ID when you don't need HMAC-bound challenge verification.
+Use an explicit ID when you don't need HMAC-bound Challenge verification.
 
 ```ts twoslash
 import { Challenge } from 'mppx'
@@ -47,7 +47,7 @@ const challenge = Challenge.from({
 type ReturnType = Challenge
 ```
 
-A challenge object.
+A Challenge object.
 
 ## Parameters
 
@@ -73,7 +73,7 @@ Expiration timestamp (ISO 8601).
 
 - **Type:** `string`
 
-Explicit challenge ID.
+Explicit Challenge ID.
 
 ### intent
 
@@ -113,4 +113,4 @@ Method-specific request data. `mppx` serializes it as base64url-encoded JCS JSON
 
 - **Type:** `string`
 
-Server secret for HMAC-bound challenge ID. Keep it server-side and load it from your environment or secret manager.
+Server secret for HMAC-bound Challenge ID. Keep it server-side and load it from your environment or secret manager.

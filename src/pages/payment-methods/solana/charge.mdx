@@ -10,7 +10,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 The Solana implementation of the [charge](/intents/charge) intent.
 
-The server issues a charge challenge describing the expected amount, currency, recipient, and Solana-specific `methodDetails`. The client either presents a signed transaction for server broadcast or presents a confirmed transaction signature. The server verifies the transfer on-chain and returns the resource with a receipt.
+The server issues a charge Challenge describing the expected amount, currency, recipient, and Solana-specific `methodDetails`. The client either presents a signed transaction for server broadcast or presents a confirmed transaction signature. The server verifies the transfer on-chain and returns the resource with a Receipt.
 
 This method is best for fixed-price API calls, digital goods, and payments that settle directly on Solana.
 
@@ -33,7 +33,7 @@ const mppx = Mppx.create({
 
 ## Client
 
-Use `solana.charge` with `Mppx.create` to automatically handle Solana charge challenges.
+Use `solana.charge` with `Mppx.create` to automatically handle Solana charge Challenges.
 
 ```ts
 import { Mppx } from 'mppx/client'

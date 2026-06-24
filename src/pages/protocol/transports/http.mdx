@@ -28,16 +28,16 @@ GET /api/data HTTP/1.1
 Host: api.example.com
 ```
 
-### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Send a payment challenge
+### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Send a payment Challenge
 
-Return the `WWW-Authenticate` header with a `Payment` challenge.
+Return the `WWW-Authenticate` header with a `Payment` Challenge.
 
 ```http
 HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment id="abc123", method="tempo", intent="charge", request="..."
 ```
 
-### <div className="mr-2"><Badge variant="info">Client</Badge></div> Retry with a credential
+### <div className="mr-2"><Badge variant="info">Client</Badge></div> Retry with a Credential
 
 Send the `Authorization` header.
 
@@ -47,9 +47,9 @@ Host: api.example.com
 Authorization: Payment eyJjaGFsbGVuZ2UiOnsiaWQiOiJhYmMxMjMi...
 ```
 
-### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Return a receipt
+### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Return a Receipt
 
-Return the `Payment-Receipt` header with a success receipt.
+Return the `Payment-Receipt` header with a success Receipt.
 
 ```http
 HTTP/1.1 200 OK
@@ -63,7 +63,7 @@ Content-Type: application/json
 
 ## Header encoding
 
-Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#section-11.2) in `WWW-Authenticate`. The `request` and `opaque` auth-params use base64url-encoded JCS JSON strings. Credentials echo those same challenge values inside the base64url-encoded `Authorization` payload, and receipts use base64url-encoded JSON in `Payment-Receipt`.
+Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#section-11.2) in `WWW-Authenticate`. The `request` and `opaque` auth-params use base64url-encoded JCS JSON strings. Credentials echo those same Challenge values inside the base64url-encoded `Authorization` payload, and Receipts use base64url-encoded JSON in `Payment-Receipt`.
 
 ## Full specification
 

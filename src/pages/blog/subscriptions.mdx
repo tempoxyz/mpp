@@ -34,7 +34,7 @@ With subscriptions, the client doesn't sign every paid request, instead authoriz
 
 ## How they work
 
-The first request activates the subscription. The server maps the request to a stable subscription key, such as a user and plan, then returns a `402` Challenge with subscription terms. The client signs a credential that authorizes a scoped access key. The server charges the first billing period, stores the subscription record, and returns the protected response with a Receipt.
+The first request activates the subscription. The server maps the request to a stable subscription key, such as a user and plan, then returns a `402` Challenge with subscription terms. The client signs a Credential that authorizes a scoped access key. The server charges the first billing period, stores the subscription record, and returns the protected response with a Receipt.
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
@@ -50,7 +50,7 @@ The first request activates the subscription. The server maps the request to a s
     Server-->>Client: 200 OK + Receipt
 `} />
 
-After activation, the server can grant access without asking for another payment credential. It resolves the same subscription key, checks the stored record, validates that the request still matches the subscription terms, and returns a receipt.
+After activation, the server can grant access without asking for another payment Credential. It resolves the same subscription key, checks the stored record, validates that the request still matches the subscription terms, and returns a Receipt.
 
 When a billing period ends, the server renews the subscription before granting access. You can renew during the request path, or run renewals automatically via cron or any other scheduled job.
 

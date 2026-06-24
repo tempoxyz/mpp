@@ -10,7 +10,7 @@ import { SpecCard } from '../../../components/SpecCard'
 
 The Lightning implementation of the [charge](/intents/charge) intent.
 
-The server generates a fresh [BOLT11](https://github.com/lightning/bolts/blob/master/11-payment-encoding.md) invoice for each request. The client pays it over the [Lightning Network](https://lightning.network) and presents the payment preimage as a credential. The server verifies `sha256(preimage) == paymentHash` locally and returns the resource with a receipt.
+The server generates a fresh [BOLT11](https://github.com/lightning/bolts/blob/master/11-payment-encoding.md) invoice for each request. The client pays it over the [Lightning Network](https://lightning.network) and presents the payment preimage as a Credential. The server verifies `sha256(preimage) == paymentHash` locally and returns the resource with a Receipt.
 
 This method is best for single API calls, content access, or one-off purchases.
 

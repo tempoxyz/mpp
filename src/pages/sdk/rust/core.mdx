@@ -38,7 +38,7 @@ println!("Amount: {}", request.amount);
 
 ## Create a Credential
 
-Build a `PaymentCredential` from a challenge echo and payment proof:
+Build a `PaymentCredential` from a Challenge echo and payment proof:
 
 ```rust
 use mpp::{PaymentCredential, PaymentPayload, format_authorization};
@@ -79,11 +79,11 @@ let header = format_receipt(&receipt)?;
 
 | Type | Description |
 |------|-------------|
-| `PaymentChallenge` | Server challenge parsed from `WWW-Authenticate` |
-| `PaymentCredential` | Client credential for the `Authorization` header |
+| `PaymentChallenge` | Server Challenge parsed from `WWW-Authenticate` |
+| `PaymentCredential` | Client Credential for the `Authorization` header |
 | `PaymentPayload` | Payment proof—either `transaction` (signed tx) or `hash` (tx hash) |
-| `ChallengeEcho` | Echoed challenge fields in a Credential |
-| `Receipt` | Server receipt parsed from `Payment-Receipt` |
+| `ChallengeEcho` | Echoed Challenge fields in a Credential |
+| `Receipt` | Server Receipt parsed from `Payment-Receipt` |
 | `ChargeRequest` | Decoded charge intent request data |
 | `SessionRequest` | Decoded session intent request data |
 | `Base64UrlJson` | JSON value encoded as base64url |

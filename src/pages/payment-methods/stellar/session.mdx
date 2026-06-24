@@ -28,7 +28,7 @@ Payment channels reduce payment verification to a single contract simulation per
     participant Stellar
     Client->>Stellar: (1) Deploy channel + deposit tokens
     Stellar-->>Client: Channel contract created
-    Client->>Server: (2) Open credential (channel address)
+    Client->>Server: (2) Open Credential (channel address)
     Note over Server: Verify on-chain deposit
     Server-->>Client: 200 OK (session established)
     loop Per request

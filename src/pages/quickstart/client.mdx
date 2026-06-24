@@ -74,8 +74,10 @@ const account = privateKeyToAccount('0xabc…123')
 ```ts twoslash
 import { Provider } from 'accounts'
 
-const provider = Provider.create() // [!code hl]
-await provider.request({ method: 'wallet_connect' }) // [!code hl]
+// [!code hl:start]
+const provider = Provider.create()
+await provider.request({ method: 'wallet_connect' })
+// [!code hl:end]
 ```
 
 </Tab>
@@ -87,9 +89,11 @@ import { Mppx, tempo } from 'mppx/client' // [!code hl]
 
 const account = privateKeyToAccount('0xabc…123')
 
-Mppx.create({ // [!code hl]
-  methods: [tempo({ account })], // [!code hl] 
-}) // [!code hl]
+// [!code hl:start]
+Mppx.create({
+  methods: [tempo({ account })],
+})
+// [!code hl:end]
 ```
 
 </Tab>
@@ -262,7 +266,7 @@ Use `Mppx.create` for full control over the payment flow:
 
 - Present payment UI before paying
 - Implement custom retry logic
-- Handle credentials manually
+- Handle Credentials manually
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -330,7 +334,7 @@ if (response.status === 402) {
 </Tab>
 </Tabs>
 
-### Payment receipts
+### Payment Receipts
 
 On success, the server returns a `Payment-Receipt` header:
 

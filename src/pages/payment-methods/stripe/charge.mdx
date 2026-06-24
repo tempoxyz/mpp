@@ -131,10 +131,12 @@ const mppx = Mppx.create({
   methods: [
     stripe.charge({
       client: stripeClient,
-      html: { // [!code hl]
-        createTokenUrl: '/api/create-spt', // [!code hl]
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY!, // [!code hl]
-      }, // [!code hl]
+      // [!code hl:start]
+      html: {
+        createTokenUrl: '/api/create-spt',
+        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY!,
+      },
+      // [!code hl:end]
       networkId: 'internal',
       paymentMethodTypes: ['card'],
     }),

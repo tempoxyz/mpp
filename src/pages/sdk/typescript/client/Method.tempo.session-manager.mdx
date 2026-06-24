@@ -526,7 +526,7 @@ type StoredSessionChannel = {
 | `cumulativeAmount` | Latest local cumulative voucher authorization in raw token units. |
 | `deposit` | Latest known deposit in raw token units. |
 | `descriptor` | TIP-1034 descriptor used if the server cannot provide a snapshot. |
-| `escrow` | Escrow precompile address used to derive the channel ID. |
+| `escrow` | Reserve precompile address used to derive the channel ID. |
 | `chainId` | Tempo chain ID used to derive the channel ID and voucher domain. |
 | `opened` | Whether the channel was open when stored. Closed channels are ignored. |
 | `updatedAt` | Client timestamp for debugging or app-level eviction. |
@@ -577,7 +577,7 @@ type PaymentResponse = Response & {
 
 ### `SessionManagerSseOptions`
 
-`session.sse()` accepts standard `RequestInit` fields plus receipt and cancellation hooks.
+`session.sse()` accepts standard `RequestInit` fields plus Receipt and cancellation hooks.
 
 ```ts
 type SessionManagerSseOptions = RequestInit & {
@@ -624,22 +624,22 @@ type SessionManagedWebSocket = {
 
 | Status | Meaning |
 |---|---|
-| `idle` | No session challenge has been handled yet. |
+| `idle` | No session Challenge has been handled yet. |
 | `challenged` | A `tempo/session` Challenge was selected. |
 | `hydrating` | A server snapshot is being used to restore a reusable channel. |
-| `opening` | An opening channel credential is being created or submitted. |
+| `opening` | An opening channel Credential is being created or submitted. |
 | `active` | Channel is open or hydrated and can sign vouchers. |
 | `voucherNeeded` | Server requested a larger voucher and no top-up is required. |
 | `toppingUp` | Server-requested cumulative spend exceeds current deposit. |
 | `settling` | Accepted voucher spend is being settled on-chain. |
 | `closeRequested` | Unilateral close has been requested and withdrawal is not yet available. |
 | `withdrawable` | Close delay elapsed and funds can be withdrawn. |
-| `closing` | Cooperative close credential or close transaction is in flight. |
+| `closing` | Cooperative close Credential or close transaction is in flight. |
 | `closed` | Channel close finalized. |
 
 ### `SessionReceipt`
 
-The receipt returned by `session.close()` and available on `PaymentResponse.receipt`:
+The Receipt returned by `session.close()` and available on `PaymentResponse.receipt`:
 
 ```ts
 type SessionReceipt = {
@@ -658,7 +658,7 @@ type SessionReceipt = {
 ```
 
 :::info
-The `reference` field contains the channel ID, not a transaction hash. To get the settlement transaction hash, read `txHash` from the receipt returned by `session.close()`.
+The `reference` field contains the channel ID, not a transaction hash. To get the settlement transaction hash, read `txHash` from the Receipt returned by `session.close()`.
 :::
 
 ## Parameters

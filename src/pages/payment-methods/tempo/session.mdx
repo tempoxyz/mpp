@@ -48,7 +48,7 @@ Sessions solve this by making payment a continuous, inline part of the HTTP requ
     participant Tempo
     Client->>Tempo: (1) Deposit tokens
     Tempo-->>Client: Session created
-    Client->>Server: (2) Open credential
+    Client->>Server: (2) Open Credential
     Note over Server: verify deposit
     Server-->>Client: 200 OK (session established)
     loop Per request
@@ -85,7 +85,7 @@ Either party can close the channel. The server closes the precompile-backed chan
 
 ::::
 
-## Session receipts
+## Session Receipts
 
 Session Receipts differ from charge Receipts. The `reference` field contains the payment channel ID (a `bytes32` hash), not a transaction hash. The on-chain settlement transaction hash is only available after closing the channel.
 
@@ -105,13 +105,13 @@ type SessionReceipt = {
 }
 ```
 
-| Field | Charge receipt | Session receipt |
+| Field | Charge Receipt | Session Receipt |
 |-------|---------------|-----------------|
 | `reference` | Transaction hash | Channel ID |
 | `status` | `"success"` | `"success"` |
 | `method` | `"tempo"` | `"tempo"` |
 
-To get the settlement transaction hash, close the channel via `session.close()` and read the `txHash` field from the returned receipt.
+To get the settlement transaction hash, close the channel via `session.close()` and read the `txHash` field from the returned Receipt.
 
 ## Settlement
 
@@ -417,11 +417,13 @@ Mppx.create({
       account: provider.getAccount({ signable: true }),
       getClient: provider.getClient,
     }),
-    tempo.session({ // [!code hl]
-      account: provider.getAccount({ signable: true }), // [!code hl]
-      getClient: provider.getClient, // [!code hl]
-      maxDeposit: '1', // [!code hl]
-    }), // [!code hl]
+    // [!code hl:start]
+    tempo.session({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+      maxDeposit: '1',
+    }),
+    // [!code hl:end]
   ],
 })
 ```

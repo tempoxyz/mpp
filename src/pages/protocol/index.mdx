@@ -1,5 +1,5 @@
 ---
-description: "The Machine Payments Protocol standardizes HTTP 402 with an extensible challenge–credential–receipt flow that works with any payment network."
+description: "The Machine Payments Protocol standardizes HTTP 402 with an extensible Challenge–Credential–Receipt flow that works with any payment network."
 imageDescription: "The standard for HTTP 402 machine payments"
 ---
 
@@ -40,21 +40,21 @@ import {
 MPP uses HTTP status codes consistently to signal payment-related conditions:
 
 :::info[Consistent 402 usage]
-MPP uses `402` for all payment-related challenges, including failed credential validation. This differs from other HTTP authentication schemes that use `401` for failed credentials. The distinction:
+MPP uses `402` for all payment-related Challenges, including failed Credential validation. This differs from other HTTP authentication schemes that use `401` for failed Credentials. The distinction:
 
-- **`402`** = Payment barrier (initial challenge or retry needed)
+- **`402`** = Payment barrier (initial Challenge or retry needed)
 - **`401`** = Authentication failure unrelated to payment
 - **`403`** = Payment succeeded but access denied by policy
   :::
 
 | Condition                                          | Status                               | Response                                         |
 | -------------------------------------------------- | ------------------------------------ | ------------------------------------------------ |
-| Resource requires payment, no credential provided  | <Badge variant="danger">402</Badge>  | Fresh challenge in `WWW-Authenticate`            |
-| Malformed credential (invalid base64url, bad JSON) | <Badge variant="danger">402</Badge>  | Fresh challenge + `malformed-credential` problem |
-| Unknown, expired, or already-used challenge id     | <Badge variant="danger">402</Badge>  | Fresh challenge + `invalid-challenge` problem    |
-| Payment proof invalid or verification failed       | <Badge variant="danger">402</Badge>  | Fresh challenge + `verification-failed` problem  |
+| Resource requires payment, no Credential provided  | <Badge variant="danger">402</Badge>  | Fresh Challenge in `WWW-Authenticate`            |
+| Malformed Credential (invalid base64url, bad JSON) | <Badge variant="danger">402</Badge>  | Fresh Challenge + `malformed-credential` problem |
+| Unknown, expired, or already-used Challenge id     | <Badge variant="danger">402</Badge>  | Fresh Challenge + `invalid-challenge` problem    |
+| Payment proof invalid or verification failed       | <Badge variant="danger">402</Badge>  | Fresh Challenge + `verification-failed` problem  |
 | Payment verified, access granted                   | <Badge variant="success">200</Badge> | Resource + optional `Payment-Receipt`            |
-| Payment verified, but policy denies access         | <Badge variant="warning">403</Badge> | No challenge (payment was valid)                 |
+| Payment verified, but policy denies access         | <Badge variant="warning">403</Badge> | No Challenge (payment was valid)                 |
 
 See [HTTP 402](/protocol/http-402) for details on when to return each status code.
 
@@ -78,8 +78,8 @@ Each payment method specifies its own `request` and `payload` schemas while shar
 Payment method specifications must define:
 
 1. **Method identifier**—Unique lowercase ASCII string (for example, `tempo` or `stripe`)
-2. **Request schema**—JSON structure for the `request` parameter in challenges
-3. **Payload schema**—JSON structure for credential `payload` fields
+2. **Request schema**—JSON structure for the `request` parameter in Challenges
+3. **Payload schema**—JSON structure for Credential `payload` fields
 4. **Verification procedure**—How servers validate payment proofs
 5. **Settlement procedure**—How payment is finalized
 
@@ -91,13 +91,13 @@ Payment intents describe the type of payment being requested. Common intents inc
 - **`session`**—Streaming payment over a payment channel
 - **`subscription`**—Recurring fixed payment for paid access across billing periods
 
-Intent Specifications define:
+Intent definitions in the IETF Specification define:
 
 - Required and optional `request` fields
 - `payload` requirements
 - Verification and settlement semantics
 
-Servers can offer multiple intents in separate challenges, allowing clients to choose:
+Servers can offer multiple intents in separate Challenges, allowing clients to choose:
 
 ```http
 WWW-Authenticate: Payment id="abc", method="tempo", intent="charge", ...
@@ -107,7 +107,7 @@ WWW-Authenticate: Payment id="ghi", method="tempo", intent="subscription", ...
 
 ## Request body binding
 
-For requests with bodies (`POST`, `PUT`, `PATCH`), servers can bind the challenge to the request body using a `digest` parameter:
+For requests with bodies (`POST`, `PUT`, `PATCH`), servers can bind the Challenge to the request body using a `digest` parameter:
 
 ```http
 WWW-Authenticate: Payment id="...",
@@ -117,13 +117,13 @@ WWW-Authenticate: Payment id="...",
     request="..."
 ```
 
-When a `digest` is present, clients must submit the credential with a request body whose digest matches. This prevents clients from modifying the request body after receiving the challenge.
+When a `digest` is present, clients must submit the Credential with a request body whose digest matches. This prevents clients from modifying the request body after receiving the Challenge.
 
 The digest is computed per [RFC 9530](https://www.rfc-editor.org/rfc/rfc9530) Content-Digest header format.
 
 ## Error handling
 
-Failed payment attempts return `402` with a fresh challenge and a Problem Details [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) body:
+Failed payment attempts return `402` with a fresh Challenge and a Problem Details [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) body:
 
 ```json
 {
@@ -143,7 +143,7 @@ Common error codes (full type URI: `https://paymentauth.org/problems/{code}`):
 | `payment-expired`      | Challenge or authorization expired             |
 | `verification-failed`  | Proof invalid                                  |
 | `method-unsupported`   | Method not accepted                            |
-| `malformed-credential` | Invalid credential format                      |
+| `malformed-credential` | Invalid Credential format                      |
 | `invalid-challenge`    | Challenge ID unknown, expired, or already used |
 
 Use the `Retry-After` header to indicate when clients can retry failed payments.
@@ -160,7 +160,7 @@ Payment methods must provide single-use proof semantics. A payment proof can be 
 
 ### Idempotency
 
-Servers must not perform side effects (database writes, external API calls) for requests that have not been paid. The unpaid request that triggers a `402` challenge must not modify server state beyond recording the challenge itself.
+Servers must not perform side effects (database writes, external API calls) for requests that have not been paid. The unpaid request that triggers a `402` Challenge must not modify server state beyond recording the Challenge itself.
 
 For non-idempotent methods (`POST`, `PUT`, `DELETE`), accept an `Idempotency-Key` header to enable safe client retries.
 
@@ -179,11 +179,11 @@ Clients must not rely on the `description` parameter for payment verification. M
 
 ### Credential handling
 
-Payment credentials are bearer tokens that authorize financial transactions. Servers and intermediaries must not log Payment credentials or include them in error messages, debugging output, or analytics.
+Payment Credentials are bearer tokens that authorize financial transactions. Servers and intermediaries must not log Payment Credentials or include them in error messages, debugging output, or analytics.
 
 ### Caching
 
-Payment challenges contain unique identifiers and time-sensitive payment data that must not be cached. Servers must send `Cache-Control: no-store` with `402` responses. Responses containing `Payment-Receipt` headers must include `Cache-Control: private`.
+Payment Challenges contain unique identifiers and time-sensitive payment data that must not be cached. Servers must send `Cache-Control: no-store` with `402` responses. Responses containing `Payment-Receipt` headers must include `Cache-Control: private`.
 
 ## Extensibility
 
@@ -191,7 +191,7 @@ The protocol is designed for extensibility, with simple constraints where requir
 
 ### Custom parameters
 
-Implementations may define additional parameters in challenges:
+Implementations may define additional parameters in Challenges:
 
 - Parameters must use lowercase names
 - Unknown parameters must be ignored by clients
@@ -199,9 +199,9 @@ Implementations may define additional parameters in challenges:
 
 ### Size considerations
 
-- Keep challenges under 8 KB
-- Clients must handle challenges of at least 4 KB
-- Servers must handle credentials of at least 4 KB
+- Keep Challenges under 8 KB
+- Clients must handle Challenges of at least 4 KB
+- Servers must handle Credentials of at least 4 KB
 
 ### Internationalization
 
@@ -220,7 +220,7 @@ import { SpecCard } from "../../components/SpecCard";
   <SpecCard to="https://paymentauth.org/draft-httpauth-payment-00" title="Payment HTTP Authentication Scheme" description="Core protocol spec (draft-httpauth-payment-00)" />
   <SpecCard to="https://paymentauth.org/draft-payment-transport-mcp-00" title="MCP Transport" description="Model Context Protocol binding" />
   <SpecCard to="https://paymentauth.org" title="Payment Methods and Intents" description="Method and intent definitions (charge, session, subscription)" />
-  <SpecCard to="https://paymentauth.org" title="All Specifications" description="Browse the full specification directory" />
+  <SpecCard to="https://paymentauth.org" title="IETF Specification" description="Browse the full specification directory" />
 </Cards>
 
 The full specification includes detailed ABNF grammar, security analysis, IANA considerations, and complete examples for various payment scenarios.

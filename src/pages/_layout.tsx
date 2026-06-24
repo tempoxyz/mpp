@@ -81,7 +81,7 @@ function MobileNav() {
         rel="noopener noreferrer"
         data-mobile-nav-item=""
       >
-        IETF Specs
+        IETF Specification
       </a>
       <span data-mobile-nav-label="">GitHub</span>
       <div data-mobile-nav-subitems="" data-mobile-nav-flat="">
