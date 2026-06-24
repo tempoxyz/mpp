@@ -1,0 +1,83 @@
+---
+title: "Session intent for metered payments"
+description: "Session intent defines metered pay-as-you-go payments in MPP. Use it when usage is frequent or the final cost is unknown upfront."
+imageDescription: "Meter high-frequency usage with sessions"
+---
+
+import { Card, Cards } from 'vocs'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { LightningSessionCard, StellarChannelCard } from '../../components/cards'
+
+# Session [Metered pay-as-you-go payments]
+
+The `session` intent establishes reusable payment state so clients can pay for many requests, streamed chunks, or metered units without settling a separate payment for each one.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Network as Payment Network
+    Client->>Server: (1) GET /resource
+    Server-->>Client: (2) 402 + session Challenge
+    Client->>Network: (3) Open or fund session
+    Network-->>Client: (4) Session ready
+    Client->>Server: (5) GET /resource + Credential
+    Server-->>Client: (6) 200 OK + Receipt
+    loop Metered usage
+        Client->>Server: (7) Request or chunk + voucher
+        Server-->>Client: (8) 200 OK + Receipt
+    end
+    Server->>Network: (9) Settle accepted usage
+`} />
+
+1. **Client:** requests a paid resource
+2. **Server:** responds with `402` and a Challenge for a session payment
+3. **Client:** opens or funds reusable payment state for the method
+4. **Client:** retries the request with a Credential proving the session is ready
+5. **Server:** verifies the Credential and returns the resource with a Receipt
+6. **Client:** sends additional signed updates as usage accrues
+7. **Server:** verifies each update and settles accepted usage according to the method
+
+## When to use session
+
+Session is the best intent when the client makes many paid interactions or the final cost isn't known when the request starts:
+
+- **LLM APIs**—Bill by token while streaming a response
+- **Metered APIs**—Charge by query, byte, request, or compute unit
+- **Long-running tools**—Keep payment state active across many MCP tool calls
+- **Sub-cent pricing**—Avoid one settlement transaction per tiny payment
+
+Use `charge` when each request maps to one known payment. Use `subscription` when access renews at a fixed amount per billing period.
+
+## Request schema
+
+The session intent defines the shared semantics for reusable payment state. Method-specific session implementations define the exact `request` and `payload` fields needed to open, update, and settle that state.
+
+Common session requests include:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Optional | Amount requested for the current interaction or funding target |
+| `currency` | string | Required | Currency identifier (token address, currency code) |
+| `description` | string | Optional | Human-readable description of the metered resource |
+| `expires` | string | Optional | ISO 8601 expiry timestamp |
+| `methodDetails` | object | Optional | Method-specific session requirements |
+| `recipient` | string | Optional | Recipient identifier (address, account ID) |
+
+Payment methods extend this schema with session-specific fields such as channel identifiers, funding requirements, voucher rules, and settlement parameters.
+
+## Method integrations
+
+Each payment method defines how session setup, incremental authorization, verification, and settlement map to its underlying network.
+
+<Cards>
+  <Card
+    description="Pay-as-you-go payment sessions over payment channels"
+    icon="lucide:waves"
+    title="Session"
+    to="/payment-methods/tempo/session"
+  />
+  <LightningSessionCard />
+  <StellarChannelCard />
+</Cards>

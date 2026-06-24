@@ -35,6 +35,8 @@ type Page =
   | { path: '/guides/use-mpp-with-x402'; render: 'static' }
   | { path: '/'; render: 'static' }
   | { path: '/intents/charge'; render: 'static' }
+  | { path: '/intents'; render: 'static' }
+  | { path: '/intents/session'; render: 'static' }
   | { path: '/intents/subscription'; render: 'static' }
   | { path: '/mpp-vs-x402'; render: 'static' }
   | { path: '/overview'; render: 'static' }
