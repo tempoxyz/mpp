@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { McpHealthChecker } from "./health.js";
+import { healthMetrics } from "./health.js";
+import type { WorkerEnv } from "./types.js";
 
 const endpoint = "https://mpp.dev/mcp/services";
 
@@ -11,7 +12,7 @@ describe("public health check", () => {
   it("emits healthy metrics for representative MCP checks", async () => {
     vi.stubGlobal("fetch", vi.fn(healthyFetch));
 
-    const metrics = await new McpHealthChecker(endpoint).metrics();
+    const metrics = await healthMetrics(env());
 
     expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(1);
     expect(metricValue(metrics, "mpp.discovery_mcp.catalog.services")).toBe(
@@ -33,7 +34,7 @@ describe("public health check", () => {
       }),
     );
 
-    const metrics = await new McpHealthChecker(endpoint).metrics();
+    const metrics = await healthMetrics(env());
 
     expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(0);
     expect(metricValue(metrics, "mpp.discovery_mcp.health.failure.count")).toBe(
@@ -132,4 +133,10 @@ function metricValue(
   name: string,
 ) {
   return metrics.find((metric) => metric.metric === name)?.value;
+}
+
+function env(): WorkerEnv {
+  return {
+    PUBLIC_MCP_ENDPOINT: endpoint,
+  } as WorkerEnv;
 }

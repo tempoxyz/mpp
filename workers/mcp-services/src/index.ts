@@ -1,9 +1,14 @@
 import { refreshCatalog } from "./cache.js";
-import { DatadogMetricsClient, gauge, type MetricPoint } from "./datadog.js";
+import {
+  count,
+  gauge,
+  type MetricPoint,
+  postMetrics,
+  queueMetrics,
+} from "./datadog.js";
 import { countPaymentOffers } from "./discovery.js";
-import { McpHealthChecker } from "./health.js";
+import { healthMetrics } from "./health.js";
 import { handleMcp, jsonHeaders, optionsResponse, serverCard } from "./mcp.js";
-import { RequestMetricsRecorder } from "./request-metrics.js";
 import type { WorkerEnv } from "./types.js";
 
 export default {
@@ -14,11 +19,10 @@ export default {
   ): Promise<Response> {
     const url = new URL(request.url);
     const publicEndpoint = publicMcpEndpoint(url, env);
-    const metrics = new DatadogMetricsClient(env);
-    const requestMetrics = new RequestMetricsRecorder(metrics);
 
-    return requestMetrics.trace(
+    return trackRequest(
       request,
+      env,
       ctx,
       routeName(url.pathname, request.method),
       async () => {
@@ -69,59 +73,40 @@ export default {
     env: WorkerEnv,
     ctx: ExecutionContext,
   ) {
-    const metrics = new DatadogMetricsClient(env);
-
     if (event.cron === "* * * * *") {
-      ctx.waitUntil(runScheduledHealthCheck(event, env, metrics, ctx));
+      ctx.waitUntil(runScheduledHealthCheck(event, env));
       return;
     }
 
-    const startedAt = Date.now();
-    ctx.waitUntil(
-      refreshCatalog(env)
-        .then((catalog) => {
-          metrics.queue(
-            ctx,
-            catalogRefreshMetrics({
-              ok: true,
-              durationMs: Date.now() - startedAt,
-              services: catalog.services.length,
-              offers: countPaymentOffers(catalog.services),
-            }),
-          );
-          console.log(
-            JSON.stringify({
-              message: "catalog.refresh_complete",
-              cron: event.cron,
-              scheduledTime: new Date(event.scheduledTime).toISOString(),
-              durationMs: Date.now() - startedAt,
-              version: catalog.version,
-              services: catalog.services.length,
-              fetchedAt: catalog.fetchedAt,
-            }),
-          );
-        })
-        .catch((error) => {
-          metrics.queue(
-            ctx,
-            catalogRefreshMetrics({
-              ok: false,
-              durationMs: Date.now() - startedAt,
-            }),
-          );
-          console.error(
-            JSON.stringify({
-              message: "catalog.refresh_failed",
-              cron: event.cron,
-              scheduledTime: new Date(event.scheduledTime).toISOString(),
-              durationMs: Date.now() - startedAt,
-              error: error instanceof Error ? error.message : String(error),
-            }),
-          );
-        }),
-    );
+    ctx.waitUntil(runCatalogRefresh(event, env));
   },
 } satisfies ExportedHandler<Env>;
+
+async function trackRequest(
+  request: Request,
+  env: WorkerEnv,
+  ctx: ExecutionContext,
+  route: string,
+  handler: () => Promise<Response>,
+): Promise<Response> {
+  const startedAt = Date.now();
+  try {
+    const response = await handler();
+    queueMetrics(
+      ctx,
+      env,
+      requestMetrics(request, route, response.status, Date.now() - startedAt),
+    );
+    return response;
+  } catch (error) {
+    queueMetrics(
+      ctx,
+      env,
+      requestMetrics(request, route, 500, Date.now() - startedAt, true),
+    );
+    throw error;
+  }
+}
 
 function publicMcpEndpoint(url: URL, env: WorkerEnv): string {
   return env.PUBLIC_MCP_ENDPOINT || `${url.origin}/mcp/services`;
@@ -130,12 +115,9 @@ function publicMcpEndpoint(url: URL, env: WorkerEnv): string {
 async function runScheduledHealthCheck(
   event: ScheduledController,
   env: WorkerEnv,
-  metrics: DatadogMetricsClient,
-  ctx: ExecutionContext,
 ): Promise<void> {
   const startedAt = Date.now();
-  const healthMetrics = await McpHealthChecker.fromEnv(env).metrics();
-  metrics.queue(ctx, healthMetrics);
+  await postMetrics(env, await healthMetrics(env)).catch(logMetricsError);
   console.log(
     JSON.stringify({
       message: "mcp.health_complete",
@@ -144,6 +126,53 @@ async function runScheduledHealthCheck(
       durationMs: Date.now() - startedAt,
     }),
   );
+}
+
+async function runCatalogRefresh(
+  event: ScheduledController,
+  env: WorkerEnv,
+): Promise<void> {
+  const startedAt = Date.now();
+  try {
+    const catalog = await refreshCatalog(env);
+    await postMetrics(
+      env,
+      catalogRefreshMetrics({
+        ok: true,
+        durationMs: Date.now() - startedAt,
+        services: catalog.services.length,
+        offers: countPaymentOffers(catalog.services),
+      }),
+    ).catch(logMetricsError);
+    console.log(
+      JSON.stringify({
+        message: "catalog.refresh_complete",
+        cron: event.cron,
+        scheduledTime: new Date(event.scheduledTime).toISOString(),
+        durationMs: Date.now() - startedAt,
+        version: catalog.version,
+        services: catalog.services.length,
+        fetchedAt: catalog.fetchedAt,
+      }),
+    );
+  } catch (error) {
+    await postMetrics(
+      env,
+      catalogRefreshMetrics({
+        ok: false,
+        durationMs: Date.now() - startedAt,
+      }),
+    ).catch(logMetricsError);
+    console.error(
+      JSON.stringify({
+        message: "catalog.refresh_failed",
+        cron: event.cron,
+        scheduledTime: new Date(event.scheduledTime).toISOString(),
+        durationMs: Date.now() - startedAt,
+        error: errorMessage(error),
+      }),
+    );
+  }
 }
 
 function routeName(pathname: string, method: string): string {
@@ -157,6 +186,27 @@ function routeName(pathname: string, method: string): string {
   if (pathname === "/mcp/services") return "mcp_services_card";
   if (pathname === "/") return "root";
   return "not_found";
+}
+
+function requestMetrics(
+  request: Request,
+  route: string,
+  status: number,
+  durationMs: number,
+  thrown = false,
+): MetricPoint[] {
+  const tags = [
+    `route:${route}`,
+    `method:${request.method}`,
+    `status_class:${statusClass(status)}`,
+  ];
+  return [
+    count("http.request.count", 1, tags),
+    gauge("http.response.duration_ms", durationMs, tags),
+    ...(thrown || status >= 500
+      ? [count("http.error.count", 1, [...tags, "error_class:server"])]
+      : []),
+  ];
 }
 
 function catalogRefreshMetrics({
@@ -181,4 +231,25 @@ function catalogRefreshMetrics({
         ]
       : []),
   ];
+}
+
+function statusClass(status: number): string {
+  if (status >= 500) return "5xx";
+  if (status >= 400) return "4xx";
+  if (status >= 300) return "3xx";
+  if (status >= 200) return "2xx";
+  return "other";
+}
+
+function logMetricsError(error: unknown): void {
+  console.error(
+    JSON.stringify({
+      message: "datadog.metrics_failed",
+      error: errorMessage(error),
+    }),
+  );
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

@@ -14,96 +14,91 @@ const METRIC_PREFIX = "mpp.discovery_mcp";
 const DEFAULT_SERVICE = "mpp-discovery-service-mcp";
 const DEFAULT_ENV = "production";
 
-export function metricName(name: string): string {
-  return `${METRIC_PREFIX}.${name}`;
-}
-
 export function gauge(
   name: string,
   value: number,
   tags?: string[],
 ): MetricPoint {
-  return { metric: metricName(name), type: "gauge", value, tags };
+  return { metric: `${METRIC_PREFIX}.${name}`, type: "gauge", value, tags };
 }
 
 export function count(name: string, value = 1, tags?: string[]): MetricPoint {
-  return { metric: metricName(name), type: "count", value, tags };
+  return { metric: `${METRIC_PREFIX}.${name}`, type: "count", value, tags };
 }
 
-export class DatadogMetricsClient {
-  constructor(private readonly env: WorkerEnv) {}
+export function queueMetrics(
+  ctx: ExecutionContext,
+  env: WorkerEnv,
+  metrics: MetricPoint[],
+): void {
+  if (!datadogEnabled(env) || metrics.length === 0) return;
 
-  queue(ctx: ExecutionContext, metrics: MetricPoint[]): void {
-    if (!this.enabled || metrics.length === 0) return;
-
-    ctx.waitUntil(
-      this.send(metrics).catch((error) => {
-        console.error(
-          JSON.stringify({
-            message: "datadog.metrics_failed",
-            error: errorMessage(error),
-          }),
-        );
-      }),
-    );
-  }
-
-  async send(metrics: MetricPoint[]): Promise<void> {
-    if (!this.enabled || metrics.length === 0) return;
-
-    const apiKey = this.env.DATADOG_API_KEY;
-    if (!apiKey) {
-      console.warn(
+  ctx.waitUntil(
+    postMetrics(env, metrics).catch((error) => {
+      console.error(
         JSON.stringify({
-          message: "datadog.metrics_skipped",
-          reason: "missing_api_key",
+          message: "datadog.metrics_failed",
+          error: errorMessage(error),
         }),
       );
-      return;
-    }
+    }),
+  );
+}
 
-    const timestamp = Math.floor(Date.now() / 1000);
-    const response = await fetch(`${this.apiBase}/api/v1/series`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "DD-API-KEY": apiKey,
-      },
-      body: JSON.stringify({
-        series: metrics.map((metric) => ({
-          metric: metric.metric,
-          type: metric.type,
-          points: [[timestamp, metric.value]],
-          tags: [...this.baseTags, ...(metric.tags ?? [])],
-        })),
+export async function postMetrics(
+  env: WorkerEnv,
+  metrics: MetricPoint[],
+): Promise<void> {
+  if (!datadogEnabled(env) || metrics.length === 0) return;
+
+  if (!env.DATADOG_API_KEY) {
+    console.warn(
+      JSON.stringify({
+        message: "datadog.metrics_skipped",
+        reason: "missing_api_key",
       }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Datadog metrics API failed: ${response.status}`);
-    }
+    );
+    return;
   }
 
-  get enabled(): boolean {
-    const configured = normalized(this.env.DATADOG_ENABLED);
-    if (configured === "true") return true;
-    if (configured === "false") return false;
-    return Boolean(this.env.DATADOG_API_KEY);
-  }
+  const timestamp = Math.floor(Date.now() / 1000);
+  const baseTags = [
+    `service:${env.DATADOG_SERVICE || DEFAULT_SERVICE}`,
+    `env:${env.DATADOG_ENV || DEFAULT_ENV}`,
+  ];
+  const response = await fetch(`${apiBase(env)}/api/v1/series`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "DD-API-KEY": env.DATADOG_API_KEY,
+    },
+    body: JSON.stringify({
+      series: metrics.map((metric) => ({
+        metric: metric.metric,
+        type: metric.type,
+        points: [[timestamp, metric.value]],
+        tags: [...baseTags, ...(metric.tags ?? [])],
+      })),
+    }),
+  });
 
-  private get apiBase(): string {
-    const site = this.env.DATADOG_SITE || DEFAULT_DATADOG_SITE;
-    if (/^https?:\/\//i.test(site)) return site.replace(/\/+$/, "");
-    if (site.startsWith("api.")) return `https://${site}`;
-    return `https://api.${site}`;
+  if (!response.ok) {
+    throw new Error(`Datadog metrics API failed: ${response.status}`);
   }
+}
 
-  private get baseTags(): string[] {
-    return [
-      `service:${this.env.DATADOG_SERVICE || DEFAULT_SERVICE}`,
-      `env:${this.env.DATADOG_ENV || DEFAULT_ENV}`,
-    ];
-  }
+export function datadogEnabled(env: WorkerEnv): boolean {
+  const configured = normalized(env.DATADOG_ENABLED);
+  if (configured === "true") return true;
+  if (configured === "false") return false;
+  return Boolean(env.DATADOG_API_KEY);
+}
+
+function apiBase(env: WorkerEnv): string {
+  const site = env.DATADOG_SITE || DEFAULT_DATADOG_SITE;
+  if (/^https?:\/\//i.test(site)) return site.replace(/\/+$/, "");
+  if (site.startsWith("api.")) return `https://${site}`;
+  return `https://api.${site}`;
 }
 
 function normalized(value: string | undefined): string {

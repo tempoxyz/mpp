@@ -67,9 +67,7 @@ Metrics use the `mpp.discovery_mcp.*` namespace. Important metrics include:
 
 - `mpp.discovery_mcp.http.request.count`
 - `mpp.discovery_mcp.http.response.duration_ms`
-- `mpp.discovery_mcp.mcp.request.count`
-- `mpp.discovery_mcp.mcp.response.duration_ms`
-- `mpp.discovery_mcp.mcp.error.count`
+- `mpp.discovery_mcp.http.error.count`
 - `mpp.discovery_mcp.health.ok`
 - `mpp.discovery_mcp.health.check.ok`
 - `mpp.discovery_mcp.health.check.duration_ms`
@@ -77,6 +75,7 @@ Metrics use the `mpp.discovery_mcp.*` namespace. Important metrics include:
 - `mpp.discovery_mcp.catalog.offers`
 - `mpp.discovery_mcp.catalog.cache_age_seconds`
 - `mpp.discovery_mcp.catalog.refresh.ok`
+- `mpp.discovery_mcp.catalog.refresh.duration_ms`
 
 Production Worker vars:
 
