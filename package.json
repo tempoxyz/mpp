@@ -25,11 +25,11 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
-    "@datadog/datadog-api-client": "^1.59.0",
     "@resvg/resvg-wasm": "^2.6.2",
     "@stripe/stripe-js": "^9.7.0",
     "@vercel/blob": "^2.4.0",
     "accounts": "^0.14.9",
+    "cloudflare-worker-metrics": "^1.4.0",
     "hono": "^4.12.23",
     "mermaid": "^11.15.0",
     "mppx": "https://pkg.pr.new/mppx@557",

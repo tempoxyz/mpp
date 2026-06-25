@@ -7,13 +7,15 @@
   "workers_dev": true,
   "preview_urls": true,
   "keep_vars": true,
+  "logpush": true,
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
     "logs": {
       "enabled": true,
       "head_sampling_rate": 1,
-      "invocation_logs": true
+      "invocation_logs": true,
+      "persist": true
     }
   },
   "triggers": {
@@ -26,10 +28,6 @@
     }
   ],
   "vars": {
-    "DATADOG_ENABLED": "true",
-    "DATADOG_ENV": "production",
-    "DATADOG_SERVICE": "mpp-discovery-service-mcp",
-    "DATADOG_SITE": "us5.datadoghq.com",
     "MPP_SERVICES_URL": "https://mpp.dev/api/services",
     "PUBLIC_MCP_ENDPOINT": "https://mpp.dev/mcp/services"
   }

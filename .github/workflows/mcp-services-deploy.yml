@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "workers/mcp-services/**"
-      - "src/lib/datadog*.ts"
+      - "src/lib/worker-metrics*.ts"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
