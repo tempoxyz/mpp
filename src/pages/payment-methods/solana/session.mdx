@@ -1,0 +1,228 @@
+---
+description: "Meter pay-as-you-go Solana payments with off-chain vouchers backed by an on-chain escrow channel."
+imageDescription: "Pay-as-you-go Solana sessions with off-chain vouchers"
+---
+
+import { Cards } from 'vocs'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+import { SpecCard } from '../../../components/SpecCard'
+
+# Solana session [Metered pay-as-you-go payments on Solana]
+
+The Solana implementation of the [session](/intents/session) intent.
+
+A session opens a unidirectional **payment channel** once, then meters usage through **off-chain signed vouchers** backed by an on-chain escrow. The client deposits funds into a channel program, signs a cumulative voucher for each unit of service consumed, and the server verifies each voucher with a fast signature check—no RPC round-trip per request. The server settles the highest accepted voucher on-chain whenever it chooses, batching many off-chain updates into a single transaction.
+
+This makes sessions the right intent when per-request on-chain settlement would be too slow or too expensive: streaming LLM tokens, metered APIs, or any high-frequency, sub-cent billing.
+
+## How it works
+
+### Overview
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Solana
+    Client->>Server: (1) GET /resource
+    Server-->>Client: (2) 402 + session Challenge
+    Client->>Solana: (3) Open channel (deposit)
+    Client->>Server: (4) Open Credential (signed open tx)
+    Note over Server: verify deposit on-chain
+    Server-->>Client: 200 OK (session established)
+    loop Metered usage
+        Client->>Server: (5) Request + voucher (cumulative)
+        Note over Server: verify signature (~µs)
+        Server-->>Client: 200 OK + Receipt
+    end
+    Note over Server: (6) Periodic settlement
+    Server->>Solana: settle(channelId, highest voucher)
+    Client->>Server: (7) Close
+    Server->>Solana: settleAndFinalize + distribute
+    Solana-->>Client: Refund unused deposit
+`} />
+
+A payment session has four phases:
+
+::::steps
+
+### Open
+
+The client deposits funds into a channel account (a PDA derived from the payer, payee, mint, authorized signer, and a salt) managed by the channel program. The deposit is the hard cap the channel can ever spend. The server verifies the open transaction on-chain before metering against it.
+
+### Session
+
+The client signs vouchers with monotonically increasing cumulative amounts as service is consumed. Each voucher means "I have now authorized up to X total." The server verifies the Ed25519 signature, checks that the new cumulative amount exceeds the previously accepted one, and serves the resource based on the delta. This step is entirely off-chain.
+
+### Top up
+
+If the channel runs low, the client tops up the escrow without closing the channel. The session continues uninterrupted.
+
+### Close
+
+The server cooperatively closes by submitting `settleAndFinalize` with the highest voucher—typically bundled with `distribute` so the merchant payout, payer refund, treasury sweep, and channel tombstone all land atomically. Unused deposit is refunded to the client.
+
+::::
+
+## Server
+
+Register `solana.session` with `Mppx.create` to meter access behind a Solana payment channel. The server needs an `operator` and `recipient`, a spend `cap`, the `currency`, and a `pricing` hint. Supply a `signer` and `rpc` so the server can settle and close channels on-chain.
+
+```ts
+import { Mppx } from 'mppx/server'
+import { solana } from '@solana/mpp/server'
+import { createSolanaRpc } from '@solana/kit'
+
+const mppx = Mppx.create({
+  methods: [solana.session({
+    operator: '9xAXssX9j7vuK99c7cFwqbixzL3bFrzPy9PUhCtDPAYJ',
+    recipient: '9xAXssX9j7vuK99c7cFwqbixzL3bFrzPy9PUhCtDPAYJ',
+    cap: 10_000_000n,            // 10 USDC max channel deposit
+    currency: 'USDC',
+    decimals: 6,
+    network: 'devnet',
+    pricing: { perDelivery: 100n }, // base units charged per metered unit
+    signer,                       // settles + closes the channel on-chain
+    rpc: createSolanaRpc('https://api.devnet.solana.com'),
+  })],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+The in-memory session store works for local development. For multi-instance deployments, pass a shared `store` so channel accounting (accepted vouchers, spent amount, settlement watermark) survives restarts and is consistent across processes.
+
+### Metered delivery routes
+
+For streaming or reserve-then-commit billing, mount the session control plane with `solana.session.routes()`. This exposes a `deliveries` endpoint that reserves a metered unit and a `commit` endpoint that records the voucher once service is delivered, so the server never charges beyond authorized value.
+
+```ts
+// Share one parameters object so the method handler and the routes
+// meter against the same channel store.
+const sessionParams = {
+  operator: '9xAXssX9j7vuK99c7cFwqbixzL3bFrzPy9PUhCtDPAYJ',
+  recipient: '9xAXssX9j7vuK99c7cFwqbixzL3bFrzPy9PUhCtDPAYJ',
+  cap: 10_000_000n,
+  currency: 'USDC',
+  decimals: 6,
+  network: 'devnet',
+  pricing: { perDelivery: 100n },
+}
+
+const mppx = Mppx.create({ methods: [solana.session(sessionParams)] })
+
+const routes = solana.session.routes(sessionParams)
+// routes.deliveries — POST: reserve a metered delivery
+// routes.commit     — POST: commit a reserved delivery's voucher
+```
+
+## Client
+
+Use `createSessionFetch` for the high-level client flow. It answers the `402` session Challenge, opens the channel through your `opener`, then signs and submits a cumulative voucher on each request.
+
+```ts
+import { createSessionFetch } from '@solana/mpp/client'
+
+const session = createSessionFetch({
+  opener: myWalletOpener, // performs the real deposit / channel-open transaction
+})
+
+const response = await session.fetchWithSession('https://api.example.com/v1/chat/completions')
+// Opens the channel on the first 402, then meters subsequent requests off-chain
+```
+
+As usage accrues—for example, while streaming—advance the authorized amount and let the client batch commits:
+
+```ts
+// Authorize up to a new cumulative total as tokens stream in
+session.recordCumulative('250')
+
+// Force a commit immediately instead of waiting for the live-commit interval
+await session.commitCumulative('250')
+```
+
+The `opener` is where wallet approval and the on-chain deposit happen. For local gateways and demos, `createEphemeralSessionOpener()` fabricates push/pull open proofs with a generated key—never use it in production.
+
+```ts
+import { createSessionFetch, createEphemeralSessionOpener } from '@solana/mpp/client'
+
+const session = createSessionFetch({
+  opener: createEphemeralSessionOpener(), // dev only
+})
+```
+
+## Funding modes
+
+A challenge advertises one or more funding `modes`. The client picks the one it can satisfy.
+
+| Mode | How the channel is funded | When to use |
+|---|---|---|
+| `push` (default) | Client deposits into a channel program PDA; the deposit is the hard spend cap | Most sessions; trustless escrow with client-side forced close |
+| `pull` | Client approves a token delegation; the server draws vouchers against the delegated allowance | Wallets that prefer an approval to an escrow deposit |
+
+Pull mode requires the server to declare a `pullVoucherStrategy`. Push mode is the recommended default because funds sit in program-controlled escrow and the client can always recover them via forced close.
+
+## Fee sponsorship
+
+When the challenge sets `feePayer`, the server sponsors the cooperative on-chain operations it submits—open, top-up, settle, and close—so the client never needs SOL for transaction fees during the normal session lifecycle. The client partially signs the open transaction (deposit authority only) and the server co-signs as fee payer before broadcasting. Client-submitted escape routes (forced close, finalize, payer withdrawal) remain self-funded.
+
+## Session Receipts
+
+Session Receipts differ from charge Receipts. The `reference` field contains the payment channel ID, not a transaction hash. The on-chain settlement signature is only available after the channel is settled or closed.
+
+```ts
+type SolanaSessionReceipt = {
+  method: 'solana'
+  intent: 'session'
+  reference: string            // channel ID
+  status: 'success'
+  timestamp: string            // RFC 3339
+  acceptedCumulative: string   // highest voucher amount accepted
+  spent: string                // total charged so far
+  challengeId?: string
+  txHash?: string              // settlement signature (close)
+  refunded?: string            // unused deposit refunded to the client (close)
+}
+```
+
+| Field | Charge Receipt | Session Receipt |
+|-------|---------------|-----------------|
+| `reference` | Transaction signature | Channel ID |
+| `status` | `"success"` | `"success"` |
+| `method` | `"solana"` | `"solana"` |
+
+To get the settlement transaction signature, close the channel and read the `txHash` field from the returned Receipt.
+
+## Escrow safety and forced close
+
+Funds are held by the channel program, not the server. The server can only claim value by presenting valid voucher signatures on-chain, and the channel enforces that settlements never exceed the deposit. If the server becomes unresponsive, the client recovers unspent funds through forced close:
+
+1. The client submits `requestClose` directly to RPC, starting a **grace period** (recommended: 15 minutes).
+2. During the grace period the server may still settle outstanding vouchers via `settleAndFinalize`.
+3. After the grace period, anyone can permissionlessly `finalize` and `distribute`—the merchant side is paid, the payer is refunded, and the channel is tombstoned.
+
+The grace period is what prevents a client from using the service and then withdrawing before the server can settle accepted vouchers.
+
+:::warning
+Channels do not close automatically. Until a channel is closed (or force-closed after the grace period), the client's deposit stays reserved in escrow.
+:::
+
+## Solana-specific request fields
+
+The Solana session request extends the base session schema with `methodDetails` such as:
+
+- `network`
+- `channelProgram`
+- `channelId` (to resume an existing channel)
+- `decimals`
+- `tokenProgram`
+- `feePayer` / `feePayerKey`
+- `gracePeriodSeconds`
+- `minVoucherDelta`
+- `distributionSplits`
+
+Native SOL is not supported as a channel currency. Clients paying in SOL must wrap to wSOL (`So11111111111111111111111111111111111111112`) before opening a channel.
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-solana-session-00" />
+</Cards>
