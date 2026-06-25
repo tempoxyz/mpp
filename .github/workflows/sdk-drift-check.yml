@@ -15,6 +15,9 @@ on:
         required: false
         default: "latest"
 
+permissions:
+  contents: read
+
 jobs:
   drift-check:
     runs-on: ubuntu-latest
