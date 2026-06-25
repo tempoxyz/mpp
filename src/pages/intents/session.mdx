@@ -6,7 +6,7 @@ imageDescription: "Meter high-frequency usage with sessions"
 
 import { Card, Cards } from 'vocs'
 import { MermaidDiagram } from '../../components/MermaidDiagram'
-import { LightningSessionCard, StellarChannelCard } from '../../components/cards'
+import { LightningSessionCard, SolanaSessionCard, StellarChannelCard } from '../../components/cards'
 
 # Session [Metered pay-as-you-go payments]
 
@@ -78,6 +78,7 @@ Each payment method defines how session setup, incremental authorization, verifi
     title="Session"
     to="/payment-methods/tempo/session"
   />
+  <SolanaSessionCard />
   <LightningSessionCard />
   <StellarChannelCard />
 </Cards>

@@ -55,6 +55,7 @@ type Page =
   | { path: '/payment-methods/redotpay'; render: 'static' }
   | { path: '/payment-methods/solana/charge'; render: 'static' }
   | { path: '/payment-methods/solana'; render: 'static' }
+  | { path: '/payment-methods/solana/session'; render: 'static' }
   | { path: '/payment-methods/stellar/charge'; render: 'static' }
   | { path: '/payment-methods/stellar'; render: 'static' }
   | { path: '/payment-methods/stellar/session'; render: 'static' }

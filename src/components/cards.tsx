@@ -344,10 +344,10 @@ export function SolanaChargeCard() {
 export function SolanaSessionCard() {
   return (
     <Card
-      description="Coming soon: Solana sessions with off-chain vouchers and on-chain settlement"
+      description="Pay-as-you-go metered payments with off-chain vouchers and on-chain settlement"
       icon="simple-icons:solana"
       title="Solana session"
-      to="https://github.com/tempoxyz/mpp-specs/pull/201"
+      to="/payment-methods/solana/session"
     />
   );
 }

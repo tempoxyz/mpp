@@ -440,6 +440,7 @@ export default defineConfig({
             items: [
               { text: "Overview", link: "/payment-methods/solana" },
               { text: "Charge", link: "/payment-methods/solana/charge" },
+              { text: "Session", link: "/payment-methods/solana/session" },
             ],
           },
           {
