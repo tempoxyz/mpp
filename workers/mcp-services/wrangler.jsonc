@@ -31,6 +31,8 @@
     "DATADOG_SERVICE": "mpp-discovery-service-mcp",
     "DATADOG_SITE": "us5.datadoghq.com",
     "MPP_SERVICES_URL": "https://mpp.dev/api/services",
+    "POSTHOG_HOST": "https://us.i.posthog.com",
+    "POSTHOG_KEY": "phc_aNlTw2xAUQKd9zTovXeYheEUpQpEhplehCK5r1e31HR",
     "PUBLIC_MCP_ENDPOINT": "https://mpp.dev/mcp/services"
   }
 }

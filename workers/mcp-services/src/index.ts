@@ -4,6 +4,7 @@ import {
   datadogMetrics,
 } from "../../../src/lib/datadog.js";
 import { refreshCatalog } from "./cache.js";
+import { trackCrawlerPageview } from "./crawler-analytics.js";
 import { countPaymentOffers } from "./discovery.js";
 import { healthMetrics } from "./health.js";
 import { handleMcp, jsonHeaders, optionsResponse, serverCard } from "./mcp.js";
@@ -18,6 +19,7 @@ export default {
     const url = new URL(request.url);
     const publicEndpoint = publicMcpEndpoint(url, env);
     configureDatadogFromEnv(env);
+    trackCrawlerPageview(request, env, ctx);
 
     return trackRequest(
       request,

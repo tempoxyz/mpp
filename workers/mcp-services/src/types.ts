@@ -85,5 +85,9 @@ export type WorkerEnv = Omit<
   DATADOG_ENV?: string;
   DATADOG_SERVICE?: string;
   DATADOG_SITE?: string;
+  POSTHOG_HOST?: string;
+  POSTHOG_KEY?: string;
   PUBLIC_MCP_ENDPOINT?: string;
+  VITE_POSTHOG_HOST?: string;
+  VITE_POSTHOG_KEY?: string;
 };
