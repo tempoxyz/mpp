@@ -49,9 +49,10 @@ authoritative.
 
 ## Datadog monitoring
 
-The Worker emits custom Datadog metrics directly from production. Runtime
-request metrics are emitted with `ctx.waitUntil()` so user-facing MCP responses
-do not wait on Datadog ingestion.
+The Worker emits custom Datadog metrics directly from production through the
+repo-level Datadog client in `src/lib/datadog.ts`. Runtime request metrics are
+emitted with `ctx.waitUntil()` so user-facing MCP responses do not wait on
+Datadog ingestion.
 
 The one-minute health cron calls the public endpoint
 `https://mpp.dev/mcp/services`, then checks:
@@ -63,7 +64,9 @@ The one-minute health cron calls the public endpoint
 - JSON-RPC `tools/call` for `get_catalog_status`
 - JSON-RPC `tools/call` for `search_services`
 
-Metrics use the `mpp.discovery_mcp.*` namespace. Important metrics include:
+Metric names are built from the repository scope (`mpp`) and component scope
+(`discovery_mcp`), so this Worker emits `mpp.discovery_mcp.*`. Important
+metrics include:
 
 - `mpp.discovery_mcp.http.request.count`
 - `mpp.discovery_mcp.http.response.duration_ms`

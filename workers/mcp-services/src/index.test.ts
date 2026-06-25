@@ -134,7 +134,7 @@ describe("scheduled health", () => {
       "fetch",
       vi.fn(async (input: RequestInfo, init?: RequestInit) => {
         const request = new Request(input, init);
-        if (request.url === "https://api.us5.datadoghq.com/api/v1/series") {
+        if (request.url === "https://api.us5.datadoghq.com/api/v2/series") {
           datadogBodies.push(await request.json());
           return new Response("{}", { status: 202 });
         }

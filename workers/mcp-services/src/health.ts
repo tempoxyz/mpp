@@ -1,4 +1,7 @@
-import { gauge, type MetricPoint } from "./datadog.js";
+import type {
+  DatadogMetric,
+  DatadogMetricsClient,
+} from "../../../src/lib/datadog.js";
 import type { WorkerEnv } from "./types.js";
 
 type JsonObject = Record<string, unknown>;
@@ -7,9 +10,9 @@ type HealthResult = {
   ok: boolean;
   durationMs: number;
   error?: string;
-  metrics?: MetricPoint[];
+  metrics?: DatadogMetric[];
 };
-type CheckFn = () => Promise<MetricPoint[] | undefined>;
+type CheckFn = () => Promise<DatadogMetric[] | undefined>;
 
 const DEFAULT_ENDPOINT = "https://mpp.dev/mcp/services";
 const MAX_CACHE_AGE_SECONDS = 3 * 60 * 60;
@@ -21,20 +24,25 @@ const REQUIRED_TOOLS = [
   "get_catalog_status",
 ];
 
-export async function healthMetrics(env: WorkerEnv): Promise<MetricPoint[]> {
+export async function healthMetrics(
+  env: WorkerEnv,
+  datadog: DatadogMetricsClient,
+): Promise<DatadogMetric[]> {
   const endpoint = env.PUBLIC_MCP_ENDPOINT || DEFAULT_ENDPOINT;
-  const checks = await runChecks(endpoint);
+  const checks = await runChecks(endpoint, datadog);
   const failures = checks.filter((check) => !check.ok);
   const metrics = [
-    gauge("health.ok", failures.length === 0 ? 1 : 0, ["endpoint:public"]),
-    gauge("health.failure.count", failures.length, ["endpoint:public"]),
+    datadog.gauge("health.ok", failures.length === 0 ? 1 : 0, [
+      "endpoint:public",
+    ]),
+    datadog.gauge("health.failure.count", failures.length, ["endpoint:public"]),
   ];
 
   for (const check of checks) {
     const tags = [`check:${check.name}`, "endpoint:public"];
     metrics.push(
-      gauge("health.check.ok", check.ok ? 1 : 0, tags),
-      gauge("health.check.duration_ms", check.durationMs, tags),
+      datadog.gauge("health.check.ok", check.ok ? 1 : 0, tags),
+      datadog.gauge("health.check.duration_ms", check.durationMs, tags),
       ...(check.metrics ?? []),
     );
   }
@@ -55,13 +63,16 @@ export async function healthMetrics(env: WorkerEnv): Promise<MetricPoint[]> {
   return metrics;
 }
 
-async function runChecks(endpoint: string): Promise<HealthResult[]> {
+async function runChecks(
+  endpoint: string,
+  datadog: DatadogMetricsClient,
+): Promise<HealthResult[]> {
   const checks: Array<[string, CheckFn]> = [
     ["get_card", () => assertServerCard(endpoint)],
     ["head", () => assertHead(endpoint)],
     ["initialize", () => assertInitialize(endpoint)],
-    ["tools_list", () => checkTools(endpoint)],
-    ["get_catalog_status", () => checkCatalog(endpoint)],
+    ["tools_list", () => checkTools(endpoint, datadog)],
+    ["get_catalog_status", () => checkCatalog(endpoint, datadog)],
     ["search_services", () => assertSearch(endpoint)],
   ];
   const results: HealthResult[] = [];
@@ -124,7 +135,10 @@ async function assertInitialize(endpoint: string): Promise<undefined> {
   return undefined;
 }
 
-async function checkTools(endpoint: string): Promise<MetricPoint[]> {
+async function checkTools(
+  endpoint: string,
+  datadog: DatadogMetricsClient,
+): Promise<DatadogMetric[]> {
   const result = await rpc(endpoint, "tools/list");
   const tools = arrayValue(result.tools);
   const names = new Set(
@@ -135,10 +149,13 @@ async function checkTools(endpoint: string): Promise<MetricPoint[]> {
   for (const tool of REQUIRED_TOOLS) {
     if (!names.has(tool)) throw new Error(`missing tool ${tool}`);
   }
-  return [gauge("tools.advertised", tools.length)];
+  return [datadog.gauge("tools.advertised", tools.length)];
 }
 
-async function checkCatalog(endpoint: string): Promise<MetricPoint[]> {
+async function checkCatalog(
+  endpoint: string,
+  datadog: DatadogMetricsClient,
+): Promise<DatadogMetric[]> {
   const content = object(
     (await callTool(endpoint, "get_catalog_status", {})).structuredContent,
   );
@@ -157,9 +174,9 @@ async function checkCatalog(endpoint: string): Promise<MetricPoint[]> {
   }
 
   return [
-    gauge("catalog.services", serviceCount),
-    gauge("catalog.offers", offerCount),
-    gauge("catalog.cache_age_seconds", cacheAgeSeconds),
+    datadog.gauge("catalog.services", serviceCount),
+    datadog.gauge("catalog.offers", offerCount),
+    datadog.gauge("catalog.cache_age_seconds", cacheAgeSeconds),
   ];
 }
 

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { DatadogMetricsClient } from "../../../src/lib/datadog.js";
 import { healthMetrics } from "./health.js";
 import type { WorkerEnv } from "./types.js";
 
@@ -12,14 +13,21 @@ describe("public health check", () => {
   it("emits healthy metrics for representative MCP checks", async () => {
     vi.stubGlobal("fetch", vi.fn(healthyFetch));
 
-    const metrics = await healthMetrics(env());
+    const datadog = datadogClient();
+    const metrics = await healthMetrics(env(), datadog);
 
-    expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(1);
-    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.services")).toBe(
-      137,
+    expect(metricValue(metrics, datadog, "mpp.discovery_mcp.health.ok")).toBe(
+      1,
     );
-    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.offers")).toBe(1200);
-    expect(metricValue(metrics, "mpp.discovery_mcp.tools.advertised")).toBe(11);
+    expect(
+      metricValue(metrics, datadog, "mpp.discovery_mcp.catalog.services"),
+    ).toBe(137);
+    expect(
+      metricValue(metrics, datadog, "mpp.discovery_mcp.catalog.offers"),
+    ).toBe(1200);
+    expect(
+      metricValue(metrics, datadog, "mpp.discovery_mcp.tools.advertised"),
+    ).toBe(11);
   });
 
   it("emits unhealthy metrics when a public check fails", async () => {
@@ -34,16 +42,20 @@ describe("public health check", () => {
       }),
     );
 
-    const metrics = await healthMetrics(env());
+    const datadog = datadogClient();
+    const metrics = await healthMetrics(env(), datadog);
 
-    expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(0);
-    expect(metricValue(metrics, "mpp.discovery_mcp.health.failure.count")).toBe(
-      1,
+    expect(metricValue(metrics, datadog, "mpp.discovery_mcp.health.ok")).toBe(
+      0,
     );
+    expect(
+      metricValue(metrics, datadog, "mpp.discovery_mcp.health.failure.count"),
+    ).toBe(1);
     expect(
       metrics.find(
         (metric) =>
-          metric.metric === "mpp.discovery_mcp.health.check.ok" &&
+          datadog.metricName(metric.name) ===
+            "mpp.discovery_mcp.health.check.ok" &&
           metric.tags?.includes("check:get_card"),
       )?.value,
     ).toBe(0);
@@ -129,14 +141,20 @@ function rpcResult(result: unknown): Response {
 }
 
 function metricValue(
-  metrics: Array<{ metric: string; value: number }>,
+  metrics: Array<{ name: string; value: number }>,
+  datadog: DatadogMetricsClient,
   name: string,
 ) {
-  return metrics.find((metric) => metric.metric === name)?.value;
+  return metrics.find((metric) => datadog.metricName(metric.name) === name)
+    ?.value;
 }
 
 function env(): WorkerEnv {
   return {
     PUBLIC_MCP_ENDPOINT: endpoint,
   } as WorkerEnv;
+}
+
+function datadogClient(): DatadogMetricsClient {
+  return new DatadogMetricsClient({ component: "discovery_mcp" });
 }

@@ -1,11 +1,8 @@
-import { refreshCatalog } from "./cache.js";
 import {
-  count,
-  gauge,
-  type MetricPoint,
-  postMetrics,
-  queueMetrics,
-} from "./datadog.js";
+  type DatadogMetric,
+  DatadogMetricsClient,
+} from "../../../src/lib/datadog.js";
+import { refreshCatalog } from "./cache.js";
 import { countPaymentOffers } from "./discovery.js";
 import { healthMetrics } from "./health.js";
 import { handleMcp, jsonHeaders, optionsResponse, serverCard } from "./mcp.js";
@@ -19,10 +16,11 @@ export default {
   ): Promise<Response> {
     const url = new URL(request.url);
     const publicEndpoint = publicMcpEndpoint(url, env);
+    const datadog = datadogFromEnv(env);
 
     return trackRequest(
       request,
-      env,
+      datadog,
       ctx,
       routeName(url.pathname, request.method),
       async () => {
@@ -73,18 +71,20 @@ export default {
     env: WorkerEnv,
     ctx: ExecutionContext,
   ) {
+    const datadog = datadogFromEnv(env);
+
     if (event.cron === "* * * * *") {
-      ctx.waitUntil(runScheduledHealthCheck(event, env));
+      ctx.waitUntil(runScheduledHealthCheck(event, env, datadog));
       return;
     }
 
-    ctx.waitUntil(runCatalogRefresh(event, env));
+    ctx.waitUntil(runCatalogRefresh(event, env, datadog));
   },
 } satisfies ExportedHandler<Env>;
 
 async function trackRequest(
   request: Request,
-  env: WorkerEnv,
+  datadog: DatadogMetricsClient,
   ctx: ExecutionContext,
   route: string,
   handler: () => Promise<Response>,
@@ -92,20 +92,42 @@ async function trackRequest(
   const startedAt = Date.now();
   try {
     const response = await handler();
-    queueMetrics(
-      ctx,
-      env,
-      requestMetrics(request, route, response.status, Date.now() - startedAt),
+    datadog.queue(
+      (promise) => ctx.waitUntil(promise),
+      requestMetrics(
+        datadog,
+        request,
+        route,
+        response.status,
+        Date.now() - startedAt,
+      ),
     );
     return response;
   } catch (error) {
-    queueMetrics(
-      ctx,
-      env,
-      requestMetrics(request, route, 500, Date.now() - startedAt, true),
+    datadog.queue(
+      (promise) => ctx.waitUntil(promise),
+      requestMetrics(
+        datadog,
+        request,
+        route,
+        500,
+        Date.now() - startedAt,
+        true,
+      ),
     );
     throw error;
   }
+}
+
+function datadogFromEnv(env: WorkerEnv): DatadogMetricsClient {
+  return new DatadogMetricsClient({
+    apiKey: env.DATADOG_API_KEY,
+    component: "discovery_mcp",
+    enabled: env.DATADOG_ENABLED,
+    env: env.DATADOG_ENV,
+    service: env.DATADOG_SERVICE,
+    site: env.DATADOG_SITE,
+  });
 }
 
 function publicMcpEndpoint(url: URL, env: WorkerEnv): string {
@@ -115,9 +137,12 @@ function publicMcpEndpoint(url: URL, env: WorkerEnv): string {
 async function runScheduledHealthCheck(
   event: ScheduledController,
   env: WorkerEnv,
+  datadog: DatadogMetricsClient,
 ): Promise<void> {
   const startedAt = Date.now();
-  await postMetrics(env, await healthMetrics(env)).catch(logMetricsError);
+  await datadog
+    .submit(await healthMetrics(env, datadog))
+    .catch(logMetricsError);
   console.log(
     JSON.stringify({
       message: "mcp.health_complete",
@@ -131,19 +156,21 @@ async function runScheduledHealthCheck(
 async function runCatalogRefresh(
   event: ScheduledController,
   env: WorkerEnv,
+  datadog: DatadogMetricsClient,
 ): Promise<void> {
   const startedAt = Date.now();
   try {
     const catalog = await refreshCatalog(env);
-    await postMetrics(
-      env,
-      catalogRefreshMetrics({
-        ok: true,
-        durationMs: Date.now() - startedAt,
-        services: catalog.services.length,
-        offers: countPaymentOffers(catalog.services),
-      }),
-    ).catch(logMetricsError);
+    await datadog
+      .submit(
+        catalogRefreshMetrics(datadog, {
+          ok: true,
+          durationMs: Date.now() - startedAt,
+          services: catalog.services.length,
+          offers: countPaymentOffers(catalog.services),
+        }),
+      )
+      .catch(logMetricsError);
     console.log(
       JSON.stringify({
         message: "catalog.refresh_complete",
@@ -156,13 +183,14 @@ async function runCatalogRefresh(
       }),
     );
   } catch (error) {
-    await postMetrics(
-      env,
-      catalogRefreshMetrics({
-        ok: false,
-        durationMs: Date.now() - startedAt,
-      }),
-    ).catch(logMetricsError);
+    await datadog
+      .submit(
+        catalogRefreshMetrics(datadog, {
+          ok: false,
+          durationMs: Date.now() - startedAt,
+        }),
+      )
+      .catch(logMetricsError);
     console.error(
       JSON.stringify({
         message: "catalog.refresh_failed",
@@ -189,45 +217,49 @@ function routeName(pathname: string, method: string): string {
 }
 
 function requestMetrics(
+  datadog: DatadogMetricsClient,
   request: Request,
   route: string,
   status: number,
   durationMs: number,
   thrown = false,
-): MetricPoint[] {
+): DatadogMetric[] {
   const tags = [
     `route:${route}`,
     `method:${request.method}`,
     `status_class:${statusClass(status)}`,
   ];
   return [
-    count("http.request.count", 1, tags),
-    gauge("http.response.duration_ms", durationMs, tags),
+    datadog.count("http.request.count", 1, tags),
+    datadog.gauge("http.response.duration_ms", durationMs, tags),
     ...(thrown || status >= 500
-      ? [count("http.error.count", 1, [...tags, "error_class:server"])]
+      ? [datadog.count("http.error.count", 1, [...tags, "error_class:server"])]
       : []),
   ];
 }
 
-function catalogRefreshMetrics({
-  ok,
-  durationMs,
-  services,
-  offers,
-}: {
-  ok: boolean;
-  durationMs: number;
-  services?: number;
-  offers?: number;
-}): MetricPoint[] {
+function catalogRefreshMetrics(
+  datadog: DatadogMetricsClient,
+  {
+    ok,
+    durationMs,
+    services,
+    offers,
+  }: {
+    ok: boolean;
+    durationMs: number;
+    services?: number;
+    offers?: number;
+  },
+): DatadogMetric[] {
   return [
-    gauge("catalog.refresh.ok", ok ? 1 : 0),
-    gauge("catalog.refresh.duration_ms", durationMs),
+    datadog.gauge("catalog.refresh.ok", ok ? 1 : 0),
+    datadog.gauge("catalog.refresh.duration_ms", durationMs),
     ...(ok && services !== undefined && offers !== undefined
       ? [
-          gauge("catalog.services", services),
-          gauge("catalog.offers", offers),
-          gauge("catalog.cache_age_seconds", 0),
+          datadog.gauge("catalog.services", services),
+          datadog.gauge("catalog.offers", offers),
+          datadog.gauge("catalog.cache_age_seconds", 0),
         ]
       : []),
   ];
