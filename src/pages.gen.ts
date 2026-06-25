@@ -9,6 +9,7 @@ type Page =
   | { path: '/_api/api/og'; render: 'static' }
   | { path: '/advanced/discovery'; render: 'static' }
   | { path: '/advanced/identity'; render: 'static' }
+  | { path: '/advanced/payment-hooks'; render: 'static' }
   | { path: '/advanced/refunds'; render: 'static' }
   | { path: '/advanced/security'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }

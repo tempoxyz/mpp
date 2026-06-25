@@ -1,0 +1,294 @@
+---
+description: "Observe MPP client and server payment lifecycles with typed SDK hooks."
+imageDescription: "Observe payment lifecycle events"
+---
+
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+
+# Payment hooks [Observe payment lifecycles]
+
+Payment hooks let you attach logging, metrics, tracing, and request-local context to MPP payment flows without rewriting the payment handler.
+
+## Lifecycle overview
+
+Payment hooks follow the `402` payment flow. The server issues a Challenge for an unpaid request. The client selects that Challenge, creates a Credential, and retries the request. The server verifies the Credential, returns the protected response, and attaches a Receipt.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: Request
+    Server-->>Client: 402 + Challenge
+    Note over Server: challenge.created
+    Note over Client: challenge.received
+    Note over Client: Create Credential
+    Note over Client: credential.created
+    Client->>Server: Retry + Credential
+    alt Credential verifies
+        Note over Server: payment.success
+        Server-->>Client: 200 OK + Receipt
+        Note over Client: payment.response
+    else Credential fails
+        Note over Server: payment.failed
+        Server-->>Client: 402 or error
+        Note over Client: payment.failed
+    end
+`} />
+
+## Server hooks
+
+Register server hooks on the object returned by `Mppx.create` from `mppx/server`.
+
+| Hook | Canonical event | Runs when |
+|---|---|---|
+| `onChallengeCreated` | `challenge.created` | The server issues a payment Challenge |
+| `onPaymentSuccess` | `payment.success` | The server verifies payment and creates a Receipt |
+| `onPaymentFailed` | `payment.failed` | A submitted Credential or standalone verification fails |
+| `on('*', handler)` | `*` | Any server payment event fires |
+
+Server handlers are awaited inline and sequentially on the payment request path. Handler errors are ignored and do not change payment handling, but slow handlers still delay the response.
+
+```ts twoslash [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.charge(), tempo.session()],
+})
+
+payment.onChallengeCreated(({ challenge, method, request }) => { // [!code hl]
+  console.log('challenge.created', {
+    amount: request.amount,
+    challengeId: challenge.id,
+    intent: method.intent,
+    method: method.name,
+  })
+})
+
+payment.onPaymentSuccess(({ method, receipt, request }) => { // [!code hl]
+  console.log('payment.success', {
+    amount: request.amount,
+    intent: method.intent,
+    method: method.name,
+    reference: receipt.reference,
+  })
+})
+
+payment.onPaymentFailed(({ error, method, submittedChallenge }) => { // [!code hl]
+  console.log('payment.failed', {
+    challengeId: submittedChallenge?.id,
+    error: error.name,
+    intent: method.intent,
+    method: method.name,
+  })
+})
+```
+
+## Client hooks
+
+Register client hooks on the object returned by `Mppx.create` from `mppx/client`.
+
+| Hook | Canonical event | Runs when |
+|---|---|---|
+| `onChallengeReceived` | `challenge.received` | A `402` Challenge is selected |
+| `onCredentialCreated` | `credential.created` | A Credential is created for the selected Challenge |
+| `onPaymentResponse` | `payment.response` | The retry after payment returns a successful response |
+| `onPaymentFailed` | `payment.failed` | Challenge parsing, Credential creation, or retry handling fails |
+| `on('*', handler)` | `*` | Any client payment event fires |
+
+`onChallengeReceived` runs before `onChallenge`. It can return a non-empty Credential string to override the default credential flow. Other client hooks are observers: thrown errors are ignored and do not change payment handling.
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({ account }),
+    tempo.session({ account, maxDeposit: '10' }),
+  ],
+  polyfill: false,
+})
+
+mppx.onChallengeReceived(({ challenge }) => { // [!code hl]
+  console.log('challenge.received', {
+    challengeId: challenge.id,
+    intent: challenge.intent,
+    method: challenge.method,
+  })
+})
+
+mppx.onCredentialCreated(({ challenge }) => { // [!code hl]
+  console.log('credential.created', {
+    challengeId: challenge.id,
+    intent: challenge.intent,
+  })
+})
+
+mppx.onPaymentResponse(({ challenge, response }) => { // [!code hl]
+  console.log('payment.response', {
+    intent: challenge.intent,
+    status: response.status,
+  })
+})
+
+mppx.onPaymentFailed(({ challenge, error }) => { // [!code hl]
+  console.log('payment.failed', {
+    challengeId: challenge?.id,
+    error: error instanceof Error ? error.name : 'Error',
+  })
+})
+```
+
+## Charge intent
+
+For `charge`, one request maps to one payment. The hook events describe the Challenge, the client Credential, and the server Receipt for that charge.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: Request protected by charge
+    Server-->>Client: 402 + charge Challenge
+    Note over Server: challenge.created
+    Note over Client: challenge.received
+    Note over Client: Create charge Credential
+    Note over Client: credential.created
+    Client->>Server: Retry + charge Credential
+    alt Charge verifies
+        Note over Server: payment.success
+        Server-->>Client: 200 OK + Receipt
+        Note over Client: payment.response
+    else Charge verification fails
+        Note over Server: payment.failed
+        Server-->>Client: 402 or error
+        Note over Client: payment.failed
+    end
+`} />
+
+Use `method.intent === 'charge'` on server hooks or `challenge.intent === 'charge'` on client hooks to isolate charge telemetry.
+
+## Session intent
+
+For `session`, hooks observe the MPP request flow around session Challenges and Credentials. Session-specific channel open, voucher, top-up, close, and settlement behavior is handled by the session method APIs; the payment hook names remain the same.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant Network
+    Client->>Server: Request protected by session
+    Server-->>Client: 402 + session Challenge
+    Note over Server: challenge.created
+    Note over Client: challenge.received
+    Client->>Network: Open or fund session
+    Network-->>Client: Session ready
+    Note over Client: Create session Credential
+    Note over Client: credential.created
+    Client->>Server: Retry + session Credential
+    alt Session Credential verifies
+        Note over Server: payment.success
+        Server-->>Client: 200 OK + Receipt
+        Note over Client: payment.response
+    else Session Credential fails
+        Note over Server: payment.failed
+        Server-->>Client: 402 or error
+        Note over Client: payment.failed
+    end
+`} />
+
+Use `method.intent === 'session'` on server hooks or `challenge.intent === 'session'` on client hooks to isolate session telemetry.
+
+```ts twoslash [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.session()],
+})
+
+payment.onPaymentSuccess(({ method, receipt, request }) => { // [!code hl]
+  if (method.intent !== 'session') return
+
+  console.log('session.payment.success', {
+    amount: request.amount,
+    method: method.name,
+    reference: receipt.reference,
+  })
+})
+```
+
+## Subscription intent
+
+For `subscription`, hooks observe the payment flow when the server issues a subscription Challenge and the client returns a subscription Credential. Later requests can be authorized by method-specific subscription state.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: Request protected by subscription
+    Server-->>Client: 402 + subscription Challenge
+    Note over Server: challenge.created
+    Note over Client: challenge.received
+    Note over Client: Create subscription Credential
+    Note over Client: credential.created
+    Client->>Server: Retry + subscription Credential
+    alt Subscription activates or renews
+        Note over Server: payment.success
+        Server-->>Client: 200 OK + Receipt
+        Note over Client: payment.response
+    else Subscription Credential fails
+        Note over Server: payment.failed
+        Server-->>Client: 402 or error
+        Note over Client: payment.failed
+    end
+`} />
+
+Use `method.intent === 'subscription'` on server hooks or `challenge.intent === 'subscription'` on client hooks to isolate subscription telemetry.
+
+## Event payloads
+
+Payloads carry the selected method, Challenge, request context, and event result. `on('*')` receives `{ name, payload }`; typed helpers receive the inner payload directly.
+
+```ts [server-event.ts]
+{
+  name: 'payment.success',
+  payload: {
+    challenge: { id: 'ch_123', intent: 'session', method: 'tempo' },
+    method: { intent: 'session', name: 'tempo' },
+    receipt: {
+      method: 'tempo',
+      reference: '0x...',
+      status: 'success',
+      timestamp: '2026-06-24T00:00:00.000Z',
+    },
+    request: { amount: '0.01' },
+  },
+}
+```
+
+```ts [client-event.ts]
+{
+  name: 'payment.response',
+  payload: {
+    challenge: { id: 'ch_123', intent: 'session', method: 'tempo' },
+    credential: 'Payment ...',
+    method: { intent: 'session', name: 'tempo' },
+    response: new Response(null, { status: 200 }),
+  },
+}
+```
+
+## Subscription management
+
+Each hook registration returns an unsubscribe function. Keep the function when a handler is temporary, such as request-scoped instrumentation, tests, or a process that recreates payment instances. Call it to detach the handler and stop receiving events.
+
+```ts twoslash [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.charge()],
+})
+
+const unsubscribe = payment.onPaymentSuccess(({ receipt }) => {
+  console.log(receipt.reference)
+})
+
+unsubscribe() // [!code hl]
+```

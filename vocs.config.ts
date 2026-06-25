@@ -366,6 +366,7 @@ export default defineConfig({
         items: [
           { text: "Discovery", link: "/advanced/discovery" },
           { text: "Identity", link: "/advanced/identity" },
+          { text: "Payment hooks", link: "/advanced/payment-hooks" },
           { text: "Refunds", link: "/advanced/refunds" },
         ],
       },
