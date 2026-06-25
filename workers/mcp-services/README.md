@@ -163,6 +163,9 @@ The token is provisioned through `tempoxyz/secrets`; request `account: prd`
 with `account_settings_read`, `workers_scripts_write`, and
 `workers_kv_storage_write`.
 
+The deploy workflow watches this Worker package, the shared Datadog client in
+`src/lib/datadog*.ts`, root dependency files, and the deploy workflow itself.
+
 Local deployments use the same environment variables:
 
 ```bash
