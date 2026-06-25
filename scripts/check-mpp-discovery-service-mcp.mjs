@@ -6,7 +6,6 @@ const DEFAULT_ENDPOINT = "https://mpp.dev/mcp/services";
 const endpoint = normalizeEndpoint(
   process.env.MPP_DISCOVERY_MCP_URL ?? DEFAULT_ENDPOINT,
 );
-const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
 const requestTimeoutMs = Number(
   process.env.MPP_DISCOVERY_MCP_TIMEOUT_MS ?? 30_000,
 );
@@ -317,7 +316,6 @@ async function main() {
     return "invalid enum rejected";
   });
 
-  await reportToSlack();
   await writeStepSummary();
 
   const failed = results.filter((result) => !result.ok);
@@ -522,41 +520,6 @@ async function writeStepSummary() {
     "",
   ].join("\n");
   await appendFile(process.env.GITHUB_STEP_SUMMARY, summary);
-}
-
-async function reportToSlack() {
-  if (!slackWebhookUrl) {
-    console.log("SLACK_WEBHOOK_URL is not set; skipping Slack report.");
-    return;
-  }
-  const startedAt = Date.now();
-  try {
-    const response = await fetchWithTimeout(slackWebhookUrl, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text: buildSummaryText() }),
-    });
-    if (!response.ok) {
-      const text = await response.text();
-      results.push({
-        name: "Slack report",
-        ok: false,
-        detail: `Slack webhook returned HTTP ${response.status}: ${snippet(text)}`,
-        durationMs: Date.now() - startedAt,
-      });
-      console.error(results.at(-1).detail);
-      return;
-    }
-    console.log("ok - Slack report");
-  } catch (error) {
-    results.push({
-      name: "Slack report",
-      ok: false,
-      detail: errorMessage(error),
-      durationMs: Date.now() - startedAt,
-    });
-    console.error(results.at(-1).detail);
-  }
 }
 
 main().catch((error) => {

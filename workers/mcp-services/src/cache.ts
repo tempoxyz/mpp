@@ -1,4 +1,4 @@
-import type { ServicesResponse } from "./types.js";
+import type { ServicesResponse, WorkerEnv } from "./types.js";
 
 const CACHE_KEY = "mpp:services:v1";
 const CACHE_MAX_AGE_MS = 60 * 60 * 1000;
@@ -15,7 +15,7 @@ export type CatalogSnapshot = CachedCatalog & {
 };
 
 export async function getCatalog(
-  env: Env,
+  env: WorkerEnv,
   ctx?: ExecutionContext,
 ): Promise<CatalogSnapshot> {
   const cached = await readCachedCatalog(env);
@@ -39,7 +39,7 @@ export async function getCatalog(
   return refreshCatalog(env);
 }
 
-export async function refreshCatalog(env: Env): Promise<CatalogSnapshot> {
+export async function refreshCatalog(env: WorkerEnv): Promise<CatalogSnapshot> {
   const sourceUrl = env.MPP_SERVICES_URL || DEFAULT_SERVICES_URL;
   const catalog = await fetchCatalog(sourceUrl);
   const cached: CachedCatalog = {
@@ -51,7 +51,9 @@ export async function refreshCatalog(env: Env): Promise<CatalogSnapshot> {
   return { ...cached, cacheStatus: "refreshed" };
 }
 
-async function readCachedCatalog(env: Env): Promise<CachedCatalog | undefined> {
+async function readCachedCatalog(
+  env: WorkerEnv,
+): Promise<CachedCatalog | undefined> {
   const cached = await env.MPP_CATALOG_CACHE.get(CACHE_KEY, "json");
   if (isCachedCatalog(cached)) return cached;
   return undefined;

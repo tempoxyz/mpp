@@ -39,12 +39,65 @@ authoritative.
 - KV binding: `MPP_CATALOG_CACHE`
 - Cache key: `mpp:services:v1`
 - Hourly cron: `0 * * * *`
+- Health cron: `* * * * *`
 - Requests use fresh KV data when it is less than one hour old.
 - If KV data is stale, requests serve the last-good cached catalog and refresh
   in the background.
 - If `mpp.dev` is unreachable during cron refresh, the Worker logs the failure
   and keeps the last-good KV value.
 - There is no public write, sync, registration, payment, or auth path.
+
+## Datadog monitoring
+
+The Worker emits custom Datadog metrics directly from production through the
+repo-level singleton Datadog client in `src/lib/datadog.ts`. The Worker
+configures the singleton from environment variables at the handler boundary.
+Runtime request metrics are emitted with `ctx.waitUntil()` so user-facing MCP
+responses do not wait on Datadog ingestion.
+
+The one-minute health cron calls the public endpoint
+`https://mpp.dev/mcp/services`, then checks:
+
+- `GET /mcp/services`
+- `HEAD /mcp/services`
+- JSON-RPC `initialize`
+- JSON-RPC `tools/list`
+- JSON-RPC `tools/call` for `get_catalog_status`
+- JSON-RPC `tools/call` for `search_services`
+
+Metric names are built from the repository scope (`mpp`) and component scope
+(`discovery_mcp`), so this Worker emits `mpp.discovery_mcp.*`. Important
+metrics include:
+
+- `mpp.discovery_mcp.http.request.count`
+- `mpp.discovery_mcp.http.response.duration_ms`
+- `mpp.discovery_mcp.http.error.count`
+- `mpp.discovery_mcp.health.ok`
+- `mpp.discovery_mcp.health.check.ok`
+- `mpp.discovery_mcp.health.check.duration_ms`
+- `mpp.discovery_mcp.catalog.services`
+- `mpp.discovery_mcp.catalog.offers`
+- `mpp.discovery_mcp.catalog.cache_age_seconds`
+- `mpp.discovery_mcp.catalog.refresh.ok`
+- `mpp.discovery_mcp.catalog.refresh.duration_ms`
+
+Production Worker vars:
+
+```text
+DATADOG_ENABLED=true
+DATADOG_ENV=production
+DATADOG_SERVICE=mpp-discovery-service-mcp
+DATADOG_SITE=us5.datadoghq.com
+```
+
+Production Worker secret:
+
+```text
+DATADOG_API_KEY=<datadog-api-key>
+```
+
+Only the Worker metrics API key is required by this package. Configure Datadog
+notifications manually from these emitted metrics.
 
 ## Tools
 
@@ -109,6 +162,9 @@ CLOUDFLARE_API_TOKEN=<deploy-token>            # GitHub Environment secret
 The token is provisioned through `tempoxyz/secrets`; request `account: prd`
 with `account_settings_read`, `workers_scripts_write`, and
 `workers_kv_storage_write`.
+
+The deploy workflow watches this Worker package, the shared Datadog client in
+`src/lib/datadog*.ts`, root dependency files, and the deploy workflow itself.
 
 Local deployments use the same environment variables:
 
