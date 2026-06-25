@@ -49,6 +49,9 @@ export interface ThemeColors {
   errorCode: string;
   actorFill: string;
   actorStroke: string;
+  eventNoteFill: string;
+  eventNoteStroke: string;
+  eventNoteText: string;
   blockStroke: string;
   blockHeaderBg: string;
   badgeBg: string;
@@ -66,6 +69,9 @@ export const THEMES: Record<"light" | "dark", ThemeColors> = {
     errorCode: "#dc2626",
     actorFill: "#ffffff",
     actorStroke: "#e4e4e7",
+    eventNoteFill: "#eff6ff",
+    eventNoteStroke: "#93c5fd",
+    eventNoteText: "#1d4ed8",
     blockStroke: "#e4e4e7",
     blockHeaderBg: "#f4f4f5",
     badgeBg: "#e4e4e7",
@@ -81,6 +87,9 @@ export const THEMES: Record<"light" | "dark", ThemeColors> = {
     errorCode: "#f87171",
     actorFill: "#27272a",
     actorStroke: "#3f3f46",
+    eventNoteFill: "#172554",
+    eventNoteStroke: "#60a5fa",
+    eventNoteText: "#bfdbfe",
     blockStroke: "#3f3f46",
     blockHeaderBg: "#27272a",
     badgeBg: "#3f3f46",
@@ -685,6 +694,10 @@ export function render(
   // Notes — rounded box with wrapped text, no italic
   for (const nt of lo.notes) {
     const lineH = L.noteFontSize + 4;
+    const isEventNote = /^[a-z]+(?:\.[a-z]+)+$/.test(nt.text);
+    const noteFill = isEventNote ? th.eventNoteFill : th.actorFill;
+    const noteStroke = isEventNote ? th.eventNoteStroke : th.actorStroke;
+    const noteText = isEventNote ? th.eventNoteText : th.textMuted;
     // Recenter box now that boxW includes badge space
     const centeredBoxX = nt.x - nt.boxW / 2;
     const textStartY = nt.boxY + L.noteBoxPadY + L.noteFontSize;
@@ -701,9 +714,9 @@ export function render(
         '" height="' +
         nt.boxH +
         '" rx="6" fill="' +
-        th.actorFill +
+        noteFill +
         '" stroke="' +
-        th.actorStroke +
+        noteStroke +
         '" stroke-width="1"/>',
     );
 
@@ -756,7 +769,7 @@ export function render(
           '" font-weight="' +
           L.noteFontWeight +
           '" fill="' +
-          th.textMuted +
+          noteText +
           '">' +
           esc(nt.lines[li]) +
           "</text>",

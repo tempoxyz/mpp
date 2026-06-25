@@ -470,6 +470,19 @@ sequenceDiagram
     expect(noteMatches!.length).toBeGreaterThanOrEqual(1);
   });
 
+  it("renders event notes with event colors", () => {
+    const parsed = parse(`
+sequenceDiagram
+  Note over A: payment.success
+`);
+    const lo = doLayout(parsed);
+    const svg = render(lo, th);
+
+    expect(svg).toContain(`fill="${th.eventNoteFill}"`);
+    expect(svg).toContain(`stroke="${th.eventNoteStroke}"`);
+    expect(svg).toContain(`fill="${th.eventNoteText}"`);
+  });
+
   it("renders loop blocks", () => {
     const parsed = parse(`
 sequenceDiagram
