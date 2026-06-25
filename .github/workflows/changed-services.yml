@@ -16,25 +16,24 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
-
       - name: Diff services and comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            const { execSync } = require('child_process');
-
-            // --- helpers ---
-            function git(cmd) {
-              return execSync(`git ${cmd}`, { encoding: 'utf8' });
-            }
-
-            function fileAt(ref, path) {
-              try { return git(`show ${ref}:${path}`); } catch { return null; }
+            async function fileAt({ owner, path, ref, repo }) {
+              try {
+                const { data } = await github.rest.repos.getContent({
+                  owner,
+                  path,
+                  ref,
+                  repo,
+                });
+                if (Array.isArray(data) || data.type !== 'file') return null;
+                return Buffer.from(data.content, data.encoding || 'base64').toString('utf8');
+              } catch (error) {
+                if (error.status === 404) return null;
+                throw error;
+              }
             }
 
             function parseServicesTsIds(raw) {
@@ -47,11 +46,21 @@ jobs:
             }
 
             // --- main ---
-            const base = context.payload.pull_request.base.sha;
-            const head = 'HEAD';
+            const pr = context.payload.pull_request;
+            const path = 'schemas/services.ts';
 
-            const baseTs = parseServicesTsIds(fileAt(base, 'schemas/services.ts'));
-            const headTs = parseServicesTsIds(fileAt(head, 'schemas/services.ts'));
+            const baseTs = parseServicesTsIds(await fileAt({
+              owner: pr.base.repo.owner.login,
+              path,
+              ref: pr.base.sha,
+              repo: pr.base.repo.name,
+            }));
+            const headTs = parseServicesTsIds(await fileAt({
+              owner: pr.head.repo.owner.login,
+              path,
+              ref: pr.head.sha,
+              repo: pr.head.repo.name,
+            }));
 
             const allIds = new Set([...baseTs, ...headTs]);
 
