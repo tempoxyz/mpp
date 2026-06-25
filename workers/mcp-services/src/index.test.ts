@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { resetDatadogMetricsForTest } from "../../../src/lib/datadog.js";
 import type { CachedCatalog } from "./cache.js";
 import worker from "./index.js";
 import type { Service, WorkerEnv } from "./types.js";
@@ -19,6 +20,7 @@ const services: Service[] = [
 
 describe("worker routes", () => {
   afterEach(() => {
+    resetDatadogMetricsForTest();
     vi.unstubAllGlobals();
   });
 
@@ -125,6 +127,7 @@ describe("worker routes", () => {
 
 describe("scheduled health", () => {
   afterEach(() => {
+    resetDatadogMetricsForTest();
     vi.unstubAllGlobals();
   });
 

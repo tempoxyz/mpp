@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { DatadogMetricsClient } from "../../../src/lib/datadog.js";
+import {
+  configureDatadogMetrics,
+  datadogMetrics,
+  resetDatadogMetricsForTest,
+} from "../../../src/lib/datadog.js";
 import { healthMetrics } from "./health.js";
 import type { WorkerEnv } from "./types.js";
 
@@ -7,27 +11,22 @@ const endpoint = "https://mpp.dev/mcp/services";
 
 describe("public health check", () => {
   afterEach(() => {
+    resetDatadogMetricsForTest();
     vi.unstubAllGlobals();
   });
 
   it("emits healthy metrics for representative MCP checks", async () => {
     vi.stubGlobal("fetch", vi.fn(healthyFetch));
+    configureDatadogMetrics({ component: "discovery_mcp" });
 
-    const datadog = datadogClient();
-    const metrics = await healthMetrics(env(), datadog);
+    const metrics = await healthMetrics(env());
 
-    expect(metricValue(metrics, datadog, "mpp.discovery_mcp.health.ok")).toBe(
-      1,
+    expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(1);
+    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.services")).toBe(
+      137,
     );
-    expect(
-      metricValue(metrics, datadog, "mpp.discovery_mcp.catalog.services"),
-    ).toBe(137);
-    expect(
-      metricValue(metrics, datadog, "mpp.discovery_mcp.catalog.offers"),
-    ).toBe(1200);
-    expect(
-      metricValue(metrics, datadog, "mpp.discovery_mcp.tools.advertised"),
-    ).toBe(11);
+    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.offers")).toBe(1200);
+    expect(metricValue(metrics, "mpp.discovery_mcp.tools.advertised")).toBe(11);
   });
 
   it("emits unhealthy metrics when a public check fails", async () => {
@@ -41,20 +40,18 @@ describe("public health check", () => {
         return healthyFetch(input, init);
       }),
     );
+    configureDatadogMetrics({ component: "discovery_mcp" });
 
-    const datadog = datadogClient();
-    const metrics = await healthMetrics(env(), datadog);
+    const metrics = await healthMetrics(env());
 
-    expect(metricValue(metrics, datadog, "mpp.discovery_mcp.health.ok")).toBe(
-      0,
+    expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(0);
+    expect(metricValue(metrics, "mpp.discovery_mcp.health.failure.count")).toBe(
+      1,
     );
-    expect(
-      metricValue(metrics, datadog, "mpp.discovery_mcp.health.failure.count"),
-    ).toBe(1);
     expect(
       metrics.find(
         (metric) =>
-          datadog.metricName(metric.name) ===
+          datadogMetrics().metricName(metric.name) ===
             "mpp.discovery_mcp.health.check.ok" &&
           metric.tags?.includes("check:get_card"),
       )?.value,
@@ -142,19 +139,15 @@ function rpcResult(result: unknown): Response {
 
 function metricValue(
   metrics: Array<{ name: string; value: number }>,
-  datadog: DatadogMetricsClient,
   name: string,
 ) {
-  return metrics.find((metric) => datadog.metricName(metric.name) === name)
-    ?.value;
+  return metrics.find(
+    (metric) => datadogMetrics().metricName(metric.name) === name,
+  )?.value;
 }
 
 function env(): WorkerEnv {
   return {
     PUBLIC_MCP_ENDPOINT: endpoint,
   } as WorkerEnv;
-}
-
-function datadogClient(): DatadogMetricsClient {
-  return new DatadogMetricsClient({ component: "discovery_mcp" });
 }

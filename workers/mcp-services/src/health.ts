@@ -1,7 +1,5 @@
-import type {
-  DatadogMetric,
-  DatadogMetricsClient,
-} from "../../../src/lib/datadog.js";
+import type { DatadogMetric } from "../../../src/lib/datadog.js";
+import { datadogMetrics } from "../../../src/lib/datadog.js";
 import type { WorkerEnv } from "./types.js";
 
 type JsonObject = Record<string, unknown>;
@@ -24,12 +22,10 @@ const REQUIRED_TOOLS = [
   "get_catalog_status",
 ];
 
-export async function healthMetrics(
-  env: WorkerEnv,
-  datadog: DatadogMetricsClient,
-): Promise<DatadogMetric[]> {
+export async function healthMetrics(env: WorkerEnv): Promise<DatadogMetric[]> {
+  const datadog = datadogMetrics();
   const endpoint = env.PUBLIC_MCP_ENDPOINT || DEFAULT_ENDPOINT;
-  const checks = await runChecks(endpoint, datadog);
+  const checks = await runChecks(endpoint);
   const failures = checks.filter((check) => !check.ok);
   const metrics = [
     datadog.gauge("health.ok", failures.length === 0 ? 1 : 0, [
@@ -63,16 +59,13 @@ export async function healthMetrics(
   return metrics;
 }
 
-async function runChecks(
-  endpoint: string,
-  datadog: DatadogMetricsClient,
-): Promise<HealthResult[]> {
+async function runChecks(endpoint: string): Promise<HealthResult[]> {
   const checks: Array<[string, CheckFn]> = [
     ["get_card", () => assertServerCard(endpoint)],
     ["head", () => assertHead(endpoint)],
     ["initialize", () => assertInitialize(endpoint)],
-    ["tools_list", () => checkTools(endpoint, datadog)],
-    ["get_catalog_status", () => checkCatalog(endpoint, datadog)],
+    ["tools_list", () => checkTools(endpoint)],
+    ["get_catalog_status", () => checkCatalog(endpoint)],
     ["search_services", () => assertSearch(endpoint)],
   ];
   const results: HealthResult[] = [];
@@ -135,10 +128,8 @@ async function assertInitialize(endpoint: string): Promise<undefined> {
   return undefined;
 }
 
-async function checkTools(
-  endpoint: string,
-  datadog: DatadogMetricsClient,
-): Promise<DatadogMetric[]> {
+async function checkTools(endpoint: string): Promise<DatadogMetric[]> {
+  const datadog = datadogMetrics();
   const result = await rpc(endpoint, "tools/list");
   const tools = arrayValue(result.tools);
   const names = new Set(
@@ -152,10 +143,8 @@ async function checkTools(
   return [datadog.gauge("tools.advertised", tools.length)];
 }
 
-async function checkCatalog(
-  endpoint: string,
-  datadog: DatadogMetricsClient,
-): Promise<DatadogMetric[]> {
+async function checkCatalog(endpoint: string): Promise<DatadogMetric[]> {
+  const datadog = datadogMetrics();
   const content = object(
     (await callTool(endpoint, "get_catalog_status", {})).structuredContent,
   );

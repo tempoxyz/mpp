@@ -50,9 +50,10 @@ authoritative.
 ## Datadog monitoring
 
 The Worker emits custom Datadog metrics directly from production through the
-repo-level Datadog client in `src/lib/datadog.ts`. Runtime request metrics are
-emitted with `ctx.waitUntil()` so user-facing MCP responses do not wait on
-Datadog ingestion.
+repo-level singleton Datadog client in `src/lib/datadog.ts`. The Worker
+configures the singleton from environment variables at the handler boundary.
+Runtime request metrics are emitted with `ctx.waitUntil()` so user-facing MCP
+responses do not wait on Datadog ingestion.
 
 The one-minute health cron calls the public endpoint
 `https://mpp.dev/mcp/services`, then checks:

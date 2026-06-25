@@ -1,8 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { DatadogMetricsClient } from "./datadog.js";
+import {
+  configureDatadogMetrics,
+  DatadogMetricsClient,
+  datadogMetrics,
+  resetDatadogMetricsForTest,
+} from "./datadog.js";
 
 describe("DatadogMetricsClient", () => {
   afterEach(() => {
+    resetDatadogMetricsForTest();
     vi.restoreAllMocks();
   });
 
@@ -79,5 +85,16 @@ describe("DatadogMetricsClient", () => {
     });
 
     expect(datadog.metricName("health.ok")).toBe("mpp.discovery_mcp.health.ok");
+  });
+
+  it("reuses the configured singleton until configuration changes", () => {
+    const first = configureDatadogMetrics({ component: "discovery_mcp" });
+    const second = configureDatadogMetrics({ component: "discovery_mcp" });
+    const third = configureDatadogMetrics({ component: "docs_mcp" });
+
+    expect(datadogMetrics()).toBe(third);
+    expect(first).toBe(second);
+    expect(third).not.toBe(first);
+    expect(third.metricName("health.ok")).toBe("mpp.docs_mcp.health.ok");
   });
 });

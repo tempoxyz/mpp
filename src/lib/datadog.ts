@@ -24,6 +24,30 @@ const DEFAULT_DATADOG_SITE = "us5.datadoghq.com";
 const DEFAULT_ENV = "production";
 const DEFAULT_REPOSITORY = "mpp";
 
+let singletonClient: DatadogMetricsClient | undefined;
+let singletonKey: string | undefined;
+
+export function configureDatadogMetrics(
+  options: DatadogClientOptions,
+): DatadogMetricsClient {
+  const key = clientKey(options);
+  if (!singletonClient || singletonKey !== key || options.fetch) {
+    singletonClient = new DatadogMetricsClient(options);
+    singletonKey = key;
+  }
+  return singletonClient;
+}
+
+export function datadogMetrics(): DatadogMetricsClient {
+  if (!singletonClient) singletonClient = new DatadogMetricsClient({});
+  return singletonClient;
+}
+
+export function resetDatadogMetricsForTest(): void {
+  singletonClient = undefined;
+  singletonKey = undefined;
+}
+
 export class DatadogMetricsClient {
   private readonly api?: v2.MetricsApi;
   private readonly baseTags: string[];
@@ -129,6 +153,18 @@ export class DatadogMetricsClient {
       })),
     };
   }
+}
+
+function clientKey(options: DatadogClientOptions): string {
+  return JSON.stringify({
+    apiKey: options.apiKey,
+    component: options.component,
+    enabled: options.enabled,
+    env: options.env,
+    repository: options.repository,
+    service: options.service,
+    site: options.site,
+  });
 }
 
 function errorMessage(error: unknown): string {
