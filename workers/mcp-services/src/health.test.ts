@@ -1,9 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  configureDatadogMetrics,
-  datadogMetrics,
-  resetDatadogMetricsForTest,
-} from "../../../src/lib/datadog.js";
+import { flushWorkerMetrics } from "../../../src/lib/worker-metrics.js";
 import { healthMetrics } from "./health.js";
 import type { WorkerEnv } from "./types.js";
 
@@ -11,22 +7,22 @@ const endpoint = "https://mpp.dev/mcp/services";
 
 describe("public health check", () => {
   afterEach(() => {
-    resetDatadogMetricsForTest();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    silenceMetricFlush();
   });
 
   it("emits healthy metrics for representative MCP checks", async () => {
     vi.stubGlobal("fetch", vi.fn(healthyFetch));
-    configureDatadogMetrics({ component: "discovery_mcp" });
 
-    const metrics = await healthMetrics(env());
+    const metrics = await captureMetrics(() => healthMetrics(env()));
 
-    expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(1);
-    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.services")).toBe(
+    expect(metricValue(metrics, "mpp_discovery_mcp_health_ok")).toBe(1);
+    expect(metricValue(metrics, "mpp_discovery_mcp_catalog_services")).toBe(
       137,
     );
-    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.offers")).toBe(1200);
-    expect(metricValue(metrics, "mpp.discovery_mcp.tools.advertised")).toBe(11);
+    expect(metricValue(metrics, "mpp_discovery_mcp_catalog_offers")).toBe(1200);
+    expect(metricValue(metrics, "mpp_discovery_mcp_tools_advertised")).toBe(11);
   });
 
   it("emits unhealthy metrics when a public check fails", async () => {
@@ -40,20 +36,19 @@ describe("public health check", () => {
         return healthyFetch(input, init);
       }),
     );
-    configureDatadogMetrics({ component: "discovery_mcp" });
+    vi.spyOn(console, "error").mockImplementation(() => {});
 
-    const metrics = await healthMetrics(env());
+    const metrics = await captureMetrics(() => healthMetrics(env()));
 
-    expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(0);
-    expect(metricValue(metrics, "mpp.discovery_mcp.health.failure.count")).toBe(
+    expect(metricValue(metrics, "mpp_discovery_mcp_health_ok")).toBe(0);
+    expect(metricValue(metrics, "mpp_discovery_mcp_health_failure_count")).toBe(
       1,
     );
     expect(
       metrics.find(
         (metric) =>
-          datadogMetrics().metricName(metric.name) ===
-            "mpp.discovery_mcp.health.check.ok" &&
-          metric.tags?.includes("check:get_card"),
+          metric.n === "mpp_discovery_mcp_health_check_ok" &&
+          metric.tags.check === "get_card",
       )?.value,
     ).toBe(0);
   });
@@ -65,18 +60,18 @@ describe("public health check", () => {
         healthyFetch(input, init, { cacheAgeSeconds: 4 * 60 * 60 }),
       ),
     );
-    configureDatadogMetrics({ component: "discovery_mcp" });
+    vi.spyOn(console, "error").mockImplementation(() => {});
 
-    const metrics = await healthMetrics(env());
+    const metrics = await captureMetrics(() => healthMetrics(env()));
 
-    expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(0);
+    expect(metricValue(metrics, "mpp_discovery_mcp_health_ok")).toBe(0);
     expect(
-      metricValue(metrics, "mpp.discovery_mcp.catalog.cache_age_seconds"),
+      metricValue(metrics, "mpp_discovery_mcp_catalog_cache_age_seconds"),
     ).toBe(4 * 60 * 60);
-    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.services")).toBe(
+    expect(metricValue(metrics, "mpp_discovery_mcp_catalog_services")).toBe(
       137,
     );
-    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.offers")).toBe(1200);
+    expect(metricValue(metrics, "mpp_discovery_mcp_catalog_offers")).toBe(1200);
   });
 });
 
@@ -169,17 +164,46 @@ function rpcResult(result: unknown): Response {
   return Response.json({ jsonrpc: "2.0", id: 1, result });
 }
 
-function metricValue(
-  metrics: Array<{ name: string; value: number }>,
-  name: string,
-) {
-  return metrics.find(
-    (metric) => datadogMetrics().metricName(metric.name) === name,
-  )?.value;
-}
-
 function env(): WorkerEnv {
   return {
     PUBLIC_MCP_ENDPOINT: endpoint,
   } as WorkerEnv;
+}
+
+type MetricEntry = {
+  n: string;
+  value: number;
+  tags: Record<string, string | number | boolean | null | undefined>;
+};
+
+async function captureMetrics(fn: () => Promise<void>): Promise<MetricEntry[]> {
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  await fn();
+  flushWorkerMetrics();
+  return loggedMetrics(log);
+}
+
+function silenceMetricFlush(): void {
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  flushWorkerMetrics();
+  log.mockRestore();
+}
+
+function loggedMetrics(log: { mock: { calls: unknown[][] } }): MetricEntry[] {
+  return log.mock.calls
+    .map((call) => (typeof call[0] === "string" ? call[0] : ""))
+    .filter((message) => message.startsWith("cwm-"))
+    .flatMap((message) =>
+      JSON.parse(message.slice("cwm-".length)).map(
+        (entry: { n: string; v: number; tags: MetricEntry["tags"] }) => ({
+          n: entry.n,
+          tags: entry.tags,
+          value: entry.v,
+        }),
+      ),
+    );
+}
+
+function metricValue(metrics: MetricEntry[], name: string): number | undefined {
+  return metrics.find((metric) => metric.n === name)?.value;
 }

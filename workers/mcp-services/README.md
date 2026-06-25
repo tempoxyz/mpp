@@ -47,13 +47,14 @@ authoritative.
   and keeps the last-good KV value.
 - There is no public write, sync, registration, payment, or auth path.
 
-## Datadog monitoring
+## Monitoring
 
-The Worker emits custom Datadog metrics directly from production through the
-repo-level singleton Datadog client in `src/lib/datadog.ts`. The Worker
-configures the singleton from environment variables at the handler boundary.
-Runtime request metrics are emitted with `ctx.waitUntil()` so user-facing MCP
-responses do not wait on Datadog ingestion.
+The Worker follows Tempo's standard Cloudflare Worker metrics path. It records
+typed metrics through the repo-level helper in `src/lib/worker-metrics.ts`,
+flushes `cwm-` metric lines to `console.log`, and relies on Cloudflare Logpush
+plus `cloudflare-worker-metrics-exporter` to ship those metrics to OTEL/Grafana
+and Datadog. The Datadog API key stays on the central exporter Worker, not on
+`mpp-services-mcp`.
 
 The one-minute health cron calls the public endpoint
 `https://mpp.dev/mcp/services`, then checks:
@@ -65,39 +66,27 @@ The one-minute health cron calls the public endpoint
 - JSON-RPC `tools/call` for `get_catalog_status`
 - JSON-RPC `tools/call` for `search_services`
 
-Metric names are built from the repository scope (`mpp`) and component scope
-(`discovery_mcp`), so this Worker emits `mpp.discovery_mcp.*`. Important
+Metric names use Tempo's worker-metrics convention: lowercase words separated
+by underscores. The helper also adds global tags for `repository:mpp`,
+`component:discovery_mcp`, and `service:mpp-discovery-service-mcp`. Important
 metrics include:
 
-- `mpp.discovery_mcp.http.request.count`
-- `mpp.discovery_mcp.http.response.duration_ms`
-- `mpp.discovery_mcp.http.error.count`
-- `mpp.discovery_mcp.health.ok`
-- `mpp.discovery_mcp.health.check.ok`
-- `mpp.discovery_mcp.health.check.duration_ms`
-- `mpp.discovery_mcp.catalog.services`
-- `mpp.discovery_mcp.catalog.offers`
-- `mpp.discovery_mcp.catalog.cache_age_seconds`
-- `mpp.discovery_mcp.catalog.refresh.ok`
-- `mpp.discovery_mcp.catalog.refresh.duration_ms`
+- `mpp_discovery_mcp_http_request_count`
+- `mpp_discovery_mcp_http_response_duration_ms`
+- `mpp_discovery_mcp_http_error_count`
+- `mpp_discovery_mcp_health_ok`
+- `mpp_discovery_mcp_health_check_ok`
+- `mpp_discovery_mcp_health_check_duration_ms`
+- `mpp_discovery_mcp_catalog_services`
+- `mpp_discovery_mcp_catalog_offers`
+- `mpp_discovery_mcp_catalog_cache_age_seconds`
+- `mpp_discovery_mcp_catalog_refresh_ok`
+- `mpp_discovery_mcp_catalog_refresh_duration_ms`
 
-Production Worker vars:
-
-```text
-DATADOG_ENABLED=true
-DATADOG_ENV=production
-DATADOG_SERVICE=mpp-discovery-service-mcp
-DATADOG_SITE=us5.datadoghq.com
-```
-
-Production Worker secret:
-
-```text
-DATADOG_API_KEY=<datadog-api-key>
-```
-
-Only the Worker metrics API key is required by this package. Configure Datadog
-notifications manually from these emitted metrics.
+Required production configuration for this Worker is non-secret and lives in
+`wrangler.jsonc`: `logpush: true`, persisted observability logs, the catalog
+source URL, and the public MCP endpoint. No Datadog secret is required on this
+Worker.
 
 ## Tools
 
@@ -163,8 +152,9 @@ The token is provisioned through `tempoxyz/secrets`; request `account: prd`
 with `account_settings_read`, `workers_scripts_write`, and
 `workers_kv_storage_write`.
 
-The deploy workflow watches this Worker package, the shared Datadog client in
-`src/lib/datadog*.ts`, root dependency files, and the deploy workflow itself.
+The deploy workflow watches this Worker package, the shared metrics helper in
+`src/lib/worker-metrics*.ts`, root dependency files, and the deploy workflow
+itself.
 
 Local deployments use the same environment variables:
 

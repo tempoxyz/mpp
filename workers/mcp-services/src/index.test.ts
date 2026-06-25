@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { resetDatadogMetricsForTest } from "../../../src/lib/datadog.js";
+import { flushWorkerMetrics } from "../../../src/lib/worker-metrics.js";
 import type { CachedCatalog } from "./cache.js";
 import worker from "./index.js";
 import type { Service, WorkerEnv } from "./types.js";
@@ -20,8 +20,9 @@ const services: Service[] = [
 
 describe("worker routes", () => {
   afterEach(() => {
-    resetDatadogMetricsForTest();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    silenceMetricFlush();
   });
 
   it("serves the services MCP card from /mcp/services", async () => {
@@ -94,13 +95,8 @@ describe("worker routes", () => {
     expect(response.status).toBe(404);
   });
 
-  it("does not block MCP responses on Datadog request metrics", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => {
-        throw new Error("Datadog unavailable");
-      }),
-    );
+  it("emits Tempo worker request metrics", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
 
     const response = await worker.fetch(
       new Request("https://worker.example.com/mcp/services", {
@@ -113,45 +109,40 @@ describe("worker routes", () => {
           params: {},
         }),
       }),
-      {
-        ...envWithCatalog(),
-        DATADOG_API_KEY: "dd-key",
-        DATADOG_ENABLED: "true",
-      },
+      envWithCatalog(),
       testContext(),
     );
 
     expect(response.status).toBe(200);
+    expect(
+      metricValue(loggedMetrics(log), "mpp_discovery_mcp_http_request_count"),
+    ).toBe(1);
   });
 });
 
 describe("scheduled health", () => {
   afterEach(() => {
-    resetDatadogMetricsForTest();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    silenceMetricFlush();
   });
 
-  it("runs public health checks and posts Datadog metrics", async () => {
-    const datadogBodies: unknown[] = [];
+  it("runs public health checks and emits Tempo worker metrics", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo, init?: RequestInit) => {
         const request = new Request(input, init);
-        if (request.url === "https://api.us5.datadoghq.com/api/v2/series") {
-          datadogBodies.push(await request.json());
-          return new Response("{}", { status: 202 });
-        }
         return healthyPublicEndpoint(request);
       }),
     );
 
     const ctx = collectingContext();
-    await worker.scheduled?.(scheduled("* * * * *"), datadogEnv(), ctx);
+    await worker.scheduled?.(scheduled("* * * * *"), envWithCatalog(), ctx);
     await ctx.drain();
 
-    expect(datadogBodies).toHaveLength(1);
-    expect(JSON.stringify(datadogBodies[0])).toContain(
-      "mpp.discovery_mcp.health.ok",
+    expect(metricValue(loggedMetrics(log), "mpp_discovery_mcp_health_ok")).toBe(
+      1,
     );
   });
 });
@@ -166,7 +157,6 @@ function envWithCatalog(): WorkerEnv {
   return {
     MPP_SERVICES_URL: "https://mpp.dev/api/services",
     PUBLIC_MCP_ENDPOINT: "https://mpp.dev/mcp/services",
-    DATADOG_ENABLED: "false",
     MPP_CATALOG_CACHE: {
       async get() {
         return catalog;
@@ -182,17 +172,6 @@ function testContext(): ExecutionContext {
     passThroughOnException() {},
     props: {},
   } as unknown as ExecutionContext;
-}
-
-function datadogEnv(): WorkerEnv {
-  return {
-    ...envWithCatalog(),
-    DATADOG_API_KEY: "dd-key",
-    DATADOG_ENABLED: "true",
-    DATADOG_ENV: "production",
-    DATADOG_SERVICE: "mpp-discovery-service-mcp",
-    DATADOG_SITE: "us5.datadoghq.com",
-  };
 }
 
 function collectingContext(): ExecutionContext & { drain(): Promise<void> } {
@@ -283,4 +262,26 @@ async function healthyPublicEndpoint(request: Request): Promise<Response> {
 
 function rpcResult(result: unknown): Response {
   return Response.json({ jsonrpc: "2.0", id: 1, result });
+}
+
+type MetricEntry = {
+  n: string;
+  v: number;
+};
+
+function silenceMetricFlush(): void {
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  flushWorkerMetrics();
+  log.mockRestore();
+}
+
+function loggedMetrics(log: { mock: { calls: unknown[][] } }): MetricEntry[] {
+  return log.mock.calls
+    .map((call) => (typeof call[0] === "string" ? call[0] : ""))
+    .filter((message) => message.startsWith("cwm-"))
+    .flatMap((message) => JSON.parse(message.slice("cwm-".length)));
+}
+
+function metricValue(metrics: MetricEntry[], name: string): number | undefined {
+  return metrics.find((metric) => metric.n === name)?.v;
 }

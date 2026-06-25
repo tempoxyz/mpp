@@ -1,5 +1,4 @@
-import type { DatadogMetric } from "../../../src/lib/datadog.js";
-import { datadogMetrics } from "../../../src/lib/datadog.js";
+import { workerMetrics } from "../../../src/lib/worker-metrics.js";
 import type { WorkerEnv } from "./types.js";
 
 type JsonObject = Record<string, unknown>;
@@ -8,9 +7,8 @@ type HealthResult = {
   ok: boolean;
   durationMs: number;
   error?: string;
-  metrics?: DatadogMetric[];
 };
-type CheckFn = () => Promise<DatadogMetric[] | undefined>;
+type CheckFn = () => Promise<void>;
 
 const DEFAULT_ENDPOINT = "https://mpp.dev/mcp/services";
 const HEALTH_FETCH_TIMEOUT_MS = 5000;
@@ -23,24 +21,34 @@ const REQUIRED_TOOLS = [
   "get_catalog_status",
 ];
 
-export async function healthMetrics(env: WorkerEnv): Promise<DatadogMetric[]> {
-  const datadog = datadogMetrics();
+export async function healthMetrics(env: WorkerEnv): Promise<void> {
   const endpoint = env.PUBLIC_MCP_ENDPOINT || DEFAULT_ENDPOINT;
   const checks = await runChecks(endpoint);
   const failures = checks.filter((check) => !check.ok);
-  const metrics = [
-    datadog.gauge("health.ok", failures.length === 0 ? 1 : 0, [
-      "endpoint:public",
-    ]),
-    datadog.gauge("health.failure.count", failures.length, ["endpoint:public"]),
-  ];
+  workerMetrics.gauge(
+    "mpp_discovery_mcp_health_ok",
+    failures.length === 0 ? 1 : 0,
+    { endpoint: "public" },
+  );
+  workerMetrics.gauge(
+    "mpp_discovery_mcp_health_failure_count",
+    failures.length,
+    {
+      endpoint: "public",
+    },
+  );
 
   for (const check of checks) {
-    const tags = [`check:${check.name}`, "endpoint:public"];
-    metrics.push(
-      datadog.gauge("health.check.ok", check.ok ? 1 : 0, tags),
-      datadog.gauge("health.check.duration_ms", check.durationMs, tags),
-      ...(check.metrics ?? []),
+    const tags = { check: check.name, endpoint: "public" };
+    workerMetrics.gauge(
+      "mpp_discovery_mcp_health_check_ok",
+      check.ok ? 1 : 0,
+      tags,
+    );
+    workerMetrics.histogram(
+      "mpp_discovery_mcp_health_check_duration_ms",
+      check.durationMs,
+      tags,
     );
   }
 
@@ -56,8 +64,6 @@ export async function healthMetrics(env: WorkerEnv): Promise<DatadogMetric[]> {
       }),
     );
   }
-
-  return metrics;
 }
 
 async function runChecks(endpoint: string): Promise<HealthResult[]> {
@@ -77,12 +83,11 @@ async function runChecks(endpoint: string): Promise<HealthResult[]> {
 async function measure(name: string, fn: CheckFn): Promise<HealthResult> {
   const startedAt = Date.now();
   try {
-    const metrics = await fn();
+    await fn();
     return {
       name,
       ok: true,
       durationMs: Date.now() - startedAt,
-      ...(metrics ? { metrics } : {}),
     };
   } catch (error) {
     return {
@@ -90,14 +95,11 @@ async function measure(name: string, fn: CheckFn): Promise<HealthResult> {
       ok: false,
       durationMs: Date.now() - startedAt,
       error: errorMessage(error),
-      ...(error instanceof HealthCheckError && error.metrics
-        ? { metrics: error.metrics }
-        : {}),
     };
   }
 }
 
-async function assertServerCard(endpoint: string): Promise<undefined> {
+async function assertServerCard(endpoint: string): Promise<void> {
   const card = await fetchJson(endpoint, {
     headers: { accept: "application/json" },
   });
@@ -110,18 +112,16 @@ async function assertServerCard(endpoint: string): Promise<undefined> {
   if (!stringValue(card.instructions).includes("402")) {
     throw new Error("server card missing 402 instructions");
   }
-  return undefined;
 }
 
-async function assertHead(endpoint: string): Promise<undefined> {
+async function assertHead(endpoint: string): Promise<void> {
   const response = await fetchWithTimeout(endpoint, { method: "HEAD" });
   if (response.status !== 200) {
     throw new Error(`HEAD expected 200, received ${response.status}`);
   }
-  return undefined;
 }
 
-async function assertInitialize(endpoint: string): Promise<undefined> {
+async function assertInitialize(endpoint: string): Promise<void> {
   const result = await rpc(endpoint, "initialize");
   if (stringValue(object(result.serverInfo).name) !== "mpp-services-mcp") {
     throw new Error("initialize serverInfo mismatch");
@@ -129,11 +129,9 @@ async function assertInitialize(endpoint: string): Promise<undefined> {
   if (!stringValue(result.instructions).includes("402")) {
     throw new Error("initialize missing 402 instructions");
   }
-  return undefined;
 }
 
-async function checkTools(endpoint: string): Promise<DatadogMetric[]> {
-  const datadog = datadogMetrics();
+async function checkTools(endpoint: string): Promise<void> {
   const result = await rpc(endpoint, "tools/list");
   const tools = arrayValue(result.tools);
   const names = new Set(
@@ -144,43 +142,42 @@ async function checkTools(endpoint: string): Promise<DatadogMetric[]> {
   for (const tool of REQUIRED_TOOLS) {
     if (!names.has(tool)) throw new Error(`missing tool ${tool}`);
   }
-  return [datadog.gauge("tools.advertised", tools.length)];
+  workerMetrics.gauge("mpp_discovery_mcp_tools_advertised", tools.length, {
+    endpoint: "public",
+  });
 }
 
-async function checkCatalog(endpoint: string): Promise<DatadogMetric[]> {
-  const datadog = datadogMetrics();
+async function checkCatalog(endpoint: string): Promise<void> {
   const content = object(
     (await callTool(endpoint, "get_catalog_status", {})).structuredContent,
   );
   const serviceCount = numberValue(content.serviceCount);
   const offerCount = numberValue(content.offerCount);
   const cacheAgeSeconds = numberValue(content.cacheAgeSeconds);
-  const metrics = [
-    datadog.gauge("catalog.services", serviceCount),
-    datadog.gauge("catalog.offers", offerCount),
-    datadog.gauge("catalog.cache_age_seconds", cacheAgeSeconds),
-  ];
+  workerMetrics.gauge("mpp_discovery_mcp_catalog_services", serviceCount, {
+    endpoint: "public",
+  });
+  workerMetrics.gauge("mpp_discovery_mcp_catalog_offers", offerCount, {
+    endpoint: "public",
+  });
+  workerMetrics.gauge(
+    "mpp_discovery_mcp_catalog_cache_age_seconds",
+    cacheAgeSeconds,
+    { endpoint: "public" },
+  );
 
   if (serviceCount < MIN_SERVICE_COUNT) {
-    throw new HealthCheckError(
-      `serviceCount below ${MIN_SERVICE_COUNT}`,
-      metrics,
-    );
+    throw new Error(`serviceCount below ${MIN_SERVICE_COUNT}`);
   }
   if (offerCount < MIN_OFFER_COUNT) {
-    throw new HealthCheckError(`offerCount below ${MIN_OFFER_COUNT}`, metrics);
+    throw new Error(`offerCount below ${MIN_OFFER_COUNT}`);
   }
   if (cacheAgeSeconds > MAX_CACHE_AGE_SECONDS) {
-    throw new HealthCheckError(
-      `cacheAgeSeconds above ${MAX_CACHE_AGE_SECONDS}`,
-      metrics,
-    );
+    throw new Error(`cacheAgeSeconds above ${MAX_CACHE_AGE_SECONDS}`);
   }
-
-  return metrics;
 }
 
-async function assertSearch(endpoint: string): Promise<undefined> {
+async function assertSearch(endpoint: string): Promise<void> {
   const content = object(
     (await callTool(endpoint, "search_services", { category: "ai", limit: 1 }))
       .structuredContent,
@@ -188,7 +185,6 @@ async function assertSearch(endpoint: string): Promise<undefined> {
   if (numberValue(content.total) <= 0 || numberValue(content.returned) <= 0) {
     throw new Error("expected at least one returned ai service");
   }
-  return undefined;
 }
 
 async function callTool(
@@ -271,13 +267,4 @@ function numberValue(value: unknown): number {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-class HealthCheckError extends Error {
-  constructor(
-    message: string,
-    readonly metrics: DatadogMetric[],
-  ) {
-    super(message);
-  }
 }

@@ -72,18 +72,6 @@ export interface ServicesResponse {
   services: Service[];
 }
 
-export type WorkerEnv = Omit<
-  Env,
-  | "DATADOG_ENABLED"
-  | "DATADOG_ENV"
-  | "DATADOG_SERVICE"
-  | "DATADOG_SITE"
-  | "PUBLIC_MCP_ENDPOINT"
-> & {
-  DATADOG_API_KEY?: string;
-  DATADOG_ENABLED?: string;
-  DATADOG_ENV?: string;
-  DATADOG_SERVICE?: string;
-  DATADOG_SITE?: string;
+export type WorkerEnv = Omit<Env, "PUBLIC_MCP_ENDPOINT"> & {
   PUBLIC_MCP_ENDPOINT?: string;
 };
