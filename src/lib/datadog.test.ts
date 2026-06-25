@@ -97,4 +97,17 @@ describe("DatadogMetricsClient", () => {
     expect(third).not.toBe(first);
     expect(third.metricName("health.ok")).toBe("mpp.docs_mcp.health.ok");
   });
+
+  it("does not reuse a custom-fetch singleton for default fetch config", () => {
+    const customFetch = vi.fn(async () => Response.json({}, { status: 202 }));
+    const withCustomFetch = configureDatadogMetrics({
+      component: "discovery_mcp",
+      fetch: customFetch as typeof globalThis.fetch,
+    });
+    const withDefaultFetch = configureDatadogMetrics({
+      component: "discovery_mcp",
+    });
+
+    expect(withDefaultFetch).not.toBe(withCustomFetch);
+  });
 });

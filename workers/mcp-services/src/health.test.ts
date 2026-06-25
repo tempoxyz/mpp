@@ -57,12 +57,44 @@ describe("public health check", () => {
       )?.value,
     ).toBe(0);
   });
+
+  it("keeps catalog gauges when catalog health thresholds fail", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo, init?: RequestInit) =>
+        healthyFetch(input, init, { cacheAgeSeconds: 4 * 60 * 60 }),
+      ),
+    );
+    configureDatadogMetrics({ component: "discovery_mcp" });
+
+    const metrics = await healthMetrics(env());
+
+    expect(metricValue(metrics, "mpp.discovery_mcp.health.ok")).toBe(0);
+    expect(
+      metricValue(metrics, "mpp.discovery_mcp.catalog.cache_age_seconds"),
+    ).toBe(4 * 60 * 60);
+    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.services")).toBe(
+      137,
+    );
+    expect(metricValue(metrics, "mpp.discovery_mcp.catalog.offers")).toBe(1200);
+  });
 });
 
 async function healthyFetch(
   input: RequestInfo,
   init?: RequestInit,
+  catalogOverride: Partial<{
+    serviceCount: number;
+    offerCount: number;
+    cacheAgeSeconds: number;
+  }> = {},
 ): Promise<Response> {
+  const catalog = {
+    serviceCount: 137,
+    offerCount: 1200,
+    cacheAgeSeconds: 60,
+    ...catalogOverride,
+  };
   const request = new Request(input, init);
   if (request.url !== endpoint)
     throw new Error(`unexpected url ${request.url}`);
@@ -112,9 +144,9 @@ async function healthyFetch(
   ) {
     return rpcResult({
       structuredContent: {
-        serviceCount: 137,
-        offerCount: 1200,
-        cacheAgeSeconds: 60,
+        serviceCount: catalog.serviceCount,
+        offerCount: catalog.offerCount,
+        cacheAgeSeconds: catalog.cacheAgeSeconds,
       },
     });
   }

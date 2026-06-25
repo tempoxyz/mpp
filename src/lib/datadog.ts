@@ -164,6 +164,7 @@ function clientKey(options: DatadogClientOptions): string {
     repository: options.repository,
     service: options.service,
     site: options.site,
+    fetch: Boolean(options.fetch),
   });
 }
 
