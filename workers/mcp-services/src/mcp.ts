@@ -1,3 +1,4 @@
+import { workerMetrics } from "../../../src/lib/worker-metrics.js";
 import { getCatalog } from "./cache.js";
 import {
   countPaymentOffers,
@@ -67,6 +68,30 @@ const TASK_STOP_WORDS = new Set([
   "using",
   "want",
   "with",
+]);
+const TOOL_NAMES = [
+  "list_services",
+  "search_services",
+  "search_offers",
+  "recommend_services",
+  "get_usage_recipe",
+  "get_facets",
+  "get_services_by_recipient",
+  "get_catalog_status",
+  "get_service",
+  "get_offers",
+  "get_openapi",
+] as const;
+const METRIC_TOOL_NAMES = new Set<string>(TOOL_NAMES);
+const METRIC_MCP_METHODS = new Set<string>([
+  "initialize",
+  "notifications/initialized",
+  "ping",
+  "tools/list",
+  "tools/call",
+  "resources/list",
+  "resources/templates/list",
+  "prompts/list",
 ]);
 
 const INITIALIZE_INSTRUCTIONS = [
@@ -139,6 +164,7 @@ export async function handleMcp(
   try {
     payload = await request.json();
   } catch {
+    recordJsonRpcError(undefined, "-32700");
     return jsonResponse(jsonRpcError(null, -32700, "Parse error"));
   }
 
@@ -208,6 +234,7 @@ async function handleMessage(
   ctx: ExecutionContext,
 ): Promise<JsonRpcResponsePayload | undefined> {
   if (request?.jsonrpc !== "2.0" || typeof request.method !== "string") {
+    recordJsonRpcError(request?.method, "-32600");
     return jsonRpcError(request?.id ?? null, -32600, "Invalid Request");
   }
 
@@ -235,6 +262,7 @@ async function handleMessage(
     case "prompts/list":
       return jsonRpcResult(request.id ?? null, { prompts: [] });
     default:
+      recordJsonRpcError(request.method, "-32601");
       return jsonRpcError(
         request.id ?? null,
         -32601,
@@ -250,6 +278,9 @@ async function handleToolCall(
 ) {
   const name = typeof params.name === "string" ? params.name : "";
   const args = objectArgs(params.arguments);
+  const metricToolName = metricToolNameFor(name);
+  const startedAt = Date.now();
+  let outcome = "success";
 
   try {
     const catalog = await getCatalog(env, ctx);
@@ -469,9 +500,15 @@ async function handleToolCall(
       );
     }
 
+    outcome = "error";
+    recordJsonRpcError("tools/call", "tool_error", name);
     return toolError(`Unknown tool: ${name || "(missing)"}`);
   } catch (error) {
+    outcome = "error";
+    recordJsonRpcError("tools/call", "tool_error", name);
     return toolError(errorMessage(error));
+  } finally {
+    recordToolCallMetrics(metricToolName, outcome, Date.now() - startedAt);
   }
 }
 
@@ -2212,6 +2249,42 @@ function asRequest(value: unknown): JsonRpcRequest | undefined {
     return undefined;
   }
   return value as JsonRpcRequest;
+}
+
+function recordJsonRpcError(
+  method: unknown,
+  errorCode: string,
+  toolName?: unknown,
+): void {
+  workerMetrics.count("mpp_discovery_mcp_jsonrpc_error_count", 1, {
+    error_code: errorCode,
+    mcp_method: metricMcpMethod(method),
+    tool_name: metricToolNameFor(toolName),
+  });
+}
+
+function recordToolCallMetrics(
+  toolName: string,
+  outcome: string,
+  durationMs: number,
+): void {
+  const tags = { outcome, tool_name: toolName };
+  workerMetrics.count("mpp_discovery_mcp_tool_call_count", 1, tags);
+  workerMetrics.histogram(
+    "mpp_discovery_mcp_tool_duration_ms",
+    durationMs,
+    tags,
+  );
+}
+
+function metricMcpMethod(method: unknown): string {
+  if (typeof method !== "string" || method.trim() === "") return "none";
+  return METRIC_MCP_METHODS.has(method) ? method : "other";
+}
+
+function metricToolNameFor(name: unknown): string {
+  if (typeof name !== "string" || name.trim() === "") return "none";
+  return METRIC_TOOL_NAMES.has(name) ? name : "unknown";
 }
 
 function jsonRpcResult(id: JsonRpcId, result: unknown): JsonRpcResponsePayload {

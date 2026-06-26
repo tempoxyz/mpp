@@ -22,6 +22,7 @@ const REQUIRED_TOOLS = [
 ];
 
 export async function healthMetrics(env: WorkerEnv): Promise<void> {
+  const startedAt = Date.now();
   const endpoint = env.PUBLIC_MCP_ENDPOINT || DEFAULT_ENDPOINT;
   const checks = await runChecks(endpoint);
   const failures = checks.filter((check) => !check.ok);
@@ -30,12 +31,10 @@ export async function healthMetrics(env: WorkerEnv): Promise<void> {
     failures.length === 0 ? 1 : 0,
     { endpoint: "public" },
   );
-  workerMetrics.gauge(
-    "mpp_discovery_mcp_health_failure_count",
-    failures.length,
-    {
-      endpoint: "public",
-    },
+  workerMetrics.histogram(
+    "mpp_discovery_mcp_health_duration_ms",
+    Date.now() - startedAt,
+    { endpoint: "public" },
   );
 
   for (const check of checks) {
@@ -142,9 +141,6 @@ async function checkTools(endpoint: string): Promise<void> {
   for (const tool of REQUIRED_TOOLS) {
     if (!names.has(tool)) throw new Error(`missing tool ${tool}`);
   }
-  workerMetrics.gauge("mpp_discovery_mcp_tools_advertised", tools.length, {
-    endpoint: "public",
-  });
 }
 
 async function checkCatalog(endpoint: string): Promise<void> {

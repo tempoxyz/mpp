@@ -144,6 +144,34 @@ describe("scheduled health", () => {
     expect(metricValue(loggedMetrics(log), "mpp_discovery_mcp_health_ok")).toBe(
       1,
     );
+    expect(
+      metricValue(loggedMetrics(log), "mpp_discovery_mcp_health_duration_ms"),
+    ).toBeDefined();
+  });
+
+  it("does not emit source cache-age metrics during catalog refresh", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          version: 1,
+          services,
+        }),
+      ),
+    );
+
+    const ctx = collectingContext();
+    await worker.scheduled?.(scheduled("0 * * * *"), envWithCatalog(), ctx);
+    await ctx.drain();
+
+    expect(
+      loggedMetrics(log).some(
+        (metric) =>
+          metric.n === "mpp_discovery_mcp_catalog_cache_age_seconds" &&
+          metric.tags.endpoint === "source",
+      ),
+    ).toBe(false);
   });
 });
 
@@ -267,6 +295,7 @@ function rpcResult(result: unknown): Response {
 type MetricEntry = {
   n: string;
   v: number;
+  tags: Record<string, string | number | boolean | null | undefined>;
 };
 
 function silenceMetricFlush(): void {
