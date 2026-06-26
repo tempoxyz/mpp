@@ -4,8 +4,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { tempoModerato } from "viem/chains";
 
 const realm = process.env.REALM ?? "mpp.tempo.xyz";
-const secretKey =
-  process.env.MPP_SECRET_KEY ?? "local-development-secret-key-32b";
+const secretKey = process.env.MPP_SECRET_KEY!;
 const account = privateKeyToAccount(
   (process.env.FEE_PAYER_PRIVATE_KEY ??
     "0x0000000000000000000000000000000000000000000000000000000000000001") as `0x${string}`,
