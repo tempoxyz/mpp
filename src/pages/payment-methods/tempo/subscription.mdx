@@ -61,7 +61,7 @@ The server verifies the Credential, charges the first period, stores a `Subscrip
 
 ## Access reuse
 
-After activation, future requests do not need another Credential while the subscription is active and current. The server calls `resolve`, finds the subscription record for the route or user, validates that it still matches the request terms, and returns a Receipt.
+After activation, future requests can reuse the stored subscription while it is active and current. With `requireCredential`, each request proves the same payer signed the request before the server looks up the subscription. The server calls `resolve`, finds the subscription record for the route or payer, validates that it still matches the request terms, and returns a Receipt.
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
@@ -176,9 +176,10 @@ const mppx = Mppx.create({
       periodCount: '1',
       periodUnit: 'week',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      resolve: async ({ input }) => {
-        const userId = input.headers.get('X-User-Id')
-        return userId ? { key: `user:${userId}:plan:pro` } : null
+      requireCredential: true,
+      resolve: async ({ source }) => {
+        if (!source) return null
+        return { key: `payer:${source.chainId}:${source.address}:plan:pro` }
       },
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),

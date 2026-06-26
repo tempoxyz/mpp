@@ -230,11 +230,11 @@ const method = tempo.session({
 </Tab>
 </Tabs>
 
-### authorizedSigner (optional)
+### channelStore (optional)
 
-- **Type:** `Address`
+- **Type:** `ChannelStore`
 
-Address authorized to sign vouchers. Defaults to the account access-key address when available, otherwise the account address.
+Pluggable persistence for reusable channels. Defaults to an in-memory store.
 
 ### decimals (optional)
 
@@ -266,6 +266,12 @@ Maximum deposit in human-readable units. Caps server-suggested channel opens and
 - **Type:** `(entry: ChannelEntry) => void`
 
 Called whenever channel state changes.
+
+### resolveAccount (optional)
+
+- **Type:** `ResolveAccount`
+
+Selects the account that signs this session Credential after the Challenge is known.
 
 ## Credential context
 

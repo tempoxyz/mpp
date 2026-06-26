@@ -18,9 +18,10 @@ const mppx = Mppx.create({
       periodCount: '1',
       periodUnit: 'week',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      resolve: async ({ input }) => {
-        const userId = input.headers.get('X-User-Id')
-        return userId ? { key: `user:${userId}:plan:pro` } : null
+      requireCredential: true,
+      resolve: async ({ source }) => {
+        if (!source) return null
+        return { key: `payer:${source.chainId}:${source.address}:plan:pro` }
       },
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
@@ -54,9 +55,10 @@ const mppx = Mppx.create({
       periodCount: '1',
       periodUnit: 'week',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      resolve: async ({ input }) => {
-        const userId = input.headers.get('X-User-Id')
-        return userId ? { key: `user:${userId}:plan:pro` } : null
+      requireCredential: true,
+      resolve: async ({ source }) => {
+        if (!source) return null
+        return { key: `payer:${source.chainId}:${source.address}:plan:pro` }
       },
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
@@ -256,11 +258,17 @@ Custom renewal hook. Use this when your app owns period settlement and subscript
 
 Milliseconds before an in-flight renewal lock can be replaced.
 
+### requireCredential (optional)
+
+- **Type:** `boolean`
+
+Requires a fresh subscription Credential even when a subscription is active. Use this when access reuse must be bound to the stored payer instead of request metadata.
+
 ### resolve
 
-- **Type:** `(parameters: { input: Request; request: SubscriptionRequest }) => MaybePromise<SubscriptionLookup | null>`
+- **Type:** `(parameters: { input: Request; request: SubscriptionRequest; source?: { address: Address; chainId: number } }) => MaybePromise<SubscriptionLookup | null>`
 
-Maps a request to a subscription lookup key. Return the same key for every route covered by the same subscription.
+Maps a request to a subscription lookup key. With `requireCredential`, use `source` to derive the key from the verified payer.
 
 ### store (optional)
 

@@ -27,14 +27,14 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       hono:
-        specifier: ^4.12.23
-        version: 4.12.23
+        specifier: ^4.12.27
+        version: 4.12.27
       mermaid:
         specifier: ^11.15.0
         version: 11.15.0
       mppx:
-        specifier: https://pkg.pr.new/mppx@557
-        version: https://pkg.pr.new/mppx@557(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3))
+        specifier: ^0.8.0
+        version: 0.8.0(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3))
       react:
         specifier: ^19
         version: 19.2.7
@@ -1439,6 +1439,10 @@ packages:
 
   '@stripe/stripe-js@9.7.0':
     resolution: {integrity: sha512-r1ElolvWXM4aYnZZVHvKW3EDL8JcwEuIgTuWxlB5lvC+YsvjkQ0gX35x9d8dTDubX395fViLVqkaolVs1PmIQQ==}
+    engines: {node: '>=12.16'}
+
+  '@stripe/stripe-js@9.8.0':
+    resolution: {integrity: sha512-DHJpol/98VKyojNSYmpkB5vOMnlf87hPe0wPxyaYTNiTMk5QjKMXDfSZLwGctYIXAgAWDFeRABc8lFAj0BELyw==}
     engines: {node: '>=12.16'}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0':
@@ -2885,8 +2889,8 @@ packages:
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
 
-  hono@4.12.23:
-    resolution: {integrity: sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA==}
+  hono@4.12.27:
+    resolution: {integrity: sha512-1yrb/+w6HWQJrUCLkJ2IF5jNIPvvFkblV5RNOYl6bV+OA6p9GLcMpHFFGTosSvHvcAUibuUukRqhlYI4z32C7Q==}
     engines: {node: '>=16.9.0'}
 
   html-void-elements@3.0.0:
@@ -3405,9 +3409,8 @@ packages:
       hono:
         optional: true
 
-  mppx@https://pkg.pr.new/mppx@557:
-    resolution: {tarball: https://pkg.pr.new/mppx@557}
-    version: 0.7.0
+  mppx@0.8.0:
+    resolution: {integrity: sha512-8zOfrzmFrvv0fatTaAziUQoGT44yfZQ5z2dbsw7hmuZD1TSEOl0hMw1D7zbthEEbx9b3GkDqmRdmwFeENEVQ7w==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
@@ -5006,13 +5009,13 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@hono/node-server@1.19.14(hono@4.12.23)':
+  '@hono/node-server@1.19.14(hono@4.12.27)':
     dependencies:
-      hono: 4.12.23
+      hono: 4.12.27
 
-  '@hono/node-server@2.0.4(hono@4.12.23)':
+  '@hono/node-server@2.0.4(hono@4.12.27)':
     dependencies:
-      hono: 4.12.23
+      hono: 4.12.27
 
   '@iconify-json/lucide@1.2.90':
     dependencies:
@@ -5252,7 +5255,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3)':
     dependencies:
-      '@hono/node-server': 1.19.14(hono@4.12.23)
+      '@hono/node-server': 1.19.14(hono@4.12.27)
       ajv: 8.20.0
       ajv-formats: 3.0.1(ajv@8.20.0)
       content-type: 1.0.5
@@ -5262,7 +5265,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1
       express-rate-limit: 8.5.1(express@5.2.1)
-      hono: 4.12.23
+      hono: 4.12.27
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -5620,6 +5623,8 @@ snapshots:
   '@stitches/core@1.2.8': {}
 
   '@stripe/stripe-js@9.7.0': {}
+
+  '@stripe/stripe-js@9.8.0': {}
 
   '@svgr/babel-plugin-add-jsx-attribute@8.0.0(@babel/core@7.29.0)':
     dependencies:
@@ -6249,11 +6254,11 @@ snapshots:
 
   accounts@0.14.9(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(@types/react@19.2.16)(@wagmi/core@3.5.0)(express@5.2.1)(react@19.2.7)(typescript@6.0.3)(use-sync-external-store@1.4.0(react@19.2.7))(viem@2.52.2(typescript@6.0.3)(zod@4.4.3))(wagmi@3.6.16):
     dependencies:
-      hono: 4.12.23
+      hono: 4.12.27
       idb-keyval: 6.2.5
       jose: 6.2.3
       mipd: 0.0.7(typescript@6.0.3)
-      mppx: 0.6.31(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3))
+      mppx: 0.6.31(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3))
       ox: 0.14.27(typescript@6.0.3)(zod@4.4.3)
       wata: 0.0.1(typescript@6.0.3)
       webauthx: 0.1.2(typescript@6.0.3)(zod@4.4.3)
@@ -7133,7 +7138,7 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.4
 
-  hono@4.12.23: {}
+  hono@4.12.27: {}
 
   html-void-elements@3.0.0: {}
 
@@ -7887,7 +7892,7 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mppx@0.6.31(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3)):
+  mppx@0.6.31(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
       incur: 0.4.8
       ox: 0.14.27(typescript@6.0.3)(zod@4.4.3)
@@ -7896,21 +7901,22 @@ snapshots:
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3)
       express: 5.2.1
-      hono: 4.12.23
+      hono: 4.12.27
     transitivePeerDependencies:
       - typescript
 
-  mppx@https://pkg.pr.new/mppx@557(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.23)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3)):
+  mppx@0.8.0(@modelcontextprotocol/sdk@1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.52.2(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
-      '@stripe/stripe-js': 9.7.0
+      '@stripe/stripe-js': 9.8.0
+      eventsource-parser: 3.0.6
       incur: 0.4.8
-      ox: 0.14.27(typescript@6.0.3)(zod@4.4.3)
+      ox: 0.14.29(typescript@6.0.3)(zod@4.4.3)
       viem: 2.52.2(typescript@6.0.3)(zod@4.4.3)
       zod: 4.4.3
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.27.1(@cfworker/json-schema@4.1.1)(zod@4.4.3)
       express: 5.2.1
-      hono: 4.12.23
+      hono: 4.12.27
     transitivePeerDependencies:
       - typescript
 
@@ -8922,7 +8928,7 @@ snapshots:
     dependencies:
       '@base-ui/react': 1.5.0(@date-fns/tz@1.4.1)(@types/react@19.2.16)(date-fns@4.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@hono/node-server': 2.0.4(hono@4.12.23)
+      '@hono/node-server': 2.0.4(hono@4.12.27)
       '@iconify-json/lucide': 1.2.90
       '@iconify-json/simple-icons': 1.2.70
       '@iconify-json/vscode-icons': 1.2.42
@@ -8952,7 +8958,7 @@ snapshots:
       estree-util-visit: 2.0.0
       extend: 3.0.2
       github-slugger: 2.0.0
-      hono: 4.12.23
+      hono: 4.12.27
       image-size: 2.0.2
       lz-string: 1.5.0
       magic-string: 0.30.21
@@ -9047,11 +9053,11 @@ snapshots:
 
   waku@1.0.0-beta.1(@types/node@25.9.1)(esbuild@0.27.7)(jiti@2.6.1)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.7)(terser@5.48.0)(tsx@4.21.0)(yaml@2.9.0):
     dependencies:
-      '@hono/node-server': 2.0.4(hono@4.12.23)
+      '@hono/node-server': 2.0.4(hono@4.12.27)
       '@vitejs/plugin-react': 6.0.2(vite@8.0.16(@types/node@25.9.1)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.48.0)(tsx@4.21.0)(yaml@2.9.0))
       '@vitejs/plugin-rsc': 0.5.26(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.27.7)))(react@19.2.7)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.48.0)(tsx@4.21.0)(yaml@2.9.0))
       dotenv: 17.4.2
-      hono: 4.12.23
+      hono: 4.12.27
       magic-string: 0.30.21
       picocolors: 1.1.1
       react: 19.2.7
@@ -9077,10 +9083,10 @@ snapshots:
 
   wata@0.0.1(typescript@6.0.3):
     dependencies:
-      '@hono/node-server': 1.19.14(hono@4.12.23)
+      '@hono/node-server': 1.19.14(hono@4.12.27)
       '@noble/ciphers': 2.2.0
       '@noble/hashes': 2.2.0
-      hono: 4.12.23
+      hono: 4.12.27
       ox: 0.14.29(typescript@6.0.3)(zod@4.4.3)
       rettime: 0.11.11
       zod: 4.4.3
