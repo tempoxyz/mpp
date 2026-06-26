@@ -64,7 +64,7 @@ Each payment method has different mechanics, but the model is shared: open a fun
 To make sessions easier to integrate, we have simplified the SDK and made several improvements for common use-cases, including:
 
 - **Automatic settlement** lets the server settle accepted usage in the background. A server-owned `settlementSchedule` triggers settlement by spend amount, metered units, or elapsed time, so the hot path stays off-chain while usage accumulates. No manual settlement job is required.
-- **Session resumption** lets a client reuse an existing channel across restarts. Pass a `sessionStore` to persist channel hints, and the next session resumes from the stored channel and server snapshot instead of opening and funding a new one.
+- **Session resumption** lets a client reuse an existing channel across restarts. Pass a `channelStore` to persist channel hints, and the next session resumes from the stored channel and server snapshot instead of opening and funding a new one.
 
 All of these changes are backwards compatible with the existing interface, so you and your clients can migrate gradually.
 

@@ -174,11 +174,11 @@ Accepts the union of [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge
 
 Account to sign transactions and vouchers with.
 
-### authorizedSigner (optional)
+### channelStore (optional)
 
-- **Type:** `Address`
+- **Type:** `ChannelStore`
 
-Address authorized to sign Sessions vouchers.
+Store for reusable Sessions channels. Defaults to an in-memory store.
 
 ### expectedChainId (optional)
 
@@ -197,3 +197,9 @@ Function that returns a viem client for the given chain ID.
 - **Type:** `string`
 
 Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups.
+
+### resolveAccount (optional)
+
+- **Type:** `ResolveAccount`
+
+Selects the account that signs a Tempo charge or Sessions Credential after the Challenge is known.

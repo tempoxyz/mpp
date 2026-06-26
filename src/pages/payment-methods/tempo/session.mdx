@@ -28,7 +28,7 @@ There are two current Sessions client APIs:
 | `tempo.session.manager({ account, maxDeposit })` | You want direct lifecycle control with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`. Use this when your code must explicitly close or top up a channel. |
 | `tempo.sessionLegacy` / `tempo.sessionLegacy.method()` | You still need compatibility with contract-backed Sessions v1. Do not use this for new integrations. |
 
-For browser reloads or app restarts, pass a [`sessionStore`](/sdk/typescript/client/Method.tempo.session-manager#sessionstore) to `tempo.session.manager()`. Servers can pair this with [`bootstrap: true`](/sdk/typescript/server/Method.tempo.session#with-same-route-bootstrap) so clients lazily recover a previous channel from the same protected route before opening a new one.
+For browser reloads or app restarts, pass a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore) to `tempo.session.manager()`. Servers can pair this with [`bootstrap: true`](/sdk/typescript/server/Method.tempo.session#with-same-route-bootstrap) so clients lazily recover a previous channel from the same protected route before opening a new one.
 
 ## Why Sessions matter in MPP
 

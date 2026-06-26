@@ -9,6 +9,8 @@ import { Tab, Tabs } from 'vocs'
 
 Creates a scoped `fetch` wrapper that handles `402` Payment Required responses without modifying `globalThis.fetch`.
 
+The wrapper also handles MCP-over-HTTP payment required errors returned as JSON-RPC `-32042` responses, including the first event in an SSE stream.
+
 ## Usage
 
 <Tabs stateKey="account-source">

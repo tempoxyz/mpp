@@ -15,7 +15,7 @@ Build a subscription-gated API that charges $1 for access using `mppx` and Tempo
 
 Subscriptions separate access from billing. The client authorizes recurring access once, then keeps using the paid API without paying again on every request.
 
-Your server stores the subscription after the first payment succeeds. Later requests check that stored subscription and return the protected response immediately when access is active. Billing happens on its own schedule: the next request after a billing period ends can renew the subscription, or a background job can renew subscriptions before clients return. This keeps normal API requests simple while recurring payments happen asynchronously.
+Your server stores the subscription after the first payment succeeds. Later requests prove the same payer signed the request, check the stored subscription, and return the protected response when access is active. Billing happens on its own schedule: the next request after a billing period ends can renew the subscription, or a background job can renew subscriptions before clients return. This keeps normal API requests simple while recurring payments happen asynchronously.
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
@@ -66,9 +66,10 @@ export const mppx = Mppx.create({
       periodCount: '1',
       periodUnit: 'week',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      resolve: async ({ input }) => {
-        const userId = input.headers.get('X-User-Id')
-        return userId ? { key: `user:${userId}:plan:pro` } : null
+      requireCredential: true,
+      resolve: async ({ source }) => {
+        if (!source) return null
+        return { key: `payer:${source.chainId}:${source.address}:plan:pro` }
       },
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
@@ -78,7 +79,7 @@ export const mppx = Mppx.create({
 })
 ```
 
-The `resolve` function maps each request to one subscription. Use the same key for every route that belongs to the same paid plan.
+The `resolve` function maps each verified payer to one subscription. `requireCredential` makes the server derive access from the signed payer source instead of request headers.
 
 :::warning
 Use a durable atomic store in production. `Store.memory()` loses subscription state when the process restarts.
@@ -101,9 +102,10 @@ const mppx = Mppx.create({
       periodCount: '1',
       periodUnit: 'week',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      resolve: async ({ input }) => {
-        const userId = input.headers.get('X-User-Id')
-        return userId ? { key: `user:${userId}:plan:pro` } : null
+      requireCredential: true,
+      resolve: async ({ source }) => {
+        if (!source) return null
+        return { key: `payer:${source.chainId}:${source.address}:plan:pro` }
       },
       store,
       subscriptionExpires: new Date('2027-01-01T00:00:00.000Z'),
@@ -114,10 +116,6 @@ const mppx = Mppx.create({
 // ---cut---
 
 export async function GET(request: Request) {
-  if (!request.headers.get('X-User-Id')) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   const result = await mppx.tempo.subscription({})(request)
 
   if (result.status === 402) return result.challenge
@@ -154,9 +152,7 @@ Mppx.create({
     })],
 })
 
-const response = await fetch('https://api.example.com/api/pro', {
-  headers: { 'X-User-Id': 'user_123' },
-})
+const response = await fetch('https://api.example.com/api/pro')
 
 console.log(response.status)
 // @log: 200
@@ -175,9 +171,7 @@ Mppx.create({
   methods: [tempo.subscription({ account })],
 })
 
-const response = await fetch('https://api.example.com/api/pro', {
-  headers: { 'X-User-Id': 'user_123' },
-})
+const response = await fetch('https://api.example.com/api/pro')
 
 console.log(response.status)
 // @log: 200
