@@ -75,8 +75,12 @@ metrics include:
 - `mpp_discovery_mcp_http_response_duration_ms`
 - `mpp_discovery_mcp_http_error_count`
 - `mpp_discovery_mcp_health_ok`
+- `mpp_discovery_mcp_health_duration_ms`
 - `mpp_discovery_mcp_health_check_ok`
 - `mpp_discovery_mcp_health_check_duration_ms`
+- `mpp_discovery_mcp_jsonrpc_error_count`
+- `mpp_discovery_mcp_tool_call_count`
+- `mpp_discovery_mcp_tool_duration_ms`
 - `mpp_discovery_mcp_catalog_services`
 - `mpp_discovery_mcp_catalog_offers`
 - `mpp_discovery_mcp_catalog_cache_age_seconds`

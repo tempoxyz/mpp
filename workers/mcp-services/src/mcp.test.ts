@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { flushWorkerMetrics } from "../../../src/lib/worker-metrics.js";
 import type { CachedCatalog } from "./cache.js";
 import { handleMcp, serverCard } from "./mcp.js";
 import type { Service } from "./types.js";
@@ -76,6 +77,7 @@ const services: Service[] = [
 describe("mcp handler", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    silenceMetricFlush();
   });
 
   it("advertises outputSchema for every tool", async () => {
@@ -337,6 +339,49 @@ describe("mcp handler", () => {
         }),
       );
     }
+  });
+
+  it("emits bounded tool and application-error metrics", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await callTool("get_catalog_status", {});
+    await callTool("search_services", { category: "boguscat" });
+    await mcp("missing/method", {}, envWithCatalog());
+    flushWorkerMetrics();
+
+    const metrics = loggedMetrics(log);
+    expect(
+      metricValue(metrics, "mpp_discovery_mcp_tool_call_count", {
+        outcome: "success",
+        tool_name: "get_catalog_status",
+      }),
+    ).toBe(1);
+    expect(
+      metricValue(metrics, "mpp_discovery_mcp_tool_duration_ms", {
+        outcome: "success",
+        tool_name: "get_catalog_status",
+      }),
+    ).toBeDefined();
+    expect(
+      metricValue(metrics, "mpp_discovery_mcp_tool_call_count", {
+        outcome: "error",
+        tool_name: "search_services",
+      }),
+    ).toBe(1);
+    expect(
+      metricValue(metrics, "mpp_discovery_mcp_jsonrpc_error_count", {
+        error_code: "tool_error",
+        mcp_method: "tools/call",
+        tool_name: "search_services",
+      }),
+    ).toBe(1);
+    expect(
+      metricValue(metrics, "mpp_discovery_mcp_jsonrpc_error_count", {
+        error_code: "-32601",
+        mcp_method: "other",
+        tool_name: "none",
+      }),
+    ).toBe(1);
   });
 
   it("paginates list and search responses and echoes applied filters", async () => {
@@ -689,4 +734,35 @@ function testContext(): ExecutionContext {
 
 function serviceId(service: { id: string }): string {
   return service.id;
+}
+
+type MetricEntry = {
+  n: string;
+  v: number;
+  tags: Record<string, string | number | boolean | null | undefined>;
+};
+
+function silenceMetricFlush(): void {
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  flushWorkerMetrics();
+  log.mockRestore();
+}
+
+function loggedMetrics(log: { mock: { calls: unknown[][] } }): MetricEntry[] {
+  return log.mock.calls
+    .map((call) => (typeof call[0] === "string" ? call[0] : ""))
+    .filter((message) => message.startsWith("cwm-"))
+    .flatMap((message) => JSON.parse(message.slice("cwm-".length)));
+}
+
+function metricValue(
+  metrics: MetricEntry[],
+  name: string,
+  tags: Record<string, string>,
+): number | undefined {
+  return metrics.find(
+    (metric) =>
+      metric.n === name &&
+      Object.entries(tags).every(([key, value]) => metric.tags[key] === value),
+  )?.v;
 }

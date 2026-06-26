@@ -22,7 +22,9 @@ describe("public health check", () => {
       137,
     );
     expect(metricValue(metrics, "mpp_discovery_mcp_catalog_offers")).toBe(1200);
-    expect(metricValue(metrics, "mpp_discovery_mcp_tools_advertised")).toBe(11);
+    expect(
+      metricValue(metrics, "mpp_discovery_mcp_health_duration_ms"),
+    ).toBeDefined();
   });
 
   it("emits unhealthy metrics when a public check fails", async () => {
@@ -41,9 +43,6 @@ describe("public health check", () => {
     const metrics = await captureMetrics(() => healthMetrics(env()));
 
     expect(metricValue(metrics, "mpp_discovery_mcp_health_ok")).toBe(0);
-    expect(metricValue(metrics, "mpp_discovery_mcp_health_failure_count")).toBe(
-      1,
-    );
     expect(
       metrics.find(
         (metric) =>

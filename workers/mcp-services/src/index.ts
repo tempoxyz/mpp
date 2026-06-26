@@ -227,9 +227,6 @@ function recordCatalogRefreshMetrics({
     workerMetrics.gauge("mpp_discovery_mcp_catalog_offers", offers, {
       endpoint: "source",
     });
-    workerMetrics.gauge("mpp_discovery_mcp_catalog_cache_age_seconds", 0, {
-      endpoint: "source",
-    });
   }
 }
 
