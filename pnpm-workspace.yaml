@@ -23,3 +23,11 @@ allowBuilds:
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - semver@6.3.1
+overrides:
+  "@babel/core": 7.29.6
+  dompurify: 3.4.11
+  esbuild: 0.28.1
+  js-yaml: 4.2.0
+  qs: 6.15.2
+  undici: 6.27.0
+  ws: 8.21.0
