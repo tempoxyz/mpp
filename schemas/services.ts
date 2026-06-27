@@ -10982,9 +10982,9 @@ export const services: ServiceDef[] = [
     id: "stacktree",
     name: "Stacktree",
     url: "https://stacktr.ee",
-    serviceUrl: "https://api.stacktr.ee",
+    serviceUrl: "https://agents.stacktr.ee",
     description:
-      "Private-by-default HTML hosting for AI agents. Pay $1 once to provision a persistent API key, then publish static HTML or Markdown (or a zip) and get back a private, shareable link — password, email-gate, expiry, and custom domains supported. MCP-native.",
+      "Private-by-default HTML hosting for AI agents. An agent publishes static HTML or Markdown (or a zip) and gets back a private, shareable link, with password gating, email gating, expiry, and custom domains. Pay $0.50 per publish over MPP (Tempo) or x402 (Base or Solana), or provision a persistent API key. MCP-native, used from Claude Code, Codex, and Cursor.",
     categories: ["web", "storage"],
     integration: "third-party",
     tags: [
@@ -11001,24 +11001,32 @@ export const services: ServiceDef[] = [
     docs: {
       homepage: "https://stacktr.ee",
       llmsTxt: "https://stacktr.ee/llms.txt",
-      apiReference: "https://api.stacktr.ee/openapi.json",
+      apiReference: "https://agents.stacktr.ee/openapi.json",
     },
     provider: { name: "Stacktree", url: "https://stacktr.ee" },
-    realm: "api.stacktr.ee",
+    realm: "agents.stacktr.ee",
     intent: "charge",
-    // EIP-3009 USDC on Base mainnet (eip155:8453), settled via an x402 facilitator.
+    // Multi-rail via the agentcash router: MPP on Tempo (USDC.e) plus x402
+    // (EIP-3009 USDC) on Base and Solana, all on one endpoint. The agent pays
+    // with whatever it holds; settlements proven on mainnet.
     payments: [
+      TEMPO_PAYMENT,
       {
         method: "evm",
         currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         decimals: 6,
       },
+      {
+        method: "solana",
+        currency: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        decimals: 6,
+      },
     ],
     endpoints: [
       {
-        route: "POST /provision",
-        desc: "Provision a persistent Stacktree API key (returned once in the body). Pay $1 once over the evm method.",
-        amount: "1000000",
+        route: "POST /api/publish",
+        desc: "Publish HTML or Markdown and get back a private, shareable link. Pay $0.50 over MPP (Tempo) or x402 (Base/Solana).",
+        amount: "500000",
         unitType: "request",
       },
     ],
