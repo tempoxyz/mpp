@@ -12,14 +12,6 @@ The production URL is served by the `mpp.dev` Vercel app through its MCP
 services proxy route. Set the Vercel environment variable
 `MPP_SERVICES_MCP_WORKER_ORIGIN` to the production Worker origin.
 
-Dev mirror:
-
-```text
-https://mpp-discovery-mcp.tempo-dev.workers.dev/mcp
-```
-
-The dev mirror remains deployed from `tempoxyz/mpp-discovery-mcp`.
-
 ## Data source
 
 The Worker reads `GET https://mpp.dev/api/services`, which returns:
