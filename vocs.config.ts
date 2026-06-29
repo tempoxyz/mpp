@@ -274,6 +274,7 @@ export default defineConfig({
             text: "IETF Specs",
             link: "https://paymentauth.org",
           },
+          { text: "Governance", link: "/governance" },
           { text: "FAQ", link: "/faq" },
           { text: "Build with an LLM", link: "/guides/building-with-an-llm" },
         ],
