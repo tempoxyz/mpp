@@ -71,17 +71,6 @@
   "engines": {
     "node": ">=24"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp",
-      "workerd"
-    ],
-    "ignoredBuiltDependencies": [
-      "es5-ext",
-      "simple-git-hooks"
-    ]
-  },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
   }
