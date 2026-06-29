@@ -1,0 +1,42 @@
+---
+description: "An overview of how the Machine Payments Protocol is developed, maintained, and extended"
+imageDescription: "An overview of how the Machine Payments Protocol is developed, maintained, and extended"
+---
+
+# Governance [An overview of how the Machine Payments Protocol is developed, maintained, and extended]
+
+The Machine Payments Protocol (MPP) is an open protocol for machine-to-machine payments, co-authored by [Tempo](https://tempo.xyz) and [Stripe](https://stripe.com). MPP is neutral by design and operates independently of any single company, payment method, or rail.
+
+Governance of MPP is split into two parts: the **core specification** and **payment methods**. Each is maintained and evolved by different parties, which keeps the protocol neutral while letting payment rails move at their own pace.
+
+## The core specification
+
+The core specification defines the abstract shape of the funds flow—the `402` Payment Required exchange of a Challenge, a Credential, and a Receipt. It makes no claims or affordances to any specific payment method, and it is designed to work with any rail and currency.
+
+The core specification is published at [paymentauth.org](https://paymentauth.org) as the [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) and submitted to the **IETF** standards track, where it continues to progress as an open, vendor-neutral standard.
+
+As an IETF submission, the specification is governed by IETF Trust licensing under [BCP 78](https://www.rfc-editor.org/info/bcp78) and [BCP 79](https://www.rfc-editor.org/info/bcp79). Code components within the document are licensed under the Revised BSD License per the IETF Trust Legal Provisions. Anchoring the core at the IETF means no single company controls it—changes happen in the open, through the same process that standardizes the rest of the web.
+
+## Payment methods
+
+A payment method describes how a specific payment rail conforms to the MPP specification. Payment methods are the most important part of MPP; without them, buyers and sellers have no way to transact.
+
+Each payment method specification is defined and maintained by the rail behind it—for example Visa, Mastercard, Solana, Bitcoin, Stripe, or Tempo—together with any corporate entities associated with that rail. Those entities maintain their own specifications, make their own decisions, and are expected to evolve independently of MPP, as long as they continue to fit the core specification.
+
+This separation is deliberate. It gives each rail the independence to ship and improve its method on its own timeline, without coordinating every change through a central body. In many cases, individual payment methods implement constraints or extensions beyond the core MPP specification, such as disputes, refunds, or KYC requirements. This model encourages those extensions.
+
+## Permissionless extension
+
+Payment rails and third parties do not need explicit approval to add a payment method implementation to MPP. The [`mppx` SDK](/payment-methods/custom) supports [custom payment methods](/payment-methods/custom), so developers and payment method providers can implement any payment method on top of MPP, distribute their own SDK, and get buyers and sellers to adopt it.
+
+## Contributing
+
+MPP is developed in the open on [GitHub](https://github.com/tempoxyz/mpp-specs).
+
+The core spec repository's [contributing guidelines](https://github.com/tempoxyz/mpp-specs/blob/main/CONTRIBUTING.md) cover how to propose changes, including the templates and process for each type of change:
+
+- **New intents, methods, and extensions**
+- **Core protocol changes**
+- **Editorial fixes**
+
+While the core MPP specification conforms to those guidelines, individual payment methods and SDKs may have their own repositories, contribution requirements, and licensing. Treat those as canonical for each individual payment method.

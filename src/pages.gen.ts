@@ -22,6 +22,7 @@ type Page =
   | { path: '/brand'; render: 'static' }
   | { path: '/extensions'; render: 'static' }
   | { path: '/faq'; render: 'static' }
+  | { path: '/governance'; render: 'static' }
   | { path: '/guides/accept-card-payments'; render: 'static' }
   | { path: '/guides/building-with-an-llm'; render: 'static' }
   | { path: '/guides/monetize-mcp-server'; render: 'static' }
