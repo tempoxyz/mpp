@@ -4,13 +4,13 @@ description: "Delegate and limit agent payments with MPP."
 
 # Managing agent spend
 
-Agents can make paid HTTP requests and paid MCP tool calls without a human approving every request. Configure payments so routine work succeeds, but the agent cannot spend outside the budget, time window, or tools you intended.
+Agents can make paid HTTP requests and paid MCP tool calls without a human approving every request. By building spending controls on top of MPP, agents can pay in the background while staying within the budget, time window, and tools you intended.
 
 Spend management is independent of any one payment rail. Use the mechanism for the rail you are paying with, and bind each agent runtime to payment authority that matches the work it is allowed to do.
 
-## Tempo Access Keys
+## Tempo
 
-Tempo access keys are delegated signing keys authorized by a Tempo wallet. They let a wallet pay through `mppx` while keeping the agent on a bounded allowance.
+[Tempo access keys](https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys) are delegated signing keys authorized by a Tempo wallet. They let a wallet pay through `mppx` while keeping the agent on a bounded allowance.
 
 An access key can have:
 
@@ -34,7 +34,13 @@ export const provider = Provider.create()
 
 const spendPolicy = {
   expiry: Expiry.days(7),
-  limits: [{ token: usdc, limit: parseUnits('10', 6), period: 86_400 }],
+  limits: [
+    {
+      token: usdc,
+      limit: parseUnits('10', 6),
+      period: 86_400,
+    },
+  ],
 }
 
 const { accounts } = await provider.request({
@@ -55,17 +61,23 @@ If the wallet is already connected, call `wallet_authorizeAccessKey` with the sa
 Use `scopes` when a runtime should only spend through specific contracts, functions, or recipients.
 
 ```ts [wallet.ts]
+import { Scopes } from 'viem/tempo'
+
 const recipient = '0x0000000000000000000000000000000000000001' as const
 
 const spendPolicy = {
   expiry: Expiry.days(7),
-  limits: [{ token: usdc, limit: parseUnits('10', 6), period: 86_400 }],
-  scopes: [
+  limits: [
     {
-      address: usdc,
-      selector: 'transfer(address,uint256)',
-      recipients: [recipient],
+      token: usdc,
+      limit: parseUnits('10', 6),
+      period: 86_400,
     },
+  ],
+  scopes: [
+    Scopes.tip20(usdc).transfer({
+      recipients: [recipient],
+    }),
   ],
 }
 ```
