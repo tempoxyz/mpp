@@ -1,5 +1,5 @@
 ---
-description: "Delegate and limit agent payments with MPP."
+description: "Manage agent spend with MPP."
 ---
 
 # Managing agent spend
@@ -10,15 +10,14 @@ Spend management is independent of any one payment rail. Use the mechanism for t
 
 ## Tempo
 
-[Tempo access keys](https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys) are delegated signing keys authorized by a Tempo wallet. They let an agent pay through `mppx` without exposing the wallet's primary signing authority.
+[Tempo access keys](https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys) are delegated signing keys authorized by a wallet on Tempo. They let an agent transact with built in spend controls and policy, without needing to manage multiple wallets or addresses.
 
 Use access keys to set:
 
-- an expiry
 - token spending limits
-- call scopes for specific contracts or functions
+- limitations for specific contracts or functions 
 - recipient restrictions
-- independent revocation
+- future-dated expiration dates
 
 ### Use an access key
 
