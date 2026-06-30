@@ -34,8 +34,10 @@ export const connect = await provider.request({
   params: [{ capabilities: { authorizeAccessKey: paymentKey } }],
 })
 
-export const accessKey = connect.accounts[0]?.capabilities.keyAuthorization?.address
-if (!accessKey) throw new Error('Access key was not authorized')
+const [account] = connect.accounts
+
+export const accessKeyAddress = account?.capabilities.keyAuthorization?.address
+if (!accessKeyAddress) throw new Error('Access key was not authorized')
 ```
 
 This creates a seven-day key with a 10 USDC daily budget. Add `scopes` when a runtime should only call specific contracts or functions. For example, scope a key to USDC transfers for one merchant so the runtime cannot spend that allowance anywhere else.
@@ -48,13 +50,14 @@ Pass the Tempo account to `mppx`.
 
 ```ts [payments.ts]
 import { Mppx, tempo } from 'mppx/client'
-import { accessKey, provider } from './wallet.js'
+import { accessKeyAddress, provider } from './wallet.js'
 
 Mppx.create({
   methods: [
     tempo({
       account: provider.getAccount(),
-      ...provider.getMppxParameters({ accessKey }),
+      // Optionally pass the access key that should sign this runtime's payments.
+      ...provider.getMppxParameters({ accessKey: accessKeyAddress }),
     }),
   ],
 })
@@ -62,4 +65,4 @@ Mppx.create({
 
 Use `fetch` normally for unpaid requests, paid HTTP requests, and MCP transports that accept `fetch`. `mppx` only pays when the server returns a payment challenge, and the wallet signs with the requested access key when it can satisfy the challenge.
 
-One can create separate access keys for separate apps, tools, or deployments. That keeps each payment surface independently revocable and gives every runtime its own expiry, budget, and scope.
+One can create separate access keys for separate apps, tools, or deployments. Passing the access key address into `getMppxParameters` pins that runtime to its delegated key instead of relying on implicit key selection. That keeps each payment surface independently revocable and gives every runtime its own expiry, budget, and scope.
