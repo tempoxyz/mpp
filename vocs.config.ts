@@ -312,8 +312,8 @@ export default defineConfig({
             link: "/guides/use-mpp-with-x402",
           },
           {
-            text: "Use Tempo access keys",
-            link: "/guides/use-tempo-access-keys",
+            text: "Managing agent spend",
+            link: "/guides/managing-agent-spend",
           },
           {
             text: "Advanced",

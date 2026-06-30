@@ -1,0 +1,102 @@
+---
+description: "Delegate and limit agent payments with MPP."
+---
+
+# Managing agent spend
+
+Agents can make paid HTTP requests and paid MCP tool calls without a human approving every request. Configure payments so routine work succeeds, but the agent cannot spend outside the budget, time window, or tools you intended.
+
+Use delegated payment authority when an agent should:
+
+- pay in the background
+- stay within a per-payment-token budget
+- use separate limits for separate apps, tools, or deployments
+- call only specific contracts, functions, or recipients
+- revoke payment access without rotating the wallet
+
+## Tempo access keys
+
+Tempo access keys are delegated signing keys authorized by a Tempo wallet. They let a wallet pay through `mppx` while keeping the agent on a bounded allowance.
+
+An access key can have:
+
+- an expiry
+- token spending limits
+- call scopes for specific contracts or functions
+- recipient restrictions
+- independent revocation
+
+## Create a payment key
+
+Use your existing Tempo Wallet provider. This example creates a seven-day key with a 10 USDC daily budget.
+
+```ts [wallet.ts]
+import { Expiry, Provider } from 'accounts'
+import { parseUnits } from 'viem'
+
+const usdc = '0x20C000000000000000000000b9537d11c60E8b50' as const
+
+export const provider = Provider.create()
+
+const spendPolicy = {
+  expiry: Expiry.days(7),
+  limits: [{ token: usdc, limit: parseUnits('10', 6), period: 86_400 }],
+}
+
+const { accounts } = await provider.request({
+  method: 'wallet_connect',
+  params: [{ capabilities: { authorizeAccessKey: spendPolicy } }],
+})
+
+const [account] = accounts
+
+export const accessKeyAddress = account?.capabilities.keyAuthorization?.address
+if (!accessKeyAddress) throw new Error('Access key was not authorized')
+```
+
+If the wallet is already connected, call `wallet_authorizeAccessKey` with the same `spendPolicy`.
+
+## Add scopes
+
+Use `scopes` when a runtime should only spend through specific contracts, functions, or recipients.
+
+```ts [wallet.ts]
+const recipient = '0x0000000000000000000000000000000000000001' as const
+
+const spendPolicy = {
+  expiry: Expiry.days(7),
+  limits: [{ token: usdc, limit: parseUnits('10', 6), period: 86_400 }],
+  scopes: [
+    {
+      address: usdc,
+      selector: 'transfer(address,uint256)',
+      recipients: [recipient],
+    },
+  ],
+}
+```
+
+Create separate access keys for separate apps, tools, or deployments. Each key can have its own expiry, budget, scopes, recipients, and revocation path.
+
+## Pay with the delegated key
+
+Pass the Tempo account to `mppx`. The access key address is optional, but useful when this runtime should use one specific delegated key.
+
+```ts [payments.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { accessKeyAddress, provider } from './wallet.js'
+
+Mppx.create({
+  methods: [
+    tempo({
+      account: provider.getAccount(),
+      // Optionally pass the access key address that should sign this runtime's payments.
+      ...provider.getMppxParameters({ accessKey: accessKeyAddress }),
+    }),
+  ],
+})
+```
+
+Use `fetch` normally for unpaid requests, paid HTTP requests, and MCP transports that accept `fetch`. `mppx` only pays when the server returns a payment challenge, and the wallet signs with the requested access key when it can satisfy the challenge.
+
+Pinning an access key keeps delegated runtimes isolated. If two deployments have different budgets or scopes, each can use its own key instead of relying on implicit key selection.

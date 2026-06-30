@@ -25,6 +25,7 @@ type Page =
   | { path: '/governance'; render: 'static' }
   | { path: '/guides/accept-card-payments'; render: 'static' }
   | { path: '/guides/building-with-an-llm'; render: 'static' }
+  | { path: '/guides/managing-agent-spend'; render: 'static' }
   | { path: '/guides/monetize-mcp-server'; render: 'static' }
   | { path: '/guides/multiple-payment-methods'; render: 'static' }
   | { path: '/guides/one-time-payments'; render: 'static' }
@@ -35,7 +36,6 @@ type Page =
   | { path: '/guides/streamed-payments'; render: 'static' }
   | { path: '/guides/subscription-payments'; render: 'static' }
   | { path: '/guides/use-mpp-with-x402'; render: 'static' }
-  | { path: '/guides/use-tempo-access-keys'; render: 'static' }
   | { path: '/'; render: 'static' }
   | { path: '/intents/charge'; render: 'static' }
   | { path: '/intents'; render: 'static' }
