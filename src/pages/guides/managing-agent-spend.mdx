@@ -6,15 +6,9 @@ description: "Delegate and limit agent payments with MPP."
 
 Agents can make paid HTTP requests and paid MCP tool calls without a human approving every request. Configure payments so routine work succeeds, but the agent cannot spend outside the budget, time window, or tools you intended.
 
-Use delegated payment authority when an agent should:
+Spend management is independent of any one payment rail. Use the mechanism for the rail you are paying with, and bind each agent runtime to payment authority that matches the work it is allowed to do.
 
-- pay in the background
-- stay within a per-payment-token budget
-- use separate limits for separate apps, tools, or deployments
-- call only specific contracts, functions, or recipients
-- revoke payment access without rotating the wallet
-
-## Tempo access keys
+## Tempo Access Keys
 
 Tempo access keys are delegated signing keys authorized by a Tempo wallet. They let a wallet pay through `mppx` while keeping the agent on a bounded allowance.
 
@@ -26,7 +20,7 @@ An access key can have:
 - recipient restrictions
 - independent revocation
 
-## Create a payment key
+### Create a payment key
 
 Use your existing Tempo Wallet provider. This example creates a seven-day key with a 10 USDC daily budget.
 
@@ -56,7 +50,7 @@ if (!accessKeyAddress) throw new Error('Access key was not authorized')
 
 If the wallet is already connected, call `wallet_authorizeAccessKey` with the same `spendPolicy`.
 
-## Add scopes
+### Add scopes
 
 Use `scopes` when a runtime should only spend through specific contracts, functions, or recipients.
 
@@ -78,7 +72,7 @@ const spendPolicy = {
 
 Create separate access keys for separate apps, tools, or deployments. Each key can have its own expiry, budget, scopes, recipients, and revocation path.
 
-## Pay with the delegated key
+### Pay with the delegated key
 
 Pass the Tempo account to `mppx`. The access key address is optional, but useful when this runtime should use one specific delegated key.
 
