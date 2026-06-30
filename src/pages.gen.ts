@@ -25,6 +25,7 @@ type Page =
   | { path: '/governance'; render: 'static' }
   | { path: '/guides/accept-card-payments'; render: 'static' }
   | { path: '/guides/building-with-an-llm'; render: 'static' }
+  | { path: '/guides/managing-agent-spend'; render: 'static' }
   | { path: '/guides/monetize-mcp-server'; render: 'static' }
   | { path: '/guides/multiple-payment-methods'; render: 'static' }
   | { path: '/guides/one-time-payments'; render: 'static' }

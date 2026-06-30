@@ -312,6 +312,10 @@ export default defineConfig({
             link: "/guides/use-mpp-with-x402",
           },
           {
+            text: "Managing agent spend",
+            link: "/guides/managing-agent-spend",
+          },
+          {
             text: "Advanced",
             items: [
               {
