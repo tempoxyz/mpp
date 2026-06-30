@@ -4,15 +4,15 @@ description: "Delegate and limit agent payments with MPP."
 
 # Managing agent spend
 
-Agents can make paid HTTP requests and paid MCP tool calls without a human approving every request. By building spending controls on top of MPP, agents can pay in the background while staying within the budget, time window, and tools you intended.
+By building spending controls on top of MPP, agents can pay in the background while staying within the budget, time window, and tools you intended.
 
 Spend management is independent of any one payment rail. Use the mechanism for the rail you are paying with, and bind each agent runtime to payment authority that matches the work it is allowed to do.
 
 ## Tempo
 
-[Tempo access keys](https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys) are delegated signing keys authorized by a Tempo wallet. They let a wallet pay through `mppx` while keeping the agent on a bounded allowance.
+[Tempo access keys](https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys) are delegated signing keys authorized by a Tempo wallet. They let an agent pay through `mppx` without exposing the wallet's primary signing authority.
 
-An access key can have:
+Use access keys to set:
 
 - an expiry
 - token spending limits
@@ -20,32 +20,22 @@ An access key can have:
 - recipient restrictions
 - independent revocation
 
-### Create a payment key
+### Use an access key
 
-Use your existing Tempo Wallet provider. This example creates a seven-day key with a 10 USDC daily budget.
+Use your existing Tempo Wallet provider. This example asks the wallet to authorize a seven-day access key.
 
 ```ts [wallet.ts]
 import { Expiry, Provider } from 'accounts'
-import { parseUnits } from 'viem'
-
-const usdc = '0x20C000000000000000000000b9537d11c60E8b50' as const
 
 export const provider = Provider.create()
 
-const spendPolicy = {
+const accessKey = {
   expiry: Expiry.days(7),
-  limits: [
-    {
-      token: usdc,
-      limit: parseUnits('10', 6),
-      period: 86_400,
-    },
-  ],
 }
 
 const { accounts } = await provider.request({
   method: 'wallet_connect',
-  params: [{ capabilities: { authorizeAccessKey: spendPolicy } }],
+  params: [{ capabilities: { authorizeAccessKey: accessKey } }],
 })
 
 const [account] = accounts
@@ -54,18 +44,21 @@ export const accessKeyAddress = account?.capabilities.keyAuthorization?.address
 if (!accessKeyAddress) throw new Error('Access key was not authorized')
 ```
 
-If the wallet is already connected, call `wallet_authorizeAccessKey` with the same `spendPolicy`.
+If the wallet is already connected, call `wallet_authorizeAccessKey` with the same `accessKey`.
 
-### Add scopes
+### Add spending limits and scopes
 
-Use `scopes` when a runtime should only spend through specific contracts, functions, or recipients.
+Replace the basic `accessKey` object with limits and scopes when a runtime should only spend a fixed budget or call specific contracts, functions, or recipients. In this example, the key can spend up to 10 USDC per day and only transfer USDC to one recipient.
 
 ```ts [wallet.ts]
+import { Expiry } from 'accounts'
+import { parseUnits } from 'viem'
 import { Scopes } from 'viem/tempo'
 
-const recipient = '0x0000000000000000000000000000000000000001' as const
+const usdc = '0x20C000000000000000000000b9537d11c60E8b50'
+const recipientAddress = '0x0000000000000000000000000000000000000001'
 
-const spendPolicy = {
+const accessKey = {
   expiry: Expiry.days(7),
   limits: [
     {
@@ -76,15 +69,15 @@ const spendPolicy = {
   ],
   scopes: [
     Scopes.tip20(usdc).transfer({
-      recipients: [recipient],
+      recipients: [recipientAddress],
     }),
   ],
 }
 ```
 
-Create separate access keys for separate apps, tools, or deployments. Each key can have its own expiry, budget, scopes, recipients, and revocation path.
+You can create separate keys for separate apps, tools, or deployments. Each key can have its own expiry, budget, scopes, recipients, and revocation path.
 
-### Pay with the delegated key
+### Use the key with `mppx`
 
 Pass the Tempo account to `mppx`. The access key address is optional, but useful when this runtime should use one specific delegated key.
 
