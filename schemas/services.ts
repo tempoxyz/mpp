@@ -10978,4 +10978,57 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "stacktree",
+    name: "Stacktree",
+    url: "https://stacktr.ee",
+    serviceUrl: "https://agents.stacktr.ee",
+    description:
+      "Private-by-default HTML hosting for AI agents. An agent publishes static HTML or Markdown (or a zip) and gets back a private, shareable link, with password gating, email gating, expiry, and custom domains. Pay $0.50 per publish over MPP (Tempo) or x402 (Base or Solana), or provision a persistent API key. MCP-native, used from Claude Code, Codex, and Cursor.",
+    categories: ["web", "storage"],
+    integration: "third-party",
+    tags: [
+      "hosting",
+      "html",
+      "static-site",
+      "publishing",
+      "private",
+      "share-link",
+      "mcp",
+      "agents",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://stacktr.ee",
+      llmsTxt: "https://stacktr.ee/llms.txt",
+      apiReference: "https://agents.stacktr.ee/openapi.json",
+    },
+    provider: { name: "Stacktree", url: "https://stacktr.ee" },
+    realm: "agents.stacktr.ee",
+    intent: "charge",
+    // Multi-rail via the agentcash router: MPP on Tempo (USDC.e) plus x402
+    // (EIP-3009 USDC) on Base and Solana, all on one endpoint. The agent pays
+    // with whatever it holds; settlements proven on mainnet.
+    payments: [
+      TEMPO_PAYMENT,
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+      {
+        method: "solana",
+        currency: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "POST /api/publish",
+        desc: "Publish HTML or Markdown and get back a private, shareable link. Pay $0.50 over MPP (Tempo) or x402 (Base/Solana).",
+        amount: "500000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
