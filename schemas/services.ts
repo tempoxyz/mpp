@@ -10978,4 +10978,44 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "wundership",
+    name: "Wundership",
+    url: "https://api.wundership.com",
+    serviceUrl: "https://api.wundership.com",
+    description:
+      "MPP-paid app planning and software generation API for autonomous agents. Generate structured software plans, product outlines, feature maps, and implementation-ready app direction.",
+    categories: ["ai", "compute", "web"],
+    integration: "first-party",
+    tags: [
+      "ai",
+      "agents",
+      "app-builder",
+      "software-planning",
+      "product-outlines",
+      "feature-maps",
+      "implementation-plans",
+      "builderstudio",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://wundercorp.co",
+      llmsTxt: "https://api.wundership.com/llms.txt",
+      apiReference: "https://api.wundership.com/openapi.json",
+    },
+    provider: { name: "WunderCorp, Inc.", url: "https://wundercorp.co" },
+    realm: "api.wundership.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/plan",
+        desc: "Generate a structured software plan, product outline, feature map, technical architecture, and implementation-ready app direction.",
+        amount: "100",
+        unitType: "request",
+        docs: "https://api.wundership.com/openapi.json",
+      },
+    ],
+  },
+
 ];
