@@ -51,7 +51,7 @@ Replace the basic `accessKey` object with limits and scopes when a runtime shoul
 
 ```ts [wallet.ts]
 import { Expiry } from 'accounts'
-import { parseUnits } from 'viem'
+import { numberToHex, parseUnits } from 'viem'
 import { Scopes } from 'viem/tempo'
 
 const usdc = '0x20C000000000000000000000b9537d11c60E8b50'
@@ -62,7 +62,7 @@ const accessKey = {
   limits: [
     {
       token: usdc,
-      limit: parseUnits('10', 6),
+      limit: numberToHex(parseUnits('10', 6)),
       period: 86_400,
     },
   ],
