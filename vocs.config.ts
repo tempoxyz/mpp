@@ -289,6 +289,15 @@ export default defineConfig({
         ],
       },
       {
+        text: "Use with partner SDKs",
+        items: [
+          {
+            text: "Cloudflare Agents",
+            link: "/partner-sdks/cloudflare-agents",
+          },
+        ],
+      },
+      {
         text: "Guides",
         items: [
           {
