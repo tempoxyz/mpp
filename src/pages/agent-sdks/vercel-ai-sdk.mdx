@@ -1,0 +1,82 @@
+---
+description: "Use mppx with Vercel AI SDK agents, tools, and MCP clients."
+---
+
+# Vercel AI SDK
+
+Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let a [Vercel AI SDK agent](https://ai-sdk.dev/docs/agents/overview) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the wrapped client creates a Credential, retries the call, and returns the result.
+
+```bash [terminal]
+$ pnpm add mppx viem ai @ai-sdk/mcp zod
+```
+
+```ts [payments.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+Mppx.create({
+  methods: [tempo({ account })],
+})
+```
+
+## Pay for MCP tools
+
+Create the MCP client after `Mppx.create`. The AI SDK MCP transport uses the payment-aware fetch for both free and paid tool calls.
+
+```ts [agent.ts]
+import { createMCPClient } from '@ai-sdk/mcp'
+import { generateText } from 'ai'
+import { yourProvider } from 'your-custom-provider'
+
+const mcp = await createMCPClient({
+  transport: { type: 'http', url: '<mcp-url>' },
+})
+
+const { toolResults } = await generateText({
+  model: yourProvider('your-model-id'),
+  prompt: 'Call the MCP tool.',
+  tools: await mcp.tools(),
+  toolChoice: 'required',
+})
+
+console.log(toolResults)
+await mcp.close()
+```
+
+## Pay for HTTP requests
+
+Define a normal AI SDK tool and call `fetch` inside `execute`. Because `Mppx.create` ran first, the HTTP request is payment-aware.
+
+```ts [agent.ts]
+import { generateText, tool } from 'ai'
+import { yourProvider } from 'your-custom-provider'
+import { z } from 'zod'
+
+const { toolResults } = await generateText({
+  model: yourProvider('your-model-id'),
+  prompt: 'Call paidPing.',
+  tools: {
+    paidPing: tool({
+      description: 'Call a paid MPP HTTP endpoint.',
+      inputSchema: z.object({}),
+      execute: async () => {
+        const response = await fetch('https://mpp.dev/api/ping/paid')
+        return response.json()
+      },
+    }),
+  },
+  toolChoice: { type: 'tool', toolName: 'paidPing' },
+})
+
+console.log(toolResults)
+```
+
+The `tempo({ account })` helper used above supports Tempo [charge](/payment-methods/tempo/charge) and [session](/payment-methods/tempo/session) challenges.
+
+## Manage agent spend
+
+The example above uses a standard viem account. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
+
+Create the access key first, then pass the Tempo account into the same `Mppx.create` setup. See [Managing agent spend](/guides/managing-agent-spend).

@@ -12,6 +12,7 @@ type Page =
   | { path: '/advanced/payment-hooks'; render: 'static' }
   | { path: '/advanced/refunds'; render: 'static' }
   | { path: '/advanced/security'; render: 'static' }
+  | { path: '/agent-sdks/vercel-ai-sdk'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
   | { path: '/blog'; render: 'static' }

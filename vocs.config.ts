@@ -289,6 +289,10 @@ export default defineConfig({
         ],
       },
       {
+        text: "Partner Integrations",
+        items: [{ text: "Vercel AI SDK", link: "/agent-sdks/vercel-ai-sdk" }],
+      },
+      {
         text: "Guides",
         items: [
           {
