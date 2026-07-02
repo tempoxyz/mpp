@@ -43,6 +43,9 @@ type Page =
   | { path: '/intents/subscription'; render: 'static' }
   | { path: '/mpp-vs-x402'; render: 'static' }
   | { path: '/overview'; render: 'static' }
+  | { path: '/partner-integrations/cloudflare-agents'; render: 'static' }
+  | { path: '/partner-integrations/mcp-sdk'; render: 'static' }
+  | { path: '/partner-integrations/vercel-ai-sdk'; render: 'static' }
   | { path: '/payment-methods/card/charge'; render: 'static' }
   | { path: '/payment-methods/card'; render: 'static' }
   | { path: '/payment-methods/custom'; render: 'static' }

@@ -289,6 +289,23 @@ export default defineConfig({
         ],
       },
       {
+        text: "Partner Integrations",
+        items: [
+          {
+            text: "Cloudflare Agents",
+            link: "/partner-integrations/cloudflare-agents",
+          },
+          {
+            text: "Official MCP SDK",
+            link: "/partner-integrations/mcp-sdk",
+          },
+          {
+            text: "Vercel AI SDK",
+            link: "/partner-integrations/vercel-ai-sdk",
+          },
+        ],
+      },
+      {
         text: "Guides",
         items: [
           {
