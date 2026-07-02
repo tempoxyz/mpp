@@ -4,7 +4,7 @@ description: "Use mppx with the official TypeScript MCP SDK."
 
 # Official MCP SDK
 
-Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let the [official TypeScript MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the wrapped client creates a Credential, retries the call, and returns the result.
+Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let the [official TypeScript MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the payment-aware fetch wrapper creates a Credential, retries the call, and returns the result.
 
 ```bash [terminal]
 $ pnpm add mppx viem @modelcontextprotocol/sdk
