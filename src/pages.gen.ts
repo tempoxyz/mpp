@@ -12,8 +12,6 @@ type Page =
   | { path: '/advanced/payment-hooks'; render: 'static' }
   | { path: '/advanced/refunds'; render: 'static' }
   | { path: '/advanced/security'; render: 'static' }
-  | { path: '/agent-sdks/cloudflare-agents'; render: 'static' }
-  | { path: '/agent-sdks/vercel-ai-sdk'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
   | { path: '/blog'; render: 'static' }
@@ -45,6 +43,8 @@ type Page =
   | { path: '/intents/subscription'; render: 'static' }
   | { path: '/mpp-vs-x402'; render: 'static' }
   | { path: '/overview'; render: 'static' }
+  | { path: '/partner-integrations/cloudflare-agents'; render: 'static' }
+  | { path: '/partner-integrations/vercel-ai-sdk'; render: 'static' }
   | { path: '/payment-methods/card/charge'; render: 'static' }
   | { path: '/payment-methods/card'; render: 'static' }
   | { path: '/payment-methods/custom'; render: 'static' }

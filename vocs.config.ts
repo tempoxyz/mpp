@@ -61,8 +61,16 @@ export default defineConfig({
       destination: "/guides/use-mpp-with-x402",
     },
     {
+      source: "/agent-sdks/cloudflare-agents",
+      destination: "/partner-integrations/cloudflare-agents",
+    },
+    {
+      source: "/agent-sdks/vercel-ai-sdk",
+      destination: "/partner-integrations/vercel-ai-sdk",
+    },
+    {
       source: "/partner-sdks/cloudflare-agents",
-      destination: "/agent-sdks/cloudflare-agents",
+      destination: "/partner-integrations/cloudflare-agents",
     },
     { source: "/challenges", destination: "/protocol/challenges" },
     { source: "/challenge", destination: "/protocol/challenges" },
@@ -297,9 +305,12 @@ export default defineConfig({
         items: [
           {
             text: "Cloudflare Agents",
-            link: "/agent-sdks/cloudflare-agents",
+            link: "/partner-integrations/cloudflare-agents",
           },
-          { text: "Vercel AI SDK", link: "/agent-sdks/vercel-ai-sdk" },
+          {
+            text: "Vercel AI SDK",
+            link: "/partner-integrations/vercel-ai-sdk",
+          },
         ],
       },
       {
