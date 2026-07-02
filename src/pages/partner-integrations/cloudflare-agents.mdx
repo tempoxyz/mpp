@@ -1,5 +1,5 @@
 ---
-description: "Use mppx with Cloudflare Agents, MCP tools, and HTTP requests."
+description: "Use MPP with the Cloudflare Agents SDK."
 imageDescription: "Connect Cloudflare Agents to paid MPP MCP tools and HTTP APIs"
 ---
 
@@ -72,4 +72,23 @@ export async function paidPing() {
 
 The examples above use a standard viem account. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
 
-Create the access key first, then pass the Tempo account into the same `tempo({ account })` setup. See [Managing agent spend](/guides/managing-agent-spend).
+Create the access key first, then pass the Tempo account into the same setup.
+
+```ts [agent.ts]
+const method = tempo({
+  account: provider.getAccount(),
+  ...provider.getMppxParameters({ accessKey }),
+})
+
+// Use the method for paid MCP tool calls.
+McpClient.wrap(this.mcp.mcpConnections[id].client, {
+  methods: [method],
+})
+
+// Use the same method for payment-aware fetch calls.
+Mppx.create({
+  methods: [method],
+})
+```
+
+See [Managing agent spend](/guides/managing-agent-spend) for limits, scopes, recipients, and revocation.

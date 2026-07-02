@@ -1,5 +1,5 @@
 ---
-description: "Use mppx with the official TypeScript MCP SDK."
+description: "Use MPP with the official TypeScript MCP SDK."
 ---
 
 # Official MCP SDK
@@ -30,7 +30,10 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import './payments'
 
-const client = new Client({ name: 'mpp-app', version: '1.0.0' })
+const client = new Client({
+  name: 'mpp-app',
+  version: '1.0.0',
+})
 
 await client.connect(new StreamableHTTPClientTransport(new URL('<mcp-url>')))
 
@@ -59,4 +62,17 @@ export async function paidPing() {
 
 The example above uses a standard viem account. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
 
-Create the access key first, then pass the Tempo account into the same `Mppx.create` setup. See [Managing agent spend](/guides/managing-agent-spend).
+Create the access key first, then pass the Tempo account into the same setup.
+
+```ts [payments.ts]
+Mppx.create({
+  methods: [
+    tempo({
+      account: provider.getAccount(),
+      ...provider.getMppxParameters({ accessKey }),
+    }),
+  ],
+})
+```
+
+See [Managing agent spend](/guides/managing-agent-spend) for limits, scopes, recipients, and revocation.
