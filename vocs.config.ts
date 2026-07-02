@@ -68,10 +68,6 @@ export default defineConfig({
       source: "/agent-sdks/vercel-ai-sdk",
       destination: "/partner-integrations/vercel-ai-sdk",
     },
-    {
-      source: "/partner-sdks/cloudflare-agents",
-      destination: "/partner-integrations/cloudflare-agents",
-    },
     { source: "/challenges", destination: "/protocol/challenges" },
     { source: "/challenge", destination: "/protocol/challenges" },
     { source: "/credentials", destination: "/protocol/credentials" },
