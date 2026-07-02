@@ -60,6 +60,10 @@ export default defineConfig({
       source: "/guides/upgrade-x402",
       destination: "/guides/use-mpp-with-x402",
     },
+    {
+      source: "/partner-sdks/cloudflare-agents",
+      destination: "/agent-sdks/cloudflare-agents",
+    },
     { source: "/challenges", destination: "/protocol/challenges" },
     { source: "/challenge", destination: "/protocol/challenges" },
     { source: "/credentials", destination: "/protocol/credentials" },
@@ -290,7 +294,13 @@ export default defineConfig({
       },
       {
         text: "Partner Integrations",
-        items: [{ text: "Vercel AI SDK", link: "/agent-sdks/vercel-ai-sdk" }],
+        items: [
+          {
+            text: "Cloudflare Agents",
+            link: "/agent-sdks/cloudflare-agents",
+          },
+          { text: "Vercel AI SDK", link: "/agent-sdks/vercel-ai-sdk" },
+        ],
       },
       {
         text: "Guides",

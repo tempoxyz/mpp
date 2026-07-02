@@ -1,0 +1,75 @@
+---
+description: "Use mppx with Cloudflare Agents, MCP tools, and HTTP requests."
+imageDescription: "Connect Cloudflare Agents to paid MPP MCP tools and HTTP APIs"
+---
+
+# Cloudflare Agents
+
+Use [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap) and [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let a [Cloudflare Agent](https://developers.cloudflare.com/agents/) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the wrapped client creates a Credential, retries the call, and returns the result.
+
+```bash [terminal]
+$ pnpm add agents mppx viem
+```
+
+```ts [payments.ts]
+import { privateKeyToAccount } from 'viem/accounts'
+
+export const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+```
+
+:::info
+The example uses an environment private key for brevity. For production agents, manage spend with scoped access keys instead of giving the runtime a private key. See [Managing agent spend](/guides/managing-agent-spend).
+:::
+
+## Pay for MCP tools
+
+Connect the MCP server, then wrap the client stored on the Cloudflare MCP connection. Calls through the wrapped client are payment-aware.
+
+```ts [agent.ts]
+import { Agent } from 'agents'
+import { tempo } from 'mppx/client'
+import { McpClient } from 'mppx/mcp/client'
+import { account } from './payments'
+
+export class MyAgent extends Agent {
+  async onStart() {
+    const { id } = await this.mcp.connect('<mcp-url>')
+    const client = McpClient.wrap(this.mcp.mcpConnections[id].client, {
+      methods: [tempo({ account })],
+    })
+
+    const result = await client.callTool({
+      name: 'premium_search',
+      arguments: { query: 'tempo' },
+    })
+
+    console.log(result)
+  }
+}
+```
+
+`McpClient.wrap` keeps the Cloudflare MCP connection shape intact. The agent can keep using the same client APIs.
+
+## Pay for HTTP requests
+
+Call `Mppx.create` before the agent makes HTTP requests. It installs the payment-aware fetch, so later `fetch` calls in the same runtime can handle free responses, paid MPP responses, and [x402 payment challenges](/guides/use-mpp-with-x402).
+
+```ts [agent.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { account } from './payments'
+
+Mppx.create({
+  methods: [tempo({ account })],
+})
+
+export async function paidPing() {
+  const response = await fetch('https://mpp.dev/api/ping/paid')
+  return response.json()
+}
+```
+
+## Manage agent spend
+
+The examples above use a standard viem account. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
+
+Create the access key first, then pass the Tempo account into the same `tempo({ account })` setup. See [Managing agent spend](/guides/managing-agent-spend).
