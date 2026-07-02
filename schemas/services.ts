@@ -10978,4 +10978,40 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Tempo Data API ─────────────────────────────────────────────────────
+  {
+    id: "tempo-data-api",
+    name: "Tempo Data API",
+    url: "https://venture-mpp.vercel.app",
+    serviceUrl: "https://venture-mpp.vercel.app",
+    description:
+      "Pay-per-call on-chain data for Tempo mainnet: TIP-20 token metadata (name, symbol, decimals, total supply) and holder balances, read straight from the chain. No signup, no API key.",
+
+    categories: ["blockchain", "data"],
+    integration: "third-party",
+    tags: ["tempo", "onchain", "tip-20", "erc-20", "token", "balance", "rpc"],
+    status: "active",
+    docs: {
+      homepage: "https://venture-mpp.vercel.app",
+      apiReference: "https://venture-mpp.vercel.app/openapi.json",
+    },
+    provider: { name: "venture", url: "https://venture-mpp.vercel.app" },
+    realm: "venture-mpp.vercel.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /tempo/token",
+        desc: "TIP-20 token metadata: name, symbol, decimals, totalSupply for any token address",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /tempo/balance",
+        desc: "TIP-20 token balance of a holder (raw + formatted)",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
