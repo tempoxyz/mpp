@@ -23,7 +23,7 @@ The example uses an environment private key for brevity. For production agents, 
 
 ## Pay for MCP tools
 
-Connect the MCP server, then wrap the client stored on the Cloudflare MCP connection. Calls through the wrapped client are payment-aware.
+Add the MCP server, then wrap the client stored on the Cloudflare MCP connection. Calls through the wrapped client are payment-aware.
 
 ```ts [agent.ts]
 import { Agent } from 'agents'
@@ -33,7 +33,7 @@ import { account } from './payments'
 
 export class MyAgent extends Agent {
   async onStart() {
-    const { id } = await this.mcp.connect('<mcp-url>')
+    const { id } = await this.addMcpServer('premium-search', '<mcp-url>')
     const client = McpClient.wrap(this.mcp.mcpConnections[id].client, {
       methods: [tempo({ account })],
     })
