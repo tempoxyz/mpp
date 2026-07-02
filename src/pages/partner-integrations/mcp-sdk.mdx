@@ -1,0 +1,62 @@
+---
+description: "Use mppx with the official TypeScript MCP SDK."
+---
+
+# Official MCP SDK
+
+Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let the [official TypeScript MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the wrapped client creates a Credential, retries the call, and returns the result.
+
+```bash [terminal]
+$ pnpm add mppx viem @modelcontextprotocol/sdk
+```
+
+```ts [payments.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+Mppx.create({
+  methods: [tempo({ account })],
+})
+```
+
+## Pay for MCP tools
+
+Create the MCP client after `Mppx.create`. The Streamable HTTP transport uses the payment-aware fetch for both free and paid tool calls.
+
+```ts [client.ts]
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
+import './payments'
+
+const client = new Client({ name: 'mpp-app', version: '1.0.0' })
+
+await client.connect(new StreamableHTTPClientTransport(new URL('<mcp-url>')))
+
+const result = await client.callTool({
+  name: 'premium_search',
+  arguments: { query: 'tempo' },
+})
+
+console.log(result)
+```
+
+## Pay for HTTP requests
+
+Call `Mppx.create` before making HTTP requests. It installs the payment-aware fetch, so later `fetch` calls in the same runtime can handle free responses, paid MPP responses, and [x402 payment challenges](/guides/use-mpp-with-x402).
+
+```ts [client.ts]
+import './payments'
+
+export async function paidPing() {
+  const response = await fetch('https://mpp.dev/api/ping/paid')
+  return response.json()
+}
+```
+
+## Manage agent spend
+
+The example above uses a standard viem account. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
+
+Create the access key first, then pass the Tempo account into the same `Mppx.create` setup. See [Managing agent spend](/guides/managing-agent-spend).
