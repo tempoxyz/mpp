@@ -10985,11 +10985,20 @@ export const services: ServiceDef[] = [
     url: "https://venture-mpp.vercel.app",
     serviceUrl: "https://venture-mpp.vercel.app",
     description:
-      "Pay-per-call on-chain data for Tempo mainnet: TIP-20 token metadata (name, symbol, decimals, total supply) and holder balances, read straight from the chain. No signup, no API key.",
+      "Pay-per-call on-chain data for Tempo mainnet — TIP-20 token metadata (name, symbol, decimals, total supply) and holder balances read straight from the chain — plus AI image generation (~1024px PNG). No signup, no API key.",
 
-    categories: ["blockchain", "data"],
+    categories: ["ai", "blockchain", "data"],
     integration: "third-party",
-    tags: ["tempo", "onchain", "tip-20", "erc-20", "token", "balance", "rpc"],
+    tags: [
+      "tempo",
+      "onchain",
+      "tip-20",
+      "erc-20",
+      "token",
+      "balance",
+      "rpc",
+      "image-generation",
+    ],
     status: "active",
     docs: {
       homepage: "https://venture-mpp.vercel.app",
@@ -11010,6 +11019,12 @@ export const services: ServiceDef[] = [
         route: "GET /tempo/balance",
         desc: "TIP-20 token balance of a holder (raw + formatted)",
         amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /image",
+        desc: "AI image generation (~1024px): send {prompt, aspect?, format?}, get raw PNG bytes or base64 JSON",
+        amount: "100000",
         unitType: "request",
       },
     ],
