@@ -13,16 +13,20 @@ $ openclaw plugins enable mpp
 
 ## Set up payments
 
-Configure the payment account and the origins OpenClaw is allowed to pay.
+Set `TEMPO_PRIVATE_KEY` in the OpenClaw gateway environment, then restart the gateway.
+
+```bash [terminal]
+$ TEMPO_PRIVATE_KEY=0x... openclaw gateway run
+```
+
+By default, the plugin can pay any origin. Add `allowedOrigins` when an OpenClaw runtime should only pay specific origins.
 
 ```json5 [openclaw.json]
 {
   plugins: {
     entries: {
       mpp: {
-        enabled: true,
         config: {
-          privateKey: "0x...",
           allowedOrigins: ["https://mpp.dev"],
         },
       },
@@ -32,12 +36,6 @@ Configure the payment account and the origins OpenClaw is allowed to pay.
 ```
 
 ## Pay for HTTP requests
-
-Restart the gateway after changing plugin config.
-
-```bash [terminal]
-$ openclaw gateway restart
-```
 
 After the plugin loads, OpenClaw code in the gateway process that uses `fetch` can call free and paid HTTP endpoints through the same path. The plugin also exposes an `mpp_fetch` tool for requests that should explicitly use the payment-aware fetch.
 
