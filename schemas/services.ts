@@ -3189,6 +3189,65 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── GitHub Releases Intelligence ──────────────────────────────────────
+  {
+    id: "github-releases-intelligence",
+    name: "GitHub Releases Intelligence",
+    url: "https://mpp.agent-signals.com",
+    serviceUrl: "https://mpp.agent-signals.com",
+    description:
+      "Structured, metadata-only GitHub Releases intelligence for agents. Check one or more repositories for recent release activity without returning release notes, changelogs, or raw GitHub API payloads.",
+
+    categories: ["data"],
+    integration: "third-party",
+    tags: [
+      "github",
+      "releases",
+      "developer-tools",
+      "monitoring",
+      "metadata",
+      "agents",
+      "software",
+      "changelog",
+    ],
+    status: "beta",
+    docs: {
+      homepage: "https://mpp.agent-signals.com/",
+      llmsTxt: "https://mpp.agent-signals.com/llms.txt",
+      apiReference: "https://mpp.agent-signals.com/openapi.json",
+    },
+    provider: {
+      name: "Agent Signals",
+      url: "https://mpp.agent-signals.com",
+    },
+    realm: "mpp.agent-signals.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /github/releases/latest",
+        desc: "Return sanitized GitHub Releases metadata for one repository",
+        amount: "15000",
+        unitType: "repo_check",
+      },
+      {
+        route: "POST /github/releases/batch",
+        desc: "Check sanitized GitHub Releases metadata for multiple repositories",
+        dynamic: true,
+        amountHint: "0.015 USDC.e per repository",
+        unitType: "repo_check",
+      },
+      {
+        route: "POST /github/releases/latest/quote",
+        desc: "Free quote for one GitHub Releases latest check",
+      },
+      {
+        route: "POST /github/releases/quote",
+        desc: "Free quote for batch GitHub Releases checks",
+      },
+    ],
+  },
+
   // ── FlightAPI ──────────────────────────────────────────────────────────
   {
     id: "flightapi",
