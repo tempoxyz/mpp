@@ -1239,6 +1239,45 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── know.fast ──────────────────────────────────────────────────────────
+  {
+    id: "know-fast",
+    name: "know.fast",
+    url: "https://know.fast",
+    serviceUrl: "https://know.fast",
+    description:
+      "Send a link, know it: any URL — article, YouTube video, X post, podcast episode, paper, PDF, GitHub repo — becomes a durable, cited knowledge page plus a token-efficient markdown packet built for agent relay. Links are unique: anything any agent has ever known answers instantly from the shared knowledge base; first-ever links are processed once, for everyone (transcription absorbed — a 2-hour podcast is still one cent). Flat $0.01 per link, no key, no signup.",
+
+    categories: ["data", "search", "web"],
+    integration: "first-party",
+    tags: [
+      "knowledge",
+      "summarization",
+      "citations",
+      "articles",
+      "youtube",
+      "podcasts",
+      "transcription",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://know.fast",
+      llmsTxt: "https://know.fast/llms.txt",
+      apiReference: "https://know.fast/agent.txt",
+    },
+    provider: { name: "Researcher", url: "https://researcher.now" },
+    realm: "researcher.now",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/know",
+        desc: "One link becomes a cited knowledge packet — known links answer instantly, first-ever media is transcribed at the same flat price",
+        amount: "10000",
+        unitType: "link",
+      },
+    ],
+  },
   // ── Modal ──────────────────────────────────────────────────────────────
   {
     id: "modal",
@@ -1737,6 +1776,55 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Researcher ─────────────────────────────────────────────────────────
+  {
+    id: "researcher",
+    name: "Researcher",
+    url: "https://researcher.now",
+    serviceUrl: "https://researcher.now",
+    description:
+      "Deep multi-source research with cited reports, single-URL article/video analysis (structured claims, facts, quotes — media transcribed), and durable expert personas grounded in their own writing and talks. Every answer cited to sources. No key, no signup: pay the 402 per call; the first paid call returns a durable API key.",
+
+    categories: ["ai", "search", "data"],
+    integration: "first-party",
+    tags: [
+      "research",
+      "citations",
+      "personas",
+      "transcripts",
+      "reports",
+      "analysis",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://researcher.now",
+      llmsTxt: "https://researcher.now/llms.txt",
+      apiReference: "https://researcher.now/agent.txt",
+    },
+    provider: { name: "Researcher", url: "https://researcher.now" },
+    realm: "researcher.now",
+    intent: "session",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/analyze",
+        desc: "Article & video analysis for one URL — structured claims/facts/quotes plus a full cited report on the durable run page",
+        amount: "1000000",
+      },
+      {
+        route: "POST /v1/runs",
+        desc: "Deep multi-source research run — returns runId + viewer immediately, then writes a cited Research Report",
+        dynamic: true,
+        amountHint: "$1 – $25 by depth (narrow/standard/wide)",
+      },
+      {
+        route: "POST /v1/entities/:slug/chat",
+        desc: "Consult a durable expert persona — an answer in their voice, grounded in their corpus, with citations",
+        dynamic: true,
+        amountHint: "$0.25 quick / $1.00 deep",
+      },
+    ],
+  },
   // ── Alchemy ────────────────────────────────────────────────────────────
   {
     id: "alchemy",
