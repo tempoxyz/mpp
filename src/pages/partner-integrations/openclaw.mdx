@@ -4,97 +4,45 @@ description: "Use MPP with OpenClaw."
 
 # OpenClaw
 
-Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) from an [OpenClaw plugin](https://docs.openclaw.ai/plugins/building-plugins) to make plugin-owned HTTP requests and MCP tool calls payment-aware. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, `mppx` creates a Credential, retries the call, and returns the result.
+Use the official MPP plugin to make OpenClaw HTTP requests payment-aware. Free calls pass through untouched; when a 402-protected request returns an MPP or [x402](/guides/use-mpp-with-x402) Challenge, `mppx` creates a Credential, retries the call, and returns the result.
 
 ```bash [terminal]
-$ pnpm add mppx viem openclaw typebox @modelcontextprotocol/sdk
+$ openclaw plugins install clawhub:@tempoxyz/openclaw-mpp
+$ openclaw plugins enable mpp
 ```
 
-```ts [payments.ts]
-import { Mppx, tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
+## Set up payments
 
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+Configure the payment account and the origins OpenClaw is allowed to pay.
 
-export const mppx = Mppx.create({
-  methods: [tempo({ account })],
-})
+```json5 [openclaw.json]
+{
+  plugins: {
+    entries: {
+      mpp: {
+        enabled: true,
+        config: {
+          privateKey: "0x...",
+          allowedOrigins: ["https://mpp.dev"],
+        },
+      },
+    },
+  },
+}
 ```
 
 ## Pay for HTTP requests
 
-Register the plugin on startup, then use the payment-aware fetch for HTTP calls your plugin owns.
+Restart the gateway after changing plugin config.
 
-```ts [index.ts]
-import { definePluginEntry } from 'openclaw/plugin-sdk/plugin-entry'
-import { Type } from 'typebox'
-import { mppx } from './payments'
-
-export default definePluginEntry({
-  id: 'mpp-payments',
-  name: 'MPP Payments',
-  description: 'Adds payment-aware OpenClaw tools.',
-  register(api) {
-    api.registerTool({
-      name: 'paid_ping',
-      description: 'Call a paid MPP HTTP endpoint.',
-      parameters: Type.Object({}),
-      async execute() {
-        const response = await mppx.fetch('https://mpp.dev/api/ping/paid')
-        return {
-          content: [{ type: 'text', text: JSON.stringify(await response.json()) }],
-        }
-      },
-    })
-  },
-})
+```bash [terminal]
+$ openclaw gateway restart
 ```
 
-## Pay for MCP tools
-
-For paid MCP tools, create the MCP client inside the plugin and pass the same payment-aware fetch to the Streamable HTTP transport.
-
-```ts [mcp.ts]
-import { Client } from '@modelcontextprotocol/sdk/client/index.js'
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
-import { mppx } from './payments'
-
-const client = new Client({
-  name: 'openclaw-mpp',
-  version: '1.0.0',
-})
-
-await client.connect(
-  new StreamableHTTPClientTransport(new URL('<mcp-url>'), {
-    fetch: mppx.fetch,
-  }),
-)
-
-const result = await client.callTool({
-  name: 'premium_search',
-  arguments: { query: 'tempo' },
-})
-
-console.log(result)
-```
-
-OpenClaw-managed MCP servers configured through `openclaw mcp` currently use OpenClaw's own guarded HTTP fetch. Until OpenClaw exposes a fetch override for that registry, use the plugin-owned MCP client pattern above for paid MCP tools.
+After the plugin loads, OpenClaw code in the gateway process that uses `fetch` can call free and paid HTTP endpoints through the same path. The plugin also exposes an `mpp_fetch` tool for requests that should explicitly use the payment-aware fetch.
 
 ## Manage agent spend
 
-The examples above use a standard viem account. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
-
-Create the access key first, then pass the Tempo account into the same setup.
-
-```ts [payments.ts]
-export const mppx = Mppx.create({
-  methods: [
-    tempo({
-      account: provider.getAccount(),
-      ...provider.getMppxParameters({ accessKey }),
-    }),
-  ],
-})
-```
+The example above uses a raw payment key. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
 
 See [Managing agent spend](/guides/managing-agent-spend) for limits, scopes, recipients, and revocation.
