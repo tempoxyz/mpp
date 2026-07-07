@@ -68,6 +68,37 @@ export async function paidPing() {
 }
 ```
 
+## Support MPP and x402 clients
+
+Register an EVM method beside your Tempo method when the agent needs to call APIs that support either native MPP or x402 exact. The same payment-aware fetch reads MPP `WWW-Authenticate` Challenges and x402 `PAYMENT-REQUIRED` Challenges, then retries with the matching `Authorization` or `PAYMENT-SIGNATURE` header.
+
+```ts [payments.ts]
+import { Mppx, evm, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+
+Mppx.create({
+  acceptPaymentPolicy: {
+    origins: ['https://api.example.com'],
+  },
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      account,
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+    tempo.charge({ account }),
+    // [!code hl:end]
+  ],
+})
+```
+
+Use this setup before creating MCP transports or calling `fetch`. MCP tool calls can keep using MPP through the wrapped client, while HTTP calls can pay either native MPP or x402 exact endpoints.
+
+See [build a client for MPP and x402](/guides/use-mpp-with-x402#build-a-client-for-mpp-and-x402) for the shared client flow.
+
 ## Manage agent spend
 
 The examples above use a standard viem account. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
