@@ -76,6 +76,15 @@ console.log(response.status)
 
 ## Known assets
 
+`mppx` ships known assets for the following networks:
+
+| Network      | Chain ID   | Known assets                                   |
+| ------------ | ---------- | ---------------------------------------------- |
+| Base         | `8453`     | `evm.assets.base.USDC`                         |
+| Base Sepolia | `84532`    | `evm.assets.baseSepolia.USDC`                  |
+| Celo         | `42220`    | `evm.assets.celo.USDC`, `evm.assets.celo.USDT` |
+| Celo Sepolia | `11142220` | `evm.assets.celoSepolia.USDC`                  |
+
 Use known assets when possible so `mppx` can infer the chain ID, token decimals, and authorization metadata:
 
 ```ts twoslash
