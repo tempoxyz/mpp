@@ -289,23 +289,6 @@ export default defineConfig({
         ],
       },
       {
-        text: "Partner Integrations",
-        items: [
-          {
-            text: "Cloudflare Agents",
-            link: "/partner-integrations/cloudflare-agents",
-          },
-          {
-            text: "Official MCP SDK",
-            link: "/partner-integrations/mcp-sdk",
-          },
-          {
-            text: "Vercel AI SDK",
-            link: "/partner-integrations/vercel-ai-sdk",
-          },
-        ],
-      },
-      {
         text: "Guides",
         items: [
           {
@@ -379,6 +362,23 @@ export default defineConfig({
               { text: "MCP and JSON-RPC", link: "/protocol/transports/mcp" },
               { text: "WebSocket", link: "/protocol/transports/websocket" },
             ],
+          },
+        ],
+      },
+      {
+        text: "Partner Integrations",
+        items: [
+          {
+            text: "Cloudflare Agents",
+            link: "/partner-integrations/cloudflare-agents",
+          },
+          {
+            text: "Official MCP SDK",
+            link: "/partner-integrations/mcp-sdk",
+          },
+          {
+            text: "Vercel AI SDK",
+            link: "/partner-integrations/vercel-ai-sdk",
           },
         ],
       },
