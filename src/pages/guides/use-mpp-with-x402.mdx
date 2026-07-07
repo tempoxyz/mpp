@@ -181,6 +181,88 @@ console.log(response.status)
 // @log: 200
 ```
 
+### Build a client for MPP and x402
+
+Register `evm.charge` for x402 exact Challenges and the MPP methods you want to support. The HTTP client reads both `WWW-Authenticate` and `PAYMENT-REQUIRED`, then retries with either `Authorization` or `PAYMENT-SIGNATURE`.
+
+```ts twoslash [client.ts]
+import { Fetch, evm, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(
+  '0x0123456789012345678901234567890123456789012345678901234567890123',
+)
+
+const fetch = Fetch.from({
+  acceptPaymentPolicy: {
+    origins: ['https://api.example.com'],
+  },
+  methods: [
+    evm.charge({
+      account,
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+    tempo.charge({ account }),
+  ],
+})
+
+const response = await fetch('https://api.example.com/paid')
+console.log(response.status)
+// @log: 200
+```
+
+Use this pattern for coding agents, CLIs, SDKs, and application clients that need to call both native MPP APIs and x402 exact APIs.
+
+### Send x402 headers manually
+
+Use `Mppx.create` when you need explicit control over the first request and retry. `createCredential` returns a `PAYMENT-SIGNATURE` value when the selected Challenge came from `PAYMENT-REQUIRED`.
+
+```ts twoslash [client.ts]
+import { Mppx, evm } from 'mppx/client'
+import { x402 } from 'mppx'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(
+  '0x0123456789012345678901234567890123456789012345678901234567890123',
+)
+
+const mppx = Mppx.create({
+  methods: [
+    evm.charge({
+      account,
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+  ],
+  polyfill: false,
+})
+
+const challenge = await mppx.rawFetch('https://api.example.com/paid')
+if (challenge.status !== 402) throw new Error('Expected payment challenge')
+
+const paymentRequired = challenge.headers.get(x402.Types.paymentRequiredHeader)
+if (!paymentRequired) throw new Error('Missing PAYMENT-REQUIRED')
+
+const credential = await mppx.createCredential(
+  new Response(null, {
+    headers: {
+      [x402.Types.paymentRequiredHeader]: paymentRequired,
+    },
+    status: 402,
+  }),
+)
+
+const response = await mppx.rawFetch('https://api.example.com/paid', {
+  headers: {
+    [x402.Types.paymentSignatureHeader]: credential,
+  },
+})
+
+console.log(response.status)
+// @log: 200
+```
+
 :::tip
 Because MPP uses the standard `WWW-Authenticate` scheme, it works with HTTP intermediaries (proxies, CDNs, API gateways) that understand [RFC 7235](https://www.rfc-editor.org/rfc/rfc7235) authentication.
 :::

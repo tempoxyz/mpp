@@ -97,3 +97,37 @@ app.get(
   },
 )
 ```
+
+## x402-compatible clients
+
+Hono apps, including apps deployed on Cloudflare Workers, can serve MPP and x402 clients from the same endpoint when you register [`evm.charge`](/payment-methods/evm/charge) with `x402.facilitator`.
+
+```ts [worker.ts]
+import { Hono } from 'hono'
+import { Mppx, evm } from 'mppx/hono'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      x402: {
+        facilitator: 'https://x402.org/facilitator',
+      },
+    }),
+  ],
+  secretKey: 'local-dev-secret',
+})
+
+app.get(
+  '/paid',
+  mppx.evm.charge({ amount: '0.01', description: 'Premium API access' }),
+  (c) => c.json({ data: 'paid content' }),
+)
+
+export default app
+```
+
+See [build a client for MPP and x402](/guides/use-mpp-with-x402#build-a-client-for-mpp-and-x402) for the client setup.
