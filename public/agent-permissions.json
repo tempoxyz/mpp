@@ -1,0 +1,36 @@
+{
+  "$schema": "https://mpp.dev/schemas/agent-permissions.schema.json",
+  "agentUserAgents": ["ChatGPT-User", "ClaudeBot", "GPTBot", "PerplexityBot"],
+  "allowedActions": [
+    "read-documentation",
+    "read-discovery",
+    "read-openapi",
+    "read-skill"
+  ],
+  "allowedPaths": [
+    "/",
+    "/.well-known/*",
+    "/AGENTS.md",
+    "/agent-permissions.json",
+    "/api/api-catalog",
+    "/api/openapi.json",
+    "/assets/md/*",
+    "/llms-full.txt",
+    "/llms.txt",
+    "/services/llms.txt"
+  ],
+  "disallowedActions": ["execute-payment", "submit-credential", "write-data"],
+  "humanRequiredActions": [
+    "execute-payment",
+    "send-transaction",
+    "store-private-key"
+  ],
+  "permissions": {
+    "read": true,
+    "write": false
+  },
+  "rateLimits": {
+    "burst": 60,
+    "period": "1m"
+  }
+}

@@ -3,6 +3,7 @@ import { mppx } from "../../../mppx.server";
 
 const AGENT_SKILLS_INDEX_URL =
   "https://mpp.dev/.well-known/agent-skills/index.json";
+const AGENT_PERMISSIONS_URL = "https://mpp.dev/agent-permissions.json";
 const API_CATALOG_URL = "https://mpp.dev/.well-known/api-catalog";
 const MCP_SERVER_CARD_URL = "https://mpp.dev/.well-known/mcp.json";
 const OPENAPI_LINK_HEADER_VALUE = [
@@ -58,6 +59,7 @@ function normalizeServiceInfo(document: Record<string, unknown>) {
   if (!isRecord(serviceInfo)) return;
 
   serviceInfo.apiCatalog = API_CATALOG_URL;
+  serviceInfo.agentPermissions = AGENT_PERMISSIONS_URL;
   serviceInfo.agentSkills = AGENT_SKILLS_INDEX_URL;
   serviceInfo.mcpServerCard = MCP_SERVER_CARD_URL;
 

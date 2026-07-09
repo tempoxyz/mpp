@@ -865,9 +865,8 @@ aside[data-v-callout] a:hover {
   margin-left: 1.5rem !important;
 }
 
-/* Copy page for AI — align with TOC left edge */
-[data-v-outline] [data-v-copy-for-ai] {
-  margin-left: 1.5rem !important;
+[data-v-copy-for-ai] {
+  display: none !important;
 }
 
 /* Non-selected code-group / tab icons greyscale */
