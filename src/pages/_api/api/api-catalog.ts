@@ -31,6 +31,11 @@ const apiCatalog = {
           title: "Build with an LLM",
           type: "text/html",
         },
+        {
+          href: "https://mpp.dev/AGENTS.md",
+          title: "Agent instructions",
+          type: "text/markdown",
+        },
       ],
       status: [
         {
@@ -43,6 +48,11 @@ const apiCatalog = {
         {
           href: "https://mpp.dev/.well-known/agent-skills/index.json",
           title: "Agent Skills discovery index",
+          type: "application/json",
+        },
+        {
+          href: "https://mpp.dev/agent-permissions.json",
+          title: "Agent permissions",
           type: "application/json",
         },
       ],

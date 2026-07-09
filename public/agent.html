@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MPP agent index</title>
+    <meta
+      name="description"
+      content="Agent-readable entry point for MPP docs, API discovery, skills, permissions, and Markdown source."
+    />
+    <meta name="ai:page-type" content="agent-index" />
+    <meta name="ai:token-count" content="1200" />
+    <link rel="canonical" href="https://mpp.dev/agent.html" />
+  </head>
+  <body>
+    <main>
+      <article>
+        <h1>MPP agent index</h1>
+        <p>
+          Use this page as the compact HTML entry point for agents integrating
+          MPP, mppx, or HTTP 402 payment flows. It links to the canonical
+          Markdown, skill, permissions, and API discovery documents.
+        </p>
+
+        <section>
+          <h2>Primary files</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="/llms.txt">llms.txt</a></td>
+                <td>Short documentation index grouped for agent retrieval.</td>
+              </tr>
+              <tr>
+                <td><a href="/llms-full.txt">llms-full.txt</a></td>
+                <td>Complete Markdown corpus for long-context agents.</td>
+              </tr>
+              <tr>
+                <td><a href="/AGENTS.md">AGENTS.md</a></td>
+                <td>Project conventions, key files, and build commands.</td>
+              </tr>
+              <tr>
+                <td><a href="/agent-permissions.json">agent-permissions.json</a></td>
+                <td>Allowed interactions, human gates, and rate limits.</td>
+              </tr>
+              <tr>
+                <td><a href="/.well-known/agent-skills/mppx/SKILL.md">mppx skill</a></td>
+                <td>Capabilities, inputs, constraints, and references.</td>
+              </tr>
+              <tr>
+                <td><a href="/.well-known/api-catalog">API catalog</a></td>
+                <td>Linkset discovery for docs, OpenAPI, skills, and metadata.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section>
+          <h2>Recommended flow</h2>
+          <p>
+            Start with <a href="/llms.txt">llms.txt</a>, fetch the smallest
+            Markdown page that answers the task, then use the skill and API
+            catalog only when you need integration details or machine-readable
+            endpoints.
+          </p>
+          <pre><code>curl https://mpp.dev/llms.txt
+curl https://mpp.dev/.well-known/agent-skills/mppx/SKILL.md
+curl https://mpp.dev/agent-permissions.json</code></pre>
+        </section>
+
+        <section>
+          <h2>Human-agent bridge</h2>
+          <p>
+            Documentation pages expose clean Markdown mirrors under
+            <code>/assets/md/</code>. Use the Copy for AI control in the page UI
+            or fetch the Markdown directly.
+          </p>
+          <button type="button" data-copy-ai="" aria-label="Copy for AI">
+            Copy for AI
+          </button>
+          <button type="button" data-copy="" aria-label="Copy command">
+            Copy command
+          </button>
+          <p>
+            <a href="/assets/md/index.md">View homepage as Markdown</a>
+          </p>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>

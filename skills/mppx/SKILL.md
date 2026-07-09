@@ -7,6 +7,32 @@ description: TypeScript SDK for the Payment HTTP Authentication Scheme. Handles 
 
 TypeScript SDK for the "Payment" HTTP Authentication Scheme. Full 402 flow: challenge → credential → receipt.
 
+## What I can accomplish
+
+- Add `402` payment handling to a client with `Fetch.polyfill` or `Fetch.from`.
+- Protect HTTP routes with server-side MPP Challenges and Receipt responses.
+- Accept one-time Tempo stablecoin payments with `tempo.charge`.
+- Accept metered Tempo stablecoin payments with `tempo.session`.
+- Accept one-time card payments with `stripe.charge`.
+- Verify Credentials directly for custom transports or background workflows.
+- Wrap MCP clients and servers so tool calls can require payment.
+
+## Required inputs
+
+- Client integrations need a signing account and one or more client payment methods.
+- Server integrations need a recipient, currency, amount, and `MPP_SECRET_KEY`.
+- Tempo examples use chain ID `4217` unless a page explicitly covers Moderato testnet.
+- Stripe examples need a configured Stripe account and Shared Payment Token flow.
+- MCP integrations need the MCP client or server object to wrap.
+
+## Constraints
+
+- Keep `MPP_SECRET_KEY` server-side and out of logs.
+- Never commit private keys or wallet seeds.
+- Treat runtime `402` Challenges as authoritative for current payment terms.
+- Return `id` and `opaque` unchanged when responding to a Challenge.
+- Use `USDC.e` for Tempo bridged USDC examples, not generic USDC.
+
 ## Client
 
 ```ts
@@ -93,7 +119,9 @@ npx mppx example.com -v        # verbose output
 
 ## References
 
-- Docs: https://mpp.dev/sdk/typescript
-- Repo: https://github.com/wevm/mppx
-- Spec: https://github.com/tempoxyz/payment-auth-spec
-- Tempo: https://docs.tempo.xyz
+- [TypeScript SDK docs](https://mpp.dev/sdk/typescript)
+- [Client quickstart](https://mpp.dev/quickstart/client)
+- [Server quickstart](https://mpp.dev/quickstart/server)
+- [mppx repository](https://github.com/wevm/mppx)
+- [IETF Specification](https://paymentauth.org)
+- [Tempo docs](https://docs.tempo.xyz)

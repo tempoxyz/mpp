@@ -47,8 +47,11 @@ const CACHE_HEADERS = [
 
 const DOC_SECTIONS = [
   "advanced",
+  "blog",
   "guides",
+  "intents",
   "overview",
+  "partner-integrations",
   "payment-methods",
   "protocol",
   "quickstart",
@@ -58,8 +61,17 @@ const DOC_SECTIONS = [
   "use-cases",
 ];
 
+const DOC_STANDALONE_PAGES = [
+  "/brand",
+  "/extensions",
+  "/faq",
+  "/governance",
+  "/mpp-vs-x402",
+];
+
 const DISCOVERY_PAGE_SOURCES = [
   "/",
+  ...DOC_STANDALONE_PAGES,
   ...DOC_SECTIONS.flatMap((section) => [`/${section}`, `/${section}/:path*`]),
 ];
 

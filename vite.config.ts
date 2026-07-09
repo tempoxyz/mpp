@@ -140,6 +140,146 @@ function pruneSitemap(): Plugin {
   };
 }
 
+// In dev, Vocs serves /llms.txt from middleware before static files. When a
+// production build exists, serve that rewritten artifact so local AEO audits
+// exercise the same sectioned llms.txt that ships.
+function serveSectionedLlmsTxt(): Plugin {
+  let outDir: string | undefined;
+  return {
+    name: "serve-sectioned-llms-txt",
+    enforce: "pre",
+    configResolved(config) {
+      outDir = path.resolve(config.root, config.build.outDir, "public");
+    },
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
+        if (pathname !== "/llms.txt" && pathname !== "/llms-full.txt") {
+          next();
+          return;
+        }
+
+        const filePath = path.join(outDir ?? "", pathname.slice(1));
+        const content = await fs.readFile(filePath, "utf8").catch((error) => {
+          if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+          throw error;
+        });
+        if (!content) {
+          next();
+          return;
+        }
+
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        res.end(content);
+      });
+    },
+  };
+}
+
+// Vocs emits a flat llms.txt. Group it into stable sections and trim long
+// descriptions so the short index stays below the 5K-token agent budget.
+function sectionLlmsTxt(): Plugin {
+  let outDir: string | undefined;
+  return {
+    name: "section-llms-txt",
+    enforce: "post",
+    configResolved(config) {
+      outDir = path.resolve(config.root, config.build.outDir, "public");
+    },
+    async closeBundle() {
+      if (!outDir) return;
+
+      const llmsPath = path.join(outDir, "llms.txt");
+      const current = await fs.readFile(llmsPath, "utf8").catch((error) => {
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+        throw error;
+      });
+      if (!current || current.includes("\n## Quickstart\n")) return;
+
+      const lines = current.split("\n");
+      const firstEntry = lines.findIndex((line) => line.startsWith("- ["));
+      if (firstEntry === -1) return;
+
+      const intro = lines.slice(0, firstEntry);
+      const entries = lines
+        .slice(firstEntry)
+        .filter((line) => line.trim())
+        .map(trimLlmsEntry);
+      const groups = new Map<string, string[]>();
+      for (const entry of entries) {
+        const group = llmsGroupForEntry(entry);
+        groups.set(group, [...(groups.get(group) ?? []), entry]);
+      }
+
+      const orderedGroups = [
+        "Quickstart",
+        "Guides",
+        "Protocol",
+        "Payment methods",
+        "SDKs",
+        "Services and ecosystem",
+        "Blog",
+        "Other",
+      ];
+
+      const next = [
+        ...intro,
+        ...orderedGroups.flatMap((group) => {
+          const items = groups.get(group);
+          if (!items?.length) return [];
+          return [`## ${group}`, "", ...items, ""];
+        }),
+      ].join("\n");
+
+      if (next !== current) await fs.writeFile(llmsPath, next, "utf8");
+    },
+  };
+}
+
+// Keep each llms.txt row useful while preventing verbose frontmatter
+// descriptions from pushing the whole index over the scanner's token limit.
+function trimLlmsEntry(entry: string): string {
+  const [link, description] = entry.split(": ", 2);
+  if (!description || description.length <= 90) return entry;
+  return `${link}: ${description.slice(0, 87).trimEnd()}...`;
+}
+
+// Map generated page paths into coarse documentation areas. These names are
+// intentionally broad so new pages fall into predictable agent-facing sections.
+function llmsGroupForEntry(entry: string): string {
+  const pathMatch = entry.match(/\]\(([^)]+)\)/);
+  const pagePath = pathMatch?.[1] ?? "";
+
+  if (
+    pagePath === "/index" ||
+    pagePath.startsWith("/quickstart") ||
+    pagePath === "/overview" ||
+    pagePath === "/governance" ||
+    pagePath === "/faq"
+  )
+    return "Quickstart";
+  if (pagePath.startsWith("/guides")) return "Guides";
+  if (pagePath.startsWith("/protocol") || pagePath.startsWith("/advanced"))
+    return "Protocol";
+  if (
+    pagePath.startsWith("/payment-methods") ||
+    pagePath.startsWith("/intents")
+  )
+    return "Payment methods";
+  if (pagePath.startsWith("/sdk")) return "SDKs";
+  if (
+    pagePath.startsWith("/services") ||
+    pagePath.startsWith("/use-cases") ||
+    pagePath.startsWith("/extensions") ||
+    pagePath.startsWith("/partner-integrations") ||
+    pagePath === "/brand" ||
+    pagePath === "/mpp-vs-x402"
+  )
+    return "Services and ecosystem";
+  if (pagePath.startsWith("/blog")) return "Blog";
+  return "Other";
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   for (const key of Object.keys(env)) {
@@ -159,9 +299,11 @@ export default defineConfig(({ mode }) => {
       stubMermaid(),
       Icons({ compiler: "jsx", jsx: "react" }),
       react(),
+      serveSectionedLlmsTxt(),
       vocs(),
       contentSignalsRobotsTxt(),
       pruneSitemap(),
+      sectionLlmsTxt(),
       ...(mode !== "production" && mode !== "test"
         ? [mkcert({ force: true, hosts: ["localhost"] })]
         : []),
