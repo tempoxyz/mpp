@@ -1270,23 +1270,21 @@ export const services: ServiceDef[] = [
     endpoints: [
       {
         route: "POST /v1/mpp/topup",
-        desc: "Add credits via MPP — returns an API key on payment (default $5.00)",
+        desc: "Pay via MPP to add credits and receive an API key (default $5.00), then call the OpenAI-compatible forecasting API with that key",
         dynamic: true,
         amountHint: "$1-$10,000",
       },
       {
         route: "POST /v1/openai/chat/completions",
-        desc: "OpenAI-compatible chat completions for Foresight forecasting models — price varies by model, tokens, and research usage",
-        dynamic: true,
+        desc: "OpenAI-compatible chat completions for Foresight forecasting models with structured answers and research mode — requires an active balance from /v1/mpp/topup (billed against your API key)",
       },
       {
         route: "POST /v1/openai/completions",
-        desc: "OpenAI-compatible text completions — prefer chat/completions for multi-turn",
-        dynamic: true,
+        desc: "OpenAI-compatible text completions for Foresight forecasting models — requires an active balance from /v1/mpp/topup (billed against your API key)",
       },
       {
         route: "GET /v1/openai/models",
-        desc: "List available forecasting models (free)",
+        desc: "List available forecasting models.",
       },
     ],
   },
