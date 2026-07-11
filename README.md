@@ -21,16 +21,16 @@ The open protocol for machine-to-machine payments.
 [![IETF Spec](https://img.shields.io/badge/spec-paymentauth.org-blue)](https://paymentauth.org)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue)](LICENSE-MIT)
 
-[MPP](https://mpp.dev) lets any client — agents, apps, or humans — pay for any service in the same HTTP request. It standardizes [HTTP 402](https://mpp.dev/protocol/http-402) with an open [IETF specification](https://paymentauth.org), so servers can charge and clients can pay without API keys, billing accounts, or checkout flows.
+[MPP](https://mpp.dev), the Machine Payments Protocol, is an open standard for machine-to-machine payments co-authored by [Tempo](https://tempo.xyz) and [Stripe](https://stripe.com). Paid HTTP services typically require API keys, billing accounts, or checkout flows to be set up before a client can make a request. MPP lets agents, apps, and people pay inline with the request through an [HTTP `402 Payment Required` flow](https://mpp.dev/protocol/http-402). Common use cases include agentic payments, usage-based billing, and machine-to-machine commerce.
 
-You can get started today by reading the [protocol overview](https://mpp.dev/protocol/), jumping straight to the [quickstart](https://mpp.dev/quickstart/), or exploring the [SDKs](https://mpp.dev/sdk/).
+You can get started today by reading the [protocol overview](https://mpp.dev/protocol), jumping straight to the [quickstart](https://mpp.dev/quickstart), or exploring the [SDKs](https://mpp.dev/sdk).
 
 ## What's in this repo
 
-This repository contains the [mpp.dev](https://mpp.dev) documentation site and service directory.
+This repository contains the source for [mpp.dev](https://mpp.dev). It is the primary home for MPP documentation, protocol explainers, SDK references, and the directory of live MPP-enabled services. Start here if you are new to MPP, regardless of the language or platform you use.
 
-- **Documentation** — quickstart guides, protocol explainers, and SDK references
-- **Service Directory** — a registry of MPP-enabled services at [mpp.dev/services](https://mpp.dev/services)
+- **Documentation:** quickstart guides, protocol explainers, and SDK references
+- **Service directory:** a registry of MPP-enabled services at [mpp.dev/services](https://mpp.dev/services)
 
 ## Development
 
@@ -59,7 +59,7 @@ If you want your service included in the curated `mpp.dev/services` list, open a
 
 #### Recommended
 
-- [ ] Register your service on [MPPScan](https://www.mppscan.com/register) (by Merit Systems) — it follows the standard MPP discovery format and makes your service discoverable by agents immediately, no PR required
+- [ ] Register your service on [MPPScan](https://www.mppscan.com/register) (by Merit Systems). It follows the standard MPP discovery format and makes your service discoverable by agents immediately, no PR required
 
 #### Review criteria
 
@@ -67,7 +67,7 @@ We prioritize services that are **high quality and novel**. We may not approve s
 
 ### Add a new service
 
-1. **Edit `schemas/services.ts`** — add a new entry to the `services` array:
+1. **Edit `schemas/services.ts`:** add a new entry to the `services` array:
 
 ```ts
 {
@@ -124,7 +124,9 @@ Contributions to documentation, the service directory, and site improvements are
 | [wevm/mppx](https://github.com/wevm/mppx) | TypeScript |
 | [tempoxyz/pympp](https://github.com/tempoxyz/pympp) | Python |
 | [tempoxyz/mpp-rs](https://github.com/tempoxyz/mpp-rs) | Rust |
-| [tempoxyz/mpp-specs](https://github.com/tempoxyz/mpp-specs) | IETF specifications |
+| [tempoxyz/mpp-go](https://github.com/tempoxyz/mpp-go) | Go |
+| [stripe/mpp-rb](https://github.com/stripe/mpp-rb) | Ruby |
+| [tempoxyz/mpp-specs](https://github.com/tempoxyz/mpp-specs) | Protocol specifications |
 
 ## Security
 
