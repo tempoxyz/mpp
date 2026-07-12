@@ -10978,4 +10978,115 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Stelar Digital ─────────────────────────────────────────────────────
+  {
+    id: "stelar-digital",
+    name: "Stelar Crypto Signals",
+    url: "https://api.stelardigital.com",
+    serviceUrl: "https://api.stelardigital.com",
+    description:
+      "Crypto market signals and live grid-bot telemetry — price/momentum, trend regime, volatility risk, sentiment, token risk, and combined market-brief bundles, plus general-purpose AI text utilities. Pay-per-call via x402 in USDC on Base.",
+
+    categories: ["data", "blockchain"],
+    integration: "third-party",
+    tags: [
+      "crypto",
+      "trading",
+      "signals",
+      "grid-bot",
+      "market-regime",
+      "sentiment",
+      "risk",
+      "telemetry",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://stelardigital.com",
+      llmsTxt: "https://api.stelardigital.com/llms.txt",
+      apiReference: "https://api.stelardigital.com/openapi.json",
+    },
+    provider: { name: "Stelar Digital", url: "https://stelardigital.com" },
+    realm: "api.stelardigital.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    docsBase: "https://api.stelardigital.com/catalog",
+    endpoints: [
+      {
+        route: "GET /bundle/deep-signal",
+        desc: "Market brief (regime, sentiment, price, risk) plus an AI-generated synthesis and key risk factor for a crypto asset",
+        amount: "2500000",
+      },
+      {
+        route: "GET /bundle/market-brief",
+        desc: "Combined trend regime, AI sentiment, live price, and volatility risk for a crypto asset in one call",
+        amount: "1000000",
+      },
+      {
+        route: "GET /classify",
+        desc: "Zero-shot text classification into caller-supplied labels",
+        amount: "10000",
+      },
+      {
+        route: "GET /domaincheck",
+        desc: "Phishing and scam risk score for a domain name",
+        amount: "10000",
+      },
+      {
+        route: "GET /extract",
+        desc: "Fetch a URL and extract structured data from its content",
+        amount: "20000",
+      },
+      {
+        route: "GET /factcheck",
+        desc: "Fact-check a written claim with a true/false/uncertain verdict and confidence score",
+        amount: "30000",
+      },
+      {
+        route: "GET /gridparams",
+        desc: "Grid-trading parameter recommendation (grid count, spacing, price band, allocation) for a crypto pair and capital amount",
+        amount: "50000",
+      },
+      {
+        route: "GET /markdown",
+        desc: "Fetch a URL and return its main content as clean markdown",
+        amount: "10000",
+      },
+      {
+        route: "GET /pricecheck",
+        desc: "Current price, 24h/7d percent change, and momentum signal for a crypto asset",
+        amount: "5000",
+      },
+      {
+        route: "GET /regime",
+        desc: "Crypto market regime classification (choppy/uptrend/downtrend/high-volatility) and grid-trading suitability verdict",
+        amount: "30000",
+      },
+      {
+        route: "GET /risk",
+        desc: "Volatility and drawdown risk regime for a crypto asset versus its 30-day baseline",
+        amount: "20000",
+      },
+      {
+        route: "GET /sentiment",
+        desc: "Sentiment score and label for arbitrary text or a crypto asset",
+        amount: "5000",
+      },
+      {
+        route: "GET /summarize",
+        desc: "Information-dense 3-5 sentence summary of a URL or raw text",
+        amount: "10000",
+      },
+      {
+        route: "GET /telemetry",
+        desc: "Live profit-and-loss telemetry for a real production crypto grid-trading bot, exchange-ledger reconciled",
+        amount: "5000",
+      },
+      {
+        route: "GET /tokencheck",
+        desc: "EVM token/contract risk check — liquidity, pair age, and 24h volume scored 0-100",
+        amount: "20000",
+      },
+    ],
+  },
 ];
