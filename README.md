@@ -124,7 +124,6 @@ Contributions to documentation, the service directory, and site improvements are
 | [wevm/mppx](https://github.com/wevm/mppx) | TypeScript |
 | [tempoxyz/pympp](https://github.com/tempoxyz/pympp) | Python |
 | [tempoxyz/mpp-rs](https://github.com/tempoxyz/mpp-rs) | Rust |
-| [inference-sh/mpp](https://github.com/inference-sh/mpp) | Go |
 | [tempoxyz/mpp-specs](https://github.com/tempoxyz/mpp-specs) | IETF specifications |
 
 ## Security
