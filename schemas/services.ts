@@ -427,6 +427,50 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── agentschedule ──────────────────────────────────────────────────────
+  {
+    id: "agentschedule",
+    name: "agentschedule",
+    url: "https://mwork.dev",
+    serviceUrl: "https://mwork.dev",
+    description:
+      "Stateless scheduling coordination for AI agents: find the best common meeting slot across participants' busy/free time and timezones, then generate a standard ICS invite. No calendar accounts or OAuth.",
+
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "scheduling",
+      "calendar",
+      "meetings",
+      "timezone",
+      "ics",
+      "availability",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://mwork.dev",
+      llmsTxt: "https://mwork.dev/llms.txt",
+    },
+    provider: { name: "agentschedule", url: "https://mwork.dev" },
+    realm: "mwork.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/find-slot",
+        desc: "Find the best common meeting slot given each participant's busy intervals, timezone, and working hours",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/generate-ics",
+        desc: "Generate an RFC 5545 ICS invite for a given meeting time, organizer, and attendees",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Allium ──────────────────────────────────────────────────────────────
   {
     id: "allium",
