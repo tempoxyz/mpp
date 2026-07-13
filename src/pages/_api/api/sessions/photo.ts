@@ -8,8 +8,18 @@ export async function GET(request: Request) {
 
   if (result.status === 402) return result.challenge;
 
-  const res = await fetch("https://picsum.photos/200/200");
-  const url = res.url;
+  let url: string;
+  try {
+    const res = await fetch("https://picsum.photos/200/200");
+    if (!res.ok) throw new Error(`upstream responded ${res.status}`);
+    url = res.url;
+  } catch (error) {
+    console.error("[sessions/photo] upstream fetch failed:", error);
+    return Response.json(
+      { error: "Failed to load photo from upstream" },
+      { status: 502 },
+    );
+  }
 
   return result.withReceipt(Response.json({ url }));
 }
