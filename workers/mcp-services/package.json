@@ -13,9 +13,9 @@
     "check": "pnpm gen:types && pnpm check:types && pnpm test"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.1.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.8",
-    "wrangler": "^4.101.0"
+    "vitest": "^4.1.10",
+    "wrangler": "^4.107.0"
   }
 }
