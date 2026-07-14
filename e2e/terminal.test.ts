@@ -128,7 +128,7 @@ describe("terminal", () => {
     await page.close();
   });
 
-  it('selects "Chat with OpenAI" and shows payment channel steps', async () => {
+  it('selects "Chat with OpenAI" and streams after a one-time payment', async () => {
     const page = await newPage();
     await page.goto(pageUrl());
     await waitForWizard(page);
@@ -146,17 +146,17 @@ describe("terminal", () => {
       page.getByText("(payment required)", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
 
-    await playwrightExpect(page.getByText("Open payment channel")).toBeVisible({
+    await playwrightExpect(page.getByText("Fulfill payment")).toBeVisible({
       timeout: 5_000,
     });
 
     await playwrightExpect(
-      page.getByText("tokens streamed", { exact: false }),
-    ).toBeVisible({ timeout: 20_000 });
-
-    await playwrightExpect(
-      page.getByText("Closed payment channel"),
+      page.getByText("(success)", { exact: false }),
     ).toBeVisible({ timeout: 5_000 });
+
+    await playwrightExpect(page.locator("pre")).not.toBeEmpty({
+      timeout: 10_000,
+    });
 
     await playwrightExpect(
       page.getByText("What would you like to do?").last(),

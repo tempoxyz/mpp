@@ -547,6 +547,7 @@ function AsyncSteps({
   outputMode,
   walletState,
   paymentChannel = false,
+  streamResponse = false,
   onDone,
   completed = false,
   demoClient,
@@ -562,6 +563,7 @@ function AsyncSteps({
   outputMode?: "text" | "photo" | "gallery";
   walletState: WalletState;
   paymentChannel?: boolean;
+  streamResponse?: boolean;
   onDone?: () => void;
   completed?: boolean;
   demoClient?: DemoClient | null;
@@ -601,6 +603,7 @@ function AsyncSteps({
     } else {
       s.push({ key: "pay", delay: d(500) });
       s.push({ key: "req200", delay: d(500) });
+      if (streamResponse) s.push({ key: "stream", delay: 0 });
     }
     return s;
   });
@@ -739,18 +742,38 @@ function AsyncSteps({
               // No receipt header — keep random hash
             }
 
-            const data = (await res.json()) as {
-              lines?: string[];
-              url?: string;
-            };
-            liveContent = data.lines ?? (data.url ? [data.url] : []);
-            onContentReceived?.(liveContent);
+            if (streamResponse && res.body) {
+              const req200Idx = steps.findIndex((s) => s.key === "req200");
+              setStep(req200Idx + 1);
+
+              const reader = res.body.getReader();
+              const decoder = new TextDecoder();
+              let text = "";
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                text += decoder.decode(value, { stream: true });
+                const lines = text.replaceAll("\t", "\n").split("\n");
+                onContentReceived?.(lines);
+                setStreamChars(text.length);
+              }
+              text += decoder.decode();
+              liveContent = text.replaceAll("\t", "\n").split("\n");
+              onContentReceived?.(liveContent);
+            } else {
+              const data = (await res.json()) as {
+                lines?: string[];
+                url?: string;
+              };
+              liveContent = data.lines ?? (data.url ? [data.url] : []);
+              onContentReceived?.(liveContent);
+            }
           }
         } catch (e) {
           console.error("Live fetch failed, using simulated content:", e);
         }
 
-        if (!paymentChannel) {
+        if (!paymentChannel && !streamResponse) {
           setStep(payIdx + 1);
           await new Promise((r) => setTimeout(r, 400));
         }
@@ -758,7 +781,9 @@ function AsyncSteps({
         // Remaining steps
         const lastIdx = paymentChannel
           ? steps.findIndex((s) => s.key === "stream")
-          : payIdx + 1;
+          : streamResponse
+            ? steps.findIndex((s) => s.key === "stream")
+            : payIdx + 1;
         for (let i = lastIdx + 1; i <= steps.length; i++) {
           setStep(i);
           if (i < steps.length) {
@@ -776,6 +801,7 @@ function AsyncSteps({
     liveEndpoint,
     steps,
     paymentChannel,
+    streamResponse,
     walletState.setBalance,
     walletState.setCreated,
     setFunded,
@@ -970,7 +996,9 @@ function AsyncSteps({
               className="whitespace-pre-wrap"
               style={{ color: "var(--term-gray10)" }}
             >
-              {renderText(outputText)}
+              {renderText(
+                streamResponse ? outputText.slice(0, streamChars) : outputText,
+              )}
             </pre>
           )}
           <BlankLine />
@@ -1799,6 +1827,7 @@ function Wizard({
         outputMode={stepConfig.outputMode}
         walletState={walletState}
         paymentChannel={stepConfig.type === "tempo-session"}
+        streamResponse={stepConfig.streamResponse}
         onDone={opts?.onDone}
         completed={opts?.completed}
         demoClient={isActive ? demoClient : undefined}
@@ -2586,6 +2615,7 @@ function SingleStep({
           outputMode={step.outputMode}
           walletState={walletState}
           paymentChannel={step.type === "tempo-session"}
+          streamResponse={step.streamResponse}
           demoClient={demoClient}
           onContentReceived={setOutput}
           onDone={() => setDone(true)}
