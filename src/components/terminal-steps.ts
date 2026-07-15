@@ -22,6 +22,7 @@ export type PaymentStepConfig = {
   skipPrompt?: boolean;
   pickOutput?: () => string[];
   outputMode?: "text" | "photo" | "gallery";
+  streamResponse?: boolean;
 };
 
 export type CommandsStepConfig = {
@@ -101,6 +102,7 @@ export function charge({
   skipPrompt,
   pickOutput,
   outputMode,
+  streamResponse,
 }: {
   label: string;
   description?: string;
@@ -111,6 +113,7 @@ export function charge({
   skipPrompt?: boolean;
   pickOutput?: () => string[];
   outputMode?: "text" | "photo" | "gallery";
+  streamResponse?: boolean;
 }): PaymentStepConfig {
   return {
     type: "tempo-charge",
@@ -124,6 +127,7 @@ export function charge({
     skipPrompt,
     pickOutput,
     outputMode,
+    streamResponse,
   };
 }
 
@@ -207,17 +211,19 @@ export function stripe({
 
 export function chat(): PaymentStepConfig {
   return {
-    ...session({
+    ...charge({
       label: "Chat with OpenAI",
-      description: "Chat with AI and pay per token streamed",
+      description: "Chat with AI, pay once, and stream the response",
       endpoint: "/api/chat",
       liveEndpoint: (input) =>
         `/api/demo/chat?prompt=${encodeURIComponent(input)}`,
+      cost: 0.001,
       prompt: {
         label: "Enter prompt",
         placeholder: "what are micropayments?",
       },
       pickOutput: pickChat,
+      streamResponse: true,
     }),
     methodLabel: "Tempo",
   };

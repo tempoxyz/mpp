@@ -164,11 +164,11 @@ describe("runCost", () => {
     key: 0,
   });
 
-  it("calculates token-based cost for Chat with AI", () => {
-    const output = ["Hello world! This is a test response."];
-    const run = makeRun(Terminal.chat(), output);
-    const tokens = Math.ceil(output.join("\n").length / 4);
-    expect(runCost(run)).toBe(tokens * COST_PER_TOKEN);
+  it("uses a fixed cost for Chat with AI", () => {
+    const run = makeRun(Terminal.chat(), [
+      "Hello world! This is a test response.",
+    ]);
+    expect(runCost(run)).toBe(0.001);
   });
 
   it("returns fixed cost for Generate image", () => {
@@ -198,11 +198,9 @@ describe("runCost", () => {
     expect(runCost(makeRun(Terminal.lookup()))).toBe(LOOKUP_COST);
   });
 
-  it("handles multi-line output for token-based cost", () => {
+  it("keeps Chat with AI cost independent of response length", () => {
     const output = ["line one", "line two", "line three"];
-    const run = makeRun(Terminal.chat(), output);
-    const tokens = Math.ceil(output.join("\n").length / 4);
-    expect(runCost(run)).toBe(tokens * COST_PER_TOKEN);
+    expect(runCost(makeRun(Terminal.chat(), output))).toBe(0.001);
   });
 });
 
