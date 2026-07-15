@@ -1257,7 +1257,7 @@ export const services: ServiceDef[] = [
     },
     provider: { name: "Modal", url: "https://modal.com" },
     realm: MPP_REALM,
-    intent: "session",
+    intent: "charge",
     payments: [TEMPO_PAYMENT],
     docsBase: "https://context7.com/websites/modal/llms.txt",
     endpoints: [
@@ -1755,7 +1755,7 @@ export const services: ServiceDef[] = [
     },
     provider: { name: "Alchemy", url: "https://agents.alchemy.com/" },
     realm: "alchemy.com",
-    intent: "session",
+    intent: "charge",
     payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
     docsBase: "https://www.alchemy.com/llms.txt",
     endpoints: [
@@ -1895,13 +1895,11 @@ export const services: ServiceDef[] = [
         route: "GET /:key",
         desc: "Download object ($0.001 base + $0.01/MB)",
         dynamic: true,
-        intent: "session",
       },
       {
         route: "PUT /:key",
         desc: "Upload object ($0.001 base + $0.01/MB, max 100MB)",
         dynamic: true,
-        intent: "session",
       },
       { route: "DELETE /:key", desc: "Delete object", amount: "100" },
       { route: "GET /", desc: "List objects", amount: "100" },
