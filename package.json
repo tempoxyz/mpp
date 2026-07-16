@@ -21,7 +21,7 @@
     "sync:vocs": "node scripts/copy-vocs-theme.ts && pnpm check",
     "test": "vitest run",
     "test:e2e": "VITE_SKIP_ANIMATION=true VITE_DEMO_LIVE=false vitest run --config vitest.config.e2e.ts",
-    "test:watch": "viest"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
