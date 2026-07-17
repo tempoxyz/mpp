@@ -377,6 +377,10 @@ export default defineConfig({
             link: "/partner-integrations/mcp-sdk",
           },
           {
+            text: "OpenClaw",
+            link: "/partner-integrations/openclaw",
+          },
+          {
             text: "Vercel AI SDK",
             link: "/partner-integrations/vercel-ai-sdk",
           },

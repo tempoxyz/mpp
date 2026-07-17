@@ -1,0 +1,52 @@
+---
+description: "Use the official MPP plugin to let OpenClaw pay for HTTP APIs."
+imageDescription: "Give OpenClaw scoped access to paid APIs"
+---
+
+# OpenClaw
+
+Use the official [MPP plugin for OpenClaw](https://github.com/tempoxyz/openclaw-mpp) to pay for HTTP requests through MPP. The plugin adds `mpp_fetch` and Tempo Wallet tools to OpenClaw. Free calls pass through untouched; when an API returns a Tempo charge or session Challenge, the plugin creates a Credential, retries the request, and returns the result.
+
+## Install the plugin
+
+Install the plugin, then connect it to Tempo Wallet.
+
+```bash [terminal]
+$ openclaw plugins install @tempoxyz/openclaw-mpp
+$ openclaw mpp setup
+```
+
+`openclaw mpp setup` prints a Tempo Wallet approval link. Approve it to authorize an access key for OpenClaw without sharing your wallet's private key. The default policy expires after seven days and limits the key to 10 USDC.e on Tempo mainnet.
+
+Check the connected account, then start the gateway. Restart a running gateway after setup so it loads the new access key.
+
+```bash [terminal]
+$ openclaw mpp status
+$ openclaw gateway run
+```
+
+## Pay for HTTP requests
+
+Tell OpenClaw to use `mpp_fetch` for an MPP-protected URL.
+
+```text [prompt]
+Use mpp_fetch to GET https://api.example.com/paid
+```
+
+The tool returns the response body, status, and headers. It supports free requests, Tempo charge and session Challenges, and paid SSE session streams.
+
+The plugin also installs a payment-aware `globalThis.fetch` when the gateway starts. Plugin code and fetch-backed MCP clients in the gateway process can use the same payment account.
+
+:::warning
+OpenClaw's built-in `web_fetch` tool and managed MCP transports use separate HTTP clients. Use `mpp_fetch` for paid HTTP requests.
+:::
+
+## Manage agent spend
+
+Customize the access key lifetime and USDC.e spending limit during setup. Use `--no-deposit` to skip the Tempo Wallet funding prompt.
+
+```bash [terminal]
+$ openclaw mpp setup --expires 24h --limit USDC=25 --no-deposit
+```
+
+Run `openclaw mpp status` to inspect the active account and access key. See [Managing agent spend](/guides/managing-agent-spend) for access key limits and revocation.
