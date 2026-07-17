@@ -5,7 +5,7 @@ imageDescription: "Give OpenClaw scoped access to paid APIs"
 
 # OpenClaw
 
-Use the official [MPP plugin for OpenClaw](https://github.com/tempoxyz/openclaw-mpp) to pay for HTTP requests through MPP. The plugin adds `mpp_fetch` and Tempo Wallet tools to OpenClaw. Free calls pass through untouched; when an API returns a Tempo charge or session Challenge, the plugin creates a Credential, retries the request, and returns the result.
+At gateway startup, the official [MPP plugin for OpenClaw](https://github.com/tempoxyz/openclaw-mpp) makes `globalThis.fetch` payment-aware. Code running inside the OpenClaw gateway can make paid requests through ordinary `fetch` calls—no explicit `mpp_fetch` call is required. The plugin also adds `mpp_fetch` and Tempo Wallet tools for agent-invoked requests and wallet setup. Free calls pass through untouched; when an API returns a Tempo charge or session Challenge, the plugin creates a Credential, retries the request, and returns the result.
 
 ## Install the plugin
 
@@ -13,7 +13,18 @@ Install the plugin, then connect it to Tempo Wallet.
 
 ```bash [terminal]
 $ openclaw plugins install @tempoxyz/openclaw-mpp
+Installed plugin: mpp
+Restart the gateway to load plugins.
+
 $ openclaw mpp setup
+Open Tempo Wallet to approve this access key:
+
+https://wallet.tempo.xyz/api/auth/cli?code=...
+
+Tempo Wallet access key ready.
+Account: 0x...
+Access key: 0x...
+Restart a running gateway to load the new access key.
 ```
 
 `openclaw mpp setup` prints a Tempo Wallet approval link. Approve it to authorize an access key for OpenClaw without sharing your wallet's private key. The default policy expires after seven days and limits the key to 10 USDC.e on Tempo mainnet.
@@ -22,20 +33,25 @@ Check the connected account, then start the gateway. Restart a running gateway a
 
 ```bash [terminal]
 $ openclaw mpp status
+Tempo Wallet access key ready.
+Account: 0x...
+Access key: 0x...
+
 $ openclaw gateway run
+...
+[plugins] MPP payment-aware fetch initialized.
+[gateway] ready
 ```
 
 ## Pay for HTTP requests
 
-Tell OpenClaw to use `mpp_fetch` for an MPP-protected URL.
+Plugin code and fetch-backed MCP clients in the gateway process can use ordinary `fetch`. To have the agent initiate an MPP request, tell OpenClaw to use `mpp_fetch`.
 
 ```text [prompt]
 Use mpp_fetch to GET https://api.example.com/paid
 ```
 
 The tool returns the response body, status, and headers. It supports free requests, Tempo charge and session Challenges, and paid SSE session streams.
-
-The plugin also installs a payment-aware `globalThis.fetch` when the gateway starts. Plugin code and fetch-backed MCP clients in the gateway process can use the same payment account.
 
 :::warning
 OpenClaw's built-in `web_fetch` tool and managed MCP transports use separate HTTP clients. Use `mpp_fetch` for paid HTTP requests.
