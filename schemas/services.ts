@@ -3944,6 +3944,63 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── MON Unlock ─────────────────────────────────────────────────────────
+  {
+    id: "mon-unlock",
+    name: "MON Unlock",
+    url: "https://mon-unlock-widget-production.up.railway.app",
+    serviceUrl: "https://mon-unlock-widget-production.up.railway.app",
+    description:
+      "Create embeddable paywalls for long-form articles. Agents validate for free, then pay via MPP to publish paste-ready <mon-unlock> HTML.",
+
+    categories: ["media", "web"],
+    integration: "first-party",
+    tags: [
+      "paywall",
+      "publishing",
+      "embed",
+      "micropayments",
+      "content-monetization",
+      "monad",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://mon-unlock-widget-production.up.railway.app",
+      llmsTxt: "https://mon-unlock-widget-production.up.railway.app/llms.txt",
+      apiReference: "https://mon-unlock-widget-production.up.railway.app/agents.md",
+    },
+    provider: {
+      name: "Open Paywall / MON Unlock",
+      url: "https://mon-unlock-widget-production.up.railway.app",
+    },
+    realm: "mon-unlock-widget-production.up.railway.app",
+    intent: "charge",
+    payments: [
+      {
+        method: "tempo",
+        currency: "0x20c0000000000000000000000000000000000000",
+        decimals: 6,
+      },
+      STRIPE_PAYMENT,
+    ],
+    endpoints: [
+      {
+        route: "GET /api/agents/health",
+        desc: "Agent API + MPP configuration status",
+      },
+      {
+        route: "POST /api/agents/publish/validate",
+        desc: "Validate publish payload and return quote (free)",
+      },
+      {
+        route: "POST /api/agents/publish",
+        desc: "Pay to publish paste-ready <mon-unlock> embed HTML",
+        amount: "50000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Prospect Butcher Co ─────────────────────────────────────────────────
   {
     id: "prospect-butcher",
