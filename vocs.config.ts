@@ -17,7 +17,7 @@ export default defineConfig({
     { source: "/index", destination: "/" },
 
     // Aliases for overview
-    { source: "/docs", destination: "/overview" },
+    { source: "/docs", destination: "/overview", status: 308 },
     { source: "/documentation", destination: "/overview" },
     { source: "/about", destination: "/overview" },
 
@@ -59,6 +59,7 @@ export default defineConfig({
     {
       source: "/guides/upgrade-x402",
       destination: "/guides/use-mpp-with-x402",
+      status: 308,
     },
     { source: "/challenges", destination: "/protocol/challenges" },
     { source: "/challenge", destination: "/protocol/challenges" },
@@ -217,6 +218,7 @@ export default defineConfig({
     {
       source: "/protocol/discovery",
       destination: "/advanced/discovery",
+      status: 308,
     },
     { source: "/refunds", destination: "/advanced/refunds" },
 
