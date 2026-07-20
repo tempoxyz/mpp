@@ -5,18 +5,42 @@ imageDescription: "Connect OpenClaw to paid APIs with a scoped Tempo Wallet acce
 
 # OpenClaw
 
-Install [`openclaw-mpp`](https://github.com/tempoxyz/openclaw-mpp) to let an OpenClaw instance pay for HTTP APIs through MPP. When the gateway starts, the plugin makes `globalThis.fetch` payment-aware, so code running in the gateway can keep using ordinary `fetch` without calling `mpp_fetch`. Free requests pass through untouched. When an API returns an MPP Challenge, the plugin creates a Credential, retries the request, and returns the paid response.
+Install the official [`openclaw-mpp`](https://github.com/tempoxyz/openclaw-mpp) plugin from ClawHub to let an OpenClaw instance call free and paid HTTP APIs through MPP. Free requests work without a wallet. When a configured wallet receives an MPP Challenge, the plugin creates a Credential, retries the request, and returns the paid response.
 
-The plugin also adds `mpp_fetch` for agent-initiated HTTP requests, plus `mpp_wallet_setup` and `mpp_wallet_status` for connecting and inspecting a Tempo account.
+## Install from ClawHub
+
+ClawHub is the front door for discovering and installing the plugin:
 
 ```bash [terminal]
-$ openclaw plugins install openclaw-mpp
+$ openclaw plugins install clawhub:openclaw-mpp
 ```
 
 ```text [output]
 Installed plugin: mpp
 Restart the gateway to load plugins.
 ```
+
+Use npm only as an explicit fallback:
+
+```bash [terminal]
+$ openclaw plugins install npm:openclaw-mpp
+```
+
+The plugin adds `mpp_fetch` for agent-initiated HTTP requests, plus `mpp_wallet_setup` and `mpp_wallet_status` for connecting and inspecting a Tempo account.
+
+## Make a free request
+
+A wallet is not required for unprotected endpoints:
+
+```text [prompt]
+Use mpp_fetch to GET https://mpp.dev/api/ping
+```
+
+```text [response]
+tm!
+```
+
+Without a configured wallet, a protected endpoint returns its original HTTP 402 Challenge without a payment retry.
 
 ## Connect Tempo Wallet
 
@@ -32,24 +56,28 @@ Open Tempo Wallet to approve this access key:
 https://wallet.tempo.xyz/api/auth/cli?code=...
 
 Tempo Wallet access key ready.
+Network: mainnet (4217)
 Account: 0x1234...abcd
 Access key: 0xabcd...1234
+Publication: published
 Restart a running gateway to load the new access key.
 ```
 
-Your wallet's private key is never shared with OpenClaw. By default, the access key expires after seven days and can spend up to 10 USDC on Tempo mainnet.
+Your wallet's private key is never shared with OpenClaw. Mainnet is the default: the access key expires after seven days and can spend up to 10 USDC. Setup publishes the access key on mainnet before reporting it ready.
 
 :::info
 If the gateway was already running, restart it after setup so the plugin can load the new access key.
 :::
 
-## Start the gateway
+## Start or restart the gateway
 
 Start OpenClaw and confirm that the MPP plugin initializes before making paid requests.
 
 ```bash [terminal]
-$ openclaw gateway restart
+$ openclaw gateway run
 ```
+
+If the gateway is already installed and running as a service, use `openclaw gateway restart` instead.
 
 The gateway log confirms that payment-aware fetch is ready:
 
@@ -60,7 +88,11 @@ The gateway log confirms that payment-aware fetch is ready:
 
 ## Pay for HTTP requests
 
-Use `mpp_fetch` when the agent should initiate a paid HTTP request:
+Use `mpp_fetch` when the agent should initiate a paid HTTP request. The public paid-ping route is a testnet smoke test, so authorize a testnet key first:
+
+```bash [terminal]
+$ openclaw mpp setup --network testnet
+```
 
 ```text [prompt]
 Use mpp_fetch to GET https://mpp.dev/api/ping/paid
@@ -70,15 +102,22 @@ Use mpp_fetch to GET https://mpp.dev/api/ping/paid
 tm! thanks for paying
 ```
 
-`mpp_fetch` handles the `402`, signs the Challenge with the access key, and retries the request. Its result includes the response status, headers, and `Payment-Receipt`. It supports free requests, Tempo charge and session Challenges, and paid SSE session streams.
+`mpp_fetch` handles the `402`, signs the Challenge with the matching testnet access key, and retries the request. For mainnet APIs, use the default `openclaw mpp setup` key. The plugin selects an access key from the Challenge's chain ID, so one gateway can handle both networks.
 
 :::info
 If the active OpenClaw tool profile filters plugin tools, add `mpp` to the existing `tools.alsoAllow` list.
 :::
 
-## Use payment-aware fetch in gateway code
+## Integration boundary
 
-Plugin code and fetch-backed clients running inside the gateway can use ordinary `fetch`. Because the MPP plugin initializes `globalThis.fetch` at startup, no MPP import or explicit `mpp_fetch` call is needed.
+The plugin covers two HTTP paths:
+
+- `mpp_fetch` for agent-initiated requests.
+- `globalThis.fetch` used by code and fetch-backed clients inside the gateway process.
+
+It does not cover OpenClaw's built-in `web_fetch`, managed MCP transports, child processes, or external runtimes. Those clients use separate HTTP stacks.
+
+Gateway code can use ordinary `fetch`; no MPP import or explicit `mpp_fetch` call is needed:
 
 ```ts [paid-ping.ts]
 export async function paidPing() {
@@ -86,10 +125,6 @@ export async function paidPing() {
   return response.text()
 }
 ```
-
-:::warning
-Only requests made through `globalThis.fetch` in the gateway process are covered. OpenClaw's built-in `web_fetch` tool and managed MCP transports use separate HTTP clients. Use `mpp_fetch` for agent-initiated paid HTTP requests.
-:::
 
 ## Manage agent spend
 
@@ -107,17 +142,19 @@ $ openclaw mpp status
 
 ```text [output]
 Tempo Wallet access key ready.
+Network: mainnet (4217)
 Account: 0x1234...abcd
 Access key: 0xabcd...1234
+Publication: published
 ```
 
-Create and inspect a separate access key for Tempo testnet when needed:
+Create and inspect a separate access key for Tempo testnet when needed. Commands without `--network` continue to target mainnet:
 
 ```bash [terminal]
 $ openclaw mpp setup --network testnet
 $ openclaw mpp status --network testnet
 ```
 
-Authorize an access key for each network the agent uses. The plugin automatically routes each payment Challenge to the matching Tempo network.
+Authorize an access key for each network the agent uses. Setup publishes each key on its selected network, and the plugin automatically routes each payment Challenge to the key for that chain.
 
 See [Managing agent spend](/guides/managing-agent-spend) for access key limits, scopes, recipient restrictions, and revocation.
