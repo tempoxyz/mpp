@@ -122,6 +122,194 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── Apex DB ───────────────────────────────────────────────────────────
+  {
+    id: "apex-db",
+    name: "Apex DB",
+    url: "https://apex-db.org",
+    serviceUrl: "https://api.apex-db.org",
+    description:
+      "Search normalized vehicle variants, specifications, emissions, and source-linked provenance from public automotive datasets.",
+    icon: "https://apex-db.org/icon.svg",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: [
+      "automotive",
+      "vehicles",
+      "emissions",
+      "specifications",
+      "provenance",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://apex-db.org",
+      llmsTxt: "https://apex-db.org/llms.txt",
+      apiReference: "https://api.apex-db.org/openapi.json",
+    },
+    provider: { name: "Apex DB", url: "https://apex-db.org" },
+    realm: "api.apex-db.org",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/apex",
+        desc: "Search vehicle variants",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/apex/:id",
+        desc: "Get one vehicle variant",
+        amount: "25000",
+        unitType: "record",
+      },
+      {
+        route: "GET /v1/coverage",
+        desc: "Get the coverage matrix",
+        amount: "250000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── RxAtlas ───────────────────────────────────────────────────────────
+  {
+    id: "rxatlas",
+    name: "RxAtlas",
+    url: "https://rxatlas.dev",
+    serviceUrl: "https://api.rxatlas.dev",
+    description:
+      "Search normalized US drug products with source-linked FDA, DailyMed, RxNorm, NADAC, shortage, and enforcement enrichments.",
+    icon: "https://rxatlas.dev/icon.svg",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: ["drugs", "ndc", "fda", "rxnorm", "pricing", "provenance"],
+    status: "active",
+    docs: {
+      homepage: "https://rxatlas.dev",
+      llmsTxt: "https://rxatlas.dev/llms.txt",
+      apiReference: "https://api.rxatlas.dev/openapi.json",
+    },
+    provider: { name: "RxAtlas", url: "https://rxatlas.dev" },
+    realm: "api.rxatlas.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/drugs",
+        desc: "Search drug products",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/drugs/:id",
+        desc: "Get one drug product",
+        amount: "25000",
+        unitType: "record",
+      },
+      {
+        route: "GET /v1/coverage",
+        desc: "Get the coverage matrix",
+        amount: "250000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── TrialBase DB ──────────────────────────────────────────────────────
+  {
+    id: "trialbase-db",
+    name: "TrialBase DB",
+    url: "https://trialbase-db.org",
+    serviceUrl: "https://api.trialbase-db.org",
+    description:
+      "Search normalized clinical trials from ClinicalTrials.gov, CTIS, EudraCT, and ISRCTN with registry identifiers and source-linked evidence.",
+    icon: "https://trialbase-db.org/icon.svg",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: [
+      "clinical-trials",
+      "registries",
+      "healthcare",
+      "research",
+      "provenance",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://trialbase-db.org",
+      llmsTxt: "https://trialbase-db.org/llms.txt",
+      apiReference: "https://api.trialbase-db.org/openapi.json",
+    },
+    provider: { name: "TrialBase DB", url: "https://trialbase-db.org" },
+    realm: "api.trialbase-db.org",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/trials",
+        desc: "Search clinical trials",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/trials/:id",
+        desc: "Get one clinical trial",
+        amount: "25000",
+        unitType: "record",
+      },
+      {
+        route: "GET /v1/coverage",
+        desc: "Get the coverage matrix",
+        amount: "250000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── RecallRadar ───────────────────────────────────────────────────────
+  {
+    id: "recallradar",
+    name: "RecallRadar",
+    url: "https://recallradar.dev",
+    serviceUrl: "https://api.recallradar.dev",
+    description:
+      "Search normalized consumer-product safety notices from six public authorities with recall classification, hazards, remedies, and provenance.",
+    icon: "https://recallradar.dev/icon.svg",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: ["recalls", "product-safety", "compliance", "hazards", "provenance"],
+    status: "active",
+    docs: {
+      homepage: "https://recallradar.dev",
+      llmsTxt: "https://recallradar.dev/llms.txt",
+      apiReference: "https://api.recallradar.dev/openapi.json",
+    },
+    provider: { name: "RecallRadar", url: "https://recallradar.dev" },
+    realm: "api.recallradar.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/recalls",
+        desc: "Search safety notices",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/recalls/:id",
+        desc: "Get one safety notice",
+        amount: "25000",
+        unitType: "record",
+      },
+      {
+        route: "GET /v1/coverage",
+        desc: "Get the coverage matrix",
+        amount: "250000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── agentfax ───────────────────────────────────────────────────────────
   {
     id: "agentfax",
