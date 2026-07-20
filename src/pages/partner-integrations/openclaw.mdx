@@ -9,8 +9,6 @@ Install the official [`openclaw-mpp`](https://github.com/tempoxyz/openclaw-mpp) 
 
 ## Install from ClawHub
 
-ClawHub is the front door for discovering and installing the plugin:
-
 ```bash [terminal]
 $ openclaw plugins install clawhub:openclaw-mpp
 ```
@@ -27,20 +25,6 @@ $ openclaw plugins install npm:openclaw-mpp
 ```
 
 The plugin adds `mpp_fetch` for agent-initiated HTTP requests, plus `mpp_wallet_setup` and `mpp_wallet_status` for connecting and inspecting a Tempo account.
-
-## Make a free request
-
-A wallet is not required for unprotected endpoints:
-
-```text [prompt]
-Use mpp_fetch to GET https://mpp.dev/api/ping
-```
-
-```text [response]
-tm!
-```
-
-Without a configured wallet, a protected endpoint returns its original HTTP 402 Challenge without a payment retry.
 
 ## Connect Tempo Wallet
 
@@ -63,7 +47,7 @@ Publication: published
 Restart a running gateway to load the new access key.
 ```
 
-Your wallet's private key is never shared with OpenClaw. Mainnet is the default: the access key expires after seven days and can spend up to 10 USDC. Setup publishes the access key on mainnet before reporting it ready.
+Your wallet's private key is never shared with OpenClaw. Mainnet is the default: the access key expires after seven days and can spend up to 10 USDC.
 
 :::info
 If the gateway was already running, restart it after setup so the plugin can load the new access key.
