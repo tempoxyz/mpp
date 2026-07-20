@@ -15,6 +15,7 @@ Agents need a wallet to pay for MPP-enabled services. Choose the wallet that fit
 | [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `tempo`, `solana` | `privy-agent-wallets login` |
 | [AgentCash](#agentcash) | Discover and use 300+ premium APIs via MPP | `tempo` | `npx agentcash onboard` |
 | [Link CLI](#link-cli) | Stripe payments via Link wallet | `stripe` | `link-cli auth login` |
+| [Kite Passport](#kite-passport) | Agent wallets with owner-set spend guardrails + multi-chain settlement | `tempo` | `kpass login init` |
 | [`mppx` CLI](#mppx) | Development and debugging | All | `mppx account create` |
 
 ## Tempo Wallet 
@@ -259,6 +260,69 @@ $ link-cli mpp pay https://api.example.com/resource \
 - **User approval**—each purchase requires explicit approval in the Link app
 - **One-time-use Credentials**—SPTs are scoped to a specific merchant, amount, and context
 - **MCP server mode**—run as `link-cli --mcp` for integration with Claude Code and other MCP-compatible agents
+
+## Kite Passport
+
+[Kite Passport](https://agentpassport.ai) gives agents a wallet with owner-set spend guardrails. Agents create scoped **spending sessions**—per-transaction and total caps, asset and merchant allowlists, TTL, passkey approval—then pay for MPP-enabled services on demand. The wallet holds USDC across Base, Tempo, and Solana and settles Tempo MPP charges natively.
+
+<Tabs>
+<Tab title="Agent">
+
+Paste this into your agent:
+
+```
+Run: curl -fsSL https://cli.gokite.ai/install.sh | bash
+Then use the kite-passport skill to log in and pay for MPP services.
+```
+
+</Tab>
+<Tab title="Human">
+::::steps
+
+### Install the CLI
+
+```bash [terminal]
+$ curl -fsSL https://cli.gokite.ai/install.sh | bash
+```
+
+### Log in
+
+```bash [terminal]
+$ kpass login init --email <you@example.com>
+```
+
+### Register your agent
+
+```bash [terminal]
+$ kpass agent:register --type claude
+```
+
+### Create a spending session (owner approves via passkey)
+
+```bash [terminal]
+$ kpass agent:session create \
+    --max-amount-per-tx 0.50 --max-total-amount 5.00 --ttl 1h --assets USDC
+```
+
+### Make a paid request
+
+```bash [terminal]
+$ kpass agent:session execute \
+    --url https://fal.mpp.tempo.xyz/fal-ai/flux/schnell \
+    --body '{"prompt": "a sunset over the ocean"}'
+```
+
+::::
+</Tab>
+</Tabs>
+
+**Supported methods:** <Badge variant="info">tempo.charge</Badge> <Badge variant="info">tempo.session</Badge>
+
+**Key features:**
+
+- **Owner-set guardrails**—scoped spending sessions enforce per-tx + total caps, asset/merchant allowlists, and TTL; every session approved by passkey
+- **Multi-chain balance**—one USDC balance across Base, Tempo, and Solana; Tempo MPP charges settle natively on Tempo, and the wallet also handles x402 services on Base
+- **Service discovery**—`ksearch services list` surfaces MPP-enabled endpoints with pricing and payment method
 
 ## `mppx`
 
