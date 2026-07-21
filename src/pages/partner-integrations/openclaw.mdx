@@ -1,0 +1,105 @@
+---
+description: "Use the official MPP plugin to make OpenClaw HTTP requests payment-aware."
+imageDescription: "Connect OpenClaw to paid APIs with a scoped Tempo Wallet access key"
+---
+
+# OpenClaw
+
+Install the official [`openclaw-mpp`](https://clawhub.ai/tempoxyz/plugins/openclaw-mpp) plugin from [ClawHub](https://clawhub.ai/) to let an OpenClaw instance call free and paid HTTP APIs through MPP. When a configured wallet receives an MPP Challenge, the plugin creates a Credential, retries the request, and returns the paid response.
+
+## Install from ClawHub
+
+```bash [terminal]
+$ openclaw plugins install clawhub:openclaw-mpp
+```
+
+```text [output]
+Installed plugin: mpp
+Restart the gateway to load plugins.
+```
+
+Use npm only as an explicit fallback:
+
+```bash [terminal]
+$ openclaw plugins install npm:openclaw-mpp
+```
+
+The plugin adds `mpp_fetch` for agent-initiated HTTP requests, plus `mpp_wallet_setup` and `mpp_wallet_status` for connecting and inspecting a Tempo account.
+
+## Connect Tempo Wallet
+
+Run setup once to authorize a scoped access key for OpenClaw. The command prints a Tempo Wallet link and waits for approval.
+
+```bash [terminal]
+$ openclaw mpp setup
+```
+
+Your wallet's private key is never shared with OpenClaw. Mainnet is the default: the access key expires after seven days and can spend up to 10 USDC.e.
+
+:::info
+If the gateway was already running, restart it after setup so the plugin can load the new access key.
+:::
+
+## Start or restart the gateway
+
+Start OpenClaw and confirm that the MPP plugin initializes before making paid requests.
+
+```bash [terminal]
+$ openclaw gateway run
+```
+
+If the gateway is already installed and running as a service, use `openclaw gateway restart` instead.
+
+The gateway log confirms that payment-aware fetch is ready:
+
+```text [output]
+[plugins] MPP payment-aware fetch initialized.
+[gateway] ready
+```
+
+## Pay for HTTP requests
+
+Ask the agent to fetch a paid mainnet endpoint:
+
+```text [prompt]
+Use mpp_fetch to GET https://kicksdb.mpp.tempo.xyz/v3/stockx/products?query=nike&limit=1
+```
+
+The plugin handles the `402`, signs the Challenge with the matching access key, and retries the request. It selects an access key from the Challenge's chain ID, so one gateway can handle mainnet and testnet requests.
+
+:::info
+If the active OpenClaw tool profile filters plugin tools, add `mpp` to the existing `tools.alsoAllow` list.
+:::
+
+## Manage agent spend
+
+Set a shorter lifetime or a different USDC.e limit when authorizing the access key. `--no-deposit` skips the Tempo Wallet funding prompt. It does not bypass payment for protected APIs.
+
+```bash [terminal]
+$ openclaw mpp setup --expires 24h --limit USDC=25 --no-deposit
+```
+
+Inspect the account and access key currently available to OpenClaw:
+
+```bash [terminal]
+$ openclaw mpp status
+```
+
+```text [output]
+Tempo Wallet access key ready.
+Network: mainnet (4217)
+Account: 0x1234...abcd
+Access key: 0xabcd...1234
+Publication: published
+```
+
+Create and inspect a separate access key for Tempo testnet when needed. Commands without `--network` continue to target mainnet:
+
+```bash [terminal]
+$ openclaw mpp setup --network testnet
+$ openclaw mpp status --network testnet
+```
+
+Authorize an access key for each network the agent uses. The plugin automatically routes each payment Challenge to the key for that chain.
+
+See [Managing agent spend](/guides/managing-agent-spend) for access key limits, scopes, recipient restrictions, and revocation.
