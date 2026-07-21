@@ -50,5 +50,5 @@ export const mppx = Mppx.create({
     }),
   ],
   realm,
-  secretKey: "demo",
+  secretKey: process.env.MPP_SECRET_KEY ?? "0123456789abcdef0123456789abcdef",
 });

@@ -308,37 +308,37 @@ console.log(receipt?.status)
 
 ### With session resumption
 
-Pass `sessionStore` to persist channel hints between manager instances. The next manager sends the stored channel ID as a hint and hydrates from server snapshots when the server supports them.
+Pass `channelStore` to persist channel hints between manager instances. The next manager sends the stored channel ID as a hint and hydrates from server snapshots when the server supports them.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
 
 ```ts twoslash
-import type { Session } from 'mppx/tempo'
+import { Session } from 'mppx/tempo'
 import { tempo } from 'mppx/client'
 import { Provider } from 'accounts'
 
 const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
 await provider.request({ method: 'wallet_connect' })
 
-const channelStore = {
-  channel: null as Session.Client.StoredSessionChannel | null,
-  delete() {
-    this.channel = null
+const channels = new Map<string, Parameters<Session.Client.ChannelStore['set']>[0]>()
+const channelStore: Session.Client.ChannelStore = {
+  delete(key) {
+    channels.delete(key)
   },
-  get() {
-    return this.channel
+  get(key) {
+    return channels.get(key)
   },
-  set(channel: Session.Client.StoredSessionChannel) {
-    this.channel = channel
+  set(channel) {
+    channels.set(Session.Client.entryKey(channel), channel)
   },
 }
 
 const session = tempo.session.manager({
   account: provider.getAccount({ signable: true }),
+  channelStore,
   getClient: provider.getClient,
   maxDeposit: '1',
-  sessionStore: channelStore,
 })
 ```
 
@@ -346,27 +346,27 @@ const session = tempo.session.manager({
 <Tab title="viem">
 
 ```ts twoslash
-import type { Session } from 'mppx/tempo'
+import { Session } from 'mppx/tempo'
 import { tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
-const channelStore = {
-  channel: null as Session.Client.StoredSessionChannel | null,
-  delete() {
-    this.channel = null
+const channels = new Map<string, Parameters<Session.Client.ChannelStore['set']>[0]>()
+const channelStore: Session.Client.ChannelStore = {
+  delete(key) {
+    channels.delete(key)
   },
-  get() {
-    return this.channel
+  get(key) {
+    return channels.get(key)
   },
-  set(channel: Session.Client.StoredSessionChannel) {
-    this.channel = channel
+  set(channel) {
+    channels.set(Session.Client.entryKey(channel), channel)
   },
 }
 
 const session = tempo.session.manager({
   account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+  channelStore,
   maxDeposit: '1',
-  sessionStore: channelStore,
 })
 ```
 
@@ -376,34 +376,33 @@ const session = tempo.session.manager({
 In browsers, scope the key to the authenticated user and API origin so one user's channel hint is not reused for another user.
 
 ```ts
-import type { Session } from 'mppx/tempo'
+import { Session } from 'mppx/tempo'
 import { tempo } from 'mppx/client'
 
-const storageKey = 'mppx-session:api.example.com:user-123'
+const storagePrefix = 'mppx-session:api.example.com:user-123'
 
-const sessionStore: Session.Client.SessionStore = {
-  get() {
-    const value = localStorage.getItem(storageKey)
-    return value ? (JSON.parse(value) as Session.Client.StoredSessionChannel) : null
+const channelStore = Session.Client.createJsonChannelStore({
+  delete(key) {
+    localStorage.removeItem(`${storagePrefix}:${key}`)
   },
-  set(channel) {
-    localStorage.setItem(storageKey, JSON.stringify(channel))
+  get(key) {
+    return localStorage.getItem(`${storagePrefix}:${key}`) ?? undefined
   },
-  delete() {
-    localStorage.removeItem(storageKey)
+  set(key, value) {
+    localStorage.setItem(`${storagePrefix}:${key}`, value)
   },
-}
+})
 
 const session = tempo.session.manager({
   account,
-  client,
   bootstrap: true,
+  channelStore,
+  client,
   maxDeposit: '1',
-  sessionStore,
 })
 ```
 
-When `bootstrap: true` is enabled, the manager first sends a same-route `HEAD` request if it has no active channel and no stored channel. Servers that enable bootstrap can answer with a `$0` identity Challenge and then return a `Payment-Session-Snapshot` header. The manager hydrates from that snapshot and persists it through `sessionStore`.
+When `bootstrap: true` is enabled, the manager first sends a same-route `HEAD` request if it has no active channel and no stored channel. Servers that enable bootstrap can answer with a `$0` identity Challenge and then return a `Payment-Session-Snapshot` header. The manager hydrates from that snapshot and persists it through `channelStore`.
 
 ## Migrate from Legacy Sessions
 
@@ -493,22 +492,22 @@ type SessionManager = {
 }
 ```
 
-### `SessionStore`
+### `ChannelStore`
 
-`sessionStore` is optional client persistence for channel hints. It does not authorize payment by itself; the server still verifies the channel snapshot and voucher signatures.
+`channelStore` is optional client persistence for channel hints. It does not authorize payment by itself; the server still verifies the channel snapshot and voucher signatures.
 
 ```ts
-type SessionStore = {
-  get(): Promise<StoredSessionChannel | null | undefined> | StoredSessionChannel | null | undefined
-  set(channel: StoredSessionChannel): Promise<void> | void
-  delete?(): Promise<void> | void
+type ChannelStore = {
+  delete(key: string): Promise<void> | void
+  get(key: string): Promise<ChannelEntry | undefined> | ChannelEntry | undefined
+  set(channel: ChannelEntry): Promise<void> | void
 }
 ```
 
-### `StoredSessionChannel`
+### `StoredChannel`
 
 ```ts
-type StoredSessionChannel = {
+type StoredChannel = {
   channelId: Hex
   cumulativeAmount: string
   deposit: string
@@ -533,7 +532,7 @@ type StoredSessionChannel = {
 
 ### `SessionSnapshot`
 
-`SessionSnapshot` is the server-provided channel state used by `bootstrap` and `sessionStore` hydration.
+`SessionSnapshot` is the server-provided channel state used by `bootstrap` and `channelStore` hydration.
 
 ```ts
 type SessionSnapshot = {
@@ -719,9 +718,9 @@ Function that returns a viem client for the given chain ID.
 
 Maximum deposit in human-readable units. Converted to raw units via `decimals`.
 
-### sessionStore (optional)
+### channelStore (optional)
 
-- **Type:** `SessionStore`
+- **Type:** `ChannelStore`
 
 Per-manager store for persisted channel hints and restart recovery.
 
