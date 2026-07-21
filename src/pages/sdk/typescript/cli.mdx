@@ -53,6 +53,25 @@ $ mppx --help
 ```
 :::
 
+## Validate command
+
+Use `mppx validate` to automatically verify an MPP server implementation end-to-end. The command tests discovery, challenge formats, error handling, and the full payment flow.
+
+```bash [terminal]
+$ mppx validate https://api.example.com
+```
+
+To test a specific route that needs request data, pass a body or query parameters:
+
+```bash [terminal]
+$ mppx validate https://api.example.com --endpoint POST:/reports --body '{"format":"csv"}'
+$ mppx validate https://api.example.com --endpoint GET:/quotes --query symbol=ETH
+```
+
+:::note[End-to-end payments]
+Run `mppx validate` against both test and production versions of your server. On testnets and Stripe test mode, the CLI automatically completes roundtrip test payments. On mainnets, the CLI can complete real payments from the local `mppx` wallet.
+:::
+
 ## Environment variables
 
 | Variable | Description |
