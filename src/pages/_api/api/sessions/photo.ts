@@ -8,6 +8,8 @@ export async function GET(request: Request) {
 
   if (result.status === 402) return result.challenge;
 
+  if (request.method === "POST") return result.withReceipt();
+
   let url: string;
   try {
     const res = await fetch("https://picsum.photos/200/200");
@@ -23,3 +25,5 @@ export async function GET(request: Request) {
 
   return result.withReceipt(Response.json({ url }));
 }
+
+export const POST = GET;
