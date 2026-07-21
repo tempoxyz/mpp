@@ -32,7 +32,7 @@
     "cloudflare-worker-metrics": "^1.4.0",
     "hono": "^4.12.27",
     "mermaid": "^11.15.0",
-    "mppx": "^0.8.12",
+    "mppx": "https://pkg.pr.new/mppx@679",
     "react": "^19",
     "react-dom": "^19",
     "stripe": "^22.2.0",
