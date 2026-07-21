@@ -31,3 +31,11 @@ export const mppx = Mppx.create({
   realm,
   secretKey,
 });
+
+mppx.onPaymentFailed(({ error, method }) => {
+  console.warn("MPP payment failed", {
+    error: error.message,
+    intent: method.intent,
+    method: method.name,
+  });
+});
