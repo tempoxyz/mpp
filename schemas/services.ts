@@ -11167,4 +11167,45 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Smarty Swap Safety ──────────────────────────────────────────────────
+  {
+    id: "smarty-swap-safety",
+    name: "Smarty Swap Safety",
+    url: "https://smarty-money.vercel.app",
+    serviceUrl: "https://smarty-money.vercel.app",
+    description:
+      "Inspect proposed Solana swaps using fresh mint-authority checks, Jupiter route evidence, and executable round-trip loss.",
+    icon: "https://smarty-money.vercel.app/favicon.ico",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["solana", "swap", "risk", "jupiter", "pre-trade"],
+    status: "active",
+    docs: {
+      homepage: "https://smarty-money.vercel.app",
+      llmsTxt: "https://smarty-money.vercel.app/llms.txt",
+      apiReference: "https://smarty-money.vercel.app/openapi.json",
+    },
+    provider: {
+      name: "Smarty Swap Safety",
+      url: "https://smarty-money.vercel.app",
+    },
+    realm: "smarty-money.vercel.app",
+    intent: "charge",
+    payments: [
+      {
+        method: "solana",
+        currency: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "POST /mpp/swap-safety",
+        desc: "Inspect a proposed Solana swap",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
