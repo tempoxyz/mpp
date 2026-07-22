@@ -1430,6 +1430,56 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── LightningRod ───────────────────────────────────────────────────────
+  {
+    id: "lightningrod",
+    name: "LightningRod",
+    url: "https://lightningrod.ai",
+    serviceUrl: "https://api.lightningrod.ai",
+    description:
+      "Predict anything with AI. OpenAI-compatible forecasting API with built-in research and structured answers.",
+
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: [
+      "llm",
+      "forecasting",
+      "prediction",
+      "foresight",
+      "reasoning",
+      "chat",
+    ],
+    docs: {
+      homepage: "https://lightningrod.ai",
+      llmsTxt: "https://www.lightningrod.ai/llms.txt",
+      apiReference: "https://api.lightningrod.ai/openapi.json",
+    },
+    provider: { name: "Lightning Rod Labs", url: "https://lightningrod.ai" },
+    realm: "api.lightningrod.ai",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/mpp/topup",
+        desc: "Pay via MPP to add credits and receive an API key (default $5.00), then call the OpenAI-compatible forecasting API with that key",
+        dynamic: true,
+        amountHint: "$1-$10,000",
+      },
+      {
+        route: "POST /v1/openai/chat/completions",
+        desc: "OpenAI-compatible chat completions for Foresight forecasting models with structured answers and research mode — requires an active balance from /v1/mpp/topup (billed against your API key)",
+      },
+      {
+        route: "POST /v1/openai/completions",
+        desc: "OpenAI-compatible text completions for Foresight forecasting models — requires an active balance from /v1/mpp/topup (billed against your API key)",
+      },
+      {
+        route: "GET /v1/openai/models",
+        desc: "List available forecasting models.",
+      },
+    ],
+  },
+
   // ── Modal ──────────────────────────────────────────────────────────────
   {
     id: "modal",
