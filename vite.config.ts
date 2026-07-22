@@ -8,6 +8,7 @@ import { defineConfig, loadEnv } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import { configDefaults } from "vitest/config";
 import { vocs } from "vocs/vite";
+import { expandQuickstartPromptComponents } from "./src/quickstart-prompt-markdown.js";
 
 const commitSha = child_process
   .execSync("git rev-parse --short HEAD")
@@ -236,6 +237,62 @@ function sectionLlmsTxt(): Plugin {
   };
 }
 
+// Vocs serializes unknown MDX components as JSX in generated Markdown and LLM
+// artifacts. Expand quickstart prompt components into the prompt text agents
+// consume, without changing how the interactive docs pages render.
+function expandPromptComponents(): Plugin {
+  let outDir: string | undefined;
+  return {
+    name: "expand-prompt-components",
+    enforce: "post",
+    configResolved(config) {
+      outDir = path.resolve(config.root, config.build.outDir, "public");
+    },
+    async closeBundle() {
+      if (!outDir) return;
+
+      for (const file of await agentFacingGeneratedFiles(outDir)) {
+        const current = await fs.readFile(file, "utf8").catch((error) => {
+          if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+          throw error;
+        });
+        if (!current) continue;
+
+        const next = expandQuickstartPromptComponents(current);
+        if (next !== current) await fs.writeFile(file, next, "utf8");
+      }
+    },
+  };
+}
+
+async function agentFacingGeneratedFiles(outDir: string): Promise<string[]> {
+  return [
+    path.join(outDir, "llms-full.txt"),
+    path.join(outDir, "llms.txt"),
+    ...(await generatedMarkdownFiles(path.join(outDir, "assets", "md"))),
+  ];
+}
+
+async function generatedMarkdownFiles(directory: string): Promise<string[]> {
+  const entries = await fs
+    .readdir(directory, { withFileTypes: true })
+    .catch((error) => {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+      throw error;
+    });
+
+  const files: string[] = [];
+  for (const entry of entries) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await generatedMarkdownFiles(entryPath)));
+    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+      files.push(entryPath);
+    }
+  }
+  return files;
+}
+
 // Keep each llms.txt row useful while preventing verbose frontmatter
 // descriptions from pushing the whole index over the scanner's token limit.
 function trimLlmsEntry(entry: string): string {
@@ -304,6 +361,7 @@ export default defineConfig(({ mode }) => {
       contentSignalsRobotsTxt(),
       pruneSitemap(),
       sectionLlmsTxt(),
+      expandPromptComponents(),
       ...(mode !== "production" && mode !== "test"
         ? [mkcert({ force: true, hosts: ["localhost"] })]
         : []),
