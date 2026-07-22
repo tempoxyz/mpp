@@ -4278,6 +4278,88 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── FullEnrich ──────────────────────────────────────────────────────────
+  {
+    id: "fullenrich",
+    name: "FullEnrich",
+    url: "https://fullenrich.com",
+    serviceUrl: "https://fullenrich.agentscore.com",
+    description:
+      "B2B email and phone waterfall enrichment from FullEnrich. AI agents can look up companies, search people, and purchase verified work emails, personal emails, and mobile phones per call, with identity verification (KYC) via AgentScore for contact data.",
+    icon: "https://fullenrich.agentscore.com/logo.png",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: [
+      "enrichment",
+      "b2b",
+      "contacts",
+      "email",
+      "phone",
+      "people-search",
+      "firmographics",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://fullenrich.com",
+      llmsTxt: "https://fullenrich.agentscore.com/llms.txt",
+      apiReference: "https://fullenrich.agentscore.com/openapi.json",
+    },
+    provider: { name: "FullEnrich", url: "https://fullenrich.com" },
+    realm: "fullenrich.agentscore.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /company/lookup",
+        desc: "Look up a single company by domain or professional network identifier",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /company/search",
+        desc: "Search companies with filters, priced per requested row",
+        dynamic: true,
+        amountHint: "$0.02 per requested row",
+      },
+      {
+        route: "POST /person/lookup",
+        desc: "Look up a person's professional profile (no contact details)",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /person/search",
+        desc: "Search people profiles (no contact details), priced per requested row",
+        dynamic: true,
+        amountHint: "$0.02 per requested row",
+      },
+      {
+        route: "POST /person/enrich/work-email",
+        desc: "Verified work email for a person, zero-settled when nothing is found",
+        amount: "70000",
+        unitType: "request",
+      },
+      {
+        route: "POST /person/enrich/personal-email",
+        desc: "Verified personal email for a person, zero-settled when nothing is found",
+        amount: "200000",
+        unitType: "request",
+      },
+      {
+        route: "POST /person/enrich/mobile-phone",
+        desc: "Mobile phone number for a person, zero-settled when nothing is found",
+        amount: "650000",
+        unitType: "request",
+      },
+      {
+        route: "POST /person/reverse-email",
+        desc: "Identify the person behind an email address, zero-settled on no match",
+        amount: "70000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Megapot ─────────────────────────────────────────────────────────────
   {
     id: "megapot",
