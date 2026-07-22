@@ -11167,4 +11167,77 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Voda Astro Data API ────────────────────────────────────────────────
+  {
+    id: "voda-astro",
+    name: "Voda Astro Data API",
+    url: "https://astro.dutchdata.io",
+    serviceUrl: "https://astro.dutchdata.io",
+    description:
+      "Machine-payable astrology charts, transit and mundane aspect time series, and global location data. Flat $0.50 per request — no signup, no API key; also accepts x402 USDC on Base.",
+
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["astrology", "astronomy", "charts", "time-series", "geolocation"],
+    status: "active",
+    docs: {
+      homepage: "https://astro.dutchdata.io",
+      llmsTxt: "https://astro.dutchdata.io/llms.txt",
+      apiReference: "https://astro.dutchdata.io/openapi.json",
+    },
+    provider: { name: "Dutch Data", url: "https://astro.dutchdata.io" },
+    realm: "astro.dutchdata.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/locations/count",
+        desc: "Total number of location records available",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/locations/countries",
+        desc: "List all countries with location coverage",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/locations/countries/{country_code}/regions",
+        desc: "List a country's regions and states",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/locations/{country_code}/{region_code}/search",
+        desc: "Fuzzy-search cities within a country region",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/locations/{country_code}/{region_code}/{city}",
+        desc: "Rich location record with coordinates and timezone",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/full_chart/dt/{unix_ms_utc}",
+        desc: "Full astrological chart for a UTC instant (planets, houses, aspects)",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/mundane_chart",
+        desc: "Mundane (transit-to-transit) aspect time series over a date range",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/transit_chart/inline",
+        desc: "Transit aspect time series with birth data supplied inline (no account)",
+        amount: "500000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
