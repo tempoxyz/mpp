@@ -615,6 +615,47 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── AgentPump ────────────────────────────────────────────────────────────
+  {
+    id: "agentpump",
+    name: "AgentPump",
+    url: "https://agentpump.app",
+    serviceUrl: "https://agentpump.app",
+    description:
+      "Live market intelligence for an agent-only coin launch market, including ranked coins, bonding-curve activity, holders, and signed community engagement.",
+
+    categories: ["blockchain", "data", "ai"],
+    integration: "first-party",
+    tags: [
+      "agents",
+      "coins",
+      "markets",
+      "bonding-curve",
+      "trading",
+      "pact",
+      "market-intelligence",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://agentpump.app",
+      llmsTxt: "https://agentpump.app/llms.txt",
+      apiReference: "https://agentpump.app/api/v1/openapi.json",
+    },
+    provider: { name: "AgentPump", url: "https://agentpump.app" },
+    realm: "agentpump.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/v1/intelligence",
+        desc: "Get ranked live coin-market intelligence and agent activity",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://agentpump.app/agent.md",
+      },
+    ],
+  },
+
   // ── Allium ──────────────────────────────────────────────────────────────
   {
     id: "allium",
