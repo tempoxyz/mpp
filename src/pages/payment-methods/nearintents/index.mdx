@@ -1,0 +1,47 @@
+---
+description: "Use the NEAR Intents payment method in MPP for cross-chain charges: clients pay on any supported chain, merchants receive an exact amount on theirs."
+imageDescription: "Cross-chain payments settled by NEAR Intents"
+---
+
+import { Cards } from 'vocs'
+import { NearIntentsChargeCard } from '../../../components/cards'
+
+# NEAR Intents [Cross-chain payments on 30+ chains]
+
+The NEAR Intents payment method enables **cross-chain** MPP payments settled by the [NEAR Intents](https://near-intents.org) solver network through its [1Click API](https://docs.near-intents.org/integration/distribution-channels/1click-api/about-1click-api): the client pays a source asset on whatever chain it holds funds on (Bitcoin, Solana, any major EVM chain, NEAR, and [more](https://docs.near-intents.org/resources/chain-support)), and the merchant receives an **exact amount** of its chosen asset on its chosen chain. It supports the **charge** intent for one-time payments.
+
+The implementation is provided by [`@defuse-protocol/nearintents-mpp-sdk`](https://github.com/defuse-protocol/nearintents-mpp-sdk), which extends the [`mppx`](https://github.com/tempoxyz/mpp) SDK with NEAR Intents settlement alongside built-in methods like [EVM](/payment-methods/evm) and [Tempo](/payment-methods/tempo). Read the [NEAR Intents charge protocol spec](https://paymentauth.org/draft-nearintents-charge-00) for the wire format.
+
+## Installation
+
+:::code-group
+```bash [npm]
+$ npm install @defuse-protocol/nearintents-mpp-sdk mppx
+```
+```bash [pnpm]
+$ pnpm add @defuse-protocol/nearintents-mpp-sdk mppx
+```
+```bash [bun]
+$ bun add @defuse-protocol/nearintents-mpp-sdk mppx
+```
+:::
+
+## Payments with NEAR Intents
+
+NEAR Intents brings a distinct set of properties to MPP:
+
+- **Cross-chain by construction**—The payer's chain and the merchant's chain are independent. A client can pay native BTC while the merchant receives USDC on NEAR; the solver network executes the swap in between.
+- **Exact merchant amounts**—Quotes use `EXACT_OUTPUT`: the merchant receives a deterministic amount of its destination asset, with slippage applied to the input side and any excess refunded to the payer's refund address.
+- **Challenge-bound deposit addresses**—Every Challenge carries a **unique, single-use deposit address** minted for that quote. A deposit observed at that address is implicitly bound to the one Challenge that advertised it, giving hash credentials stronger practical binding than a static recipient address.
+- **Recoverable by design**—Every non-success settlement outcome refunds the deposit to a merchant-configured origin-chain address, and transient backend failures never consume the credential: the client simply re-presents it.
+- **Chain-agnostic identifiers**—Assets and chains are expressed as [CAIP-19](https://chainagnostic.org/CAIPs/caip-19) / [CAIP-2](https://chainagnostic.org/CAIPs/caip-2) identifiers on the wire, compared by parsed components.
+
+:::info
+Settlement is **not trustless**: for the duration of the swap, deposits are custodied by the NEAR Intents settlement system, which either delivers the destination asset to the merchant or refunds the deposit — comparable to entrusting a payment processor with a transfer. Clients and autonomous agents applying per-method risk policies can identify this trust model from the `method` (`nearintents`) and `methodDetails.settlementBackend` (`"near-intents"`) fields.
+:::
+
+## Intents
+
+<Cards>
+  <NearIntentsChargeCard />
+</Cards>

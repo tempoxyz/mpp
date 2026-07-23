@@ -58,6 +58,8 @@ type Page =
   | { path: '/payment-methods/lightning/session'; render: 'static' }
   | { path: '/payment-methods/monad/charge'; render: 'static' }
   | { path: '/payment-methods/monad'; render: 'static' }
+  | { path: '/payment-methods/nearintents/charge'; render: 'static' }
+  | { path: '/payment-methods/nearintents'; render: 'static' }
   | { path: '/payment-methods/redotpay/charge'; render: 'static' }
   | { path: '/payment-methods/redotpay'; render: 'static' }
   | { path: '/payment-methods/solana/charge'; render: 'static' }
