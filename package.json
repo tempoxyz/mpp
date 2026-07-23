@@ -7,6 +7,7 @@
     "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && node scripts/generate-og-descriptions.ts && vite build",
     "check": "biome check --write",
     "check:ci": "biome check",
+    "check:markdown": "node scripts/check-markdown-components.mjs",
     "check:generated": "pnpm generate:pages && git diff --exit-code -- src/pages.gen.ts",
     "check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
     "check:types": "tsc --noEmit",
@@ -38,7 +39,7 @@
     "stripe": "^22.2.0",
     "tailwindcss": "^4.3.0",
     "viem": "^2.54.0",
-    "vocs": "https://pkg.pr.new/wevm/vocs/vocs@593",
+    "vocs": "https://pkg.pr.new/wevm/vocs/vocs@595",
     "wagmi": "^3.6.16",
     "waku": "1.0.0-beta.1"
   },

@@ -60,8 +60,8 @@ importers:
         specifier: ^2.54.0
         version: 2.54.0(typescript@6.0.3)(zod@4.4.3)
       vocs:
-        specifier: https://pkg.pr.new/wevm/vocs/vocs@593
-        version: https://pkg.pr.new/wevm/vocs/vocs@593(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.2.16)(@vue/compiler-sfc@3.5.40)(date-fns@4.1.0)(esbuild@0.28.1)(idb-keyval@6.2.5)(mermaid@11.15.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.28.1)))(react@19.2.7)(rolldown@1.1.5)(rollup@4.60.1)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(waku@1.0.0-beta.1(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.28.1)))(react@19.2.7)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(webpack@5.105.2(esbuild@0.28.1))
+        specifier: https://pkg.pr.new/wevm/vocs/vocs@595
+        version: https://pkg.pr.new/wevm/vocs/vocs@595(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.2.16)(@vue/compiler-sfc@3.5.40)(date-fns@4.1.0)(esbuild@0.28.1)(idb-keyval@6.2.5)(mermaid@11.15.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.28.1)))(react@19.2.7)(rolldown@1.1.5)(rollup@4.60.1)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(waku@1.0.0-beta.1(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.28.1)))(react@19.2.7)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(webpack@5.105.2(esbuild@0.28.1))
       wagmi:
         specifier: ^3.6.16
         version: 3.6.16(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.21(react@19.2.7))(@types/react@19.2.16)(accounts@0.14.11)(react@19.2.7)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3))
@@ -5021,8 +5021,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@https://pkg.pr.new/wevm/vocs/vocs@593:
-    resolution: {tarball: https://pkg.pr.new/wevm/vocs/vocs@593}
+  vocs@https://pkg.pr.new/wevm/vocs/vocs@595:
+    resolution: {tarball: https://pkg.pr.new/wevm/vocs/vocs@595}
     version: 2.6.2
     hasBin: true
     peerDependencies:
@@ -10602,7 +10602,7 @@ snapshots:
     transitivePeerDependencies:
       - msw
 
-  vocs@https://pkg.pr.new/wevm/vocs/vocs@593(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.2.16)(@vue/compiler-sfc@3.5.40)(date-fns@4.1.0)(esbuild@0.28.1)(idb-keyval@6.2.5)(mermaid@11.15.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.28.1)))(react@19.2.7)(rolldown@1.1.5)(rollup@4.60.1)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(waku@1.0.0-beta.1(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.28.1)))(react@19.2.7)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(webpack@5.105.2(esbuild@0.28.1)):
+  vocs@https://pkg.pr.new/wevm/vocs/vocs@595(@cfworker/json-schema@4.1.1)(@date-fns/tz@1.4.1)(@types/react@19.2.16)(@vue/compiler-sfc@3.5.40)(date-fns@4.1.0)(esbuild@0.28.1)(idb-keyval@6.2.5)(mermaid@11.15.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.28.1)))(react@19.2.7)(rolldown@1.1.5)(rollup@4.60.1)(typescript@6.0.3)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(waku@1.0.0-beta.1(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.7(react@19.2.7))(react-server-dom-webpack@19.2.7(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(webpack@5.105.2(esbuild@0.28.1)))(react@19.2.7)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(webpack@5.105.2(esbuild@0.28.1)):
     dependencies:
       '@base-ui/react': 1.5.0(@date-fns/tz@1.4.1)(@types/react@19.2.16)(date-fns@4.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
