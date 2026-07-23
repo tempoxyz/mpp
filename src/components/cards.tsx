@@ -1,4 +1,9 @@
-import { type ComponentType, lazy, type ReactNode } from "react";
+import {
+  type ComponentType,
+  lazy,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { linkCard } from "./markdown";
 
 type BadgeProps = { children: ReactNode; variant: "info" };
@@ -616,282 +621,71 @@ export function RubyServerCard() {
   );
 }
 
-function addCardMarkdown(
-  component: object,
-  metadata: Parameters<typeof linkCard>[0],
-) {
-  Object.assign(component, { toMarkdown: () => linkCard(metadata) });
+type StaticCard = () => ReactElement<CardProps>;
+
+function defineCard<Component extends StaticCard>(component: Component) {
+  return Object.assign(component, {
+    toMarkdown: () => {
+      const { description, title, to } = component().props;
+      return linkCard({ description, title, to });
+    },
+  });
 }
 
-addCardMarkdown(QuickstartCard, {
-  description: "Build a payment-enabled API",
-  title: "Quickstart",
-  to: "/quickstart",
-});
-addCardMarkdown(ClientQuickstartCard, {
-  description: "Learn how to pay for resources",
-  title: "Client quickstart",
-  to: "/quickstart/client",
-});
-addCardMarkdown(ServerQuickstartCard, {
-  description: "Learn how to charge for resources",
-  title: "Server quickstart",
-  to: "/quickstart/server",
-});
-addCardMarkdown(WalletCliCard, {
-  description:
-    "Managed MPP client with built in spend controls and service discovery",
-  title: "Tempo Wallet CLI",
-  to: "https://wallet.tempo.xyz",
-});
-addCardMarkdown(TempoMethodCard, {
-  description:
-    "Web scale payments with TIP-20 stablecoins on Tempo with sub second settlement",
-  title: "Tempo",
-  to: "/payment-methods/tempo",
-});
-addCardMarkdown(EvmMethodCard, {
-  description:
-    "Stablecoin payments on EVM chains with inline x402 exact compatibility",
-  title: "EVM",
-  to: "/payment-methods/evm",
-});
-addCardMarkdown(EvmChargeCard, {
-  description:
-    "One-time EVM stablecoin payments with inline x402 exact support",
-  title: "EVM charge",
-  to: "/payment-methods/evm/charge",
-});
-addCardMarkdown(OneTimePaymentsCard, {
-  description: "Charge per request with a payment-gated API",
-  title: "Accept one-time payments",
-  to: "/guides/one-time-payments",
-});
-addCardMarkdown(PayAsYouGoCard, {
-  description: "Session-based billing with payment channels",
-  title: "Accept pay-as-you-go payments",
-  to: "/guides/pay-as-you-go",
-});
-addCardMarkdown(PaymentLinksCard, {
-  description: "Create a link. Get paid.",
-  title: "Create a payment link",
-  to: "/guides/payment-links",
-});
-addCardMarkdown(ProxyExistingServiceCard, {
-  description: "Add payments to any API without changing its code",
-  title: "Proxy an existing service",
-  to: "/guides/proxy-existing-service",
-});
-addCardMarkdown(ProtocolConceptsCard, {
-  description: "Learn about MPP's core control flow",
-  title: "Protocol concepts",
-  to: "/protocol",
-});
-addCardMarkdown(TypeScriptSdkCard, {
-  description:
-    "Get started with mppx, the reference implementation of the MPP SDKs",
-  title: "TypeScript",
-  to: "/sdk/typescript",
-});
-addCardMarkdown(PythonSdkCard, {
-  description: "Get started with pympp, the official MPP SDK for Python",
-  title: "Python",
-  to: "/sdk/python",
-});
-addCardMarkdown(RustSdkCard, {
-  description: "Get started with mpp-rs, the official MPP SDK for Rust",
-  title: "Rust",
-  to: "/sdk/rust",
-});
-addCardMarkdown(GoSdkCard, {
-  description: "Get started with mpp-go, the official MPP SDK for Go",
-  title: "Go",
-  to: "/sdk/go",
-});
-addCardMarkdown(PaymentMethodsCard, {
-  description: "Method-specific request schemas",
-  title: "Payment Methods",
-  to: "/payment-methods",
-});
-addCardMarkdown(Http402Card, {
-  description: "The 402 status code that signals payment is required",
-  title: "HTTP 402",
-  to: "/protocol/http-402",
-});
-addCardMarkdown(ChallengesCard, {
-  description: "Server-issued payment requirements in WWW-Authenticate",
-  title: "Challenges",
-  to: "/protocol/challenges",
-});
-addCardMarkdown(CredentialsCard, {
-  description: "Client-submitted payment proofs in Authorization",
-  title: "Credentials",
-  to: "/protocol/credentials",
-});
-addCardMarkdown(ReceiptsCard, {
-  description: "Server acknowledgment of successful payment",
-  title: "Receipts",
-  to: "/protocol/receipts",
-});
-addCardMarkdown(TransportsCard, {
-  description: "HTTP and MCP transport bindings",
-  title: "Transports",
-  to: "/protocol/transports",
-});
-addCardMarkdown(LightningMethodCard, {
-  description: "Bitcoin payments over the Lightning Network",
-  title: "Lightning",
-  to: "/payment-methods/lightning",
-});
-addCardMarkdown(LightningChargeCard, {
-  description: "One-time payments using BOLT11 invoices",
-  title: "Lightning charge",
-  to: "/payment-methods/lightning/charge",
-});
-addCardMarkdown(LightningSessionCard, {
-  description: "Prepaid metered access with per-request billing",
-  title: "Lightning session",
-  to: "/payment-methods/lightning/session",
-});
-addCardMarkdown(StellarMethodCard, {
-  description: "Smart contract payments on Stellar",
-  title: "Stellar",
-  to: "/payment-methods/stellar",
-});
-addCardMarkdown(StellarChargeCard, {
-  description: "One-time SAC token transfers settled on-chain",
-  title: "Stellar charge",
-  to: "/payment-methods/stellar/charge",
-});
-addCardMarkdown(StellarChannelCard, {
-  description: "Pay-as-you-go payments over one-way payment channels",
-  title: "Stellar channel",
-  to: "/payment-methods/stellar/session",
-});
-addCardMarkdown(SolanaMethodCard, {
-  description: "Native SOL and SPL token payments on Solana",
-  title: "Solana",
-  to: "/payment-methods/solana",
-});
-addCardMarkdown(SolanaChargeCard, {
-  description:
-    "One-time payments with signed transactions or confirmed signatures",
-  title: "Solana charge",
-  to: "/payment-methods/solana/charge",
-});
-addCardMarkdown(SolanaSessionCard, {
-  description:
-    "Pay-as-you-go metered payments with off-chain vouchers and on-chain settlement",
-  title: "Solana session",
-  to: "/payment-methods/solana/session",
-});
-addCardMarkdown(MonadMethodCard, {
-  description: "ERC-20 token payments on Monad",
-  title: "Monad",
-  to: "/payment-methods/monad",
-});
-addCardMarkdown(MonadChargeCard, {
-  description: "Immediate one-time payments settled on Monad",
-  title: "Monad charge",
-  to: "/payment-methods/monad/charge",
-});
-addCardMarkdown(RedotPayMethodCard, {
-  description: "Payments with RedotPay balance and stablecoin rails",
-  title: "RedotPay",
-  to: "/payment-methods/redotpay",
-});
-addCardMarkdown(RedotPayChargeCard, {
-  description: "One-time payments with RedotPay payment proofs",
-  title: "RedotPay charge",
-  to: "/payment-methods/redotpay/charge",
-});
-addCardMarkdown(StripeMethodCard, {
-  description: "Traditional payment methods through Stripe",
-  title: "Stripe",
-  to: "/payment-methods/stripe",
-});
-addCardMarkdown(CardMethodCard, {
-  description: "Card payments via encrypted network tokens",
-  title: "Card",
-  to: "/payment-methods/card",
-});
-addCardMarkdown(CardChargeCard, {
-  description: "One-time payments using encrypted network tokens",
-  title: "Card charge",
-  to: "/payment-methods/card/charge",
-});
-addCardMarkdown(CustomMethodCard, {
-  description: "Build your own method or extend existing methods with the SDK.",
-  title: "Custom",
-  to: "/payment-methods/custom",
-});
-addCardMarkdown(TempoChargeCard, {
-  description: "Immediate one-time payments settled on-chain",
-  title: "Tempo charge",
-  to: "/payment-methods/tempo/charge",
-});
-addCardMarkdown(TempoSessionCard, {
-  description: "Pay-as-you-go payment sessions over payment channels",
-  title: "Session",
-  to: "/payment-methods/tempo/session",
-});
-addCardMarkdown(TempoSubscriptionCard, {
-  description: "Recurring stablecoin payments for paid API plans",
-  title: "Tempo subscription",
-  to: "/payment-methods/tempo/subscription",
-});
-addCardMarkdown(StripeChargeCard, {
-  description: "One-time payment using Shared Payment Tokens (SPTs)",
-  title: "Charge",
-  to: "/payment-methods/stripe/charge",
-});
-addCardMarkdown(GoCoreTypesCard, {
-  description: "Challenge, Credential, Receipt types",
-  title: "Core types",
-  to: "/sdk/go/core",
-});
-addCardMarkdown(GoClientCard, {
-  description: "Handle 402 responses automatically",
-  title: "Client",
-  to: "/sdk/go/client",
-});
-addCardMarkdown(GoServerCard, {
-  description: "Protect endpoints with payments",
-  title: "Server",
-  to: "/sdk/go/server",
-});
-addCardMarkdown(PythonCoreTypesCard, {
-  description: "Challenge, Credential, Receipt types",
-  title: "Core types",
-  to: "/sdk/python/core",
-});
-addCardMarkdown(PythonClientCard, {
-  description: "Handle 402 responses automatically",
-  title: "Client",
-  to: "/sdk/python/client",
-});
-addCardMarkdown(PythonServerCard, {
-  description: "Protect endpoints with payments",
-  title: "Server",
-  to: "/sdk/python/server",
-});
-addCardMarkdown(RubySdkCard, {
-  description: "Get started with mpp-rb, the official MPP SDK for Ruby",
-  title: "Ruby",
-  to: "/sdk/ruby",
-});
-addCardMarkdown(RubyCoreTypesCard, {
-  description: "Challenge, Credential, Receipt types",
-  title: "Core types",
-  to: "/sdk/ruby/core",
-});
-addCardMarkdown(RubyClientCard, {
-  description: "Handle 402 responses automatically",
-  title: "Client",
-  to: "/sdk/ruby/client",
-});
-addCardMarkdown(RubyServerCard, {
-  description: "Protect endpoints with payments",
-  title: "Server",
-  to: "/sdk/ruby/server",
-});
+for (const component of [
+  CardChargeCard,
+  CardMethodCard,
+  ChallengesCard,
+  ClientQuickstartCard,
+  CredentialsCard,
+  CustomMethodCard,
+  EvmChargeCard,
+  EvmMethodCard,
+  GoClientCard,
+  GoCoreTypesCard,
+  GoSdkCard,
+  GoServerCard,
+  Http402Card,
+  LightningChargeCard,
+  LightningMethodCard,
+  LightningSessionCard,
+  MonadChargeCard,
+  MonadMethodCard,
+  OneTimePaymentsCard,
+  PayAsYouGoCard,
+  PaymentLinksCard,
+  PaymentMethodsCard,
+  ProtocolConceptsCard,
+  ProxyExistingServiceCard,
+  PythonClientCard,
+  PythonCoreTypesCard,
+  PythonSdkCard,
+  PythonServerCard,
+  QuickstartCard,
+  ReceiptsCard,
+  RedotPayChargeCard,
+  RedotPayMethodCard,
+  RubyClientCard,
+  RubyCoreTypesCard,
+  RubySdkCard,
+  RubyServerCard,
+  RustSdkCard,
+  ServerQuickstartCard,
+  SolanaChargeCard,
+  SolanaMethodCard,
+  SolanaSessionCard,
+  StellarChannelCard,
+  StellarChargeCard,
+  StellarMethodCard,
+  StripeChargeCard,
+  StripeMethodCard,
+  TempoChargeCard,
+  TempoMethodCard,
+  TempoSessionCard,
+  TempoSubscriptionCard,
+  TransportsCard,
+  TypeScriptSdkCard,
+  WalletCliCard,
+]) {
+  defineCard(component);
+}
