@@ -51,3 +51,17 @@ export function PaymentLinkDemo() {
     </div>
   );
 }
+
+Object.assign(PaymentLinkDemo, {
+  toMarkdown: () => ({
+    children: [
+      {
+        children: [{ type: "text", value: "Open the live payment link" }],
+        type: "link",
+        url: "https://mpp.dev/api/payment-link/photo",
+      },
+      { type: "text", value: " to pay $0.01 with Tempo and receive a photo." },
+    ],
+    type: "paragraph",
+  }),
+});

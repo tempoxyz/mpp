@@ -1,10 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "vocs";
+import {
+  type ComponentType,
+  type CSSProperties,
+  lazy,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { Category, Endpoint, Service } from "../data/registry";
 import { fetchServices, iconUrl } from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
+
+type LinkProps = {
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+  to: string;
+};
+
+const Link = lazy(async () => {
+  const { Link } = await import("vocs");
+  return { default: Link };
+}) as ComponentType<LinkProps>;
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   ai: "AI",
@@ -905,7 +926,10 @@ export function ServicesPage() {
     };
     sync();
     const mo = new MutationObserver(sync);
-    mo.observe(nav, { attributes: true, attributeFilter: ["style", "class"] });
+    mo.observe(nav, {
+      attributes: true,
+      attributeFilter: ["style", "class"],
+    });
     window.addEventListener("scroll", sync, { passive: true });
     return () => {
       mo.disconnect();
@@ -1544,7 +1568,11 @@ export function ServicesPage() {
                 </div>
                 <div
                   ref={stickyRef}
-                  style={{ height: 1, marginBottom: -1, pointerEvents: "none" }}
+                  style={{
+                    height: 1,
+                    marginBottom: -1,
+                    pointerEvents: "none",
+                  }}
                   aria-hidden
                 />
                 <div
@@ -1881,6 +1909,21 @@ export function ServicesPage() {
     </div>
   );
 }
+
+Object.assign(ServicesPage, {
+  toMarkdown: () => ({
+    children: [
+      { type: "text", value: "Browse payment-enabled services in " },
+      {
+        children: [{ type: "text", value: "the services llms.txt catalog" }],
+        type: "link",
+        url: "/services/llms.txt",
+      },
+      { type: "text", value: "." },
+    ],
+    type: "paragraph",
+  }),
+});
 
 // ---------------------------------------------------------------------------
 // Add Service Modal

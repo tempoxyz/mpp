@@ -1,8 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import LucideCheck from "~icons/lucide/check";
-import LucideClipboard from "~icons/lucide/clipboard";
+import {
+  type ComponentType,
+  lazy,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
+type IconProps = { className?: string };
+
+const LucideCheck = lazy(async () => {
+  const { default: Icon } = await import("~icons/lucide/check");
+  return { default: Icon };
+}) as ComponentType<IconProps>;
+
+const LucideClipboard = lazy(async () => {
+  const { default: Icon } = await import("~icons/lucide/clipboard");
+  return { default: Icon };
+}) as ComponentType<IconProps>;
 
 export function PromptBlock({ children }: { children: string }) {
   const [copied, setCopied] = useState(false);

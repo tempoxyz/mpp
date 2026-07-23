@@ -16,6 +16,7 @@ onlyBuiltDependencies:
 ignoredBuiltDependencies:
   - es5-ext
   - simple-git-hooks
+  - vue-demi
 allowBuilds:
   esbuild: true
   sharp: true

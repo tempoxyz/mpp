@@ -1,4 +1,5 @@
 import { MermaidDiagram } from "./MermaidDiagram";
+import { code } from "./markdown";
 
 /**
  * Shared MPP payment flow diagram and step list.
@@ -49,3 +50,53 @@ export function PaymentFlowDiagram() {
     </>
   );
 }
+
+Object.assign(PaymentFlowDiagram, {
+  toMarkdown: () => [
+    code(
+      `sequenceDiagram
+  participant Client
+  participant Server
+  Client->>Server: GET /resource
+  Server-->>Client: 402 Payment Required + Challenge
+  Client->>Server: GET /resource + Credential
+  Server-->>Client: 200 OK + Receipt`,
+      "mermaid",
+    ),
+    {
+      children: [
+        {
+          children: [{ type: "text", value: "Request the resource." }],
+          spread: false,
+          type: "paragraph",
+        },
+        {
+          children: [{ type: "text", value: "Receive a 402 Challenge." }],
+          spread: false,
+          type: "paragraph",
+        },
+        {
+          children: [
+            {
+              type: "text",
+              value: "Fulfill the payment and retry with a Credential.",
+            },
+          ],
+          spread: false,
+          type: "paragraph",
+        },
+        {
+          children: [
+            { type: "text", value: "Receive the resource and Receipt." },
+          ],
+          spread: false,
+          type: "paragraph",
+        },
+      ],
+      ordered: true,
+      spread: false,
+      start: 1,
+      type: "list",
+    },
+  ],
+});

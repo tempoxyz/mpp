@@ -1,7 +1,14 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
-import { Link } from "vocs";
+import {
+  type ComponentType,
+  type CSSProperties,
+  createContext,
+  lazy,
+  type ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
 
@@ -10,6 +17,19 @@ import { Terminal } from "./Terminal";
 // ---------------------------------------------------------------------------
 
 const ACCENT = "var(--vocs-text-color-heading)";
+
+type LinkProps = {
+  children: ReactNode;
+  className?: string;
+  onClick?: () => void;
+  style?: CSSProperties;
+  to: string;
+};
+
+const Link = lazy(async () => {
+  const { Link } = await import("vocs");
+  return { default: Link };
+}) as ComponentType<LinkProps>;
 
 const JSON_LD = JSON.stringify([
   {
@@ -129,6 +149,28 @@ export function LandingPage() {
     </AgentContext.Provider>
   );
 }
+
+Object.assign(LandingPage, {
+  toMarkdown: () => ({
+    children: [
+      {
+        type: "text",
+        value:
+          "MPP is the open standard for machine-to-machine payments over HTTP 402. ",
+      },
+      {
+        children: [{ type: "text", value: "Read the quickstart" }],
+        type: "link",
+        url: "/quickstart",
+      },
+      {
+        type: "text",
+        value: " to add payment support to your client or server.",
+      },
+    ],
+    type: "paragraph",
+  }),
+});
 
 // ---------------------------------------------------------------------------
 // Scoped styles injected into the page
