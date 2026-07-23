@@ -66,31 +66,55 @@ Object.assign(PaymentFlowDiagram, {
     {
       children: [
         {
-          children: [{ type: "text", value: "Request the resource." }],
+          children: [
+            {
+              children: [{ type: "text", value: "Request the resource." }],
+              spread: false,
+              type: "paragraph",
+            },
+          ],
           spread: false,
-          type: "paragraph",
-        },
-        {
-          children: [{ type: "text", value: "Receive a 402 Challenge." }],
-          spread: false,
-          type: "paragraph",
+          type: "listItem",
         },
         {
           children: [
             {
-              type: "text",
-              value: "Fulfill the payment and retry with a Credential.",
+              children: [{ type: "text", value: "Receive a 402 Challenge." }],
+              spread: false,
+              type: "paragraph",
             },
           ],
           spread: false,
-          type: "paragraph",
+          type: "listItem",
         },
         {
           children: [
-            { type: "text", value: "Receive the resource and Receipt." },
+            {
+              children: [
+                {
+                  type: "text",
+                  value: "Fulfill the payment and retry with a Credential.",
+                },
+              ],
+              spread: false,
+              type: "paragraph",
+            },
           ],
           spread: false,
-          type: "paragraph",
+          type: "listItem",
+        },
+        {
+          children: [
+            {
+              children: [
+                { type: "text", value: "Receive the resource and Receipt." },
+              ],
+              spread: false,
+              type: "paragraph",
+            },
+          ],
+          spread: false,
+          type: "listItem",
         },
       ],
       ordered: true,

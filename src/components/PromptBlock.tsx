@@ -3,6 +3,7 @@
 import {
   type ComponentType,
   lazy,
+  Suspense,
   useCallback,
   useEffect,
   useState,
@@ -61,11 +62,13 @@ export function PromptBlock({ children }: { children: string }) {
             }}
             aria-hidden="true"
           >
-            {copied ? (
-              <LucideCheck className="vocs:size-4" />
-            ) : (
-              <LucideClipboard className="vocs:size-4" />
-            )}
+            <Suspense fallback={<span className="vocs:block vocs:size-4" />}>
+              {copied ? (
+                <LucideCheck className="vocs:size-4" />
+              ) : (
+                <LucideClipboard className="vocs:size-4" />
+              )}
+            </Suspense>
           </span>
         </pre>
       </button>

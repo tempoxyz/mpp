@@ -142,4 +142,14 @@ describe("MDX component Markdown hooks", () => {
       );
     }
   });
+
+  it("emits payment-flow steps as list items", () => {
+    const markdown = (
+      PaymentFlowDiagram as unknown as MarkdownComponent
+    ).toMarkdown() as Array<unknown>;
+    const list = markdown[1] as { children: Array<{ type: string }> };
+
+    expect(list.children).toHaveLength(4);
+    expect(list.children.every((item) => item.type === "listItem")).toBe(true);
+  });
 });
