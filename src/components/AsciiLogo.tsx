@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { code } from "./markdown";
 
 export const ASCII_MPP = `
 @@##@+                          :#@#@@+     :@@#####################@@@@@@@#########@@@@@@@@@@@@@@@@@@@@@@@@@##@%-      
@@ -734,3 +735,5 @@ export function AsciiLogo({
     </>
   );
 }
+
+Object.assign(AsciiLogo, { toMarkdown: () => code("MPP") });

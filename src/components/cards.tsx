@@ -1,4 +1,29 @@
-import { Badge, Card } from "vocs";
+import {
+  type ComponentType,
+  lazy,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+import { linkCard } from "./markdown";
+
+type BadgeProps = { children: ReactNode; variant: "info" };
+type CardProps = {
+  description: string;
+  icon: string;
+  title: string;
+  to: string;
+  topRight?: ReactNode;
+};
+
+const Badge = lazy(async () => {
+  const { Badge } = await import("vocs");
+  return { default: Badge };
+}) as ComponentType<BadgeProps>;
+
+const Card = lazy(async () => {
+  const { Card } = await import("vocs");
+  return { default: Card };
+}) as ComponentType<CardProps>;
 
 export function QuickstartCard() {
   return (
@@ -594,4 +619,73 @@ export function RubyServerCard() {
       to="/sdk/ruby/server"
     />
   );
+}
+
+type StaticCard = () => ReactElement<CardProps>;
+
+function defineCard<Component extends StaticCard>(component: Component) {
+  return Object.assign(component, {
+    toMarkdown: () => {
+      const { description, title, to } = component().props;
+      return linkCard({ description, title, to });
+    },
+  });
+}
+
+for (const component of [
+  CardChargeCard,
+  CardMethodCard,
+  ChallengesCard,
+  ClientQuickstartCard,
+  CredentialsCard,
+  CustomMethodCard,
+  EvmChargeCard,
+  EvmMethodCard,
+  GoClientCard,
+  GoCoreTypesCard,
+  GoSdkCard,
+  GoServerCard,
+  Http402Card,
+  LightningChargeCard,
+  LightningMethodCard,
+  LightningSessionCard,
+  MonadChargeCard,
+  MonadMethodCard,
+  OneTimePaymentsCard,
+  PayAsYouGoCard,
+  PaymentLinksCard,
+  PaymentMethodsCard,
+  ProtocolConceptsCard,
+  ProxyExistingServiceCard,
+  PythonClientCard,
+  PythonCoreTypesCard,
+  PythonSdkCard,
+  PythonServerCard,
+  QuickstartCard,
+  ReceiptsCard,
+  RedotPayChargeCard,
+  RedotPayMethodCard,
+  RubyClientCard,
+  RubyCoreTypesCard,
+  RubySdkCard,
+  RubyServerCard,
+  RustSdkCard,
+  ServerQuickstartCard,
+  SolanaChargeCard,
+  SolanaMethodCard,
+  SolanaSessionCard,
+  StellarChannelCard,
+  StellarChargeCard,
+  StellarMethodCard,
+  StripeChargeCard,
+  StripeMethodCard,
+  TempoChargeCard,
+  TempoMethodCard,
+  TempoSessionCard,
+  TempoSubscriptionCard,
+  TransportsCard,
+  TypeScriptSdkCard,
+  WalletCliCard,
+]) {
+  defineCard(component);
 }
