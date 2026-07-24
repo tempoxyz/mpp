@@ -9,6 +9,7 @@
     "ignoreUnknown": false,
     "includes": [
       "**",
+      "!public/vendor",
       "!schemas/discovery.json",
       "!schemas/discovery.example.json"
     ]

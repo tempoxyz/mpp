@@ -3854,9 +3854,9 @@ function PageStyles() {
         .search-bar > div:nth-of-type(3) button { height: 2.5rem !important; width: 2.5rem !important; }
         .search-bar-learn-more { height: 2.625rem; padding: 0.75rem 1rem !important; }
         [data-services-table] { margin-top: 2.375rem; }
-        [data-services-table] table col:nth-child(1) { width: 26.6% !important; }
-        [data-services-table] table col:nth-child(2) { width: 35.7% !important; }
-        [data-services-table] table col:nth-child(3) { width: 31.5% !important; }
+        [data-services-table] table col:nth-child(1) { width: 27.6% !important; }
+        [data-services-table] table col:nth-child(2) { width: 20.9% !important; }
+        [data-services-table] table col:nth-child(3) { width: 45.3% !important; }
         [data-services-table] table col:nth-child(4) { width: 6.2% !important; }
         [data-services-table] table th { padding-left: 1rem !important; }
       }
