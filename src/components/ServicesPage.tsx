@@ -276,20 +276,21 @@ function ExternalLinkIcon({ size = 13 }: { size?: number }) {
     </svg>
   );
 }
-function BookIcon({ size = 13 }: { size?: number }) {
+function CodeIcon({ size = 13 }: { size?: number }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeWidth="1.25"
+      strokeLinecap="square"
+      strokeLinejoin="miter"
       aria-hidden="true"
     >
-      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+      <polyline points="5.5 4 2 8 5.5 12" />
+      <polyline points="10.5 4 14 8 10.5 12" />
     </svg>
   );
 }
@@ -3365,7 +3366,7 @@ function ServiceRow({
                   transition:
                     "background 0.15s, color 0.15s, border-color 0.15s",
                 }}
-                title="Docs"
+                title="API docs"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background =
                     "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08))";
@@ -3377,7 +3378,7 @@ function ServiceRow({
                   e.currentTarget.style.color = "var(--vocs-text-color-muted)";
                 }}
               >
-                <BookIcon size={14} />
+                <CodeIcon size={16} />
               </a>
             )}
             {s.provider?.url && (
@@ -3894,12 +3895,13 @@ function PageStyles() {
         .search-bar > div:nth-of-type(3) button { height: 2.5rem !important; width: 2.5rem !important; }
         .search-bar-learn-more { height: 2.625rem; padding: 0.75rem 1rem !important; }
         [data-services-table] { margin-top: 3.5rem; }
-        [data-services-table] table col:nth-child(1) { width: 22.222% !important; }
-        [data-services-table] table col:nth-child(2) { width: 33.2% !important; }
-        [data-services-table] table col:nth-child(3) { width: 31.48% !important; }
-        [data-services-table] table col:nth-child(4) { width: 13.098% !important; }
+        [data-services-table] table col:nth-child(1) { width: 26.6% !important; }
+        [data-services-table] table col:nth-child(2) { width: 20% !important; }
+        [data-services-table] table col:nth-child(3) { width: 35.7% !important; }
+        [data-services-table] table col:nth-child(4) { width: 17.7% !important; }
         [data-services-table] table th { font-size: 0.875rem !important; line-height: 1rem !important; padding: 0 1rem 1rem !important; }
         [data-services-table] table th:nth-child(2) { padding-left: 1rem !important; }
+        [data-services-table] table th:nth-child(3) { text-align: right !important; }
         [data-services-table] table td:nth-child(2) { padding: 1.25rem 0 1.25rem 1rem !important; }
         [data-services-table] table td:nth-child(3) { padding-left: 1rem !important; }
         [data-services-table] table tr[id^="service-"] { height: 5.1rem; }

@@ -255,7 +255,20 @@ export function LandingPage() {
                 {post.description}
               </p>
               <span aria-hidden="true" className="marketing-blog-row-arrow">
-                ↗
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  height="16"
+                  stroke="currentColor"
+                  strokeLinecap="square"
+                  strokeLinejoin="miter"
+                  strokeWidth="1.25"
+                  viewBox="0 0 16 16"
+                  width="16"
+                >
+                  <line x1="4.5" x2="11.5" y1="11.5" y2="4.5" />
+                  <polyline points="5.5 4.5 11.5 4.5 11.5 10.5" />
+                </svg>
               </span>
             </Link>
           ))}
@@ -429,7 +442,7 @@ function LandingStyles() {
         isolation: isolate;
         overflow: hidden;
         position: relative;
-        transition: border-color 160ms ease, color 300ms ease;
+        transition: border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 300ms cubic-bezier(0.215, 0.61, 0.355, 1);
       }
       .marketing-button::before,
       .marketing-button::after {
@@ -498,20 +511,22 @@ function LandingStyles() {
       .marketing-blog { display: grid; gap: 3rem; grid-template-columns: minmax(0, 1fr); }
       .marketing-blog h2 { max-width: 28.75rem; }
       .marketing-blog-list { display: flex; flex-direction: column; }
-      .marketing-blog-row { align-items: flex-start; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy) !important; display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) auto; padding: 1.25rem 1rem; text-decoration: none !important; transition: background 160ms ease; }
+      .marketing-blog-row { align-items: flex-start; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy) !important; display: flex; gap: 1rem; padding: 1.25rem 1rem; text-decoration: none !important; transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease; }
       .marketing-blog-row:hover { background: rgb(255 255 255 / 2%); }
-      .marketing-blog-row-title { min-width: 0; }
-      .marketing-blog-row-title h3 { color: var(--marketing-copy); font-size: 1.25rem; font-weight: 400; line-height: 1.1; margin: 0; }
-      .marketing-blog-row-title p { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.875rem; line-height: 1rem; margin: 0.25rem 0 0; text-transform: uppercase; }
+      .marketing-blog-row-title { display: flex; flex: 1; flex-direction: column; gap: 0.25rem; min-width: 0; }
+      .marketing-blog-row-title h3 { color: var(--marketing-copy); font-size: 1.25rem; font-weight: 400; letter-spacing: normal; line-height: 1.1; margin: 0; }
+      .marketing-blog-row-title p { color: rgb(235 235 235 / 60%); font-family: var(--font-mono, monospace); font-size: 0.875rem; letter-spacing: normal; line-height: 1rem; margin: 1px 0 0; text-transform: uppercase; transition: color 150ms ease; }
       .marketing-blog-row-description { display: none; }
-      .marketing-blog-row-arrow { align-items: center; background: var(--marketing-bg); border: 1px solid var(--marketing-border); color: var(--marketing-copy); display: inline-flex; font-size: 1rem; height: 1.875rem; justify-content: center; line-height: 1; width: 1.875rem; }
+      .marketing-blog-row-arrow { align-items: center; background: #101010; border: 1px solid var(--marketing-border); color: rgb(235 235 235 / 60%); display: inline-flex; flex: 0 0 auto; justify-content: center; padding: 0.375rem; transition: color 150ms ease; }
+      .marketing-blog-row-arrow svg { display: block; }
       .marketing-blog-row:hover :is(.marketing-blog-row-title p, .marketing-blog-row-description) { color: var(--marketing-copy); }
-      .marketing-blog-row:hover .marketing-blog-row-arrow { border-color: var(--marketing-border-hover); }
+      .marketing-blog-row:hover .marketing-blog-row-arrow { color: var(--marketing-copy); }
       .marketing-blog-list > .marketing-button { align-self: flex-start; margin-top: 3.5rem; }
       @media (min-width: 768px) {
         .marketing-integration-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        .marketing-blog-row { grid-template-columns: 12.5rem minmax(0, 1fr) auto; padding-block: 1.5rem; }
-        .marketing-blog-row-description { color: var(--marketing-muted); display: block; font-size: 1.125rem; line-height: 1.2; margin: 0; }
+        .marketing-blog-row { padding-block: 1.5rem; }
+        .marketing-blog-row-title { flex: 0 0 12.5rem; }
+        .marketing-blog-row-description { color: rgb(235 235 235 / 60%); display: block; flex: 1; font-size: 1.125rem; letter-spacing: normal; line-height: 1.2; margin: 0; transition: color 150ms ease; }
       }
       @media (min-width: 960px) {
         .marketing-hero-art { top: clamp(18rem, 24vw, 22rem); }
@@ -552,11 +567,36 @@ function LandingStyles() {
         .marketing-blog { gap: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
       }
       @media (max-width: 999px) {
-        .marketing-hero { min-height: auto; }
-        .marketing-hero-art { height: 18.75rem; order: -1; position: relative; top: auto; transform: translateX(-50%); }
+        .marketing-hero { gap: 2rem; min-height: auto; padding-bottom: 2rem; padding-top: 1.5rem; }
+        .marketing-hero-art { height: 18.75rem; left: auto; order: -1; position: relative; top: auto; transform: none; width: 100%; }
         .marketing-hero-content { gap: 1.5rem; }
-        .marketing-designed-by { margin-top: 3rem; }
+        .marketing-designed-by { margin-top: 0; }
+        .marketing-terminal-section { padding-block: 4rem; }
+        .marketing-terminal-shell { height: 23.75rem; min-height: 23.75rem; }
+        .marketing-services { border-top: 0; padding-top: 5rem; }
+        .marketing-services .marketing-section-heading { border-top: 1px solid var(--marketing-border); padding-top: 1.5rem; }
+        .marketing-blog { border-top: 0; padding-bottom: 5rem; padding-top: 6.5rem; position: relative; }
+        .marketing-blog::before { border-top: 1px solid var(--marketing-border); content: ""; position: absolute; top: 5rem; }
         .marketing-carousel-controls { display: none; }
+      }
+      @media (min-width: 768px) and (max-width: 999px) {
+        .marketing-hero,
+        .marketing-terminal-section,
+        .marketing-integrations,
+        .marketing-services,
+        .marketing-blog { padding-inline: 3rem; }
+        .marketing-blog::before { inset-inline: 3rem; }
+      }
+      @media (max-width: 767px) {
+        .marketing-hero,
+        .marketing-terminal-section,
+        .marketing-integrations,
+        .marketing-services,
+        .marketing-blog { padding-inline: 1rem; }
+        .marketing-designed-by { display: none; }
+        .marketing-service-carousel { flex-direction: column; overflow: visible; }
+        .marketing-service-card { flex: 0 0 auto; width: 100%; }
+        .marketing-blog::before { inset-inline: 1rem; }
       }
       @media (max-width: 639px) {
         .marketing-hero {
@@ -565,7 +605,7 @@ function LandingStyles() {
           padding-bottom: 2rem;
           padding-top: 1.5rem;
         }
-        .marketing-hero-content { gap: 2rem; }
+        .marketing-hero-content { gap: 2rem; max-width: 35rem; }
         .marketing-hero h1 {
           font-size: 1.75rem !important;
           letter-spacing: -0.035rem !important;
