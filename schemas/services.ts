@@ -615,6 +615,45 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // -- ApexScout Agent Commerce Reliability Ledger -----------------------
+  {
+    id: "apexscout-reliability-ledger",
+    name: "ApexScout Agent Commerce Reliability Ledger",
+    url: "https://apexscout.ai",
+    serviceUrl: "https://apexscout.ai",
+    description:
+      "Machine-readable x402 and agent-payment compatibility findings, failure signatures, and verified remediation guidance.",
+
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: [
+      "x402",
+      "mpp",
+      "agent-commerce",
+      "payments",
+      "reliability",
+      "compatibility",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://apexscout.ai/agent-commerce-reliability-ledger",
+      llmsTxt: "https://apexscout.ai/llms.txt",
+      apiReference: "https://apexscout.ai/openapi.json",
+    },
+    provider: { name: "ApexScout", url: "https://apexscout.ai" },
+    realm: "apexscout.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/agent-commerce-reliability-ledger",
+        desc: "Buy one deterministic Agent Commerce Reliability Ledger JSON result",
+        amount: "100000",
+        unitType: "request",
+        docs: "https://apexscout.ai/docs.json",
+      },
+    ],
+  },
   // ── Allium ──────────────────────────────────────────────────────────────
   {
     id: "allium",
