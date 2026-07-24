@@ -178,7 +178,7 @@ html {
   }
 
   [data-v-gutter-top] nav :is(a, button) {
-    background-color: transparent !important;
+    background-color: #101010 !important;
     border: 1px solid var(--mpp-line) !important;
     color: var(--mpp-muted) !important;
     isolation: isolate;
@@ -193,7 +193,7 @@ html {
   }
 
   [data-v-gutter-top] nav :is(a, button)::before {
-    background: #ebebeb;
+    background: #fff;
     content: "";
     height: 50%;
     inset-inline: 0;
@@ -202,11 +202,11 @@ html {
     top: 0;
     transform: scaleX(0);
     transform-origin: left center;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
   }
 
   [data-v-gutter-top] nav :is(a, button)::after {
-    background: #ebebeb;
+    background: #fff;
     bottom: 0;
     content: "";
     height: 50%;
@@ -215,7 +215,7 @@ html {
     position: absolute;
     transform: scaleX(0);
     transform-origin: left center;
-    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.55s cubic-bezier(0.215, 0.61, 0.355, 1);
     z-index: -1;
   }
 
@@ -1798,7 +1798,7 @@ body {
 }
 
 [data-v-gutter-top] nav a:not([data-v-active="true"]):hover {
-  background: transparent;
+  background: #101010;
   border-color: var(--mpp-line-hover) !important;
 }
 
@@ -1884,7 +1884,7 @@ body {
   font-family: var(--font-mono);
   font-size: 0.875rem;
   isolation: isolate;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.14px;
   line-height: 1rem;
   overflow: hidden;
   padding: 0.75rem 1rem;
@@ -1897,7 +1897,7 @@ body {
 
 .marketing-footer-cta > div a::before,
 .marketing-footer-cta > div a::after {
-  background: #ebebeb;
+  background: #fff;
   content: "";
   height: 50%;
   inset-inline: 0;
@@ -1910,12 +1910,12 @@ body {
 
 .marketing-footer-cta > div a::before {
   top: 0;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 .marketing-footer-cta > div a::after {
   bottom: 0;
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.55s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 .marketing-footer-cta > div a > span {
