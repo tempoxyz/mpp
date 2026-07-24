@@ -63,6 +63,42 @@ function useGoogleAnalytics() {
   }, []);
 }
 
+function useRouteFade() {
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+
+      const link = (event.target as HTMLElement | null)?.closest(
+        "a[href]",
+      ) as HTMLAnchorElement | null;
+      if (!link || link.target === "_blank") return;
+
+      const url = new URL(link.href, window.location.href);
+      if (
+        url.origin !== window.location.origin ||
+        url.pathname === window.location.pathname
+      )
+        return;
+
+      document.documentElement.dataset.routeTransition = "";
+      window.setTimeout(() => {
+        delete document.documentElement.dataset.routeTransition;
+      }, 320);
+    };
+
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
+}
+
 function MobileNav() {
   return (
     <nav data-mobile-nav="" aria-label="Main navigation">
@@ -725,6 +761,7 @@ export default function Layout(
   usePostHog();
   useGoogleAnalytics();
   useLogoFullReload();
+  useRouteFade();
   useWebMcpTools();
 
   const ahrefsKey = import.meta.env.VITE_AHREFS_VERIFICATION;
