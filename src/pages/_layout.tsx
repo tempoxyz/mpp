@@ -21,6 +21,128 @@ if (typeof window !== "undefined") {
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
 
+type LottieAnimation = {
+  destroy: () => void;
+  goToAndPlay: (value: number, isFrame?: boolean) => void;
+};
+
+type LottiePlayer = {
+  loadAnimation: (options: {
+    autoplay: boolean;
+    container: Element;
+    loop: boolean;
+    path: string;
+    renderer: "svg";
+    rendererSettings: { preserveAspectRatio: string };
+  }) => LottieAnimation;
+};
+
+declare global {
+  interface Window {
+    lottie?: LottiePlayer;
+  }
+}
+
+let lottiePlayer: Promise<LottiePlayer> | undefined;
+
+function loadLottiePlayer() {
+  if (window.lottie) return Promise.resolve(window.lottie);
+  if (lottiePlayer) return lottiePlayer;
+
+  lottiePlayer = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[data-mpp-lottie-player=""]',
+    );
+    const finish = () =>
+      window.lottie
+        ? resolve(window.lottie)
+        : reject(new Error("Lottie player did not initialize"));
+
+    if (existing) {
+      existing.addEventListener("load", finish, { once: true });
+      existing.addEventListener(
+        "error",
+        () => reject(new Error("Unable to load Lottie player")),
+        {
+          once: true,
+        },
+      );
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.async = true;
+    script.dataset.mppLottiePlayer = "";
+    script.src = "/vendor/lottie_light.min.js";
+    script.addEventListener("load", finish, { once: true });
+    script.addEventListener(
+      "error",
+      () => reject(new Error("Unable to load Lottie player")),
+      {
+        once: true,
+      },
+    );
+    document.head.appendChild(script);
+  });
+
+  return lottiePlayer;
+}
+
+function useLogoAnimation() {
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let animation: LottieAnimation | undefined;
+    let cancelled = false;
+    let fallbackImages: HTMLImageElement[] = [];
+    let container: HTMLSpanElement | undefined;
+
+    const mount = async () => {
+      const logo = document.querySelector<HTMLElement>("[data-v-logo]");
+      if (!logo || cancelled) return;
+
+      try {
+        const player = await loadLottiePlayer();
+        if (cancelled) return;
+
+        fallbackImages = Array.from(logo.querySelectorAll("img"));
+        if (!fallbackImages.length) return;
+
+        container = document.createElement("span");
+        container.dataset.mppLogoAnimation = "";
+        logo.appendChild(container);
+        fallbackImages.forEach((image) => {
+          image.style.visibility = "hidden";
+        });
+        animation = player.loadAnimation({
+          autoplay: true,
+          container,
+          loop: false,
+          path: "/lottie/02_MPP_Logo_Loading_Animation.json",
+          renderer: "svg",
+          rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
+        });
+      } catch {
+        // Keep the static logo when the optional animation cannot load.
+      }
+    };
+
+    const replay = () => animation?.goToAndPlay(0, true);
+    void mount();
+    window.addEventListener("mpp:route", replay);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("mpp:route", replay);
+      animation?.destroy();
+      container?.remove();
+      fallbackImages.forEach((image) => {
+        image.style.visibility = "";
+      });
+    };
+  }, []);
+}
+
 const POSTHOG_SNIPPET = POSTHOG_KEY
   ? `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetGroupPropertiesForFlags setGroupPropertiesForFlags resetPersonPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init('${POSTHOG_KEY}',{api_host:'https://us.i.posthog.com',disable_session_recording:true});`
   : null;
@@ -88,6 +210,7 @@ function useRouteFade() {
       )
         return;
 
+      window.dispatchEvent(new Event("mpp:route"));
       document.documentElement.dataset.routeTransition = "";
       window.setTimeout(() => {
         delete document.documentElement.dataset.routeTransition;
@@ -761,6 +884,7 @@ export default function Layout(
   usePostHog();
   useGoogleAnalytics();
   useLogoFullReload();
+  useLogoAnimation();
   useRouteFade();
   useWebMcpTools();
 

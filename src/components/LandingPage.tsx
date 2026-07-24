@@ -426,9 +426,28 @@ function LandingStyles() {
         padding: 0.75rem 1rem;
         text-decoration: none !important;
         text-transform: uppercase;
-        transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+        isolation: isolate;
+        overflow: hidden;
+        position: relative;
+        transition: border-color 160ms ease, color 300ms ease;
       }
-      .marketing-button:hover { background: #262626; border-color: var(--marketing-border-hover); }
+      .marketing-button::before,
+      .marketing-button::after {
+        background: #ebebeb;
+        content: "";
+        height: 50%;
+        inset-inline: 0;
+        pointer-events: none;
+        position: absolute;
+        transform: scaleX(0);
+        transform-origin: left center;
+        z-index: -1;
+      }
+      .marketing-button::before { top: 0; transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1); }
+      .marketing-button::after { bottom: 0; transition: transform 550ms cubic-bezier(0.16, 1, 0.3, 1); }
+      .marketing-button:hover { border-color: var(--marketing-border-hover); color: #101010 !important; }
+      .marketing-button:hover::before,
+      .marketing-button:hover::after { transform: scaleX(1); }
       .marketing-button-primary { background: #262626; }
       .marketing-designed-by {
         align-items: center;
