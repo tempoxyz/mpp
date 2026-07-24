@@ -1704,8 +1704,8 @@ export function ServicesPage() {
                         border: 1px solid var(--mpp-line) !important;
                         border-radius: 0 !important;
                         display: grid !important;
-                        column-gap: 1rem !important;
                         gap: 0 !important;
+                        column-gap: 1rem !important;
                         grid-template-columns: 2.6875rem minmax(0, 1fr) !important;
                         grid-template-rows: auto auto minmax(0, 1fr) auto !important;
                         padding: 1rem 2.5rem 1rem 1rem !important;
