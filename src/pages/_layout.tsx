@@ -90,6 +90,7 @@ function loadLottiePlayer() {
 
 function useLogoAnimation() {
   useEffect(() => {
+    if (!document.querySelector('[data-layout="minimal"]')) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let animation: LottieAnimation | undefined;
@@ -98,7 +99,9 @@ function useLogoAnimation() {
     let container: HTMLSpanElement | undefined;
 
     const mount = async () => {
-      const logo = document.querySelector<HTMLElement>("[data-v-logo]");
+      const logo = document.querySelector<HTMLElement>(
+        "[data-v-logo-image]",
+      )?.parentElement;
       if (!logo || cancelled) return;
 
       try {
@@ -110,6 +113,7 @@ function useLogoAnimation() {
 
         container = document.createElement("span");
         container.dataset.mppLogoAnimation = "";
+        logo.dataset.mppLogoHost = "";
         logo.appendChild(container);
         fallbackImages.forEach((image) => {
           image.style.visibility = "hidden";
@@ -136,6 +140,8 @@ function useLogoAnimation() {
       window.removeEventListener("mpp:route", replay);
       animation?.destroy();
       container?.remove();
+      const logo = document.querySelector<HTMLElement>("[data-mpp-logo-host]");
+      delete logo?.dataset.mppLogoHost;
       fallbackImages.forEach((image) => {
         image.style.visibility = "";
       });

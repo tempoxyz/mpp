@@ -270,7 +270,7 @@ html {
   position: absolute;
 }
 
-[data-v-logo] {
+[data-mpp-logo-host] {
   overflow: hidden;
   position: relative;
   width: 206px;
