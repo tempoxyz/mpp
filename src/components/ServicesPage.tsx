@@ -1015,37 +1015,8 @@ export function ServicesPage() {
   const toggleRow = useCallback((id: string) => {
     setExpandedIds((p) => {
       if (p.has(id)) {
-        history.replaceState(null, "", window.location.pathname);
         return new Set();
       }
-      const hadPrevious = p.size > 0;
-      history.replaceState(null, "", `/services#${id}`);
-      const delay = hadPrevious ? 220 : 50;
-      setTimeout(() => {
-        const el = document.getElementById(`service-${id}`);
-        if (!el) return;
-        const navH =
-          document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
-            .height ?? 56;
-        const barH =
-          document.querySelector(".search-bar")?.getBoundingClientRect()
-            .height ?? 0;
-        const target =
-          el.getBoundingClientRect().top + window.scrollY - navH - barH - 12;
-        const start = window.scrollY;
-        const dist = target - start;
-        if (Math.abs(dist) < 2) return;
-        const dur = Math.min(600, Math.max(300, Math.abs(dist) * 0.6));
-        let t0: number | null = null;
-        const step = (t: number) => {
-          if (!t0) t0 = t;
-          const p = Math.min((t - t0) / dur, 1);
-          const ease = p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2;
-          window.scrollTo(0, start + dist * ease);
-          if (p < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      }, delay);
       return new Set([id]);
     });
   }, []);
@@ -3513,7 +3484,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
   const baseUrl = s.serviceUrl ?? s.url;
   return (
-    <div style={{ fontSize: 14 }}>
+    <div className="expanded-detail-content" style={{ fontSize: 14 }}>
       {baseUrl && (
         <div
           className="expanded-url-bar"
@@ -3798,7 +3769,8 @@ function PageStyles() {
         height: auto;
       }
       @media (min-width: 901px) {
-        .services-container { padding: 2.875rem 3rem 4rem !important; }
+        .services-container { padding: 8.875rem 3rem 4rem !important; }
+        .services-page-title-wrap { min-height: 7.5rem; }
       }
       .page-header {
         border-bottom: 4px solid transparent;
@@ -3935,6 +3907,20 @@ function PageStyles() {
         [data-services-table] .chevron-cell > :is(a, svg):hover {
           border-color: var(--mpp-line-hover) !important;
           color: var(--mpp-copy) !important;
+        }
+        .expanded-detail-content { padding: 0 1rem 0.5rem; }
+        .sub-header,
+        .sub-row {
+          column-gap: 1rem !important;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 5.875rem !important;
+        }
+        .sub-header {
+          text-transform: uppercase;
+        }
+        .sub-header > *,
+        .sub-row > * {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
         }
       }
 
