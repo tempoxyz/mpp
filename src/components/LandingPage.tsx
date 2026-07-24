@@ -332,8 +332,8 @@ function ServiceCard({ service }: { service: Service }) {
       </div>
       <p>{service.description ?? "MPP-enabled service for your agents."}</p>
       <button
-        aria-label={`Copy ${url}`}
-        className="marketing-service-card-url"
+        aria-label={copied ? "Copied to clipboard" : `Copy ${url}`}
+        className={`marketing-service-card-url${copied ? " marketing-service-card-url-copied" : ""}`}
         onClick={copyUrl}
         type="button"
       >
@@ -493,6 +493,7 @@ function LandingStyles() {
       .marketing-service-card > p { color: var(--marketing-muted); font-size: 1.125rem; line-height: 1.2; margin: 0; }
       .marketing-service-card-url { align-items: center; align-self: flex-start; background: var(--marketing-bg); border: 1px solid var(--marketing-border); color: var(--marketing-muted); cursor: pointer; display: inline-flex; font-family: var(--font-mono, monospace); font-size: 0.875rem; gap: 0.5rem; line-height: 1rem; margin-top: auto; max-width: 100%; overflow: hidden; padding: 0.75rem; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
       .marketing-service-card-url:hover { border-color: var(--marketing-border-hover); color: var(--marketing-copy); }
+      .marketing-service-card-url-copied { border-color: #98f3aa; color: #98f3aa; }
       .marketing-blog { display: grid; gap: 3rem; grid-template-columns: minmax(0, 1fr); }
       .marketing-blog h2 { max-width: 28.75rem; }
       .marketing-blog-list { display: flex; flex-direction: column; }
@@ -525,8 +526,14 @@ function LandingStyles() {
         .marketing-hero-content { gap: 2.375rem; max-width: 61.125rem; }
         .marketing-hero h1 { font-size: 3rem !important; font-weight: 400 !important; letter-spacing: -0.09rem !important; line-height: 3rem !important; }
         .marketing-desktop-break { display: block; }
-        .marketing-services { padding-bottom: calc(clamp(5rem, 10vw, 9rem) + 0.25rem); padding-top: 7.125rem; }
-        .marketing-blog { padding-bottom: 5rem; padding-top: 7rem; }
+        .marketing-services { border-top: 0; padding-bottom: 7rem; padding-top: 5rem; }
+        .marketing-services .marketing-section-heading { border-top: 1px solid var(--marketing-border); padding-top: 1.5rem; }
+        .marketing-services .marketing-section-label { margin-bottom: 1.5rem; }
+        .marketing-services h2 { margin-bottom: 1.5rem !important; }
+        .marketing-service-carousel { margin-top: 5rem; }
+        .marketing-blog { border-top: 0; padding-bottom: 5rem; padding-top: 6.5rem; position: relative; }
+        .marketing-blog::before { border-top: 1px solid var(--marketing-border); content: ""; inset-inline: 3rem; position: absolute; top: 5rem; }
+        .marketing-blog .marketing-section-label { margin-bottom: 1.5rem; }
         .marketing-terminal-section {
           bottom: 2.5rem;
           padding: 0;
