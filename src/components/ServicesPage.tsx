@@ -2247,7 +2247,8 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
 
 function WalletCardFull() {
   return (
-    <div
+    <details
+      open
       className="services-wallet-card"
       style={{
         borderRadius: 10,
@@ -2256,31 +2257,51 @@ function WalletCardFull() {
         padding: "1.25rem",
       }}
     >
-      <h2
-        className="services-wallet-title"
-        style={{
-          fontSize: "1.15rem",
-          fontWeight: 500,
-          letterSpacing: "-0.02em",
-          marginBottom: "0.35rem",
-        }}
-      >
-        Use with agents
-      </h2>
-      <p
-        className="services-wallet-description"
-        style={{
-          color: "var(--vocs-text-color-secondary)",
-          fontSize: 14,
-          lineHeight: 1.5,
-          marginBottom: "1.25rem",
-        }}
-      >
-        Install Tempo CLI and its wallet to fund your agents use of MPP
-        services.
-      </p>
-      <WalletSteps />
-    </div>
+      <summary className="services-wallet-summary">
+        <div>
+          <h2
+            className="services-wallet-title"
+            style={{
+              fontSize: "1.15rem",
+              fontWeight: 500,
+              letterSpacing: "-0.02em",
+              marginBottom: "0.35rem",
+            }}
+          >
+            Use with agents
+          </h2>
+          <p
+            className="services-wallet-description"
+            style={{
+              color: "var(--vocs-text-color-secondary)",
+              fontSize: 14,
+              lineHeight: 1.5,
+              marginBottom: "1.25rem",
+            }}
+          >
+            Install Tempo CLI and its wallet to fund your agents use of MPP
+            services.
+          </p>
+        </div>
+        <svg
+          className="services-wallet-chevron"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+      <div className="services-wallet-body">
+        <WalletSteps />
+      </div>
+    </details>
   );
 }
 
@@ -3805,6 +3826,23 @@ function PageStyles() {
         border-color: var(--mpp-line) !important;
         padding: 1rem !important;
       }
+      .services-wallet-summary {
+        align-items: flex-start;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        list-style: none;
+      }
+      .services-wallet-summary::-webkit-details-marker { display: none; }
+      .services-wallet-chevron {
+        color: var(--mpp-muted);
+        flex: none;
+        margin-top: 0.125rem;
+        transition: transform 0.2s ease;
+      }
+      .services-wallet-card[open] .services-wallet-chevron { transform: rotate(180deg); }
+      .services-wallet-body { display: none; }
+      .services-wallet-card[open] .services-wallet-body { display: block; }
       .services-wallet-title,
       .services-cli-title {
         color: var(--mpp-copy) !important;
