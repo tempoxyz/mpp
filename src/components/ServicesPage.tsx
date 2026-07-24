@@ -2341,8 +2341,8 @@ function HeaderCards({
             <TerminalIcon />
           </span>
           <div>
-            <div style={titleS}>Use with Tempo</div>
-            <div style={descS}>CLI & wallet for agents</div>
+            <div style={titleS}>Use with agents</div>
+            <div style={descS}>CLI wallet for agents.</div>
           </div>
         </button>
         <a
@@ -2368,7 +2368,7 @@ function HeaderCards({
             <path d="M14 2v4a2 2 0 0 0 2 2h4" />
           </svg>
           <div>
-            <div style={titleS}>llms.txt</div>
+            <div style={titleS}>LLMS.TXT</div>
             <div style={descS}>Service discovery for agents</div>
           </div>
         </a>
@@ -2389,7 +2389,7 @@ function HeaderCards({
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
           <div>
-            <div style={titleS}>Quickstart</div>
+            <div style={titleS}>Documentation</div>
             <div style={descS}>Guides, quickstarts, and SDKs</div>
           </div>
         </a>
@@ -2426,17 +2426,8 @@ function HeaderCards({
             />
           </span>
           <div>
-            <div style={titleS}>First-party</div>
+            <div style={titleS}>First-party services</div>
             <div style={descS}>Services which directly integrate with MPP</div>
-            <div
-              style={{
-                fontSize: 11,
-                color: "var(--vocs-text-color-link)",
-                marginTop: "0.2rem",
-              }}
-            >
-              Learn how to integrate →
-            </div>
           </div>
         </a>
       </div>
@@ -4048,6 +4039,117 @@ function PageStyles() {
         .ep-path-clickable { cursor: default !important; pointer-events: none; }
         .mobile-row-copy { display: none !important; }
         .url-copy-icon { opacity: 0.8 !important; }
+      }
+
+      @media (min-width: 901px) and (max-width: 1279px) {
+        .header-cards { margin-bottom: 2.3125rem !important; }
+        .header-cards-grid > * {
+          align-items: flex-start !important;
+          background: #191919 !important;
+          border-color: var(--mpp-line) !important;
+          border-radius: 0 !important;
+          min-height: 7.75rem !important;
+          padding: 1rem !important;
+          position: relative;
+        }
+        .header-cards-grid > * > span { display: none !important; }
+        .header-cards-grid > * > svg { display: none !important; }
+        .header-cards-grid > * > div {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          gap: 0.5rem;
+          min-width: 0;
+          padding-right: 1.5rem;
+        }
+        .header-cards-grid > * > div > div:first-child {
+          color: var(--mpp-copy) !important;
+          font-family: var(--font-mono) !important;
+          font-size: 0.875rem !important;
+          font-weight: 400 !important;
+          line-height: 1rem !important;
+          margin: 0 !important;
+          text-transform: uppercase;
+        }
+        .header-cards-grid > * > div > div:last-child {
+          color: var(--mpp-muted) !important;
+          font-family: var(--font-sans) !important;
+          font-size: 0.875rem !important;
+          line-height: 1.2 !important;
+          margin: 0 !important;
+        }
+        .header-cards-grid > *::after {
+          color: var(--mpp-copy);
+          content: "→";
+          font-family: var(--font-mono);
+          font-size: 1.25rem;
+          line-height: 1;
+          position: absolute;
+          right: 1rem;
+          top: 1rem;
+        }
+        .search-bar { gap: 1rem !important; }
+        .filter-dropdown-btn { min-width: 9.375rem !important; }
+        .search-bar > div:nth-of-type(3) { gap: 0.5rem !important; }
+        .search-bar > div:nth-of-type(3) button {
+          height: 2.5rem !important;
+          width: 2.5rem !important;
+        }
+        [data-services-table] { margin-top: 1.5625rem !important; }
+        [data-services-table] table,
+        [data-services-table] table tbody { display: block !important; }
+        [data-services-table] table tr[id^="service-"] {
+          display: grid !important;
+          grid-template-columns: max-content minmax(0, 1fr) max-content;
+          grid-template-rows: auto auto;
+          width: 100% !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td:first-child {
+          display: block !important;
+          grid-column: 1;
+          grid-row: 1;
+          max-width: none !important;
+          padding: 0.75rem 0 0.35rem 1rem !important;
+          width: auto !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td.hide-mobile:nth-child(2) {
+          color: var(--mpp-muted) !important;
+          display: block !important;
+          font-size: 0.875rem !important;
+          grid-column: 1 / -1;
+          grid-row: 2;
+          line-height: 1.3 !important;
+          padding: 0 1rem 1rem !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td.hide-mobile:nth-child(3) {
+          display: block !important;
+          grid-column: 2;
+          grid-row: 1;
+          overflow: visible !important;
+          padding: 0.75rem 1rem 0.35rem !important;
+          white-space: nowrap !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td:last-child {
+          display: block !important;
+          grid-column: 3;
+          grid-row: 1;
+          min-width: 0 !important;
+          padding: 0 !important;
+          width: auto !important;
+        }
+        [data-services-table] .show-tablet { display: none !important; }
+        [data-services-table] .svc-name-row {
+          align-items: flex-start !important;
+          flex-direction: column !important;
+          gap: 0 !important;
+        }
+        [data-services-table] .svc-badge-inline { margin: 0 !important; }
+        [data-services-table] .svc-badge-bordered { display: none !important; }
+        [data-services-table] .svc-badge-borderless { display: inline !important; }
+        [data-services-table] .chevron-cell {
+          gap: 1rem !important;
+          padding-right: 0.75rem !important;
+        }
       }
 
       /* ---- Header cards 2x2, search moves, tags center ---- */
