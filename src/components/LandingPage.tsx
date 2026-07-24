@@ -142,9 +142,9 @@ export function LandingPage() {
         </video>
         <div className="marketing-hero-content">
           <h1>
-            MPP lets agents pay for services on the
-            <br className="marketing-desktop-break" /> web, extensible to any
-            payment method.
+            The open protocol for machine-to-machine payments. Charge for API
+            requests, tool calls, or content—agents and apps pay per request in
+            the same HTTP call.
           </h1>
           <div className="marketing-actions">
             <Link
