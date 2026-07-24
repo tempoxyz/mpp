@@ -2771,12 +2771,6 @@ body {
   border-right: 1px solid var(--mpp-line);
 }
 
-[data-v-sidebar] a[data-v-sidebar-item][data-active="true"] {
-  background: var(--mpp-elevated);
-  border-left: 2px solid var(--mpp-copy);
-  padding-left: calc(0.75rem - 2px);
-}
-
 [data-v-content] h1,
 [data-v-content] h2 {
   color: var(--mpp-copy);
