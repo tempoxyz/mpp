@@ -3966,16 +3966,16 @@ function PageStyles() {
 
       @media (max-width: 1279px) {
         .services-layout {
-          flex-direction: column !important;
-          gap: 3.5rem !important;
+          gap: 0 !important;
         }
         .services-sidebar {
-          display: block !important;
-          position: static !important;
-          width: 100% !important;
+          display: none !important;
         }
         .page-header { margin-left: 0 !important; }
-        .header-cards { display: none !important; }
+        .header-cards {
+          display: block !important;
+          margin: 0 0 3.25rem !important;
+        }
         .page-header-ctas { display: none !important; }
         .search-bar {
           margin-left: 0 !important;
@@ -3983,9 +3983,10 @@ function PageStyles() {
           margin-right: 0 !important;
           top: calc(var(--vocs-spacing-topNav, 56px) - 4px) !important;
           padding-bottom: 0.75rem !important;
-          padding-top: 0 !important;
+          padding-top: 1.25rem !important;
           background: linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent) !important;
         }
+        [data-services-table] { margin-top: 1rem; }
       }
 
       /* ---- Table columns stack ---- */
