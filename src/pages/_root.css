@@ -178,19 +178,16 @@ html {
   }
 
   [data-v-gutter-top] nav :is(a, button) {
-    background-color: #101010 !important;
-    background-image: linear-gradient(#ebebeb, #ebebeb);
-    background-position: left bottom;
-    background-repeat: no-repeat;
-    background-size: 0 50%;
+    background-color: transparent !important;
     border: 1px solid var(--mpp-line) !important;
     color: var(--mpp-muted) !important;
+    isolation: isolate;
     letter-spacing: -0.01em !important;
     overflow: hidden;
     position: relative;
     text-transform: uppercase;
     transition:
-      background-size 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.15s ease,
       border-color 0.15s ease,
       color 0.3s ease !important;
   }
@@ -208,29 +205,50 @@ html {
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  [data-v-gutter-top] nav :is(a, button)::after {
+    background: #ebebeb;
+    bottom: 0;
+    content: "";
+    height: 50%;
+    inset-inline: 0;
+    pointer-events: none;
+    position: absolute;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: -1;
+  }
+
   [data-v-gutter-top] nav a[data-v-active="true"],
   [data-v-gutter-top] nav a:not([data-v-active="true"]) {
     border-color: var(--mpp-line) !important;
   }
 
   [data-v-gutter-top] nav :is(a, button):is(:hover, :focus-visible) {
-    background-size: 100% 50%;
     border-color: var(--mpp-line-hover) !important;
     color: #101010 !important;
   }
 
   [data-v-gutter-top] nav :is(a, button):is(:hover, :focus-visible)::before {
     transform: scaleX(1);
+    z-index: -1;
+  }
+
+  [data-v-gutter-top] nav :is(a, button):is(:hover, :focus-visible)::after {
+    transform: scaleX(1);
   }
 
   [data-v-gutter-top] nav a[data-v-active="true"] {
     background-color: #262626 !important;
-    background-image: none;
     border-color: var(--mpp-line-hover) !important;
     color: var(--mpp-copy) !important;
   }
 
   [data-v-gutter-top] nav a[data-v-active="true"]::before {
+    content: none;
+  }
+
+  [data-v-gutter-top] nav a[data-v-active="true"]::after {
     content: none;
   }
 
