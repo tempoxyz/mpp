@@ -170,11 +170,13 @@ export function ServiceDiscovery({
   externalQuery,
   externalCategory,
   externalSelectedServiceId,
+  marketingGrid = false,
   onExternalServiceHandled,
 }: {
   externalQuery?: string;
   externalCategory?: string | null;
   externalSelectedServiceId?: string;
+  marketingGrid?: boolean;
   onExternalServiceHandled?: () => void;
 } = {}) {
   const [services, setServices] = useState<Service[]>([]);
@@ -671,7 +673,7 @@ export function ServiceDiscovery({
               <button
                 key={service.id}
                 type="button"
-                className="discovery-card discovery-card-visible"
+                className={`discovery-card discovery-card-visible${marketingGrid ? " discovery-card-marketing" : ""}`}
                 style={{
                   opacity: hasQuery ? (isMatch ? 1 : 0.08) : undefined,
                   filter: hasQuery && !isMatch ? "blur(3px)" : undefined,
@@ -780,7 +782,40 @@ export function ServiceDiscovery({
                   )}
                 </div>
                 <div className="discovery-card-name">{service.name}</div>
+                {marketingGrid && (
+                  <div className="discovery-card-category">
+                    {service.categories?.[0] ?? "Service"}
+                  </div>
+                )}
                 <div className="discovery-card-desc">{service.description}</div>
+                {marketingGrid && (
+                  // biome-ignore lint/a11y/useKeyWithClickEvents: copy affordance inside the service card
+                  // biome-ignore lint/a11y/noStaticElementInteractions: copy affordance inside the service card
+                  <span
+                    className="discovery-card-url"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void navigator.clipboard.writeText(service.url);
+                    }}
+                    title={`Copy ${service.url}`}
+                  >
+                    <span>{service.url}</span>
+                    <svg
+                      aria-hidden="true"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                    >
+                      <rect height="14" rx="2" width="14" x="8" y="8" />
+                      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2v0" />
+                    </svg>
+                  </span>
+                )}
               </button>
             );
           })}
@@ -2326,13 +2361,15 @@ function DiscoveryStyles() {
       .modal-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0,0,0,0.7);
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         z-index: 9999;
-        padding: 1rem;
-        animation: modalFadeIn 0.2s ease forwards;
+        overflow-y: auto;
+        padding: 1.5rem;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
       }
       .modal-backdrop.modal-closing {
         animation: modalFadeOut 0.2s ease forwards;
@@ -2348,14 +2385,12 @@ function DiscoveryStyles() {
       .modal-content {
         position: relative;
         width: 100%;
-        max-width: 720px;
-        max-height: 85vh;
-        overflow-y: auto;
-        background: var(--vocs-background-color-primary);
-        border-radius: 16px;
-        border: 1px solid light-dark(var(--vocs-border-color-primary), rgba(255,255,255,0.12));
-        padding: 2rem;
-        animation: modalSlideIn 0.25s ease forwards;
+        max-width: 740px;
+        background: #101010;
+        border-radius: 0;
+        border: 1px solid var(--mpp-line);
+        margin: auto 0;
+        padding: 1.5rem;
       }
       .modal-content.modal-closing {
         animation: modalSlideOut 0.2s ease forwards;
@@ -2370,7 +2405,7 @@ function DiscoveryStyles() {
       }
       .modal-actions {
         position: absolute;
-        top: 1.25rem;
+        top: 1.5rem;
         right: 1.5rem;
         z-index: 2;
       }
@@ -2392,6 +2427,19 @@ function DiscoveryStyles() {
         background: light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08));
       }
       .modal-header { margin-bottom: 0.5rem; }
+      .modal-header .discovery-card-icon-img {
+        border-radius: 0 !important;
+        height: 3rem !important;
+        width: 3rem !important;
+      }
+      .modal-header h3 {
+        color: var(--mpp-copy) !important;
+        font-family: var(--font-sans) !important;
+        font-size: 1.75rem !important;
+        font-weight: 400 !important;
+        letter-spacing: -0.035em !important;
+        line-height: 1.1 !important;
+      }
       .modal-tag {
         font-size: 11px;
         padding: 2px 8px;
@@ -2404,12 +2452,14 @@ function DiscoveryStyles() {
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        font-size: 13px;
-        padding: 0.35rem 0.8rem;
-        border-radius: 6px;
-        border: 1px solid var(--vocs-border-color-primary);
-        color: var(--vocs-text-color-heading);
+        font-family: var(--font-mono);
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0;
+        border: 1px solid var(--mpp-line);
+        color: var(--mpp-copy);
         text-decoration: none;
+        text-transform: uppercase;
         transition: background 0.15s;
         cursor: pointer;
       }

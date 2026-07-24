@@ -1692,10 +1692,98 @@ export function ServicesPage() {
                       .services-grid-inline .discovery-grid {
                         height: auto !important;
                         overflow: visible !important;
-                        grid-template-columns: repeat(4, 1fr) !important;
-                        grid-auto-rows: minmax(150px, 1fr) !important;
+                        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                        grid-auto-rows: 18rem !important;
+                        gap: 1rem !important;
+                        margin-top: 0.3125rem;
                         padding-left: 0 !important;
                         padding-right: 0 !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing {
+                        background: #101010 !important;
+                        border: 1px solid var(--mpp-line) !important;
+                        border-radius: 0 !important;
+                        display: grid !important;
+                        column-gap: 1rem !important;
+                        gap: 0 !important;
+                        grid-template-columns: 2.6875rem minmax(0, 1fr) !important;
+                        grid-template-rows: auto auto minmax(0, 1fr) auto !important;
+                        padding: 1rem 2.5rem 1rem 1rem !important;
+                        transition: border-color 150ms ease, background-color 150ms ease !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing:hover {
+                        background: #101010 !important;
+                        border-color: var(--mpp-line) !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-links,
+                      .services-grid-inline .discovery-card-marketing .discovery-card-fp-dot {
+                        display: none !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-icon,
+                      .services-grid-inline .discovery-card-marketing .discovery-card-icon-img,
+                      .services-grid-inline .discovery-card-marketing .discovery-card-icon-fallback {
+                        height: 2.6875rem !important;
+                        width: 2.6875rem !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-icon {
+                        grid-column: 1;
+                        grid-row: 1 / 3;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-name {
+                        align-self: end;
+                        font-family: var(--font-sans) !important;
+                        font-size: 1.25rem !important;
+                        font-weight: 400 !important;
+                        grid-column: 2;
+                        grid-row: 1;
+                        line-height: 1.1 !important;
+                        margin: 0 !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-category {
+                        color: var(--mpp-muted);
+                        font-family: var(--font-mono);
+                        font-size: 0.875rem;
+                        grid-column: 2;
+                        grid-row: 2;
+                        line-height: 1rem;
+                        margin-top: 0.25rem;
+                        text-transform: uppercase;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-desc {
+                        -webkit-line-clamp: unset !important;
+                        align-self: start;
+                        color: var(--mpp-muted) !important;
+                        font-family: var(--font-sans);
+                        font-size: 1.125rem !important;
+                        grid-column: 1 / -1;
+                        grid-row: 3;
+                        line-height: 1.2 !important;
+                        margin-top: 1.5rem !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-url {
+                        align-items: center;
+                        border: 1px solid var(--mpp-line);
+                        color: var(--mpp-muted);
+                        cursor: pointer;
+                        display: flex;
+                        font-family: var(--font-mono);
+                        font-size: 0.875rem;
+                        gap: 0.5rem;
+                        grid-column: 1 / -1;
+                        grid-row: 4;
+                        line-height: 1rem;
+                        max-width: 100%;
+                        overflow: hidden;
+                        padding: 0.375rem 0.75rem;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-url > span {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-url > svg {
+                        flex: none;
+                        margin-left: auto;
                       }
                       .services-grid-inline .discovery-grid::before,
                       .services-grid-inline .discovery-grid::after {
@@ -1722,6 +1810,7 @@ export function ServicesPage() {
                       externalQuery={debouncedSearch}
                       externalCategory={selectedCategory}
                       externalSelectedServiceId={gridSelectedServiceId}
+                      marketingGrid
                       onExternalServiceHandled={() =>
                         setGridSelectedServiceId(undefined)
                       }
