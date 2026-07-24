@@ -142,7 +142,8 @@ export function LandingPage() {
         </video>
         <div className="marketing-hero-content">
           <h1>
-            MPP lets agents pay for services on the web, extensible to any
+            MPP lets agents pay for services on the
+            <br className="marketing-desktop-break" /> web, extensible to any
             payment method.
           </h1>
           <div className="marketing-actions">
@@ -246,12 +247,16 @@ export function LandingPage() {
         <div className="marketing-blog-list">
           {BLOG_POSTS.map((post) => (
             <Link className="marketing-blog-row" key={post.to} to={post.to}>
-              <div>
-                <p>{post.date}</p>
+              <div className="marketing-blog-row-title">
                 <h3>{post.title}</h3>
-                <span>{post.description}</span>
+                <p>{post.date}</p>
               </div>
-              <span aria-hidden="true">→</span>
+              <p className="marketing-blog-row-description">
+                {post.description}
+              </p>
+              <span aria-hidden="true" className="marketing-blog-row-arrow">
+                ↗
+              </span>
             </Link>
           ))}
           <Link className="marketing-button" to="/blog">
@@ -302,17 +307,39 @@ function DesignedBy() {
 
 function ServiceCard({ service }: { service: Service }) {
   const category = service.categories?.[0] ?? "Service";
-  const url = new URL(service.url).host.replace(/^www\./, "");
+  const [copied, setCopied] = useState(false);
+  const url = new URL(service.serviceUrl ?? service.url).host.replace(
+    /^www\./,
+    "",
+  );
+
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(service.serviceUrl ?? service.url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch {}
+  };
 
   return (
     <article className="marketing-service-card">
       <div className="marketing-service-card-header">
         <img alt="" src={serviceIconUrl(service)} />
-        <span>{category}</span>
+        <div>
+          <h3>{service.name}</h3>
+          <span>{category}</span>
+        </div>
       </div>
-      <h3>{service.name}</h3>
       <p>{service.description ?? "MPP-enabled service for your agents."}</p>
-      <code>{url}</code>
+      <button
+        aria-label={`Copy ${url}`}
+        className="marketing-service-card-url"
+        onClick={copyUrl}
+        type="button"
+      >
+        <span>{copied ? "Copied" : url}</span>
+        <span aria-hidden="true">⧉</span>
+      </button>
     </article>
   );
 }
@@ -378,12 +405,12 @@ function LandingStyles() {
       .marketing-blog h2 {
         color: var(--marketing-copy) !important;
         font-family: var(--font-sans, sans-serif) !important;
-        font-size: clamp(2rem, 3.25vw, 3rem) !important;
-        font-weight: 450 !important;
-        letter-spacing: -0.045em !important;
-        line-height: 1.05 !important;
         margin: 0 !important;
       }
+      .marketing-hero h1 { font-size: clamp(2rem, 3.25vw, 3rem) !important; font-weight: 400 !important; letter-spacing: -0.045em !important; line-height: 1.05 !important; }
+      .marketing-services h2,
+      .marketing-blog h2 { font-size: 2rem !important; font-weight: 400 !important; letter-spacing: -0.01em !important; line-height: 1.1 !important; }
+      .marketing-desktop-break { display: none; }
       .marketing-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
       .marketing-button {
         align-items: center;
@@ -392,11 +419,11 @@ function LandingStyles() {
         color: var(--marketing-copy) !important;
         display: inline-flex;
         font-family: var(--font-mono, monospace);
-        font-size: 0.78rem;
+        font-size: 0.875rem;
         justify-content: center;
         letter-spacing: -0.02em;
-        line-height: 1;
-        padding: 0.9rem 1rem;
+        line-height: 1rem;
+        padding: 0.75rem 1rem;
         text-decoration: none !important;
         text-transform: uppercase;
         transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
@@ -413,18 +440,18 @@ function LandingStyles() {
         margin-top: auto;
         padding: 0.8rem 1rem;
       }
-      .marketing-designed-by span { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.72rem; text-transform: uppercase; }
+      .marketing-designed-by span { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.875rem; line-height: 1rem; text-transform: uppercase; }
       .marketing-designed-by img { display: block; height: 1rem; width: auto; }
       .marketing-designed-by a:last-child img { height: 1.35rem; }
       .marketing-terminal-section { padding-bottom: clamp(4rem, 8vw, 8rem); padding-top: clamp(3rem, 6vw, 6rem); }
-      .marketing-section-label { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.78rem; margin: 0 0 1rem; text-transform: uppercase; }
+      .marketing-section-label { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.875rem; line-height: 1rem; margin: 0 0 1rem; text-transform: uppercase; }
       .marketing-section-label::before { background: currentColor; content: ""; display: inline-block; height: 0.65rem; margin-right: 0.45rem; width: 0.65rem; }
       .marketing-terminal-shell { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); min-height: 21rem; }
       .marketing-terminal-shell .terminal-theme { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; height: 100%; }
       .marketing-terminal-shell .terminal-theme > div { border-radius: 0 !important; }
       .marketing-mobile-terminal-art { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); border-top: 0; }
       .marketing-mobile-terminal-art video { display: block; height: auto; width: 100%; }
-      .marketing-integrations { padding-bottom: clamp(4rem, 8vw, 8rem); }
+      .marketing-integrations { padding: 5rem 0; }
       .marketing-integration-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .marketing-integration-logo { align-items: center; border: 1px solid var(--marketing-border); display: flex; height: 4.5rem; justify-content: center; padding: 1rem; }
       .marketing-integration-logo img { max-height: 1.75rem; max-width: 100%; opacity: 0.9; width: auto; }
@@ -437,28 +464,46 @@ function LandingStyles() {
       .marketing-carousel-controls button:hover { background: #262626; border-color: var(--marketing-border-hover); }
       .marketing-service-carousel { display: flex; gap: 1rem; margin-top: clamp(3rem, 6vw, 5rem); overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: none; }
       .marketing-service-carousel::-webkit-scrollbar { display: none; }
-      .marketing-service-card { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); display: flex; flex: 0 0 min(24.75rem, 84vw); flex-direction: column; min-height: 18rem; padding: 1.25rem; }
-      .marketing-service-card-header { align-items: center; display: flex; justify-content: space-between; }
-      .marketing-service-card-header img { background: #2a2a2a; height: 2.25rem; object-fit: contain; width: 2.25rem; }
-      .marketing-service-card-header span { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.72rem; text-transform: uppercase; }
-      .marketing-service-card h3 { color: var(--marketing-copy); font-size: 1.35rem; font-weight: 450; letter-spacing: -0.03em; margin: auto 0 0; }
-      .marketing-service-card p { color: var(--marketing-muted); font-size: 0.9rem; line-height: 1.45; margin: 0.6rem 0 1.25rem; }
-      .marketing-service-card code { border-top: 1px solid var(--marketing-border); color: var(--marketing-copy); font-family: var(--font-mono, monospace); font-size: 0.72rem; overflow: hidden; padding-top: 0.9rem; text-overflow: ellipsis; white-space: nowrap; }
-      .marketing-blog { display: grid; gap: 4rem; grid-template-columns: minmax(0, 1fr); }
-      .marketing-blog h2 { font-size: clamp(1.65rem, 2.4vw, 2.4rem) !important; max-width: 34rem; }
+      .marketing-service-card { background: #101010; border: 1px solid var(--marketing-border); display: flex; flex: 0 0 min(24.75rem, 84vw); flex-direction: column; gap: 1.5rem; min-height: 18rem; padding: 1rem 2.5rem 1rem 1rem; }
+      .marketing-service-card-header { align-items: flex-start; display: flex; gap: 1rem; }
+      .marketing-service-card-header img { background: #2a2a2a; flex: 0 0 auto; height: 2.7rem; object-fit: contain; width: 2.7rem; }
+      .marketing-service-card-header h3 { color: var(--marketing-copy); font-size: 1.25rem; font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+      .marketing-service-card-header span { color: var(--marketing-muted); display: block; font-family: var(--font-mono, monospace); font-size: 0.875rem; line-height: 1rem; margin-top: 0.25rem; text-transform: uppercase; }
+      .marketing-service-card > p { color: var(--marketing-muted); font-size: 1.125rem; line-height: 1.2; margin: 0; }
+      .marketing-service-card-url { align-items: center; align-self: flex-start; background: var(--marketing-bg); border: 1px solid var(--marketing-border); color: var(--marketing-muted); cursor: pointer; display: inline-flex; font-family: var(--font-mono, monospace); font-size: 0.875rem; gap: 0.5rem; line-height: 1rem; margin-top: auto; max-width: 100%; overflow: hidden; padding: 0.75rem; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+      .marketing-service-card-url:hover { border-color: var(--marketing-border-hover); color: var(--marketing-copy); }
+      .marketing-blog { display: grid; gap: 3rem; grid-template-columns: minmax(0, 1fr); }
+      .marketing-blog h2 { max-width: 28.75rem; }
       .marketing-blog-list { display: flex; flex-direction: column; }
-      .marketing-blog-row { border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy) !important; display: flex; gap: 1.5rem; justify-content: space-between; padding: 1.25rem 0; text-decoration: none !important; }
+      .marketing-blog-row { align-items: flex-start; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy) !important; display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) auto; padding: 1.25rem 1rem; text-decoration: none !important; }
       .marketing-blog-row:hover h3 { text-decoration: underline; text-underline-offset: 0.2em; }
-      .marketing-blog-row p { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.72rem; margin: 0 0 0.5rem; text-transform: uppercase; }
-      .marketing-blog-row h3 { color: var(--marketing-copy); font-size: 1.05rem; font-weight: 500; margin: 0 0 0.5rem; }
-      .marketing-blog-row span { color: var(--marketing-muted); font-size: 0.9rem; line-height: 1.4; }
-      .marketing-blog-list > .marketing-button { align-self: flex-start; margin-top: 2rem; }
-      @media (min-width: 700px) { .marketing-integration-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+      .marketing-blog-row-title { min-width: 0; }
+      .marketing-blog-row-title h3 { color: var(--marketing-copy); font-size: 1.25rem; font-weight: 400; line-height: 1.1; margin: 0; }
+      .marketing-blog-row-title p { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.875rem; line-height: 1rem; margin: 0.25rem 0 0; text-transform: uppercase; }
+      .marketing-blog-row-description { display: none; }
+      .marketing-blog-row-arrow { align-items: center; background: var(--marketing-bg); border: 1px solid var(--marketing-border); color: var(--marketing-copy); display: inline-flex; font-size: 1rem; height: 1.875rem; justify-content: center; line-height: 1; width: 1.875rem; }
+      .marketing-blog-list > .marketing-button { align-self: flex-start; margin-top: 3.5rem; }
+      @media (min-width: 700px) {
+        .marketing-integration-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .marketing-blog-row { grid-template-columns: 12.5rem minmax(0, 1fr) auto; padding-block: 1.5rem; }
+        .marketing-blog-row-description { color: var(--marketing-muted); display: block; font-size: 1.125rem; line-height: 1.2; margin: 0; }
+      }
       @media (min-width: 960px) {
-        .marketing-blog { gap: 5rem; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
         .marketing-hero-art { top: clamp(18rem, 24vw, 22rem); }
       }
       @media (min-width: 1000px) {
+        .marketing-hero,
+        .marketing-terminal-section,
+        .marketing-integrations,
+        .marketing-services,
+        .marketing-blog { padding-inline: 3rem; }
+        .marketing-hero { min-height: 100svh; padding-bottom: 2.5rem; padding-top: 11.875rem; }
+        .marketing-hero-art { height: calc(100% - 25.875rem); top: 25.875rem; }
+        .marketing-hero-content { gap: 2.375rem; max-width: 61.125rem; }
+        .marketing-hero h1 { font-size: 3rem !important; font-weight: 400 !important; letter-spacing: -0.09rem !important; line-height: 3rem !important; }
+        .marketing-desktop-break { display: block; }
+        .marketing-services { padding-bottom: calc(clamp(5rem, 10vw, 9rem) + 0.25rem); padding-top: 7.125rem; }
+        .marketing-blog { padding-bottom: 5rem; padding-top: 7rem; }
         .marketing-terminal-section {
           bottom: 2.5rem;
           padding: 0;
@@ -471,6 +516,9 @@ function LandingStyles() {
         .marketing-mobile-terminal-art { display: none; }
         .marketing-terminal-shell { height: 17.25rem; min-height: 0; }
         .marketing-integration-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+      }
+      @media (min-width: 1280px) {
+        .marketing-blog { gap: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
       }
       @media (max-width: 999px) {
         .marketing-hero { min-height: auto; }
