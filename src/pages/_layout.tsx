@@ -95,6 +95,7 @@ function useLogoAnimation() {
 
     let animation: LottieAnimation | undefined;
     let cancelled = false;
+    let introTimer: number | undefined;
     let fallbackImages: HTMLImageElement[] = [];
     let container: HTMLSpanElement | undefined;
 
@@ -131,13 +132,26 @@ function useLogoAnimation() {
       }
     };
 
-    const replay = () => animation?.goToAndPlay(0, true);
+    const startIntro = () => {
+      document.body.dataset.mppIntro = "logo";
+      window.clearTimeout(introTimer);
+      introTimer = window.setTimeout(() => {
+        delete document.body.dataset.mppIntro;
+      }, 1125);
+    };
+    const replay = () => {
+      startIntro();
+      animation?.goToAndPlay(0, true);
+    };
+    startIntro();
     void mount();
     window.addEventListener("mpp:route", replay);
 
     return () => {
       cancelled = true;
       window.removeEventListener("mpp:route", replay);
+      window.clearTimeout(introTimer);
+      delete document.body.dataset.mppIntro;
       animation?.destroy();
       container?.remove();
       const logo = document.querySelector<HTMLElement>("[data-mpp-logo-host]");
