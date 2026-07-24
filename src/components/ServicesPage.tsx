@@ -3800,9 +3800,10 @@ function PageStyles() {
         .services-container { padding: 2.875rem 3rem 4rem !important; }
       }
       .page-header {
-        border-bottom: 1px solid var(--mpp-line);
+        border-bottom: 4px solid transparent;
         margin-left: 0 !important;
       }
+      .page-header p { line-height: 1rem !important; }
       .services-layout { gap: clamp(1.5rem, 4vw, 3rem) !important; }
       .services-sidebar > * { border-radius: 0 !important; }
       .search-bar input,
