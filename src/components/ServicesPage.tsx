@@ -427,7 +427,7 @@ function SearchWithDropdown({
           onInputFocus?.();
         }}
         onKeyDown={handleKeyDown}
-        placeholder="Search services..."
+        placeholder="SEARCH SERVICES"
         style={{
           width: "100%",
           padding: `0.4rem ${onDismiss && resultCount != null ? "5rem" : onDismiss ? "2rem" : "0.6rem"} 0.4rem 2rem`,
@@ -2248,6 +2248,7 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
 function WalletCardFull() {
   return (
     <div
+      className="services-wallet-card"
       style={{
         borderRadius: 10,
         border: "1px solid var(--vocs-border-color-primary)",
@@ -2256,6 +2257,7 @@ function WalletCardFull() {
       }}
     >
       <h2
+        className="services-wallet-title"
         style={{
           fontSize: "1.15rem",
           fontWeight: 500,
@@ -2266,6 +2268,7 @@ function WalletCardFull() {
         Use with agents
       </h2>
       <p
+        className="services-wallet-description"
         style={{
           color: "var(--vocs-text-color-secondary)",
           fontSize: 14,
@@ -2632,6 +2635,7 @@ function SidebarInfoCards() {
 function WalletSteps() {
   return (
     <div
+      className="services-wallet-steps"
       style={{
         padding: "0 0rem",
         display: "flex",
@@ -2696,12 +2700,16 @@ function CliSnippet({
     t.current = setTimeout(() => setCopied(false), 1500);
   };
   return (
-    <div>
-      <div style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.2rem" }}>
+    <div className="services-cli-snippet">
+      <div
+        className="services-cli-title"
+        style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.2rem" }}
+      >
         {label}
       </div>
       {desc && (
         <div
+          className="services-cli-description"
           style={{
             color: "var(--vocs-text-color-secondary)",
             fontSize: 13,
@@ -2715,6 +2723,7 @@ function CliSnippet({
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
       <div
+        className="services-cli-code"
         onClick={handleCopy}
         style={{
           display: "flex",
@@ -3786,6 +3795,43 @@ function PageStyles() {
       .search-bar input,
       .filter-dropdown-btn,
       .filter-dropdown-btn + * { border-radius: 0 !important; }
+      .search-bar input,
+      .filter-dropdown-btn,
+      .search-bar-learn-more {
+        font-family: var(--font-mono) !important;
+        font-size: 0.875rem !important;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+      }
+      .search-bar input::placeholder {
+        color: var(--mpp-muted) !important;
+        opacity: 1;
+      }
+      .search-bar-learn-more { border-radius: 0 !important; }
+      .services-wallet-card {
+        background: #191919 !important;
+        border-color: var(--mpp-line) !important;
+        padding: 1rem !important;
+      }
+      .services-wallet-title,
+      .services-cli-title {
+        color: var(--mpp-copy) !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.875rem !important;
+        font-weight: 400 !important;
+        letter-spacing: -0.01em !important;
+        line-height: 1rem;
+        text-transform: uppercase;
+      }
+      .services-wallet-description,
+      .services-cli-description {
+        color: var(--mpp-muted) !important;
+      }
+      .services-cli-code {
+        background: #101010 !important;
+        border-color: var(--mpp-line) !important;
+        border-radius: 0 !important;
+      }
       [data-services-table] table tr { border-color: var(--mpp-line) !important; }
       [data-services-table] table tr:hover { background: rgb(235 235 235 / 3%); }
       .svc-icon-img { border-radius: 0 !important; }
@@ -3918,21 +3964,26 @@ function PageStyles() {
 
 
 
-      /* ---- Sidebar hidden, header cards as 4-col strip ---- */
-      @media (max-width: 1200px) {
-        .services-sidebar { display: none !important; }
-        .services-layout { gap: 0 !important; }
+      @media (max-width: 1279px) {
+        .services-layout {
+          flex-direction: column !important;
+          gap: 3.5rem !important;
+        }
+        .services-sidebar {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+        }
         .page-header { margin-left: 0 !important; }
-        .header-cards { display: block !important; margin-left: 0 !important; margin-right: 0 !important; margin-bottom: 0.75rem !important; }
+        .header-cards { display: none !important; }
         .page-header-ctas { display: none !important; }
-        
         .search-bar {
           margin-left: 0 !important;
           margin-top: 0 !important;
-          padding-top: 20px !important;
           margin-right: 0 !important;
           top: calc(var(--vocs-spacing-topNav, 56px) - 4px) !important;
           padding-bottom: 0.75rem !important;
+          padding-top: 0 !important;
           background: linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent) !important;
         }
       }
