@@ -494,6 +494,14 @@ export default defineConfig({
             ],
           },
           {
+            text: "NEAR Intents",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/nearintents" },
+              { text: "Charge", link: "/payment-methods/nearintents/charge" },
+            ],
+          },
+          {
             text: "RedotPay",
             collapsed: true,
             items: [

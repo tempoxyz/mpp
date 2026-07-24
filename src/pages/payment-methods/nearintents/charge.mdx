@@ -1,0 +1,231 @@
+---
+description: "Accept one-time cross-chain payments settled by NEAR Intents: the client deposits on its origin chain, the merchant receives an exact amount on its destination chain."
+imageDescription: "One-time cross-chain payments via 1Click deposit addresses"
+---
+
+import { Cards } from 'vocs'
+import { SpecCard } from '../../../components/SpecCard'
+
+# NEAR Intents charge [One-time cross-chain payments via 1Click deposit addresses]
+
+The NEAR Intents implementation of the [charge](/intents/charge) intent.
+
+The server requests a wet `EXACT_OUTPUT` quote from the [1Click API](https://docs.near-intents.org/integration/distribution-channels/1click-api/about-1click-api) for each Challenge and advertises the quote's **unique, single-use deposit address** as `recipient`. The client pays the source asset to that address on its origin chain and presents the confirmed transaction hash as a Credential (push mode). The server verifies the deposit by observing the 1Click status endpoint, drives the cross-chain swap to `SUCCESS`, and returns the resource with a Receipt carrying the origin and destination transaction hashes.
+
+This method is best for one-time purchases where the payer and the merchant sit on different chains — the merchant always receives an exact amount of its chosen asset.
+
+## Server
+
+Use `nearintents.charge` to gate any endpoint behind a one-time cross-chain payment. The method handles quote minting and caching, Challenge creation, deposit verification, settlement polling, replay protection, and Receipt generation.
+
+```ts
+import { Mppx } from 'mppx/server'
+import { nearintents } from '@defuse-protocol/nearintents-mpp-sdk/server'
+
+const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY!,
+  methods: [
+    nearintents.charge({
+      // what the client pays with (CAIP-19) — its chain is the origin network
+      originAsset: 'eip155:42161/erc20:0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+      // what the merchant receives, where, and exactly how much (EXACT_OUTPUT)
+      destinationAsset: 'near:mainnet/nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+      destinationRecipient: 'merchant.near',
+      amountOut: '1000000',
+      // merchant-controlled refund address on the origin chain
+      refundTo: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      oneClick: { jwt: process.env.ONE_CLICK_JWT },
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({})(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### With expiry
+
+The Challenge expiry MUST cover the origin chain's confirmation time — minutes for fast chains, 45–60 minutes for Bitcoin. Two values control it and **must be kept equal**: the mppx route `expires` (which stamps the Challenge) and the method's `expiresWindow` (which sizes the quote cache so the advertised `expires` never outlives the quote's deposit deadline).
+
+```ts
+import { Expires, Mppx } from 'mppx/server'
+import { nearintents } from '@defuse-protocol/nearintents-mpp-sdk/server'
+
+const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY!,
+  methods: [
+    nearintents.charge({
+      /* ... */
+      expiresWindow: 45 * 60, // [!code hl]
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  // create the route handler per request so the absolute mppx `expires`
+  // becomes a rolling window
+  const result = await mppx.charge({ expires: Expires.minutes(45) })(request) // [!code hl]
+
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### With observability
+
+The library never logs. Settlement progress is reported as structured events; outcome-level events come from mppx itself.
+
+```ts
+const method = nearintents.charge({
+  /* ... */
+  onEvent: (event) => logger.info(event), // [!code hl]
+})
+
+const mppx = Mppx.create({ secretKey, methods: [method] })
+mppx.on('payment.success', ({ receipt }) => logger.info(receipt))
+mppx.on('payment.failed', ({ error }) => logger.warn(error.type, error.message))
+```
+
+### Server parameters
+
+| Parameter | Type | Required | Default |
+| --- | --- | --- | --- |
+| `originAsset` | `string` (CAIP-19) | Required | |
+| `destinationAsset` | `string` (CAIP-19) | Required | |
+| `destinationRecipient` | `string` | Required | |
+| `refundTo` | `string` | Required | |
+| `amountOut` | `string` (base units) | Required unless set per route | |
+| `slippageTolerance` | `number` (bps) | Optional | `100` |
+| `referral` | `string` | Optional | `'mpp'` |
+| `description` | `string` | Optional | |
+| `externalId` | `string` | Optional | |
+| `oneClick` | `{ jwt?, baseUrl?, fetch?, networks?, nativeCoinTypes?, requestTimeoutMs? }` | Optional | public API, unauthenticated |
+| `store` | `Store.AtomicStore` | Optional | `Store.memory()` |
+| `expiresWindow` | `number` (seconds) | Optional | `300` — MUST equal the route `expires` |
+| `quoteDeadlineBuffer` | `number` (seconds) | Optional | `900` |
+| `settlementTimeout` | `number` (seconds) | Optional | quote `timeEstimate` + 120 |
+| `pollInterval` | `number` (ms) | Optional | `2000` |
+| `onEvent` | `(event) => void` | Optional | |
+
+:::info
+The 1Click JWT (from the [NEAR Intents partner portal](https://partners.near-intents.org)) is server-side only and must never appear in any Challenge field. Unauthenticated requests work but incur a 0.2% fee. Replay protection requires an **atomic** store: the in-memory default is for a single instance; use a shared store (e.g. `Store.redis`) in multi-instance deployments.
+:::
+
+## Client
+
+Use `nearintents.charge` with `Mppx.create` to automatically handle `402` responses. The client validates the Challenge, refuses to pay past `expires`, enforces its payment policy, pays the origin-chain deposit, and retries with the transaction hash as a Credential.
+
+```ts
+import { Mppx } from 'mppx/client'
+import { nearintents } from '@defuse-protocol/nearintents-mpp-sdk/client'
+
+const mppx = Mppx.create({
+  methods: [
+    nearintents.charge({
+      walletClient, // viem WalletClient (+ public actions) for eip155 origins
+      policy: {
+        allowedOriginNetworks: ['eip155:42161'],
+        maxAmountIn: { 'eip155:42161/erc20:0xaf88…5831': '5000000' },
+      },
+    }),
+  ],
+  polyfill: false,
+})
+
+const response = await mppx.fetch('https://api.example.com/resource')
+```
+
+### Paying from non-EVM origins
+
+The built-in broadcaster covers `eip155:*` origins (native transfers and ERC-20 `transfer`). Any other chain pays one of two ways:
+
+```ts
+// 1. bring-your-own-chain: pay inside a callback and return the confirmed hash
+nearintents.charge({
+  sendDeposit: async ({ request }) => {
+    const txid = await myBtcWallet.send(request.recipient, request.amount)
+    await myBtcWallet.waitForConfirmation(txid)
+    return txid
+  },
+})
+
+// 2. the deposit was already broadcast: present its hash per request
+await mppx.fetch('https://api.example.com/resource', {
+  context: { hash: 'deadbeef…' }, // [!code hl]
+})
+```
+
+### Client parameters
+
+| Parameter | Type | Required | Default |
+| --- | --- | --- | --- |
+| `policy` | `{ allowedOriginNetworks?, allowedCurrencies?, maxAmountIn?, expectedDestination? }` | Optional | |
+| `walletClient` | viem-style `WalletClient` | Optional | |
+| `sendDeposit` | `({ challenge, request }) => Promise<hash>` | Optional | |
+| `source` | `string` (`did:pkh`) | Optional | derived from `walletClient` |
+
+:::warning
+A `policy` is **strongly recommended for autonomous payers**. The client always schema-validates the Challenge and refuses expired ones, but the value checks — allowed origin networks/assets, per-asset `maxAmountIn` caps, expected destination leg — only run when a policy is configured. The client pays before delivery; the policy is its safety surface.
+:::
+
+## Request fields
+
+The Challenge request describes the payment the client makes on the origin chain; the merchant's destination leg is carried in `methodDetails`. Assets are [CAIP-19](https://chainagnostic.org/CAIPs/caip-19), chains are [CAIP-2](https://chainagnostic.org/CAIPs/caip-2).
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `amount` | `string` | Required | Deposit amount the client is asked to send, in base units of `currency` (the quote's maximum input that guarantees `amountOut`) |
+| `currency` | `string` | Required | Source asset (CAIP-19); chain component MUST equal `methodDetails.originNetwork` |
+| `recipient` | `string` | Required | **Single-use 1Click deposit address** on the origin chain — the payee of the client's transfer |
+| `description` | `string` | Optional | Human-readable memo. MUST NOT be relied upon for verification |
+| `externalId` | `string` | Optional | Merchant reference (order ID, invoice number) |
+| `methodDetails.originNetwork` | `string` | Required | CAIP-2 chain where `recipient` lives and the deposit tx is anchored |
+| `methodDetails.destinationNetwork` | `string` | Required | CAIP-2 chain where the merchant receives |
+| `methodDetails.destinationAsset` | `string` | Required | Destination asset (CAIP-19); chain component MUST equal `destinationNetwork` |
+| `methodDetails.destinationRecipient` | `string` | Required | Merchant address on the destination chain |
+| `methodDetails.amountOut` | `string` | Required | Exact amount the merchant receives (`EXACT_OUTPUT`) |
+| `methodDetails.minAmountIn` | `string` | Required | Minimum deposit the backend accepts — the verification threshold |
+| `methodDetails.depositMemo` | `string \| null` | Optional | Deposit memo required by some origin chains (e.g. Stellar) |
+| `methodDetails.slippageTolerance` | `number` | Optional | Basis points, applied to the input side |
+| `methodDetails.timeEstimate` | `number` | Optional | Estimated swap completion time in seconds |
+| `methodDetails.refundTo` | `string` | Required | Origin-chain address refunded on any non-success outcome |
+| `methodDetails.settlementBackend` | `string` | Optional | `"near-intents"` — trust-model disclosure |
+| `methodDetails.credentialTypes` | `array` | Optional | Only `"hash"` is valid for this method |
+
+## Credential payload
+
+The Credential payload contains the client's origin-chain deposit transaction hash (push mode — the client broadcasts its own deposit).
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `type` | `string` | Required | `"hash"` |
+| `hash` | `string` | Required | Transaction hash of the deposit on `methodDetails.originNetwork`, chain-native format |
+
+## Verification and settlement
+
+The server verifies and settles in one pass (status-observation mode — no per-chain RPC):
+
+1. mppx recomputes the Challenge binding (HMAC) and rejects unknown, modified, or expired Challenges before the method runs.
+2. The deposit address must correspond to an active, non-settled quote in server state; `payload.hash` must not be consumed. The hash is claimed **in-flight atomically**, so concurrent presentations of the same Credential settle at most once.
+3. The server notifies 1Click of the deposit (accelerator) and polls the status endpoint until a terminal state — the backend detecting a qualifying deposit ≥ `minAmountIn` at `recipient` *is* the deposit confirmation.
+4. On `SUCCESS`, the presented `hash` must be among the origin-chain transactions the backend observed; the Receipt then carries `challengeId`, `originTxHash`, and the destination-chain delivery hash as `reference`. The merchant has received exactly `amountOut`.
+5. On any terminal state the hash is permanently consumed and the deposit address is spent; the backend refunds non-success deposits to `refundTo`.
+
+| Outcome | Response |
+| --- | --- |
+| `SUCCESS` | `200` + `Payment-Receipt` |
+| `INCOMPLETE_DEPOSIT` (below `minAmountIn`) | `402` `payment-insufficient` + fresh Challenge |
+| `FAILED` / `REFUNDED` | `402` `settlement-failed` + fresh Challenge |
+| 1Click unreachable | `503` — Credential **not** consumed; re-present it |
+| Settlement exceeds `settlementTimeout` | `504` — Credential **not** consumed; re-present it |
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-nearintents-charge-00" />
+</Cards>

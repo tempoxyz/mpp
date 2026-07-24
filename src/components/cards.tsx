@@ -399,6 +399,28 @@ export function MonadChargeCard() {
   );
 }
 
+export function NearIntentsMethodCard() {
+  return (
+    <Card
+      description="Cross-chain payments settled by NEAR Intents"
+      icon="simple-icons:near"
+      title="NEAR Intents"
+      to="/payment-methods/nearintents"
+    />
+  );
+}
+
+export function NearIntentsChargeCard() {
+  return (
+    <Card
+      description="One-time cross-chain payments via 1Click deposit addresses"
+      icon="simple-icons:near"
+      title="NEAR Intents charge"
+      to="/payment-methods/nearintents/charge"
+    />
+  );
+}
+
 export function RedotPayMethodCard() {
   return (
     <Card
