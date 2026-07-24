@@ -2617,6 +2617,23 @@ body {
 }
 
 @media (min-width: 1000px) {
+  [data-v-logo]:has(> a > [data-v-logo]) {
+    align-items: center;
+    display: flex;
+    height: 70px !important;
+    padding-block: 0 !important;
+  }
+
+  [data-v-logo]:has(> a > [data-v-logo]) > a,
+  [data-v-logo]:has(> a > [data-v-logo]) > a > [data-v-logo] {
+    height: 20px !important;
+  }
+
+  [data-v-logo]:has(> a > [data-v-logo]) img {
+    height: 18px !important;
+    width: 81.22px !important;
+  }
+
   [data-v-gutter-top]
     button[data-base-ui-click-trigger][aria-haspopup="dialog"] {
     height: 30px !important;
