@@ -157,7 +157,7 @@ export function LandingPage() {
                 })
               }
             >
-              Use with your agent
+              <span>Use with your agent</span>
             </Link>
             <Link
               className="marketing-button"
@@ -169,7 +169,7 @@ export function LandingPage() {
                 })
               }
             >
-              Add payments to your API
+              <span>Add payments to your API</span>
             </Link>
           </div>
         </div>
@@ -209,7 +209,7 @@ export function LandingPage() {
               with your agent.
             </h2>
             <Link className="marketing-button" to="/services">
-              See all services
+              <span>See all services</span>
             </Link>
           </div>
           <div className="marketing-carousel-controls">
@@ -260,7 +260,7 @@ export function LandingPage() {
             </Link>
           ))}
           <Link className="marketing-button" to="/blog">
-            See all blog posts
+            <span>See all blog posts</span>
           </Link>
         </div>
       </section>
@@ -441,8 +441,9 @@ function LandingStyles() {
         position: absolute;
         transform: scaleX(0);
         transform-origin: left center;
-        z-index: -1;
+        z-index: 0;
       }
+      .marketing-button > span { position: relative; z-index: 1; }
       .marketing-button::before { top: 0; transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1); }
       .marketing-button::after { bottom: 0; transition: transform 550ms cubic-bezier(0.16, 1, 0.3, 1); }
       .marketing-button:hover { border-color: var(--marketing-border-hover); color: #101010 !important; }
