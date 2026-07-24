@@ -1550,7 +1550,7 @@ html[data-route-transition] [data-v-main] {
   text-transform: uppercase;
   transition:
     border-color 0.15s ease,
-    color 0.3s ease;
+    color 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
   margin-bottom: 1.5rem;
 }
 .blog-narrow .blog-back::before,
@@ -1567,11 +1567,11 @@ html[data-route-transition] [data-v-main] {
 }
 .blog-narrow .blog-back::before {
   top: 0;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 .blog-narrow .blog-back::after {
   bottom: 0;
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.55s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 .blog-narrow .blog-back-label {
   align-items: center;
@@ -1594,7 +1594,7 @@ html[data-route-transition] [data-v-main] {
   transform: scaleX(1);
 }
 .blog-narrow .blog-date {
-  color: var(--mpp-muted) !important;
+  color: rgb(235 235 235 / 60%) !important;
   font-family: var(--font-mono) !important;
   font-size: 0.875rem !important;
   letter-spacing: -0.01em !important;
@@ -1605,6 +1605,23 @@ html[data-route-transition] [data-v-main] {
 .blog-narrow hr {
   margin-top: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  [data-layout="minimal"] main > article:has(.blog-narrow) {
+    padding-bottom: 4rem !important;
+    padding-top: 5.875rem !important;
+  }
+
+  .blog-narrow h1 {
+    font-size: 2rem !important;
+    letter-spacing: -0.02rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .blog-narrow hgroup[data-v] p {
+    font-size: 1.125rem !important;
+  }
 }
 
 [data-layout="minimal"]:has(.blog-index-hero) main {
@@ -1683,7 +1700,7 @@ html[data-route-transition] [data-v-main] {
 
 .blog-post-row-title p,
 .blog-post-row-description {
-  color: var(--mpp-muted);
+  color: rgb(235 235 235 / 60%);
   line-height: 1.35;
   margin: 0;
 }
@@ -1857,6 +1874,10 @@ body {
   background: var(--mpp-canvas);
 }
 
+[data-layout="minimal"] {
+  background: #101010 !important;
+}
+
 [data-v-gutter-top] {
   background: color-mix(in srgb, var(--mpp-canvas) 94%, transparent) !important;
   border-bottom: 0 !important;
@@ -1975,8 +1996,8 @@ body {
   position: relative;
   text-transform: uppercase;
   transition:
-    border-color 0.15s ease,
-    color 0.3s ease;
+    border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 .marketing-footer-cta > div a::before,
