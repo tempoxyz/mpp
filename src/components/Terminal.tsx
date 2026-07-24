@@ -320,9 +320,9 @@ const BASE_DELAY = 30;
 const JITTER = 35;
 const LINE_DELAY = 500;
 
-function useTypewriter(commands: string[]) {
+function useTypewriter(commands: string[], immediate = false) {
   const noCommands = commands.length === 0;
-  const skip = SKIP_ANIMATION || noCommands;
+  const skip = SKIP_ANIMATION || immediate || noCommands;
   const [showLogin, setShowLogin] = useState(skip);
   const [showPrompt, setShowPrompt] = useState(skip);
   const [started, setStarted] = useState(skip);
@@ -2656,7 +2656,7 @@ function TerminalComponent({
   const contentSteps = commandsStep ? steps.slice(1) : steps;
 
   const { showLogin, showPrompt, started, lineIndex, charIndex, done } =
-    useTypewriter(commandsStep?.commands ?? []);
+    useTypewriter(commandsStep?.commands ?? [], marketing);
   const commands = commandsStep?.commands ?? [];
 
   const isClassic =
