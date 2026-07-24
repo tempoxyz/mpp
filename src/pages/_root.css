@@ -291,7 +291,7 @@ body[data-mpp-intro="logo"] [data-layout="minimal"] :is(main, footer) {
   transition: none;
 }
 
-@media (min-width: 641px) and (max-width: 999px) {
+@media (min-width: 880px) and (max-width: 999px) {
   [data-v-gutter-top] {
     padding-inline: 3rem !important;
   }
@@ -1314,8 +1314,8 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   }
 }
 
-/* ---- Push mobile nav breakpoint from 1024px down to 640px ---- */
-@media (min-width: 641px) {
+/* ---- Match the marketing site's 880px navigation breakpoint. ---- */
+@media (min-width: 880px) {
   /* Force TopNav links visible (Vocs hides them below lg/1024px) */
   [data-v-gutter-top] > nav {
     display: flex !important;
