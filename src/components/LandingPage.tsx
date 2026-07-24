@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { preload } from "react-dom";
 import { fetchServices, type Service, serviceIconUrl } from "../data/registry";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
@@ -86,6 +87,8 @@ const TERMINAL_STEPS = [
 ];
 
 export function LandingPage() {
+  preload("/marketing/mpp-hero.mp4", { as: "video" });
+
   const [services, setServices] = useState<Service[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -538,7 +541,7 @@ function LandingStyles() {
         .marketing-services,
         .marketing-blog { padding-inline: 3rem; }
         .marketing-hero { min-height: 100svh; padding-bottom: 2.5rem; padding-top: 11.875rem; }
-        .marketing-hero-art { height: calc(100% - 32.5rem); top: 32.5rem; }
+        .marketing-hero-art { height: max(12.5rem, calc(100svh - 32.5rem)); top: 32.5rem; }
         .marketing-hero-content { gap: 2.375rem; max-width: 61.125rem; }
         .marketing-hero h1 { font-size: 3rem !important; font-weight: 400 !important; letter-spacing: -0.09rem !important; line-height: 3rem !important; }
         .marketing-desktop-break { display: block; }
