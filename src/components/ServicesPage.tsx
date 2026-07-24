@@ -3109,7 +3109,7 @@ function ServiceRow({
     e.stopPropagation();
     copy(displayUrl, `url-${s.id}`);
   };
-  const expandedBg = "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))";
+  const expandedBg = "light-dark(rgba(0,0,0,0.025), #191919)";
   return (
     <>
       <tr
@@ -3128,7 +3128,7 @@ function ServiceRow({
         onMouseEnter={(e) => {
           if (!expanded)
             e.currentTarget.style.background =
-              "var(--vocs-background-color-surfaceMuted)";
+              "light-dark(rgba(0,0,0,0.025), rgb(255 255 255 / 2%))";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = expanded ? expandedBg : "";
@@ -3824,7 +3824,7 @@ function PageStyles() {
         border-radius: 0 !important;
       }
       [data-services-table] table tr { border-color: var(--mpp-line) !important; }
-      [data-services-table] table tr:hover { background: rgb(235 235 235 / 3%); }
+      [data-services-table] table tr:hover { background: rgb(255 255 255 / 2%); }
       .svc-icon-img { border-radius: 0 !important; }
       .services-agent-discovery {
         box-sizing: border-box;
