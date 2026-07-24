@@ -50,8 +50,8 @@ async function staticIcon(
   try {
     const origin = new URL(request.url).origin;
     const res = await fetch(`${origin}/icons/${id}.svg`);
-    if (res.ok) {
-      return new Response(await res.text(), {
+    if (res.ok && res.body) {
+      return new Response(res.body, {
         headers: { ...FALLBACK_HEADERS, ...CACHE_HEADERS },
       });
     }
