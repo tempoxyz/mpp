@@ -1668,8 +1668,8 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   /* Teal */
   --term-teal9: light-dark(hsl(174 91% 25%), hsl(174 90% 41%));
 
-  /* Pink */
-  --term-pink9: light-dark(hsl(336 65% 45%), hsl(341 90% 72%));
+  /* Purple */
+  --term-pink9: light-dark(#6f60d2, #9e94ff);
 }
 
 /* Terminal-scoped utility overrides — map tailwind-like classes to --term- vars */
@@ -2581,16 +2581,16 @@ body {
     padding-block: 0 !important;
   }
 
-  [data-v-logo],
-  [data-v-logo-link] {
+  [data-v-gutter-top] [data-v-logo],
+  [data-v-gutter-top] [data-v-logo-link] {
     height: 20px !important;
   }
 
-  [data-v-logo] {
+  [data-v-gutter-top] [data-v-logo] {
     transform: translateY(-2px);
   }
 
-  [data-v-logo] img {
+  [data-v-gutter-top] [data-v-logo] img {
     height: 18px !important;
     width: 81.22px !important;
   }
@@ -2614,6 +2614,34 @@ body {
   border-top: 0 !important;
   max-width: 1728px !important;
   padding: 5rem clamp(1rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem) !important;
+}
+
+@media (min-width: 1000px) {
+  [data-v-gutter-top]
+    button[data-base-ui-click-trigger][aria-haspopup="dialog"] {
+    height: 30px !important;
+    min-width: 18.75rem;
+    width: 18.75rem !important;
+  }
+
+  .search-bar {
+    top: 78px !important;
+    z-index: 49 !important;
+  }
+}
+
+.search-bar {
+  background: #101010 !important;
+}
+
+.search-bar-learn-more {
+  background: #262626 !important;
+  border-color: var(--mpp-line) !important;
+}
+
+.search-bar-learn-more:hover {
+  background: #404040 !important;
+  border-color: var(--mpp-line-hover) !important;
 }
 
 .marketing-footer {
