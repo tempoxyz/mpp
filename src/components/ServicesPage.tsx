@@ -1165,32 +1165,25 @@ export function ServicesPage() {
             marginLeft: "0.5rem",
           }}
         >
-          <div>
-            <h1
-              style={{
-                fontSize: "2.5rem",
-                fontWeight: 700,
-                fontFamily: '"VTC Du Bois", var(--font-sans)',
-                letterSpacing: "-0.02em",
-                margin: 0,
-                whiteSpace: "nowrap",
-                marginBottom: "0rem",
-                paddingBottom: "0rem",
-                textTransform: "uppercase",
-              }}
-            >
-              Discover services
-            </h1>
+          <div className="services-page-title-wrap">
+            <img
+              alt=""
+              className="services-page-title"
+              src="/marketing/services-title.svg"
+            />
+            <h1 className="sr-only">Services</h1>
             <p
               style={{
                 color: "var(--vocs-text-color-secondary)",
-                fontSize: 17,
+                fontFamily: "var(--font-mono)",
+                fontSize: 14,
                 lineHeight: 1.4,
-                marginBottom: "2.75rem",
-                marginTop: "-0.5rem",
+                marginBottom: "2.25rem",
+                marginTop: "1.25rem",
+                textTransform: "uppercase",
               }}
             >
-              Seamlessly use MPP-enabled services with your agent.
+              Use MPP-enabled services with your agent.
             </p>
           </div>
           <div className="page-header-ctas" style={{ display: "none" }} />
@@ -3766,6 +3759,33 @@ function PageStyles() {
       
       [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; }
       [data-layout="minimal"] main > article { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+      .services-container {
+        max-width: 1728px !important;
+        padding: clamp(3rem, 8vw, 7.5rem) clamp(1rem, 4vw, 3rem) clamp(4rem, 8vw, 8rem) !important;
+      }
+      .services-page-title-wrap {
+        min-height: 13.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+      .services-page-title {
+        display: block;
+        width: min(619px, 100%);
+        height: auto;
+      }
+      .page-header {
+        border-bottom: 1px solid var(--mpp-line);
+        margin-left: 0 !important;
+      }
+      .services-layout { gap: clamp(1.5rem, 4vw, 3rem) !important; }
+      .services-sidebar > * { border-radius: 0 !important; }
+      .search-bar input,
+      .filter-dropdown-btn,
+      .filter-dropdown-btn + * { border-radius: 0 !important; }
+      [data-services-table] table tr { border-color: var(--mpp-line) !important; }
+      [data-services-table] table tr:hover { background: rgb(235 235 235 / 3%); }
+      .svc-icon-img { border-radius: 0 !important; }
       .services-agent-discovery {
         box-sizing: border-box;
         max-width: 1600px;
@@ -3960,6 +3980,8 @@ function PageStyles() {
       /* ---- Header cards 2x2, search moves, tags center ---- */
       @media (max-width: 900px) {
         .services-container { padding-left: 0 !important; padding-right: 0 !important; }
+        .services-container { padding-top: 2rem !important; }
+        .services-page-title-wrap { min-height: 9rem; }
         [data-services-table] table { width: 100% !important; table-layout: auto !important; }
         [data-services-table] thead { display: none !important; }
         [data-services-table] colgroup { display: none !important; }
