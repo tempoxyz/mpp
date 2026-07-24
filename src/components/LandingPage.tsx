@@ -79,9 +79,9 @@ const TERMINAL_STEPS = [
   Terminal.commands(["./mpp.sh"]),
   Terminal.wizard([
     Terminal.chat(),
-    Terminal.article(),
     Terminal.image(),
     Terminal.search(),
+    Terminal.article(),
   ]),
 ];
 
@@ -179,7 +179,7 @@ export function LandingPage() {
       <section className="marketing-terminal-section">
         <SectionLabel>Terminal</SectionLabel>
         <div className="marketing-terminal-shell">
-          <Terminal steps={TERMINAL_STEPS} showLastVisit={false} />
+          <Terminal marketing steps={TERMINAL_STEPS} showLastVisit={false} />
         </div>
         <div className="marketing-mobile-terminal-art">
           <video autoPlay loop muted playsInline preload="auto">
@@ -468,6 +468,7 @@ function LandingStyles() {
       .marketing-terminal-shell { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); min-height: 21rem; }
       .marketing-terminal-shell .terminal-theme { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; height: 100%; }
       .marketing-terminal-shell .terminal-theme > div { border-radius: 0 !important; }
+      .marketing-terminal-shell .h-6 { height: 1rem; }
       .marketing-mobile-terminal-art { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); border-top: 0; }
       .marketing-mobile-terminal-art video { display: block; height: auto; width: 100%; }
       .marketing-integrations { padding: 5rem 0; }
@@ -494,13 +495,15 @@ function LandingStyles() {
       .marketing-blog { display: grid; gap: 3rem; grid-template-columns: minmax(0, 1fr); }
       .marketing-blog h2 { max-width: 28.75rem; }
       .marketing-blog-list { display: flex; flex-direction: column; }
-      .marketing-blog-row { align-items: flex-start; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy) !important; display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) auto; padding: 1.25rem 1rem; text-decoration: none !important; }
-      .marketing-blog-row:hover h3 { text-decoration: underline; text-underline-offset: 0.2em; }
+      .marketing-blog-row { align-items: flex-start; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy) !important; display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) auto; padding: 1.25rem 1rem; text-decoration: none !important; transition: background 160ms ease; }
+      .marketing-blog-row:hover { background: rgb(255 255 255 / 2%); }
       .marketing-blog-row-title { min-width: 0; }
       .marketing-blog-row-title h3 { color: var(--marketing-copy); font-size: 1.25rem; font-weight: 400; line-height: 1.1; margin: 0; }
       .marketing-blog-row-title p { color: var(--marketing-muted); font-family: var(--font-mono, monospace); font-size: 0.875rem; line-height: 1rem; margin: 0.25rem 0 0; text-transform: uppercase; }
       .marketing-blog-row-description { display: none; }
       .marketing-blog-row-arrow { align-items: center; background: var(--marketing-bg); border: 1px solid var(--marketing-border); color: var(--marketing-copy); display: inline-flex; font-size: 1rem; height: 1.875rem; justify-content: center; line-height: 1; width: 1.875rem; }
+      .marketing-blog-row:hover :is(.marketing-blog-row-title p, .marketing-blog-row-description) { color: var(--marketing-copy); }
+      .marketing-blog-row:hover .marketing-blog-row-arrow { border-color: var(--marketing-border-hover); }
       .marketing-blog-list > .marketing-button { align-self: flex-start; margin-top: 3.5rem; }
       @media (min-width: 700px) {
         .marketing-integration-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }

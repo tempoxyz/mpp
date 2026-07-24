@@ -2641,10 +2641,12 @@ function SingleStep({
 
 function TerminalComponent({
   className,
+  marketing = false,
   steps,
   showLastVisit = true,
 }: {
   className?: string;
+  marketing?: boolean;
   steps: StepConfig[];
   showLastVisit?: boolean;
 }) {
@@ -2833,36 +2835,47 @@ function TerminalComponent({
       >
         {/* Title bar */}
         <div
-          className="flex items-center gap-2 px-4 py-3"
+          className={`flex items-center gap-2 px-4 ${marketing ? "py-4" : "py-3"}`}
           style={{
             backgroundColor: "var(--term-bg2)",
             borderBottom: "1px solid var(--term-gray4)",
           }}
         >
-          <span
-            className="rounded-full"
-            style={{
-              width: 14,
-              height: 14,
-              backgroundColor: "var(--term-gray4)",
-            }}
-          />
-          <span
-            className="rounded-full"
-            style={{
-              width: 14,
-              height: 14,
-              backgroundColor: "var(--term-gray4)",
-            }}
-          />
-          <span
-            className="rounded-full"
-            style={{
-              width: 14,
-              height: 14,
-              backgroundColor: "var(--term-gray4)",
-            }}
-          />
+          {marketing ? (
+            <span
+              className="font-mono text-sm uppercase leading-4 tracking-[-0.14px]"
+              style={{ color: "var(--term-gray10)" }}
+            >
+              MPP Terminal
+            </span>
+          ) : (
+            <>
+              <span
+                className="rounded-full"
+                style={{
+                  width: 14,
+                  height: 14,
+                  backgroundColor: "var(--term-gray4)",
+                }}
+              />
+              <span
+                className="rounded-full"
+                style={{
+                  width: 14,
+                  height: 14,
+                  backgroundColor: "var(--term-gray4)",
+                }}
+              />
+              <span
+                className="rounded-full"
+                style={{
+                  width: 14,
+                  height: 14,
+                  backgroundColor: "var(--term-gray4)",
+                }}
+              />
+            </>
+          )}
           <span style={{ flex: 1 }} />
           <button
             type="button"
@@ -2922,52 +2935,54 @@ function TerminalComponent({
               </svg>
             )}
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              setWizardKey((k) => k + 1);
-              setCreated(false);
-              setFunded(false);
-              setBalance(0);
-              setSavedCard(undefined);
-            }}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "var(--term-gray5)",
-              padding: 2,
-              borderRadius: 4,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "color 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "var(--term-gray10)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--term-gray5)";
-            }}
-            aria-label="Restart demo"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-label="Restart"
+          {!marketing && (
+            <button
+              type="button"
+              onClick={() => {
+                setWizardKey((k) => k + 1);
+                setCreated(false);
+                setFunded(false);
+                setBalance(0);
+                setSavedCard(undefined);
+              }}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--term-gray5)",
+                padding: 2,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--term-gray10)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--term-gray5)";
+              }}
+              aria-label="Restart demo"
             >
-              <title>Restart</title>
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-              <path d="M21 3v5h-5" />
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-              <path d="M8 16H3v5" />
-            </svg>
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-label="Restart"
+              >
+                <title>Restart</title>
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M8 16H3v5" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Top gradient fade */}
@@ -2990,7 +3005,11 @@ function TerminalComponent({
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[13.5px] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem] md:overscroll-contain"
+          className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden break-words md:overscroll-contain ${
+            marketing
+              ? "p-4 text-sm leading-[1.64]"
+              : "px-5 pb-5 text-[13.5px] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          }`}
           style={{
             backgroundColor: "var(--term-bg2)",
           }}
@@ -3007,7 +3026,7 @@ function TerminalComponent({
             >
               ✔︎▸↑↓→
             </span>
-            <div className="h-2" />
+            {!marketing && <div className="h-2" />}
             {/* ASCII logo temporarily disabled
             <div
               style={{
