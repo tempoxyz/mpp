@@ -1947,7 +1947,7 @@ body {
 [data-v-footer] {
   border-top: 0 !important;
   max-width: 1728px !important;
-  padding: 0 clamp(1rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem) !important;
+  padding: 5rem clamp(1rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem) !important;
 }
 
 .marketing-footer {
@@ -2087,7 +2087,7 @@ body {
 
 @media (min-width: 641px) {
   [data-v-footer] {
-    padding-bottom: 3.5rem !important;
+    padding-bottom: 3rem !important;
   }
 
   .marketing-footer-bottom {
