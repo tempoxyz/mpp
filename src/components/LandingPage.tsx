@@ -553,10 +553,27 @@ function LandingStyles() {
       }
       @media (max-width: 999px) {
         .marketing-hero { min-height: auto; }
-        .marketing-hero-art { height: 17rem; order: -1; position: relative; top: auto; transform: translateX(-50%); }
+        .marketing-hero-art { height: 18.75rem; order: -1; position: relative; top: auto; transform: translateX(-50%); }
         .marketing-hero-content { gap: 1.5rem; }
         .marketing-designed-by { margin-top: 3rem; }
         .marketing-carousel-controls { display: none; }
+      }
+      @media (max-width: 639px) {
+        .marketing-hero {
+          gap: 2rem;
+          margin-top: 3.875rem;
+          padding-bottom: 2rem;
+          padding-top: 1.5rem;
+        }
+        .marketing-hero-content { gap: 2rem; }
+        .marketing-hero h1 {
+          font-size: 1.75rem !important;
+          letter-spacing: -0.035rem !important;
+          line-height: 1.1 !important;
+        }
+        .marketing-actions { flex-direction: column; gap: 0.5rem; }
+        .marketing-actions .marketing-button { width: 100%; }
+        .marketing-designed-by { display: none; }
       }
     `}</style>
   );
