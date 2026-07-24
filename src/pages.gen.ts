@@ -21,6 +21,7 @@ type Page =
   | { path: '/blog/sessions-improved'; render: 'static' }
   | { path: '/blog/subscriptions'; render: 'static' }
   | { path: '/brand'; render: 'static' }
+  | { path: '/design-system'; render: 'static' }
   | { path: '/extensions'; render: 'static' }
   | { path: '/faq'; render: 'static' }
   | { path: '/governance'; render: 'static' }
