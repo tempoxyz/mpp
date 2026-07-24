@@ -1463,9 +1463,11 @@ html[data-route-transition] [data-v-main] {
   margin-bottom: 0.75rem;
 }
 .blog-narrow p {
+  font-size: 1.125rem !important;
+  letter-spacing: normal !important;
   margin-top: 0;
   margin-bottom: 1.25rem;
-  line-height: 1.75;
+  line-height: 1.7;
 }
 .blog-narrow ul,
 .blog-narrow ol {
