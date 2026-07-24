@@ -108,12 +108,6 @@ html[style*="color-scheme: dark"] {
  * in Head.tsx. No manual overrides needed.
  */
 
-/* Service icons: dark bg baked in; invert for dark mode */
-.discovery-card-icon-img,
-.svc-icon-img {
-  filter: light-dark(none, invert(1));
-}
-
 /* Prevent layout shift when scrollbar appears/disappears between routes */
 html {
   scrollbar-gutter: stable;
@@ -405,8 +399,7 @@ a[data-v-sidebar-item]:not([data-active="true"]):not(:hover) {
 
 /* Geist + Geist Mono as primary font stack */
 :root {
-  /* Enable system theme detection */
-  color-scheme: light dark;
+  color-scheme: dark;
 
   /* Accent button text - always white since accent bg is near-black */
   --accent-button-text: white;
@@ -1321,22 +1314,6 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   margin-bottom: 1.5rem;
 }
 
-.blog-index-title {
-  font-family: "VTC Du Bois", var(--font-sans);
-  font-size: 2.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin: 0 0 0.25rem !important;
-}
-
-.blog-index-description {
-  color: var(--vocs-text-color-secondary);
-  font-size: 17px;
-  line-height: 1.4;
-  margin: 0 0 2.75rem;
-}
-
 [data-layout="minimal"]:has(.blog-index-hero) main {
   max-width: 1728px !important;
   padding: clamp(3rem, 8vw, 7.5rem) clamp(1rem, 4vw, 3rem)
@@ -1344,7 +1321,6 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 }
 
 .blog-index-hero {
-  border-bottom: 1px solid var(--mpp-line);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1357,14 +1333,22 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   width: min(305px, 100%);
 }
 
-.blog-index-description {
+.blog-index-content {
+  border-top: 1px solid var(--mpp-line);
+  display: grid;
+  gap: 3.75rem;
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: 1.5rem;
+}
+
+.blog-index-content > h2 {
   color: var(--mpp-copy);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  line-height: 1.4;
-  margin: 1.25rem 0 2.25rem;
-  max-width: 38rem;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: clamp(2rem, 3.25vw, 3rem);
+  font-weight: 450;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+  margin: 0 !important;
 }
 
 .blog-post-list {
@@ -1451,6 +1435,13 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 
   .blog-post-row-description {
     display: none;
+  }
+}
+
+@media (min-width: 960px) {
+  .blog-index-content {
+    gap: 5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -1649,8 +1640,6 @@ body {
   text-decoration-color: var(--mpp-line-hover) !important;
 }
 
-/* Service logos come from the live registry or curated MPP icon directory.
- * They already encode their contrast treatment, so never invert them. */
 .discovery-card-icon-img,
 .svc-icon-img {
   background: #2a2a2a;

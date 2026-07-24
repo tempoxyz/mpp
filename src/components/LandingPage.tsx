@@ -49,9 +49,31 @@ const BLOG_POSTS = [
     title: "Payment hooks",
     to: "/blog/payment-hooks",
   },
+  {
+    date: "May 12, 2026",
+    description:
+      "Enable recurring access for paid plans, memberships, and API tiers.",
+    title: "Subscriptions",
+    to: "/blog/subscriptions",
+  },
+  {
+    date: "April 28, 2026",
+    description:
+      "Declare every payment method, currency, and intent for a route ahead of time.",
+    title: "Multi-method discovery",
+    to: "/blog/multi-method-discovery",
+  },
 ];
 
-const INTEGRATION_LOGOS = ["amazon", "alchemy", "browserbase", "visa"];
+const INTEGRATION_LOGOS = [
+  "amazon",
+  "alchemy",
+  "browserbase",
+  "4",
+  "5",
+  "6",
+  "visa",
+];
 
 const TERMINAL_STEPS = [
   Terminal.commands(["./mpp.sh"]),
@@ -157,6 +179,11 @@ export function LandingPage() {
         <SectionLabel>Terminal</SectionLabel>
         <div className="marketing-terminal-shell">
           <Terminal steps={TERMINAL_STEPS} showLastVisit={false} />
+        </div>
+        <div className="marketing-mobile-terminal-art">
+          <video autoPlay loop muted playsInline preload="auto">
+            <source src="/marketing/mobile-terminal.mp4" type="video/mp4" />
+          </video>
         </div>
       </section>
 
@@ -395,6 +422,8 @@ function LandingStyles() {
       .marketing-terminal-shell { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); min-height: 21rem; }
       .marketing-terminal-shell .terminal-theme { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; height: 100%; }
       .marketing-terminal-shell .terminal-theme > div { border-radius: 0 !important; }
+      .marketing-mobile-terminal-art { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); border-top: 0; }
+      .marketing-mobile-terminal-art video { display: block; height: auto; width: 100%; }
       .marketing-integrations { padding-bottom: clamp(4rem, 8vw, 8rem); }
       .marketing-integration-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .marketing-integration-logo { align-items: center; border: 1px solid var(--marketing-border); display: flex; height: 4.5rem; justify-content: center; padding: 1rem; }
@@ -428,6 +457,20 @@ function LandingStyles() {
       @media (min-width: 960px) {
         .marketing-blog { gap: 5rem; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
         .marketing-hero-art { top: clamp(18rem, 24vw, 22rem); }
+      }
+      @media (min-width: 1000px) {
+        .marketing-terminal-section {
+          bottom: 2.5rem;
+          padding: 0;
+          position: fixed;
+          right: clamp(1.5rem, 4vw, 3rem);
+          width: min(28.2rem, calc(100vw - 6rem));
+          z-index: 10;
+        }
+        .marketing-terminal-section .marketing-section-label,
+        .marketing-mobile-terminal-art { display: none; }
+        .marketing-terminal-shell { height: 17.25rem; min-height: 0; }
+        .marketing-integration-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
       }
       @media (max-width: 999px) {
         .marketing-hero { min-height: auto; }
