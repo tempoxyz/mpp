@@ -189,7 +189,7 @@ html {
     transition:
       background-color 0.15s ease,
       border-color 0.15s ease,
-      color 0.3s ease !important;
+      color 0.3s cubic-bezier(0.215, 0.61, 0.355, 1) !important;
   }
 
   [data-v-gutter-top] nav :is(a, button)::before {
@@ -225,7 +225,7 @@ html {
   }
 
   [data-v-gutter-top] nav :is(a, button):is(:hover, :focus-visible) {
-    border-color: var(--mpp-line-hover) !important;
+    border-color: var(--mpp-line) !important;
     color: #101010 !important;
   }
 
@@ -1883,7 +1883,7 @@ body {
 
 [data-v-gutter-top] nav a:not([data-v-active="true"]):hover {
   background: #101010;
-  border-color: var(--mpp-line-hover) !important;
+  border-color: var(--mpp-line) !important;
 }
 
 @media (min-width: 1000px) {
