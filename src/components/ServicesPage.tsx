@@ -3898,6 +3898,17 @@ function PageStyles() {
         [data-services-table] table col:nth-child(3) { width: 45.3% !important; }
         [data-services-table] table col:nth-child(4) { width: 6.2% !important; }
         [data-services-table] table th { padding: 0.5rem 0.75rem 0.9375rem 1rem !important; }
+        [data-services-table] table th:nth-child(2) { padding-left: 0.5rem !important; }
+        [data-services-table] table th:nth-child(3) { color: transparent !important; }
+        [data-services-table] table th:nth-child(4) { overflow: visible !important; position: relative; }
+        [data-services-table] table th:nth-child(4)::after {
+          bottom: 0.9375rem;
+          color: var(--mpp-muted);
+          content: "Service URL";
+          position: absolute;
+          right: 1rem;
+          white-space: nowrap;
+        }
         [data-services-table] table tr[id^="service-"] > td { padding-bottom: 1.4375rem !important; }
       }
 
