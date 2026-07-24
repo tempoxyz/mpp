@@ -3886,8 +3886,8 @@ function PageStyles() {
       @media (min-width: 1280px) {
         .services-layout { gap: 1rem !important; }
         .services-sidebar { width: 22.25rem !important; }
-        .search-bar { gap: 1rem !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
-        .search-bar > div:first-child { flex: 0 0 35.625rem !important; }
+        .search-bar { gap: 1rem !important; margin-bottom: 0 !important; margin-right: 0 !important; padding-bottom: 0 !important; }
+        .search-bar > div:first-child { flex: 1 1 0 !important; }
         .filter-dropdown-btn { height: 2.5rem !important; min-width: 9.3125rem; }
         .search-bar > div:nth-of-type(2) { margin-left: 0 !important; }
         .search-bar > div:nth-of-type(3) { gap: 0.5rem !important; }
