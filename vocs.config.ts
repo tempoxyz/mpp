@@ -1,5 +1,6 @@
 import ruby from "shiki/langs/ruby.mjs";
 import { defineConfig, McpSource } from "vocs/config";
+import remarkMppMarkdown from "./scripts/remark-mpp-markdown.mjs";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
 const baseUrl = (() => {
@@ -13,6 +14,9 @@ export default defineConfig({
   accentColor: "light-dark(#000000, #ffffff)",
   colorScheme: "light dark",
   baseUrl,
+  markdown: {
+    outputRemarkPlugins: [remarkMppMarkdown],
+  },
   redirects: [
     { source: "/index", destination: "/" },
 
