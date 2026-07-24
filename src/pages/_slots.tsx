@@ -16,12 +16,10 @@ export function Footer() {
         <div className="marketing-footer-links">
           <a href="/">Machine Payment Protocol</a>
           <a href="https://x.com/mpp">X</a>
-          <a href="https://github.com/wevm/mppx">GitHub</a>
+          <a href="https://github.com/tempoxyz/mpp">GitHub</a>
         </div>
         <img alt="Machine Payment Protocol" src="/marketing/footer-logo.svg" />
         <div className="marketing-footer-links marketing-footer-legal">
-          <a href="/#">Privacy policy</a>
-          <a href="/#">Terms of Service</a>
           <p>
             © 2026 All rights reserved, MPP.
             <br />
