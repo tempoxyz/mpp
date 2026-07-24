@@ -7,6 +7,7 @@ import type { PathsForPages } from 'waku/router'
 type Page =
   | { path: '/404'; render: 'static' }
   | { path: '/_api/api/og'; render: 'static' }
+  | { path: '/_slots'; render: 'static' }
   | { path: '/advanced/discovery'; render: 'static' }
   | { path: '/advanced/identity'; render: 'static' }
   | { path: '/advanced/payment-hooks'; render: 'static' }

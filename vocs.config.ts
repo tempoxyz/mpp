@@ -11,8 +11,8 @@ const baseUrl = (() => {
 })();
 
 export default defineConfig({
-  accentColor: "light-dark(#000000, #ffffff)",
-  colorScheme: "light dark",
+  accentColor: "#ffffff",
+  colorScheme: "dark",
   baseUrl,
   markdown: {
     outputRemarkPlugins: [remarkMppMarkdown],
