@@ -257,55 +257,97 @@ function useRouteFade() {
 }
 
 function MobileNav() {
-  return (
-    <nav data-mobile-nav="" aria-label="Main navigation">
-      <a href="/overview" data-mobile-nav-item="">
-        Docs
-      </a>
-      <a href="/services" data-mobile-nav-item="">
-        Services
-      </a>
-      <a href="/blog" data-mobile-nav-item="">
-        Blog
-      </a>
-      <a
-        href="https://paymentauth.org"
-        target="_blank"
-        rel="noopener noreferrer"
-        data-mobile-nav-item=""
-      >
-        IETF Specification
-      </a>
-      <span data-mobile-nav-label="">GitHub</span>
-      <div data-mobile-nav-subitems="" data-mobile-nav-flat="">
-        <a
-          href="https://github.com/wevm/mppx"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-mobile-nav-subitem=""
-        >
-          mppx (TypeScript)
-        </a>
-        <a
-          href="https://github.com/tempoxyz/mpp-rs"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-mobile-nav-subitem=""
-        >
-          mpp-rs (Rust)
-        </a>
-        <a
-          href="https://github.com/tempoxyz/pympp"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-mobile-nav-subitem=""
-        >
-          pympp (Python)
-        </a>
-      </div>
+  const [githubOpen, setGithubOpen] = useState(false);
 
-      {/* Docs section label */}
-      <span data-mobile-nav-label="">Docs</span>
+  const closeMenu = () => {
+    document
+      .querySelector<HTMLButtonElement>(
+        "[data-v-mobile-nav] button[aria-label]",
+      )
+      ?.click();
+  };
+
+  return (
+    <nav
+      data-mobile-nav=""
+      data-marketing-mobile-menu=""
+      aria-label="Main navigation"
+    >
+      <div data-marketing-mobile-menu-header="">
+        <a
+          href="/"
+          aria-label="Machine Payment Protocol — home"
+          onClick={closeMenu}
+        >
+          <img src="/marketing/mpp-logo.svg" alt="MPP" />
+        </a>
+        <button type="button" onClick={closeMenu}>
+          Close
+        </button>
+      </div>
+      <div data-marketing-mobile-menu-links="">
+        <a href="/overview" onClick={closeMenu}>
+          Docs
+        </a>
+        <a href="/services" onClick={closeMenu}>
+          Services
+        </a>
+        <a href="/blog" onClick={closeMenu}>
+          Blog
+        </a>
+        <a
+          href="https://paymentauth.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          IETF Specs ↗
+        </a>
+        <details
+          open={githubOpen}
+          onToggle={(event) => setGithubOpen(event.currentTarget.open)}
+        >
+          <summary>
+            GitHub <span>⌄</span>
+          </summary>
+          <div>
+            <a
+              href="https://github.com/wevm/mppx"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              mppx (TypeScript) ↗
+            </a>
+            <a
+              href="https://github.com/tempoxyz/mpp-go"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MPP-go (Go) ↗
+            </a>
+            <a
+              href="https://github.com/stripe/mpp-rb"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MPP-rb (Ruby) ↗
+            </a>
+            <a
+              href="https://github.com/tempoxyz/mpp-rs"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MPP-rs (Rust) ↗
+            </a>
+            <a
+              href="https://github.com/tempoxyz/pympp"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              PyMPP (Python) ↗
+            </a>
+          </div>
+        </details>
+      </div>
     </nav>
   );
 }
@@ -315,8 +357,7 @@ function MobileNavPortal() {
 
   useEffect(() => {
     const update = () => {
-      const path = window.location.pathname;
-      if (path !== "/" && path !== "/services") {
+      if (!document.querySelector('[data-layout="minimal"]')) {
         setTarget(null);
         return;
       }
