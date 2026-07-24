@@ -168,6 +168,44 @@ html {
   }
 }
 
+@media (min-width: 1000px) {
+  [data-v-gutter-top] nav {
+    padding-inline: 0 !important;
+  }
+
+  [data-v-gutter-top] nav ul {
+    gap: 0.5rem !important;
+  }
+
+  [data-v-gutter-top] nav :is(a, button) {
+    background: #101010 !important;
+    border: 1px solid var(--mpp-line) !important;
+    color: var(--mpp-muted) !important;
+    letter-spacing: -0.01em !important;
+    text-transform: uppercase;
+  }
+
+  [data-v-gutter-top] nav a[data-v-active="true"],
+  [data-v-gutter-top] nav a:not([data-v-active="true"]) {
+    border-color: var(--mpp-line) !important;
+  }
+
+  [data-v-gutter-top] nav :is(a, button):hover {
+    border-color: var(--mpp-line-hover) !important;
+    color: var(--mpp-copy) !important;
+  }
+
+  [data-v-gutter-top] nav :is(a, button) svg {
+    height: 1rem !important;
+    margin-left: 0.5rem !important;
+    width: 1rem !important;
+  }
+
+  [data-v-gutter-top] nav a[data-v-active="true"]::after {
+    content: none;
+  }
+}
+
 /* Header logo - themed color, always on top */
 [data-v-logo] {
   color: var(--vocs-text-color-heading);
@@ -182,20 +220,12 @@ html {
 
 /* Active top nav route — dot indicator instead of underline */
 [data-v-gutter-top] nav a[data-v-active="true"] {
-  border-color: transparent !important;
-  color: light-dark(var(--vocs-color-accent), var(--vocs-text-color-heading));
+  border-color: var(--mpp-line) !important;
+  color: var(--mpp-muted) !important;
   position: relative;
 }
 [data-v-gutter-top] nav a[data-v-active="true"]::after {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: currentColor;
+  content: none;
 }
 
 [data-v-gutter-top] nav a:hover {
@@ -205,7 +235,7 @@ html {
 
 /* Inactive top nav links — no bottom border */
 [data-v-gutter-top] nav a:not([data-v-active="true"]) {
-  border-color: transparent !important;
+  border-color: var(--mpp-line) !important;
 }
 
 /* Focus state — faded dot instead of browser focus ring */
@@ -213,16 +243,7 @@ html {
   outline: none !important;
 }
 [data-v-gutter-top] nav a:focus-visible::after {
-  content: "";
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.35;
+  content: none;
 }
 
 /* No underline on hover inside buttons or button-like links */
