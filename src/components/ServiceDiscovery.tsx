@@ -3,10 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Category, Endpoint, Service } from "../data/registry";
-import {
-  fetchServices,
-  iconUrl as getIconUrlForService,
-} from "../data/registry";
+import { fetchServices, serviceIconUrl } from "../data/registry";
 import { PINNED_IDS } from "./ServicesPage";
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -81,7 +78,7 @@ function getExamplePayload(ep: Endpoint): string {
 }
 
 function getIconUrl(service: Service): string {
-  return getIconUrlForService(service.id);
+  return serviceIconUrl(service);
 }
 
 // ---------------------------------------------------------------------------

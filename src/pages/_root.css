@@ -1336,3 +1336,138 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   line-height: 1.4;
   margin: 0 0 2.75rem;
 }
+
+/* MPP marketing refresh: preserve Vocs behavior while using the sharper,
+ * high-contrast visual language of the MPP product site. */
+:root {
+  --mpp-canvas: light-dark(#f7f7f5, #101010);
+  --mpp-elevated: light-dark(#ffffff, #191919);
+  --mpp-line: light-dark(rgba(0, 0, 0, 0.16), rgba(235, 235, 235, 0.2));
+  --mpp-line-hover: light-dark(rgba(0, 0, 0, 0.4), rgba(235, 235, 235, 0.4));
+  --mpp-copy: light-dark(#252525, #ebebeb);
+  --mpp-muted: light-dark(#686868, #a6a6a6);
+}
+
+html,
+body {
+  background: var(--mpp-canvas);
+}
+
+[data-v-gutter-top] {
+  background: color-mix(in srgb, var(--mpp-canvas) 94%, transparent) !important;
+  border-bottom: 1px solid var(--mpp-line) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+[data-v-gutter-top] nav a,
+[data-v-sidebar] a,
+[data-v-sidebar] button,
+[data-v-outline-items] a {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+[data-v-gutter-top] nav a {
+  border: 1px solid transparent;
+  padding: 0.4rem 0.55rem;
+}
+
+[data-v-gutter-top] nav a:hover {
+  background: var(--mpp-elevated);
+  border-color: var(--mpp-line) !important;
+}
+
+[data-v-sidebar] {
+  background: var(--mpp-canvas);
+  border-right: 1px solid var(--mpp-line);
+}
+
+[data-v-sidebar] a[data-v-sidebar-item][data-active="true"] {
+  background: var(--mpp-elevated);
+  border-left: 2px solid var(--mpp-copy);
+  padding-left: calc(0.75rem - 2px);
+}
+
+[data-v-content] h1,
+[data-v-content] h2 {
+  color: var(--mpp-copy);
+  font-family: "VTC Du Bois", var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+[data-v-content] h1 {
+  font-size: clamp(2.4rem, 5vw, 4.5rem);
+  line-height: 0.98;
+}
+
+[data-v-content] h2 {
+  font-size: clamp(1.65rem, 3vw, 2.45rem);
+  line-height: 1.02;
+}
+
+[data-v-content] :is(p, li) {
+  color: var(--mpp-muted);
+}
+
+[data-v-content] :is(pre[data-v], [data-v-callout], div[data-v-table-wrapper]) {
+  border: 1px solid var(--mpp-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+[data-v-content] pre[data-v] {
+  background: var(--mpp-elevated) !important;
+}
+
+[data-v-content] table :is(th, td) {
+  border-color: var(--mpp-line) !important;
+}
+
+[data-v-content] table th {
+  color: var(--mpp-copy);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+[data-v-content] a[data-v-link] {
+  color: var(--mpp-copy);
+  text-decoration-color: var(--mpp-line-hover) !important;
+}
+
+/* Service logos come from the live registry or curated MPP icon directory.
+ * They already encode their contrast treatment, so never invert them. */
+.discovery-card-icon-img,
+.svc-icon-img {
+  background: #2a2a2a;
+  filter: none;
+}
+
+.discovery-card,
+.services-sidebar > *,
+.services-grid-inline .discovery-card {
+  border-radius: 0 !important;
+  border-color: var(--mpp-line) !important;
+  background: var(--mpp-elevated) !important;
+  box-shadow: none !important;
+}
+
+.discovery-card:hover,
+.services-sidebar > *:hover {
+  border-color: var(--mpp-line-hover) !important;
+}
+
+@media (max-width: 767px) {
+  [data-v-gutter-top] nav a {
+    padding: 0.35rem 0.4rem;
+  }
+
+  [data-v-content] h1 {
+    font-size: clamp(2.2rem, 12vw, 3.2rem);
+  }
+}

@@ -187,7 +187,7 @@ function LandingStyles() {
 
       .landing-page {
         margin-top: 0 !important;
-
+        background: var(--mpp-canvas);
       }
 
       /* ---- Main section: hero + terminal ---- */
@@ -212,14 +212,40 @@ function LandingStyles() {
 
       .hero-row {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         gap: clamp(2rem, 4vw, 4rem);
+        border-top: 1px solid var(--mpp-line);
+        padding-top: clamp(1.5rem, 4vw, 3.5rem);
       }
       .hero-left { flex-shrink: 0; }
       .hero-right {
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
+        max-width: 32rem;
+      }
+
+      .hero-right .landing-tagline {
+        color: var(--mpp-copy) !important;
+        font-size: clamp(1.35rem, 2.1vw, 2rem);
+        letter-spacing: -0.035em;
+        line-height: 1.08;
+      }
+
+      .landing-ctas a {
+        border-radius: 0 !important;
+        font-family: var(--font-mono, "Geist Mono", monospace);
+        font-size: 0.8rem !important;
+        letter-spacing: -0.02em;
+        text-transform: uppercase;
+      }
+
+      .landing-cta-primary {
+        border: 1px solid var(--mpp-copy) !important;
+      }
+
+      .landing-cta-secondary {
+        border: 1px solid var(--mpp-line-hover) !important;
       }
 
       /* Shimmer CTA — only visible on mobile */
@@ -630,7 +656,7 @@ function Hero() {
           <div className="flex items-center gap-4 mt-3 landing-ctas">
             <Link
               to="/quickstart/agent"
-              className="no-underline! px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
+              className="landing-cta-primary no-underline! px-5 py-2.5 transition-opacity hover:opacity-80"
               style={{
                 fontSize: "0.9375rem",
                 fontWeight: 500,
@@ -649,7 +675,7 @@ function Hero() {
             </Link>
             <Link
               to="/quickstart/server"
-              className="no-underline! px-5 py-2.5 rounded-lg transition-opacity hover:opacity-80"
+              className="landing-cta-secondary no-underline! px-5 py-2.5 transition-opacity hover:opacity-80"
               style={{
                 fontSize: "0.9375rem",
                 fontWeight: 500,
@@ -681,12 +707,11 @@ function Hero() {
 function Tagline() {
   return (
     <div
-      className="leading-relaxed max-w-xl font-normal max-[1080px]:max-w-lg"
+      className="landing-tagline leading-relaxed max-w-xl font-normal max-[1080px]:max-w-lg"
       style={{ color: "var(--vocs-text-color-secondary)" }}
     >
-      The open protocol for machine-to-machine payments. Charge for API
-      requests, tool calls, or content—agents and apps pay per request in the
-      same HTTP call.
+      MPP lets agents pay for services on the web, extensible to any payment
+      method.
     </div>
   );
 }

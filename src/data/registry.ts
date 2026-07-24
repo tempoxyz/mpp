@@ -118,6 +118,15 @@ export function iconUrl(serviceId: string): string {
   return `/api/icon?id=${encodeURIComponent(serviceId)}`;
 }
 
+/**
+ * Returns the logo published with a service when available, then falls back to
+ * the locally curated service-directory icon. This keeps the UI aligned with
+ * the live registry without sacrificing a reliable offline fallback.
+ */
+export function serviceIconUrl(service: Service): string {
+  return service.icon ?? service.provider?.icon ?? iconUrl(service.id);
+}
+
 export function useIsDark(): boolean {
   const [dark, setDark] = useState(false);
   useEffect(() => {
