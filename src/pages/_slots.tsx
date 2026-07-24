@@ -5,22 +5,28 @@ export function Footer() {
         <p>Start building</p>
         <div>
           <a className="marketing-footer-primary" href="/quickstart/agent">
-            Use with your agent
+            <span>Use with your agent</span>
           </a>
-          <a href="/quickstart/server">Add payments to your API</a>
+          <a href="/quickstart/server">
+            <span>Add payments to your API</span>
+          </a>
         </div>
       </section>
       <section className="marketing-footer-bottom">
         <div className="marketing-footer-links">
           <a href="/">Machine Payment Protocol</a>
-          <a href="https://github.com/wevm/mppx">GitHub</a>
           <a href="https://x.com/mpp">X</a>
+          <a href="https://github.com/wevm/mppx">GitHub</a>
         </div>
         <img alt="Machine Payment Protocol" src="/marketing/footer-logo.svg" />
         <div className="marketing-footer-links marketing-footer-legal">
-          <span>Open source protocol</span>
-          <span>Built for the web</span>
-          <span>© 2026 MPP. San Francisco, California.</span>
+          <a href="/#">Privacy policy</a>
+          <a href="/#">Terms of Service</a>
+          <p>
+            © 2026 All rights reserved, MPP.
+            <br />
+            San Francisco, California, USA
+          </p>
         </div>
       </section>
     </div>
