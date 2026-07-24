@@ -1916,12 +1916,17 @@ body {
   [data-v-gutter-top-left] {
     align-items: center;
     height: 70px !important;
+    margin-left: 0 !important;
     padding-block: 0 !important;
   }
 
   [data-v-logo],
   [data-v-logo-link] {
-    height: 25px !important;
+    height: 20px !important;
+  }
+
+  [data-v-logo] {
+    transform: translateY(-2px);
   }
 
   [data-v-logo] img {

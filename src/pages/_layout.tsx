@@ -1,7 +1,13 @@
 "use client";
 
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import lockupDarkRaw from "../assets/lockup-dark.svg?raw";
 import lockupLightRaw from "../assets/lockup-light.svg?raw";
@@ -24,6 +30,7 @@ const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
 type LottieAnimation = {
   destroy: () => void;
   goToAndPlay: (value: number, isFrame?: boolean) => void;
+  setSpeed: (speed: number) => void;
 };
 
 type LottiePlayer = {
@@ -44,6 +51,8 @@ declare global {
 }
 
 let lottiePlayer: Promise<LottiePlayer> | undefined;
+const useIsoLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 function loadLottiePlayer() {
   if (window.lottie) return Promise.resolve(window.lottie);
@@ -88,8 +97,12 @@ function loadLottiePlayer() {
   return lottiePlayer;
 }
 
+if (typeof window !== "undefined") {
+  void loadLottiePlayer().catch(() => undefined);
+}
+
 function useLogoAnimation() {
-  useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!document.querySelector('[data-layout="minimal"]')) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -127,6 +140,7 @@ function useLogoAnimation() {
           renderer: "svg",
           rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
         });
+        animation.setSpeed(1.6);
       } catch {
         // Keep the static logo when the optional animation cannot load.
       }
