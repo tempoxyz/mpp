@@ -2813,25 +2813,30 @@ function TerminalComponent({
         WebkitUserSelect: "text",
         ...(isFullscreen
           ? {
+              alignItems: "center",
+              backdropFilter: "blur(4px)",
+              backgroundColor: "rgb(0 0 0 / 70%)",
+              display: "flex",
+              justifyContent: "center",
               position: "fixed",
               inset: 0,
               zIndex: 9999,
               height: "100dvh",
               width: "100vw",
-              padding: 0,
+              padding: 16,
             }
           : {}),
       }}
     >
       <div
         data-terminal
-        className={`flex flex-col overflow-hidden ${isFullscreen ? "" : "rounded-xl"}`}
+        className={`flex flex-col ${isFullscreen ? "" : "overflow-hidden rounded-xl"}`}
         style={{
-          height: "100%",
+          height: isFullscreen ? "min(85dvh, 640px)" : "100%",
           minHeight: 0,
-          borderColor: isFullscreen
-            ? "transparent"
-            : "var(--vocs-border-color-primary)",
+          maxWidth: isFullscreen ? 1080 : undefined,
+          width: "100%",
+          borderColor: "var(--mpp-line, var(--vocs-border-color-primary))",
           borderWidth: 1,
           borderStyle: "solid",
           backgroundColor: "var(--term-bg2)",
@@ -2845,7 +2850,7 @@ function TerminalComponent({
             borderBottom: "1px solid var(--term-gray4)",
           }}
         >
-          {marketing ? (
+          {marketing && !isFullscreen ? (
             <span
               className="font-mono text-sm uppercase leading-4 tracking-[-0.14px]"
               style={{ color: "var(--term-gray10)" }}
@@ -2881,7 +2886,7 @@ function TerminalComponent({
             </>
           )}
           <span style={{ flex: 1 }} />
-          {marketing && (
+          {marketing && !isFullscreen && (
             <button
               type="button"
               onClick={() => setIsMarketingMinimized((minimized) => !minimized)}
@@ -2979,7 +2984,7 @@ function TerminalComponent({
               </svg>
             )}
           </button>
-          {!marketing && (
+          {(!marketing || isFullscreen) && (
             <button
               type="button"
               onClick={() => {
