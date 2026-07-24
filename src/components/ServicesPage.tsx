@@ -3424,7 +3424,7 @@ function ServiceRow({
   );
 }
 
-const ACCORDION_MS = 200;
+const ACCORDION_MS = 300;
 
 function AccordionRow({
   expanded,
@@ -3471,7 +3471,7 @@ function AccordionRow({
           style={{
             display: "grid",
             gridTemplateRows: "0fr",
-            transition: `grid-template-rows ${ACCORDION_MS}ms ease-out`,
+            transition: `grid-template-rows ${ACCORDION_MS}ms ease`,
           }}
         >
           <div style={{ overflow: "hidden", minHeight: 0 }}>{children}</div>
@@ -3886,31 +3886,54 @@ function PageStyles() {
       @media (min-width: 1280px) {
         .services-layout { gap: 1rem !important; }
         .services-sidebar { width: 22.25rem !important; }
-        .search-bar { gap: 1rem !important; }
-        .search-bar > div:first-child { flex: 0 0 25.6875rem !important; }
+        .search-bar { gap: 1rem !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
+        .search-bar > div:first-child { flex: 0 0 35.625rem !important; }
         .filter-dropdown-btn { height: 2.5rem !important; min-width: 9.3125rem; }
         .search-bar > div:nth-of-type(2) { margin-left: 0 !important; }
         .search-bar > div:nth-of-type(3) { gap: 0.5rem !important; }
         .search-bar > div:nth-of-type(3) button { height: 2.5rem !important; width: 2.5rem !important; }
         .search-bar-learn-more { height: 2.625rem; padding: 0.75rem 1rem !important; }
-        [data-services-table] { margin-top: 2.375rem; }
-        [data-services-table] table col:nth-child(1) { width: 27.6% !important; }
-        [data-services-table] table col:nth-child(2) { width: 20.9% !important; }
-        [data-services-table] table col:nth-child(3) { width: 45.3% !important; }
-        [data-services-table] table col:nth-child(4) { width: 6.2% !important; }
-        [data-services-table] table th { padding: 0.5rem 0.75rem 0.9375rem 1rem !important; }
-        [data-services-table] table th:nth-child(2) { padding-left: 0.5rem !important; }
-        [data-services-table] table th:nth-child(3) { color: transparent !important; }
-        [data-services-table] table th:nth-child(4) { overflow: visible !important; position: relative; }
-        [data-services-table] table th:nth-child(4)::after {
-          bottom: 0.9375rem;
-          color: var(--mpp-muted);
-          content: "Service URL";
-          position: absolute;
-          right: 1rem;
-          white-space: nowrap;
+        [data-services-table] { margin-top: 3.5rem; }
+        [data-services-table] table col:nth-child(1) { width: 22.222% !important; }
+        [data-services-table] table col:nth-child(2) { width: 33.2% !important; }
+        [data-services-table] table col:nth-child(3) { width: 31.48% !important; }
+        [data-services-table] table col:nth-child(4) { width: 13.098% !important; }
+        [data-services-table] table th { font-size: 0.875rem !important; line-height: 1rem !important; padding: 0 1rem 1rem !important; }
+        [data-services-table] table th:nth-child(2) { padding-left: 1rem !important; }
+        [data-services-table] table td:nth-child(2) { padding: 1.25rem 0 1.25rem 1rem !important; }
+        [data-services-table] table td:nth-child(3) { padding-left: 1rem !important; }
+        [data-services-table] table tr[id^="service-"] { height: 5.1rem; }
+        [data-services-table] table th:last-child { padding: 0 !important; }
+        [data-services-table] table td:last-child { display: table-cell; padding: 0 !important; vertical-align: top !important; }
+        [data-services-table] table td:nth-child(3) > span {
+          background: #101010 !important;
+          border: 1px solid var(--mpp-line) !important;
+          border-radius: 0 !important;
+          font-family: var(--font-mono) !important;
+          font-size: 0.875rem !important;
+          line-height: 1rem !important;
+          padding: 0.375rem 0.75rem !important;
         }
-        [data-services-table] table tr[id^="service-"] > td { padding-bottom: 1.4375rem !important; }
+        [data-services-table] .chevron-cell {
+          align-items: flex-start !important;
+          padding-right: 1rem !important;
+          padding-top: 1.25rem;
+        }
+        [data-services-table] .chevron-cell > :is(a, svg) {
+          background: #101010 !important;
+          border: 1px solid var(--mpp-line) !important;
+          border-radius: 0 !important;
+          box-sizing: border-box;
+          color: var(--mpp-muted) !important;
+          height: 2rem !important;
+          padding: 0.5rem;
+          transition: color 150ms ease, border-color 150ms ease;
+          width: 2rem !important;
+        }
+        [data-services-table] .chevron-cell > :is(a, svg):hover {
+          border-color: var(--mpp-line-hover) !important;
+          color: var(--mpp-copy) !important;
+        }
       }
 
       /* Hide logo when search bar is stuck and overlaps it at mid-wide viewports */
