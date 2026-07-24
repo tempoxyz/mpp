@@ -49,10 +49,15 @@ async function staticIcon(
 ): Promise<Response | null> {
   try {
     const origin = new URL(request.url).origin;
-    const res = await fetch(`${origin}/icons/${id}.svg`);
-    if (res.ok && res.body) {
-      return new Response(res.body, {
-        headers: { ...FALLBACK_HEADERS, ...CACHE_HEADERS },
+    const url = `${origin}/icons/${id}.svg`;
+    const res = await fetch(url, { method: "HEAD" });
+    if (res.ok) {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          ...CACHE_HEADERS,
+          Location: url,
+        },
       });
     }
   } catch {

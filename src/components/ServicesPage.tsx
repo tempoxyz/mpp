@@ -1177,9 +1177,9 @@ export function ServicesPage() {
                 color: "var(--vocs-text-color-secondary)",
                 fontFamily: "var(--font-mono)",
                 fontSize: 14,
-                lineHeight: 1.4,
+                lineHeight: 1,
                 marginBottom: "2.25rem",
-                marginTop: "1.25rem",
+                marginTop: "1.5rem",
                 textTransform: "uppercase",
               }}
             >
@@ -3773,6 +3773,9 @@ function PageStyles() {
         display: block;
         width: min(619px, 100%);
         height: auto;
+      }
+      @media (min-width: 901px) {
+        .services-container { padding: 2.875rem 3rem 4rem !important; }
       }
       .page-header {
         border-bottom: 1px solid var(--mpp-line);
