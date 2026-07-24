@@ -3806,6 +3806,24 @@ function PageStyles() {
         margin-top: 0;
       }
 
+      @media (min-width: 1280px) {
+        .services-layout { gap: 1rem !important; }
+        .services-sidebar { width: 22.25rem !important; }
+        .search-bar { gap: 1rem !important; }
+        .search-bar > div:first-child { flex: 0 0 25.6875rem !important; }
+        .filter-dropdown-btn { height: 2.5rem !important; min-width: 9.3125rem; }
+        .search-bar > div:nth-of-type(2) { margin-left: 0 !important; }
+        .search-bar > div:nth-of-type(3) { gap: 0.5rem !important; }
+        .search-bar > div:nth-of-type(3) button { height: 2.5rem !important; width: 2.5rem !important; }
+        .search-bar-learn-more { height: 2.625rem; padding: 0.75rem 1rem !important; }
+        [data-services-table] { margin-top: 2.375rem; }
+        [data-services-table] table col:nth-child(1) { width: 26.6% !important; }
+        [data-services-table] table col:nth-child(2) { width: 35.7% !important; }
+        [data-services-table] table col:nth-child(3) { width: 31.5% !important; }
+        [data-services-table] table col:nth-child(4) { width: 6.2% !important; }
+        [data-services-table] table th { padding-left: 1rem !important; }
+      }
+
       /* Hide logo when search bar is stuck and overlaps it at mid-wide viewports */
       @media (min-width: 1500px) and (max-width: 1730px) {
         [data-search-stuck] [data-v-logo] { opacity: 0 !important; pointer-events: none; }
@@ -3920,7 +3938,7 @@ function PageStyles() {
       }
 
       /* ---- Table columns stack ---- */
-      @media (max-width: 1400px) {
+      @media (max-width: 1279px) {
         .services-content-row { display: block !important; }
         .services-table-col { min-width: 0 !important; }
         [data-services-table] thead { display: none !important; }

@@ -178,11 +178,19 @@ html {
   }
 
   [data-v-gutter-top] nav :is(a, button) {
-    background: #101010 !important;
+    background-color: #101010 !important;
+    background-image: linear-gradient(#ebebeb, #ebebeb);
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 0 100%;
     border: 1px solid var(--mpp-line) !important;
     color: var(--mpp-muted) !important;
     letter-spacing: -0.01em !important;
     text-transform: uppercase;
+    transition:
+      background-size 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.15s ease,
+      color 0.3s ease !important;
   }
 
   [data-v-gutter-top] nav a[data-v-active="true"],
@@ -190,7 +198,15 @@ html {
     border-color: var(--mpp-line) !important;
   }
 
-  [data-v-gutter-top] nav :is(a, button):hover {
+  [data-v-gutter-top] nav :is(a, button):is(:hover, :focus-visible) {
+    background-size: 100% 100%;
+    border-color: var(--mpp-line-hover) !important;
+    color: #101010 !important;
+  }
+
+  [data-v-gutter-top] nav a[data-v-active="true"] {
+    background-color: #262626 !important;
+    background-image: none;
     border-color: var(--mpp-line-hover) !important;
     color: var(--mpp-copy) !important;
   }
@@ -220,8 +236,10 @@ html {
 
 /* Active top nav route — dot indicator instead of underline */
 [data-v-gutter-top] nav a[data-v-active="true"] {
-  border-color: var(--mpp-line) !important;
-  color: var(--mpp-muted) !important;
+  background-color: #262626 !important;
+  background-image: none;
+  border-color: var(--mpp-line-hover) !important;
+  color: var(--mpp-copy) !important;
   position: relative;
 }
 [data-v-gutter-top] nav a[data-v-active="true"]::after {
@@ -1288,6 +1306,27 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   animation: none;
 }
 
+@keyframes routeContentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html[data-route-transition] [data-v-main] {
+  animation: routeContentFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-route-transition] [data-v-main] {
+    animation: none;
+  }
+}
+
 /* Blog pages: narrower content column with restored MDX spacing */
 .blog-narrow {
   max-width: 640px;
@@ -1402,8 +1441,8 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 }
 
 .blog-post-list {
-  margin: 0 0 0 auto;
-  max-width: 52rem;
+  margin: 0;
+  max-width: none;
 }
 
 .blog-post-row {
@@ -1413,7 +1452,7 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   display: grid;
   gap: 1.5rem;
   grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) auto;
-  padding: 1.5rem 0;
+  padding: 1.5rem 1rem;
   text-decoration: none !important;
   transition: background 160ms ease;
 }
@@ -1498,6 +1537,12 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
   }
 
   .blog-index-content {
+    gap: 3.75rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .blog-index-content {
     gap: 5rem;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
@@ -1519,7 +1564,7 @@ body {
 
 [data-v-gutter-top] {
   background: color-mix(in srgb, var(--mpp-canvas) 94%, transparent) !important;
-  border-bottom: 1px solid var(--mpp-line) !important;
+  border-bottom: 0 !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
