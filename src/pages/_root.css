@@ -180,17 +180,32 @@ html {
   [data-v-gutter-top] nav :is(a, button) {
     background-color: #101010 !important;
     background-image: linear-gradient(#ebebeb, #ebebeb);
-    background-position: left;
+    background-position: left bottom;
     background-repeat: no-repeat;
-    background-size: 0 100%;
+    background-size: 0 50%;
     border: 1px solid var(--mpp-line) !important;
     color: var(--mpp-muted) !important;
     letter-spacing: -0.01em !important;
+    overflow: hidden;
+    position: relative;
     text-transform: uppercase;
     transition:
-      background-size 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      background-size 0.55s cubic-bezier(0.16, 1, 0.3, 1),
       border-color 0.15s ease,
       color 0.3s ease !important;
+  }
+
+  [data-v-gutter-top] nav :is(a, button)::before {
+    background: #ebebeb;
+    content: "";
+    height: 50%;
+    inset-inline: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   [data-v-gutter-top] nav a[data-v-active="true"],
@@ -199,9 +214,13 @@ html {
   }
 
   [data-v-gutter-top] nav :is(a, button):is(:hover, :focus-visible) {
-    background-size: 100% 100%;
+    background-size: 100% 50%;
     border-color: var(--mpp-line-hover) !important;
     color: #101010 !important;
+  }
+
+  [data-v-gutter-top] nav :is(a, button):is(:hover, :focus-visible)::before {
+    transform: scaleX(1);
   }
 
   [data-v-gutter-top] nav a[data-v-active="true"] {
@@ -209,6 +228,10 @@ html {
     background-image: none;
     border-color: var(--mpp-line-hover) !important;
     color: var(--mpp-copy) !important;
+  }
+
+  [data-v-gutter-top] nav a[data-v-active="true"]::before {
+    content: none;
   }
 
   [data-v-gutter-top] nav :is(a, button) svg {
@@ -248,7 +271,6 @@ html {
 
 [data-v-gutter-top] nav a:hover {
   text-decoration: none !important;
-  color: var(--vocs-text-color-heading) !important;
 }
 
 /* Inactive top nav links — no bottom border */
