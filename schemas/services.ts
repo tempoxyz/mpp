@@ -310,6 +310,81 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Agent402 ──────────────────────────────────────────────────────────
+  {
+    id: "agent402",
+    name: "Agent402",
+    url: "https://agent402.tools",
+    serviceUrl: "https://agent402.tools",
+    description:
+      "500+ deterministic pay-per-call web tools for AI agents: search, browser rendering, PDFs, images, barcodes, live data, and an OpenAI-compatible LLM gateway. Every route answers MPP evm charges (USDC on Base) and x402 exact from the same 402.",
+    icon: "https://agent402.tools/favicon.svg",
+    categories: ["data", "search", "compute"],
+    integration: "third-party",
+    tags: ["tools", "search", "browser", "pdf", "images", "llm-gateway", "x402", "usdc", "base"],
+    status: "active",
+    docs: {
+      homepage: "https://agent402.tools",
+      llmsTxt: "https://agent402.tools/llms.txt",
+      apiReference: "https://agent402.tools/openapi.json",
+    },
+    provider: { name: "Havok Holdings LLC", url: "https://agent402.tools" },
+    realm: "agent402.tools",
+    intent: "charge",
+    payments: [
+      {
+        // USDC on Base (eip155:8453), EIP-3009 via the evm charge method
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /api/search",
+        desc: "Web search",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/render",
+        desc: "Render a URL in a real browser",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/screenshot",
+        desc: "Screenshot a URL",
+        amount: "15000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/vin-decode",
+        desc: "Decode a vehicle VIN (federal data)",
+        amount: "4000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/qr",
+        desc: "Generate a QR code",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/uuid",
+        desc: "Generate UUIDs",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/auto/chat/completions",
+        desc: "OpenAI-compatible chat completions with eval-ranked model routing",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── agentfax ───────────────────────────────────────────────────────────
   {
     id: "agentfax",
