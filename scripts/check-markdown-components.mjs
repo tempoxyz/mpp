@@ -1,20 +1,7 @@
 import { spawnSync } from "node:child_process";
 
-const allowedComponents = new Set([
-  "Badge",
-  "BlogPostList",
-  "Card",
-  "Cards",
-  "DownloadSvgButton",
-  "MermaidDiagram",
-  "MppxCreateReferenceCard",
-  "PromptBlock",
-  "SdkBadge.GitHub",
-  "SdkBadge.Maintainer",
-  "SpecCard",
-  "Tab",
-  "Tabs",
-]);
+// Add component names here only when generated Markdown cannot represent them.
+const allowedComponents = new Set([]);
 
 const command = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const audit = spawnSync(command, ["exec", "vocs", "markdown-audit", "--json"], {
