@@ -282,6 +282,15 @@ html {
   width: 100% !important;
 }
 
+[data-layout="minimal"] :is(main, footer) {
+  transition: opacity 450ms ease;
+}
+
+body[data-mpp-intro="logo"] [data-layout="minimal"] :is(main, footer) {
+  opacity: 0;
+  transition: none;
+}
+
 @media (min-width: 641px) and (max-width: 999px) {
   [data-v-gutter-top] {
     padding-inline: 3rem !important;
