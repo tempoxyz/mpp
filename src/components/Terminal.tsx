@@ -2719,6 +2719,7 @@ function TerminalComponent({
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [showTopFade, setShowTopFade] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMarketingMinimized, setIsMarketingMinimized] = useState(false);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -2801,9 +2802,12 @@ function TerminalComponent({
   return (
     <div
       className={`terminal-theme ${className ?? ""}`}
+      data-marketing-minimized={
+        marketing && isMarketingMinimized ? "" : undefined
+      }
       style={{
         fontFamily: 'var(--font-mono, "Geist Mono", monospace)',
-        height: "100%",
+        height: marketing && isMarketingMinimized ? "auto" : "100%",
         minHeight: 0,
         userSelect: "text",
         WebkitUserSelect: "text",
@@ -2877,6 +2881,46 @@ function TerminalComponent({
             </>
           )}
           <span style={{ flex: 1 }} />
+          {marketing && (
+            <button
+              type="button"
+              onClick={() => setIsMarketingMinimized((minimized) => !minimized)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--term-gray5)",
+                padding: 2,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--term-gray10)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--term-gray5)";
+              }}
+              aria-label={
+                isMarketingMinimized ? "Expand terminal" : "Minimize terminal"
+              }
+              aria-expanded={!isMarketingMinimized}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <title>Minimize</title>
+                <path d="M5 12h14" />
+              </svg>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setIsFullscreen((f) => !f)}
@@ -3012,6 +3056,7 @@ function TerminalComponent({
           }`}
           style={{
             backgroundColor: "var(--term-bg2)",
+            display: marketing && isMarketingMinimized ? "none" : undefined,
           }}
         >
           <div ref={contentRef}>

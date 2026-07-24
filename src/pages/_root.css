@@ -1626,7 +1626,7 @@ html[data-route-transition] [data-v-main] {
   color: var(--mpp-copy);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 767px) {
   [data-layout="minimal"]:has(.blog-index-hero) main {
     padding-top: 2rem !important;
   }
