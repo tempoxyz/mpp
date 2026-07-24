@@ -12,7 +12,7 @@ import {
   useState,
 } from "react";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { fetchServices, iconUrl } from "../data/registry";
+import { fetchServices, serviceIconUrl } from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
 
 type LinkProps = {
@@ -3068,7 +3068,7 @@ function ServiceIcon({ service: s }: { service: Service }) {
     >
       {s.id && !imgError ? (
         <img
-          src={iconUrl(s.id)}
+          src={serviceIconUrl(s)}
           alt=""
           width={28}
           height={28}
