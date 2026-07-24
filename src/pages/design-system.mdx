@@ -1,0 +1,97 @@
+---
+layout: minimal
+title: "Design System"
+showAskAi: false
+showFeedback: false
+showSearch: false
+outline: false
+description: "The visual foundations and components used across MPP."
+imageDescription: "The visual language behind MPP"
+---
+
+<main className="design-system-page">
+  <header className="design-system-intro">
+    <span className="design-system-label">Design System</span>
+    <h1>MPP Design System</h1>
+    <p>The foundations and components that every MPP page is built from—sourced from the Figma "MPP Website" file. Use these as the basis for new work.</p>
+  </header>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Typography</span>
+    <div className="design-system-type-scale">
+      <div><div><b>H1</b><small>GEIST · 48 / 100% / -1%</small></div><p className="design-type-h1">Machine payment protocol</p></div>
+      <div><div><b>H2</b><small>GEIST · 32 / 110% / -1%</small></div><p className="design-type-h2">Machine payment protocol</p></div>
+      <div><div><b>H3</b><small>GEIST · 28 / 110% / -2%</small></div><p className="design-type-h3">Machine payment protocol</p></div>
+      <div><div><b>H4</b><small>GEIST · 24 / 118% / -1%</small></div><p className="design-type-h4">Machine payment protocol</p></div>
+      <div><div><b>H5</b><small>GEIST · 20 / 110% / -1%</small></div><p className="design-type-h5">Machine payment protocol</p></div>
+      <div><div><b>Body L</b><small>GEIST · 18 / 120%</small></div><p className="design-type-body-l">Machine payment protocol</p></div>
+      <div><div><b>Body / P2</b><small>GEIST · 14 / 130%</small></div><p className="design-type-body">Machine payment protocol</p></div>
+      <div><div><b>Label / P3</b><small>GEIST MONO · 14 / 16 / -1% / UPPER</small></div><p className="design-type-label">Machine payment protocol</p></div>
+      <div><div><b>Terminal</b><small>GEIST MONO · 14 / 164%</small></div><p className="design-type-terminal">Machine payment protocol</p></div>
+    </div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Color</span>
+    <div className="design-color-groups">
+      <div><p>Surfaces</p><div className="design-swatches"><span><i style={{ background: '#101010' }} /><b>Background</b><small>#101010</small></span><span><i style={{ background: '#191919' }} /><b>Elevated</b><small>#191919</small></span></div></div>
+      <div><p>Text</p><div className="design-swatches"><span><i style={{ background: '#ebebeb' }} /><b>Off-white / Primary</b><small>#ebebeb</small></span><span><i style={{ background: '#a6a6a6' }} /><b>Secondary</b><small>#a6a6a6</small></span><span><i style={{ background: '#747474' }} /><b>Empty</b><small>#747474</small></span><span><i style={{ background: '#757575' }} /><b>Muted</b><small>#757575</small></span></div></div>
+      <div><p>Terminal accents</p><div className="design-swatches"><span><i style={{ background: '#98f3aa' }} /><b>Green</b><small>#98f3aa</small></span><span><i style={{ background: '#9e94ff' }} /><b>Purple</b><small>#9e94ff</small></span></div></div>
+      <div><p>Buttons</p><div className="design-swatches"><span><i style={{ background: '#262626' }} /><b>Primary</b><small>#262626</small></span><span><i style={{ background: '#404040' }} /><b>Primary hover</b><small>#404040</small></span><span><i style={{ background: '#101010' }} /><b>Secondary / Tag</b><small>#101010</small></span></div></div>
+      <div><p>Borders</p><div className="design-swatches"><span><i style={{ background: 'rgba(235,235,235,.2)' }} /><b>Primary</b><small>rgba(235,235,235,.2)</small></span><span><i style={{ background: 'rgba(235,235,235,.4)' }} /><b>Hover</b><small>rgba(235,235,235,.4)</small></span></div></div>
+    </div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Icons</span>
+    <div className="design-icons">
+      {['→','←','↗','⌄','⧉','↓','⌕','≡','Ⅱ','＋','⊡','&lt;/&gt;','↻','☷','▦'].map((icon, index) => <span key={icon}><i>{icon}</i><small>{['arrow-right','arrow-left','arrow-linkout','chevron-down','copy','download','search','filter','pause','plus','crop-free','code','restart','list-view','grid-view'][index]}</small></span>)}
+    </div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Logos</span>
+    <div className="design-logo-samples">
+      <div><img src="/marketing/mpp-logo.svg" alt="MPP logo" /><small>Primary mark</small></div>
+      <div><small>Wordmark (animated LineLogo)</small><img src="/marketing/footer-logo.svg" alt="Machine Payment Protocol" /></div>
+    </div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Buttons</span>
+    <div className="design-controls">
+      <div><p>Primary—hover to see #404040</p><div><a className="design-button design-button-primary" href="/#"><span>Use with your agent</span></a><a className="design-button design-button-primary" href="/#"><span>Download ↓</span></a><a className="design-button design-button-primary" href="/#"><span>＋</span></a></div></div>
+      <div><p>Secondary—hover to see #262626</p><div><a className="design-button" href="/#"><span>Add payments to your API</span></a><a className="design-button" href="/#"><span>Learn more →</span></a><a className="design-button" href="/#"><span>→</span></a></div></div>
+    </div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Tags</span>
+    <div className="design-tags"><a href="/#">Default</a><a className="is-active" href="/#">Selected</a><a href="/#">IETF Specs ↗</a><a href="/#">GitHub ⌄</a></div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Links</span>
+    <div className="design-links"><p>Mono, uppercase. Default is secondary; hover / active is off-white.</p><div><a href="/#">Default link</a><a href="/#">Active link</a></div></div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Search field &amp; dropdowns</span>
+    <div className="design-search-samples"><label>⌕<input type="search" placeholder="SEARCH SERVICES" /></label><div><button type="button">Showing all ⌄</button><ul><li>Showing all</li><li>AI</li><li>Search</li><li>Payments</li><li>Web3</li></ul></div></div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Service cards</span>
+    <div className="design-service-cards"><article><img src="/marketing/logo-4.svg" alt="OpenAI" /><span>AI</span><h2>OpenAI</h2><p>Chat completions, embeddings, image generation, and audio with model-tier pricing.</p><small>openai.mpp.tempo.xyz</small></article><article><img src="/marketing/logo-5.svg" alt="Anthropic" /><span>AI</span><h2>Anthropic</h2><p>Claude chat completions via native and OpenAI-compatible APIs.</p><small>anthropic.mpp.tempo.xyz</small></article><article><img src="/marketing/logo-6.svg" alt="Parallel" /><span>Search</span><h2>Parallel</h2><p>Web search, page extraction, and multi-hop web research.</p><small>parallelmpp.dev</small></article></div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Blog list</span>
+    <div className="design-blog-rows"><a href="/blog/sessions-improved"><b>An improved sessions experience</b><small>June 17, 2026</small><p>Pay-as-you-go API billing is now cheaper and easier to integrate.</p></a><a href="/blog/evm-x402-support"><b>EVM and x402 support</b><small>June 8, 2026</small><p>MPP now supports generic EVM payments and x402 exact flows from one SDK.</p></a><a href="/blog/payment-hooks"><b>Payment hooks</b><small>May 21, 2026</small><p>Core SDKs now expose typed payment hooks for logging and monitoring.</p></a></div>
+  </section>
+
+  <section className="design-system-section">
+    <span className="design-system-label">Footer</span>
+    <p className="design-footer-note">The shared footer below pairs a Start building CTA with the wordmark, socials, and legal links. Its animated wordmark scrubs with scroll.</p>
+  </section>
+</main>
