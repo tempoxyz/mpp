@@ -468,6 +468,7 @@ function LandingStyles() {
       .marketing-terminal-shell { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); min-height: 21rem; }
       .marketing-terminal-shell .terminal-theme { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; height: 100%; }
       .marketing-terminal-shell .terminal-theme > div { border-radius: 0 !important; }
+      .marketing-terminal-shell:has(.terminal-theme[data-marketing-minimized]) { height: auto !important; min-height: 0; }
       .marketing-terminal-shell .h-6 { height: 1rem; }
       .marketing-mobile-terminal-art { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); border-top: 0; }
       .marketing-mobile-terminal-art video { display: block; height: auto; width: 100%; }
@@ -505,7 +506,7 @@ function LandingStyles() {
       .marketing-blog-row:hover :is(.marketing-blog-row-title p, .marketing-blog-row-description) { color: var(--marketing-copy); }
       .marketing-blog-row:hover .marketing-blog-row-arrow { border-color: var(--marketing-border-hover); }
       .marketing-blog-list > .marketing-button { align-self: flex-start; margin-top: 3.5rem; }
-      @media (min-width: 700px) {
+      @media (min-width: 768px) {
         .marketing-integration-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
         .marketing-blog-row { grid-template-columns: 12.5rem minmax(0, 1fr) auto; padding-block: 1.5rem; }
         .marketing-blog-row-description { color: var(--marketing-muted); display: block; font-size: 1.125rem; line-height: 1.2; margin: 0; }

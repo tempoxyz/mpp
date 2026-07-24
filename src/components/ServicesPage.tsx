@@ -3025,14 +3025,14 @@ function FallbackIcon({ name }: { name: string }) {
   return (
     <div
       style={{
-        width: 28,
-        height: 28,
+        width: 36,
+        height: 36,
         borderRadius: 6,
         background: "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.10))",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: initials.length > 1 ? 10 : 13,
+        fontSize: initials.length > 1 ? 12 : 15,
         fontWeight: 600,
         letterSpacing: "-0.02em",
         color: "var(--vocs-text-color-secondary)",
@@ -3053,18 +3053,19 @@ function ServiceIcon({ service: s }: { service: Service }) {
       className="svc-icon"
       style={{
         position: "relative",
-        width: 28,
-        height: 28,
+        width: 36,
+        height: 36,
         flexShrink: 0,
-        marginRight: 6,
+        marginRight: 0,
+        marginTop: 2,
       }}
     >
       {s.id && !imgError ? (
         <img
           src={serviceIconUrl(s)}
           alt=""
-          width={28}
-          height={28}
+          width={36}
+          height={36}
           className="svc-icon-img"
           onError={() => setImgError(true)}
         />
@@ -3134,13 +3135,12 @@ function ServiceRow({
           e.currentTarget.style.background = expanded ? expandedBg : "";
         }}
       >
-        <td style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}>
+        <td style={{ padding: "1.25rem 1rem", verticalAlign: "top" }}>
           <div
             style={{
               display: "flex",
               alignItems: "flex-start",
-              gap: "0.5rem",
-              paddingTop: "0.15rem",
+              gap: "0.75rem",
             }}
           >
             <ServiceIcon service={s} />
@@ -3149,8 +3149,9 @@ function ServiceRow({
                 <span
                   className="svc-name-text"
                   style={{
-                    fontWeight: 500,
-                    fontSize: 16,
+                    fontWeight: 400,
+                    fontSize: 18,
+                    lineHeight: 1.1,
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -3215,18 +3216,18 @@ function ServiceRow({
         <td
           className="hide-mobile"
           style={{
-            padding: "0.7rem 0.75rem",
+            padding: "1.25rem 0.9375rem 1.25rem 0.5rem",
             color: "var(--vocs-text-color-secondary)",
             fontSize: 14,
-            lineHeight: 1.6,
-            verticalAlign: "middle",
+            lineHeight: 1.3,
+            verticalAlign: "top",
           }}
         >
           {s.description}
         </td>
         <td
           className="hide-mobile"
-          style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}
+          style={{ padding: "1.25rem 1rem 1.25rem 0", verticalAlign: "top" }}
         >
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
           {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
@@ -3858,7 +3859,8 @@ function PageStyles() {
         [data-services-table] table col:nth-child(2) { width: 20.9% !important; }
         [data-services-table] table col:nth-child(3) { width: 45.3% !important; }
         [data-services-table] table col:nth-child(4) { width: 6.2% !important; }
-        [data-services-table] table th { padding-left: 1rem !important; }
+        [data-services-table] table th { padding: 0.5rem 0.75rem 0.9375rem 1rem !important; }
+        [data-services-table] table tr[id^="service-"] > td { padding-bottom: 1.4375rem !important; }
       }
 
       /* Hide logo when search bar is stuck and overlaps it at mid-wide viewports */
