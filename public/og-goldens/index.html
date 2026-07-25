@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MPP social card goldens</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f3f3f3; color: #010101; font: 16px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  main { max-width: 1560px; margin: 0 auto; padding: 48px 24px 80px; }
+  h1 { margin: 0; font: 500 clamp(32px, 5vw, 64px)/1.05 Arial, sans-serif; letter-spacing: -0.06em; }
+  p { color: #555; margin: 12px 0 36px; }
+  h2 { margin: 52px 0 16px; font: 600 14px/1.2 inherit; text-transform: uppercase; }
+  .assets, .cards { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .asset, figure { margin: 0; background: #fff; border: 1px solid #ddd; border-radius: 12px; overflow: hidden; }
+  .asset { padding: 28px; min-height: 180px; display: grid; place-items: center; }
+  .asset.dark { background: #010101; }
+  .asset img { max-width: 88%; max-height: 96px; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { display: grid; gap: 5px; padding: 12px 14px 16px; }
+  figcaption span { color: #555; font: 13px/1.3 Arial, sans-serif; }
+  code { font-size: 12px; }
+</style>
+<main>
+  <h1>MPP social card goldens</h1>
+  <p>8 representative card layouts plus every primary brand asset.</p>
+  <h2>Brand assets</h2>
+  <section class="assets">
+    <div class="asset"><img src="../logo-dark.svg" alt="MPP black logo" /></div>
+    <div class="asset dark"><img src="../logo-light.svg" alt="MPP white logo" /></div>
+    <div class="asset"><img src="../lockup-dark.svg" alt="MPP black lockup" /></div>
+    <div class="asset dark"><img src="../lockup-light.svg" alt="MPP white lockup" /></div>
+    <div class="asset dark"><img src="../avatar.svg" alt="MPP avatar" /></div>
+    <div class="asset"><img src="../og.png" alt="MPP home social card" /></div>
+  </section>
+  <h2>Card layouts</h2>
+  <section class="cards"><figure>
+  <img src="overview.png" alt="Machine Payments Protocol social card" />
+  <figcaption><code>/overview</code><span>Machine Payments Protocol</span></figcaption>
+</figure>
+<figure>
+  <img src="advanced--security.png" alt="Security social card" />
+  <figcaption><code>/advanced/security</code><span>Security</span></figcaption>
+</figure>
+<figure>
+  <img src="blog.png" alt="Blog social card" />
+  <figcaption><code>/blog</code><span>Blog</span></figcaption>
+</figure>
+<figure>
+  <img src="blog--sessions-improved.png" alt="An improved sessions experience social card" />
+  <figcaption><code>/blog/sessions-improved</code><span>An improved sessions experience</span></figcaption>
+</figure>
+<figure>
+  <img src="guides--accept-card-payments.png" alt="Accept card payments social card" />
+  <figcaption><code>/guides/accept-card-payments</code><span>Accept card payments</span></figcaption>
+</figure>
+<figure>
+  <img src="protocol--challenges.png" alt="Challenges social card" />
+  <figcaption><code>/protocol/challenges</code><span>Challenges</span></figcaption>
+</figure>
+<figure>
+  <img src="sdk--typescript.png" alt="Getting started social card" />
+  <figcaption><code>/sdk/typescript</code><span>Getting started</span></figcaption>
+</figure>
+<figure>
+  <img src="services.png" alt="Services social card" />
+  <figcaption><code>/services</code><span>Services</span></figcaption>
+</figure></section>
+</main>
+</html>

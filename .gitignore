@@ -15,7 +15,6 @@ src/snippets/cli-help.txt
 .DS_Store
 .env.local
 .lycheecache
-
 # Generated at build time from MDX frontmatter
 src/generated/
 
