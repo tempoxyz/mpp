@@ -3061,7 +3061,10 @@ function TerminalComponent({
           }`}
           style={{
             backgroundColor: "var(--term-bg2)",
-            display: marketing && isMarketingMinimized ? "none" : undefined,
+            display:
+              marketing && isMarketingMinimized && !isFullscreen
+                ? "none"
+                : undefined,
           }}
         >
           <div ref={contentRef}>
