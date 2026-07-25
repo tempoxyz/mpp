@@ -142,6 +142,9 @@ Bun.serve({
 The `mppx` CLI uses Tempo by default. Each payment method has its own client SDK—see the individual method docs for client setup.
 
 ```bash [terminal]
+# Validate the paid route
+$ npx mppx validate http://localhost:3000
+
 # Create account funded with testnet tokens
 $ npx mppx account create
 
