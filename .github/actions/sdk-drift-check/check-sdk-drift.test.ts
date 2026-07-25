@@ -196,6 +196,20 @@ describe("parseLink", () => {
         member: "charge",
       });
     });
+
+    it("maps Mppx instance methods as docs-only", () => {
+      const result = parseLink(
+        "/sdk/typescript/server/Mppx.broadcastCredential",
+        prefix,
+      );
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/server/Mppx.broadcastCredential",
+        area: "server",
+        namespace: "Mppx",
+        member: "broadcastCredential",
+        docsOnly: true,
+      });
+    });
   });
 
   describe("special entrypoints", () => {

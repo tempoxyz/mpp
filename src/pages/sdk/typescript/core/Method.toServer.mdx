@@ -1,6 +1,6 @@
-# `Method.toServer` [Extend a method with server verification]
+# `Method.toServer` [Extend a method with server payment handling]
 
-Extends a payment method with server-side verification logic.
+Extends a payment method with server-side validation and broadcast logic.
 
 ## Usage
 
@@ -14,13 +14,23 @@ import * as Methods from './methods' // [!code focus]
 // [!code focus:start]
 // Create server-configured method.
 const charge = Method.toServer(Methods.charge, {
-  async verify({ credential, request }) {
+  async broadcast({ credential, request }) {
     return Receipt.from({
       method: 'tempo',
       reference: '0x...',
       status: 'success',
       timestamp: new Date().toISOString(),
     })
+  },
+  async validate({ credential, request }) {
+    return {
+      challenge: credential.challenge,
+      credential,
+      details: {},
+      intent: 'charge',
+      method: 'tempo',
+      request,
+    }
   },
 })
 // [!code focus:end]
@@ -79,6 +89,12 @@ The base payment method definition (created with `Method.from`).
 
 ### options
 
+### broadcast
+
+- **Type:** `(parameters: { credential: Credential; request: request }) => Promise<Receipt>`
+
+Completes a validated payment and returns its Receipt.
+
 ### request (optional)
 
 - **Type:** `(options: { credential?: Credential; request: request }) => request`
@@ -89,7 +105,7 @@ Transform function called before Challenge creation. Use to modify or enrich req
 
 - **Type:** `(parameters: { credential: Credential; input: Request; receipt: Receipt; request: request }) => Response | undefined`
 
-Called after `verify` succeeds. Return a `Response` to short-circuit the handler (for example, for channel open/close management responses). Return `undefined` to let the server handler serve content via `withReceipt(response)`. HTTP-only—MCP transports do not invoke this hook.
+Called after payment succeeds. Return a `Response` to short-circuit the handler (for example, for channel open/close management responses). Return `undefined` to let the server handler serve content via `withReceipt(response)`. HTTP-only—MCP transports do not invoke this hook.
 
 ### transport (optional)
 
@@ -97,8 +113,14 @@ Called after `verify` succeeds. Return a `Response` to short-circuit the handler
 
 Override the transport for this method.
 
-### verify
+### validate (optional)
+
+- **Type:** `(parameters: { credential: Credential; request: request }) => Promise<Method.Validation>`
+
+Validates a Credential without settling, reserving, broadcasting, or otherwise consuming payment state.
+
+### verify (deprecated)
 
 - **Type:** `(parameters: { credential: Credential; request: request }) => Promise<Receipt>`
 
-Function that verifies a Credential and returns a Receipt.
+Legacy combined validation and settlement function. Use `validate` and `broadcast` for new methods.

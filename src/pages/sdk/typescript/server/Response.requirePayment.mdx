@@ -45,3 +45,5 @@ The Challenge to serialize into the `WWW-Authenticate` header.
 - **Type:** `PaymentError`
 
 An error to include as RFC 9457 Problem Details in the response body.
+
+Problem details can include a method-specific `details` object and an actionable `hint`. Treat `details` as safe-to-expose diagnostic data only.

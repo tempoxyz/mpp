@@ -666,6 +666,10 @@ export default defineConfig({
                     collapsed: true,
                     items: [
                       {
+                        text: ".broadcastCredential",
+                        link: "/sdk/typescript/server/Mppx.broadcastCredential",
+                      },
+                      {
                         text: ".compose",
                         link: "/sdk/typescript/server/Mppx.compose",
                       },
@@ -676,6 +680,10 @@ export default defineConfig({
                       {
                         text: ".toNodeListener",
                         link: "/sdk/typescript/server/Mppx.toNodeListener",
+                      },
+                      {
+                        text: ".validateCredential",
+                        link: "/sdk/typescript/server/Mppx.validateCredential",
                       },
                       {
                         text: ".verifyCredential",

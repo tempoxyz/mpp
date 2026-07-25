@@ -62,6 +62,10 @@ When editing Python or Rust pages, keep the structure aligned with the existing 
 - Python: <https://github.com/tempoxyz/pympp>
 - Rust: <https://github.com/tempoxyz/mpp-rs>
 
+## MPPX documentation sync
+
+When updating MPPX interfaces, examples, reference pages, or the `mppx` dependency, review upstream `mppx/main` from the SHA in `.mppx-docs-sync`. After incorporating every relevant public change, update both `mppx_version` and `mppx_sha` in that bookmark to the reviewed upstream HEAD. Do not advance the bookmark before the docs are complete.
+
 ## Be Opinionated
 
 When multiple approaches exist, recommend one as the default. Don't present options equally—pick the best path for most users and lead with it.

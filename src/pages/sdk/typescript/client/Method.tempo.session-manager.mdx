@@ -641,6 +641,12 @@ The `reference` field contains the channel ID, not a transaction hash. To get th
 
 Account to sign channel transactions and vouchers with.
 
+### autoSwap (optional)
+
+- **Type:** `boolean | { slippage?: number; tokenIn?: Address[] }`
+
+Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. Use the object form to set a maximum slippage percentage and the fallback token order.
+
 ### bootstrap (optional)
 
 - **Type:** `boolean`
@@ -690,6 +696,12 @@ Function that returns a viem client for the given chain ID.
 - **Type:** `string`
 
 Maximum deposit in human-readable units. Converted to raw units via `decimals`.
+
+### topUpAmount (optional)
+
+- **Type:** `string`
+
+Preferred automatic top-up size in human-readable units. When omitted, `mppx` uses a bounded server `suggestedDeposit`, then the exact shortfall.
 
 ### webSocket (optional)
 

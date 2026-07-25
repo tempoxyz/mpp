@@ -58,7 +58,24 @@ import type { Mppx, Transport } from 'mppx/server'
 type ReturnType = Mppx<[Method.Server], Transport.Http>
 ```
 
-The returned object includes the method's intent functions (for example, `charge`), `challenge`, `compose`, payment hooks, and `verifyCredential`.
+The returned object includes the method's intent functions (for example, `charge`), `broadcastCredential`, `challenge`, `compose`, payment hooks, `validateCredential`, and `verifyCredential`.
+
+### Validate and broadcast Credentials
+
+Use `validateCredential` to pre-check a Credential without consuming payment state. Use `broadcastCredential` to validate again and complete the payment. `verifyCredential` remains as a deprecated alias for the mutating broadcast operation.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+
+const validation = await mppx.validateCredential('Payment credential="..."')
+console.log(validation.source)
+
+const receipt = await mppx.broadcastCredential('Payment credential="..."')
+console.log(receipt.status)
+// @log: success
+```
 
 ## Parameters
 

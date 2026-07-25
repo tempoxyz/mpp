@@ -165,9 +165,11 @@ type Page =
   | { path: '/sdk/typescript/server/Method.tempo.renewSubscription'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo.session'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo.subscription'; render: 'static' }
+  | { path: '/sdk/typescript/server/Mppx.broadcastCredential'; render: 'static' }
   | { path: '/sdk/typescript/server/Mppx.compose'; render: 'static' }
   | { path: '/sdk/typescript/server/Mppx.create'; render: 'static' }
   | { path: '/sdk/typescript/server/Mppx.toNodeListener'; render: 'static' }
+  | { path: '/sdk/typescript/server/Mppx.validateCredential'; render: 'static' }
   | { path: '/sdk/typescript/server/Mppx.verifyCredential'; render: 'static' }
   | { path: '/sdk/typescript/server/Request.toNodeListener'; render: 'static' }
   | { path: '/sdk/typescript/server/Response.requirePayment'; render: 'static' }

@@ -230,6 +230,12 @@ const method = tempo.session({
 </Tab>
 </Tabs>
 
+### autoSwap (optional)
+
+- **Type:** `boolean | { slippage?: number; tokenIn?: Address[] }`
+
+Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. Use the object form to set a maximum slippage percentage and the fallback token order.
+
 ### channelStore (optional)
 
 - **Type:** `ChannelStore`
@@ -260,6 +266,12 @@ Function that returns a viem client for the given chain ID.
 - **Type:** `string`
 
 Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups.
+
+### topUpAmount (optional)
+
+- **Type:** `string`
+
+Preferred automatic top-up size in human-readable units. When omitted, `mppx` uses a bounded server `suggestedDeposit`, then the exact shortfall.
 
 ### onChannelUpdate (optional)
 
