@@ -16,6 +16,8 @@
     "generate:pages": "node scripts/generate-pages.ts",
     "mcp-services:check": "pnpm --filter mpp-services-mcp run check",
     "mcp-services:deploy": "pnpm --filter mpp-services-mcp run deploy",
+    "og:generate": "node --use-system-ca scripts/generate-og-images.ts",
+    "og:probe": "node --use-system-ca scripts/probe-og.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "preview": "vite preview",
