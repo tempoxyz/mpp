@@ -11,7 +11,7 @@
     "check:generated": "pnpm generate:pages && git diff --exit-code -- src/pages.gen.ts",
     "check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
     "check:types": "tsc --noEmit",
-    "dev": "node scripts/generate-discovery.ts && vite dev",
+    "dev": "node scripts/generate-discovery.ts && node scripts/copy-vocs-theme.ts && vite dev",
     "generate:discovery": "node scripts/generate-discovery.ts",
     "generate:pages": "node scripts/generate-pages.ts",
     "mcp-services:check": "pnpm --filter mpp-services-mcp run check",
