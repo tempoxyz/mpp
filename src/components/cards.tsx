@@ -673,6 +673,8 @@ for (const component of [
   LightningSessionCard,
   MonadChargeCard,
   MonadMethodCard,
+  NearIntentsChargeCard,
+  NearIntentsMethodCard,
   OneTimePaymentsCard,
   PayAsYouGoCard,
   PaymentLinksCard,
