@@ -24,12 +24,6 @@ export default defineConfig({
               href: "/marketing/mpp-hero-poster.jpg",
               rel: "preload",
             },
-            {
-              as: "video",
-              href: "/marketing/mpp-hero.mp4",
-              rel: "preload",
-              type: "video/mp4",
-            },
           ],
         }
       : undefined,
