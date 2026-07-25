@@ -94,6 +94,24 @@ const mppx = Mppx.create({
 })
 ```
 
+### With Tempo API relay
+
+Delegate Tempo charge validation and broadcast to Tempo API. The relay preserves this method's Challenge configuration and needs an API key with the `mpp:write` scope.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      relay: {
+        apiKey: process.env.TEMPO_API_KEY!,
+      },
+    }),
+  ],
+})
+```
+
 ### With replay protection for zero-dollar auth
 
 Pass `store` when you want zero-dollar proof Credentials to be single-use.
@@ -161,13 +179,13 @@ This setting only applies to non-zero charges. Zero-amount proof flows do not cr
 
 ### feePayerPolicy (optional)
 
-- **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
+- **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxInFlightReservations: number; maxInFlightTotalFee: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
 
 Override the local fee-sponsor policy used when the server co-signs Tempo charge transactions. Remote fee payer services enforce their own policy.
 
-`mppx` resolves defaults per chain automatically. On mainnet (`4217`), the defaults are `maxFeePerGas: 100_000_000_000n`, `maxGas: 2_000_000n`, `maxPriorityFeePerGas: 10_000_000_000n`, `maxTotalFee: 50_000_000_000_000_000n`, and `maxValidityWindowSeconds: 900`. On Moderato (`42431`), `maxPriorityFeePerGas` increases to `50_000_000_000n` and the other limits stay the same.
+`mppx` resolves defaults per chain automatically. On mainnet (`4217`), the defaults are `maxFeePerGas: 100_000_000_000n`, `maxGas: 2_000_000n`, `maxPriorityFeePerGas: 10_000_000_000n`, `maxTotalFee: 50_000_000_000_000_000n`, and `maxValidityWindowSeconds: 900`. `maxInFlightReservations` defaults to `100`; `maxInFlightTotalFee` defaults to ten times `maxTotalFee`. On Moderato (`42431`), `maxPriorityFeePerGas` increases to `50_000_000_000n` and the other limits stay the same.
 
-If you raise `maxFeePerGas` or `maxGas`, you may also need to raise `maxTotalFee` so the combined fee budget stays within policy.
+If you raise `maxFeePerGas`, `maxGas`, or `maxTotalFee`, you may also need to raise `maxInFlightTotalFee` so concurrent sponsored transactions stay within policy.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -199,6 +217,12 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 - **Type:** `string`
 
 On-chain memo for the transaction.
+
+### relay (optional)
+
+- **Type:** `{ apiBaseUrl?: string; apiKey: string; fetch?: typeof globalThis.fetch }`
+
+Delegates Tempo charge Credential validation and broadcast to Tempo API or a compatible MPP relay. `apiKey` needs the `mpp:write` scope. Defaults to `https://api.tempo.xyz`; set `apiBaseUrl` for a compatible relay.
 
 ### store (optional)
 

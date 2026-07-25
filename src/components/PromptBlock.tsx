@@ -1,8 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import LucideCheck from "~icons/lucide/check";
-import LucideClipboard from "~icons/lucide/clipboard";
+import {
+  type ComponentType,
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
+type IconProps = { className?: string };
+
+const LucideCheck = lazy(async () => {
+  const { default: Icon } = await import("~icons/lucide/check");
+  return { default: Icon };
+}) as ComponentType<IconProps>;
+
+const LucideClipboard = lazy(async () => {
+  const { default: Icon } = await import("~icons/lucide/clipboard");
+  return { default: Icon };
+}) as ComponentType<IconProps>;
 
 export function PromptBlock({ children }: { children: string }) {
   const [copied, setCopied] = useState(false);
@@ -45,11 +62,13 @@ export function PromptBlock({ children }: { children: string }) {
             }}
             aria-hidden="true"
           >
-            {copied ? (
-              <LucideCheck className="vocs:size-4" />
-            ) : (
-              <LucideClipboard className="vocs:size-4" />
-            )}
+            <Suspense fallback={<span className="vocs:block vocs:size-4" />}>
+              {copied ? (
+                <LucideCheck className="vocs:size-4" />
+              ) : (
+                <LucideClipboard className="vocs:size-4" />
+              )}
+            </Suspense>
           </span>
         </pre>
       </button>

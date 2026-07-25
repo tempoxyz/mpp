@@ -68,6 +68,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: node scripts/generate-discovery.ts
       - run: pnpm test
+      - run: pnpm check:markdown
 
   mcp-services:
     name: MPP Discovery Service MCP Worker

@@ -1,5 +1,6 @@
 import ruby from "shiki/langs/ruby.mjs";
 import { defineConfig, McpSource } from "vocs/config";
+import remarkMppMarkdown from "./scripts/remark-mpp-markdown.mjs";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
 const baseUrl = (() => {
@@ -13,6 +14,9 @@ export default defineConfig({
   accentColor: "light-dark(#000000, #ffffff)",
   colorScheme: "light dark",
   baseUrl,
+  markdown: {
+    outputRemarkPlugins: [remarkMppMarkdown],
+  },
   redirects: [
     { source: "/index", destination: "/" },
 
@@ -670,6 +674,10 @@ export default defineConfig({
                     collapsed: true,
                     items: [
                       {
+                        text: ".broadcastCredential",
+                        link: "/sdk/typescript/server/Mppx.broadcastCredential",
+                      },
+                      {
                         text: ".compose",
                         link: "/sdk/typescript/server/Mppx.compose",
                       },
@@ -680,6 +688,10 @@ export default defineConfig({
                       {
                         text: ".toNodeListener",
                         link: "/sdk/typescript/server/Mppx.toNodeListener",
+                      },
+                      {
+                        text: ".validateCredential",
+                        link: "/sdk/typescript/server/Mppx.validateCredential",
                       },
                       {
                         text: ".verifyCredential",

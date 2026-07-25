@@ -226,6 +226,18 @@ export function NotFoundPage() {
   );
 }
 
+Object.assign(NotFoundPage, {
+  toMarkdown: () => ({
+    children: [
+      {
+        type: "text",
+        value: "Page not found. Return to the MPP documentation home page.",
+      },
+    ],
+    type: "paragraph",
+  }),
+});
+
 function NotFoundHeaderLogo() {
   const [target, setTarget] = useState<HTMLElement | null>(null);
   useEffect(() => {

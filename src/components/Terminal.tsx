@@ -40,7 +40,7 @@ type DemoClient = Awaited<
 
 function useDemoClient() {
   const [client, setClient] = useState<DemoClient | null>(null);
-  const [isLive] = useState(() => import.meta.env.VITE_DEMO_LIVE !== "false");
+  const [isLive] = useState(() => import.meta.env?.VITE_DEMO_LIVE !== "false");
 
   useEffect(() => {
     if (!isLive) return;
@@ -509,7 +509,7 @@ export function serviceLabel(endpoint: string): string | undefined {
 // Step components
 // ---------------------------------------------------------------------------
 
-const SKIP_ANIMATION = import.meta.env.VITE_SKIP_ANIMATION === "true";
+const SKIP_ANIMATION = import.meta.env?.VITE_SKIP_ANIMATION === "true";
 const STREAM_DELAY = SKIP_ANIMATION ? 0 : 30;
 
 export type {

@@ -336,6 +336,14 @@ Register your service on [MPPScan](https://mppscan.com) or the [MPP Services dir
 After your server is running, test it with the `mppx` CLI:
 
 ```bash [terminal]
+$ npx mppx validate <your-server>
+```
+
+The command tests discovery, challenge formats, error handling, and the full payment flow. We recommend addressing all noted issues to make it easy for agents to pay your server.
+
+You can also test each step individually:
+
+```bash [terminal]
 # Create an account funded with testnet tokens
 $ npx mppx account create
 

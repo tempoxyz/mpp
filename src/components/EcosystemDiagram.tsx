@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LAYOUT, THEMES } from "./MermaidDiagram";
+import { code } from "./markdown";
 
 export function EcosystemDiagram() {
   const svgRef = useRef<HTMLDivElement>(null);
@@ -199,3 +200,16 @@ export function EcosystemDiagram() {
     </div>
   );
 }
+
+Object.assign(EcosystemDiagram, {
+  toMarkdown: () =>
+    code(
+      `flowchart LR
+  Agent -->|discovers| Registry
+  Agent -->|402 + pay| ServerA[Server A]
+  Agent -->|402 + pay| ServerB[Server B]
+  ServerA --- Registry
+  ServerB --- Registry`,
+      "mermaid",
+    ),
+});

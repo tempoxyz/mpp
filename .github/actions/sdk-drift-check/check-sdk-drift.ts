@@ -274,12 +274,19 @@ export function parseLink(
     };
   }
 
-  if (area === "server" && symbolPart === "Mppx.verifyCredential") {
+  if (
+    area === "server" &&
+    [
+      "Mppx.broadcastCredential",
+      "Mppx.validateCredential",
+      "Mppx.verifyCredential",
+    ].includes(symbolPart)
+  ) {
     return {
       link,
       area,
       namespace: "Mppx",
-      member: "verifyCredential",
+      member: symbolPart.slice("Mppx.".length),
       docsOnly: true,
     };
   }
