@@ -91,6 +91,7 @@ function galleryHtml(
   .asset { padding: 28px; min-height: 180px; display: grid; place-items: center; }
   .asset.dark { background: #010101; }
   .asset img { max-width: 88%; max-height: 96px; }
+  .brand-preview { display: block; width: 100%; border: 1px solid #ddd; border-radius: 12px; }
   figure img { display: block; width: 100%; height: auto; }
   figcaption { display: grid; gap: 5px; padding: 12px 14px 16px; }
   figcaption span { color: #555; font: 13px/1.3 Arial, sans-serif; }
@@ -100,6 +101,7 @@ function galleryHtml(
   <h1>MPP social card goldens</h1>
   <p>${cards.length} representative card layouts plus every primary brand asset.</p>
   <h2>Brand assets</h2>
+  <img class="brand-preview" src="../brand-assets.png" alt="MPP brand assets rendered from the Figma source" />
   <section class="assets">
     <div class="asset"><img src="../logo-dark.svg" alt="MPP black logo" /></div>
     <div class="asset dark"><img src="../logo-light.svg" alt="MPP white logo" /></div>
