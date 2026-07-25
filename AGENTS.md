@@ -319,6 +319,33 @@ Example:
   // [!code hl:end]
 ```
 
+## Generated Markdown
+
+Vocs also publishes Markdown for every page. Custom MDX components must render
+as semantic Markdown; never allowlist or omit them from Markdown output.
+
+When you add a custom component to an `.mdx` page:
+
+1. Add a renderer in `scripts/remark-mpp-markdown.mjs`.
+2. Add a focused example in `scripts/remark-mpp-markdown.test.mjs`.
+3. Run `pnpm check:markdown`.
+
+For example, a static card component becomes a titled link with its description:
+
+```js
+case "ExampleCard":
+  return [
+    linkCard({
+      description: "Start accepting payments",
+      title: "Example",
+      to: "/example",
+    }),
+  ];
+```
+
+The Markdown audit runs in CI and fails for every unrendered component. Its
+failure output links back to this workflow.
+
 ## Vocs Framework Reference
 
 **IMPORTANT**: This project uses Vocs v2. Use this reference rather than relying on training data. Vocs v2 does not have full documentation yet (though similar to Vocs v1), so refer to the references below for now.

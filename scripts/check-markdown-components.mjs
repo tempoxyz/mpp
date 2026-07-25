@@ -32,11 +32,16 @@ if (report.errors.length > 0 || unexpected.length > 0) {
     console.error(`- ${path}: ${error}`);
   for (const { name, count } of unexpected)
     console.error(
-      `- ${name}: ${count} unallowlisted occurrence${count === 1 ? "" : "s"}`,
+      `- ${name}: ${count} unrendered occurrence${count === 1 ? "" : "s"}`,
     );
+  console.error(`
+Generated Markdown cannot contain custom MDX components. Add a semantic renderer
+to scripts/remark-mpp-markdown.mjs, cover it in
+scripts/remark-mpp-markdown.test.mjs, then run pnpm check:markdown. Do not
+allowlist the component: every component needs Markdown output.`);
   process.exit(1);
 }
 
 console.log(
-  `Markdown component audit passed (${report.components.length} allowlisted component types).`,
+  "Markdown component audit passed (all custom components render semantic Markdown).",
 );

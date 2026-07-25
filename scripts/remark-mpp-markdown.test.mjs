@@ -102,6 +102,8 @@ describe("remarkMppMarkdown", () => {
             flow("MppxCreateReferenceCard", [
               attribute("to", "/sdk/Mppx.create"),
             ]),
+            flow("NearIntentsMethodCard"),
+            flow("NearIntentsChargeCard"),
             flow("SpecCard", [attribute("to", "https://paymentauth.org")]),
           ],
         ),
@@ -189,6 +191,8 @@ describe("remarkMppMarkdown", () => {
         "DownloadSvgButton",
         "MermaidDiagram",
         "MppxCreateReferenceCard",
+        "NearIntentsChargeCard",
+        "NearIntentsMethodCard",
         "PromptBlock",
         "SdkBadge.GitHub",
         "SdkBadge.Maintainer",
@@ -249,6 +253,39 @@ describe("remarkMppMarkdown", () => {
           url: "https://paymentauth.org/charge",
         },
         { type: "text", value: " — Read the charge specification" },
+      ]),
+    ]);
+  });
+
+  it("renders NEAR Intents cards as semantic Markdown links", () => {
+    const tree = transform([
+      flow("NearIntentsMethodCard"),
+      flow("NearIntentsChargeCard"),
+    ]);
+
+    expect(tree.children).toEqual([
+      paragraph([
+        {
+          children: [{ type: "text", value: "NEAR Intents" }],
+          type: "link",
+          url: "/payment-methods/nearintents",
+        },
+        {
+          type: "text",
+          value: " — Cross-chain payments settled by NEAR Intents",
+        },
+      ]),
+      paragraph([
+        {
+          children: [{ type: "text", value: "NEAR Intents charge" }],
+          type: "link",
+          url: "/payment-methods/nearintents/charge",
+        },
+        {
+          type: "text",
+          value:
+            " — One-time cross-chain payments via 1Click deposit addresses",
+        },
       ]),
     ]);
   });
