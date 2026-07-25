@@ -328,6 +328,23 @@ body[data-mpp-intro="logo"] [data-layout="minimal"] :is(main, footer) {
   content: none;
 }
 
+[data-v-gutter-top]
+  nav
+  button[data-base-ui-navigation-menu-trigger][aria-expanded="true"] {
+  background: #262626 !important;
+  border-color: var(--mpp-line-hover) !important;
+  color: var(--mpp-copy) !important;
+}
+
+[data-v-gutter-top]
+  nav
+  button[data-base-ui-navigation-menu-trigger][aria-expanded="true"]::before,
+[data-v-gutter-top]
+  nav
+  button[data-base-ui-navigation-menu-trigger][aria-expanded="true"]::after {
+  content: none !important;
+}
+
 [data-v-gutter-top] nav a:hover {
   text-decoration: none !important;
 }
