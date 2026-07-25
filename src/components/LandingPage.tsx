@@ -9,7 +9,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { preload } from "react-dom";
 import { fetchServices, type Service, serviceIconUrl } from "../data/registry";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
@@ -87,8 +86,6 @@ const TERMINAL_STEPS = [
 ];
 
 export function LandingPage() {
-  preload("/marketing/mpp-hero.mp4", { as: "video" });
-
   const [services, setServices] = useState<Service[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -139,7 +136,8 @@ export function LandingPage() {
           loop
           muted
           playsInline
-          preload="auto"
+          poster="/marketing/mpp-hero-poster.jpg"
+          preload="metadata"
         >
           <source src="/marketing/mpp-hero.mp4" type="video/mp4" />
         </video>
