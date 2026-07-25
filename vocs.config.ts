@@ -14,6 +14,25 @@ export default defineConfig({
   accentColor: "#ffffff",
   colorScheme: "dark",
   baseUrl,
+  head: (path) =>
+    path === "/"
+      ? {
+          link: [
+            {
+              as: "image",
+              fetchpriority: "high",
+              href: "/marketing/mpp-hero-poster.jpg",
+              rel: "preload",
+            },
+            {
+              as: "video",
+              href: "/marketing/mpp-hero.mp4",
+              rel: "preload",
+              type: "video/mp4",
+            },
+          ],
+        }
+      : undefined,
   markdown: {
     outputRemarkPlugins: [remarkMppMarkdown],
   },
