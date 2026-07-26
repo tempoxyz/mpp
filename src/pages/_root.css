@@ -330,7 +330,10 @@ body[data-mpp-intro="logo"] [data-layout="minimal"] :is(main, footer) {
 
 [data-v-gutter-top]
   nav
-  button[data-base-ui-navigation-menu-trigger][aria-expanded="true"] {
+  button[data-base-ui-navigation-menu-trigger]:is(
+    [aria-expanded="true"],
+    [data-active]
+  ) {
   background: #262626 !important;
   border-color: var(--mpp-line-hover) !important;
   color: var(--mpp-copy) !important;
@@ -338,10 +341,16 @@ body[data-mpp-intro="logo"] [data-layout="minimal"] :is(main, footer) {
 
 [data-v-gutter-top]
   nav
-  button[data-base-ui-navigation-menu-trigger][aria-expanded="true"]::before,
+  button[data-base-ui-navigation-menu-trigger]:is(
+    [aria-expanded="true"],
+    [data-active]
+  )::before,
 [data-v-gutter-top]
   nav
-  button[data-base-ui-navigation-menu-trigger][aria-expanded="true"]::after {
+  button[data-base-ui-navigation-menu-trigger]:is(
+    [aria-expanded="true"],
+    [data-active]
+  )::after {
   content: none !important;
 }
 
@@ -414,8 +423,16 @@ a[class*="rounded-md"][class*="border"]:hover {
 a[data-v-sidebar-item][data-active="true"],
 a[data-v-sidebar-item][data-active="true"]:link,
 a[data-v-sidebar-item][data-active="true"]:visited {
+  background: transparent !important;
+  border-radius: 0 !important;
   color: var(--vocs-text-color-heading) !important;
+  margin-inline: 0 !important;
+  padding-inline: 0 !important;
   -webkit-text-fill-color: var(--vocs-text-color-heading) !important;
+}
+
+[data-base-ui-portal] > [role="presentation"][data-side="bottom"] {
+  transform: translateY(1.5rem);
 }
 
 /* Sidebar hover — use theme heading color so dark mode stays visible (Tailwind hover can resolve to black) */
