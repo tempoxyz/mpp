@@ -654,7 +654,7 @@ function defineCard<Component extends StaticCard>(component: Component) {
   });
 }
 
-for (const component of [
+export const staticCards = [
   CardChargeCard,
   CardMethodCard,
   ChallengesCard,
@@ -673,6 +673,8 @@ for (const component of [
   LightningSessionCard,
   MonadChargeCard,
   MonadMethodCard,
+  NearIntentsChargeCard,
+  NearIntentsMethodCard,
   OneTimePaymentsCard,
   PayAsYouGoCard,
   PaymentLinksCard,
@@ -708,6 +710,8 @@ for (const component of [
   TransportsCard,
   TypeScriptSdkCard,
   WalletCliCard,
-]) {
+] as const satisfies readonly StaticCard[];
+
+for (const component of staticCards) {
   defineCard(component);
 }

@@ -321,14 +321,18 @@ Example:
 
 ## Generated Markdown
 
-Vocs also publishes Markdown for every page. Custom MDX components must render
-as semantic Markdown; never allowlist or omit them from Markdown output.
+Vocs also publishes Markdown for every page. Custom MDX components need
+semantic Markdown output by default.
 
 When you add a custom component to an `.mdx` page:
 
 1. Add a renderer in `scripts/remark-mpp-markdown.mjs`.
 2. Add a focused example in `scripts/remark-mpp-markdown.test.mjs`.
 3. Run `pnpm check:markdown`.
+
+Allowlist a component in `scripts/check-markdown-components.mjs` only when it
+cannot have a semantic Markdown form. Include a reason and describe its content
+in nearby Markdown so Markdown readers retain the information.
 
 For example, a static card component becomes a titled link with its description:
 
@@ -343,8 +347,8 @@ case "ExampleCard":
   ];
 ```
 
-The Markdown audit runs in CI and fails for every unrendered component. Its
-failure output links back to this workflow.
+The Markdown audit runs in CI and fails for every unallowlisted component. It
+lists every affected page and its failure output links back to this workflow.
 
 ## Vocs Framework Reference
 

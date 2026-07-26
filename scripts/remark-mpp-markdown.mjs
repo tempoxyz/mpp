@@ -46,23 +46,6 @@ function transformNode(node, headingDepth) {
       return [mermaidDiagram(node)];
     case "MppxCreateReferenceCard":
       return [mppxCreateReferenceCard(node)];
-    case "NearIntentsChargeCard":
-      return [
-        linkCard({
-          description:
-            "One-time cross-chain payments via 1Click deposit addresses",
-          title: "NEAR Intents charge",
-          to: "/payment-methods/nearintents/charge",
-        }),
-      ];
-    case "NearIntentsMethodCard":
-      return [
-        linkCard({
-          description: "Cross-chain payments settled by NEAR Intents",
-          title: "NEAR Intents",
-          to: "/payment-methods/nearintents",
-        }),
-      ];
     case "PromptBlock":
       return [promptBlock(node)];
     case "SdkBadge.GitHub":
