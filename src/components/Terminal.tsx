@@ -38,12 +38,12 @@ type DemoClient = Awaited<
   ReturnType<typeof import("../demo-client").createDemoClient>
 >;
 
-function useDemoClient() {
+function useDemoClient(enabled: boolean) {
   const [client, setClient] = useState<DemoClient | null>(null);
   const [isLive] = useState(() => import.meta.env?.VITE_DEMO_LIVE !== "false");
 
   useEffect(() => {
-    if (!isLive) return;
+    if (!enabled || !isLive) return;
     let cancelled = false;
     import("../demo-client").then(({ createDemoClient }) =>
       createDemoClient().then((c) => {
@@ -53,7 +53,7 @@ function useDemoClient() {
     return () => {
       cancelled = true;
     };
-  }, [isLive]);
+  }, [enabled, isLive]);
 
   return { client, isLive };
 }
@@ -1649,12 +1649,14 @@ function scrollTerminalIntoView() {
 function Wizard({
   steps,
   demoClient,
+  onStartLiveDemo,
   walletState,
   savedCard,
   setSavedCard,
 }: {
   steps: PaymentStepConfig[];
   demoClient?: DemoClient | null;
+  onStartLiveDemo: () => void;
   walletState: WalletState;
   savedCard: SavedCard | undefined;
   setSavedCard: (card: SavedCard | undefined) => void;
@@ -1684,6 +1686,7 @@ function Wizard({
     if (step.skipPrompt) {
       if (step.pickOutput) setChosenOutput(step.pickOutput());
       setChosenUrl(undefined);
+      onStartLiveDemo();
       setChosen(step);
       scrollTerminalIntoView();
       return;
@@ -1715,6 +1718,7 @@ function Wizard({
     if (step.pickOutput) setChosenOutput(step.pickOutput());
     setChosenUrl(fullUrl);
     setWaitingForUrl(false);
+    onStartLiveDemo();
     setChosen(step);
     urlRef.current?.blur();
     scrollTerminalIntoView();
@@ -2534,12 +2538,14 @@ function GalleryStep({
 function SingleStep({
   step,
   demoClient,
+  onStartLiveDemo,
   walletState,
   savedCard,
   setSavedCard,
 }: {
   step: PaymentStepConfig;
   demoClient?: DemoClient | null;
+  onStartLiveDemo: () => void;
   walletState: WalletState;
   savedCard: SavedCard | undefined;
   setSavedCard: (card: SavedCard | undefined) => void;
@@ -2558,12 +2564,17 @@ function SingleStep({
     setKey((k) => k + 1);
   };
 
+  const startDemo = () => {
+    onStartLiveDemo();
+    setStarted(true);
+  };
+
   useEffect(() => {
     if (started && !done) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
         if (done) restart();
-        else setStarted(true);
+        else startDemo();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -2579,7 +2590,7 @@ function SingleStep({
           data-demo-ready
           className="w-fit cursor-pointer text-left"
           style={{ color: "var(--term-pink9)" }}
-          onClick={() => setStarted(true)}
+          onClick={startDemo}
         >
           <CssTriangle /> Run demo
         </button>
@@ -2650,7 +2661,9 @@ function TerminalComponent({
   steps: StepConfig[];
   showLastVisit?: boolean;
 }) {
-  const { client: demoClient } = useDemoClient();
+  const [liveDemoRequested, setLiveDemoRequested] = useState(false);
+  const { client: demoClient } = useDemoClient(liveDemoRequested);
+  const requestLiveDemo = () => setLiveDemoRequested(true);
 
   const commandsStep = steps[0]?.type === "commands" ? steps[0] : null;
   const contentSteps = commandsStep ? steps.slice(1) : steps;
@@ -3190,6 +3203,7 @@ function TerminalComponent({
                       key={`${wizardKey}-${i}`}
                       steps={wizardOptions}
                       demoClient={demoClient}
+                      onStartLiveDemo={requestLiveDemo}
                       walletState={walletState}
                       savedCard={savedCard}
                       setSavedCard={setSavedCard}
@@ -3217,6 +3231,7 @@ function TerminalComponent({
                       key={i}
                       step={contentStep}
                       demoClient={demoClient}
+                      onStartLiveDemo={requestLiveDemo}
                       walletState={walletState}
                       savedCard={savedCard}
                       setSavedCard={setSavedCard}

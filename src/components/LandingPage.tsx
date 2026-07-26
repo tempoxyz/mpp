@@ -5,11 +5,14 @@ import {
   lazy,
   type ReactNode,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
-import { fetchServices, type Service, serviceIconUrl } from "../data/registry";
+import {
+  type FeaturedService,
+  fetchFeaturedServices,
+  serviceIconUrl,
+} from "../data/registry";
 import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
 
@@ -85,13 +88,62 @@ const TERMINAL_STEPS = [
   ]),
 ];
 
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, [query]);
+
+  return matches;
+}
+
+function MobileTerminalArt() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 999px)");
+
+  useEffect(() => {
+    if (!isMobile || shouldLoad) return;
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setShouldLoad(true);
+        observer.disconnect();
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [isMobile, shouldLoad]);
+
+  return (
+    <div className="marketing-mobile-terminal-art" ref={ref}>
+      {shouldLoad && (
+        <video autoPlay loop muted playsInline preload="metadata">
+          <source src="/marketing/mobile-terminal.mp4" type="video/mp4" />
+        </video>
+      )}
+    </div>
+  );
+}
+
 export function LandingPage() {
-  const [services, setServices] = useState<Service[]>([]);
+  const [featuredServices, setFeaturedServices] = useState<FeaturedService[]>(
+    [],
+  );
   const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchServices()
-      .then(setServices)
+    fetchFeaturedServices(FEATURED_SERVICE_IDS)
+      .then(setFeaturedServices)
       .catch(() => {});
   }, []);
 
@@ -107,13 +159,6 @@ export function LandingPage() {
     logoLink.addEventListener("click", onClick);
     return () => logoLink.removeEventListener("click", onClick);
   }, []);
-
-  const featuredServices = useMemo(() => {
-    const byId = new Map(services.map((service) => [service.id, service]));
-    return FEATURED_SERVICE_IDS.map((id) => byId.get(id)).filter(
-      (service): service is Service => Boolean(service),
-    );
-  }, [services]);
 
   const scrollServices = (direction: -1 | 1) => {
     const card = carouselRef.current?.querySelector<HTMLElement>(
@@ -182,11 +227,7 @@ export function LandingPage() {
         <div className="marketing-terminal-shell">
           <Terminal marketing steps={TERMINAL_STEPS} showLastVisit={false} />
         </div>
-        <div className="marketing-mobile-terminal-art">
-          <video autoPlay loop muted playsInline preload="auto">
-            <source src="/marketing/mobile-terminal.mp4" type="video/mp4" />
-          </video>
-        </div>
+        <MobileTerminalArt />
       </section>
 
       <section className="marketing-integrations">
@@ -319,7 +360,7 @@ function DesignedBy() {
   );
 }
 
-function ServiceCard({ service }: { service: Service }) {
+function ServiceCard({ service }: { service: FeaturedService }) {
   const category = service.categories?.[0] ?? "Service";
   const [copied, setCopied] = useState(false);
   const url = new URL(service.serviceUrl ?? service.url).host.replace(
@@ -485,7 +526,7 @@ function LandingStyles() {
       .marketing-terminal-shell .terminal-theme > div { border-radius: 0 !important; }
       .marketing-terminal-shell:has(.terminal-theme[data-marketing-minimized]) { height: auto !important; min-height: 0; }
       .marketing-terminal-shell .h-6 { height: 1rem; }
-      .marketing-mobile-terminal-art { background: var(--marketing-elevated); border: 1px solid var(--marketing-border); border-top: 0; }
+      .marketing-mobile-terminal-art { aspect-ratio: 1694 / 940; background: var(--marketing-elevated); border: 1px solid var(--marketing-border); border-top: 0; }
       .marketing-mobile-terminal-art video { display: block; height: auto; width: 100%; }
       .marketing-integrations { padding: 5rem 0; }
       .marketing-integration-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
