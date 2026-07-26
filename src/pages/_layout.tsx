@@ -97,10 +97,6 @@ function loadLottiePlayer() {
   return lottiePlayer;
 }
 
-if (typeof window !== "undefined") {
-  void loadLottiePlayer().catch(() => undefined);
-}
-
 function useLogoAnimation() {
   useIsoLayoutEffect(() => {
     if (!document.querySelector('[data-layout="minimal"]')) return;
@@ -148,11 +144,15 @@ function useLogoAnimation() {
     const replay = () => {
       animation?.goToAndPlay(0, true);
     };
-    void mount();
+    const idleCallback = window.requestIdleCallback?.(() => void mount(), {
+      timeout: 2_000,
+    });
+    if (idleCallback === undefined) void mount();
     window.addEventListener("mpp:route", replay);
 
     return () => {
       cancelled = true;
+      if (idleCallback !== undefined) window.cancelIdleCallback(idleCallback);
       window.removeEventListener("mpp:route", replay);
       animation?.destroy();
       container?.remove();

@@ -69,6 +69,11 @@ export interface Service {
   provider?: { name?: string; url?: string; icon?: string };
 }
 
+export type FeaturedService = Pick<
+  Service,
+  "categories" | "description" | "id" | "name" | "serviceUrl" | "url"
+>;
+
 // ---------------------------------------------------------------------------
 // Module-level cache for rate limiting
 // ---------------------------------------------------------------------------
@@ -118,7 +123,7 @@ export function iconUrl(serviceId: string): string {
   return `/api/icon?id=${encodeURIComponent(serviceId)}`;
 }
 
-export function serviceIconUrl(service: Service): string {
+export function serviceIconUrl(service: Pick<Service, "id">): string {
   return iconUrl(service.id);
 }
 
@@ -226,4 +231,20 @@ export async function fetchServices(): Promise<Service[]> {
     });
 
   return inflight;
+}
+
+export async function fetchFeaturedServices(
+  ids: readonly string[],
+): Promise<FeaturedService[]> {
+  const search = new URLSearchParams({ ids: ids.join(",") });
+  const response = await fetch(`${API_URL}?${search}`);
+  if (!response.ok) {
+    throw new Error(`API ${response.status}: ${response.statusText}`);
+  }
+
+  const json = (await response.json()) as { services: FeaturedService[] };
+  return json.services.map((service) => ({
+    ...service,
+    name: service.name.replace(/ \(New\)$/i, ""),
+  }));
 }
