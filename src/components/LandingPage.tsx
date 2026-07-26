@@ -187,11 +187,13 @@ export function LandingPage() {
           <source src="/marketing/mpp-hero.mp4" type="video/mp4" />
         </video>
         <div className="marketing-hero-content">
-          <h1>
-            The open protocol for machine-to-machine payments. Charge for API
-            requests, tool calls, or content—agents and apps pay per request in
-            the same HTTP call.
-          </h1>
+          <div className="marketing-hero-copy">
+            <h1>The open protocol for machine-to-machine payments.</h1>
+            <h2>
+              Charge for API requests, tool calls, or content—agents and apps
+              pay per request in the same HTTP call.
+            </h2>
+          </div>
           <div className="marketing-actions">
             <Link
               className="marketing-button marketing-button-primary"
@@ -455,14 +457,15 @@ function LandingStyles() {
       .marketing-hero-content,
       .marketing-designed-by { position: relative; z-index: 1; }
       .marketing-hero-content { display: flex; flex-direction: column; gap: 2.25rem; max-width: 62rem; }
-      .marketing-hero h1,
+      .marketing-hero :is(h1, h2),
       .marketing-services h2,
       .marketing-blog h2 {
         color: var(--marketing-copy) !important;
         font-family: var(--font-sans, sans-serif) !important;
         margin: 0 !important;
       }
-      .marketing-hero h1 { font-size: clamp(2rem, 3.25vw, 3rem) !important; font-weight: 400 !important; letter-spacing: -0.045em !important; line-height: 1.05 !important; }
+      .marketing-hero-copy { display: flex; flex-direction: column; gap: clamp(2rem, 4vw, 3.75rem); }
+      .marketing-hero :is(h1, h2) { font-size: clamp(2rem, 3.25vw, 3rem) !important; font-weight: 400 !important; letter-spacing: -0.045em !important; line-height: 1.05 !important; }
       .marketing-services h2,
       .marketing-blog h2 { font-size: 2rem !important; font-weight: 400 !important; letter-spacing: -0.01em !important; line-height: 1.1 !important; }
       .marketing-desktop-break { display: none; }
@@ -582,7 +585,7 @@ function LandingStyles() {
         .marketing-hero { min-height: 100svh; padding-bottom: 2.5rem; padding-top: 11.875rem; }
         .marketing-hero-art { height: max(12.5rem, calc(100svh - 32.5rem)); top: 32.5rem; }
         .marketing-hero-content { gap: 2.375rem; max-width: 61.125rem; }
-        .marketing-hero h1 { font-size: 3rem !important; font-weight: 400 !important; letter-spacing: -0.09rem !important; line-height: 3rem !important; }
+        .marketing-hero :is(h1, h2) { font-size: 3rem !important; font-weight: 400 !important; letter-spacing: -0.09rem !important; line-height: 3rem !important; }
         .marketing-desktop-break { display: block; }
         .marketing-services { border-top: 0; padding-bottom: 7rem; padding-top: 5rem; }
         .marketing-services .marketing-section-heading { border-top: 1px solid var(--marketing-border); padding-top: 1.5rem; }
@@ -648,7 +651,7 @@ function LandingStyles() {
           padding-top: 1.5rem;
         }
         .marketing-hero-content { gap: 2rem; max-width: 35rem; }
-        .marketing-hero h1 {
+        .marketing-hero :is(h1, h2) {
           font-size: 1.75rem !important;
           letter-spacing: -0.035rem !important;
           line-height: 1.1 !important;
