@@ -2845,9 +2845,14 @@ body {
   }
 }
 
-[data-v-sidebar] {
-  background: var(--mpp-canvas);
+[data-v-gutter-left] {
+  background: var(--mpp-canvas) !important;
   border-right: 1px solid var(--mpp-line);
+}
+
+[data-v-gutter-left] [data-v-sidebar] {
+  background: transparent;
+  border-right: 0;
 }
 
 [data-v-content] h1,
