@@ -428,6 +428,7 @@ ${activeSnippet.code}`;
 
   useEffect(() => {
     let cancelled = false;
+    setHighlightedCode("");
 
     TYPESCRIPT_HIGHLIGHTER.then((highlighter) =>
       highlighter.codeToHtml(source, {
