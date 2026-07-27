@@ -694,7 +694,7 @@ function LandingStyles() {
       .marketing-single-line h2 { margin: 0 !important; }
       .marketing-single-line-intro { padding: clamp(1rem, 3vw, 2rem); }
       .marketing-single-line-intro > p { color: var(--marketing-muted); font-size: 1.125rem; line-height: 1.3; margin: 1.5rem 0 0; max-width: 25rem; }
-      .marketing-code-carousel { background: #101010; border: 1px solid var(--marketing-border); display: flex; flex-direction: column; height: 31rem; min-width: 0; }
+      .marketing-code-carousel { background: #101010; border: 1px solid var(--marketing-border); display: flex; flex-direction: column; height: 28rem; min-width: 0; }
       .marketing-code-carousel-header { align-items: center; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy); display: flex; flex: none; font-family: var(--font-mono, monospace); font-size: 0.75rem; justify-content: flex-start; line-height: 1rem; padding: 0.875rem 1rem; text-transform: uppercase; }
       .marketing-code-carousel-content { background: #101010; flex: 1; min-height: 0; overflow: auto; padding: clamp(1rem, 3vw, 2rem); }
       .marketing-code-snippet { animation: marketing-code-fade 520ms ease both; background: #101010; min-height: 0; }
