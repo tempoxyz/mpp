@@ -782,6 +782,7 @@ function LandingStyles() {
         .marketing-terminal-shell { height: 17.25rem; min-height: 0; }
         .marketing-integration-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
         .marketing-single-line { align-items: start; gap: clamp(4rem, 10vw, 12rem); grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+        .marketing-code-carousel { max-width: 35rem; }
       }
       @media (min-width: 1280px) {
         .marketing-blog { gap: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
