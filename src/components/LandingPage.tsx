@@ -112,6 +112,19 @@ const PAYMENT_METHOD_SNIPPETS = [
   },
 ];
 
+const TYPESCRIPT_HIGHLIGHTER = Promise.all([
+  import("shiki/core"),
+  import("shiki/engine/javascript"),
+  import("shiki/dist/langs/typescript.mjs"),
+  import("shiki/dist/themes/github-dark-default.mjs"),
+]).then(async ([core, engine, language, theme]) =>
+  core.createHighlighterCore({
+    engine: engine.createJavaScriptRegexEngine(),
+    langs: [language.default],
+    themes: [theme.default],
+  }),
+);
+
 const TERMINAL_STEPS = [
   Terminal.commands(["./mpp.sh"]),
   Terminal.wizard([
@@ -393,6 +406,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function IntegrationCodeCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [highlightedCode, setHighlightedCode] = useState("");
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
   );
@@ -407,39 +421,52 @@ function IntegrationCodeCarousel() {
   }, [prefersReducedMotion]);
 
   const activeSnippet = PAYMENT_METHOD_SNIPPETS[activeIndex];
+  const source = `// ${activeSnippet.comment}
+import { Mppx, ${activeSnippet.imports} } from "mppx/server"
+
+${activeSnippet.code}`;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    TYPESCRIPT_HIGHLIGHTER.then((highlighter) =>
+      highlighter.codeToHtml(source, {
+        lang: "ts",
+        theme: "github-dark-default",
+      }),
+    ).then((html) => {
+      if (!cancelled) setHighlightedCode(html);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [source]);
 
   return (
     <section className="marketing-single-line">
       <div className="marketing-single-line-intro">
-        <SectionLabel>MPPX</SectionLabel>
-        <h2>Integrate in a single line.</h2>
-        <p>
-          Add the payment methods your API accepts with a single MPPX setup.
-        </p>
+        <SectionLabel>Integrate</SectionLabel>
+        <h2>Sell to agents with just a single line of code</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
       </div>
       <div className="marketing-code-carousel">
         <div className="marketing-code-carousel-header">
-          <span>TypeScript</span>
           <span>{activeSnippet.method}</span>
         </div>
         <div className="marketing-code-carousel-content">
           <div className="marketing-code-snippet" key={activeSnippet.method}>
-            <code>
-              <span className="marketing-code-comment">
-                {`// ${activeSnippet.comment}`}
-              </span>
-              {"\n"}
-              <span className="marketing-code-keyword">import</span>
-              {" { Mppx, "}
-              <span className="marketing-code-method">
-                {activeSnippet.imports}
-              </span>
-              {" } "}
-              <span className="marketing-code-keyword">from</span>
-              {' "mppx/server"'}
-              {"\n\n"}
-              {activeSnippet.code}
-            </code>
+            {highlightedCode ? (
+              <div
+                className="marketing-code-shiki"
+                // biome-ignore lint/security/noDangerouslySetInnerHtml: renders static MPPX snippets highlighted by Shiki
+                dangerouslySetInnerHTML={{ __html: highlightedCode }}
+              />
+            ) : (
+              <pre className="marketing-code-fallback">
+                <code>{source}</code>
+              </pre>
+            )}
           </div>
         </div>
         <div aria-hidden="true" className="marketing-code-carousel-dots">
@@ -656,14 +683,13 @@ function LandingStyles() {
       .marketing-single-line h2 { margin: 0 !important; }
       .marketing-single-line-intro > p { color: var(--marketing-muted); font-size: 1.125rem; line-height: 1.3; margin: 1.5rem 0 0; max-width: 25rem; }
       .marketing-code-carousel { background: #101010; border: 1px solid var(--marketing-border); min-width: 0; }
-      .marketing-code-carousel-header { align-items: center; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-muted); display: flex; font-family: var(--font-mono, monospace); font-size: 0.75rem; justify-content: space-between; line-height: 1rem; padding: 0.875rem 1rem; text-transform: uppercase; }
-      .marketing-code-carousel-header span:last-child { color: var(--marketing-copy); }
+      .marketing-code-carousel-header { align-items: center; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy); display: flex; font-family: var(--font-mono, monospace); font-size: 0.75rem; justify-content: flex-start; line-height: 1rem; padding: 0.875rem 1rem; text-transform: uppercase; }
       .marketing-code-carousel-content { min-height: 18rem; overflow: hidden; padding: clamp(1rem, 3vw, 2rem); }
       .marketing-code-snippet { animation: marketing-code-fade 520ms ease both; min-height: 14rem; }
-      .marketing-code-snippet code { color: #dedede; display: block; font-family: var(--font-mono, monospace); font-size: clamp(0.75rem, 1.4vw, 0.9375rem); line-height: 1.5; overflow-x: auto; padding-bottom: 0.25rem; white-space: pre; }
-      .marketing-code-comment { color: var(--marketing-muted); }
-      .marketing-code-keyword { color: #d9a6ff; }
-      .marketing-code-method { color: #98f3aa; }
+      .marketing-code-fallback,
+      .marketing-code-shiki .shiki { background: transparent !important; color: #dedede !important; font-family: var(--font-mono, monospace) !important; font-size: clamp(0.75rem, 1.4vw, 0.9375rem) !important; line-height: 1.5 !important; margin: 0 !important; overflow-x: auto; padding: 0 0 0.25rem !important; white-space: pre; }
+      .marketing-code-fallback code,
+      .marketing-code-shiki .shiki code { font-family: inherit !important; }
       .marketing-code-carousel-dots { border-top: 1px solid var(--marketing-border); display: flex; gap: 0.375rem; padding: 0.875rem 1rem; }
       .marketing-code-carousel-dots span { background: var(--marketing-border); display: block; height: 2px; transition: background-color 300ms ease, width 300ms ease; width: 1.25rem; }
       .marketing-code-carousel-dots .is-active { background: var(--marketing-copy); width: 3rem; }
