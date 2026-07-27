@@ -248,6 +248,18 @@ sequenceDiagram
     });
   });
 
+  it("parses emphasized messages without exposing the marker", () => {
+    const result = parse(`
+sequenceDiagram
+  A->>B: [!emphasis] Validate Credential
+`);
+
+    expect(result.steps[0]).toMatchObject({
+      emphasized: true,
+      label: "Validate Credential",
+    });
+  });
+
   it("skips comments", () => {
     const src = `
 sequenceDiagram
@@ -455,6 +467,19 @@ sequenceDiagram
     const svg = renderSimple();
     expect(svg).toContain("grad-success");
     expect(svg).toContain("url(#grad-success)");
+  });
+
+  it("renders emphasized messages with a heavier arrow and label", () => {
+    const parsed = parse(`
+sequenceDiagram
+  A->>B: [!emphasis] Finalize Credential
+`);
+    const svg = render(doLayout(parsed), th);
+
+    expect(svg).toMatch(/data-step="0"[\s\S]*stroke-width="2.4"/);
+    expect(svg).toMatch(
+      /data-step-label="0"[\s\S]*font-weight="600"[\s\S]*Finalize Credential/,
+    );
   });
 
   it("renders notes with data-step-note attributes", () => {

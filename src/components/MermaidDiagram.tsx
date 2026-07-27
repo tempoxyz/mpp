@@ -114,6 +114,7 @@ export type Step =
       label: string;
       num: string | null;
       dashed: boolean;
+      emphasized?: boolean;
     }
   | { type: "note"; over: string; text: string; num: string | null }
   | { type: "loop-start"; label: string }
@@ -178,13 +179,15 @@ export function parse(source: string): ParsedDiagram {
       ensure(mMsg[1]);
       ensure(mMsg[3]);
       const e = extractNum(mMsg[4].trim());
+      const emphasized = e.rest.startsWith("[!emphasis]");
       steps.push({
         type: "message",
         from: mMsg[1],
         to: mMsg[3],
-        label: e.rest,
+        label: emphasized ? e.rest.replace(/^\[!emphasis\]\s*/, "") : e.rest,
         num: e.num,
         dashed: mMsg[2] === "-->>",
+        ...(emphasized ? { emphasized: true } : {}),
       });
     }
   }
@@ -204,6 +207,7 @@ export interface LMsg {
   labelX: number;
   labelY: number;
   dashed: boolean;
+  emphasized?: boolean;
   si: number;
   isLast: boolean;
 }
@@ -309,6 +313,7 @@ export function doLayout(p: ParsedDiagram): Layout {
         labelX: (cx[fi] + cx[ti]) / 2,
         labelY: y - L.labelLineGap,
         dashed: s.dashed,
+        emphasized: s.emphasized,
         si,
         isLast: msgIdx === totalMsgs,
       });
@@ -600,7 +605,7 @@ export function render(
         '" stroke="' +
         lineStroke +
         '" stroke-width="' +
-        L.messageStroke +
+        (m.emphasized ? L.messageStroke * 2 : L.messageStroke) +
         '"' +
         da +
         "/>",
@@ -628,7 +633,9 @@ export function render(
         arrowFill +
         '" stroke="' +
         arrowStroke +
-        '" stroke-width="1.2" stroke-linejoin="round"/>',
+        '" stroke-width="' +
+        (m.emphasized ? "2.4" : "1.2") +
+        '" stroke-linejoin="round"/>',
     );
 
     // Compute label text width to place badge to its left
@@ -682,7 +689,7 @@ export function render(
         '" text-anchor="middle" dy="0.35em" font-size="' +
         L.labelFontSize +
         '" font-weight="' +
-        L.labelFontWeight +
+        (m.emphasized ? "600" : L.labelFontWeight) +
         '" fill="' +
         th.textMuted +
         '">' +

@@ -96,7 +96,7 @@ const mppx = Mppx.create({
 
 ### With Tempo API relay
 
-Delegate Tempo charge validation and broadcast to Tempo API. The relay preserves this method's Challenge configuration and needs an API key with the `mpp:write` scope.
+Delegate Tempo charge validation and finalization to Tempo API. The relay preserves this method's Challenge configuration and needs an API key with the `mpp:write` scope. It broadcasts `pull` Credentials and recognizes `push` Credentials as already broadcast.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -111,6 +111,8 @@ const mppx = Mppx.create({
   ],
 })
 ```
+
+See [Relays](/advanced/relays) for the lifecycle, custom API base URLs, and custom `validate` and `broadcast` hooks.
 
 ### With replay protection for zero-dollar auth
 
@@ -222,7 +224,7 @@ On-chain memo for the transaction.
 
 - **Type:** `{ apiBaseUrl?: string; apiKey: string; fetch?: typeof globalThis.fetch }`
 
-Delegates Tempo charge Credential validation and broadcast to Tempo API or a compatible MPP relay. `apiKey` needs the `mpp:write` scope. Defaults to `https://api.tempo.xyz`; set `apiBaseUrl` for a compatible relay.
+Delegates Tempo charge Credential validation and finalization to a compatible MPP relay. `apiKey` needs the `mpp:write` scope. Defaults to `https://api.tempo.xyz`; set `apiBaseUrl` for a compatible relay, including one behind a path prefix. The relay broadcasts `pull` Credentials and verifies `push` Credential hashes without broadcasting them again.
 
 ### store (optional)
 

@@ -396,6 +396,7 @@ export default defineConfig({
       {
         text: "Advanced Features",
         items: [
+          { text: "Relays", link: "/advanced/relays" },
           { text: "Discovery", link: "/advanced/discovery" },
           { text: "Identity", link: "/advanced/identity" },
           { text: "Payment hooks", link: "/advanced/payment-hooks" },

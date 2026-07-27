@@ -1,6 +1,6 @@
 # `Method.toServer` [Extend a method with server payment handling]
 
-Extends a payment method with server-side validation and broadcast logic.
+Extends a payment method with server-side validation and payment-finalization hooks.
 
 ## Usage
 
@@ -73,6 +73,12 @@ type ReturnType = Method.Server<method, defaults, transportOverride>
 
 A server-configured method that can be passed to `Mppx.create`.
 
+## Payment lifecycle
+
+Implement `validate` and `broadcast` for new server methods. `mppx` runs `validate` before the terminal `broadcast` hook. `validate` is a non-mutating pre-check; `broadcast` must revalidate its state before it reserves, signs, broadcasts, or otherwise accepts payment.
+
+Use this split when a method calls a relay or needs to apply policy between a Credential check and payment acceptance. `verify` is the deprecated combined hook for older methods and cannot be combined with `broadcast`.
+
 ## Parameters
 
 ### defaults (optional)
@@ -93,7 +99,7 @@ The base payment method definition (created with `Method.from`).
 
 - **Type:** `(parameters: { credential: Credential; request: request }) => Promise<Receipt>`
 
-Completes a validated payment and returns its Receipt.
+Completes payment and returns its Receipt. Revalidate any external or on-chain state before the terminal operation, because a previous `validate` result is advisory.
 
 ### request (optional)
 

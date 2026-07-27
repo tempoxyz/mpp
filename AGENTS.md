@@ -62,9 +62,9 @@ When editing Python or Rust pages, keep the structure aligned with the existing 
 - Python: <https://github.com/tempoxyz/pympp>
 - Rust: <https://github.com/tempoxyz/mpp-rs>
 
-## MPPX documentation sync
+## mppx documentation sync
 
-When updating MPPX interfaces, examples, reference pages, or the `mppx` dependency, review upstream `mppx/main` from the SHA in `.mppx-docs-sync`. After incorporating every relevant public change, update both `mppx_version` and `mppx_sha` in that bookmark to the reviewed upstream HEAD. Do not advance the bookmark before the docs are complete.
+When updating `mppx` interfaces, examples, reference pages, or the `mppx` dependency, review upstream `mppx/main` from the SHA in `.mppx-docs-sync`. After incorporating every relevant public change, update both `mppx_version` and `mppx_sha` in that bookmark to the reviewed upstream HEAD. Do not advance the bookmark before the docs are complete.
 
 ## Be Opinionated
 
@@ -215,6 +215,8 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 **MPP core concepts as proper nouns**: Capitalize Challenge, Credential, and Receipt when referring to these as MPP protocol concepts or SDK types. For example: "Parse a Challenge", "Verify a Credential", "Return a Receipt". These are proper nouns within the MPP domain.
 
 **Terminology**: Use "stablecoins" instead of "crypto" when referring to on-chain payment methods. MPP uses stablecoins (USDC.e, USDT) on Tempo—not generic cryptocurrency. Always use "USDC.e" (not "USDC") when referring to the bridged USDC token on Tempo. The only exception is when referring to Circle's USDC stablecoin in general (not Tempo-specific) contexts.
+
+**`mppx`**: Always write the SDK and package name as lowercase `mppx`, including in prose and headings.
 
 **Session funds terminology**: Never use "escrow" in prose. Use "reserve" for the noun and "reserve" or "lock up" for the verb, depending on context. Only use `escrow` when documenting an actual code identifier, parameter, or contract name that contains that word.
 

@@ -1,0 +1,129 @@
+---
+description: "Delegate MPP payment validation and finalization to a relay service."
+imageDescription: "Delegate payment finalization to a relay"
+---
+
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+
+# Relays [Delegate payment verification and broadcast]
+
+Relays are optional infrastructure that lets MPP-enabled services verify and settle payments behind a simple API.
+
+Relays let you support multiple payment methods and centralize capabilities such as risk management and reporting.
+
+## How relays work
+
+Relays sit between your application and the payment-method settlement layer, giving your application a consistent payment-method-agnostic interface.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant API as Your API
+    participant Relay
+    participant Tempo as Settlement layer
+    Client->>API: Request
+    API-->>Client: 402 + Challenge
+    Client->>API: Retry + Credential
+    API->>Relay: [!emphasis] Validate Credential
+    Relay-->>API: Accepted
+    API->>Relay: [!emphasis] Finalize Credential
+    Relay->>Tempo: Broadcast transaction
+    Tempo-->>Relay: Confirmed transaction
+    Relay-->>API: Receipt
+    API-->>Client: 200 + Receipt
+`} />
+
+The relay flow has two lifecycle hooks:
+
+- `validate` (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
+- `broadcast` submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
+
+MPP does not define a relay API shape or require functionality beyond these hooks. Relay authors can design and evolve their APIs as their offerings grow.
+
+## Use a relay in your application
+
+Relays preserve the core MPP control flow, so your service works the same with or without one.
+
+### Server integration
+
+Use `mppx`'s built-in `validate` and `broadcast` hooks to call a relay service.
+
+This example calls a networked relay from `validate` and `broadcast` instead of handling payment state locally, and assumes `relay` is an authenticated server-side client.
+
+```ts [methods.server.ts]
+import { Method, Receipt } from 'mppx'
+import * as Methods from './methods'
+
+export const charge = Method.toServer(Methods.charge, {
+  async validate({ credential, request }) {
+    const result = await relay.validate({ credential, request }) // [!code hl]
+    if (!result.accepted) throw new Error('Payment was rejected')
+
+    return {
+      challenge: credential.challenge,
+      credential,
+      details: result.details,
+      intent: credential.challenge.intent,
+      method: credential.challenge.method,
+      request,
+    }
+  },
+  async broadcast({ credential, request }) {
+    const result = await relay.finalize({ credential, request }) // [!code hl]
+
+    return Receipt.from({
+      method: credential.challenge.method,
+      reference: result.reference,
+      status: 'success',
+      timestamp: result.timestamp,
+    })
+  },
+})
+```
+
+### Use Tempo API
+
+If your application settles MPP charges on Tempo, use the [Tempo API](https://tempo.xyz/developers/docs/api/mpp) relay to validate and broadcast transactions.
+
+```ts twoslash [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      // [!code hl:start]
+      relay: {
+        apiKey: process.env.TEMPO_API_KEY!,
+      },
+      // [!code hl:end]
+    }),
+  ],
+})
+```
+
+For a Tempo API-compatible relay, set `apiBaseUrl` on `relay`.
+
+```ts twoslash [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      relay: {
+        apiBaseUrl: 'https://mpp.relay.com/tempo',
+        apiKey: process.env.TEMPO_API_KEY!,
+      },
+    }),
+  ],
+})
+```
+
+The default API base URL is `https://api.tempo.xyz`. You can also provide `fetch` in `relay` when your runtime needs a custom fetch implementation.
+
+## Author a relay
+
+MPP does not formally define relays. It leaves payment methods, API shapes, and transports such as HTTP, JSON-RPC, and gRPC to you.
+
+For a consistent integration experience, implement at least these hooks:
+
+- `validate` (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
+- `broadcast` submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
