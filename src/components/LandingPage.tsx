@@ -98,6 +98,16 @@ const PAYMENT_METHOD_SNIPPETS = [
   {
     code: `const payment = Mppx.create({
   methods: [
+    bitcoin.charge({ recipient }),
+  ],
+})`,
+    comment: "Accept Bitcoin payments.",
+    imports: "bitcoin",
+    method: "Bitcoin",
+  },
+  {
+    code: `const payment = Mppx.create({
+  methods: [
     tempo.charge({ recipient }),
     stripe.charge({
       client,
