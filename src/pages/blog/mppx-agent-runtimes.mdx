@@ -5,7 +5,7 @@ outline: false
 showAskAi: false
 showFeedback: false
 showSearch: false
-description: "New mppx hooks connect agent runtimes to paid tools and HTTP services through MPP."
+description: "Make agents payment-aware across tools and HTTP services with one mppx setup."
 imageDescription: "Connect agent runtimes to paid tools with mppx"
 ---
 
@@ -29,15 +29,10 @@ Free requests pass through unchanged. When a service returns an MPP Challenge, `
 
 ## Configure once
 
-Call `Mppx.create` before creating an HTTP transport or making requests:
+Call `Mppx.create` with the account already configured for your runtime:
 
 ```ts [payments.ts]
 import { Mppx, tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount(
-  process.env.PRIVATE_KEY as `0x${string}`,
-)
 
 Mppx.create({
   methods: [tempo({ account })],
@@ -107,6 +102,7 @@ await client.connect(
 
 ```bash [openclaw.sh]
 $ openclaw plugins install clawhub:openclaw-mpp
+$ openclaw mpp setup
 $ openclaw gateway run
 ```
 
