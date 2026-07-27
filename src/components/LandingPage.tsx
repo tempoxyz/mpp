@@ -72,20 +72,41 @@ const INTEGRATIONS = [
 
 const PAYMENT_METHOD_SNIPPETS = [
   {
-    code: "const payment = Mppx.create({ methods: [tempo.charge({ recipient })] })",
-    description: "Accept USDC.e payments on Tempo.",
+    code: `const payment = Mppx.create({
+  methods: [
+    tempo.charge({ recipient }),
+  ],
+})`,
+    comment: "Accept USDC.e payments on Tempo.",
     imports: "tempo",
     method: "Tempo",
   },
   {
-    code: 'const payment = Mppx.create({ methods: [stripe.charge({ client, networkId: "internal", paymentMethodTypes: ["card"] })] })',
-    description: "Accept card payments with Stripe.",
+    code: `const payment = Mppx.create({
+  methods: [
+    stripe.charge({
+      client,
+      networkId: "internal",
+      paymentMethodTypes: ["card"],
+    }),
+  ],
+})`,
+    comment: "Accept card payments with Stripe.",
     imports: "stripe",
     method: "Stripe",
   },
   {
-    code: 'const payment = Mppx.create({ methods: [tempo.charge({ recipient }), stripe.charge({ client, networkId: "internal", paymentMethodTypes: ["card"] })] })',
-    description: "Offer Tempo and Stripe in one integration.",
+    code: `const payment = Mppx.create({
+  methods: [
+    tempo.charge({ recipient }),
+    stripe.charge({
+      client,
+      networkId: "internal",
+      paymentMethodTypes: ["card"],
+    }),
+  ],
+})`,
+    comment: "Offer Tempo and Stripe in one integration.",
     imports: "tempo, stripe",
     method: "Multi-method",
   },
@@ -372,19 +393,18 @@ function SectionLabel({ children }: { children: ReactNode }) {
 
 function IntegrationCodeCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
   );
 
   useEffect(() => {
-    if (isPaused || prefersReducedMotion) return;
+    if (prefersReducedMotion) return;
 
     const interval = window.setInterval(() => {
       setActiveIndex((index) => (index + 1) % PAYMENT_METHOD_SNIPPETS.length);
     }, 4200);
     return () => window.clearInterval(interval);
-  }, [isPaused, prefersReducedMotion]);
+  }, [prefersReducedMotion]);
 
   const activeSnippet = PAYMENT_METHOD_SNIPPETS[activeIndex];
 
@@ -401,18 +421,14 @@ function IntegrationCodeCarousel() {
         <div className="marketing-code-carousel-header">
           <span>TypeScript</span>
           <span>{activeSnippet.method}</span>
-          <button
-            aria-pressed={isPaused}
-            disabled={prefersReducedMotion}
-            onClick={() => setIsPaused((paused) => !paused)}
-            type="button"
-          >
-            {prefersReducedMotion ? "Paused" : isPaused ? "Play" : "Pause"}
-          </button>
         </div>
         <div className="marketing-code-carousel-content">
           <div className="marketing-code-snippet" key={activeSnippet.method}>
             <code>
+              <span className="marketing-code-comment">
+                {`// ${activeSnippet.comment}`}
+              </span>
+              {"\n"}
               <span className="marketing-code-keyword">import</span>
               {" { Mppx, "}
               <span className="marketing-code-method">
@@ -424,7 +440,6 @@ function IntegrationCodeCarousel() {
               {"\n\n"}
               {activeSnippet.code}
             </code>
-            <p>{activeSnippet.description}</p>
           </div>
         </div>
         <div aria-hidden="true" className="marketing-code-carousel-dots">
@@ -643,15 +658,12 @@ function LandingStyles() {
       .marketing-code-carousel { background: #101010; border: 1px solid var(--marketing-border); min-width: 0; }
       .marketing-code-carousel-header { align-items: center; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-muted); display: flex; font-family: var(--font-mono, monospace); font-size: 0.75rem; justify-content: space-between; line-height: 1rem; padding: 0.875rem 1rem; text-transform: uppercase; }
       .marketing-code-carousel-header span:last-child { color: var(--marketing-copy); }
-      .marketing-code-carousel-header button { background: transparent; border: 0; color: var(--marketing-muted); cursor: pointer; font: inherit; padding: 0; text-transform: inherit; }
-      .marketing-code-carousel-header button:hover { color: var(--marketing-copy); }
-      .marketing-code-carousel-header button:disabled { cursor: default; opacity: 0.65; }
-      .marketing-code-carousel-content { min-height: 12.5rem; overflow: hidden; padding: clamp(1rem, 3vw, 2rem); }
-      .marketing-code-snippet { animation: marketing-code-fade 520ms ease both; display: flex; flex-direction: column; gap: 1.5rem; min-height: 8.5rem; justify-content: space-between; }
-      .marketing-code-snippet code { color: #dedede; display: block; font-family: var(--font-mono, monospace); font-size: clamp(0.75rem, 1.4vw, 0.9375rem); line-height: 1.65; overflow-x: auto; padding-bottom: 0.25rem; white-space: pre; }
+      .marketing-code-carousel-content { min-height: 18rem; overflow: hidden; padding: clamp(1rem, 3vw, 2rem); }
+      .marketing-code-snippet { animation: marketing-code-fade 520ms ease both; min-height: 14rem; }
+      .marketing-code-snippet code { color: #dedede; display: block; font-family: var(--font-mono, monospace); font-size: clamp(0.75rem, 1.4vw, 0.9375rem); line-height: 1.5; overflow-x: auto; padding-bottom: 0.25rem; white-space: pre; }
+      .marketing-code-comment { color: var(--marketing-muted); }
       .marketing-code-keyword { color: #d9a6ff; }
       .marketing-code-method { color: #98f3aa; }
-      .marketing-code-snippet p { color: var(--marketing-muted); font-size: 1rem; line-height: 1.25; margin: 0; }
       .marketing-code-carousel-dots { border-top: 1px solid var(--marketing-border); display: flex; gap: 0.375rem; padding: 0.875rem 1rem; }
       .marketing-code-carousel-dots span { background: var(--marketing-border); display: block; height: 2px; transition: background-color 300ms ease, width 300ms ease; width: 1.25rem; }
       .marketing-code-carousel-dots .is-active { background: var(--marketing-copy); width: 3rem; }
