@@ -1,0 +1,115 @@
+---
+layout: minimal
+title: "mppx for agent SDKs and harnesses"
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "New mppx hooks connect agent runtimes to paid tools and HTTP services through MPP."
+imageDescription: "Connect agent runtimes to paid tools with mppx"
+---
+
+import { Tab, Tabs } from 'vocs'
+
+<div className="blog-narrow">
+
+<a href="/blog" className="blog-back">Blog</a>
+
+<p className="blog-date" style={{ color: 'var(--vocs-color_text3)', fontSize: '14px' }}>Monday, July 27, 2026</p>
+
+# mppx for agent SDKs and harnesses [Connect agent runtimes to MPP tools and services]
+
+Agents built with popular open-source SDKs and harnesses can now pay for tools and HTTP services through MPP. New SDK hooks simplify setup, and the integration guides show where payment handling attaches in each runtime.
+
+## One payment layer
+
+Agent runtimes typically make network requests through shared entry points, such as a global `fetch`, a framework hook, or a common SDK boundary. `mppx` integrates at these points, keeping payment handling out of individual tools.
+
+Free requests pass through unchanged. When a service returns an MPP Challenge, `mppx` selects a supported payment method, obtains wallet authorization, sends a Credential, and retries the request.
+
+## Configure once
+
+Call `Mppx.create` before creating an HTTP transport or making requests:
+
+```ts [payments.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(
+  process.env.PRIVATE_KEY as `0x${string}`,
+)
+
+Mppx.create({
+  methods: [tempo({ account })],
+})
+```
+
+By default, [`Mppx.create`](/sdk/typescript/client/Mppx.create) installs a payment-aware global `fetch`. Existing HTTP tools and MCP transports built on `fetch` can then call free and paid endpoints without changing their request code.
+
+The same client can support native MPP and compatible x402 `exact` endpoints. Add [`evm.charge`](/payment-methods/evm/charge) alongside the Tempo method, and `mppx` selects the protocol and payment method supported by each endpoint.
+
+## Connect your runtime
+
+[Cloudflare Agents](/partner-integrations/cloudflare-agents). Use [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap) for the MCP client stored on the agent connection. Use `Mppx.create` for ordinary HTTP requests.
+
+[Vercel AI SDK](/partner-integrations/vercel-ai-sdk). Initialize `Mppx.create` before `createMCPClient`. MCP transport requests and `fetch` calls inside AI SDK tools then share the same payment configuration.
+
+[Official TypeScript MCP SDK](/partner-integrations/mcp-sdk). Initialize `Mppx.create` before connecting a `StreamableHTTPClientTransport`. Free and paid MCP tools continue through the standard `Client` interface.
+
+[OpenClaw](/partner-integrations/openclaw). Install the official `openclaw-mpp` plugin. It adds `mpp_fetch` for payment-aware HTTP requests.
+
+<Tabs>
+  <Tab title="Cloudflare">
+
+```ts [cloudflare.ts]
+import { tempo } from 'mppx/client'
+import { McpClient } from 'mppx/mcp/client'
+
+const client = McpClient.wrap(mcpClient, {
+  methods: [tempo({ account })],
+})
+```
+
+  </Tab>
+  <Tab title="Vercel">
+
+```ts [vercel.ts]
+import { createMCPClient } from '@ai-sdk/mcp'
+import { Mppx, tempo } from 'mppx/client'
+
+Mppx.create({ methods: [tempo({ account })] })
+const mcp = await createMCPClient({ transport })
+```
+
+  </Tab>
+  <Tab title="MCP SDK">
+
+```ts [mcp.ts]
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
+import { Mppx, tempo } from 'mppx/client'
+
+Mppx.create({ methods: [tempo({ account })] })
+await client.connect(new StreamableHTTPClientTransport(url))
+```
+
+  </Tab>
+  <Tab title="OpenClaw">
+
+```bash [openclaw.sh]
+$ openclaw plugins install clawhub:openclaw-mpp
+$ openclaw gateway run
+```
+
+  </Tab>
+</Tabs>
+
+## Get started
+
+Start with the guide for your runtime below. The open-source repositories are [`mppx`](https://github.com/wevm/mppx) and [`openclaw-mpp`](https://github.com/tempoxyz/openclaw-mpp).
+
+- [Cloudflare Agents](/partner-integrations/cloudflare-agents)
+- [Vercel AI SDK](/partner-integrations/vercel-ai-sdk)
+- [Official TypeScript MCP SDK](/partner-integrations/mcp-sdk)
+- [OpenClaw](/partner-integrations/openclaw)
+
+</div>

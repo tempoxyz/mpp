@@ -15,6 +15,7 @@ type Page =
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
   | { path: '/blog'; render: 'static' }
+  | { path: '/blog/mppx-agent-runtimes'; render: 'static' }
   | { path: '/blog/multi-method-discovery'; render: 'static' }
   | { path: '/blog/payment-hooks'; render: 'static' }
   | { path: '/blog/sessions-improved'; render: 'static' }
