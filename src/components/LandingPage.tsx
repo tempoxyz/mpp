@@ -692,6 +692,7 @@ function LandingStyles() {
       .marketing-integration-logo img { max-height: 1.75rem; max-width: 100%; opacity: 0.9; width: auto; }
       .marketing-single-line { border-top: 1px solid var(--marketing-border); display: grid; gap: 2.5rem; margin-inline: auto; max-width: 1728px; padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 3rem); }
       .marketing-single-line h2 { margin: 0 !important; }
+      .marketing-single-line-intro { padding: clamp(1rem, 3vw, 2rem); }
       .marketing-single-line-intro > p { color: var(--marketing-muted); font-size: 1.125rem; line-height: 1.3; margin: 1.5rem 0 0; max-width: 25rem; }
       .marketing-code-carousel { background: #101010; border: 1px solid var(--marketing-border); display: flex; flex-direction: column; height: 31rem; min-width: 0; }
       .marketing-code-carousel-header { align-items: center; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy); display: flex; flex: none; font-family: var(--font-mono, monospace); font-size: 0.75rem; justify-content: flex-start; line-height: 1rem; padding: 0.875rem 1rem; text-transform: uppercase; }
