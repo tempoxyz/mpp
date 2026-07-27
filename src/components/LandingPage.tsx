@@ -74,50 +74,57 @@ const PAYMENT_METHOD_SNIPPETS = [
   {
     code: `const payment = Mppx.create({
   methods: [
-    tempo.charge({ recipient }),
+    tempo.charge(),
   ],
 })`,
     comment: "Accept USDC.e payments on Tempo.",
-    imports: "tempo",
+    imports: 'import { Mppx, tempo } from "mppx/server"',
     method: "Tempo",
   },
   {
     code: `const payment = Mppx.create({
   methods: [
     stripe.charge({
-      client,
+      client: stripeClient,
       networkId: "internal",
       paymentMethodTypes: ["card"],
     }),
   ],
 })`,
     comment: "Accept card payments with Stripe.",
-    imports: "stripe",
+    imports: `import Stripe from "stripe"
+import { Mppx, stripe } from "mppx/server"
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)`,
     method: "Stripe",
   },
   {
     code: `const payment = Mppx.create({
   methods: [
-    bitcoin.charge({ recipient }),
+    spark.charge({ mnemonic: process.env.MNEMONIC! }),
   ],
 })`,
-    comment: "Accept Bitcoin payments.",
-    imports: "bitcoin",
+    comment: "Accept Bitcoin payments over Lightning.",
+    imports:
+      'import { Mppx, spark } from "@buildonspark/lightning-mpp-sdk/server"',
     method: "Bitcoin",
   },
   {
     code: `const payment = Mppx.create({
   methods: [
-    tempo.charge({ recipient }),
+    tempo.charge(),
     stripe.charge({
-      client,
+      client: stripeClient,
       networkId: "internal",
       paymentMethodTypes: ["card"],
     }),
+    spark.charge({ mnemonic: process.env.MNEMONIC! }),
   ],
 })`,
-    comment: "Offer Tempo and Stripe in one integration.",
-    imports: "tempo, stripe",
+    comment: "Offer Tempo, Stripe, and Bitcoin in one integration.",
+    imports: `import Stripe from "stripe"
+import { Mppx, tempo, stripe } from "mppx/server"
+import { spark } from "@buildonspark/lightning-mpp-sdk/server"
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)`,
     method: "Multi-method",
   },
 ];
@@ -432,8 +439,7 @@ function IntegrationCodeCarousel() {
 
   const activeSnippet = PAYMENT_METHOD_SNIPPETS[activeIndex];
   const source = `// ${activeSnippet.comment}
-import { Mppx, ${activeSnippet.imports} } from "mppx/server"
-
+${activeSnippet.imports}
 ${activeSnippet.code}`;
 
   useEffect(() => {
