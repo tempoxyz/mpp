@@ -191,7 +191,7 @@ export function LandingPage() {
             <h1>The open protocol for machine-to-machine payments.</h1>
             <h2>
               Charge for API requests, tool calls, or content—agents and apps
-              pay in the HTTP request.
+              pay in the same HTTP request.
             </h2>
           </div>
           <div className="marketing-actions">
