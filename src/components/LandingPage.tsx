@@ -726,10 +726,11 @@ function LandingStyles() {
       .marketing-single-line-intro > p { color: var(--marketing-muted); font-size: 1.125rem; line-height: 1.3; margin: 1.5rem 0 0; max-width: 25rem; }
       .marketing-code-carousel { background: #101010; border: 1px solid var(--marketing-border); display: flex; flex-direction: column; height: 28rem; min-width: 0; }
       .marketing-code-carousel-header { align-items: center; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy); display: flex; flex: none; font-family: var(--font-mono, monospace); font-size: 0.75rem; justify-content: flex-start; line-height: 1rem; padding: 0.875rem 1rem; text-transform: uppercase; }
-      .marketing-code-carousel-content { background: #101010; flex: 1; min-height: 0; overflow: auto; padding: clamp(1rem, 3vw, 2rem); }
-      .marketing-code-snippet { animation: marketing-code-fade 520ms ease both; background: #101010; min-height: 0; }
+      .marketing-code-carousel-content { background: #101010; display: flex; flex: 1; min-height: 0; overflow: auto; padding: clamp(1rem, 3vw, 2rem); }
+      .marketing-code-snippet { animation: marketing-code-fade 520ms ease both; background: #101010; flex: 1; min-height: 0; min-width: 0; }
+      .marketing-code-shiki { background: #101010; height: 100%; }
       .marketing-code-fallback,
-      .marketing-code-shiki .shiki { background: #101010 !important; color: #dedede !important; font-family: var(--font-mono, monospace) !important; font-size: clamp(0.75rem, 1.4vw, 0.9375rem) !important; line-height: 1.5 !important; margin: 0 !important; overflow-x: auto; padding: 0 0 0.25rem !important; white-space: pre; }
+      .marketing-code-shiki .shiki { background: #101010 !important; color: #dedede !important; font-family: var(--font-mono, monospace) !important; font-size: clamp(0.75rem, 1.4vw, 0.9375rem) !important; height: 100%; line-height: 1.5 !important; margin: 0 !important; overflow-x: auto; padding: 0 0 0.25rem !important; white-space: pre; }
       .marketing-code-fallback code,
       .marketing-code-shiki .shiki code { font-family: inherit !important; }
       .marketing-code-carousel-dots { border-top: 1px solid var(--marketing-border); display: flex; gap: 0.375rem; padding: 0.875rem 1rem; }
