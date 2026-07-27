@@ -267,12 +267,6 @@ Function that returns a viem client for the given chain ID.
 
 Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups.
 
-### topUpAmount (optional)
-
-- **Type:** `string`
-
-Preferred automatic top-up size in human-readable units. When omitted, `mppx` uses a bounded server `suggestedDeposit`, then the exact shortfall.
-
 ### onChannelUpdate (optional)
 
 - **Type:** `(entry: ChannelEntry) => void`
@@ -284,6 +278,12 @@ Called whenever channel state changes.
 - **Type:** `ResolveAccount`
 
 Selects the account that signs this session Credential after the Challenge is known.
+
+### topUpAmount (optional)
+
+- **Type:** `string`
+
+Preferred automatic top-up size in human-readable units. When omitted, `mppx` uses a bounded server `suggestedDeposit`, then the exact shortfall.
 
 ## Credential context
 

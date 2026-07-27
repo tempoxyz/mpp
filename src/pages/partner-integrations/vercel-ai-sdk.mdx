@@ -1,8 +1,9 @@
 ---
 description: "Use MPP with the Vercel AI SDK."
+imageDescription: "Connect Vercel AI SDK agents to paid tools and APIs"
 ---
 
-# Vercel AI SDK
+# Vercel AI SDK [Add payments to agents and tools]
 
 Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let a [Vercel AI SDK agent](https://ai-sdk.dev/docs/agents/overview) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the wrapped client creates a Credential, retries the call, and returns the result.
 

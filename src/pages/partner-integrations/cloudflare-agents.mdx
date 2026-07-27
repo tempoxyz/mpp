@@ -3,7 +3,7 @@ description: "Use MPP with the Cloudflare Agents SDK."
 imageDescription: "Connect Cloudflare Agents to paid MPP MCP tools and HTTP APIs"
 ---
 
-# Cloudflare Agents
+# Cloudflare Agents [Connect agents to paid MCP tools and APIs]
 
 Use [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap) and [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let a [Cloudflare Agent](https://developers.cloudflare.com/agents/) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the wrapped client creates a Credential, retries the call, and returns the result.
 

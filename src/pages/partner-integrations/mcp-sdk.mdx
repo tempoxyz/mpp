@@ -1,8 +1,9 @@
 ---
 description: "Use MPP with the official TypeScript MCP SDK."
+imageDescription: "Connect MCP clients to paid tools and APIs"
 ---
 
-# Official MCP SDK
+# Official MCP SDK [Add payments to MCP clients]
 
 Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let the [official TypeScript MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the payment-aware fetch wrapper creates a Credential, retries the call, and returns the result.
 
