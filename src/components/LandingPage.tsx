@@ -70,6 +70,27 @@ const INTEGRATIONS = [
   },
 ];
 
+const PAYMENT_METHOD_SNIPPETS = [
+  {
+    code: "const payment = Mppx.create({ methods: [tempo.charge({ recipient })] })",
+    description: "Accept USDC.e payments on Tempo.",
+    imports: "tempo",
+    method: "Tempo",
+  },
+  {
+    code: 'const payment = Mppx.create({ methods: [stripe.charge({ client, networkId: "internal", paymentMethodTypes: ["card"] })] })',
+    description: "Accept card payments with Stripe.",
+    imports: "stripe",
+    method: "Stripe",
+  },
+  {
+    code: 'const payment = Mppx.create({ methods: [tempo.charge({ recipient }), stripe.charge({ client, networkId: "internal", paymentMethodTypes: ["card"] })] })',
+    description: "Offer Tempo and Stripe in one integration.",
+    imports: "tempo, stripe",
+    method: "Multi-method",
+  },
+];
+
 const TERMINAL_STEPS = [
   Terminal.commands(["./mpp.sh"]),
   Terminal.wizard([
@@ -241,6 +262,8 @@ export function LandingPage() {
         </div>
       </section>
 
+      <IntegrationCodeCarousel />
+
       <section className="marketing-services">
         <div className="marketing-section-heading">
           <div>
@@ -345,6 +368,76 @@ Object.assign(LandingPage, {
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return <p className="marketing-section-label">{children}</p>;
+}
+
+function IntegrationCodeCarousel() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+  );
+
+  useEffect(() => {
+    if (isPaused || prefersReducedMotion) return;
+
+    const interval = window.setInterval(() => {
+      setActiveIndex((index) => (index + 1) % PAYMENT_METHOD_SNIPPETS.length);
+    }, 4200);
+    return () => window.clearInterval(interval);
+  }, [isPaused, prefersReducedMotion]);
+
+  const activeSnippet = PAYMENT_METHOD_SNIPPETS[activeIndex];
+
+  return (
+    <section className="marketing-single-line">
+      <div className="marketing-single-line-intro">
+        <SectionLabel>MPPX</SectionLabel>
+        <h2>Integrate in a single line.</h2>
+        <p>
+          Add the payment methods your API accepts with a single MPPX setup.
+        </p>
+      </div>
+      <div className="marketing-code-carousel">
+        <div className="marketing-code-carousel-header">
+          <span>TypeScript</span>
+          <span>{activeSnippet.method}</span>
+          <button
+            aria-pressed={isPaused}
+            disabled={prefersReducedMotion}
+            onClick={() => setIsPaused((paused) => !paused)}
+            type="button"
+          >
+            {prefersReducedMotion ? "Paused" : isPaused ? "Play" : "Pause"}
+          </button>
+        </div>
+        <div className="marketing-code-carousel-content">
+          <div className="marketing-code-snippet" key={activeSnippet.method}>
+            <code>
+              <span className="marketing-code-keyword">import</span>
+              {" { Mppx, "}
+              <span className="marketing-code-method">
+                {activeSnippet.imports}
+              </span>
+              {" } "}
+              <span className="marketing-code-keyword">from</span>
+              {' "mppx/server"'}
+              {"\n\n"}
+              {activeSnippet.code}
+            </code>
+            <p>{activeSnippet.description}</p>
+          </div>
+        </div>
+        <div aria-hidden="true" className="marketing-code-carousel-dots">
+          {PAYMENT_METHOD_SNIPPETS.map((snippet, index) => (
+            <span
+              className={index === activeIndex ? "is-active" : undefined}
+              key={snippet.method}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function DesignedBy() {
@@ -464,6 +557,7 @@ function LandingStyles() {
       .marketing-designed-by { position: relative; z-index: 1; }
       .marketing-hero-content { display: flex; flex-direction: column; gap: 2.25rem; max-width: 62rem; }
       .marketing-hero :is(h1, h2),
+      .marketing-single-line h2,
       .marketing-services h2,
       .marketing-blog h2 {
         color: var(--marketing-copy) !important;
@@ -543,6 +637,25 @@ function LandingStyles() {
       .marketing-integration-logo { align-items: center; border: 1px solid var(--marketing-border); display: flex; height: 4.5rem; justify-content: center; padding: 1rem; text-decoration: none !important; transition: background-color 150ms ease, border-color 150ms ease; }
       .marketing-integration-logo:is(:hover, :focus-visible) { background: var(--marketing-elevated); border-color: var(--marketing-border-hover); outline: none; }
       .marketing-integration-logo img { max-height: 1.75rem; max-width: 100%; opacity: 0.9; width: auto; }
+      .marketing-single-line { border-top: 1px solid var(--marketing-border); display: grid; gap: 2.5rem; margin-inline: auto; max-width: 1728px; padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 3rem); }
+      .marketing-single-line h2 { margin: 0 !important; }
+      .marketing-single-line-intro > p { color: var(--marketing-muted); font-size: 1.125rem; line-height: 1.3; margin: 1.5rem 0 0; max-width: 25rem; }
+      .marketing-code-carousel { background: #101010; border: 1px solid var(--marketing-border); min-width: 0; }
+      .marketing-code-carousel-header { align-items: center; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-muted); display: flex; font-family: var(--font-mono, monospace); font-size: 0.75rem; justify-content: space-between; line-height: 1rem; padding: 0.875rem 1rem; text-transform: uppercase; }
+      .marketing-code-carousel-header span:last-child { color: var(--marketing-copy); }
+      .marketing-code-carousel-header button { background: transparent; border: 0; color: var(--marketing-muted); cursor: pointer; font: inherit; padding: 0; text-transform: inherit; }
+      .marketing-code-carousel-header button:hover { color: var(--marketing-copy); }
+      .marketing-code-carousel-header button:disabled { cursor: default; opacity: 0.65; }
+      .marketing-code-carousel-content { min-height: 12.5rem; overflow: hidden; padding: clamp(1rem, 3vw, 2rem); }
+      .marketing-code-snippet { animation: marketing-code-fade 520ms ease both; display: flex; flex-direction: column; gap: 1.5rem; min-height: 8.5rem; justify-content: space-between; }
+      .marketing-code-snippet code { color: #dedede; display: block; font-family: var(--font-mono, monospace); font-size: clamp(0.75rem, 1.4vw, 0.9375rem); line-height: 1.65; overflow-x: auto; padding-bottom: 0.25rem; white-space: pre; }
+      .marketing-code-keyword { color: #d9a6ff; }
+      .marketing-code-method { color: #98f3aa; }
+      .marketing-code-snippet p { color: var(--marketing-muted); font-size: 1rem; line-height: 1.25; margin: 0; }
+      .marketing-code-carousel-dots { border-top: 1px solid var(--marketing-border); display: flex; gap: 0.375rem; padding: 0.875rem 1rem; }
+      .marketing-code-carousel-dots span { background: var(--marketing-border); display: block; height: 2px; transition: background-color 300ms ease, width 300ms ease; width: 1.25rem; }
+      .marketing-code-carousel-dots .is-active { background: var(--marketing-copy); width: 3rem; }
+      @keyframes marketing-code-fade { from { opacity: 0; transform: translateY(0.5rem); } to { opacity: 1; transform: translateY(0); } }
       .marketing-services,
       .marketing-blog { border-top: 1px solid var(--marketing-border); padding-bottom: clamp(5rem, 10vw, 9rem); padding-top: clamp(1.5rem, 3vw, 2rem); }
       .marketing-section-heading { align-items: flex-end; display: flex; gap: 2rem; justify-content: space-between; }
@@ -588,6 +701,7 @@ function LandingStyles() {
         .marketing-hero,
         .marketing-terminal-section,
         .marketing-integrations,
+        .marketing-single-line,
         .marketing-services,
         .marketing-blog { padding-inline: 3rem; }
         .marketing-hero { min-height: 100svh; padding-bottom: 2.5rem; padding-top: 11.875rem; }
@@ -617,6 +731,7 @@ function LandingStyles() {
         .marketing-mobile-terminal-art { display: none; }
         .marketing-terminal-shell { height: 17.25rem; min-height: 0; }
         .marketing-integration-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+        .marketing-single-line { align-items: start; gap: clamp(4rem, 10vw, 12rem); grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
       }
       @media (min-width: 1280px) {
         .marketing-blog { gap: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
@@ -638,6 +753,7 @@ function LandingStyles() {
         .marketing-hero,
         .marketing-terminal-section,
         .marketing-integrations,
+        .marketing-single-line,
         .marketing-services,
         .marketing-blog { padding-inline: 3rem; }
         .marketing-blog::before { inset-inline: 3rem; }
@@ -646,6 +762,7 @@ function LandingStyles() {
         .marketing-hero,
         .marketing-terminal-section,
         .marketing-integrations,
+        .marketing-single-line,
         .marketing-services,
         .marketing-blog { padding-inline: 1rem; }
         .marketing-designed-by { display: none; }
@@ -670,6 +787,10 @@ function LandingStyles() {
         .marketing-actions { flex-direction: column; gap: 0.5rem; }
         .marketing-actions .marketing-button { width: 100%; }
         .marketing-designed-by { display: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .marketing-code-snippet { animation: none; }
+        .marketing-code-carousel-dots span { transition: none; }
       }
     `}</style>
   );
