@@ -5,11 +5,11 @@ imageDescription: "Delegate payment finalization to a relay"
 
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
-# Relays [Delegate payment verification and broadcast]
+# Relays [Delegate payment verification and broadcast to a relay service]
 
 Relays are optional infrastructure that lets MPP-enabled services verify and settle payments behind a simple API.
 
-Relays let you support multiple payment methods and centralize capabilities such as risk management and reporting.
+Relays let you support multiple payment methods and centralize capabilities such as risk management and reporting behind a single interface.
 
 ## How relays work
 
@@ -34,8 +34,8 @@ Relays sit between your application and the payment-method settlement layer, giv
 
 The relay flow has two lifecycle hooks:
 
-- `validate` (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
-- `broadcast` submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
+1. `validate` (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
+2. `broadcast` submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
 
 MPP does not define a relay API shape or require functionality beyond these hooks. Relay authors can design and evolve their APIs as their offerings grow.
 
@@ -125,5 +125,5 @@ MPP does not formally define relays. It leaves payment methods, API shapes, and 
 
 For a consistent integration experience, implement at least these hooks:
 
-- `validate` (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
-- `broadcast` submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
+1. `validate` (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
+2. `broadcast` submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
