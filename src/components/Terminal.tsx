@@ -2934,8 +2934,13 @@ function TerminalComponent({
                 strokeWidth="2"
                 strokeLinecap="round"
               >
-                <title>Minimize</title>
+                <title>
+                  {isMarketingMinimized
+                    ? "Expand terminal"
+                    : "Minimize terminal"}
+                </title>
                 <path d="M5 12h14" />
+                {isMarketingMinimized && <path d="M12 5v14" />}
               </svg>
             </button>
           )}
