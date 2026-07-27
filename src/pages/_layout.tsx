@@ -28,6 +28,7 @@ if (typeof window !== "undefined") {
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
 
 type LottieAnimation = {
+  addEventListener: (event: string, callback: () => void) => void;
   destroy: () => void;
   goToAndPlay: (value: number, isFrame?: boolean) => void;
   setSpeed: (speed: number) => void;
@@ -104,6 +105,7 @@ function useLogoAnimation() {
 
     let animation: LottieAnimation | undefined;
     let cancelled = false;
+    let ready = false;
     let fallbackImages: HTMLImageElement[] = [];
     let container: HTMLSpanElement | undefined;
 
@@ -124,11 +126,8 @@ function useLogoAnimation() {
         container.dataset.mppLogoAnimation = "";
         logo.dataset.mppLogoHost = "";
         logo.appendChild(container);
-        fallbackImages.forEach((image) => {
-          image.style.visibility = "hidden";
-        });
         animation = player.loadAnimation({
-          autoplay: true,
+          autoplay: false,
           container,
           loop: false,
           path: "/lottie/02_MPP_Logo_Loading_Animation.json",
@@ -136,13 +135,21 @@ function useLogoAnimation() {
           rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
         });
         animation.setSpeed(1.6);
+        animation.addEventListener("DOMLoaded", () => {
+          if (cancelled || !animation) return;
+          ready = true;
+          fallbackImages.forEach((image) => {
+            image.style.visibility = "hidden";
+          });
+          animation.goToAndPlay(7, true);
+        });
       } catch {
         // Keep the static logo when the optional animation cannot load.
       }
     };
 
     const replay = () => {
-      animation?.goToAndPlay(0, true);
+      if (ready) animation?.goToAndPlay(7, true);
     };
     const idleCallback = window.requestIdleCallback?.(() => void mount(), {
       timeout: 2_000,
