@@ -77,8 +77,13 @@ const client = McpClient.wrap(mcpClient, {
 import { createMCPClient } from '@ai-sdk/mcp'
 import { Mppx, tempo } from 'mppx/client'
 
-Mppx.create({ methods: [tempo({ account })] })
-const mcp = await createMCPClient({ transport })
+Mppx.create({
+  methods: [tempo({ account })],
+})
+
+const mcp = await createMCPClient({
+  transport,
+})
 ```
 
   </Tab>
@@ -88,8 +93,13 @@ const mcp = await createMCPClient({ transport })
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { Mppx, tempo } from 'mppx/client'
 
-Mppx.create({ methods: [tempo({ account })] })
-await client.connect(new StreamableHTTPClientTransport(url))
+Mppx.create({
+  methods: [tempo({ account })],
+})
+
+await client.connect(
+  new StreamableHTTPClientTransport(url),
+)
 ```
 
   </Tab>
