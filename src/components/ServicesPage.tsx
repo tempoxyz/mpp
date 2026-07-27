@@ -431,7 +431,7 @@ function SearchWithDropdown({
         placeholder="SEARCH SERVICES"
         style={{
           width: "100%",
-          padding: `0.4rem ${onDismiss && resultCount != null ? "5rem" : onDismiss ? "2rem" : "0.6rem"} 0.4rem 2rem`,
+          padding: `0.4rem ${onDismiss && resultCount != null ? "5rem" : onDismiss || !search ? "0.6rem" : "2rem"} 0.4rem 2rem`,
           fontSize: 14,
           borderRadius: 8,
           border: "1px solid var(--vocs-border-color-primary)",
@@ -442,6 +442,46 @@ function SearchWithDropdown({
           outline: "none",
         }}
       />
+      {search && !onDismiss && (
+        <button
+          aria-label="Clear service search"
+          onClick={() => {
+            setSearch("");
+            setPage(0);
+            setShowDropdown(false);
+            ref.current?.focus();
+          }}
+          style={{
+            alignItems: "center",
+            background: "transparent",
+            border: "none",
+            color: "var(--vocs-text-color-muted)",
+            display: "flex",
+            padding: 4,
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 2,
+          }}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="16"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            width="16"
+          >
+            <path d="m18 6-12 12" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      )}
       {onDismiss && resultCount != null && (
         <span
           style={{

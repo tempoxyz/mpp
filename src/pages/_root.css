@@ -131,6 +131,11 @@ html {
   overscroll-behavior: none;
 }
 
+button:not(:disabled),
+[role="button"]:not(:disabled) {
+  cursor: pointer;
+}
+
 /* Pagination: hide "Next" / "Previous" label text, keep only shortcut (Shift → / ←) */
 [data-v-pagination] a > span:last-of-type {
   font-size: 0;
