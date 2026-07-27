@@ -191,7 +191,7 @@ export function LandingPage() {
             <h1>The open protocol for machine-to-machine payments.</h1>
             <h2>
               Charge for API requests, tool calls, or content—agents and apps
-              pay per request in the same HTTP call.
+              pay in the HTTP request.
             </h2>
           </div>
           <div className="marketing-actions">
@@ -256,6 +256,8 @@ export function LandingPage() {
               <span>See all services</span>
             </Link>
           </div>
+        </div>
+        <div className="marketing-carousel-controls-row">
           <div className="marketing-carousel-controls">
             <button
               aria-label="Previous services"
@@ -593,7 +595,8 @@ function LandingStyles() {
         .marketing-services .marketing-section-heading { border-top: 1px solid var(--marketing-border); padding-top: 1.5rem; }
         .marketing-services .marketing-section-label { margin-bottom: 1.5rem; }
         .marketing-services h2 { margin-bottom: 1.5rem !important; }
-        .marketing-service-carousel { margin-top: 5rem; }
+        .marketing-carousel-controls-row { display: flex; justify-content: flex-end; margin-top: 2.5rem; }
+        .marketing-service-carousel { margin-top: 0.75rem; }
         .marketing-blog { border-top: 0; padding-bottom: 5rem; padding-top: 6.5rem; position: relative; }
         .marketing-blog::before { border-top: 1px solid var(--marketing-border); content: ""; inset-inline: 3rem; position: absolute; top: 5rem; }
         .marketing-blog .marketing-section-label { margin-bottom: 1.5rem; }
@@ -624,7 +627,7 @@ function LandingStyles() {
         .marketing-services .marketing-section-heading { border-top: 1px solid var(--marketing-border); padding-top: 1.5rem; }
         .marketing-blog { border-top: 0; padding-bottom: 5rem; padding-top: 6.5rem; position: relative; }
         .marketing-blog::before { border-top: 1px solid var(--marketing-border); content: ""; position: absolute; top: 5rem; }
-        .marketing-carousel-controls { display: none; }
+        .marketing-carousel-controls-row { display: none; }
       }
       @media (min-width: 768px) and (max-width: 999px) {
         .marketing-hero,
