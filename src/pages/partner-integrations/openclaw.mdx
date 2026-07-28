@@ -3,9 +3,51 @@ description: "Use the official MPP plugin to make OpenClaw HTTP requests payment
 imageDescription: "Connect OpenClaw to paid APIs with a scoped Tempo Wallet access key"
 ---
 
+import { Tab, Tabs } from 'vocs'
+
 # OpenClaw
 
 Install the official [`openclaw-mpp`](https://clawhub.ai/tempoxyz/plugins/openclaw-mpp) plugin from [ClawHub](https://clawhub.ai/) to let an OpenClaw instance call free and paid HTTP APIs through MPP. When a configured wallet receives an MPP Challenge, the plugin creates a Credential, retries the request, and returns the paid response.
+
+## Choose a wallet integration
+
+<Tabs stateKey="wallet-provider">
+<Tab title="Tempo Wallet">
+
+The `openclaw-mpp` plugin uses a scoped Tempo Wallet access key for automatic MPP payments. Continue with the plugin setup below.
+
+</Tab>
+<Tab title="Privy">
+
+Install Privy's OpenClaw skill when the agent needs a Privy server wallet for onchain actions. Create a Privy app first, then keep its app secret in the OpenClaw configuration—not in a skill or source file.
+
+```bash [terminal]
+$ clawhub install privy
+```
+
+```json [~/.openclaw/openclaw.json]
+{
+  "env": {
+    "vars": {
+      "PRIVY_APP_ID": "your-app-id",
+      "PRIVY_APP_SECRET": "your-app-secret"
+    }
+  }
+}
+```
+
+Restart the gateway, then ask the agent to create a wallet and attach the spending policies it needs.
+
+```bash [terminal]
+$ openclaw gateway restart
+```
+
+:::info
+The current `openclaw-mpp` plugin accepts a Tempo Wallet access key; it does not yet accept a Privy-backed account for automatic `mpp_fetch` payments. Use Privy's [MPP recipe](https://docs.privy.io/recipes/agent-integrations/mpp) to add a custom `mppx` payment tool backed by `createViemAccount`.
+:::
+
+</Tab>
+</Tabs>
 
 ## Install from ClawHub
 

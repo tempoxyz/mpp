@@ -3,11 +3,17 @@ description: "Accept Tempo stablecoins, Stripe cards, and Lightning Bitcoin on a
 imageDescription: "Accept stablecoins, cards, and Lightning on one endpoint"
 ---
 
+import { SigningAccountTabs } from '../../components/SigningAccountTabs'
 import { Cards, Tab, Tabs } from 'vocs'
 import { OneTimePaymentsCard, PayAsYouGoCard, PaymentMethodsCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
 
 # Accept multiple payment methods [Stablecoins, cards, and Bitcoin on a single endpoint]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Build a payment-gated API that accepts [Tempo](/payment-methods/tempo) stablecoins, [Stripe](/payment-methods/stripe) cards, and [Lightning](/payment-methods/lightning) Bitcoin—all on the same endpoint. The server returns a `402` Challenge advertising every available method, and the client pays with whichever rail it supports.
 

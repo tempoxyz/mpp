@@ -3,6 +3,7 @@ description: "Accept streamed payments over Server-Sent Events with mppx. Bill p
 imageDescription: "Bill per token in real time over SSE streams"
 ---
 
+import { SigningAccountTabs } from '../../components/SigningAccountTabs'
 import { Cards, Tabs, Tab } from "vocs";
 import {
   OneTimePaymentsCard,
@@ -13,6 +14,11 @@ import { PromptBlock } from "../../components/PromptBlock";
 import { TerminalPoem } from "../../components/TerminalPoem";
 
 # Accept streamed payments [Per-token billing over Server-Sent Events]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Build a payment-gated poetry API that streams poems word-by-word and charges $0.001 per word using `mppx` sessions with Server-Sent Events (SSE).
 

@@ -3,9 +3,15 @@ description: "Restore the original fetch after installing the MPP fetch polyfill
 imageDescription: "Restore the original fetch"
 ---
 
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 import { Tab, Tabs } from 'vocs'
 
 # `Fetch.restore` [Restore global fetch]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Restores the original `globalThis.fetch` after `Fetch.polyfill` or `Mppx.create` installs a payment-aware wrapper.
 

@@ -3,10 +3,16 @@ description: "Split a single charge across multiple recipients in one atomic tra
 imageDescription: "Split payments across multiple recipients"
 ---
 
+import { SigningAccountTabs } from '../../components/SigningAccountTabs'
 import { Cards, Tab, Tabs } from 'vocs'
 import { OneTimePaymentsCard, PayAsYouGoCard, ServerQuickstartCard } from '../../components/cards'
 
 # Accept split payments [Distribute a charge across multiple recipients]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Split a single charge across multiple recipients in one atomic transaction. The primary recipient receives the remainder after all splits are deducted.
 

@@ -3,10 +3,16 @@ description: "Accept one-time stablecoin payments on Tempo with signed TIP-20 to
 imageDescription: "One-time stablecoin payments on Tempo"
 ---
 
+import { SigningAccountTabs } from '../../../components/SigningAccountTabs'
 import { Cards, Tab, Tabs } from "vocs";
 import { SpecCard } from "../../../components/SpecCard";
 
 # Tempo charge [One-time TIP-20 token transfers]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 The Tempo implementation of the [charge](/intents/charge) intent.
 

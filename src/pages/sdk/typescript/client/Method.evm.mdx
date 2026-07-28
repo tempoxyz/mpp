@@ -2,11 +2,21 @@
 title: "evm client method"
 ---
 
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
+
 # `evm` [Sign EVM charge Credentials]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Namespace for EVM payment methods and known asset metadata.
 
 ## Usage
+
+<Tabs stateKey="wallet-provider">
+<Tab title="Direct">
 
 ```ts twoslash
 import { Mppx, evm } from 'mppx/client'
@@ -28,6 +38,38 @@ Mppx.create({
   ],
 })
 ```
+
+</Tab>
+<Tab title="Privy">
+
+```ts [privy.ts]
+import { PrivyClient } from '@privy-io/node'
+import { createViemAccount } from '@privy-io/node/viem'
+import { Mppx, evm } from 'mppx/client'
+
+const privy = new PrivyClient({
+  appId: process.env.PRIVY_APP_ID!,
+  appSecret: process.env.PRIVY_APP_SECRET!,
+})
+
+const account = createViemAccount(privy, {
+  address: process.env.PRIVY_WALLET_ADDRESS as `0x${string}`,
+  walletId: process.env.PRIVY_WALLET_ID!,
+})
+
+Mppx.create({
+  methods: [
+    evm.charge({
+      account,
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+  ],
+})
+```
+
+</Tab>
+</Tabs>
 
 ## Exports
 

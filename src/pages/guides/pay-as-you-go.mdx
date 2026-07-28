@@ -3,12 +3,18 @@ description: "Build a payment-gated API with session-based billing using mppx pa
 imageDescription: "Bill per request with pay-as-you-go sessions"
 ---
 
+import { SigningAccountTabs } from '../../components/SigningAccountTabs'
 import { Cards, Tabs, Tab } from 'vocs'
 import { OneTimePaymentsCard, ServerQuickstartCard, WalletCliCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
 import { TerminalGallery } from '../../components/TerminalGallery'
 
 # Accept pay-as-you-go payments [Session-based billing with payment channels]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Build a payment-gated photo gallery API that charges $0.01 per photo using `mppx` sessions.
 The server returns random photos from [Picsum](https://picsum.photos) behind a paywall,

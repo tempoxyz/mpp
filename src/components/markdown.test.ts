@@ -61,6 +61,7 @@ import {
   ServerPrompt,
 } from "./QuickstartPrompt";
 import { ServicesPage } from "./ServicesPage";
+import { SigningAccountTabs } from "./SigningAccountTabs";
 import { TerminalGallery } from "./TerminalGallery";
 import { TerminalPhoto } from "./TerminalPhoto";
 import { TerminalPing } from "./TerminalPing";
@@ -114,6 +115,7 @@ const components = {
   ServerPrompt,
   ServerQuickstartCard,
   ServicesPage,
+  SigningAccountTabs,
   SolanaChargeCard,
   SolanaMethodCard,
   SolanaSessionCard,

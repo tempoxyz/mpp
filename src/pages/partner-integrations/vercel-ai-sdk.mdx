@@ -2,9 +2,18 @@
 description: "Use MPP with the Vercel AI SDK."
 ---
 
+import { Tab, Tabs } from 'vocs'
+
 # Vercel AI SDK
 
 Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let a [Vercel AI SDK agent](https://ai-sdk.dev/docs/agents/overview) pay for MCP tools and HTTP requests through MPP. Free calls pass through untouched; when a paid tool or a 402-protected request returns an MPP Challenge, the wrapped client creates a Credential, retries the call, and returns the result.
+
+## Configure a payment wallet
+
+Choose a local viem account for development or use a Privy server wallet when the agent runs in production.
+
+<Tabs stateKey="wallet-provider">
+<Tab title="Direct">
 
 ```bash [terminal]
 $ pnpm add mppx viem ai @ai-sdk/mcp zod
@@ -20,6 +29,48 @@ Mppx.create({
   methods: [tempo({ account })],
 })
 ```
+
+</Tab>
+<Tab title="Privy">
+
+Create an EVM server wallet in [Privy](https://dashboard.privy.io), fund its address with pathUSD on Tempo, then store its ID and address with your Privy app credentials. Keep `PRIVY_APP_SECRET` server-side.
+
+:::code-group
+```bash [npm]
+$ npm install @ai-sdk/mcp @privy-io/node ai mppx viem zod
+```
+```bash [pnpm]
+$ pnpm add @ai-sdk/mcp @privy-io/node ai mppx viem zod
+```
+```bash [bun]
+$ bun add @ai-sdk/mcp @privy-io/node ai mppx viem zod
+```
+:::
+
+Use `@privy-io/node` version `0.20.0` or later. `createViemAccount` gives `mppx` an account that delegates signing to the Privy wallet.
+
+```ts [payments.ts]
+import { PrivyClient } from '@privy-io/node'
+import { createViemAccount } from '@privy-io/node/viem'
+import { Mppx, tempo } from 'mppx/client'
+
+const privy = new PrivyClient({
+  appId: process.env.PRIVY_APP_ID!,
+  appSecret: process.env.PRIVY_APP_SECRET!,
+})
+
+export const account = createViemAccount(privy, {
+  address: process.env.PRIVY_WALLET_ADDRESS as `0x${string}`,
+  walletId: process.env.PRIVY_WALLET_ID!,
+})
+
+Mppx.create({
+  methods: [tempo({ account })],
+})
+```
+
+</Tab>
+</Tabs>
 
 ## Pay for MCP tools
 
@@ -82,6 +133,9 @@ The `tempo({ account })` helper used above supports Tempo [charge](/payment-meth
 
 Register an EVM method beside your Tempo method when the agent needs to call APIs that support either native MPP or x402 exact. The same payment-aware fetch reads MPP `WWW-Authenticate` Challenges and x402 `PAYMENT-REQUIRED` Challenges, then retries with the matching `Authorization` or `PAYMENT-SIGNATURE` header.
 
+<Tabs stateKey="wallet-provider">
+<Tab title="Direct">
+
 ```ts [payments.ts]
 import { Mppx, evm, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -105,6 +159,44 @@ Mppx.create({
 })
 ```
 
+</Tab>
+<Tab title="Privy">
+
+```ts [payments.ts]
+import { PrivyClient } from '@privy-io/node'
+import { createViemAccount } from '@privy-io/node/viem'
+import { Mppx, evm, tempo } from 'mppx/client'
+
+const privy = new PrivyClient({
+  appId: process.env.PRIVY_APP_ID!,
+  appSecret: process.env.PRIVY_APP_SECRET!,
+})
+
+const account = createViemAccount(privy, {
+  address: process.env.PRIVY_WALLET_ADDRESS as `0x${string}`,
+  walletId: process.env.PRIVY_WALLET_ID!,
+})
+
+Mppx.create({
+  acceptPaymentPolicy: {
+    origins: ['https://api.example.com'],
+  },
+  methods: [
+    // [!code hl:start]
+    evm.charge({
+      account,
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
+    tempo.charge({ account }),
+    // [!code hl:end]
+  ],
+})
+```
+
+</Tab>
+</Tabs>
+
 Use this setup before creating MCP transports or calling `fetch`. MCP tool calls can keep using MPP through the wrapped client, while HTTP calls can pay either native MPP or x402 exact endpoints.
 
 See [build a client for MPP and x402](/guides/use-mpp-with-x402#build-a-client-for-mpp-and-x402) for the shared client flow.
@@ -114,6 +206,9 @@ See [build a client for MPP and x402](/guides/use-mpp-with-x402#build-a-client-f
 The example above uses a standard viem account. For long-running apps or agents, use scoped access keys when the runtime should pay in the background with spending limits, call scopes, recipient restrictions, and independent revocation.
 
 Create the access key first, then pass the Tempo account into the same setup.
+
+<Tabs stateKey="wallet-provider">
+<Tab title="Accounts SDK">
 
 ```ts [payments.ts]
 Mppx.create({
@@ -125,5 +220,22 @@ Mppx.create({
   ],
 })
 ```
+
+</Tab>
+<Tab title="Privy">
+
+Configure spending limits with Privy wallet policies, then use the Privy-backed account from `payments.ts`.
+
+```ts [payments.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { account } from './payments'
+
+Mppx.create({
+  methods: [tempo({ account })],
+})
+```
+
+</Tab>
+</Tabs>
 
 See [Managing agent spend](/guides/managing-agent-spend) for limits, scopes, recipients, and revocation.

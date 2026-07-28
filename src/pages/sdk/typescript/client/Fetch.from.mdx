@@ -3,9 +3,15 @@ description: "Wrap fetch with automatic MPP payments without changing global fet
 imageDescription: "Wrap fetch for paid API calls"
 ---
 
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 import { Tab, Tabs } from 'vocs'
 
 # `Fetch.from` [Create a payment-aware fetch wrapper]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Creates a scoped `fetch` wrapper that handles `402` Payment Required responses without modifying `globalThis.fetch`.
 
