@@ -113,18 +113,29 @@ import { spark } from '@buildonspark/lightning-mpp-sdk/server'`,
   },
 ];
 
-const TYPESCRIPT_HIGHLIGHTER = Promise.all([
-  import("shiki/core"),
-  import("shiki/engine/javascript"),
-  import("shiki/dist/langs/typescript.mjs"),
-  import("shiki/dist/themes/github-dark-default.mjs"),
-]).then(async ([core, engine, language, theme]) =>
-  core.createHighlighterCore({
-    engine: engine.createJavaScriptRegexEngine(),
-    langs: [language.default],
-    themes: [theme.default],
-  }),
-);
+function createTypescriptHighlighter() {
+  return Promise.all([
+    import("shiki/core"),
+    import("shiki/engine/javascript"),
+    import("shiki/dist/langs/typescript.mjs"),
+    import("shiki/dist/themes/github-dark-default.mjs"),
+  ]).then(async ([core, engine, language, theme]) =>
+    core.createHighlighterCore({
+      engine: engine.createJavaScriptRegexEngine(),
+      langs: [language.default],
+      themes: [theme.default],
+    }),
+  );
+}
+
+let typescriptHighlighter:
+  | ReturnType<typeof createTypescriptHighlighter>
+  | undefined;
+
+function loadTypescriptHighlighter() {
+  typescriptHighlighter ??= createTypescriptHighlighter();
+  return typescriptHighlighter;
+}
 
 const TERMINAL_STEPS = [
   Terminal.commands(["./mpp.sh"]),
@@ -408,9 +419,28 @@ function SectionLabel({ children }: { children: ReactNode }) {
 function IntegrationCodeCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [highlightedCode, setHighlightedCode] = useState("");
+  const [shouldHighlight, setShouldHighlight] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
   );
+
+  useEffect(() => {
+    if (shouldHighlight) return;
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setShouldHighlight(true);
+        observer.disconnect();
+      },
+      { rootMargin: "300px" },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [shouldHighlight]);
 
   useEffect(() => {
     if (prefersReducedMotion) return;
@@ -427,25 +457,29 @@ function IntegrationCodeCarousel() {
 ${activeSnippet.code}`;
 
   useEffect(() => {
+    if (!shouldHighlight) return;
+
     let cancelled = false;
     setHighlightedCode("");
 
-    TYPESCRIPT_HIGHLIGHTER.then((highlighter) =>
-      highlighter.codeToHtml(source, {
-        lang: "ts",
-        theme: "github-dark-default",
-      }),
-    ).then((html) => {
-      if (!cancelled) setHighlightedCode(html);
-    });
+    loadTypescriptHighlighter()
+      .then((highlighter) =>
+        highlighter.codeToHtml(source, {
+          lang: "ts",
+          theme: "github-dark-default",
+        }),
+      )
+      .then((html) => {
+        if (!cancelled) setHighlightedCode(html);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [source]);
+  }, [shouldHighlight, source]);
 
   return (
-    <section className="marketing-single-line">
+    <section className="marketing-single-line" ref={sectionRef}>
       <div className="marketing-single-line-intro">
         <SectionLabel>Integrate</SectionLabel>
         <h2>Sell to agents with just a single line of code</h2>
@@ -469,14 +503,21 @@ ${activeSnippet.code}`;
             )}
           </div>
         </div>
-        <div aria-hidden="true" className="marketing-code-carousel-dots">
+        <fieldset
+          aria-label="Choose a payment method example"
+          className="marketing-code-carousel-dots"
+        >
           {PAYMENT_METHOD_SNIPPETS.map((snippet, index) => (
-            <span
+            <button
+              aria-label={`Show ${snippet.method} example`}
+              aria-pressed={index === activeIndex}
               className={index === activeIndex ? "is-active" : undefined}
               key={snippet.method}
+              onClick={() => setActiveIndex(index)}
+              type="button"
             />
           ))}
-        </div>
+        </fieldset>
       </div>
     </section>
   );
@@ -691,9 +732,12 @@ function LandingStyles() {
       .marketing-code-shiki .shiki { background: #101010 !important; color: #dedede !important; font-family: var(--font-mono, monospace) !important; font-size: clamp(0.75rem, 1.4vw, 0.9375rem) !important; height: 100%; line-height: 1.5 !important; margin: 0 !important; overflow-x: auto; padding: 0 0 0.25rem !important; white-space: pre; }
       .marketing-code-fallback code,
       .marketing-code-shiki .shiki code { font-family: inherit !important; }
-      .marketing-code-carousel-dots { border-top: 1px solid var(--marketing-border); display: flex; gap: 0.375rem; padding: 0.875rem 1rem; }
-      .marketing-code-carousel-dots span { background: var(--marketing-border); display: block; height: 2px; transition: background-color 300ms ease, width 300ms ease; width: 1.25rem; }
-      .marketing-code-carousel-dots .is-active { background: var(--marketing-copy); width: 3rem; }
+      .marketing-code-carousel-dots { align-items: center; border: 0; border-top: 1px solid var(--marketing-border); display: flex; gap: 0.375rem; margin: 0; min-width: 0; padding: 0.625rem 1rem; }
+      .marketing-code-carousel-dots button { appearance: none; background: transparent; border: 0; cursor: pointer; height: 1.5rem; padding: 0; position: relative; transition: width 300ms ease; width: 1.25rem; }
+      .marketing-code-carousel-dots button::after { background: var(--marketing-border); content: ""; height: 2px; inset: calc(50% - 1px) 0 auto; position: absolute; transition: background-color 300ms ease; }
+      .marketing-code-carousel-dots button.is-active { width: 3rem; }
+      .marketing-code-carousel-dots button.is-active::after { background: var(--marketing-copy); }
+      .marketing-code-carousel-dots button:focus-visible { outline: 1px solid var(--marketing-copy); outline-offset: 2px; }
       @keyframes marketing-code-fade { from { opacity: 0; transform: translateY(0.5rem); } to { opacity: 1; transform: translateY(0); } }
       .marketing-services,
       .marketing-blog { border-top: 1px solid var(--marketing-border); padding-bottom: clamp(5rem, 10vw, 9rem); padding-top: clamp(1.5rem, 3vw, 2rem); }
@@ -830,7 +874,8 @@ function LandingStyles() {
       }
       @media (prefers-reduced-motion: reduce) {
         .marketing-code-snippet { animation: none; }
-        .marketing-code-carousel-dots span { transition: none; }
+        .marketing-code-carousel-dots button,
+        .marketing-code-carousel-dots button::after { transition: none; }
       }
     `}</style>
   );
