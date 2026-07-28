@@ -5,12 +5,14 @@ import { list } from "@vercel/blob";
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 
 const CACHE_HEADERS = {
-  "Cache-Control": "public, s-maxage=86400, stale-while-revalidate",
+  "Cache-Control":
+    "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000",
 };
 
 const FALLBACK_HEADERS = {
+  "Cache-Control":
+    "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
   "Content-Type": "image/svg+xml",
-  "Cache-Control": "public, s-maxage=3600, stale-while-revalidate",
 };
 
 function letterSvg(id: string): string {

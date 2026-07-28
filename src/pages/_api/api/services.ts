@@ -1,5 +1,8 @@
 import discovery from "../../../../schemas/discovery.json";
 
+const CACHE_CONTROL =
+  "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
+
 export function GET(request: Request) {
   const ids = new URL(request.url).searchParams
     .get("ids")
@@ -28,11 +31,11 @@ export function GET(request: Request) {
 
     return Response.json(
       { services },
-      { headers: { "Cache-Control": "public, max-age=60" } },
+      { headers: { "Cache-Control": CACHE_CONTROL } },
     );
   }
 
   return Response.json(discovery, {
-    headers: { "Cache-Control": "public, max-age=60" },
+    headers: { "Cache-Control": CACHE_CONTROL },
   });
 }

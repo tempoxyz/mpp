@@ -239,12 +239,6 @@ function useRouteFade() {
       )
         return;
 
-      if (url.pathname === "/blog" && link.closest("[data-v-gutter-top]")) {
-        event.preventDefault();
-        window.location.assign(url.href);
-        return;
-      }
-
       window.dispatchEvent(new Event("mpp:route"));
       document.documentElement.dataset.routeTransition = "";
       window.setTimeout(() => {

@@ -1,6 +1,5 @@
 /**
- * Generates schemas/discovery.json (full) and schemas/discovery.example.json (slim)
- * from schemas/services.ts.
+ * Generates the service catalog, schemas, and llms.txt from schemas/services.ts.
  *
  * Usage: node scripts/generate-discovery.ts
  */
@@ -22,6 +21,10 @@ const OUTPUT_EXAMPLE = resolve(SCHEMAS_DIR, "discovery.example.json");
 const OUTPUT_LLMS_TXT = resolve(
   import.meta.dirname,
   "../public/services/llms.txt",
+);
+const OUTPUT_PUBLIC_CATALOG = resolve(
+  import.meta.dirname,
+  "../public/services/catalog.json",
 );
 
 /** Services included in the slim example (covers fixed, dynamic, free, and mixed intents) */
@@ -221,6 +224,7 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
 }
 
 function writeJson(path: string, data: unknown): void {
+  mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
 }
 
@@ -286,6 +290,9 @@ function generate(): void {
   // Full registry (checked in, used by API)
   writeJson(OUTPUT_FULL, { version: 1, services: allBuilt });
 
+  // Static catalog used by the services UI to avoid a serverless cold start.
+  writeJson(OUTPUT_PUBLIC_CATALOG, { version: 1, services: allBuilt });
+
   // Slim example (checked in, used by schema tests)
   const exampleServices = allBuilt.filter((s) =>
     EXAMPLE_IDS.has(s.id as string),
@@ -312,6 +319,9 @@ function generate(): void {
   }
   console.log(
     `Generated ${OUTPUT_FULL} (${services.length} services, ${totalEps} endpoints)`,
+  );
+  console.log(
+    `Generated ${OUTPUT_PUBLIC_CATALOG} (${services.length} services)`,
   );
   console.log(
     `Generated ${OUTPUT_EXAMPLE} (${exampleServices.length} services)`,

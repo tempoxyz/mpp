@@ -381,7 +381,12 @@ function ServiceCard({ service }: { service: FeaturedService }) {
   return (
     <article className="marketing-service-card">
       <div className="marketing-service-card-header">
-        <img alt="" src={serviceIconUrl(service)} />
+        <img
+          alt=""
+          decoding="async"
+          loading="lazy"
+          src={serviceIconUrl(service)}
+        />
         <div>
           <h3>{service.name}</h3>
           <span>{category}</span>

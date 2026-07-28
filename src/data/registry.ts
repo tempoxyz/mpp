@@ -1,14 +1,14 @@
 // ---------------------------------------------------------------------------
 // API config
-// Uses the local /api/services route which proxies discovery.json (same origin,
-// no CORS). In production this serves from the same Vercel deployment.
-// To point at an external API instead, change API_URL to the full URL.
+// The directory uses a generated static catalog to avoid serverless cold starts.
+// The public /api/services endpoint remains available for external consumers.
 // ---------------------------------------------------------------------------
 
 import { useEffect, useState } from "react";
 
 const API_URL = "/api/services";
-const CACHE_TTL_MS = 60_000;
+const CACHE_TTL_MS = 5 * 60_000;
+const CATALOG_URL = "/services/catalog.json";
 
 // ---------------------------------------------------------------------------
 // Types (mirrors the discovery JSON Schema)
@@ -80,9 +80,14 @@ export type FeaturedService = Pick<
 
 let cached: { data: Service[]; ts: number } | null = null;
 let inflight: Promise<Service[]> | null = null;
+const featuredCached = new Map<
+  string,
+  { data: FeaturedService[]; ts: number }
+>();
+const featuredInflight = new Map<string, Promise<FeaturedService[]>>();
 
-async function fetchFromApi(): Promise<Service[]> {
-  const res = await fetch(API_URL);
+async function fetchCatalog(): Promise<Service[]> {
+  const res = await fetch(CATALOG_URL);
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   const json = await res.json();
   return json.services;
@@ -94,10 +99,10 @@ async function fetchFromApi(): Promise<Service[]> {
 
 const SESSION_KEY = "mpp-services-cache";
 
-function readSessionCache(): Service[] | null {
+function readSessionCache<T>(key: string): T | null {
   if (typeof sessionStorage === "undefined") return null;
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
+    const raw = sessionStorage.getItem(key);
     if (!raw) return null;
     const { data, ts } = JSON.parse(raw);
     if (Date.now() - ts < CACHE_TTL_MS) return data;
@@ -105,13 +110,10 @@ function readSessionCache(): Service[] | null {
   return null;
 }
 
-function writeSessionCache(data: Service[]) {
+function writeSessionCache<T>(key: string, data: T) {
   if (typeof sessionStorage === "undefined") return;
   try {
-    sessionStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({ data, ts: Date.now() }),
-    );
+    sessionStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
   } catch {}
 }
 
@@ -206,7 +208,7 @@ export async function fetchServices(): Promise<Service[]> {
     return cached.data;
   }
 
-  const fromSession = readSessionCache();
+  const fromSession = readSessionCache<Service[]>(SESSION_KEY);
   if (fromSession) {
     cached = { data: fromSession, ts: Date.now() };
     return fromSession;
@@ -214,14 +216,14 @@ export async function fetchServices(): Promise<Service[]> {
 
   if (inflight) return inflight;
 
-  inflight = fetchFromApi()
+  inflight = fetchCatalog()
     .then((services) => {
       const cleaned = services.map((s) => ({
         ...s,
         name: s.name.replace(/ \(New\)$/i, ""),
       }));
       cached = { data: cleaned, ts: Date.now() };
-      writeSessionCache(cleaned);
+      writeSessionCache(SESSION_KEY, cleaned);
       inflight = null;
       return cleaned;
     })
@@ -236,15 +238,45 @@ export async function fetchServices(): Promise<Service[]> {
 export async function fetchFeaturedServices(
   ids: readonly string[],
 ): Promise<FeaturedService[]> {
-  const search = new URLSearchParams({ ids: ids.join(",") });
-  const response = await fetch(`${API_URL}?${search}`);
-  if (!response.ok) {
-    throw new Error(`API ${response.status}: ${response.statusText}`);
+  const idsKey = ids.join(",");
+  const memoryEntry = featuredCached.get(idsKey);
+  if (memoryEntry && Date.now() - memoryEntry.ts < CACHE_TTL_MS) {
+    return memoryEntry.data;
   }
 
-  const json = (await response.json()) as { services: FeaturedService[] };
-  return json.services.map((service) => ({
-    ...service,
-    name: service.name.replace(/ \(New\)$/i, ""),
-  }));
+  const cacheKey = `${SESSION_KEY}:featured:${idsKey}`;
+  const sessionEntry = readSessionCache<FeaturedService[]>(cacheKey);
+  if (sessionEntry) {
+    featuredCached.set(idsKey, { data: sessionEntry, ts: Date.now() });
+    return sessionEntry;
+  }
+
+  const pending = featuredInflight.get(idsKey);
+  if (pending) return pending;
+
+  const search = new URLSearchParams({ ids: idsKey });
+  const request = fetch(`${API_URL}?${search}`)
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`API ${response.status}: ${response.statusText}`);
+      }
+
+      const json = (await response.json()) as {
+        services: FeaturedService[];
+      };
+      const services = json.services.map((service) => ({
+        ...service,
+        name: service.name.replace(/ \(New\)$/i, ""),
+      }));
+      featuredCached.set(idsKey, { data: services, ts: Date.now() });
+      writeSessionCache(cacheKey, services);
+      featuredInflight.delete(idsKey);
+      return services;
+    })
+    .catch((error) => {
+      featuredInflight.delete(idsKey);
+      throw error;
+    });
+  featuredInflight.set(idsKey, request);
+  return request;
 }

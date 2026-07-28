@@ -750,13 +750,15 @@ export function ServiceDiscovery({
                 >
                   {iconUrl && !brokenIcons.current.has(service.id) ? (
                     <img
-                      src={iconUrl}
                       alt=""
                       className="discovery-card-icon-img"
+                      decoding="async"
+                      loading="lazy"
                       onError={() => {
                         brokenIcons.current.add(service.id);
                         forceIconUpdate((n) => n + 1);
                       }}
+                      src={iconUrl}
                     />
                   ) : (
                     <div className="discovery-card-icon-fallback">

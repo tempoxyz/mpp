@@ -3184,12 +3184,14 @@ function ServiceIcon({ service: s }: { service: Service }) {
     >
       {s.id && !imgError ? (
         <img
-          src={serviceIconUrl(s)}
           alt=""
-          width={36}
-          height={36}
           className="svc-icon-img"
+          decoding="async"
+          height={36}
+          loading="lazy"
           onError={() => setImgError(true)}
+          src={serviceIconUrl(s)}
+          width={36}
         />
       ) : (
         <FallbackIcon name={s.name} />
