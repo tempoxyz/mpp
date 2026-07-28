@@ -2,10 +2,7 @@
 
 import type { ReactNode } from "react";
 import { MdxPageContext } from "vocs";
-import {
-  formatBlogDate,
-  formatBlogPostDate,
-} from "../lib/blog.js";
+import { formatBlogDate, formatBlogPostDate } from "../lib/blog.js";
 
 export function BlogPostLayout({ children }: { children: ReactNode }) {
   const { frontmatter } = MdxPageContext.use();

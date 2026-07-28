@@ -1,5 +1,6 @@
 "use client";
 
+import blogPosts from "virtual:blog-posts";
 import {
   type ComponentType,
   lazy,
@@ -8,7 +9,6 @@ import {
   useRef,
   useState,
 } from "react";
-import blogPosts from "virtual:blog-posts";
 import {
   type FeaturedService,
   fetchFeaturedServices,

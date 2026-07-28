@@ -80,12 +80,100 @@ describe("blog metadata", () => {
     },
     {
       expected: 'layout must be "minimal"',
-      name: "incorrect page settings",
+      name: "incorrect layouts",
       overrides: { layout: "full" },
+    },
+    {
+      expected: "outline must be false",
+      name: "enabled outlines",
+      overrides: { outline: true },
+    },
+    {
+      expected: "showAskAi must be false",
+      name: "enabled Ask AI controls",
+      overrides: { showAskAi: true },
+    },
+    {
+      expected: "showFeedback must be false",
+      name: "enabled feedback controls",
+      overrides: { showFeedback: true },
+    },
+    {
+      expected: "showSearch must be false",
+      name: "enabled search controls",
+      overrides: { showSearch: true },
     },
   ])("rejects $name", ({ expected, overrides }) => {
     const blogDir = createBlogDirectory();
     writePost(blogDir, "invalid", overrides);
+
+    expect(() => loadBlogPosts({ blogDir })).toThrow(expected);
+  });
+
+  it.each([
+    "description",
+    "imageDescription",
+    "publishedAt",
+    "title",
+  ])("requires a non-empty %s", (field) => {
+    const blogDir = createBlogDirectory();
+    writePost(blogDir, "empty", { [field]: "  " });
+
+    expect(() => loadBlogPosts({ blogDir })).toThrow(
+      `${field} must be a non-empty string`,
+    );
+  });
+
+  it("accepts descriptions at their exact limits", () => {
+    const blogDir = createBlogDirectory();
+    writePost(blogDir, "limits", {
+      description: "a".repeat(160),
+      imageDescription: "b".repeat(80),
+    });
+
+    expect(loadBlogPosts({ blogDir })[0]).toMatchObject({
+      description: "a".repeat(160),
+      title: "Test post",
+    });
+  });
+
+  it("ignores the index and non-MDX files", () => {
+    const blogDir = createBlogDirectory();
+    writePost(blogDir, "post");
+    writeFileSync(join(blogDir, "index.mdx"), "not valid frontmatter");
+    writeFileSync(join(blogDir, "notes.md"), "not a post");
+    writeFileSync(join(blogDir, "_mdx-wrapper.tsx"), "not a post");
+
+    expect(loadBlogPosts({ blogDir }).map((post) => post.to)).toEqual([
+      "/blog/post",
+    ]);
+  });
+
+  it("uses routes as a stable tie-breaker for posts on the same date", () => {
+    const blogDir = createBlogDirectory();
+    writePost(blogDir, "z-last");
+    writePost(blogDir, "a-first");
+
+    expect(loadBlogPosts({ blogDir }).map((post) => post.to)).toEqual([
+      "/blog/a-first",
+      "/blog/z-last",
+    ]);
+  });
+
+  it.each([
+    {
+      content: "# Missing frontmatter",
+      expected: "missing frontmatter",
+      name: "missing frontmatter",
+    },
+    {
+      content: "---\nscalar\n---\n\n# Scalar",
+      expected: "frontmatter must be an object",
+      name: "scalar frontmatter",
+    },
+  ])("rejects $name", ({ content, expected }) => {
+    const blogDir = createBlogDirectory();
+    writeFileSync(join(blogDir, "invalid.mdx"), content);
 
     expect(() => loadBlogPosts({ blogDir })).toThrow(expected);
   });
@@ -110,27 +198,39 @@ describe("blog metadata", () => {
 });
 
 describe("blog RSS", () => {
-  it("renders deterministic, escaped items", () => {
+  it("renders deterministic items and escapes every XML entity", () => {
     const posts: BlogPost[] = [
       {
         date: "Thursday, January 2, 2025",
-        description: "Use <MPP> & charge",
+        description: `Use <MPP> & "charge" with 'receipts'`,
         publishedAt: "2025-01-02",
-        title: "MPP & APIs",
-        to: "/blog/mpp-apis",
+        title: `MPP & "APIs"`,
+        to: "/blog/mpp-apis?a=1&b=2",
       },
     ];
 
     const rss = renderBlogRss(posts, "https://example.com/");
 
     expect(rss).toContain("<lastBuildDate>Thu, 02 Jan 2025 00:00:00 GMT");
-    expect(rss).toContain("<title>MPP &amp; APIs</title>");
+    expect(rss).toContain("<title>MPP &amp; &quot;APIs&quot;</title>");
     expect(rss).toContain(
-      "<description>Use &lt;MPP&gt; &amp; charge</description>",
+      "<description>Use &lt;MPP&gt; &amp; &quot;charge&quot; with &apos;receipts&apos;</description>",
+    );
+    expect(rss).toContain(
+      "<link>https://example.com/blog/mpp-apis?a=1&amp;b=2</link>",
     );
     expect(rss).toContain(
       '<atom:link href="https://example.com/rss.xml" rel="self"',
     );
+  });
+
+  it("renders a deterministic empty feed", () => {
+    const rss = renderBlogRss([], "https://example.com");
+
+    expect(rss).toContain(
+      "<lastBuildDate>Thu, 01 Jan 1970 00:00:00 GMT</lastBuildDate>",
+    );
+    expect(rss).not.toContain("<item>");
   });
 });
 

@@ -53,11 +53,11 @@ function paragraph(children) {
 }
 
 describe("remarkMppMarkdown", () => {
-  it("renders the shared blog posts when posts are omitted", () => {
+  it("renders the configured blog posts", () => {
     const [list] = transform([flow("BlogPostList")]).children;
 
     expect(list.type).toBe("list");
-    expect(list.children).toHaveLength(7);
+    expect(list.children).toHaveLength(BLOG_POSTS.length);
   });
 
   it("replaces every audited component with semantic Markdown", () => {
@@ -71,6 +71,7 @@ describe("remarkMppMarkdown", () => {
           ],
         },
         flow("BlogPostList"),
+        flow("LandingPage"),
         flow(
           "Cards",
           [],
@@ -168,6 +169,7 @@ describe("remarkMppMarkdown", () => {
         "Card",
         "Cards",
         "DownloadSvgButton",
+        "LandingPage",
         "MermaidDiagram",
         "MppxCreateReferenceCard",
         "PromptBlock",
@@ -189,6 +191,37 @@ describe("remarkMppMarkdown", () => {
         expect.objectContaining({ depth: 2, type: "heading" }),
       ]),
     );
+  });
+
+  it("renders homepage navigation and generated blog metadata", () => {
+    const tree = transform([flow("LandingPage")]);
+
+    expect(tree.children).toEqual([
+      {
+        children: [{ type: "text", value: "Start building" }],
+        depth: 2,
+        type: "heading",
+      },
+      paragraph([
+        {
+          children: [{ type: "text", value: "Quickstart" }],
+          type: "link",
+          url: "/quickstart",
+        },
+        { type: "text", value: " — Accept your first payment with MPP" },
+      ]),
+      {
+        children: [{ type: "text", value: "Latest from the blog" }],
+        depth: 2,
+        type: "heading",
+      },
+      expect.objectContaining({
+        children: expect.arrayContaining([
+          expect.objectContaining({ type: "listItem" }),
+        ]),
+        type: "list",
+      }),
+    ]);
   });
 
   it("converts cards to titled Markdown links with their descriptions", () => {

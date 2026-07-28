@@ -42,6 +42,8 @@ function transformNode(node, headingDepth, blogPosts) {
       return [card(node)];
     case "DownloadSvgButton":
       return [downloadLinks(node)];
+    case "LandingPage":
+      return landingPage(blogPosts);
     case "MermaidDiagram":
       return [mermaidDiagram(node)];
     case "MppxCreateReferenceCard":
@@ -110,6 +112,19 @@ function blogPostList(posts) {
       };
     }),
   };
+}
+
+function landingPage(posts) {
+  return [
+    heading(2, "Start building"),
+    linkCard({
+      description: "Accept your first payment with MPP",
+      title: "Quickstart",
+      to: "/quickstart",
+    }),
+    heading(2, "Latest from the blog"),
+    blogPostList(posts),
+  ];
 }
 
 function requiredRecordString(value, key, context) {
