@@ -83,12 +83,10 @@ app.get(
     method: "Tempo",
   },
   {
-    code: `const mppx = Mppx.create({
-  methods: [stripe.charge({
-    networkId: 'internal',
-    paymentMethodTypes: ['card'],
-    secretKey: process.env.STRIPE_SECRET_KEY!,
-  })],
+    code: `const payments = await stripe.create({ client: stripeClient })
+
+const mppx = Mppx.create({
+  methods: [payments.spt.charge()],
 })
 
 app.get(
