@@ -2574,6 +2574,11 @@ body {
   background: var(--mpp-canvas);
 }
 
+[data-v-surface-bg],
+[data-v-outline-mobile] {
+  background: var(--mpp-canvas) !important;
+}
+
 [data-layout="minimal"] {
   background: #101010 !important;
 }
