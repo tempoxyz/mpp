@@ -72,22 +72,19 @@ const INTEGRATIONS = [
 
 const PAYMENT_METHOD_SNIPPETS = [
   {
-    code: `const app = new Hono()
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+    code: `const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 app.get(
   '/premium',
   mppx.charge({ amount: '1' }),
   (c) => c.json({ data: 'paid content' }),
-)`,
+    )`,
     comment: "Accept USDC.e payments on Tempo.",
-    imports: `import { Hono } from 'hono'
-import { Mppx, tempo } from 'mppx/hono'`,
+    imports: `import { Mppx, tempo } from 'mppx/hono'`,
     method: "Tempo",
   },
   {
-    code: `const app = new Hono()
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+    code: `const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 const mppx = Mppx.create({
   methods: [
     stripe.charge({
@@ -101,16 +98,14 @@ const mppx = Mppx.create({
   '/premium',
   mppx.charge({ amount: '1' }),
   (c) => c.json({ data: 'paid content' }),
-)`,
+    )`,
     comment: "Accept card payments with Stripe.",
-    imports: `import { Hono } from 'hono'
-import Stripe from 'stripe'
+    imports: `import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/hono'`,
     method: "Stripe",
   },
   {
-    code: `const app = new Hono()
-const mppx = Mppx.create({
+    code: `const mppx = Mppx.create({
   methods: [
     spark.charge({ mnemonic: process.env.MNEMONIC! }),
   ],
@@ -119,16 +114,14 @@ const mppx = Mppx.create({
   '/premium',
   mppx.charge({ amount: '1' }),
   (c) => c.json({ data: 'paid content' }),
-)`,
+    )`,
     comment: "Accept Bitcoin payments over Lightning.",
-    imports: `import { Hono } from 'hono'
-import { Mppx } from 'mppx/hono'
+    imports: `import { Mppx } from 'mppx/hono'
 import { spark } from '@buildonspark/lightning-mpp-sdk/server'`,
     method: "Bitcoin",
   },
   {
-    code: `const app = new Hono()
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+    code: `const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 const mppx = Mppx.create({
   methods: [
     tempo.charge(),
@@ -143,10 +136,9 @@ const mppx = Mppx.create({
   '/premium',
   mppx.charge({ amount: '1' }),
   (c) => c.json({ data: 'paid content' }),
-)`,
+    )`,
     comment: "Offer Tempo and Stripe in one integration.",
-    imports: `import { Hono } from 'hono'
-import Stripe from 'stripe'
+    imports: `import Stripe from 'stripe'
 import { Mppx, tempo, stripe } from 'mppx/hono'`,
     method: "Multi-method",
   },
