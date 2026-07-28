@@ -11167,4 +11167,44 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Reletter ────────────────────────────────────────────────────────
+  {
+    id: "reletter",
+    name: "Reletter",
+    url: "https://reletter.com",
+    serviceUrl: "https://api.reletter.com",
+    description:
+      "Newsletter data API for apps, agents, and outreach tools. Search 7M+ newsletters and full-text archives with subscriber numbers, contacts, rankings, and audience data.",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "newsletters",
+      "email",
+      "search",
+      "contacts",
+      "audience-data",
+      "marketing",
+      "research",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://reletter.com",
+      llmsTxt: "https://reletter.com/llms.txt",
+      apiReference: "https://api.reletter.com/openapi.json",
+    },
+    provider: { name: "Reletter", url: "https://reletter.com" },
+    realm: "api.reletter.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/payments/buy/",
+        desc: "Purchase a Reletter API request bundle and receive an API key",
+        dynamic: true,
+        amountHint: "Varies by request bundle",
+        unitType: "request bundle",
+        docs: "https://reletter.com/llms-full.txt",
+      },
+    ],
+  },
 ];
