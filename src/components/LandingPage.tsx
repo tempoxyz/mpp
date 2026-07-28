@@ -31,14 +31,42 @@ const Link = lazy(async () => {
 
 const FEATURED_SERVICE_IDS = ["anthropic", "openai", "parallel", "fal"];
 
-const INTEGRATION_LOGOS = [
-  "amazon",
-  "alchemy",
-  "browserbase",
-  "4",
-  "5",
-  "6",
-  "visa",
+const INTEGRATIONS = [
+  {
+    href: "https://www.alchemy.com",
+    name: "Alchemy",
+    slug: "alchemy",
+  },
+  {
+    href: "https://www.amazon.com",
+    name: "Amazon",
+    slug: "amazon",
+  },
+  {
+    href: "https://www.browserbase.com",
+    name: "Browserbase",
+    slug: "browserbase",
+  },
+  {
+    href: "https://www.cloudflare.com",
+    name: "Cloudflare",
+    slug: "4",
+  },
+  {
+    href: "https://dune.com",
+    name: "Dune",
+    slug: "5",
+  },
+  {
+    href: "https://parallel.ai",
+    name: "Parallel",
+    slug: "6",
+  },
+  {
+    href: "https://www.visa.com",
+    name: "Visa",
+    slug: "visa",
+  },
 ];
 
 const TERMINAL_STEPS = [
@@ -198,10 +226,16 @@ export function LandingPage() {
       <section className="marketing-integrations">
         <SectionLabel>Integrations</SectionLabel>
         <div className="marketing-integration-grid">
-          {INTEGRATION_LOGOS.map((name) => (
-            <div key={name} className="marketing-integration-logo">
-              <img alt="" src={`/marketing/logo-${name}.svg`} />
-            </div>
+          {INTEGRATIONS.map(({ href, name, slug }) => (
+            <a
+              className="marketing-integration-logo"
+              href={href}
+              key={name}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <img alt={name} src={`/marketing/logo-${slug}.svg`} />
+            </a>
           ))}
         </div>
       </section>
@@ -499,7 +533,8 @@ function LandingStyles() {
       .marketing-mobile-terminal-art video { display: block; height: auto; width: 100%; }
       .marketing-integrations { padding: 5rem 0; }
       .marketing-integration-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .marketing-integration-logo { align-items: center; border: 1px solid var(--marketing-border); display: flex; height: 4.5rem; justify-content: center; padding: 1rem; }
+      .marketing-integration-logo { align-items: center; border: 1px solid var(--marketing-border); display: flex; height: 4.5rem; justify-content: center; padding: 1rem; text-decoration: none !important; transition: background-color 150ms ease, border-color 150ms ease; }
+      .marketing-integration-logo:is(:hover, :focus-visible) { background: var(--marketing-elevated); border-color: var(--marketing-border-hover); outline: none; }
       .marketing-integration-logo img { max-height: 1.75rem; max-width: 100%; opacity: 0.9; width: auto; }
       .marketing-services,
       .marketing-blog { border-top: 1px solid var(--marketing-border); padding-bottom: clamp(5rem, 10vw, 9rem); padding-top: clamp(1.5rem, 3vw, 2rem); }
