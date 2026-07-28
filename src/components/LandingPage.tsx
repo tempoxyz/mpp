@@ -74,7 +74,11 @@ const PAYMENT_METHOD_SNIPPETS = [
   {
     code: `const mppx = Mppx.create({ methods: [tempo.charge()] })
 
-app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
+app.get(
+  '/premium',
+  mppx.charge({ amount: '1' }),
+  (c) => c.text('Paid'),
+)`,
     imports: `import { Mppx, tempo } from 'mppx/hono'`,
     method: "Tempo",
   },
@@ -87,7 +91,11 @@ app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
   })],
 })
 
-app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
+app.get(
+  '/premium',
+  mppx.charge({ amount: '1' }),
+  (c) => c.text('Paid'),
+)`,
     imports: `import { Mppx, stripe } from 'mppx/hono'`,
     method: "Stripe",
   },
@@ -96,26 +104,14 @@ app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
   methods: [spark.charge({ mnemonic: process.env.MNEMONIC! })],
 })
 
-app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
+app.get(
+  '/premium',
+  mppx.charge({ amount: '1' }),
+  (c) => c.text('Paid'),
+)`,
     imports: `import { Mppx } from 'mppx/hono'
 import { spark } from '@buildonspark/lightning-mpp-sdk/server'`,
     method: "Bitcoin",
-  },
-  {
-    code: `const mppx = Mppx.create({
-  methods: [
-    tempo.charge(),
-    stripe.charge({
-      networkId: 'internal',
-      paymentMethodTypes: ['card'],
-      secretKey: process.env.STRIPE_SECRET_KEY!,
-    }),
-  ],
-})
-
-app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
-    imports: `import { Mppx, stripe, tempo } from 'mppx/hono'`,
-    method: "Multi-method",
   },
 ];
 
