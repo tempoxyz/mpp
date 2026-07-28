@@ -378,6 +378,7 @@ function LandingStyles() {
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
       }
+      :has(.landing-page) [data-v-footer] { background: #060606 !important; }
 
       .landing-page {
         --marketing-bg: #060606;
