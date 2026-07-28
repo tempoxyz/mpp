@@ -15,19 +15,39 @@ export default defineConfig({
   accentColor: "#ffffff",
   colorScheme: "dark",
   baseUrl,
-  head: (path) =>
-    path === "/"
-      ? {
-          link: [
-            {
-              as: "image",
-              fetchpriority: "high",
-              href: "/marketing/mpp-hero-poster.jpg",
-              rel: "preload",
-            },
-          ],
-        }
-      : undefined,
+  head: (path) => {
+    if (path === "/")
+      return {
+        link: [
+          {
+            as: "image",
+            fetchpriority: "high",
+            href: "/marketing/mpp-hero-poster.jpg",
+            rel: "preload",
+          },
+        ],
+      };
+    if (path === "/services" || path.startsWith("/services/"))
+      return {
+        link: [
+          {
+            as: "font",
+            crossorigin: "anonymous",
+            href: "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Regular.woff2",
+            rel: "preload",
+            type: "font/woff2",
+          },
+          {
+            as: "font",
+            crossorigin: "anonymous",
+            href: "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Bold.woff2",
+            rel: "preload",
+            type: "font/woff2",
+          },
+        ],
+      };
+    return undefined;
+  },
   markdown: {
     outputRemarkPlugins: [
       // Production bundles may omit source MDX after Markdown artifacts exist.

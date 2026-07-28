@@ -199,18 +199,31 @@ function useGoogleAnalytics() {
     if (!id) return;
     if (document.querySelector(`script[src*="googletagmanager"]`)) return;
 
-    const script = document.createElement("script");
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
-    script.async = true;
-    document.head.appendChild(script);
+    const inject = () => {
+      const script = document.createElement("script");
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+      script.async = true;
+      document.head.appendChild(script);
 
-    window.dataLayer = window.dataLayer || [];
-    const gtag: (...args: unknown[]) => void = function () {
-      // biome-ignore lint/complexity/noArguments: gtag.js bootstrap requires the native arguments object
-      window.dataLayer.push(arguments);
+      window.dataLayer = window.dataLayer || [];
+      const gtag: (...args: unknown[]) => void = function () {
+        // biome-ignore lint/complexity/noArguments: gtag.js bootstrap requires the native arguments object
+        window.dataLayer.push(arguments);
+      };
+      gtag("js", new Date());
+      gtag("config", id);
     };
-    gtag("js", new Date());
-    gtag("config", id);
+
+    const idleCallback = window.requestIdleCallback?.(inject, {
+      timeout: 2_000,
+    });
+    const timeout =
+      idleCallback === undefined ? window.setTimeout(inject, 1_000) : undefined;
+
+    return () => {
+      if (idleCallback !== undefined) window.cancelIdleCallback(idleCallback);
+      if (timeout !== undefined) window.clearTimeout(timeout);
+    };
   }, []);
 }
 
@@ -987,34 +1000,6 @@ export default function Layout(
         rel="alternate"
         title="MPP Blog"
         type="application/rss+xml"
-      />
-      <link
-        rel="preload"
-        href="https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Regular.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-      <link
-        rel="preload"
-        href="https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Bold.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-      <link
-        rel="preload"
-        href="/fonts/Geist-Regular.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-      <link
-        rel="preload"
-        href="/fonts/Geist-Medium.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
       />
       <MobileNavPortal />
       <LogoContextMenu />
