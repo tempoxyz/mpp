@@ -1,24 +1,14 @@
 "use client";
 
 import { Link } from "vocs";
-
-type BlogPost = {
-  date: string;
-  description: React.ReactNode;
-  title: string;
-  to: string;
-};
-
-function formatDate(date: string) {
-  return date.replace(/^[A-Za-z]+,\s*/, "");
-}
+import { BLOG_POSTS, type BlogPost, formatBlogPostDate } from "../data/blog";
 
 function BlogPostRow({ date, description, title, to }: BlogPost) {
   return (
     <Link className="blog-post-row" to={to}>
       <div className="blog-post-row-title">
         <h2>{title}</h2>
-        <p>{formatDate(date)}</p>
+        <p>{formatBlogPostDate(date)}</p>
       </div>
       <div className="blog-post-row-description">{description}</div>
       <span aria-hidden="true" className="blog-post-row-arrow">
@@ -41,7 +31,11 @@ function BlogPostRow({ date, description, title, to }: BlogPost) {
   );
 }
 
-export function BlogPostList({ posts }: { posts: BlogPost[] }) {
+export function BlogPostList({
+  posts = BLOG_POSTS,
+}: {
+  posts?: readonly BlogPost[];
+}) {
   return (
     <div className="blog-post-list">
       {posts.map((post) => (

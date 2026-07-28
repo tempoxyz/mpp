@@ -53,6 +53,13 @@ function paragraph(children) {
 }
 
 describe("remarkMppMarkdown", () => {
+  it("renders the shared blog posts when posts are omitted", () => {
+    const [list] = transform([flow("BlogPostList")]).children;
+
+    expect(list.type).toBe("list");
+    expect(list.children).toHaveLength(7);
+  });
+
   it("replaces every audited component with semantic Markdown", () => {
     const tree = {
       type: "root",

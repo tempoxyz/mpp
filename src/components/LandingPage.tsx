@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { BLOG_POSTS, formatBlogPostDate } from "../data/blog";
 import {
   type FeaturedService,
   fetchFeaturedServices,
@@ -29,44 +30,6 @@ const Link = lazy(async () => {
 }) as ComponentType<LinkProps>;
 
 const FEATURED_SERVICE_IDS = ["anthropic", "openai", "parallel", "fal"];
-
-const BLOG_POSTS = [
-  {
-    date: "June 17, 2026",
-    description:
-      "Pay-as-you-go API billing is now cheaper and easier to integrate.",
-    title: "An improved sessions experience",
-    to: "/blog/sessions-improved",
-  },
-  {
-    date: "June 8, 2026",
-    description:
-      "MPP now supports generic EVM payments and x402 exact flows from one SDK.",
-    title: "EVM and x402 support",
-    to: "/blog/evm-x402-support",
-  },
-  {
-    date: "May 21, 2026",
-    description:
-      "Core SDKs now expose typed payment hooks for logging and request context.",
-    title: "Payment hooks",
-    to: "/blog/payment-hooks",
-  },
-  {
-    date: "May 12, 2026",
-    description:
-      "Enable recurring access for paid plans, memberships, and API tiers.",
-    title: "Subscriptions",
-    to: "/blog/subscriptions",
-  },
-  {
-    date: "April 28, 2026",
-    description:
-      "Declare every payment method, currency, and intent for a route ahead of time.",
-    title: "Multi-method discovery",
-    to: "/blog/multi-method-discovery",
-  },
-];
 
 const INTEGRATION_LOGOS = [
   "amazon",
@@ -291,11 +254,11 @@ export function LandingPage() {
           </h2>
         </div>
         <div className="marketing-blog-list">
-          {BLOG_POSTS.map((post) => (
+          {BLOG_POSTS.slice(0, 5).map((post) => (
             <Link className="marketing-blog-row" key={post.to} to={post.to}>
               <div className="marketing-blog-row-title">
                 <h3>{post.title}</h3>
-                <p>{post.date}</p>
+                <p>{formatBlogPostDate(post.date)}</p>
               </div>
               <p className="marketing-blog-row-description">
                 {post.description}

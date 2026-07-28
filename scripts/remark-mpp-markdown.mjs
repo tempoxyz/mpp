@@ -1,3 +1,5 @@
+import blogPosts from "../src/data/blog.json" with { type: "json" };
+
 /**
  * Replaces interactive documentation components with semantic Markdown nodes.
  *
@@ -82,7 +84,11 @@ function transformTabs(node, headingDepth) {
 }
 
 function blogPostList(node) {
-  const posts = requiredArray(node, "posts");
+  const hasPosts = node.attributes.some(
+    (attribute) =>
+      attribute.type === "mdxJsxAttribute" && attribute.name === "posts",
+  );
+  const posts = hasPosts ? requiredArray(node, "posts") : blogPosts;
   return {
     type: "list",
     ordered: false,

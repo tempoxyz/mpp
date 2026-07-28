@@ -2579,6 +2579,10 @@ body {
   background: var(--mpp-canvas) !important;
 }
 
+[data-v-surface-bg] {
+  width: calc(100vw - var(--vocs-spacing-gutter)) !important;
+}
+
 [data-layout="minimal"] {
   background: #101010 !important;
 }
