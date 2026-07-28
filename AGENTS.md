@@ -80,6 +80,7 @@ When multiple approaches exist, recommend one as the default. Don't present opti
 - Client SDK: Lead with `Fetch.polyfill`, move `Fetch.from` and `Mppx.create` to Advanced options
 - Building with AI: Lead with `llms-full.txt`, move MCP/skills/markdown to Advanced options
 - Installation: Show npm first in a code-group, not a table of choices
+- Wallet-provider tabs: Put the generic or local wallet option first. Privy and other vendor-specific options always follow it.
 
 If you're unsure which option to recommend, prefer:
 - The approach with fewer steps

@@ -3,11 +3,17 @@ description: "Accept pay-as-you-go stablecoin payments with Sessions."
 imageDescription: "Stream payments with low-cost sessions on Tempo"
 ---
 
+import { SigningAccountTabs } from '../../../components/SigningAccountTabs'
 import { Cards, Tab, Tabs } from 'vocs'
 import { MermaidDiagram } from '../../../components/MermaidDiagram'
 import { SpecCard } from '../../../components/SpecCard'
 
 # Sessions [Low-cost high-throughput payments]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Sessions use the [TIP-1034](https://tips.sh/1034) precompile for low cost and high reliability. Clients deposit funds into a channel reserve and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
 

@@ -1,6 +1,13 @@
 import { Tab, Tabs } from 'vocs'
 
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
+
 # `McpClient.wrap` [Payment-aware MCP client]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Wraps an MCP SDK client with automatic payment handling. When a tool call returns a `-32042` payment required error, the wrapper creates a Credential and retries the call.
 

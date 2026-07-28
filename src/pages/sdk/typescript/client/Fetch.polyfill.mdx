@@ -3,9 +3,15 @@ description: "Install a global fetch wrapper that handles MPP payments automatic
 imageDescription: "Install paid fetch globally"
 ---
 
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 import { Tab, Tabs } from 'vocs'
 
 # `Fetch.polyfill` [Install a global payment-aware fetch]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Replaces `globalThis.fetch` with a payment-aware wrapper that handles `402` Payment Required responses.
 

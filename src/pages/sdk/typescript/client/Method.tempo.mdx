@@ -4,9 +4,15 @@ description: "Register Tempo charge and session support in an MPP TypeScript cli
 imageDescription: "Handle Tempo payments in TypeScript clients"
 ---
 
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 import { Tab, Tabs } from 'vocs'
 
 # `tempo` [Register default Tempo intents]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Preferred convenience function that creates both `tempo.charge` and Sessions method intents with shared configuration.
 

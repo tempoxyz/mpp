@@ -2,27 +2,34 @@
 title: "evm.charge client method"
 ---
 
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
+import { Tab, Tabs } from 'vocs'
+
 # `Method.evm.charge` [Sign EVM charge Credentials]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Creates an EVM charge payment method for client-side EIP-3009 authorization signing.
 
 ## Usage
 
+<Tabs stateKey="wallet-provider">
+<Tab title="Direct">
+
 ```ts twoslash
-import { Fetch, evm } from 'mppx/client'
+import { Fetch, tempo } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(
+  '0x0123456789012345678901234567890123456789012345678901234567890123',
+)
 
 const fetch = Fetch.from({
   methods: [
-    // [!code focus:start]
-    evm.charge({
-      account: privateKeyToAccount(
-        '0x0123456789012345678901234567890123456789012345678901234567890123',
-      ),
-      currencies: [evm.assets.baseSepolia.USDC],
-      maxAmount: '1.00',
-    }),
-    // [!code focus:end]
+    tempo({ account }),
   ],
 })
 
@@ -30,6 +37,37 @@ const response = await fetch('https://api.example.com/paid')
 console.log(response.status)
 // @log: 200
 ```
+
+</Tab>
+<Tab title="Privy">
+
+```ts [privy.ts]
+import { PrivyClient } from '@privy-io/node'
+import { createViemAccount } from '@privy-io/node/viem'
+import { Fetch, tempo } from 'mppx/client'
+
+const privy = new PrivyClient({
+  appId: process.env.PRIVY_APP_ID!,
+  appSecret: process.env.PRIVY_APP_SECRET!,
+})
+
+const account = createViemAccount(privy, {
+  address: process.env.PRIVY_WALLET_ADDRESS as `0x${string}`,
+  walletId: process.env.PRIVY_WALLET_ID!,
+})
+
+const fetch = Fetch.from({
+  methods: [
+    tempo({ account }),
+  ],
+})
+
+const response = await fetch('https://api.example.com/paid')
+console.log(response.status)
+```
+
+</Tab>
+</Tabs>
 
 The client signs native MPP EVM charge Challenges and inline x402 exact Challenges for compatible assets.
 
@@ -49,6 +87,9 @@ type ReturnType = Method.Client
 
 Account that signs EVM charge Credentials.
 
+<Tabs stateKey="wallet-provider">
+<Tab title="Direct">
+
 ```ts twoslash
 import { evm } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -59,6 +100,32 @@ const method = evm.charge({
   ), // [!code focus]
 })
 ```
+
+</Tab>
+<Tab title="Privy">
+
+```ts [privy.ts]
+import { PrivyClient } from '@privy-io/node'
+import { createViemAccount } from '@privy-io/node/viem'
+import { evm } from 'mppx/client'
+
+const privy = new PrivyClient({
+  appId: process.env.PRIVY_APP_ID!,
+  appSecret: process.env.PRIVY_APP_SECRET!,
+})
+
+const account = createViemAccount(privy, {
+  address: process.env.PRIVY_WALLET_ADDRESS as `0x${string}`,
+  walletId: process.env.PRIVY_WALLET_ID!,
+})
+
+const method = evm.charge({
+  account, // [!code focus]
+})
+```
+
+</Tab>
+</Tabs>
 
 ### assets (optional)
 

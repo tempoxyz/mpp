@@ -1,4 +1,11 @@
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
+
 # `tempo.Ws.serve` [WebSocket session payments]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Bridges a WebSocket connection to a Tempo session payment flow. Credential verification is performed by routing each in-band authorization frame through `route` as a synthetic POST request that carries only the Authorization header. The synthetic request does not include cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
 

@@ -1,6 +1,13 @@
 import { Tab, Tabs } from 'vocs'
 
+import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
+
 # `Mppx.create` [Create a payment-aware fetch client]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 Creates a client-side payment handler. Returns a payment handler with a `fetch` function that automatically handles `402` Payment Required responses. By default, also polyfills `globalThis.fetch`.
 

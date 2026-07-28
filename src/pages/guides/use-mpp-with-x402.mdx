@@ -3,11 +3,17 @@ description: "Use MPP with x402 to support exact stablecoin flows, multi-method 
 imageDescription: "Use MPP with existing x402 flows"
 ---
 
+import { SigningAccountTabs } from '../../components/SigningAccountTabs'
 import { Cards } from 'vocs'
 import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
 
 # Use MPP with x402 [Run both payment flows together]
+
+## Choose a signing account
+
+<SigningAccountTabs />
+
 
 MPP runs x402-compatible EVM charges inline with native MPP flows. Both protocols use HTTP `402` to gate API access behind payment, and x402's "exact" charge flow maps directly onto MPP's `charge` intent. Adding MPP gives you standard `WWW-Authenticate` / `Authorization` headers, multi-method support (stablecoins, cards, Lightning), sessions for streaming payments, and an [IETF standards track](https://paymentauth.org) foundation—while the same route can still serve x402 clients.
 
