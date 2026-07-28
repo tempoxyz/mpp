@@ -21,6 +21,7 @@ type Page =
   | { path: '/blog/mppx-agent-runtimes'; render: 'static' }
   | { path: '/blog/multi-method-discovery'; render: 'static' }
   | { path: '/blog/payment-hooks'; render: 'static' }
+  | { path: '/blog/relays'; render: 'static' }
   | { path: '/blog/sessions-improved'; render: 'static' }
   | { path: '/blog/subscriptions'; render: 'static' }
   | { path: '/brand'; render: 'static' }
