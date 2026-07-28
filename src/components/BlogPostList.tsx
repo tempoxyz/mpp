@@ -1,7 +1,11 @@
 "use client";
 
+import blogPosts from "virtual:blog-posts";
 import { Link } from "vocs";
-import { BLOG_POSTS, type BlogPost, formatBlogPostDate } from "../data/blog";
+import {
+  type BlogPost,
+  formatBlogPostDate,
+} from "../lib/blog.js";
 
 function BlogPostRow({ date, description, title, to }: BlogPost) {
   return (
@@ -31,14 +35,10 @@ function BlogPostRow({ date, description, title, to }: BlogPost) {
   );
 }
 
-export function BlogPostList({
-  posts = BLOG_POSTS,
-}: {
-  posts?: readonly BlogPost[];
-}) {
+export function BlogPostList() {
   return (
     <div className="blog-post-list">
-      {posts.map((post) => (
+      {blogPosts.map((post) => (
         <BlogPostRow key={post.to} {...post} />
       ))}
     </div>

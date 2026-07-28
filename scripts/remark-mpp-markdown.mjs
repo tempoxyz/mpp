@@ -1,23 +1,21 @@
-import blogPosts from "../src/data/blog.json" with { type: "json" };
-
 /**
  * Replaces interactive documentation components with semantic Markdown nodes.
  *
  * Vocs runs this plugin only for generated Markdown output. The React site
  * continues to render the original MDX components.
  */
-export default function remarkMppMarkdown() {
+export default function remarkMppMarkdown(options = {}) {
   return (tree) => {
-    tree.children = transformNodes(tree.children, 2);
+    tree.children = transformNodes(tree.children, 2, options.blogPosts);
   };
 }
 
-function transformNodes(nodes, defaultHeadingDepth) {
+function transformNodes(nodes, defaultHeadingDepth, blogPosts) {
   let headingDepth = defaultHeadingDepth - 1;
   const transformed = [];
 
   for (const node of nodes) {
-    const replacements = transformNode(node, headingDepth);
+    const replacements = transformNode(node, headingDepth, blogPosts);
     for (const replacement of replacements) {
       transformed.push(replacement);
       if (replacement.type === "heading") headingDepth = replacement.depth;
@@ -27,19 +25,19 @@ function transformNodes(nodes, defaultHeadingDepth) {
   return transformed;
 }
 
-function transformNode(node, headingDepth) {
+function transformNode(node, headingDepth, blogPosts) {
   if (node.type !== "mdxJsxFlowElement" && node.type !== "mdxJsxTextElement")
-    return [transformChildren(node, headingDepth)];
+    return [transformChildren(node, headingDepth, blogPosts)];
 
   switch (node.name) {
     case "Badge":
     case "Cards":
     case "Tab":
-      return transformNodes(node.children, headingDepth + 1);
+      return transformNodes(node.children, headingDepth + 1, blogPosts);
     case "Tabs":
-      return transformTabs(node, headingDepth);
+      return transformTabs(node, headingDepth, blogPosts);
     case "BlogPostList":
-      return [blogPostList(node)];
+      return [blogPostList(blogPosts)];
     case "Card":
       return [card(node)];
     case "DownloadSvgButton":
@@ -57,61 +55,72 @@ function transformNode(node, headingDepth) {
     case "SpecCard":
       return [specCard(node)];
     default:
-      return [transformChildren(node, headingDepth)];
+      return [transformChildren(node, headingDepth, blogPosts)];
   }
 }
 
-function transformChildren(node, headingDepth) {
+function transformChildren(node, headingDepth, blogPosts) {
   if (!node.children) return node;
-  return { ...node, children: transformNodes(node.children, headingDepth + 1) };
+  return {
+    ...node,
+    children: transformNodes(node.children, headingDepth + 1, blogPosts),
+  };
 }
 
-function transformTabs(node, headingDepth) {
+function transformTabs(node, headingDepth, blogPosts) {
   const depth = Math.min(headingDepth + 1, 6);
   const nodes = [];
 
   for (const child of node.children) {
     if (!isComponent(child, "Tab")) {
-      nodes.push(...transformNode(child, depth));
+      nodes.push(...transformNode(child, depth, blogPosts));
       continue;
     }
 
     nodes.push(heading(depth, requiredString(child, "title")));
-    nodes.push(...transformNodes(child.children, depth + 1));
+    nodes.push(...transformNodes(child.children, depth + 1, blogPosts));
   }
 
   return nodes;
 }
 
-function blogPostList(node) {
-  const hasPosts = node.attributes.some(
-    (attribute) =>
-      attribute.type === "mdxJsxAttribute" && attribute.name === "posts",
-  );
-  const posts = hasPosts ? requiredArray(node, "posts") : blogPosts;
+function blogPostList(posts) {
+  if (!Array.isArray(posts))
+    throw new TypeError("BlogPostList requires configured blogPosts.");
   return {
     type: "list",
     ordered: false,
     spread: true,
     children: posts.map((post) => {
-      const title = requiredStaticString(post, "title", "BlogPostList post");
-      const to = requiredStaticString(post, "to", "BlogPostList post");
-      const date = requiredStaticString(post, "date", "BlogPostList post");
-      const description = requiredValue(
+      const date = requiredRecordString(post, "date", "BlogPostList post");
+      const description = requiredRecordString(
         post,
         "description",
         "BlogPostList post",
       );
+      const title = requiredRecordString(post, "title", "BlogPostList post");
+      const to = requiredRecordString(post, "to", "BlogPostList post");
       return {
         type: "listItem",
         spread: true,
         children: [
           paragraph([link(to, [text(title)])]),
-          paragraph([text(`${date} — `), ...inlineNodes(description)]),
+          paragraph([text(`${date} — ${description}`)]),
         ],
       };
     }),
   };
+}
+
+function requiredRecordString(value, key, context) {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    typeof value[key] !== "string" ||
+    value[key].length === 0
+  )
+    throw new TypeError(`${context} requires a static ${key} string.`);
+  return value[key];
 }
 
 function card(node) {
@@ -211,24 +220,6 @@ function requiredArray(node, name) {
   if (!Array.isArray(value))
     throw new TypeError(
       `${node.name} requires a static ${name} array for Markdown output.`,
-    );
-  return value;
-}
-
-function requiredValue(object, name, context) {
-  const value = object?.[name];
-  if (value === undefined)
-    throw new TypeError(
-      `${context} requires a static ${name} value for Markdown output.`,
-    );
-  return value;
-}
-
-function requiredStaticString(object, name, context) {
-  const value = expressionValue(requiredValue(object, name, context));
-  if (typeof value !== "string")
-    throw new TypeError(
-      `${context} requires a static ${name} string for Markdown output.`,
     );
   return value;
 }

@@ -68,7 +68,8 @@
     "unplugin-icons": "^23.0.1",
     "vite": "^8.0.16",
     "vite-plugin-mkcert": "^2.0.0",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.8",
+    "yaml": "^2.9.0"
   },
   "packageManager": "pnpm@10.22.0",
   "engines": {

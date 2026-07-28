@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import remarkMppMarkdown from "./remark-mpp-markdown.mjs";
 
+const BLOG_POSTS = [
+  {
+    date: "June 17, 2026",
+    description: "Install mppx",
+    publishedAt: "2026-06-17",
+    title: "Sessions",
+    to: "/blog/sessions",
+  },
+];
+
 function attribute(name, value) {
   return { name, type: "mdxJsxAttribute", value };
 }
@@ -34,18 +44,8 @@ function names(nodes) {
 
 function transform(children) {
   const tree = { children, type: "root" };
-  remarkMppMarkdown()(tree);
+  remarkMppMarkdown({ blogPosts: BLOG_POSTS })(tree);
   return tree;
-}
-
-function object(properties) {
-  return {
-    properties: Object.entries(properties).map(([name, value]) => ({
-      key: { name },
-      value,
-    })),
-    type: "ObjectExpression",
-  };
 }
 
 function paragraph(children) {
@@ -70,33 +70,7 @@ describe("remarkMppMarkdown", () => {
             textComponent("Badge", [], [{ type: "text", value: "New" }]),
           ],
         },
-        flow("BlogPostList", [
-          attribute(
-            "posts",
-            expression({
-              elements: [
-                {
-                  properties: [
-                    { key: { name: "date" }, value: literal("June 17, 2026") },
-                    {
-                      key: { name: "description" },
-                      value: {
-                        children: [
-                          { type: "JSXText", value: "Session updates" },
-                        ],
-                        type: "JSXFragment",
-                      },
-                    },
-                    { key: { name: "title" }, value: literal("Sessions") },
-                    { key: { name: "to" }, value: literal("/blog/sessions") },
-                  ],
-                  type: "ObjectExpression",
-                },
-              ],
-              type: "ArrayExpression",
-            }),
-          ),
-        ]),
+        flow("BlogPostList"),
         flow(
           "Cards",
           [],
@@ -185,7 +159,7 @@ describe("remarkMppMarkdown", () => {
       ],
     };
 
-    remarkMppMarkdown()(tree);
+    remarkMppMarkdown({ blogPosts: BLOG_POSTS })(tree);
 
     expect(names(tree.children)).not.toEqual(
       expect.arrayContaining([
@@ -316,32 +290,7 @@ describe("remarkMppMarkdown", () => {
 
   it("serializes blog metadata, inline code, downloads, diagrams, and prompts", () => {
     const tree = transform([
-      flow("BlogPostList", [
-        attribute(
-          "posts",
-          expression({
-            elements: [
-              object({
-                date: literal("June 17, 2026"),
-                description: {
-                  children: [
-                    { type: "JSXText", value: "Install " },
-                    {
-                      children: [{ type: "JSXText", value: "mppx" }],
-                      openingElement: { name: { name: "code" } },
-                      type: "JSXElement",
-                    },
-                  ],
-                  type: "JSXFragment",
-                },
-                title: literal("Sessions"),
-                to: literal("/blog/sessions"),
-              }),
-            ],
-            type: "ArrayExpression",
-          }),
-        ),
-      ]),
+      flow("BlogPostList"),
       flow("DownloadSvgButton", [
         attribute(
           "files",
@@ -384,9 +333,7 @@ describe("remarkMppMarkdown", () => {
       },
     ]);
     expect(tree.children[0].children[0].children[1].children).toEqual([
-      { type: "text", value: "June 17, 2026 — " },
-      { type: "text", value: "Install " },
-      { type: "inlineCode", value: "mppx" },
+      { type: "text", value: "June 17, 2026 — Install mppx" },
     ]);
     expect(tree.children[1].children).toHaveLength(2);
     expect(tree.children[2]).toMatchObject({
@@ -473,18 +420,19 @@ describe("remarkMppMarkdown", () => {
       ]),
     ],
     [flow("Tabs", [], [flow("Tab")])],
-    [
-      flow("BlogPostList", [
-        attribute(
-          "posts",
-          expression({
-            elements: [object({ title: literal("Missing fields") })],
-            type: "ArrayExpression",
-          }),
-        ),
-      ]),
-    ],
   ])("rejects incomplete static component data", (children) => {
     expect(() => transform(children)).toThrow(TypeError);
+  });
+
+  it("rejects missing or incomplete blog metadata", () => {
+    const missing = { children: [flow("BlogPostList")], type: "root" };
+    expect(() => remarkMppMarkdown()(missing)).toThrow(TypeError);
+
+    const incomplete = { children: [flow("BlogPostList")], type: "root" };
+    expect(() =>
+      remarkMppMarkdown({ blogPosts: [{ title: "Missing fields" }] })(
+        incomplete,
+      ),
+    ).toThrow(TypeError);
   });
 });

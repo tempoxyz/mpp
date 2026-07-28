@@ -14,6 +14,7 @@ type Page =
   | { path: '/advanced/refunds'; render: 'static' }
   | { path: '/advanced/relays'; render: 'static' }
   | { path: '/advanced/security'; render: 'static' }
+  | { path: '/blog/_mdx-wrapper'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
   | { path: '/blog'; render: 'static' }

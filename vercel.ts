@@ -83,6 +83,10 @@ export const config = {
       ...CACHE_HEADERS,
     ]),
     headerRule("/robots.txt", CACHE_HEADERS),
+    headerRule("/rss.xml", [
+      header("Content-Type", "application/rss+xml; charset=utf-8"),
+      ...CACHE_HEADERS,
+    ]),
     headerRule("/openapi.json", [header("Link", OPENAPI_DISCOVERY_LINK_VALUE)]),
     ...DISCOVERY_PAGE_SOURCES.map((source) =>
       headerRule(source, [

@@ -989,6 +989,12 @@ export default function Layout(
         <meta name="ahrefs-site-verification" content={ahrefsKey} />
       )}
       <link
+        href="/rss.xml"
+        rel="alternate"
+        title="MPP Blog"
+        type="application/rss+xml"
+      />
+      <link
         rel="preload"
         href="https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Regular.woff2"
         as="font"

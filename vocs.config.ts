@@ -1,5 +1,6 @@
 import ruby from "shiki/langs/ruby.mjs";
 import { defineConfig, McpSource } from "vocs/config";
+import { loadBlogPosts } from "./scripts/blog";
 import remarkMppMarkdown from "./scripts/remark-mpp-markdown.mjs";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
@@ -28,7 +29,9 @@ export default defineConfig({
         }
       : undefined,
   markdown: {
-    outputRemarkPlugins: [remarkMppMarkdown],
+    outputRemarkPlugins: [
+      [remarkMppMarkdown, { blogPosts: loadBlogPosts({ missing: "empty" }) }],
+    ],
   },
   redirects: [
     { source: "/index", destination: "/" },
