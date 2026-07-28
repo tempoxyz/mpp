@@ -2661,7 +2661,7 @@ nav[data-v-sidebar] button,
 
 [data-v-footer] {
   border-top: 0 !important;
-  max-width: 1728px !important;
+  max-width: none !important;
   padding: 5rem clamp(1rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem) !important;
 }
 
