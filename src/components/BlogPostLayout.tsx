@@ -7,8 +7,11 @@ import {
   formatBlogPostDate,
 } from "../lib/blog.js";
 
-export function BlogPostChrome({ children }: { children: ReactNode }) {
+export function BlogPostLayout({ children }: { children: ReactNode }) {
   const { frontmatter } = MdxPageContext.use();
+
+  // Vocs applies a directory wrapper to its index too. The index owns its
+  // wider layout; only individual posts receive the shared article chrome.
   if (frontmatter?.filePath === "blog/index.mdx") return children;
 
   const publishedAt = frontmatter?.publishedAt;

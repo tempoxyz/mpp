@@ -2,10 +2,7 @@
 
 import blogPosts from "virtual:blog-posts";
 import { Link } from "vocs";
-import {
-  type BlogPost,
-  formatBlogPostDate,
-} from "../lib/blog.js";
+import { type BlogPost, formatBlogPostDate } from "../lib/blog.js";
 
 function BlogPostRow({ date, description, title, to }: BlogPost) {
   return (

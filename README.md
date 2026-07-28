@@ -42,6 +42,14 @@ pnpm run check:sdk-drift # Validate SDK reference pages against mppx exports
 pnpm run preview  # Preview production build
 ```
 
+### Publish a blog post
+
+1. Copy [`templates/blog-post.mdx`](templates/blog-post.mdx) to `src/pages/blog/<slug>.mdx`.
+2. Replace the title, descriptions, date, subtitle, and body.
+3. Run `pnpm test`, `pnpm check:types`, and `pnpm build`.
+
+Post frontmatter is the source of truth. The build validates it, orders the blog index, adds shared post chrome, renders semantic Markdown, and generates `/rss.xml`. You don't need to edit a post registry or duplicate the date elsewhere.
+
 ## Contributing to the service directory
 
 The service directory at [mpp.dev/services](https://mpp.dev/services) is curated for live, production-ready MPP services.

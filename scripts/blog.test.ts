@@ -1,6 +1,12 @@
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { stringify } from "yaml";
 import type { BlogPost } from "../src/lib/blog.js";
@@ -14,53 +20,41 @@ afterEach(() => {
 });
 
 describe("blog metadata", () => {
-  it("loads and sorts every post from frontmatter", () => {
+  it("discovers every post without a manually maintained catalog", () => {
     const posts = loadBlogPosts();
+    const expectedRoutes = readdirSync(resolve("src/pages/blog"))
+      .filter((file) => file.endsWith(".mdx") && file !== "index.mdx")
+      .map((file) => `/blog/${basename(file, ".mdx")}`);
 
-    expect(
-      posts.map(({ publishedAt, title, to }) => ({
-        publishedAt,
-        title,
-        to,
-      })),
-    ).toEqual([
+    expect(posts.map((post) => post.to).toSorted()).toEqual(
+      expectedRoutes.toSorted(),
+    );
+    expect(posts.map((post) => post.publishedAt)).toEqual(
+      posts
+        .map((post) => post.publishedAt)
+        .toSorted()
+        .reverse(),
+    );
+    expect(posts.every((post) => post.date.includes(","))).toBe(true);
+  });
+
+  it("keeps the authoring template compatible with validation", () => {
+    const blogDir = createBlogDirectory();
+    const template = readFileSync(
+      resolve("templates/blog-post.mdx"),
+      "utf8",
+    ).replace("YYYY-MM-DD", "2026-01-02");
+    writeFileSync(join(blogDir, "template.mdx"), template);
+
+    expect(loadBlogPosts({ blogDir })).toEqual([
       {
-        publishedAt: "2026-07-27",
-        title: "mppx for agent SDKs and harnesses",
-        to: "/blog/mppx-agent-runtimes",
-      },
-      {
-        publishedAt: "2026-06-17",
-        title: "An improved sessions experience",
-        to: "/blog/sessions-improved",
-      },
-      {
-        publishedAt: "2026-06-08",
-        title: "EVM and x402 support",
-        to: "/blog/evm-x402-support",
-      },
-      {
-        publishedAt: "2026-05-21",
-        title: "Payment hooks",
-        to: "/blog/payment-hooks",
-      },
-      {
-        publishedAt: "2026-05-12",
-        title: "Subscriptions",
-        to: "/blog/subscriptions",
-      },
-      {
-        publishedAt: "2026-04-28",
-        title: "Multi-method discovery",
-        to: "/blog/multi-method-discovery",
-      },
-      {
-        publishedAt: "2026-04-21",
-        title: "Go and Ruby SDKs",
-        to: "/blog/go-and-ruby-sdks",
+        date: "Friday, January 2, 2026",
+        description: "Describe the reader benefit in under 160 characters.",
+        publishedAt: "2026-01-02",
+        title: "Post title",
+        to: "/blog/template",
       },
     ]);
-    expect(posts[0]?.date).toBe("Monday, July 27, 2026");
   });
 
   it.each([
@@ -108,7 +102,7 @@ describe("blog metadata", () => {
   it("optionally ignores a missing directory in bundled runtime config", () => {
     const blogDir = join(createBlogDirectory(), "missing");
 
-    expect(loadBlogPosts({ blogDir, missing: "empty" })).toEqual([]);
+    expect(loadBlogPosts({ blogDir, missingDirectory: "empty" })).toEqual([]);
     expect(() => loadBlogPosts({ blogDir })).toThrow(
       `Blog directory not found: ${blogDir}`,
     );

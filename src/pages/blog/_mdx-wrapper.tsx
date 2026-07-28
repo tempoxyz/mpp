@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { BlogPostChrome } from "../../components/BlogPostChrome.js";
+import { BlogPostLayout } from "../../components/BlogPostLayout.js";
 
 export default function BlogWrapper({ children }: { children: ReactNode }) {
-  return <BlogPostChrome>{children}</BlogPostChrome>;
+  return <BlogPostLayout>{children}</BlogPostLayout>;
 }

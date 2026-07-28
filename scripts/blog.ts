@@ -3,9 +3,15 @@ import { basename, join, resolve } from "node:path";
 import { parse } from "yaml";
 import { type BlogPost, formatBlogDate } from "../src/lib/blog.js";
 
+// Blog MDX frontmatter is the source of truth for the web index, generated
+// Markdown, article dates, and RSS. Keep parsing and validation here so every
+// consumer sees the same ordered records.
 const DEFAULT_BLOG_DIR = resolve(process.cwd(), "src/pages/blog");
 const FRONTMATTER_PATTERN = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+// The co-located MDX wrapper supplies shared article chrome. Requiring these
+// settings keeps every post on that presentation path and prevents UI drift.
 const REQUIRED_PAGE_SETTINGS = {
   layout: "minimal",
   outline: false,
@@ -22,31 +28,28 @@ type Frontmatter = {
   [key: string]: unknown;
 };
 
-export function loadBlogPosts(
-  options: { blogDir?: string; missing?: "empty" | "throw" } = {},
-): BlogPost[] {
+type LoadBlogPostsOptions = {
+  blogDir?: string;
+  missingDirectory?: "empty" | "throw";
+};
+
+export function loadBlogPosts(options: LoadBlogPostsOptions = {}): BlogPost[] {
   const blogDir = options.blogDir ?? DEFAULT_BLOG_DIR;
   if (!existsSync(blogDir)) {
-    if (options.missing === "empty") return [];
+    if (options.missingDirectory === "empty") return [];
     throw new Error(`Blog directory not found: ${blogDir}`);
   }
 
-  const posts = readdirSync(blogDir)
+  return readdirSync(blogDir)
     .filter((file) => file.endsWith(".mdx") && file !== "index.mdx")
-    .map((file) => loadBlogPost(join(blogDir, file)));
-
-  const routes = new Set<string>();
-  for (const post of posts) {
-    if (routes.has(post.to))
-      throw new Error(`Duplicate blog route: ${post.to}`);
-    routes.add(post.to);
-  }
-
-  return posts.sort(
-    (left, right) =>
-      right.publishedAt.localeCompare(left.publishedAt) ||
-      left.to.localeCompare(right.to),
-  );
+    .map((file) => loadBlogPost(join(blogDir, file)))
+    .sort(
+      // ISO dates sort lexicographically. The route tie-breaker keeps every
+      // generated output deterministic when two posts share a publish date.
+      (left, right) =>
+        right.publishedAt.localeCompare(left.publishedAt) ||
+        left.to.localeCompare(right.to),
+    );
 }
 
 export function renderBlogRss(
@@ -58,9 +61,7 @@ export function renderBlogRss(
   const items = posts
     .map((post) => {
       const url = `${baseUrl}${post.to}`;
-      const publishedAt = new Date(
-        `${post.publishedAt}T00:00:00Z`,
-      ).toUTCString();
+      const publishedAt = toRssDate(post.publishedAt);
       return `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${escapeXml(url)}</link>
@@ -72,7 +73,7 @@ export function renderBlogRss(
     .join("\n");
 
   const lastBuildDate = latest
-    ? new Date(`${latest.publishedAt}T00:00:00Z`).toUTCString()
+    ? toRssDate(latest.publishedAt)
     : new Date(0).toUTCString();
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -125,6 +126,10 @@ function loadBlogPost(filePath: string): BlogPost {
   }
 
   const body = content.slice(match[0].length);
+
+  // Vocs renders the first H1 as the visible page title while frontmatter
+  // drives indexes and social metadata. Treat disagreement as a publishing
+  // error instead of allowing two titles for the same post.
   const heading = body.match(/^#\s+(.+?)(?:\s+\[.*\])?\s*$/m)?.[1]?.trim();
   if (heading !== title)
     throw new Error(
@@ -156,6 +161,10 @@ function isValidIsoDate(value: string): boolean {
   if (!ISO_DATE_PATTERN.test(value)) return false;
   const date = new Date(`${value}T00:00:00Z`);
   return !Number.isNaN(date.valueOf()) && date.toISOString().startsWith(value);
+}
+
+function toRssDate(publishedAt: string): string {
+  return new Date(`${publishedAt}T00:00:00Z`).toUTCString();
 }
 
 function escapeXml(value: string): string {

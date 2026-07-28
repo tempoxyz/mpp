@@ -8,10 +8,7 @@ import { defineConfig, loadEnv } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import { configDefaults } from "vitest/config";
 import { vocs } from "vocs/vite";
-import { loadBlogPosts, renderBlogRss } from "./scripts/blog.js";
-
-const BLOG_DIR = path.resolve(import.meta.dirname, "src/pages/blog");
-const RESOLVED_VIRTUAL_BLOG_POSTS = "\0virtual:blog-posts";
+import { blogContent } from "./scripts/vite-blog.js";
 
 const commitSha = child_process
   .execSync("git rev-parse --short HEAD")
@@ -116,61 +113,6 @@ function contentSignalsRobotsTxt(): Plugin {
           );
 
       if (next !== current) await fs.writeFile(robotsPath, next, "utf8");
-    },
-  };
-}
-
-function blogContent(): Plugin {
-  return {
-    name: "blog-content",
-    resolveId: {
-      filter: { id: /^virtual:blog-posts$/ },
-      handler() {
-        return RESOLVED_VIRTUAL_BLOG_POSTS;
-      },
-    },
-    load: {
-      filter: { id: /^\0virtual:blog-posts$/ },
-      handler() {
-        return `export default ${JSON.stringify(loadBlogPosts())}`;
-      },
-    },
-    configureServer(server) {
-      const reload = (filePath: string) => {
-        if (path.dirname(filePath) !== BLOG_DIR) return;
-        const module = server.moduleGraph.getModuleById(
-          RESOLVED_VIRTUAL_BLOG_POSTS,
-        );
-        if (module) server.moduleGraph.invalidateModule(module);
-        server.ws.send({ type: "full-reload", path: "*" });
-      };
-
-      server.watcher.add(BLOG_DIR);
-      server.watcher.on("add", reload);
-      server.watcher.on("change", reload);
-      server.watcher.on("unlink", reload);
-      server.middlewares.use((request, response, next) => {
-        const pathname = new URL(request.url ?? "/", "http://localhost")
-          .pathname;
-        if (pathname !== "/rss.xml") {
-          next();
-          return;
-        }
-
-        response.setHeader(
-          "Content-Type",
-          "application/rss+xml; charset=utf-8",
-        );
-        response.end(renderBlogRss(loadBlogPosts()));
-      });
-    },
-    async writeBundle(options) {
-      if (!options.dir?.endsWith("/public")) return;
-      await fs.writeFile(
-        path.join(options.dir, "rss.xml"),
-        renderBlogRss(loadBlogPosts()),
-        "utf8",
-      );
     },
   };
 }

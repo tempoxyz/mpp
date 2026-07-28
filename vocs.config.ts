@@ -30,7 +30,13 @@ export default defineConfig({
       : undefined,
   markdown: {
     outputRemarkPlugins: [
-      [remarkMppMarkdown, { blogPosts: loadBlogPosts({ missing: "empty" }) }],
+      // Production bundles may omit source MDX after Markdown artifacts exist.
+      // Builds still fail on missing or invalid posts; only runtime config load
+      // can safely use an empty catalog.
+      [
+        remarkMppMarkdown,
+        { blogPosts: loadBlogPosts({ missingDirectory: "empty" }) },
+      ],
     ],
   },
   redirects: [
