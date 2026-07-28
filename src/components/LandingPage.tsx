@@ -74,72 +74,47 @@ const PAYMENT_METHOD_SNIPPETS = [
   {
     code: `const mppx = Mppx.create({ methods: [tempo.charge()] })
 
-app.get(
-  '/premium',
-  mppx.charge({ amount: '1' }),
-  (c) => c.json({ data: 'paid content' }),
-    )`,
-    comment: "Accept USDC.e payments on Tempo.",
+app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
     imports: `import { Mppx, tempo } from 'mppx/hono'`,
     method: "Tempo",
   },
   {
-    code: `const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
-const mppx = Mppx.create({
-  methods: [
-    stripe.charge({
-      client: stripeClient,
-      networkId: 'internal',
-      paymentMethodTypes: ['card'],
-    }),
-  ],
-})`,
-    route: `app.get(
-  '/premium',
-  mppx.charge({ amount: '1' }),
-  (c) => c.json({ data: 'paid content' }),
-    )`,
-    comment: "Accept card payments with Stripe.",
-    imports: `import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/hono'`,
+    code: `const mppx = Mppx.create({
+  methods: [stripe.charge({
+    networkId: 'internal',
+    paymentMethodTypes: ['card'],
+    secretKey: process.env.STRIPE_SECRET_KEY!,
+  })],
+})
+
+app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
+    imports: `import { Mppx, stripe } from 'mppx/hono'`,
     method: "Stripe",
   },
   {
     code: `const mppx = Mppx.create({
-  methods: [
-    spark.charge({ mnemonic: process.env.MNEMONIC! }),
-  ],
-})`,
-    route: `app.get(
-  '/premium',
-  mppx.charge({ amount: '1' }),
-  (c) => c.json({ data: 'paid content' }),
-    )`,
-    comment: "Accept Bitcoin payments over Lightning.",
+  methods: [spark.charge({ mnemonic: process.env.MNEMONIC! })],
+})
+
+app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
     imports: `import { Mppx } from 'mppx/hono'
 import { spark } from '@buildonspark/lightning-mpp-sdk/server'`,
     method: "Bitcoin",
   },
   {
-    code: `const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
-const mppx = Mppx.create({
+    code: `const mppx = Mppx.create({
   methods: [
     tempo.charge(),
     stripe.charge({
-      client: stripeClient,
       networkId: 'internal',
       paymentMethodTypes: ['card'],
+      secretKey: process.env.STRIPE_SECRET_KEY!,
     }),
   ],
-})`,
-    route: `app.get(
-  '/premium',
-  mppx.charge({ amount: '1' }),
-  (c) => c.json({ data: 'paid content' }),
-    )`,
-    comment: "Offer Tempo and Stripe in one integration.",
-    imports: `import Stripe from 'stripe'
-import { Mppx, tempo, stripe } from 'mppx/hono'`,
+})
+
+app.get('/premium', mppx.charge({ amount: '1' }), (c) => c.text('Paid'))`,
+    imports: `import { Mppx, stripe, tempo } from 'mppx/hono'`,
     method: "Multi-method",
   },
 ];
@@ -453,10 +428,9 @@ function IntegrationCodeCarousel() {
   }, [prefersReducedMotion]);
 
   const activeSnippet = PAYMENT_METHOD_SNIPPETS[activeIndex];
-  const source = `// ${activeSnippet.comment}
-${activeSnippet.imports}
+  const source = `${activeSnippet.imports}
 
-${activeSnippet.code}${activeSnippet.route ? `\n\n${activeSnippet.route}` : ""}`;
+${activeSnippet.code}`;
 
   useEffect(() => {
     let cancelled = false;
