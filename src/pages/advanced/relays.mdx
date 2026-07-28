@@ -1,15 +1,13 @@
 ---
 description: "Delegate MPP payment validation and finalization to a relay service."
-imageDescription: "Delegate payment finalization to a relay"
+imageDescription: "Delegate payment lifecycle to a relay"
 ---
 
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 # Relays [Delegate payment verification and broadcast to a relay service]
 
-Relays are optional infrastructure that lets MPP-enabled services verify and settle payments behind a simple API.
-
-Relays let you support multiple payment methods and centralize capabilities such as risk management and reporting behind a single interface.
+Relays are optional infrastructure that enable MPP-enabled applications to offload the responsibility of verifing and settling credentials to an external service.
 
 ## How relays work
 
@@ -34,8 +32,8 @@ Relays sit between your application and the payment-method settlement layer, giv
 
 The relay flow has two lifecycle hooks:
 
-1. `validate` (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
-2. `broadcast` submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
+1. [`validate`](/sdk/typescript/core/Method.toServer#validate-optional) (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
+2. [`broadcast`](/sdk/typescript/core/Method.toServer#broadcast) submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
 
 MPP does not define a relay API shape or require functionality beyond these hooks. Relay authors can design and evolve their APIs as their offerings grow.
 
@@ -82,7 +80,7 @@ export const charge = Method.toServer(Methods.charge, {
 
 ### Use Tempo API
 
-If your application settles MPP charges on Tempo, use the [Tempo API](https://tempo.xyz/developers/docs/api/mpp) relay to validate and broadcast transactions.
+If your application settles MPP charges on Tempo, you can use the [Tempo API](https://tempo.xyz/developers/docs/api/mpp) relay to validate and broadcast transactions.
 
 ```ts twoslash [server.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -123,7 +121,7 @@ The default API base URL is `https://api.tempo.xyz`. You can also provide `fetch
 
 MPP does not formally define relays. It leaves payment methods, API shapes, and transports such as HTTP, JSON-RPC, and gRPC to you.
 
-For a consistent integration experience, implement at least these hooks:
+For a consistent integration experience, ensure your service provides interfaces for at least these two hooks:
 
 1. `validate` (optional) checks whether a Credential is valid for the underlying payment rail. It does not reserve funds or make state changes.
 2. `broadcast` submits a transaction to the underlying payment rail after performing the same validity checks as `validate`.
