@@ -2665,6 +2665,10 @@ nav[data-v-sidebar] button,
   padding: 5rem clamp(1rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem) !important;
 }
 
+[data-v-sidebar] [data-v-footer] {
+  display: none;
+}
+
 @media (min-width: 1000px) {
   [data-v-logo]:has(> a > [data-v-logo]) {
     align-items: center;
