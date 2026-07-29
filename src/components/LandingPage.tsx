@@ -483,6 +483,10 @@ ${activeSnippet.code}`;
       <div className="marketing-single-line-intro">
         <SectionLabel>Integrate</SectionLabel>
         <h2>Sell to agents with just a single line of code</h2>
+        <p className="marketing-single-line-copy">
+          Accept payments in both fiat and stablecoins, even in amounts less
+          than $0.01
+        </p>
       </div>
       <div className="marketing-code-carousel">
         <div className="marketing-code-carousel-header">
@@ -723,6 +727,7 @@ function LandingStyles() {
       .marketing-single-line { border-top: 1px solid var(--marketing-border); display: grid; gap: 2.5rem; margin-inline: auto; max-width: 1728px; padding: clamp(4rem, 8vw, 7rem) clamp(1rem, 4vw, 3rem); }
       .marketing-single-line h2 { margin: 0 !important; }
       .marketing-single-line-intro { padding: clamp(1rem, 3vw, 2rem); }
+      .marketing-single-line-copy { color: var(--marketing-muted); font-size: 1.125rem; line-height: 1.4; margin: 1.5rem 0 0; max-width: 28rem; }
       .marketing-code-carousel { background: #101010; border: 1px solid var(--marketing-border); display: flex; flex-direction: column; height: 28rem; min-width: 0; }
       .marketing-code-carousel-header { align-items: center; border-bottom: 1px solid var(--marketing-border); color: var(--marketing-copy); display: flex; flex: none; font-family: var(--font-mono, monospace); font-size: 0.75rem; justify-content: flex-start; line-height: 1rem; padding: 0.875rem 1rem; text-transform: uppercase; }
       .marketing-code-carousel-content { background: #101010; display: flex; flex: 1; min-height: 0; overflow: auto; padding: clamp(1rem, 3vw, 2rem); }
