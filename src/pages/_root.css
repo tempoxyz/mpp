@@ -2665,7 +2665,7 @@ nav[data-v-sidebar] button,
   padding: 5rem clamp(1rem, 4vw, 3rem) clamp(2rem, 4vw, 3rem) !important;
 }
 
-[data-v-sidebar] [data-v-footer] {
+[data-layout="full"][data-v-sidebar] [data-v-footer] {
   display: none;
 }
 
