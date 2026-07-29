@@ -484,8 +484,8 @@ ${activeSnippet.code}`;
         <SectionLabel>Integrate</SectionLabel>
         <h2>Sell to agents with just a single line of code</h2>
         <p className="marketing-single-line-copy">
-          Accept payments in both fiat and stablecoins, even in amounts less
-          than $0.01
+          Accept fiat and stablecoin payments, including transactions under
+          $0.01.
         </p>
       </div>
       <div className="marketing-code-carousel">
