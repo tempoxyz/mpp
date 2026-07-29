@@ -45,6 +45,21 @@ const CACHE_HEADERS = [
   header("X-Content-Type-Options", "nosniff"),
 ];
 
+const STATIC_ASSET_CACHE_HEADERS = [
+  header(
+    "Cache-Control",
+    "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000",
+  ),
+];
+
+const STATIC_ASSET_SOURCES = [
+  "/fonts/:path*",
+  "/icons/:path*",
+  "/lottie/:path*",
+  "/marketing/:path*",
+  "/vendor/:path*",
+];
+
 const DOC_SECTIONS = [
   "advanced",
   "blog",
@@ -83,6 +98,19 @@ export const config = {
       ...CACHE_HEADERS,
     ]),
     headerRule("/robots.txt", CACHE_HEADERS),
+    headerRule("/rss.xml", [
+      header("Content-Type", "application/rss+xml; charset=utf-8"),
+      ...CACHE_HEADERS,
+    ]),
+    headerRule("/services/catalog.json", [
+      header(
+        "Cache-Control",
+        "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
+      ),
+    ]),
+    ...STATIC_ASSET_SOURCES.map((source) =>
+      headerRule(source, STATIC_ASSET_CACHE_HEADERS),
+    ),
     headerRule("/openapi.json", [header("Link", OPENAPI_DISCOVERY_LINK_VALUE)]),
     ...DISCOVERY_PAGE_SOURCES.map((source) =>
       headerRule(source, [

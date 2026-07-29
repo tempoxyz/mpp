@@ -1,14 +1,18 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { list } from "@vercel/blob";
 
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 
 const CACHE_HEADERS = {
-  "Cache-Control": "public, s-maxage=86400, stale-while-revalidate",
+  "Cache-Control":
+    "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000",
 };
 
 const FALLBACK_HEADERS = {
+  "Cache-Control":
+    "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
   "Content-Type": "image/svg+xml",
-  "Cache-Control": "public, s-maxage=3600, stale-while-revalidate",
 };
 
 function letterSvg(id: string): string {
@@ -49,10 +53,24 @@ async function staticIcon(
 ): Promise<Response | null> {
   try {
     const origin = new URL(request.url).origin;
-    const res = await fetch(`${origin}/icons/${id}.svg`);
+    const url = `${origin}/icons/${id}.svg`;
+    if (
+      import.meta.env.DEV &&
+      existsSync(join(process.cwd(), "public", "icons", `${id}.svg`))
+    ) {
+      return new Response(null, {
+        status: 302,
+        headers: { ...CACHE_HEADERS, Location: url },
+      });
+    }
+    const res = await fetch(url, { method: "HEAD" });
     if (res.ok) {
-      return new Response(await res.text(), {
-        headers: { ...FALLBACK_HEADERS, ...CACHE_HEADERS },
+      return new Response(null, {
+        status: 302,
+        headers: {
+          ...CACHE_HEADERS,
+          Location: url,
+        },
       });
     }
   } catch {

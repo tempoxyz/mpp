@@ -70,7 +70,7 @@ export const SigningAccountTabs = withMarkdown(
     code(privateKeyExample, "ts"),
     heading("Privy"),
     paragraph(
-      "Create an EVM server wallet in Privy, fund its address with pathUSD on Tempo, and keep PRIVY_APP_SECRET server-side.",
+      "Create an EVM wallet in Privy, fund it with the required currency on this page's network, and keep PRIVY_APP_SECRET server-side.",
     ),
     code("pnpm add @privy-io/node", "bash"),
     paragraph(

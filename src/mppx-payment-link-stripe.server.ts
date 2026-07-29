@@ -1,7 +1,7 @@
 import { Mppx, stripe } from "mppx/server";
+import { mppxSecretKey } from "./mppx-secret.server";
 
 const realm = process.env.REALM ?? "mpp.tempo.xyz";
-const secretKey = process.env.MPP_SECRET_KEY!;
 
 export const stripeMppx = Mppx.create({
   methods: [
@@ -16,5 +16,5 @@ export const stripeMppx = Mppx.create({
     }),
   ],
   realm,
-  secretKey,
+  secretKey: mppxSecretKey,
 });

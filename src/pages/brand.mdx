@@ -1,322 +1,74 @@
 ---
-title: "Brand assets and guidelines"
-description: "Download official MPP logos, wordmarks, and brand assets. Guidelines for using the Machine Payments Protocol brand in your project or integration."
-imageDescription: "Official MPP logos and brand assets"
+title: "Brand assets and downloads"
+description: "Download the current MPP logo, lockup, and avatar for your product, integration, or social profile."
+imageDescription: "Use the current MPP logo and avatar"
 ---
 
-# Brand [MPP brand assets and guidelines]
+# Brand [MPP brand assets and downloads]
 
 import { DownloadSvgButton } from "../components/DownloadSvgButton";
 
-<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid var(--vocs-border-color-primary)", padding: "1.5rem", borderRadius: "8px", backgroundColor: "var(--vocs-background-color-primary)" }}>
-
-<div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-<span style={{ fontSize: "18px", color: "var(--vocs-text-color-heading)" }}>
-  Get brand assets
-</span>
-<span style={{ fontSize: "14px", color: "var(--vocs-text-color-secondary)" }}>
-  Download MPP logos and icons for use in your context.
-</span>
-
-</div>
-
-<a
-  href="/brand.zip"
-  download
-  style={{
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    padding: "0.5rem 1rem",
-    borderRadius: "8px",
-    border: "1px solid var(--vocs-border-color-primary)",
-    backgroundColor: "var(--vocs-background-color-)",
-    fontSize: "14px",
-    fontWeight: 500,
-    color: "var(--vocs-text-color-heading)",
-    textDecoration: "none",
-  }}
->
-  Download (.zip)
-</a>
-
-</div>
-
 ## Logo
 
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "2rem",
-  }}
->
-  <span style={{ color: "var(--vocs-text-color-secondary)", fontSize: "14px" }}>
-    The full MPP logo for headers, documentation, and marketing materials.
-  </span>
-  <DownloadSvgButton files={["/logo-dark.svg", "/logo-light.svg"]} />
+<div style={{ alignItems: "center", display: "flex", gap: "1rem", justifyContent: "space-between", marginBottom: "1rem" }}>
+
+<p style={{ color: "var(--vocs-text-color-secondary)", margin: 0 }}>
+  The primary MPP logo for all MPP communication materials.
+</p>
+
+<DownloadSvgButton files={["/logo-dark.svg", "/logo-light.svg"]} />
+
 </div>
 
-<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-  <div
-    style={{
-      padding: "2.5rem 2rem",
-      backgroundColor: "#ffffff",
-      borderRadius: "8px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      border: "4px solid var(--vocs-background-color-surface)",
-      boxShadow: "inset 0 0 0 1px var(--vocs-border-color-primary)",
-    }}
-  >
-    <span
-      style={{
-        position: "absolute",
-        top: "0.6rem",
-        right: "2rem",
-        fontSize: "10px",
-        fontFamily: "var(--font-mono)",
-        color: "#999",
-        letterSpacing: "0.04em",
-      }}
-    >
-      LIGHT
-    </span>
-    <img
-      src="/logo-dark.svg"
-      alt="MPP Logo (dark, for light backgrounds)"
-      style={{ maxWidth: "150px", width: "100%" }}
-    />
+<div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", marginBottom: "2rem" }}>
+  <div style={{ alignItems: "center", background: "#010101", borderRadius: "12px", display: "flex", justifyContent: "center", minHeight: "154px", padding: "2rem" }}>
+    <img alt="MPP logo on a dark background" src="/logo-light.svg" style={{ maxWidth: "250px", width: "100%" }} />
   </div>
-  <div
-    style={{
-      padding: "2.5rem 2rem",
-      borderRadius: "8px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      border: "1px solid rgba(255,255,255,0.08)",
-      backgroundColor: "#141414",
-    }}
-  >
-    <span
-      style={{
-        position: "absolute",
-        top: "0.6rem",
-        right: "2rem",
-        fontSize: "10px",
-        fontFamily: "var(--font-mono)",
-        color: "#666",
-        letterSpacing: "0.04em",
-      }}
-    >
-      DARK
-    </span>
-    <img
-      src="/logo-light.svg"
-      alt="MPP Logo (light, for dark backgrounds)"
-      style={{ maxWidth: "150px", width: "100%" }}
-    />
+  <div style={{ alignItems: "center", background: "#ebebeb", border: "1px solid rgba(0, 0, 0, 0.1)", borderRadius: "12px", display: "flex", justifyContent: "center", minHeight: "154px", padding: "2rem" }}>
+    <img alt="MPP logo on a light background" src="/logo-dark.svg" style={{ maxWidth: "250px", width: "100%" }} />
   </div>
 </div>
 
-## Lockup
+## Logo lockup
 
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "2rem",
-  }}
->
-  <span style={{ color: "var(--vocs-text-color-secondary)", fontSize: "14px" }}>
-    The "Machine Payments Protocol" wordmark for landing pages and hero
-    sections.
-  </span>
-  <DownloadSvgButton files={["/lockup-dark.svg", "/lockup-light.svg"]} />
+<div style={{ alignItems: "center", display: "flex", gap: "1rem", justifyContent: "space-between", marginBottom: "1rem" }}>
+
+<p style={{ color: "var(--vocs-text-color-secondary)", margin: 0 }}>
+  The MPP logo with descriptor. This is a secondary logo for communication that needs extra explanation.
+</p>
+
+<DownloadSvgButton files={["/lockup-dark.svg", "/lockup-light.svg"]} />
+
 </div>
 
-<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-  <div
-    style={{
-      padding: "2.5rem 2rem",
-      backgroundColor: "#ffffff",
-      borderRadius: "8px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      border: "4px solid var(--vocs-background-color-surface)",
-      boxShadow: "inset 0 0 0 1px var(--vocs-border-color-primary)",
-    }}
-  >
-    <span
-      style={{
-        position: "absolute",
-        top: "0.6rem",
-        right: "2rem",
-        fontSize: "10px",
-        fontFamily: "var(--font-mono)",
-        color: "#999",
-        letterSpacing: "0.04em",
-      }}
-    >
-      LIGHT
-    </span>
-    <img
-      src="/lockup-dark.svg"
-      alt="MPP Lockup (for light backgrounds)"
-      style={{ maxWidth: "clamp(280px, 80vw, 420px)", width: "100%" }}
-    />
+<div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", marginBottom: "2rem" }}>
+  <div style={{ alignItems: "center", background: "#010101", borderRadius: "12px", display: "flex", justifyContent: "center", minHeight: "154px", padding: "2rem" }}>
+    <img alt="MPP logo lockup on a dark background" src="/lockup-light.svg" style={{ maxWidth: "250px", width: "100%" }} />
   </div>
-  <div
-    style={{
-      padding: "2.5rem 2rem",
-      borderRadius: "8px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      border: "1px solid rgba(255,255,255,0.08)",
-      backgroundColor: "#141414",
-    }}
-  >
-    <span
-      style={{
-        position: "absolute",
-        top: "0.6rem",
-        right: "2rem",
-        fontSize: "10px",
-        fontFamily: "var(--font-mono)",
-        color: "#666",
-        letterSpacing: "0.04em",
-      }}
-    >
-      DARK
-    </span>
-    <img
-      src="/lockup-light.svg"
-      alt="MPP Lockup (for dark backgrounds)"
-      style={{ maxWidth: "clamp(280px, 80vw, 420px)", width: "100%" }}
-    />
+  <div style={{ alignItems: "center", background: "#ebebeb", border: "1px solid rgba(0, 0, 0, 0.1)", borderRadius: "12px", display: "flex", justifyContent: "center", minHeight: "154px", padding: "2rem" }}>
+    <img alt="MPP logo lockup on a light background" src="/lockup-dark.svg" style={{ maxWidth: "250px", width: "100%" }} />
   </div>
 </div>
 
-## Icon
+## Avatar
 
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "2rem",
-  }}
->
-  <span style={{ color: "var(--vocs-text-color-secondary)", fontSize: "14px" }}>
-    The square MPP icon for favicons, app icons, and compact spaces.
-  </span>
-  <DownloadSvgButton files={["/favicon.svg", "/favicon-dark.svg"]} />
+<div style={{ alignItems: "center", display: "flex", gap: "1rem", justifyContent: "space-between", marginBottom: "1rem" }}>
+
+<p style={{ color: "var(--vocs-text-color-secondary)", margin: 0 }}>
+  The MPP Avatar. Use this dedicated icon asset for social media channels and app icons.
+</p>
+
+<DownloadSvgButton files={["/avatar.svg"]} />
+
 </div>
 
-<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-  <div
-    style={{
-      padding: "2.5rem 2rem",
-      backgroundColor: "#ffffff",
-      borderRadius: "8px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      border: "4px solid var(--vocs-background-color-surface)",
-      boxShadow: "inset 0 0 0 1px var(--vocs-border-color-primary)",
-    }}
-  >
-    <span
-      style={{
-        position: "absolute",
-        top: "0.6rem",
-        right: "2rem",
-        fontSize: "10px",
-        fontFamily: "var(--font-mono)",
-        color: "#999",
-        letterSpacing: "0.04em",
-      }}
-    >
-      LIGHT
-    </span>
-    <img
-      src="/favicon.svg"
-      alt="MPP Icon (dark, for light backgrounds)"
-      style={{ width: "120px", height: "120px" }}
-    />
-  </div>
-  <div
-    style={{
-      padding: "2.5rem 2rem",
-      borderRadius: "8px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      border: "1px solid rgba(255,255,255,0.08)",
-      backgroundColor: "#141414",
-    }}
-  >
-    <span
-      style={{
-        position: "absolute",
-        top: "0.6rem",
-        right: "2rem",
-        fontSize: "10px",
-        fontFamily: "var(--font-mono)",
-        color: "#666",
-        letterSpacing: "0.04em",
-      }}
-    >
-      DARK
-    </span>
-    <img
-      src="/favicon-dark.svg"
-      alt="MPP Icon (light, for dark backgrounds)"
-      style={{ width: "120px", height: "120px" }}
-    />
-  </div>
-</div>
-
-## ASCII art
-
-import { AsciiLogo } from "../components/AsciiLogo";
-
-<div
-  style={{
-    padding: "2rem",
-    backgroundColor: "var(--vocs-background-color-primary)",
-    borderRadius: "8px",
-    overflow: "auto",
-    color: "var(--vocs-text-color-heading)",
-    display: "flex",
-    justifyContent: "center",
-    border: "1px solid var(--vocs-border-color-primary)",
-  }}
->
-  <AsciiLogo />
+<div style={{ alignItems: "center", background: "#010101", borderRadius: "12px", display: "flex", justifyContent: "center", marginBottom: "2rem", minHeight: "280px", padding: "2rem" }}>
+  <img alt="MPP avatar" src="/avatar.svg" style={{ height: "190px", width: "190px" }} />
 </div>
 
 ## Usage guidelines
 
-- Use the logo on light backgrounds with the dark variant, and on dark backgrounds with the light variant
-- Maintain adequate spacing around the logo
-- Do not distort, rotate, or alter the logo colors
-- Use the square icon for favicons and app icons where the full logo does not fit
+- Use the light logo on dark backgrounds and the dark logo on light backgrounds.
+- Keep clear space around each asset.
+- Do not distort, recolor, rotate, or redraw the logo.
+- Use the Avatar only where a compact mark is required.

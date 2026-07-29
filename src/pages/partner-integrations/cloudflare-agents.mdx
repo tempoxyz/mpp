@@ -11,7 +11,7 @@ Use [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap) and [`Mppx.create`
 
 ## Configure a payment wallet
 
-Choose a local viem account for development or use a Privy server wallet when the agent runs in production.
+Choose a local viem account for development or use a Privy wallet when the agent runs in production.
 
 <Tabs stateKey="wallet-provider">
 <Tab title="Direct">
@@ -33,7 +33,7 @@ The example uses an environment private key for brevity. For production agents, 
 </Tab>
 <Tab title="Privy">
 
-Create an EVM server wallet in [Privy](https://dashboard.privy.io), fund its address with pathUSD on Tempo, then store its ID and address with your Privy app credentials. Keep `PRIVY_APP_SECRET` server-side.
+Create an EVM wallet in [Privy](https://dashboard.privy.io), fund its address with pathUSD on Tempo, then store its ID and address with your Privy app credentials. Keep `PRIVY_APP_SECRET` server-side.
 
 :::code-group
 ```bash [npm]

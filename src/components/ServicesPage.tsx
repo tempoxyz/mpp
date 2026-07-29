@@ -12,7 +12,7 @@ import {
   useState,
 } from "react";
 import type { Category, Endpoint, Service } from "../data/registry";
-import { fetchServices, iconUrl } from "../data/registry";
+import { fetchServices, serviceIconUrl } from "../data/registry";
 import { ServiceDiscovery } from "./ServiceDiscovery";
 
 type LinkProps = {
@@ -276,20 +276,21 @@ function ExternalLinkIcon({ size = 13 }: { size?: number }) {
     </svg>
   );
 }
-function BookIcon({ size = 13 }: { size?: number }) {
+function CodeIcon({ size = 13 }: { size?: number }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeWidth="1.25"
+      strokeLinecap="square"
+      strokeLinejoin="miter"
       aria-hidden="true"
     >
-      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+      <polyline points="5.5 4 2 8 5.5 12" />
+      <polyline points="10.5 4 14 8 10.5 12" />
     </svg>
   );
 }
@@ -427,10 +428,10 @@ function SearchWithDropdown({
           onInputFocus?.();
         }}
         onKeyDown={handleKeyDown}
-        placeholder="Search services..."
+        placeholder="SEARCH SERVICES"
         style={{
           width: "100%",
-          padding: `0.4rem ${onDismiss && resultCount != null ? "5rem" : onDismiss ? "2rem" : "0.6rem"} 0.4rem 2rem`,
+          padding: `0.4rem ${onDismiss && resultCount != null ? "5rem" : onDismiss || !search ? "0.6rem" : "2rem"} 0.4rem 2rem`,
           fontSize: 14,
           borderRadius: 8,
           border: "1px solid var(--vocs-border-color-primary)",
@@ -441,6 +442,46 @@ function SearchWithDropdown({
           outline: "none",
         }}
       />
+      {search && !onDismiss && (
+        <button
+          aria-label="Clear service search"
+          onClick={() => {
+            setSearch("");
+            setPage(0);
+            setShowDropdown(false);
+            ref.current?.focus();
+          }}
+          style={{
+            alignItems: "center",
+            background: "transparent",
+            border: "none",
+            color: "var(--vocs-text-color-muted)",
+            display: "flex",
+            padding: 4,
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 2,
+          }}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            height="16"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            width="16"
+          >
+            <path d="m18 6-12 12" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      )}
       {onDismiss && resultCount != null && (
         <span
           style={{
@@ -1014,37 +1055,8 @@ export function ServicesPage() {
   const toggleRow = useCallback((id: string) => {
     setExpandedIds((p) => {
       if (p.has(id)) {
-        history.replaceState(null, "", window.location.pathname);
         return new Set();
       }
-      const hadPrevious = p.size > 0;
-      history.replaceState(null, "", `/services#${id}`);
-      const delay = hadPrevious ? 220 : 50;
-      setTimeout(() => {
-        const el = document.getElementById(`service-${id}`);
-        if (!el) return;
-        const navH =
-          document.querySelector("[data-v-gutter-top]")?.getBoundingClientRect()
-            .height ?? 56;
-        const barH =
-          document.querySelector(".search-bar")?.getBoundingClientRect()
-            .height ?? 0;
-        const target =
-          el.getBoundingClientRect().top + window.scrollY - navH - barH - 12;
-        const start = window.scrollY;
-        const dist = target - start;
-        if (Math.abs(dist) < 2) return;
-        const dur = Math.min(600, Math.max(300, Math.abs(dist) * 0.6));
-        let t0: number | null = null;
-        const step = (t: number) => {
-          if (!t0) t0 = t;
-          const p = Math.min((t - t0) / dur, 1);
-          const ease = p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2;
-          window.scrollTo(0, start + dist * ease);
-          if (p < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      }, delay);
       return new Set([id]);
     });
   }, []);
@@ -1165,32 +1177,25 @@ export function ServicesPage() {
             marginLeft: "0.5rem",
           }}
         >
-          <div>
-            <h1
-              style={{
-                fontSize: "2.5rem",
-                fontWeight: 700,
-                fontFamily: '"VTC Du Bois", var(--font-sans)',
-                letterSpacing: "-0.02em",
-                margin: 0,
-                whiteSpace: "nowrap",
-                marginBottom: "0rem",
-                paddingBottom: "0rem",
-                textTransform: "uppercase",
-              }}
-            >
-              Discover services
-            </h1>
+          <div className="services-page-title-wrap">
+            <img
+              alt=""
+              className="services-page-title"
+              src="/marketing/services-title.svg"
+            />
+            <h1 className="sr-only">Services</h1>
             <p
               style={{
                 color: "var(--vocs-text-color-secondary)",
-                fontSize: 17,
-                lineHeight: 1.4,
-                marginBottom: "2.75rem",
-                marginTop: "-0.5rem",
+                fontFamily: "var(--font-mono)",
+                fontSize: 14,
+                lineHeight: 1,
+                marginBottom: "2.25rem",
+                marginTop: "1.5rem",
+                textTransform: "uppercase",
               }}
             >
-              Seamlessly use MPP-enabled services with your agent.
+              Use MPP-enabled services with your agent.
             </p>
           </div>
           <div className="page-header-ctas" style={{ display: "none" }} />
@@ -1727,10 +1732,98 @@ export function ServicesPage() {
                       .services-grid-inline .discovery-grid {
                         height: auto !important;
                         overflow: visible !important;
-                        grid-template-columns: repeat(4, 1fr) !important;
-                        grid-auto-rows: minmax(150px, 1fr) !important;
+                        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                        grid-auto-rows: 18rem !important;
+                        gap: 1rem !important;
+                        margin-top: 0.3125rem;
                         padding-left: 0 !important;
                         padding-right: 0 !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing {
+                        background: #101010 !important;
+                        border: 1px solid var(--mpp-line) !important;
+                        border-radius: 0 !important;
+                        display: grid !important;
+                        gap: 0 !important;
+                        column-gap: 1rem !important;
+                        grid-template-columns: 2.6875rem minmax(0, 1fr) !important;
+                        grid-template-rows: auto auto minmax(0, 1fr) auto !important;
+                        padding: 1rem 2.5rem 1rem 1rem !important;
+                        transition: border-color 150ms ease, background-color 150ms ease !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing:hover {
+                        background: #101010 !important;
+                        border-color: var(--mpp-line) !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-links,
+                      .services-grid-inline .discovery-card-marketing .discovery-card-fp-dot {
+                        display: none !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-icon,
+                      .services-grid-inline .discovery-card-marketing .discovery-card-icon-img,
+                      .services-grid-inline .discovery-card-marketing .discovery-card-icon-fallback {
+                        height: 2.6875rem !important;
+                        width: 2.6875rem !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-icon {
+                        grid-column: 1;
+                        grid-row: 1 / 3;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-name {
+                        align-self: end;
+                        font-family: var(--font-sans) !important;
+                        font-size: 1.25rem !important;
+                        font-weight: 400 !important;
+                        grid-column: 2;
+                        grid-row: 1;
+                        line-height: 1.1 !important;
+                        margin: 0 !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-category {
+                        color: var(--mpp-muted);
+                        font-family: var(--font-mono);
+                        font-size: 0.875rem;
+                        grid-column: 2;
+                        grid-row: 2;
+                        line-height: 1rem;
+                        margin-top: 0.25rem;
+                        text-transform: uppercase;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-desc {
+                        -webkit-line-clamp: unset !important;
+                        align-self: start;
+                        color: var(--mpp-muted) !important;
+                        font-family: var(--font-sans);
+                        font-size: 1.125rem !important;
+                        grid-column: 1 / -1;
+                        grid-row: 3;
+                        line-height: 1.2 !important;
+                        margin-top: 1.5rem !important;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-url {
+                        align-items: center;
+                        border: 1px solid var(--mpp-line);
+                        color: var(--mpp-muted);
+                        cursor: pointer;
+                        display: flex;
+                        font-family: var(--font-mono);
+                        font-size: 0.875rem;
+                        gap: 0.5rem;
+                        grid-column: 1 / -1;
+                        grid-row: 4;
+                        line-height: 1rem;
+                        max-width: 100%;
+                        overflow: hidden;
+                        padding: 0.375rem 0.75rem;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-url > span {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                      }
+                      .services-grid-inline .discovery-card-marketing .discovery-card-url > svg {
+                        flex: none;
+                        margin-left: auto;
                       }
                       .services-grid-inline .discovery-grid::before,
                       .services-grid-inline .discovery-grid::after {
@@ -1757,6 +1850,7 @@ export function ServicesPage() {
                       externalQuery={debouncedSearch}
                       externalCategory={selectedCategory}
                       externalSelectedServiceId={gridSelectedServiceId}
+                      marketingGrid
                       onExternalServiceHandled={() =>
                         setGridSelectedServiceId(undefined)
                       }
@@ -2254,7 +2348,9 @@ export function AddServiceModal({ onClose }: { onClose: () => void }) {
 
 function WalletCardFull() {
   return (
-    <div
+    <details
+      open
+      className="services-wallet-card"
       style={{
         borderRadius: 10,
         border: "1px solid var(--vocs-border-color-primary)",
@@ -2262,29 +2358,51 @@ function WalletCardFull() {
         padding: "1.25rem",
       }}
     >
-      <h2
-        style={{
-          fontSize: "1.15rem",
-          fontWeight: 500,
-          letterSpacing: "-0.02em",
-          marginBottom: "0.35rem",
-        }}
-      >
-        Use with agents
-      </h2>
-      <p
-        style={{
-          color: "var(--vocs-text-color-secondary)",
-          fontSize: 14,
-          lineHeight: 1.5,
-          marginBottom: "1.25rem",
-        }}
-      >
-        Install Tempo CLI and its wallet to fund your agents use of MPP
-        services.
-      </p>
-      <WalletSteps />
-    </div>
+      <summary className="services-wallet-summary">
+        <div>
+          <h2
+            className="services-wallet-title"
+            style={{
+              fontSize: "1.15rem",
+              fontWeight: 500,
+              letterSpacing: "-0.02em",
+              marginBottom: "0.35rem",
+            }}
+          >
+            Use with agents
+          </h2>
+          <p
+            className="services-wallet-description"
+            style={{
+              color: "var(--vocs-text-color-secondary)",
+              fontSize: 14,
+              lineHeight: 1.5,
+              marginBottom: "1.25rem",
+            }}
+          >
+            Install Tempo CLI and its wallet to fund your agents use of MPP
+            services.
+          </p>
+        </div>
+        <svg
+          className="services-wallet-chevron"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+      <div className="services-wallet-body">
+        <WalletSteps />
+      </div>
+    </details>
   );
 }
 
@@ -2345,8 +2463,8 @@ function HeaderCards({
             <TerminalIcon />
           </span>
           <div>
-            <div style={titleS}>Use with Tempo</div>
-            <div style={descS}>CLI & wallet for agents</div>
+            <div style={titleS}>Use with agents</div>
+            <div style={descS}>CLI wallet for agents.</div>
           </div>
         </button>
         <a
@@ -2372,7 +2490,7 @@ function HeaderCards({
             <path d="M14 2v4a2 2 0 0 0 2 2h4" />
           </svg>
           <div>
-            <div style={titleS}>llms.txt</div>
+            <div style={titleS}>LLMS.TXT</div>
             <div style={descS}>Service discovery for agents</div>
           </div>
         </a>
@@ -2393,7 +2511,7 @@ function HeaderCards({
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
           <div>
-            <div style={titleS}>Quickstart</div>
+            <div style={titleS}>Documentation</div>
             <div style={descS}>Guides, quickstarts, and SDKs</div>
           </div>
         </a>
@@ -2430,17 +2548,8 @@ function HeaderCards({
             />
           </span>
           <div>
-            <div style={titleS}>First-party</div>
+            <div style={titleS}>First-party services</div>
             <div style={descS}>Services which directly integrate with MPP</div>
-            <div
-              style={{
-                fontSize: 11,
-                color: "var(--vocs-text-color-link)",
-                marginTop: "0.2rem",
-              }}
-            >
-              Learn how to integrate →
-            </div>
           </div>
         </a>
       </div>
@@ -2639,6 +2748,7 @@ function SidebarInfoCards() {
 function WalletSteps() {
   return (
     <div
+      className="services-wallet-steps"
       style={{
         padding: "0 0rem",
         display: "flex",
@@ -2703,12 +2813,16 @@ function CliSnippet({
     t.current = setTimeout(() => setCopied(false), 1500);
   };
   return (
-    <div>
-      <div style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.2rem" }}>
+    <div className="services-cli-snippet">
+      <div
+        className="services-cli-title"
+        style={{ fontSize: 14, fontWeight: 500, marginBottom: "0.2rem" }}
+      >
         {label}
       </div>
       {desc && (
         <div
+          className="services-cli-description"
           style={{
             color: "var(--vocs-text-color-secondary)",
             fontSize: 13,
@@ -2722,6 +2836,7 @@ function CliSnippet({
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
       <div
+        className="services-cli-code"
         onClick={handleCopy}
         style={{
           display: "flex",
@@ -3032,14 +3147,14 @@ function FallbackIcon({ name }: { name: string }) {
   return (
     <div
       style={{
-        width: 28,
-        height: 28,
+        width: 36,
+        height: 36,
         borderRadius: 6,
         background: "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.10))",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: initials.length > 1 ? 10 : 13,
+        fontSize: initials.length > 1 ? 12 : 15,
         fontWeight: 600,
         letterSpacing: "-0.02em",
         color: "var(--vocs-text-color-secondary)",
@@ -3060,20 +3175,23 @@ function ServiceIcon({ service: s }: { service: Service }) {
       className="svc-icon"
       style={{
         position: "relative",
-        width: 28,
-        height: 28,
+        width: 36,
+        height: 36,
         flexShrink: 0,
-        marginRight: 6,
+        marginRight: 0,
+        marginTop: 2,
       }}
     >
       {s.id && !imgError ? (
         <img
-          src={iconUrl(s.id)}
           alt=""
-          width={28}
-          height={28}
           className="svc-icon-img"
+          decoding="async"
+          height={36}
+          loading="lazy"
           onError={() => setImgError(true)}
+          src={serviceIconUrl(s)}
+          width={36}
         />
       ) : (
         <FallbackIcon name={s.name} />
@@ -3116,7 +3234,7 @@ function ServiceRow({
     e.stopPropagation();
     copy(displayUrl, `url-${s.id}`);
   };
-  const expandedBg = "light-dark(rgba(0,0,0,0.025), rgba(255,255,255,0.025))";
+  const expandedBg = "light-dark(rgba(0,0,0,0.025), #191919)";
   return (
     <>
       <tr
@@ -3135,19 +3253,18 @@ function ServiceRow({
         onMouseEnter={(e) => {
           if (!expanded)
             e.currentTarget.style.background =
-              "var(--vocs-background-color-surfaceMuted)";
+              "light-dark(rgba(0,0,0,0.025), rgb(255 255 255 / 2%))";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = expanded ? expandedBg : "";
         }}
       >
-        <td style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}>
+        <td style={{ padding: "1.25rem 1rem", verticalAlign: "top" }}>
           <div
             style={{
               display: "flex",
               alignItems: "flex-start",
-              gap: "0.5rem",
-              paddingTop: "0.15rem",
+              gap: "0.75rem",
             }}
           >
             <ServiceIcon service={s} />
@@ -3156,8 +3273,9 @@ function ServiceRow({
                 <span
                   className="svc-name-text"
                   style={{
-                    fontWeight: 500,
-                    fontSize: 16,
+                    fontWeight: 400,
+                    fontSize: 18,
+                    lineHeight: 1.1,
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -3222,18 +3340,18 @@ function ServiceRow({
         <td
           className="hide-mobile"
           style={{
-            padding: "0.7rem 0.75rem",
+            padding: "1.25rem 0.9375rem 1.25rem 0.5rem",
             color: "var(--vocs-text-color-secondary)",
             fontSize: 14,
-            lineHeight: 1.6,
-            verticalAlign: "middle",
+            lineHeight: 1.3,
+            verticalAlign: "top",
           }}
         >
           {s.description}
         </td>
         <td
           className="hide-mobile"
-          style={{ padding: "0.7rem 0.75rem", verticalAlign: "middle" }}
+          style={{ padding: "1.25rem 1rem 1.25rem 0", verticalAlign: "top" }}
         >
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: copy */}
           {/* biome-ignore lint/a11y/noStaticElementInteractions: copy */}
@@ -3350,7 +3468,7 @@ function ServiceRow({
                   transition:
                     "background 0.15s, color 0.15s, border-color 0.15s",
                 }}
-                title="Docs"
+                title="API docs"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background =
                     "light-dark(rgba(0,0,0,0.06), rgba(255,255,255,0.08))";
@@ -3362,7 +3480,7 @@ function ServiceRow({
                   e.currentTarget.style.color = "var(--vocs-text-color-muted)";
                 }}
               >
-                <BookIcon size={14} />
+                <CodeIcon size={16} />
               </a>
             )}
             {s.provider?.url && (
@@ -3409,7 +3527,7 @@ function ServiceRow({
   );
 }
 
-const ACCORDION_MS = 200;
+const ACCORDION_MS = 300;
 
 function AccordionRow({
   expanded,
@@ -3456,7 +3574,7 @@ function AccordionRow({
           style={{
             display: "grid",
             gridTemplateRows: "0fr",
-            transition: `grid-template-rows ${ACCORDION_MS}ms ease-out`,
+            transition: `grid-template-rows ${ACCORDION_MS}ms ease`,
           }}
         >
           <div style={{ overflow: "hidden", minHeight: 0 }}>{children}</div>
@@ -3497,7 +3615,7 @@ function ExpandedDetail({ service: s }: { service: Service }) {
   const { copiedId, copy } = useCopyFeedback();
   const baseUrl = s.serviceUrl ?? s.url;
   return (
-    <div style={{ fontSize: 14 }}>
+    <div className="expanded-detail-content" style={{ fontSize: 14 }}>
       {baseUrl && (
         <div
           className="expanded-url-bar"
@@ -3766,6 +3884,92 @@ function PageStyles() {
       
       [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; }
       [data-layout="minimal"] main > article { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+      .services-container {
+        max-width: 1728px !important;
+        padding: clamp(3rem, 8vw, 7.5rem) clamp(1rem, 4vw, 3rem) clamp(4rem, 8vw, 8rem) !important;
+      }
+      .services-page-title-wrap {
+        min-height: 13.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+      .services-page-title {
+        display: block;
+        width: min(619px, 100%);
+        height: auto;
+      }
+      @media (min-width: 901px) {
+        .services-container { padding: 8.875rem 3rem 4rem !important; }
+        .services-page-title-wrap { min-height: 7.5rem; }
+      }
+      .page-header {
+        border-bottom: 4px solid transparent;
+        margin-left: 0 !important;
+      }
+      .page-header p { line-height: 1rem !important; }
+      .services-layout { gap: clamp(1.5rem, 4vw, 3rem) !important; }
+      .services-sidebar > * { border-radius: 0 !important; }
+      .search-bar input,
+      .filter-dropdown-btn,
+      .filter-dropdown-btn + * { border-radius: 0 !important; }
+      .search-bar input,
+      .filter-dropdown-btn,
+      .search-bar-learn-more {
+        font-family: var(--font-mono) !important;
+        font-size: 0.875rem !important;
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+      }
+      .search-bar input::placeholder {
+        color: var(--mpp-muted) !important;
+        opacity: 1;
+      }
+      .search-bar-learn-more { border-radius: 0 !important; }
+      .services-wallet-card {
+        background: #191919 !important;
+        border-color: var(--mpp-line) !important;
+        padding: 1rem !important;
+      }
+      .services-wallet-summary {
+        align-items: flex-start;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        list-style: none;
+      }
+      .services-wallet-summary::-webkit-details-marker { display: none; }
+      .services-wallet-chevron {
+        color: var(--mpp-muted);
+        flex: none;
+        margin-top: 0.125rem;
+        transition: transform 0.2s ease;
+      }
+      .services-wallet-card[open] .services-wallet-chevron { transform: rotate(180deg); }
+      .services-wallet-body { display: none; }
+      .services-wallet-card[open] .services-wallet-body { display: block; }
+      .services-wallet-title,
+      .services-cli-title {
+        color: var(--mpp-copy) !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.875rem !important;
+        font-weight: 400 !important;
+        letter-spacing: -0.01em !important;
+        line-height: 1rem;
+        text-transform: uppercase;
+      }
+      .services-wallet-description,
+      .services-cli-description {
+        color: var(--mpp-muted) !important;
+      }
+      .services-cli-code {
+        background: #101010 !important;
+        border-color: var(--mpp-line) !important;
+        border-radius: 0 !important;
+      }
+      [data-services-table] table tr { border-color: var(--mpp-line) !important; }
+      [data-services-table] table tr:hover { background: rgb(255 255 255 / 2%); }
+      .svc-icon-img { border-radius: 0 !important; }
       .services-agent-discovery {
         box-sizing: border-box;
         max-width: 1600px;
@@ -3781,6 +3985,74 @@ function PageStyles() {
       }
       .services-agent-discovery h2 + p + table {
         margin-top: 0;
+      }
+
+      @media (min-width: 1280px) {
+        .services-layout { gap: 1rem !important; }
+        .services-sidebar { width: 22.25rem !important; }
+        .search-bar { gap: 1rem !important; margin-bottom: 0 !important; margin-right: 0 !important; padding-bottom: 0 !important; }
+        .search-bar > div:first-child { flex: 1 1 0 !important; }
+        .filter-dropdown-btn { height: 2.5rem !important; min-width: 9.3125rem; }
+        .search-bar > div:nth-of-type(2) { margin-left: 0 !important; }
+        .search-bar > div:nth-of-type(3) { gap: 0.5rem !important; }
+        .search-bar > div:nth-of-type(3) button { height: 2.5rem !important; width: 2.5rem !important; }
+        .search-bar-learn-more { height: 2.625rem; padding: 0.75rem 1rem !important; }
+        [data-services-table] { margin-top: 3.5rem; }
+        [data-services-table] table col:nth-child(1) { width: 26.6% !important; }
+        [data-services-table] table col:nth-child(2) { width: 20% !important; }
+        [data-services-table] table col:nth-child(3) { width: 35.7% !important; }
+        [data-services-table] table col:nth-child(4) { width: 17.7% !important; }
+        [data-services-table] table th { font-size: 0.875rem !important; line-height: 1rem !important; padding: 0 1rem 1rem !important; }
+        [data-services-table] table th:nth-child(2) { padding-left: 1rem !important; }
+        [data-services-table] table th:nth-child(3) { text-align: right !important; }
+        [data-services-table] table td:nth-child(2) { padding: 1.25rem 0 1.25rem 1rem !important; }
+        [data-services-table] table td:nth-child(3) { padding-left: 1rem !important; }
+        [data-services-table] table tr[id^="service-"] { height: 5.1rem; }
+        [data-services-table] table th:last-child { padding: 0 !important; }
+        [data-services-table] table td:last-child { display: table-cell; padding: 0 !important; vertical-align: top !important; }
+        [data-services-table] table td:nth-child(3) > span {
+          background: #101010 !important;
+          border: 1px solid var(--mpp-line) !important;
+          border-radius: 0 !important;
+          font-family: var(--font-mono) !important;
+          font-size: 0.875rem !important;
+          line-height: 1rem !important;
+          padding: 0.375rem 0.75rem !important;
+        }
+        [data-services-table] .chevron-cell {
+          align-items: flex-start !important;
+          padding-right: 1rem !important;
+          padding-top: 1.25rem;
+        }
+        [data-services-table] .chevron-cell > :is(a, svg) {
+          background: #101010 !important;
+          border: 1px solid var(--mpp-line) !important;
+          border-radius: 0 !important;
+          box-sizing: border-box;
+          color: var(--mpp-muted) !important;
+          height: 2rem !important;
+          padding: 0.5rem;
+          transition: color 150ms ease, border-color 150ms ease;
+          width: 2rem !important;
+        }
+        [data-services-table] .chevron-cell > :is(a, svg):hover {
+          border-color: var(--mpp-line-hover) !important;
+          color: var(--mpp-copy) !important;
+        }
+        .expanded-detail-content { padding: 0 1rem 0.5rem; }
+        .sub-header,
+        .sub-row {
+          column-gap: 1rem !important;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 5.875rem !important;
+        }
+        .sub-header {
+          text-transform: uppercase;
+        }
+        .sub-header > *,
+        .sub-row > * {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
       }
 
       /* Hide logo when search bar is stuck and overlaps it at mid-wide viewports */
@@ -3877,27 +4149,33 @@ function PageStyles() {
 
 
 
-      /* ---- Sidebar hidden, header cards as 4-col strip ---- */
-      @media (max-width: 1200px) {
-        .services-sidebar { display: none !important; }
-        .services-layout { gap: 0 !important; }
+      @media (max-width: 1279px) {
+        .services-layout {
+          gap: 0 !important;
+        }
+        .services-sidebar {
+          display: none !important;
+        }
         .page-header { margin-left: 0 !important; }
-        .header-cards { display: block !important; margin-left: 0 !important; margin-right: 0 !important; margin-bottom: 0.75rem !important; }
+        .header-cards {
+          display: block !important;
+          margin: 0 0 3.25rem !important;
+        }
         .page-header-ctas { display: none !important; }
-        
         .search-bar {
           margin-left: 0 !important;
           margin-top: 0 !important;
-          padding-top: 20px !important;
           margin-right: 0 !important;
           top: calc(var(--vocs-spacing-topNav, 56px) - 4px) !important;
           padding-bottom: 0.75rem !important;
+          padding-top: 1.25rem !important;
           background: linear-gradient(to bottom, var(--vocs-background-color-primary) 80%, transparent) !important;
         }
+        [data-services-table] { margin-top: 1rem; }
       }
 
       /* ---- Table columns stack ---- */
-      @media (max-width: 1400px) {
+      @media (max-width: 1279px) {
         .services-content-row { display: block !important; }
         .services-table-col { min-width: 0 !important; }
         [data-services-table] thead { display: none !important; }
@@ -3957,9 +4235,122 @@ function PageStyles() {
         .url-copy-icon { opacity: 0.8 !important; }
       }
 
+      @media (min-width: 901px) and (max-width: 1279px) {
+        .header-cards { margin-bottom: 2.3125rem !important; }
+        .header-cards-grid > * {
+          align-items: flex-start !important;
+          background: #191919 !important;
+          border-color: var(--mpp-line) !important;
+          border-radius: 0 !important;
+          min-height: 7.75rem !important;
+          padding: 1rem !important;
+          position: relative;
+        }
+        .header-cards-grid > * > span { display: none !important; }
+        .header-cards-grid > * > svg { display: none !important; }
+        .header-cards-grid > * > div {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          gap: 0.5rem;
+          min-width: 0;
+          padding-right: 1.5rem;
+        }
+        .header-cards-grid > * > div > div:first-child {
+          color: var(--mpp-copy) !important;
+          font-family: var(--font-mono) !important;
+          font-size: 0.875rem !important;
+          font-weight: 400 !important;
+          line-height: 1rem !important;
+          margin: 0 !important;
+          text-transform: uppercase;
+        }
+        .header-cards-grid > * > div > div:last-child {
+          color: var(--mpp-muted) !important;
+          font-family: var(--font-sans) !important;
+          font-size: 0.875rem !important;
+          line-height: 1.2 !important;
+          margin: 0 !important;
+        }
+        .header-cards-grid > *::after {
+          color: var(--mpp-copy);
+          content: "→";
+          font-family: var(--font-mono);
+          font-size: 1.25rem;
+          line-height: 1;
+          position: absolute;
+          right: 1rem;
+          top: 1rem;
+        }
+        .search-bar { gap: 1rem !important; }
+        .filter-dropdown-btn { min-width: 9.375rem !important; }
+        .search-bar > div:nth-of-type(3) { gap: 0.5rem !important; }
+        .search-bar > div:nth-of-type(3) button {
+          height: 2.5rem !important;
+          width: 2.5rem !important;
+        }
+        [data-services-table] { margin-top: 1.5625rem !important; }
+        [data-services-table] table,
+        [data-services-table] table tbody { display: block !important; }
+        [data-services-table] table tr[id^="service-"] {
+          display: grid !important;
+          grid-template-columns: max-content minmax(0, 1fr) max-content;
+          grid-template-rows: auto auto;
+          width: 100% !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td:first-child {
+          display: block !important;
+          grid-column: 1;
+          grid-row: 1;
+          max-width: none !important;
+          padding: 0.75rem 0 0.35rem 1rem !important;
+          width: auto !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td.hide-mobile:nth-child(2) {
+          color: var(--mpp-muted) !important;
+          display: block !important;
+          font-size: 0.875rem !important;
+          grid-column: 1 / -1;
+          grid-row: 2;
+          line-height: 1.3 !important;
+          padding: 0 1rem 1rem !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td.hide-mobile:nth-child(3) {
+          display: block !important;
+          grid-column: 2;
+          grid-row: 1;
+          overflow: visible !important;
+          padding: 0.75rem 1rem 0.35rem !important;
+          white-space: nowrap !important;
+        }
+        [data-services-table] table tr[id^="service-"] > td:last-child {
+          display: block !important;
+          grid-column: 3;
+          grid-row: 1;
+          min-width: 0 !important;
+          padding: 0 !important;
+          width: auto !important;
+        }
+        [data-services-table] .show-tablet { display: none !important; }
+        [data-services-table] .svc-name-row {
+          align-items: flex-start !important;
+          flex-direction: column !important;
+          gap: 0 !important;
+        }
+        [data-services-table] .svc-badge-inline { margin: 0 !important; }
+        [data-services-table] .svc-badge-bordered { display: none !important; }
+        [data-services-table] .svc-badge-borderless { display: inline !important; }
+        [data-services-table] .chevron-cell {
+          gap: 1rem !important;
+          padding-right: 0.75rem !important;
+        }
+      }
+
       /* ---- Header cards 2x2, search moves, tags center ---- */
       @media (max-width: 900px) {
         .services-container { padding-left: 0 !important; padding-right: 0 !important; }
+        .services-container { padding-top: 2rem !important; }
+        .services-page-title-wrap { min-height: 9rem; }
         [data-services-table] table { width: 100% !important; table-layout: auto !important; }
         [data-services-table] thead { display: none !important; }
         [data-services-table] colgroup { display: none !important; }
@@ -4106,6 +4497,89 @@ function PageStyles() {
 
       /* ---- Mobile: full-width, bigger icons ---- */
       @media (max-width: 640px) {
+        .services-container {
+          margin-top: -1.125rem !important;
+          padding: 0 0 5rem !important;
+        }
+        .page-header {
+          align-items: flex-start !important;
+          border-bottom: 0 !important;
+          flex-direction: row !important;
+          height: 18.75rem;
+          margin: 0 !important;
+          padding: 3rem 1rem !important;
+          text-align: left !important;
+        }
+        .services-page-title-wrap {
+          height: 100%;
+          justify-content: flex-end !important;
+          min-height: 0 !important;
+          width: 100%;
+        }
+        .services-page-title { width: 100% !important; }
+        .page-header p {
+          font-family: var(--font-mono) !important;
+          font-size: 0.875rem !important;
+          line-height: 1rem !important;
+          margin: 1.5rem 0 0 !important;
+          padding: 0 !important;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+        .header-cards {
+          margin: 0 0 3.5rem !important;
+          padding: 0 1rem !important;
+        }
+        .header-cards-grid {
+          gap: 1rem !important;
+          grid-template-columns: 1fr !important;
+        }
+        .header-cards-grid > * {
+          align-items: flex-start !important;
+          background: #191919 !important;
+          border-color: var(--mpp-line) !important;
+          border-radius: 0 !important;
+          min-height: 4.675rem !important;
+          padding: 1rem !important;
+          position: relative;
+        }
+        .header-cards-grid > *:last-child { min-height: 5.725rem !important; }
+        .header-cards-grid > * > span,
+        .header-cards-grid > * > svg { display: none !important; }
+        .header-cards-grid > * > div {
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          gap: 0.5rem;
+          min-width: 0;
+          padding-right: 1.5rem;
+        }
+        .header-cards-grid > * > div > div:first-child {
+          color: var(--mpp-copy) !important;
+          font-family: var(--font-mono) !important;
+          font-size: 0.875rem !important;
+          font-weight: 400 !important;
+          line-height: 1rem !important;
+          margin: 0 !important;
+          text-transform: uppercase;
+        }
+        .header-cards-grid > * > div > div:last-child {
+          color: var(--mpp-muted) !important;
+          font-family: var(--font-sans) !important;
+          font-size: 0.875rem !important;
+          line-height: 1.2 !important;
+          margin: 0 !important;
+        }
+        .header-cards-grid > *::after {
+          color: var(--mpp-copy);
+          content: "→";
+          font-family: var(--font-mono);
+          font-size: 1.25rem;
+          line-height: 1;
+          position: absolute;
+          right: 1rem;
+          top: 1rem;
+        }
         .expanded-detail { padding-left: 0 !important; padding-right: 0 !important;  }
         .svc-icon { width: 38px !important; height: 38px !important; margin-right: 10px !important; }
         .svc-icon img { width: 38px !important; height: 38px !important; }

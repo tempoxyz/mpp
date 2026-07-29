@@ -1,5 +1,6 @@
 import ruby from "shiki/langs/ruby.mjs";
 import { defineConfig, McpSource } from "vocs/config";
+import { loadBlogPosts } from "./scripts/blog";
 import remarkMppMarkdown from "./scripts/remark-mpp-markdown.mjs";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
@@ -11,11 +12,52 @@ const baseUrl = (() => {
 })();
 
 export default defineConfig({
-  accentColor: "light-dark(#000000, #ffffff)",
-  colorScheme: "light dark",
+  accentColor: "#ffffff",
+  colorScheme: "dark",
   baseUrl,
+  head: (path) => {
+    if (path === "/")
+      return {
+        link: [
+          {
+            as: "image",
+            fetchpriority: "high",
+            href: "/marketing/mpp-hero-poster.jpg",
+            rel: "preload",
+          },
+        ],
+      };
+    if (path === "/services" || path.startsWith("/services/"))
+      return {
+        link: [
+          {
+            as: "font",
+            crossorigin: "anonymous",
+            href: "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Regular.woff2",
+            rel: "preload",
+            type: "font/woff2",
+          },
+          {
+            as: "font",
+            crossorigin: "anonymous",
+            href: "https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Bold.woff2",
+            rel: "preload",
+            type: "font/woff2",
+          },
+        ],
+      };
+    return undefined;
+  },
   markdown: {
-    outputRemarkPlugins: [remarkMppMarkdown],
+    outputRemarkPlugins: [
+      // Production bundles may omit source MDX after Markdown artifacts exist.
+      // Builds still fail on missing or invalid posts; only runtime config load
+      // can safely use an empty catalog.
+      [
+        remarkMppMarkdown,
+        { blogPosts: loadBlogPosts({ missingDirectory: "empty" }) },
+      ],
+    ],
   },
   redirects: [
     { source: "/index", destination: "/" },
@@ -250,8 +292,8 @@ export default defineConfig({
     },
   },
   logoUrl: {
-    light: "/logo-dark.svg",
-    dark: "/logo-light.svg",
+    light: "/marketing/mpp-logo.svg",
+    dark: "/marketing/mpp-logo.svg",
   },
   mcp: {
     enabled: true,

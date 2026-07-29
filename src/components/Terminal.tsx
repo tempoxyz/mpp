@@ -38,12 +38,12 @@ type DemoClient = Awaited<
   ReturnType<typeof import("../demo-client").createDemoClient>
 >;
 
-function useDemoClient() {
+function useDemoClient(enabled: boolean) {
   const [client, setClient] = useState<DemoClient | null>(null);
   const [isLive] = useState(() => import.meta.env?.VITE_DEMO_LIVE !== "false");
 
   useEffect(() => {
-    if (!isLive) return;
+    if (!enabled || !isLive) return;
     let cancelled = false;
     import("../demo-client").then(({ createDemoClient }) =>
       createDemoClient().then((c) => {
@@ -53,7 +53,7 @@ function useDemoClient() {
     return () => {
       cancelled = true;
     };
-  }, [isLive]);
+  }, [enabled, isLive]);
 
   return { client, isLive };
 }
@@ -320,9 +320,9 @@ const BASE_DELAY = 30;
 const JITTER = 35;
 const LINE_DELAY = 500;
 
-function useTypewriter(commands: string[]) {
+function useTypewriter(commands: string[], immediate = false) {
   const noCommands = commands.length === 0;
-  const skip = SKIP_ANIMATION || noCommands;
+  const skip = SKIP_ANIMATION || immediate || noCommands;
   const [showLogin, setShowLogin] = useState(skip);
   const [showPrompt, setShowPrompt] = useState(skip);
   const [started, setStarted] = useState(skip);
@@ -1649,12 +1649,14 @@ function scrollTerminalIntoView() {
 function Wizard({
   steps,
   demoClient,
+  onStartLiveDemo,
   walletState,
   savedCard,
   setSavedCard,
 }: {
   steps: PaymentStepConfig[];
   demoClient?: DemoClient | null;
+  onStartLiveDemo: () => void;
   walletState: WalletState;
   savedCard: SavedCard | undefined;
   setSavedCard: (card: SavedCard | undefined) => void;
@@ -1684,6 +1686,7 @@ function Wizard({
     if (step.skipPrompt) {
       if (step.pickOutput) setChosenOutput(step.pickOutput());
       setChosenUrl(undefined);
+      onStartLiveDemo();
       setChosen(step);
       scrollTerminalIntoView();
       return;
@@ -1715,6 +1718,7 @@ function Wizard({
     if (step.pickOutput) setChosenOutput(step.pickOutput());
     setChosenUrl(fullUrl);
     setWaitingForUrl(false);
+    onStartLiveDemo();
     setChosen(step);
     urlRef.current?.blur();
     scrollTerminalIntoView();
@@ -2534,12 +2538,14 @@ function GalleryStep({
 function SingleStep({
   step,
   demoClient,
+  onStartLiveDemo,
   walletState,
   savedCard,
   setSavedCard,
 }: {
   step: PaymentStepConfig;
   demoClient?: DemoClient | null;
+  onStartLiveDemo: () => void;
   walletState: WalletState;
   savedCard: SavedCard | undefined;
   setSavedCard: (card: SavedCard | undefined) => void;
@@ -2558,12 +2564,17 @@ function SingleStep({
     setKey((k) => k + 1);
   };
 
+  const startDemo = () => {
+    onStartLiveDemo();
+    setStarted(true);
+  };
+
   useEffect(() => {
     if (started && !done) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
         if (done) restart();
-        else setStarted(true);
+        else startDemo();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -2579,7 +2590,7 @@ function SingleStep({
           data-demo-ready
           className="w-fit cursor-pointer text-left"
           style={{ color: "var(--term-pink9)" }}
-          onClick={() => setStarted(true)}
+          onClick={startDemo}
         >
           <CssTriangle /> Run demo
         </button>
@@ -2641,20 +2652,24 @@ function SingleStep({
 
 function TerminalComponent({
   className,
+  marketing = false,
   steps,
   showLastVisit = true,
 }: {
   className?: string;
+  marketing?: boolean;
   steps: StepConfig[];
   showLastVisit?: boolean;
 }) {
-  const { client: demoClient } = useDemoClient();
+  const [liveDemoRequested, setLiveDemoRequested] = useState(false);
+  const { client: demoClient } = useDemoClient(liveDemoRequested);
+  const requestLiveDemo = () => setLiveDemoRequested(true);
 
   const commandsStep = steps[0]?.type === "commands" ? steps[0] : null;
   const contentSteps = commandsStep ? steps.slice(1) : steps;
 
   const { showLogin, showPrompt, started, lineIndex, charIndex, done } =
-    useTypewriter(commandsStep?.commands ?? []);
+    useTypewriter(commandsStep?.commands ?? [], marketing);
   const commands = commandsStep?.commands ?? [];
 
   const isClassic =
@@ -2717,6 +2732,7 @@ function TerminalComponent({
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [showTopFade, setShowTopFade] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMarketingMinimized, setIsMarketingMinimized] = useState(false);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -2799,33 +2815,41 @@ function TerminalComponent({
   return (
     <div
       className={`terminal-theme ${className ?? ""}`}
+      data-marketing-minimized={
+        marketing && isMarketingMinimized ? "" : undefined
+      }
       style={{
         fontFamily: 'var(--font-mono, "Geist Mono", monospace)',
-        height: "100%",
+        height: marketing && isMarketingMinimized ? "auto" : "100%",
         minHeight: 0,
         userSelect: "text",
         WebkitUserSelect: "text",
         ...(isFullscreen
           ? {
+              alignItems: "center",
+              backdropFilter: "blur(4px)",
+              backgroundColor: "rgb(0 0 0 / 70%)",
+              display: "flex",
+              justifyContent: "center",
               position: "fixed",
               inset: 0,
               zIndex: 9999,
               height: "100dvh",
               width: "100vw",
-              padding: 0,
+              padding: 16,
             }
           : {}),
       }}
     >
       <div
         data-terminal
-        className={`flex flex-col overflow-hidden ${isFullscreen ? "" : "rounded-xl"}`}
+        className={`flex flex-col ${isFullscreen ? "" : "overflow-hidden rounded-xl"}`}
         style={{
-          height: "100%",
+          height: isFullscreen ? "min(85dvh, 640px)" : "100%",
           minHeight: 0,
-          borderColor: isFullscreen
-            ? "transparent"
-            : "var(--vocs-border-color-primary)",
+          maxWidth: isFullscreen ? 1080 : undefined,
+          width: "100%",
+          borderColor: "var(--mpp-line, var(--vocs-border-color-primary))",
           borderWidth: 1,
           borderStyle: "solid",
           backgroundColor: "var(--term-bg2)",
@@ -2833,37 +2857,93 @@ function TerminalComponent({
       >
         {/* Title bar */}
         <div
-          className="flex items-center gap-2 px-4 py-3"
+          className={`flex items-center gap-2 px-4 ${marketing ? "py-4" : "py-3"}`}
           style={{
             backgroundColor: "var(--term-bg2)",
             borderBottom: "1px solid var(--term-gray4)",
           }}
         >
-          <span
-            className="rounded-full"
-            style={{
-              width: 14,
-              height: 14,
-              backgroundColor: "var(--term-gray4)",
-            }}
-          />
-          <span
-            className="rounded-full"
-            style={{
-              width: 14,
-              height: 14,
-              backgroundColor: "var(--term-gray4)",
-            }}
-          />
-          <span
-            className="rounded-full"
-            style={{
-              width: 14,
-              height: 14,
-              backgroundColor: "var(--term-gray4)",
-            }}
-          />
+          {marketing && !isFullscreen ? (
+            <span
+              className="font-mono text-sm uppercase leading-4 tracking-[-0.14px]"
+              style={{ color: "var(--term-gray10)" }}
+            >
+              MPP Terminal
+            </span>
+          ) : (
+            <>
+              <span
+                className="rounded-full"
+                style={{
+                  width: 14,
+                  height: 14,
+                  backgroundColor: "var(--term-gray4)",
+                }}
+              />
+              <span
+                className="rounded-full"
+                style={{
+                  width: 14,
+                  height: 14,
+                  backgroundColor: "var(--term-gray4)",
+                }}
+              />
+              <span
+                className="rounded-full"
+                style={{
+                  width: 14,
+                  height: 14,
+                  backgroundColor: "var(--term-gray4)",
+                }}
+              />
+            </>
+          )}
           <span style={{ flex: 1 }} />
+          {marketing && !isFullscreen && (
+            <button
+              type="button"
+              onClick={() => setIsMarketingMinimized((minimized) => !minimized)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--term-gray5)",
+                padding: 2,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--term-gray10)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--term-gray5)";
+              }}
+              aria-label={
+                isMarketingMinimized ? "Expand terminal" : "Minimize terminal"
+              }
+              aria-expanded={!isMarketingMinimized}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <title>
+                  {isMarketingMinimized
+                    ? "Expand terminal"
+                    : "Minimize terminal"}
+                </title>
+                <path d="M5 12h14" />
+                {isMarketingMinimized && <path d="M12 5v14" />}
+              </svg>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setIsFullscreen((f) => !f)}
@@ -2922,52 +3002,54 @@ function TerminalComponent({
               </svg>
             )}
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              setWizardKey((k) => k + 1);
-              setCreated(false);
-              setFunded(false);
-              setBalance(0);
-              setSavedCard(undefined);
-            }}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "var(--term-gray5)",
-              padding: 2,
-              borderRadius: 4,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "color 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "var(--term-gray10)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "var(--term-gray5)";
-            }}
-            aria-label="Restart demo"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-label="Restart"
+          {(!marketing || isFullscreen) && (
+            <button
+              type="button"
+              onClick={() => {
+                setWizardKey((k) => k + 1);
+                setCreated(false);
+                setFunded(false);
+                setBalance(0);
+                setSavedCard(undefined);
+              }}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--term-gray5)",
+                padding: 2,
+                borderRadius: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--term-gray10)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--term-gray5)";
+              }}
+              aria-label="Restart demo"
             >
-              <title>Restart</title>
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-              <path d="M21 3v5h-5" />
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-              <path d="M8 16H3v5" />
-            </svg>
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-label="Restart"
+              >
+                <title>Restart</title>
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M8 16H3v5" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Top gradient fade */}
@@ -2990,9 +3072,17 @@ function TerminalComponent({
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[13.5px] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem] md:overscroll-contain"
+          className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden break-words md:overscroll-contain ${
+            marketing
+              ? "p-4 text-sm leading-[1.64]"
+              : "px-5 pb-5 text-[13.5px] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          }`}
           style={{
             backgroundColor: "var(--term-bg2)",
+            display:
+              marketing && isMarketingMinimized && !isFullscreen
+                ? "none"
+                : undefined,
           }}
         >
           <div ref={contentRef}>
@@ -3007,7 +3097,7 @@ function TerminalComponent({
             >
               ✔︎▸↑↓→
             </span>
-            <div className="h-2" />
+            {!marketing && <div className="h-2" />}
             {/* ASCII logo temporarily disabled
             <div
               style={{
@@ -3118,6 +3208,7 @@ function TerminalComponent({
                       key={`${wizardKey}-${i}`}
                       steps={wizardOptions}
                       demoClient={demoClient}
+                      onStartLiveDemo={requestLiveDemo}
                       walletState={walletState}
                       savedCard={savedCard}
                       setSavedCard={setSavedCard}
@@ -3145,6 +3236,7 @@ function TerminalComponent({
                       key={i}
                       step={contentStep}
                       demoClient={demoClient}
+                      onStartLiveDemo={requestLiveDemo}
                       walletState={walletState}
                       savedCard={savedCard}
                       setSavedCard={setSavedCard}

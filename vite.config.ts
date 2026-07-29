@@ -8,6 +8,7 @@ import { defineConfig, loadEnv } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import { configDefaults } from "vitest/config";
 import { vocs } from "vocs/vite";
+import { blogContent } from "./scripts/vite-blog.js";
 
 const commitSha = child_process
   .execSync("git rev-parse --short HEAD")
@@ -299,6 +300,7 @@ export default defineConfig(({ mode }) => {
       stubMermaid(),
       Icons({ compiler: "jsx", jsx: "react" }),
       react(),
+      blogContent(),
       serveSectionedLlmsTxt(),
       vocs(),
       contentSignalsRobotsTxt(),

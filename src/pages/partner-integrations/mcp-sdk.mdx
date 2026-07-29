@@ -11,7 +11,7 @@ Use [`Mppx.create`](/sdk/typescript/client/Mppx.create) to let the [official Typ
 
 ## Configure a payment wallet
 
-Choose a local viem account for development or use a Privy server wallet when the MCP client runs in production.
+Choose a local viem account for development or use a Privy wallet when the MCP client runs in production.
 
 <Tabs stateKey="wallet-provider">
 <Tab title="Direct">
@@ -34,7 +34,7 @@ Mppx.create({
 </Tab>
 <Tab title="Privy">
 
-Create an EVM server wallet in [Privy](https://dashboard.privy.io), fund its address with pathUSD on Tempo, then store its ID and address with your Privy app credentials. Keep `PRIVY_APP_SECRET` server-side.
+Create an EVM wallet in [Privy](https://dashboard.privy.io), fund its address with pathUSD on Tempo, then store its ID and address with your Privy app credentials. Keep `PRIVY_APP_SECRET` server-side.
 
 :::code-group
 ```bash [npm]
@@ -209,7 +209,6 @@ Configure spending limits with Privy wallet policies, then use the Privy-backed 
 
 ```ts [payments.ts]
 import { Mppx, tempo } from 'mppx/client'
-import { account } from './payments'
 
 Mppx.create({
   methods: [tempo({ account })],

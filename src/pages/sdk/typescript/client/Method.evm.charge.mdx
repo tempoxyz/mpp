@@ -20,7 +20,7 @@ Creates an EVM charge payment method for client-side EIP-3009 authorization sign
 <Tab title="Direct">
 
 ```ts twoslash
-import { Fetch, tempo } from 'mppx/client'
+import { Fetch, evm } from 'mppx/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount(
@@ -29,7 +29,11 @@ const account = privateKeyToAccount(
 
 const fetch = Fetch.from({
   methods: [
-    tempo({ account }),
+    evm.charge({
+      account,
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
   ],
 })
 
@@ -44,7 +48,7 @@ console.log(response.status)
 ```ts [privy.ts]
 import { PrivyClient } from '@privy-io/node'
 import { createViemAccount } from '@privy-io/node/viem'
-import { Fetch, tempo } from 'mppx/client'
+import { Fetch, evm } from 'mppx/client'
 
 const privy = new PrivyClient({
   appId: process.env.PRIVY_APP_ID!,
@@ -58,12 +62,17 @@ const account = createViemAccount(privy, {
 
 const fetch = Fetch.from({
   methods: [
-    tempo({ account }),
+    evm.charge({
+      account,
+      currencies: [evm.assets.baseSepolia.USDC],
+      maxAmount: '1.00',
+    }),
   ],
 })
 
 const response = await fetch('https://api.example.com/paid')
 console.log(response.status)
+// @log: 200
 ```
 
 </Tab>

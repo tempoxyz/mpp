@@ -7,12 +7,14 @@ import type { PathsForPages } from 'waku/router'
 type Page =
   | { path: '/404'; render: 'static' }
   | { path: '/_api/api/og'; render: 'static' }
+  | { path: '/_slots'; render: 'static' }
   | { path: '/advanced/discovery'; render: 'static' }
   | { path: '/advanced/identity'; render: 'static' }
   | { path: '/advanced/payment-hooks'; render: 'static' }
   | { path: '/advanced/refunds'; render: 'static' }
   | { path: '/advanced/relays'; render: 'static' }
   | { path: '/advanced/security'; render: 'static' }
+  | { path: '/blog/_mdx-wrapper'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
   | { path: '/blog'; render: 'static' }

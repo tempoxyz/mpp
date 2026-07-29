@@ -1,7 +1,13 @@
 "use client";
 
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import lockupDarkRaw from "../assets/lockup-dark.svg?raw";
 import lockupLightRaw from "../assets/lockup-light.svg?raw";
@@ -20,6 +26,151 @@ if (typeof window !== "undefined") {
 }
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
+
+type LottieAnimation = {
+  addEventListener: (event: string, callback: () => void) => void;
+  destroy: () => void;
+  goToAndPlay: (value: number, isFrame?: boolean) => void;
+  setSpeed: (speed: number) => void;
+};
+
+type LottiePlayer = {
+  loadAnimation: (options: {
+    autoplay: boolean;
+    container: Element;
+    loop: boolean;
+    path: string;
+    renderer: "svg";
+    rendererSettings: { preserveAspectRatio: string };
+  }) => LottieAnimation;
+};
+
+declare global {
+  interface Window {
+    lottie?: LottiePlayer;
+  }
+}
+
+let lottiePlayer: Promise<LottiePlayer> | undefined;
+const useIsoLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+function loadLottiePlayer() {
+  if (window.lottie) return Promise.resolve(window.lottie);
+  if (lottiePlayer) return lottiePlayer;
+
+  lottiePlayer = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[data-mpp-lottie-player=""]',
+    );
+    const finish = () =>
+      window.lottie
+        ? resolve(window.lottie)
+        : reject(new Error("Lottie player did not initialize"));
+
+    if (existing) {
+      existing.addEventListener("load", finish, { once: true });
+      existing.addEventListener(
+        "error",
+        () => reject(new Error("Unable to load Lottie player")),
+        {
+          once: true,
+        },
+      );
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.async = true;
+    script.dataset.mppLottiePlayer = "";
+    script.src = "/vendor/lottie_light.min.js";
+    script.addEventListener("load", finish, { once: true });
+    script.addEventListener(
+      "error",
+      () => reject(new Error("Unable to load Lottie player")),
+      {
+        once: true,
+      },
+    );
+    document.head.appendChild(script);
+  });
+
+  return lottiePlayer;
+}
+
+function useLogoAnimation() {
+  useIsoLayoutEffect(() => {
+    if (!document.querySelector('[data-layout="minimal"]')) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let animation: LottieAnimation | undefined;
+    let cancelled = false;
+    let ready = false;
+    let fallbackImages: HTMLImageElement[] = [];
+    let container: HTMLSpanElement | undefined;
+
+    const mount = async () => {
+      const logo = document.querySelector<HTMLElement>(
+        "[data-v-logo-image]",
+      )?.parentElement;
+      if (!logo || cancelled) return;
+
+      try {
+        const player = await loadLottiePlayer();
+        if (cancelled) return;
+
+        fallbackImages = Array.from(logo.querySelectorAll("img"));
+        if (!fallbackImages.length) return;
+
+        container = document.createElement("span");
+        container.dataset.mppLogoAnimation = "";
+        logo.dataset.mppLogoHost = "";
+        logo.appendChild(container);
+        animation = player.loadAnimation({
+          autoplay: false,
+          container,
+          loop: false,
+          path: "/lottie/02_MPP_Logo_Loading_Animation.json",
+          renderer: "svg",
+          rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
+        });
+        animation.setSpeed(1.6);
+        animation.addEventListener("DOMLoaded", () => {
+          if (cancelled || !animation) return;
+          ready = true;
+          fallbackImages.forEach((image) => {
+            image.style.visibility = "hidden";
+          });
+          animation.goToAndPlay(7, true);
+        });
+      } catch {
+        // Keep the static logo when the optional animation cannot load.
+      }
+    };
+
+    const replay = () => {
+      if (ready) animation?.goToAndPlay(7, true);
+    };
+    const idleCallback = window.requestIdleCallback?.(() => void mount(), {
+      timeout: 2_000,
+    });
+    if (idleCallback === undefined) void mount();
+    window.addEventListener("mpp:route", replay);
+
+    return () => {
+      cancelled = true;
+      if (idleCallback !== undefined) window.cancelIdleCallback(idleCallback);
+      window.removeEventListener("mpp:route", replay);
+      animation?.destroy();
+      container?.remove();
+      const logo = document.querySelector<HTMLElement>("[data-mpp-logo-host]");
+      delete logo?.dataset.mppLogoHost;
+      fallbackImages.forEach((image) => {
+        image.style.visibility = "";
+      });
+    };
+  }, []);
+}
 
 const POSTHOG_SNIPPET = POSTHOG_KEY
   ? `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetGroupPropertiesForFlags setGroupPropertiesForFlags resetPersonPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init('${POSTHOG_KEY}',{api_host:'https://us.i.posthog.com',disable_session_recording:true});`
@@ -48,71 +199,163 @@ function useGoogleAnalytics() {
     if (!id) return;
     if (document.querySelector(`script[src*="googletagmanager"]`)) return;
 
-    const script = document.createElement("script");
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
-    script.async = true;
-    document.head.appendChild(script);
+    const inject = () => {
+      const script = document.createElement("script");
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+      script.async = true;
+      document.head.appendChild(script);
 
-    window.dataLayer = window.dataLayer || [];
-    const gtag: (...args: unknown[]) => void = function () {
-      // biome-ignore lint/complexity/noArguments: gtag.js bootstrap requires the native arguments object
-      window.dataLayer.push(arguments);
+      window.dataLayer = window.dataLayer || [];
+      const gtag: (...args: unknown[]) => void = function () {
+        // biome-ignore lint/complexity/noArguments: gtag.js bootstrap requires the native arguments object
+        window.dataLayer.push(arguments);
+      };
+      gtag("js", new Date());
+      gtag("config", id);
     };
-    gtag("js", new Date());
-    gtag("config", id);
+
+    const idleCallback = window.requestIdleCallback?.(inject, {
+      timeout: 2_000,
+    });
+    const timeout =
+      idleCallback === undefined ? window.setTimeout(inject, 1_000) : undefined;
+
+    return () => {
+      if (idleCallback !== undefined) window.cancelIdleCallback(idleCallback);
+      if (timeout !== undefined) window.clearTimeout(timeout);
+    };
+  }, []);
+}
+
+function useRouteFade() {
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+
+      const link = (event.target as HTMLElement | null)?.closest(
+        "a[href]",
+      ) as HTMLAnchorElement | null;
+      if (!link || link.target === "_blank") return;
+
+      const url = new URL(link.href, window.location.href);
+      if (
+        url.origin !== window.location.origin ||
+        url.pathname === window.location.pathname
+      )
+        return;
+
+      window.dispatchEvent(new Event("mpp:route"));
+      document.documentElement.dataset.routeTransition = "";
+      window.setTimeout(() => {
+        delete document.documentElement.dataset.routeTransition;
+      }, 320);
+    };
+
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
   }, []);
 }
 
 function MobileNav() {
-  return (
-    <nav data-mobile-nav="" aria-label="Main navigation">
-      <a href="/overview" data-mobile-nav-item="">
-        Docs
-      </a>
-      <a href="/services" data-mobile-nav-item="">
-        Services
-      </a>
-      <a href="/blog" data-mobile-nav-item="">
-        Blog
-      </a>
-      <a
-        href="https://paymentauth.org"
-        target="_blank"
-        rel="noopener noreferrer"
-        data-mobile-nav-item=""
-      >
-        IETF Specification
-      </a>
-      <span data-mobile-nav-label="">GitHub</span>
-      <div data-mobile-nav-subitems="" data-mobile-nav-flat="">
-        <a
-          href="https://github.com/wevm/mppx"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-mobile-nav-subitem=""
-        >
-          mppx (TypeScript)
-        </a>
-        <a
-          href="https://github.com/tempoxyz/mpp-rs"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-mobile-nav-subitem=""
-        >
-          mpp-rs (Rust)
-        </a>
-        <a
-          href="https://github.com/tempoxyz/pympp"
-          target="_blank"
-          rel="noopener noreferrer"
-          data-mobile-nav-subitem=""
-        >
-          pympp (Python)
-        </a>
-      </div>
+  const [githubOpen, setGithubOpen] = useState(false);
 
-      {/* Docs section label */}
-      <span data-mobile-nav-label="">Docs</span>
+  const closeMenu = () => {
+    document
+      .querySelector<HTMLButtonElement>(
+        "[data-v-mobile-nav] button[aria-label]",
+      )
+      ?.click();
+  };
+
+  return (
+    <nav
+      data-mobile-nav=""
+      data-marketing-mobile-menu=""
+      aria-label="Main navigation"
+    >
+      <div data-marketing-mobile-menu-header="">
+        <a
+          href="/"
+          aria-label="Machine Payment Protocol — home"
+          onClick={closeMenu}
+        >
+          <img src="/marketing/mpp-logo.svg" alt="MPP" />
+        </a>
+        <button type="button" onClick={closeMenu}>
+          Close
+        </button>
+      </div>
+      <div data-marketing-mobile-menu-links="">
+        <a href="/overview" onClick={closeMenu}>
+          Docs
+        </a>
+        <a href="/services" onClick={closeMenu}>
+          Services
+        </a>
+        <a href="/blog" onClick={closeMenu}>
+          Blog
+        </a>
+        <a
+          href="https://paymentauth.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          IETF Specs ↗
+        </a>
+        <details
+          open={githubOpen}
+          onToggle={(event) => setGithubOpen(event.currentTarget.open)}
+        >
+          <summary>
+            GitHub <span>⌄</span>
+          </summary>
+          <div>
+            <a
+              href="https://github.com/wevm/mppx"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              mppx (TypeScript) ↗
+            </a>
+            <a
+              href="https://github.com/tempoxyz/mpp-go"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MPP-go (Go) ↗
+            </a>
+            <a
+              href="https://github.com/stripe/mpp-rb"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MPP-rb (Ruby) ↗
+            </a>
+            <a
+              href="https://github.com/tempoxyz/mpp-rs"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MPP-rs (Rust) ↗
+            </a>
+            <a
+              href="https://github.com/tempoxyz/pympp"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              PyMPP (Python) ↗
+            </a>
+          </div>
+        </details>
+      </div>
     </nav>
   );
 }
@@ -122,8 +365,7 @@ function MobileNavPortal() {
 
   useEffect(() => {
     const update = () => {
-      const path = window.location.pathname;
-      if (path !== "/" && path !== "/services") {
+      if (!document.querySelector('[data-layout="minimal"]')) {
         setTarget(null);
         return;
       }
@@ -725,6 +967,8 @@ export default function Layout(
   usePostHog();
   useGoogleAnalytics();
   useLogoFullReload();
+  useLogoAnimation();
+  useRouteFade();
   useWebMcpTools();
 
   const ahrefsKey = import.meta.env.VITE_AHREFS_VERIFICATION;
@@ -752,32 +996,10 @@ export default function Layout(
         <meta name="ahrefs-site-verification" content={ahrefsKey} />
       )}
       <link
-        rel="preload"
-        href="https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Regular.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-      <link
-        rel="preload"
-        href="https://wgfdjv2jfqz2dlpx.public.blob.vercel-storage.com/fonts/VTCDuBois-Bold.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-      <link
-        rel="preload"
-        href="/fonts/Geist-Regular.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
-      <link
-        rel="preload"
-        href="/fonts/Geist-Medium.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
+        href="/rss.xml"
+        rel="alternate"
+        title="MPP Blog"
+        type="application/rss+xml"
       />
       <MobileNavPortal />
       <LogoContextMenu />
