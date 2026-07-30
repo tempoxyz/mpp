@@ -71,6 +71,20 @@ const endpointUrl = (service: Service, endpoint: Endpoint) =>
     endpoint.path,
     `${serviceUrl(service).replace(/\/$/, "")}/`,
   ).toString();
+
+export function buildTryCommands(service: Service, endpoint: Endpoint): string {
+  const requestArguments =
+    endpoint.method === "GET"
+      ? ""
+      : ` \\\n    -X ${endpoint.method} --json '{"input":"Hello!"}'`;
+  return [
+    "curl -L https://tempo.xyz/install | bash",
+    "tempo add wallet",
+    "tempo wallet login",
+    `tempo run \\\n    ${endpointUrl(service, endpoint)}${requestArguments}`,
+  ].join("\n");
+}
+
 const searchable = (service: Service) =>
   [
     service.name,
@@ -306,6 +320,13 @@ function ServiceDetailModal({
   close: () => void;
   service: Service | null;
 }) {
+  const [openEndpoints, setOpenEndpoints] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (!service) return;
+    setOpenEndpoints(new Set(service.endpoints.map((_, index) => index)));
+  }, [service]);
+
   useEffect(() => {
     if (!service) return;
     const key = (event: KeyboardEvent) => {
@@ -319,6 +340,16 @@ function ServiceDetailModal({
     };
   }, [close, service]);
   if (!service) return null;
+
+  const firstEndpoint = service.endpoints[0];
+  const runUrl = firstEndpoint
+    ? endpointUrl(service, firstEndpoint)
+    : serviceUrl(service);
+  const tryCommands = firstEndpoint
+    ? buildTryCommands(service, firstEndpoint)
+    : "";
+  const actionLink =
+    "inline-flex items-center gap-2 border border-border bg-[#101010] px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-offwhite transition-colors hover:border-[rgba(235,235,235,0.4)]";
 
   return (
     <div
@@ -334,106 +365,214 @@ function ServiceDetailModal({
         type="button"
       />
       <div className="relative z-10 my-auto flex w-full max-w-[740px] flex-col gap-6 border border-border bg-[#101010] p-6">
-        <div className="flex items-start justify-between">
-          <img
-            alt=""
-            className="size-12 shrink-0 object-contain"
-            src={serviceIconUrl(service)}
-          />
-          <button
-            aria-label="Close"
-            className="text-secondary transition-colors hover:text-offwhite"
-            onClick={close}
-            type="button"
-          >
-            <Icon name="close" size={24} />
-          </button>
-        </div>
         <div className="flex flex-col gap-5">
-          <div className="flex flex-wrap items-center gap-4">
-            <h2 className="font-sans !text-[28px] font-normal !leading-[1.1] !tracking-[-0.56px] text-offwhite">
-              {service.name}
-            </h2>
-            <span className="inline-flex items-center border border-border px-3 py-1.5 font-mono text-sm uppercase text-secondary">
-              {categoryLabel(service)}
-            </span>
-          </div>
-          <p className="font-sans text-sm leading-[1.3] text-secondary">
-            {service.description}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {service.docs?.llmsTxt && (
-              <a
-                className="inline-flex items-center gap-2 border border-border px-3 py-1.5 font-mono text-sm uppercase text-offwhite"
-                href={service.docs.llmsTxt}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <Icon name="plus" /> Add to agent
-              </a>
-            )}
-            {service.docs?.apiReference && (
-              <a
-                className="inline-flex items-center gap-2 border border-border px-3 py-1.5 font-mono text-sm uppercase text-offwhite"
-                href={service.docs.apiReference}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <Icon name="code" /> API
-              </a>
-            )}
-            <a
-              className="inline-flex items-center gap-2 border border-border px-3 py-1.5 font-mono text-sm uppercase text-offwhite"
-              href={service.url}
-              rel="noopener noreferrer"
-              target="_blank"
+          <div className="flex items-start justify-between">
+            <img
+              alt=""
+              className="size-12 shrink-0 object-contain"
+              src={serviceIconUrl(service)}
+            />
+            <button
+              aria-label="Close"
+              className="text-secondary transition-colors hover:text-offwhite"
+              onClick={close}
+              type="button"
             >
-              <Icon name="globe" /> Website
-            </a>
+              <Icon name="close" size={24} />
+            </button>
+          </div>
+          <div className="flex flex-col gap-5 md:pr-[120px]">
+            <div className="flex flex-wrap items-center gap-4">
+              <h2 className="font-sans !text-[28px] font-normal !leading-[1.1] !tracking-[-0.56px] text-offwhite">
+                {service.name}
+              </h2>
+              <span className="inline-flex items-center border border-border bg-[#101010] px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
+                {categoryLabel(service)}
+              </span>
+            </div>
+            <p className="font-sans text-sm leading-[1.3] text-secondary">
+              {service.description}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {service.docs?.llmsTxt && (
+                <a
+                  className={actionLink}
+                  href={service.docs.llmsTxt}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <Icon name="plus" /> Add to agents
+                </a>
+              )}
+              {service.docs?.apiReference && (
+                <a
+                  className={actionLink}
+                  href={service.docs.apiReference}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <Icon name="code" /> API
+                </a>
+              )}
+              {service.docs?.homepage && (
+                <a
+                  className={actionLink}
+                  href={service.docs.homepage}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <Icon name="arrow-linkout" /> Docs
+                </a>
+              )}
+              <a
+                className={actionLink}
+                href={service.provider?.url ?? service.url}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <Icon name="globe" /> Website
+              </a>
+            </div>
           </div>
         </div>
         <div className="border-t border-border" />
-        <div className="flex items-center justify-between">
-          <h3 className="font-sans !text-xl font-normal text-offwhite">
-            Endpoints
-          </h3>
-          <CopyBadge
-            label="Copy as JSON"
-            text={JSON.stringify(service.endpoints, null, 2)}
-          />
-        </div>
-        <div className="border border-border">
-          {service.endpoints.map((endpoint) => (
-            <div
-              className="border-b border-border bg-[#191919] p-5 last:border-b-0"
-              key={`${endpoint.method}-${endpoint.path}`}
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className={cx(
-                    "px-3 py-1.5 font-mono text-sm",
-                    endpoint.method === "GET"
-                      ? "bg-[rgba(152,243,170,0.1)] text-term-green"
-                      : "bg-[rgba(158,148,255,0.1)] text-term-purple",
-                  )}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="font-sans !text-xl font-normal !leading-[1.1] text-offwhite">
+              Endpoints
+            </h3>
+            <CopyBadge
+              label="Copy as JSON"
+              text={JSON.stringify(service.endpoints, null, 2)}
+            />
+          </div>
+          <div className="border border-border">
+            {service.endpoints.map((endpoint, index) => {
+              const open = openEndpoints.has(index);
+              return (
+                <div
+                  className="border-b border-border bg-[#191919] last:border-b-0"
+                  key={`${endpoint.method}-${endpoint.path}`}
                 >
-                  {endpoint.method}
+                  <div className="flex items-center gap-4 px-5 py-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span
+                        className={cx(
+                          "inline-flex shrink-0 items-center justify-center px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px]",
+                          endpoint.method === "GET"
+                            ? "bg-[rgba(152,243,170,0.1)] text-term-green"
+                            : "bg-[rgba(158,148,255,0.1)] text-term-purple",
+                        )}
+                      >
+                        {endpoint.method}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate font-mono text-sm text-secondary">
+                        {endpoint.path}
+                      </span>
+                    </div>
+                    <span className="shrink-0 font-mono text-sm uppercase text-secondary">
+                      {formatPrice(endpoint)}
+                    </span>
+                    <button
+                      aria-expanded={open}
+                      aria-label={`Toggle ${endpoint.method} ${endpoint.path} details`}
+                      className="shrink-0 text-secondary transition-colors hover:text-offwhite"
+                      onClick={() =>
+                        setOpenEndpoints((current) => {
+                          const next = new Set(current);
+                          if (next.has(index)) next.delete(index);
+                          else next.add(index);
+                          return next;
+                        })
+                      }
+                      type="button"
+                    >
+                      <Icon name={open ? "minus" : "plus"} />
+                    </button>
+                  </div>
+                  <div
+                    className={cx(
+                      "grid transition-[grid-template-rows] duration-200 motion-reduce:transition-none",
+                      open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                    )}
+                  >
+                    <div className="min-h-0 overflow-hidden">
+                      {endpoint.description && (
+                        <p className="px-5 pb-4 font-sans text-sm leading-[1.3] text-secondary">
+                          {endpoint.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {service.endpoints.length === 0 && (
+              <p className="bg-[#191919] px-5 py-4 font-sans text-sm text-secondary">
+                Endpoint details are available from the provider.
+              </p>
+            )}
+          </div>
+        </div>
+        {firstEndpoint && (
+          <>
+            <div className="border-t border-border" />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="font-sans !text-xl font-normal !leading-[1.1] text-offwhite">
+                  Try out
+                </h3>
+                <span className="inline-flex min-w-0 items-center border border-border bg-[#101010] px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
+                  <span className="truncate">{firstEndpoint.path}</span>
                 </span>
-                <span className="min-w-0 flex-1 truncate font-mono text-sm text-secondary">
-                  {endpoint.path}
-                </span>
-                <span className="font-mono text-sm text-secondary">
-                  {formatPrice(endpoint)}
-                </span>
+                <CopyBadge
+                  className="ml-auto"
+                  label="Copy commands"
+                  text={tryCommands}
+                />
               </div>
-              {endpoint.description && (
-                <p className="mt-4 font-sans text-sm text-secondary">
-                  {endpoint.description}
+              {firstEndpoint.description && (
+                <p className="font-sans text-sm leading-[1.3] text-secondary">
+                  {firstEndpoint.description}
                 </p>
               )}
+              <div className="border border-border bg-[#191919] p-4">
+                <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-sm leading-[1.64] text-secondary">
+                  <span className="text-white/50">$ </span>
+                  <span className="text-term-green">curl</span>
+                  {" -L https://tempo.xyz/install | bash"}
+                  <span className="text-white/40"> # Get Tempo CLI</span>
+                  {"\n"}
+                  <span className="text-white/50">$ </span>
+                  <span className="text-term-green">tempo</span>
+                  {" add wallet"}
+                  <span className="text-white/40"> # Add wallet tools</span>
+                  {"\n"}
+                  <span className="text-white/50">$ </span>
+                  <span className="text-term-green">tempo</span>
+                  {" wallet login"}
+                  <span className="text-white/40"> # Sign in via browser</span>
+                  {"\n"}
+                  <span className="text-white/50">$ </span>
+                  <span className="text-term-green">tempo</span>
+                  {" run \\\n    "}
+                  <span className="text-term-purple">{runUrl}</span>
+                  {firstEndpoint.method !== "GET" && (
+                    <>
+                      {" \\\n    "}
+                      <span className="text-offwhite">
+                        {`-X ${firstEndpoint.method} --json`}
+                      </span>{" "}
+                      <span className="text-term-green">
+                        {'\'{"input":"Hello!"}\''}
+                      </span>
+                    </>
+                  )}
+                </pre>
+              </div>
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

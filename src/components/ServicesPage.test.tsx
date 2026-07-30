@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Category, Endpoint, Service } from "../data/registry";
 import {
   allCategories,
+  buildTryCommands,
   CATEGORY_LABELS,
   formatPrice,
   PAGE_SIZE,
@@ -183,5 +184,38 @@ describe("PAGE_SIZE", () => {
 
   it("is 60", () => {
     expect(PAGE_SIZE).toBe(60);
+  });
+});
+
+describe("buildTryCommands", () => {
+  const service: Service = {
+    endpoints: [],
+    id: "test",
+    methods: {},
+    name: "Test",
+    serviceUrl: "https://test.mpp.dev",
+    url: "https://test.dev",
+  };
+
+  it("includes a JSON request for non-GET endpoints", () => {
+    expect(
+      buildTryCommands(service, {
+        method: "POST",
+        path: "/responses",
+      }),
+    ).toContain(
+      'https://test.mpp.dev/responses \\\n    -X POST --json \'{"input":"Hello!"}\'',
+    );
+  });
+
+  it("omits a request body for GET endpoints", () => {
+    const commands = buildTryCommands(service, {
+      method: "GET",
+      path: "/search",
+    });
+
+    expect(commands).toContain("tempo run \\\n    https://test.mpp.dev/search");
+    expect(commands).not.toContain("--json");
+    expect(commands).not.toContain("-X GET");
   });
 });
