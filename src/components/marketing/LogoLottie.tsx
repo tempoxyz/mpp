@@ -10,6 +10,10 @@ type LottieAnimation = {
   totalFrames: number;
 };
 
+type LottieData = {
+  layers: Array<{ nm?: string }>;
+};
+
 export function LogoLottie({ className }: { className?: string }) {
   const animationRef = useRef<LottieAnimation | undefined>(undefined);
   const fallbackRef = useRef<HTMLImageElement>(null);
@@ -19,14 +23,25 @@ export function LogoLottie({ className }: { className?: string }) {
     let cancelled = false;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    import("lottie-web/build/player/lottie_light")
-      .then(({ default: lottie }) => {
+    Promise.all([
+      import("lottie-web/build/player/lottie_light"),
+      fetch("/lottie/02_MPP_Logo_Loading_Animation.json").then((response) => {
+        if (!response.ok) throw new Error("Unable to load logo animation");
+        return response.json() as Promise<LottieData>;
+      }),
+    ])
+      .then(([{ default: lottie }, animationData]) => {
         if (cancelled || !hostRef.current) return;
         const animation = lottie.loadAnimation({
+          animationData: {
+            ...animationData,
+            layers: animationData.layers.filter(
+              (layer) => !layer.nm?.startsWith("Block "),
+            ),
+          },
           autoplay: false,
           container: hostRef.current,
           loop: false,
-          path: "/lottie/02_MPP_Logo_Loading_Animation.json",
           renderer: "svg",
           rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
         }) as LottieAnimation;
@@ -38,7 +53,7 @@ export function LogoLottie({ className }: { className?: string }) {
           if (reduced) {
             animation.goToAndStop(animation.totalFrames - 1, true);
           } else {
-            animation.goToAndPlay(0, true);
+            animation.goToAndPlay(7, true);
           }
           window.dispatchEvent(new Event("mpp:logo-lines"));
         });
@@ -47,7 +62,7 @@ export function LogoLottie({ className }: { className?: string }) {
 
     const replay = () => {
       if (!reduced) {
-        animationRef.current?.goToAndPlay(0, true);
+        animationRef.current?.goToAndPlay(7, true);
         window.dispatchEvent(new Event("mpp:logo-lines"));
       }
     };
