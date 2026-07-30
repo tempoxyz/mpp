@@ -62,28 +62,47 @@ export function LineLogo({
   useLayoutEffect(() => {
     if (mode !== "auto") return;
     const svg = ref.current;
-    if (!svg || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!svg) return;
+    const elements = Array.from(svg.querySelectorAll<SVGRectElement>("rect"));
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      svg.style.visibility = "visible";
       return;
     }
-    const elements = Array.from(svg.querySelectorAll<SVGRectElement>("rect"));
     const midpoint = (elements.length - 1) / 2;
     const expo = (progress: number) =>
       progress === 1 ? 1 : 1 - 2 ** (-10 * progress);
     const ease = (progress: number) =>
       progress === 0 ? 0 : 0.7 + 0.3 * expo(progress);
-    elements.forEach((rect, index) => {
-      gsap.fromTo(
-        rect,
-        { attr: slot(rect), opacity: 0 },
-        {
-          attr: resolved(rect),
-          delay: Math.abs(index - midpoint) * 0.007,
-          duration: 0.75,
-          ease,
-          opacity: 1,
-        },
-      );
-    });
+    for (const rect of elements) {
+      gsap.set(rect, { attr: slot(rect), opacity: 0 });
+    }
+    svg.style.visibility = "visible";
+
+    let played = false;
+    const play = () => {
+      if (played) return;
+      played = true;
+      elements.forEach((rect, index) => {
+        gsap.fromTo(
+          rect,
+          { attr: slot(rect), opacity: 0 },
+          {
+            attr: resolved(rect),
+            delay: Math.abs(index - midpoint) * 0.007,
+            duration: 0.75,
+            ease,
+            opacity: 1,
+          },
+        );
+      });
+    };
+    window.addEventListener("mpp:logo-lines", play, { once: true });
+    const fallback = window.setTimeout(play, 1_000);
+    return () => {
+      window.clearTimeout(fallback);
+      window.removeEventListener("mpp:logo-lines", play);
+      gsap.killTweensOf(elements);
+    };
   }, [mode]);
 
   return (
@@ -93,6 +112,7 @@ export function LineLogo({
       fill="#EBEBEB"
       ref={ref}
       role="img"
+      style={mode === "auto" ? { visibility: "hidden" } : undefined}
       viewBox={viewBox}
       xmlns="http://www.w3.org/2000/svg"
     >

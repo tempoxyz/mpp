@@ -6,6 +6,7 @@ type LottieAnimation = {
   destroy: () => void;
   goToAndPlay: (frame: number, isFrame: boolean) => void;
   goToAndStop: (frame: number, isFrame: boolean) => void;
+  setSpeed: (speed: number) => void;
   totalFrames: number;
 };
 
@@ -30,18 +31,23 @@ export function LogoLottie({ className }: { className?: string }) {
           rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
         }) as LottieAnimation;
         animationRef.current = animation;
+        animation.setSpeed(2);
         animation.addEventListener("DOMLoaded", () => {
           if (cancelled) return;
           if (reduced) {
             animation.goToAndStop(animation.totalFrames - 1, true);
           }
           fallbackRef.current?.style.setProperty("visibility", "hidden");
+          window.dispatchEvent(new Event("mpp:logo-lines"));
         });
       })
       .catch(() => {});
 
     const replay = () => {
-      if (!reduced) animationRef.current?.goToAndPlay(0, true);
+      if (!reduced) {
+        animationRef.current?.goToAndPlay(0, true);
+        window.dispatchEvent(new Event("mpp:logo-lines"));
+      }
     };
     window.addEventListener("mpp:route", replay);
 
