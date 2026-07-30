@@ -2,7 +2,14 @@
 
 import { Receipt } from "mppx";
 import type { ReactNode } from "react";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { BlockCursorInput } from "./BlockCursorInput";
 import { SPINNER_FRAMES } from "./terminal-data";
 import {
@@ -2652,11 +2659,13 @@ function SingleStep({
 
 function TerminalComponent({
   className,
+  headerClassName,
   marketing = false,
   steps,
   showLastVisit = true,
 }: {
   className?: string;
+  headerClassName?: string;
   marketing?: boolean;
   steps: StepConfig[];
   showLastVisit?: boolean;
@@ -2732,12 +2741,25 @@ function TerminalComponent({
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [showTopFade, setShowTopFade] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreenClosing, setIsFullscreenClosing] = useState(false);
+  const closeFullscreen = useCallback(() => {
+    if (!isFullscreen || isFullscreenClosing) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setIsFullscreen(false);
+      return;
+    }
+    setIsFullscreenClosing(true);
+    window.setTimeout(() => {
+      setIsFullscreen(false);
+      setIsFullscreenClosing(false);
+    }, 300);
+  }, [isFullscreen, isFullscreenClosing]);
   const [isMarketingMinimized, setIsMarketingMinimized] = useState(false);
 
   useEffect(() => {
     if (!isFullscreen) return;
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsFullscreen(false);
+      if (e.key === "Escape") closeFullscreen();
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleEsc);
@@ -2745,7 +2767,7 @@ function TerminalComponent({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleEsc);
     };
-  }, [isFullscreen]);
+  }, [closeFullscreen, isFullscreen]);
 
   useEffect(() => {
     const scrollEl = scrollRef.current;
@@ -2814,7 +2836,7 @@ function TerminalComponent({
 
   return (
     <div
-      className={`terminal-theme ${className ?? ""}`}
+      className={`terminal-theme ${isFullscreen ? "terminal-fullscreen" : ""} ${isFullscreenClosing ? "is-closing" : ""} ${className ?? ""}`}
       data-marketing-minimized={
         marketing && isMarketingMinimized ? "" : undefined
       }
@@ -2857,7 +2879,7 @@ function TerminalComponent({
       >
         {/* Title bar */}
         <div
-          className={`flex items-center gap-2 px-4 ${marketing ? "py-4" : "py-3"}`}
+          className={`flex items-center gap-2 px-4 ${marketing ? "py-4" : "py-3"} ${isFullscreen ? "" : (headerClassName ?? "")}`}
           style={{
             backgroundColor: "var(--term-bg2)",
             borderBottom: "1px solid var(--term-gray4)",
@@ -2946,7 +2968,9 @@ function TerminalComponent({
           )}
           <button
             type="button"
-            onClick={() => setIsFullscreen((f) => !f)}
+            onClick={() =>
+              isFullscreen ? closeFullscreen() : setIsFullscreen(true)
+            }
             style={{
               background: "transparent",
               border: "none",
@@ -3053,7 +3077,7 @@ function TerminalComponent({
         </div>
 
         {/* Top gradient fade */}
-        {showTopFade && (
+        {showTopFade && !marketing && (
           <div
             style={{
               position: "absolute",

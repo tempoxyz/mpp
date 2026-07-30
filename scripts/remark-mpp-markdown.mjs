@@ -38,6 +38,8 @@ function transformNode(node, headingDepth, blogPosts) {
       return transformTabs(node, headingDepth, blogPosts);
     case "BlogPostList":
       return [blogPostList(blogPosts)];
+    case "BlogIndexPage":
+      return [heading(2, "See updates"), blogPostList(blogPosts)];
     case "Card":
       return [card(node)];
     case "DownloadSvgButton":
@@ -50,6 +52,15 @@ function transformNode(node, headingDepth, blogPosts) {
       return [mppxCreateReferenceCard(node)];
     case "PromptBlock":
       return [promptBlock(node)];
+    case "ServicesPage":
+      return [
+        heading(2, "Browse services"),
+        paragraph([
+          text("Browse payment-enabled services in "),
+          link("/services/llms.txt", [text("the services llms.txt catalog")]),
+          text("."),
+        ]),
+      ];
     case "SdkBadge.GitHub":
       return badgeGithub(node);
     case "SdkBadge.Maintainer":

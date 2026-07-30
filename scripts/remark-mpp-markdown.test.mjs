@@ -71,7 +71,9 @@ describe("remarkMppMarkdown", () => {
           ],
         },
         flow("BlogPostList"),
+        flow("BlogIndexPage"),
         flow("LandingPage"),
+        flow("ServicesPage"),
         flow(
           "Cards",
           [],

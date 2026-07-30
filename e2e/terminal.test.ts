@@ -1,3 +1,6 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { expect as playwrightExpect } from "@playwright/test";
 import type { Page } from "playwright";
 import { type Browser, chromium } from "playwright";
@@ -8,10 +11,17 @@ import { afterAll, beforeAll, describe, it } from "vitest";
 let server: ViteDevServer;
 let browser: Browser;
 let baseUrl: string;
+let cacheDir: string;
 let port: number;
 
 beforeAll(async () => {
+  cacheDir = await mkdtemp(join(tmpdir(), "mpp-terminal-e2e-"));
   server = await createServer({
+    cacheDir,
+    environments: {
+      client: { optimizeDeps: { force: true } },
+    },
+    optimizeDeps: { force: true },
     server: { port: 0 },
     logLevel: "error",
   });
@@ -27,6 +37,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await browser?.close();
   await server?.close();
+  if (cacheDir) await rm(cacheDir, { recursive: true });
 });
 
 function newPage() {
@@ -70,9 +81,11 @@ describe("terminal", () => {
     });
     console.log("page status:", response?.status());
 
-    await playwrightExpect(page.locator(".rounded-full").first()).toBeVisible({
-      timeout: 10_000,
-    });
+    await playwrightExpect(page.locator("[data-terminal]").first()).toBeVisible(
+      {
+        timeout: 10_000,
+      },
+    );
     await playwrightExpect(page.getByText("mpp.dev@")).toBeVisible({
       timeout: 5_000,
     });
@@ -171,7 +184,6 @@ describe("terminal", () => {
     await waitForWizard(page);
 
     await pressKey(page, "ArrowDown");
-    await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
     await playwrightExpect(page.getByText("Enter prompt:")).toBeVisible({
@@ -230,6 +242,8 @@ describe("terminal", () => {
     await waitForWizard(page);
 
     await pressKey(page, "ArrowDown");
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
     await playwrightExpect(page.getByText("Enter URL:")).toBeVisible({
@@ -276,6 +290,8 @@ describe("terminal", () => {
     await waitForWizard(page);
 
     await pressKey(page, "ArrowDown");
+    await pressKey(page, "ArrowDown");
+    await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 
     await playwrightExpect(page.getByText("Enter URL:")).toBeVisible({
@@ -310,7 +326,6 @@ describe("terminal", () => {
     await page.goto(pageUrl());
     await waitForWizard(page);
 
-    await pressKey(page, "ArrowDown");
     await pressKey(page, "ArrowDown");
     await pressKey(page, "Enter");
 

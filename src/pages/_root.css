@@ -101,6 +101,21 @@
 
 @source "../";
 
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+  --color-bg: #101010;
+  --color-elevated: #191919;
+  --color-offwhite: #ebebeb;
+  --color-primary: #ebebeb;
+  --color-secondary: #a6a6a6;
+  --color-empty: #747474;
+  --color-muted: #757575;
+  --color-term-green: #98f3aa;
+  --color-term-purple: #9e94ff;
+  --color-border: rgba(235, 235, 235, 0.2);
+}
+
 /*
  * Fix: LightningCSS (via Tailwind v4) compiles light-dark() into a polyfill
  * that uses @media (prefers-color-scheme) — which only responds to the OS-level
@@ -134,6 +149,87 @@ html {
 button:not(:disabled),
 [role="button"]:not(:disabled) {
   cursor: pointer;
+}
+
+.terminal-fullscreen {
+  animation: terminal-overlay-in 300ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.terminal-fullscreen > [data-terminal] {
+  animation: terminal-modal-in 300ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.terminal-fullscreen.is-closing {
+  animation-direction: reverse;
+}
+
+.terminal-fullscreen.is-closing > [data-terminal] {
+  animation-direction: reverse;
+}
+
+@keyframes terminal-overlay-in {
+  from {
+    background-color: rgb(0 0 0 / 0%);
+    backdrop-filter: blur(0);
+  }
+}
+
+@keyframes terminal-modal-in {
+  from {
+    opacity: 0;
+    transform: translate(18vw, 25vh) scale(0.55);
+  }
+}
+
+body.marketing-home {
+  --marketing-footer-bg: #060606;
+  background: #060606;
+}
+
+[data-layout="minimal"]:has(.marketing-route) [data-v-gutter-top] {
+  display: none !important;
+}
+
+[data-layout="minimal"]:has(.marketing-route) [data-v-main],
+[data-layout="minimal"]:has(.marketing-route) main {
+  margin: 0 !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+[data-layout="minimal"]:has(.marketing-route) article[data-v-content] {
+  margin: 0 !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+[data-layout="minimal"]:has(.marketing-route)
+  article[data-v-content]
+  > .marketing-route {
+  margin: 0 !important;
+}
+
+[data-layout="minimal"]:has(.marketing-route) [data-v-footer] {
+  background: #101010 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+.marketing-home [data-v-footer] {
+  background: #060606 !important;
+}
+
+.marketing-route :is(h1, h2, h3, p) {
+  margin: 0 !important;
+}
+
+.marketing-route a {
+  text-decoration: none;
+}
+
+.marketing-route .terminal-theme > [data-terminal] {
+  border-radius: 0 !important;
 }
 
 /* Pagination: hide "Next" / "Previous" label text, keep only shortcut (Shift → / ←) */
@@ -2861,6 +2957,116 @@ nav[data-v-sidebar] button,
 
   .marketing-footer-links {
     gap: 0;
+  }
+}
+
+.services-agent-discovery {
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: 1600px;
+  padding: 0 3rem 5rem;
+  width: 100%;
+}
+
+.services-agent-discovery > * {
+  max-width: none;
+}
+
+.services-agent-discovery h2 + p {
+  margin-bottom: 0.75rem;
+}
+
+.services-agent-discovery h2 + p + table {
+  margin-top: 0;
+}
+
+.services-agent-discovery table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.services-agent-discovery th:nth-child(1) {
+  width: 25%;
+}
+
+.services-agent-discovery th:nth-child(2) {
+  width: 30%;
+}
+
+.services-agent-discovery th:nth-child(3) {
+  width: 45%;
+}
+
+.services-agent-discovery th,
+.services-agent-discovery td,
+.services-agent-discovery td a {
+  overflow-wrap: anywhere;
+  white-space: normal !important;
+  word-break: break-word;
+}
+
+@media (min-width: 1280px) {
+  .services-agent-discovery > * {
+    max-width: calc(100% - 22.25rem - 1rem);
+  }
+}
+
+@media (max-width: 900px) {
+  .services-agent-discovery {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .services-agent-discovery > * {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .services-agent-discovery {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .services-agent-discovery table,
+  .services-agent-discovery tbody,
+  .services-agent-discovery tr,
+  .services-agent-discovery td {
+    display: block;
+    width: 100%;
+  }
+
+  .services-agent-discovery thead {
+    display: none;
+  }
+
+  .services-agent-discovery td {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 5.75rem minmax(0, 1fr);
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 0.75rem !important;
+    width: 100% !important;
+  }
+
+  .services-agent-discovery td::before {
+    color: var(--mpp-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+  }
+
+  .services-agent-discovery td:nth-child(1)::before {
+    content: "Surface";
+  }
+
+  .services-agent-discovery td:nth-child(2)::before {
+    content: "URL";
+  }
+
+  .services-agent-discovery td:nth-child(3)::before {
+    content: "Use it for";
   }
 }
 
