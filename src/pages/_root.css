@@ -224,8 +224,9 @@ body.marketing-home {
   margin: 0 !important;
 }
 
-.marketing-route a {
-  text-decoration: none;
+.marketing-route a,
+.marketing-route a:hover {
+  text-decoration: none !important;
 }
 
 .marketing-route .terminal-theme > [data-terminal] {
