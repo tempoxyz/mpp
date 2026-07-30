@@ -191,10 +191,7 @@ export function LandingPage() {
                 className="w-full shrink-0 md:w-[396px] md:snap-start"
                 key={service.id}
               >
-                <ServiceCard
-                  iconSrc="/marketing/service-icon.svg"
-                  service={service}
-                />
+                <ServiceCard service={service} />
               </div>
             ))}
           </div>

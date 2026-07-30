@@ -3,10 +3,8 @@ import { serviceIconUrl } from "../../data/registry";
 import { CopyBadge } from "./CopyBadge";
 
 export function ServiceCard({
-  iconSrc,
   service,
 }: {
-  iconSrc?: string;
   service: FeaturedService | Service;
 }) {
   const category = service.categories?.[0] ?? "service";
@@ -18,7 +16,7 @@ export function ServiceCard({
           <img
             alt=""
             className="size-[43px] shrink-0 object-contain"
-            src={iconSrc ?? serviceIconUrl(service)}
+            src={serviceIconUrl(service)}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="font-sans text-xl font-normal leading-[1.1] text-offwhite">

@@ -42,12 +42,6 @@ export const PINNED_IDS: string[] = [
   "stripe-climate",
 ];
 
-function serviceCardIcon(service: Service) {
-  if (service.id === "alchemy") return "/marketing/logo-alchemy.svg";
-  if (service.id === "browserbase") return "/marketing/logo-browserbase.svg";
-  if (service.id === "openai") return "/marketing/service-icon.svg";
-}
-
 export function allCategories(service: Service): Category[] {
   return service.categories ?? [];
 }
@@ -639,10 +633,7 @@ export function ServicesPage() {
                     role="button"
                     tabIndex={0}
                   >
-                    <ServiceCard
-                      iconSrc={serviceCardIcon(service)}
-                      service={service}
-                    />
+                    <ServiceCard service={service} />
                   </div>
                 ))}
               </div>
