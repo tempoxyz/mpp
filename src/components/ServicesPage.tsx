@@ -3974,11 +3974,11 @@ function PageStyles() {
         box-sizing: border-box;
         max-width: 1600px;
         margin: 0 auto;
-        padding: 0 1.5rem 5rem;
+        padding: 0 3rem 5rem;
         width: 100%;
       }
       .services-agent-discovery > * {
-        max-width: calc(100% - 360px - 3rem);
+        max-width: none;
       }
       .services-agent-discovery h2 + p {
         margin-bottom: 0.75rem;
@@ -3986,8 +3986,25 @@ function PageStyles() {
       .services-agent-discovery h2 + p + table {
         margin-top: 0;
       }
+      .services-agent-discovery table {
+        table-layout: fixed;
+        width: 100%;
+      }
+      .services-agent-discovery th:nth-child(1) { width: 25%; }
+      .services-agent-discovery th:nth-child(2) { width: 30%; }
+      .services-agent-discovery th:nth-child(3) { width: 45%; }
+      .services-agent-discovery th,
+      .services-agent-discovery td,
+      .services-agent-discovery td a {
+        overflow-wrap: anywhere;
+        white-space: normal !important;
+        word-break: break-word;
+      }
 
       @media (min-width: 1280px) {
+        .services-agent-discovery > * {
+          max-width: calc(100% - 22.25rem - 1rem);
+        }
         .services-layout { gap: 1rem !important; }
         .services-sidebar { width: 22.25rem !important; }
         .search-bar { gap: 1rem !important; margin-bottom: 0 !important; margin-right: 0 !important; padding-bottom: 0 !important; }
@@ -4073,6 +4090,38 @@ function PageStyles() {
         .services-agent-discovery > * {
           max-width: none;
         }
+      }
+      @media (max-width: 640px) {
+        .services-agent-discovery {
+          padding-left: 1rem !important;
+          padding-right: 1rem !important;
+        }
+        .services-agent-discovery table,
+        .services-agent-discovery tbody,
+        .services-agent-discovery tr,
+        .services-agent-discovery td {
+          display: block;
+          width: 100%;
+        }
+        .services-agent-discovery thead { display: none; }
+        .services-agent-discovery td {
+          display: grid;
+          gap: 0.75rem;
+          grid-template-columns: 5.75rem minmax(0, 1fr);
+          max-width: none !important;
+          min-width: 0 !important;
+          padding: 0.75rem !important;
+          width: 100% !important;
+        }
+        .services-agent-discovery td::before {
+          color: var(--mpp-muted);
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          text-transform: uppercase;
+        }
+        .services-agent-discovery td:nth-child(1)::before { content: "Surface"; }
+        .services-agent-discovery td:nth-child(2)::before { content: "URL"; }
+        .services-agent-discovery td:nth-child(3)::before { content: "Use it for"; }
       }
       /* Filter: always show dropdown, search bar taller */
       .filter-dropdown-wrap { display: block; }
