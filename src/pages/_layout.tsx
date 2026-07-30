@@ -13,6 +13,7 @@ import lockupDarkRaw from "../assets/lockup-dark.svg?raw";
 import lockupLightRaw from "../assets/lockup-light.svg?raw";
 import logoDarkRaw from "../assets/logo-dark.svg?raw";
 import logoLightRaw from "../assets/logo-light.svg?raw";
+import { type LottieAnimation, loadLottiePlayer } from "../lib/lottie.js";
 import { injectShikiColors } from "../shiki-style-to-class.js";
 
 if (typeof window !== "undefined") {
@@ -27,76 +28,8 @@ if (typeof window !== "undefined") {
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
 
-type LottieAnimation = {
-  addEventListener: (event: string, callback: () => void) => void;
-  destroy: () => void;
-  goToAndPlay: (value: number, isFrame?: boolean) => void;
-  setSpeed: (speed: number) => void;
-};
-
-type LottiePlayer = {
-  loadAnimation: (options: {
-    autoplay: boolean;
-    container: Element;
-    loop: boolean;
-    path: string;
-    renderer: "svg";
-    rendererSettings: { preserveAspectRatio: string };
-  }) => LottieAnimation;
-};
-
-declare global {
-  interface Window {
-    lottie?: LottiePlayer;
-  }
-}
-
-let lottiePlayer: Promise<LottiePlayer> | undefined;
 const useIsoLayoutEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect;
-
-function loadLottiePlayer() {
-  if (window.lottie) return Promise.resolve(window.lottie);
-  if (lottiePlayer) return lottiePlayer;
-
-  lottiePlayer = new Promise((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[data-mpp-lottie-player=""]',
-    );
-    const finish = () =>
-      window.lottie
-        ? resolve(window.lottie)
-        : reject(new Error("Lottie player did not initialize"));
-
-    if (existing) {
-      existing.addEventListener("load", finish, { once: true });
-      existing.addEventListener(
-        "error",
-        () => reject(new Error("Unable to load Lottie player")),
-        {
-          once: true,
-        },
-      );
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.async = true;
-    script.dataset.mppLottiePlayer = "";
-    script.src = "/vendor/lottie_light.min.js";
-    script.addEventListener("load", finish, { once: true });
-    script.addEventListener(
-      "error",
-      () => reject(new Error("Unable to load Lottie player")),
-      {
-        once: true,
-      },
-    );
-    document.head.appendChild(script);
-  });
-
-  return lottiePlayer;
-}
 
 function useLogoAnimation() {
   useIsoLayoutEffect(() => {
@@ -126,7 +59,7 @@ function useLogoAnimation() {
         container.dataset.mppLogoAnimation = "";
         logo.dataset.mppLogoHost = "";
         logo.appendChild(container);
-        animation = player.loadAnimation({
+        const instance = player.loadAnimation({
           autoplay: false,
           container,
           loop: false,
@@ -134,8 +67,9 @@ function useLogoAnimation() {
           renderer: "svg",
           rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
         });
-        animation.setSpeed(1.6);
-        animation.addEventListener("DOMLoaded", () => {
+        animation = instance;
+        instance.setSpeed(1.6);
+        instance.addEventListener("DOMLoaded", () => {
           if (cancelled || !animation) return;
           ready = true;
           fallbackImages.forEach((image) => {

@@ -4,7 +4,7 @@ import {
   type ReactNode,
   useRef,
 } from "react";
-import { Link } from "vocs";
+import { Link } from "waku";
 import { cx } from "./cx";
 import { Icon, type IconName } from "./Icon";
 import { useWipeHover } from "./useWipeHover";

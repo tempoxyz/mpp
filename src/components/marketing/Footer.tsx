@@ -1,4 +1,6 @@
-import { Link } from "vocs";
+"use client";
+
+import { Link } from "waku";
 import { Button } from "./Button";
 import { cx } from "./cx";
 import { LineLogo } from "./LineLogo";

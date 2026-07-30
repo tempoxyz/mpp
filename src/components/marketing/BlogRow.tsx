@@ -1,4 +1,4 @@
-import { Link } from "vocs";
+import { Link } from "waku";
 import type { BlogPost } from "../../lib/blog";
 import { formatBlogPostDate } from "../../lib/blog";
 import { Icon } from "./Icon";

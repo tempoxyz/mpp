@@ -31,12 +31,24 @@ if (!generated) {
   throw new Error("Failed to generate src/pages.gen.ts");
 }
 
+const seenRoutes = new Set<string>();
+const normalized = generated
+  .split("\n")
+  .filter((line) => {
+    if (line.includes("path: '/_root'")) return false;
+    if (!line.startsWith("  | { path:")) return true;
+    if (seenRoutes.has(line)) return false;
+    seenRoutes.add(line);
+    return true;
+  })
+  .join("\n");
+
 const current = existsSync(outputPath)
   ? readFileSync(outputPath, "utf-8")
   : undefined;
 
-if (current !== generated) {
-  writeFileSync(outputPath, generated, "utf-8");
+if (current !== normalized) {
+  writeFileSync(outputPath, normalized, "utf-8");
 }
 
 console.log("Generated src/pages.gen.ts");

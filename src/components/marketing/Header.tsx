@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "vocs";
+import { Link } from "waku";
 import { cx } from "./cx";
 import { Dropdown } from "./Dropdown";
 import { Icon, type IconName } from "./Icon";

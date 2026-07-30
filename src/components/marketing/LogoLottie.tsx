@@ -1,14 +1,6 @@
 import { useEffect, useRef } from "react";
+import { type LottieAnimation, loadLottiePlayer } from "../../lib/lottie";
 import { cx } from "./cx";
-
-type LottieAnimation = {
-  addEventListener: (event: string, callback: () => void) => void;
-  destroy: () => void;
-  goToAndPlay: (frame: number, isFrame: boolean) => void;
-  goToAndStop: (frame: number, isFrame: boolean) => void;
-  setSpeed: (speed: number) => void;
-  totalFrames: number;
-};
 
 type LottieData = {
   layers: Array<{ nm?: string }>;
@@ -24,13 +16,13 @@ export function LogoLottie({ className }: { className?: string }) {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     Promise.all([
-      import("lottie-web/build/player/lottie_light"),
+      loadLottiePlayer(),
       fetch("/lottie/02_MPP_Logo_Loading_Animation.json").then((response) => {
         if (!response.ok) throw new Error("Unable to load logo animation");
         return response.json() as Promise<LottieData>;
       }),
     ])
-      .then(([{ default: lottie }, animationData]) => {
+      .then(([lottie, animationData]) => {
         if (cancelled || !hostRef.current) return;
         const animation = lottie.loadAnimation({
           animationData: {

@@ -15,3 +15,18 @@ declare module "*.json?raw" {
   const content: string;
   export default content;
 }
+
+declare module "*?url" {
+  const url: string;
+  export default url;
+}
+
+declare module "virtual:vocs/group-icons.css?url" {
+  const url: string | undefined;
+  export default url;
+}
+
+declare module "virtual:vocs/user-styles" {
+  const url: string | undefined;
+  export default url;
+}
