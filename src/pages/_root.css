@@ -249,6 +249,22 @@ body.marketing-home {
   }
 }
 
+.marketing-services-shortcuts-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .marketing-services-shortcuts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .marketing-services-shortcuts-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 /* Pagination: hide "Next" / "Previous" label text, keep only shortcut (Shift → / ←) */
 [data-v-pagination] a > span:last-of-type {
   font-size: 0;

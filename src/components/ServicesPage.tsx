@@ -256,7 +256,7 @@ function ShortcutCard({
       href={href}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-2 pr-6">
-        <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-offwhite">
+        <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] !text-offwhite">
           {title}
         </p>
         <p className="font-sans text-sm leading-[1.2] text-secondary transition-colors group-hover:text-offwhite">
@@ -543,7 +543,7 @@ export function ServicesPage() {
 
         <section className="flex flex-col gap-14 px-4 pb-20 md:px-12 xl:flex-row xl:gap-4">
           <div
-            className="flex min-w-0 scroll-mt-24 flex-1 flex-col gap-8 xl:gap-14"
+            className="flex min-w-0 scroll-mt-24 flex-col gap-8 xl:flex-1 xl:gap-14"
             ref={topRef}
           >
             <div className="flex flex-wrap items-center gap-4">
@@ -607,8 +607,8 @@ export function ServicesPage() {
             </div>
 
             {view === "list" ? (
-              <div>
-                <div className="hidden items-end gap-4 border-b border-border px-4 pb-4 font-mono text-sm uppercase text-secondary xl:flex">
+              <div className="flex flex-col">
+                <div className="hidden items-end gap-4 border-b border-border px-4 pb-4 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary xl:flex">
                   <div className="w-[200px] shrink-0">Provider</div>
                   <div className="flex-1">Description</div>
                   <div className="flex-1 text-right">Service URL</div>
@@ -666,7 +666,7 @@ export function ServicesPage() {
           </div>
 
           <aside className="order-first flex w-full flex-col gap-4 self-start xl:order-none xl:w-[356px] xl:shrink-0">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 xl:hidden">
+            <div className="marketing-services-shortcuts-grid grid gap-4 xl:hidden">
               {topShortcuts.map((shortcut) => (
                 <ShortcutCard key={shortcut.title} {...shortcut} />
               ))}

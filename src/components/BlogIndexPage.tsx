@@ -39,7 +39,7 @@ export function BlogIndexPage() {
                 ))}
               </div>
               <div className="flex items-center justify-between">
-                <p className="font-mono text-sm uppercase text-secondary">
+                <p className="font-mono text-sm uppercase tracking-normal !text-white/60">
                   1–{shown} of {blogPosts.length}
                 </p>
                 {shown < blogPosts.length && (

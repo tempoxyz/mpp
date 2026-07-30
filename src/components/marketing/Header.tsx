@@ -132,7 +132,7 @@ export function Header({
             className="flex min-w-0 items-center"
             to="/"
           >
-            <LogoLottie className="block aspect-[763/74] w-[206px] max-w-full overflow-hidden" />
+            <LogoLottie className="inline-flex h-5 max-w-full overflow-hidden" />
           </Link>
 
           <nav className="hidden flex-wrap items-center justify-end gap-2 min-[880px]:flex">
