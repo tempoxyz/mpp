@@ -190,8 +190,7 @@ body.marketing-home {
   display: none !important;
 }
 
-[data-layout="minimal"]:has(.marketing-route) [data-v-main],
-[data-layout="minimal"]:has(.marketing-route) main {
+[data-layout="minimal"]:has(.marketing-route) [data-v-main] {
   margin: 0 !important;
   max-width: none !important;
   padding: 0 !important;
