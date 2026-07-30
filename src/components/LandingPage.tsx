@@ -128,7 +128,7 @@ export function LandingPage() {
 
         <div className="relative z-40 w-full px-4 py-16 md:px-12 min-[1000px]:pointer-events-none min-[1000px]:fixed min-[1000px]:bottom-10 min-[1000px]:right-12 min-[1000px]:w-[451px] min-[1000px]:p-0">
           <SectionLabel className="mb-4 min-[1000px]:hidden" label="Terminal" />
-          <div className="pointer-events-auto h-[380px] w-full border border-border bg-[#191919] min-[1000px]:h-[276px]">
+          <div className="term-outline pointer-events-none h-[380px] w-full min-[1000px]:h-[276px]">
             <Terminal
               className="rounded-none"
               headerClassName="hidden min-[1000px]:flex"

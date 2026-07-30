@@ -232,6 +232,15 @@ body.marketing-home {
   border-radius: 0 !important;
 }
 
+.term-outline {
+  --term-outline-color: #3c3c3c;
+  filter: drop-shadow(1px 0 0 var(--term-outline-color))
+    drop-shadow(-1px 0 0 var(--term-outline-color))
+    drop-shadow(0 1px 0 var(--term-outline-color))
+    drop-shadow(0 -1px 0 var(--term-outline-color));
+  padding: 1px;
+}
+
 .marketing-integrations-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

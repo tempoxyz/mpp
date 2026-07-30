@@ -2834,6 +2834,8 @@ function TerminalComponent({
     };
   }, []);
 
+  const isMarketingWidget = marketing && !isFullscreen;
+
   return (
     <div
       className={`terminal-theme ${isFullscreen ? "terminal-fullscreen" : ""} ${isFullscreenClosing ? "is-closing" : ""} ${className ?? ""}`}
@@ -2842,7 +2844,7 @@ function TerminalComponent({
       }
       style={{
         fontFamily: 'var(--font-mono, "Geist Mono", monospace)',
-        height: marketing && isMarketingMinimized ? "auto" : "100%",
+        height: "100%",
         minHeight: 0,
         userSelect: "text",
         WebkitUserSelect: "text",
@@ -2865,21 +2867,45 @@ function TerminalComponent({
     >
       <div
         data-terminal
-        className={`flex flex-col ${isFullscreen ? "" : "overflow-hidden rounded-xl"}`}
+        aria-label="MPP interactive terminal demo"
+        className={`flex flex-col ${
+          isFullscreen
+            ? ""
+            : isMarketingWidget
+              ? `pointer-events-auto overflow-visible [--term-bar:46px] [--term-bar-w:220px] [clip-path:inset(0)] [container-type:size] transition-[clip-path] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                  isMarketingMinimized
+                    ? "min-[1000px]:[clip-path:inset(calc(100%-var(--term-bar))_0_0_calc(100%-var(--term-bar-w)))]"
+                    : ""
+                }`
+              : "overflow-hidden rounded-xl"
+        }`}
+        role="application"
         style={{
           height: isFullscreen ? "min(85dvh, 640px)" : "100%",
           minHeight: 0,
           maxWidth: isFullscreen ? 1080 : undefined,
           width: "100%",
-          borderColor: "var(--mpp-line, var(--vocs-border-color-primary))",
-          borderWidth: 1,
+          borderColor: isMarketingWidget
+            ? undefined
+            : "var(--mpp-line, var(--vocs-border-color-primary))",
+          borderWidth: isMarketingWidget ? 0 : 1,
           borderStyle: "solid",
           backgroundColor: "var(--term-bg2)",
         }}
       >
         {/* Title bar */}
         <div
-          className={`flex items-center gap-2 px-4 ${marketing ? "py-4" : "py-3"} ${isFullscreen ? "" : (headerClassName ?? "")}`}
+          className={`flex items-center gap-2 px-4 ${
+            isMarketingWidget
+              ? `relative z-10 h-12 shrink-0 justify-between transition-[translate] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                  isMarketingMinimized
+                    ? "min-[1000px]:translate-y-[calc(100cqh-var(--term-bar))]"
+                    : ""
+                }`
+              : marketing
+                ? "h-12"
+                : "py-3"
+          } ${isFullscreen ? "" : (headerClassName ?? "")}`}
           style={{
             backgroundColor: "var(--term-bg2)",
             borderBottom: "1px solid var(--term-gray4)",
@@ -2887,7 +2913,11 @@ function TerminalComponent({
         >
           {marketing && !isFullscreen ? (
             <span
-              className="font-mono text-sm uppercase leading-4 tracking-[-0.14px]"
+              className={`font-mono text-sm uppercase leading-4 tracking-[-0.14px] transition-[translate] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                isMarketingMinimized
+                  ? "min-[1000px]:translate-x-[calc(100cqw-var(--term-bar-w))]"
+                  : ""
+              }`}
               style={{ color: "var(--term-gray10)" }}
             >
               MPP Terminal
@@ -3100,13 +3130,13 @@ function TerminalComponent({
             marketing
               ? "p-4 text-sm leading-[1.64]"
               : "px-5 pb-5 text-[13.5px] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          } ${
+            isMarketingWidget && isMarketingMinimized
+              ? "min-[1000px]:invisible min-[1000px]:transition-[visibility] min-[1000px]:duration-0 min-[1000px]:delay-300"
+              : ""
           }`}
           style={{
             backgroundColor: "var(--term-bg2)",
-            display:
-              marketing && isMarketingMinimized && !isFullscreen
-                ? "none"
-                : undefined,
           }}
         >
           <div ref={contentRef}>

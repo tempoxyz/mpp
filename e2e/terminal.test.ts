@@ -6,7 +6,7 @@ import type { Page } from "playwright";
 import { type Browser, chromium } from "playwright";
 import type { ViteDevServer } from "vite";
 import { createServer } from "vite";
-import { afterAll, beforeAll, describe, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 let server: ViteDevServer;
 let browser: Browser;
@@ -89,6 +89,57 @@ describe("terminal", () => {
     await playwrightExpect(page.getByText("mpp.dev@")).toBeVisible({
       timeout: 5_000,
     });
+
+    await page.close();
+  });
+
+  it("animates the marketing terminal without changing its footprint", async () => {
+    const page = await newPage();
+    await page.goto(pageUrl());
+
+    const terminal = page.getByRole("application", {
+      name: "MPP interactive terminal demo",
+    });
+    await playwrightExpect(terminal).toBeVisible({ timeout: 10_000 });
+    await page.waitForSelector("[data-wizard-ready]", { timeout: 10_000 });
+
+    const expandedBox = await terminal.boundingBox();
+    expect(expandedBox).not.toBeNull();
+
+    await page
+      .getByRole("button", { name: "Minimize terminal", exact: true })
+      .click();
+    await playwrightExpect(
+      page.getByRole("button", { name: "Expand terminal", exact: true }),
+    ).toBeVisible();
+    await page.waitForTimeout(350);
+
+    const collapsed = await terminal.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        bodyVisibility: getComputedStyle(element.children[1]).visibility,
+        clipPath: style.clipPath,
+        transitionDuration: style.transitionDuration,
+      };
+    });
+    const collapsedBox = await terminal.boundingBox();
+
+    expect(collapsedBox).toEqual(expandedBox);
+    expect(collapsed).toEqual({
+      bodyVisibility: "hidden",
+      clipPath: "inset(calc(100% - 46px) 0px 0px calc(100% - 220px))",
+      transitionDuration: "0.3s",
+    });
+
+    await page
+      .getByRole("button", { name: "Expand terminal", exact: true })
+      .click();
+    await page.waitForTimeout(350);
+    await expect
+      .poll(() =>
+        terminal.evaluate((element) => getComputedStyle(element).clipPath),
+      )
+      .toBe("inset(0px)");
 
     await page.close();
   });
