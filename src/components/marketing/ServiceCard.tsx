@@ -3,20 +3,22 @@ import { serviceIconUrl } from "../../data/registry";
 import { CopyBadge } from "./CopyBadge";
 
 export function ServiceCard({
+  iconSrc,
   service,
 }: {
+  iconSrc?: string;
   service: FeaturedService | Service;
 }) {
   const category = service.categories?.[0] ?? "service";
   const url = service.serviceUrl ?? service.url;
   return (
-    <article className="flex w-full flex-col justify-between gap-6 border border-border bg-[#101010] py-4 pl-4 pr-10 md:h-72 md:gap-0">
+    <div className="flex w-full flex-col justify-between gap-6 border border-border bg-[#101010] py-4 pl-4 pr-10 md:h-72 md:gap-0">
       <div className="flex flex-col gap-6">
         <div className="flex items-start gap-4">
           <img
             alt=""
             className="size-[43px] shrink-0 object-contain"
-            src={serviceIconUrl(service)}
+            src={iconSrc ?? serviceIconUrl(service)}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="font-sans text-xl font-normal leading-[1.1] text-offwhite">
@@ -32,6 +34,6 @@ export function ServiceCard({
         </p>
       </div>
       <CopyBadge className="self-start" text={url} />
-    </article>
+    </div>
   );
 }

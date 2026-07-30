@@ -31,15 +31,22 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 export const PAGE_SIZE = 60;
 export const PINNED_IDS: string[] = [
   "openai",
+  "alchemy",
+  "browserbase",
+  "parallel",
+  "fal",
   "anthropic",
   "google-gemini",
-  "parallel",
-  "alchemy",
   "openrouter",
   "stabletravel",
   "stripe-climate",
-  "browserbase",
 ];
+
+function serviceCardIcon(service: Service) {
+  if (service.id === "alchemy") return "/marketing/logo-alchemy.svg";
+  if (service.id === "browserbase") return "/marketing/logo-browserbase.svg";
+  if (service.id === "openai") return "/marketing/service-icon.svg";
+}
 
 export function allCategories(service: Service): Category[] {
   return service.categories ?? [];
@@ -481,7 +488,18 @@ export function ServicesPage() {
 
   useEffect(() => {
     fetchServices()
-      .then(setServices)
+      .then((data) => {
+        const pinned = new Map(
+          PINNED_IDS.map((id, index) => [id, index] as const),
+        );
+        setServices(
+          data.toSorted(
+            (a, b) =>
+              (pinned.get(a.id) ?? PINNED_IDS.length) -
+              (pinned.get(b.id) ?? PINNED_IDS.length),
+          ),
+        );
+      })
       .catch(() => {});
   }, []);
   const categories = useMemo(
@@ -621,7 +639,10 @@ export function ServicesPage() {
                     role="button"
                     tabIndex={0}
                   >
-                    <ServiceCard service={service} />
+                    <ServiceCard
+                      iconSrc={serviceCardIcon(service)}
+                      service={service}
+                    />
                   </div>
                 ))}
               </div>

@@ -153,7 +153,7 @@ export function LandingPage() {
 
         <section className="flex flex-col gap-4 px-4 py-20 md:px-12">
           <SectionLabel label="Integrations" />
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
+          <div className="marketing-integrations-grid grid gap-4">
             {integrations.map((integration) => (
               <a
                 className="flex h-[72px] items-center justify-center border border-border px-4 py-2 transition-colors hover:bg-[#191919]"
@@ -175,17 +175,27 @@ export function LandingPage() {
         <section className="flex flex-col gap-20 px-4 pb-28 pt-20 md:px-12">
           <div className="flex flex-col gap-6 border-t border-border pt-6">
             <SectionLabel label="Services" />
-            <div className="flex flex-col items-start gap-6">
-              <h2 className="font-sans !text-[32px] font-normal !leading-[1.1] !tracking-[-0.32px] text-offwhite">
-                Use MPP-enabled services
-                <br className="hidden md:inline" /> with your agent.
-              </h2>
-              <Button href="/services">See all services</Button>
+            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+              <div className="flex flex-col items-start gap-6">
+                <h2 className="font-sans !text-[32px] font-normal !leading-[1.1] !tracking-[-0.32px] text-offwhite">
+                  Use MPP-enabled services
+                  <br className="hidden md:inline" /> with your agent.
+                </h2>
+                <Button href="/services">See all services</Button>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="no-scrollbar flex flex-col gap-4 md:flex-row md:snap-x md:overflow-x-auto md:pb-2">
             {services.map((service) => (
-              <ServiceCard key={service.id} service={service} />
+              <div
+                className="w-full shrink-0 md:w-[396px] md:snap-start"
+                key={service.id}
+              >
+                <ServiceCard
+                  iconSrc="/marketing/service-icon.svg"
+                  service={service}
+                />
+              </div>
             ))}
           </div>
         </section>
