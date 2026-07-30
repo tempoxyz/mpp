@@ -23,7 +23,7 @@ export function LogoLottie({ className }: { className?: string }) {
       .then(({ default: lottie }) => {
         if (cancelled || !hostRef.current) return;
         const animation = lottie.loadAnimation({
-          autoplay: !reduced,
+          autoplay: false,
           container: hostRef.current,
           loop: false,
           path: "/lottie/02_MPP_Logo_Loading_Animation.json",
@@ -34,10 +34,12 @@ export function LogoLottie({ className }: { className?: string }) {
         animation.setSpeed(2);
         animation.addEventListener("DOMLoaded", () => {
           if (cancelled) return;
+          fallbackRef.current?.style.setProperty("visibility", "hidden");
           if (reduced) {
             animation.goToAndStop(animation.totalFrames - 1, true);
+          } else {
+            animation.goToAndPlay(0, true);
           }
-          fallbackRef.current?.style.setProperty("visibility", "hidden");
           window.dispatchEvent(new Event("mpp:logo-lines"));
         });
       })
