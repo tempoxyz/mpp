@@ -123,7 +123,7 @@ export function Header({
           "fixed inset-x-0 top-0 z-50 w-full",
           overlay
             ? "bg-gradient-to-b from-[#101010] to-transparent"
-            : "bg-[#101010]",
+            : "bg-[#060606]",
         )}
       >
         <div className="mx-auto flex w-full max-w-[1728px] items-center justify-between gap-4 px-4 py-4 md:px-12 md:py-5">
