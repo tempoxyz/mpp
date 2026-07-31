@@ -2740,35 +2740,117 @@ function TerminalComponent({
   const autoScrollRef = useRef(true);
   const programmaticScrollRef = useRef(false);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const inlinePortalHostRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const fullscreenButtonRef = useRef<HTMLButtonElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(
+    null,
+  );
   const [showTopFade, setShowTopFade] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isFullscreenClosing, setIsFullscreenClosing] = useState(false);
+  const isFullscreenClosingRef = useRef(false);
+
+  useEffect(() => {
+    const inlineHost = inlinePortalHostRef.current;
+    if (!inlineHost) return;
+    const container = document.createElement("div");
+    container.className = "h-full w-full";
+    container.dataset.terminalPortal = "";
+    inlineHost.append(container);
+    setPortalContainer(container);
+    return () => container.remove();
+  }, []);
+
+  const moveTerminalInline = useCallback(() => {
+    const inlineHost = inlinePortalHostRef.current;
+    if (portalContainer && inlineHost) inlineHost.append(portalContainer);
+  }, [portalContainer]);
+
   const closeFullscreen = useCallback(() => {
-    if (!isFullscreen || isFullscreenClosing) return;
+    if (!isFullscreen || isFullscreenClosingRef.current) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setIsFullscreen(false);
+      moveTerminalInline();
       return;
     }
+    isFullscreenClosingRef.current = true;
     setIsFullscreenClosing(true);
     window.setTimeout(() => {
+      isFullscreenClosingRef.current = false;
       setIsFullscreen(false);
       setIsFullscreenClosing(false);
+      moveTerminalInline();
     }, 300);
-  }, [isFullscreen, isFullscreenClosing]);
+  }, [isFullscreen, moveTerminalInline]);
+  const openFullscreen = useCallback(() => {
+    restoreFocusRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : fullscreenButtonRef.current;
+    if (portalContainer) document.body.append(portalContainer);
+    setIsFullscreen(true);
+  }, [portalContainer]);
   const [isMarketingMinimized, setIsMarketingMinimized] = useState(false);
 
   useEffect(() => {
-    if (!isFullscreen) return;
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeFullscreen();
+    if (!isFullscreen || !portalContainer) return;
+    const previousOverflow = document.body.style.overflow;
+    const backgroundElements = Array.from(document.body.children)
+      .filter(
+        (element): element is HTMLElement =>
+          element instanceof HTMLElement && element !== portalContainer,
+      )
+      .map((element) => ({ element, inert: element.inert }));
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeFullscreen();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const modal = modalRef.current;
+      if (!modal) return;
+      const focusable = Array.from(
+        modal.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      const active = document.activeElement;
+      if (!first || !last) {
+        event.preventDefault();
+        modal.focus();
+      } else if (
+        event.shiftKey &&
+        (active === first || !modal.contains(active))
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (active === last || !modal.contains(active))
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
     };
+
+    for (const { element } of backgroundElements) element.inert = true;
     document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleEsc);
+    fullscreenButtonRef.current?.focus();
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleEsc);
+      document.body.style.overflow = previousOverflow;
+      for (const { element, inert } of backgroundElements) {
+        element.inert = inert;
+      }
+      window.removeEventListener("keydown", handleKeyDown);
+      restoreFocusRef.current?.focus();
+      restoreFocusRef.current = null;
     };
-  }, [closeFullscreen, isFullscreen]);
+  }, [closeFullscreen, isFullscreen, portalContainer]);
 
   useEffect(() => {
     const scrollEl = scrollRef.current;
@@ -2836,6 +2918,13 @@ function TerminalComponent({
   }, []);
 
   const isMarketingWidget = marketing && !isFullscreen;
+  const modalProps = isFullscreen
+    ? ({
+        "aria-label": "MPP terminal",
+        "aria-modal": true,
+        role: "dialog",
+      } as const)
+    : {};
 
   const terminalWindow = (
     <div
@@ -2983,9 +3072,10 @@ function TerminalComponent({
             </button>
           )}
           <button
+            ref={fullscreenButtonRef}
             type="button"
             onClick={() =>
-              isFullscreen ? closeFullscreen() : setIsFullscreen(true)
+              isFullscreen ? closeFullscreen() : openFullscreen()
             }
             style={{
               background: "transparent",
@@ -3291,29 +3381,51 @@ function TerminalComponent({
     </div>
   );
 
-  if (!isFullscreen) return terminalWindow;
-
-  return createPortal(
+  return (
     <>
-      <button
-        aria-label="Close terminal"
-        className={`terminal-fullscreen fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm ${
-          isFullscreenClosing ? "is-closing" : ""
-        }`}
-        onClick={closeFullscreen}
-        type="button"
-      />
-      <div className="pointer-events-none fixed inset-0 z-[71] flex items-center justify-center p-4">
-        <div
-          className={`terminal-fullscreen-panel term-outline pointer-events-auto h-[min(85dvh,640px)] w-full max-w-[1080px] ${
-            isFullscreenClosing ? "is-closing" : ""
-          }`}
-        >
-          {terminalWindow}
-        </div>
-      </div>
-    </>,
-    document.body,
+      <div ref={inlinePortalHostRef} className="h-full w-full" />
+      {portalContainer &&
+        createPortal(
+          <>
+            <button
+              aria-label="Close terminal"
+              className={
+                isFullscreen
+                  ? `terminal-fullscreen fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm ${
+                      isFullscreenClosing ? "is-closing" : ""
+                    }`
+                  : "hidden"
+              }
+              onClick={closeFullscreen}
+              tabIndex={-1}
+              type="button"
+            />
+            <div
+              className={
+                isFullscreen
+                  ? "pointer-events-none fixed inset-0 z-[71] flex items-center justify-center p-4"
+                  : "h-full w-full"
+              }
+            >
+              <div
+                ref={modalRef}
+                {...modalProps}
+                className={
+                  isFullscreen
+                    ? `terminal-fullscreen-panel term-outline pointer-events-auto h-[min(85dvh,640px)] w-full max-w-[1080px] ${
+                        isFullscreenClosing ? "is-closing" : ""
+                      }`
+                    : "h-full w-full"
+                }
+                tabIndex={isFullscreen ? -1 : undefined}
+              >
+                {terminalWindow}
+              </div>
+            </div>
+          </>,
+          portalContainer,
+        )}
+    </>
   );
 }
 

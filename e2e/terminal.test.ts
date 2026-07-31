@@ -153,16 +153,37 @@ describe("terminal", () => {
     });
     await playwrightExpect(terminal).toBeVisible({ timeout: 10_000 });
     await page.waitForSelector("[data-wizard-ready]", { timeout: 10_000 });
+    await page.getByRole("button", { name: /Chat with OpenAI/ }).click();
+    const prompt = page.getByRole("textbox");
+    await playwrightExpect(prompt).toBeVisible({ timeout: 5_000 });
+    await prompt.fill("preserve this prompt");
 
     await page
       .getByRole("button", { name: "Enlarge terminal", exact: true })
       .click();
 
-    const modal = page.locator(".terminal-fullscreen-panel");
+    const modal = page.getByRole("dialog", { name: "MPP terminal" });
     await playwrightExpect(modal).toBeVisible();
+    await playwrightExpect(prompt).toHaveValue("preserve this prompt");
     await playwrightExpect(
       page.getByRole("button", { name: "Close terminal", exact: true }),
     ).toHaveCount(2);
+    const closeButton = modal.getByRole("button", {
+      name: "Close terminal",
+      exact: true,
+    });
+    await playwrightExpect(closeButton).toBeFocused();
+    await playwrightExpect(
+      page.locator(".terminal-fullscreen"),
+    ).toHaveAttribute("tabindex", "-1");
+    expect(
+      await page.evaluate(() => {
+        const portal = document.querySelector("[data-terminal-portal]");
+        return Array.from(document.body.children)
+          .filter((element) => element !== portal)
+          .every((element) => (element as HTMLElement).inert);
+      }),
+    ).toBe(true);
 
     const modalBox = await modal.boundingBox();
     expect(modalBox).not.toBeNull();
@@ -174,14 +195,37 @@ describe("terminal", () => {
       "hidden",
     );
 
-    await page
-      .getByRole("button", { name: "Close terminal", exact: true })
-      .last()
-      .click();
-    await playwrightExpect(
-      page.getByRole("button", { name: "Enlarge terminal", exact: true }),
-    ).toBeVisible();
+    await modal.evaluate((element) => {
+      const focusable = Array.from(
+        element.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((candidate) => candidate.getClientRects().length > 0);
+      focusable.at(-1)?.focus();
+    });
+    await page.keyboard.press("Tab");
+    expect(
+      await modal.evaluate((element) =>
+        element.contains(document.activeElement),
+      ),
+    ).toBe(true);
+
+    await closeButton.click();
+    const enlargeButton = page.getByRole("button", {
+      name: "Enlarge terminal",
+      exact: true,
+    });
+    await playwrightExpect(enlargeButton).toBeVisible();
+    await playwrightExpect(enlargeButton).toBeFocused();
+    await playwrightExpect(prompt).toHaveValue("preserve this prompt");
     expect(await page.evaluate(() => document.body.style.overflow)).toBe("");
+    expect(
+      await page.evaluate(() =>
+        Array.from(document.body.children).every(
+          (element) => !(element as HTMLElement).inert,
+        ),
+      ),
+    ).toBe(true);
 
     await page.close();
   });
