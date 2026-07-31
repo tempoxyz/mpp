@@ -155,7 +155,7 @@ button:not(:disabled),
   animation: terminal-overlay-in 300ms cubic-bezier(0.19, 1, 0.22, 1) both;
 }
 
-.terminal-fullscreen > [data-terminal] {
+.terminal-fullscreen-panel {
   animation: terminal-modal-in 300ms cubic-bezier(0.19, 1, 0.22, 1) both;
 }
 
@@ -163,7 +163,7 @@ button:not(:disabled),
   animation-direction: reverse;
 }
 
-.terminal-fullscreen.is-closing > [data-terminal] {
+.terminal-fullscreen-panel.is-closing {
   animation-direction: reverse;
 }
 

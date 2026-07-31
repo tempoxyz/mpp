@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { BlockCursorInput } from "./BlockCursorInput";
 import { SPINNER_FRAMES } from "./terminal-data";
 import {
@@ -2836,9 +2837,9 @@ function TerminalComponent({
 
   const isMarketingWidget = marketing && !isFullscreen;
 
-  return (
+  const terminalWindow = (
     <div
-      className={`terminal-theme ${isFullscreen ? "terminal-fullscreen" : ""} ${isFullscreenClosing ? "is-closing" : ""} ${className ?? ""}`}
+      className={`terminal-theme ${className ?? ""}`}
       data-marketing-minimized={
         marketing && isMarketingMinimized ? "" : undefined
       }
@@ -2846,23 +2847,9 @@ function TerminalComponent({
         fontFamily: 'var(--font-mono, "Geist Mono", monospace)',
         height: "100%",
         minHeight: 0,
+        pointerEvents: "auto",
         userSelect: "text",
         WebkitUserSelect: "text",
-        ...(isFullscreen
-          ? {
-              alignItems: "center",
-              backdropFilter: "blur(4px)",
-              backgroundColor: "rgb(0 0 0 / 70%)",
-              display: "flex",
-              justifyContent: "center",
-              position: "fixed",
-              inset: 0,
-              zIndex: 9999,
-              height: "100dvh",
-              width: "100vw",
-              padding: 16,
-            }
-          : {}),
       }}
     >
       <div
@@ -2881,9 +2868,8 @@ function TerminalComponent({
         }`}
         role="application"
         style={{
-          height: isFullscreen ? "min(85dvh, 640px)" : "100%",
+          height: "100%",
           minHeight: 0,
-          maxWidth: isFullscreen ? 1080 : undefined,
           width: "100%",
           borderColor: isMarketingWidget
             ? undefined
@@ -3018,7 +3004,7 @@ function TerminalComponent({
             onMouseLeave={(e) => {
               e.currentTarget.style.color = "var(--term-gray5)";
             }}
-            aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+            aria-label={isFullscreen ? "Close terminal" : "Enlarge terminal"}
           >
             {isFullscreen ? (
               <svg
@@ -3031,7 +3017,7 @@ function TerminalComponent({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <title>Exit fullscreen</title>
+                <title>Close terminal</title>
                 <path d="M8 3v3a2 2 0 0 1-2 2H3" />
                 <path d="M21 8h-3a2 2 0 0 1-2-2V3" />
                 <path d="M3 16h3a2 2 0 0 1 2 2v3" />
@@ -3048,7 +3034,7 @@ function TerminalComponent({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <title>Fullscreen</title>
+                <title>Enlarge terminal</title>
                 <path d="M8 3H5a2 2 0 0 0-2 2v3" />
                 <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
                 <path d="M3 16v3a2 2 0 0 0 2 2h3" />
@@ -3303,6 +3289,31 @@ function TerminalComponent({
         </div>
       </div>
     </div>
+  );
+
+  if (!isFullscreen) return terminalWindow;
+
+  return createPortal(
+    <>
+      <button
+        aria-label="Close terminal"
+        className={`terminal-fullscreen fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm ${
+          isFullscreenClosing ? "is-closing" : ""
+        }`}
+        onClick={closeFullscreen}
+        type="button"
+      />
+      <div className="pointer-events-none fixed inset-0 z-[71] flex items-center justify-center p-4">
+        <div
+          className={`terminal-fullscreen-panel term-outline pointer-events-auto h-[min(85dvh,640px)] w-full max-w-[1080px] ${
+            isFullscreenClosing ? "is-closing" : ""
+          }`}
+        >
+          {terminalWindow}
+        </div>
+      </div>
+    </>,
+    document.body,
   );
 }
 

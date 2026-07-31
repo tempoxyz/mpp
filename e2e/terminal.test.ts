@@ -144,6 +144,48 @@ describe("terminal", () => {
     await page.close();
   });
 
+  it("enlarges the marketing terminal into a closable viewport modal", async () => {
+    const page = await newPage();
+    await page.goto(pageUrl());
+
+    const terminal = page.getByRole("application", {
+      name: "MPP interactive terminal demo",
+    });
+    await playwrightExpect(terminal).toBeVisible({ timeout: 10_000 });
+    await page.waitForSelector("[data-wizard-ready]", { timeout: 10_000 });
+
+    await page
+      .getByRole("button", { name: "Enlarge terminal", exact: true })
+      .click();
+
+    const modal = page.locator(".terminal-fullscreen-panel");
+    await playwrightExpect(modal).toBeVisible();
+    await playwrightExpect(
+      page.getByRole("button", { name: "Close terminal", exact: true }),
+    ).toHaveCount(2);
+
+    const modalBox = await modal.boundingBox();
+    expect(modalBox).not.toBeNull();
+    expect(modalBox?.x).toBeGreaterThanOrEqual(16);
+    expect(modalBox?.y).toBeGreaterThanOrEqual(16);
+    expect(modalBox?.width).toBeLessThanOrEqual(1080);
+    expect(modalBox?.height).toBeLessThanOrEqual(640);
+    expect(await page.evaluate(() => document.body.style.overflow)).toBe(
+      "hidden",
+    );
+
+    await page
+      .getByRole("button", { name: "Close terminal", exact: true })
+      .last()
+      .click();
+    await playwrightExpect(
+      page.getByRole("button", { name: "Enlarge terminal", exact: true }),
+    ).toBeVisible();
+    expect(await page.evaluate(() => document.body.style.overflow)).toBe("");
+
+    await page.close();
+  });
+
   it("types out demo command and reaches wizard", async () => {
     const page = await newPage();
     await page.goto(pageUrl());
