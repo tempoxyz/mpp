@@ -83,7 +83,7 @@ export function LandingPage() {
   }, []);
 
   return (
-    <div className="marketing-route not-prose bg-[#060606] text-offwhite">
+    <div className="marketing-route not-prose bg-[#060606] text-offwhite [--marketing-page-bg:#060606]">
       <Header />
       <main className="mx-auto w-full max-w-[1728px]">
         <section className="relative flex flex-col gap-8 px-4 pb-8 pt-6 md:px-12 min-[1000px]:min-h-[calc(100svh-70px)] min-[1000px]:justify-between min-[1000px]:gap-0 min-[1000px]:pb-10 min-[1000px]:pt-[120px]">
