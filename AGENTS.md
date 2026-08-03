@@ -329,9 +329,13 @@ semantic Markdown output by default.
 
 When you add a custom component to an `.mdx` page:
 
-1. Add a renderer in `scripts/remark-mpp-markdown.mjs`.
-2. Add a focused example in `scripts/remark-mpp-markdown.test.mjs`.
-3. Run `pnpm check:markdown`.
+1. For an imported, self-closing component without props, add a `toMarkdown`
+   hook with `withMarkdown` from `src/components/markdown.ts`.
+2. Add the component to `src/components/markdown.test.ts`.
+3. For components with props or children, add a renderer in
+   `scripts/remark-mpp-markdown.mjs` and a focused example in
+   `scripts/remark-mpp-markdown.test.mjs`.
+4. Run `pnpm check:markdown`.
 
 Allowlist a component in `scripts/check-markdown-components.mjs` only when it
 cannot have a semantic Markdown form. Include a reason and describe its content

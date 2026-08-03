@@ -68,6 +68,8 @@ function transformNode(node, headingDepth, blogPosts) {
     case "SpecCard":
       return [specCard(node)];
     default:
+      // Imported static components run their `toMarkdown` hooks before this
+      // plugin. Preserve anything else so `vocs markdown-audit` reports it.
       return [transformChildren(node, headingDepth, blogPosts)];
   }
 }
