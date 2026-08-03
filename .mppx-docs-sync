@@ -1,8 +1,9 @@
 # mppx documentation sync bookmark
 #
-# Tracks the last mppx commit SHA (on main) that was reviewed for documentation.
+# Tracks the installed mppx package version and the last main commit reviewed.
+# Timestamped versions identify prerelease snapshots published from main.
 # When updating docs from mppx changes, bump this SHA to HEAD of mppx main
 # after incorporating the new features/changes into the docs site.
 
-mppx_version=0.8.15
+mppx_version=0.0.0-main-20260803172527
 mppx_sha=e2b2a8a3d0aa46242ff264aa740951c5a43cf05f

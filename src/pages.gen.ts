@@ -138,6 +138,7 @@ type Page =
   | { path: '/sdk/typescript/core/Challenge.fromHeaders'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.fromMethod'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.fromResponse'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.fromResponseList'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.meta'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.serialize'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.verify'; render: 'static' }

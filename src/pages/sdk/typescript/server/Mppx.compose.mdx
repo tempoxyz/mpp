@@ -58,6 +58,24 @@ const paid = Mppx.compose(
 - **Credential present:** Dispatches to the handler matching the Credential's `method` and `intent`.
 - **Discovery enabled:** Exposes every configured offer to `discovery()` and proxy metadata, including offers from nested compositions.
 
+## Signatures
+
+### Instance
+
+```ts
+type InstanceCompose = (
+  ...entries: readonly [Method.Server | MethodHandler | string, Options][]
+) => ComposedHandler
+```
+
+### Static
+
+```ts
+type StaticCompose = (
+  ...handlers: readonly (ComposedHandler | ConfiguredHandler)[]
+) => ComposedHandler
+```
+
 ## Return type
 
 ```ts
@@ -71,6 +89,12 @@ type ReturnType = (input: Request) => Promise<
 
 ### ...entries
 
-- **Type:** `readonly [Method.Server | string, Options][]`
+- **Type:** `readonly [Method.Server | MethodHandler | string, Options][]`
 
 Each entry is a tuple of a method reference (or string key like `"tempo/charge"`) and the request options for that method. Requires at least one entry.
+
+### ...handlers
+
+- **Type:** `readonly (ComposedHandler | ConfiguredHandler)[]`
+
+Configured route handlers returned by an `mppx` method or another static composition. Requires at least one handler.

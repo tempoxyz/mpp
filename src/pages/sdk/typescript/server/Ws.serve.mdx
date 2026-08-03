@@ -134,8 +134,10 @@ const route = mppx.session({ amount: '0.001', unitType: 'word' })
 declare const socket: Parameters<typeof tempo.Ws.serve>[0]['socket']
 
 await tempo.Ws.serve({
-  generate: async function* () {
+  generate: async function* (stream) {
+    await stream.charge()
     yield 'hello'
+    await stream.charge()
     yield 'world'
   },
   onChargeCommitted: mppx.session.settleScheduled,

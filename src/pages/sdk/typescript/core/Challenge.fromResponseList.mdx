@@ -1,0 +1,58 @@
+# `Challenge.fromResponseList` [Extract multiple Challenges]
+
+Extracts every Payment Challenge from a `402` Response.
+
+## Usage
+
+```ts twoslash
+import { Challenge } from 'mppx'
+
+const response = await fetch('/resource')
+if (response.status === 402) {
+  const challenges = Challenge.fromResponseList(response)
+}
+```
+
+The returned array preserves the order of the Payment Challenges in the `WWW-Authenticate` header.
+
+### With method type narrowing
+
+Use method definitions to get type-safe access to method-specific request fields.
+
+```ts twoslash
+import { Challenge } from 'mppx'
+import { Methods } from 'mppx/tempo'
+
+const response = await fetch('/resource')
+if (response.status === 402) {
+  const challenges = Challenge.fromResponseList(response, {
+    methods: [Methods.charge],
+  })
+}
+```
+
+## Return type
+
+```ts
+type ReturnType = Challenge[]
+```
+
+An ordered array of deserialized Challenges.
+
+## Parameters
+
+### options (optional)
+
+- **Type:** `{ methods?: readonly Method.Method[] }`
+
+Optional settings to narrow the Challenge types using method intents.
+
+### response
+
+- **Type:** `Response`
+
+The HTTP response. Its status must be `402`.
+
+## Errors
+
+Throws when the response isn't `402`, the `WWW-Authenticate` header is missing, or the header contains no Payment Challenges.
