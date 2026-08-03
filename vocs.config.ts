@@ -1,7 +1,7 @@
 import ruby from "shiki/langs/ruby.mjs";
 import { defineConfig, McpSource } from "vocs/config";
 import { loadBlogPosts } from "./scripts/blog";
-import remarkMppMarkdown from "./scripts/remark-mpp-markdown.mjs";
+import remarkMppMarkdown from "./scripts/remark-mpp-markdown.ts";
 import { shikiStyleToClass } from "./src/shiki-style-to-class.js";
 
 const baseUrl = (() => {

@@ -1,18 +1,55 @@
+import type {
+  Expression,
+  JSXElement,
+  JSXExpressionContainer,
+  JSXFragment,
+  JSXText,
+  Program,
+  SpreadElement,
+} from "estree-jsx";
+import type {
+  Code,
+  Heading,
+  Link,
+  List,
+  Paragraph,
+  PhrasingContent,
+  Root,
+  RootContent,
+  Text,
+} from "mdast";
+import type {} from "mdast-util-mdx-expression";
+import type { MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx-jsx";
+
+type BlogPost = {
+  date: string;
+  description: string;
+  title: string;
+  to: string;
+};
+
+type MdxJsxElement = MdxJsxFlowElement | MdxJsxTextElement;
+type Options = { blogPosts?: unknown };
+
 /**
  * Replaces interactive documentation components with semantic Markdown nodes.
  *
  * Vocs runs this plugin only for generated Markdown output. The React site
  * continues to render the original MDX components.
  */
-export default function remarkMppMarkdown(options = {}) {
-  return (tree) => {
+export default function remarkMppMarkdown(options: Options = {}) {
+  return (tree: Root) => {
     tree.children = transformNodes(tree.children, 2, options.blogPosts);
   };
 }
 
-function transformNodes(nodes, defaultHeadingDepth, blogPosts) {
+function transformNodes(
+  nodes: RootContent[],
+  defaultHeadingDepth: number,
+  blogPosts: unknown,
+): RootContent[] {
   let headingDepth = defaultHeadingDepth - 1;
-  const transformed = [];
+  const transformed: RootContent[] = [];
 
   for (const node of nodes) {
     const replacements = transformNode(node, headingDepth, blogPosts);
@@ -25,8 +62,12 @@ function transformNodes(nodes, defaultHeadingDepth, blogPosts) {
   return transformed;
 }
 
-function transformNode(node, headingDepth, blogPosts) {
-  if (node.type !== "mdxJsxFlowElement" && node.type !== "mdxJsxTextElement")
+function transformNode(
+  node: RootContent,
+  headingDepth: number,
+  blogPosts: unknown,
+): RootContent[] {
+  if (!isMdxJsxElement(node))
     return [transformChildren(node, headingDepth, blogPosts)];
 
   switch (node.name) {
@@ -74,17 +115,25 @@ function transformNode(node, headingDepth, blogPosts) {
   }
 }
 
-function transformChildren(node, headingDepth, blogPosts) {
-  if (!node.children) return node;
+function transformChildren(
+  node: RootContent,
+  headingDepth: number,
+  blogPosts: unknown,
+): RootContent {
+  if (!("children" in node) || !Array.isArray(node.children)) return node;
   return {
     ...node,
     children: transformNodes(node.children, headingDepth + 1, blogPosts),
-  };
+  } as RootContent;
 }
 
-function transformTabs(node, headingDepth, blogPosts) {
-  const depth = Math.min(headingDepth + 1, 6);
-  const nodes = [];
+function transformTabs(
+  node: MdxJsxElement,
+  headingDepth: number,
+  blogPosts: unknown,
+): RootContent[] {
+  const depth = Math.min(headingDepth + 1, 6) as Heading["depth"];
+  const nodes: RootContent[] = [];
 
   for (const child of node.children) {
     if (!isComponent(child, "Tab")) {
@@ -99,14 +148,14 @@ function transformTabs(node, headingDepth, blogPosts) {
   return nodes;
 }
 
-function blogPostList(posts) {
+function blogPostList(posts: unknown): List {
   if (!Array.isArray(posts))
     throw new TypeError("BlogPostList requires configured blogPosts.");
   return {
     type: "list",
     ordered: false,
     spread: true,
-    children: posts.map((post) => {
+    children: (posts as unknown[]).map((post) => {
       const date = requiredRecordString(post, "date", "BlogPostList post");
       const description = requiredRecordString(
         post,
@@ -127,7 +176,7 @@ function blogPostList(posts) {
   };
 }
 
-function landingPage(posts) {
+function landingPage(posts: unknown): RootContent[] {
   return [
     heading(2, "Start building"),
     linkCard({
@@ -140,10 +189,13 @@ function landingPage(posts) {
   ];
 }
 
-function requiredRecordString(value, key, context) {
+function requiredRecordString(
+  value: unknown,
+  key: keyof BlogPost,
+  context: string,
+): string {
   if (
-    !value ||
-    typeof value !== "object" ||
+    !isRecord(value) ||
     typeof value[key] !== "string" ||
     value[key].length === 0
   )
@@ -151,7 +203,7 @@ function requiredRecordString(value, key, context) {
   return value[key];
 }
 
-function card(node) {
+function card(node: MdxJsxElement): Paragraph {
   return linkCard({
     description: requiredString(node, "description"),
     title: requiredString(node, "title"),
@@ -159,7 +211,7 @@ function card(node) {
   });
 }
 
-function downloadLinks(node) {
+function downloadLinks(node: MdxJsxElement): List {
   const files = requiredArray(node, "files");
   return {
     type: "list",
@@ -179,7 +231,7 @@ function downloadLinks(node) {
   };
 }
 
-function mermaidDiagram(node) {
+function mermaidDiagram(node: MdxJsxElement): Code {
   return {
     type: "code",
     lang: "mermaid",
@@ -187,7 +239,7 @@ function mermaidDiagram(node) {
   };
 }
 
-function mppxCreateReferenceCard(node) {
+function mppxCreateReferenceCard(node: MdxJsxElement): Paragraph {
   return linkCard({
     description: "Full API documentation",
     title: "Mppx.create reference",
@@ -195,7 +247,7 @@ function mppxCreateReferenceCard(node) {
   });
 }
 
-function promptBlock(node) {
+function promptBlock(node: MdxJsxElement): Code {
   return {
     type: "code",
     lang: "text",
@@ -203,21 +255,21 @@ function promptBlock(node) {
   };
 }
 
-function badgeGithub(node) {
+function badgeGithub(node: MdxJsxElement): RootContent[] {
   const repo = requiredString(node, "repo");
   return componentNodes(node, [
     link(`https://github.com/${repo}`, [text(`GitHub: ${repo}`)]),
   ]);
 }
 
-function badgeMaintainer(node) {
+function badgeMaintainer(node: MdxJsxElement): RootContent[] {
   return componentNodes(node, [
     text("Maintained by "),
     link(requiredString(node, "href"), [text(requiredString(node, "name"))]),
   ]);
 }
 
-function specCard(node) {
+function specCard(node: MdxJsxElement): Paragraph {
   return linkCard({
     description:
       stringAttribute(node, "description") ?? "Read the full specification",
@@ -226,15 +278,26 @@ function specCard(node) {
   });
 }
 
-function componentNodes(node, children) {
+function componentNodes(
+  node: MdxJsxElement,
+  children: PhrasingContent[],
+): RootContent[] {
   return node.type === "mdxJsxTextElement" ? children : [paragraph(children)];
 }
 
-function linkCard({ description, title, to }) {
+function linkCard({
+  description,
+  title,
+  to,
+}: {
+  description: string;
+  title: string;
+  to: string;
+}): Paragraph {
   return paragraph([link(to, [text(title)]), text(` — ${description}`)]);
 }
 
-function requiredString(node, name) {
+function requiredString(node: MdxJsxElement, name: string): string {
   const value = stringAttribute(node, name);
   if (value === undefined)
     throw new TypeError(
@@ -243,7 +306,7 @@ function requiredString(node, name) {
   return value;
 }
 
-function requiredArray(node, name) {
+function requiredArray(node: MdxJsxElement, name: string): unknown[] {
   const value = attributeValue(node, name);
   if (!Array.isArray(value))
     throw new TypeError(
@@ -252,34 +315,35 @@ function requiredArray(node, name) {
   return value;
 }
 
-function stringAttribute(node, name) {
+function stringAttribute(
+  node: MdxJsxElement,
+  name: string,
+): string | undefined {
   const value = attributeValue(node, name);
   return typeof value === "string" ? value : undefined;
 }
 
-function attributeValue(node, name) {
+function attributeValue(node: MdxJsxElement, name: string): unknown {
   const attribute = node.attributes.find(
     (candidate) =>
       candidate.type === "mdxJsxAttribute" && candidate.name === name,
   );
-  if (!attribute) return undefined;
+  if (attribute?.type !== "mdxJsxAttribute") return undefined;
   if (typeof attribute.value === "string") return attribute.value;
-  return expressionValue(attribute.value?.data?.estree?.body?.[0]?.expression);
+  return expressionValue(programExpression(attribute.value?.data?.estree));
 }
 
-function expressionText(node) {
+function expressionText(node: RootContent): string {
   if (node.type === "mdxFlowExpression" || node.type === "mdxTextExpression")
-    return (
-      expressionValue(node.data?.estree?.body?.[0]?.expression) ??
-      node.value ??
-      ""
+    return String(
+      expressionValue(programExpression(node.data?.estree)) ?? node.value ?? "",
     );
-  return inlineNodes(node)
-    .map((child) => child.value ?? "")
-    .join("");
+  return inlineNodes(node).map(inlineValue).join("");
 }
 
-function expressionValue(expression) {
+function expressionValue(
+  expression: Expression | SpreadElement | null | undefined,
+): unknown {
   if (!expression) return undefined;
   if (expression.type === "Literal") return expression.value;
   if (expression.type === "TemplateLiteral") {
@@ -292,56 +356,93 @@ function expressionValue(expression) {
     return expression.elements.map(expressionValue);
   if (expression.type === "ObjectExpression") {
     return Object.fromEntries(
-      expression.properties.map((property) => [
-        property.key.name ?? property.key.value,
-        property.value,
-      ]),
+      expression.properties.map((property) => {
+        if (property.type === "SpreadElement")
+          return ["...", property.argument];
+        return [propertyKey(property.key), property.value];
+      }),
     );
   }
   return expression;
 }
 
-function inlineNodes(node) {
+function inlineNodes(node: unknown): PhrasingContent[] {
   if (typeof node === "string") return [text(node)];
-  if (node?.type === "Literal") return [text(String(node.value))];
-  if (node?.type === "JSXText") return [text(node.value)];
-  if (node?.type === "JSXFragment") return node.children.flatMap(inlineNodes);
-  if (node?.type === "JSXElement") {
-    const children = node.children.flatMap(inlineNodes);
-    const name = node.openingElement.name.name;
+  if (!isRecord(node) || typeof node.type !== "string")
+    return [text(String(node ?? ""))];
+  if (node.type === "Literal" && "value" in node)
+    return [text(String(node.value))];
+  if (node.type === "JSXText")
+    return [text((node as unknown as JSXText).value)];
+  if (node.type === "JSXFragment")
+    return (node as unknown as JSXFragment).children.flatMap(inlineNodes);
+  if (node.type === "JSXElement") {
+    const element = node as unknown as JSXElement;
+    const children = element.children.flatMap(inlineNodes);
+    const name =
+      element.openingElement.name.type === "JSXIdentifier"
+        ? element.openingElement.name.name
+        : undefined;
     if (name === "code")
       return [
         {
           type: "inlineCode",
-          value: children.map((child) => child.value).join(""),
+          value: children.map(inlineValue).join(""),
         },
       ];
     return children;
   }
   if (node?.type === "JSXExpressionContainer")
-    return inlineNodes(node.expression);
+    return inlineNodes((node as unknown as JSXExpressionContainer).expression);
   return [text(String(node ?? ""))];
 }
 
-function isComponent(node, name) {
+function isMdxJsxElement(node: RootContent): node is MdxJsxElement {
+  return node.type === "mdxJsxFlowElement" || node.type === "mdxJsxTextElement";
+}
+
+function isComponent(node: RootContent, name: string): node is MdxJsxElement {
   return (
     (node.type === "mdxJsxFlowElement" || node.type === "mdxJsxTextElement") &&
     node.name === name
   );
 }
 
-function heading(depth, value) {
+function heading(depth: Heading["depth"], value: string): Heading {
   return { type: "heading", depth, children: [text(value)] };
 }
 
-function link(url, children) {
+function link(url: string, children: PhrasingContent[]): Link {
   return { type: "link", url, children };
 }
 
-function paragraph(children) {
+function paragraph(children: PhrasingContent[]): Paragraph {
   return { type: "paragraph", children };
 }
 
-function text(value) {
+function text(value: string): Text {
   return { type: "text", value };
+}
+
+function inlineValue(node: PhrasingContent): string {
+  return "value" in node && typeof node.value === "string" ? node.value : "";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function programExpression(
+  program: Program | null | undefined,
+): Expression | undefined {
+  const statement = program?.body[0];
+  return statement && "expression" in statement
+    ? (statement.expression as Expression)
+    : undefined;
+}
+
+function propertyKey(key: Expression): string {
+  if (key.type === "Identifier") return key.name;
+  if (key.type === "Literal") return String(key.value);
+  return String(expressionValue(key));
 }

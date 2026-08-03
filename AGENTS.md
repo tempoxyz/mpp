@@ -333,7 +333,7 @@ When you add a custom component to an `.mdx` page:
    hook with `withMarkdown` from `src/components/markdown.ts`.
 2. Add the component to `src/components/markdown.test.ts`.
 3. For components with props or children, add a renderer in
-   `scripts/remark-mpp-markdown.mjs` and a focused example in
+   `scripts/remark-mpp-markdown.ts` and a focused example in
    `scripts/remark-mpp-markdown.test.mjs`.
 4. Run `pnpm check:markdown`.
 

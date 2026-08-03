@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import remarkMppMarkdown from "./remark-mpp-markdown.mjs";
+import remarkMppMarkdown from "./remark-mpp-markdown.ts";
 
 const BLOG_POSTS = [
   {

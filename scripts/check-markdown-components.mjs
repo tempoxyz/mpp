@@ -55,7 +55,7 @@ if (report.errors.length > 0 || unexpected.length > 0) {
   }
   console.error(`
 Generated Markdown cannot contain custom MDX components. Add a semantic renderer
-to scripts/remark-mpp-markdown.mjs, cover it in
+to scripts/remark-mpp-markdown.ts, cover it in
 scripts/remark-mpp-markdown.test.mjs, then run pnpm check:markdown. Allowlist
 only components that cannot have semantic Markdown, with a reason and nearby
 Markdown fallback.`);
