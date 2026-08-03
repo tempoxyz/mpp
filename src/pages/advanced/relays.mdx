@@ -9,7 +9,7 @@ import { MermaidDiagram } from '../../components/MermaidDiagram'
 
 Relays are optional infrastructure that lets MPP-enabled services verify and settle payments behind a simple API.
 
-Relays let you support multiple payment methods and centralize capabilities such as risk management and reporting.
+Relays let you support new payment methods and centralize capabilities such as risk management and reporting without taking on all of the complexity yourself.
 
 ## How relays work
 
@@ -54,7 +54,7 @@ import { Method, Receipt } from 'mppx'
 import * as Methods from './methods'
 
 export const charge = Method.toServer(Methods.charge, {
-  async validate({ credential, request }) {
+  async validate({ credential, request }) { // [!code hl]
     const result = await relay.validate({ credential, request }) // [!code hl]
     if (!result.accepted) throw new Error('Payment was rejected')
 
@@ -67,7 +67,7 @@ export const charge = Method.toServer(Methods.charge, {
       request,
     }
   },
-  async broadcast({ credential, request }) {
+  async broadcast({ credential, request }) { // [!code hl]
     const result = await relay.finalize({ credential, request }) // [!code hl]
 
     return Receipt.from({
@@ -89,13 +89,13 @@ import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [
+    // [!code hl:start]
     tempo.charge({
-      // [!code hl:start]
       relay: {
         apiKey: process.env.TEMPO_API_KEY!,
       },
-      // [!code hl:end]
     }),
+    // [!code hl:end]
   ],
 })
 ```
@@ -107,12 +107,14 @@ import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [
+    // [!code hl:start]
     tempo.charge({
       relay: {
         apiBaseUrl: 'https://mpp.relay.com/tempo',
         apiKey: process.env.TEMPO_API_KEY!,
       },
     }),
+    // [!code hl:end]
   ],
 })
 ```
@@ -121,7 +123,7 @@ The default API base URL is `https://api.tempo.xyz`. You can also provide `fetch
 
 ## Author a relay
 
-MPP does not formally define relays. It leaves payment methods, API shapes, and transports such as HTTP, JSON-RPC, and gRPC to you.
+The MPP spec does not formally define relays. It leaves payment methods, API shapes, and transports such as HTTP, JSON-RPC, and gRPC to you.
 
 For a consistent integration experience, implement at least these hooks:
 
