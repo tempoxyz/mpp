@@ -9,8 +9,8 @@ import { Challenge } from 'mppx'
 import { Transport } from 'mppx/client'
 
 const http = Transport.from<RequestInit, Response>({
-  getChallenge(response) {
-    return Challenge.fromResponse(response)
+  getChallenges(response) {
+    return Challenge.fromResponseList(response)
   },
   isPaymentRequired(response) {
     return response.status === 402
@@ -28,28 +28,28 @@ const http = Transport.from<RequestInit, Response>({
 
 ```ts
 type Transport<request, response> = {
+  /** Extracts every Challenge from a payment-required response. */
+  getChallenges: (response: response, request?: request) => Challenge[] | Promise<Challenge[]>
+  /** Checks if a response indicates payment is required. */
+  isPaymentRequired: (response: response, request?: request) => boolean | Promise<boolean>
   /** Transport name for identification. */
   name: string
-  /** Checks if a response indicates payment is required. */
-  isPaymentRequired: (response: response) => boolean
-  /** Extracts the challenge from a payment-required response. */
-  getChallenge: (response: response) => Challenge
   /** Attaches a credential to a request. */
-  setCredential: (request: request, credential: string) => request
+  setCredential: (request: request, credential: string, options?: SetCredentialOptions) => request
 }
 ```
 
 ## Parameters
 
-### getChallenge
+### getChallenges
 
-- **Type:** `(response: Response) => Challenge`
+- **Type:** `(response: Response, request?: RequestInit) => Challenge[] | Promise<Challenge[]>`
 
-Function that extracts the Challenge from a payment-required response.
+Function that extracts every Challenge from a payment-required response. Return the Challenges in preference order.
 
 ### isPaymentRequired
 
-- **Type:** `(response: Response) => boolean`
+- **Type:** `(response: Response, request?: RequestInit) => boolean | Promise<boolean>`
 
 Function that checks if a response indicates payment is required.
 
@@ -61,6 +61,6 @@ Transport name for identification.
 
 ### setCredential
 
-- **Type:** `(request: Request, credential: string) => Request`
+- **Type:** `(request: RequestInit, credential: string, options?: SetCredentialOptions) => RequestInit`
 
 Function that attaches a Credential to a request.

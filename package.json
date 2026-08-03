@@ -37,7 +37,7 @@
     "hono": "^4.12.27",
     "lottie-web": "^5.13.0",
     "mermaid": "^11.15.0",
-    "mppx": "^0.8.14",
+    "mppx": "0.0.0-main-20260803172527",
     "nuqs": "2.9.1",
     "react": "^19",
     "react-dom": "^19",
@@ -79,6 +79,11 @@
     "yaml": "^2.9.0"
   },
   "packageManager": "pnpm@10.22.0",
+  "pnpm": {
+    "overrides": {
+      "mppx>ox": "0.14.33"
+    }
+  },
   "engines": {
     "node": ">=24"
   },

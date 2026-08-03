@@ -51,6 +51,8 @@ Use `evm.charge` when you want one MPP route to serve native MPP charge Challeng
 When x402 options are enabled, `mppx` emits both `WWW-Authenticate` and `PAYMENT-REQUIRED` Challenges, accepts either `Authorization` or `PAYMENT-SIGNATURE` Credentials, and returns the matching Receipt header.
 :::
 
+This also applies to body-bearing routes such as `POST`. Standard x402 clients can pay when the route doesn't require MPP-specific request binding. If the Challenge includes a body digest, scope, opaque value, or metadata, the x402 Credential must include the `mppx` route-binding extension; otherwise, use a native MPP Credential.
+
 ### Run an inline x402 endpoint
 
 Configure `evm.charge` with a known x402 asset and a facilitator. The route stays an MPP flow, but also behaves as an x402-compatible server for existing clients.

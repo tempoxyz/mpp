@@ -1,13 +1,13 @@
 import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
-# `tempo.Ws.serve` [WebSocket session payments]
+# `mppx.session.serveWebSocket` [WebSocket session payments]
 
 ## Choose a signing account
 
 <SigningAccountTabs />
 
 
-Bridges a WebSocket connection to a Tempo session payment flow. Credential verification is performed by routing each in-band authorization frame through `route` as a synthetic POST request that carries only the Authorization header. The synthetic request does not include cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
+Bridges a WebSocket connection to a Tempo Session using the method's configured store and settlement schedule.
 
 ## Usage
 
@@ -16,31 +16,37 @@ import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const words = ['hello', 'world']
+const store = Store.memory()
 
 const mppx = Mppx.create({
   methods: [
     tempo.session({
       account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      settlementSchedule: { units: 100 },
+      store,
     }),
   ],
 })
 
-declare const socket: Parameters<typeof tempo.Ws.serve>[0]['socket']
+const route = mppx.session({ amount: '0.001', unitType: 'word' })
+declare const socket: Parameters<typeof mppx.session.serveWebSocket>[0]['socket']
 
 // In your WebSocket handler:
-tempo.Ws.serve({
+await mppx.session.serveWebSocket({
   generate: async function* (stream) {
     for (const word of words) {
       await stream.charge()
       yield word
     }
   },
-  route: (request) => mppx.session({ amount: '0.001', currency: 'pathUSD', unitType: 'word' })(request),
+  route,
   socket,
-  store: Store.memory(),
   url: 'wss://api.example.com/stream',
 })
 ```
+
+The helper shares the `Store` and `settlementSchedule` configured by `tempo.session()`. It applies the schedule after every committed WebSocket charge.
 
 ## Return type
 
@@ -73,7 +79,7 @@ Polling interval in milliseconds for voucher balance checks.
 
 ### route
 
-- **Type:** `Parameters<typeof tempo.Ws.serve>[0]['route']`
+- **Type:** `Parameters<typeof mppx.session.serveWebSocket>[0]['route']`
 
 Session route handler. Receives synthetic POST requests constructed from in-band authorization frames. The synthetic request carries only the `Authorization` header—no cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
 
@@ -89,27 +95,58 @@ const mppx = Mppx.create({
   ],
 })
 
-const route: Parameters<typeof tempo.Ws.serve>[0]['route'] = (request) =>
-  mppx.session({ amount: '0.001', currency: 'pathUSD', unitType: 'word' })(request)
+const route: Parameters<typeof mppx.session.serveWebSocket>[0]['route'] =
+  mppx.session({ amount: '0.001', unitType: 'word' })
 ```
 
 ### socket
 
-- **Type:** `Parameters<typeof tempo.Ws.serve>[0]['socket']`
+- **Type:** `Parameters<typeof mppx.session.serveWebSocket>[0]['socket']`
 
 WebSocket instance. Accepts a browser `WebSocket`, a `ws` library socket, or any object implementing `send`/`close` with either `addEventListener`/`removeEventListener` or `on`/`off`.
-
-### store
-
-- **Type:** `Store.Store | ChannelStore`
-
-Channel store for persisting session and channel state.
 
 ### url
 
 - **Type:** `string`
 
 URL used for constructing synthetic route requests. `ws://` and `wss://` schemes are normalized to `http://` and `https://`.
+
+## Advanced options
+
+Use `tempo.Ws.serve()` when a custom integration manages its own store or post-charge behavior. Pass `onChargeCommitted` to run a hook after each nonzero stream charge commits. The legacy `settleScheduled` option remains as a deprecated alias.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const store = Store.memory()
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+      settlementSchedule: { units: 100 },
+      store,
+    }),
+  ],
+})
+
+const route = mppx.session({ amount: '0.001', unitType: 'word' })
+declare const socket: Parameters<typeof tempo.Ws.serve>[0]['socket']
+
+await tempo.Ws.serve({
+  generate: async function* () {
+    yield 'hello'
+    yield 'world'
+  },
+  onChargeCommitted: mppx.session.settleScheduled,
+  route,
+  socket,
+  store,
+  url: 'wss://api.example.com/stream',
+})
+```
+
+Credential verification routes each in-band authorization frame through `route` as a synthetic `POST` request carrying only the `Authorization` header. It doesn't include cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
 
 ## Helper functions
 

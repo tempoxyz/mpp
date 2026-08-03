@@ -14,7 +14,7 @@ Creates a Tempo Sessions server method for voucher verification, channel account
 :::
 
 :::warning[Legacy Sessions]
-The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`. Use Sessions for new integrations.
+The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy` in `mppx` 0.8.15 and earlier. Use Sessions for new integrations.
 :::
 
 ## Usage
@@ -61,7 +61,7 @@ const mppx = Mppx.create({
 
 ### With Legacy Sessions
 
-Use `tempo.sessionLegacy()` only for clients that still send Legacy Sessions Credentials.
+Use `tempo.sessionLegacy()` only for clients that still send Legacy Sessions Credentials. Pin `mppx` to 0.8.15 or earlier when maintaining a Legacy Sessions server.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -82,7 +82,7 @@ const mppx = Mppx.create({
 
 ## Migrate from Legacy Sessions
 
-Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so existing clients keep working while new clients use Sessions.
+Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so existing clients keep working while new clients use Sessions. This server-side migration configuration requires `mppx` 0.8.15 or earlier.
 
 | Server methods | Compatible client methods |
 |---|---|
@@ -146,6 +146,12 @@ const mppx = Mppx.create({
 ```
 
 If the resolver returns a known channel ID, the server responds with `Payment-Session` and `Payment-Session-Snapshot`. If it returns `undefined`, the server returns `204` without a snapshot and the client falls back to opening a new channel.
+
+### Validate before broadcast
+
+Tempo Sessions support the split Credential lifecycle used by [`mppx.validateCredential`](/sdk/typescript/server/Mppx.validateCredential) and [`mppx.broadcastCredential`](/sdk/typescript/server/Mppx.broadcastCredential). Validation checks the Credential without changing channel state. Broadcasting validates again, accepts the voucher or management action, updates accounting, and returns a Receipt.
+
+Use the split lifecycle for custom transports or background workflows. Normal route handlers invoke it automatically.
 
 ## Return type
 
@@ -323,6 +329,25 @@ Suggested deposit amount communicated to clients in the Challenge.
 Unit type label, such as `"token"`, `"byte"`, or `"request"`.
 
 ## Related
+
+### `mppx.session.serveWebSocket`
+
+Serves a WebSocket route with the store and automatic settlement schedule configured by this Session method.
+
+```ts
+await mppx.session.serveWebSocket({
+  generate,
+  route,
+  socket,
+  url: 'wss://api.example.com/stream',
+})
+```
+
+See [`mppx.session.serveWebSocket`](/sdk/typescript/server/Ws.serve) for the full API.
+
+### `mppx.session.settleScheduled`
+
+Applies this method's `settlementSchedule` to a committed channel charge. The session-bound WebSocket and SSE transports call it automatically. Pass it to a custom streaming adapter's post-charge hook when you manage the transport yourself.
 
 ### Snapshot helpers
 

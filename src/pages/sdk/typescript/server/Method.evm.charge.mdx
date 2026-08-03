@@ -108,7 +108,7 @@ Custom settlement callback. Use this instead of `x402.facilitator` when you sett
 
 - **Type:** `{ facilitator: string | Facilitator }`
 
-x402 compatibility options. Pass a facilitator URL to verify and settle x402 exact payments inline.
+x402 compatibility options. Pass a facilitator URL to verify and settle x402 exact payments inline. `mppx` advertises x402 for `GET` and body-bearing requests. Standard x402 Credentials work on routes without MPP-specific digest, scope, opaque, or metadata binding; bound routes require the `mppx` extension.
 
 ## Request parameters
 

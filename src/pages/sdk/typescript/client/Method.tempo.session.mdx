@@ -190,6 +190,12 @@ Mppx.create({
 </Tab>
 </Tabs>
 
+## Automatic open retries
+
+When `Fetch.from` or `Mppx.create` opens a channel automatically, it keeps the new channel provisional until the server accepts the response or acknowledges the open with a matching Receipt or Session snapshot. A rejected or unacknowledged open is discarded, so the next paid request retries it. Concurrent automatic opens for the same payment scope and channel store are serialized.
+
+Direct Credential creation and `tempo.session.manager()` keep explicit lifecycle ownership.
+
 ## Return type
 
 ```ts

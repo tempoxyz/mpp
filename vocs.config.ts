@@ -769,7 +769,7 @@ export default defineConfig({
                     collapsed: true,
                     items: [
                       {
-                        text: "Ws.serve",
+                        text: "session.serveWebSocket",
                         link: "/sdk/typescript/server/Ws.serve",
                       },
                     ],

@@ -20,7 +20,7 @@ The `session` intent enables high-frequency, pay-as-you-go payments over unidire
 Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
 :::warning[Legacy integrations]
-`tempo.session` is the current Sessions implementation in `mppx`. The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
+`tempo.session` is the current Sessions implementation in `mppx`. The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`. Legacy server support requires `mppx` 0.8.15 or earlier.
 :::
 
 ## Which client API should I use?
@@ -153,6 +153,8 @@ const mppx = Mppx.create({
 ```
 
 Any threshold can trigger settlement. Use `amount` to settle after a token-denominated spend threshold, `units` to settle after metered usage, and `intervalMs` to settle after elapsed time since the previous scheduled settlement.
+
+The same schedule applies to ordinary HTTP responses, SSE streams, and session-bound WebSocket streams. `mppx` evaluates it after each committed charge.
 
 ### Manual settlement
 
@@ -511,7 +513,7 @@ See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manage
 
 ## Migrate from Legacy Sessions
 
-Legacy Sessions, also called Sessions v1, is the contract-backed session flow. Use `tempo.sessionLegacy` only when you need compatibility with clients or servers that haven't moved to the latest implementation.
+Legacy Sessions, also called Sessions v1, is the contract-backed session flow. Use `tempo.sessionLegacy` only when you need compatibility with clients or servers that haven't moved to the latest implementation. Legacy server support requires `mppx` 0.8.15 or earlier.
 
 - Register `tempo.session` on the server for the latest implementation.
 - Keep `tempo.sessionLegacy` registered beside `tempo.session` during migration so existing clients keep working.
@@ -531,6 +533,8 @@ Legacy Sessions, also called Sessions v1, is the contract-backed session flow. U
 Current Sessions Challenges advertise `sessionProtocol: "v2"` in method details and use TIP-1034 reserve channels. Legacy Sessions Challenges use the contract-backed Sessions v1 flow. Channel state is not reusable across implementations; let old channels close or settle under `tempo.sessionLegacy`, and open new channels with `tempo.session`.
 
 ### Server
+
+Pin `mppx` to 0.8.15 or earlier for this migration configuration.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'

@@ -127,7 +127,9 @@ const method = evm.charge({
 
 ## x402 compatibility
 
-When `x402.facilitator` is configured, the server returns MPP and x402 Challenges and accepts both MPP and x402 Credentials inline. See [running x402 inline with mppx](/guides/use-mpp-with-x402#run-x402-inline-with-mppx) for the full guide.
+When `x402.facilitator` is configured, the server returns MPP and x402 Challenges and accepts both MPP and x402 Credentials inline for `GET` and body-bearing routes. Standard x402 Credentials work when the route doesn't require an MPP body digest, scope, opaque value, or metadata binding. Bound routes require the `mppx` route-binding extension.
+
+See [running x402 inline with mppx](/guides/use-mpp-with-x402#run-x402-inline-with-mppx) for the full guide.
 
 ## Related resources
 
