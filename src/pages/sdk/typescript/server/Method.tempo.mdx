@@ -88,6 +88,12 @@ Accepts the union of [`tempo.charge`](/sdk/typescript/server/Method.tempo.charge
 
 Account used to sign Tempo transactions and receive payments by default.
 
+### canOffer (optional)
+
+- **Type:** `Method.CanOfferFn`
+
+Returns whether each configured Tempo offer is available when an HTTP handler composes multiple offers. The hook receives the normalized, immutable payment request and a clone of the incoming `Request`.
+
 ### chainId (optional)
 
 - **Type:** `number`

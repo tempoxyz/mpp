@@ -12,6 +12,40 @@ const payment = Mppx.create({
 })
 ```
 
+### Select offers per request
+
+Use `selectOffers` to filter composed HTTP offers before the server issues Challenges. The hook receives normalized, immutable offer snapshots and a clone of the incoming request.
+
+```ts twoslash
+import { Mppx, stripe, tempo } from 'mppx/server'
+
+const pathUSD = '0x20c0000000000000000000000000000000000000'
+const charge = tempo.charge({
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+const card = stripe.charge({
+  decimals: 2,
+  networkId: 'acct_1234',
+  paymentMethodTypes: ['card'],
+  secretKey: 'sk_live_...',
+})
+
+const payment = Mppx.create({
+  methods: [charge, card],
+  selectOffers(offers, { request }) {
+    if (!new URL(request.url).pathname.startsWith('/stablecoin')) return offers
+    return offers.filter(({ method }) => method.name === 'tempo')
+  },
+})
+
+const handler = payment.compose(
+  [charge, { amount: '1', currency: pathUSD }],
+  [card, { amount: '1', currency: 'usd' }],
+)
+```
+
+Return at least one offer from the input array, preserve its order, and don't return duplicates. `mppx` runs each method's `canOffer` hook before `selectOffers`. Successfully matched Credentials bypass both hooks, so clients can redeem Challenges that the server already issued.
+
 ### With custom transport
 
 Use a custom transport for non-HTTP environments like MCP servers.
@@ -126,6 +160,14 @@ const payment = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY!, // [!code focus]
 })
 ```
+
+### selectOffers (optional)
+
+- **Type:** `(offers: readonly ServerOffer[], context: { request: Request }) => MaybePromise<readonly ServerOffer[]>`
+
+Selects the composed HTTP offers available for the incoming request. Each offer includes its canonical `key`, method `name`, method `intent`, optional method `alias`, and schema-normalized `request`. Offer objects and their nested request values are immutable. The incoming request is cloned when its body is available; otherwise, the hook receives a bodyless copy with the same metadata.
+
+The hook applies only to HTTP transport and runs before Challenge generation. Return a non-empty, ordered subset of the original offer objects.
 
 ### transport (optional)
 

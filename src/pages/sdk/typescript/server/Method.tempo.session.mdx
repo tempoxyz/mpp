@@ -63,7 +63,7 @@ const mppx = Mppx.create({
 
 Use `tempo.sessionLegacy()` only for clients that still send Legacy Sessions Credentials. Pin `mppx` to 0.8.15 or earlier when maintaining a Legacy Sessions server.
 
-```ts twoslash
+```ts
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -92,7 +92,7 @@ Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so ex
 
 Current Sessions Challenges include `sessionProtocol: "v2"` and use TIP-1034 reserve channels. Legacy Sessions use the contract-backed Sessions v1 flow. Channel state is not portable between them, so close or settle Legacy channels with `tempo.sessionLegacy` and open new channels with `tempo.session`.
 
-```ts twoslash
+```ts
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -180,6 +180,12 @@ Default amount to charge per unit.
 - **Type:** `boolean`
 
 Enables same-route `HEAD` bootstrap using a zero-amount identity proof. Clients can use this to recover a session snapshot before opening a new channel.
+
+### canOffer (optional)
+
+- **Type:** `Method.CanOfferFn`
+
+Returns whether this configured Sessions offer is available when an HTTP handler composes multiple offers. The hook receives the normalized, immutable payment request and a clone of the incoming `Request`.
 
 ### chainId (optional)
 

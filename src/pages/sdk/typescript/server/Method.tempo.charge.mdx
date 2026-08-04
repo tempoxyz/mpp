@@ -165,6 +165,12 @@ type ReturnType = (request: Request) => Promise<
 
 These parameters configure the `tempo.charge()` constructor.
 
+### canOffer (optional)
+
+- **Type:** `Method.CanOfferFn`
+
+Returns whether this configured charge offer is available when an HTTP handler composes multiple offers. The hook receives the normalized, immutable payment request and a clone of the incoming `Request`.
+
 ### decimals (optional)
 
 - **Type:** `number`

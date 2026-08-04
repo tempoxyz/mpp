@@ -99,6 +99,12 @@ Server defaults and lifecycle callbacks for this payment method.
 
 Completes payment and returns its Receipt. Revalidate any external or on-chain state before the terminal operation, because a previous `validate` result is advisory.
 
+#### canOffer (optional)
+
+- **Type:** `Method.CanOfferFn<method>`
+
+Returns whether this method's configured offer is available when an HTTP handler composes multiple offers. The hook receives a cloned incoming request and a schema-normalized, deeply immutable payment request. It doesn't run for direct method handlers or successfully matched Credentials.
+
 #### defaults (optional)
 
 - **Type:** `Partial<request>`

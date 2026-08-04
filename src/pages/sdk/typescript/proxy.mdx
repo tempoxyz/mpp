@@ -130,6 +130,7 @@ openai({
 |-----------|------|-------------|
 | `apiKey` | `string` | OpenAI API key. Used as `Authorization: Bearer` header. |
 | `baseUrl` (optional) | `string` | Base URL override. Defaults to `'https://api.openai.com'`. |
+| `onUpstreamError` (optional) | `UpstreamErrorHandler` | Handles failed upstream attempts and can retry them. |
 | `routes` | `EndpointMap` | Route definitions for OpenAI endpoints. |
 
 **Typed routes:** `POST /v1/chat/completions`, `POST /v1/completions`, `POST /v1/embeddings`, `POST /v1/images/generations`, `POST /v1/images/edits`, `POST /v1/images/variations`, `POST /v1/audio/transcriptions`, `POST /v1/audio/translations`
@@ -154,6 +155,7 @@ anthropic({
 |-----------|------|-------------|
 | `apiKey` | `string` | Anthropic API key. Used as `x-api-key` header. |
 | `baseUrl` (optional) | `string` | Base URL override. Defaults to `'https://api.anthropic.com'`. |
+| `onUpstreamError` (optional) | `UpstreamErrorHandler` | Handles failed upstream attempts and can retry them. |
 | `routes` | `EndpointMap` | Route definitions for Anthropic endpoints. |
 
 **Typed routes:** `POST /v1/messages`, `POST /v1/messages/batches`, `GET /v1/messages/batches`, `GET /v1/messages/batches/:batchId`, `POST /v1/complete`
@@ -178,6 +180,7 @@ stripe({
 |-----------|------|-------------|
 | `apiKey` | `string` | Stripe API key. Used as Basic auth username. |
 | `baseUrl` (optional) | `string` | Base URL override. Defaults to `'https://api.stripe.com'`. |
+| `onUpstreamError` (optional) | `UpstreamErrorHandler` | Handles failed upstream attempts and can retry them. |
 | `routes` | `EndpointMap` | Route definitions for Stripe endpoints. |
 
 **Typed routes:** `POST /v1/charges`, `POST /v1/customers`, `GET /v1/customers/:id`, `POST /v1/payment_intents`, `GET /v1/payment_intents/:id`, `POST /v1/subscriptions`, `GET /v1/subscriptions/:id`, `POST /v1/invoices`, `GET /v1/invoices/:id`
@@ -246,6 +249,33 @@ Service.from('advanced-api', {
 })
 ```
 
+### Recover from upstream errors
+
+Use `onUpstreamError` to retry thrown request errors or non-`2xx` upstream responses. The hook receives the one-based attempt number, the rewritten upstream request, and either an `error` or a cloned `response`.
+
+```ts twoslash [server.ts]
+import { Service } from 'mppx/proxy'
+
+Service.from('resilient-api', {
+  baseUrl: 'https://api.example.com',
+  onUpstreamError({ attempt, response }) {
+    const retryable = !response || response.status === 429 || response.status >= 500
+    if (attempt < 3 && retryable) {
+      return {
+        delay: 250 * attempt,
+        retry: true,
+      }
+    }
+    return { retry: false }
+  },
+  routes: {
+    'POST /v1/generate': true,
+  },
+})
+```
+
+Request bodies remain available across retries, and retries don't re-verify payment. Return `{ retry: false }` to preserve the original failure, or include a `response` to replace it. A service-level hook overrides the default hook on `Proxy.create`.
+
 ## Discovery endpoints
 
 The proxy automatically serves discovery endpoints that describe available services and their routes. Coding agents and CLI tools use these endpoints to understand what the proxy offers.
@@ -283,6 +313,12 @@ Short description of the proxy shown in `llms.txt` and discovery endpoints.
 - **Type:** `typeof globalThis.fetch`
 
 Custom `fetch` implementation. Defaults to `globalThis.fetch`.
+
+### onUpstreamError (optional)
+
+- **Type:** `Service.UpstreamErrorHandler`
+
+Default handler for thrown upstream request errors and non-`2xx` responses. Return `{ retry: true, delay? }` to retry or `{ retry: false, response? }` to stop. A service can override this hook.
 
 ### services
 
@@ -335,6 +371,12 @@ Shorthand: injects custom headers on upstream requests.
 - **Type:** `(req: Request) => Request | Promise<Request>`
 
 Shorthand: full request mutation function. Takes priority over `bearer` and `headers`.
+
+### onUpstreamError (optional)
+
+- **Type:** `(context: UpstreamErrorContext) => MaybePromise<UpstreamErrorAction>`
+
+Handles thrown upstream request errors and non-`2xx` responses. The context includes `attempt`, `error`, `response`, `upstreamRequest`, and the standard service context. Return `{ retry: true, delay? }` to retry or `{ retry: false, response? }` to stop.
 
 ### rewriteRequest (optional)
 

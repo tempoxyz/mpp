@@ -184,6 +184,12 @@ Milliseconds before an in-flight activation lock can be replaced.
 
 Default amount to charge per period.
 
+### canOffer (optional)
+
+- **Type:** `Method.CanOfferFn`
+
+Returns whether this configured subscription offer is available when an HTTP handler composes multiple offers. The hook receives the normalized, immutable payment request and a clone of the incoming `Request`.
+
 ### chainId (optional)
 
 - **Type:** `number`

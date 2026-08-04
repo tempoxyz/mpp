@@ -62,6 +62,12 @@ These parameters configure the `evm.charge()` constructor.
 
 EIP-3009 token domain metadata. Required for custom currency addresses and inferred for known assets.
 
+### canOffer (optional)
+
+- **Type:** `Method.CanOfferFn`
+
+Returns whether this configured EVM offer is available when an HTTP handler composes multiple offers. The hook receives the normalized, immutable payment request and a clone of the incoming `Request`.
+
 ### chainId (optional)
 
 - **Type:** `number`

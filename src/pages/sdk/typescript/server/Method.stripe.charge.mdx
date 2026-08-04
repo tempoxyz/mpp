@@ -49,6 +49,14 @@ type ReturnType = (request: Request) => Promise<
 
 These parameters configure the `stripe.charge()` constructor. You must provide either `client` or `secretKey`.
 
+When an HTTP handler composes multiple offers, `mppx` excludes Stripe offers below Stripe's general minimum for known currencies before it calls your `canOffer` hook.
+
+### canOffer (optional)
+
+- **Type:** `Method.CanOfferFn`
+
+Returns whether this configured Stripe offer is available when an HTTP handler composes multiple offers. The hook receives the normalized, immutable payment request and a clone of the incoming `Request`.
+
 ### client
 
 - **Type:** `StripeClient`
@@ -69,21 +77,11 @@ const method = stripe.charge({
 })
 ```
 
-### secretKey
+### metadata (optional)
 
-- **Type:** `string`
+- **Type:** `Record<string, string>`
 
-Stripe secret API key. When provided instead of `client`, mppx makes raw API calls to Stripe.
-
-```ts twoslash
-import { stripe } from 'mppx/server'
-
-const method = stripe.charge({
-  secretKey: process.env.STRIPE_SECRET_KEY!, // [!code focus]
-  networkId: 'internal',
-  paymentMethodTypes: ['card'],
-})
-```
+Key-value pairs forwarded to Stripe. Appears in the Challenge and attaches to the Stripe `PaymentIntent`.
 
 ### networkId
 
@@ -97,11 +95,21 @@ Stripe [Business Network](https://docs.stripe.com/get-started/account/profile) p
 
 Allowed Stripe payment method types (for example, `['card']`, `['card', 'link']`).
 
-### metadata (optional)
+### secretKey
 
-- **Type:** `Record<string, string>`
+- **Type:** `string`
 
-Key-value pairs forwarded to Stripe. Appears in the Challenge and attaches to the Stripe `PaymentIntent`.
+Stripe secret API key. When provided instead of `client`, mppx makes raw API calls to Stripe.
+
+```ts twoslash
+import { stripe } from 'mppx/server'
+
+const method = stripe.charge({
+  networkId: 'internal',
+  paymentMethodTypes: ['card'],
+  secretKey: process.env.STRIPE_SECRET_KEY!, // [!code focus]
+})
+```
 
 ## Request parameters
 
