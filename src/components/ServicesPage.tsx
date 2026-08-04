@@ -66,6 +66,8 @@ export function formatPrice(endpoint: Endpoint): string {
 const categoryLabel = (service: Service) =>
   service.categories?.[0] ? CATEGORY_LABELS[service.categories[0]] : "Service";
 const serviceUrl = (service: Service) => service.serviceUrl ?? service.url;
+export const providerUrl = (service: Pick<Service, "provider" | "url">) =>
+  service.provider?.url ?? service.url;
 const endpointUrl = (service: Service, endpoint: Endpoint) =>
   new URL(
     endpoint.path,
@@ -157,7 +159,7 @@ function ServiceTableRow({ service }: { service: Service }) {
             <a
               aria-label={`Open ${service.name}`}
               className={action}
-              href={service.url}
+              href={providerUrl(service)}
               onClick={(event) => event.stopPropagation()}
               rel="noopener noreferrer"
               target="_blank"

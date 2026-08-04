@@ -6,6 +6,7 @@ import {
   CATEGORY_LABELS,
   formatPrice,
   PAGE_SIZE,
+  providerUrl,
 } from "./ServicesPage";
 
 // ---------------------------------------------------------------------------
@@ -184,6 +185,23 @@ describe("PAGE_SIZE", () => {
 
   it("is 60", () => {
     expect(PAGE_SIZE).toBe(60);
+  });
+});
+
+describe("providerUrl", () => {
+  it("uses the provider website when present", () => {
+    expect(
+      providerUrl({
+        provider: { name: "Modal", url: "https://modal.com" },
+        url: "https://api.modal.com",
+      }),
+    ).toBe("https://modal.com");
+  });
+
+  it("falls back to the upstream URL without provider metadata", () => {
+    expect(providerUrl({ url: "https://api.example.com" })).toBe(
+      "https://api.example.com",
+    );
   });
 });
 
