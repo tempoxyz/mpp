@@ -161,15 +161,14 @@ import * as Attestation from 'mppx/attestation'
 import * as Tap from 'mppx/attestation/tap'
 import { Mppx, tempo } from 'mppx/server'
 
-declare const agentPublicKey: CryptoKey
+declare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>
 
 const payment = Mppx.create({
   // [!code hl:start]
   attestation: {
     tap: Tap.Server.verifier({
       keyResolver({ keyId }) {
-        if (keyId !== 'agent-provider-key-1') return undefined
-        return agentPublicKey
+        return trustedAgentKeys.get(keyId)
       },
       nonceStore: Attestation.NonceStore.memory(),
     }),
@@ -209,13 +208,12 @@ import * as Attestation from 'mppx/attestation'
 import * as Tap from 'mppx/attestation/tap'
 import { Mppx, tempo } from 'mppx/server'
 
-declare const agentPublicKey: CryptoKey
+declare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>
 
 const nonceStore = Attestation.NonceStore.memory()
 const tap = Tap.Server.verifier({
   keyResolver({ keyId }) {
-    if (keyId !== 'agent-provider-key-1') return undefined
-    return agentPublicKey
+    return trustedAgentKeys.get(keyId)
   },
   nonceStore,
 })
