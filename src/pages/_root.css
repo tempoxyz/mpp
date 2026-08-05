@@ -1344,6 +1344,7 @@ pre,
 code,
 .vocs_Code,
 [data-v-code] {
+  font-variant-ligatures: none;
   letter-spacing: 0;
   font-family: var(--font-mono) !important;
 }
