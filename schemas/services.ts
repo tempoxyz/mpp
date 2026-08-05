@@ -11167,4 +11167,45 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── ThaiChain Bridge ─────────────────────────────────────────────────
+  {
+    id: "thaichain-bridge",
+    name: "ThaiChain Bridge",
+    url: "https://thaichain.org",
+    serviceUrl: "https://bridge.thaichain.org",
+    description:
+      "Bridge USDC from Tempo to ThaiChain with multi-sig relayer confirmation. Pay with USDC.e on Tempo, receive Wrapped USDC on ThaiChain.",
+    categories: ["blockchain"],
+    integration: "first-party",
+    tags: ["bridge", "usdc", "tempo", "thaichain", "cross-chain", "multi-sig"],
+    status: "active",
+    docs: {
+      homepage: "https://thaichain.org",
+      apiReference: "https://bridge.thaichain.org/openapi.json",
+    },
+    provider: { name: "ThaiChain", url: "https://thaichain.org" },
+    realm: "bridge.thaichain.org",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/bridge",
+        desc: "Bridge USDC from Tempo to ThaiChain",
+        amountHint: "1-10000 USDC (0.3% fee)",
+        dynamic: true,
+      },
+      {
+        route: "GET /api/bridge/:id/status",
+        desc: "Check bridge request status",
+      },
+      {
+        route: "GET /api/bridge/stats",
+        desc: "Get bridge statistics",
+      },
+      {
+        route: "GET /api/bridge/health",
+        desc: "Health check",
+      },
+    ],
+  },
 ];
