@@ -1368,6 +1368,18 @@ pre[data-v] {
   padding-block: calc(var(--vocs-spacing) * 3) !important;
 }
 
+/* Code highlights — increase contrast against the dark code-block surface. */
+pre[data-v] > code > .line.highlighted {
+  background-color: light-dark(
+    var(--vocs-color-gray12),
+    var(--vocs-color-gray5)
+  );
+  border-left-color: light-dark(
+    var(--vocs-color-gray10),
+    var(--vocs-color-gray8)
+  );
+}
+
 pre[data-v]::after {
   content: "";
   position: absolute;
