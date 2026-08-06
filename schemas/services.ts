@@ -122,6 +122,68 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── DisputeTracker ────────────────────────────────────────────────────
+  {
+    id: "disputetracker",
+    name: "DisputeTracker",
+    url: "https://disputetracker.xyz",
+    serviceUrl: "https://mpp.disputetracker.xyz",
+    description:
+      "Machine-readable Polymarket and UMA dispute intelligence with stage assessment, market metrics, evidence readiness, and resolution-risk analysis.",
+    icon: "https://disputetracker.xyz/icon.png",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: [
+      "dispute-intelligence",
+      "oracle",
+      "polymarket",
+      "prediction-markets",
+      "uma",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://disputetracker.xyz/docs",
+      llmsTxt: "https://disputetracker.xyz/llms.txt",
+      apiReference: "https://mpp.disputetracker.xyz/openapi.json",
+    },
+    provider: { name: "DisputeTracker", url: "https://disputetracker.xyz" },
+    realm: "mpp.disputetracker.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/agent/dispute-brief/mpp",
+        desc: "Build a compact dispute brief for a live Polymarket market",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/agent/evidence-readiness/mpp",
+        desc: "Assess whether dispute evidence is ready for review",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/agent/market-metrics/mpp",
+        desc: "Return liquidity, pricing, and dispute activity metrics",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/agent/resolution-risk/mpp",
+        desc: "Analyze resolution risk from market and oracle signals",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/agent/stage-assessment/mpp",
+        desc: "Classify the current Polymarket and UMA dispute stage",
+        amount: "2000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
