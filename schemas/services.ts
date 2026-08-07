@@ -1375,6 +1375,57 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Leya ───────────────────────────────────────────────────────────────
+  {
+    id: "leya",
+    name: "Leya",
+    url: "https://leya.lawyer",
+    serviceUrl: "https://api.leya.lawyer",
+    description:
+      "Search and cite primary Latin American law — statutes, decrees, congressional initiatives, court rulings and official gazettes — plus Guatemalan cadastral parcels with protected-area, watershed and archaeological overlays.",
+
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "legal",
+      "latin-america",
+      "guatemala",
+      "citations",
+      "cadastral",
+      "case-law",
+    ],
+    docs: {
+      homepage: "https://leya.lawyer/docs/api",
+      llmsTxt: "https://leya.lawyer/llms-full.txt",
+    },
+    provider: { name: "Leya", url: "https://leya.lawyer" },
+    realm: "leya.lawyer",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/search",
+        desc: "Hybrid keyword and semantic search over primary Latin American legal sources, with stable document ids and source attribution",
+        amount: "30000",
+      },
+      {
+        route: "GET /v1/documents/{document_id}",
+        desc: "Full text of one legal document",
+        amount: "10000",
+      },
+      {
+        route: "GET /v1/documents/{document_id}/citation",
+        desc: "Formatted citation for a document, marked partial when the corpus lacks the metadata to complete it",
+        amount: "10000",
+      },
+      {
+        route: "GET /v1/parcels/{ccc}",
+        desc: "Guatemalan cadastral parcel by código catastral, with the protected areas, watersheds and archaeological sites it intersects",
+        amount: "20000",
+      },
+    ],
+  },
+
   // ── Google Gemini ──────────────────────────────────────────────────────
   {
     id: "gemini",
