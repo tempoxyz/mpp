@@ -1146,6 +1146,57 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── El Nino Wiki ───────────────────────────────────────────────────────
+  {
+    id: "elnino-wiki-heat-risk",
+    name: "El Nino Wiki",
+    url: "https://elnino.wiki",
+    serviceUrl: "https://mpp.elnino.wiki",
+    description:
+      "Structured heat-risk briefings from a supported city planning baseline or caller-supplied weather and exposure conditions.",
+    icon: "https://elnino.wiki/logo.png",
+    categories: ["data", "web"],
+    integration: "first-party",
+    tags: [
+      "weather",
+      "heat-risk",
+      "travel",
+      "worker-safety",
+      "structured-data",
+      "x402",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://elnino.wiki/docs",
+      llmsTxt: "https://elnino.wiki/llms.txt",
+      apiReference: "https://elnino.wiki/openapi.json",
+    },
+    provider: { name: "El Nino Wiki", url: "https://elnino.wiki" },
+    realm: "mpp.elnino.wiki",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/mpp/v1/preview",
+        desc: "Generate a concise heat-risk briefing",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/mpp/v1/execute",
+        desc: "Generate a full heat-risk briefing with factor attribution",
+        amount: "1000000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/mpp/v1/premium",
+        desc: "Generate an exposure-sensitive heat-risk plan by time window",
+        amount: "3000000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Exa ────────────────────────────────────────────────────────────────
   {
     id: "exa",
