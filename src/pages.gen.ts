@@ -157,6 +157,7 @@ type Page =
   | { path: '/sdk/typescript/core/Receipt.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.fromResponse'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.tryClaim'; render: 'static' }
   | { path: '/sdk/typescript/html/custom'; render: 'static' }
   | { path: '/sdk/typescript'; render: 'static' }
   | { path: '/sdk/typescript/middlewares/elysia'; render: 'static' }

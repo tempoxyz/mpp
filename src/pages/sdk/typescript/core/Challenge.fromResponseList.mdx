@@ -13,7 +13,7 @@ if (response.status === 402) {
 }
 ```
 
-The returned array preserves the order of the Payment Challenges in the `WWW-Authenticate` header.
+The returned array preserves the order of the Payment Challenges in the `WWW-Authenticate` header. Quoted parameter values are parsed as data, including values that contain the `Payment` scheme name.
 
 ### With method type narrowing
 

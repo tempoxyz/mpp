@@ -233,6 +233,12 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 
 On-chain memo for the transaction.
 
+### onPaymentSuccess (optional)
+
+- **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge>`
+
+Runs after this Tempo charge succeeds. The hook receives the normalized request, its Receipt, and the HTTP input when available. Errors don't change payment handling.
+
 ### relay (optional)
 
 - **Type:** `{ apiBaseUrl?: string; apiKey: string; fetch?: typeof globalThis.fetch }`
@@ -243,11 +249,13 @@ Delegates Tempo charge Credential validation and finalization to a compatible MP
 
 - **Type:** `Store.AtomicStore`
 
-Pass a store when you want replay protection for charge Credentials. A `Store` provides async key-value operations (`get`, `put`, `delete`). An `AtomicStore` extends `Store` with an atomic `update(key, fn)` method for safe concurrent replay checks.
+Pass a store when you want replay protection for charge Credentials. A `Store` provides async key-value operations (`get`, `put`, `delete`). An `AtomicStore` extends `Store` with an atomic `update(key, fn)` method and an optional optimized `tryClaim(key, expires)` operation.
 
 For non-zero charges, `mppx` falls back to an in-memory store when you omit this parameter. For zero-dollar proof auth, replay prevention is disabled unless you pass a store.
 
-Use `Store.memory()` for local development, tests, or a single long-lived server process. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()`. All built-in factories return `AtomicStore` — for custom backends, provide an `update` function alongside `get`, `put`, and `delete`.
+`mppx` claims transaction hashes and proof Challenge IDs through the Challenge expiration time. It calls [`Store.tryClaim`](/sdk/typescript/core/Store.tryClaim), which uses the store's optimized operation when present and otherwise falls back to `update`.
+
+Use `Store.memory()` for local development, tests, or a single long-lived server process. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()`. All built-in factories return `AtomicStore`—for custom backends, provide an `update` function alongside `get`, `put`, and `delete`.
 
 ### testnet (optional)
 

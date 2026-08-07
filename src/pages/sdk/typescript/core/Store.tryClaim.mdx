@@ -1,0 +1,65 @@
+# `Store.tryClaim` [Claim replay keys atomically]
+
+Records the first use of a replay key until its expiration time.
+
+## Usage
+
+```ts twoslash
+import { Store } from 'mppx'
+
+const store = Store.memory()
+const expires = Date.now() + 60_000
+
+const claimed = await Store.tryClaim(store, 'request:abc123', expires)
+console.log(claimed)
+// @log: true
+
+const replayed = await Store.tryClaim(store, 'request:abc123', expires)
+console.log(replayed)
+// @log: false
+```
+
+`Store.tryClaim` uses the store's optional optimized `tryClaim` operation when present. Otherwise, it falls back to `AtomicStore.update`. Expired replay markers can be claimed again; legacy non-marker values remain claimed.
+
+### Support replay claims in a custom store
+
+`AtomicStore` accepts an optional `tryClaim` fast path. The fallback stores a `ReplayMarker`, so include that type in a custom store's item map when you don't provide the fast path.
+
+```ts
+type TryClaim<itemMap extends StoreItemMap = StoreItemMap> = <
+  key extends keyof itemMap & string,
+>(key: key, expires: number) => boolean | Promise<boolean>
+
+type ReplayMarker = {
+  expires: number
+  type: 'mppx:replay'
+}
+```
+
+## Return type
+
+```ts
+type ReturnType = boolean | Promise<boolean>
+```
+
+Returns `true` when this call records the key and `false` when an unexpired claim already exists.
+
+## Parameters
+
+### expires
+
+- **Type:** `number`
+
+Unix timestamp in milliseconds when the replay claim expires.
+
+### key
+
+- **Type:** `string`
+
+Store key to claim. Typed stores constrain this value to their item-map keys.
+
+### store
+
+- **Type:** `Store.AtomicStore`
+
+Atomic store used to persist the replay marker. Implement `store.tryClaim` as a single insert-if-absent-with-expiry operation when your backend supports it.

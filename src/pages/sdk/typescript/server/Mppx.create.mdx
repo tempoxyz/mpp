@@ -12,6 +12,38 @@ const payment = Mppx.create({
 })
 ```
 
+### With multiple methods for one intent
+
+Register multiple methods with the same intent, then use the intent shorthand. `mppx.charge()` configures every matching charge method and implicitly composes them into one handler.
+
+```ts
+import Stripe from 'stripe'
+import { Mppx, stripe, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [
+    stripe.charge({
+      client: new Stripe(process.env.STRIPE_SECRET_KEY!),
+      currency: 'usd',
+      decimals: 2,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+    tempo.charge({
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      decimals: 6,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    }),
+  ],
+})
+
+const handler = payment.charge({
+  amount: '1',
+})
+```
+
+The shorthand applies `canOffer` and `selectOffers`, just like `payment.compose()`. Use [`Mppx.compose`](/sdk/typescript/server/Mppx.compose) when methods need different request options or one method needs multiple offers.
+
 ### Select offers per request
 
 Use `selectOffers` to filter composed HTTP offers before the server issues Challenges. The hook receives normalized, immutable offer snapshots and a clone of the incoming request.
@@ -92,7 +124,7 @@ import type { Mppx, Transport } from 'mppx/server'
 type ReturnType = Mppx<[Method.Server], Transport.Http>
 ```
 
-The returned object includes the method's intent functions (for example, `charge`), `broadcastCredential`, `challenge`, `compose`, payment hooks, `validateCredential`, and `verifyCredential`.
+The returned object includes intent functions (for example, `charge`), `broadcastCredential`, `challenge`, `compose`, payment hooks, `validateCredential`, and `verifyCredential`. An intent function calls its only matching method directly or implicitly composes every matching method.
 
 ### Validate and broadcast Credentials
 

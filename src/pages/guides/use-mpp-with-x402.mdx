@@ -396,6 +396,8 @@ const mppx = Mppx.create({
     // [!code hl:start]
     stripe.charge({
       client: stripeClient,
+      currency: 'usd',
+      decimals: 2,
       networkId: 'internal',
       paymentMethodTypes: ['card'],
     }),

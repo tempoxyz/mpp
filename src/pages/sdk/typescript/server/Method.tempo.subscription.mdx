@@ -233,6 +233,12 @@ Function that returns a viem client for the given Tempo chain ID.
 
 Callbacks that run after activation or renewal commits.
 
+### onPaymentSuccess (optional)
+
+- **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.subscription>`
+
+Runs after this subscription method returns a successful result. The hook receives the normalized request, its Receipt, and the HTTP input when available. Errors don't change payment handling.
+
 ### periodCount (optional)
 
 - **Type:** `string`

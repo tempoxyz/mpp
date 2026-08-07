@@ -98,6 +98,12 @@ const method = evm.charge({
 
 Token decimal places. Required for custom currency addresses and inferred for known assets.
 
+### onPaymentSuccess (optional)
+
+- **Type:** `Method.OnPaymentSuccessFn<typeof evm.Methods.charge>`
+
+Runs after this EVM charge succeeds. The hook receives the normalized request, its Receipt, and the HTTP input when available. Errors don't change payment handling.
+
 ### recipient
 
 - **Type:** `Address`

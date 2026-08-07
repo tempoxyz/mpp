@@ -84,9 +84,8 @@ console.log(response.status)
 Configure the verifier on the MPP server. The resolver receives the signed directory origin and key ID. Apply your trust policy before you return a key.
 
 ```ts twoslash [server.ts]
-import * as Attestation from 'mppx/attestation'
 import * as WebBotAuth from 'mppx/attestation/web-bot-auth'
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
 
 declare const botPublicKey: CryptoKey
 
@@ -107,7 +106,7 @@ const payment = Mppx.create({
         return botPublicKey
       },
       maxAge: 60,
-      nonceStore: Attestation.NonceStore.memory(),
+      nonceStore: Store.memory(),
     }),
   },
   // [!code hl:end]
@@ -157,9 +156,8 @@ console.log(response.status)
 On the server, resolve `keyId` only from agent providers you trust. The verifier checks the signature, request authority and path, lifetime, intent tag, and nonce.
 
 ```ts twoslash [server.ts]
-import * as Attestation from 'mppx/attestation'
 import * as Tap from 'mppx/attestation/tap'
-import { Mppx, tempo } from 'mppx/server'
+import { Mppx, Store, tempo } from 'mppx/server'
 
 declare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>
 
@@ -170,7 +168,7 @@ const payment = Mppx.create({
       keyResolver({ keyId }) {
         return trustedAgentKeys.get(keyId)
       },
-      nonceStore: Attestation.NonceStore.memory(),
+      nonceStore: Store.memory(),
     }),
   },
   // [!code hl:end]
@@ -210,7 +208,7 @@ import { Mppx, tempo } from 'mppx/server'
 
 declare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>
 
-const nonceStore = Attestation.NonceStore.memory()
+const nonceStore = Attestation.Store.memory()
 const tap = Tap.Server.verifier({
   keyResolver({ keyId }) {
     return trustedAgentKeys.get(keyId)
@@ -240,23 +238,25 @@ Don't pass the same verifier to `Mppx.create` in this pattern. Verification cons
 
 ### Store nonces
 
-`Attestation.NonceStore.memory()` is limited to one long-lived server process. In a multi-instance deployment, provide a shared store whose `consume` operation atomically inserts a nonce only when absent and retains it until `expires`.
+Attestation verifiers accept the core `Store.AtomicStore`. `Store.memory()` is limited to one long-lived server process. In a multi-instance deployment, provide a shared atomic store so every instance claims nonces through their expiration time.
 
 ```ts [nonce-store.ts]
-import type { NonceStore } from 'mppx/attestation'
+import type { Store } from 'mppx'
 
-export const nonceStore: NonceStore.Store = {
-  async consume(key, expires) {
-    const inserted = await nonceDatabase.insertIfAbsent({
-      expires,
-      key,
-    })
-    return !inserted
-  },
+declare const nonceDatabase: {
+  insertIfAbsent(value: { expires: number; key: string }): Promise<boolean>
 }
+declare const sharedStore: Store.AtomicStore
+
+export const nonceStore = {
+  ...sharedStore,
+  async tryClaim(key: string, expires: number) {
+    return nonceDatabase.insertIfAbsent({ expires, key })
+  },
+} satisfies Store.AtomicStore
 ```
 
-Adapt the call to your storage client. `consume` returns `true` when the nonce was already present and unexpired.
+Adapt `tryClaim` to your storage client's atomic insert-if-absent operation. It returns `true` when it records a new claim and `false` when an unexpired claim already exists. If your `AtomicStore` omits this optimized method, `mppx` falls back to its atomic `update` operation. See [`Store.tryClaim`](/sdk/typescript/core/Store.tryClaim).
 
 ## MPP Credential identity
 

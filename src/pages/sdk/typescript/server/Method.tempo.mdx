@@ -125,6 +125,12 @@ Account or URL for sponsoring transaction fees. Pass a viem `Account` to co-sign
 
 Function that returns a viem client for the given chain ID. Overrides the default RPC configuration.
 
+### onPaymentSuccess (optional)
+
+- **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge> & Method.OnPaymentSuccessFn<typeof tempo.Methods.session>`
+
+Runs after a configured Tempo charge or Sessions result succeeds. The hook receives the normalized request, its Receipt, and the HTTP input when available. Errors don't change payment handling.
+
 ### recipient (optional)
 
 - **Type:** `Address`

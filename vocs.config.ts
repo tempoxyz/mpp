@@ -963,6 +963,16 @@ export default defineConfig({
                       },
                     ],
                   },
+                  {
+                    text: "Store",
+                    collapsed: true,
+                    items: [
+                      {
+                        text: ".tryClaim",
+                        link: "/sdk/typescript/core/Store.tryClaim",
+                      },
+                    ],
+                  },
                 ],
               },
               {

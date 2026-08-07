@@ -250,6 +250,12 @@ Function that returns a viem client for the given chain ID.
 
 Minimum voucher delta to accept as a numeric string. Rejects vouchers where the increment over the previous highest voucher is below this threshold.
 
+### onPaymentSuccess (optional)
+
+- **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.session>`
+
+Runs after this Sessions method returns a successful result. The hook receives the normalized request, its Receipt, and the HTTP input when available. Errors don't change payment handling.
+
 ### operator (optional)
 
 - **Type:** `Address`
