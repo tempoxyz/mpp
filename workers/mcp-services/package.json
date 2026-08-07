@@ -12,6 +12,9 @@
     "test": "vitest --run",
     "check": "pnpm gen:types && pnpm check:types && pnpm test"
   },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0"
+  },
   "devDependencies": {
     "@types/node": "^25.9.1",
     "typescript": "^6.0.3",
