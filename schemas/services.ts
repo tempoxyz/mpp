@@ -11167,4 +11167,2275 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── K-2SO ─────────────────────────────────────────────────────────
+  {
+    id: "k2so",
+    name: "K-2SO",
+    url: "https://wrong.systems",
+    serviceUrl: "https://k2so.wrong.systems",
+    description:
+      "Autonomous agent merchant: 323 paid agent services over MPP (Tempo, USDC.e) and x402 (Base) — decision procedures, verification standards, settlement and governance rails, dispute adjudication, wallet and escrow tooling, and more. Pay per request.",
+    categories: ["ai", "blockchain", "data"],
+    integration: "third-party",
+    tags: [
+      "agent",
+      "procedure",
+      "decision-procedure",
+      "settlement",
+      "verification",
+      "identity",
+      "governance",
+      "wallet",
+      "dispute",
+      "security",
+      "escrow",
+      "data",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://k2so.wrong.systems",
+      llmsTxt: "https://k2so.wrong.systems/llms.txt",
+      apiReference: "https://k2so.wrong.systems/openapi.json",
+    },
+    provider: { name: "K-2SO", url: "https://wrong.systems" },
+    realm: "k2so.wrong.systems",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/services/addictive-recommendation-throttle-gate",
+        desc: "Addictive recommendation throttle gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/age-gated-and-regulated-purchase-decision-proced",
+        desc: "Age-gated and regulated purchase decision procedure for agents: when a",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/age-verification-handoff-procedure-for-agents-se",
+        desc: "Age-verification handoff procedure for agents selling or serving content to unve",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-accountability-attribution-after-an-x402-p",
+        desc: "Agent accountability attribution decision procedure for x402 payments",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-authorization-attestation-handoff-to-clear",
+        desc: "agent authorization attestation handoff to clearing networks: verifiab",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-authorization-mandate-verification-and-age",
+        desc: "Agent authorization mandate verification and agent identity credential",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-bill-pay-rewards-claim-vetting-and-payment",
+        desc: "agent bill-pay rewards claim vetting and payment routing decision-0",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-browser-payment-context-handoff-across-san",
+        desc: "Agent browser payment context handoff across sandboxed V8 isolates: ho",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-capability-index-api-discoverability-for-a",
+        desc: "agent capability index and API discoverability gate: pre-payment check for agent",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-channel-integration-and-mcp-x402-monetizat",
+        desc: "Agent channel integration and MCP monetization standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-checkout-x402-url-handling-and-settlement",
+        desc: "agent checkout x402_url handling and settlement verification procedure: Coinbase",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-command-human-approval-threat-screening-tr",
+        desc: "agent command human approval threat screening triage",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-credit-line-utilization-and-evaluation-set",
+        desc: "Agent credit-line utilization and evaluation-based settlement procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-data-enrichment-vendor-selection-and-recor",
+        desc: "Agent data enrichment vendor selection and record merge confidence procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-data-storage-tier-selection-procedure-dete",
+        desc: "Agent data storage tier selection procedure: deterministic thresholds",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/agent-decision-procedure",
+        desc: "Agent decision procedure",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-goods-purchases-whe",
+        desc: "Working-order verification decision procedure for goods purchases",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-identity-name-renew",
+        desc: "Agent decision procedure for identity-name renewal economics: when an",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-legacy-api-key-reti",
+        desc: "Legacy API Key Retirement Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-managing-a-paid-x40",
+        desc: "agent decision procedure for managing a paid x402 comms inbox (payspon",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-no-facilitator-sett",
+        desc: "agent decision procedure for no-facilitator settlement rails (Nano x40",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-pre-transaction-tok",
+        desc: "Agent decision procedure for pre-transaction token contract safety screening",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-prediction-market-p",
+        desc: "Agent decision procedure for prediction market participation",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-programmable-wallet",
+        desc: "Agent decision procedure for programmable wallet name reservation: whe",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-vetting-third-party",
+        desc: "agent decision procedure for vetting third-party programmable wallet p",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-decision-procedure-for-x402-merchant-endpo",
+        desc: "agent decision procedure for x402 merchant endpoints that fail to quot",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-delegated-spending-authority-scope-and-int",
+        desc: "agent-delegated-spending-authority-scope-and-intent-binding procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-discovery-surface-verification-standard",
+        desc: "Merchant discovery surface verification standard",
+        amount: "12000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-dispute-evidence-retention-lifecycle-how-l",
+        desc: "Agent dispute evidence retention lifecycle: how long an autonomous age",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/agent-dynamic-budget-correction-procedure",
+        desc: "Dynamic budget correction procedure for live spend limits",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-execution-attestation-and-deliverable-proo",
+        desc: "agent execution attestation and deliverable proof verification: provin",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-comms-endpoint-payment-readiness-ga",
+        desc: "agent-facing comms endpoint payment-readiness gate: vet a notification/inbox/com",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-comms-lane-continuation-post-delive",
+        desc: "agent-facing comms lane continuation: post-delivery receipt binding fo",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-comms-notification-procedure-and-ad",
+        desc: "agent-facing comms notification procedure and adult-facing addictive-r",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-at-the-intersect",
+        desc: "Agent Spend Accountability Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-algorand-ass",
+        desc: "Algorand ASA payment acceptance screen",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-algorand-non",
+        desc: "Algorand Wallet Risk Preflight Procedure for x402 Signing",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-autonomous-b",
+        desc: "agent-facing decision procedure for autonomous brand monitoring via x4",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-buying-oncha",
+        desc: "Onchain intelligence query OPSEC decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-choosing-whi",
+        desc: "Agent-facing decision procedure for choosing which x402/agent-service",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-climate-fund",
+        desc: "Climate funding and carbon removal procurement procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-ground-truth",
+        desc: "agent-facing decision procedure for ground-truth verification of decen",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-identity-wal",
+        desc: "agent-facing decision procedure for identity-wallet related-address ex",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-in-page-paym",
+        desc: "agent-facing-decision-procedure-for-in-page-payment-request-vetting",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-natural-lang",
+        desc: "NLP and entity extraction procurement decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-opaque-or-un",
+        desc: "Opaque Settlement Proof Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-payment-dele",
+        desc: "agent-facing decision procedure for payment delegation chain depth lim",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-penning-pers",
+        desc: "Agent social gift content tone and safety procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-pre-payment",
+        desc: "Pre-payment validation boundary decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-pre-signatur",
+        desc: "Agent-facing decision procedure for pre-signature EVM transaction simu",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-procuring-ai",
+        desc: "agent-facing decision procedure for procuring AI video generation via",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-sellers-veri",
+        desc: "Seller-Side Buyer Authority Verification Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-verifying-a",
+        desc: "Machine receipt pickup redemption verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-x402-endpoin",
+        desc: "agent-facing decision procedure for x402 endpoints that return no payment terms",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-for-x402-payment",
+        desc: "Agent-facing decision procedure for x402 payment disputes and failed d",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-decision-procedure-when-agents-shou",
+        desc: "Agent-facing decision procedure: when agents should pay for managed co",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-geocoding-and-spatial-data-procurem",
+        desc: "Geocoding and Spatial Data Procurement Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-http-402-payment-challenge-negotiat",
+        desc: "agent-facing HTTP 402 payment challenge negotiation and merchant contr",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-ipfs-filecoin-storage-procurement-d",
+        desc: "IPFS pinning provider procurement decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-media-generation-procurement-decisi",
+        desc: "Agent media generation procurement decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-onchain-intelligence-procurement-de",
+        desc: "Onchain intelligence procurement decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-paid-browser-task-acceptance-gate",
+        desc: "paid browser-task acceptance gate for x402 browser providers",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-pre-settlement-contract-term-vettin",
+        desc: "Pre-settlement contract term vetting decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-procedure-for-the-in-flight-financi",
+        desc: "Agent-facing procedure for the in-flight financial lifecycle of a paid",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-single-purpose-price-query-and-micr",
+        desc: "agent-facing single-purpose price query and micro-transaction decision",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-social-proof-verification-procedure",
+        desc: "Agent-facing social proof verification procedure for counterparty trus",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-streetwear-and-sneaker-market-data",
+        desc: "Agent-facing streetwear and sneaker market data procurement decision p",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-translation-procurement-decision-pr",
+        desc: "Translation vendor selection and quality acceptance procedure for agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-us-federal-regulatory-search-decisi",
+        desc: "Agent-facing US federal regulatory search decision procedure: when an",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-verification-and-orchestration-proc",
+        desc: "Agent-facing verification and orchestration procedures for the paid we",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-verification-procedure-for-machine",
+        desc: "agent-facing verification procedure for machine-readable capability ma",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-x402-payment-dispute-resolution-pro",
+        desc: "x402 Payment Dispute Resolution Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-x402-payment-security-and-provenanc",
+        desc: "x402 payment security and provenance procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-facing-x402-payment-terms-health-validatio",
+        desc: "agent-facing x402 payment-terms health validation and MCP tool cost pr",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-first-purchase-merchant-trust-gate-determi",
+        desc: "agent first-purchase merchant trust gate: deterministic procedure an a",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-hired-human-lane-sequel-pre-acceptance-scr",
+        desc: "gig requester reputation screen: pre-acceptance vetting procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-hired-human-microtask-bounty-settlement-ve",
+        desc: "agent-hired-human microtask bounty settlement verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-identity-and-new-rail-trust-decisions-for",
+        desc: "Agent Identity Presentation and Cold-Start Facilitator Trust Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-identity-credential-acceptance-and-counter",
+        desc: "Agent identity credential acceptance and counterparty verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-identity-credential-procurement-and-verifi",
+        desc: "Agent identity credential procurement and verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-identity-rank-fallback-thresholds-decision",
+        desc: "Agent identity rank fallback thresholds: decision procedure for rankin",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-identity-wallet-name-renewal-economics-gat",
+        desc: "Agent identity wallet name renewal economics gate: deterministic decis",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-inbox-comms-hygiene-and-renewal-economics",
+        desc: "agent identity name renewal and inbox comms hygiene decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/agent-inbox-message-triage-standard",
+        desc: "Agent Inbox Message Triage Standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-inference-cost-per-decision-model-tier-sel",
+        desc: "Agent inference cost per decision: model tier selection and compute budget gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-infrastructure-decision-procedures-for-x40",
+        desc: "Merchant-side x402 pre-flight payload inspection procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-memory-wipe-audit-trail-and-retention-evid",
+        desc: "agent memory wipe audit trail and retention evidence: procedure for wh",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-native-browser-automation-payment-decision",
+        desc: "Agent-Native Browser Payment Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-native-privacy-payment-selection-procedur",
+        desc: "Agent-native privacy payment selection decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-negotiation-to-settlement-binding-procedur",
+        desc: "Agent Negotiation-to-Settlement Binding Procedure for x402",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-notification-inbox-payment-hygiene-decide",
+        desc: "Agent notification inbox payment hygiene: decide when an agent should",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-onchain-data-provider-selection-for-financ",
+        desc: "agent onchain data provider selection for financial execution",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-onchain-front-running-and-mempool-exposure",
+        desc: "Agent onchain front-running and mempool exposure protection procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-onchain-intelligence-consumption-footprint",
+        desc: "agent onchain intelligence consumption footprint: post-settlement opac",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-onchain-settlement-cost-engineering-decisi",
+        desc: "Agent onchain settlement cost engineering decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-onchain-transaction-submission-strategy-pr",
+        desc: "agent onchain transaction submission strategy: private relay vs public",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-paid-real-world-reservation-delivery-verif",
+        desc: "agent-paid real-world reservation delivery verification · Build a deci",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-paid-tool-request-scoping-receipt-binding",
+        desc: "Paid tool request scoping and receipt binding standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-authorization-per-task-budget-asse",
+        desc: "Per-Task Budget Assertion Procedure for Browser Agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-claim-authorization-attestation-ve",
+        desc: "agent payment claim authorization attestation: verify spender authoriz",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-clearing-network-failure-fallback",
+        desc: "Agent payment clearing-network failure fallback and rerouting: when an",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-consumer-safety-seams-adjacent-to",
+        desc: "Minor-Facing Agent Engagement Harm Gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-intent-and-authorization-governanc",
+        desc: "Cross-protocol payment-intent routing decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-lifecycle-next-phases-a-streaming",
+        desc: "Agent payment lifecycle next phases: (a) streaming LLM usage settlemen",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-metadata-privacy-and-exposure-deci",
+        desc: "Agent payment metadata exposure and privacy routing decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-metering-and-reconciliation-per-re",
+        desc: "agent payment metering and reconciliation: per-request three-way finan",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-privacy-decision-procedure-when-sh",
+        desc: "agent payment privacy path decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-protocol-selection-standard-when-t",
+        desc: "Agent payment protocol selection standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-settlement-denomination-and-disput",
+        desc: "Multi-Stablecoin Settlement Denomination Choice Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-wallet-username-claim-and-reservat",
+        desc: "agent payment wallet username claim and reservation decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-payment-wash-volume-detection-deterministi",
+        desc: "agent-payment-wash-volume-detection: deterministic procedure to identi",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-permission-grant-risk-evaluation-before-si",
+        desc: "agent permission-grant risk evaluation before signing (Grok wallet los",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-persistent-memory-trust-and-poisoning-risk",
+        desc: "agent persistent memory trust and poisoning risk: decision procedure f",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-post-settlement-failure-recovery-decision",
+        desc: "Agent post-settlement failure recovery procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/agent-pre-dispute-evidence-freeze-procedure",
+        desc: "Agent pre-dispute evidence freeze procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-protocol-boundary-decision-when-an-a2a-neg",
+        desc: "Agent Protocol Boundary Decision: Negotiation-to-Payment Intent Binding",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-purchase-decision-procedure-for-the-algora",
+        desc: "Algorand x402 Rail Purchase Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-purchase-gate-for-prepaid-digital-goods-vi",
+        desc: "Prepaid digital goods purchase gate for agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-purchase-intent-delegation-record-schema",
+        desc: "Purchase intent and delegation record schema",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-recommendation-loop-boundary-limit-decisio",
+        desc: "Agent recommendation loop boundary standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-refund-and-dispute-decision-procedure-for",
+        desc: "Agent refund and dispute decision procedure for failed x402 purchases",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-retail-checkout-purchase-authorization-p",
+        desc: "Agent retail checkout purchase authorization procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-runaway-payment-loop-circuit-breaker-and-i",
+        desc: "Agent runaway payment loop circuit breaker procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-settlement-governance-rules-how-an-operato",
+        desc: "agent settlement governance rule encoding procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-side-cost-evaluation-and-payment-runtime-d",
+        desc: "Agent-side x402 cost evaluation and per-request value gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-side-deterministic-counter-obligation-trac",
+        desc: "agent-side deterministic counter-obligation tracking and late-delivery",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-side-deterministic-decision-procedure-for",
+        desc: "agent-side deterministic decision procedure for buying static files vi",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-side-deterministic-mandate-acceptance-scre",
+        desc: "agent mandate acceptance screening procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/agent-side-http-402-triage-procedure",
+        desc: "Agent-side HTTP 402 triage procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-side-pre-dispute-evidence-bundling-across",
+        desc: "agent-side pre-dispute evidence bundling across the three-layer agent",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-side-pre-purchase-token-ownership-concentr",
+        desc: "agent-side pre-purchase token ownership-concentration and first-funder",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-side-refund-rights-verification-before-hon",
+        desc: "agent-side refund-rights verification before honoring merchant no-refu",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-single-price-acquisition-decision-when-to",
+        desc: "single-price acquisition decision: per-use vs standing account",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-spend-authorization-and-human-accountabili",
+        desc: "agent spend authorization and human accountability policy: how a human",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-stack-governance-seam-the-layer-between-pa",
+        desc: "Agent-stack governance seam: payment, identity, negotiation coverage map",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-stack-interop-binding-a2a-negotiation-outc",
+        desc: "agent-stack interop: A2A-to-settlement identity continuity gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/agent-subscription-retention-standard",
+        desc: "Agent subscription retention standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-to-agent-capability-negotiation-before-x40",
+        desc: "Agent-to-agent capability negotiation before x402 settlement",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-to-agent-dispute-resolution-and-escrow-arb",
+        desc: "agent-to-agent dispute resolution and escrow arbitration decision proc",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-to-agent-dispute-settlement-ladder-escalat",
+        desc: "agent-to-agent dispute settlement ladder: escalation and resolution procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-to-human-notification-channel-routing-deci",
+        desc: "Agent-to-Human Notification Channel Routing Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-to-merchant-post-payment-feedback-and-repu",
+        desc: "Agent-to-merchant post-payment feedback and reputation update loop",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-trapped-funds-mobility-how-an-autonomous-a",
+        desc: "Agent trapped-funds mobility decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-travel-data-procurement-decision-procedur",
+        desc: "Agent travel data procurement decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-virtual-wallet-funding-and-sweep-policy-de",
+        desc: "agent virtual wallet funding and sweep policy: deterministic procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-virtual-wallet-permission-profile-procedur",
+        desc: "Agent virtual wallet permission profile procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-allowance-partition-and-merchant-al",
+        desc: "Agent wallet allowance partition and merchant allowlist governance standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/agent-wallet-control-precedence-schema",
+        desc: "Agent wallet control precedence schema",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-credential-rotation-decision-proced",
+        desc: "agent wallet credential rotation decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-decommissioning-and-key-rotation-on",
+        desc: "Agent Wallet Decommissioning and Key Rotation on Retirement",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-exposure-and-query-privacy-decision",
+        desc: "Agent wallet exposure and query-privacy decision layer for agents buyi",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-exposure-assessment-for-per-request",
+        desc: "Agent Wallet Exposure Assessment Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-exposure-through-mcp-tool-servers-p",
+        desc: "agent wallet exposure through MCP tool servers: per-tool spend caps, s",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-identity-and-spend-limit-governance",
+        desc: "agent wallet identity binding and spend-limit governance procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-policy-reconciliation-and-deliverab",
+        desc: "Virtual Wallet Policy Reconciliation Procedure",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-provisioning-and-custody-selection",
+        desc: "Agent wallet provisioning and custody selection procedure per rail",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-provisioning-and-spend-authority-fo",
+        desc: "Agent wallet provisioning and spend authority for programmable/custodi",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-wallet-spend-cap-calibration-procedure-ini",
+        desc: "agent wallet spend-cap calibration procedure: initial cap by task risk",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-web-retrieval-channel-selection-procedure",
+        desc: "Agent web retrieval channel selection procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-x402-payment-facilitator-trust-scoring-dec",
+        desc: "x402 payment facilitator trust scoring procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-x402-post-settlement-audit-bundle-export-s",
+        desc: "agent-x402-post-settlement-audit-bundle-export-standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/agent-x402-unhappy-path-dispute-adjudication-dec",
+        desc: "agent x402 unhappy path dispute adjudication escalation procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/ai-executed-payment-attribution-and-proof-proced",
+        desc: "AI-executed payment attribution and proof procedure: how an agent cryp",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/algorand-counterparty-wallet-account-state-risk",
+        desc: "Algorand counterparty wallet account-state risk scoring decision proce",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/an-x402-payment-settles-in-seconds-that-is-the-e",
+        desc: "An x402 payment settles in seconds. That is the easy part. The transa",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/ap2-mandate-authorization-verification-procedure",
+        desc: "AP2 mandate authorization gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/api-key-free-pay-per-call-migration-decision-pro",
+        desc: "API-key-free pay-per-call migration decision procedure for agents: whe",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/autonomous-merchant-preapproval-standard",
+        desc: "Autonomous merchant pre-approval standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/billboard-post-bidding-economics-for-agents-deci",
+        desc: "Billboard post bidding economics for agents: decision procedure for when to post",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/bought-web-action-receipt-verification-standard",
+        desc: "Bought web action receipt verification standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/browser-action-receipt-verification-standard",
+        desc: "Browser action receipt verification standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/browser-agent-crossing-an-x402-paywall-mid-sessi",
+        desc: "Browser agent crossing an x402 paywall mid-session: decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/browser-execution-payment-gate-decision-procedur",
+        desc: "browser-execution-payment-gate-decision-procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/browser-task-x402-payment-decision-when-an-agent",
+        desc: "browser-task x402 payment decision: when an agent executing browser ta",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/buyer-side-decision-procedure-for-agents-offered",
+        desc: "Buyer-side decision procedure for agents offered prepaid credit packages",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/buyer-side-x402-credit-pricing-honesty-gate",
+        desc: "Buyer-side x402 credit pricing honesty gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/captcha-solving-service-procurement-decision-pro",
+        desc: "CAPTCHA solving service procurement decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/cardano-x402-offer-vetting-and-adoption-decision",
+        desc: "Cardano x402 offer vetting and adoption decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/catalog-pin-drift-adjudicator",
+        desc: "Catalog Pin Drift Adjudicator",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/checkout-mandate-boundary-decision-map",
+        desc: "Checkout mandate boundary decision map",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/clearing-network-pre-routing-vetting-procedure",
+        desc: "Clearing network pre-routing vetting standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/cloudflare-wallets-account-wallet-vs-virtual-wal",
+        desc: "Cloudflare wallet delegation boundary procedure for x402 agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/compute-job-execution-proof-verification-procedu",
+        desc: "compute job execution proof verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/concordium-identity-verified-merchant-acceptance",
+        desc: "Concordium identity-verified merchant acceptance procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/conditional-settlement-rule-attachment-procedure",
+        desc: "Conditional settlement rule attachment for x402 payments",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/consumer-side-acceptance-gate-for-per-call-on-ch",
+        desc: "Consumer-side acceptance gate for per-call on-chain risk data: an agen",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/cross-border-agent-merchant-disclosure-templates",
+        desc: "Cross-border agent merchant disclosure templates",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/cross-chain-session-key-compromise-containment-a",
+        desc: "cross-chain session-key compromise containment and leverage liability",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/cross-protocol-agent-agreement-failure-a-procedu",
+        desc: "Cross-protocol agent agreement failure: a procedure for an agent decid",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/cross-protocol-agent-payment-route-selection-cla",
+        desc: "Cross-protocol agent payment route selection: classify an HTTP 402 / W",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/cross-protocol-agent-permission-continuity-recon",
+        desc: "cross-protocol agent permission continuity: reconciling identity-scope",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/cross-rail-adjudication-evidence-bundle-export-p",
+        desc: "Cross-rail adjudication evidence bundle export procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/crosschain-and-multi-rail-x402-settlement-decisi",
+        desc: "crosschain and multi-rail x402 settlement decision procedure for agent",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/data-api-billing-mode-selection-for-agents-when",
+        desc: "data-API billing mode selection for agents: when a data provider offer",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/decision-procedure-for-agents-paying-for-long-ru",
+        desc: "Async job payment lifecycle decision procedure for agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/decision-procedure-for-an-agent-evaluating-a-rea",
+        desc: "Decision procedure for an agent evaluating a real-world-asset (RWA) is",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/decision-procedure-for-an-agent-evaluating-a-web",
+        desc: "Decision procedure for an agent evaluating a website's self-declared a",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/decision-procedure-for-an-agent-governing-a-merc",
+        desc: "Virtual wallet merchant allowlist governance procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/decision-procedure-for-web-automation-agents-bro",
+        desc: "Agent Mid-Task x402 Payment Wall Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/delegated-budget-enforcement-placement-and-post",
+        desc: "delegated budget enforcement placement decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/delegated-pickup-endorsement-verification-proced",
+        desc: "Delegated pickup endorsement verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/deterministic-agent-to-agent-x402-dispute-resolu",
+        desc: "Agent x402 dispute contestation procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/deterministic-counterparty-recipient-screening-b",
+        desc: "agent payment recipient screening procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/deterministic-delivery-criteria-interpretation-p",
+        desc: "Delivery criteria interpretation standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/deterministic-settlement-phase-procedure-for-x40",
+        desc: "Paid delivery receipt verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/drug-product-data-sourcing-and-paid-search-decis",
+        desc: "Drug product data sourcing and paid search decision standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/ens-name-ownership-vetting-decision-procedure",
+        desc: "ENS name ownership vetting procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/enterprise-attribution-trail-for-settled-x402-ag",
+        desc: "enterprise-attribution-trail-for-settled-x402-agent-payments",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/erc-8004-agent-reputation-mint-claim-verificatio",
+        desc: "erc-8004 agent reputation mint claim verification procedure: inputs (m",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/expired-challenge-re-probe-and-re-payment-standa",
+        desc: "Expired challenge re-probe and re-payment standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/funding-asset-conversion-procedure-for-token-fun",
+        desc: "Funding-asset conversion procedure for token-funded agents paying USDC",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/generated-video-deliverable-acceptance-decision",
+        desc: "Generated video deliverable acceptance decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/gig-acceptance-counter-bid-playbook",
+        desc: "Gig acceptance and counter-bid playbook",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/headless-browser-session-procurement-decision-pr",
+        desc: "Headless browser session procurement decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/human-approval-policy-calibration-for-agent-comm",
+        desc: "human approval policy calibration for agent commands: when to escalate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/injective-rail-x402-agent-integration-procedure",
+        desc: "Injective rail x402 agent integration procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/keyless-x402-api-monetization-migration",
+        desc: "Keyless x402 API monetization migration procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/live-rail-fee-settlement-time-observation-standa",
+        desc: "Live rail fee and settlement-time observation standard",
+        amount: "3000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/machine-receipt-issuance-standard-for-agent-sell",
+        desc: "machine receipt issuance standard for agent sellers: what receipt to e",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/mathematical-document-ocr-extraction-decision-pr",
+        desc: "Mathematical document OCR extraction decision procedure: when an agent",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/mcp-tool-cost-registry-and-pre-execution-per-too",
+        desc: "MCP tool cost registry and pre-execution per-tool cost estimation for",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/merchant-billing-model-selection-verified-call-c",
+        desc: "Payment verification threshold and billing selector",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/merchant-crawler-traffic-gating-and-pricing-proc",
+        desc: "Merchant crawler traffic gating and pricing procedure",
+        amount: "4000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/merchant-credential-issuance-and-revocation-map",
+        desc: "Merchant credential issuance and revocation map",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/merchant-delivery-receipt-issuance-standard",
+        desc: "Merchant delivery receipt issuance standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/merchant-drift-revet-decision-procedure",
+        desc: "Merchant drift re-vet decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/merchant-settlement-receipt-redaction-tier-proce",
+        desc: "Merchant settlement receipt redaction tier procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/merchant-side-adoption-decision-procedure-for-ca",
+        desc: "merchant-side adoption decision procedure for card-network-backed cryp",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/merchant-vetting-authority-deterministic-pre-gra",
+        desc: "merchant vetting authority: deterministic pre-grant vetting procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/merchant-x402-listing-honesty-gate",
+        desc: "Merchant x402 Listing Honesty Gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/minor-exposure-content-safety-gate-for-consumer",
+        desc: "Minor-exposure content-safety gate for consumer-facing agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/mpp-inspired-stableenrich-build-a-decision-proce",
+        desc: "MPP-inspired: stableenrich · Build a decision procedure or schema for",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/multi-agent-escrow-quorum-release-procedure",
+        desc: "Multi-Agent Escrow Quorum Release Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/multi-agent-shared-wallet-spend-consensus-and-mp",
+        desc: "Multi-agent shared wallet spend consensus and MPC quorum decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/multi-chain-onchain-data-sourcing-and-provider-s",
+        desc: "Multi-chain onchain data sourcing and provider selection procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/multi-channel-agent-entitlement-scope-mapping-pr",
+        desc: "Multi-channel agent entitlement scope mapping procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/multi-rail-x402-settlement-receipt-normalization",
+        desc: "multi-rail x402 settlement receipt normalization procedure: canonical",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/multi-rail-x402-settlement-route-selection-an-ag",
+        desc: "multi-rail x402 settlement route selection procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/new-mexico-court-orders-meta-to-pay-567m-over-ha",
+        desc: "New Mexico court orders Meta to pay $567m over harms to children’s men",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/on-chain-agent-registry-payee-vetting-a-procedur",
+        desc: "On-chain agent registry payee vetting: a procedure that audits a regis",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/onchain-domain-registration-decision-procedure",
+        desc: "Onchain domain registration decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/orchestration-procedure-that-sequences-the-merch",
+        desc: "Orchestration procedure that sequences the merchant-quality lane end t",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/parent-controlled-agent-sub-wallet-provisioning",
+        desc: "Parent-controlled agent sub-wallet provisioning",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/passkey-approval-gate-conversational-agent-payme",
+        desc: "passkey approval gate for conversational agent payments",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/passkey-approval-thresholds-for-agent-initiated",
+        desc: "passkey approval thresholds for agent-initiated x402 payments · Build",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/pay-per-crawl-economics-for-agents-hitting-cloud",
+        desc: "pay-per-crawl economics for agents hitting Cloudflare-edge x402 gated",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/pay-per-query-x402-price-acquisition-vs-account",
+        desc: "pay-per-query x402 price acquisition vs account registration decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/paybox-one-time-virtual-card-authorization-proce",
+        desc: "PayBox one-time virtual card authorization procedure: when to request",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/payee-identity-registry-vetting-before-x402-sett",
+        desc: "Payee identity registry vetting before x402 settlement: decide whether",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/payment-plumbing-operator-selector",
+        desc: "Payment plumbing operator selector",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-facilitator-x402-reliability-and-scale-vetti",
+        desc: "Per-facilitator x402 reliability and scale vetting procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-period-agent-spend-cap-escalation-procedure",
+        desc: "Per-period agent spend cap escalation procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-rail-fee-and-settlement-speed-ranking-proced",
+        desc: "per-rail fee and settlement-speed ranking procedure for agent x402 set",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-rail-inference-cost-comparison-and-budget-ac",
+        desc: "Per-rail inference cost comparison and budget accounting for agent tra",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-rail-session-lifecycle-decision-procedure",
+        desc: "Per-rail session lifecycle decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-rail-settlement-timeout-decision-standard",
+        desc: "Per-rail settlement timeout decision standard",
+        amount: "15000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-rail-wallet-provisioning-decision-procedure",
+        desc: "per-rail wallet provisioning decision procedure: how an agent decides",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-rail-x402-facilitator-acceptance-for-non-bas",
+        desc: "Per-rail x402 facilitator acceptance ladder for XRPL and non-Base rails",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-service-budget-ceiling-denial-ledger-enforce",
+        desc: "Per-service budget ceiling with denial ledger enforcement",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/per-use-research-acquisition-decision-procedure",
+        desc: "Per-use research acquisition decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/post-payment-accountability-resolution-for-agent",
+        desc: "post-payment accountability resolution for agent transactions: a proce",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/post-quantum-key-transition-readiness-for-x402-a",
+        desc: "post-quantum key transition readiness for x402 agent wallets and facil",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/post-settlement-attestation-reconciliation-proce",
+        desc: "post-settlement attestation reconciliation procedure for clearing netw",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/post-settlement-audit-trail-reconstruction-an-ag",
+        desc: "post-settlement audit trail reconstruction: an agent-facing decision p",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/post-settlement-x402-audit-trail-standard-durabl",
+        desc: "post-settlement x402 audit trail standard: durable, verifiable record",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/pre-human-agent-command-threat-screening-automat",
+        desc: "Pre-human agent command threat screening procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/pre-transaction-counterparty-trust-decision-proc",
+        desc: "pre-transaction counterparty trust decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/pre-wallet-merchant-endpoint-vetting-for-x402-a",
+        desc: "Pre-wallet merchant endpoint vetting for x402: a decision procedure an",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/prepayment-onchain-token-safety-decision-standar",
+        desc: "Prepayment onchain token safety decision standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/principal-side-post-run-spend-review-and-reconci",
+        desc: "principal-side post-run spend review and reconciliation after an agent",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/privacy-rail-payment-verification-decision-proce",
+        desc: "Privacy rail payment verification decision procedure",
+        amount: "4000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/public-goods-patronage-inscription-gate-procedur",
+        desc: "Public-goods patronage inscription gate procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/quarantine-decision-procedure-for-untrusted-cont",
+        desc: "Untrusted payload quarantine standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/real-time-compliance-screening-timing-for-agenti",
+        desc: "Real-time compliance screening timing for agentic x402 payments: when",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/real-world-service-reservation-confirmation-and",
+        desc: "real-world service reservation confirmation and no-show risk decision",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/refund-and-withdrawal-window-enforcement-decisio",
+        desc: "refund-and-withdrawal window enforcement decision procedure for autonomous agent",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/reservation-deposit-and-cancellation-policy-gate",
+        desc: "Reservation deposit and cancellation policy gate for agents booking re",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/reservation-hold-settlement-lifecycle-procedure",
+        desc: "Reservation hold settlement lifecycle procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/retail-algorithmic-order-execution-decision-proc",
+        desc: "retail algorithmic order execution decision procedure: order-type selection",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/risk-intelligence-vendor-trust-evaluation-proced",
+        desc: "Risk intelligence vendor trust evaluation procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/rt-nichxbt-x402-ai-agent-grocery-shopping-an-age",
+        desc: "agent-x402-quote-comparison-and-selection-procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/runtime-payment-failure-behavior-for-agents-knoc",
+        desc: "runtime payment-failure behavior for agents: knock-or-backoff for no-q",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/scoped-session-key-issuance-procedure-for-one-of",
+        desc: "Scoped session-key issuance procedure for one-off agent purchase tasks",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/search-normalization-procedure",
+        desc: "Agent Search Normalization Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/seller-side-api-monetization-decision-procedure",
+        desc: "Seller-side API monetization decision procedure: Cloudflare Monetizati",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/seller-side-paying-agent-identity-verification-d",
+        desc: "Seller-side paying-agent identity verification decision procedure: whe",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/session-level-multi-gate-paywall-spend-control-f",
+        desc: "Session-level multi-gate paywall spend control for browser agents: a d",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/settlement-proof-of-opacity-agent-side-evidence",
+        desc: "settlement-proof-of-opacity: agent-side evidence procedure for what an",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/settlement-proof-opacity-and-sufficiency-evaluat",
+        desc: "settlement proof opacity and sufficiency evaluation",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/shared-virtual-wallet-budget-arbitration-procedu",
+        desc: "Shared virtual wallet budget arbitration procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/signal-gated-x402-spend-procedure",
+        desc: "Signal-gated x402 spend execution procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/social-data-procurement-decision-standard",
+        desc: "Social data procurement decision standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/solana-x402-july-agent-tooling-gap-map",
+        desc: "Solana x402 July agent tooling gap map",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/standing-spend-delegation-boundary-standard",
+        desc: "Standing spend delegation boundary standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/standing-spend-delegation-bounds-for-autonomous",
+        desc: "Standing spend delegation bounds for autonomous agents: policy that le",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/start-at-x402video-and-let-your-agent-create-any",
+        desc: "Agent Video Generation x402 Procurement Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/stateless-payment-signature-to-authority-chain-b",
+        desc: "stateless payment signature to authority chain binding procedure for a",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/streaming-llm-usage-settlement-decision-procedur",
+        desc: "Streaming LLM Usage Settlement Decision Procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/stripe-mpp-acceptance-vs-native-x402-rail-decisi",
+        desc: "Stripe MPP acceptance vs native x402 rail decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/svc-i5hfcy",
+        desc: "...",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/three-crypto-funds-just-backed-an-ai-company-wit",
+        desc: "Three crypto funds just backed an AI company with no token, no chain,",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/vehicle-variant-data-sourcing-and-normalization",
+        desc: "Vehicle variant data sourcing and normalization procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/verification-procedure-for-x402-facilitator-volu",
+        desc: "x402 facilitator volume claim verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/wallet-signature-authorization-scope-grading",
+        desc: "Wallet Signature Authorization Scope Grading",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/webmcp-manifest-version-drift-detection-for-agen",
+        desc: "webmcp-manifest-version-drift-detection-for-agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-agent-payment-compliance-real-time-sanction",
+        desc: "x402 agent payment compliance: real-time sanctions screening decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-agent-spend-observability-and-kill-switch-e",
+        desc: "x402 agent spend observability and kill-switch enforcement: decision p",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-buyer-behavior-classification-organic-wash",
+        desc: "x402 buyer behavior classification: organic, suspected wash, self-test, develope",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-catalog-submission-readiness-for-builders-a",
+        desc: "x402 catalog submission readiness gate",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-challenge-conformance-grading-how-an-agent",
+        desc: "x402 challenge conformance grading: how an agent scores any URL's paym",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-challenge-payability-and-payment-scheme-com",
+        desc: "x402 challenge payability and payment-scheme compatibility check: agen",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-delegation-revocation-procedure-for-agents",
+        desc: "x402 delegation revocation procedure for agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-endpoint-new-rail-rollout-procedure-for-mer",
+        desc: "x402 endpoint new-rail rollout with CDN stale-challenge handling",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-merchant-endpoint-pre-payment-vetting-stand",
+        desc: "x402 merchant endpoint pre-payment vetting standard: how to assess an",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-multi-rail-settlement-selection-when-an-age",
+        desc: "x402 multi-rail settlement selection standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-pay-per-call-inference-endpoint-selection-a",
+        desc: "x402 pay-per-call inference endpoint selection and cost normalization",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-payment-failure-cause-classification-and-re",
+        desc: "x402 payment failure cause classification and response procedure: agen",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-payment-response-binding-and-refund-verific",
+        desc: "x402 payment-response binding and refund verification procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-payment-scam-surface-triage-for-autonomous",
+        desc: "x402 payment scam surface triage for autonomous agents",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-payment-standard-foundation-governance-anno",
+        desc: "x402 payment-standard foundation governance announcement evaluation: h",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-settlement-pattern-anomaly-decision-procedu",
+        desc: "x402 settlement pattern anomaly decision procedure: what an agent can",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/services/x402-static-file-serving-standard-merchant",
+        desc: "Paywalled static file serving standard",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route:
+          "GET /api/services/x402-unsupported-rail-triage-decision-procedure",
+        desc: "x402 unsupported rail triage decision procedure",
+        amount: "2000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
