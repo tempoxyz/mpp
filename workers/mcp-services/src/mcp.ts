@@ -379,6 +379,7 @@ async function handleToolCall(
       const route = optionalString(args, "route");
       const service = requireService(catalog.services, serviceName);
       const offers = offersForService(service, route);
+      const request = await usageRequest(service, offers);
       return toolResult(
         {
           ...meta,
@@ -392,6 +393,7 @@ async function handleToolCall(
           endpointCandidates: offers.map((offer) =>
             usageEndpointCandidate(service, offer),
           ),
+          request,
           recipe: usageRecipe(
             service,
             route,
@@ -541,6 +543,13 @@ async function fetchOpenApiCandidate(
   candidate: OpenApiCandidate,
   options: OpenApiRequestOptions,
 ) {
+  const fetched = await fetchOpenApiDocument(candidate);
+  return fetched ? formatOpenApiDocument(fetched, options) : undefined;
+}
+
+async function fetchOpenApiDocument(
+  candidate: OpenApiCandidate,
+): Promise<FetchedOpenApi | undefined> {
   let url = httpsUrl(candidate.url);
   if (!url) return undefined;
 
@@ -569,16 +578,13 @@ async function fetchOpenApiCandidate(
     const document = parseOpenApiDocument(body.text);
     if (!document) return undefined;
 
-    return formatOpenApiDocument(
-      {
-        source: candidate.source,
-        url: url.toString(),
-        contentType,
-        bytes: body.bytes,
-        document,
-      },
-      options,
-    );
+    return {
+      source: candidate.source,
+      url: url.toString(),
+      contentType,
+      bytes: body.bytes,
+      document,
+    };
   }
 
   return undefined;
@@ -1010,6 +1016,138 @@ function usageEndpointCandidate(
   };
 }
 
+async function usageRequest(
+  service: Service,
+  offers: ReturnType<typeof offersForService>,
+) {
+  if (offers.length !== 1) {
+    return {
+      schemaStatus: offers.length === 0 ? "unavailable" : "ambiguous",
+      note:
+        offers.length === 0
+          ? "No catalog endpoint matches the requested route. Do not construct a request from catalog data alone."
+          : "Select one exact METHOD /path route before constructing a request.",
+    };
+  }
+
+  const [{ method, path }] = offers;
+  for (const candidate of openApiCandidates(service)) {
+    const fetched = await fetchOpenApiDocument(candidate);
+    if (!fetched) continue;
+    const operation = openApiRequestOperation(fetched.document, method, path);
+    if (!operation) continue;
+    return {
+      schemaStatus: "available",
+      source: fetched.source,
+      sourceUrl: fetched.url,
+      method,
+      path,
+      ...operation,
+    };
+  }
+
+  return {
+    schemaStatus: "unavailable",
+    method,
+    path,
+    note: "No trusted OpenAPI operation was found for this route. Do not guess request parameters.",
+  };
+}
+
+function openApiRequestOperation(
+  document: OpenApiDocument,
+  method: string,
+  path: string,
+) {
+  if (!isRecord(document.paths)) return undefined;
+  const pathItem = document.paths[path];
+  if (!isRecord(pathItem)) return undefined;
+  const operation = pathItem[method.toLowerCase()];
+  if (!isRecord(operation)) return undefined;
+
+  const pathParameters = Array.isArray(pathItem.parameters)
+    ? pathItem.parameters
+    : [];
+  const operationParameters = Array.isArray(operation.parameters)
+    ? operation.parameters
+    : [];
+  const summary =
+    typeof operation.summary === "string" ? operation.summary : undefined;
+  const description =
+    typeof operation.description === "string"
+      ? operation.description
+      : undefined;
+
+  return {
+    ...(summary ? { summary } : {}),
+    ...(description ? { description } : {}),
+    parameters: resolveOpenApiRefs(
+      [...pathParameters, ...operationParameters],
+      document,
+    ),
+    ...(operation.requestBody !== undefined
+      ? {
+          requestBody: resolveOpenApiRefs(operation.requestBody, document),
+        }
+      : {}),
+  };
+}
+
+function resolveOpenApiRefs(
+  value: unknown,
+  document: OpenApiDocument,
+  seen: ReadonlySet<string> = new Set(),
+): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => resolveOpenApiRefs(item, document, seen));
+  }
+  if (!isRecord(value)) return value;
+
+  const reference = typeof value.$ref === "string" ? value.$ref : undefined;
+  if (reference && !seen.has(reference)) {
+    const target = localOpenApiReference(document, reference);
+    if (target !== undefined) {
+      const nextSeen = new Set(seen);
+      nextSeen.add(reference);
+      const resolved = resolveOpenApiRefs(target, document, nextSeen);
+      const siblings = Object.fromEntries(
+        Object.entries(value)
+          .filter(([key]) => key !== "$ref")
+          .map(([key, item]) => [
+            key,
+            resolveOpenApiRefs(item, document, nextSeen),
+          ]),
+      );
+      if (isRecord(resolved)) return { ...resolved, ...siblings };
+      if (Object.keys(siblings).length === 0) return resolved;
+    }
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [
+      key,
+      resolveOpenApiRefs(item, document, seen),
+    ]),
+  );
+}
+
+function localOpenApiReference(
+  document: OpenApiDocument,
+  reference: string,
+): unknown {
+  if (!reference.startsWith("#/")) return undefined;
+  let current: unknown = document;
+  for (const encodedSegment of reference.slice(2).split("/")) {
+    if (!isRecord(current)) return undefined;
+    const segment = encodedSegment.replaceAll("~1", "/").replaceAll("~0", "~");
+    if (!Object.hasOwn(current, segment)) {
+      return undefined;
+    }
+    current = current[segment];
+  }
+  return current;
+}
+
 function usageRecipe(
   service: Service,
   route: string | undefined,
@@ -1034,7 +1172,7 @@ function usageRecipe(
       },
     ],
     httpSteps: [
-      "Choose a candidate endpoint and build the target API request from the service documentation or OpenAPI summary.",
+      "Choose exactly one candidate endpoint and use the returned trusted request schema. If it is ambiguous or unavailable, stop instead of guessing request parameters.",
       "Send the ordinary HTTP request to the target service.",
       "If the target service returns 402 Payment Required, parse the runtime Challenge and choose a compatible payment method.",
       "Fulfill the Challenge with the calling agent's payment client or wallet, then retry the target request with the resulting Credential.",
@@ -1267,7 +1405,7 @@ function toolSchemas() {
     {
       name: "get_usage_recipe",
       description:
-        "Return a practical read-only recipe for using a discovered service: candidate payable endpoints, follow-up MCP calls, and the target HTTP/402 payment flow." +
+        "Return a practical read-only recipe for using a discovered service: candidate payable endpoints, a trusted route-specific request schema when exactly one route is selected, follow-up MCP calls, and the target HTTP/402 payment flow." +
         advisory,
       inputSchema: {
         type: "object",
@@ -1584,6 +1722,29 @@ function usageRecipeOutputSchema() {
           additionalProperties: false,
         },
       },
+      request: {
+        type: "object",
+        properties: {
+          schemaStatus: {
+            type: "string",
+            enum: ["available", "ambiguous", "unavailable"],
+          },
+          source: {
+            type: "string",
+            enum: ["docs.openapi", "well-known", "apiReference"],
+          },
+          sourceUrl: { type: "string" },
+          method: { type: "string" },
+          path: { type: "string" },
+          summary: { type: "string" },
+          description: { type: "string" },
+          parameters: { type: "array", items: {} },
+          requestBody: {},
+          note: { type: "string" },
+        },
+        required: ["schemaStatus"],
+        additionalProperties: false,
+      },
       recipe: {
         type: "object",
         properties: {
@@ -1627,6 +1788,7 @@ function usageRecipeOutputSchema() {
       "count",
       "offers",
       "endpointCandidates",
+      "request",
       "recipe",
     ],
     additionalProperties: false,

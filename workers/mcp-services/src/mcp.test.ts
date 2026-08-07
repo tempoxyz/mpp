@@ -220,6 +220,46 @@ describe("mcp handler", () => {
   });
 
   it("returns a route-specific usage recipe for a discovered service", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        expect(String(input)).toBe("https://mpp.api.agentmail.to/openapi.json");
+        return Response.json(
+          openApiDocument({
+            paths: {
+              "/v0/inboxes": {
+                post: {
+                  summary: "Create inbox",
+                  requestBody: {
+                    required: true,
+                    content: {
+                      "application/json": {
+                        schema: {
+                          $ref: "#/components/schemas/CreateInboxRequest",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            components: {
+              schemas: {
+                CreateInboxRequest: {
+                  type: "object",
+                  properties: {
+                    username: { type: "string" },
+                    client_id: { $ref: "#/components/schemas/ClientId" },
+                  },
+                },
+                ClientId: { type: "string" },
+              },
+            },
+          }),
+        );
+      }),
+    );
+
     const body = await callTool("get_usage_recipe", {
       service: "agentmail",
       route: "POST /v0/inboxes",
@@ -242,6 +282,29 @@ describe("mcp handler", () => {
             payment: expect.objectContaining({ method: "tempo" }),
           }),
         ],
+        request: {
+          schemaStatus: "available",
+          source: "well-known",
+          sourceUrl: "https://mpp.api.agentmail.to/openapi.json",
+          method: "POST",
+          path: "/v0/inboxes",
+          summary: "Create inbox",
+          parameters: [],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    username: { type: "string" },
+                    client_id: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+        },
         recipe: expect.objectContaining({
           mcpServer: "https://mpp.dev/mcp/services",
           mode: "read-only-discovery",
@@ -256,6 +319,53 @@ describe("mcp handler", () => {
         }),
       }),
     );
+  });
+
+  it("requires an exact route when multiple payable endpoints remain", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const service: Service = {
+      ...services[0],
+      endpoints: [
+        ...services[0].endpoints,
+        {
+          ...services[0].endpoints[1],
+          path: "/v0/pods",
+          description: "Create pod",
+        },
+      ],
+    };
+
+    const body = await mcp(
+      "tools/call",
+      { name: "get_usage_recipe", arguments: { service: "agentmail" } },
+      envWithCatalogFor([service]),
+    );
+
+    expect(body.result.structuredContent.request).toEqual({
+      schemaStatus: "ambiguous",
+      note: "Select one exact METHOD /path route before constructing a request.",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not invent request parameters when no trusted route schema exists", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("missing", { status: 404 })),
+    );
+
+    const body = await callTool("get_usage_recipe", {
+      service: "agentmail",
+      route: "POST /v0/inboxes",
+    });
+
+    expect(body.result.structuredContent.request).toEqual({
+      schemaStatus: "unavailable",
+      method: "POST",
+      path: "/v0/inboxes",
+      note: "No trusted OpenAPI operation was found for this route. Do not guess request parameters.",
+    });
   });
 
   it("returns facets, recipient lookup, and catalog status for agent planning", async () => {
