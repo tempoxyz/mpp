@@ -15,6 +15,10 @@
 
 # mpp
 
+<!-- hy-mt2-i18n:start -->
+**English** · [中文](./README_zh-CN.md) · [日本語](./README_ja.md) · [Español](./README_es.md)
+<!-- hy-mt2-i18n:end -->
+
 The open protocol for machine-to-machine payments.
 
 [![Website](https://img.shields.io/badge/website-mpp.dev-black)](https://mpp.dev)
