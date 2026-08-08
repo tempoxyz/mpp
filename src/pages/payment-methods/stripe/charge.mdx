@@ -6,7 +6,7 @@ imageDescription: "One-time card payments via Stripe"
 import { Cards } from 'vocs'
 import { SpecCard } from '../../../components/SpecCard'
 
-# Stripe charge [One-time payments using Shared Payment Tokens]
+# Stripe SPT charge [One-time payments using Shared Payment Tokens]
 
 The Stripe implementation of the [charge](/intents/charge) intent.
 
@@ -16,7 +16,7 @@ Use this method for single API calls, content access, or one-off purchases where
 
 ## Server
 
-Use `stripe.charge` to require a one-time Stripe payment before returning a response. The method handles Challenge generation, Credential verification, PaymentIntent creation, and Receipt generation.
+Use `stripe.spt` to require a one-time Stripe payment before returning a response. The method handles Challenge generation, Credential verification, PaymentIntent creation, and Receipt generation.
 
 You can provide either a `client` (a pre-configured Stripe SDK instance) or a raw `secretKey`. Using `client` is recommended — it lets you configure retries, API version, and other options on the Stripe instance you control.
 
@@ -31,7 +31,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       client: stripeClient, // [!code hl]
       networkId: 'internal',
       paymentMethodTypes: ['card'],
@@ -62,7 +62,7 @@ import { Mppx, stripe } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       secretKey: process.env.STRIPE_SECRET_KEY!, // [!code hl]
       networkId: 'internal',
       paymentMethodTypes: ['card'],
@@ -73,7 +73,7 @@ const mppx = Mppx.create({
 
 ### With metadata
 
-Include `metadata` in the `stripe.charge` configuration to forward key-value pairs to Stripe. The metadata appears in the Challenge and attaches to the Stripe `PaymentIntent`.
+Include `metadata` in the `stripe.spt` configuration to forward key-value pairs to Stripe. The metadata appears in the Challenge and attaches to the Stripe `PaymentIntent`.
 
 ```ts twoslash
 
@@ -84,7 +84,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       client: stripeClient,
       metadata: { plan: 'pro' }, // [!code hl]
       networkId: 'internal',
@@ -107,7 +107,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       client: stripeClient,
       networkId: 'internal',
       paymentMethodTypes: ['card', 'link'], // [!code hl]
@@ -129,7 +129,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       client: stripeClient,
       // [!code hl:start]
       html: {

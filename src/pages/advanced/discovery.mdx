@@ -117,7 +117,7 @@ const charge = tempo.charge({
   currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
   recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
 })
-const card = stripe.charge({
+const card = stripe.spt({
   decimals: 2,
   networkId: 'acct_1234',
   paymentMethodTypes: ['card'],

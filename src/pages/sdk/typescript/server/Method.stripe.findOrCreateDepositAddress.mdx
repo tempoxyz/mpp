@@ -1,0 +1,65 @@
+---
+description: "Resolve and cache a Stripe stablecoin deposit address for a payment network."
+imageDescription: "Resolve Stripe deposit addresses"
+---
+
+# `stripe.findOrCreateDepositAddress` [Resolve a Stripe deposit address]
+
+Finds an existing Stripe deposit address or creates one for the requested network.
+
+## Usage
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const address = await stripe.findOrCreateDepositAddress(client, 'tempo')
+
+console.log(address)
+// @log: 0x20C0000000000000000000000000000000000001
+```
+
+The helper caches the address for the process lifetime by Stripe client, network, and connected account.
+
+### With Stripe Connect
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const address = await stripe.findOrCreateDepositAddress(client, 'tempo', {
+  connect: {
+    stripeAccount: 'acct_123',
+  },
+})
+```
+
+## Return type
+
+```ts
+type ReturnType<N extends stripe.Network> = Promise<stripe.DepositAddress<N>>
+```
+
+## Parameters
+
+### client
+
+- **Type:** `StripeClient`
+
+Stripe SDK client with `rawRequest()` support.
+
+### network
+
+- **Type:** `string`
+
+Stripe stablecoin network name, such as `'tempo'`, `'base'`, or `'solana'`.
+
+### options (optional)
+
+- **Type:** `{ connect?: { applicationFeeAmount?: number; onBehalfOf?: string; stripeAccount: string; transferData?: { amount?: number; destination: string }; transferGroup?: string } }`
+
+Stripe Connect configuration for resolving the connected account's deposit address.

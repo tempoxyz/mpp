@@ -80,7 +80,7 @@ STRIPE_NETWORK_ID=your_network_id
 
 ### Create the server with Stripe payments
 
-Set up an `Mppx` instance with the `stripe.charge` method. The `networkId` is your Stripe Business Network profile ID, and `paymentMethodTypes` controls which card types you accept.
+Set up an `Mppx` instance with the `stripe.spt` constructor. The `networkId` is your Stripe Business Network profile ID, and `paymentMethodTypes` controls which card types you accept.
 
 ```ts twoslash
 import Stripe from 'stripe'
@@ -90,7 +90,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       client: stripeClient,
       networkId: process.env.STRIPE_NETWORK_ID!,
       paymentMethodTypes: ['card'],
@@ -111,7 +111,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       client: stripeClient,
       networkId: process.env.STRIPE_NETWORK_ID!,
       paymentMethodTypes: ['card'],
@@ -180,7 +180,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       client: stripeClient,
       networkId: process.env.STRIPE_NETWORK_ID!,
       paymentMethodTypes: ['card'],
@@ -208,7 +208,7 @@ const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const mppx = Mppx.create({
   methods: [
-    stripe.charge({
+    stripe.spt({
       client: stripeClient,
       // [!code hl:start]
       html: {

@@ -1,37 +1,38 @@
-# `stripe` [Register all Stripe intents]
+---
+description: "Configure Stripe SPT and stablecoin payment methods for an MPP server."
+imageDescription: "Configure Stripe machine payments"
+---
 
-Convenience function that creates the Stripe `charge` method intent.
+# `stripe` [Configure Stripe machine payments]
+
+Callable alias of [`stripe.create`](/sdk/typescript/server/Method.stripe.create).
+
+Prefer `stripe.create()` so the factory is explicit in application code.
 
 ## Usage
 
-```ts twoslash
-
+```ts twoslash [server.ts]
 import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/server'
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-Mppx.create({
-  methods: [
-    // [!code focus:start]
-    stripe({
-      client: stripeClient,
-      networkId: 'internal',
-      paymentMethodTypes: ['card'],
-    }),
-    // [!code focus:end]
-  ],
+const payments = stripe({
+  client,
+  livemode: false,
+  networkId: process.env.STRIPE_NETWORK_ID!,
+})
+
+const mppx = Mppx.create({
+  methods: await payments.defaultMethods(),
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 ```
 
 ## Return type
 
-```ts
-import type { Method } from 'mppx'
-
-type ReturnType = Method.Server
-```
+Returns the same machine-payments configuration object as [`stripe.create`](/sdk/typescript/server/Method.stripe.create#return-type).
 
 ## Parameters
 
-See [`stripe.charge`](/sdk/typescript/server/Method.stripe.charge) for the full parameter list.
+See [`stripe.create`](/sdk/typescript/server/Method.stripe.create#parameters) for the parameter list.

@@ -121,6 +121,8 @@ const mppx = Mppx.create({
 
 The default API base URL is `https://api.tempo.xyz`. You can also provide `fetch` in `relay` when your runtime needs a custom fetch implementation.
 
+For broadcast retries, the built-in client sends an `Idempotency-Key` beginning with `mpp_` and derived from the signed transaction or canonical request.
+
 ## Author a relay
 
 The MPP spec does not formally define relays. It leaves payment methods, API shapes, and transports such as HTTP, JSON-RPC, and gRPC to you.

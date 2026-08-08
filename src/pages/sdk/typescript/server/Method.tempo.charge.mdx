@@ -101,6 +101,30 @@ const mppx = Mppx.create({
 })
 ```
 
+### With a custom sponsor budget
+
+Limit aggregate fee exposure across sponsored transactions. Use a shared `AtomicStore` when more than one process uses the fee payer.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      feePayer: privateKeyToAccount(
+        '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      ),
+      sponsorBudget: {
+        maxInFlightReservations: 50,
+        maxInFlightTotalFee: 250_000_000_000_000_000n,
+        store: Store.memory(),
+      },
+    }),
+  ],
+})
+```
+
 ### With Tempo API relay
 
 Delegate Tempo charge validation and finalization to Tempo API. The relay preserves this method's Challenge configuration and needs an API key with the `mpp:write` scope. It broadcasts `pull` Credentials and recognizes `push` Credentials as already broadcast.
@@ -198,9 +222,9 @@ This setting only applies to non-zero charges. Zero-amount proof flows do not cr
 
 Override the local fee-sponsor policy used when the server co-signs Tempo charge transactions. Remote fee payer services enforce their own policy.
 
-`mppx` resolves defaults per chain automatically. On mainnet (`4217`), the defaults are `maxFeePerGas: 100_000_000_000n`, `maxGas: 2_000_000n`, `maxPriorityFeePerGas: 10_000_000_000n`, `maxTotalFee: 50_000_000_000_000_000n`, and `maxValidityWindowSeconds: 900`. `maxInFlightReservations` defaults to `100`; `maxInFlightTotalFee` defaults to ten times `maxTotalFee`. On Moderato (`42431`), `maxPriorityFeePerGas` increases to `50_000_000_000n` and the other limits stay the same.
+`mppx` resolves defaults per chain automatically. On mainnet (`4217`), the defaults are `maxFeePerGas: 100_000_000_000n`, `maxGas: 2_000_000n`, `maxPriorityFeePerGas: 10_000_000_000n`, `maxTotalFee: 50_000_000_000_000_000n`, and `maxValidityWindowSeconds: 900`. On Moderato (`42431`), `maxPriorityFeePerGas` increases to `50_000_000_000n` and the other limits stay the same.
 
-If you raise `maxFeePerGas`, `maxGas`, or `maxTotalFee`, you may also need to raise `maxInFlightTotalFee` so concurrent sponsored transactions stay within policy.
+The deprecated `maxInFlightReservations` and `maxInFlightTotalFee` properties still work here. Configure them with `sponsorBudget` instead.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -244,6 +268,17 @@ Runs after this Tempo charge succeeds. The hook receives the normalized request,
 - **Type:** `{ apiBaseUrl?: string; apiKey: string; fetch?: typeof globalThis.fetch }`
 
 Delegates Tempo charge Credential validation and finalization to a compatible MPP relay. `apiKey` needs the `mpp:write` scope. Defaults to `https://api.tempo.xyz`; set `apiBaseUrl` for a compatible relay, including one behind a path prefix. The relay broadcasts `pull` Credentials and verifies `push` Credential hashes without broadcasting them again.
+
+### sponsorBudget (optional)
+
+- **Type:** `{ maxInFlightReservations?: number; maxInFlightTotalFee?: bigint; store?: Store.AtomicStore } | false`
+- **Default:** `{}`
+
+Limits aggregate declared fee exposure for sponsored transactions. `maxInFlightReservations` defaults to `100`, and `maxInFlightTotalFee` defaults to ten times `feePayerPolicy.maxTotalFee`. Both values must be greater than zero.
+
+The `store` defaults to the charge method's `store` and must be shared by every process using the sponsor. Budget keys don't use `storeKeyPrefix`, so every tenant and process sees the sponsor-wide capacity.
+
+Set `false` only when another system enforces the aggregate sponsor budget.
 
 ### store (optional)
 

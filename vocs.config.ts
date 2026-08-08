@@ -494,7 +494,7 @@ export default defineConfig({
             collapsed: true,
             items: [
               { text: "Overview", link: "/payment-methods/stripe" },
-              { text: "Charge", link: "/payment-methods/stripe/charge" },
+              { text: "SPT charge", link: "/payment-methods/stripe/charge" },
             ],
           },
           {
@@ -713,6 +713,18 @@ export default defineConfig({
                       {
                         text: "stripe.charge",
                         link: "/sdk/typescript/server/Method.stripe.charge",
+                      },
+                      {
+                        text: "stripe.create",
+                        link: "/sdk/typescript/server/Method.stripe.create",
+                      },
+                      {
+                        text: "stripe.findOrCreateDepositAddress",
+                        link: "/sdk/typescript/server/Method.stripe.findOrCreateDepositAddress",
+                      },
+                      {
+                        text: "stripe.spt",
+                        link: "/sdk/typescript/server/Method.stripe.spt",
                       },
                     ],
                   },

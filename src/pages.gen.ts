@@ -168,7 +168,10 @@ type Page =
   | { path: '/sdk/typescript/server/Method.evm.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.evm'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.charge'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.stripe.create'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.stripe.findOrCreateDepositAddress'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.stripe.spt'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo.renewSubscription'; render: 'static' }

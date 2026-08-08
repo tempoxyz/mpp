@@ -1,0 +1,157 @@
+---
+description: "Accept one-time Stripe payments with Shared Payment Tokens in an MPP server."
+imageDescription: "Accept Stripe Shared Payment Tokens"
+---
+
+# `stripe.spt` [Accept Shared Payment Tokens]
+
+Creates the Stripe `charge` method for one-time payments with Shared Payment Tokens (SPTs).
+
+## Usage
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { Mppx, stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const mppx = Mppx.create({
+  methods: [
+    stripe.spt({
+      client,
+      networkId: process.env.STRIPE_NETWORK_ID!,
+      paymentMethodTypes: ['card', 'link'],
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({
+    amount: '1',
+    currency: 'usd',
+    decimals: 2,
+    description: 'Premium API access',
+  })(request)
+
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### With Stripe Connect
+
+Set a fixed settlement policy or return one from a resolver for each verified Credential.
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const method = stripe.spt({
+  client,
+  connect: {
+    applicationFeeAmount: 10,
+    stripeAccount: 'acct_123',
+  },
+  networkId: process.env.STRIPE_NETWORK_ID!,
+  paymentMethodTypes: ['card'],
+})
+```
+
+## Return type
+
+```ts
+import type { Method } from 'mppx'
+
+type ReturnType = Method.Server
+```
+
+## Parameters
+
+### canOffer (optional)
+
+- **Type:** `Method.CanOfferFn`
+
+Returns whether this offer is available when an HTTP handler composes multiple methods. Stripe's currency minimum runs before this hook.
+
+### client
+
+- **Type:** `StripeClient`
+
+Pre-configured Stripe SDK client. Provide either `client` or `secretKey`.
+
+### connect (optional)
+
+- **Type:** `ConnectSettlement | ((context) => MaybePromise<ConnectSettlement | undefined>)`
+
+Fixed or per-Credential Stripe Connect settlement policy. Properties are `applicationFeeAmount`, `onBehalfOf`, `stripeAccount`, `transferData`, and `transferGroup`.
+
+### html (optional)
+
+- **Type:** `{ createTokenUrl: string; publishableKey: string; ...Html.Config }`
+
+Renders a Stripe Elements payment form for browser requests. See the [payment links guide](/guides/payment-links).
+
+### metadata (optional)
+
+- **Type:** `Record<string, string>`
+
+Metadata included in the Challenge and attached to the Stripe `PaymentIntent`.
+
+### networkId
+
+- **Type:** `string`
+
+Stripe Business Network profile ID.
+
+### onPaymentSuccess (optional)
+
+- **Type:** `(parameters: { input?: Request; receipt: DeepReadonly<Receipt>; request: DeepReadonly<StripeChargeRequest> }) => MaybePromise<void>`
+
+Runs after this SPT payment succeeds. The hook receives the normalized request, its Receipt, and the HTTP input when available. Hook errors are isolated from payment handling.
+
+### paymentMethodTypes
+
+- **Type:** `string[]`
+
+Allowed Stripe payment method types, such as `['card', 'link']`.
+
+### secretKey
+
+- **Type:** `string`
+
+Stripe secret API key. Provide either `client` or `secretKey`.
+
+## Request parameters
+
+### amount
+
+- **Type:** `string`
+
+Payment amount in human-readable units.
+
+### currency
+
+- **Type:** `string`
+
+ISO currency code, such as `'usd'`.
+
+### decimals
+
+- **Type:** `number`
+
+Number of decimal places used to display the amount.
+
+### description (optional)
+
+- **Type:** `string`
+
+Human-readable description of the payment request.
+
+### externalId (optional)
+
+- **Type:** `string`
+
+External identifier bound to the Challenge and Credential.

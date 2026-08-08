@@ -1,138 +1,33 @@
-# `Method.stripe.charge` [One-time payments via Shared Payment Tokens]
+---
+description: "Migrate the deprecated Stripe charge constructor to the Stripe SPT constructor."
+imageDescription: "Migrate Stripe charge to SPT"
+---
 
-The `charge` intent for the Stripe payment method. Requests a one-time payment using [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens).
+# `stripe.charge` [Deprecated SPT constructor]
+
+Deprecated alias of [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt).
+
+Use `stripe.spt()` for server-side Shared Payment Token payments.
 
 ## Usage
 
-```ts twoslash
-
+```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { stripe } from 'mppx/server'
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-const mppx = Mppx.create({
-  methods: [stripe.charge({
-    client: stripeClient,
-    networkId: 'internal',
-    paymentMethodTypes: ['card'],
-  })],
+const method = stripe.spt({
+  client,
+  networkId: process.env.STRIPE_NETWORK_ID!,
+  paymentMethodTypes: ['card'],
 })
-
-export async function handler(request: Request) {
-  // [!code focus:start]
-  const response = await mppx.charge({
-    amount: '1',
-    currency: 'usd',
-    decimals: 2,
-    description: 'Premium API access',
-  })(request)
-  // [!code focus:end]
-
-  if (response.status === 402) return response.challenge
-  return response.withReceipt(Response.json({ data: '...' }))
-}
 ```
 
 ## Return type
 
-Returns a function that accepts a `Request` and returns a response object with payment status.
+See [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt#return-type).
 
-```ts
-type ReturnType = (request: Request) => Promise<
-  | { status: 402; challenge: Response }
-  | { status: 200; withReceipt: <T>(response: T) => T }
->
-```
+## Parameters
 
-## Configuration
-
-These parameters configure the `stripe.charge()` constructor. You must provide either `client` or `secretKey`.
-
-When an HTTP handler composes multiple offers, `mppx` excludes Stripe offers below Stripe's general minimum for known currencies before it calls your `canOffer` hook.
-
-### canOffer (optional)
-
-- **Type:** `Method.CanOfferFn`
-
-Returns whether this configured Stripe offer is available when an HTTP handler composes multiple offers. The hook receives the normalized, immutable payment request and a clone of the incoming `Request`.
-
-### client
-
-- **Type:** `StripeClient`
-
-Pre-configured Stripe SDK instance. Any object matching the duck-typed `StripeClient` shape works. Using `client` is recommended—it lets you configure retries, API version, and other options.
-
-```ts twoslash
-
-import Stripe from 'stripe'
-import { stripe } from 'mppx/server'
-
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
-const method = stripe.charge({
-  client: stripeClient, // [!code focus]
-  networkId: 'internal',
-  paymentMethodTypes: ['card'],
-})
-```
-
-### metadata (optional)
-
-- **Type:** `Record<string, string>`
-
-Key-value pairs forwarded to Stripe. Appears in the Challenge and attaches to the Stripe `PaymentIntent`.
-
-### networkId
-
-- **Type:** `string`
-
-Stripe [Business Network](https://docs.stripe.com/get-started/account/profile) profile ID.
-
-### paymentMethodTypes
-
-- **Type:** `string[]`
-
-Allowed Stripe payment method types (for example, `['card']`, `['card', 'link']`).
-
-### secretKey
-
-- **Type:** `string`
-
-Stripe secret API key. When provided instead of `client`, mppx makes raw API calls to Stripe.
-
-```ts twoslash
-import { stripe } from 'mppx/server'
-
-const method = stripe.charge({
-  networkId: 'internal',
-  paymentMethodTypes: ['card'],
-  secretKey: process.env.STRIPE_SECRET_KEY!, // [!code focus]
-})
-```
-
-## Request parameters
-
-### amount
-
-- **Type:** `string`
-
-Payment amount in human-readable units.
-
-### currency
-
-- **Type:** `string`
-
-ISO currency code (for example, `'usd'`).
-
-### decimals
-
-- **Type:** `number`
-
-Number of decimal places in the amount (for example, `2` for cents).
-
-### description (optional)
-
-- **Type:** `string`
-
-Human-readable description of the payment request.
+See [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt#parameters).

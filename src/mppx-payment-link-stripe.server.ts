@@ -5,7 +5,7 @@ const realm = process.env.REALM ?? "mpp.tempo.xyz";
 
 export const stripeMppx = Mppx.create({
   methods: [
-    stripe({
+    stripe.spt({
       html: {
         createTokenUrl: "/api/demo/create-spt",
         publishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!,

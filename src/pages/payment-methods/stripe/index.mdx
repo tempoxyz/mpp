@@ -1,18 +1,18 @@
 ---
-title: "Stripe payment method"
-description: "Use Stripe payment methods in MPP to accept cards, wallets, and other Stripe-supported payment methods."
-imageDescription: "Accept cards and wallets via Stripe"
+title: "Stripe payment methods"
+description: "Offer Stripe Shared Payment Tokens and stablecoins from one MPP server integration."
+imageDescription: "Accept Stripe and stablecoin payments"
 ---
 
 import { Cards } from 'vocs'
 import { StripeChargeCard } from '../../../components/cards'
 import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
-# Stripe [Cards, wallets, and other Stripe supported payment methods]
+# Stripe [Cards and stablecoins from one integration]
 
-The Stripe payment method enables payments using [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens)—tokens that allow a client to share a customer's payment method with your Stripe account, with configurable expiration and usage limits. SPTs provide you basic visibility into the payment method (such as card brand and last four digits), while keeping the customer's actual payment details separate.
+Use Stripe's machine-payments integration to offer Tempo stablecoins and [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) from one MPP server. Successful stablecoin payments are recorded in Stripe as `PaymentIntent` objects for unified reporting.
 
-Both the client and server need a Stripe account. The client creates an SPT using the Stripe API or Stripe.js, and the server consumes it to create a Stripe `PaymentIntent`.
+SPTs let a client share a customer's payment method with your Stripe account under configurable expiration and usage limits. The client creates an SPT through Stripe, and the server consumes it to create a `PaymentIntent`.
 
 ::::info[Stripe account setup]
 Machine payments must be enabled on your Stripe account before you can accept MPP payments. [Request access](https://docs.stripe.com/payments/machine#sign-up) through the Stripe Dashboard.
@@ -21,10 +21,34 @@ Machine payments must be enabled on your Stripe account before you can accept MP
 To learn more, read the [Stripe documentation](https://docs.stripe.com/payments/machine/mpp) on accepting MPP.
 
 ::::tip[For agents]
-Use the [Link CLI](/tools/wallet#link-cli) to pay for `stripe.charge` services from a Link wallet without writing integration code. `link-cli mpp pay` handles the full 402 → SPT → retry flow automatically.
+Use the [Link CLI](/tools/wallet#link-cli) to pay for `stripe` SPT services from a Link wallet without writing integration code. `link-cli mpp pay` handles the full 402 → SPT → retry flow automatically.
 ::::
 
-## How it works
+## Server integration
+
+Use [`stripe.create`](/sdk/typescript/server/Method.stripe.create) as the default server setup. It resolves your Tempo deposit address, registers Tempo and SPT charge methods, and records completed stablecoin payments in Stripe.
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { Mppx, stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const payments = stripe.create({
+  client,
+  livemode: false,
+  networkId: process.env.STRIPE_NETWORK_ID!,
+})
+
+const mppx = Mppx.create({
+  methods: await payments.defaultMethods(),
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+Use [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt) directly when you only accept SPT payments.
+
+## Shared Payment Token flow
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
