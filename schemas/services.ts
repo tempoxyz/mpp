@@ -1399,7 +1399,7 @@ export const services: ServiceDef[] = [
       llmsTxt: "https://leya.lawyer/llms-full.txt",
     },
     provider: { name: "Leya", url: "https://leya.lawyer" },
-    realm: "leya.lawyer",
+    realm: "api.leya.lawyer",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
     endpoints: [
