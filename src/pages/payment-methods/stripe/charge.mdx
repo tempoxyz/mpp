@@ -1,49 +1,45 @@
 ---
-description: "Accept one-time Stripe payments in MPP with Shared Payment Tokens and browser payment flows."
-imageDescription: "One-time card payments via Stripe"
+description: "Accept one-time payments through Stripe."
+imageDescription: "Accept one-time payments through Stripe"
 ---
 
 import { Cards } from 'vocs'
 import { SpecCard } from '../../../components/SpecCard'
 
-# Stripe SPT charge [One-time payments using Shared Payment Tokens]
+# Stripe charge [Accept one-time payments through Stripe]
 
 The Stripe implementation of the [charge](/intents/charge) intent.
 
-The client creates a [Shared Payment Token (SPT)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) and sends it as a Credential. The server creates a Stripe `PaymentIntent` using the SPT, and settlement completes through Stripe's payment rails.
+Use Stripe with MPP to accept stablecoin payments on Tempo and other networks alongside card and Link payments through [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens). The high-level TypeScript interface configures both methods and records successful payments as Stripe `PaymentIntents`.
 
-Use this method for single API calls, content access, or one-off purchases where you want to accept cards, wallets, or other Stripe-supported payment methods.
+::::info[Stripe prerequisites]
+Complete the eligibility and account prerequisites in the [Stripe MPP guide](https://docs.stripe.com/payments/machine/mpp) before you accept MPP payments.
+::::
 
 ## Server
 
-Use `stripe.spt` to require a one-time Stripe payment before returning a response. The method handles Challenge generation, Credential verification, PaymentIntent creation, and Receipt generation.
+Use [`stripe.create()`](/sdk/typescript/server/Method.stripe.create) to configure Stripe machine payments. By default, [`defaultMethods()`](/sdk/typescript/server/Method.stripe.create#defaultmethods) returns a Tempo charge method for stablecoins and a Stripe charge method for SPTs.
 
-You can provide either a `client` (a pre-configured Stripe SDK instance) or a raw `secretKey`. Using `client` is recommended — it lets you configure retries, API version, and other options on the Stripe instance you control.
-
-### With Stripe SDK client (recommended)
-
-```ts twoslash
-
+```ts twoslash [server.ts]
 import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/server'
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const payments = stripe.create({
+  client,
+  livemode: !process.env.STRIPE_SECRET_KEY!.includes('_test_'),
+  networkId: process.env.STRIPE_PROFILE_ID!,
+})
 
 const mppx = Mppx.create({
-  methods: [
-    stripe.spt({
-      client: stripeClient, // [!code hl]
-      networkId: 'internal',
-      paymentMethodTypes: ['card'],
-    }),
-  ],
+  methods: await payments.defaultMethods(),
+  secretKey: process.env.MPP_SECRET_KEY!,
 })
 
 export async function handler(request: Request) {
   const result = await mppx.charge({
-    amount: '1',
-    currency: 'usd',
-    decimals: 2,
+    amount: '0.50',
     description: 'Premium API access',
   })(request)
 
@@ -53,122 +49,64 @@ export async function handler(request: Request) {
 }
 ```
 
-### With secret key
+The default handler accepts stablecoins on Tempo or cards and Link through an SPT. If a request doesn't include payment, the server returns a Challenge for each method in its `402` response. The client retries with a Credential for one method. `mppx` creates and confirms a Stripe `PaymentIntent` for an SPT, or records the stablecoin payment as a `PaymentIntent` after on-chain settlement.
 
-If you don't need to customize the Stripe SDK instance, pass a `secretKey` directly and mppx makes raw API calls to Stripe.
+:::note
+Stripe requires a minimum charge of `0.50` USD (or equivalent) for card payments through SPTs. Stablecoin payments can use lower prices.
+:::
 
-```ts twoslash
-import { Mppx, stripe } from 'mppx/server'
+### Metadata
 
-const mppx = Mppx.create({
-  methods: [
-    stripe.spt({
-      secretKey: process.env.STRIPE_SECRET_KEY!, // [!code hl]
-      networkId: 'internal',
-      paymentMethodTypes: ['card'],
-    }),
-  ],
+Pass `metadata` to `stripe.create()` or an individual payment method, such as `stripe.spt.charge` or `stripe.tempo.charge`. Stripe attaches the key-value pairs to the `PaymentIntent` objects created or recorded by those methods.
+
+```ts [server.ts]
+const payments = stripe.create({
+  client,
+  livemode: !process.env.STRIPE_SECRET_KEY!.includes('_test_'),
+  metadata: { plan: 'pro' },
+  networkId: process.env.STRIPE_PROFILE_ID!,
 })
 ```
 
-### With metadata
+### Choose a charge method
 
-Include `metadata` in the `stripe.spt` configuration to forward key-value pairs to Stripe. The metadata appears in the Challenge and attaches to the Stripe `PaymentIntent`.
+Use an individual instance method when you don't want the complete set from [`defaultMethods()`](/sdk/typescript/server/Method.stripe.create#defaultmethods).
 
-```ts twoslash
+| Instance method | MPP method | Use |
+| --- | --- | --- |
+| `stripe.spt.charge` | `stripe/charge` | Card and Link charges through SPTs |
+| `stripe.tempo.charge` | [`tempo/charge`](/payment-methods/tempo/charge) | Stablecoin charges on Tempo |
+| `stripe.base.charge` | [`evm/charge`](/payment-methods/evm/charge) | Stablecoin charges on Base through MPP and x402 |
 
-import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+## `stripe.spt.charge`
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
-const mppx = Mppx.create({
-  methods: [
-    stripe.spt({
-      client: stripeClient,
-      metadata: { plan: 'pro' }, // [!code hl]
-      networkId: 'internal',
-      paymentMethodTypes: ['card'],
-    }),
-  ],
+```ts [server.ts]
+const method = stripe.spt.charge({
+  paymentMethodTypes: ['card', 'link'],
 })
 ```
 
-### With multiple payment method types
+### Advanced options
 
-Allow multiple payment methods, like cards and Link, by specifying them in `paymentMethodTypes`.
+Use the standalone [`stripe.spt()`](/sdk/typescript/server/Method.stripe.spt) constructor for lower-level configuration.
 
-```ts twoslash
+#### With payment links
 
-import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+Set `html` on the method to render a Stripe Elements payment form when a browser visits the endpoint. Programmatic clients with `Authorization` headers are unaffected.
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
-const mppx = Mppx.create({
-  methods: [
-    stripe.spt({
-      client: stripeClient,
-      networkId: 'internal',
-      paymentMethodTypes: ['card', 'link'], // [!code hl]
-    }),
-  ],
+```ts [server.ts]
+const method = stripe.spt({
+  client,
+  html: {
+    createTokenUrl: '/api/create-spt',
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY!,
+  },
+  networkId: process.env.STRIPE_PROFILE_ID!,
+  paymentMethodTypes: ['card'],
 })
 ```
 
-### Payment links
-
-Set `html` on the method to render a Stripe Elements payment form when a browser visits the endpoint.
-
-```ts twoslash
-
-import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
-
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
-const mppx = Mppx.create({
-  methods: [
-    stripe.spt({
-      client: stripeClient,
-      // [!code hl:start]
-      html: {
-        createTokenUrl: '/api/create-spt',
-        publishableKey: process.env.STRIPE_PUBLISHABLE_KEY!,
-      },
-      // [!code hl:end]
-      networkId: 'internal',
-      paymentMethodTypes: ['card'],
-    }),
-  ],
-})
-```
-
-### html.createTokenUrl
-
-- **Type:** `string`
-
-A same-origin URL on your server that accepts a `POST` with `{ paymentMethod, amount, currency, expiresAt }` and returns `{ spt: string }`. This is the same endpoint used by the [client-side `createToken` callback](#client).
-
-### html.publishableKey
-
-- **Type:** `string`
-
-Your Stripe publishable key (`pk_live_...` or `pk_test_...`), embedded in the payment page for Stripe.js initialization.
-
-Programmatic clients with `Authorization` headers are unaffected.
-
-See the [payment links guide](/guides/payment-links) for a full walkthrough and live demo.
-
-### Server parameters
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `client` | `StripeClient` | One of `client` or `secretKey` | Pre-configured Stripe SDK instance (`new Stripe(...)`) |
-| `secretKey` | `string` | One of `client` or `secretKey` | Stripe secret API key (mppx makes raw API calls) |
-| `metadata` | `Record<string, string>` | Optional | Key-value pairs forwarded to Stripe |
-| `networkId` | `string` | Required | Stripe [Business Network](https://docs.stripe.com/get-started/account/profile) profile ID |
-| `paymentMethodTypes` | `string[]` | Required | Allowed Stripe payment method types |
+See the [payment links guide](/guides/payment-links) for a complete browser flow.
 
 ## Client
 

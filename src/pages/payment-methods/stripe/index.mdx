@@ -10,15 +10,13 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Stripe [Cards and stablecoins from one integration]
 
-Use Stripe's machine-payments integration to offer Tempo stablecoins and [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) from one MPP server. Successful stablecoin payments are recorded in Stripe as `PaymentIntent` objects for unified reporting.
+Use Stripe's machine-payments integration to offer stablecoins (Tempo and others) and [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) from one MPP server. Successful stablecoin payments are recorded in Stripe as `PaymentIntent` objects for unified reporting.
 
 SPTs let a client share a customer's payment method with your Stripe account under configurable expiration and usage limits. The client creates an SPT through Stripe, and the server consumes it to create a `PaymentIntent`.
 
-::::info[Stripe account setup]
-Machine payments must be enabled on your Stripe account before you can accept MPP payments. [Request access](https://docs.stripe.com/payments/machine#sign-up) through the Stripe Dashboard.
+::::info[Stripe prerequisites]
+Complete the eligibility and account prerequisites in the [Stripe MPP guide](https://docs.stripe.com/payments/machine/mpp) before you accept MPP payments.
 ::::
-
-To learn more, read the [Stripe documentation](https://docs.stripe.com/payments/machine/mpp) on accepting MPP.
 
 ::::tip[For agents]
 Use the [Link CLI](/tools/wallet#link-cli) to pay for `stripe` SPT services from a Link wallet without writing integration code. `link-cli mpp pay` handles the full 402 → SPT → retry flow automatically.

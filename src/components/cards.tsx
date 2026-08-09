@@ -525,7 +525,7 @@ export function TempoSubscriptionCard() {
 export function StripeChargeCard() {
   return (
     <Card
-      description="One-time payment using Shared Payment Tokens (SPTs)"
+      description="One-time payments through Stripe"
       icon="lucide:credit-card"
       title="Charge"
       to="/payment-methods/stripe/charge"
