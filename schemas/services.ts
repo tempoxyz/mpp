@@ -6307,7 +6307,7 @@ export const services: ServiceDef[] = [
     docs: {
       homepage: "https://samedaydesk.com/x402",
       llmsTxt: "https://agents.samedaydesk.com/llms.txt",
-      apiReference: "https://agents.samedaydesk.com/openapi.json",
+      apiReference: "https://agents.samedaydesk.com/mpp-openapi.json",
     },
     provider: { name: "SameDayDesk", url: "https://samedaydesk.com" },
     realm: "agents.samedaydesk.com",
