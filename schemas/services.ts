@@ -6284,6 +6284,117 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── SameDayDesk ──────────────────────────────────────────────────────
+  {
+    id: "samedaydesk",
+    name: "SameDayDesk",
+    url: "https://samedaydesk.com",
+    serviceUrl: "https://agents.samedaydesk.com",
+    description:
+      "Deterministic paid APIs for web extraction, company and wallet intelligence, repository risk, agent-work economics, and Morpho decision evidence.",
+    icon: "https://samedaydesk.com/favicon.svg",
+    categories: ["blockchain", "data", "web"],
+    integration: "first-party",
+    tags: [
+      "agentic-payments",
+      "company-intelligence",
+      "defi",
+      "machine-commerce",
+      "repository-security",
+      "web-extraction",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://samedaydesk.com/x402",
+      llmsTxt: "https://agents.samedaydesk.com/llms.txt",
+      apiReference: "https://agents.samedaydesk.com/openapi.json",
+    },
+    provider: { name: "SameDayDesk", url: "https://samedaydesk.com" },
+    realm: "agents.samedaydesk.com",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /extract",
+        desc: "Extract structured metadata and readable content from a URL",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /read",
+        desc: "Read a URL as clean Markdown for LLM context",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /scan",
+        desc: "Scan a public GitHub repository for supply-chain risk",
+        amount: "200000",
+        unitType: "request",
+      },
+      {
+        route: "GET /schemaforge",
+        desc: "Generate structured-data markup and a ranked site fix list",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        route: "GET /enrich",
+        desc: "Enrich a domain with company, technology, contact, and DNS facts",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /wallet-enrich",
+        desc: "Profile a Base address using public on-chain data",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /deep-audit",
+        desc: "Audit a domain for company intelligence and AI-search readiness",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        route: "GET /defi/morpho-position",
+        desc: "Inspect and stress-test a Base Morpho borrower position",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /defi/morpho-protection",
+        desc: "Calculate deterministic Morpho position-protection actions",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "GET /defi/morpho-market-underwrite",
+        desc: "Underwrite a Base Morpho market with source-linked evidence",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        route: "GET /defi/morpho-preliquidation-replay",
+        desc: "Replay a historical Morpho PreLiquidation transaction",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "GET /work/opportunity-preflight",
+        desc: "Evaluate agent-work opportunity economics before execution",
+        amount: "50000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── ScreenshotOne ────────────────────────────────────────────────────
   {
     id: "screenshotone",
