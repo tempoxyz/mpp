@@ -6291,7 +6291,7 @@ export const services: ServiceDef[] = [
     url: "https://samedaydesk.com",
     serviceUrl: "https://agents.samedaydesk.com",
     description:
-      "Deterministic paid APIs for web extraction, company and wallet intelligence, repository risk, agent-work economics, machine-service discoverability, and Morpho decision evidence.",
+      "Deterministic paid APIs for web extraction, company and wallet intelligence, repository risk, agent-work economics, machine-service discoverability, payment-offer preflight, and Morpho decision evidence.",
     icon: "https://samedaydesk.com/favicon.svg",
     categories: ["blockchain", "data", "web"],
     integration: "first-party",
@@ -6396,6 +6396,12 @@ export const services: ServiceDef[] = [
         route: "GET /distribution/agent-discoverability-audit",
         desc: "Audit machine-service discovery rank and route coverage across agent catalogs",
         amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /commerce/payment-offer-preflight",
+        desc: "Normalize x402 and MPP terms before buyer authorization",
+        amount: "5000",
         unitType: "request",
       },
     ],
