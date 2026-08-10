@@ -11167,4 +11167,30 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── everstar (data-art prints) ──
+  {
+    id: "everstar-citymaps",
+    name: "everstar",
+    url: "https://everstar.loclx.io",
+    serviceUrl: "https://everstar.loclx.io",
+    description:
+      "Pay-per-render personalized art prints. City maps rendered from OpenStreetMap data and star maps from the Hipparcos catalog; receive a print-ready 300 DPI PNG (8x10, 11x14, 16x20, A3, A2).",
+    categories: ["media"],
+    integration: "third-party",
+    tags: ["maps", "art", "prints", "citymap", "starmap", "osm"],
+    docs: { homepage: "https://everstar.loclx.io" },
+    provider: { name: "everstar", url: "https://everstar.loclx.io" },
+    realm: "everstar.loclx.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /render",
+        desc: "Render a personalized city map or star map and return a print-ready PNG.",
+        amount: "250000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
