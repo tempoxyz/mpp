@@ -2,10 +2,6 @@ import { useEffect, useRef } from "react";
 import { type LottieAnimation, loadLottiePlayer } from "../../lib/lottie";
 import { cx } from "./cx";
 
-type LottieData = {
-  layers: Array<{ nm?: string }>;
-};
-
 export function LogoLottie({ className }: { className?: string }) {
   const animationRef = useRef<LottieAnimation | undefined>(undefined);
   const fallbackRef = useRef<HTMLImageElement>(null);
@@ -19,18 +15,13 @@ export function LogoLottie({ className }: { className?: string }) {
       loadLottiePlayer(),
       fetch("/lottie/02_MPP_Logo_Loading_Animation.json").then((response) => {
         if (!response.ok) throw new Error("Unable to load logo animation");
-        return response.json() as Promise<LottieData>;
+        return response.json();
       }),
     ])
       .then(([lottie, animationData]) => {
         if (cancelled || !hostRef.current) return;
         const animation = lottie.loadAnimation({
-          animationData: {
-            ...animationData,
-            layers: animationData.layers.filter(
-              (layer) => !layer.nm?.startsWith("Block "),
-            ),
-          },
+          animationData,
           autoplay: false,
           container: hostRef.current,
           loop: false,
@@ -45,7 +36,7 @@ export function LogoLottie({ className }: { className?: string }) {
           if (reduced) {
             animation.goToAndStop(animation.totalFrames - 1, true);
           } else {
-            animation.goToAndPlay(7, true);
+            animation.goToAndPlay(0, true);
           }
           window.dispatchEvent(new Event("mpp:logo-lines"));
         });
@@ -54,7 +45,7 @@ export function LogoLottie({ className }: { className?: string }) {
 
     const replay = () => {
       if (!reduced) {
-        animationRef.current?.goToAndPlay(7, true);
+        animationRef.current?.goToAndPlay(0, true);
         window.dispatchEvent(new Event("mpp:logo-lines"));
       }
     };

@@ -6,6 +6,7 @@ import {
   Fragment,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -79,6 +80,47 @@ export function timeAgo(iso: string) {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
+}
+
+const fullscreenMotion = {
+  duration: 300,
+  easing: "cubic-bezier(0.19, 1, 0.22, 1)",
+} as const;
+
+function animateFullscreenTransition(
+  terminal: HTMLElement,
+  fullscreenRect: DOMRect,
+  inlineRect: DOMRect,
+  opening: boolean,
+) {
+  const frames: Keyframe[] = [
+    {
+      clipPath: "inset(0px 0px 0px 0px)",
+      translate: "0px 0px",
+    },
+    {
+      clipPath: `inset(0px ${fullscreenRect.width - inlineRect.width}px ${fullscreenRect.height - inlineRect.height}px 0px)`,
+      translate: `${inlineRect.left - fullscreenRect.left}px ${inlineRect.top - fullscreenRect.top}px`,
+    },
+  ];
+  if (opening) frames.reverse();
+  const options: KeyframeAnimationOptions = opening
+    ? fullscreenMotion
+    : { ...fullscreenMotion, fill: "forwards" };
+  const animations = [terminal.animate(frames, options)];
+  const controls = terminal.querySelector<HTMLElement>("[data-term-controls]");
+  if (opening && controls) {
+    animations.push(
+      controls.animate(
+        [
+          { translate: `${inlineRect.width - fullscreenRect.width}px 0px` },
+          { translate: "0px 0px" },
+        ],
+        options,
+      ),
+    );
+  }
+  return animations;
 }
 
 // ---------------------------------------------------------------------------
@@ -2750,6 +2792,8 @@ function TerminalComponent({
   const [showTopFade, setShowTopFade] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isFullscreenClosing, setIsFullscreenClosing] = useState(false);
+  const fullscreenAnimationsRef = useRef<Animation[]>([]);
+  const inlineTerminalRectRef = useRef<DOMRect | null>(null);
   const isFullscreenClosingRef = useRef(false);
 
   useEffect(() => {
@@ -2768,31 +2812,87 @@ function TerminalComponent({
     if (portalContainer && inlineHost) inlineHost.append(portalContainer);
   }, [portalContainer]);
 
+  const finishFullscreenClose = useCallback(() => {
+    for (const animation of fullscreenAnimationsRef.current) {
+      animation.cancel();
+    }
+    fullscreenAnimationsRef.current = [];
+    isFullscreenClosingRef.current = false;
+    setIsFullscreen(false);
+    setIsFullscreenClosing(false);
+    moveTerminalInline();
+  }, [moveTerminalInline]);
+
   const closeFullscreen = useCallback(() => {
     if (!isFullscreen || isFullscreenClosingRef.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setIsFullscreen(false);
-      moveTerminalInline();
+    const terminal =
+      portalContainer?.querySelector<HTMLElement>("[data-terminal]");
+    const inlineRect = inlineTerminalRectRef.current;
+    if (
+      !terminal ||
+      !inlineRect ||
+      window.innerWidth < 1_000 ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      finishFullscreenClose();
       return;
     }
     isFullscreenClosingRef.current = true;
     setIsFullscreenClosing(true);
-    window.setTimeout(() => {
-      isFullscreenClosingRef.current = false;
-      setIsFullscreen(false);
-      setIsFullscreenClosing(false);
-      moveTerminalInline();
-    }, 300);
-  }, [isFullscreen, moveTerminalInline]);
+    for (const animation of fullscreenAnimationsRef.current) {
+      animation.cancel();
+    }
+    const animations = animateFullscreenTransition(
+      terminal,
+      terminal.getBoundingClientRect(),
+      inlineRect,
+      false,
+    );
+    fullscreenAnimationsRef.current = animations;
+    animations[0].onfinish = finishFullscreenClose;
+  }, [finishFullscreenClose, isFullscreen, portalContainer]);
   const openFullscreen = useCallback(() => {
     restoreFocusRef.current =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : fullscreenButtonRef.current;
+    const terminal =
+      portalContainer?.querySelector<HTMLElement>("[data-terminal]");
+    inlineTerminalRectRef.current = terminal?.getBoundingClientRect() ?? null;
     if (portalContainer) document.body.append(portalContainer);
     setIsFullscreen(true);
   }, [portalContainer]);
   const [isMarketingMinimized, setIsMarketingMinimized] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!isFullscreen || isFullscreenClosing || !portalContainer) return;
+    const terminal =
+      portalContainer.querySelector<HTMLElement>("[data-terminal]");
+    const inlineRect = inlineTerminalRectRef.current;
+    if (
+      !terminal ||
+      !inlineRect ||
+      window.innerWidth < 1_000 ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+    fullscreenAnimationsRef.current = animateFullscreenTransition(
+      terminal,
+      terminal.getBoundingClientRect(),
+      inlineRect,
+      true,
+    );
+  }, [isFullscreen, isFullscreenClosing, portalContainer]);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const clearInlineRect = () => {
+      inlineTerminalRectRef.current = null;
+    };
+    window.addEventListener("resize", clearInlineRect);
+    return () => window.removeEventListener("resize", clearInlineRect);
+  }, [isFullscreen]);
 
   useEffect(() => {
     if (!isFullscreen || !portalContainer) return;
@@ -3390,10 +3490,8 @@ function TerminalComponent({
             <button
               aria-label="Close terminal"
               className={
-                isFullscreen
-                  ? `terminal-fullscreen fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm ${
-                      isFullscreenClosing ? "is-closing" : ""
-                    }`
+                isFullscreen && !isFullscreenClosing
+                  ? "terminal-fullscreen fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm"
                   : "hidden"
               }
               onClick={closeFullscreen}
@@ -3412,9 +3510,7 @@ function TerminalComponent({
                 {...modalProps}
                 className={
                   isFullscreen
-                    ? `terminal-fullscreen-panel term-outline pointer-events-auto h-[min(85dvh,640px)] w-full max-w-[1080px] ${
-                        isFullscreenClosing ? "is-closing" : ""
-                      }`
+                    ? "terminal-fullscreen-panel term-outline pointer-events-auto h-[min(85dvh,640px)] w-full max-w-[1080px]"
                     : "h-full w-full"
                 }
                 tabIndex={isFullscreen ? -1 : undefined}

@@ -164,6 +164,23 @@ describe("terminal", () => {
 
     const modal = page.getByRole("dialog", { name: "MPP terminal" });
     await playwrightExpect(modal).toBeVisible();
+    const fullscreenTerminal = modal.locator("[data-terminal]");
+    await playwrightExpect(fullscreenTerminal).toHaveCSS(
+      "background-color",
+      "rgb(25, 25, 25)",
+    );
+    const openingFrames = await fullscreenTerminal.evaluate((element) =>
+      element
+        .getAnimations()
+        .at(-1)
+        ?.effect?.getKeyframes()
+        .map(({ clipPath, translate }) => ({ clipPath, translate })),
+    );
+    expect(openingFrames?.at(0)?.clipPath).not.toBe("inset(0px)");
+    expect(openingFrames?.at(-1)).toEqual({
+      clipPath: "inset(0px)",
+      translate: "0px",
+    });
     await playwrightExpect(prompt).toHaveValue("preserve this prompt");
     await playwrightExpect(
       page.getByRole("button", { name: "Close terminal", exact: true }),
@@ -211,6 +228,18 @@ describe("terminal", () => {
     ).toBe(true);
 
     await closeButton.click();
+    const closingFrames = await fullscreenTerminal.evaluate((element) =>
+      element
+        .getAnimations()
+        .at(-1)
+        ?.effect?.getKeyframes()
+        .map(({ clipPath, translate }) => ({ clipPath, translate })),
+    );
+    expect(closingFrames?.at(0)).toEqual({
+      clipPath: "inset(0px)",
+      translate: "0px",
+    });
+    expect(closingFrames?.at(-1)?.clipPath).not.toBe("inset(0px)");
     const enlargeButton = page.getByRole("button", {
       name: "Enlarge terminal",
       exact: true,

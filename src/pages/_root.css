@@ -151,36 +151,6 @@ button:not(:disabled),
   cursor: pointer;
 }
 
-.terminal-fullscreen {
-  animation: terminal-overlay-in 300ms cubic-bezier(0.19, 1, 0.22, 1) both;
-}
-
-.terminal-fullscreen-panel {
-  animation: terminal-modal-in 300ms cubic-bezier(0.19, 1, 0.22, 1) both;
-}
-
-.terminal-fullscreen.is-closing {
-  animation-direction: reverse;
-}
-
-.terminal-fullscreen-panel.is-closing {
-  animation-direction: reverse;
-}
-
-@keyframes terminal-overlay-in {
-  from {
-    background-color: rgb(0 0 0 / 0%);
-    backdrop-filter: blur(0);
-  }
-}
-
-@keyframes terminal-modal-in {
-  from {
-    opacity: 0;
-    transform: translate(18vw, 25vh) scale(0.55);
-  }
-}
-
 body.marketing-home {
   --marketing-footer-bg: #060606;
   background: #060606;
@@ -1824,7 +1794,7 @@ a[href*="/payment-methods/tempo"][class*="vocs:rounded-md"]
 .terminal-theme {
   /* Backgrounds */
   --term-bg1: light-dark(oklch(0.94 0 0), oklch(0.14 0 0));
-  --term-bg2: light-dark(oklch(1 0 0), oklch(0.15 0 0));
+  --term-bg2: light-dark(oklch(1 0 0), #191919);
 
   /* Gray Scale — dark values tuned for darker --term-bg2 */
   --term-gray1: light-dark(oklch(0.955 0 0), oklch(0.18 0 0));
@@ -3017,7 +2987,7 @@ nav[data-v-sidebar] button,
 .services-agent-discovery {
   box-sizing: border-box;
   margin: 0 auto;
-  max-width: 1600px;
+  max-width: 1728px;
   padding: 0 3rem 5rem;
   width: 100%;
 }
