@@ -114,7 +114,7 @@ $ mppx account list --format json
 
 ## Init command
 
-Create an `mppx.config.ts` file in the current directory:
+Create an `mppx.config.*` file in the current directory. The CLI uses `.ts` when it finds `tsconfig.json`, `.mjs` for an ESM package, and `.js` otherwise:
 
 ```bash [terminal]
 $ mppx init

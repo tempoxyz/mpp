@@ -58,7 +58,7 @@ let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?
 For automatic `402` handling on all requests, use `PaymentMiddleware` with `reqwest-middleware`. Requires the `middleware` feature.
 
 ```toml
-mpp = { version = "0.10.3", features = ["tempo", "client", "middleware"] }
+mpp = { version = "0.11", features = ["tempo", "client", "middleware"] }
 ```
 
 ```rust

@@ -16,7 +16,7 @@ Agents need a wallet to pay for MPP-enabled services. Choose the wallet that fit
 | [AgentCash](#agentcash) | Discover and use 300+ premium APIs via MPP | `tempo` | `npx agentcash onboard` |
 | [Link CLI](#link-cli) | Stripe payments via Link wallet | `stripe` | `link-cli auth login` |
 | [Kite Passport](#kite-passport) | Agent wallets with owner-set spend guardrails + multi-chain settlement | `tempo` | `kpass login init` |
-| [`mppx` CLI](#mppx) | Development and debugging | All | `mppx account create` |
+| [`mppx` CLI](#mppx) | Development and debugging | `tempo`, `stripe` | `mppx account create` |
 
 ## Tempo Wallet 
 
@@ -358,12 +358,12 @@ $ mppx https://mpp.dev/api/ping/paid
 
 ::::
 
-**Supported methods:** <Badge variant="info">tempo.charge</Badge> <Badge variant="info">tempo.session</Badge> <Badge variant="info">stripe.charge</Badge> <Badge variant="info">solana.charge</Badge>
+**Built-in methods:** <Badge variant="info">stripe.charge</Badge> <Badge variant="info">tempo.charge</Badge> <Badge variant="info">tempo.session</Badge>
 
 **Key features:**
 
 - **Zero config**—create an account and start making paid requests immediately
-- **All payment methods**—supports every payment method implemented in the `mppx` SDK
+- **Custom payment methods**—load additional client methods or CLI plugins from `mppx.config.ts`, `mppx.config.mjs`, or `mppx.config.js`
 - **Local keychain**—private keys stored in the OS keychain, configurable via `MPPX_PRIVATE_KEY` env var
 - **Development-first**—designed for testing and debugging MPP integrations
 

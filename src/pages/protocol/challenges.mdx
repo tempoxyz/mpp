@@ -86,7 +86,7 @@ Clients select one based on their capabilities and submit a single Credential.
 ## Challenge binding
 
 :::warning[Security requirement]
-Challenges must be cryptographically bound to their parameters through the `id` field. This prevents clients from reusing a Challenge ID with modified payment terms.
+Servers must bind the `id` to the expected Challenge parameters. Use stateful storage or stateless cryptographic verification to prevent clients from reusing an ID with modified payment terms.
 :::
 
 Typical binding includes:
@@ -99,7 +99,7 @@ Typical binding includes:
 
 For HMAC-bound IDs, the canonical input sequence is `realm | method | intent | request | expires | digest | opaque`. When `expires`, `digest`, or `opaque` is absent, use an empty string for that slot.
 
-Use an [HMAC-bound](https://en.wikipedia.org/wiki/HMAC) Challenge ID to prevent clients from reusing a Challenge ID with modified payment terms.
+For stateless verification, use an [HMAC-bound](https://en.wikipedia.org/wiki/HMAC) Challenge ID. Stateful servers can store the expected Challenge parameters by ID and compare them when verifying the Credential.
 
 ## Learn more
 

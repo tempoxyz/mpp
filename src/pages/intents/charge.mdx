@@ -56,11 +56,12 @@ The charge intent defines the following request fields:
 | `amount` | string | Required | Payment amount in base units |
 | `currency` | string | Required | Currency identifier (token address, currency code) |
 | `description` | string | Optional | Human-readable description of the payment |
-| `expires` | string | Optional | ISO 8601 expiry timestamp |
 | `externalId` | string | Optional | Server-defined idempotency key |
 | `recipient` | string | Optional | Recipient identifier (address, account ID) |
 
 Payment methods extend this schema with method-specific fields through `methodDetails`. For example, Tempo adds `chainId` and `feePayer`.
+
+Set Challenge expiry with the `expires` auth-param in `WWW-Authenticate`. Don't include it in the request object.
 
 ## Method integrations
 

@@ -16,7 +16,7 @@ The `Payment-Receipt` header is optional. Servers typically include it for audit
 
 ```http
 HTTP/1.1 200 OK
-Payment-Receipt: eyJzdGF0dXMiOiJzdWNjZXNzIiwibWV0aG9kIjoidGVtcG8iLCJ0aW1lc3RhbXAiOiIyMDI1LTAxLTE1VDEyOjAwOjAwWiJ9
+Payment-Receipt: eyJtZXRob2QiOiJ0ZW1wbyIsInJlZmVyZW5jZSI6IjB4Nzg5YWJjLi4uIiwic3RhdHVzIjoic3VjY2VzcyIsInRpbWVzdGFtcCI6IjIwMjUtMDEtMTVUMTI6MDA6MDBaIn0
 Content-Type: application/json
 
 { "data": "Payment received." }
@@ -28,13 +28,8 @@ The Receipt is a base64url-encoded JSON object.
 
 ```json
 {
-  "challengeId": "qB3wErTyU7iOpAsD9fGhJk",
   "method": "tempo",
-  "reference": "0xtx789abc...",
-  "settlement": {
-    "amount": "1000",
-    "currency": "usd"
-  },
+  "reference": "0x789abc...",
   "status": "success",
   "timestamp": "2025-01-15T12:00:00Z"
 }
@@ -44,12 +39,12 @@ The Receipt is a base64url-encoded JSON object.
 
 | Field | Description |
 |-------|-------------|
-| `challengeId` | The Challenge this Receipt responds to |
 | `method` | Payment method used |
 | `reference` | Method-specific payment reference (for example, transaction hash or invoice ID) |
-| `settlement` | Actual amount and currency settled |
 | `status` | Payment outcome (`success`) |
 | `timestamp` | When the payment was processed |
+
+Payment method specifications can define additional fields.
 
 ## Use cases
 

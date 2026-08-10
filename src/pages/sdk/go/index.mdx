@@ -24,7 +24,7 @@ $ go get github.com/tempoxyz/mpp-go
 
 ## Requirements
 
-- Go 1.21+
+- Go 1.26+
 - `go-ethereum` for Tempo signing
 
 ## Quick start
@@ -112,6 +112,7 @@ func main() {
 | `pkg/mpp` | Core protocol primitives (Challenge, Credential, Receipt) |
 | `pkg/server` | Server-side payment handler and middleware |
 | `pkg/server/echo` | Echo framework middleware |
+| `pkg/server/fiber` | Fiber framework middleware |
 | `pkg/server/gin` | Gin framework middleware |
 | `pkg/tempo/client` | Tempo charge client method |
 | `pkg/tempo/server` | Tempo charge server method |
