@@ -3,17 +3,11 @@ description: "Add payment-gated access to your API with mppx. Accept stablecoins
 imageDescription: "Charge for your API in a few lines of code"
 ---
 
-import { SigningAccountTabs } from '../../components/SigningAccountTabs'
-import { Badge, Cards } from 'vocs'
+import { Cards } from 'vocs'
 import { ServerPrompt } from '../../components/QuickstartPrompt'
 import { ClientQuickstartCard, MppxCreateReferenceCard } from '../../components/cards'
 
 # Add payments to your API [Charge for access to protected resources]
-
-## Choose a signing account
-
-<SigningAccountTabs />
-
 
 ## Overview
 
@@ -30,7 +24,7 @@ Paste this into your coding agent to set up a server with `mppx` in one prompt:
 <ServerPrompt />
 
 :::warning[Set `MPP_SECRET_KEY` before you start]
-`Mppx.create()` reads `MPP_SECRET_KEY` by default. Store it in your platform secret manager, keep it server-side, and never log it. See [Security](/advanced/security).
+You generate `MPP_SECRET_KEY`; run `openssl rand -hex 32` to create one. `Mppx.create()` reads it by default. Store it in your platform secret manager, keep it server-side, and never log it. See [Security](/advanced/security).
 :::
 
 ## Framework mode
@@ -47,6 +41,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -68,6 +63,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -89,6 +85,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -112,6 +109,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -152,6 +150,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -203,6 +202,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -243,6 +243,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     mode: 'push', // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -263,6 +264,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     feePayer: privateKeyToAccount('0x…'), // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -278,6 +280,7 @@ const mppx = Mppx.create({
     currency: '0x20c0000000000000000000000000000000000000',
     feePayer: 'https://sponsor.example.com', // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -294,6 +297,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
     waitForConfirmation: false, // [!code focus]
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
@@ -319,6 +323,7 @@ const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    testnet: false,
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
@@ -347,6 +352,8 @@ $ npx mppx validate <your-server>
 
 The command tests discovery, challenge formats, error handling, and the full payment flow. We recommend addressing all noted issues to make it easy for agents to pay your server.
 
+Set `testnet: true` in `tempo.charge()` while testing so `npx mppx validate` and `npx mppx` use testnet out of the box.
+
 You can also test each step individually:
 
 ```bash [terminal]
@@ -356,10 +363,6 @@ $ npx mppx account create
 # Make a paid request
 $ npx mppx <your-server>/resource
 ```
-
-:::tip
-Use `npx mppx --inspect` to debug your server's Challenge response without making any payments.
-:::
 
 ## Next steps
 
