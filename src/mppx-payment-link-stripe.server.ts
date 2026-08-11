@@ -10,7 +10,7 @@ export const stripeMppx = Mppx.create({
         createTokenUrl: "/api/demo/create-spt",
         publishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!,
       },
-      networkId: process.env.STRIPE_NETWORK_ID ?? "internal",
+      networkId: process.env.STRIPE_NETWORK_ID!,
       paymentMethodTypes: ["card"],
       secretKey: process.env.STRIPE_SECRET_KEY!,
     }),
