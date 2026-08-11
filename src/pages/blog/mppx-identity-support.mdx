@@ -1,0 +1,85 @@
+---
+layout: minimal
+title: "Expanding Identity Support in mppx"
+outline: false
+showAskAi: false
+showFeedback: false
+showSearch: false
+description: "Verify agent identity across HTTP requests and payment retries with mppx."
+imageDescription: "Verify agent identity across HTTP requests"
+publishedAt: "2026-08-11"
+---
+
+# Expanding Identity Support in mppx [Verify agent identity before or during payment]
+
+[`mppx`](/sdk/typescript) now lets agents leverage protocols such as [Web Bot Auth](https://datatracker.ietf.org/doc/html/draft-meunier-http-message-signatures-directory-03) and the [Trusted Agent Protocol](https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications/) in order to easily identify themselves to downstream services. Agent identity travels with the request, including automatic MPP retries, so servers can apply their own trust and access policies. MPP leaves the choice of identity protocol to the application and is extensible by design to support a multitude of identity protocols alongside the core payment flow.
+
+## Signed identity on every request
+
+When configured, the `mppx` agent SDK signs the initial request and each paid retry using [RFC 9421 HTTP Message Signatures](https://www.rfc-editor.org/rfc/rfc9421). Each [request attestation](/advanced/identity#request-attestation) carries a fresh timestamp and nonce, and the server verifies it before issuing a Challenge or accepting a Credential.
+
+The first two request-attestation profiles implemented in `mppx` are:
+
+- **[Web Bot Auth](https://datatracker.ietf.org/doc/html/draft-meunier-web-bot-auth-architecture)** identifies an automated client through a signed `Signature-Agent` value and a trusted HTTPS directory.
+- **[TAP](https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications/)** carries agent identity and `browse` or `payment` intent from a trusted provider.
+
+### Agents
+
+On the client, configure Web Bot Auth, TAP, or both through [`Mppx.create`](/sdk/typescript/client/Mppx.create):
+
+```ts [client.ts]
+import * as Tap from 'mppx/attestation/tap'
+import * as WebBotAuth from 'mppx/attestation/web-bot-auth'
+import { Mppx, tempo } from 'mppx/client'
+
+const client = Mppx.create({
+  attestation: {
+    tap: Tap.Client.signer({
+      intent: 'payment',
+      key: tapPrivateKey,
+      keyId: tapKeyId,
+    }),
+    webBotAuth: WebBotAuth.Client.signer({
+      key: webBotAuthPrivateKey,
+      keyId: webBotAuthKeyId,
+      signatureAgent: 'https://bot.example',
+    }),
+  },
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+```
+
+### Servers
+
+The server configures matching verifiers when constructing the core MPP server. Each verifier resolves keys from an application-selected trust source. The [generic attestation framework](/advanced/identity#use-the-framework-directly) also supports third-party identity protocols through its lower-level Client and Server APIs.
+
+```ts [server.ts]
+import * as Tap from 'mppx/attestation/tap'
+import * as WebBotAuth from 'mppx/attestation/web-bot-auth'
+import { Mppx, tempo } from 'mppx/server'
+
+const server = Mppx.create({
+  attestation: {
+    tap: Tap.Server.verifier({
+      keyResolver: resolveTapKey,
+      nonceStore,
+    }),
+    webBotAuth: WebBotAuth.Server.verifier({
+      keyResolver: resolveWebBotAuthKey,
+      nonceStore,
+    }),
+  },
+  methods: [tempo.charge()],
+})
+```
+
+## Extensible identity
+
+`mppx` was built around a protocol-neutral, extensible [attestation framework](/advanced/identity#use-the-framework-directly). Web Bot Auth and TAP are the first supported profiles, but more can be added with a Client signer and matching Server verifier through `Attestation.Client` and `Attestation.Server`. Each profile can carry identity on the initial HTTP request and every automatic MPP retry. The Server verifies the result for application policy, while the MPP payment flow stays unchanged.
+
+## Learn more
+
+- [Web Bot Auth](https://datatracker.ietf.org/doc/html/draft-meunier-http-message-signatures-directory-03)
+- [Trusted Agent Protocol (TAP)](https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications/)
+- [Identity in MPP](/advanced/identity)
