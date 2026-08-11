@@ -2321,6 +2321,8 @@ html[data-route-transition] [data-v-main] {
   margin-top: 2.5rem;
 }
 .blog-narrow > h2 + p,
+.blog-narrow > h2 + ul,
+.blog-narrow > h2 + ol,
 .blog-narrow > p + p,
 .blog-narrow > p + ul,
 .blog-narrow > p + ol,
