@@ -1,6 +1,6 @@
 ---
 layout: minimal
-title: "Expanding Identity Support in mppx"
+title: "Expanding identity support in mppx"
 outline: false
 showAskAi: false
 showFeedback: false
@@ -10,7 +10,7 @@ imageDescription: "Verify agent identity across HTTP requests"
 publishedAt: "2026-08-11"
 ---
 
-# Expanding Identity Support in mppx [Verify agent identity before or during payment]
+# Expanding identity support in mppx [Verify agent identity before or during payment]
 
 [`mppx`](/sdk/typescript) now lets agents leverage protocols such as [Web Bot Auth](https://datatracker.ietf.org/doc/html/draft-meunier-http-message-signatures-directory-03) and the [Trusted Agent Protocol](https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications/) in order to easily identify themselves to downstream services. Agent identity travels with the request, including automatic MPP retries, so servers can apply their own trust and access policies. MPP leaves the choice of identity protocol to the application and is extensible by design to support a multitude of identity protocols alongside the core payment flow.
 
