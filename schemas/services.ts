@@ -6291,7 +6291,7 @@ export const services: ServiceDef[] = [
     url: "https://samedaydesk.com",
     serviceUrl: "https://agents.samedaydesk.com",
     description:
-      "Deterministic paid APIs for web extraction, company and wallet intelligence, repository risk, agent-work economics, machine-service discoverability, payment-offer preflight, and Morpho decision evidence.",
+      "Deterministic paid APIs for web and wallet intelligence, machine-service discovery and integrity, payment evidence, delegated-wallet policy checks, agent-work economics, and Morpho decision evidence.",
     icon: "https://samedaydesk.com/favicon.svg",
     categories: ["blockchain", "data", "web"],
     integration: "first-party",
@@ -6300,6 +6300,7 @@ export const services: ServiceDef[] = [
       "company-intelligence",
       "defi",
       "machine-commerce",
+      "payment-integrity",
       "repository-security",
       "web-extraction",
     ],
@@ -6323,13 +6324,13 @@ export const services: ServiceDef[] = [
       {
         route: "GET /extract",
         desc: "Extract structured metadata and readable content from a URL",
-        amount: "50000",
+        amount: "5000",
         unitType: "request",
       },
       {
         route: "GET /read",
         desc: "Read a URL as clean Markdown for LLM context",
-        amount: "50000",
+        amount: "5000",
         unitType: "request",
       },
       {
@@ -6393,6 +6394,12 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
+        route: "POST /work/opportunity-preflight",
+        desc: "Evaluate agent-work opportunity economics from a JSON request",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
         route: "GET /distribution/agent-discoverability-audit",
         desc: "Audit machine-service discovery rank and route coverage across agent catalogs",
         amount: "50000",
@@ -6400,8 +6407,56 @@ export const services: ServiceDef[] = [
       },
       {
         route: "GET /commerce/payment-offer-preflight",
-        desc: "Normalize x402 and MPP terms before buyer authorization",
+        desc: "Normalize payment terms and seller response readiness before authorization",
         amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /commerce/payment-offer-preflight",
+        desc: "Normalize payment terms and seller response readiness from JSON input",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /commerce/seller-integrity-audit",
+        desc: "Audit one exact seller route and return bounded repair actions",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /commerce/contract-qualified-search",
+        desc: "Find machine services that guarantee buyer-required output paths",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /commerce/settlement-proof",
+        desc: "Verify an exact claimed Base USDC settlement onchain",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /chain/transaction-receipt",
+        desc: "Normalize a Base or Ethereum receipt and ERC-20 transfers",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "GET /chain/solana-transaction-receipt",
+        desc: "Normalize a finalized Solana receipt and SPL-token deltas",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "POST /security/wallet-policy-conformance",
+        desc: "Evaluate delegated-wallet policy conformance from safe observations",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /security/stateful-wallet-policy-conformance",
+        desc: "Evaluate sequential delegated-wallet limit enforcement",
+        amount: "10000",
         unitType: "request",
       },
     ],
