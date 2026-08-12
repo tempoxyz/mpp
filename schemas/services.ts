@@ -6406,6 +6406,12 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
+        route: "GET /distribution/agent-surface-budget-audit",
+        desc: "Measure MCP and OpenAPI context burden and return progressive-discovery fixes",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
         route: "GET /commerce/payment-offer-preflight",
         desc: "Normalize payment terms and seller response readiness before authorization",
         amount: "5000",
