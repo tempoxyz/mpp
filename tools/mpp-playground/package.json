@@ -1,0 +1,32 @@
+{
+  "name": "mpp-playground",
+  "version": "1.0.0",
+  "description": "Interactive Machine Payments Protocol (MPP) Playground and AI Agent Payment Simulator for Stripe & Tempo ecosystems.",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "mpp-cli": "./bin/mpp-cli.js"
+  },
+  "scripts": {
+    "start": "node src/server/studio.js",
+    "cli": "node bin/mpp-cli.js",
+    "test": "node tests/run-all.js"
+  },
+  "keywords": [
+    "mpp",
+    "machine-payments-protocol",
+    "tempo",
+    "stripe",
+    "ai-agent-payments",
+    "http-402",
+    "micropayments"
+  ],
+  "author": "Tempo & Stripe MPP Community",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "ethers": "^6.13.5",
+    "express": "^4.21.2"
+  }
+}
