@@ -29,7 +29,7 @@ const challenge = Challenge.deserialize(header, { methods: [Methods.charge] })
 type ReturnType = Challenge
 ```
 
-The deserialized Challenge object. `mppx` decodes `request` and `opaque` from their base64url-encoded JCS strings back to structured values. If the serialized header contains an `opaque` parameter, the parsed value is accessible via `Challenge.meta`.
+The deserialized Challenge object. Auth-param names are case-insensitive. `mppx` decodes `request` from its base64url-encoded JCS string. The `opaque` auth-param remains unchanged on `Challenge.opaque`; `Challenge.deserialize` doesn't expand it into `Challenge.meta`.
 
 ## Parameters
 

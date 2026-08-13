@@ -42,8 +42,8 @@ importers:
         specifier: ^11.15.0
         version: 11.15.0
       mppx:
-        specifier: 0.0.0-main-20260808155255
-        version: 0.0.0-main-20260808155255(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3))
+        specifier: 0.8.17
+        version: 0.8.17(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3))
       nuqs:
         specifier: 2.9.1
         version: 2.9.1(react@19.2.7)
@@ -1765,8 +1765,8 @@ packages:
   '@stitches/core@1.2.8':
     resolution: {integrity: sha512-Gfkvwk9o9kE9r9XNBmJRfV8zONvXThnm1tcuojL04Uy5uRyqg93DC83lDebl0rocZCfKSjUv+fWYtMQmEDJldg==}
 
-  '@stripe/stripe-js@9.12.0':
-    resolution: {integrity: sha512-wCUYZNYo7E/6B3Rv2i/g/Rmj2mTiOX6HEwWYUWUuNUKwEhzTo/SXuQ1IoNo3mknWIHUQyqdakv1Nl2SiYPrCrw==}
+  '@stripe/stripe-js@9.12.1':
+    resolution: {integrity: sha512-KLXPvjA0BfS4dQnW+ddHjwtIXMnIfKYxqmeNMmQCfKjvYog0cSG+Z7ZvK4RH1+bV90GC07nUztWDRWmJLi5HZQ==}
     engines: {node: '>=12.16'}
 
   '@stripe/stripe-js@9.7.0':
@@ -4095,15 +4095,15 @@ packages:
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
 
-  mppx@0.0.0-main-20260808155255:
-    resolution: {integrity: sha512-Fcxj7wrh+dHtsZoi1K7kWUa3tKsgpLZxOOkxLrI2gGU1lFPUQb3Yvpx0Q/ra9UADgye3WtPuFldPucUuBOzVbw==}
+  mppx@0.7.0:
+    resolution: {integrity: sha512-qOHQjD75wSHSZeXutngPXou8NEMIOw6RhZ/lQbo2JmDQWfOi40pLGpqXgHgwIjw4YcJHClFsI7mFXBK3Nj5WCQ==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
       elysia: '>=1'
       express: '>=5'
-      hono: '>=4.12.25'
-      viem: '>=2.54.0'
+      hono: '>=4.12.18'
+      viem: '>=2.51.0'
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
         optional: true
@@ -4114,15 +4114,15 @@ packages:
       hono:
         optional: true
 
-  mppx@0.7.0:
-    resolution: {integrity: sha512-qOHQjD75wSHSZeXutngPXou8NEMIOw6RhZ/lQbo2JmDQWfOi40pLGpqXgHgwIjw4YcJHClFsI7mFXBK3Nj5WCQ==}
+  mppx@0.8.17:
+    resolution: {integrity: sha512-6cfaqzsiMh947CqPJPnJBwUJv4yveRRIA52PrxEjNM/36Le7sOpKG9fh5PU9fmTEkfjf0O5vFPGo4tx6tlrRUw==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
       elysia: '>=1'
       express: '>=5'
-      hono: '>=4.12.18'
-      viem: '>=2.51.0'
+      hono: '>=4.12.25'
+      viem: '>=2.54.0'
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
         optional: true
@@ -7036,7 +7036,7 @@ snapshots:
 
   '@stitches/core@1.2.8': {}
 
-  '@stripe/stripe-js@9.12.0': {}
+  '@stripe/stripe-js@9.12.1': {}
 
   '@stripe/stripe-js@9.7.0': {}
 
@@ -9700,13 +9700,11 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mppx@0.0.0-main-20260808155255(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
+  mppx@0.7.0(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
-      '@stripe/stripe-js': 9.12.0
-      eventsource-parser: 3.1.0
+      '@stripe/stripe-js': 9.7.0
       incur: 0.4.26
       ox: 0.14.33(typescript@6.0.3)(zod@4.4.3)
-      structured-headers: 2.0.3
       viem: 2.54.0(typescript@6.0.3)(zod@4.4.3)
       zod: 4.4.3
     optionalDependencies:
@@ -9716,11 +9714,13 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  mppx@0.7.0(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
+  mppx@0.8.17(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
-      '@stripe/stripe-js': 9.7.0
+      '@stripe/stripe-js': 9.12.1
+      eventsource-parser: 3.1.0
       incur: 0.4.26
       ox: 0.14.33(typescript@6.0.3)(zod@4.4.3)
+      structured-headers: 2.0.3
       viem: 2.54.0(typescript@6.0.3)(zod@4.4.3)
       zod: 4.4.3
     optionalDependencies:

@@ -84,6 +84,8 @@ const receipt = await session.close()
 Channels remain open until you call `session.close()`. Close sessions when done to settle on-chain and reclaim unspent deposit.
 :::
 
+If the server refreshes the Challenge during close, the manager signs the refreshed accepted cumulative amount. It rejects a close Receipt with an invalid amount, spend below the latest locally confirmed amount, or spend above the signed cumulative amount.
+
 ### With SSE streaming
 
 Stream server-sent events with automatic voucher handling. The manager signs incremental vouchers as the server requests more payment during the stream.

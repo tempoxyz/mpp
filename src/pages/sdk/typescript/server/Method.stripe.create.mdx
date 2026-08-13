@@ -20,6 +20,7 @@ const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 const payments = stripe.create({
   client,
   livemode: false,
+  metadata: { plan: 'pro' },
   networkId: process.env.STRIPE_NETWORK_ID!,
 })
 
@@ -114,11 +115,13 @@ type StripeMachinePayments = {
 
 `defaultMethods()` returns Tempo charge followed by SPT charge. Chain `.additional({ ... })` before awaiting to add Base charge, Tempo session, or a Solana method factory.
 
+Stripe-managed stablecoin charge methods created directly or through `.additional()` require at least `0.01` USD. Below that amount, `mppx` excludes the method before returning a Challenge. Tempo sessions don't use this minimum.
+
 ## Returned methods
 
 ### base.charge
 
-Creates a Base x402 charge method for a Stripe Base deposit address. Pass the branded address from `findOrCreateDepositAddress('base')` and an x402 facilitator configuration.
+Creates a Base x402 charge method for a Stripe Base deposit address. Pass the branded address from `findOrCreateDepositAddress('base')` and an x402 facilitator configuration. Pass `metadata` to add or override Stripe `PaymentIntent` metadata for this method.
 
 ### defaultMethods
 
@@ -136,7 +139,7 @@ Creates an SPT charge method. `paymentMethodTypes` defaults to `['card', 'link']
 
 ### tempo.charge
 
-Creates a Tempo charge method for a Stripe deposit address. Currency and network derive from `livemode`.
+Creates a Tempo charge method for a Stripe deposit address. Currency and network derive from `livemode`. Pass `metadata` to add or override Stripe `PaymentIntent` metadata for this method.
 
 ### tempo.session
 
@@ -167,6 +170,12 @@ Static deposit addresses or an asynchronous resolver. By default, `mppx` finds o
 - **Type:** `boolean`
 
 Selects live or test networks and currencies for built-in stablecoin methods.
+
+### metadata (optional)
+
+- **Type:** `Record<string, string>`
+
+Key-value pairs attached to Stripe `PaymentIntent` objects created or recorded by SPT and stablecoin charge methods. Per-method `metadata` on `base.charge()` or `tempo.charge()` overrides matching keys.
 
 ### networkId
 

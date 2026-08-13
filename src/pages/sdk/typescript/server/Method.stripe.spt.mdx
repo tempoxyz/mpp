@@ -39,6 +39,8 @@ export async function handler(request: Request) {
 }
 ```
 
+`mppx` derives each Stripe `PaymentIntent` idempotency key from the Challenge ID and SPT, using the SDK-independent `mpp_` prefix.
+
 ### With Stripe Connect
 
 Set a fixed settlement policy or return one from a resolver for each verified Credential.

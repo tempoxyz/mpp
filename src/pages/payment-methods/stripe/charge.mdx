@@ -52,12 +52,12 @@ export async function handler(request: Request) {
 The default handler accepts stablecoins on Tempo or cards and Link through an SPT. If a request doesn't include payment, the server returns a Challenge for each method in its `402` response. The client retries with a Credential for one method. `mppx` creates and confirms a Stripe `PaymentIntent` for an SPT, or records the stablecoin payment as a `PaymentIntent` after on-chain settlement.
 
 :::note
-Stripe requires a minimum charge of `0.50` USD (or equivalent) for card payments through SPTs. Stablecoin payments can use lower prices.
+Stripe requires a minimum charge of `0.50` USD (or equivalent) for card payments through SPTs. Stripe-managed stablecoin charge methods require at least `0.01` USD because Stripe can't record sub-cent `PaymentIntent` amounts. `mppx` excludes methods below these limits before returning a Challenge.
 :::
 
 ### Metadata
 
-Pass `metadata` to `stripe.create()` or an individual payment method, such as `stripe.spt.charge` or `stripe.tempo.charge`. Stripe attaches the key-value pairs to the `PaymentIntent` objects created or recorded by those methods.
+Pass `metadata` to `stripe.create()` to attach key-value pairs to `PaymentIntent` objects created or recorded by its SPT and stablecoin charge methods. Pass `metadata` to an individual `payments.base.charge()` or `payments.tempo.charge()` call to add or override keys for that method. For a standalone SPT method, pass `metadata` to `stripe.spt()`.
 
 ```ts [server.ts]
 const payments = stripe.create({
