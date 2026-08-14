@@ -433,6 +433,10 @@ export default defineConfig({
             link: "/partner-integrations/openclaw",
           },
           {
+            text: "Peer Cash",
+            link: "/partner-integrations/peer-cash",
+          },
+          {
             text: "Vercel AI SDK",
             link: "/partner-integrations/vercel-ai-sdk",
           },

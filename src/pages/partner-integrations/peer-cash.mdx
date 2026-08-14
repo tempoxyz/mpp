@@ -1,0 +1,102 @@
+---
+description: "Cash out settled MPP revenue with Peer Cash."
+imageDescription: "Prepare a fiat cash-out plan from settled MPP revenue"
+---
+
+# Peer Cash [Cash out settled MPP revenue]
+
+Use [Peer Cash](https://peer.xyz/cash-sdk) with the [Peer-owned MPP example](https://github.com/zkp2p/peer-cash/tree/main/examples/mpp-revenue-cashout) to accept USDC on Base through MPP, then prepare a separate fiat cash-out after the payment settles.
+
+:::note
+MPP settles merchant revenue first. Peer Cash only prepares a separate, unsigned seller cash-out plan as an explicit post-settlement step. The merchant wallet retains custody throughout and is the only signer.
+:::
+
+## How the cash-out works
+
+Peer Cash lists the merchant's USDC on the Peer P2P marketplace. A buyer pays the merchant fiat directly, the payment proof is verified, and the onchain escrow releases the USDC. The example returns unsigned transactions and same-index step descriptions for the merchant wallet to review and submit; it never accepts private keys, signs transactions, or broadcasts them.
+
+The payment and cash-out paths remain independent:
+
+- MPP verifies the payment and records the successful Receipt.
+- The merchant wallet retains custody of the settled USDC.
+- Peer Cash never receives a payer Credential or changes the MPP payment method.
+- The example never accepts private keys, signs transactions, or broadcasts them.
+
+## Run the example
+
+Clone the Peer Cash repository and enter the example directory.
+
+```bash [terminal]
+$ git clone https://github.com/zkp2p/peer-cash.git
+$ cd peer-cash/examples/mpp-revenue-cashout
+```
+
+:::code-group
+```bash [npm]
+$ npm install
+```
+```bash [pnpm]
+$ pnpm install
+```
+```bash [bun]
+$ bun install
+```
+:::
+
+Configure the merchant wallet, facilitator, and payout details. `MPPX_RECIPIENT` must be the merchant-controlled Base wallet that signs any prepared Peer Cash transactions.
+
+```bash [terminal]
+$ export MPPX_RECIPIENT=0xMerchantWallet
+$ export X402_FACILITATOR_URL=https://your-facilitator.example
+$ export MPP_SECRET_KEY=replace-with-at-least-32-random-characters
+$ export PEER_CASH_PLATFORM=revolut
+$ export PEER_CASH_CURRENCY=USD
+$ export PEER_CASH_PAYEE=your-handle
+$ export PEER_CASH_THRESHOLD_USDC=10
+```
+
+Start the public MPP API and the local cash-out planner.
+
+:::code-group
+```bash [npm]
+$ npm run dev
+```
+```bash [pnpm]
+$ pnpm run dev
+```
+```bash [bun]
+$ bun run dev
+```
+:::
+
+The public MPP API listens on port `5173`. The Peer Cash planner binds to `127.0.0.1:5174` so it is not exposed as a public payment route.
+
+## Accept MPP revenue
+
+The example protects `GET /api/report` with an MPP EVM charge for USDC on Base. A successful Receipt records the settled amount once, using its reference to reject duplicates.
+
+Use an MPP client funded with Base USDC to call the route:
+
+```bash [terminal]
+$ MPPX_PRIVATE_KEY=0x... bunx mppx http://localhost:5173/api/report
+```
+
+## Prepare a cash-out
+
+Inspect confirmed revenue on the local planner:
+
+```bash [terminal]
+$ curl http://127.0.0.1:5174/status
+```
+
+After confirmed, unreserved revenue reaches the threshold, prepare a cash-out for the full amount:
+
+```bash [terminal]
+$ curl -X POST http://127.0.0.1:5174/cashout \
+    -H 'content-type: application/json' \
+    -d '{}'
+```
+
+Pass `{"amountUsdc":"5.25"}` to prepare a smaller amount. The response contains unsigned transactions and same-index step descriptions. Review them, then sign and submit them with the merchant wallet.
+
+The example keeps settlement and reservation state in memory. Persist successful Receipts, reservations, submitted transactions, and confirmed cash-outs before exposing an equivalent operator endpoint in production.
