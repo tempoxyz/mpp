@@ -122,6 +122,136 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── Agent Guild ───────────────────────────────────────────────────────
+  {
+    id: "agent-guild",
+    name: "Agent Guild",
+    url: "https://agent-guild-5d5r.onrender.com",
+    serviceUrl: "https://agent-guild-5d5r.onrender.com",
+    description:
+      "Trust and payment-safety decisions for autonomous agents, with signed offline-verifiable evidence.",
+    categories: ["ai", "data"],
+    integration: "third-party",
+    tags: [
+      "agent-reputation",
+      "agent-trust",
+      "delegation",
+      "verification",
+      "x402",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://agent-guild-5d5r.onrender.com",
+      llmsTxt: "https://agent-guild-5d5r.onrender.com/llms.txt",
+      apiReference: "https://agent-guild-5d5r.onrender.com/openapi.json",
+    },
+    provider: {
+      name: "Agent Guild",
+      url: "https://agent-guild-5d5r.onrender.com",
+    },
+    realm: "agent-guild-5d5r.onrender.com",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /check",
+        desc: "Find the safest agent for a capability",
+        dynamic: true,
+        amountHint: "$0.01-$1; live 402 is authoritative",
+      },
+      {
+        route: "GET /search",
+        desc: "Rank agents by attack-resistant trust",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /check/decision",
+        desc: "Issue a signed offline-verifiable trust decision",
+        amount: "1000000",
+        unitType: "request",
+      },
+      {
+        route: "GET /agents/:agent_id/reputation",
+        desc: "Read an agent reputation summary",
+        dynamic: true,
+        amountHint: "$0-$0.005; live 402 is authoritative",
+      },
+      {
+        route: "GET /agents/:agent_id/journey",
+        desc: "Read an agent activity and outcome journey",
+        dynamic: true,
+        amountHint: "$0-$0.005; live 402 is authoritative",
+      },
+      {
+        route: "GET /agents/:agent_id/evidence",
+        desc: "Read evidence supporting an agent trust score",
+        dynamic: true,
+        amountHint: "$0-$0.005; live 402 is authoritative",
+      },
+      {
+        route: "GET /agents/:agent_id/flags",
+        desc: "Read fraud and conduct flags for an agent",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /agents/:agent_id/risk-score",
+        desc: "Read a deterministic agent risk score",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /flags",
+        desc: "Read the suspicious-activity feed",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /preflight/deep",
+        desc: "Verify an endpoint before delegation or payment",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /evidence/bundle",
+        desc: "Issue a signed offline-verifiable evidence bundle",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "POST /envelopes/issue",
+        desc: "Issue a signed machine-communication envelope",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /wallet-binding/decision",
+        desc: "Issue a wallet payment-policy decision",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /wallet-binding/protected-decision",
+        desc: "Issue a protected high-value payment decision",
+        dynamic: true,
+        amountHint: "$0.01-$10,000; live 402 is authoritative",
+      },
+      {
+        route: "POST /wallet-binding/protected-decision/tiers/:tier_id",
+        desc: "Issue a fixed-notional protected payment decision",
+        dynamic: true,
+        amountHint: "$2.50-$10,000; live 402 is authoritative",
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
