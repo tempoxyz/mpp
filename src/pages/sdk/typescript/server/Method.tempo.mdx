@@ -125,6 +125,13 @@ Account or URL for sponsoring transaction fees. Pass a viem `Account` to co-sign
 
 Function that returns a viem client for the given chain ID. Overrides the default RPC configuration.
 
+### machineTokenEnabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Enables first-party machine-token settlement for the generated `tempo.charge` method. This option doesn't affect Sessions.
+
 ### onPaymentSuccess (optional)
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge> & Method.OnPaymentSuccessFn<typeof tempo.Methods.session>`

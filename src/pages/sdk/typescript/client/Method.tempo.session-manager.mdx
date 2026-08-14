@@ -650,6 +650,13 @@ The `reference` field contains the channel ID, not a transaction hash. To get th
 
 Account to sign channel transactions and vouchers with.
 
+### allowCustomEscrow (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Accepts a noncanonical reserve contract advertised by the server. Leave this disabled unless you trust the server's custom deployment. Persisted channel state remains bound to the resolved address.
+
 ### autoSwap (optional)
 
 - **Type:** `boolean | { slippage?: number; tokenIn?: Address[] }`
@@ -685,7 +692,7 @@ Token decimals used to convert `maxDeposit` to raw units.
 
 - **Type:** `Address`
 
-Reserve precompile address override.
+Exact reserve contract address pin. The server-advertised address must match this value, even when `allowCustomEscrow` is `true`.
 
 ### fetch (optional)
 

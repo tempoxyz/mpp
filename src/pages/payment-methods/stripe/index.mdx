@@ -24,7 +24,7 @@ Use the [Link CLI](/tools/wallet#link-cli) to pay for `stripe` SPT services from
 
 ## Server integration
 
-Use [`stripe.create`](/sdk/typescript/server/Method.stripe.create) as the default server setup. It resolves your Tempo deposit address, registers Tempo and SPT charge methods, and records completed stablecoin payments in Stripe.
+Use [`stripe.create`](/sdk/typescript/server/Method.stripe.create) as the default server setup. Configure a deposit-address resolver to register Tempo and SPT charge methods and record completed stablecoin payments in Stripe.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
@@ -34,6 +34,7 @@ const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const payments = stripe.create({
   client,
+  depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
   livemode: false,
   networkId: process.env.STRIPE_NETWORK_ID!,
 })
@@ -43,6 +44,8 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY!,
 })
 ```
+
+The resolver runs only for the stablecoin networks you enable. If one network fails, `mppx` warns and keeps the other resolved methods. Omit `depositAddresses` for a synchronous SPT-only setup.
 
 Use [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt) directly when you only accept SPT payments.
 

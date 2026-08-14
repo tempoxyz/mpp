@@ -18,7 +18,7 @@ Complete the eligibility and account prerequisites in the [Stripe MPP guide](htt
 
 ## Server
 
-Use [`stripe.create()`](/sdk/typescript/server/Method.stripe.create) to configure Stripe machine payments. By default, [`defaultMethods()`](/sdk/typescript/server/Method.stripe.create#defaultmethods) returns a Tempo charge method for stablecoins and a Stripe charge method for SPTs.
+Use [`stripe.create()`](/sdk/typescript/server/Method.stripe.create) to configure Stripe machine payments. Pass a deposit-address resolver so [`defaultMethods()`](/sdk/typescript/server/Method.stripe.create#defaultmethods) returns a Tempo charge method for stablecoins and a Stripe charge method for SPTs.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
@@ -28,6 +28,7 @@ const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const payments = stripe.create({
   client,
+  depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
   livemode: !process.env.STRIPE_SECRET_KEY!.includes('_test_'),
   networkId: process.env.STRIPE_PROFILE_ID!,
 })
@@ -50,6 +51,8 @@ export async function handler(request: Request) {
 ```
 
 The default handler accepts stablecoins on Tempo or cards and Link through an SPT. If a request doesn't include payment, the server returns a Challenge for each method in its `402` response. The client retries with a Credential for one method. `mppx` creates and confirms a Stripe `PaymentIntent` for an SPT, or records the stablecoin payment as a `PaymentIntent` after on-chain settlement.
+
+If one asynchronous deposit-address lookup fails, `mppx` logs a warning and keeps the methods for networks that resolved. Omit `depositAddresses` when you want a synchronous SPT-only handler.
 
 :::note
 Stripe requires a minimum charge of `0.50` USD (or equivalent) for card payments through SPTs. Stripe-managed stablecoin charge methods require at least `0.01` USD because Stripe can't record sub-cent `PaymentIntent` amounts. `mppx` excludes methods below these limits before returning a Challenge.

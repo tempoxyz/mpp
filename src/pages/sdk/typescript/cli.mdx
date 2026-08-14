@@ -88,9 +88,10 @@ Pass method-specific key-value pairs with `-M` (repeatable):
 
 ```bash [terminal]
 $ mppx example.com/content -M channel=0x123 -M deposit=1000000
+$ mppx example.com/content -M allowCustomEscrow=true
 ```
 
-For Tempo session payments, use `channel` and `deposit`. For Stripe, use `paymentMethod`.
+For Tempo session payments, use `channel` and `deposit`. The CLI accepts only the canonical reserve contract by default; pass `allowCustomEscrow=true` only when you trust the server's custom deployment. For Stripe, use `paymentMethod`.
 
 ## JSON output
 

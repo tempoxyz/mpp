@@ -243,6 +243,13 @@ const method = tempo.session({
 </Tab>
 </Tabs>
 
+### allowCustomEscrow (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Accepts a noncanonical reserve contract advertised by the server. Leave this disabled unless you trust the server's custom deployment. Persisted channel state remains bound to the resolved address.
+
 ### autoSwap (optional)
 
 - **Type:** `boolean | { slippage?: number; tokenIn?: Address[] }`
@@ -266,7 +273,7 @@ Token decimals for parsing human-readable amounts.
 
 - **Type:** `Address`
 
-Reserve precompile address override.
+Exact reserve contract address pin. The server-advertised address must match this value, even when `allowCustomEscrow` is `true`.
 
 ### getClient (optional)
 

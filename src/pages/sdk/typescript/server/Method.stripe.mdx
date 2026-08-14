@@ -19,6 +19,7 @@ const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const payments = stripe({
   client,
+  depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
   livemode: false,
   networkId: process.env.STRIPE_NETWORK_ID!,
 })

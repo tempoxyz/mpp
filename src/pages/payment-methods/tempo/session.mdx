@@ -644,6 +644,37 @@ const response = await mppxFetch('https://api.example.com/resource')
 </Tab>
 </Tabs>
 
+## Custom reserve contracts
+
+Servers use the canonical TIP-1034 reserve precompile by default. If your server uses a custom deployment, set `escrowContract`; `mppx` advertises that address in every Session Challenge.
+
+```ts
+const method = tempo.session({
+  account,
+  currency: pathUSD,
+  escrowContract: customReserve,
+  store,
+})
+```
+
+Clients reject noncanonical addresses by default. Set `allowCustomEscrow: true` only when you trust the server to select the reserve contract.
+
+```ts
+const method = tempo.session({
+  account,
+  allowCustomEscrow: true,
+})
+
+const manager = tempo.session.manager({
+  account,
+  allowCustomEscrow: true,
+})
+```
+
+For a stricter policy, set the client `escrow` option to the exact address you trust. This pin takes precedence over `allowCustomEscrow`. Persisted channels remain bound to their resolved reserve address, so a later Challenge can't switch an existing channel.
+
+Legacy Sessions clients use the same `allowCustomEscrow` opt-in. Their `escrowContract` option is the exact-address pin.
+
 ## Reserve precompile
 
 Sessions use the [TIP-1034 precompile](https://tips.sh/1034) for on-chain deposits, settlement, top-ups, and channel close. The IETF Specification documents the voucher format and HTTP authentication flow.

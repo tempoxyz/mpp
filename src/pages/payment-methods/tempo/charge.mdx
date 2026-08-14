@@ -87,6 +87,24 @@ const result = await mppx.charge({
 
 When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`) before broadcasting. The client doesn't need gas tokens. See [fee sponsorship](/payment-methods/tempo#fee-sponsorship) for details.
 
+### With machine-token payments
+
+Set `machineTokenEnabled: true` to let compatible clients pay a single-recipient charge with Tempo's first-party machine token.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      machineTokenEnabled: true, // [!code hl]
+    }),
+  ],
+})
+```
+
+The server advertises the route in its Challenge. On Tempo mainnet or Moderato, the client uses the route when it holds enough machine tokens and the swap can execute. Otherwise, it falls back to `autoSwap` when configured, then the requested TIP-20 transfer path. The route supports `push`, `pull`, relay, and fee-sponsored settlement; split charges use the standard transfer path.
+
 ### Zero-dollar auth
 
 Set `amount: "0"` to issue an identity-only Challenge. The client returns a `proof` payload instead of `transaction` or `hash`, and the server verifies the signature against the `source` DID.
@@ -200,7 +218,7 @@ See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge
 
 ## Client
 
-Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. For non-zero amounts, the client signs a TIP-20 transfer and retries with the Credential. For zero-amount Challenges, it signs a proof message and retries with a `proof` payload instead.
+Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. For non-zero amounts, the client signs a TIP-20 transfer and retries with the Credential. If the server enables machine-token settlement, the client tries that route first without additional client configuration. For zero-amount Challenges, it signs a proof message and retries with a `proof` payload instead.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
