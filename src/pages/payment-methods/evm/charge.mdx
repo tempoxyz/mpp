@@ -57,7 +57,7 @@ export async function handler(request: Request) {
 
 ## Client
 
-Use `evm.charge` with `Fetch.from` to automatically handle `402` responses. The client signs native MPP EVM charge Challenges and inline x402 exact Challenges for compatible assets.
+Use `evm.charge` with `Fetch.from` to automatically handle `402` responses. The client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges, and standard x402 v2 EIP-3009 Challenges without the optional `mppx` extension.
 
 ```ts twoslash [client.ts]
 import { Fetch, evm } from 'mppx/client'
@@ -128,6 +128,8 @@ const method = evm.charge({
 ## x402 compatibility
 
 When `x402.facilitator` is configured, the server returns MPP and x402 Challenges and accepts both MPP and x402 Credentials inline for `GET` and body-bearing routes. Standard x402 Credentials work when the route doesn't require an MPP body digest, scope, opaque value, or metadata binding. Bound routes require the `mppx` route-binding extension.
+
+On the client, `evm.charge` validates x402 offers before signing. Each offer must include resource information and EIP-3009 token name and version metadata, then pass the configured network, currency, and amount policies. The client skips unsupported or rejected offers and selects a later compatible offer when available.
 
 See [running x402 inline with mppx](/guides/use-mpp-with-x402#run-x402-inline-with-mppx) for the full guide.
 

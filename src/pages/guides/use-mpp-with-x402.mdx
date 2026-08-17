@@ -164,7 +164,7 @@ app.get('/paid', mppx.evm.charge({ amount: '0.01' }), (c) =>
 
 ### Call with the mppx client
 
-`evm.charge` on the client signs both native MPP EVM charge Challenges and x402 exact Challenges.
+`evm.charge` on the client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges from `mppx` servers, and standard x402 v2 EIP-3009 Challenges. Standard providers don't need to include the optional `mppx` route-binding extension.
 
 ```ts twoslash [client.ts]
 import { Fetch, evm } from 'mppx/client'
@@ -189,9 +189,11 @@ console.log(response.status)
 // @log: 200
 ```
 
+For x402, `mppx` requires resource information and EIP-3009 token name and version metadata. It applies your network, currency, and amount policies before signing. Unsupported or rejected offers are skipped so a later compatible offer can be selected; if none remain, the request fails without signing or retrying.
+
 ### Build a client for MPP and x402
 
-Register `evm.charge` for x402 exact Challenges and the MPP methods you want to support. The HTTP client reads both `WWW-Authenticate` and `PAYMENT-REQUIRED`, then retries with either `Authorization` or `PAYMENT-SIGNATURE`.
+Register `evm.charge` for standard and route-bound x402 exact Challenges, plus the MPP methods you want to support. The HTTP client reads both `WWW-Authenticate` and `PAYMENT-REQUIRED`, then retries with either `Authorization` or `PAYMENT-SIGNATURE`.
 
 ```ts twoslash [client.ts]
 import { Fetch, evm, tempo } from 'mppx/client'

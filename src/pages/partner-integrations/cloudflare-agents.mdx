@@ -116,7 +116,7 @@ export async function paidPing() {
 
 ## Support MPP and x402 clients
 
-Register an EVM method beside your Tempo method when the agent needs to call APIs that support either native MPP or x402 exact. The same payment-aware fetch reads MPP `WWW-Authenticate` Challenges and x402 `PAYMENT-REQUIRED` Challenges, then retries with the matching `Authorization` or `PAYMENT-SIGNATURE` header.
+Register an EVM method beside your Tempo method when the agent needs to call APIs that support either native MPP or x402 exact. The same payment-aware fetch reads MPP `WWW-Authenticate` Challenges and x402 `PAYMENT-REQUIRED` Challenges, including standard x402 v2 EIP-3009 offers without the optional `mppx` extension, then retries with the matching `Authorization` or `PAYMENT-SIGNATURE` header.
 
 <Tabs stateKey="wallet-provider">
 <Tab title="Direct">

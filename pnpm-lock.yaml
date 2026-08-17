@@ -42,8 +42,8 @@ importers:
         specifier: ^11.15.0
         version: 11.15.0
       mppx:
-        specifier: 0.0.0-main-20260814160153
-        version: 0.0.0-main-20260814160153(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3))
+        specifier: 0.0.0-main-20260817132523
+        version: 0.0.0-main-20260817132523(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3))
       nuqs:
         specifier: 2.9.1
         version: 2.9.1(react@19.2.7)
@@ -4095,8 +4095,8 @@ packages:
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
 
-  mppx@0.0.0-main-20260814160153:
-    resolution: {integrity: sha512-rQ+ak4JbEYrJ4OfKjJD78mlrotks/rUBJhMQdl/MsHiEefVwxrzNLiqxiRMx+LcAsVuE6pT9uJwQ40YBiy3iTA==}
+  mppx@0.0.0-main-20260817132523:
+    resolution: {integrity: sha512-qCUvUifQ1K7E31JZYEqrESGYhMjq/welS/7GaeevVsXLv4ixMDWrOmLWlYpZ4ZSZ4lEFgDXbO+viHKfHKreD4w==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
@@ -9700,7 +9700,7 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mppx@0.0.0-main-20260814160153(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
+  mppx@0.0.0-main-20260817132523(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
       '@stripe/stripe-js': 9.12.1
       eventsource-parser: 3.1.0
