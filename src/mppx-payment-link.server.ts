@@ -5,9 +5,14 @@ import { tempoModerato } from "viem/chains";
 import { mppxSecretKey } from "./mppx-secret.server";
 
 const realm = process.env.REALM ?? "mpp.tempo.xyz";
+
+const feePayerKey = process.env.FEE_PAYER_PRIVATE_KEY;
+if (!feePayerKey && !import.meta.env.DEV) {
+  throw new Error("FEE_PAYER_PRIVATE_KEY is required outside development/test");
+}
+
 const account = privateKeyToAccount(
-  (process.env.FEE_PAYER_PRIVATE_KEY ??
-    "0x0000000000000000000000000000000000000000000000000000000000000001") as `0x${string}`,
+  (feePayerKey ?? "0x0000000000000000000000000000000000000000000000000000000000000001") as `0x${string}`
 );
 
 export const mppx = Mppx.create({
