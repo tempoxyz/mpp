@@ -4,17 +4,16 @@ Converts a Fetch API handler into a Node.js HTTP request listener. Useful for ru
 
 ## Usage
 
-```ts
+```ts twoslash [server.ts]
 import http from 'node:http'
-import { Mppx, Request, tempo } from 'mppx/server'
+import { Request } from 'mppx/server'
 
-const mppx = Mppx.create({ methods: [tempo.charge()] })
+const listener = Request.toNodeListener((request) => {
+  const pathname = new URL(request.url).pathname
+  return new Response(`Requested ${pathname}`)
+})
 
-const server = http.createServer(
-  Request.toNodeListener(mppx.request),
-)
-
-server.listen(3000)
+http.createServer(listener).listen(3000)
 ```
 
 ### `Request.fromNodeListener`

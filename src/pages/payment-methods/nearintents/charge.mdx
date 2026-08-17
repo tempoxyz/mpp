@@ -113,7 +113,7 @@ mppx.on('payment.failed', ({ error }) => logger.warn(error.type, error.message))
 | `onEvent` | `(event) => void` | Optional | |
 
 :::info
-The 1Click JWT (from the [NEAR Intents partner portal](https://partners.near-intents.org)) is server-side only and must never appear in any Challenge field. Unauthenticated requests work but incur a 0.2% fee. Replay protection requires an **atomic** store: the in-memory default is for a single instance; use a shared store (e.g. `Store.redis`) in multi-instance deployments.
+The 1Click JWT (from the [NEAR Intents partner portal](https://partners.near-intents.org)) is server-side only and must never appear in any Challenge field. Unauthenticated requests work but incur a 0.2% fee. Replay protection requires an **atomic** store: the in-memory default is for a single instance; use a shared store (for example, `Store.redis`) in multi-instance deployments.
 :::
 
 ## Client
@@ -190,7 +190,7 @@ The Challenge request describes the payment the client makes on the origin chain
 | `methodDetails.destinationRecipient` | `string` | Required | Merchant address on the destination chain |
 | `methodDetails.amountOut` | `string` | Required | Exact amount the merchant receives (`EXACT_OUTPUT`) |
 | `methodDetails.minAmountIn` | `string` | Required | Minimum deposit the backend accepts — the verification threshold |
-| `methodDetails.depositMemo` | `string \| null` | Optional | Deposit memo required by some origin chains (e.g. Stellar) |
+| `methodDetails.depositMemo` | `string \| null` | Optional | Deposit memo required by some origin chains (for example, Stellar) |
 | `methodDetails.slippageTolerance` | `number` | Optional | Basis points, applied to the input side |
 | `methodDetails.timeEstimate` | `number` | Optional | Estimated swap completion time in seconds |
 | `methodDetails.refundTo` | `string` | Required | Origin-chain address refunded on any non-success outcome |
