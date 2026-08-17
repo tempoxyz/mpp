@@ -8,6 +8,7 @@ import {
   type Service,
   serviceIconUrl,
 } from "../data/registry";
+import { AgentSetupPrompt } from "./AgentSetupPrompt";
 import { Button } from "./marketing/Button";
 import { CopyBadge } from "./marketing/CopyBadge";
 import { cx } from "./marketing/cx";
@@ -80,10 +81,9 @@ export function buildTryCommands(service: Service, endpoint: Endpoint): string {
       ? ""
       : ` \\\n    -X ${endpoint.method} --json '{"input":"Hello!"}'`;
   return [
-    "curl -L https://tempo.xyz/install | bash",
-    "tempo add wallet",
+    "curl -fsSL https://tempo.xyz/install | bash",
     "tempo wallet login",
-    `tempo run \\\n    ${endpointUrl(service, endpoint)}${requestArguments}`,
+    `tempo request \\\n    ${endpointUrl(service, endpoint)}${requestArguments}`,
   ].join("\n");
 }
 
@@ -284,34 +284,6 @@ function ShortcutCard({
         name="arrow-right"
       />
     </a>
-  );
-}
-
-function CopyIconButton({ label, text }: { label: string; text: string }) {
-  const [copied, setCopied] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
-
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  return (
-    <button
-      aria-label={copied ? "Copied" : label}
-      className={cx(
-        "shrink-0 text-secondary transition-colors hover:text-offwhite",
-        copied && "text-term-green",
-      )}
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(text);
-          setCopied(true);
-          clearTimeout(timer.current);
-          timer.current = window.setTimeout(() => setCopied(false), 1200);
-        } catch {}
-      }}
-      type="button"
-    >
-      <Icon name="copy" />
-    </button>
   );
 }
 
@@ -834,52 +806,10 @@ export function ServicesPage() {
               </summary>
 
               <div className="hidden space-y-5 group-open:block">
-                <div className="flex flex-col gap-2">
-                  <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-offwhite">
-                    Install Tempo tools
-                  </p>
-                  <p className="font-sans text-sm leading-[1.2] text-secondary">
-                    Install the CLI. You&apos;ll be asked to sign in or create a
-                    passkey-based wallet in your browser.
-                  </p>
-                </div>
-                <div className="flex items-start gap-2 bg-[#101010] p-2.5">
-                  <pre className="flex-1 overflow-x-auto whitespace-pre-wrap font-mono text-sm leading-[1.4]">
-                    <span className="text-secondary">$</span>{" "}
-                    <span className="text-term-green">curl</span>{" "}
-                    <span className="text-secondary">-L</span>{" "}
-                    <span className="text-offwhite">
-                      https://tempo.xyz/install
-                    </span>{" "}
-                    <span className="text-term-green">| bash</span>
-                  </pre>
-                  <CopyIconButton
-                    label="Copy command"
-                    text="curl -L https://tempo.xyz/install | bash"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-offwhite">
-                    Prompt your agent
-                  </p>
-                  <p className="font-sans text-sm leading-[1.2] text-secondary">
-                    Tell Claude, Codex, or another coding agent to use an MPP
-                    service.
-                  </p>
-                </div>
-                <div className="flex items-start gap-2 bg-[#101010] p-2.5">
-                  <pre className="flex-1 overflow-x-auto whitespace-pre-wrap font-mono text-sm leading-[1.4]">
-                    $ claude &quot;Summarize https://stripe.com/docs using
-                    parallel.ai search via Tempo&quot;
-                  </pre>
-                  <CopyIconButton
-                    label="Copy prompt"
-                    text={
-                      'claude "Summarize https://stripe.com/docs using parallel.ai search via Tempo"'
-                    }
-                  />
-                </div>
+                <AgentSetupPrompt
+                  manualSetupHref="/quickstart/agent#manual-setup"
+                  variant="marketing"
+                />
 
                 <p className="font-sans text-sm leading-[1.2] text-secondary">
                   Point your agent to{" "}

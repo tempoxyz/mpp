@@ -3,34 +3,19 @@ description: "Connect your coding agent to MPP-enabled services. Set up a wallet
 imageDescription: "Connect your agent to paid APIs"
 ---
 
-import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
+import { Card, Cards, Tab, Tabs } from 'vocs'
+import { AgentSetupPrompt } from '../../components/AgentSetupPrompt'
 
 # Use with agents [Connect your agent to MPP-enabled services]
 
-Agents can automatically interact with MPP-enabled services, paying for API calls without human intervention. Learn more about [agentic payments](/use-cases/agentic-payments) or get started below.
+After setup, agents can automatically interact with MPP-enabled services and pay for API calls. Learn more about [agentic payments](/use-cases/agentic-payments) or get started below.
 
-| Tool | Best for | Setup |
-|------|----------|-------|
-| [Tempo Wallet](#tempo-wallet) | MPP services with spend controls and service discovery | `tempo wallet login` |
-| [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding | `privy-agent-wallets login` |
-| [AgentCash](#agentcash) | Discover and use 300+ premium APIs via MPP | `npx agentcash onboard` |
-| [`mppx` CLI](#mppx) | Development and debugging | `mppx account create` |
+<AgentSetupPrompt />
 
-## Tempo Wallet <Badge variant="info" data-toc-exclude>Recommended</Badge>
+## Manual setup
 
-The [Tempo Wallet](https://wallet.tempo.xyz) is a managed MPP client with built in spend controls and service discovery. Agents can use `tempo wallet` to discovery and pay for MPP-enabled services on demand.
+Set up [Tempo Wallet](https://wallet.tempo.xyz) yourself if you don't want your coding agent to handle installation.
 
-<Tabs>
-<Tab title="Agent">
-
-Paste this into your agent to set up Tempo Wallet:
-
-```
-Read https://tempo.xyz/SKILL.md and set up tempo
-```
-
-</Tab>
-<Tab title="Human">
 ::::steps
 
 ### Install the CLI
@@ -66,10 +51,18 @@ $ tempo request -X POST \
 ```
 
 ::::
-</Tab>
-</Tabs>
 
-## Privy Agent CLI
+## Other MPP clients and integrations
+
+Tempo Wallet is the recommended way to use MPP services with a coding agent. These alternatives support other wallets and development workflows.
+
+| Tool | Best for |
+|------|----------|
+| [Privy Agent CLI](#privy-agent-cli) | Multi-chain agent wallets with browser-based funding |
+| [AgentCash](#agentcash) | Discover and use 300+ premium APIs via MPP |
+| [`mppx` CLI](#mppx) | Development and debugging |
+
+### Privy Agent CLI
 
 [Privy Agent CLI](https://docs.privy.io/recipes/agent-integrations/agent-cli) gives agents a CLI-first way to create, fund, and manage wallets with no integration code. It pairs with the [Agent Sandbox](https://agents.privy.io/) where users track agent spending, manage funds, and revoke access.
 
@@ -124,7 +117,7 @@ $ privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"
 </Tab>
 </Tabs>
 
-## AgentCash
+### AgentCash
 
 [AgentCash](https://agentcash.dev) gives agents instant access to 300+ premium APIs for data enrichment, social data, image generation, web scraping, email, and much more, all through one USDC.e balance.
 
@@ -173,7 +166,7 @@ $ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 </Tab>
 </Tabs>
 
-## mppx
+### mppx
 
 The [`mppx`](/sdk/typescript/cli) CLI is a lightweight MPP client bundled with the `mppx` package. It is designed for simple use cases and debugging during development.
 

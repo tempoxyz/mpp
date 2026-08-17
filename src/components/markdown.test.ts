@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { AgentSetupPrompt } from "./AgentSetupPrompt";
 import { AsciiLogo } from "./AsciiLogo";
 import { staticCards } from "./cards";
 import { EcosystemDiagram } from "./EcosystemDiagram";
@@ -21,6 +22,7 @@ import { TerminalPoem } from "./TerminalPoem";
 type MarkdownComponent = { toMarkdown: () => unknown };
 
 const components = {
+  AgentSetupPrompt,
   AsciiLogo,
   ClientPrompt,
   EcosystemDiagram,

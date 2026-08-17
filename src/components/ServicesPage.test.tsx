@@ -216,14 +216,17 @@ describe("buildTryCommands", () => {
   };
 
   it("includes a JSON request for non-GET endpoints", () => {
-    expect(
-      buildTryCommands(service, {
-        method: "POST",
-        path: "/responses",
-      }),
-    ).toContain(
+    const commands = buildTryCommands(service, {
+      method: "POST",
+      path: "/responses",
+    });
+
+    expect(commands).toContain(
       'https://test.mpp.dev/responses \\\n    -X POST --json \'{"input":"Hello!"}\'',
     );
+    expect(commands).toContain("curl -fsSL https://tempo.xyz/install | bash");
+    expect(commands).toContain("tempo wallet login");
+    expect(commands).toContain("tempo request");
   });
 
   it("omits a request body for GET endpoints", () => {
@@ -232,7 +235,9 @@ describe("buildTryCommands", () => {
       path: "/search",
     });
 
-    expect(commands).toContain("tempo run \\\n    https://test.mpp.dev/search");
+    expect(commands).toContain(
+      "tempo request \\\n    https://test.mpp.dev/search",
+    );
     expect(commands).not.toContain("--json");
     expect(commands).not.toContain("-X GET");
   });
