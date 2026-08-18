@@ -11167,4 +11167,73 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── agent402 ───────────────────────────────────────────────────────────
+  {
+    id: "agent402",
+    name: "Agent402",
+    url: "https://agent402.tools",
+    serviceUrl: "https://agent402.tools",
+    description:
+      "500+ deterministic pay-per-call tools for AI agents: live web search and cited answers, headless browser rendering, PDFs, OCR, financial, SEC and on-chain data, and an OpenAI-compatible LLM gateway, plus a Smart Order Router that finds and pays the best external seller on the agent's behalf. Every paid endpoint answers MPP (Tempo natively) and x402 on the same 402.",
+    icon: "https://agent402.tools/logo.png",
+    categories: ["search", "web", "data", "ai", "blockchain"],
+    integration: "third-party",
+    tags: [
+      "search",
+      "browser",
+      "pdf",
+      "ocr",
+      "sec-filings",
+      "finance",
+      "llm-gateway",
+      "router",
+      "agentic-finance",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://agent402.tools/docs",
+      llmsTxt: "https://agent402.tools/llms.txt",
+      apiReference: "https://agent402.tools/openapi.json",
+    },
+    provider: { name: "Havok Holdings LLC", url: "https://agent402.tools" },
+    realm: "agent402.tools",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/search",
+        desc: "Live web search (title, URL, snippet)",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/answer",
+        desc: "Cited answer grounded in live web search",
+        amount: "80000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/render",
+        desc: "Headless browser render of a URL (title, text, links)",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/route/execute",
+        desc: "Smart Order Router: resolve a task to the best seller across the ecosystem, pay them, relay the result",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/chat/completions",
+        desc: "OpenAI-compatible chat completions (base tier)",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/pricing",
+        desc: "Machine-readable catalog of every endpoint and price (free)",
+      },
+    ],
+  },
 ];
