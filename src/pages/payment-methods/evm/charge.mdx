@@ -57,7 +57,7 @@ export async function handler(request: Request) {
 
 ## Client
 
-Use `evm.charge` with `Fetch.from` to automatically handle `402` responses. The client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges, and standard x402 v2 EIP-3009 Challenges without the optional `mppx` extension.
+Use `evm.charge` with `Fetch.from` to automatically handle `402` responses. The client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges, and standard x402 v2 EIP-3009 Challenges without the optional `mppx` extension, including Challenges from official Coinbase x402 resource servers.
 
 ```ts twoslash [client.ts]
 import { Fetch, evm } from 'mppx/client'
@@ -127,7 +127,9 @@ const method = evm.charge({
 
 ## x402 compatibility
 
-When `x402.facilitator` is configured, the server returns MPP and x402 Challenges and accepts both MPP and x402 Credentials inline for `GET` and body-bearing routes. Standard x402 Credentials work when the route doesn't require an MPP body digest, scope, opaque value, or metadata binding. Bound routes require the `mppx` route-binding extension.
+When `x402.facilitator` is configured, the server returns MPP and x402 Challenges and accepts both MPP and x402 Credentials inline for `GET`, body-bearing, and route-scoped endpoints. The default `routeBinding: 'resource'` accepts standard x402 Credentials by comparing the echoed resource URL and payment requirements. It also verifies any body digest against the request.
+
+Set `routeBinding: 'required'` when every x402 Credential for a scoped route must include the `mppx` extension and route-bound nonce. This cryptographically binds MPP scope, opaque values, and metadata, but excludes standard clients that don't implement the extension from scoped routes.
 
 On the client, `evm.charge` validates x402 offers before signing. Each offer must include resource information and EIP-3009 token name and version metadata, then pass the configured network, currency, and amount policies. The client skips unsupported or rejected offers and selects a later compatible offer when available.
 

@@ -78,7 +78,7 @@ console.log(response.status)
 </Tab>
 </Tabs>
 
-The client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges from `mppx` servers, and standard x402 v2 EIP-3009 Challenges without the optional `mppx` extension.
+The client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges from `mppx` servers, and standard x402 v2 EIP-3009 Challenges without the optional `mppx` extension, including Challenges from official Coinbase x402 resource servers.
 
 For x402, the client requires resource information and EIP-3009 token name and version metadata. It enforces the configured network, currency, and amount policies before signing, skips unsupported or rejected offers, and selects a later compatible offer when available.
 

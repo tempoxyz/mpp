@@ -41,6 +41,33 @@ $ bun add mppx
 
 :::
 
+## Server entrypoints
+
+Use `mppx/server` for most servers. It exports the server runtime and every built-in payment method.
+
+### Advanced options
+
+Use lightweight entrypoints when a deployment only needs core server primitives or Stripe Shared Payment Tokens. These imports omit unrelated payment rails from the module graph.
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { Mppx } from 'mppx/server/core'
+import { stripe } from 'mppx/stripe/server/spt'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const mppx = Mppx.create({
+  methods: [
+    stripe.spt({
+      client,
+      networkId: process.env.STRIPE_NETWORK_ID!,
+      paymentMethodTypes: ['card'],
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
 ## Quick start
 
 This quick start guide shows you how to use `mppx` with the [`tempo` payment method](/payment-methods/tempo).

@@ -41,6 +41,37 @@ type ReplayMarker = {
 }
 ```
 
+### Compose a native claim implementation
+
+Spread a Redis or Upstash adapter into `Store.from`, then add a native `tryClaim` operation. The wrapper preserves the fast path and applies `keyPrefix` to claim keys.
+
+```ts [store.ts]
+import { Store } from 'mppx'
+
+const adapter = Store.upstash({
+  del: (key) => redis.del(key),
+  get: (key) => redis.get(key),
+  set: (key, value) => redis.set(key, value),
+  update: (key, fn) => atomicUpdate(redis, key, fn),
+})
+
+const store = Store.from(
+  {
+    ...adapter,
+    async tryClaim(key, expires) {
+      const result = await redis.set(key, { expires, type: 'mppx:replay' }, {
+        nx: true,
+        pxat: expires,
+      })
+      return result === 'OK'
+    },
+  },
+  { keyPrefix: 'mppx:' },
+)
+```
+
+Use an absolute Unix-millisecond expiry such as Upstash `pxat` or Redis `PXAT`, not a relative duration.
+
 ## Return type
 
 ```ts

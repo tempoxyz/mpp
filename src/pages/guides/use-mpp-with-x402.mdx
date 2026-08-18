@@ -51,7 +51,7 @@ Use `evm.charge` when you want one MPP route to serve native MPP charge Challeng
 When x402 options are enabled, `mppx` emits both `WWW-Authenticate` and `PAYMENT-REQUIRED` Challenges, accepts either `Authorization` or `PAYMENT-SIGNATURE` Credentials, and returns the matching Receipt header.
 :::
 
-This also applies to body-bearing routes such as `POST`. Standard x402 clients can pay when the route doesn't require MPP-specific request binding. If the Challenge includes a body digest, scope, opaque value, or metadata, the x402 Credential must include the `mppx` route-binding extension; otherwise, use a native MPP Credential.
+This also applies to body-bearing and route-scoped endpoints such as `POST` routes behind [`Proxy`](/sdk/typescript/proxy). By default, a standard x402 client can pay these routes without the optional `mppx` extension. The server compares the echoed resource URL and payment requirements, and still verifies any body digest against the request.
 
 ### Run an inline x402 endpoint
 
@@ -88,6 +88,25 @@ export async function GET(request: Request) {
   return result.withReceipt(Response.json({ ok: true }))
 }
 ```
+
+### Require route-bound x402 Credentials
+
+Keep the default `routeBinding: 'resource'` for compatibility with standard x402 clients. Set `routeBinding: 'required'` when every x402 Credential for a scoped route must include the `mppx` extension and route-bound nonce.
+
+```ts twoslash [server.ts]
+import { evm } from 'mppx/server'
+
+const method = evm.charge({
+  currency: evm.assets.baseSepolia.USDC,
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  x402: {
+    facilitator: 'https://x402.org/facilitator',
+    routeBinding: 'required',
+  },
+})
+```
+
+`resource` and the accepted payment requirements aren't part of the EIP-3009 signature. The default prevents accidental cross-route reuse, but it doesn't cryptographically bind scope, opaque values, or metadata for clients without the extension. Required binding only accepts extension-aware clients on scoped routes, including the `mppx` client.
 
 ### Compose x402 with another MPP method
 
@@ -164,7 +183,7 @@ app.get('/paid', mppx.evm.charge({ amount: '0.01' }), (c) =>
 
 ### Call with the mppx client
 
-`evm.charge` on the client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges from `mppx` servers, and standard x402 v2 EIP-3009 Challenges. Standard providers don't need to include the optional `mppx` route-binding extension.
+`evm.charge` on the client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges from `mppx` servers, and standard x402 v2 EIP-3009 Challenges, including Challenges from official Coinbase x402 resource servers. Standard providers don't need to include the optional `mppx` route-binding extension.
 
 ```ts twoslash [client.ts]
 import { Fetch, evm } from 'mppx/client'

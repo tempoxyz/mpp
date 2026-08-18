@@ -67,6 +67,8 @@ Route values use the current `EndpointMap` shape:
 - Use `true` for free passthrough routes.
 - Use a method-specific handler, such as `mppx.tempo.session({ amount, unitType })`, for session-priced routes.
 
+`Proxy` derives a scope for each route. EVM methods with x402 enabled accept standard x402 Credentials on these scoped routes by default, using resource URL binding. Set [`x402.routeBinding: 'required'`](/sdk/typescript/server/Method.evm.charge#x402-optional) when only extension-aware clients can pay.
+
 ### Multiple services
 
 Pass multiple services to gate several upstream APIs behind a single proxy.

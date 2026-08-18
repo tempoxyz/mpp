@@ -11,7 +11,8 @@ Creates the Stripe `charge` method for one-time payments with Shared Payment Tok
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx } from 'mppx/server/core'
+import { stripe } from 'mppx/stripe/server/spt'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -41,13 +42,15 @@ export async function handler(request: Request) {
 
 `mppx` derives each Stripe `PaymentIntent` idempotency key from the Challenge ID and SPT, using the SDK-independent `mpp_` prefix.
 
+These lightweight entrypoints omit unrelated payment rails. Use `mppx/server` when the same server also accepts other methods.
+
 ### With Stripe Connect
 
 Set a fixed settlement policy or return one from a resolver for each verified Credential.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { stripe } from 'mppx/server'
+import { stripe } from 'mppx/stripe/server/spt'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 

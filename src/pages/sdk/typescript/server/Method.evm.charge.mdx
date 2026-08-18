@@ -118,9 +118,16 @@ Custom settlement callback. Use this instead of `x402.facilitator` when you sett
 
 ### x402 (optional)
 
-- **Type:** `{ facilitator: string | Facilitator }`
+- **Type:** `{ facilitator?: string | Facilitator; fetch?: typeof globalThis.fetch; maxTimeoutSeconds?: number; routeBinding?: 'required' | 'resource' }`
 
-x402 compatibility options. Pass a facilitator URL to verify and settle x402 exact payments inline. `mppx` advertises x402 for `GET` and body-bearing requests. Standard x402 Credentials work on routes without MPP-specific digest, scope, opaque, or metadata binding; bound routes require the `mppx` extension.
+x402 compatibility options. Pass `facilitator` to verify and settle x402 exact payments inline. `fetch` configures facilitator requests, and `maxTimeoutSeconds` defaults to `300`.
+
+`routeBinding` controls scoped-route interoperability:
+
+- **`'resource'`** (default)—Accept standard x402 Credentials by comparing the echoed resource URL and payment requirements. Credentials with the `mppx` extension retain full route-bound nonce verification.
+- **`'required'`**—Require every x402 Credential for a scoped route to include the `mppx` extension and route-bound nonce. Use this when scope, opaque values, or metadata must be cryptographically bound.
+
+Both modes verify any Challenge body digest against the request. Standard x402 Credentials can pay `Proxy` routes under the default mode because the proxy's derived scope no longer requires the optional extension.
 
 ## Request parameters
 

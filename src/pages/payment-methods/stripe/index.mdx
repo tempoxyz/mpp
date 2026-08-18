@@ -47,7 +47,7 @@ const mppx = Mppx.create({
 
 The resolver runs only for the stablecoin networks you enable. If one network fails, `mppx` warns and keeps the other resolved methods. Omit `depositAddresses` for a synchronous SPT-only setup.
 
-Use [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt) directly when you only accept SPT payments.
+Use [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt) directly when you only accept SPT payments. Import `Mppx` from `mppx/server/core` and `stripe` from `mppx/stripe/server/spt` to omit unrelated payment rails.
 
 ## Shared Payment Token flow
 
