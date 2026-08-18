@@ -1430,6 +1430,60 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Machine Inbox ──────────────────────────────────────────────────────
+  {
+    id: "machine-inbox",
+    name: "Machine Inbox",
+    url: "https://machineinbox.com",
+    serviceUrl: "https://machineinbox.com",
+    description:
+      "Task-scoped, self-expiring email inboxes. One flat purchase buys a replyable address with parsed MIME and attachments; replies only reach authenticated inbound senders, and mail and credentials delete themselves at expiry.",
+    icon: "https://machineinbox.com/icon.svg",
+    categories: ["social", "web"],
+    integration: "third-party",
+    tags: [
+      "email",
+      "inbox",
+      "ephemeral",
+      "task-scoped",
+      "receive",
+      "reply",
+      "attachments",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://machineinbox.com",
+      llmsTxt: "https://machineinbox.com/llms.txt",
+      apiReference: "https://machineinbox.com/openapi.json",
+    },
+    provider: { name: "Machine Inbox", url: "https://machineinbox.com" },
+    realm: "machineinbox.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/inboxes",
+        desc: "Create a seven-day inbox with replies included; body {\"product\":\"pro_inbox\"} buys thirty days and higher quotas for 500",
+        amount: "200",
+        unitType: "inbox",
+      },
+      {
+        route: "POST /api/v1/inboxes/:inboxId/extend",
+        desc: "Extend an active inbox by seven days",
+        amount: "100",
+        unitType: "extension",
+      },
+      {
+        route: "GET /api/v1/inboxes/:inboxId/messages",
+        desc: "List received messages (included)",
+      },
+      {
+        route: "POST /api/v1/inboxes/:inboxId/messages/:messageId/reply",
+        desc: "Reply to an authenticated inbound sender (included)",
+      },
+    ],
+  },
+
   // ── Modal ──────────────────────────────────────────────────────────────
   {
     id: "modal",
