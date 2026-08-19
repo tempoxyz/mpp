@@ -310,6 +310,46 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── a9n9 Deep Research ─────────────────────────────────────────────────
+  {
+    id: "a9n9-deep-research",
+    name: "a9n9 Deep Research",
+    url: "https://agent.a9n9.net",
+    serviceUrl: "https://agent.a9n9.net",
+    description:
+      "Objective-driven deep research for agents: quote-first fixed pricing, a real cloud browser over a planned list of public sources, and a cited cross-source report. Free daily quick search over news and arXiv.",
+    icon: "https://agent.a9n9.net/favicon.svg",
+    categories: ["ai", "search", "web"],
+    integration: "third-party",
+    tags: ["research", "deep-research", "browser", "reports", "citations", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://agent.a9n9.net",
+      llmsTxt: "https://agent.a9n9.net/llms.txt",
+      apiReference: "https://agent.a9n9.net/openapi.json",
+    },
+    provider: { name: "a9n9", url: "https://a9n9.net" },
+    realm: "agent.a9n9.net",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/research/browserbase",
+        desc: "Quote, pay, and run objective-driven deep research in a cloud browser",
+        dynamic: true,
+        amountHint: "$0.28 – $0.40 by tier (quick / standard / deep)",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/search",
+        desc: "Free daily-limited quick search over global news or arXiv papers",
+      },
+      {
+        route: "GET /v1/research/status/:trackerCode",
+        desc: "Free progress polling and final report retrieval",
+      },
+    ],
+  },
   // ── agentfax ───────────────────────────────────────────────────────────
   {
     id: "agentfax",
