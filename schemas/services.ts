@@ -1185,6 +1185,76 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── EvidInvest ─────────────────────────────────────────────────────────
+  {
+    id: "evidinvest",
+    name: "EvidInvest",
+    url: "https://mcp.evidinvest.com",
+    serviceUrl: "https://mcp.evidinvest.com",
+    description:
+      "SEC-filing-grounded equity research: cited filing search, fair-value and DCF valuation, company snapshots, and supply-chain maps.",
+
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "finance",
+      "sec-filings",
+      "valuation",
+      "stocks",
+      "dcf",
+      "equity-research",
+    ],
+    docs: {
+      homepage: "https://evidinvest.com/developers",
+      llmsTxt: "https://mcp.evidinvest.com/llms.txt",
+      apiReference: "https://mcp.evidinvest.com/v1/openapi.json",
+    },
+    provider: {
+      name: "EvidInvest (EBD Sweden AB)",
+      url: "https://evidinvest.com",
+    },
+    realm: "mcp.evidinvest.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/quote",
+        desc: "Free price quote for any paid task (no auth)",
+        docs: false,
+      },
+      {
+        route: "POST /v1/paid/filing_search",
+        desc: "Cited SEC filing passages with accession numbers",
+        dynamic: true,
+        amountHint: "$2.25 – $2.53 by model tier",
+      },
+      {
+        route: "POST /v1/paid/company_snapshot",
+        desc: "Company overview with key financial metrics",
+        dynamic: true,
+        amountHint: "$2.38 – $2.89 by model tier",
+      },
+      {
+        route: "POST /v1/paid/valuation",
+        desc: "Fair-value range: DCF, reverse DCF, multiples, peers",
+        dynamic: true,
+        amountHint: "$4.29 – $8.32 by model tier",
+      },
+      {
+        route: "POST /v1/paid/supply_chain",
+        desc: "Supply-chain map from filings, with evidence quotes",
+        dynamic: true,
+        amountHint: "$3.52 – $6.11 by model tier",
+      },
+      {
+        route: "POST /v1/paid/thesis_check",
+        desc: "Company products, customers, suppliers and risks from filings",
+        dynamic: true,
+        amountHint: "$6.64 – $15.17 by model tier",
+      },
+    ],
+  },
+
   // ── fal.ai ─────────────────────────────────────────────────────────────
   {
     id: "fal",
