@@ -573,6 +573,11 @@ const shortcuts = [
     subtext: "Services which directly integrate with MPP.",
     title: "First-party services",
   },
+  {
+    href: "#list-your-service",
+    subtext: "Submit a live MPP API to the curated directory.",
+    title: "List your service",
+  },
 ];
 
 const topShortcuts = [

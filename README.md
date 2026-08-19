@@ -54,6 +54,8 @@ Post frontmatter is the source of truth. The build validates it, orders the blog
 
 The service directory at [mpp.dev/services](https://mpp.dev/services) is curated for live, production-ready MPP services.
 
+Read the [service submission guide](https://mpp.dev/services#list-your-service), then use the [service pull request template](https://github.com/tempoxyz/mpp/compare?expand=1&template=service.md) when you open your PR.
+
 ### Submit a pull request to this repo
 
 If you want your service included in the curated `mpp.dev/services` list, open a PR and complete this checklist:
@@ -62,6 +64,7 @@ If you want your service included in the curated `mpp.dev/services` list, open a
 
 - [ ] Your service is **live and accepting payments** via MPP (not a placeholder or coming-soon)
 - [ ] You've added your entry to `schemas/services.ts`
+- [ ] Registry generation succeeds: `pnpm generate:discovery`
 - [ ] Types pass: `pnpm check:types`
 - [ ] Build succeeds: `pnpm build`
 
@@ -79,26 +82,27 @@ We prioritize services that are **high quality and novel**. We may not approve s
 
 ```ts
 {
-  id: "my-service",
-  name: "My Service",
-  url: "https://example.com",
-  serviceUrl: "https://api.example.com",
-  description: "What your service does.",
   categories: ["ai"],
-  integration: "first-party",
-  tags: ["llm", "chat"],
+  description: "What your service does.",
   docs: {
+    apiReference: "https://api.example.com/openapi.json",
     homepage: "https://docs.example.com",
     llmsTxt: "https://docs.example.com/llms.txt",
   },
-  provider: { name: "Example Inc.", url: "https://example.com" },
-  realm: MPP_REALM,
-  intent: "charge",
-  payment: TEMPO_PAYMENT,
   endpoints: [
-    { route: "POST /v1/completions", desc: "Generate completions", amount: "5000" },
-    { route: "GET /v1/models", desc: "List models" },
+    { amount: "5000", desc: "Generate completions", route: "POST /v1/completions" },
+    { desc: "List models", route: "GET /v1/models" },
   ],
+  id: "my-service",
+  integration: "first-party",
+  intent: "charge",
+  name: "My Service",
+  payments: [TEMPO_PAYMENT],
+  provider: { name: "Example Inc.", url: "https://example.com" },
+  realm: "api.example.com",
+  serviceUrl: "https://api.example.com",
+  tags: ["chat", "llm"],
+  url: "https://example.com",
 }
 ```
 

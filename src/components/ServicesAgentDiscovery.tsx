@@ -69,6 +69,40 @@ export function ServicesAgentDiscovery() {
         </a>
         .
       </p>
+      <h2 data-v="" id="list-your-service">
+        List your service
+      </h2>
+      <p data-v="">
+        The curated directory accepts live, production-ready MPP services. To
+        submit yours:
+      </p>
+      <ol data-v="">
+        <li data-v="">
+          Make sure your service is live and accepts MPP payments.
+        </li>
+        <li data-v="">
+          Gather its public URL, documentation, endpoints, payment methods, and
+          pricing.
+        </li>
+        <li data-v="">
+          <a
+            data-v=""
+            href="https://github.com/tempoxyz/mpp/compare?expand=1&amp;template=service.md"
+          >
+            Open a pull request
+          </a>
+          .
+        </li>
+      </ol>
+      <p data-v="">
+        We prioritize high-quality, novel services and may decline duplicate or
+        incomplete listings. For immediate discovery outside the curated
+        directory, you can also{" "}
+        <a data-v="" href="https://www.mppscan.com/register">
+          register on MPPScan
+        </a>
+        .
+      </p>
     </div>
   );
 }

@@ -25,7 +25,8 @@ jobs:
               '',
               '### Required',
               '- [ ] Your service is **live and accepting payments** via MPP (not a placeholder or coming-soon)',
-              '- [ ] You\'ve added your entry to `schemas/services.ts` following the [contributing guide](https://github.com/tempoxyz/mpp?tab=readme-ov-file#contributing-to-the-service-directory)',
+              '- [ ] You\'ve added your entry to `schemas/services.ts` following the [service submission guide](https://mpp.dev/services#list-your-service)',
+              '- [ ] Registry generation succeeds: `pnpm generate:discovery`',
               '- [ ] Types pass: `pnpm check:types`',
               '- [ ] Build succeeds: `pnpm build`',
               '',
@@ -36,7 +37,7 @@ jobs:
               'We prioritize services that are **high quality and novel**. We may not approve services that duplicate existing functionality or aren\'t yet production-ready.',
               '',
               '---',
-              '[Contributing guide](https://github.com/tempoxyz/mpp?tab=readme-ov-file#contributing-to-the-service-directory) · [MPPScan](https://www.mppscan.com/register) · [Protocol docs](https://mpp.dev/protocol/)',
+              '[Service submission guide](https://mpp.dev/services#list-your-service) · [Service PR template](https://github.com/tempoxyz/mpp/compare?expand=1&template=service.md) · [MPPScan](https://www.mppscan.com/register) · [Protocol docs](https://mpp.dev/protocol/)',
             ].join('\n');
 
             await github.rest.issues.createComment({
