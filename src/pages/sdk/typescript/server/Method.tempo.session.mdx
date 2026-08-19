@@ -225,6 +225,8 @@ Reserve contract advertised in each Challenge. Defaults to the canonical TIP-103
 
 Account or URL for sponsoring open, top-up, settlement, and close transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote fee payer service, or `true` when the `account` parameter doubles as the fee payer.
 
+A remote fee payer service sponsors server-driven scheduled settlement and cooperative close transactions in addition to client-driven open and top-up transactions.
+
 ### feePayerPolicy (optional)
 
 - **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
@@ -410,7 +412,19 @@ import { tempo } from 'mppx/server'
 const txHash = await tempo.session.settle(store, client, channelId)
 ```
 
-The sender must be the channel payee or a nonzero operator. You can pass an account or fee-payer options as the fourth argument.
+The sender must be the channel payee or a nonzero operator. Pass transaction options as the fourth argument. Set `feePayer` to an account for local co-signing, or `true` when the client transport uses a configured hosted fee payer service.
+
+```ts
+type SettlementTransactionOptions = {
+  account?: Account
+  candidateFeeTokens?: readonly Address[]
+  escrowContract?: Address
+  feePayer?: Account | true
+  feePayerPolicy?: Partial<FeePayerPolicy>
+  feeToken?: Address
+  onSessionSettlement?: OnSessionSettlement
+}
+```
 
 ### `tempo.session.settleBatch`
 
