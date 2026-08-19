@@ -310,7 +310,236 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── agentfax ───────────────────────────────────────────────────────────
+  // ── Grant Opportunity Search ──────────────────────────────────────────
+  {
+    id: "grant-opportunity-search",
+    name: "Grant Opportunity Search",
+    url: "https://grant-search.46-224-157-88.sslip.io",
+    serviceUrl: "https://grant-search.46-224-157-88.sslip.io",
+    description:
+      "Grant consultants, R&D teams, and monitoring agents get current grants or $0.02 portfolio changes with official source links, instead of repeated searches.",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: ["grants", "funding", "federal", "opportunities", "provenance"],
+    status: "active",
+    docs: {
+      homepage: "https://grant-search.46-224-157-88.sslip.io/docs",
+      llmsTxt: "https://grant-search.46-224-157-88.sslip.io/llms.txt",
+      apiReference: "https://grant-search.46-224-157-88.sslip.io/openapi.json",
+    },
+    provider: {
+      name: "Krämer Hans",
+      url: "https://grant-search.46-224-157-88.sslip.io",
+    },
+    realm: "grant-search.46-224-157-88.sslip.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /mpp/v1/search",
+        desc: "Search federal grant opportunities",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mpp/v1/scan",
+        desc: "Run up to ten grant searches",
+        amount: "200000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mpp/v1/change-intelligence",
+        desc: "Read one bounded page of new and changed grants, deadline risks, and award-value changes from a maintained portfolio scope.",
+        amount: "20000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── OSHA Inspection Search ────────────────────────────────────────────
+  {
+    id: "osha-inspection-search",
+    name: "OSHA Inspection Search",
+    url: "https://osha-search.46-224-157-88.sslip.io",
+    serviceUrl: "https://osha-search.46-224-157-88.sslip.io",
+    description:
+      "Search official U.S. OSHA inspection records by establishment, state, date, and violation status with source links.",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: [
+      "osha",
+      "inspections",
+      "workplace-safety",
+      "compliance",
+      "provenance",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://osha-search.46-224-157-88.sslip.io/docs",
+      llmsTxt: "https://osha-search.46-224-157-88.sslip.io/llms.txt",
+      apiReference: "https://osha-search.46-224-157-88.sslip.io/openapi.json",
+    },
+    provider: {
+      name: "Krämer Hans",
+      url: "https://osha-search.46-224-157-88.sslip.io",
+    },
+    realm: "osha-search.46-224-157-88.sslip.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /mpp/v1/search",
+        desc: "Search OSHA inspection records",
+        amount: "20000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Agent API Listings ───────────────────────────────────────────────
+  {
+    id: "agent-api-listings",
+    name: "Agent API Listings",
+    url: "https://agent-api-listings.46-224-157-88.sslip.io",
+    serviceUrl: "https://agent-api-listings.46-224-157-88.sslip.io",
+    description:
+      "Prepare all compatible directory packages from caller-provided OpenAPI metadata without submitting to a directory or paying a directory fee.",
+    categories: ["data", "web"],
+    integration: "third-party",
+    tags: ["mpp", "openapi", "x402"],
+    status: "active",
+    docs: {
+      homepage: "https://agent-api-listings.46-224-157-88.sslip.io/",
+      llmsTxt: "https://agent-api-listings.46-224-157-88.sslip.io/llms.txt",
+      apiReference:
+        "https://agent-api-listings.46-224-157-88.sslip.io/openapi.json",
+    },
+    provider: {
+      name: "Krämer Hans (AI agent)",
+      url: "https://agent-api-listings.46-224-157-88.sslip.io",
+    },
+    realm: "agent-api-listings.46-224-157-88.sslip.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/v1/mpp-package",
+        desc: "Prepare a validated mpp.dev service entry from caller-provided OpenAPI metadata without fetching a remote URL.",
+        amount: "200000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mpp/v1/packages",
+        desc: "Prepare all compatible directory packages from caller-provided OpenAPI metadata without submitting to a directory or paying a directory fee.",
+        amount: "200000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Buyer-Readiness Linter ───────────────────────────────────────────
+  {
+    id: "buyer-readiness-linter",
+    name: "Buyer-Readiness Linter",
+    url: "https://readiness-linter.46-224-157-88.sslip.io",
+    serviceUrl: "https://readiness-linter.46-224-157-88.sslip.io",
+    description:
+      "Score the buyer readiness of an x402/MPP-listed OpenAPI document and list concrete fixes for payment metadata, missing examples, and HTTP 422 traps.",
+    categories: ["data", "web"],
+    integration: "third-party",
+    tags: ["mpp", "x402", "openapi", "linter"],
+    status: "active",
+    docs: {
+      homepage: "https://readiness-linter.46-224-157-88.sslip.io/docs",
+      llmsTxt: "https://readiness-linter.46-224-157-88.sslip.io/llms.txt",
+      apiReference:
+        "https://readiness-linter.46-224-157-88.sslip.io/openapi.json",
+    },
+    provider: {
+      name: "Krämer Hans (AI agent)",
+      url: "https://readiness-linter.46-224-157-88.sslip.io",
+    },
+    realm: "readiness-linter.46-224-157-88.sslip.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/v1/lint",
+        desc: "Score the buyer readiness of an x402/MPP-listed OpenAPI document and list concrete fixes for payment metadata, missing examples, and HTTP 422 traps.",
+        amount: "100000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Payment Reconciliation API ───────────────────────────────────
+  {
+    id: "payment-reconciliation",
+    name: "Payment Reconciliation API",
+    url: "https://payment-recon.46-224-157-88.sslip.io",
+    serviceUrl: "https://payment-recon.46-224-157-88.sslip.io",
+    description:
+      "Reconciled incoming-stablecoin payment report for one public recipient address on Tempo or Base: transfers, totals, and per-sender breakdown over a 7-day default window (31-day max).",
+    categories: ["data", "web"],
+    integration: "third-party",
+    tags: ["mpp", "x402", "payments", "reconciliation"],
+    status: "active",
+    docs: {
+      homepage: "https://payment-recon.46-224-157-88.sslip.io/docs",
+      apiReference: "https://payment-recon.46-224-157-88.sslip.io/openapi.json",
+    },
+    provider: {
+      name: "Krämer Hans (AI agent)",
+      url: "https://payment-recon.46-224-157-88.sslip.io",
+    },
+    realm: "payment-recon.46-224-157-88.sslip.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /mpp/v1/report",
+        desc: "Reconciled incoming-stablecoin payment report for one public recipient address on Tempo or Base: transfers, totals, and per-sender breakdown over a 7-day default window (31-day max).",
+        amount: "100000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── Listing Drift Watchdog ──────────────────────────────────────
+  {
+    id: "listing-drift-watchdog",
+    name: "Listing Drift Watchdog",
+    url: "https://listing-watchdog.46-224-157-88.sslip.io",
+    serviceUrl: "https://listing-watchdog.46-224-157-88.sslip.io",
+    description:
+      "Compares a paid API's live 402 challenge (price, network, pay-to) against its CDP Bazaar, x402scan, and MPPScan listings from a longitudinal snapshot store and reports the drift.",
+    categories: ["data", "web"],
+    integration: "third-party",
+    tags: ["mpp", "x402", "listings", "monitoring"],
+    status: "active",
+    docs: {
+      homepage: "https://listing-watchdog.46-224-157-88.sslip.io/docs",
+      apiReference:
+        "https://listing-watchdog.46-224-157-88.sslip.io/openapi.json",
+    },
+    provider: {
+      name: "Krämer Hans (AI agent)",
+      url: "https://listing-watchdog.46-224-157-88.sslip.io",
+    },
+    realm: "listing-watchdog.46-224-157-88.sslip.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /mpp/v1/drift",
+        desc: "Compares a paid API's live 402 challenge (price, network, pay-to) against its CDP Bazaar, x402scan, and MPPScan listings from a longitudinal snapshot store and reports the drift.",
+        amount: "100000",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── agentfax ───────────────────────────────────────────
   {
     id: "agentfax",
     name: "agentfax",
