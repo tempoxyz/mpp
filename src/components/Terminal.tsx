@@ -11,7 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { BlockCursorInput } from "./BlockCursorInput";
 import { SPINNER_FRAMES } from "./terminal-data";
 import {
@@ -84,7 +84,11 @@ export function timeAgo(iso: string) {
 
 const fullscreenMotion = {
   duration: 300,
-  easing: "cubic-bezier(0.19, 1, 0.22, 1)",
+} as const;
+
+const fullscreenEasing = {
+  closing: "cubic-bezier(0.42, 0, 0.58, 1)",
+  opening: "cubic-bezier(0.19, 1, 0.22, 1)",
 } as const;
 
 function animateFullscreenTransition(
@@ -104,9 +108,11 @@ function animateFullscreenTransition(
     },
   ];
   if (opening) frames.reverse();
-  const options: KeyframeAnimationOptions = opening
-    ? fullscreenMotion
-    : { ...fullscreenMotion, fill: "forwards" };
+  const options: KeyframeAnimationOptions = {
+    ...fullscreenMotion,
+    easing: opening ? fullscreenEasing.opening : fullscreenEasing.closing,
+    fill: opening ? "none" : "forwards",
+  };
   const animations = [terminal.animate(frames, options)];
   const controls = terminal.querySelector<HTMLElement>("[data-term-controls]");
   if (opening && controls) {
@@ -2813,14 +2819,15 @@ function TerminalComponent({
   }, [portalContainer]);
 
   const finishFullscreenClose = useCallback(() => {
-    for (const animation of fullscreenAnimationsRef.current) {
-      animation.cancel();
-    }
+    const animations = fullscreenAnimationsRef.current;
     fullscreenAnimationsRef.current = [];
     isFullscreenClosingRef.current = false;
-    setIsFullscreen(false);
-    setIsFullscreenClosing(false);
-    moveTerminalInline();
+    flushSync(() => {
+      moveTerminalInline();
+      setIsFullscreen(false);
+      setIsFullscreenClosing(false);
+    });
+    for (const animation of animations) animation.cancel();
   }, [moveTerminalInline]);
 
   const closeFullscreen = useCallback(() => {

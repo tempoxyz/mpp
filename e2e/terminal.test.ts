@@ -240,6 +240,11 @@ describe("terminal", () => {
       translate: "0px",
     });
     expect(closingFrames?.at(-1)?.clipPath).not.toBe("inset(0px)");
+    expect(
+      await fullscreenTerminal.evaluate(
+        (element) => element.getAnimations().at(-1)?.effect?.getTiming().easing,
+      ),
+    ).toBe("cubic-bezier(0.42, 0, 0.58, 1)");
     const enlargeButton = page.getByRole("button", {
       name: "Enlarge terminal",
       exact: true,
