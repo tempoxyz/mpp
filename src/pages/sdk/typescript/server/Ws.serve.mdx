@@ -48,6 +48,17 @@ await mppx.session.serveWebSocket({
 
 The helper shares the `Store` and `settlementSchedule` configured by `tempo.session()`. It applies the schedule after every committed WebSocket charge.
 
+### With dynamic amounts
+
+Pass an amount in base units when each message has a different price. An explicit amount reserves that amount for the next emitted message, including when the request already authorized an implicit tick.
+
+```ts
+generate: async function* (stream) {
+  await stream.charge(2_000n)
+  yield 'premium-result'
+}
+```
+
 ## Return type
 
 ```ts
@@ -68,7 +79,7 @@ Expected per-tick amount. When set, Credentials with mismatched amounts are reje
 
 - **Type:** `AsyncIterable<string> | ((stream: SessionController) => AsyncIterable<string>)`
 
-Async iterable that produces application messages. When passed as a function, receives a `SessionController` with a `charge()` method for requesting payment before yielding each value. Each yielded string is sent to the client as an application message frame.
+Async iterable that produces application messages. When passed as a function, receives a `SessionController` with a `charge(amount?: bigint)` method for requesting payment before yielding each value. Omit `amount` to use the Challenge tick cost, or pass a base-unit amount for dynamic pricing. Each yielded string is sent to the client as an application message frame.
 
 ### pollIntervalMs (optional)
 

@@ -738,6 +738,17 @@ const receipt = await session.close()
 </Tab>
 </Tabs>
 
+## Charge dynamic amounts
+
+Pass a `bigint` in base units to charge a different amount for a specific event. An explicit amount reserves that amount for the next emitted event; calling `charge()` without an argument uses the route's configured tick cost.
+
+```ts
+return result.withReceipt(async function* (stream) {
+  await stream.charge(2_000n)
+  yield 'premium-result'
+})
+```
+
 ## WebSocket alternative
 
 The examples above use Server-Sent Events (SSE) for streaming. If your use case benefits from a persistent bidirectional connection — for example, interactive chat or real-time sessions — you can stream over WebSocket instead. The session payment flow is the same (channel open, voucher signing, close), but vouchers and content travel over a single socket rather than separate HTTP requests.
