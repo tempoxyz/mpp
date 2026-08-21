@@ -11028,6 +11028,49 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── TempVPN ────────────────────────────────────────────────────────────
+  {
+    id: "tempvpn",
+    name: "TempVPN",
+    url: "https://registry.tempvpn.xyz",
+    serviceUrl: "https://registry.tempvpn.xyz",
+    description:
+      "Discover and buy temporary WireGuard VPN sessions worldwide with minute-based Tempo MPP payments.",
+    categories: ["web"],
+    integration: "third-party",
+    tags: ["networking", "privacy", "tempo", "vpn", "wireguard"],
+    status: "active",
+    docs: {
+      homepage: "https://registry.tempvpn.xyz/docs",
+      llmsTxt: "https://registry.tempvpn.xyz/llms.txt",
+      apiReference: "https://registry.tempvpn.xyz/openapi.json",
+    },
+    provider: { name: "TempVPN", url: "https://registry.tempvpn.xyz" },
+    realm: "tempvpn.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /nodes",
+        desc: "Discover available VPN nodes by country, city, or region",
+      },
+      {
+        route: "POST /sessions",
+        desc: "Buy a fixed-duration WireGuard VPN session",
+        dynamic: true,
+        amountHint: "$0.01 per started minute",
+        unitType: "session",
+      },
+      {
+        route: "GET /sessions/stream",
+        desc: "Open a metered WireGuard VPN session",
+        amount: "10000",
+        intent: "session",
+        unitType: "60-second billing interval",
+      },
+    ],
+  },
+
   // ── AgentPhone (Orthogonal) ──
   {
     id: "orth-agentphone",
