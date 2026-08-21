@@ -325,7 +325,12 @@ export default defineConfig(({ mode }) => {
       external: ["typescript"],
     },
     test: {
-      exclude: [...configDefaults.exclude, "e2e/**", "workers/**"],
+      exclude: [
+        ...configDefaults.exclude,
+        "e2e/**",
+        "integration/**",
+        "workers/**",
+      ],
     },
   };
 });

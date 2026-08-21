@@ -42,6 +42,17 @@ pnpm run check:sdk-drift # Validate SDK reference pages against mppx exports
 pnpm run preview  # Preview production build
 ```
 
+Run the real Tempo charge integration test against the bootstrapped localnet:
+
+```bash
+docker compose up -d --wait tempo
+pnpm test:integration
+docker compose down
+```
+
+Set `TEMPO_LOCALNET_IMAGE` to pin a release tag or image digest. Set
+`TEMPO_RPC_URL` to run the same test against an existing localnet.
+
 ### Publish a blog post
 
 1. Copy [`templates/blog-post.mdx`](templates/blog-post.mdx) to `src/pages/blog/<slug>.mdx`.
