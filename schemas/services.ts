@@ -615,6 +615,45 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── HookMPP ────────────────────────────────────────────────────────────
+  {
+    id: "hookmpp",
+    name: "HookMPP",
+    url: "https://hookmpp.dev",
+    serviceUrl: "https://hookmpp.dev",
+    description:
+      "Purchase short-lived webhook callback inboxes without an account, API key, or public server.",
+    icon: "https://hookmpp.dev/favicon.ico",
+    categories: ["compute", "web"],
+    integration: "first-party",
+    tags: ["webhooks", "callbacks", "inboxes", "async", "agents", "ephemeral"],
+    status: "active",
+    docs: {
+      homepage: "https://hookmpp.dev",
+      llmsTxt: "https://hookmpp.dev/llms.txt",
+      apiReference: "https://hookmpp.dev/openapi.json",
+    },
+    provider: { name: "HookMPP", url: "https://hookmpp.dev" },
+    realm: "hookmpp.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "tempo",
+        currency: "0x20c0000000000000000000000000000000000000",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "POST /api/inboxes",
+        desc: "Create an ephemeral webhook inbox",
+        dynamic: true,
+        amountHint: "$0.01–$0.20, depending on the selected profile",
+        unitType: "inbox",
+      },
+    ],
+  },
+
   // ── Allium ──────────────────────────────────────────────────────────────
   {
     id: "allium",
