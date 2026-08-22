@@ -1475,6 +1475,40 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Minibase ────────────────────────────────────────────────────────────
+  {
+    id: "minibase",
+    name: "Minibase API",
+    url: "https://api.minibase.md",
+    serviceUrl: "https://api.minibase.md",
+    description:
+      "Convert any URL to clean, LLM-ready Markdown — real-browser fetching, clutter stripped, 300+ site adapters (YouTube transcripts, X threads, Instagram, TikTok). Pay per page, no account.",
+
+    icon: "https://www.minibase.md/favicon-192.png",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: ["markdown", "scraping", "rag", "url-to-markdown", "transcripts"],
+    status: "active",
+    docs: {
+      homepage: "https://www.minibase.md/api",
+      llmsTxt: "https://www.minibase.md/llms.txt",
+      apiReference: "https://api.minibase.md/openapi.json",
+    },
+    provider: { name: "Minibase", url: "https://www.minibase.md" },
+    realm: "api.minibase.md",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/convert",
+        desc: "Convert a URL to clean Markdown (plain $0.01; with an AI formatting template $0.05)",
+        dynamic: true,
+        amountHint: "$0.01 per page, $0.05 with an AI template",
+        unitType: "page",
+      },
+    ],
+  },
+
   // ── molty.cash ──────────────────────────────────────────────────────────
   {
     id: "moltycash",
