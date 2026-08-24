@@ -134,6 +134,10 @@ app.get('/api/data', (req, res) => {
 
 The wrapper delegates x402 Credentials, lifecycle hooks, verification, and settlement to the official x402 adapter. For a compatible `exact` requirement, it also returns an MPP Challenge and settles MPP Credentials through the same x402 resource server.
 
+:::note
+The x402 compatibility wrapper converts atomic payment requirements to display units automatically, so keep your existing x402 route configuration unchanged. When configuring `mppx.evm.charge` directly, convert atomic amounts first—for six-decimal USDC, `10000` becomes `0.01`.
+:::
+
 ### Run x402 inline with `mppx`
 
 For a new service, configure `mppx` directly when one route must serve native MPP and x402 clients.
