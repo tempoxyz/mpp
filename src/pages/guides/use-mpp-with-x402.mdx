@@ -13,17 +13,19 @@ MPP and x402 are complementary protocols. You can add MPP to an x402 client or s
 
 ## Protocol comparison
 
-Both protocols use HTTP `402` to gate API access behind payment. MPP uses HTTP authentication and separates payment intents from payment methods. x402 registers on-chain payment schemes and optional extensions. An x402 exact charge maps to MPP's `charge` intent.
+Both protocols use HTTP `402` to gate API access behind payment. MPP uses HTTP authentication and separates payment intents from payment methods. x402 registers on-chain payment schemes and optional extensions.
 
 | | x402 | MPP |
 |---|---|---|
 | **Challenge** | `PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
 | **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` header |
 | **Receipt** | `PAYMENT-RESPONSE` header | `Payment-Receipt` header |
+| **Flow used here** | x402 v2 EIP-3009 `exact` | EVM `charge` |
 | **Payment rails** | Registered blockchain network mechanisms | Stablecoins, cards, Lightning, and custom methods |
-| **Usage-based billing** | `upto` and EVM `batch-settlement` schemes | Payment-method intents, including `session` |
 | **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
 | **Idempotency** | Optional Payment Identifier extension | Challenge identity plus standard `Idempotency-Key` guidance |
+
+The `mppx` compatibility adapter maps extension-free x402 v2 EIP-3009 `exact` requirements to MPP `charge` Challenges. Other x402 schemes, including `upto` and `batch-settlement`, continue through the official x402 middleware but don't produce an equivalent MPP Challenge.
 
 See [MPP vs x402](/mpp-vs-x402) for a full comparison.
 
@@ -31,12 +33,12 @@ See [MPP vs x402](/mpp-vs-x402) for a full comparison.
 
 Choose the server setup that matches the protocols your endpoint needs to expose:
 
-1. **Add `mppx` to an x402 server**—start with your existing x402 route and move its payment configuration into `mppx`.
+1. **Add MPP to an x402 server**—keep your existing x402 route table and resource server, then wrap them with `mppx`.
 2. **Start with `mppx`**—create a new route that serves native MPP and x402 clients.
 
-### Add `mppx` to an x402 server
+### Add MPP to an x402 server
 
-Install `mppx`, then move your existing asset, facilitator, price, and recipient into the equivalent `mppx` configuration.
+Install `mppx`. Keep your existing x402 SDK packages and configuration.
 
 :::code-group
 
@@ -57,7 +59,7 @@ $ bun add mppx viem
 Start with your existing x402 SDK route:
 
 ```ts [server.ts]
-import { HTTPFacilitatorClient } from '@x402/core/server'
+import { HTTPFacilitatorClient, type RoutesConfig } from '@x402/core/server'
 import { ExactEvmScheme } from '@x402/evm/exact/server'
 import { paymentMiddleware, x402ResourceServer } from '@x402/express'
 import express from 'express'
@@ -66,69 +68,75 @@ const app = express()
 const facilitator = new HTTPFacilitatorClient({
   url: 'https://x402.org/facilitator',
 })
-
-app.use(
-  paymentMiddleware(
-    {
-      'GET /api/data': {
-        accepts: [
-          {
-            network: 'eip155:84532',
-            payTo: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-            price: '$0.01',
-            scheme: 'exact',
-          },
-        ],
-        description: 'Premium data access',
-        mimeType: 'application/json',
-      },
-    },
-    new x402ResourceServer(facilitator).register(
-      'eip155:84532',
-      new ExactEvmScheme(),
-    ),
-  ),
+const resourceServer = new x402ResourceServer(facilitator).register(
+  'eip155:84532',
+  new ExactEvmScheme(),
 )
+const routes = {
+  'GET /api/data': {
+    accepts: [
+      {
+        network: 'eip155:84532',
+        payTo: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+        price: '$0.01',
+        scheme: 'exact',
+      },
+    ],
+    description: 'Premium data access',
+    mimeType: 'application/json',
+  },
+} satisfies RoutesConfig
+
+app.use(paymentMiddleware(routes, resourceServer))
 
 app.get('/api/data', (req, res) => {
   res.json({ data: 'premium content' })
 })
 ```
 
-Move the payment configuration into `mppx` and keep the route handler unchanged:
+Replace the x402 middleware import with the MPP compatibility wrapper. Keep the route table, resource server, facilitator, and handler unchanged:
 
 ```ts [server.ts]
-import { Mppx, evm } from 'mppx/express'
+import { HTTPFacilitatorClient, type RoutesConfig } from '@x402/core/server'
+import { ExactEvmScheme } from '@x402/evm/exact/server'
+import { x402ResourceServer } from '@x402/express'
 import express from 'express'
+import { mpp } from 'mppx/x402/express'
 
 const app = express()
-
-const mppx = Mppx.create({
-  methods: [
-    evm.charge({
-      currency: evm.assets.baseSepolia.USDC,
-      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      x402: {
-        facilitator: 'https://x402.org/facilitator',
-      },
-    }),
-  ],
-  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
+const facilitator = new HTTPFacilitatorClient({
+  url: 'https://x402.org/facilitator',
 })
-
-app.get(
-  '/api/data',
-  mppx.evm.charge({
-    amount: '0.01',
-    description: 'Premium data access',
-  }),
-  (req, res) => {
-    res.json({ data: 'premium content' })
-  },
+const resourceServer = new x402ResourceServer(facilitator).register(
+  'eip155:84532',
+  new ExactEvmScheme(),
 )
+const routes = {
+  'GET /api/data': {
+    accepts: [
+      {
+        network: 'eip155:84532',
+        payTo: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+        price: '$0.01',
+        scheme: 'exact',
+      },
+    ],
+    description: 'Premium data access',
+    mimeType: 'application/json',
+  },
+} satisfies RoutesConfig
+
+const secretKey = process.env.MPP_SECRET_KEY
+if (!secretKey) throw new Error('Set MPP_SECRET_KEY to at least 32 random bytes.')
+
+app.use(mpp(routes, resourceServer, { secretKey }))
+
+app.get('/api/data', (req, res) => {
+  res.json({ data: 'premium content' })
+})
 ```
 
-`mppx` replaces the x402 payment middleware, but the route still accepts standard x402 v2 exact clients. It also returns native MPP Challenges and accepts native MPP Credentials.
+The wrapper delegates x402 Credentials, lifecycle hooks, verification, and settlement to the official x402 adapter. For a compatible `exact` requirement, it also returns an MPP Challenge and settles MPP Credentials through the same x402 resource server.
 
 ### Run x402 inline with `mppx`
 
@@ -175,6 +183,19 @@ The handler stays unchanged. `mppx`:
 This flow also supports body-bearing and route-scoped endpoints. Standard x402 clients don't need the optional `mppx` route-binding extension.
 
 ### Advanced server options
+
+#### Use another x402 adapter
+
+The compatibility wrappers cover the official x402 adapters for each supported environment:
+
+| Environment | Import |
+|---|---|
+| Express | `mppx/x402/express` |
+| Hono | `mppx/x402/hono` |
+| MCP | `mppx/x402/mcp` |
+| Next.js | `mppx/x402/next` |
+
+Each wrapper keeps the official adapter's route or tool configuration, hooks, verification, and settlement.
 
 #### Add another payment method
 
@@ -233,7 +254,7 @@ const method = evm.charge({
 
 The default compares the echoed resource URL and payment requirements, and verifies any body digest against the request. Required binding also cryptographically binds MPP scope, opaque values, and metadata, but excludes standard clients that don't implement the extension.
 
-#### Use Hono middleware
+#### Use native Hono middleware
 
 Import the Hono adapter to apply the same inline flow as route middleware.
 
