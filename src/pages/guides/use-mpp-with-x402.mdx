@@ -9,21 +9,23 @@ import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '.
 
 # Use MPP with x402 [Connect existing x402 services and clients]
 
-MPP and x402 are complementary protocols and x402 clients and servers can easily support MPP with just a few lines of code.
+MPP and x402 are complementary protocols. You can add MPP to an x402 client or server with a few lines of code while preserving x402 support.
 
 ## Protocol comparison
 
-Both protocols use HTTP `402` to gate API access behind payment. x402 exact charges map to MPP's `charge` intent, while MPP adds standard HTTP authentication, more payment methods, and efficient payment methods like Sessions.
+Both protocols use HTTP `402` to gate API access behind payment. MPP uses HTTP authentication and separates payment intents from payment methods. x402 registers on-chain payment schemes and optional extensions. An x402 exact charge maps to MPP's `charge` intent.
 
 | | x402 | MPP |
 |---|---|---|
 | **Challenge** | `PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
 | **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` header |
 | **Receipt** | `PAYMENT-RESPONSE` header | `Payment-Receipt` header |
-| **Payment methods** | Stablecoins | Stablecoins, cards, digital wallets, and other methods |
-| **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
+| **Payment rails** | Registered blockchain network mechanisms | Stablecoins, cards, Lightning, and custom methods |
+| **Usage-based billing** | `upto` and EVM `batch-settlement` schemes | Payment-method intents, including `session` |
 | **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
-| **Idempotency** | No | Built-in Challenge binding |
+| **Idempotency** | Optional Payment Identifier extension | Challenge identity plus standard `Idempotency-Key` guidance |
+
+See [MPP vs x402](/mpp-vs-x402) for a full comparison.
 
 ## Server
 
