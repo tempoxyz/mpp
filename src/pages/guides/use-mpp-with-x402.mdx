@@ -27,7 +27,7 @@ See [MPP vs x402](/mpp-vs-x402) for a full comparison.
 
 ## Server
 
-Choose the server setup that matches the protocols your endpoint needs to expose:
+Choose the server setup that matches your current integration shape:
 
 1. **Add MPP to an x402 server**—keep your existing x402 route table and resource server, then wrap them with `mppx`.
 2. **Start with `mppx`**—create a new route that serves native MPP and x402 clients.
@@ -97,7 +97,7 @@ import { HTTPFacilitatorClient, type RoutesConfig } from '@x402/core/server'
 import { ExactEvmScheme } from '@x402/evm/exact/server'
 import { x402ResourceServer } from '@x402/express'
 import express from 'express'
-import { mpp } from 'mppx/x402/express' // [!code hl]
+import { mpp } from 'mppx/x402/express' // [!code focus]
 
 const app = express()
 const facilitator = new HTTPFacilitatorClient({
@@ -125,7 +125,7 @@ const routes = {
 const secretKey = process.env.MPP_SECRET_KEY
 if (!secretKey) throw new Error('Set MPP_SECRET_KEY to at least 32 random bytes.')
 
-app.use(mpp(routes, resourceServer, { secretKey })) // [!code hl]
+app.use(mpp(routes, resourceServer, { secretKey })) // [!code focus]
 
 app.get('/api/data', (req, res) => {
   res.json({ data: 'premium content' })
@@ -149,11 +149,11 @@ const mppx = Mppx.create({
     evm.charge({
       currency: evm.assets.baseSepolia.USDC,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      // [!code hl:start]
+      // [!code focus:start]
       x402: {
         facilitator: 'https://x402.org/facilitator',
       },
-      // [!code hl:end]
+      // [!code focus:end]
     }),
   ],
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
@@ -182,57 +182,6 @@ This flow also supports body-bearing and route-scoped endpoints. Standard x402 c
 
 ### Advanced server options
 
-#### Use another x402 adapter
-
-The compatibility wrappers cover the official x402 adapters for each supported environment:
-
-| Environment | Import |
-|---|---|
-| Express | `mppx/x402/express` |
-| Hono | `mppx/x402/hono` |
-| MCP | `mppx/x402/mcp` |
-| Next.js | `mppx/x402/next` |
-
-Each wrapper keeps the official adapter's route or tool configuration, hooks, verification, and settlement.
-
-#### Add another payment method
-
-Register another method beside `evm.charge`, then use `mppx.charge()` to advertise every compatible charge method. This example adds pathUSD payments on Tempo while preserving x402 support on Base Sepolia.
-
-```ts [server.ts]
-import { Mppx, evm, tempo } from 'mppx/express'
-import express from 'express'
-
-const app = express()
-
-const mppx = Mppx.create({
-  methods: [
-    evm.charge({
-      currency: evm.assets.baseSepolia.USDC,
-      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      x402: {
-        facilitator: 'https://x402.org/facilitator',
-      },
-    }),
-    tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    }),
-  ],
-  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
-})
-
-app.get(
-  '/api/data',
-  mppx.charge({ amount: '0.01', description: 'Premium data access' }),
-  (req, res) => {
-    res.json({ data: 'premium content' })
-  },
-)
-```
-
-See [Payment methods](/payment-methods) to add cards, Lightning, or another payment rail.
-
 #### Require route-bound x402 Credentials
 
 Keep the default `routeBinding: 'resource'` for compatibility with standard x402 clients. Set `routeBinding: 'required'` when every x402 Credential for a scoped route must include the `mppx` extension and a route-bound nonce.
@@ -253,36 +202,6 @@ const method = evm.charge({
 ```
 
 The default compares the echoed resource URL and payment requirements, and verifies any body digest against the request. Required binding also cryptographically binds MPP scope, opaque values, and metadata, but excludes standard clients that don't implement the extension.
-
-#### Use native Hono middleware
-
-Import the Hono adapter to apply the same inline flow as route middleware.
-
-```ts twoslash [server.ts]
-import { Hono } from 'hono'
-import { Mppx, evm } from 'mppx/hono'
-
-const app = new Hono()
-
-const mppx = Mppx.create({
-  methods: [
-    evm.charge({
-      currency: evm.assets.baseSepolia.USDC,
-      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      x402: {
-        facilitator: 'https://x402.org/facilitator',
-      },
-    }),
-  ],
-  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
-})
-
-app.get(
-  '/api/data',
-  mppx.evm.charge({ amount: '0.01', description: 'Premium data access' }),
-  (c) => c.json({ data: 'premium content' }),
-)
-```
 
 ## Client
 
