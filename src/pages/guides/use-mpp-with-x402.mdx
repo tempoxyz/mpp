@@ -11,6 +11,26 @@ import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '.
 
 Keep your existing x402 server when you only need `mppx` clients to pay it. Use `mppx` on the server when the same endpoint must speak both native MPP and x402.
 
+## Compare MPP and x402
+
+Both protocols use HTTP `402` to gate API access behind payment. x402 exact charges map to MPP's `charge` intent, while MPP adds standard HTTP authentication, more payment methods, and Sessions.
+
+| | x402 | MPP |
+|---|---|---|
+| **Challenge** | `PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
+| **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` header |
+| **Receipt** | `PAYMENT-RESPONSE` header | `Payment-Receipt` header |
+| **Payment methods** | Stablecoins | Stablecoins, cards, digital wallets, and other methods |
+| **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
+| **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
+| **Idempotency** | No | Built-in Challenge binding |
+
+MPP uses three protocol objects throughout a payment flow:
+
+- **Challenge**—the server's `402` response describing the required payment
+- **Credential**—the client's signed payment authorization
+- **Receipt**—the server's confirmation that the payment settled
+
 ## Server
 
 Choose the server setup that matches the protocols your endpoint needs to expose:
@@ -300,28 +320,6 @@ const response = await mppx.rawFetch(
 console.log(response.status)
 // @log: 200
 ```
-
-## Advanced concepts
-
-### Compare MPP and x402
-
-Both protocols use HTTP `402` to gate API access behind payment. x402 exact charges map to MPP's `charge` intent, while MPP adds standard HTTP authentication, more payment methods, and Sessions.
-
-| | x402 | MPP |
-|---|---|---|
-| **Challenge** | `PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
-| **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` header |
-| **Receipt** | `PAYMENT-RESPONSE` header | `Payment-Receipt` header |
-| **Payment methods** | Stablecoins | Stablecoins, cards, digital wallets, and other methods |
-| **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
-| **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
-| **Idempotency** | No | Built-in Challenge binding |
-
-MPP uses three protocol objects throughout a payment flow:
-
-- **Challenge**—the server's `402` response describing the required payment
-- **Credential**—the client's signed payment authorization
-- **Receipt**—the server's confirmation that the payment settled
 
 ## Next steps
 
