@@ -13,7 +13,7 @@ MPP and x402 are complementary protocols. You can add MPP to an x402 client or s
 
 ## Protocol comparison
 
-Both protocols use HTTP `402` to gate API access behind payment. MPP uses HTTP authentication and separates payment intents from payment methods. x402 registers on-chain payment schemes and optional extensions.
+See [MPP vs x402](/mpp-vs-x402) for a full comparison.
 
 | | x402 | MPP |
 |---|---|---|
@@ -24,10 +24,6 @@ Both protocols use HTTP `402` to gate API access behind payment. MPP uses HTTP a
 | **Payment rails** | Registered blockchain network mechanisms | Stablecoins, cards, Lightning, and custom methods |
 | **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
 | **Idempotency** | Optional Payment Identifier extension | Challenge identity plus standard `Idempotency-Key` guidance |
-
-The `mppx` compatibility adapter maps extension-free x402 v2 EIP-3009 `exact` requirements to MPP `charge` Challenges. Other x402 schemes, including `upto` and `batch-settlement`, continue through the official x402 middleware but don't produce an equivalent MPP Challenge.
-
-See [MPP vs x402](/mpp-vs-x402) for a full comparison.
 
 ## Server
 
@@ -101,7 +97,7 @@ import { HTTPFacilitatorClient, type RoutesConfig } from '@x402/core/server'
 import { ExactEvmScheme } from '@x402/evm/exact/server'
 import { x402ResourceServer } from '@x402/express'
 import express from 'express'
-import { mpp } from 'mppx/x402/express'
+import { mpp } from 'mppx/x402/express' // [!code hl]
 
 const app = express()
 const facilitator = new HTTPFacilitatorClient({
@@ -129,7 +125,7 @@ const routes = {
 const secretKey = process.env.MPP_SECRET_KEY
 if (!secretKey) throw new Error('Set MPP_SECRET_KEY to at least 32 random bytes.')
 
-app.use(mpp(routes, resourceServer, { secretKey }))
+app.use(mpp(routes, resourceServer, { secretKey })) // [!code hl]
 
 app.get('/api/data', (req, res) => {
   res.json({ data: 'premium content' })
@@ -153,9 +149,11 @@ const mppx = Mppx.create({
     evm.charge({
       currency: evm.assets.baseSepolia.USDC,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      // [!code hl:start]
       x402: {
         facilitator: 'https://x402.org/facilitator',
       },
+      // [!code hl:end]
     }),
   ],
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
@@ -199,7 +197,7 @@ Each wrapper keeps the official adapter's route or tool configuration, hooks, ve
 
 #### Add another payment method
 
-Register another method beside `evm.charge`, then use the intent shorthand to advertise every compatible charge method. This example adds pathUSD payments on Tempo while preserving x402 support on Base Sepolia.
+Register another method beside `evm.charge`, then use `mppx.charge()` to advertise every compatible charge method. This example adds pathUSD payments on Tempo while preserving x402 support on Base Sepolia.
 
 ```ts [server.ts]
 import { Mppx, evm, tempo } from 'mppx/express'
@@ -245,10 +243,12 @@ import { evm } from 'mppx/server'
 const method = evm.charge({
   currency: evm.assets.baseSepolia.USDC,
   recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  // [!code hl:start]
   x402: {
     facilitator: 'https://x402.org/facilitator',
     routeBinding: 'required',
   },
+  // [!code hl:end]
 })
 ```
 
@@ -324,7 +324,7 @@ const account = privateKeyToAccount(
   '0x0123456789012345678901234567890123456789012345678901234567890123',
 )
 
-const fetch = Fetch.from({
+const fetch = Fetch.from({ // [!code hl]
   acceptPaymentPolicy: {
     origins: ['https://api.example.com'],
   },
@@ -345,9 +345,7 @@ console.log(response.status)
 
 The same client now reads native MPP and x402 Challenges, then retries with the matching Credential header. It validates the resource, EIP-3009 token metadata, network, currency, and amount before signing an x402 offer.
 
-### Advanced client options
-
-#### Control the x402 retry
+### Control the x402 retry
 
 Use `Mppx.create` when you need to inspect a selected x402 Challenge before signing. `preparePayment` selects the offer, and `setCredential` attaches the Credential as `PAYMENT-SIGNATURE`.
 
