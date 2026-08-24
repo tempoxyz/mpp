@@ -7,13 +7,13 @@ import { SigningAccountTabs } from '../../components/SigningAccountTabs'
 import { Cards } from 'vocs'
 import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '../../components/cards'
 
-# Use MPP with x402 [Connect existing services and clients]
+# Use MPP with x402 [Connect existing x402 services and clients]
 
-Keep your existing x402 server when you only need `mppx` clients to pay it. Use `mppx` on the server when the same endpoint must speak both native MPP and x402.
+MPP and x402 are complementary protocols and x402 clients and servers can easily support MPP with just a few lines of code.
 
-## Compare MPP and x402
+## Protocol comparison
 
-Both protocols use HTTP `402` to gate API access behind payment. x402 exact charges map to MPP's `charge` intent, while MPP adds standard HTTP authentication, more payment methods, and Sessions.
+Both protocols use HTTP `402` to gate API access behind payment. x402 exact charges map to MPP's `charge` intent, while MPP adds standard HTTP authentication, more payment methods, and efficient payment methods like Sessions.
 
 | | x402 | MPP |
 |---|---|---|
@@ -35,12 +35,30 @@ MPP uses three protocol objects throughout a payment flow:
 
 Choose the server setup that matches the protocols your endpoint needs to expose:
 
-1. **Keep the x402 SDK**—recommended for an existing x402 service that only needs to accept `mppx` clients.
-2. **Use `mppx`**—serve native MPP and x402 clients from the same route.
+1. **Add `mppx` to an x402 server**—start with your existing x402 route and move its payment configuration into `mppx`.
+2. **Start with `mppx`**—create a new route that serves native MPP and x402 clients.
 
-### Keep your existing x402 service
+### Add `mppx` to an x402 server
 
-The `mppx` client supports standard x402 v2 exact Challenges, including those from the official [x402 SDK](https://docs.x402.org/getting-started/quickstart-for-sellers). You don't need to change an existing x402 server for `mppx` clients to pay it.
+Install `mppx`, then move your existing asset, facilitator, price, and recipient into the equivalent `mppx` configuration.
+
+:::code-group
+
+```bash [npm]
+$ npm install mppx viem
+```
+
+```bash [pnpm]
+$ pnpm add mppx viem
+```
+
+```bash [bun]
+$ bun add mppx viem
+```
+
+:::
+
+Start with your existing x402 SDK route:
 
 ```ts [server.ts]
 import { HTTPFacilitatorClient } from '@x402/core/server'
@@ -81,31 +99,44 @@ app.get('/api/data', (req, res) => {
 })
 ```
 
-This option keeps the x402 wire format: `PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE`, and `PAYMENT-RESPONSE`. The [client setup](#build-a-client-for-mpp-and-x402) detects those headers and pays the route.
+Move the payment configuration into `mppx` and keep the route handler unchanged:
 
-:::info
-Use the next option when the server must also return `WWW-Authenticate: Payment`, accept `Authorization: Payment`, or offer MPP-only methods such as Sessions.
-:::
+```ts [server.ts]
+import { Mppx, evm } from 'mppx/express'
+import express from 'express'
+
+const app = express()
+
+const mppx = Mppx.create({
+  methods: [
+    evm.charge({
+      currency: evm.assets.baseSepolia.USDC,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      x402: {
+        facilitator: 'https://x402.org/facilitator',
+      },
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
+})
+
+app.get(
+  '/api/data',
+  mppx.evm.charge({
+    amount: '0.01',
+    description: 'Premium data access',
+  }),
+  (req, res) => {
+    res.json({ data: 'premium content' })
+  },
+)
+```
+
+`mppx` replaces the x402 payment middleware, but the route still accepts standard x402 v2 exact clients. It also returns native MPP Challenges and accepts native MPP Credentials.
 
 ### Run x402 inline with `mppx`
 
-Replace the payment middleware with `mppx` when one route must serve native MPP and x402 clients. Keep the same EVM asset, facilitator, pricing, recipient, and application logic.
-
-:::code-group
-
-```bash [npm]
-$ npm install mppx viem
-```
-
-```bash [pnpm]
-$ pnpm add mppx viem
-```
-
-```bash [bun]
-$ bun add mppx viem
-```
-
-:::
+For a new service, configure `mppx` directly when one route must serve native MPP and x402 clients.
 
 ```ts [server.ts]
 import { Mppx, evm } from 'mppx/express'
@@ -244,7 +275,29 @@ Use one `mppx` client for native MPP endpoints and standard or route-bound x402 
 
 <SigningAccountTabs />
 
-Register `evm.charge` for x402 exact Challenges. Add other MPP methods when the client also calls endpoints that offer them. `Fetch.from` reads either Challenge format and retries with the matching Credential header.
+Start with an existing x402 fetch client:
+
+```ts [client.ts]
+import { x402Client } from '@x402/core/client'
+import { ExactEvmScheme } from '@x402/evm/exact/client'
+import { wrapFetchWithPayment } from '@x402/fetch'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(
+  '0x0123456789012345678901234567890123456789012345678901234567890123',
+)
+
+const client = new x402Client()
+client.register('eip155:*', new ExactEvmScheme(account))
+
+const fetchWithPayment = wrapFetchWithPayment(fetch, client)
+const response = await fetchWithPayment('https://api.example.com/paid')
+
+console.log(response.status)
+// @log: 200
+```
+
+Replace the x402 wrapper with `Fetch.from`, register the same EVM account and asset policy, then add the MPP methods you want to support:
 
 ```ts twoslash [client.ts]
 import { Fetch, evm, tempo } from 'mppx/client'
@@ -273,7 +326,7 @@ console.log(response.status)
 // @log: 200
 ```
 
-The client validates the resource, EIP-3009 token metadata, network, currency, and amount before signing an x402 offer. It skips unsupported offers and fails without signing when none match your policy.
+The same client now reads native MPP and x402 Challenges, then retries with the matching Credential header. It validates the resource, EIP-3009 token metadata, network, currency, and amount before signing an x402 offer.
 
 ### Advanced client options
 
