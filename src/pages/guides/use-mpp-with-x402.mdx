@@ -25,12 +25,6 @@ Both protocols use HTTP `402` to gate API access behind payment. x402 exact char
 | **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
 | **Idempotency** | No | Built-in Challenge binding |
 
-MPP uses three protocol objects throughout a payment flow:
-
-- **Challenge**—the server's `402` response describing the required payment
-- **Credential**—the client's signed payment authorization
-- **Receipt**—the server's confirmation that the payment settled
-
 ## Server
 
 Choose the server setup that matches the protocols your endpoint needs to expose:
