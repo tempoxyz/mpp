@@ -163,8 +163,8 @@ export default { fetch: proxy.fetch }
 # Validate the paid route
 $ npx mppx validate http://localhost:3000
 
-# Create account funded with testnet tokens
-$ npx mppx account create
+# Create a mainnet account, then fund it with pathUSD
+$ npx mppx account create --network mainnet
 
 # Free route — no payment required
 $ npx mppx http://localhost:3000/weather/v1/status

@@ -68,6 +68,12 @@ type ReturnType = Promise<
 
 ## Parameters
 
+### feePayerPolicy (optional)
+
+- **Type:** `Partial<FeePayer.Policy>`
+
+Overrides the fee-sponsor limits used for the renewal transaction.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`

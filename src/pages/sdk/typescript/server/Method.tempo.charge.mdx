@@ -207,6 +207,12 @@ type ReturnType = (request: Request) => Promise<
 
 These parameters configure the `tempo.charge()` constructor.
 
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account or address that receives payments. Use `recipient` when you only need to provide the address.
+
 ### canOffer (optional)
 
 - **Type:** `Method.CanOfferFn`
@@ -269,6 +275,12 @@ const mppx = Mppx.create({
 
 Function that returns a viem client for the given chain ID. Overrides the default RPC configuration.
 
+### html (optional)
+
+- **Type:** `boolean | Html.Config`
+
+Renders a payment page when the request accepts `text/html`. Pass an object to customize the page.
+
 ### machineTokenEnabled (optional)
 
 - **Type:** `boolean`
@@ -317,11 +329,23 @@ For non-zero charges, `mppx` falls back to an in-memory store when you omit this
 
 Use `Store.memory()` for local development, tests, or a single long-lived server process. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()`. All built-in factories return `AtomicStore`—for custom backends, provide an `update` function alongside `get`, `put`, and `delete`.
 
+### storeKeyPrefix (optional)
+
+- **Type:** `string`
+
+Prefix prepended to replay-protection keys. Use distinct prefixes when multiple applications share one store.
+
 ### testnet (optional)
 
 - **Type:** `boolean`
 
 Testnet mode. Defaults the chain ID to `42431` (Tempo testnet).
+
+### validateSender (optional)
+
+- **Type:** `(parameters: { expectedSender: Address; sender: Address; source?: { address: Address; chainId: number } }) => boolean | Promise<boolean>`
+
+Allows a verified TIP-20 transfer sender to differ from the Credential source. Core verification still checks the amount, currency, memo, recipient, replay state, and transaction success.
 
 ### waitForConfirmation (optional)
 

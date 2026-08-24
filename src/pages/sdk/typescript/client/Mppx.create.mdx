@@ -710,6 +710,12 @@ const mppx = Mppx.create({
 </Tab>
 </Tabs>
 
+### orderChallenges (optional)
+
+- **Type:** `(challenges: readonly Challenge[]) => readonly Challenge[]`
+
+Filters or reorders supported Challenges before Credential creation. It applies to automatic fetch handling and manual `createCredential` calls unless you pass a request-local override.
+
 ### paymentPreferences (optional)
 
 - **Type:** `AcceptPayment.Config<methods>`
@@ -925,6 +931,12 @@ Request-local Challenge filter or sort order for `preparePayment` and `createCre
 - **Type:** `RequestInit`
 
 Original request passed to Challenge extraction. Include this for transports that inspect both request and response, including MCP-over-HTTP.
+
+### createCredential.orderChallenges (optional)
+
+- **Type:** `(challenges: readonly Challenge[]) => readonly Challenge[]`
+
+Request-local Challenge filter or ordering override for `mppx.createCredential(response, context, options)`.
 
 ### transport (optional)
 

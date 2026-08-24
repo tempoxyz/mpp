@@ -150,3 +150,16 @@ Array of payment methods to use for `402` responses.
 - **Type:** `(challenge, helpers) => Promise<string | undefined>`
 
 Called after a `402` Challenge is selected and before the wrapper retries the request.
+
+### orderChallenges (optional)
+
+- **Type:** `(challenges: readonly Challenge[]) => readonly Challenge[]`
+
+Filters or reorders supported Challenges before Credential creation.
+
+### transport (optional)
+
+- **Type:** `Transport.AnyTransport`
+- **Default:** `Transport.http()`
+
+Transport used to extract Challenges and attach Credentials.

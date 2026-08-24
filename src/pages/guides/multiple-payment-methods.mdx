@@ -161,8 +161,9 @@ The `mppx` CLI uses Tempo by default. Each payment method has its own client SDK
 # Validate the paid route
 $ npx mppx validate http://localhost:3000
 
-# Create account funded with testnet tokens
-$ npx mppx account create
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request (pays with Tempo)
 $ npx mppx http://localhost:3000

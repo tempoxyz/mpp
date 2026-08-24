@@ -357,12 +357,17 @@ Set `testnet: true` in `tempo.charge()` while testing so `npx mppx validate` and
 You can also test each step individually:
 
 ```bash [terminal]
-# Create an account funded with testnet tokens
-$ npx mppx account create
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx <your-server>/resource
 ```
+
+:::tip
+Use `curl -i <your-server>/resource` to inspect the server's `402` Challenge without paying. To validate the returned header, run `npx mppx sign --challenge '<WWW-Authenticate value>' --dry-run`.
+:::
 
 ## Next steps
 

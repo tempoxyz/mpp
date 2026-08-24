@@ -291,6 +291,16 @@ export function parseLink(
     };
   }
 
+  if (area === "client" && symbolPart === "Mppx.preparePayment") {
+    return {
+      link,
+      area,
+      namespace: "Mppx",
+      member: "preparePayment",
+      docsOnly: true,
+    };
+  }
+
   if (area === "server" && symbolPart === "Ws.serve") {
     return {
       link,

@@ -181,8 +181,9 @@ Three lines turn a free tool into a paid one:
 ### Test with the `mppx` CLI
 
 ```bash [terminal]
-# Create account funded with testnet tokens
-$ npx mppx account create
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Start the server and call the tool
 $ echo '{"method":"tools/call","params":{"name":"search","arguments":{"query":"hello"}}}' | node server.ts

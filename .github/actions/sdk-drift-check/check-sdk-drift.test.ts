@@ -158,6 +158,20 @@ describe("parseLink", () => {
       });
     });
 
+    it("maps client Mppx instance methods as docs-only", () => {
+      const result = parseLink(
+        "/sdk/typescript/client/Mppx.preparePayment",
+        prefix,
+      );
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/client/Mppx.preparePayment",
+        area: "client",
+        namespace: "Mppx",
+        member: "preparePayment",
+        docsOnly: true,
+      });
+    });
+
     it("maps Html docs to the html entrypoint", () => {
       const result = parseLink("/sdk/typescript/Html.init", prefix);
       expect(result).toEqual<SidebarReference>({

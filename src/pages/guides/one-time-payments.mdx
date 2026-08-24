@@ -132,8 +132,9 @@ export const GET =
 ### Test via the `mppx` CLI
 
 ```bash [terminal]
-# Create account funded with testnet tokens
-$ npx mppx account create
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:3000/api/photo 
@@ -245,8 +246,9 @@ app.get(
 ### Test via the `mppx` CLI
 
 ```bash [terminal]
-# Create account funded with testnet tokens
-$ npx mppx account create
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:3000/api/photo 
@@ -355,8 +357,9 @@ export default {
 ### Test via the `mppx` CLI
 
 ```bash [terminal]
-# Create account funded with testnet tokens
-$ npx mppx account create
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:8787 
@@ -468,8 +471,9 @@ app.get(
 ### Test via the `mppx` CLI
 
 ```bash [terminal]
-# Create account funded with testnet tokens
-$ npx mppx account create
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:3000/api/photo 
@@ -583,8 +587,9 @@ Bun.serve({
 ### Test via the `mppx` CLI
 
 ```bash [terminal]
-# Create account funded with testnet tokens
-$ npx mppx account create
+# Create and fund a testnet account
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
 
 # Make a paid request
 $ npx mppx http://localhost:3000

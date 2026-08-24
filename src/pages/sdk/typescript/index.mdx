@@ -459,17 +459,17 @@ The `mppx` package install automatically includes a [CLI tool](/sdk/typescript/c
 
 ### Create an account
 
-Create a Tempo account to sign payments. The account is auto-funded on testnet and key is stored in your system keychain.
+Create a Tempo mainnet account to sign payments. The key is stored in your system keychain. Fund the account with pathUSD before making a paid request.
 
 :::code-group
 ```bash [npm]
-$ npx mppx account create
+$ npx mppx account create --network mainnet
 ```
 ```bash [pnpm]
-$ pnpm mppx account create
+$ pnpm mppx account create --network mainnet
 ```
 ```bash [bun]
-$ bunx mppx account create
+$ bunx mppx account create --network mainnet
 ```
 :::
 

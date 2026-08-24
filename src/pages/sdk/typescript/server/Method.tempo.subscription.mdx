@@ -171,6 +171,12 @@ Returns the access key to include in the Challenge. Omit this for the recommende
 
 Account used as the default `recipient` and local transaction signer.
 
+### activate (optional)
+
+- **Type:** `(parameters: ActivationParameters) => Promise<ActivationResult>`
+
+Custom activation hook. It must verify that the access key matches the resolved subscription and return the activated subscription with its Receipt.
+
 ### activationTimeoutMs (optional)
 
 - **Type:** `number`
@@ -221,6 +227,12 @@ Human-readable subscription description.
 
 Application-defined identifier for reconciliation.
 
+### feePayerPolicy (optional)
+
+- **Type:** `Partial<FeePayer.Policy>`
+
+Overrides the fee-sponsor limits used for subscription activation and renewal transactions.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
@@ -247,9 +259,9 @@ Number of period units per billing period.
 
 ### periodUnit (optional)
 
-- **Type:** `'day' | 'week'`
+- **Type:** `'day' | 'dev_second' | 'week'`
 
-Billing period unit.
+Billing period unit. Use `dev_second` only for development and tests.
 
 ### recipient (optional)
 
@@ -288,6 +300,12 @@ Maps a request to a subscription lookup key. With `requireCredential`, use `sour
 - **Default:** `Store.memory()`
 
 Atomic store for access keys, activation locks, renewal locks, and subscription records. Use [`Subscription.fromStore`](/payment-methods/tempo/subscription#cancellation) from `mppx/tempo` when you need to update subscription records directly, such as marking `canceledAt`.
+
+### storeKeyPrefix (optional)
+
+- **Type:** `string`
+
+Prefix prepended to all subscription store keys. Use distinct prefixes when multiple applications share one store.
 
 ### subscriptionExpires (optional)
 
