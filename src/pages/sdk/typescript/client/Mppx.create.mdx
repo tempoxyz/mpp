@@ -201,13 +201,15 @@ const mppx = Mppx.create({
 const response = await fetch('https://mpp.dev/api/ping/paid')
 
 if (response.status === 402) {
-  const credential = await mppx.createCredential(response, {
+  const payment = await mppx.preparePayment(response)
+  console.log(payment.challenge.request)
+
+  const credential = await payment.createCredential({
     account: provider.getAccount({ signable: true }),
   })
 
-  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', {
-    headers: { Authorization: credential },
-  })
+  const paidRequest = payment.setCredential({}, credential)
+  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', paidRequest)
 }
 // [!code hl:end]
 ```
@@ -228,13 +230,15 @@ const mppx = Mppx.create({
 const response = await fetch('https://mpp.dev/api/ping/paid')
 
 if (response.status === 402) {
-  const credential = await mppx.createCredential(response, {
+  const payment = await mppx.preparePayment(response)
+  console.log(payment.challenge.request)
+
+  const credential = await payment.createCredential({
     account: privateKeyToAccount('0x...'),
   })
 
-  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', {
-    headers: { Authorization: credential },
-  })
+  const paidRequest = payment.setCredential({}, credential)
+  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', paidRequest)
 }
 // [!code hl:end]
 ```
@@ -296,20 +300,20 @@ const credential = await mppx.createCredential(
 
 ```ts
 type Mppx = {
-  /** Payment-aware fetch function that automatically handles 402 responses. */
-  fetch: Fetch
-  /** The original, unwrapped fetch — bypasses payment interception. */
-  rawFetch: typeof globalThis.fetch
-  /** The configured payment methods. */
-  methods: readonly Method.Client[]
-  /** The transport used. */
-  transport: Transport
   /** Creates a credential from a payment-required response. */
   createCredential: (
     response: Response,
     context?: Context,
-    options?: { acceptPayment?: string | AcceptPayment.Entry[] },
+    options?: {
+      acceptPayment?: string | AcceptPayment.Entry[]
+      orderChallenges?: OrderChallenges
+      request?: RequestInit
+    },
   ) => Promise<string>
+  /** Payment-aware fetch function that automatically handles 402 responses. */
+  fetch: Fetch
+  /** The configured payment methods. */
+  methods: readonly Method.Client[]
   /** Register a handler for any client payment event. */
   on(name: ClientEventName | '*', handler: ClientEventHandler): Unsubscribe
   /** Register a handler for received payment Challenges. */
@@ -320,8 +324,25 @@ type Mppx = {
   onPaymentFailed(handler: PaymentFailedHandler): Unsubscribe
   /** Register a handler for payment retry responses. */
   onPaymentResponse(handler: PaymentResponseHandler): Unsubscribe
+  /** Selects a payment without creating its Credential. */
+  preparePayment: (
+    response: Response,
+    options?: {
+      acceptPayment?: string | AcceptPayment.Entry[]
+      orderChallenges?: OrderChallenges
+      request?: RequestInit
+    },
+  ) => Promise<PreparedPayment>
+  /** The original, unwrapped fetch — bypasses payment interception. */
+  rawFetch: typeof globalThis.fetch
+  /** The transport used. */
+  transport: Transport
 }
 ```
+
+### `preparePayment`
+
+Selects and snapshots a supported Challenge without signing it. The returned object lets you inspect the terms, create the Credential later, and attach it through the correct Payment auth, x402, or MCP protocol. See [`Mppx.preparePayment`](/sdk/typescript/client/Mppx.preparePayment).
 
 ### `rawFetch`
 
@@ -891,7 +912,19 @@ const mppx = Mppx.create({
 
 - **Type:** `string | readonly AcceptPayment.Entry[]`
 
-Request-local method preference override for `mppx.createCredential(response, context, options)`. Use this when you manually fetch a `402` response and want to select from the returned Challenges without changing the client's default `paymentPreferences`.
+Request-local method preference override for `mppx.preparePayment(response, options)` or `mppx.createCredential(response, context, options)`. Use this when you manually fetch a `402` response and want to select from the returned Challenges without changing the client's default `paymentPreferences`.
+
+### orderChallenges (optional)
+
+- **Type:** `(candidates: readonly ChallengeCandidate[]) => MaybePromise<readonly ChallengeCandidate[]>`
+
+Request-local Challenge filter or sort order for `preparePayment` and `createCredential`.
+
+### request (optional)
+
+- **Type:** `RequestInit`
+
+Original request passed to Challenge extraction. Include this for transports that inspect both request and response, including MCP-over-HTTP.
 
 ### transport (optional)
 

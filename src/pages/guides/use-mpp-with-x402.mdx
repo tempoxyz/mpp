@@ -245,11 +245,10 @@ Use this pattern for coding agents, CLIs, SDKs, and application clients that nee
 
 ### Send x402 headers manually
 
-Use `Mppx.create` when you need explicit control over the first request and retry. `createCredential` returns a `PAYMENT-SIGNATURE` value when the selected Challenge came from `PAYMENT-REQUIRED`.
+Use `Mppx.create` when you need explicit control over the first request and retry. `preparePayment` lets you inspect the selected x402 Challenge before signing, and `setCredential` attaches the resulting Credential as `PAYMENT-SIGNATURE`.
 
 ```ts twoslash [client.ts]
 import { Mppx, evm } from 'mppx/client'
-import { x402 } from 'mppx'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount(
@@ -267,26 +266,16 @@ const mppx = Mppx.create({
   polyfill: false,
 })
 
-const challenge = await mppx.rawFetch('https://api.example.com/paid')
-if (challenge.status !== 402) throw new Error('Expected payment challenge')
+const request: RequestInit = {}
+const challengeResponse = await mppx.rawFetch('https://api.example.com/paid', request)
+if (challengeResponse.status !== 402) throw new Error('Expected payment Challenge')
 
-const paymentRequired = challenge.headers.get(x402.Types.paymentRequiredHeader)
-if (!paymentRequired) throw new Error('Missing PAYMENT-REQUIRED')
+const payment = await mppx.preparePayment(challengeResponse, { request })
+console.log(payment.challenge.request.amount)
 
-const credential = await mppx.createCredential(
-  new Response(null, {
-    headers: {
-      [x402.Types.paymentRequiredHeader]: paymentRequired,
-    },
-    status: 402,
-  }),
-)
-
-const response = await mppx.rawFetch('https://api.example.com/paid', {
-  headers: {
-    [x402.Types.paymentSignatureHeader]: credential,
-  },
-})
+const credential = await payment.createCredential()
+const paidRequest = payment.setCredential(request, credential)
+const response = await mppx.rawFetch('https://api.example.com/paid', paidRequest)
 
 console.log(response.status)
 // @log: 200

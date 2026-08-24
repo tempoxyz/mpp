@@ -89,7 +89,7 @@ When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`)
 
 ### With machine-token payments
 
-Set `machineTokenEnabled: true` to let compatible clients pay a single-recipient charge with Tempo's first-party machine token.
+Set `machineTokenEnabled: true` to let compatible clients pay a single-recipient charge through Tempo's unified first-party machineUSD route.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -103,7 +103,7 @@ const mppx = Mppx.create({
 })
 ```
 
-The server advertises the route in its Challenge. On Tempo mainnet or Moderato, the client uses the route when it holds enough machine tokens and the swap can execute. Otherwise, it falls back to `autoSwap` when configured, then the requested TIP-20 transfer path. The route supports `push`, `pull`, relay, and fee-sponsored settlement; split charges use the standard transfer path.
+The server advertises the route in its Challenge. On Tempo mainnet or Moderato, the client uses the route when it holds enough machineUSD and the swap can execute. Otherwise, it falls back to `autoSwap` when configured, then the requested TIP-20 transfer path. Charges and Sessions use the same machineUSD deployment. The route supports `push`, `pull`, relay, and fee-sponsored settlement; split charges use the standard transfer path.
 
 ### Zero-dollar auth
 

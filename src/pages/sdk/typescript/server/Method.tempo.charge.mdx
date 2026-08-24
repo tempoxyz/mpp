@@ -127,7 +127,7 @@ const mppx = Mppx.create({
 
 ### With machine-token payments
 
-Enable the first-party Tempo machine-token route for compatible single-recipient charges. Clients use it when they hold enough machine tokens, then fall back to the requested stablecoin path when the route isn't available.
+Enable the unified first-party Tempo machineUSD route for compatible single-recipient charges. Clients use it when they hold enough machineUSD, then fall back to the requested stablecoin path when the route isn't available.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -274,7 +274,7 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 - **Type:** `boolean`
 - **Default:** `false`
 
-Advertises the first-party Tempo machine-token settlement route for compatible single-recipient charges. Clients try this route before `autoSwap` or a direct transfer. Unsupported chains reject the request.
+Advertises the unified first-party Tempo machineUSD settlement route for compatible single-recipient charges. Clients try this route before `autoSwap` or a direct transfer. Unsupported chains reject the request.
 
 ### memo (optional)
 

@@ -255,6 +255,8 @@ Add this extension to any operation that requires payment. Prefer the canonical 
 |-------|------|-------------|
 | `offers` | `Offer[]` | Ordered list of payment offers the client can choose from |
 
+Validators ignore unknown extension fields next to `offers`. You can't combine `offers` with the spec-defined flat fields `amount`, `currency`, `description`, `intent`, or `method`.
+
 ### `offers[]`
 
 | Field | Type | Description |

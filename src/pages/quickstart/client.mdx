@@ -297,13 +297,15 @@ const mppx = Mppx.create({
 const response = await fetch('https://mpp.dev/api/ping/paid')
 
 if (response.status === 402) {
-  const credential = await mppx.createCredential(response, {
+  const payment = await mppx.preparePayment(response)
+  console.log(payment.challenge.request)
+
+  const credential = await payment.createCredential({
     account: provider.getAccount({ signable: true }),
   })
 
-  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', {
-    headers: { Authorization: credential },
-  })
+  const paidRequest = payment.setCredential({}, credential)
+  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', paidRequest)
 }
 // [!code hl:end]
 ```
@@ -326,13 +328,15 @@ const mppx = Mppx.create({
 const response = await fetch('https://mpp.dev/api/ping/paid')
 
 if (response.status === 402) {
-  const credential = await mppx.createCredential(response, {
+  const payment = await mppx.preparePayment(response)
+  console.log(payment.challenge.request)
+
+  const credential = await payment.createCredential({
     account: privateKeyToAccount('0x...'),
   })
 
-  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', {
-    headers: { Authorization: credential },
-  })
+  const paidRequest = payment.setCredential({}, credential)
+  const paidResponse = await fetch('https://mpp.dev/api/ping/paid', paidRequest)
 }
 // [!code hl:end]
 ```

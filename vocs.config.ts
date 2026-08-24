@@ -622,6 +622,10 @@ export default defineConfig({
                         link: "/sdk/typescript/client/Mppx.create",
                       },
                       {
+                        text: ".preparePayment",
+                        link: "/sdk/typescript/client/Mppx.preparePayment",
+                      },
+                      {
                         text: ".restore",
                         link: "/sdk/typescript/client/Mppx.restore",
                       },

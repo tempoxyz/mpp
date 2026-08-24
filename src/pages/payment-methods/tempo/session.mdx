@@ -91,6 +91,30 @@ Either party can close the channel. The server closes the precompile-backed chan
 
 ::::
 
+## Machine-token funding
+
+Enable Tempo's first-party machine-token route when clients can fund charge and Session payments from the same machineUSD balance.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      machineTokenEnabled: true, // [!code hl]
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+The server still requests its payout currency and recipient. A compatible client uses machineUSD when the route is verified and its balance is sufficient, then falls back to the requested stablecoin. The selected rail remains fixed until the channel closes. Clients don't need additional machine-token configuration.
+
 ## Session Receipts
 
 Session Receipts differ from charge Receipts. The `reference` field contains the payment channel ID (a `bytes32` hash), not a transaction hash. The on-chain settlement transaction hash is only available after closing the channel.

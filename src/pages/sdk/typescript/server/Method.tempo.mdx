@@ -130,7 +130,7 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 - **Type:** `boolean`
 - **Default:** `false`
 
-Enables first-party machine-token settlement for the generated `tempo.charge` method. This option doesn't affect Sessions.
+Enables first-party machine-token settlement for the generated `tempo.charge` and `tempo.session` methods. Compatible clients use machineUSD when a verified route and sufficient balance are available, then fall back to the requested payment currency.
 
 ### onPaymentSuccess (optional)
 

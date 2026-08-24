@@ -80,6 +80,30 @@ const mppx = Mppx.create({
 })
 ```
 
+### With machine-token payments
+
+Set `machineTokenEnabled: true` to let compatible clients fund Sessions with Tempo's first-party machine token.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      machineTokenEnabled: true, // [!code focus]
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+The client uses machineUSD when the verified route has sufficient balance. Otherwise, it opens the channel in the requested payment currency. A Session stays on its selected payment rail until the channel closes.
+
 ## Migrate from Legacy Sessions
 
 Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so existing clients keep working while new clients use Sessions. This server-side migration configuration requires `mppx` 0.8.15 or earlier.
@@ -237,13 +261,20 @@ Override the local fee-sponsor policy used for sponsored open and top-up transac
 
 - **Type:** `Address`
 
-Optional fee token used for server-driven close transactions.
+Fee token used for Session management, scheduled settlement, and cooperative close transactions. Hosted fee payers preserve this configured token when they complete server-driven transactions.
 
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
+
+### machineTokenEnabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Advertises first-party machine-token funding when the configured deployment is available on the canonical reserve. Clients use machineUSD when a verified route and sufficient balance are available, then fall back to the requested payment currency.
 
 ### minVoucherDelta (optional)
 

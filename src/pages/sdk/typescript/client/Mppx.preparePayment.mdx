@@ -1,0 +1,117 @@
+# `Mppx.preparePayment` [Inspect a payment before signing]
+
+Selects a supported Challenge without creating or attaching its Credential.
+
+## Usage
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      account: privateKeyToAccount(
+        '0x0123456789012345678901234567890123456789012345678901234567890123',
+      ),
+    }),
+  ],
+  polyfill: false,
+})
+
+const request: RequestInit = { method: 'GET' }
+const response = await mppx.rawFetch('https://api.example.com/paid', request)
+if (response.status !== 402) throw new Error('Expected a payment Challenge')
+
+// [!code hl:start]
+const payment = await mppx.preparePayment(response, { request })
+
+console.log(`${payment.challenge.method}/${payment.challenge.intent}`)
+// @log: tempo/charge
+
+const credential = await payment.createCredential()
+const paidRequest = payment.setCredential(request, credential)
+// [!code hl:end]
+
+const paidResponse = await mppx.rawFetch('https://api.example.com/paid', paidRequest)
+```
+
+`preparePayment` selects a Challenge but doesn't sign or emit Credential lifecycle events until you call `createCredential`. Use it to display payment terms, request approval, or apply a spending policy before paying.
+
+`setCredential` uses the protocol that produced the selected Challenge. It attaches `Authorization` for Payment auth, `PAYMENT-SIGNATURE` for x402, or request metadata for MCP.
+
+Prepared payments retain transport-local state and aren't serializable. Their inspected Challenge, Challenge list, method, and wrapper object are immutable snapshots.
+
+### With request-local selection
+
+Override the configured preferences for one payment response.
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare const response: Response
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const payment = await mppx.preparePayment(response, {
+  acceptPayment: 'tempo/charge;q=1, tempo/session;q=0',
+  orderChallenges: (candidates) => candidates.filter(({ challenge }) =>
+    challenge.request.amount !== '0'
+  ),
+})
+```
+
+## Return type
+
+```ts
+type PreparedPayment = Readonly<{
+  challenge: Challenge
+  challenges: readonly Challenge[]
+  createCredential: (context?: Context) => Promise<string>
+  method: Method.Client
+  setCredential: (request: RequestInit, credential: string) => RequestInit
+}>
+```
+
+### challenge
+
+The selected immutable Challenge. This is the exact snapshot used to create the Credential.
+
+### challenges
+
+All supported Challenges extracted from the response, before request-local filtering and ordering.
+
+### createCredential
+
+Creates the selected Challenge's Credential. Repeated or concurrent calls return the same promise and create at most one Credential. The method checks expiration again when signing starts.
+
+### method
+
+An immutable snapshot of the configured client method selected for the Challenge.
+
+### setCredential
+
+Returns a request with the Credential attached through the protocol that produced the selected Challenge.
+
+## Parameters
+
+### options (optional)
+
+- **Type:** `{ acceptPayment?: string | readonly AcceptPayment.Entry[]; orderChallenges?: OrderChallenges; request?: RequestInit }`
+
+Request-local Challenge selection and transport context.
+
+- `acceptPayment` overrides the configured payment preferences.
+- `orderChallenges` filters or sorts supported Challenge candidates.
+- `request` passes the original request to transports that need it to extract Challenges, including MCP-over-HTTP.
+
+### response
+
+- **Type:** `Response`
+
+Payment-required response to inspect. Custom transports use their configured response type.

@@ -4,6 +4,7 @@ export async function GET(request: Request) {
   const result = await stripeMppx.charge({
     amount: "1",
     currency: "usd",
+    decimals: 2,
     description: "A random unique image",
   })(request);
 
