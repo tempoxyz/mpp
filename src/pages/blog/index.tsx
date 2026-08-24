@@ -9,7 +9,7 @@ export default function BlogRoute() {
         description="Updates from the MPP team on protocol development, integrations, and the future of machine payments."
         imageDescription="Updates on the Machine Payments Protocol"
         path="/blog"
-        title="Blog"
+        title="MPP Blog: HTTP 402 payment protocol updates"
       />
       <BlogIndexPage />
       <Footer />

@@ -5,6 +5,7 @@ import {
   buildTryCommands,
   CATEGORY_LABELS,
   formatPrice,
+  orderServices,
   PAGE_SIZE,
   providerUrl,
 } from "./ServicesPage";
@@ -202,6 +203,33 @@ describe("providerUrl", () => {
     expect(providerUrl({ url: "https://api.example.com" })).toBe(
       "https://api.example.com",
     );
+  });
+});
+
+describe("orderServices", () => {
+  const makeService = (id: string, name = id): Service => ({
+    endpoints: [],
+    id,
+    methods: {},
+    name,
+    url: `https://${id}.example.com`,
+  });
+
+  it("pins featured services and removes temporary name labels", () => {
+    const services = [
+      makeService("later"),
+      makeService("openai", "OpenAI (New)"),
+      makeService("anthropic"),
+    ];
+
+    expect(
+      orderServices(services).map(({ id, name }) => ({ id, name })),
+    ).toEqual([
+      { id: "openai", name: "OpenAI" },
+      { id: "anthropic", name: "anthropic" },
+      { id: "later", name: "later" },
+    ]);
+    expect(services[1].name).toBe("OpenAI (New)");
   });
 });
 

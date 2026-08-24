@@ -43,6 +43,20 @@ export const PINNED_IDS: string[] = [
   "stripe-climate",
 ];
 
+export function orderServices(services: readonly Service[]): Service[] {
+  const pinned = new Map(PINNED_IDS.map((id, index) => [id, index] as const));
+  return services
+    .map((service) => ({
+      ...service,
+      name: service.name.replace(/ \(New\)$/i, ""),
+    }))
+    .toSorted(
+      (a, b) =>
+        (pinned.get(a.id) ?? PINNED_IDS.length) -
+        (pinned.get(b.id) ?? PINNED_IDS.length),
+    );
+}
+
 export function allCategories(service: Service): Category[] {
   return service.categories ?? [];
 }
@@ -126,9 +140,9 @@ function ServiceTableRow({ service }: { service: Service }) {
               src={serviceIconUrl(service)}
             />
             <div className="flex min-w-0 flex-col gap-1">
-              <p className="truncate font-sans text-lg font-normal leading-[1.1] text-offwhite">
+              <h2 className="truncate font-sans text-lg font-normal leading-[1.1] text-offwhite">
                 {service.name}
-              </p>
+              </h2>
               <p className="font-mono text-sm capitalize leading-[1.2] tracking-[0.24px] text-secondary">
                 {categoryLabel(service)}
               </p>
@@ -589,8 +603,14 @@ const topShortcuts = [
   ...shortcuts.filter((shortcut) => shortcut.title !== "Discovery"),
 ];
 
-export function ServicesPage() {
-  const [services, setServices] = useState<Service[]>([]);
+export function ServicesPage({
+  initialServices = [],
+}: {
+  initialServices?: readonly Service[];
+}) {
+  const [services, setServices] = useState<Service[]>(() =>
+    orderServices(initialServices),
+  );
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Category | "">("");
   const [page, setPage] = useState(0);
@@ -600,18 +620,7 @@ export function ServicesPage() {
 
   useEffect(() => {
     fetchServices()
-      .then((data) => {
-        const pinned = new Map(
-          PINNED_IDS.map((id, index) => [id, index] as const),
-        );
-        setServices(
-          data.toSorted(
-            (a, b) =>
-              (pinned.get(a.id) ?? PINNED_IDS.length) -
-              (pinned.get(b.id) ?? PINNED_IDS.length),
-          ),
-        );
-      })
+      .then((data) => setServices(orderServices(data)))
       .catch(() => {});
   }, []);
   const categories = useMemo(
@@ -649,13 +658,19 @@ export function ServicesPage() {
       <Header active="services" />
       <main className="mx-auto w-full max-w-[1728px]">
         <section className="flex h-[300px] flex-col items-start justify-end gap-6 px-4 py-12 md:px-12">
-          <LineLogo
-            className="h-auto w-[619px] max-w-full"
-            label="Services"
-            name="services"
-          />
+          <h1>
+            <span className="sr-only">MPP services directory</span>
+            <span aria-hidden="true">
+              <LineLogo
+                className="h-auto w-[619px] max-w-full"
+                label="Services"
+                name="services"
+              />
+            </span>
+          </h1>
           <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-offwhite">
-            Use MPP-enabled services with your agent.
+            Discover APIs and tools that accept machine-to-machine payments
+            through MPP.
           </p>
         </section>
 
@@ -751,7 +766,7 @@ export function ServicesPage() {
                     role="button"
                     tabIndex={0}
                   >
-                    <ServiceCard service={service} />
+                    <ServiceCard headingLevel="h2" service={service} />
                   </div>
                 ))}
               </div>

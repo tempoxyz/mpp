@@ -29,13 +29,13 @@ export function BlogIndexPage() {
           <div className="flex flex-col gap-[60px] border-t border-border pt-6 xl:flex-row xl:gap-0">
             <div className="xl:w-1/2">
               <h1 className="font-sans !text-[32px] font-normal !leading-[1.1] !tracking-[-0.32px] text-offwhite">
-                See Updates
+                MPP protocol updates
               </h1>
             </div>
             <div className="flex flex-col gap-14 xl:w-1/2">
               <div className="flex flex-col">
                 {blogPosts.slice(0, shown).map((post) => (
-                  <BlogRow key={post.to} post={post} />
+                  <BlogRow headingLevel="h2" key={post.to} post={post} />
                 ))}
               </div>
               <div className="flex items-center justify-between">

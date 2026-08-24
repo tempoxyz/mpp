@@ -1,44 +1,42 @@
 ---
 description: "Compare MPP vs x402 for HTTP 402 payments. Learn the protocol differences, supported payment methods, session support, and when to choose each approach."
 imageDescription: "MPP vs x402 comparison"
+title: "MPP vs x402: Agentic payment protocols compared"
 ---
 
 import { Card, Cards } from 'vocs'
 
 # MPP vs x402 [How the two HTTP 402 payment protocols compare]
 
-MPP and x402 both use HTTP `402 Payment Required` to charge for API requests. They solve the same core problem, but they operate at different levels of scope.
+MPP and x402 both use HTTP `402 Payment Required` to charge for API requests. x402 focuses on on-chain payment mechanisms. MPP defines a payment-method-agnostic HTTP authentication framework for stablecoins, cards, Lightning, and other payment rails.
 
-x402 focuses on on-chain stablecoin payments. MPP uses the same `402` pattern, but broadens it to support stablecoins, cards, Lightning, and session-based billing for high-frequency usage.
+You can run both protocols on the same endpoint with `mppx`, so adopting MPP doesn't require you to exclude x402 clients.
 
 ## Quick answer
 
-Choose **MPP** by default. It is the stronger choice for real APIs, real agent workflows, and real payment volume.
+Choose **MPP** by default when you need multiple payment rails, standard HTTP authentication semantics, or a protocol-level model for one-time and session payments.
 
-Choose **x402** only if you explicitly want a narrow on-chain paywall for one-off requests.
+Choose **x402** when your service exclusively needs on-chain payments and its registered schemes match your billing model.
 
 ## Side-by-side comparison
 
 | | x402 | MPP |
 |---|---|---|
-| **Core model** | Stablecoin payment attached to a request | General payment protocol for machine-to-machine payments |
+| **Core model** | On-chain payment schemes attached to requests | Payment authentication framework for machine-to-machine payments |
 | **HTTP status** | `402 Payment Required` | `402 Payment Required` |
 | **Challenge header** | `PAYMENT-REQUIRED` | `WWW-Authenticate: Payment` |
 | **Credential header** | `PAYMENT-SIGNATURE` | `Authorization: Payment` |
 | **Receipt header** | `PAYMENT-RESPONSE` | `Payment-Receipt` |
-| **Payment methods** | Blockchain-based methods | Stablecoins, cards, Lightning, wallets, and custom methods |
-| **Sessions / streaming** | No native session flow | Yes—session intent for pay-as-you-go billing |
-| **Request binding** | Narrower | First-class Challenge binding and request digest support |
-| **Error format** | Implementation-specific | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
-| **Standards path** | Project-specific | Built around the [Payment HTTP Authentication Scheme](https://paymentauth.org) |
+| **Payment rails** | Registered blockchain network mechanisms | Stablecoins, cards, Lightning, and custom methods |
+| **Usage-based billing** | `upto` and EVM `batch-settlement` schemes | Payment-method intents, including `session` |
+| **Request binding** | Depends on the scheme and extensions | Core Challenge binding and request digest support |
+| **Idempotency** | Optional Payment Identifier extension | Challenge identity plus standard `Idempotency-Key` guidance |
+| **Error model** | Protocol-specific responses | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
+| **Standards path** | x402 Foundation specification | [Payment HTTP Authentication Scheme](https://paymentauth.org) submitted to the IETF |
 
 ## The biggest difference
 
-The most important distinction is payment scope.
-
-MPP is the better choice for almost every serious implementation.
-
-x402 fits the narrower case where you only want an on-chain flow for one-time payments.
+The most important distinction is scope. x402 registers payment schemes for blockchain networks. MPP standardizes how any payment method negotiates a payment through HTTP authentication.
 
 MPP supports the broader model most teams actually need. An MPP Challenge can describe:
 
@@ -47,11 +45,11 @@ MPP supports the broader model most teams actually need. An MPP Challenge can de
 - expiration and idempotency constraints
 - request binding so the payment is tied to the exact request
 
-That makes MPP the right choice for production APIs, coding agents, and services that want broader payment support.
+That makes MPP the recommended choice for APIs and agents that need to evolve beyond one payment rail. It also lets HTTP infrastructure handle payment Credentials through the same authentication fields it already understands.
 
 ## Payment methods
 
-x402 focuses on on-chain payments. That's useful if your users already have wallets and you're optimizing around an on-chain payment flow.
+x402 focuses on on-chain payments across registered networks and schemes. That's useful when your clients already have compatible wallets and your service wants blockchain settlement.
 
 MPP keeps the same stablecoin path, but it also supports non-stablecoin methods. A single endpoint can advertise:
 
@@ -60,17 +58,15 @@ MPP keeps the same stablecoin path, but it also supports non-stablecoin methods.
 - [Lightning payments](/payment-methods/lightning)
 - [custom payment methods](/payment-methods/custom)
 
-This matters if you want to serve both agents and human-operated apps, or if you don't want your API monetization strategy tied to a single settlement rail.
+This matters if you want to serve agents and human-operated apps, or if you don't want your API monetization strategy tied to blockchain settlement.
 
 ## Sessions and micropayments
 
-This is where the gap gets large.
+x402 supports fixed-price `exact`, usage-based `upto`, and EVM `batch-settlement` schemes. Batch settlement funds a channel and uses off-chain vouchers for repeated requests. See the [x402 payment schemes](https://docs.x402.org/getting-started/quickstart-for-sellers#payment-schemes-exact-upto-and-batch-settlement).
 
-x402 works well for one-off purchases. It does not define a native session model for repeated low-value requests. If you charge on every request, every request carries payment overhead.
+MPP defines session billing as a payment intent within the same Challenge–Credential–Receipt framework used by other payment methods. A client funds a session, sends signed off-chain vouchers per request, and lets the server settle the net result later. That makes [micropayments](/use-cases/micropayments), streaming APIs, and token-metered usage practical without changing the HTTP authentication model.
 
-MPP adds a session intent for pay-as-you-go billing. A client can fund a session once, send signed off-chain vouchers per request, and let the server settle the net result later. That makes [micropayments](/use-cases/micropayments), streaming APIs, and token-metered usage practical.
-
-For low-volume one-off stablecoin payments, x402 can work. For search, inference, feeds, MCP tools, or any high-frequency tool call pattern, use MPP.
+Use MPP when you want one client and server interface across session and one-time payments or across different payment rails. Use x402 batch settlement when its supported EVM networks and on-chain model match your deployment.
 
 ## Compatibility
 
@@ -88,14 +84,14 @@ Choose **MPP** if:
 - you want multiple payment methods on one endpoint
 - you need sessions, streaming, or micropayments
 - you want standard `WWW-Authenticate` / `Authorization` semantics
-- you want a cleaner path from developer tool to production payment system
+- you want one HTTP authentication model across payment rails and intents
 
-Choose **x402** only if:
+Choose **x402** if:
 
-- you only need stablecoin payments
-- you want an on-chain payment flow
-- your API charges once per request
-- you want the narrowest possible protocol surface
+- you exclusively want on-chain payments
+- your clients use x402-compatible wallets and schemes
+- `exact`, `upto`, or EVM `batch-settlement` matches your billing model
+- you want to use the x402 facilitator and extension ecosystem directly
 
 ## Next steps
 

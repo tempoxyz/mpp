@@ -8,6 +8,7 @@ import { defineConfig, loadEnv } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import { configDefaults } from "vitest/config";
 import { vocs } from "vocs/vite";
+import { assertSitemapXml, pruneSitemapXml } from "./scripts/sitemap.js";
 import { blogContent } from "./scripts/vite-blog.js";
 
 const commitSha = child_process
@@ -131,10 +132,8 @@ function pruneSitemap(): Plugin {
       });
       if (!current) return;
 
-      const next = current.replace(
-        /\s*<url>\s*<loc>[^<]*\/404<\/loc>\s*<lastmod>[^<]+<\/lastmod>\s*<\/url>/,
-        "",
-      );
+      const next = pruneSitemapXml(current);
+      assertSitemapXml(next);
 
       if (next !== current) await fs.writeFile(sitemapPath, next, "utf8");
     },

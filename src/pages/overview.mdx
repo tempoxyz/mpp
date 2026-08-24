@@ -1,16 +1,17 @@
 ---
 description: "MPP standardizes HTTP 402 for machine-to-machine payments. Learn how agents, apps, and services exchange payments in the same HTTP request."
 imageDescription: "The open protocol for machine-to-machine payments"
+title: "What is MPP? Machine-to-machine HTTP 402 payments"
 ---
 
-import { Cards } from 'vocs'
+import { Card, Cards } from 'vocs'
 import { SpecCard } from '../components/SpecCard'
 import { TerminalPing } from '../components/TerminalPing'
 import { TypeScriptSdkCard, PythonSdkCard, RustSdkCard, GoSdkCard, QuickstartCard, ProtocolConceptsCard } from '../components/cards'
 import { PaymentFlowDiagram } from '../components/PaymentFlowDiagram'
 
 
-# Machine Payments Protocol [The open protocol for machine-to-machine payments]
+# What is MPP? [Machine-to-machine payments over HTTP 402]
 
 The Machine Payments Protocol (MPP) lets any client—agents, apps, or humans—pay for any service in the same HTTP request. Developers use MPP to let their agents pay for services. Service operators use MPP to accept payments for their APIs.
 
@@ -74,6 +75,7 @@ MPP comes with a suite of official SDKs maintained by [Tempo Labs](https://tempo
 ## Next steps
 
 <Cards>
+  <Card title="MPP vs x402" description="Compare HTTP 402 payment protocols" to="/mpp-vs-x402" />
   <QuickstartCard />
   <ProtocolConceptsCard />
   <SpecCard to="https://paymentauth.org" />

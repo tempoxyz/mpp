@@ -3,8 +3,10 @@ import { serviceIconUrl } from "../../data/registry";
 import { CopyBadge } from "./CopyBadge";
 
 export function ServiceCard({
+  headingLevel: Heading = "h3",
   service,
 }: {
+  headingLevel?: "h2" | "h3";
   service: FeaturedService | Service;
 }) {
   const category = service.categories?.[0] ?? "service";
@@ -19,9 +21,9 @@ export function ServiceCard({
             src={serviceIconUrl(service)}
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <p className="font-sans text-xl font-normal leading-[1.1] text-offwhite">
+            <Heading className="font-sans text-xl font-normal leading-[1.1] text-offwhite">
               {service.name}
-            </p>
+            </Heading>
             <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
               {category}
             </p>

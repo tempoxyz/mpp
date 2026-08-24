@@ -3,6 +3,7 @@ import { AgentSetupPrompt } from "./AgentSetupPrompt";
 import { AsciiLogo } from "./AsciiLogo";
 import { staticCards } from "./cards";
 import { EcosystemDiagram } from "./EcosystemDiagram";
+import { FaqStructuredData } from "./FaqStructuredData";
 import { LandingPage } from "./LandingPage";
 import { NotFoundPage } from "./NotFoundPage";
 import { PaymentFlowDiagram } from "./PaymentFlowDiagram";
@@ -26,6 +27,7 @@ const components = {
   AsciiLogo,
   ClientPrompt,
   EcosystemDiagram,
+  FaqStructuredData,
   LandingPage,
   NotFoundPage,
   PaymentFlowDiagram,

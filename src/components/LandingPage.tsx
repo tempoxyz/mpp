@@ -116,6 +116,9 @@ export function LandingPage() {
               <Button className="w-full sm:w-auto" href="/quickstart/server">
                 Add payments to your API
               </Button>
+              <Button className="w-full sm:w-auto" href="/mpp-vs-x402">
+                Compare MPP vs x402
+              </Button>
             </div>
           </div>
 
@@ -209,7 +212,7 @@ export function LandingPage() {
             <div className="flex flex-col gap-14 xl:w-1/2">
               <div className="flex flex-col">
                 {blogPosts.slice(0, 5).map((post) => (
-                  <BlogRow key={post.to} post={post} />
+                  <BlogRow headingLevel="h3" key={post.to} post={post} />
                 ))}
               </div>
               <Button className="self-start" href="/blog">
