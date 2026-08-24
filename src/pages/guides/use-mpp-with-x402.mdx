@@ -1,21 +1,75 @@
 ---
-description: "Add MPP to an existing x402 service without breaking current clients, routes, or pricing."
-imageDescription: "Add MPP without breaking your x402 service"
+description: "Keep your x402 server or use mppx to serve native MPP and x402 clients from the same endpoint."
+imageDescription: "Add MPP support to your x402 service"
 ---
 
 import { SigningAccountTabs } from '../../components/SigningAccountTabs'
 import { Cards } from 'vocs'
 import { OneTimePaymentsCard, PaymentMethodsCard, ServerQuickstartCard } from '../../components/cards'
 
-# Add MPP to an x402 service [Keep your existing x402 clients working]
+# Use MPP with x402 [Connect existing services and clients]
 
-Move an existing x402 exact charge into `mppx` to serve MPP and x402 clients from the same route. You can keep the same EVM asset, facilitator, pricing, and application logic.
+Keep your existing x402 server when you only need `mppx` clients to pay it. Use `mppx` on the server when the same endpoint must speak both native MPP and x402.
 
-## Run x402 inline with `mppx`
+## Server
 
-::::steps
+Choose the server setup that matches the protocols your endpoint needs to expose:
 
-### Install `mppx`
+1. **Keep the x402 SDK**—recommended for an existing x402 service that only needs to accept `mppx` clients.
+2. **Use `mppx`**—serve native MPP and x402 clients from the same route.
+
+### Keep your existing x402 service
+
+The `mppx` client supports standard x402 v2 exact Challenges, including those from the official [x402 SDK](https://docs.x402.org/getting-started/quickstart-for-sellers). You don't need to change an existing x402 server for `mppx` clients to pay it.
+
+```ts [server.ts]
+import { HTTPFacilitatorClient } from '@x402/core/server'
+import { ExactEvmScheme } from '@x402/evm/exact/server'
+import { paymentMiddleware, x402ResourceServer } from '@x402/express'
+import express from 'express'
+
+const app = express()
+const facilitator = new HTTPFacilitatorClient({
+  url: 'https://x402.org/facilitator',
+})
+
+app.use(
+  paymentMiddleware(
+    {
+      'GET /api/data': {
+        accepts: [
+          {
+            network: 'eip155:84532',
+            payTo: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+            price: '$0.01',
+            scheme: 'exact',
+          },
+        ],
+        description: 'Premium data access',
+        mimeType: 'application/json',
+      },
+    },
+    new x402ResourceServer(facilitator).register(
+      'eip155:84532',
+      new ExactEvmScheme(),
+    ),
+  ),
+)
+
+app.get('/api/data', (req, res) => {
+  res.json({ data: 'premium content' })
+})
+```
+
+This option keeps the x402 wire format: `PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE`, and `PAYMENT-RESPONSE`. The [client setup](#build-a-client-for-mpp-and-x402) detects those headers and pays the route.
+
+:::info
+Use the next option when the server must also return `WWW-Authenticate: Payment`, accept `Authorization: Payment`, or offer MPP-only methods such as Sessions.
+:::
+
+### Run x402 inline with `mppx`
+
+Replace the payment middleware with `mppx` when one route must serve native MPP and x402 clients. Keep the same EVM asset, facilitator, pricing, recipient, and application logic.
 
 :::code-group
 
@@ -33,19 +87,14 @@ $ bun add mppx viem
 
 :::
 
-### Move the x402 charge into `mppx`
-
-Replace your x402 payment middleware with `evm.charge`. Configure the same asset, facilitator, recipient, and route price that your service already uses.
-
 ```ts [server.ts]
-import express from 'express'
 import { Mppx, evm } from 'mppx/express'
+import express from 'express'
 
 const app = express()
 
 const mppx = Mppx.create({
   methods: [
-    // [!code hl:start]
     evm.charge({
       currency: evm.assets.baseSepolia.USDC,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -53,82 +102,40 @@ const mppx = Mppx.create({
         facilitator: 'https://x402.org/facilitator',
       },
     }),
-    // [!code hl:end]
   ],
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })
 
 app.get(
   '/api/data',
-  // [!code hl:start]
   mppx.evm.charge({
     amount: '0.01',
     description: 'Premium data access',
   }),
-  // [!code hl:end]
   (req, res) => {
     res.json({ data: 'premium content' })
   },
 )
 ```
 
-The handler stays unchanged. `mppx` now:
+The handler stays unchanged. `mppx`:
 
-- Returns both MPP and x402 Challenges on `402` responses
-- Accepts MPP `Authorization` and x402 `PAYMENT-SIGNATURE` Credentials
-- Calls your facilitator to verify and settle x402 payments
+- Returns MPP and x402 Challenges on `402` responses
+- Accepts MPP and x402 Credentials
+- Calls the configured facilitator to verify and settle x402 payments
 - Returns the Receipt header that matches the client's protocol
 
 This flow also supports body-bearing and route-scoped endpoints. Standard x402 clients don't need the optional `mppx` route-binding extension.
 
-### Test the route
+### Advanced server options
 
-Use the `mppx` CLI to call the service with a funded account:
-
-```bash [test.sh]
-$ npx mppx account create
-$ npx mppx http://localhost:3000/api/data
-```
-
-::::
-
-## What you gain
-
-- **Existing client compatibility.** Keep serving standard x402 exact clients while adding native MPP clients.
-- **Standard HTTP authentication.** Add `WWW-Authenticate`, `Authorization`, and `Payment-Receipt` alongside x402 headers.
-- **More payment methods.** Add stablecoins, cards, Lightning, and other methods to the same endpoint.
-- **Sessions.** Meter repeated or streaming requests with off-chain vouchers instead of one transaction per request.
-- **Production primitives.** Use built-in idempotency, expiration, request binding, Receipts, and RFC 9457 errors.
-
-## Advanced options
-
-### Compare MPP and x402
-
-Both protocols use HTTP `402` to gate API access behind payment. x402 exact charges map to MPP's `charge` intent, while MPP adds standard HTTP authentication, more payment methods, and Sessions.
-
-| | x402 | MPP |
-|---|---|---|
-| **Challenge** | `PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
-| **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` header |
-| **Receipt** | `PAYMENT-RESPONSE` header | `Payment-Receipt` header |
-| **Payment methods** | Stablecoins | Stablecoins, cards, digital wallets, and other methods |
-| **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
-| **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
-| **Idempotency** | No | Built-in Challenge binding |
-
-MPP uses three protocol objects throughout a payment flow:
-
-- **Challenge**—the server's `402` response describing the required payment
-- **Credential**—the client's signed payment authorization
-- **Receipt**—the server's confirmation that the payment settled
-
-### Add another payment method
+#### Add another payment method
 
 Register another method beside `evm.charge`, then use the intent shorthand to advertise every compatible charge method. This example adds pathUSD payments on Tempo while preserving x402 support on Base Sepolia.
 
 ```ts [server.ts]
-import express from 'express'
 import { Mppx, evm, tempo } from 'mppx/express'
+import express from 'express'
 
 const app = express()
 
@@ -141,12 +148,10 @@ const mppx = Mppx.create({
         facilitator: 'https://x402.org/facilitator',
       },
     }),
-    // [!code hl:start]
     tempo.charge({
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
-    // [!code hl:end]
   ],
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })
@@ -160,9 +165,9 @@ app.get(
 )
 ```
 
-The route advertises both methods and verifies the Credential the client selects. See [Payment methods](/payment-methods) to add cards, Lightning, or another payment rail.
+See [Payment methods](/payment-methods) to add cards, Lightning, or another payment rail.
 
-### Require route-bound x402 Credentials
+#### Require route-bound x402 Credentials
 
 Keep the default `routeBinding: 'resource'` for compatibility with standard x402 clients. Set `routeBinding: 'required'` when every x402 Credential for a scoped route must include the `mppx` extension and a route-bound nonce.
 
@@ -181,7 +186,7 @@ const method = evm.charge({
 
 The default compares the echoed resource URL and payment requirements, and verifies any body digest against the request. Required binding also cryptographically binds MPP scope, opaque values, and metadata, but excludes standard clients that don't implement the extension.
 
-### Use Hono middleware
+#### Use Hono middleware
 
 Import the Hono adapter to apply the same inline flow as route middleware.
 
@@ -211,11 +216,15 @@ app.get(
 )
 ```
 
+## Client
+
+Use one `mppx` client for native MPP endpoints and standard or route-bound x402 exact endpoints.
+
 ### Build a client for MPP and x402
 
 <SigningAccountTabs />
 
-Register `evm.charge` to pay standard and route-bound x402 exact Challenges. Add other MPP methods when the client also calls endpoints that offer them. `Fetch.from` reads either Challenge format and retries with the matching Credential header.
+Register `evm.charge` for x402 exact Challenges. Add other MPP methods when the client also calls endpoints that offer them. `Fetch.from` reads either Challenge format and retries with the matching Credential header.
 
 ```ts twoslash [client.ts]
 import { Fetch, evm, tempo } from 'mppx/client'
@@ -246,7 +255,9 @@ console.log(response.status)
 
 The client validates the resource, EIP-3009 token metadata, network, currency, and amount before signing an x402 offer. It skips unsupported offers and fails without signing when none match your policy.
 
-### Control the x402 retry
+### Advanced client options
+
+#### Control the x402 retry
 
 Use `Mppx.create` when you need to inspect a selected x402 Challenge before signing. `preparePayment` selects the offer, and `setCredential` attaches the Credential as `PAYMENT-SIGNATURE`.
 
@@ -290,7 +301,29 @@ console.log(response.status)
 // @log: 200
 ```
 
-### Next steps
+## Advanced concepts
+
+### Compare MPP and x402
+
+Both protocols use HTTP `402` to gate API access behind payment. x402 exact charges map to MPP's `charge` intent, while MPP adds standard HTTP authentication, more payment methods, and Sessions.
+
+| | x402 | MPP |
+|---|---|---|
+| **Challenge** | `PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
+| **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` header |
+| **Receipt** | `PAYMENT-RESPONSE` header | `Payment-Receipt` header |
+| **Payment methods** | Stablecoins | Stablecoins, cards, digital wallets, and other methods |
+| **Sessions** | No | Yes—off-chain vouchers for sub-cent streaming |
+| **Error format** | Custom | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
+| **Idempotency** | No | Built-in Challenge binding |
+
+MPP uses three protocol objects throughout a payment flow:
+
+- **Challenge**—the server's `402` response describing the required payment
+- **Credential**—the client's signed payment authorization
+- **Receipt**—the server's confirmation that the payment settled
+
+## Next steps
 
 <Cards>
   <OneTimePaymentsCard />
