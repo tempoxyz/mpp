@@ -42,8 +42,8 @@ importers:
         specifier: ^11.15.0
         version: 11.15.0
       mppx:
-        specifier: 0.0.0-main-20260821193729
-        version: 0.0.0-main-20260821193729(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3))
+        specifier: https://pkg.pr.new/mppx@4e4810a
+        version: https://pkg.pr.new/mppx@4e4810a(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3))
       nuqs:
         specifier: 2.9.1
         version: 2.9.1(react@19.2.7)
@@ -4099,25 +4099,6 @@ packages:
   mlly@1.8.2:
     resolution: {integrity: sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA==}
 
-  mppx@0.0.0-main-20260821193729:
-    resolution: {integrity: sha512-RqNrv7fGuMqsztF8k1RHchSKqRb6pmgbZMbUtwu2mVfmluno586Lv1glwoBS2F6vPubaamjPneCp+4yPfWiqOg==}
-    hasBin: true
-    peerDependencies:
-      '@modelcontextprotocol/sdk': '>=1.25.0'
-      elysia: '>=1'
-      express: '>=5'
-      hono: '>=4.12.25'
-      viem: '>=2.54.0'
-    peerDependenciesMeta:
-      '@modelcontextprotocol/sdk':
-        optional: true
-      elysia:
-        optional: true
-      express:
-        optional: true
-      hono:
-        optional: true
-
   mppx@0.7.0:
     resolution: {integrity: sha512-qOHQjD75wSHSZeXutngPXou8NEMIOw6RhZ/lQbo2JmDQWfOi40pLGpqXgHgwIjw4YcJHClFsI7mFXBK3Nj5WCQ==}
     hasBin: true
@@ -4135,6 +4116,44 @@ packages:
       express:
         optional: true
       hono:
+        optional: true
+
+  mppx@https://pkg.pr.new/mppx@4e4810a:
+    resolution: {tarball: https://pkg.pr.new/mppx@4e4810a}
+    version: 0.8.19
+    hasBin: true
+    peerDependencies:
+      '@modelcontextprotocol/sdk': '>=1.25.0'
+      '@x402/core': '>=2.22.0'
+      '@x402/express': '>=2.22.0'
+      '@x402/hono': '>=2.22.0'
+      '@x402/mcp': '>=2.22.0'
+      '@x402/next': '>=2.22.0'
+      elysia: '>=1'
+      express: '>=5'
+      hono: '>=4.12.25'
+      next: '>=16.2.6'
+      viem: '>=2.54.0'
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+      '@x402/core':
+        optional: true
+      '@x402/express':
+        optional: true
+      '@x402/hono':
+        optional: true
+      '@x402/mcp':
+        optional: true
+      '@x402/next':
+        optional: true
+      elysia:
+        optional: true
+      express:
+        optional: true
+      hono:
+        optional: true
+      next:
         optional: true
 
   ms@2.1.3:
@@ -9706,12 +9725,11 @@ snapshots:
       pkg-types: 1.3.1
       ufo: 1.6.3
 
-  mppx@0.0.0-main-20260821193729(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
+  mppx@0.7.0(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
-      '@stripe/stripe-js': 9.13.0
-      eventsource-parser: 3.1.1
+      '@stripe/stripe-js': 9.7.0
+      incur: 0.4.26
       ox: 0.14.33(typescript@6.0.3)(zod@4.4.3)
-      structured-headers: 2.0.3
       viem: 2.54.0(typescript@6.0.3)(zod@4.4.3)
       zod: 4.4.3
     optionalDependencies:
@@ -9721,11 +9739,12 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  mppx@0.7.0(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
+  mppx@https://pkg.pr.new/mppx@4e4810a(@modelcontextprotocol/sdk@1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3))(express@5.2.1)(hono@4.12.27)(typescript@6.0.3)(viem@2.54.0(typescript@6.0.3)(zod@4.4.3)):
     dependencies:
-      '@stripe/stripe-js': 9.7.0
-      incur: 0.4.26
+      '@stripe/stripe-js': 9.13.0
+      eventsource-parser: 3.1.1
       ox: 0.14.33(typescript@6.0.3)(zod@4.4.3)
+      structured-headers: 2.0.3
       viem: 2.54.0(typescript@6.0.3)(zod@4.4.3)
       zod: 4.4.3
     optionalDependencies:

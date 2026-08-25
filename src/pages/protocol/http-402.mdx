@@ -46,7 +46,7 @@ When a resource requires both **token** and **payment** authentication:
 This ordering prevents leaking payment requirements to unauthenticated clients.
 
 :::info
-Store authentication tokens in an [HTTP-only cookie](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#httponly-attribute) to prevent them from conflicting with the payment `Authorization` header and to avoid exposing the token to the client.
+With `mppx`, set `requiresAuth: true` to advertise `Payment-Authorization` for the Payment Credential while keeping application authentication in `Authorization`. Compatible clients preserve the existing application Credential when they retry the request.
 :::
 
 ## Error responses

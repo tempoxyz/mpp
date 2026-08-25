@@ -44,6 +44,25 @@ const handler = payment.charge({
 
 The shorthand applies `canOffer` and `selectOffers`, just like `payment.compose()`. Use [`Mppx.compose`](/sdk/typescript/server/Mppx.compose) when methods need different request options or one method needs multiple offers.
 
+### With application authentication
+
+Set `requiresAuth: true` when `Authorization` already carries an application Credential. The server advertises `header="Payment-Authorization"` in each Challenge, reads the Payment Credential from that field, and leaves `Authorization` available for Bearer, Basic, or another authentication scheme.
+
+```ts twoslash [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const payment = Mppx.create({
+  methods: [tempo.charge()],
+  requiresAuth: true,
+})
+
+const handler = payment.tempo.charge({
+  amount: '0.01',
+})
+```
+
+Compatible `mppx` clients follow the field advertised by the Challenge and preserve an existing non-Payment `Authorization` value on the retry.
+
 ### Select offers per request
 
 Use `selectOffers` to filter composed HTTP offers before the server issues Challenges. The hook receives normalized, immutable offer snapshots and a clone of the incoming request.
@@ -166,6 +185,13 @@ const payment = Mppx.create({
   // [!code focus:end]
 })
 ```
+
+### requiresAuth (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Uses `Payment-Authorization` for Payment Credentials so `Authorization` remains available for application authentication. Available with the HTTP transport.
 
 ### realm (optional)
 

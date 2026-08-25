@@ -25,7 +25,7 @@ Choose **x402** when your service exclusively needs on-chain payments and its re
 | **Core model** | On-chain payment schemes attached to requests | Payment authentication framework for machine-to-machine payments |
 | **HTTP status** | `402 Payment Required` | `402 Payment Required` |
 | **Challenge header** | `PAYMENT-REQUIRED` | `WWW-Authenticate: Payment` |
-| **Credential header** | `PAYMENT-SIGNATURE` | `Authorization: Payment` |
+| **Credential header** | `PAYMENT-SIGNATURE` | `Authorization: Payment`, or an advertised alternate field |
 | **Receipt header** | `PAYMENT-RESPONSE` | `Payment-Receipt` |
 | **Payment rails** | Registered blockchain network mechanisms | Stablecoins, cards, Lightning, and custom methods |
 | **Usage-based billing** | `upto` and EVM `batch-settlement` schemes | Payment-method intents, including `session` |

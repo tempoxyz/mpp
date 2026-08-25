@@ -115,9 +115,9 @@ Decimal places for amount parsing.
 
 ### feePayer (optional)
 
-- **Type:** `Account | string | true`
+- **Type:** `Account | { headers?: Readonly<Record<string, string>>; url: string } | string | true`
 
-Account or URL for sponsoring transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), or `true` when the `account` parameter doubles as the fee payer.
+Account or remote service for sponsoring transaction fees. Pass a viem `Account` to co-sign locally, a URL string to use a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), an object with `headers` and `url` to authenticate remote requests, or `true` when the `account` parameter doubles as the fee payer. `mppx` reserves the `Content-Type` header for JSON.
 
 ### getClient (optional)
 

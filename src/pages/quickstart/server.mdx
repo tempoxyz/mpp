@@ -270,7 +270,7 @@ const mppx = Mppx.create({
 })
 ```
 
-It is possible to pass a [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer) URL instead:
+Pass a [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer) URL instead. Use the object form when the service requires authentication headers:
 
 ```ts
 import { Mppx, tempo } from 'mppx/server'
@@ -278,7 +278,14 @@ import { Mppx, tempo } from 'mppx/server'
 const mppx = Mppx.create({
   methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000000',
-    feePayer: 'https://sponsor.example.com', // [!code focus]
+    // [!code focus:start]
+    feePayer: {
+      headers: {
+        Authorization: `Bearer ${process.env.FEE_PAYER_TOKEN!}`,
+      },
+      url: 'https://sponsor.example.com',
+    },
+    // [!code focus:end]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     testnet: false,
   })],
@@ -286,7 +293,7 @@ const mppx = Mppx.create({
 })
 ```
 
-When a pull-mode client submits a signed transaction, the server co-signs with the fee payer account (or delegates to the relay) before broadcasting. Push-mode clients pay their own gas, so `feePayer` is ignored for those requests. Zero-amount proof flows do not create a transaction at all.
+When a pull-mode client submits a signed transaction, the server co-signs with the fee payer account or delegates to the remote service before broadcasting. `mppx` sends the configured headers on both JSON-RPC and transaction-completion requests and reserves `Content-Type: application/json`. Push-mode clients pay their own gas, so `feePayer` is ignored for those requests. Zero-amount proof flows do not create a transaction at all.
 
 ### Optimistic verification
 

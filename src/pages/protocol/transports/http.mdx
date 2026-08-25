@@ -1,5 +1,5 @@
 ---
-description: "The HTTP transport maps MPP payment flows to standard HTTP headers—WWW-Authenticate for Challenges, Authorization for Credentials, and Payment-Receipt."
+description: "Map MPP payment flows to HTTP headers, including a separate Credential field for endpoints that also require application authentication."
 imageDescription: "Payment flows over standard HTTP headers"
 ---
 
@@ -14,7 +14,8 @@ The HTTP transport is the primary binding for MPP, using standard HTTP headers f
 | Direction | Header | Purpose |
 |-----------|--------|---------|
 | Server → Client | `WWW-Authenticate: Payment ...` | Challenge |
-| Client → Server | `Authorization: Payment ...` | Credential |
+| Client → Server | `Authorization: Payment ...` | Credential when the Challenge omits `header` |
+| Client → Server | `Payment-Authorization: Payment ...` | Credential when the Challenge sets `header="Payment-Authorization"` |
 | Server → Client | `Payment-Receipt: ...` | Receipt |
 
 ## Example flow
@@ -63,7 +64,18 @@ Content-Type: application/json
 
 ## Header encoding
 
-Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#section-11.2) in `WWW-Authenticate`. The `request` and `opaque` auth-params use base64url-encoded JCS JSON strings. Credentials echo those same Challenge values inside the base64url-encoded `Authorization` payload, and Receipts use base64url-encoded JSON in `Payment-Receipt`.
+Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#section-11.2) in `WWW-Authenticate`. The `request` and `opaque` auth-params use base64url-encoded JCS JSON strings. Credentials echo those same Challenge values inside the base64url-encoded Payment Credential, and Receipts use base64url-encoded JSON in `Payment-Receipt`.
+
+## Combine application authentication and payment
+
+Use a separate payment field when your endpoint needs a Bearer, Basic, or other application Credential in `Authorization`. With `mppx`, set `requiresAuth: true` on the server. The Challenge advertises `header="Payment-Authorization"`, and compatible clients attach the Payment Credential there without replacing the existing `Authorization` value.
+
+```http
+GET /api/data HTTP/1.1
+Authorization: Bearer application-token
+Host: api.example.com
+Payment-Authorization: Payment eyJjaGFsbGVuZ2UiOnsiaWQiOiJhYmMxMjMi...
+```
 
 ## Full specification
 

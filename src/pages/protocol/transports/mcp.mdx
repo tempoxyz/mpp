@@ -97,7 +97,7 @@ Receipts are returned in the result `_meta`:
 | Aspect | HTTP | MCP |
 |--------|------|-----|
 | Challenge delivery | `WWW-Authenticate` header | JSON-RPC error `-32042` |
-| Credential delivery | `Authorization` header | `_meta.org.paymentauth/credential` |
+| Credential delivery | `Authorization` or the Challenge's advertised field | `_meta.org.paymentauth/credential` |
 | Receipt delivery | `Payment-Receipt` header | `_meta.org.paymentauth/receipt` |
 | Encoding | Base64url in headers | Native JSON in body |
 

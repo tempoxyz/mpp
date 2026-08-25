@@ -836,6 +836,27 @@ export default defineConfig({
                 ],
               },
               {
+                text: "x402 compatibility",
+                items: [
+                  {
+                    text: "Express",
+                    link: "/sdk/typescript/x402/express",
+                  },
+                  {
+                    text: "Hono",
+                    link: "/sdk/typescript/x402/hono",
+                  },
+                  {
+                    text: "MCP",
+                    link: "/sdk/typescript/x402/mcp",
+                  },
+                  {
+                    text: "Next.js",
+                    link: "/sdk/typescript/x402/next",
+                  },
+                ],
+              },
+              {
                 text: "Proxy",
                 link: "/sdk/typescript/proxy",
               },
@@ -860,6 +881,10 @@ export default defineConfig({
                     text: "Challenge",
                     collapsed: true,
                     items: [
+                      {
+                        text: ".credentialHeader",
+                        link: "/sdk/typescript/core/Challenge.credentialHeader",
+                      },
                       {
                         text: ".deserialize",
                         link: "/sdk/typescript/core/Challenge.deserialize",

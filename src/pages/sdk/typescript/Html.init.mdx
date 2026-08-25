@@ -89,7 +89,7 @@ type Context = {
   label: string
   /** The DOM element to mount your payment UI into. */
   root: HTMLElement
-  /** Submit a credential and reload the page. */
+  /** Submit a Credential in the field advertised by the Challenge, then reload the page. */
   submit: (credential: string) => Promise<void>
   /** UI text strings with defaults applied. */
   text: { expires: string; pay: string; paymentRequired: string; title: string }
@@ -163,7 +163,7 @@ The DOM element to mount your payment UI into. Append your form elements here.
 
 - **Type:** `(credential: string) => Promise<void>`
 
-Sends the Credential to the server via a Service Worker, then reloads the page. Call after creating a Credential from the Challenge.
+Sends the Credential to the server via a Service Worker, then reloads the page. The Service Worker uses the HTTP field advertised by `challenge.header`, or `Authorization` when the Challenge omits it. Call after creating a Credential from the Challenge.
 
 ### text
 

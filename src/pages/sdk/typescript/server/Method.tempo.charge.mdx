@@ -125,6 +125,27 @@ const mppx = Mppx.create({
 })
 ```
 
+### With an authenticated remote fee payer
+
+Pass request headers with the remote service URL. `mppx` applies them to fee-payer JSON-RPC and transaction-completion requests.
+
+```ts [server.ts]
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      feePayer: {
+        headers: {
+          Authorization: `Bearer ${process.env.FEE_PAYER_TOKEN!}`,
+        },
+        url: 'https://sponsor.example.com',
+      },
+    }),
+  ],
+})
+```
+
 ### With machine-token payments
 
 Enable the unified first-party Tempo machineUSD route for compatible single-recipient charges. Clients use it when they hold enough machineUSD, then fall back to the requested stablecoin path when the route isn't available.
@@ -234,9 +255,9 @@ External identifier for the payment.
 
 ### feePayer (optional)
 
-- **Type:** `Account | string | true`
+- **Type:** `Account | { headers?: Readonly<Record<string, string>>; url: string } | string | true`
 
-Account or URL for sponsoring transaction fees. Pass a viem `Account` to co-sign locally, a URL string to delegate to a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), or `true` when the `account` parameter doubles as the fee payer.
+Account or remote service for sponsoring transaction fees. Pass a viem `Account` to co-sign locally, a URL string to use a remote [fee payer service](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer), an object with `headers` and `url` to authenticate remote requests, or `true` when the `account` parameter doubles as the fee payer. `mppx` reserves the `Content-Type` header for JSON.
 
 This setting only applies to non-zero charges. Zero-amount proof flows do not create a transaction.
 

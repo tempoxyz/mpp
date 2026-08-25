@@ -55,6 +55,13 @@ Digest of the request body.
 
 Expiration timestamp (ISO 8601).
 
+### header (optional)
+
+- **Type:** `string`
+- **Default:** `Authorization`
+
+HTTP field for the Payment Credential. Set `Payment-Authorization` when `Authorization` carries an application Credential. The default isn't serialized in the Challenge.
+
 ### id (when not using secretKey)
 
 - **Type:** `string`

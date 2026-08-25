@@ -20,7 +20,7 @@ MPP defines how the Payment authentication scheme operates over different transp
 
 MPP's core concepts—Challenges, Credentials, and Receipts—remain the same across transports. The encoding and delivery mechanism changes:
 
-- **HTTP** uses standard headers (`WWW-Authenticate`, `Authorization`, `Payment-Receipt`)
+- **HTTP** uses standard headers (`WWW-Authenticate`, `Authorization` or an advertised alternate Credential field, and `Payment-Receipt`)
 - **MCP** uses JSON-RPC error codes and `_meta` fields
 - **WebSocket** uses JSON message framing with an `mpp` discriminator
 

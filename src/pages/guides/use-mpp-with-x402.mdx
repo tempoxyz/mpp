@@ -18,7 +18,7 @@ See [MPP vs x402](/mpp-vs-x402) for a full comparison.
 | | x402 | MPP |
 |---|---|---|
 | **Challenge** | `PAYMENT-REQUIRED` header | `WWW-Authenticate: Payment` header |
-| **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` header |
+| **Credential** | `PAYMENT-SIGNATURE` header | `Authorization: Payment` or an advertised alternate field |
 | **Receipt** | `PAYMENT-RESPONSE` header | `Payment-Receipt` header |
 | **Flow used here** | x402 v2 EIP-3009 `exact` | EVM `charge` |
 | **Payment rails** | Registered blockchain network mechanisms | Stablecoins, cards, Lightning, and custom methods |
@@ -55,9 +55,9 @@ $ bun add mppx viem
 Start with your existing x402 SDK route:
 
 ```ts [server.ts]
-import { HTTPFacilitatorClient, type RoutesConfig } from '@x402/core/server'
+import { HTTPFacilitatorClient, type RoutesConfig, x402ResourceServer } from '@x402/core/server'
 import { ExactEvmScheme } from '@x402/evm/exact/server'
-import { paymentMiddleware, x402ResourceServer } from '@x402/express'
+import { paymentMiddleware } from '@x402/express'
 import express from 'express'
 
 const app = express()
@@ -93,9 +93,8 @@ app.get('/api/data', (req, res) => {
 Replace the x402 middleware import with the MPP compatibility wrapper. Keep the route table, resource server, facilitator, and handler unchanged:
 
 ```ts [server.ts]
-import { HTTPFacilitatorClient, type RoutesConfig } from '@x402/core/server'
+import { HTTPFacilitatorClient, type RoutesConfig, x402ResourceServer } from '@x402/core/server'
 import { ExactEvmScheme } from '@x402/evm/exact/server'
-import { x402ResourceServer } from '@x402/express'
 import express from 'express'
 import { mpp } from 'mppx/x402/express' // [!code focus]
 
@@ -132,11 +131,23 @@ app.get('/api/data', (req, res) => {
 })
 ```
 
-The wrapper delegates x402 Credentials, lifecycle hooks, verification, and settlement to the official x402 adapter. For a compatible `exact` requirement, it also returns an MPP Challenge and settles MPP Credentials through the same x402 resource server.
+The wrapper delegates x402 Credentials, lifecycle hooks, verification, and settlement to the official x402 adapter. For the first compatible extension-free EIP-3009 `exact` requirement, it also advertises native Tempo and source-chain EVM MPP Challenges. The source-chain MPP option verifies and settles through the same x402 resource server. Requirements with x402 extensions remain x402-only so their semantics aren't lost.
 
 :::note
 The x402 compatibility wrapper converts atomic payment requirements to display units automatically, so keep your existing x402 route configuration unchanged. When configuring `mppx.evm.charge` directly, convert atomic amounts first—for six-decimal USDC, `10000` becomes `0.01`.
 :::
+
+#### Use another x402 adapter
+
+The same compatibility layer wraps official Hono, Next.js, and MCP integrations:
+
+| Runtime | Import | Wrapper |
+|---|---|---|
+| Express | `mppx/x402/express` | [`mpp(routes, server, config)`](/sdk/typescript/x402/express) |
+| Hono | `mppx/x402/hono` | [`mpp(routes, server, config)`](/sdk/typescript/x402/hono) |
+| MCP | `mppx/x402/mcp` | [`mpp(server, config)(handler)`](/sdk/typescript/x402/mcp) |
+| Next.js proxy | `mppx/x402/next` | [`mppProxy(routes, server, config)`](/sdk/typescript/x402/next) |
+| Next.js route | `mppx/x402/next` | [`mpp(handler, route, server, config)`](/sdk/typescript/x402/next) |
 
 ### Run x402 inline with `mppx`
 

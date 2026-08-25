@@ -1,0 +1,93 @@
+---
+description: "Add MPP payments to existing x402 Next.js route handlers and proxies while preserving official adapter behavior."
+imageDescription: "Serve MPP and x402 clients from one Next.js route"
+---
+
+# `x402/next` [Add MPP to an x402 Next.js server]
+
+Wraps official x402 Next.js route handlers and proxies so they also accept MPP Credentials.
+
+## Usage
+
+### Wrap a route handler
+
+```ts [route.ts]
+import { HTTPFacilitatorClient, x402ResourceServer } from '@x402/core/server'
+import { ExactEvmScheme } from '@x402/evm/exact/server'
+import { mpp } from 'mppx/x402/next'
+
+const facilitator = new HTTPFacilitatorClient({
+  url: 'https://x402.org/facilitator',
+})
+const server = new x402ResourceServer(facilitator).register(
+  'eip155:84532',
+  new ExactEvmScheme(),
+)
+const route = {
+  accepts: {
+    network: 'eip155:84532',
+    payTo: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    price: '$0.01',
+    scheme: 'exact',
+  },
+}
+
+export const GET = mpp( // [!code hl]
+  () => Response.json({ data: 'premium content' }),
+  route,
+  server,
+  { secretKey: process.env.MPP_SECRET_KEY! },
+)
+```
+
+Additional Next.js route context arguments are passed to the wrapped handler unchanged.
+
+### Wrap a proxy
+
+Use `mppProxy` in `proxy.ts` when the x402 configuration protects multiple routes. Successful payments use `NextResponse.next()` continuation semantics for both protocols.
+
+```ts [proxy.ts]
+import { mppProxy } from 'mppx/x402/next'
+
+export default mppProxy(routes, server, {
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+## Return type
+
+```ts
+type ReturnType = (request: NextRequest, ...arguments_: unknown[]) => Promise<Response> | Response
+```
+
+## Parameters
+
+### config
+
+- **Type:** `{ paywallConfig?: PaywallConfig; realm?: string; secretKey: string }`
+
+MPP Challenge and optional x402 paywall settings. `secretKey` must contain at least 32 bytes.
+
+### handler
+
+- **Type:** `(request: NextRequest, ...arguments_: unknown[]) => Promise<Response> | Response`
+
+Next.js route handler wrapped by `mpp`.
+
+### route
+
+- **Type:** `RouteConfig`
+
+x402 configuration for the wrapped route handler.
+
+### routes
+
+- **Type:** `RoutesConfig`
+
+x402 route table passed to `mppProxy`.
+
+### server
+
+- **Type:** `x402ResourceServer`
+
+Existing x402 resource server used for requirement metadata, verification, and settlement.

@@ -76,7 +76,7 @@ export const GET =
 
 ### Identifying the payer
 
-After the handler verifies payment, the `Authorization` header is still on the request. Parse it with `Credential.deserialize` to read the payer's identity from the `source` field—a DID such as `did:pkh:eip155:1:0x...`.
+After the handler verifies payment, the Credential field is still on the request. It defaults to `Authorization`; use `Payment-Authorization` when the server sets `requiresAuth: true`. Parse its value with `Credential.deserialize` to read the payer's identity from the `source` field—a DID such as `did:pkh:eip155:1:0x...`.
 
 ```ts twoslash [app/api/premium/route.ts]
 import { Credential } from 'mppx'

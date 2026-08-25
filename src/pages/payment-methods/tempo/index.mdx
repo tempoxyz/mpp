@@ -83,16 +83,23 @@ const mppx = Mppx.create({
 })
 ```
 
-It is also possible to point the `feePayer` to a fee service that supports the [`Handler.feePayer`](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer) endpoint:
+Point `feePayer` to a fee service that supports the [`Handler.feePayer`](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer) endpoint. Use the object form to authenticate requests:
 
 ```ts
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [tempo.charge({
-    feePayer: 'https://sponsor.example.com', // [!code hl]
+    // [!code hl:start]
+    feePayer: {
+      headers: {
+        Authorization: `Bearer ${process.env.FEE_PAYER_TOKEN!}`,
+      },
+      url: 'https://sponsor.example.com',
+    },
+    // [!code hl:end]
   })],
 })
 ```
 
-For Sessions, pass the same `feePayer` parameter to [`tempo.session`](/sdk/typescript/server/Method.tempo.session) alongside `account` and `store`. A fee payer service sponsors open, top-up, scheduled settlement, and cooperative close transactions.
+For Sessions, pass the same `feePayer` parameter to [`tempo.session`](/sdk/typescript/server/Method.tempo.session) alongside `account` and `store`. A fee payer service sponsors open, top-up, scheduled settlement, and cooperative close transactions. `mppx` applies the configured headers to every remote fee-payer request and always sets `Content-Type: application/json`.

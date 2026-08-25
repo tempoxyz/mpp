@@ -54,7 +54,8 @@ const mppx = Mppx.create({
 
 - Detects payment required using the **`402` status code**
 - Extracts Challenges from the **`WWW-Authenticate` header**
-- Sends Credentials using the **`Authorization` header**
+- Sends Credentials using **`Authorization`** or the alternate field advertised by the Challenge
+- Preserves an existing non-Payment **`Authorization`** value when attaching another Credential field
 
 ## Return type
 

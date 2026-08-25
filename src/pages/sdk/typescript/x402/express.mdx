@@ -1,0 +1,75 @@
+---
+description: "Add MPP payments to an existing x402 Express server without replacing its routes, facilitator, hooks, or settlement."
+imageDescription: "Serve MPP and x402 clients from one Express route"
+---
+
+# `x402/express.mpp` [Add MPP to an x402 Express server]
+
+Wraps the official x402 Express middleware so one route accepts MPP and x402 Credentials.
+
+Requires `@x402/core` and `@x402/express` 2.22 or later, Express 5 or later, and viem 2.54 or later.
+
+## Usage
+
+```ts [server.ts]
+import { HTTPFacilitatorClient, type RoutesConfig, x402ResourceServer } from '@x402/core/server'
+import { ExactEvmScheme } from '@x402/evm/exact/server'
+import express from 'express'
+import { mpp } from 'mppx/x402/express'
+
+const facilitator = new HTTPFacilitatorClient({
+  url: 'https://x402.org/facilitator',
+})
+const server = new x402ResourceServer(facilitator).register(
+  'eip155:84532',
+  new ExactEvmScheme(),
+)
+const routes = {
+  'GET /api/data': {
+    accepts: {
+      network: 'eip155:84532',
+      payTo: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      price: '$0.01',
+      scheme: 'exact',
+    },
+    description: 'Premium data access',
+    mimeType: 'application/json',
+  },
+} satisfies RoutesConfig
+
+const app = express()
+app.use(mpp(routes, server, { // [!code hl]
+  secretKey: process.env.MPP_SECRET_KEY!,
+}))
+app.get('/api/data', (_request, response) => {
+  response.json({ data: 'premium content' })
+})
+```
+
+The wrapper leaves x402 response buffering, hooks, handler cancellation, verification, and settlement with the official adapter. A request containing both an MPP Credential and an x402 payment signature returns `400`.
+
+## Return type
+
+```ts
+type ReturnType = RequestHandler
+```
+
+## Parameters
+
+### config
+
+- **Type:** `{ paywallConfig?: PaywallConfig; realm?: string; secretKey: string }`
+
+MPP Challenge and optional x402 paywall settings. `secretKey` must contain at least 32 bytes.
+
+### routes
+
+- **Type:** `RoutesConfig`
+
+Existing x402 route configuration. The first extension-free EIP-3009 `exact` requirement with valid amount, asset, EVM network, name, recipient, and version fields also produces MPP Tempo and source-chain EVM Challenges.
+
+### server
+
+- **Type:** `x402ResourceServer`
+
+Existing x402 resource server used for requirement metadata, verification, and settlement.

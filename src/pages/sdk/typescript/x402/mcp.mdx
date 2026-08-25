@@ -1,0 +1,54 @@
+---
+description: "Add MPP payment metadata to an existing x402 MCP tool while preserving its resource server and x402 lifecycle."
+imageDescription: "Accept MPP and x402 payments in one MCP tool"
+---
+
+# `x402/mcp.mpp` [Add MPP to an x402 MCP tool]
+
+Wraps an official x402 MCP tool handler so calls can pay through MPP or x402 metadata.
+
+## Usage
+
+```ts [server.ts]
+import { x402ResourceServer } from '@x402/core/server'
+import { mpp } from 'mppx/x402/mcp'
+
+const paid = mpp(resourceServer, {
+  accepts,
+  resource: {
+    description: 'Premium search',
+    url: 'mcp://tool/search',
+  },
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+const search = paid(async ({ query }: { query: string }) => ({
+  content: [{ text: `result:${query}`, type: 'text' }],
+}))
+```
+
+The resource URL must use the canonical `mcp://tool/{toolName}` shape without another path segment, query, or fragment. An unpaid call returns one MCP payment error containing both MPP Challenges and the x402 payment requirements.
+
+x402 Credentials and lifecycle hooks stay with `@x402/mcp`. MPP source-chain EVM Credentials reuse the x402 resource server for verification and settlement; x402-only hooks run only for x402 calls.
+
+## Return type
+
+```ts
+type ReturnType = <arguments_ extends Record<string, unknown>>(
+  handler: PaymentWrappedHandler<arguments_>,
+) => MCPToolCallback<arguments_>
+```
+
+## Parameters
+
+### config
+
+- **Type:** `Config`
+
+Existing x402 MCP payment settings plus the MPP realm and secret. `resource.url` must match the canonical tool URL described above; `resource.description` and `resource.mimeType` remain optional. `secretKey` must contain at least 32 bytes.
+
+### resourceServer
+
+- **Type:** `x402ResourceServer`
+
+Existing x402 resource server used for requirement metadata, verification, and settlement.

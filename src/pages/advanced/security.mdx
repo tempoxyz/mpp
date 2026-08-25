@@ -28,6 +28,7 @@ Do not log:
 
 - `MPP_SECRET_KEY`
 - `Authorization: Payment` headers
+- `Payment-Authorization: Payment` headers
 - `Payment-Receipt` headers
 
 Keep them out of error messages, debugging output, analytics, traces, and support logs. If you need observability, log stable metadata such as request IDs, Challenge IDs, status codes, or payment method names instead.
@@ -38,7 +39,7 @@ Treat reverse proxies, CDNs, API gateways, and observability pipelines as part o
 
 - Send `Cache-Control: no-store` with `402` responses so intermediaries do not cache Challenges.
 - Send `Cache-Control: private` on successful responses that include `Payment-Receipt`.
-- Redact `Authorization: Payment` and `Payment-Receipt` headers in proxy logs, trace exporters, and edge analytics.
+- Redact `Authorization: Payment`, `Payment-Authorization: Payment`, and `Payment-Receipt` headers in proxy logs, trace exporters, and edge analytics.
 - Do not rely on intermediary-specific `402` handling—verify that your deployment forwards `WWW-Authenticate` headers correctly.
 
 ## Bind paid requests to the actual request

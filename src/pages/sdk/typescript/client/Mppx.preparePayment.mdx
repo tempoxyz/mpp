@@ -38,7 +38,7 @@ const paidResponse = await mppx.rawFetch('https://api.example.com/paid', paidReq
 
 `preparePayment` selects a Challenge but doesn't sign or emit Credential lifecycle events until you call `createCredential`. Use it to display payment terms, request approval, or apply a spending policy before paying.
 
-`setCredential` uses the protocol that produced the selected Challenge. It attaches `Authorization` for Payment auth, `PAYMENT-SIGNATURE` for x402, or request metadata for MCP.
+`setCredential` uses the protocol that produced the selected Challenge. It attaches a Payment Credential to `Authorization` or the alternate field advertised by the Challenge, uses `PAYMENT-SIGNATURE` for x402, and uses request metadata for MCP.
 
 Prepared payments retain transport-local state and aren't serializable. Their inspected Challenge, Challenge list, method, and wrapper object are immutable snapshots.
 

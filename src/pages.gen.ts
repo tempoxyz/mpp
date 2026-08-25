@@ -135,6 +135,7 @@ type Page =
   | { path: '/sdk/typescript/client/Transport.mcp'; render: 'static' }
   | { path: '/sdk/typescript/core/BodyDigest.compute'; render: 'static' }
   | { path: '/sdk/typescript/core/BodyDigest.verify'; render: 'static' }
+  | { path: '/sdk/typescript/core/Challenge.credentialHeader'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.deserialize'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.fromHeaders'; render: 'static' }
@@ -192,6 +193,10 @@ type Page =
   | { path: '/sdk/typescript/server/Transport.mcp'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.mcpSdk'; render: 'static' }
   | { path: '/sdk/typescript/server/Ws.serve'; render: 'static' }
+  | { path: '/sdk/typescript/x402/express'; render: 'static' }
+  | { path: '/sdk/typescript/x402/hono'; render: 'static' }
+  | { path: '/sdk/typescript/x402/mcp'; render: 'static' }
+  | { path: '/sdk/typescript/x402/next'; render: 'static' }
   | { path: '/services'; render: 'static' }
   | { path: '/tools/wallet'; render: 'static' }
   | { path: '/use-cases/agentic-payments'; render: 'static' }

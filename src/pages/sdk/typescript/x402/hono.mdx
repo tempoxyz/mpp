@@ -1,0 +1,71 @@
+---
+description: "Add MPP payments to an existing x402 Hono server while preserving its route configuration and payment lifecycle."
+imageDescription: "Serve MPP and x402 clients from one Hono route"
+---
+
+# `x402/hono.mpp` [Add MPP to an x402 Hono server]
+
+Wraps the official x402 Hono middleware so one route accepts MPP and x402 Credentials.
+
+Requires `@x402/core` and `@x402/hono` 2.22 or later, Hono 4.12.25 or later, and viem 2.54 or later.
+
+## Usage
+
+```ts [server.ts]
+import { HTTPFacilitatorClient, type RoutesConfig, x402ResourceServer } from '@x402/core/server'
+import { ExactEvmScheme } from '@x402/evm/exact/server'
+import { Hono } from 'hono'
+import { mpp } from 'mppx/x402/hono'
+
+const facilitator = new HTTPFacilitatorClient({
+  url: 'https://x402.org/facilitator',
+})
+const server = new x402ResourceServer(facilitator).register(
+  'eip155:84532',
+  new ExactEvmScheme(),
+)
+const routes = {
+  'GET /api/data': {
+    accepts: {
+      network: 'eip155:84532',
+      payTo: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      price: '$0.01',
+      scheme: 'exact',
+    },
+  },
+} satisfies RoutesConfig
+
+const app = new Hono()
+app.use(mpp(routes, server, { // [!code hl]
+  secretKey: process.env.MPP_SECRET_KEY!,
+}))
+app.get('/api/data', (context) => context.json({ data: 'premium content' }))
+```
+
+The wrapper leaves Hono response handling, hooks, cancellation, and post-handler x402 settlement with the official adapter.
+
+## Return type
+
+```ts
+type ReturnType = MiddlewareHandler
+```
+
+## Parameters
+
+### config
+
+- **Type:** `{ paywallConfig?: PaywallConfig; realm?: string; secretKey: string }`
+
+MPP Challenge and optional x402 paywall settings. `secretKey` must contain at least 32 bytes.
+
+### routes
+
+- **Type:** `RoutesConfig`
+
+Existing x402 route configuration. Compatible extension-free EIP-3009 `exact` requirements also produce MPP Tempo and source-chain EVM Challenges.
+
+### server
+
+- **Type:** `x402ResourceServer`
+
+Existing x402 resource server used for requirement metadata, verification, and settlement.

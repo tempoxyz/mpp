@@ -15,6 +15,7 @@ WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk",
     method="tempo",
     intent="charge",
     expires="2025-01-15T12:05:00Z",
+    header="Payment-Authorization",
     opaque="eyJyb3V0ZSI6Ii92MS9zZWFyY2gifQ",
     request="eyJhbW91bnQiOiIxMDAwIiwiY3VycmVuY3kiOiJ1c2QifQ"
 ```
@@ -33,8 +34,10 @@ WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk",
 
 | Parameter | Description |
 |-----------|-------------|
-| `expires` | ISO 8601 timestamp when the Challenge expires |
 | `description` | Human-readable description of what's being paid for |
+| `digest` | Request body digest used to bind a body-bearing request |
+| `expires` | ISO 8601 timestamp when the Challenge expires |
+| `header` | HTTP field for the Credential; defaults to `Authorization` when absent |
 | `opaque` | Base64url-encoded JCS JSON for server-defined correlation data |
 
 ## `request` and `opaque` encoding
@@ -95,9 +98,10 @@ Typical binding includes:
 - `request`
 - `expires`
 - `digest`
+- `header` when advertised
 - `opaque`
 
-For HMAC-bound IDs, the canonical input sequence is `realm | method | intent | request | expires | digest | opaque`. When `expires`, `digest`, or `opaque` is absent, use an empty string for that slot.
+For HMAC-bound IDs without `header`, the canonical input sequence remains `realm | method | intent | request | expires | digest | opaque`. When a Challenge advertises `header`, insert its value before the final `opaque` slot. Use an empty string for an absent optional slot.
 
 For stateless verification, use an [HMAC-bound](https://en.wikipedia.org/wiki/HMAC) Challenge ID. Stateful servers can store the expected Challenge parameters by ID and compare them when verifying the Credential.
 

@@ -129,7 +129,7 @@ $ mppx init --force
 
 ## Sign command
 
-Sign a payment Challenge and output the `Authorization` header value without making a request. Accepts a Challenge via `--challenge` or stdin.
+Sign a payment Challenge and output its serialized Payment Credential value without making a request. Accepts a Challenge via `--challenge` or stdin; send the result in the field advertised by `header`, or `Authorization` when omitted.
 
 ```bash [terminal]
 $ mppx sign --challenge 'Payment method="tempo-session";chain-id=4217;...'

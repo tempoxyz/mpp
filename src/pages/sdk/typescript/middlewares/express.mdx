@@ -51,6 +51,20 @@ app.get(
 )
 ```
 
+### Body-bearing requests
+
+Register the appropriate Express body parser before a paid `POST`, `PUT`, or `PATCH` route. The middleware forwards parsed JSON and binary bodies, repeated headers, and the complete request URL to MPP verification. It omits bodies from `GET` and `HEAD` requests.
+
+```ts [server.ts]
+app.use(express.json())
+
+app.post(
+  '/premium',
+  mppx.charge({ amount: '1' }),
+  (req, res) => res.json({ accepted: req.body }),
+)
+```
+
 ### Session payments
 
 Use `mppx.session()` with `tempo.session()` to gate routes behind current v2 Sessions.
@@ -84,7 +98,7 @@ app.get(
 
 ### Identifying the payer
 
-After the middleware verifies payment, the `Authorization` header is still on the request. Parse it with `Credential.deserialize` to read the payer's identity from the `source` field—a DID such as `did:pkh:eip155:1:0x...`.
+After the middleware verifies payment, the Credential field is still on the request. It defaults to `Authorization`; use `Payment-Authorization` when the server sets `requiresAuth: true`. Parse its value with `Credential.deserialize` to read the payer's identity from the `source` field—a DID such as `did:pkh:eip155:1:0x...`.
 
 ```ts [server.ts]
 import express from 'express'

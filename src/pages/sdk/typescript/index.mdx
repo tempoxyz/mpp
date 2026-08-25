@@ -45,6 +45,17 @@ $ bun add mppx
 
 Use `mppx/server` for most servers. It exports the server runtime and every built-in payment method.
 
+### x402 compatibility
+
+Use a framework-specific x402 entrypoint when you already have an official x402 route table and resource server. These wrappers preserve x402 handling and add native MPP Challenges and Credentials to the same route.
+
+| Runtime | Reference |
+|---|---|
+| Express | [`mppx/x402/express`](/sdk/typescript/x402/express) |
+| Hono | [`mppx/x402/hono`](/sdk/typescript/x402/hono) |
+| MCP | [`mppx/x402/mcp`](/sdk/typescript/x402/mcp) |
+| Next.js | [`mppx/x402/next`](/sdk/typescript/x402/next) |
+
 ### Advanced options
 
 Use lightweight entrypoints when a deployment only needs core server primitives or Stripe Shared Payment Tokens. These imports omit unrelated payment rails from the module graph.

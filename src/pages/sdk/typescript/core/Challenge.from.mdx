@@ -2,7 +2,7 @@
 
 Creates a Challenge from the given parameters.
 
-If `secretKey` option is provided, the Challenge ID is computed as HMAC-SHA256 over the Challenge parameters (realm|method|intent|request|expires|digest|opaque), cryptographically binding the ID to its contents. When `expires`, `digest`, or `opaque` is absent, that slot is an empty string.
+If `secretKey` is provided, the Challenge ID is computed as HMAC-SHA256 over the Challenge parameters. The legacy binding is `realm|method|intent|request|expires|digest|opaque`. A non-default `header` is inserted before the final `opaque` slot. When an optional value is absent, its slot is an empty string.
 
 Load `secretKey` from your server environment or secret manager. Do not ship it to clients.
 
@@ -68,6 +68,13 @@ Digest of the request body.
 - **Type:** `string`
 
 Expiration timestamp (ISO 8601).
+
+### header (optional)
+
+- **Type:** `string`
+- **Default:** `Authorization`
+
+HTTP field for the Payment Credential. Set `Payment-Authorization` when `Authorization` carries an application Credential. The default isn't serialized in the Challenge.
 
 ### id (when not using secretKey)
 
