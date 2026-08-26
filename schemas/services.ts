@@ -11046,7 +11046,7 @@ export const services: ServiceDef[] = [
       apiReference: "https://registry.tempvpn.xyz/openapi.json",
     },
     provider: { name: "TempVPN", url: "https://registry.tempvpn.xyz" },
-    realm: "tempvpn.xyz",
+    realm: "registry.tempvpn.xyz",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
     endpoints: [
@@ -11058,15 +11058,39 @@ export const services: ServiceDef[] = [
         route: "POST /sessions",
         desc: "Buy a fixed-duration WireGuard VPN session",
         dynamic: true,
-        amountHint: "$0.01 per started minute",
-        unitType: "session",
+        amountHint:
+          "$0.01 per minute; duration must be a whole number of minutes.",
+        unitType: "minute",
       },
       {
-        route: "GET /sessions/stream",
+        route: "POST /sessions/:session_id/connect",
+        desc: "Activate a paid balance on any currently eligible node",
+      },
+      {
+        route: "GET /sessions/:session_id/status",
+        desc: "Read authoritative balance and lifecycle state",
+      },
+      {
+        route: "POST /sessions/:session_id/heartbeat",
+        desc: "Renew an active session lease and update consumed time",
+      },
+      {
+        route: "POST /sessions/:session_id/pause",
+        desc: "Stop connected-time billing and preserve unused balance",
+      },
+      {
+        route: "POST /sessions/stream",
         desc: "Open a metered WireGuard VPN session",
         amount: "10000",
         intent: "session",
-        unitType: "60-second billing interval",
+        unitType: "minute",
+      },
+      {
+        route: "HEAD /sessions/stream",
+        desc: "Submit streaming vouchers, top up, resume, or close",
+        amount: "10000",
+        intent: "session",
+        unitType: "minute",
       },
     ],
   },
