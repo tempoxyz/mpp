@@ -1,0 +1,281 @@
+---
+description: "Add payments to WebMCP tools with mppx. Let browser agents pay for actions on your website without API keys or billing accounts."
+imageDescription: "Charge for WebMCP tool calls with MPP"
+---
+
+import { Card, Cards } from 'vocs'
+import { MppxCreateReferenceCard, OneTimePaymentsCard } from '../../components/cards'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { PromptBlock } from '../../components/PromptBlock'
+
+# Add payments to WebMCP tools [Charge for actions on your website]
+
+[WebMCP](https://webmachinelearning.github.io/webmcp/) lets a website expose actions to an agent through JavaScript. `mppx` lets those actions call paid HTTP endpoints. The agent discovers the tool from the open page, and the page uses the visitor's connected wallet to complete the MPP payment.
+
+This guide builds a paid `analyze_topic` tool. The tool costs `0.01` pathUSD on Tempo testnet and returns a payment Receipt with its result.
+
+:::info
+WebMCP and MCP use different transports. A WebMCP tool runs in the page and calls a paid HTTP endpoint, so the Challenge, Credential, and Receipt use HTTP headers. A remote MCP server uses the [MPP MCP transport](/protocol/transports/mcp) instead.
+:::
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant A as Browser agent
+    participant P as Website
+    participant S as Paid API
+    participant N as Tempo
+    A->>P: (1) Call WebMCP tool
+    P->>S: (2) Request paid resource
+    S-->>P: (3) 402 + Challenge
+    Note over P: (4) mppx creates Credential
+    P->>S: (5) Retry + Credential
+    S->>N: (6) Verify payment
+    N-->>S: (7) Confirmed
+    S-->>P: (8) Result + Receipt
+    P-->>A: (9) Structured tool result
+`} />
+
+1. The website registers a tool with `document.modelContext.registerTool()`.
+2. The browser agent calls the tool with structured arguments.
+3. The tool uses `mppx.fetch()` to request a paid endpoint.
+4. `mppx` handles the `402` Challenge, creates a Credential with the connected wallet, and retries the request.
+5. The server verifies payment before performing the paid work.
+6. The tool returns the result and Receipt to the agent.
+
+## Prompt mode
+
+Paste this into your coding agent to add paid WebMCP tools to an existing site:
+
+<PromptBlock>
+{`Use https://mpp.dev/guides/webmcp-payments.md as reference.
+Add a WebMCP tool named analyze_topic to my website. Register it with
+document.modelContext.registerTool and call a same-origin HTTP endpoint
+through mppx.fetch. Charge 0.01 pathUSD on Tempo testnet. Use the site's
+existing wallet connection and return the Payment Receipt with the result.
+Do not embed a private key in browser code.`}
+</PromptBlock>
+
+## Manual mode
+
+::::steps
+
+### Install dependencies
+
+This example uses [Hono](https://hono.dev) for the paid endpoint and the Tempo Accounts SDK for the browser wallet connection.
+
+:::code-group
+```bash [npm]
+$ npm install accounts hono mppx viem
+```
+```bash [pnpm]
+$ pnpm add accounts hono mppx viem
+```
+```bash [bun]
+$ bun add accounts hono mppx viem
+```
+:::
+
+### Protect the HTTP endpoint
+
+Create a server-side `Mppx` instance and add a one-time charge to the endpoint. Replace `recipient` with the address that receives payments.
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Mppx, tempo } from 'mppx/hono'
+
+const app = new Hono()
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      testnet: true,
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+app.use('/api/analyze', async (context, next) => {
+  const topic = context.req.query('topic')?.trim()
+  if (!topic) return context.json({ error: 'topic is required' }, 400)
+  await next()
+})
+
+app.get(
+  '/api/analyze',
+  mppx.charge({
+    amount: '0.01',
+    description: 'Topic analysis',
+  }),
+  async (context) => {
+    const topic = context.req.query('topic')
+    return context.json({
+      summary: `Analysis for ${topic}`,
+      topic,
+    })
+  },
+)
+
+export default app
+```
+
+The validation middleware rejects missing input before payment. The paid handler runs only after `mppx` verifies a valid Credential.
+
+### Connect the browser wallet
+
+Use the site's existing wallet when it already has one. Otherwise, connect with the Tempo Accounts SDK and pass the signable account to `mppx`.
+
+```ts [client/payments.ts]
+import { Provider } from 'accounts'
+import { Mppx, tempo } from 'mppx/client'
+
+export const provider = Provider.create({ mpp: false })
+
+await provider.request({ method: 'wallet_connect' })
+
+export const mppx = Mppx.create({
+  methods: [
+    tempo({
+      account: provider.getAccount({ signable: true }),
+      getClient: provider.getClient,
+    }),
+  ],
+  polyfill: false,
+})
+```
+
+`polyfill: false` keeps payment handling scoped to this tool. Other requests made by the page continue to use the site's normal `fetch` behavior.
+
+### Add the WebMCP types
+
+WebMCP is still a draft browser API, so add the small type declaration your tool uses.
+
+```ts [client/webmcp.d.ts]
+type WebMcpTool = {
+  annotations?: {
+    readOnlyHint?: boolean
+    untrustedContentHint?: boolean
+  }
+  description: string
+  execute(input: Record<string, unknown>): Promise<unknown>
+  inputSchema: Record<string, unknown>
+  name: string
+  title?: string
+}
+
+interface Document {
+  modelContext?: {
+    registerTool(
+      tool: WebMcpTool,
+      options?: { signal?: AbortSignal },
+    ): Promise<void>
+  }
+}
+```
+
+### Register the WebMCP tool
+
+Feature-detect WebMCP so the website continues to work in browsers that do not support it. Describe the price in the tool metadata and leave `readOnlyHint` unset because calling the tool creates a payment.
+
+```ts [client/webmcp.ts]
+import { mppx } from './payments.js'
+
+if (typeof document.modelContext?.registerTool === 'function') {
+  await document.modelContext.registerTool({
+    description:
+      'Return a structured topic analysis. Costs 0.01 pathUSD on Tempo testnet.',
+    async execute(input) {
+      const topic = String(input.topic ?? '').trim()
+      if (!topic) throw new Error('topic is required')
+
+      const response = await mppx.fetch(
+        `/api/analyze?topic=${encodeURIComponent(topic)}`,
+      )
+
+      if (!response.ok) {
+        throw new Error(`Analysis failed with status ${response.status}`)
+      }
+
+      return {
+        paymentReceipt: response.headers.get('Payment-Receipt'),
+        result: await response.json(),
+      }
+    },
+    inputSchema: {
+      additionalProperties: false,
+      properties: {
+        topic: {
+          description: 'Topic to analyze',
+          maxLength: 200,
+          type: 'string',
+        },
+      },
+      required: ['topic'],
+      type: 'object',
+    },
+    name: 'analyze_topic',
+    title: 'Analyze a topic',
+  })
+}
+```
+
+`mppx.fetch()` performs the complete MPP HTTP flow. The WebMCP handler only needs to call the endpoint and return its result.
+
+### Test the paid tool
+
+1. Open the site in a browser with WebMCP support.
+2. Connect and fund the browser wallet on Tempo testnet.
+3. Inspect the site's available tools and select `analyze_topic`.
+4. Ask the agent to analyze a topic.
+5. Confirm the tool reports its price before execution.
+6. Verify that the result includes a `Payment-Receipt` value and that the recipient received `0.01` pathUSD.
+
+Test the HTTP payment independently when debugging the server:
+
+```bash [test.sh]
+$ npx mppx account create --network testnet
+$ npx mppx account fund --network testnet
+$ npx mppx 'http://localhost:3000/api/analyze?topic=machine%20payments'
+```
+
+::::
+
+## Use a cross-origin API
+
+Same-origin endpoints require less configuration. If the paid API uses another origin, configure CORS for both payment attempts:
+
+- Allow the page's exact origin.
+- Allow `Accept-Payment`, `Authorization`, and `Payment-Authorization` request headers.
+- Expose `Payment-Receipt` and `WWW-Authenticate` response headers.
+- Handle the browser's `OPTIONS` preflight without requiring payment.
+
+Avoid `Access-Control-Allow-Origin: *` for authenticated or user-specific tools.
+
+## Protect the user's funds
+
+A paid WebMCP tool creates a financial side effect even when the underlying action only reads data.
+
+- State the price or pricing rule in the tool description.
+- Do not mark a paid tool with `readOnlyHint: true`.
+- Treat the runtime Challenge as the authoritative price.
+- Use a wallet confirmation or a [Tempo access key](https://docs.tempo.xyz/guide/use-accounts/authorize-access-keys) with a token limit, recipient scope, and expiration.
+- Validate and bound tool inputs before calling the paid endpoint.
+- Never embed private keys, Credentials, or wallet secrets in browser code.
+- Return the Receipt so the agent and user can verify the payment outcome.
+
+WebMCP support does not replace the site's normal interface. Keep the same action available to people, and reuse the same authentication, authorization, validation, and payment code from the existing application.
+
+## Next steps
+
+<Cards>
+  <OneTimePaymentsCard />
+  <MppxCreateReferenceCard to="/sdk/typescript/client/Mppx.create" />
+  <Card
+    description="Control automated payments with scoped budgets"
+    icon="lucide:shield-check"
+    title="Manage agent spend"
+    to="/guides/managing-agent-spend"
+  />
+</Cards>

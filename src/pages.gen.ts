@@ -42,6 +42,7 @@ type Page =
   | { path: '/guides/streamed-payments'; render: 'static' }
   | { path: '/guides/subscription-payments'; render: 'static' }
   | { path: '/guides/use-mpp-with-x402'; render: 'static' }
+  | { path: '/guides/webmcp-payments'; render: 'static' }
   | { path: '/'; render: 'static' }
   | { path: '/intents/charge'; render: 'static' }
   | { path: '/intents'; render: 'static' }

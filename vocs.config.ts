@@ -391,6 +391,10 @@ export default defineConfig({
                 link: "/guides/monetize-mcp-server",
               },
               {
+                text: "Monetize WebMCP tools",
+                link: "/guides/webmcp-payments",
+              },
+              {
                 text: "Proxy an existing service",
                 link: "/guides/proxy-existing-service",
               },
