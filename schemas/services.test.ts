@@ -220,7 +220,6 @@ describe("services registry", () => {
       "POST /sessions/:session_id/heartbeat",
       "POST /sessions/:session_id/pause",
       "POST /sessions/stream",
-      "HEAD /sessions/stream",
     ]);
     expect(
       tempvpn?.endpoints.find(
@@ -233,23 +232,14 @@ describe("services registry", () => {
       unitType: "minute",
     });
     expect(
-      tempvpn?.endpoints.filter((endpoint) =>
-        endpoint.route.endsWith("/sessions/stream"),
+      tempvpn?.endpoints.find(
+        (endpoint) => endpoint.route === "POST /sessions/stream",
       ),
-    ).toEqual([
-      expect.objectContaining({
-        amount: "10000",
-        intent: "session",
-        route: "POST /sessions/stream",
-        unitType: "minute",
-      }),
-      expect.objectContaining({
-        amount: "10000",
-        intent: "session",
-        route: "HEAD /sessions/stream",
-        unitType: "minute",
-      }),
-    ]);
+    ).toMatchObject({
+      amount: "10000",
+      intent: "session",
+      unitType: "minute",
+    });
     expect(
       tempvpn?.endpoints.some((endpoint) =>
         endpoint.route.startsWith("GET /sessions/stream"),

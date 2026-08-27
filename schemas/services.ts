@@ -11085,13 +11085,6 @@ export const services: ServiceDef[] = [
         intent: "session",
         unitType: "minute",
       },
-      {
-        route: "HEAD /sessions/stream",
-        desc: "Submit streaming vouchers, top up, resume, or close",
-        amount: "10000",
-        intent: "session",
-        unitType: "minute",
-      },
     ],
   },
 
