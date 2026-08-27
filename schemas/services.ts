@@ -11027,7 +11027,34 @@ export const services: ServiceDef[] = [
       },
     ],
   },
-
+  // ── Nitro Translate (Alconost) ─────────────────────────────────────────
+  {
+    id: "nitrotranslate",
+    name: "Nitro Translate",
+    url: "https://nitrotranslate.com",
+    serviceUrl: "https://api.nitrotranslate.com",
+    description:
+      "Human translation API — submit text or files for translation by native-speaking linguists in 80+ languages, and track orders through to delivery.",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: ["translation", "localization", "i18n", "l10n", "human-translation"],
+    docs: {
+      homepage: "https://nitrotranslate.com/translation-api-noauth",
+      apiReference: "https://api.nitrotranslate.com/openapi.json",
+    },
+    provider: { name: "Alconost Inc.", url: "https://alconost.com" },
+    realm: "nitrotranslate.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/translate",
+        desc: "Submit content for translation and create one order per target language",
+        dynamic: true,
+        amountHint: "Priced per billable character; varies by language pair and volume",
+      },
+    ],
+  },
   // ── AgentPhone (Orthogonal) ──
   {
     id: "orth-agentphone",
