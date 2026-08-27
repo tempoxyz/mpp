@@ -102,4 +102,4 @@ const mppx = Mppx.create({
 })
 ```
 
-For Sessions, pass the same `feePayer` parameter to [`tempo.session`](/sdk/typescript/server/Method.tempo.session) alongside `account` and `store`. A fee payer service sponsors open, top-up, scheduled settlement, and cooperative close transactions. `mppx` applies the configured headers to every remote fee-payer request and always sets `Content-Type: application/json`.
+For Sessions, pass the same `feePayer` parameter to [`tempo.session`](/sdk/typescript/server/Method.tempo.session) alongside `account` and `store`. A fee payer service sponsors open, top-up, scheduled settlement, and cooperative close transactions. For pull-mode charges, `mppx` sends fill requests through the configured fee-payer transport, then broadcasts the completed transaction through the chain RPC transport.

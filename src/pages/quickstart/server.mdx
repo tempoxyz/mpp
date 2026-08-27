@@ -293,7 +293,7 @@ const mppx = Mppx.create({
 })
 ```
 
-When a pull-mode client submits a signed transaction, the server co-signs with the fee payer account or delegates to the remote service before broadcasting. `mppx` sends the configured headers on both JSON-RPC and transaction-completion requests and reserves `Content-Type: application/json`. Push-mode clients pay their own gas, so `feePayer` is ignored for those requests. Zero-amount proof flows do not create a transaction at all.
+When a pull-mode client submits a signed transaction, the server co-signs with the fee payer account or delegates the fill to the remote service. Remote fills use the configured fee-payer transport, and `mppx` broadcasts the completed transaction through the chain RPC transport. Push-mode clients pay their own gas, so `feePayer` is ignored for those requests. Zero-amount proof flows do not create a transaction at all.
 
 ### Optimistic verification
 

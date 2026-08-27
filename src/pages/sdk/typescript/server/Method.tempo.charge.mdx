@@ -127,7 +127,7 @@ const mppx = Mppx.create({
 
 ### With an authenticated remote fee payer
 
-Pass request headers with the remote service URL. `mppx` applies them to fee-payer JSON-RPC and transaction-completion requests.
+Pass request headers with the remote service URL. `mppx` sends fill requests through the configured fee-payer transport, then broadcasts the completed transaction through the chain RPC transport.
 
 ```ts [server.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -145,24 +145,6 @@ const mppx = Mppx.create({
   ],
 })
 ```
-
-### With machine-token payments
-
-Enable the unified first-party Tempo machineUSD route for compatible single-recipient charges. Clients use it when they hold enough machineUSD, then fall back to the requested stablecoin path when the route isn't available.
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/server'
-
-const mppx = Mppx.create({
-  methods: [
-    tempo.charge({
-      machineTokenEnabled: true, // [!code focus]
-    }),
-  ],
-})
-```
-
-Machine-token settlement supports Tempo mainnet and Moderato across `push`, `pull`, relay, and fee-sponsored charge flows.
 
 ### With Tempo API relay
 
@@ -302,13 +284,6 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 
 Renders a payment page when the request accepts `text/html`. Pass an object to customize the page.
 
-### machineTokenEnabled (optional)
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Advertises the unified first-party Tempo machineUSD settlement route for compatible single-recipient charges. Clients try this route before `autoSwap` or a direct transfer. Unsupported chains reject the request.
-
 ### memo (optional)
 
 - **Type:** `string`
@@ -423,12 +398,6 @@ ISO 8601 timestamp for when the payment Challenge expires.
 - **Type:** `Record<string, string>`
 
 Server-defined correlation data. `mppx` serializes it as the base64url-encoded `opaque` auth-param on the Challenge, and clients echo that same string back in the Credential.
-
-### machineTokenEnabled (optional)
-
-- **Type:** `boolean`
-
-Overrides machine-token settlement for this request. The configured method default applies when omitted.
 
 ### recipient
 
