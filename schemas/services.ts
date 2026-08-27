@@ -11028,6 +11028,66 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── TempVPN ────────────────────────────────────────────────────────────
+  {
+    id: "tempvpn",
+    name: "TempVPN",
+    url: "https://registry.tempvpn.xyz",
+    serviceUrl: "https://registry.tempvpn.xyz",
+    description:
+      "Discover and buy temporary WireGuard VPN sessions worldwide with minute-based Tempo MPP payments.",
+    categories: ["web"],
+    integration: "third-party",
+    tags: ["networking", "privacy", "tempo", "vpn", "wireguard"],
+    status: "active",
+    docs: {
+      homepage: "https://registry.tempvpn.xyz/docs",
+      llmsTxt: "https://registry.tempvpn.xyz/llms.txt",
+      apiReference: "https://registry.tempvpn.xyz/openapi.json",
+    },
+    provider: { name: "TempVPN", url: "https://registry.tempvpn.xyz" },
+    realm: "registry.tempvpn.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /nodes",
+        desc: "Discover available VPN nodes by country, city, or region",
+      },
+      {
+        route: "POST /sessions",
+        desc: "Buy a fixed-duration WireGuard VPN session",
+        dynamic: true,
+        amountHint:
+          "$0.01 per minute; duration must be a whole number of minutes.",
+        unitType: "minute",
+      },
+      {
+        route: "POST /sessions/:session_id/connect",
+        desc: "Activate a paid balance on any currently eligible node",
+      },
+      {
+        route: "GET /sessions/:session_id/status",
+        desc: "Read authoritative balance and lifecycle state",
+      },
+      {
+        route: "POST /sessions/:session_id/heartbeat",
+        desc: "Renew an active session lease and update consumed time",
+      },
+      {
+        route: "POST /sessions/:session_id/pause",
+        desc: "Stop connected-time billing and preserve unused balance",
+      },
+      {
+        route: "POST /sessions/stream",
+        desc: "Open a metered WireGuard VPN session",
+        amount: "10000",
+        intent: "session",
+        unitType: "minute",
+      },
+    ],
+  },
+
   // ── AgentPhone (Orthogonal) ──
   {
     id: "orth-agentphone",

@@ -207,4 +207,46 @@ describe("services registry", () => {
   it("total services is reasonable (> 0)", () => {
     expect(services.length).toBeGreaterThan(0);
   });
+
+  it("keeps the TempVPN registry contract executable and minute based", () => {
+    const tempvpn = services.find((service) => service.id === "tempvpn");
+    expect(tempvpn?.serviceUrl).toBe("https://registry.tempvpn.xyz");
+    expect(tempvpn?.realm).toBe("registry.tempvpn.xyz");
+    expect(tempvpn?.endpoints.map((endpoint) => endpoint.route)).toEqual([
+      "GET /nodes",
+      "POST /sessions",
+      "POST /sessions/:session_id/connect",
+      "GET /sessions/:session_id/status",
+      "POST /sessions/:session_id/heartbeat",
+      "POST /sessions/:session_id/pause",
+      "POST /sessions/stream",
+    ]);
+    expect(
+      tempvpn?.endpoints.find(
+        (endpoint) => endpoint.route === "POST /sessions",
+      ),
+    ).toMatchObject({
+      amountHint:
+        "$0.01 per minute; duration must be a whole number of minutes.",
+      dynamic: true,
+      unitType: "minute",
+    });
+    expect(
+      tempvpn?.endpoints.find(
+        (endpoint) => endpoint.route === "POST /sessions/stream",
+      ),
+    ).toMatchObject({
+      amount: "10000",
+      intent: "session",
+      unitType: "minute",
+    });
+    expect(
+      tempvpn?.endpoints.some((endpoint) =>
+        endpoint.route.startsWith("GET /sessions/stream"),
+      ),
+    ).toBe(false);
+    expect(
+      tempvpn?.endpoints.some((endpoint) => endpoint.unitType === "session"),
+    ).toBe(false);
+  });
 });
