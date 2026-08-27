@@ -86,6 +86,8 @@ import { Mppx, tempo } from 'mppx/hono'
 
 const app = new Hono()
 
+// [!code focus:start]
+// [!code hl:start]
 const mppx = Mppx.create({
   methods: [
     tempo.charge({
@@ -96,6 +98,8 @@ const mppx = Mppx.create({
   ],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
+// [!code hl:end]
+// [!code focus:end]
 
 app.use('/api/analyze', async (context, next) => {
   const topic = context.req.query('topic')?.trim()
@@ -183,7 +187,7 @@ Feature-detect WebMCP so the website continues to work in browsers that do not s
 import { mppx } from './payments.js'
 
 if (typeof document.modelContext?.registerTool === 'function') {
-  await document.modelContext.registerTool({
+  await document.modelContext.registerTool({ // [!code hl]
     description:
       'Return a structured topic analysis. Costs 0.01 pathUSD on Tempo testnet.',
     async execute(input) {
