@@ -1802,6 +1802,98 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Oblique Markets ───────────────────────────────────────────────────
+  {
+    id: "oblique-markets",
+    name: "Oblique Markets",
+    url: "https://oblique.markets",
+    serviceUrl: "https://api.oblique.markets",
+    description:
+      "Agent-to-agent API shop: x402 Bazaar market data, Base chain data, web extraction, cited research, and LLM utilities. Every paid route answers 402 with both x402 (Base and Solana USDC) and MPP Tempo (pathUSD) offers.",
+    categories: ["data", "blockchain", "web", "ai"],
+    integration: "first-party",
+    tags: ["x402", "bazaar", "base", "usdc", "agents", "market-data"],
+    status: "active",
+    docs: {
+      homepage: "https://oblique.markets",
+      llmsTxt: "https://oblique.markets/llms.txt",
+      apiReference: "https://oblique.markets/openapi.json",
+    },
+    provider: { name: "Oblique Markets", url: "https://oblique.markets" },
+    realm: "api.oblique.markets",
+    intent: "charge",
+    // Charges are denominated in pathUSD (Tempo genesis predeploy, 6 decimals), not USDC.e.
+    payments: [
+      {
+        method: "tempo",
+        currency: "0x20c0000000000000000000000000000000000000",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /api/v1/paid/bazaar-pulse",
+        desc: "Live x402 Bazaar market pulse: trending services, call volumes, new listings, catalog changes",
+        amount: "2000",
+      },
+      {
+        route: "GET /api/v1/paid/bazaar-market-report",
+        desc: "Comprehensive x402 Bazaar market report from the latest daily full-catalogue snapshot",
+        amount: "500000",
+      },
+      {
+        route: "GET /api/v1/paid/base-gas-price",
+        desc: "Current Base gas price (EIP-1559 base fee and gas price) with block freshness metadata",
+        amount: "2000",
+      },
+      {
+        route: "GET /api/v1/paid/base-usdc-balance",
+        desc: "USDC balance of a Base wallet on the canonical USDC contract, atomic and formatted",
+        amount: "3000",
+      },
+      {
+        route: "POST /api/v1/paid/web-extract",
+        desc: "Extract structured JSON (title, meta description, cleaned text) from a web page",
+        amount: "30000",
+      },
+      {
+        route: "POST /api/v1/paid/sentiment",
+        desc: "Social media and news sentiment analysis",
+        amount: "50000",
+      },
+      {
+        route: "POST /api/v1/paid/answer-with-sources",
+        desc: "Answer a research question with cited web sources and a concise evidence packet",
+        amount: "650000",
+      },
+      {
+        route: "POST /api/v1/paid/company-research",
+        desc: "Company research brief with cited sources, competitors, market signals, and risks",
+        amount: "500000",
+      },
+      {
+        route: "POST /api/v1/paid/x402-endpoint-verify",
+        desc: "Verify and lint a third-party x402 endpoint's 402 challenge and protocol conformance",
+        amount: "20000",
+      },
+      {
+        route: "POST /api/v1/paid/mpp-route",
+        desc: "MPP-native catalog-first task router: top-three shortlist with prices and payment methods",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/paid/route-task",
+        desc: "Cross-platform task router across the MPP catalog, Apify actors, and Bazaar listings",
+        amount: "10000",
+      },
+      {
+        route: "POST /api/v1/paid/inference",
+        desc: "LLM inference proxy via OpenRouter (six-model catalog)",
+        amount: "10000",
+      },
+    ],
+  },
+
   // ── OpenAI ─────────────────────────────────────────────────────────────
   {
     id: "openai",
