@@ -1810,6 +1810,7 @@ export const services: ServiceDef[] = [
     serviceUrl: "https://api.oblique.markets",
     description:
       "Agent-to-agent API shop: x402 Bazaar market data, Base chain data, web extraction, cited research, and LLM utilities. Every paid route answers 402 with both x402 (Base and Solana USDC) and MPP Tempo (pathUSD) offers.",
+    icon: "https://oblique.markets/icon.png",
     categories: ["data", "blockchain", "web", "ai"],
     integration: "first-party",
     tags: ["x402", "bazaar", "base", "usdc", "agents", "market-data"],
