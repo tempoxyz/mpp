@@ -14,8 +14,8 @@ import { mach } from 'mppx/tempo'
 
 const token = mach(4217)
 
-console.log(token.address)
-// @log: 0x20c000000000000000000000f37de3740ADec032
+console.log(token.symbol)
+// @log: MACH
 ```
 
 When a Tempo charge requests MACH, the `mppx` client automatically selects a funded supported stablecoin for transaction fees. The payer doesn't need to hold extra MACH for fees.
@@ -39,4 +39,4 @@ type ReturnType = {
 
 - **Type:** `4217 | 42431`
 
-Tempo chain ID. Use `4217` for mainnet and `42431` for Moderato testnet. MACH uses `0x20c000000000000000000000f37de3740ADec032` on both networks.
+Tempo chain ID. Use `4217` for mainnet and `42431` for Moderato testnet. `mach` resolves the deployed address for either network.
