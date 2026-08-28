@@ -27,7 +27,7 @@ const search = paid(async ({ query }: { query: string }) => ({
 }))
 ```
 
-The resource URL must use the canonical `mcp://tool/{toolName}` shape without another path segment, query, or fragment. An unpaid call returns one MCP payment error containing both MPP Challenges and the x402 payment requirements.
+The resource URL must use the canonical `mcp://tool/{toolName}` shape without another path segment, query, or fragment. An unpaid call returns one `-32042` MCP payment error containing both MPP Challenges and the x402 payment requirements. A rejected MPP Credential returns `-32043` with a replacement Challenge.
 
 x402 Credentials and lifecycle hooks stay with `@x402/mcp`. MPP source-chain EVM Credentials reuse the x402 resource server for verification and settlement; x402-only hooks run only for x402 calls.
 

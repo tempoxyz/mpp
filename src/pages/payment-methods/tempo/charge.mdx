@@ -202,6 +202,8 @@ See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge
 
 Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. For non-zero amounts, the client signs a TIP-20 transfer and retries with the Credential. For zero-amount Challenges, it signs a proof message and retries with a `proof` payload instead.
 
+The client also supports MACH charges. It automatically pays transaction fees with a funded supported stablecoin, so a payer doesn't need additional MACH for fees. Use [`mach`](/sdk/typescript/tempo.mach) from `mppx/tempo` to resolve the deployed address on Tempo mainnet or Moderato testnet.
+
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
 

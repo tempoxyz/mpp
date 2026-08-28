@@ -28,8 +28,8 @@ server.registerTool('premium', { description: 'A premium tool' }, async (extra) 
 
 ## Behavior
 
-- Reads and validates Credentials from `_meta["org.paymentauth/credential"]`; malformed values are treated as absent
-- Issues Challenges as `McpError` with code `-32042` and Challenge in `error.data`
+- Reads and validates Credentials from `_meta["org.paymentauth/credential"]`; malformed values produce an invalid-params payment error
+- Maps payment required to `-32042`, verification failures to `-32043`, malformed Credentials and invalid payloads to `-32602`, and internal payment errors to `-32603`
 - Attaches Receipts in `_meta["org.paymentauth/receipt"]` on tool results
 
 ## Return type

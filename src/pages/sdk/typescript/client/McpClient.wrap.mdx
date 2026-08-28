@@ -9,7 +9,7 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 <SigningAccountTabs />
 
 
-Wraps an MCP SDK client with automatic payment handling. When a tool call returns a `-32042` payment required error, the wrapper creates a Credential and retries the call.
+Wraps an MCP SDK client with automatic payment handling. When a tool call returns a `-32042` payment-required or `-32043` verification-failed error with Challenges, the wrapper creates a Credential and retries the call. It makes at most three payment attempts for one tool call.
 
 ## Usage
 

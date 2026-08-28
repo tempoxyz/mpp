@@ -129,8 +129,8 @@ payment.onPaymentFailed(({ challenge, error }) => {
   console.error('payment failed:', challenge.id, error.name)
 })
 
-payment.onPaymentSuccess(({ receipt, request }) => {
-  console.log('payment success:', receipt.reference, request.amount)
+payment.onPaymentSuccess(({ receipt, request, requestInput }) => {
+  console.log('payment success:', receipt.reference, request.amount, requestInput?.amount)
 })
 ```
 
@@ -144,6 +144,8 @@ type ReturnType = Mppx<[Method.Server], Transport.Http>
 ```
 
 The returned object includes intent functions (for example, `charge`), `broadcastCredential`, `challenge`, `compose`, payment hooks, `validateCredential`, and `verifyCredential`. An intent function calls its only matching method directly or implicitly composes every matching method.
+
+Payment-success hooks receive the canonical `request` included in the Challenge and an optional `requestInput`. `requestInput` contains the resolved server-side method input before request-schema output transforms, including fields intentionally omitted from the Challenge. Both values are immutable snapshots. Standalone Credential verification omits `requestInput` when you don't pass route options.
 
 ### Validate and broadcast Credentials
 

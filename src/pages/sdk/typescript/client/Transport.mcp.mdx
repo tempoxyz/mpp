@@ -52,7 +52,7 @@ const mppx = Mppx.create({
 
 ## Behavior
 
-- Detects payment required using **error code `-32042`**
+- Detects payment Challenges using **error codes `-32042` and `-32043`**
 - Extracts Challenges from **`error.data.challenges[0]`**
 - Sends Credentials using **`_meta["org.paymentauth/credential"]`**
 

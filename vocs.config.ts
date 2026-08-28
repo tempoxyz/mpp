@@ -803,16 +803,20 @@ export default defineConfig({
                     collapsed: true,
                     items: [
                       {
-                        text: "tempo.renewSubscription",
-                        link: "/sdk/typescript/server/Method.tempo.renewSubscription",
+                        text: "Request.toNodeListener",
+                        link: "/sdk/typescript/server/Request.toNodeListener",
                       },
                       {
                         text: "Response.requirePayment",
                         link: "/sdk/typescript/server/Response.requirePayment",
                       },
                       {
-                        text: "Request.toNodeListener",
-                        link: "/sdk/typescript/server/Request.toNodeListener",
+                        text: "tempo.mach",
+                        link: "/sdk/typescript/tempo.mach",
+                      },
+                      {
+                        text: "tempo.renewSubscription",
+                        link: "/sdk/typescript/server/Method.tempo.renewSubscription",
                       },
                     ],
                   },

@@ -62,6 +62,8 @@ Stripe requires a minimum charge of `0.50` USD (or equivalent) for card payments
 
 Pass `metadata` to `stripe.create()` to attach key-value pairs to `PaymentIntent` objects created or recorded by its SPT and stablecoin charge methods. Pass `metadata` to an individual `payments.base.charge()` or `payments.tempo.charge()` call to add or override keys for that method. For a standalone SPT method, pass `metadata` to `stripe.spt()`.
 
+For per-request metadata, pass `paymentIntentOptions.metadata` with the route options. Request-scoped keys take precedence over integration-level and per-method metadata. `mppx` keeps this field server-side and doesn't include it in the Challenge.
+
 ```ts [server.ts]
 const payments = stripe.create({
   client,
@@ -69,6 +71,13 @@ const payments = stripe.create({
   metadata: { plan: 'pro' },
   networkId: process.env.STRIPE_PROFILE_ID!,
 })
+
+const result = await mppx.charge({
+  amount: '1.00',
+  paymentIntentOptions: {
+    metadata: { requestId: 'req_123' },
+  },
+})(request)
 ```
 
 ### Choose a charge method

@@ -102,7 +102,7 @@ Token decimal places. Required for custom currency addresses and inferred for kn
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof evm.Methods.charge>`
 
-Runs after this EVM charge succeeds. The hook receives the normalized request, its Receipt, and the HTTP input when available. Errors don't change payment handling.
+Runs after this EVM charge succeeds. The hook receives the canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
 
 ### recipient
 

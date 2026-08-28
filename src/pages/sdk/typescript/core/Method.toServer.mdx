@@ -115,7 +115,7 @@ Default request parameters merged into every Challenge issued for this method.
 
 - **Type:** `Method.OnPaymentSuccessFn<method>`
 
-Runs after this method completes successfully. The hook receives a deeply immutable `request`, the `receipt`, and the HTTP `input` when available. `Mppx.create` scopes it to the method's name and intent, awaits it inline, and ignores thrown errors.
+Runs after this method completes successfully. The hook receives the canonical, deeply immutable `request`; its `receipt`; the HTTP `input` when available; and an optional `requestInput` containing server-side method input before request-schema output transforms. Standalone Credential verification omits `requestInput` when no route options are supplied. `Mppx.create` scopes the hook to the method's name and intent, awaits it inline, and ignores thrown errors.
 
 #### request (optional)
 

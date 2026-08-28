@@ -33,6 +33,9 @@ export async function handler(request: Request) {
     currency: 'usd',
     decimals: 2,
     description: 'Premium API access',
+    paymentIntentOptions: {
+      metadata: { requestId: 'req_123' },
+    },
   })(request)
 
   if (result.status === 402) return result.challenge
@@ -113,9 +116,9 @@ Stripe Business Network profile ID.
 
 ### onPaymentSuccess (optional)
 
-- **Type:** `(parameters: { input?: Request; receipt: DeepReadonly<Receipt>; request: DeepReadonly<StripeChargeRequest> }) => MaybePromise<void>`
+- **Type:** `(parameters: { input?: Request; receipt: DeepReadonly<Receipt>; request: DeepReadonly<StripeChargeRequest>; requestInput?: DeepReadonly<StripeChargeRequestInput> }) => MaybePromise<void>`
 
-Runs after this SPT payment succeeds. The hook receives the normalized request, its Receipt, and the HTTP input when available. Hook errors are isolated from payment handling.
+Runs after this SPT payment succeeds. The hook receives the canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Hook errors are isolated from payment handling.
 
 ### paymentMethodTypes
 
@@ -160,3 +163,9 @@ Human-readable description of the payment request.
 - **Type:** `string`
 
 External identifier bound to the Challenge and Credential.
+
+### paymentIntentOptions (optional)
+
+- **Type:** `{ metadata: Record<string, string> }`
+
+Request-scoped Stripe `PaymentIntent` options. `metadata` overrides matching method-level metadata for this payment. `mppx` keeps these options server-side and excludes them from the Challenge.

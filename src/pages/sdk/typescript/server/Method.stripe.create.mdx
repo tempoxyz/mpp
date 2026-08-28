@@ -43,6 +43,35 @@ export async function handler(request: Request) {
 
 Test mode uses pathUSD on Tempo testnet. Live mode uses USDC.e on Tempo mainnet. The SPT method defaults to cards and Link in both modes.
 
+### Attach metadata to one payment
+
+Pass `paymentIntentOptions.metadata` with route options when metadata differs for each request. Request-scoped keys override matching integration-level and per-method metadata. `mppx` keeps these options server-side and excludes them from the Challenge.
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { Mppx, stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const payments = stripe.create({
+  client,
+  livemode: false,
+  metadata: { plan: 'pro' },
+  networkId: process.env.STRIPE_NETWORK_ID!,
+})
+const mppx = Mppx.create({
+  methods: payments.defaultMethods(),
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+const handler = mppx.charge({
+  amount: '1.00',
+  description: 'Premium API access',
+  paymentIntentOptions: {
+    metadata: { requestId: 'req_123' },
+  },
+})
+```
+
 ## Advanced options
 
 ### SPT only

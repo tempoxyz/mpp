@@ -194,6 +194,7 @@ type Page =
   | { path: '/sdk/typescript/server/Transport.mcp'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.mcpSdk'; render: 'static' }
   | { path: '/sdk/typescript/server/Ws.serve'; render: 'static' }
+  | { path: '/sdk/typescript/tempo.mach'; render: 'static' }
   | { path: '/sdk/typescript/x402/express'; render: 'static' }
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }
   | { path: '/sdk/typescript/x402/mcp'; render: 'static' }

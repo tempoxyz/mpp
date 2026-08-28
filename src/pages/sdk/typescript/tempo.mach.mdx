@@ -1,0 +1,42 @@
+---
+description: "Use deployed MACH token metadata without copying addresses into your Tempo integration."
+imageDescription: "Reference MACH safely on Tempo"
+---
+
+# `mach` [MACH token metadata for Tempo]
+
+Returns MACH token metadata for Tempo mainnet or Moderato testnet.
+
+## Usage
+
+```ts twoslash
+import { mach } from 'mppx/tempo'
+
+const token = mach(4217)
+
+console.log(token.address)
+// @log: 0x20c000000000000000000000f37de3740ADec032
+```
+
+When a Tempo charge requests MACH, the `mppx` client automatically selects a funded supported stablecoin for transaction fees. The payer doesn't need to hold extra MACH for fees.
+
+## Return type
+
+```ts
+type ReturnType = {
+  address: `0x${string}`
+  currency: 'USD'
+  decimals: 6
+  name: 'MACH'
+  popular: undefined
+  symbol: 'MACH'
+}
+```
+
+## Parameters
+
+### chainId
+
+- **Type:** `4217 | 42431`
+
+Tempo chain ID. Use `4217` for mainnet and `42431` for Moderato testnet. MACH uses `0x20c000000000000000000000f37de3740ADec032` on both networks.

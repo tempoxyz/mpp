@@ -13,10 +13,10 @@ The [Model Context Protocol](https://modelcontextprotocol.io) (MCP) transport en
 
 AI agents use MCP to call tools on remote servers. The MCP transport allows these tool calls to require payment, enabling autonomous agent-to-service payments.
 
-| MPP Concept | MCP Encoding |
+| MPP concept | MCP encoding |
 |-------------|--------------|
-| Challenge | JSON-RPC error code `-32042` |
 | Credential | `_meta.org.paymentauth/credential` |
+| Payment error | JSON-RPC error with a specification-defined code and Challenge data |
 | Receipt | `_meta.org.paymentauth/receipt` |
 
 ## Challenge
@@ -46,6 +46,33 @@ Payment requirements are signaled using JSON-RPC error code `-32042`:
     }
   }
 }
+```
+
+## Error codes
+
+MCP transports preserve the payment error category in the JSON-RPC code:
+
+| Code | Meaning |
+| --- | --- |
+| `-32603` | Internal payment error |
+| `-32602` | Malformed Credential or invalid payment payload |
+| `-32043` | Payment verification failed |
+| `-32042` | Payment required |
+
+Payment errors include one or more Challenges in `error.data.challenges`. A payment-aware client can retry a `-32043` response when the server provides a replacement Challenge.
+
+### TypeScript constants
+
+Use the exported constants and `Mcp.errorCode` when you integrate a custom MCP transport.
+
+```ts twoslash
+import { Errors, Mcp } from 'mppx'
+
+console.log(Mcp.paymentRequiredCode)
+// @log: -32042
+
+console.log(Mcp.errorCode(new Errors.InternalPaymentError()))
+// @log: -32603
 ```
 
 ## Credential
@@ -96,7 +123,7 @@ Receipts are returned in the result `_meta`:
 
 | Aspect | HTTP | MCP |
 |--------|------|-----|
-| Challenge delivery | `WWW-Authenticate` header | JSON-RPC error `-32042` |
+| Challenge delivery | `WWW-Authenticate` header | JSON-RPC payment error with `error.data.challenges` |
 | Credential delivery | `Authorization` or the Challenge's advertised field | `_meta.org.paymentauth/credential` |
 | Receipt delivery | `Payment-Receipt` header | `_meta.org.paymentauth/receipt` |
 | Encoding | Base64url in headers | Native JSON in body |
