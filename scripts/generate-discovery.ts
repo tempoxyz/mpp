@@ -90,12 +90,15 @@ export function buildPayment(
   if (ep.dynamic) {
     const dyn: Record<string, unknown> = { ...base, dynamic: true };
     if (ep.amountHint) dyn.amountHint = ep.amountHint;
+    if (ep.unitType) dyn.unitType = ep.unitType;
     return dyn;
   }
 
-  const payment: Record<string, unknown> = { ...base, amount: ep.amount };
-  if (ep.unitType) payment.unitType = ep.unitType;
-  return payment;
+  return {
+    ...base,
+    amount: ep.amount,
+    ...(ep.unitType ? { unitType: ep.unitType } : {}),
+  };
 }
 
 export function validateServices(svcs: ServiceDef[]): void {

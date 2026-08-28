@@ -105,7 +105,12 @@ describe("buildPayment", () => {
 
   it("builds dynamic payment", () => {
     const result = buildPayment(
-      { route: "POST /bar", desc: "dynamic test", dynamic: true },
+      {
+        route: "POST /bar",
+        desc: "dynamic test",
+        dynamic: true,
+        unitType: "minute",
+      },
       paymentSvc({ intent: "session" }),
     );
     expect(result).toEqual({
@@ -115,6 +120,7 @@ describe("buildPayment", () => {
       currency: USDC,
       decimals: 6,
       description: "dynamic test",
+      unitType: "minute",
     });
   });
 
