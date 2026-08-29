@@ -198,6 +198,17 @@ export function parseLink(
     };
   }
 
+  if (relativePath.startsWith("x402/")) {
+    const namespace = relativePath.slice("x402/".length);
+    if (!namespace) return null;
+    return {
+      link,
+      area: "x402",
+      namespace,
+      entrypoint: relativePath,
+    };
+  }
+
   if (relativePath.startsWith("middlewares/")) {
     const namespace = relativePath.slice("middlewares/".length);
     if (!namespace) return null;
@@ -255,6 +266,16 @@ export function parseLink(
       namespace: "Html",
       member: symbolPart.slice("Html.".length),
       entrypoint: "html",
+    };
+  }
+
+  if (area === "core" && symbolPart.startsWith("tempo.")) {
+    return {
+      link,
+      area,
+      namespace: "tempo",
+      member: symbolPart.slice("tempo.".length),
+      entrypoint: "tempo",
     };
   }
 
@@ -343,6 +364,7 @@ export async function getSdkExports(
     { area: "server", path: `${packageName}/server` },
     { area: "html", path: `${packageName}/html` },
     { area: "mcp-sdk/client", path: `${packageName}/mcp-sdk/client` },
+    { area: "tempo", path: `${packageName}/tempo` },
   ];
 
   for (const { area, path } of entrypoints) {

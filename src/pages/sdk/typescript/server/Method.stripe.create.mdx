@@ -212,7 +212,7 @@ Selects live or test networks and currencies for built-in stablecoin methods.
 
 - **Type:** `Record<string, string>`
 
-Key-value pairs attached to Stripe `PaymentIntent` objects created or recorded by SPT and stablecoin charge methods. Per-method `metadata` on `base.charge()` or `tempo.charge()` overrides matching keys.
+Key-value pairs attached to Stripe `PaymentIntent` objects created or recorded by SPT and stablecoin charge methods. Per-method `metadata` on `base.charge()` or `tempo.charge()` overrides matching keys. `mppx` always sets the reserved `machine_payment` key to `'true'`.
 
 ### networkId
 

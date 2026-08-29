@@ -106,7 +106,7 @@ Renders a Stripe Elements payment form for browser requests. See the [payment li
 
 - **Type:** `Record<string, string>`
 
-Metadata included in the Challenge and attached to the Stripe `PaymentIntent`.
+Metadata included in the Challenge and attached to the Stripe `PaymentIntent`. `mppx` always sets the reserved `machine_payment` key to `'true'` on the `PaymentIntent`.
 
 ### networkId
 

@@ -267,6 +267,27 @@ describe("parseLink", () => {
         docsOnly: true,
       });
     });
+
+    it("maps Tempo exports to the Tempo entrypoint", () => {
+      const result = parseLink("/sdk/typescript/tempo.mach", prefix);
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/tempo.mach",
+        area: "core",
+        namespace: "tempo",
+        member: "mach",
+        entrypoint: "tempo",
+      });
+    });
+
+    it("maps x402 pages to their subpath entrypoints", () => {
+      const result = parseLink("/sdk/typescript/x402/mcp", prefix);
+      expect(result).toEqual<SidebarReference>({
+        link: "/sdk/typescript/x402/mcp",
+        area: "x402",
+        namespace: "mcp",
+        entrypoint: "x402/mcp",
+      });
+    });
   });
 
   describe("top-level links (default to core)", () => {
