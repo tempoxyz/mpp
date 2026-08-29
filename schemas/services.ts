@@ -67,6 +67,13 @@ export const TEMPO_PAYMENT: PaymentDefaults = {
   decimals: 6,
 };
 
+/** Common payment defaults for EVM USDC services, settled via the x402 exact flow */
+export const EVM_BASE_USDC_PAYMENT: PaymentDefaults = {
+  method: "evm",
+  currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  decimals: 6,
+};
+
 /** Common payment defaults for Stripe MPP services */
 export const STRIPE_PAYMENT: PaymentDefaults = {
   method: "stripe",
@@ -173,6 +180,37 @@ export const services: ServiceDef[] = [
   },
 
   // ── RxAtlas ───────────────────────────────────────────────────────────
+  // ── Neurobird Search ──────────────────────────────────────────────────
+  {
+    id: "neurobird-search",
+    name: "Neurobird Search",
+    url: "https://search.neurobird.com",
+    serviceUrl: "https://search.neurobird.com",
+    description:
+      "Web search for AI agents that returns ranked results with the relevant page passages already extracted, so a follow up fetch is usually unnecessary. Results are fused across several engines with reciprocal rank fusion, and grounded answers carry quotes matched back against their source text.",
+    icon: "https://search.neurobird.com/assets/img/neurobird-logo.png",
+    categories: ["search", "ai"],
+    integration: "third-party",
+    tags: ["web-search", "rag", "agents", "mcp", "extraction", "citations"],
+    status: "active",
+    docs: {
+      homepage: "https://search.neurobird.com",
+      llmsTxt: "https://search.neurobird.com/llms.txt",
+      apiReference: "https://search.neurobird.com/openapi.json",
+    },
+    provider: { name: "Neurobird", url: "https://neurobird.com" },
+    realm: "search.neurobird.com",
+    intent: "charge",
+    payments: [EVM_BASE_USDC_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /paid/search",
+        desc: "Web search returning ranked results with page passages already extracted",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
   {
     id: "rxatlas",
     name: "RxAtlas",
