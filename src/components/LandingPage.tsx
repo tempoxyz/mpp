@@ -116,9 +116,6 @@ export function LandingPage() {
               <Button className="w-full sm:w-auto" href="/quickstart/server">
                 Add payments to your API
               </Button>
-              <Button className="w-full sm:w-auto" href="/mpp-vs-x402">
-                Compare MPP vs x402
-              </Button>
             </div>
           </div>
 
