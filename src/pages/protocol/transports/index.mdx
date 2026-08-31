@@ -3,6 +3,9 @@ description: "Map MPP Challenges, Credentials, and Receipts to HTTP headers, JSO
 imageDescription: "Payment flows over HTTP, MCP, and WebSocket transports"
 ---
 
+import { Cards } from 'vocs'
+import { SpecCard } from '../../../components/SpecCard'
+
 # Transports [HTTP, MCP, and WebSocket bindings for payment flows]
 
 MPP defines how the Payment authentication scheme operates over different transport protocols. The core protocol targets HTTP, with extensions for other transports like MCP and JSON-RPC.
@@ -12,7 +15,7 @@ MPP defines how the Payment authentication scheme operates over different transp
 | Transport | Use Case | Spec |
 |-----------|----------|------|
 | [HTTP](/protocol/transports/http) | REST APIs, web resources | [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-11) |
-| [MCP](/protocol/transports/mcp) | AI tool calls using Model Context Protocol | [MCP Transport Spec](https://paymentauth.org) |
+| [MCP](/protocol/transports/mcp) | AI tool calls using Model Context Protocol | MCP transport binding |
 | [WebSocket](/protocol/transports/websocket) | Bidirectional payment streams | [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455) |
 | JSON-RPC | Non-MCP JSON-RPC services | [JSON-RPC 2.0](https://www.jsonrpc.org/specification) |
 
@@ -25,3 +28,9 @@ MPP's core concepts—Challenges, Credentials, and Receipts—remain the same ac
 - **WebSocket** uses JSON message framing with an `mpp` discriminator
 
 Choose the transport that matches your protocol. HTTP for REST APIs, MCP for AI agent tool calls, WebSocket for bidirectional payment streams, or JSON-RPC for non-MCP JSON-RPC services.
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-payment-transport-mcp-00" title="MCP Transport" description="Read the MCP transport binding" />
+</Cards>

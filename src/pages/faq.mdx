@@ -3,7 +3,9 @@ description: "Answers to common questions about MPP—payment methods, settlemen
 imageDescription: "Answers to common MPP questions"
 ---
 
+import { Cards } from 'vocs'
 import { FaqStructuredData } from '../components/FaqStructuredData'
+import { SpecCard } from '../components/SpecCard'
 
 <FaqStructuredData />
 
@@ -13,7 +15,7 @@ import { FaqStructuredData } from '../components/FaqStructuredData'
 
 No. MPP is payment-method agnostic—the protocol works with any payment rail.
 
-Today, [Tempo](/payment-methods/tempo) stablecoin payments, card payments through [Card](/payment-methods/card) or [Stripe](/payment-methods/stripe), and [Lightning](/payment-methods/lightning) payments are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail. See the full list of payment methods and specifications at [paymentauth.org](https://paymentauth.org).
+Today, [Tempo](/payment-methods/tempo) stablecoin payments, card payments through [Card](/payment-methods/card) or [Stripe](/payment-methods/stripe), and [Lightning](/payment-methods/lightning) payments are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the core control flow for their payment rail. The specification directory lists every payment method and intent.
 
 ## Do I need a stablecoin wallet?
 
@@ -31,7 +33,7 @@ See [MPP vs x402](/mpp-vs-x402) for a full side-by-side comparison, or [Use MPP 
 - **Designed for production.** MPP supports idempotency, expiration, request-body binding (digest), and request-tampering mitigations as first-class primitives.
 - **Performant payments.** MPP's session intent enables pay-as-you-go metering for payments as small as 0.0001 USD. Sessions achieve sub-100ms latency and near-zero per-request fees by settling off-chain vouchers, enabling high-throughput applications like token streaming or content aggregation. x402 requires an on-chain transaction per request.
 - **Permissionless extensibility.** Anyone can author and publish a new payment method or intent specification without approval from a foundation or intermediary. Payment methods compete on adoption and are independently maintained.
-- **IETF standards track.** The core [Payment HTTP Authentication Scheme](https://paymentauth.org) is submitted to the IETF for standardization.
+- **IETF standards track.** The core Payment HTTP Authentication Scheme is submitted to the IETF for standardization.
 
 ## Is MPP compatible with x402?
 
@@ -93,3 +95,9 @@ Yes. MPP includes an [MCP transport binding](/protocol/transports/mcp) that maps
 ## Who is building MPP?
 
 MPP is co-authored by Tempo and Stripe. The core specification is developed in the open and designed to be extended by any payment network or provider. The [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is submitted to the IETF.
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org" />
+</Cards>

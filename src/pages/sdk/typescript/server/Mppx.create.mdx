@@ -188,13 +188,6 @@ const payment = Mppx.create({
 })
 ```
 
-### requiresAuth (optional)
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Uses `Payment-Authorization` for Payment Credentials so `Authorization` remains available for application authentication. Available with the HTTP transport.
-
 ### realm (optional)
 
 - **Type:** `string`
@@ -210,6 +203,13 @@ const payment = Mppx.create({
   realm: 'mpp.dev', // [!code focus]
 })
 ```
+
+### requiresAuth (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Uses `Payment-Authorization` for Payment Credentials so `Authorization` remains available for application authentication. Available with the HTTP transport.
 
 ### secretKey (optional)
 

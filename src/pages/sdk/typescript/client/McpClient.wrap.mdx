@@ -16,19 +16,22 @@ Wraps an MCP SDK client with automatic payment handling. When a tool call return
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
 
-```ts
+```ts twoslash
 import { Provider } from 'accounts'
 import { Client } from '@modelcontextprotocol/sdk/client'
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { McpClient, tempo } from 'mppx/mcp-sdk/client'
 
 const client = new Client({ name: 'my-client', version: '1.0.0' })
-await client.connect(transport)
+await client.connect(
+  new StreamableHTTPClientTransport(new URL('https://api.example.com/mcp')),
+)
 
 const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
 await provider.request({ method: 'wallet_connect' })
 
 const mcp = McpClient.wrap(client, {
-  methods: [tempo({
+  methods: [tempo.charge({
     account: provider.getAccount({ signable: true }),
     getClient: provider.getClient,
   })],
@@ -41,16 +44,19 @@ const result = await mcp.callTool({ name: 'premium_tool', arguments: {} })
 </Tab>
 <Tab title="viem">
 
-```ts
+```ts twoslash
 import { Client } from '@modelcontextprotocol/sdk/client'
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { McpClient, tempo } from 'mppx/mcp-sdk/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const client = new Client({ name: 'my-client', version: '1.0.0' })
-await client.connect(transport)
+await client.connect(
+  new StreamableHTTPClientTransport(new URL('https://api.example.com/mcp')),
+)
 
 const mcp = McpClient.wrap(client, {
-  methods: [tempo({ account: privateKeyToAccount('0x...') })],
+  methods: [tempo.charge({ account: privateKeyToAccount('0x...') })],
 })
 
 const result = await mcp.callTool({ name: 'premium_tool', arguments: {} })

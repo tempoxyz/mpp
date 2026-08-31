@@ -10,7 +10,9 @@ imageDescription: "Pay-as-you-go billing with improved sessions"
 publishedAt: "2026-06-17"
 ---
 
-import { MermaidDiagram } from "../../components/MermaidDiagram";
+import { Cards } from 'vocs'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { SpecCard } from '../../components/SpecCard'
 
 # An improved sessions experience [Faster, cheaper billing and formally specified]
 
@@ -51,7 +53,7 @@ The HTTP shape is the same as every MPP flow: the server returns a `402` Challen
 
 ### A formal, cross-network intent
 
-Sessions are now a [formal MPP intent](https://github.com/tempoxyz/mpp-specs/pull/280) rather than a Tempo-only feature. The [Tempo session IETF Specification](https://paymentauth.org/draft-tempo-session-00) defines the unidirectional channel and cumulative voucher model normatively, so the same developer experience can map onto different settlement layers well beyond blockchains.
+Sessions are now a [formal MPP intent](https://github.com/tempoxyz/mpp-specs/pull/280) rather than a Tempo-only feature. The Tempo session IETF Specification defines the unidirectional channel and cumulative voucher model normatively, so the same developer experience can map onto different settlement layers well beyond blockchains.
 
 Each payment method has different mechanics, but the model is shared: open a funded session, meter usage, top up if needed, and close with unused funds returned to the client.
 
@@ -155,6 +157,9 @@ console.log(response.status)
 
 ## Learn more
 
-- [Tempo session IETF Specification](https://paymentauth.org/draft-tempo-session-00)
 - [Sessions guide](/payment-methods/tempo/session)
 - [TIP-1034](https://tips.sh/1034)
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-tempo-session-00" />
+</Cards>

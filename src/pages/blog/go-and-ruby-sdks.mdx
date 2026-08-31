@@ -10,6 +10,9 @@ imageDescription: "Process machine payments with Go and Ruby SDKs"
 publishedAt: "2026-04-21"
 ---
 
+import { Cards } from 'vocs'
+import { SpecCard } from '../../components/SpecCard'
+
 # Go and Ruby SDKs [Two new SDKs for the Machine Payments Protocol]
 
 MPP now has official SDKs for Go and Ruby. Both implement the full MPP flow: core types, payment methods, server middleware, and client transports.
@@ -172,4 +175,7 @@ Pick the SDK that fits your application, or learn more about MPP.
 - **Go**: [github.com/tempoxyz/mpp-go](https://github.com/tempoxyz/mpp-go)
 - **Ruby**: [github.com/stripe/mpp-rb](https://github.com/stripe/mpp-rb)
 - **Quickstart**: [mpp.dev/quickstart](/quickstart)
-- **IETF Specification**: [paymentauth.org](https://paymentauth.org)
+
+<Cards>
+  <SpecCard to="https://paymentauth.org" />
+</Cards>

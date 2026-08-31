@@ -5,12 +5,13 @@ imageDescription: "Cross-chain payments settled by NEAR Intents"
 
 import { Cards } from 'vocs'
 import { NearIntentsChargeCard } from '../../../components/cards'
+import { SpecCard } from '../../../components/SpecCard'
 
 # NEAR Intents [Cross-chain payments on 30+ chains]
 
 The NEAR Intents payment method enables **cross-chain** MPP payments settled by the [NEAR Intents](https://near-intents.org) solver network through its [1Click API](https://docs.near-intents.org/integration/distribution-channels/1click-api/about-1click-api): the client pays a source asset on whatever chain it holds funds on (Bitcoin, Solana, any major EVM chain, NEAR, and [more](https://docs.near-intents.org/resources/chain-support)), and the merchant receives an **exact amount** of its chosen asset on its chosen chain. It supports the **charge** intent for one-time payments.
 
-The implementation is provided by [`@defuse-protocol/nearintents-mpp-sdk`](https://github.com/defuse-protocol/nearintents-mpp-sdk), which extends the [`mppx`](https://github.com/tempoxyz/mpp) SDK with NEAR Intents settlement alongside built-in methods like [EVM](/payment-methods/evm) and [Tempo](/payment-methods/tempo). Read the [NEAR Intents charge protocol spec](https://paymentauth.org/draft-nearintents-charge-00) for the wire format.
+The implementation is provided by [`@defuse-protocol/nearintents-mpp-sdk`](https://github.com/defuse-protocol/nearintents-mpp-sdk), which extends the [`mppx`](https://github.com/tempoxyz/mpp) SDK with NEAR Intents settlement alongside built-in methods like [EVM](/payment-methods/evm) and [Tempo](/payment-methods/tempo).
 
 ## Installation
 
@@ -44,4 +45,10 @@ Settlement is **not trustless**: for the duration of the swap, deposits are cust
 
 <Cards>
   <NearIntentsChargeCard />
+</Cards>
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org/draft-nearintents-charge-00" />
 </Cards>

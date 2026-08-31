@@ -5,6 +5,7 @@ title: "MPP vs x402: Agentic payment protocols compared"
 ---
 
 import { Card, Cards } from 'vocs'
+import { SpecCard } from '../components/SpecCard'
 
 # MPP vs x402 [How the two HTTP 402 payment protocols compare]
 
@@ -32,7 +33,7 @@ Choose **x402** when your service exclusively needs on-chain payments and its re
 | **Request binding** | Depends on the scheme and extensions | Core Challenge binding and request digest support |
 | **Idempotency** | Optional Payment Identifier extension | Challenge identity plus standard `Idempotency-Key` guidance |
 | **Error model** | Protocol-specific responses | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) Problem Details |
-| **Standards path** | x402 Foundation specification | [Payment HTTP Authentication Scheme](https://paymentauth.org) submitted to the IETF |
+| **Standards path** | x402 Foundation specification | Payment HTTP Authentication Scheme submitted to the IETF |
 
 ## The biggest difference
 
@@ -99,4 +100,5 @@ Choose **x402** if:
   <Card title="Use MPP with x402" description="Run x402 inline with an MPP route" to="/guides/use-mpp-with-x402" />
   <Card title="Protocol overview" description="Learn the core Challenge-Credential-Receipt flow" to="/protocol" />
   <Card title="Accept pay-as-you-go payments" description="Use sessions for high-frequency APIs" to="/guides/pay-as-you-go" />
+  <SpecCard to="https://paymentauth.org" />
 </Cards>

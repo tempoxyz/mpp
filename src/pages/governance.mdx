@@ -3,6 +3,9 @@ description: "An overview of how the Machine Payments Protocol is developed, mai
 imageDescription: "Shape an open, neutral standard for machine payments"
 ---
 
+import { Cards } from 'vocs'
+import { SpecCard } from '../components/SpecCard'
+
 # Governance [An overview of how the Machine Payments Protocol is developed, maintained, and extended]
 
 The Machine Payments Protocol (MPP) is an open protocol for machine-to-machine payments, co-authored by [Tempo](https://tempo.xyz) and [Stripe](https://stripe.com). MPP is neutral by design and operates independently of any single company, payment method, or rail.
@@ -13,7 +16,7 @@ Governance of MPP is split into two parts: the **core specification** and **paym
 
 The core specification defines the abstract shape of the funds flow—the `402` Payment Required exchange of a Challenge, a Credential, and a Receipt. It makes no claims or affordances to any specific payment method, and it is designed to work with any rail and currency.
 
-The core specification is published at [paymentauth.org](https://paymentauth.org) as the [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) and submitted to the **IETF** standards track, where it continues to progress as an open, vendor-neutral standard.
+The core specification is published as the [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) and submitted to the **IETF** standards track, where it continues to progress as an open, vendor-neutral standard.
 
 As an IETF submission, the specification is governed by IETF Trust licensing under [BCP 78](https://www.rfc-editor.org/info/bcp78) and [BCP 79](https://www.rfc-editor.org/info/bcp79). Code components within the document are licensed under the Revised BSD License per the IETF Trust Legal Provisions. Anchoring the core at the IETF means no single company controls it—changes happen in the open, through the same process that standardizes the rest of the web.
 
@@ -40,3 +43,9 @@ The core spec repository's [contributing guidelines](https://github.com/tempoxyz
 - **Editorial fixes**
 
 While the core MPP specification conforms to those guidelines, individual payment methods and SDKs may have their own repositories, contribution requirements, and licensing. Treat those as canonical for each individual payment method.
+
+## Specification
+
+<Cards>
+  <SpecCard to="https://paymentauth.org" />
+</Cards>
