@@ -88,6 +88,10 @@ Yes. See the [server quickstart](/quickstart/server) to start accepting payments
 
 The core [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is submitted to the IETF standards track. Payment method and intent specifications (for example, charge, session) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
 
+<Cards>
+  <SpecCard to="https://paymentauth.org" />
+</Cards>
+
 ## Can I use MPP outside of HTTP?
 
 Yes. MPP includes an [MCP transport binding](/protocol/transports/mcp) that maps the Challenge-Credential-Receipt flow onto the Model Context Protocol. This means MCP servers can monetize tool calls directly, and agents pay autonomously without OAuth or account setup.
@@ -95,9 +99,3 @@ Yes. MPP includes an [MCP transport binding](/protocol/transports/mcp) that maps
 ## Who is building MPP?
 
 MPP is co-authored by Tempo and Stripe. The core specification is developed in the open and designed to be extended by any payment network or provider. The [Payment HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/) is submitted to the IETF.
-
-## Specification
-
-<Cards>
-  <SpecCard to="https://paymentauth.org" />
-</Cards>
