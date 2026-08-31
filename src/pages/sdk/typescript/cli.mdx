@@ -77,6 +77,7 @@ Run `mppx validate` against both test and production versions of your server. On
 | Variable | Description |
 |----------|-------------|
 | `MPPX_ACCOUNT` | Default account name |
+| `MPPX_CONFIG` | Path to an `mppx.config.ts`, `mppx.config.js`, or `mppx.config.mjs` file |
 | `MPPX_PRIVATE_KEY` | Use a private key directly instead of the keychain |
 | `MPPX_RPC_URL` | Default RPC endpoint |
 | `MPPX_STRIPE_SECRET_KEY` | Stripe secret key for Stripe payment methods (test mode only: `sk_test_...`) |
@@ -127,22 +128,38 @@ Use `--force` to overwrite an existing config file:
 $ mppx init --force
 ```
 
-## Sign command
+### Configure payment methods
 
-Sign a payment Challenge and output its serialized Payment Credential value without making a request. Accepts a Challenge via `--challenge` or stdin; send the result in the field advertised by `header`, or `Authorization` when omitted.
+The CLI loads configuration from `--config`, then `MPPX_CONFIG`, then the nearest `mppx.config.ts`, `mppx.config.js`, or `mppx.config.mjs` file up to the project root.
 
-```bash [terminal]
-$ mppx sign --challenge 'Payment method="tempo-session";chain-id=4217;...'
+```ts twoslash [mppx.config.ts]
+import { defineConfig, resolveAccount } from 'mppx/cli'
+import { tempo } from 'mppx/client'
+
+export default defineConfig({
+  methods: [tempo({ account: await resolveAccount() })],
+})
 ```
 
+| Property | Type | Description |
+|----------|------|-------------|
+| `methods` | `Method.AnyClient[]` | Client payment methods, including third-party methods |
+| `paymentPreferences` | `PaymentPreferences` | Selection preferences when a server offers multiple methods |
+| `plugins` | `Plugin[]` | CLI integrations that configure payment methods and output |
+
+## Sign command
+
+Sign a payment Challenge and output its serialized Payment Credential value without making a request. Pass the complete `WWW-Authenticate` value with `--challenge`. Send the result in the field advertised by `header`, or `Authorization` when omitted.
+
 ```bash [terminal]
-$ echo 'Payment method="tempo-session";chain-id=4217;...' | mppx sign
+$ challenge='Payment id="abc", realm="api.example.com", method="tempo", intent="charge", request="eyJhbW91bnQiOiIwIiwiY3VycmVuY3kiOiIweDIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJyZWNpcGllbnQiOiIweDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0"'
+$ mppx sign --challenge "$challenge"
 ```
 
 Use `--dry-run` to validate and parse a Challenge without signing:
 
 ```bash [terminal]
-$ mppx sign --challenge 'Payment method="tempo-session";...' --dry-run
+$ mppx sign --challenge "$challenge" --dry-run
 ```
 
 ## Account commands

@@ -39,9 +39,11 @@ The Receipt is a base64url-encoded JSON object.
 
 | Field | Description |
 |-------|-------------|
+| `externalId` | Optional external reference echoed from the Credential payload |
 | `method` | Payment method used |
 | `reference` | Method-specific payment reference (for example, transaction hash or invoice ID) |
 | `status` | Payment outcome (`success`) |
+| `subscriptionId` | Optional server-issued subscription identifier |
 | `timestamp` | When the payment was processed |
 
 Payment method specifications can define additional fields.

@@ -160,6 +160,8 @@ Use the `Retry-After` header to indicate when clients can retry failed payments.
 
 Payment methods must provide single-use proof semantics. A payment proof can be used exactly once; subsequent attempts to use the same proof must be rejected.
 
+Cryptographic Challenge binding prevents modification, not reuse. Payment methods need separate replay state or settlement-layer guarantees. For Tempo zero-dollar proofs, configure a shared atomic store.
+
 ### Idempotency
 
 Servers must not perform side effects (database writes, external API calls) for requests that have not been paid. The unpaid request that triggers a `402` Challenge must not modify server state beyond recording the Challenge itself.

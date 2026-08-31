@@ -66,7 +66,7 @@ The protocol itself is free and open. There are no licensing fees for implementi
 
 ## Is it safe?
 
-MPP requires TLS 1.2+ for all connections. Challenge IDs are cryptographically bound to prevent replay attacks. The protocol never performs side effects on unpaid requests—your client only pays after verifying what it is paying for.
+MPP requires TLS 1.2+ for all connections. Cryptographically bound Challenge IDs prevent clients from modifying payment terms. Payment methods enforce replay protection separately through settlement-layer guarantees or shared replay state. The protocol never performs side effects on unpaid requests—your client only pays after verifying what it is paying for.
 
 Payments use the same security model as the underlying payment method. Stablecoin methods typically use cryptographic signatures over every transaction. Card methods typically use the provider's existing fraud and dispute infrastructure.
 
