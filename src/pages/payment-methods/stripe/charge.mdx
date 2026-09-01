@@ -58,13 +58,11 @@ If one asynchronous deposit-address lookup fails, `mppx` logs a warning and keep
 Stripe requires a minimum charge of `0.50` USD (or equivalent) for card payments through SPTs. Stripe-managed stablecoin charge methods require at least `0.01` USD because Stripe can't record sub-cent `PaymentIntent` amounts. `mppx` excludes methods below these limits before returning a Challenge.
 :::
 
-### Metadata
+### Configure PaymentIntents
 
-Pass `metadata` to `stripe.create()` to attach key-value pairs to `PaymentIntent` objects created or recorded by its SPT and stablecoin charge methods. Pass `metadata` to an individual `payments.base.charge()` or `payments.tempo.charge()` call to add or override keys for that method. For a standalone SPT method, pass `metadata` to `stripe.spt()`.
+Pass `paymentIntentOptions` with route options to associate a Stripe Customer, apply an existing Tax Calculation, attach metadata, or send a receipt email. `mppx` keeps these options server-side and excludes them from the Challenge.
 
-`mppx` always adds `machine_payment: 'true'` so you can identify machine payments in Stripe. This reserved key overrides a matching key in your metadata.
-
-For per-request metadata, pass `paymentIntentOptions.metadata` with the route options. Request-scoped keys take precedence over integration-level and per-method metadata. `mppx` keeps this field server-side and doesn't include it in the Challenge.
+Pass `metadata` to `stripe.create()` to attach key-value pairs to every `PaymentIntent` created or recorded by its SPT and stablecoin charge methods. Pass `metadata` to an individual `payments.base.charge()` or `payments.tempo.charge()` call to add or override keys for that method. For a standalone SPT method, pass `metadata` to `stripe.spt()`.
 
 ```ts [server.ts]
 const payments = stripe.create({
@@ -77,10 +75,33 @@ const payments = stripe.create({
 const result = await mppx.charge({
   amount: '1.00',
   paymentIntentOptions: {
+    customer: 'cus_123',
+    hooks: { inputs: { tax: { calculation: 'taxcalc_123' } } },
     metadata: { requestId: 'req_123' },
+    receipt_email: 'customer@example.com',
   },
 })(request)
 ```
+
+Request-scoped metadata overrides matching integration-level and per-method keys. `mppx` sets `machine_payment: 'true'` by default; matching metadata overrides it.
+
+For completed stablecoin payments, `paymentIntentOptions` are best-effort. If Stripe rejects the optional fields, `mppx` retries once without them so it can still record the completed on-chain payment. SPT payments don't use this fallback.
+
+### Sponsor Tempo transaction fees
+
+Set `hostedFeePayer: true` to sponsor transaction fees through Stripe for Tempo charge and Sessions methods created by the integration.
+
+```ts [server.ts]
+const payments = stripe.create({
+  client,
+  depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
+  hostedFeePayer: true,
+  livemode: true,
+  networkId: process.env.STRIPE_PROFILE_ID!,
+})
+```
+
+The hosted fee payer requires a compatible Stripe Node SDK client and a live-mode integration. It doesn't support Stripe Connect account routing.
 
 ### Choose a charge method
 

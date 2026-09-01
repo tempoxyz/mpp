@@ -12,7 +12,7 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 Use Stripe's machine-payments integration to offer stablecoins (Tempo and others) and [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) from one MPP server. Successful stablecoin payments are recorded in Stripe as `PaymentIntent` objects for unified reporting.
 
-Every `PaymentIntent` that `mppx` creates or records includes `machine_payment: 'true'` in its Stripe metadata so you can identify machine payments in Stripe.
+Every `PaymentIntent` that `mppx` creates or records includes `machine_payment: 'true'` by default so you can identify machine payments in Stripe. Matching integration-, method-, or request-scoped metadata overrides the default.
 
 SPTs let a client share a customer's payment method with your Stripe account under configurable expiration and usage limits. The client creates an SPT through Stripe, and the server consumes it to create a `PaymentIntent`.
 
@@ -48,6 +48,8 @@ const mppx = Mppx.create({
 ```
 
 The resolver runs only for the stablecoin networks you enable. If one network fails, `mppx` warns and keeps the other resolved methods. Omit `depositAddresses` for a synchronous SPT-only setup.
+
+Set `hostedFeePayer: true` in a live-mode integration to sponsor Tempo transaction fees through Stripe. This option applies to Tempo charge and Sessions methods, requires a compatible Stripe Node SDK client, and doesn't support Stripe Connect account routing.
 
 Use [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt) directly when you only accept SPT payments. Import `Mppx` from `mppx/server/core` and `stripe` from `mppx/stripe/server/spt` to omit unrelated payment rails.
 

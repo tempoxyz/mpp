@@ -221,9 +221,9 @@ Reserve contract advertised in each Challenge. Defaults to the canonical TIP-103
 
 ### feePayer (optional)
 
-- **Type:** `Account | { headers?: Readonly<Record<string, string>>; url: string } | string | true`
+- **Type:** `Account | { fetch?: typeof globalThis.fetch; headers?: Readonly<Record<string, string>>; url: string } | string | true`
 
-Account or remote service for sponsoring open, top-up, settlement, and close transaction fees. Pass a viem `Account` to co-sign locally, a URL string to use a remote fee payer service, an object with `headers` and `url` to authenticate remote requests, or `true` when the `account` parameter doubles as the fee payer. `mppx` reserves the `Content-Type` header for JSON.
+Account or remote service for sponsoring open, top-up, settlement, and close transaction fees. Pass a viem `Account` to co-sign locally, a URL string to use a remote fee payer service, an object with `fetch`, `headers`, and `url` to customize remote requests, or `true` when the `account` parameter doubles as the fee payer. The custom `fetch` handles only fee-payer JSON-RPC traffic. `mppx` reserves the `Content-Type` header for JSON.
 
 A remote fee payer service sponsors server-driven scheduled settlement and cooperative close transactions in addition to client-driven open and top-up transactions.
 

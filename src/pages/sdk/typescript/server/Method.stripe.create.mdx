@@ -43,9 +43,9 @@ export async function handler(request: Request) {
 
 Test mode uses pathUSD on Tempo testnet. Live mode uses USDC.e on Tempo mainnet. The SPT method defaults to cards and Link in both modes.
 
-### Attach metadata to one payment
+### Configure one PaymentIntent
 
-Pass `paymentIntentOptions.metadata` with route options when metadata differs for each request. Request-scoped keys override matching integration-level and per-method metadata. `mppx` keeps these options server-side and excludes them from the Challenge.
+Pass `paymentIntentOptions` with route options to associate a Stripe Customer, apply an existing Tax Calculation, attach metadata, or send a receipt email. `mppx` keeps these options server-side and excludes them from the Challenge.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
@@ -67,12 +67,38 @@ const handler = mppx.charge({
   amount: '1.00',
   description: 'Premium API access',
   paymentIntentOptions: {
+    customer: 'cus_123',
+    hooks: { inputs: { tax: { calculation: 'taxcalc_123' } } },
     metadata: { requestId: 'req_123' },
+    receipt_email: 'customer@example.com',
   },
 })
 ```
 
+Request-scoped metadata overrides matching integration-level and per-method keys. For completed stablecoin payments, these options are best-effort: if Stripe rejects them, `mppx` retries the recording once without the optional fields. SPT payments don't use this fallback.
+
 ## Advanced options
+
+### Sponsor Tempo transaction fees
+
+Set `hostedFeePayer: true` to use Stripe's hosted Tempo fee payer for charge and Sessions methods created by this integration.
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const payments = stripe.create({
+  client,
+  depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
+  hostedFeePayer: true,
+  livemode: true,
+  networkId: process.env.STRIPE_NETWORK_ID!,
+})
+```
+
+The hosted fee payer requires a compatible Stripe Node SDK client and a live-mode integration. It doesn't support Stripe Connect account routing.
 
 ### SPT only
 
@@ -202,6 +228,12 @@ Stripe Connect account and settlement configuration. `stripeAccount` scopes depo
 
 Static deposit addresses or an asynchronous resolver. Use `stripe.findOrCreateDepositAddress(client, network)` in the resolver to fetch and cache Stripe addresses. When omitted, `defaultMethods()` returns only the SPT method.
 
+### hostedFeePayer (optional)
+
+- **Type:** `boolean`
+
+Uses Stripe's hosted Tempo fee payer for charge and Sessions methods. Requires `livemode: true`, a compatible Stripe Node SDK client, and no `connect` configuration.
+
 ### livemode
 
 - **Type:** `boolean`
@@ -212,7 +244,7 @@ Selects live or test networks and currencies for built-in stablecoin methods.
 
 - **Type:** `Record<string, string>`
 
-Key-value pairs attached to Stripe `PaymentIntent` objects created or recorded by SPT and stablecoin charge methods. Per-method `metadata` on `base.charge()` or `tempo.charge()` overrides matching keys. `mppx` always sets the reserved `machine_payment` key to `'true'`.
+Key-value pairs attached to Stripe `PaymentIntent` objects created or recorded by SPT and stablecoin charge methods. Per-method `metadata` on `base.charge()` or `tempo.charge()` overrides matching keys. `mppx` sets `machine_payment` to `'true'` by default; matching integration-, method-, or request-scoped metadata overrides it.
 
 ### networkId
 

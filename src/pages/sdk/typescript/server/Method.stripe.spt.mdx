@@ -34,7 +34,10 @@ export async function handler(request: Request) {
     decimals: 2,
     description: 'Premium API access',
     paymentIntentOptions: {
+      customer: 'cus_123',
+      hooks: { inputs: { tax: { calculation: 'taxcalc_123' } } },
       metadata: { requestId: 'req_123' },
+      receipt_email: 'customer@example.com',
     },
   })(request)
 
@@ -106,7 +109,7 @@ Renders a Stripe Elements payment form for browser requests. See the [payment li
 
 - **Type:** `Record<string, string>`
 
-Metadata included in the Challenge and attached to the Stripe `PaymentIntent`. `mppx` always sets the reserved `machine_payment` key to `'true'` on the `PaymentIntent`.
+Metadata included in the Challenge and attached to the Stripe `PaymentIntent`. `mppx` sets `machine_payment` to `'true'` by default; matching method- or request-scoped metadata overrides it.
 
 ### networkId
 
@@ -166,6 +169,6 @@ External identifier bound to the Challenge and Credential.
 
 ### paymentIntentOptions (optional)
 
-- **Type:** `{ metadata: Record<string, string> }`
+- **Type:** `{ customer?: string; hooks?: { inputs: { tax: { calculation: string } } }; metadata?: Record<string, string>; receipt_email?: string }`
 
-Request-scoped Stripe `PaymentIntent` options. `metadata` overrides matching method-level metadata for this payment. `mppx` keeps these options server-side and excludes them from the Challenge.
+Request-scoped Stripe `PaymentIntent` options. Use `customer` to associate a Stripe Customer, `hooks.inputs.tax.calculation` to apply an existing Tax Calculation, `metadata` to attach key-value pairs, and `receipt_email` to send a receipt. Metadata overrides matching method-level keys. `mppx` keeps these options server-side, excludes them from the Challenge, and forwards them directly when Stripe creates the `PaymentIntent`.
