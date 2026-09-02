@@ -222,6 +222,22 @@ The default compares the echoed resource URL and payment requirements, and verif
 
 Use one `mppx` client for native MPP endpoints and standard or route-bound x402 exact endpoints.
 
+### Pay from the CLI
+
+Use the default protocol selection to prefer MPP and fall back to a compatible x402 `exact` offer:
+
+```bash [terminal]
+$ mppx https://api.example.com/paid
+```
+
+Pass `--protocol x402` when you need to require the x402 rail. The CLI uses the EVM account selected by `--account`, `MPPX_ACCOUNT`, or `MPPX_PRIVATE_KEY`.
+
+```bash [terminal]
+$ mppx https://api.example.com/paid --protocol x402
+```
+
+See the [CLI reference](/sdk/typescript/cli) for account and request options.
+
 ### Build a client for MPP and x402
 
 <SigningAccountTabs />

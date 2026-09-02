@@ -44,6 +44,8 @@ const handler = payment.charge({
 
 The shorthand applies `canOffer` and `selectOffers`, just like `payment.compose()`. Use [`Mppx.compose`](/sdk/typescript/server/Mppx.compose) when methods need different request options or one method needs multiple offers.
 
+The Express, Hono, Next.js, and Elysia adapters preserve this composed shorthand, so one `mppx.charge()` handler returns a Challenge for every available method.
+
 ### With application authentication
 
 Set `requiresAuth: true` when `Authorization` already carries an application Credential. The server advertises `header="Payment-Authorization"` in each Challenge, reads the Payment Credential from that field, and leaves `Authorization` available for Bearer, Basic, or another authentication scheme.

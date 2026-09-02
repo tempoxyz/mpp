@@ -1,11 +1,11 @@
 ---
-description: "Use the mppx CLI to make paid HTTP requests from the terminal with automatic MPP payment handling."
+description: "Use the mppx CLI to make paid HTTP requests from the terminal with automatic MPP and x402 payment handling."
 imageDescription: "Make paid API requests from the terminal"
 ---
 
 # CLI Reference [Built-in command-line tool for paid HTTP requests]
 
-The `mppx` package includes a bundled CLI runtime for making HTTP requests with automatic payment handling. Published packages omit the CLI source files and source maps.
+The `mppx` package includes a bundled CLI runtime for making HTTP requests with automatic MPP and x402 payment handling. Published packages omit the CLI source files and source maps.
 
 ## Usage
 
@@ -52,6 +52,19 @@ $ mppx --help
 // [!include ~/snippets/cli-help.txt]
 ```
 :::
+
+## Choose a payment protocol
+
+Keep the default `--protocol auto` for most requests. The CLI prefers MPP when the server offers both protocols and uses x402 when MPP isn't available.
+
+Require one protocol when testing an integration or refusing the other protocol:
+
+```bash [terminal]
+$ mppx https://api.example.com/paid --protocol x402
+$ mppx https://api.example.com/paid --protocol mpp
+```
+
+x402 payments support compatible EVM `exact` Challenges and use the same account as EVM charge payments. Configure it with `--account`, `MPPX_ACCOUNT`, or `MPPX_PRIVATE_KEY`.
 
 ## Validate command
 
