@@ -4135,6 +4135,44 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── SingleFax ──────────────────────────────────────────────────────────
+  {
+    id: "singlefax",
+    name: "SingleFax",
+    url: "https://singlefax.com",
+    serviceUrl: "https://singlefax.com",
+    description:
+      "Send a fax from an agent. HTTP 402 + Stripe Shared Payment Token, PDF upload, delivery status.",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["fax", "communications", "pdf", "physical"],
+    docs: {
+      homepage: "https://singlefax.com/agents",
+      apiReference: "https://singlefax.com/openapi.json",
+      llmsTxt: "https://singlefax.com/llms.txt",
+    },
+    provider: { name: "SingleFax", url: "https://singlefax.com" },
+    realm: "singlefax.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/machine/faxes/validate",
+        desc: "Quote a fax send without charging",
+      },
+      {
+        route: "POST /api/v1/machine/faxes",
+        desc: "Create and pay a machine fax (HTTP 402 until a Stripe SPT is attached)",
+        dynamic: true,
+        amountHint: "From $0.99 for 10 pages, then about $0.08/page",
+      },
+      {
+        route: "GET /api/v1/machine/faxes/:request_id",
+        desc: "Poll machine fax status (statusToken query required)",
+      },
+    ],
+  },
+
   // ── Prospect Butcher Co ─────────────────────────────────────────────────
   {
     id: "prospect-butcher",
