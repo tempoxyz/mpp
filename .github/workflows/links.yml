@@ -38,7 +38,7 @@ jobs:
           restore-keys: lychee-
 
       - name: Run lychee
-        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        uses: tempoxyz/gh-actions/vendor/lycheeverse/lychee-action@6f436eb3a168279692739e8c0c9fdb52b94bfae7
         with:
           # README.md is a GitHub-only artifact with pre-existing
           # broken references (LICENSE files, lockup paths); excluded
