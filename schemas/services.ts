@@ -1861,6 +1861,86 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── OpenMerchant ───────────────────────────────────────────────────────
+  {
+    id: "openmerchant",
+    name: "OpenMerchant",
+    url: "https://openmerchant.dev",
+    serviceUrl: "https://api.mpp.openmerchant.dev",
+    description:
+      "Hosted commerce APIs for catalogs, quotes, and Stripe Shared Payment Token purchases across OpenMerchant sellers.",
+
+    icon: "https://openmerchant.dev/brand/favicon.svg",
+    categories: ["web"],
+    integration: "first-party",
+    tags: [
+      "commerce",
+      "marketplace",
+      "catalog",
+      "quotes",
+      "orders",
+      "stripe",
+      "spt",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://openmerchant.dev",
+      llmsTxt: "https://openmerchant.dev/llms.txt",
+      apiReference: "https://api.mpp.openmerchant.dev/openapi.json",
+    },
+    provider: { name: "OpenMerchant", url: "https://openmerchant.dev" },
+    realm: "api.mpp.openmerchant.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /:merchant_slug/catalog/search",
+        desc: "Search purchasable items with advertised payment rails",
+      },
+      {
+        route: "POST /:merchant_slug/catalog/lookup",
+        desc: "Resolve catalog item, variant, or SKU identifiers",
+      },
+      {
+        route: "POST /:merchant_slug/catalog/product",
+        desc: "Get one product or listing with optional booking availability",
+      },
+      {
+        route: "POST /:merchant_slug/catalog/item_locations",
+        desc: "List eligible fulfillment locations and item availability",
+      },
+      {
+        route: "POST /:merchant_slug/quotes",
+        desc: "Create a merchant-authoritative quote",
+      },
+      {
+        route: "GET /:merchant_slug/quotes/:quote_id",
+        desc: "Retrieve a quote with its access token",
+      },
+      {
+        route: "POST /:merchant_slug/quotes/:quote_id",
+        desc: "Refresh a quote with its access token",
+      },
+      {
+        route: "POST /:merchant_slug/purchases",
+        desc: "Purchase quoted items with a Stripe Shared Payment Token",
+        dynamic: true,
+      },
+      {
+        route: "GET /:merchant_slug/orders/:order_id",
+        desc: "Retrieve a paid order",
+      },
+      {
+        route: "GET /:merchant_slug/openapi.json",
+        desc: "Get the generated merchant OpenAPI document",
+      },
+      {
+        route: "GET /:merchant_slug/.well-known/mpp.json",
+        desc: "Get the generated merchant MPP service manifest",
+      },
+    ],
+  },
+
   // ── OpenRouter ─────────────────────────────────────────────────────────
   {
     id: "openrouter",
