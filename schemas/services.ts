@@ -11227,4 +11227,54 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Emboss ─────────────────────────────────────────────────────────────
+  {
+    id: "emboss",
+    name: "Emboss",
+    url: "https://api.getemboss.ai",
+    serviceUrl: "https://api.getemboss.ai",
+    description:
+      "Turn flat PDF forms into fillable forms and fill them from data or documents, paid per call.",
+    icon: "https://getemboss.ai/icon",
+    categories: ["data", "ai"],
+    integration: "third-party",
+    tags: ["pdf", "forms", "form-filling", "documents", "agents"],
+    status: "active",
+    docs: {
+      homepage: "https://getemboss.ai/docs/pay-per-call/mpp",
+      llmsTxt: "https://api.getemboss.ai/pay/llms.txt",
+      apiReference: "https://api.getemboss.ai/openapi.json",
+    },
+    provider: { name: "Emboss", url: "https://getemboss.ai" },
+    realm: "api.getemboss.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /pay/make-fillable",
+        desc: "Make a flat PDF fillable. Input: a PDF file.",
+        dynamic: true,
+        amountHint:
+          "$0.05 to $1.00 by page count (exact price in the 402 challenge)",
+        unitType: "request",
+      },
+      {
+        route: "POST /pay/fill-with-context",
+        desc: "Fill a PDF form from supporting context documents. Input: a PDF file plus one or more context files and/or context_text/context_urls.",
+        dynamic: true,
+        amountHint:
+          "$0.07 to $12.82 by page count and context size (exact price in the 402 challenge)",
+        unitType: "request",
+      },
+      {
+        route: "POST /pay/fill",
+        desc: "Fill a PDF form from data. Input: a PDF file plus a values JSON object mapping field names to answers.",
+        dynamic: true,
+        amountHint:
+          "$0.07 to $1.02 by page count (exact price in the 402 challenge)",
+        unitType: "request",
+      },
+    ],
+  },
 ];
