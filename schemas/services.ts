@@ -11227,4 +11227,46 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── BentCrypto ─────────────────────────────────────────────────────────
+  {
+    categories: ["blockchain", "data"],
+    description:
+      "Pre-trade token risk intelligence for autonomous agents with evidence coverage and confidence reporting. Base Token Risk accepts MPP EVM charge payments in USDC; BentCrypto also supports x402 and MCP.",
+    docs: {
+      apiReference: "https://api.bentcrypto.com/openapi.json",
+      homepage: "https://bentcrypto.com/agent-api",
+      llmsTxt: "https://api.bentcrypto.com/llms.txt",
+    },
+    endpoints: [
+      {
+        amount: "10000",
+        desc: "Base token risk analysis",
+        route: "GET /mpp/v1/token/risk",
+        unitType: "request",
+      },
+      {
+        desc: "Free Token Risk capability and input preflight",
+        route: "GET /v1/token/risk/preflight",
+        unitType: "request",
+      },
+    ],
+    id: "bentcrypto",
+    integration: "first-party",
+    intent: "charge",
+    name: "BentCrypto",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    provider: { name: "BentCrypto", url: "https://bentcrypto.com" },
+    realm: "api.bentcrypto.com",
+    serviceUrl: "https://api.bentcrypto.com",
+    status: "beta",
+    tags: ["token-risk", "pre-trade", "base", "usdc", "agents"],
+    url: "https://bentcrypto.com/agent-api",
+  },
 ];
