@@ -122,6 +122,36 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── VeriCite ──────────────────────────────────────────────────────────
+  {
+    id: "vericite",
+    name: "VeriCite",
+    url: "https://vericite.net",
+    serviceUrl: "https://vericite.net",
+    description:
+      "Verified U.S. legal research: hybrid case search, statutes across 52 jurisdictions, word-for-word quote verification, and dated good-law checks, metered per call over MCP.",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: ["legal", "case-law", "statutes", "citations", "verification", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://vericite.net",
+      llmsTxt: "https://vericite.net/llms.txt",
+    },
+    provider: { name: "Arkimedos LLC", url: "https://vericite.net" },
+    realm: "vericite-agent-topup",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/agent/topup",
+        desc: "Fund a prepaid research balance ($1-$500). Tool calls over MCP at https://vericite.net/mcp are then metered per call: basic lookups free, metered calls $0.01-$0.25, dossier download $0.50.",
+        dynamic: true,
+        amountHint: "$1-$500 top-up; per-call prices stated before each charge",
+        docs: "https://vericite.net/llms.txt",
+      },
+    ],
+  },
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
