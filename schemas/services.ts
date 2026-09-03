@@ -1363,14 +1363,19 @@ export const services: ServiceDef[] = [
         amount: "50000",
       },
       {
+        route: "POST /api/mpp/batch-resolve",
+        desc: "Resolve up to 10 CFR or U.S. Code citations with provenance",
+        amount: "150000",
+      },
+      {
         route: "POST /api/mpp/search",
         desc: "Semantic search across current U.S. federal regulations",
-        amount: "30000",
+        amount: "60000",
       },
       {
         route: "GET /api/mpp/changes",
         desc: "Recent Federal Register change events filtered by agency, citation, or lookback",
-        amount: "30000",
+        amount: "60000",
       },
     ],
   },
