@@ -122,6 +122,54 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── Agent Commerce Factory ────────────────────────────────────────────
+  {
+    id: "agent-commerce-factory",
+    name: "Agent Commerce Factory",
+    url: "https://agent-commerce-factory-jm.austriaeast.cloudapp.azure.com",
+    serviceUrl: "https://agent-commerce-factory-jm.austriaeast.cloudapp.azure.com",
+    description:
+      "Autonomous API merchant: 24 machine-payable data products (Amazon/product intel, Google Shopping, local/maps, news, jobs, web search, crypto market data, on-chain lookups, topic/brand sentiment). Live data, normalized JSON, priced per request.",
+    icon: "https://agent-commerce-factory-jm.austriaeast.cloudapp.azure.com/favicon.ico",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: ["search", "product-data", "shopping", "local-maps", "news", "jobs", "crypto", "onchain", "sentiment", "enrichment"],
+    status: "active",
+    docs: {
+      homepage: "https://agent-commerce-factory-jm.austriaeast.cloudapp.azure.com",
+      apiReference: "https://agent-commerce-factory-jm.austriaeast.cloudapp.azure.com/openapi.json",
+    },
+    provider: { name: "Agent Commerce Factory", url: "https://agent-commerce-factory-jm.austriaeast.cloudapp.azure.com" },
+    realm: "agent-commerce-factory-jm.austriaeast.cloudapp.azure.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      { route: "POST /v1/amazon/search", desc: "Search Amazon products", amount: "6000", unitType: "request" },
+      { route: "POST /v1/amazon/offers", desc: "Get Amazon sellers/offers for an ASIN", amount: "20000", unitType: "request" },
+      { route: "POST /v1/google-shopping/search", desc: "Search Google Shopping", amount: "3500", unitType: "request" },
+      { route: "POST /v1/local/search", desc: "Search Google Maps local businesses", amount: "3500", unitType: "request" },
+      { route: "POST /v1/news/search", desc: "Search Google News", amount: "3500", unitType: "request" },
+      { route: "POST /v1/jobs/search", desc: "Search Google Jobs", amount: "3500", unitType: "request" },
+      { route: "POST /v1/web/search", desc: "Web search (Google organic SERP)", amount: "4000", unitType: "request" },
+      { route: "POST /v1/crypto/news", desc: "Search crypto & financial news", amount: "4000", unitType: "request" },
+      { route: "POST /v1/crypto/prices", desc: "Live crypto prices & market data", amount: "8000", unitType: "request" },
+      { route: "POST /v1/crypto/trending", desc: "Trending crypto coins (last 24h)", amount: "6000", unitType: "request" },
+      { route: "POST /v1/crypto/global", desc: "Global crypto market overview", amount: "6000", unitType: "request" },
+      { route: "POST /v1/crypto/token-price", desc: "On-chain token price by contract address", amount: "6000", unitType: "request" },
+      { route: "POST /v1/crypto/categories", desc: "Crypto market sectors by market cap", amount: "6000", unitType: "request" },
+      { route: "POST /v1/crypto/history", desc: "Historical crypto OHLC candles", amount: "6000", unitType: "request" },
+      { route: "POST /v1/crypto/tickers", desc: "Exchange tickers for a coin (where to trade)", amount: "6000", unitType: "request" },
+      { route: "POST /v1/crypto/derivatives", desc: "Crypto derivatives & funding rates", amount: "6000", unitType: "request" },
+      { route: "POST /v1/crypto/market-chart", desc: "Crypto price/market-cap/volume time series", amount: "6000", unitType: "request" },
+      { route: "POST /v1/onchain/balance", desc: "On-chain native wallet balance", amount: "2000", unitType: "request" },
+      { route: "POST /v1/onchain/token-balance", desc: "On-chain ERC-20 token balance", amount: "2000", unitType: "request" },
+      { route: "POST /v1/onchain/token-meta", desc: "ERC-20 token metadata & total supply", amount: "2000", unitType: "request" },
+      { route: "POST /v1/onchain/tx", desc: "On-chain transaction lookup by hash", amount: "3000", unitType: "request" },
+      { route: "POST /v1/onchain/block", desc: "EVM block (latest or by number)", amount: "1000", unitType: "request" },
+      { route: "POST /v1/onchain/ens", desc: "ENS name resolution (both directions)", amount: "2000", unitType: "request" },
+      { route: "POST /v1/sentiment/search", desc: "Topic/brand/crypto sentiment analysis", amount: "50000", unitType: "request" },
+    ],
+  },
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
