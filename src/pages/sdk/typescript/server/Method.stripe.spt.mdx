@@ -109,7 +109,7 @@ Renders a Stripe Elements payment form for browser requests. See the [payment li
 
 - **Type:** `Record<string, string>`
 
-Metadata included in the Challenge and attached to the Stripe `PaymentIntent`. `mppx` sets `machine_payment` to `'true'` by default; matching method- or request-scoped metadata overrides it.
+Metadata included in the Challenge and attached to the Stripe `PaymentIntent`. `mppx` adds `machine_payment`, `mpp_challenge_id`, `mpp_intent`, and `mpp_sdk` analytics keys by default; matching method- or request-scoped metadata overrides them.
 
 ### networkId
 
@@ -119,9 +119,9 @@ Stripe Business Network profile ID.
 
 ### onPaymentSuccess (optional)
 
-- **Type:** `(parameters: { input?: Request; receipt: DeepReadonly<Receipt>; request: DeepReadonly<StripeChargeRequest>; requestInput?: DeepReadonly<StripeChargeRequestInput> }) => MaybePromise<void>`
+- **Type:** `Method.OnPaymentSuccessFn<typeof stripe.Methods.charge>`
 
-Runs after this SPT payment succeeds. The hook receives the canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Hook errors are isolated from payment handling.
+Runs after this SPT payment succeeds. The hook receives the optional associated Challenge, canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Hook errors are isolated from payment handling.
 
 ### paymentMethodTypes
 

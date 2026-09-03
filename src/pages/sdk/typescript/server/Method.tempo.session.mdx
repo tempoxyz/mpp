@@ -256,7 +256,7 @@ Minimum voucher delta to accept as a numeric string. Rejects vouchers where the 
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.session>`
 
-Runs after this Sessions method returns a successful result. The hook receives the canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
+Runs after this Sessions method returns a successful result. The hook receives the optional associated Challenge, canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
 
 ### operator (optional)
 

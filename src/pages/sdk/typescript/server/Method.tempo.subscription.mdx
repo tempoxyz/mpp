@@ -249,7 +249,7 @@ Callbacks that run after activation or renewal commits.
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.subscription>`
 
-Runs after this subscription method returns a successful result. The hook receives the canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
+Runs after this subscription method returns a successful result. The hook receives the optional associated Challenge, canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
 
 ### periodCount (optional)
 

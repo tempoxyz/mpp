@@ -681,6 +681,12 @@ Store for reusable session channels. Defaults to an in-memory store.
 
 Viem client instance. Shorthand for `getClient: () => client`.
 
+### credentialContext (optional)
+
+- **Type:** `unknown`
+
+Base method context supplied to every Credential the manager creates. The value must match the Sessions context schema. Manager-generated operation fields override matching fields in this context.
+
 ### decimals (optional)
 
 - **Type:** `number`

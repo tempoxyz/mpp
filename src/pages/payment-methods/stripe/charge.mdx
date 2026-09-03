@@ -83,7 +83,7 @@ const result = await mppx.charge({
 })(request)
 ```
 
-Request-scoped metadata overrides matching integration-level and per-method keys. `mppx` sets `machine_payment: 'true'` by default; matching metadata overrides it.
+Request-scoped metadata overrides matching integration-level and per-method keys. `mppx` adds `machine_payment`, `mpp_challenge_id`, `mpp_intent`, and `mpp_sdk` analytics keys by default; matching metadata overrides them.
 
 For completed stablecoin payments, `paymentIntentOptions` are best-effort. If Stripe rejects the optional fields, `mppx` retries once without them so it can still record the completed on-chain payment. SPT payments don't use this fallback.
 

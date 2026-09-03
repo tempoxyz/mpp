@@ -90,7 +90,7 @@ payment.onPaymentFailed(({ error, method, submittedChallenge }) => { // [!code h
 
 ### Scope success hooks to a method
 
-Pass `onPaymentSuccess` to a method constructor when the side effect belongs only to that payment method and intent. The hook receives the method-specific request, its Receipt, and the HTTP input when available.
+Pass `onPaymentSuccess` to a method constructor when the side effect belongs only to that payment method and intent. The hook receives the associated Challenge, method-specific request, its Receipt, and the HTTP input when available.
 
 ```ts
 import { Mppx, tempo } from 'mppx/server'
@@ -98,9 +98,10 @@ import { Mppx, tempo } from 'mppx/server'
 const payment = Mppx.create({
   methods: [
     tempo.charge({
-      async onPaymentSuccess({ input, receipt, request }) {
+      async onPaymentSuccess({ challenge, input, receipt, request }) {
         await recordCharge({
           amount: request.amount,
+          challengeId: challenge?.id,
           path: input ? new URL(input.url).pathname : undefined,
           reference: receipt.reference,
         })
@@ -111,7 +112,7 @@ const payment = Mppx.create({
 })
 ```
 
-`mppx` registers this as a filtered `payment.success` listener. It runs only when both the method name and intent match. The server awaits it inline and ignores thrown errors, matching instance-level server hook behavior. `input` is absent for standalone `broadcastCredential` and `verifyCredential` calls.
+`mppx` registers this as a filtered `payment.success` listener. It runs only when both the method name and intent match. The server awaits it inline and ignores thrown errors, matching instance-level server hook behavior. `challenge` is optional for compatibility, and `input` is absent for standalone `broadcastCredential` and `verifyCredential` calls.
 
 ## Client hooks
 

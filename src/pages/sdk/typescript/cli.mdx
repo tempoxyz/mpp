@@ -156,9 +156,31 @@ export default defineConfig({
 
 | Property | Type | Description |
 |----------|------|-------------|
+| `extensions` | `readonly Extension.Extension[]` | Ordered payment lifecycle hooks that run before Credential creation |
 | `methods` | `Method.AnyClient[]` | Client payment methods, including third-party methods |
 | `paymentPreferences` | `PaymentPreferences` | Selection preferences when a server offers multiple methods |
 | `plugins` | `Plugin[]` | CLI integrations that configure payment methods and output |
+
+### Configure payment extensions
+
+Use extensions to enforce policy or prepare funds after the CLI selects and confirms a Challenge, immediately before it creates a Credential.
+
+```ts twoslash [mppx.config.ts]
+import { defineConfig, Extension } from 'mppx/cli'
+
+export default defineConfig({
+  extensions: [
+    Extension.from({
+      preparePayment({ challenge }) {
+        if (challenge.realm !== 'api.example.com')
+          throw new Error(`Payment blocked for ${challenge.realm}`)
+      },
+    }),
+  ],
+})
+```
+
+Extensions run in configuration order for paid requests, `mppx sign`, `mppx validate`, and persistent Sessions. Throw to reject payment. Return `{ credentialContext }` to replace the method-specific context passed to the next extension and Credential creation.
 
 ## Sign command
 

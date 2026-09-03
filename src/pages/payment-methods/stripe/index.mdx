@@ -12,7 +12,7 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 Use Stripe's machine-payments integration to offer stablecoins (Tempo and others) and [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) from one MPP server. Successful stablecoin payments are recorded in Stripe as `PaymentIntent` objects for unified reporting.
 
-Every `PaymentIntent` that `mppx` creates or records includes `machine_payment: 'true'` by default so you can identify machine payments in Stripe. Matching integration-, method-, or request-scoped metadata overrides the default.
+Every `PaymentIntent` that `mppx` creates or records includes `machine_payment`, `mpp_challenge_id`, `mpp_intent`, and `mpp_sdk` metadata by default so you can identify and analyze MPP payments in Stripe. The SDK identifier includes the `mppx` version. Built-in values are limited to 500 Unicode characters, and matching integration-, method-, or request-scoped metadata overrides them.
 
 SPTs let a client share a customer's payment method with your Stripe account under configurable expiration and usage limits. The client creates an SPT through Stripe, and the server consumes it to create a `PaymentIntent`.
 
