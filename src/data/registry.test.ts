@@ -25,7 +25,7 @@ describe("service registry cache", () => {
     vi.unstubAllGlobals();
   });
 
-  it("deduplicates catalog requests and uses the static catalog", async () => {
+  it("deduplicates catalog requests and uses the live catalog API", async () => {
     vi.stubGlobal("sessionStorage", createStorage());
     const fetchMock = vi.fn(async () =>
       Response.json({ services: [service("openai", "OpenAI (New)")] }),
@@ -39,7 +39,7 @@ describe("service registry cache", () => {
     ]);
 
     expect(fetchMock).toHaveBeenCalledOnce();
-    expect(fetchMock).toHaveBeenCalledWith("/services/catalog.json");
+    expect(fetchMock).toHaveBeenCalledWith("/api/services");
     expect(first).toEqual(second);
     expect(first[0]?.name).toBe("OpenAI");
   });

@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 
 const API_URL = "/api/services";
 const CACHE_TTL_MS = 5 * 60_000;
-const CATALOG_URL = "/services/catalog.json";
 
 // ---------------------------------------------------------------------------
 // Types (mirrors the discovery JSON Schema)
@@ -87,7 +86,7 @@ const featuredCached = new Map<
 const featuredInflight = new Map<string, Promise<FeaturedService[]>>();
 
 async function fetchCatalog(): Promise<Service[]> {
-  const res = await fetch(CATALOG_URL);
+  const res = await fetch(API_URL);
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   const json = await res.json();
   return json.services;
