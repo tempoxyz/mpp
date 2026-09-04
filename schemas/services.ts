@@ -342,6 +342,68 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Amazon Intelligence ───────────────────────────────────────────────
+  {
+    id: "amazon-intel",
+    name: "Amazon Intelligence",
+    url: "https://amazon.lightanchor.ai",
+    serviceUrl: "https://amazon.lightanchor.ai",
+    description:
+      "Product search and Amazon intelligence for agents: unified product search (Amazon results + live Shopify storefront-MCP hits with agent-executable cart routes), live ASIN snapshots, instant listing audits (score, ranked defects, top fixes), and evidence-linked review-insight reports. Run by Light Anchor, an agency operating real Amazon brands.",
+    icon: "https://amazon.lightanchor.ai/favicon.svg",
+    categories: ["data", "web"],
+    integration: "third-party",
+    tags: [
+      "amazon",
+      "ecommerce",
+      "asin",
+      "product-data",
+      "listing-audit",
+      "reviews",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://amazon.lightanchor.ai",
+      llmsTxt: "https://amazon.lightanchor.ai/llms.txt",
+      apiReference: "https://amazon.lightanchor.ai/openapi.json",
+    },
+    provider: { name: "Light Anchor", url: "https://lightanchor.ai" },
+    realm: "amazon.lightanchor.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/shop/search",
+        desc: "Unified product search: Amazon results + optional live Shopify storefront fan-out with agent-executable cart routes",
+        amount: "50000",
+        unitType: "search",
+      },
+      {
+        route: "POST /v1/shop/cart",
+        desc: "Build a cart on any Shopify store and return its checkout URL (payment completes on the store)",
+        amount: "50000",
+        unitType: "cart",
+      },
+      {
+        route: "POST /v1/amazon/product",
+        desc: "Live product snapshot (~6s): price, availability, BSR, rating distribution, seller, images",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/amazon/listing-audit",
+        desc: "Instant listing audit: 0-100 score, grade, severity-ranked defects, top fixes",
+        amount: "1000000",
+        unitType: "audit",
+      },
+      {
+        route: "POST /v1/review-insights",
+        desc: "Evidence-linked review insight report (async ~3 min; poll GET /v1/review-insights/:jobId free)",
+        amount: "5000000",
+        unitType: "report",
+      },
+    ],
+  },
   // ── AgentMail ──────────────────────────────────────────────────────────
   {
     id: "agentmail",
