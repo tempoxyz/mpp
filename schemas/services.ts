@@ -11059,7 +11059,7 @@ export const services: ServiceDef[] = [
         desc: "Buy a fixed-duration WireGuard VPN session",
         dynamic: true,
         amountHint:
-          "$0.01 per minute; duration must be a whole number of minutes.",
+          "$0.01 per billed minute; send duration_seconds as a positive multiple of 60.",
         unitType: "minute",
       },
       {
