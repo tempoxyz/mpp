@@ -11227,4 +11227,72 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Weftly ─────────────────────────────────────────────────────────────
+  {
+    id: "weftly",
+    name: "Weftly",
+    url: "https://weftly.ai",
+    serviceUrl: "https://api.weftly.ai",
+    description:
+      "Pay-per-job AI media processing — transcribe, summarize, find and cut clips, and publish videos to YouTube.",
+    icon: "https://chat.weftly.ai/brand/weftly-icon.svg",
+    categories: ["ai", "media"],
+    integration: "first-party",
+    tags: ["transcription", "summarization", "video", "audio", "clips", "youtube", "whisper"],
+    status: "active",
+    docs: {
+      homepage: "https://weftly.ai",
+      llmsTxt: "https://api.weftly.ai/llms.txt",
+      apiReference: "https://api.weftly.ai/openapi.json",
+    },
+    provider: { name: "Weftly", url: "https://weftly.ai" },
+    realm: "api.weftly.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/test",
+        desc: "MPP smoke test",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/v1/sessions",
+        desc: "Create a session (free, identity only)",
+      },
+      {
+        route: "POST /api/v1/jobs",
+        desc: "Create a transcribe, summarize, find_clips, or clip-extraction job",
+        dynamic: true,
+        amountHint: "$0.50 – $2.00 by job type and media",
+      },
+      {
+        route: "GET /api/v1/jobs/:job_id/upload-url",
+        desc: "Get a presigned upload URL (upload-based jobs)",
+        dynamic: true,
+        amountHint: "$0.50 – $2.00 by job type and media",
+      },
+      {
+        route: "POST /api/v1/jobs/:job_id/complete-upload",
+        desc: "Confirm upload and start processing (transcribe, summarize, find_clips)",
+        dynamic: true,
+        amountHint: "$0.50 – $2.00 by job type and media",
+      },
+      {
+        route: "POST /api/v1/jobs/:job_id/process",
+        desc: "Verify payment and start processing (extract_clip, extract_vertical_clip, publish_youtube)",
+        dynamic: true,
+        amountHint: "$0.50 – $1.75",
+      },
+      {
+        route: "GET /api/v1/jobs/:job_id",
+        desc: "Get job status and outputs",
+      },
+      {
+        route: "GET /api/v1/jobs/:job_id/outputs/:role/download",
+        desc: "Download a job output (transcript, summary, clip video, clip candidates)",
+      },
+    ],
+  },
 ];
