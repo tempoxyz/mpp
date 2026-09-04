@@ -1,4 +1,5 @@
 import { mppx } from "../../../../mppx.server";
+import { resolvePicsumPhotoUrl } from "../../../../picsum-photo";
 
 export async function GET(request: Request) {
   const result = await mppx.session({
@@ -10,20 +11,10 @@ export async function GET(request: Request) {
 
   if (request.method === "POST") return result.withReceipt();
 
-  let url: string;
-  try {
-    const res = await fetch("https://picsum.photos/200/200");
-    if (!res.ok) throw new Error(`upstream responded ${res.status}`);
-    url = res.url;
-  } catch (error) {
-    console.error("[sessions/photo] upstream fetch failed:", error);
-    return Response.json(
-      { error: "Failed to load photo from upstream" },
-      { status: 502 },
-    );
-  }
-
-  return result.withReceipt(Response.json({ url }));
+  const { url, warning } = await resolvePicsumPhotoUrl(200, "sessions/photo");
+  return result.withReceipt(
+    Response.json(warning ? { url, warning } : { url }),
+  );
 }
 
 export const POST = GET;
