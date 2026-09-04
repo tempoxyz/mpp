@@ -1,3 +1,4 @@
+import { LATEST_PROTOCOL_VERSION } from "@modelcontextprotocol/server";
 import { workerMetrics } from "../../../src/lib/worker-metrics.js";
 import type { WorkerEnv } from "./types.js";
 
@@ -121,7 +122,11 @@ async function assertHead(endpoint: string): Promise<void> {
 }
 
 async function assertInitialize(endpoint: string): Promise<void> {
-  const result = await rpc(endpoint, "initialize");
+  const result = await rpc(endpoint, "initialize", {
+    protocolVersion: LATEST_PROTOCOL_VERSION,
+    capabilities: {},
+    clientInfo: { name: "mpp-discovery-health", version: "1.0.0" },
+  });
   if (stringValue(object(result.serverInfo).name) !== "mpp-services-mcp") {
     throw new Error("initialize serverInfo mismatch");
   }
@@ -205,7 +210,7 @@ async function rpc(
   const body = await fetchJson(endpoint, {
     method: "POST",
     headers: {
-      accept: "application/json",
+      accept: "application/json, text/event-stream",
       "content-type": "application/json",
     },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
@@ -226,7 +231,19 @@ async function fetchJson(
   if (response.status !== 200) {
     throw new Error(`expected 200, received ${response.status}`);
   }
-  return object(await response.json());
+  return object(await jsonRpcBody(response));
+}
+
+async function jsonRpcBody(response: Response): Promise<unknown> {
+  if (response.headers.get("content-type")?.includes("application/json")) {
+    return response.json();
+  }
+  const data = (await response.text())
+    .split("\n")
+    .filter((line) => line.startsWith("data:"))
+    .at(-1);
+  if (!data) throw new Error("MCP response contained no JSON-RPC message");
+  return JSON.parse(data.slice("data:".length));
 }
 
 async function fetchWithTimeout(

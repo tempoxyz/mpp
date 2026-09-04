@@ -63,22 +63,13 @@ describe("worker routes", () => {
 
   it("handles MCP JSON-RPC at /mcp/services", async () => {
     const response = await worker.fetch(
-      new Request("https://worker.example.com/mcp/services", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "initialize",
-          params: {},
-        }),
-      }),
+      initializeRequest(),
       envWithCatalog(),
       testContext(),
     );
 
     expect(response.status).toBe(200);
-    const body = (await response.json()) as {
+    const body = (await jsonRpcBody(response)) as {
       result: { serverInfo: { name: string }; instructions: string };
     };
     expect(body.result.serverInfo.name).toBe("mpp-services-mcp");
@@ -99,16 +90,7 @@ describe("worker routes", () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
 
     const response = await worker.fetch(
-      new Request("https://worker.example.com/mcp/services", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "initialize",
-          params: {},
-        }),
-      }),
+      initializeRequest(),
       envWithCatalog(),
       testContext(),
     );
@@ -192,6 +174,38 @@ function envWithCatalog(): WorkerEnv {
       async put() {},
     } as unknown as KVNamespace,
   } as WorkerEnv;
+}
+
+function initializeRequest(): Request {
+  return new Request("https://worker.example.com/mcp/services", {
+    method: "POST",
+    headers: {
+      accept: "application/json, text/event-stream",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "mpp-worker-test", version: "1.0.0" },
+      },
+    }),
+  });
+}
+
+async function jsonRpcBody(response: Response): Promise<unknown> {
+  if (response.headers.get("content-type")?.includes("application/json")) {
+    return response.json();
+  }
+  const data = (await response.text())
+    .split("\n")
+    .filter((line) => line.startsWith("data:"))
+    .at(-1);
+  if (!data) throw new Error("MCP response contained no JSON-RPC message");
+  return JSON.parse(data.slice("data:".length));
 }
 
 function testContext(): ExecutionContext {

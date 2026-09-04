@@ -101,6 +101,7 @@ describe("mcp handler", () => {
       expect(tool.outputSchema).toEqual(
         expect.objectContaining({ type: "object" }),
       );
+      expect(tool.execution).toEqual({ taskSupport: "forbidden" });
     }
     expect(
       tools.find((tool) => tool.name === "get_openapi")?.inputSchema,
@@ -111,6 +112,98 @@ describe("mcp handler", () => {
         }),
       }),
     );
+  });
+
+  it("serves 2026-era requests through the SDK handler", async () => {
+    const response = await handleMcp(
+      new Request("https://example.com/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          "mcp-method": "tools/list",
+          "mcp-protocol-version": "2026-07-28",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/list",
+          params: {
+            _meta: {
+              "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+              "io.modelcontextprotocol/clientInfo": {
+                name: "mpp-worker-test",
+                version: "1.0.0",
+              },
+              "io.modelcontextprotocol/clientCapabilities": {},
+            },
+          },
+        }),
+      }),
+      envWithCatalog(),
+      testContext(),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("application/json");
+    expect(response.headers.get("access-control-allow-origin")).toBe("*");
+    const body = (await response.json()) as {
+      result: { tools: Array<{ name: string }> };
+    };
+    expect(body.result.tools).toHaveLength(11);
+  });
+
+  it("delegates HTTP and JSON-RPC validation to the SDK", async () => {
+    const missingAccept = await handleMcp(
+      new Request("https://example.com/mcp", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/list",
+          params: {},
+        }),
+      }),
+      envWithCatalog(),
+      testContext(),
+    );
+    expect(missingAccept.status).toBe(406);
+    expect(await missingAccept.json()).toEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ code: -32000 }),
+      }),
+    );
+
+    const malformedJson = await handleMcp(
+      new Request("https://example.com/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+        },
+        body: "{",
+      }),
+      envWithCatalog(),
+      testContext(),
+    );
+    expect(malformedJson.status).toBe(400);
+    expect(await malformedJson.json()).toEqual(
+      expect.objectContaining({
+        error: expect.objectContaining({ code: -32700 }),
+      }),
+    );
+
+    const notification = await handleMcp(
+      legacyRequest({
+        jsonrpc: "2.0",
+        method: "notifications/initialized",
+      }),
+      envWithCatalog(),
+      testContext(),
+    );
+    expect(notification.status).toBe(202);
+    expect(await notification.text()).toBe("");
   });
 
   it("searches endpoint-level payment offers with matching and ranking metadata", async () => {
@@ -332,12 +425,7 @@ describe("mcp handler", () => {
     ]) {
       const body = await callTool("search_services", args);
       expect(body.result.isError).toBe(true);
-      expect(body.result.structuredContent).toEqual(
-        expect.objectContaining({
-          success: false,
-          error: expect.stringContaining("Allowed values:"),
-        }),
-      );
+      expect(body.result.content[0]?.text).toContain("Input validation error");
     }
   });
 
@@ -653,20 +741,17 @@ async function callTool(name: string, args: Record<string, unknown>) {
 
 async function mcp(method: string, params: Record<string, unknown>, env: Env) {
   const response = await handleMcp(
-    new Request("https://example.com/mcp", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-    }),
+    legacyRequest({ jsonrpc: "2.0", id: 1, method, params }),
     env,
     testContext(),
   );
-  return response.json() as Promise<{
+  return jsonRpcBody(response) as Promise<{
     result: {
       tools?: Array<{
         name?: string;
         inputSchema?: unknown;
         outputSchema?: unknown;
+        execution?: unknown;
       }>;
       content: Array<{ type: string; text: string }>;
       isError?: boolean;
@@ -686,6 +771,29 @@ async function mcp(method: string, params: Record<string, unknown>, env: Env) {
       };
     };
   }>;
+}
+
+function legacyRequest(body: unknown): Request {
+  return new Request("https://example.com/mcp", {
+    method: "POST",
+    headers: {
+      accept: "application/json, text/event-stream",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+async function jsonRpcBody(response: Response): Promise<unknown> {
+  if (response.headers.get("content-type")?.includes("application/json")) {
+    return response.json();
+  }
+  const data = (await response.text())
+    .split("\n")
+    .filter((line) => line.startsWith("data:"))
+    .at(-1);
+  if (!data) throw new Error("MCP response contained no JSON-RPC message");
+  return JSON.parse(data.slice("data:".length));
 }
 
 function envWithCatalog(): Env {
