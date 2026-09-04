@@ -344,6 +344,73 @@ export const services: ServiceDef[] = [
   },
   // ── AgentMail ──────────────────────────────────────────────────────────
   {
+    id: "agent-failure-archive",
+    name: "Agent Failure Archive",
+    url: "https://desktop-ai2ata5-1.tailfeb765.ts.net",
+    serviceUrl: "https://desktop-ai2ata5-1.tailfeb765.ts.net",
+    description:
+      "186 post-mortems from eight months of running a multi-session agent system, and a free check that audits your own conclusions against them.",
+
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: [
+      "post-mortems",
+      "incidents",
+      "debugging",
+      "reliability",
+      "observability",
+      "measurement",
+    ],
+    docs: {
+      homepage: "https://github.com/HanbeenMoon/agent-failure-archive",
+      llmsTxt: "https://desktop-ai2ata5-1.tailfeb765.ts.net/llms.txt",
+      apiReference: "https://desktop-ai2ata5-1.tailfeb765.ts.net/openapi.json",
+    },
+    provider: {
+      name: "Agent Failure Archive",
+      url: "https://github.com/HanbeenMoon/agent-failure-archive",
+    },
+    realm: "desktop-ai2ata5-1.tailfeb765.ts.net",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /precheck",
+        desc: "Which of nine documented self-deception patterns a conclusion trips",
+      },
+      {
+        route: "GET /contents",
+        desc: "Every case title, tagged by the trap it illustrates",
+      },
+      { route: "GET /sample", desc: "Two complete post-mortems" },
+      {
+        route: "GET /mpp/search",
+        desc: "Three post-mortems matching a symptom, with root cause and fix",
+        amount: "10000",
+      },
+      {
+        route: "GET /mpp/audit",
+        desc: "Full audit of a claim, with the incident behind each check",
+        amount: "20000",
+      },
+      {
+        route: "GET /mpp/brief",
+        desc: "Pre-flight risk brief before an irreversible action",
+        amount: "50000",
+      },
+      {
+        route: "GET /mpp/research",
+        desc: "107 measurement failures from trying to measure one person with embeddings",
+        amount: "250000",
+      },
+      {
+        route: "GET /mpp/archive",
+        desc: "Every one of the 186 cases in one response",
+        amount: "1000000",
+      },
+    ],
+  },
+  {
     id: "agentmail",
     name: "AgentMail",
     url: "https://mpp.api.agentmail.to",
