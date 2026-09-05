@@ -1892,6 +1892,11 @@ export const services: ServiceDef[] = [
         desc: "LLM inference proxy via OpenRouter (six-model catalog)",
         amount: "10000",
       },
+      {
+        route: "POST /api/v1/paid/solana-ops-context",
+        desc: "Operational context check for agents to call every run: current UTC time plus the latest x402 Bazaar pulse, with source evidence and whether this wallet has called before",
+        amount: "5000",
+      },
     ],
   },
 
