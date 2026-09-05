@@ -169,6 +169,8 @@ type ReturnType = Method.Server
 
 Account used for server-driven settlement and close transactions. The account address is also used as the default recipient.
 
+Server-driven Session transactions use Tempo expiring nonce lanes, so independent processes can share this signing account without relying on process-local nonce coordination.
+
 ### amount (optional)
 
 - **Type:** `string`

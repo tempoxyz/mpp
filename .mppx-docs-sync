@@ -5,5 +5,5 @@
 # When updating docs from mppx changes, bump this SHA to HEAD of mppx main
 # after incorporating the new features/changes into the docs site.
 
-mppx_version=0.0.0-main-20260902203246
-mppx_sha=459b517910472ea417d9617f2a61841b4ae2149b
+mppx_version=0.0.0-main-20260904175203
+mppx_sha=f494ffd58ed1ff6cba393fd6ee4e6931c285baf8

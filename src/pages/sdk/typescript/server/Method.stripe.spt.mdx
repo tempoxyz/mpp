@@ -50,6 +50,47 @@ export async function handler(request: Request) {
 
 These lightweight entrypoints omit unrelated payment rails. Use `mppx/server` when the same server also accepts other methods.
 
+### Resolve options after verification
+
+Pass a function to resolve `paymentIntentOptions` from the verified Credential or canonical request immediately before Stripe creates the `PaymentIntent`.
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { Mppx } from 'mppx/server/core'
+import { stripe } from 'mppx/stripe/server/spt'
+
+declare function createTaxCalculation(amount: unknown): Promise<string>
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const mppx = Mppx.create({
+  methods: [
+    stripe.spt({
+      client,
+      networkId: process.env.STRIPE_NETWORK_ID!,
+      paymentMethodTypes: ['card', 'link'],
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+const handler = mppx.charge({
+  amount: '1',
+  currency: 'usd',
+  decimals: 2,
+  description: 'Premium API access',
+  paymentIntentOptions: async ({ challenge, request }) => ({
+    hooks: {
+      inputs: {
+        tax: { calculation: await createTaxCalculation(request.amount) },
+      },
+    },
+    metadata: { challengeId: challenge.id },
+  }),
+})
+```
+
+The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. `mppx` doesn't call it for the initial Challenge or an invalid Credential. Resolver errors stop PaymentIntent creation.
+
 ### With Stripe Connect
 
 Set a fixed settlement policy or return one from a resolver for each verified Credential.
@@ -169,6 +210,6 @@ External identifier bound to the Challenge and Credential.
 
 ### paymentIntentOptions (optional)
 
-- **Type:** `{ customer?: string; hooks?: { inputs: { tax: { calculation: string } } }; metadata?: Record<string, string>; receipt_email?: string }`
+- **Type:** `PaymentIntentOptions | ((context: ResolvePaymentIntentOptionsContext) => MaybePromise<PaymentIntentOptions | undefined>)`
 
-Request-scoped Stripe `PaymentIntent` options. Use `customer` to associate a Stripe Customer, `hooks.inputs.tax.calculation` to apply an existing Tax Calculation, `metadata` to attach key-value pairs, and `receipt_email` to send a receipt. Metadata overrides matching method-level keys. `mppx` keeps these options server-side, excludes them from the Challenge, and forwards them directly when Stripe creates the `PaymentIntent`.
+Request-scoped Stripe `PaymentIntent` options or a deferred resolver. Use `customer` to associate a Stripe Customer, `hooks.inputs.tax.calculation` to apply an existing Tax Calculation, `metadata` to attach key-value pairs, and `receipt_email` to send a receipt. Metadata overrides matching method-level keys. `mppx` keeps these options server-side, excludes them from the Challenge, and resolves or forwards them immediately before Stripe creates the `PaymentIntent`.

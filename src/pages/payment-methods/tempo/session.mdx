@@ -229,7 +229,7 @@ The server never touches the chain during inference. Payment verification adds m
 Tempo handles payments at scale and has properties that make it a uniquely good fit for payment sessions:
 
 - **Channel management UX**—Opening, topping up, and closing channels are on-chain operations. Tempo's ~500ms finality and sub-cent fees keep channel lifecycle from becoming a UX bottleneck.
-- **Payment lane**—Tempo's 2D nonce system provides dedicated nonce lanes for payment transactions, so channel operations don't block other account activity. This matters for clients that use the same account for payments and other on-chain interactions.
+- **Payment lane**—Tempo's 2D nonce system provides dedicated nonce lanes for payment transactions, so channel operations don't block other account activity. Server-driven transactions use expiring nonce lanes, so independent processes can share a signer without relying on process-local nonce coordination.
 - **High throughput**—When a server settles thousands of channels, Tempo's throughput handles the settlement volume without congestion or fee spikes.
 - **Fee sponsorship**—Servers can pay channel management fees on behalf of clients, making the client-side integration purely off-chain after the initial deposit.
 - **Enshrined tokens**—TIP-20 tokens are precompile-based, not smart contracts. Token operations are cheaper and more predictable than ERC-20 interactions on other chains.
@@ -262,7 +262,7 @@ const mppx = Mppx.create({
 })
 ```
 
-`Store.memory()` works for local development. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` so channel state is shared across processes.
+`Store.memory()` works for local development. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` so channel state is shared across processes. Server-driven Session transactions use Tempo expiring nonce lanes to prevent a shared signing account from depending on one process's local nonce state.
 
 Use `mppx.session` in your request handler to meter access:
 

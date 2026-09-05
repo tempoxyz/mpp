@@ -77,6 +77,46 @@ const handler = mppx.charge({
 
 Request-scoped metadata overrides matching integration-level and per-method keys. For completed stablecoin payments, these options are best-effort: if Stripe rejects them, `mppx` retries the recording once without the optional fields. SPT payments don't use this fallback.
 
+### Resolve PaymentIntent options
+
+Pass a resolver when options depend on the verified Credential or canonical request. The resolver runs after non-mutating method validation, when available, and immediately before the terminal payment operation.
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { Mppx, stripe } from 'mppx/server'
+
+declare function createTaxCalculation(amount: unknown): Promise<string>
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const payments = stripe.create({
+  client,
+  livemode: false,
+  networkId: process.env.STRIPE_NETWORK_ID!,
+})
+const mppx = Mppx.create({
+  methods: payments.defaultMethods(),
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+const handler = mppx.charge({
+  amount: '1.00',
+  description: 'Premium API access',
+  paymentIntentOptions: async ({
+    challenge,
+    request,
+  }: stripe.ResolvePaymentIntentOptionsContext) => ({
+    hooks: {
+      inputs: {
+        tax: { calculation: await createTaxCalculation(request.amount) },
+      },
+    },
+    metadata: { challengeId: challenge.id },
+  }),
+})
+```
+
+The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. It can return options or a Promise of options. `mppx` doesn't call it for the initial Challenge or an invalid Credential. Resolver errors stop the payment operation.
+
 ## Advanced options
 
 ### Sponsor Tempo transaction fees

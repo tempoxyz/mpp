@@ -87,6 +87,26 @@ Request-scoped metadata overrides matching integration-level and per-method keys
 
 For completed stablecoin payments, `paymentIntentOptions` are best-effort. If Stripe rejects the optional fields, `mppx` retries once without them so it can still record the completed on-chain payment. SPT payments don't use this fallback.
 
+Pass a resolver when the options depend on the verified Credential or canonical request. The resolver runs after non-mutating method validation, when available, and before `mppx` creates an SPT `PaymentIntent` or broadcasts a stablecoin payment. It doesn't run for the initial Challenge or an invalid Credential.
+
+```ts [server.ts]
+declare function createTaxCalculation(amount: unknown): Promise<string>
+
+const result = await mppx.charge({
+  amount: '1.00',
+  paymentIntentOptions: async ({ challenge, request }) => ({
+    hooks: {
+      inputs: {
+        tax: { calculation: await createTaxCalculation(request.amount) },
+      },
+    },
+    metadata: { challengeId: challenge.id },
+  }),
+})(request)
+```
+
+The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. It can return options or a Promise of options. Resolver errors stop the terminal payment operation.
+
 ### Sponsor Tempo transaction fees
 
 Set `hostedFeePayer: true` to sponsor transaction fees through Stripe for Tempo charge and Sessions methods created by the integration.
