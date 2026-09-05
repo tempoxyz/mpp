@@ -85,7 +85,10 @@ Pass a resolver when options depend on the verified Credential or canonical requ
 import Stripe from 'stripe'
 import { Mppx, stripe } from 'mppx/server'
 
-declare function createTaxCalculation(amount: unknown): Promise<string>
+declare function findOrCreateTaxCalculation(parameters: {
+  amount: unknown
+  idempotencyKey: string
+}): Promise<string>
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 const payments = stripe.create({
@@ -107,7 +110,12 @@ const handler = mppx.charge({
   }: stripe.ResolvePaymentIntentOptionsContext) => ({
     hooks: {
       inputs: {
-        tax: { calculation: await createTaxCalculation(request.amount) },
+        tax: {
+          calculation: await findOrCreateTaxCalculation({
+            amount: request.amount,
+            idempotencyKey: challenge.id,
+          }),
+        },
       },
     },
     metadata: { challengeId: challenge.id },
@@ -115,7 +123,9 @@ const handler = mppx.charge({
 })
 ```
 
-The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. It can return options or a Promise of options. `mppx` doesn't call it for the initial Challenge or an invalid Credential. Resolver errors stop the payment operation.
+The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. It can return options or a Promise of options. `mppx` doesn't call it for the initial Challenge or Credential failures detected before method execution. Stripe can still reject an SPT after the resolver runs.
+
+The same Credential can invoke the resolver again on retry. Make external work idempotent and return equivalent options for the same Challenge. Resolver errors prevent SPT `PaymentIntent` creation and server-broadcast stablecoin payments. For push-mode stablecoin payments, the client broadcasts before the resolver runs, so an error prevents resource delivery and Stripe recording—not the transfer.
 
 ## Advanced options
 

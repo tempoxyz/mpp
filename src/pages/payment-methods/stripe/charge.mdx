@@ -87,17 +87,25 @@ Request-scoped metadata overrides matching integration-level and per-method keys
 
 For completed stablecoin payments, `paymentIntentOptions` are best-effort. If Stripe rejects the optional fields, `mppx` retries once without them so it can still record the completed on-chain payment. SPT payments don't use this fallback.
 
-Pass a resolver when the options depend on the verified Credential or canonical request. The resolver runs after non-mutating method validation, when available, and before `mppx` creates an SPT `PaymentIntent` or broadcasts a stablecoin payment. It doesn't run for the initial Challenge or an invalid Credential.
+Pass a resolver when the options depend on the verified Credential or canonical request. The resolver runs after non-mutating method validation, when available, and before `mppx` creates an SPT `PaymentIntent` or broadcasts a pull-mode stablecoin payment. It doesn't run for the initial Challenge or Credential failures detected before method execution. Stripe can still reject an SPT after the resolver runs.
 
 ```ts [server.ts]
-declare function createTaxCalculation(amount: unknown): Promise<string>
+declare function findOrCreateTaxCalculation(parameters: {
+  amount: unknown
+  idempotencyKey: string
+}): Promise<string>
 
 const result = await mppx.charge({
   amount: '1.00',
   paymentIntentOptions: async ({ challenge, request }) => ({
     hooks: {
       inputs: {
-        tax: { calculation: await createTaxCalculation(request.amount) },
+        tax: {
+          calculation: await findOrCreateTaxCalculation({
+            amount: request.amount,
+            idempotencyKey: challenge.id,
+          }),
+        },
       },
     },
     metadata: { challengeId: challenge.id },
@@ -105,7 +113,9 @@ const result = await mppx.charge({
 })(request)
 ```
 
-The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. It can return options or a Promise of options. Resolver errors stop the terminal payment operation.
+The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. It can return options or a Promise of options. The same Credential can invoke it again on retry, so make external work idempotent and return equivalent options for the same Challenge.
+
+Resolver errors prevent SPT `PaymentIntent` creation and server-broadcast stablecoin payments. For push-mode stablecoin payments, the client broadcasts before the resolver runs, so an error prevents resource delivery and Stripe recording—not the transfer. Keep resolvers failure-tolerant when you accept push payments.
 
 ### Sponsor Tempo transaction fees
 

@@ -59,7 +59,10 @@ import Stripe from 'stripe'
 import { Mppx } from 'mppx/server/core'
 import { stripe } from 'mppx/stripe/server/spt'
 
-declare function createTaxCalculation(amount: unknown): Promise<string>
+declare function findOrCreateTaxCalculation(parameters: {
+  amount: unknown
+  idempotencyKey: string
+}): Promise<string>
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 const mppx = Mppx.create({
@@ -81,7 +84,12 @@ const handler = mppx.charge({
   paymentIntentOptions: async ({ challenge, request }) => ({
     hooks: {
       inputs: {
-        tax: { calculation: await createTaxCalculation(request.amount) },
+        tax: {
+          calculation: await findOrCreateTaxCalculation({
+            amount: request.amount,
+            idempotencyKey: challenge.id,
+          }),
+        },
       },
     },
     metadata: { challengeId: challenge.id },
@@ -89,7 +97,9 @@ const handler = mppx.charge({
 })
 ```
 
-The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. `mppx` doesn't call it for the initial Challenge or an invalid Credential. Resolver errors stop PaymentIntent creation.
+The resolver receives `challenge`, `credential`, optional verified `envelope`, and canonical `request` fields. `mppx` doesn't call it for the initial Challenge or Credential failures detected before method execution. Stripe can still reject an expired, revoked, or fabricated SPT after the resolver runs.
+
+The same Credential can invoke the resolver again on retry. Make external work idempotent and return equivalent options for the same Challenge to preserve Stripe idempotency. Resolver errors prevent `PaymentIntent` creation.
 
 ### With Stripe Connect
 
