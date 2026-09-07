@@ -311,6 +311,39 @@ export function LightningSessionCard() {
   );
 }
 
+export function XrplMethodCard() {
+  return (
+    <Card
+      description="Payments in XRP and tokens, Payment Channels in XRP"
+      icon="simple-icons:xrp"
+      title="XRPL"
+      to="/payment-methods/xrpl"
+    />
+  );
+}
+
+export function XrplChargeCard() {
+  return (
+    <Card
+      description="One-time payments in XRP, issued currencies or MPT"
+      icon="simple-icons:xrp"
+      title="XRPL charge"
+      to="/payment-methods/xrpl/charge"
+    />
+  );
+}
+
+export function XrplSessionCard() {
+  return (
+    <Card
+      description="Off-chain vouchers over a native Payment Channel"
+      icon="simple-icons:xrp"
+      title="XRPL session"
+      to="/payment-methods/xrpl/session"
+    />
+  );
+}
+
 export function StellarMethodCard() {
   return (
     <Card
@@ -700,6 +733,9 @@ export const staticCards = [
   SolanaSessionCard,
   StellarChannelCard,
   StellarChargeCard,
+  XrplChargeCard,
+  XrplMethodCard,
+  XrplSessionCard,
   StellarMethodCard,
   StripeChargeCard,
   StripeMethodCard,

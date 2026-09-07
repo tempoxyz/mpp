@@ -1,0 +1,107 @@
+---
+title: "XRP Ledger payments"
+description: "Use the XRPL payment method in MPP to accept XRP, issued-currency and MPT charges, and Payment Channel sessions."
+imageDescription: "Accept XRP Ledger payments and channel sessions"
+---
+
+import { Cards } from 'vocs'
+import { XrplChargeCard, XrplSessionCard } from '../../../components/cards'
+
+# XRPL [Payments in XRP and tokens, Payment Channels in XRP]
+
+The [XRP Ledger](https://xrpl.org) payment method enables payments in XRP, in issued currencies, and in Multi-Purpose Tokens. XRPL supports two intents – **charge** for one-time on-chain payments and **session** for off-chain Payment Channel vouchers – covering single API calls through to per-token metered billing.
+
+The implementation is provided by [`xrpl-mpp-sdk`](https://github.com/ripple/xrpl-mpp-sdk), which extends [`mppx`](https://github.com/wevm/mppx) with XRPL-native client and server handlers built on [`xrpl.js`](https://github.com/XRPLF/xrpl.js).
+
+## Installation
+
+:::code-group
+```bash [npm]
+$ npm install xrpl-mpp-sdk mppx xrpl
+```
+```bash [pnpm]
+$ pnpm add xrpl-mpp-sdk mppx xrpl
+```
+```bash [bun]
+$ bun add xrpl-mpp-sdk mppx xrpl
+```
+:::
+
+The package is published as [`xrpl-mpp-sdk`](https://www.npmjs.com/package/xrpl-mpp-sdk) on npm. `mppx` and `xrpl` are peer dependencies, so a host application controls both versions.
+
+## Why XRPL
+
+- **3 to 5 second finality**: a transaction in a validated ledger cannot be reordered or reversed. There is no probabilistic confirmation window to wait out.
+- **Fees in fractions of a cent**: low enough that a per-request charge is not dominated by its own cost.
+- **Payment Channels as a protocol primitive**: one-way cumulative channels are part of the ledger, not a contract to deploy, audit or fund. Two on-chain transactions settle an unbounded number of off-chain payments.
+- **Three asset kinds through one method**: XRP, issued currencies and Multi-Purpose Tokens are all carried by the `xrpl` method and distinguished by the `currency` field.
+- **Either signing curve**: ed25519 and secp256k1 wallets both work, including for channel vouchers, with curve detection handled by `xrpl.js`.
+
+## Choosing an intent
+
+| | **Charge** | **Session** |
+|---|---|---|
+| **Pattern** | One payment per request | Deposit once, authorise incrementally |
+| **Latency overhead** | 3 to 5s on-chain confirmation | Near zero after the channel is open |
+| **Throughput** | One transaction per request | Many vouchers per second per channel |
+| **Best for** | Single API calls, content access, one-off purchases | LLM APIs, metered services, per-token billing |
+| **On-chain cost** | Per request | Two transactions, amortised across the session |
+| **Assets** | XRP, issued currencies, MPT | XRP only |
+| **Settlement** | Immediate on-chain payment | Off-chain vouchers, one closing transaction |
+
+## Intents
+
+<Cards>
+  <XrplChargeCard />
+  <XrplSessionCard />
+</Cards>
+
+## Prerequisites
+
+**Reserves.** An address becomes an account once it holds the base reserve, and each ledger object it owns locks an incremental reserve on top. Validators set both. They are currently 1 XRP and 0.2 XRP per object.
+
+Reserved XRP cannot be spent, so a payment that would leave the sender below its reserve fails with `tecUNFUNDED_PAYMENT`. A payment channel's reserve is charged to the funder; being the destination of one costs nothing.
+
+**Issued currencies (IOU).** The recipient needs a [trustline](https://xrpl.org/docs/concepts/tokens/fungible-tokens) to the issuer for that currency code before it can receive the token. The issuer is the exception: a payment back to it redeems the token rather than transferring it, and needs no trustline.
+
+**Multi-Purpose Tokens (MPT).** The recipient must have opted in, which creates its `MPToken` object. Where the issuance was created with `lsfMPTRequireAuth`, the issuer must additionally authorize that holder.
+
+Both are the recipient's to establish, and a payer cannot supply either. [`prepareRecipient`](/payment-methods/xrpl/charge) does it once at startup.
+
+## Networks
+
+`network` takes `'mainnet'`, `'testnet'` or `'devnet'`, and the SDK resolves the endpoint for each. Pass `rpcUrl` to point at your own node, or at any of the [public servers](https://xrpl.org/docs/tutorials/public-servers) the XRP Ledger documentation lists.
+
+| | Endpoint | Faucet |
+|---|---|---|
+| `mainnet` | `wss://xrplcluster.com` | none |
+| `testnet` | `wss://s.altnet.rippletest.net:51233` | yes |
+| `devnet` | `wss://s.devnet.rippletest.net:51233` | yes |
+
+One property is worth knowing before the first mainnet deployment: **a seed controls the same address on every XRPL network.** A `Payment` carries no network identifier, so a wallet that works on testnet has a real mainnet address derived from the same secret. The practical consequences:
+
+- A client that passes `network` explicitly is pinned, and a challenge naming another network is refused rather than followed.
+- A transaction hash or channel ID can repeat across networks, so a replay store shared between them is namespaced per network by the SDK.
+- `Wallet.fromFaucet()` refuses on mainnet rather than failing quietly.
+
+## Supported assets
+
+**XRP** is the native asset, denominated in [drops](https://xrpl.org/docs/references/protocol/data-types/basic-data-types). One XRP is 1,000,000 drops, and every XRP amount on the wire is an integer drop count as a decimal string.
+
+**Issued currencies (IOU)** are [tokens](https://xrpl.org/docs/concepts/tokens/fungible-tokens) denominated by a currency code and the classic address of their issuer.
+
+**Multi-Purpose Tokens (MPT)** ([XLS-33](https://github.com/XRPLF/XRPL-Standards/tree/master/XLS-0033-multi-purpose-tokens)) are identified by an `mpt_issuance_id`.
+
+What a recipient has to establish for each is under [Prerequisites](#prerequisites) above.
+
+Payment Channels carry XRP exclusively, so the **session** intent is XRP-only. Issued currencies and MPTs are available through **charge**.
+
+## Agentic Transactions
+
+AI agents can discover, set up, and execute financial transactions autonomously. The XRP Ledger provides the infrastructure they need: deterministic finality, predictable costs, native multi-currency support, and compliance-ready controls — all without smart contract risk.
+
+Read more on [agentic transactions](https://xrpl.org/docs/agents/agentic-transactions), and discover the [XRPL AI tools](https://xrpl.org/resources/dev-tools/ai-tools).
+
+## Going further
+
+This page covers only the ledger concepts the `xrpl` payment method depends on. The full XRP Ledger documentation is at [xrpl.org/docs](https://xrpl.org/docs).

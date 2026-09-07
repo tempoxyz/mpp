@@ -528,6 +528,15 @@ export default defineConfig({
             ],
           },
           {
+            text: "XRPL",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/xrpl" },
+              { text: "Charge", link: "/payment-methods/xrpl/charge" },
+              { text: "Session", link: "/payment-methods/xrpl/session" },
+            ],
+          },
+          {
             text: "Stellar",
             collapsed: true,
             items: [

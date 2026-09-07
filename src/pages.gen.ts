@@ -81,6 +81,9 @@ type Page =
   | { path: '/payment-methods/tempo'; render: 'static' }
   | { path: '/payment-methods/tempo/session'; render: 'static' }
   | { path: '/payment-methods/tempo/subscription'; render: 'static' }
+  | { path: '/payment-methods/xrpl/charge'; render: 'static' }
+  | { path: '/payment-methods/xrpl'; render: 'static' }
+  | { path: '/payment-methods/xrpl/session'; render: 'static' }
   | { path: '/protocol/challenges'; render: 'static' }
   | { path: '/protocol/credentials'; render: 'static' }
   | { path: '/protocol/http-402'; render: 'static' }

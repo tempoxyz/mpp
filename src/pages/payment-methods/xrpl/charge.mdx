@@ -1,0 +1,283 @@
+---
+description: "Accept one-time XRP Ledger payments in MPP, in XRP, issued currencies or Multi-Purpose Tokens, with server-side verification."
+imageDescription: "One-time XRP Ledger payments"
+---
+
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+
+# XRPL charge [One-time payments on the XRP Ledger]
+
+The XRPL implementation of the [charge](/intents/charge) intent.
+
+The client signs a [`Payment`](https://xrpl.org/docs/references/protocol/transactions/types/payment) transaction and the server verifies it against the ledger. Settlement completes in three to five seconds, and a transaction in a validated ledger cannot be reordered or reversed.
+
+XRPL charge supports two credential modes:
+
+- **Pull mode** (default): the client signs the `Payment` and hands the serialized blob to the server, which submits it and observes the result.
+- **Push mode**: the client submits the transaction itself and presents the transaction hash as proof. The server polls the ledger for it.
+
+Pull mode is the default, which is the inverse of several other methods, and the reason is worth stating: a payer who broadcasts first has already parted with funds before learning whether the server will honour them. In pull mode the server submits, so a payer who is refused has spent nothing.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant XRPL
+    Client->>Server: (1) GET /resource
+    Server-->>Client: 402 + Challenge (amount, currency)
+    Client->>Server: (2) Credential (signed Payment blob)
+    Note over Server: Verify fields and binding
+    Server->>XRPL: (3) Submit and await validation
+    XRPL-->>Server: Validated, tesSUCCESS
+    Server-->>Client: 200 OK + Receipt
+`} />
+
+## Try it on testnet
+
+Both sides can be funded from the faucet in one line each, so a full paid request runs without any prior setup.
+
+```ts
+import { Wallet } from 'xrpl-mpp-sdk/server'
+
+const recipient = await Wallet.fromFaucet({ network: 'testnet' })
+const payer = await Wallet.fromFaucet({ network: 'testnet' })
+```
+
+`fromFaucet` refuses on mainnet rather than silently doing nothing. Every settled payment returns a transaction hash in its receipt, which resolves on the [testnet explorer](https://testnet.xrpl.org):
+
+```ts
+import type { XrplReceiptFields } from 'xrpl-mpp-sdk/server'
+
+const { txHash } = receipt as typeof receipt & XrplReceiptFields
+console.log(`https://testnet.xrpl.org/transactions/${txHash}`)
+```
+
+`XRPL_EXPLORER_URLS` and `XRPL_FAUCET_URLS` are exported from the root entry point if you would rather not hard-code either.
+
+## Server
+
+Use `xrpl.charge` to gate an endpoint behind a one-time payment. The method issues the challenge, verifies the credential, submits the transaction and returns the receipt.
+
+```ts
+import { Mppx, Store, xrpl } from 'xrpl-mpp-sdk/server'
+
+const mppx = Mppx.create({
+  methods: [xrpl.charge({
+    // Server configuration, never read from a request: a caller who could
+    // choose the recipient would redirect payment to themselves.
+    recipient: process.env.XRPL_RECIPIENT!,
+    network: 'testnet',
+    store: Store.memory(),
+    storeDurability: 'process-local',
+  })],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+The handler is Web-standard: it takes a `Request` and returns either a challenge or a helper that wraps your response with the receipt.
+
+```ts
+const handler = mppx['xrpl/charge']({
+  recipient: process.env.XRPL_RECIPIENT!,
+  amount: '1000000', // 1 XRP, in drops
+  currency: 'XRP',
+})
+
+const result = await handler(request)
+if (result.status === 402) return result.challenge
+return result.withReceipt(Response.json({ data: 'paid content' }))
+```
+
+`amount` for XRP is an integer count of drops as a decimal string. `'1000000'` is one XRP.
+
+`recipient` appears twice on purpose. On the method it is what this server will ever accept; on the handler it is what this particular route charges. The SDK compares the two before verifying anything, so a challenge minted for one route cannot be spent against another. The same holds for `amount`, `currency`, and the `invoiceId` and `destinationTag` under `methodDetails`.
+
+### Issued currencies and MPT
+
+The same method carries all three asset kinds; the `currency` field distinguishes them.
+
+```ts
+// Issued currency: a code plus the issuer's classic address.
+xrpl.charge({
+  recipient: process.env.XRPL_RECIPIENT!,
+  currency: { currency: 'USD', issuer: 'rIssuerAddress...' },
+  network: 'testnet',
+  store: Store.memory(),
+})
+
+// Multi-Purpose Token, identified by its issuance.
+xrpl.charge({
+  recipient: process.env.XRPL_RECIPIENT!,
+  currency: { mpt_issuance_id: '00000012A5E1C3F0B4D2...' },
+  network: 'testnet',
+  store: Store.memory(),
+})
+```
+
+On the **route** request the currency is a string, not an object. The method config takes the structured form above; the route takes it serialized, which is how it travels in the challenge:
+
+```ts
+const currency = { currency: 'USD', issuer: 'rIssuerAddress...' }
+
+const handler = mppx['xrpl/charge']({
+  recipient: process.env.XRPL_RECIPIENT!,
+  amount: '10',                      // token units, not drops
+  currency: JSON.stringify(currency),
+})
+```
+
+Passing the object here is refused by the schema rather than accepted and misread. Note the units too: `amount` for an issued currency or an MPT is in the token's own units, where XRP is in drops.
+
+For an issued currency, a recipient that is not the issuer needs a [trustline](https://xrpl.org/docs/concepts/tokens/fungible-tokens) to that issuer. For an MPT it must have opted in, which creates its `MPToken` object; a balance is not required. Where the issuance was created with `lsfMPTRequireAuth`, the issuer must additionally authorize that holder.
+
+Neither is something a payer can supply, and a server advertising a charge it cannot receive produces a payment that fails on submission – after the client has signed. So establish it once at startup rather than per request:
+
+```ts
+import { prepareRecipient, xrpl } from 'xrpl-mpp-sdk/server'
+
+const parameters = {
+  recipient: recipientWallet.address,
+  wallet: recipientWallet,        // needed: this signs on the recipient's behalf
+  currency: { currency: 'USD', issuer: 'rIssuerAddress...' },
+  autoTrustline: true,            // opt in to the recipient-side TrustSet
+  network: 'testnet',
+  store,
+} satisfies xrpl.Parameters
+
+await prepareRecipient(parameters)   // idempotent, and a no-op for XRP
+const method = xrpl.charge(parameters)
+```
+
+Doing it eagerly matters most for issued currencies: the client's path resolver needs the recipient's trustline to already exist, so a trustline that only appears during verification comes too late – the client has already failed to find a path.
+
+### Store durability
+
+The replay store is authoritative: it is what stops a settled payment being presented twice. `Store.memory()` with `storeDurability: 'process-local'` is for development. Above one instance, or across restarts, use a durable adapter:
+
+```ts
+import { Store, sqlSchema, sqlStore } from 'xrpl-mpp-sdk/server'
+
+// `sqlSchema` is the DDL for the backing table; run it once.
+const store = Store.from(sqlStore((sql, params) => pool.query(sql, [...params])))
+```
+
+The update is a compare-and-set, so two replicas cannot credit the same payment concurrently.
+
+Which backend to reach for depends on where the server runs. `mppx` itself provides `Store.redis()`, `Store.upstash()` and `Store.cloudflare()`, and any of them works here – on Workers, `Store.cloudflare()` needs no adapter at all. This SDK adds `sqlStore` and `dynamodbStore` for deployments that would rather keep the replay records in a database they already operate.
+
+## Client
+
+```ts
+import { Mppx, Wallet, challengeSafeFetch, xrpl } from 'xrpl-mpp-sdk/client'
+
+const wallet = Wallet.fromSeed(process.env.XRPL_SEED!)
+
+const mppx = Mppx.create({
+  fetch: challengeSafeFetch(),
+  methods: [xrpl.charge({ wallet, network: 'testnet' })],
+})
+
+const response = await mppx.fetch('https://api.example.com/my-service')
+const data = await response.json()
+```
+
+`challengeSafeFetch()` is a decorator rather than a global. It exists because the client snapshots the 402 response more than once around signing, and a plain `fetch` response cannot always survive that; the wrapper buffers the challenge body so each snapshot is independent. Pass it to `Mppx.create` and nothing else in the process is affected.
+
+### Progress events
+
+A charge does more work on the client than a single signature, and `onProgress` reports each stage. Useful for a CLI or an agent that should say what it is waiting on.
+
+| Event | When |
+|---|---|
+| `challenge` | The 402 arrived. Carries `recipient`, `amount`, `currency`. |
+| `preflight` | Checking the destination, reserves, rippling and any holding. |
+| `pathfinding` | Resolving a path for an issued currency. |
+| `paths_resolved` | A path was found. Carries the `strategy` and the source amount. |
+| `signing` | Building and signing the `Payment`. |
+| `signed` | Signed. Carries the `mode`. |
+| `submitting` | Push mode only: the client is broadcasting. |
+| `confirmed` | Push mode only: validated on-chain. Carries the transaction `hash`. |
+
+```ts
+xrpl.charge({
+  wallet,
+  network: 'testnet',
+  onProgress: (event) => console.log(event.type),
+})
+```
+
+Which events arrive depends on the mode and the asset. A pull-mode XRP charge, the default, reports four:
+
+```
+challenge -> preflight -> signing -> signed
+```
+
+The server submits in pull mode, so the client never observes confirmation – `submitting` and `confirmed` belong to push mode alone. `pathfinding` and `paths_resolved` appear only for an issued currency, where a path has to be found.
+
+The `paths_resolved` strategy is worth surfacing in a log: `self-issued`, `direct-trustline` or `cross-issuer` tells you which route the payment took, and a cross-issuer route is the one that can cost slippage.
+
+### Without the polyfill
+
+`Mppx.create` patches `globalThis.fetch` by default. Pass `polyfill: false` and use `mppx.fetch` directly to leave the global alone:
+
+```ts
+const mppx = Mppx.create({
+  fetch: challengeSafeFetch(),
+  polyfill: false,
+  methods: [xrpl.charge({ wallet, network: 'testnet' })],
+})
+
+const response = await mppx.fetch('https://api.example.com/my-service')
+```
+
+### Push mode
+
+```ts
+xrpl.charge({ wallet, network: 'testnet', mode: 'push' })
+```
+
+The client submits the transaction and sends its hash. Note the exposure this carries: the payer has broadcast before the server has accepted anything, and a transaction hash is public the moment it is validated, so the server must bind the payment to its challenge. It does this through [`InvoiceID`](https://xrpl.org/docs/references/protocol/transactions/common-fields), a 256-bit field covered by the transaction signature and indexed by the ledger, and push mode makes that binding mandatory.
+
+### Pinning the network
+
+A client follows the network named in the challenge, which is the right default – the server knows where it settles. One seed controls the same address on every XRPL network, so a client told `mainnet` would sign against whatever that address holds there. Passing `network` explicitly pins it, and a challenge naming another network is refused.
+
+## Configuration
+
+| Option | Side | Meaning |
+|---|---|---|
+| `recipient` | server | Address that receives payment. Server configuration only. |
+| `currency` | both | `'XRP'`, an issued currency, or an MPT. Defaults to XRP. |
+| `network` | both | `'mainnet'`, `'testnet'` or `'devnet'`. On the client it also pins. |
+| `store` | server | Replay store. Required. |
+| `storeDurability` | server | `'process-local'` acknowledges a non-durable store in development. |
+| `wallet` | client | Signing wallet. `seed` is accepted for compatibility. |
+| `mode` | client | `'pull'` (default) or `'push'`. |
+| `preflight` | client | Checks trustline, rippling and MPT holding before signing. On by default. |
+| `autoTrustline` | server | Establishes the recipient's `TrustSet`. Off by default, and needs `wallet`. |
+| `autoMPTAuthorize` | server | Establishes the recipient's MPT holding. Off by default, and needs `wallet`. |
+| `slippageBps` | client | Buffer applied to `SendMax` on issued-currency payments. |
+
+The two auto flags sit on the server, not the client, because what they establish is the *recipient's* ability to receive – and the server is the only party that can sign for the recipient. They are off by default deliberately: both change an account's financial exposure, so they are opt-in rather than something that happens because a payment needed it. Use them through `prepareRecipient` at startup.
+
+## Receipt
+
+The base MPP receipt carries a single `reference`, which the specification leaves method-specific. This method also names its parts, so nothing has to be inferred from an opaque string:
+
+| Field | Meaning |
+|---|---|
+| `txHash` | Hash of the settled transaction, 64 uppercase hex |
+| `ledgerIndex` | Index of the validated ledger it settled in |
+| `reference` | The same hash, for consumers reading the base field |
+
+The named fields are additive and survive the `Payment-Receipt` header, since the base schema is a loose object and the specification allows a method to extend it.
+
+## Errors
+
+Failures are [Problem Details](https://www.rfc-editor.org/rfc/rfc9457) on a `402`. Every payment failure is a `402`; `401` is reserved for non-payment authentication failures.
+
+Ledger result codes are mapped to typed SDK codes rather than surfaced raw. Two are worth knowing:
+
+- `PAYMENT_PATH_FAILED` is what an issued-currency misconfiguration usually produces. The ledger reports `tecPATH_DRY` for a recipient with no trustline, for a freeze on either side of a trustline, and for global freeze on the issuer, so the code alone does not say which. The preflight is what turns these into precise errors before signing.
+- `DESTINATION_PERMISSION_DENIED` means the destination refused the payment, most often because it has [deposit authorization](https://xrpl.org/docs/concepts/accounts/depositauth) set and accepts funds only from preauthorized senders. That is a configuration condition on the recipient, not a fault in the payment.

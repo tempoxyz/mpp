@@ -1,0 +1,339 @@
+---
+description: "Accept high-frequency off-chain payments in MPP over an XRP Ledger Payment Channel, settled in one closing transaction."
+imageDescription: "Off-chain payments over XRP Ledger Payment Channels"
+---
+
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+
+# XRPL session [Off-chain vouchers over a Payment Channel]
+
+The XRPL implementation of the [session](/intents/session) intent.
+
+:::info
+This method advertises the MPP session intent on the wire. The SDK keeps the name `channel` for its own exports and options, because the mechanism is an XRP Ledger [Payment Channel](https://xrpl.org/docs/concepts/payment-types/payment-channels) and calling it anything else would obscure what is created on-ledger. Challenges and credentials always say `session`.
+:::
+
+A session is carried by an XRP Ledger [Payment Channel](https://xrpl.org/docs/references/protocol/ledger-data/ledger-entry-types/paychannel): the client locks XRP on-chain once, then authorises a series of off-chain claims, each a signature over a **cumulative** total. The server redeems the highest claim it holds in a single [`PaymentChannelClaim`](https://xrpl.org/docs/references/protocol/transactions/types/paymentchannelclaim).
+
+Two on-chain transactions therefore settle an unbounded number of payments, which is what makes per-request and per-token billing viable at amounts where a transaction fee would otherwise dominate.
+
+Cumulative rather than incremental is the property that makes this safe with no coordination: a lost or reordered voucher costs nothing, because the next one supersedes it. The server need only retain the largest.
+
+Payment Channels carry XRP exclusively. For issued currencies or MPTs, use [charge](/payment-methods/xrpl/charge).
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Server
+    participant XRPL
+    Client->>XRPL: (1) PaymentChannelCreate
+    XRPL-->>Client: channelId
+    loop Per request, off-chain
+        Client->>Server: (2) GET /resource
+        Server-->>Client: 402 + Challenge (increment)
+        Client->>Server: (3) Credential (cumulative + signature)
+        Note over Server: Verify, then advance the mark
+        Server-->>Client: 200 OK + Receipt
+    end
+    Server->>XRPL: (4) PaymentChannelClaim with tfClose
+    XRPL-->>Server: Settled, deleted, deposit refunded
+`} />
+
+A channel has four phases:
+
+::::steps
+
+### Open
+
+The client submits a [`PaymentChannelCreate`](https://xrpl.org/docs/references/protocol/transactions/types/paymentchannelcreate) that locks XRP and names the key its claims will be signed with. The ledger returns the channel ID, derived from the funder, the destination and a sequence number. Either the client opens it itself with `openChannel()`, or through the 402 exchange with the [`open` action](#opening-the-channel).
+
+### Session
+
+The client signs one claim per request, each stating a cumulative total rather than an increment. The server verifies the signature against the key the channel names, checks the total rises, and advances its high-water mark. No transaction, so no fee and no wait.
+
+### Top up
+
+If the deposit runs low, the funder adds to it with `fundChannel()`, which submits a [`PaymentChannelFund`](https://xrpl.org/docs/references/protocol/transactions/types/paymentchannelfund). The channel stays open and claims already signed stay valid. `remainingDrops` on [`onVoucherAccepted`](#monitoring) is what shows it coming.
+
+### Close
+
+One [`PaymentChannelClaim`](https://xrpl.org/docs/references/protocol/transactions/types/paymentchannelclaim) with `tfClose` settles the highest claim held, deletes the channel and refunds the unspent deposit to the funder. Immediate from the destination, scheduled from the funder – see [Closing](#closing).
+
+::::
+
+## Server
+
+```ts
+import { Mppx, Store, xrpl } from 'xrpl-mpp-sdk/channel/server'
+
+const mppx = Mppx.create({
+  secretKey: process.env.MPP_SECRET_KEY!,
+  methods: [
+    xrpl.channel({
+      recipient: process.env.XRPL_CHANNEL_RECIPIENT!,
+      network: 'testnet',
+      store,
+      // Signing wallet for the closing transaction. Providing it also turns
+      // on the auto-close sweeper.
+      wallet,
+    }),
+  ],
+})
+
+const handler = mppx['xrpl/session']({
+  amount: '100000', // 0.1 XRP per request, in drops
+  channelId: '',    // no channel pinned: each credential names its own
+  recipient: process.env.XRPL_CHANNEL_RECIPIENT!,
+})
+```
+
+Note what is *not* configured. A client chooses its channel key and receives
+its channel id from its own `PaymentChannelCreate`, so a server accepting
+callers it has not met can know neither in advance – and does not have to.
+Claims verify against the key each channel names on the ledger, and every
+credential names the channel it pays through. One server serves any number of
+unrelated funders.
+
+Set a `channelId` only when a route bills one specific channel that you
+already know.
+
+`session` is the intent identifier on the wire. The SDK keeps the name `channel` for its own exports, since the mechanism is an XRPL Payment Channel, but advertises and accepts `session` in challenges and credentials.
+
+## Client
+
+```ts
+import { Mppx, Wallet, openChannel, xrpl } from 'xrpl-mpp-sdk/channel/client'
+import { challengeSafeFetch } from 'xrpl-mpp-sdk/client'
+
+const wallet = Wallet.fromSeed(process.env.XRPL_SEED!)
+
+// One on-chain transaction opens the channel.
+const { channelId } = await openChannel({
+  wallet,
+  destination: process.env.XRPL_DEST!,
+  amount: '5000000',     // 5 XRP deposited
+  settleDelay: 3600,     // one hour
+  network: 'testnet',
+})
+
+const mppx = Mppx.create({
+  fetch: challengeSafeFetch(),
+  // `channelId` is the one we just opened. The server advertises none, so we
+  // name it -- and the client tracks the cumulative it has signed per channel,
+  // so it resumes correctly without being told where it left off.
+  methods: [xrpl.channel({ wallet, channelId, network: 'testnet' })],
+})
+
+// Every request after this is off-chain.
+for (let i = 0; i < 100; i++) {
+  const response = await mppx.fetch('https://api.example.com/resource')
+  console.log(response.status)
+}
+```
+
+## Opening the channel
+
+A credential carries an `action`, and the wire protocol defines three: `open`, `voucher` (the default) and `close`.
+
+The client example above opens the channel with its own transaction, which leaves the server to learn the `channelId` some other way – a setup endpoint of your own, or configuration. The `open` action removes that: the client signs the [`PaymentChannelCreate`](https://xrpl.org/docs/references/protocol/transactions/types/paymentchannelcreate) and sends the blob as a credential, the server broadcasts it, reads the `channelId` out of the transaction metadata, initialises tracking, and returns it as `channelId` on the receipt. No endpoint outside the 402 flow, and no channel ID handed around out of band.
+
+```ts
+import { prepareOpenChannelTransaction } from 'xrpl-mpp-sdk/channel/client'
+
+// One call. No xrpl.js Client or Wallet to manage, and it runs the
+// owner-reserve preflight so a typed error surfaces here rather than as a
+// ledger result at submit time.
+const { txBlob } = await prepareOpenChannelTransaction({
+  wallet,
+  destination: process.env.XRPL_DEST!,
+  amount: '10000000',   // 10 XRP
+  settleDelay: 3600,
+  network: 'testnet',
+})
+```
+
+The server side needs no extra configuration: the same `xrpl.channel` method handles an `open` credential and a `voucher` credential, and it holds the recipient wallet already if auto-close is on.
+
+## Verification
+
+A voucher is checked in this order, cheapest first:
+
+1. **Size and shape** before parsing, so an oversized credential is rejected without work.
+2. **The claim signature**, over the channel ID and the cumulative amount, against the channel's authorised public key. Local, no round trip, and it works for [either key type](https://xrpl.org/docs/concepts/accounts/cryptographic-keys) alike.
+3. **The sender**, derived from the credential's DID and matched against the channel's funder.
+4. **Channel state on-chain**: that it exists, pays this recipient, matches the expected key, carries an acceptable [`SettleDelay`](https://xrpl.org/docs/concepts/payment-types/payment-channels), has deposit left, and is not inside its closing window.
+5. **Monotonicity**: the new cumulative must be strictly greater than the high-water mark held for that channel, and greater by at least the amount the challenge asked for.
+
+That last check is the one most easily missed. A first voucher on a fresh channel has no previous mark to exceed, so a check written only against the mark would accept any positive amount – one drop satisfying a one-XRP request.
+
+The state read is cached per channel, so in practice a session costs roughly one ledger lookup on the first voucher and signature-only checks after it.
+
+It cannot be turned off. The channel is also where the key each claim verifies against comes from, so skipping the read would leave nothing to verify. Supply `channelLookup` to read channel state from your own infrastructure instead of a public node.
+
+## Closing
+
+:::warning[Collecting is the server's responsibility]
+Signed vouchers are not money. They become money only when the server posts a claim on-chain. If a channel reaches its `Expiration` with vouchers unredeemed, anyone can close it and **every undelivered drop returns to the funder** – the server keeps nothing, however many vouchers it holds.
+
+[`autoClose`](#auto-close) makes the common case automatic, but it is a convenience and not a guarantee: it runs inside your server process, so a crash, a restart, a lost ledger connection or an unreachable store will stop it sweeping. Redemption stays the operator's responsibility – monitor it, and reconcile what a channel owes you against what it actually delivered.
+:::
+
+```ts
+import { close } from 'xrpl-mpp-sdk/channel/server'
+
+const { txHash } = await close({
+  wallet,                    // recipient wallet
+  channelId,
+  amount: cumulative,        // the highest cumulative held
+  signature,                 // its matching signature
+  channelPublicKey,
+  network: 'testnet',
+})
+```
+
+One transaction does the whole job. `PaymentChannelClaim` with `tfClose` settles the cumulative amount, deletes the channel entry, and returns the unspent deposit to the funder.
+
+The ledger accepts `tfClose` from **either** party, and the effect differs by sender:
+
+- From the **destination**, the channel closes immediately.
+- From the **source**, closure is scheduled rather than immediate: the ledger sets the channel's `Expiration` to `SettleDelay` seconds ahead. The source cannot close a channel that still holds XRP any faster than that.
+
+That delay is the destination's protection, and it is a deadline rather than a courtesy. Nothing is credited automatically: the server has to post its own `PaymentChannelClaim` before `Expiration` passes. Once it passes, anyone can close the channel, and whatever was never claimed goes back to the funder. Signed vouchers left unredeemed at that point are worth nothing.
+
+So reject a channel whose `SettleDelay` is below your configured minimum – the SDK's default floor is one hour – and watch `closesAt` on each accepted voucher, which is what the auto-close sweeper below exists to handle.
+
+The submitted `Balance` must be the exact drop count the signature covers. If the two disagree the ledger rejects the signature and the earned value becomes unredeemable.
+
+`Balance` is the running total the channel has delivered, not an increment, and the ledger requires each claim to raise it. That is what makes claiming repeatable: a `PaymentChannelClaim` without `tfClose` credits the difference and leaves the channel open, so the server can redeem as often as it likes while vouchers keep arriving. Claim at 500 drops, then at 900, and the second delivers the 400 in between.
+
+Whether to claim once at the end or several times along the way is a risk decision. One closing claim costs one fee. Claiming periodically costs a fee each time, but caps what is at stake if the funder closes and the settle window is missed.
+
+A claim is a transaction from the destination account, so **the server needs the recipient's key**. That is the practical cost of this intent, and it is specific to it: a [charge](/payment-methods/xrpl/charge) server needs no key of its own, because the payer signs and the server verifies and submits what it was handed. A deployment that cannot hold a key can still take charges, but it cannot collect a session.
+
+### Auto-close
+
+Passing that `wallet` also turns on a sweeper, which closes any channel idle longer than `idleMs`. Without it, a client that simply walks away leaves the server holding signed vouchers and no money:
+
+```ts
+// Server side.
+import { xrpl } from 'xrpl-mpp-sdk/channel/server'
+
+xrpl.channel({
+  recipient,
+  network: 'testnet',
+  store,
+  wallet,
+  autoClose: { idleMs: 30_000 },
+})
+```
+
+It reads the highest cumulative persisted for the channel, submits the claim with `tfClose`, and marks the channel finalized in the store so later vouchers are rejected without a ledger read. Idempotent: it no-ops if the channel is already finalized or redeemed.
+
+Setting `cancelAfter` at channel creation remains worth doing, as a backstop for a server that never runs the sweep at all.
+
+## Monitoring
+
+There is no contract to emit events, so the server reports through callbacks as it works.
+
+```ts
+xrpl.channel({
+  recipient,
+  network: 'testnet',
+  store,
+  wallet,
+
+  // Every accepted voucher, with what a close would still yield.
+  onVoucherAccepted: ({ channelId, cumulative, remainingDrops, closesAt }) => {
+    metrics.gauge('channel.remaining', Number(remainingDrops), { channelId })
+    if (closesAt) log.info(`channel ${channelId} closes at ${closesAt}`)
+  },
+
+  // The funder has started closing while value is still unredeemed.
+  onDisputeDetected: ({ channelId, cancelAfter, balance }) => {
+    log.warn(`channel ${channelId} closing at ${cancelAfter}, balance ${balance}`)
+  },
+
+  autoClose: {
+    idleMs: 30_000,
+    onClose: ({ channelId, cumulative, txHash }) => {
+      log.info(`settled ${cumulative} drops: https://testnet.xrpl.org/transactions/${txHash}`)
+    },
+    onError: ({ channelId, error }) => log.error(`close failed for ${channelId}`, error),
+  },
+})
+```
+
+`remainingDrops` is the number to watch: it is what a close would still yield, and it falling toward zero is the signal to close or ask the funder to top up with [`PaymentChannelFund`](https://xrpl.org/docs/references/protocol/transactions/types/paymentchannelfund).
+
+`onDisputeDetected` fires on a channel that carries a `CancelAfter` – a hard deadline the funder set when opening it – while that deadline is still further out than the settlement margin. It is a standing clock rather than an event: once `CancelAfter` passes, anyone may delete the channel and anything unredeemed returns to the funder. A funder who instead starts closing an open-ended channel sets `Expiration`, and a voucher inside that window is refused with `CHANNEL_CLOSING` rather than reported here.
+
+When you open a channel yourself, `cancelAfter` takes a `Date`, Unix milliseconds or an ISO string.
+
+## Configuration
+
+### `recipient` and `wallet`
+
+Both name the same XRPL account, and passing two different addresses is rejected at construction. They are not the same thing, though, which is why there are two:
+
+`recipient` is a fact about the payment – the address the channel must pay, checked against the channel's on-ledger `Destination`. `wallet` is a capability: holding the key that signs the closing claim.
+
+That distinction is what makes each one alone useful.
+
+**`recipient` alone** verifies vouchers without holding a key. Auto-close switches itself off, because there is nothing to sign with. This is the shape for a server whose replicas serve traffic while a separate process holds the key and does the collecting – no signing key in every instance.
+
+**`wallet` alone** derives `recipient` from it and turns auto-close on. That is the single-process shortcut.
+
+Give neither and the `Destination` check is skipped, with a warning: a funder could then open a channel to an address of its own and receive service against claims you can never redeem.
+
+### Pinning the network
+
+As on [charge](/payment-methods/xrpl/charge): a client follows the network named in the challenge unless `network` was passed explicitly, which pins it and refuses a challenge naming another.
+
+It is worth doing here for one more reason. Answering an `open` challenge means submitting a `PaymentChannelCreate`, so following the challenge deposits real XRP on that ledger – and since one seed controls the same address everywhere, it comes out of a funded account whatever the client was configured for.
+
+| Option | Side | Meaning |
+|---|---|---|
+| `recipient` | server | Address the channel must pay. Defaults to the `wallet` address. |
+| `channelId` | client | Channel to pay through, when the challenge names none. |
+| `openChannel` | client | Deposit and settle delay for an `open` action, so the SDK can build the transaction from the challenge. |
+| `store` | server | High-water mark store. Required. |
+| `wallet` | both | Client: signs vouchers. Server: signs the closing claim and enables auto-close. Must be the `recipient` account. |
+| `network` | both | `'mainnet'`, `'testnet'` or `'devnet'`. |
+| `channelLookup` | server | Read channel state from your own infrastructure rather than a public node. |
+| `minSettleDelay` | server | Floor on an acceptable `SettleDelay`, in seconds. One hour by default. |
+| `settlementMarginMs` | server | Refuses a voucher this close to `Expiration` or `CancelAfter`. |
+| `channelMetadataTtlMs` | server | Lifetime of the cached channel state. Capped at half the settlement margin. |
+| `autoClose` | server | `false`, or `{ idleMs, onClose, onError }`. |
+
+## Store durability
+
+The high-water mark is what stops a voucher being spent twice, so the store is authoritative rather than a cache. It has to be shared across every process serving a channel and to survive restarts: a read followed by a write lets two replicas credit the same voucher, and a mark lost to a restart lets every voucher be replayed. The update is a compare-and-set for that reason.
+
+`Store.memory()` is for development. Above one instance, use anything that supports an atomic compare-and-set: `Store.redis()`, `Store.upstash()` and `Store.cloudflare()` come from `mppx`, and `sqlStore` and `dynamodbStore` come from this SDK for deployments that would rather keep the records in a database they already operate.
+
+## Receipt
+
+A session receipt identifies the claim rather than a transaction, so it names the channel and the running total:
+
+| Field | Voucher | Open |
+|---|---|---|
+| `channelId` | yes | yes |
+| `cumulative` | total after this voucher | initial commitment, when non-zero |
+| `txHash` | absent | hash of the `PaymentChannelCreate` the server submitted |
+
+A voucher carries no `txHash`, and that is not an omission: the claim settles nothing on its own, and no transaction exists until the channel is closed.
+
+## Errors
+
+Distinct conditions are reported distinctly, because they mean different things to a client:
+
+| Code | Meaning |
+|---|---|
+| `INVALID_SIGNATURE` | The claim does not verify against the channel's public key |
+| `REPLAY_DETECTED` | The cumulative equals the stored mark |
+| `CHANNEL_EXHAUSTED` | The claim exceeds the remaining deposit |
+| `CHANNEL_CLOSING` | The channel is inside its settlement margin |
+| `CHANNEL_EXPIRED` | `Expiration` elapsed, or the channel was finalized |
+| `CHANNEL_NOT_FOUND` | No such channel on the ledger, or it has been deleted |
+| `CHANNEL_SETTLE_DELAY_TOO_SHORT` | Below the configured floor |
