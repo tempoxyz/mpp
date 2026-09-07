@@ -19,6 +19,21 @@ export default function Root({ children }: { children: React.ReactNode }) {
     >
       <head>
         <meta charSet="utf-8" />
+        {/* Waku renders this document directly, without transformIndexHtml. */}
+        <link
+          rel="preload"
+          href="/fonts/Geist-Variable.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/GeistMono-Variable.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link rel="stylesheet" href={vocsStylesUrl} />
         {userStylesUrl && <link rel="stylesheet" href={userStylesUrl} />}
         {groupIconsStylesUrl && (

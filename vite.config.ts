@@ -8,6 +8,7 @@ import { defineConfig, loadEnv } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import { configDefaults } from "vitest/config";
 import { vocs } from "vocs/vite";
+import { clientConfig } from "./scripts/client-config.js";
 import { assertSitemapXml, pruneSitemapXml } from "./scripts/sitemap.js";
 import { blogContent } from "./scripts/vite-blog.js";
 
@@ -19,43 +20,6 @@ const commitTimestamp = child_process
   .execSync("git log -1 --format=%cI")
   .toString()
   .trim();
-
-// Preload only the fonts needed above the fold to avoid competing for
-// bandwidth with other critical resources. Geist-Regular covers body text
-// and Geist-Medium covers h1–h3 headings (font-weight 450–500). The remaining
-// fonts (GeistMono, GeistPixel-Square, Geist-Bold) load lazily via
-// font-display: swap in _root.css when code blocks or diagrams scroll into view.
-function preloadFonts(): Plugin {
-  return {
-    name: "preload-fonts",
-    transformIndexHtml() {
-      return [
-        {
-          tag: "link",
-          attrs: {
-            rel: "preload",
-            as: "font",
-            type: "font/woff2",
-            href: "/fonts/Geist-Regular.woff2",
-            crossorigin: "anonymous",
-          },
-          injectTo: "head",
-        },
-        {
-          tag: "link",
-          attrs: {
-            rel: "preload",
-            as: "font",
-            type: "font/woff2",
-            href: "/fonts/Geist-Medium.woff2",
-            crossorigin: "anonymous",
-          },
-          injectTo: "head",
-        },
-      ];
-    },
-  };
-}
 
 function stubRehypeMermaid(): Plugin {
   return {
@@ -294,7 +258,7 @@ export default defineConfig(({ mode }) => {
       include: ["@braintree/sanitize-url", "dayjs"],
     },
     plugins: [
-      preloadFonts(),
+      clientConfig(),
       stubRehypeMermaid(),
       stubMermaid(),
       Icons({ compiler: "jsx", jsx: "react" }),

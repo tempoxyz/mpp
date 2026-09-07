@@ -1,9 +1,12 @@
+/* Preloaded in _root.tsx. If a cold connection misses the first render,
+ * keep the fallback for this navigation instead of reflowing the page.
+ * Vocs uses ch-based content/gutter widths, so a late swap moves the shell too. */
 @font-face {
   font-family: "Geist Variable";
   src: url("/fonts/Geist-Variable.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 @font-face {
@@ -11,7 +14,7 @@
   src: url("/fonts/GeistMono-Variable.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 @font-face {
@@ -1262,8 +1265,8 @@ nav[data-v-sidebar] {
     Helvetica, Arial, sans-serif;
 
   --font-mono:
-    "Geist Mono Variable", "Geist Pixel Square", ui-monospace, SFMono-Regular,
-    Menlo, Monaco, Consolas, monospace;
+    "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, monospace;
 
   --vocs-leading-code: 1.6em;
   --vocs-spacing-code-block-px: 1rem;

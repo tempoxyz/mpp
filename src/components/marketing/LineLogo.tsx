@@ -1,10 +1,7 @@
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { cx } from "./cx";
 import { type LineLogoName, lineLogos } from "./lineLogos";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const slot = (rect: SVGRectElement) => ({
   width: Number(rect.dataset.sw),
@@ -39,24 +36,47 @@ export function LineLogo({
     const ys = elements.map((rect) => Number(rect.getAttribute("y")) || 0);
     const min = Math.min(...ys);
     const range = Math.max(...ys) - min || 1;
-    const context = gsap.context(() => {
-      const timeline = gsap.timeline({
-        scrollTrigger: {
-          end: "bottom bottom",
-          scrub: 2,
-          start: "top center",
-          trigger: svg.closest("footer") ?? svg,
-        },
-      });
-      elements.forEach((rect, index) => {
-        timeline.from(
-          rect,
-          { attr: slot(rect), duration: 2, ease: "expo.out" },
-          ((ys[index] - min) / range) * 2,
-        );
-      });
-    }, svg);
-    return () => context.revert();
+    let cancelled = false;
+    let context: gsap.Context | undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        // Keep the server-rendered logo visible while the optional plugin loads.
+        void import("gsap/ScrollTrigger")
+          .then(({ ScrollTrigger }) => {
+            if (cancelled) return;
+            gsap.registerPlugin(ScrollTrigger);
+            context = gsap.context(() => {
+              const timeline = gsap.timeline({
+                scrollTrigger: {
+                  end: "bottom bottom",
+                  scrub: 2,
+                  start: "top center",
+                  trigger: svg.closest("footer") ?? svg,
+                },
+              });
+              elements.forEach((rect, index) => {
+                timeline.from(
+                  rect,
+                  { attr: slot(rect), duration: 2, ease: "expo.out" },
+                  ((ys[index] - min) / range) * 2,
+                );
+              });
+            }, svg);
+          })
+          .catch(() => {
+            // The static logo remains usable if the animation cannot load.
+          });
+      },
+      { rootMargin: "300px" },
+    );
+    observer.observe(svg.closest("footer") ?? svg);
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+      context?.revert();
+    };
   }, [mode]);
 
   useLayoutEffect(() => {
