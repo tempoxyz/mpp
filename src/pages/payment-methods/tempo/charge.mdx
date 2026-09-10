@@ -87,6 +87,24 @@ const result = await mppx.charge({
 
 When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`) before broadcasting. The client doesn't need gas tokens. See [fee sponsorship](/payment-methods/tempo#fee-sponsorship) for details.
 
+### With MACH funding
+
+Set `machineTokenEnabled: true` to let compatible clients fund a single-recipient stablecoin charge with MACH. Keep `currency` set to the token the recipient receives.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      machineTokenEnabled: true, // [!code hl]
+    }),
+  ],
+})
+```
+
+The server advertises the option in its Challenge. The client uses MACH only when it verifies the configured swapper route and has sufficient balance. Otherwise, it pays the stablecoin requested by the Challenge. Split charges use the standard stablecoin path.
+
 ### Zero-dollar auth
 
 Set `amount: "0"` to issue an identity-only Challenge. The client returns a `proof` payload instead of `transaction` or `hash`, and the server verifies the signature against the `source` DID.
@@ -200,9 +218,7 @@ See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge
 
 ## Client
 
-Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. For non-zero amounts, the client signs a TIP-20 transfer and retries with the Credential. For zero-amount Challenges, it signs a proof message and retries with a `proof` payload instead.
-
-The client also supports MACH charges. It automatically pays transaction fees with a funded supported stablecoin, so a payer doesn't need additional MACH for fees. Use [`mach`](/sdk/typescript/tempo.mach) from `mppx/tempo` to resolve the deployed address on Tempo mainnet or Moderato testnet.
+Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. For non-zero amounts, the client signs a TIP-20 transfer and retries with the Credential. When the server advertises MACH funding, the client can route MACH through the configured swapper without additional client configuration. For zero-amount Challenges, it signs a proof message and retries with a `proof` payload instead.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">

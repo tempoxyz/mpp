@@ -146,6 +146,24 @@ const mppx = Mppx.create({
 })
 ```
 
+### With MACH funding
+
+Keep the charge currency set to the stablecoin the recipient receives, then enable the configured MACH swapper for compatible clients.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      machineTokenEnabled: true, // [!code focus]
+    }),
+  ],
+})
+```
+
+The client uses MACH when the route is verified and its balance is sufficient. Otherwise, it pays the stablecoin requested by the Challenge. Split charges use the standard stablecoin path.
+
 ### With Tempo API relay
 
 Delegate Tempo charge validation and finalization to Tempo API. The relay preserves this method's Challenge configuration and needs an API key with the `mpp:write` scope. It broadcasts `pull` Credentials and recognizes `push` Credentials as already broadcast.
@@ -284,6 +302,13 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 
 Renders a payment page when the request accepts `text/html`. Pass an object to customize the page.
 
+### machineTokenEnabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Advertises the configured MACH settlement route for compatible single-recipient charges. Clients try MACH before `autoSwap` or the requested stablecoin transfer. Unsupported chains reject the request.
+
 ### memo (optional)
 
 - **Type:** `string`
@@ -398,6 +423,12 @@ ISO 8601 timestamp for when the payment Challenge expires.
 - **Type:** `Record<string, string>`
 
 Server-defined correlation data. `mppx` serializes it as the base64url-encoded `opaque` auth-param on the Challenge, and clients echo that same string back in the Credential.
+
+### machineTokenEnabled (optional)
+
+- **Type:** `boolean`
+
+Overrides MACH settlement for this request. The configured method default applies when omitted.
 
 ### recipient
 

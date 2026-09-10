@@ -196,6 +196,8 @@ When `Fetch.from` or `Mppx.create` opens a channel automatically, it keeps the n
 
 Direct Credential creation and `tempo.session.manager()` keep explicit lifecycle ownership.
 
+When the server advertises MACH funding, the client uses MACH if a verified route and sufficient balance are available. Otherwise, it opens the channel in the requested stablecoin. The channel keeps that rail until it closes; no client option is required.
+
 ## Return type
 
 ```ts

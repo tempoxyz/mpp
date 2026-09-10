@@ -125,6 +125,13 @@ Account or remote service for sponsoring transaction fees. Pass a viem `Account`
 
 Function that returns a viem client for the given chain ID. Overrides the default RPC configuration.
 
+### machineTokenEnabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Enables MACH funding for the generated `tempo.charge` and `tempo.session` methods. Compatible clients use MACH when a verified route and sufficient balance are available, then fall back to the requested stablecoin.
+
 ### onPaymentSuccess (optional)
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge> & Method.OnPaymentSuccessFn<typeof tempo.Methods.session>`

@@ -80,6 +80,30 @@ const mppx = Mppx.create({
 })
 ```
 
+### With MACH funding
+
+Keep the Session currency set to the stablecoin the recipient receives, then enable MACH funding for compatible clients.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      machineTokenEnabled: true, // [!code focus]
+      store: Store.memory(),
+    }),
+  ],
+})
+```
+
+The client uses MACH when the route is verified and its balance is sufficient. Otherwise, it opens the channel in the requested stablecoin. A Session stays on its selected payment rail until it closes.
+
 ## Migrate from Legacy Sessions
 
 Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so existing clients keep working while new clients use Sessions. This server-side migration configuration requires `mppx` 0.8.15 or earlier.
@@ -246,6 +270,13 @@ Fee token used for Session management, scheduled settlement, and cooperative clo
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
+
+### machineTokenEnabled (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Advertises MACH funding when the configured router is available. Clients use MACH when a verified route and sufficient balance are available, then fall back to the requested stablecoin.
 
 ### minVoucherDelta (optional)
 

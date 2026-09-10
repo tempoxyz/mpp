@@ -18,7 +18,7 @@ console.log(token.symbol)
 // @log: MACH
 ```
 
-When a Tempo charge requests MACH, the `mppx` client automatically selects a funded supported stablecoin for transaction fees. The payer doesn't need to hold extra MACH for fees.
+Use this helper for balances, spending limits, and display. Keep the server's payment currency set to the stablecoin the recipient receives. To accept MACH-funded payments, set `machineTokenEnabled: true` on the Tempo server method; compatible clients route MACH through the configured swapper.
 
 ## Return type
 
