@@ -55,6 +55,8 @@ export async function handler(request: Request) {
 }
 ```
 
+EVM charge supports the split validation lifecycle. [`validateCredential()`](/sdk/typescript/server/Mppx.validateCredential) checks the signature, Challenge binding, payment terms, validity window, and source without settlement. Facilitator-backed methods also verify with the facilitator, then [`broadcastCredential()`](/sdk/typescript/server/Mppx.broadcastCredential) rechecks before settling. Custom `settle` callbacks remain responsible for chain-state checks and replay protection.
+
 ## Client
 
 Use `evm.charge` with `Fetch.from` to automatically handle `402` responses. The client signs native MPP EVM charge Challenges, route-bound x402 exact Challenges, and standard x402 v2 EIP-3009 Challenges without the optional `mppx` extension, including Challenges from official Coinbase x402 resource servers.
@@ -79,6 +81,8 @@ const response = await fetch('https://api.example.com/paid')
 console.log(response.status)
 // @log: 200
 ```
+
+To inspect payment terms before selecting a signer, omit `account`, call [`preparePayment()`](/sdk/typescript/client/Mppx.preparePayment), then pass `{ account }` to the prepared payment's `createCredential()` method.
 
 ## Known assets
 

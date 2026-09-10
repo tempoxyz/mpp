@@ -42,9 +42,11 @@ const handler = payment.charge({
 })
 ```
 
-The shorthand applies `canOffer` and `selectOffers`, just like `payment.compose()`. Use [`Mppx.compose`](/sdk/typescript/server/Mppx.compose) when methods need different request options or one method needs multiple offers.
+Over HTTP, the shorthand applies `canOffer` and `selectOffers`, just like `payment.compose()`. Use [`Mppx.compose`](/sdk/typescript/server/Mppx.compose) when methods need different request options or one method needs multiple offers.
 
 The Express, Hono, Next.js, and Elysia adapters preserve this composed shorthand, so one `mppx.charge()` handler returns a Challenge for every available method.
+
+MCP SDK and raw MCP transports also support composed shorthand and instance `compose()`. They return every available Challenge in one payment-required error, then dispatch the selected Credential to one matching handler.
 
 ### With application authentication
 

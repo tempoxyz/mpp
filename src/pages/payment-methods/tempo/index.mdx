@@ -102,4 +102,6 @@ const mppx = Mppx.create({
 })
 ```
 
+Local sponsors allow transactions to install access keys by default. Set `feePayerPolicy.allowKeyAuthorization` to `false` when a sponsor doesn't serve subscriptions or other access-key flows and must reject those transactions.
+
 For Sessions, pass the same `feePayer` parameter to [`tempo.session`](/sdk/typescript/server/Method.tempo.session) alongside `account` and `store`. A fee payer service sponsors open, top-up, scheduled settlement, and cooperative close transactions. For pull-mode charges, `mppx` sends fill requests through the configured fee-payer transport, then broadcasts the completed transaction through the chain RPC transport.

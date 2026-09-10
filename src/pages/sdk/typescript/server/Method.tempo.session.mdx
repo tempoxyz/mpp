@@ -231,9 +231,11 @@ A remote fee payer service sponsors server-driven scheduled settlement and coope
 
 ### feePayerPolicy (optional)
 
-- **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
+- **Type:** `Partial<{ allowKeyAuthorization: boolean; maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
 
 Override the local fee-sponsor policy used for sponsored open and top-up transactions and server-driven close transactions.
+
+`allowKeyAuthorization` defaults to `true`. Set it to `false` when the sponsor must reject transactions that install a new access key.
 
 ### feeToken (optional)
 

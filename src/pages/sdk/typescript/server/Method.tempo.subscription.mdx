@@ -2,6 +2,8 @@
 
 Creates a Tempo subscription method for server-side activation, access reuse, and renewal.
 
+Activation verifies that the signed Tempo key authorization witness matches the server-issued Challenge ID, preventing reuse across equivalent Challenges.
+
 ## Usage
 
 ```ts twoslash
@@ -232,6 +234,8 @@ Application-defined identifier for reconciliation.
 - **Type:** `Partial<FeePayer.Policy>`
 
 Overrides the fee-sponsor limits used for subscription activation and renewal transactions.
+
+`allowKeyAuthorization` defaults to `true`. Setting it to `false` rejects sponsored transactions that install the subscription access key.
 
 ### getClient (optional)
 

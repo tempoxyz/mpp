@@ -82,6 +82,35 @@ The client signs native MPP EVM charge Challenges, route-bound x402 exact Challe
 
 For x402, the client requires resource information and EIP-3009 token name and version metadata. It enforces the configured network, currency, and amount policies before signing, skips unsupported or rejected offers, and selects a later compatible offer when available.
 
+## Advanced options
+
+### Defer signer selection
+
+Omit `account` when you need to inspect or approve the selected Challenge before choosing a signer. Pass the account to `createCredential()` after `preparePayment()` returns.
+
+```ts twoslash
+import { Mppx, evm } from 'mppx/client'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare const response: Response
+
+const mppx = Mppx.create({
+  methods: [
+    evm.charge({
+      currencies: [evm.assets.base.USDC],
+      maxAmount: '1.00',
+    }),
+  ],
+  polyfill: false,
+})
+
+const payment = await mppx.preparePayment(response)
+const credential = await payment.createCredential({ account })
+```
+
+The request-local account overrides a constructor-level account. If neither location supplies a typed-data signer, Credential creation fails without signing or settling anything.
+
 ## Return type
 
 ```ts
@@ -92,11 +121,11 @@ type ReturnType = Method.Client
 
 ## Parameters
 
-### account
+### account (optional)
 
 - **Type:** `Account`
 
-Account that signs EVM charge Credentials.
+Account that signs EVM charge Credentials. Omit it to choose an account through Credential context after payment preparation.
 
 <Tabs stateKey="wallet-provider">
 <Tab title="Direct">

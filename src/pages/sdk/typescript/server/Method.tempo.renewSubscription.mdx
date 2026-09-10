@@ -74,6 +74,8 @@ type ReturnType = Promise<
 
 Overrides the fee-sponsor limits used for the renewal transaction.
 
+`allowKeyAuthorization` defaults to `true`. Set it to `false` when the sponsor must reject transactions that install a new access key.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`

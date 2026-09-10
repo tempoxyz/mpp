@@ -1,6 +1,6 @@
 # `Mppx.compose` [Present multiple payment options]
 
-Combines multiple method handlers into a single route handler that presents all methods to the client via multiple `WWW-Authenticate` headers.
+Combines multiple method handlers into one HTTP or MCP handler that presents every payment offer to the client.
 
 ## Usage
 
@@ -35,6 +35,37 @@ export async function handler(request: Request) {
 }
 ```
 
+### With MCP
+
+Use instance composition with `Transport.mcpSdk()` to offer multiple payment options from one MCP tool. The transport returns every Challenge in the payment-required error and dispatches the selected Credential to one matching handler.
+
+```ts twoslash
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { Mppx, tempo, Transport } from 'mppx/server'
+
+const pathUSD = '0x20c0000000000000000000000000000000000000'
+const USDCe = '0x20C000000000000000000000b9537d11c60E8b50'
+const charge = tempo.charge({
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+const mppx = Mppx.create({
+  methods: [charge],
+  transport: Transport.mcpSdk(),
+})
+
+const server = new McpServer({ name: 'example', version: '1.0.0' })
+
+server.registerTool('premium', { description: 'Read premium data' }, async (extra) => {
+  const result = await mppx.compose(
+    [charge, { amount: '1', currency: pathUSD }],
+    [charge, { amount: '1', currency: USDCe }],
+  )(extra)
+
+  if (result.status === 402) throw result.challenge
+  return result.withReceipt({ content: [{ text: 'Premium data', type: 'text' }] })
+})
+```
+
 ### Nested compositions
 
 Use the static `Mppx.compose()` function to combine configured handlers or another composed handler. Credential dispatch and discovery metadata include every nested offer.
@@ -53,11 +84,12 @@ const paid = Mppx.compose(
 
 ## Behavior
 
-- **No Credential present:** Calls all handlers and merges their `402` Challenges into a single response with multiple `WWW-Authenticate` headers.
-- **Intent shorthand:** When multiple registered methods share an intent, `mppx.charge(options)` and other intent functions implicitly compose every matching method. Use explicit composition when offers need different options.
-- **Offer policies:** Calls each method's `canOffer` hook, then the instance-level [`selectOffers`](/sdk/typescript/server/Mppx.create#selectoffers-optional) hook, before generating Payment auth, x402, or HTML offers. Static compositions apply `canOffer`; direct method handlers don't.
+- **No Credential over HTTP:** Calls all handlers and merges their `402` Challenges into a single response with multiple `WWW-Authenticate` headers.
+- **No Credential over MCP:** Calls all handlers and combines their Challenges in configured order. MCP SDK transport returns an `McpError`; raw MCP transport preserves the JSON-RPC request ID.
+- **Intent shorthand:** When multiple registered methods share an intent, `mppx.charge(options)` and other intent functions implicitly compose every matching method over HTTP or MCP. Use explicit composition when offers need different options.
+- **Offer policies:** HTTP composition calls each method's `canOffer` hook, then the instance-level [`selectOffers`](/sdk/typescript/server/Mppx.create#selectoffers-optional) hook, before generating Payment auth, x402, or HTML offers. MCP composition requires methods that use the configured MCP transport and rejects HTTP `canOffer` hooks. Static compositions apply `canOffer`; direct method handlers don't.
 - **`Accept-Payment` present:** Ranks and filters the merged Challenges by the client's supported `method/intent` entries. Entries with `q=0` are excluded. If the header is invalid or filters out every Challenge, all Challenges are returned.
-- **Credential present:** Dispatches to the handler matching the Credential's `method` and `intent` without re-running offer policies.
+- **Credential present:** Dispatches to exactly one handler matching the Credential's method, intent, request terms, and scope without re-running offer policies. MCP verification failures don't fall through to another offer.
 - **Discovery enabled:** Exposes every configured offer to `discovery()` and proxy metadata, including offers from nested compositions.
 
 ## Signatures
@@ -67,8 +99,10 @@ const paid = Mppx.compose(
 ```ts
 type InstanceCompose = (
   ...entries: readonly [Method.Server | MethodHandler | string, Options][]
-) => ComposedHandler
+) => ComposedHandler<Transport>
 ```
+
+Instance composition supports HTTP, MCP SDK, and raw MCP transports.
 
 ### Static
 
@@ -78,12 +112,14 @@ type StaticCompose = (
 ) => ComposedHandler
 ```
 
+Static composition combines configured HTTP handlers and supports nested compositions.
+
 ## Return type
 
 ```ts
-type ReturnType = (input: Request) => Promise<
-  | { status: 402; challenge: Response }
-  | { status: 200; withReceipt: <T>(response: T) => T }
+type ReturnType<Transport> = (input: InputOf<Transport>) => Promise<
+  | { status: 402; challenge: ChallengeOutputOf<Transport> }
+  | { status: 200; withReceipt: WithReceipt<Transport> }
 >
 ```
 

@@ -55,13 +55,16 @@ A Tempo subscription uses a key authorization. The client authorizes a scoped ac
 
 The first request activates the subscription. The server resolves the request to a stable lookup key, such as `user:123:plan:pro`, and includes an access key in the Challenge. The client signs a `keyAuthorization` Credential that binds:
 
+- `accessKey`
 - `amount`
+- `challenge.id`
 - `currency`
 - `periodCount`
 - `periodUnit`
 - `recipient`
 - `subscriptionExpires`
-- `accessKey`
+
+The client signs the server-issued Challenge ID as the Tempo key authorization witness. The server rejects an authorization copied from another Challenge, even when the subscription terms match.
 
 The server verifies the Credential, charges the first period, stores a `SubscriptionRecord`, and returns a Receipt with a `subscriptionId`.
 

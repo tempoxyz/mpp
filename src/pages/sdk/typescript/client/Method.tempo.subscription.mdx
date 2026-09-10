@@ -11,6 +11,8 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
 Creates a Tempo subscription client method for signing access-key authorizations.
 
+The client binds each key authorization to the server-issued Challenge ID through its signed Tempo witness. An authorization created for one Challenge can't activate another.
+
 ## Usage
 
 <Tabs stateKey="account-source">

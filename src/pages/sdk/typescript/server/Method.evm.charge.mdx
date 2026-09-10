@@ -37,7 +37,9 @@ export async function handler(request: Request) {
 }
 ```
 
-Use `x402.facilitator` to run x402 exact settlement inline with the MPP route. Use `settle` when you want to verify and settle Credentials yourself.
+Use `x402.facilitator` to run x402 exact settlement inline with the MPP route. The method verifies signatures and payment terms, calls the facilitator's non-mutating verification during validation, then revalidates before settlement.
+
+Use `settle` when you want to settle Credentials yourself. Custom settlers remain responsible for chain-state checks and replay protection because standalone validation doesn't call the mutating settlement callback.
 
 Use lowercase `evm.assets` and `evm.chains` for known asset and chain metadata. Uppercase aliases remain available for compatibility, but new code should use the lowercase namespaces.
 
@@ -115,6 +117,8 @@ Wallet address that receives the payment.
 - **Type:** `(parameters: SettleAuthorizationParameters) => Promise<{ reference: string; timestamp?: string }>`
 
 Custom settlement callback. Use this instead of `x402.facilitator` when you settle EIP-3009 authorization Credentials yourself.
+
+The callback runs only during broadcast. `validateCredential()` still verifies the signature, Challenge binding, payment terms, validity window, and declared source without calling `settle`.
 
 ### x402 (optional)
 

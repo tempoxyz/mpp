@@ -245,11 +245,13 @@ This setting only applies to non-zero charges. Zero-amount proof flows do not cr
 
 ### feePayerPolicy (optional)
 
-- **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxInFlightReservations: number; maxInFlightTotalFee: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
+- **Type:** `Partial<{ allowKeyAuthorization: boolean; maxFeePerGas: bigint; maxGas: bigint; maxInFlightReservations: number; maxInFlightTotalFee: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
 
 Override the local fee-sponsor policy used when the server co-signs Tempo charge transactions. Remote fee payer services enforce their own policy.
 
-`mppx` resolves defaults per chain automatically. On mainnet (`4217`), the defaults are `maxFeePerGas: 100_000_000_000n`, `maxGas: 2_000_000n`, `maxPriorityFeePerGas: 10_000_000_000n`, `maxTotalFee: 50_000_000_000_000_000n`, and `maxValidityWindowSeconds: 900`. On Moderato (`42431`), `maxPriorityFeePerGas` increases to `50_000_000_000n` and the other limits stay the same.
+`allowKeyAuthorization` defaults to `true`. Set it to `false` when this sponsor must reject transactions that install a new access key.
+
+`mppx` resolves the remaining defaults per chain automatically. On mainnet (`4217`), the defaults are `maxFeePerGas: 100_000_000_000n`, `maxGas: 2_000_000n`, `maxPriorityFeePerGas: 10_000_000_000n`, `maxTotalFee: 50_000_000_000_000_000n`, and `maxValidityWindowSeconds: 900`. On Moderato (`42431`), `maxPriorityFeePerGas` increases to `50_000_000_000n` and the other limits stay the same.
 
 The deprecated `maxInFlightReservations` and `maxInFlightTotalFee` properties still work here. Configure them with `sponsorBudget` instead.
 
@@ -264,6 +266,7 @@ const mppx = Mppx.create({
         '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
       ),
       feePayerPolicy: {
+        allowKeyAuthorization: false,
         maxPriorityFeePerGas: 50_000_000_000n,
         maxTotalFee: 100_000_000_000_000_000n,
       },

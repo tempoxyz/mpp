@@ -38,6 +38,8 @@ const paidResponse = await mppx.rawFetch('https://api.example.com/paid', paidReq
 
 `preparePayment` selects a Challenge but doesn't sign or emit Credential lifecycle events until you call `createCredential`. Use it to display payment terms, request approval, or apply a spending policy before paying.
 
+For EVM charges, you can register [`evm.charge()`](/sdk/typescript/client/Method.evm.charge) without an account, inspect the prepared Challenge, then pass `{ account }` to `createCredential()`. The request-local account takes precedence over an account configured on the method.
+
 `setCredential` uses the protocol that produced the selected Challenge. It attaches a Payment Credential to `Authorization` or the alternate field advertised by the Challenge, uses `PAYMENT-SIGNATURE` for x402, and uses request metadata for MCP.
 
 Prepared payments retain transport-local state and aren't serializable. Their inspected Challenge, Challenge list, method, and wrapper object are immutable snapshots.
@@ -88,7 +90,7 @@ All supported Challenges extracted from the response, before request-local filte
 
 ### createCredential
 
-Creates the selected Challenge's Credential. Repeated or concurrent calls return the same promise and create at most one Credential. The method checks expiration again when signing starts.
+Creates the selected Challenge's Credential with optional method context. Repeated or concurrent calls return the same promise and create at most one Credential. The method checks expiration again when signing starts.
 
 ### method
 
