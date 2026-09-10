@@ -78,7 +78,7 @@ const mppx = Mppx.create({
 The handler is Web-standard: it takes a `Request` and returns either a challenge or a helper that wraps your response with the receipt.
 
 ```ts
-const handler = mppx['xrpl/charge']({
+const handler = mppx.xrpl.charge({
   recipient: process.env.XRPL_RECIPIENT!,
   amount: '1000000', // 1 XRP, in drops
   currency: 'XRP',
@@ -120,7 +120,7 @@ On the **route** request the currency is a string, not an object. The method con
 ```ts
 const currency = { currency: 'USD', issuer: 'rIssuerAddress...' }
 
-const handler = mppx['xrpl/charge']({
+const handler = mppx.xrpl.charge({
   recipient: process.env.XRPL_RECIPIENT!,
   amount: '10',                      // token units, not drops
   currency: JSON.stringify(currency),

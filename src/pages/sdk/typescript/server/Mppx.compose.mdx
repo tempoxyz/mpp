@@ -56,10 +56,12 @@ const mppx = Mppx.create({
 const server = new McpServer({ name: 'example', version: '1.0.0' })
 
 server.registerTool('premium', { description: 'Read premium data' }, async (extra) => {
+  // [!code hl:start]
   const result = await mppx.compose(
-    [charge, { amount: '1', currency: pathUSD }],
-    [charge, { amount: '1', currency: USDCe }],
+    [mppx.tempo.charge, { amount: '1', currency: pathUSD }],
+    [mppx.tempo.charge, { amount: '1', currency: USDCe }],
   )(extra)
+  // [!code hl:end]
 
   if (result.status === 402) throw result.challenge
   return result.withReceipt({ content: [{ text: 'Premium data', type: 'text' }] })

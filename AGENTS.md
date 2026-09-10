@@ -304,10 +304,13 @@ currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
 10. **Spec link Cards** - Use the shared `<SpecCard to="..." />` component. Defaults to title `"IETF Specification"` and description `"Read the full specification"`. Override with `title` and `description` props when linking to a specific draft.
 11. **"IETF Specification"** - Use "IETF Specification" (singular) when referring to the specifications collectively, not "Specs" or "Specifications"
 14. **Sequence diagrams** - Use `<MermaidDiagram>` from `../../components/MermaidDiagram` for sequence diagrams and flow visualizations. Never use ASCII art diagrams. Follow the pattern: `<MermaidDiagram chart={\`sequenceDiagram ...\`} />`
+15. **Prefer configured handler references** - Use configured handlers such as `mppx.tempo.charge` instead of string keys such as `'tempo/charge'` whenever possible.
 
 ## Code blocks
 
 ### Highlighting
+
+Code blocks longer than five lines should highlight the critical lines.
 
 When highlighting code blocks you should ALWAYS use block comments when there is more than one line. Only use inline comments when there is a single line which you wish to highlight.
 

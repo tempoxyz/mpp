@@ -81,7 +81,7 @@ const mppx = Mppx.create({
   ],
 })
 
-const handler = mppx['xrpl/session']({
+const handler = mppx.xrpl.channel({
   amount: '100000', // 0.1 XRP per request, in drops
   channelId: '',    // no channel pinned: each credential names its own
   recipient: process.env.XRPL_CHANNEL_RECIPIENT!,

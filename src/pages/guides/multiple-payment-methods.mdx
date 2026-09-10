@@ -136,9 +136,9 @@ const description = 'Premium API access'
 const usdAmount = '0.01'
 const lightningSats = await quoteUsdInSats(usdAmount)
 const charge = mppx.compose(
-  ['lightning/charge', { amount: lightningSats, description }],
-  ['stripe/charge', { amount: usdAmount, description }],
-  ['tempo/charge', { amount: usdAmount, description }],
+  [mppx.lightning.charge, { amount: lightningSats, description }],
+  [mppx.stripe.charge, { amount: usdAmount, description }],
+  [mppx.tempo.charge, { amount: usdAmount, description }],
 )
 
 Bun.serve({
@@ -214,9 +214,9 @@ const description = 'Premium API access'
 const usdAmount = '0.01'
 const lightningSats = await quoteUsdInSats(usdAmount)
 const charge = mppx.compose(
-  ['lightning/charge', { amount: lightningSats, description }],
-  ['stripe/charge', { amount: usdAmount, description }],
-  ['tempo/charge', { amount: usdAmount, description }],
+  [mppx.lightning.charge, { amount: lightningSats, description }],
+  [mppx.stripe.charge, { amount: usdAmount, description }],
+  [mppx.tempo.charge, { amount: usdAmount, description }],
 )
 
 app.get(
@@ -265,9 +265,9 @@ const description = 'Premium API access'
 const usdAmount = '0.01'
 const lightningSats = await quoteUsdInSats(usdAmount)
 const charge = mppx.compose(
-  ['lightning/charge', { amount: lightningSats, description }],
-  ['stripe/charge', { amount: usdAmount, description }],
-  ['tempo/charge', { amount: usdAmount, description }],
+  [mppx.lightning.charge, { amount: lightningSats, description }],
+  [mppx.stripe.charge, { amount: usdAmount, description }],
+  [mppx.tempo.charge, { amount: usdAmount, description }],
 )
 
 app.get(
@@ -314,9 +314,9 @@ const description = 'Premium API access'
 const usdAmount = '0.01'
 const lightningSats = await quoteUsdInSats(usdAmount)
 const charge = mppx.compose(
-  ['lightning/charge', { amount: lightningSats, description }],
-  ['stripe/charge', { amount: usdAmount, description }],
-  ['tempo/charge', { amount: usdAmount, description }],
+  [mppx.lightning.charge, { amount: lightningSats, description }],
+  [mppx.stripe.charge, { amount: usdAmount, description }],
+  [mppx.tempo.charge, { amount: usdAmount, description }],
 )
 
 export const GET = charge(
