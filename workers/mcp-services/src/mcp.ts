@@ -1,3 +1,13 @@
+import {
+  type CallToolResult,
+  createMcpHandler,
+  fromJsonSchema,
+  LATEST_PROTOCOL_VERSION,
+  McpServer,
+  ProtocolError,
+  ProtocolErrorCode,
+  type ToolExecution,
+} from "@modelcontextprotocol/server";
 import { workerMetrics } from "../../../src/lib/worker-metrics.js";
 import { getCatalog } from "./cache.js";
 import {
@@ -22,7 +32,7 @@ import {
   type WorkerEnv,
 } from "./types.js";
 
-const PROTOCOL_VERSION = "2025-06-18";
+const PROTOCOL_VERSION = LATEST_PROTOCOL_VERSION;
 const SERVER_VERSION = "1.0.0";
 const ADVISORY =
   "Discovery is advisory; the runtime 402 Challenge is authoritative.";
@@ -101,23 +111,18 @@ const INITIALIZE_INSTRUCTIONS = [
   "This server does not register services, execute payments, authorize requests, or replace runtime 402 Challenge validation.",
 ].join(" ");
 
-type JsonRpcId = string | number | null;
-
-type JsonRpcRequest = {
-  jsonrpc?: string;
-  id?: JsonRpcId;
-  method?: string;
-  params?: unknown;
+type JsonRpcMetricContext = {
+  method?: unknown;
+  toolName?: unknown;
 };
 
-type ToolCallParams = {
-  name?: unknown;
-  arguments?: unknown;
+type DiscoveryTool = {
+  name: string;
+  description: string;
+  inputSchema: Record<string, unknown>;
+  outputSchema: Record<string, unknown>;
+  execution?: ToolExecution;
 };
-
-type JsonRpcResponsePayload =
-  | { jsonrpc: "2.0"; id: JsonRpcId; result: unknown }
-  | { jsonrpc: "2.0"; id: JsonRpcId; error: { code: number; message: string } };
 
 type Pagination = {
   limit: number;
@@ -160,27 +165,66 @@ export async function handleMcp(
   env: WorkerEnv,
   ctx: ExecutionContext,
 ): Promise<Response> {
-  let payload: unknown;
-  try {
-    payload = await request.json();
-  } catch {
-    recordJsonRpcError(undefined, "-32700");
-    return jsonResponse(jsonRpcError(null, -32700, "Parse error"));
+  const startedAt = Date.now();
+  const metricContext = await jsonRpcMetricContext(request);
+  let toolDispatched = false;
+  const handler = createMcpHandler(() => {
+    const server = mcpServer(env, ctx, () => {
+      toolDispatched = true;
+    });
+    server.server.fallbackRequestHandler = (message) => {
+      recordJsonRpcError(message.method, "-32601");
+      throw new ProtocolError(
+        ProtocolErrorCode.MethodNotFound,
+        `Method not found: ${message.method}`,
+      );
+    };
+    return server;
+  });
+
+  const response = await handler.fetch(request);
+  if (metricContext.method === "tools/call" && !toolDispatched) {
+    recordJsonRpcError("tools/call", "tool_error", metricContext.toolName);
+    recordToolCallMetrics(
+      metricToolNameFor(metricContext.toolName),
+      "error",
+      Date.now() - startedAt,
+    );
+  }
+  return withCors(response);
+}
+
+function mcpServer(
+  env: WorkerEnv,
+  ctx: ExecutionContext,
+  onToolDispatch: () => void,
+): McpServer {
+  const server = new McpServer(serverInfo(), {
+    capabilities: { tools: { listChanged: false } },
+    instructions: INITIALIZE_INSTRUCTIONS,
+  });
+
+  for (const tool of toolSchemas()) {
+    const registered = server.registerTool(
+      tool.name,
+      {
+        description: tool.description,
+        inputSchema: sdkSchema(tool.inputSchema),
+        outputSchema: sdkSchema(tool.outputSchema),
+      },
+      async (args) => {
+        onToolDispatch();
+        return handleToolCall(tool.name, args, env, ctx);
+      },
+    );
+    registered.execution = tool.execution;
   }
 
-  if (Array.isArray(payload)) {
-    const responses: JsonRpcResponsePayload[] = [];
-    for (const item of payload) {
-      const response = await handleMessage(asRequest(item), env, ctx);
-      if (response) responses.push(response);
-    }
-    if (responses.length === 0) return emptyAcceptedResponse();
-    return jsonResponse(responses);
-  }
+  return server;
+}
 
-  const response = await handleMessage(asRequest(payload), env, ctx);
-  if (!response) return emptyAcceptedResponse();
-  return jsonResponse(response);
+function sdkSchema(schema: Record<string, unknown>) {
+  return fromJsonSchema(schema as Parameters<typeof fromJsonSchema>[0]);
 }
 
 export function serverCard(endpoint: string) {
@@ -212,15 +256,25 @@ export function serverCard(endpoint: string) {
 }
 
 export function jsonHeaders(extra?: HeadersInit): Headers {
-  const headers = new Headers(extra);
+  const headers = corsHeaders(new Headers(extra));
   headers.set("content-type", "application/json");
+  return headers;
+}
+
+function corsHeaders(headers: Headers): Headers {
   headers.set("access-control-allow-origin", "*");
   headers.set("access-control-allow-methods", "GET,HEAD,POST,OPTIONS");
   headers.set(
     "access-control-allow-headers",
-    "content-type,mcp-protocol-version",
+    "accept,content-type,mcp-method,mcp-name,mcp-protocol-version",
   );
-  headers.set("mcp-protocol-version", PROTOCOL_VERSION);
+  headers.set(
+    "access-control-expose-headers",
+    "mcp-protocol-version,mcp-session-id",
+  );
+  if (!headers.has("mcp-protocol-version")) {
+    headers.set("mcp-protocol-version", PROTOCOL_VERSION);
+  }
   return headers;
 }
 
@@ -228,53 +282,43 @@ export function optionsResponse(): Response {
   return new Response(null, { status: 204, headers: jsonHeaders() });
 }
 
-async function handleMessage(
-  request: JsonRpcRequest | undefined,
-  env: WorkerEnv,
-  ctx: ExecutionContext,
-): Promise<JsonRpcResponsePayload | undefined> {
-  if (request?.jsonrpc !== "2.0" || typeof request.method !== "string") {
-    recordJsonRpcError(request?.method, "-32600");
-    return jsonRpcError(request?.id ?? null, -32600, "Invalid Request");
-  }
-
-  switch (request.method) {
-    case "initialize":
-      return jsonRpcResult(request.id ?? null, initializeResult());
-    case "notifications/initialized":
-      return undefined;
-    case "ping":
-      return jsonRpcResult(request.id ?? null, {});
-    case "tools/list":
-      return jsonRpcResult(request.id ?? null, { tools: toolSchemas() });
-    case "tools/call":
-      return jsonRpcResult(
-        request.id ?? null,
-        await handleToolCall(toolCallParams(request.params), env, ctx),
-      );
-    case "resources/list":
-      return jsonRpcResult(request.id ?? null, { resources: [] });
-    case "resources/templates/list":
-      return jsonRpcResult(request.id ?? null, { resourceTemplates: [] });
-    case "prompts/list":
-      return jsonRpcResult(request.id ?? null, { prompts: [] });
-    default:
-      recordJsonRpcError(request.method, "-32601");
-      return jsonRpcError(
-        request.id ?? null,
-        -32601,
-        `Method not found: ${request.method}`,
-      );
+async function jsonRpcMetricContext(
+  request: Request,
+): Promise<JsonRpcMetricContext> {
+  if (request.method !== "POST") return {};
+  try {
+    const body = await request.clone().json();
+    if (!isRecord(body)) return {};
+    const params = isRecord(body.params) ? body.params : {};
+    if (body.jsonrpc !== "2.0" || typeof body.method !== "string") {
+      recordJsonRpcError(body.method, "-32600");
+    }
+    return {
+      method: body.method,
+      toolName: params.name,
+    };
+  } catch {
+    recordJsonRpcError(undefined, "-32700");
+    return {};
   }
 }
 
+function withCors(response: Response): Response {
+  const headers = corsHeaders(new Headers(response.headers));
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 async function handleToolCall(
-  params: ToolCallParams,
+  name: string,
+  input: unknown,
   env: WorkerEnv,
   ctx: ExecutionContext,
-) {
-  const name = typeof params.name === "string" ? params.name : "";
-  const args = objectArgs(params.arguments);
+): Promise<CallToolResult> {
+  const args = objectArgs(input);
   const metricToolName = metricToolNameFor(name);
   const startedAt = Date.now();
   let outcome = "success";
@@ -767,20 +811,6 @@ function isRecord(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function initializeResult() {
-  // This server supports exactly one protocol version, so the response always
-  // advertises PROTOCOL_VERSION. Per the MCP spec this is the correct reply
-  // whether or not the client requested that same version.
-  return {
-    protocolVersion: PROTOCOL_VERSION,
-    capabilities: {
-      tools: {},
-    },
-    serverInfo: serverInfo(),
-    instructions: INITIALIZE_INSTRUCTIONS,
-  };
-}
-
 function serverInfo() {
   return {
     name: "mpp-services-mcp",
@@ -1064,7 +1094,7 @@ function equalsIgnoreCase(left: string, right: string): boolean {
   return normalizedText(left) === normalizedText(right);
 }
 
-function toolSchemas() {
+function toolSchemas(): DiscoveryTool[] {
   const advisory = ` ${ADVISORY}`;
   return [
     {
@@ -2000,14 +2030,17 @@ function oneOfSuccessOrError(successSchema: Record<string, unknown>) {
   };
 }
 
-function toolResult(structuredContent: unknown, text: string) {
+function toolResult(
+  structuredContent: Record<string, unknown>,
+  text: string,
+): CallToolResult {
   return {
     content: [{ type: "text", text }],
     structuredContent,
   };
 }
 
-function toolError(message: string) {
+function toolError(message: string): CallToolResult {
   return {
     content: [{ type: "text", text: `${message}. ${ADVISORY}` }],
     structuredContent: { success: false, error: message, advisory: ADVISORY },
@@ -2225,20 +2258,6 @@ function objectArgs(value: unknown): Record<string, unknown> {
   return {};
 }
 
-function toolCallParams(value: unknown): ToolCallParams {
-  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-    return value as ToolCallParams;
-  }
-  return {};
-}
-
-function asRequest(value: unknown): JsonRpcRequest | undefined {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return undefined;
-  }
-  return value as JsonRpcRequest;
-}
-
 function recordJsonRpcError(
   method: unknown,
   errorCode: string,
@@ -2273,26 +2292,6 @@ function metricMcpMethod(method: unknown): string {
 function metricToolNameFor(name: unknown): string {
   if (typeof name !== "string" || name.trim() === "") return "none";
   return METRIC_TOOL_NAMES.has(name) ? name : "unknown";
-}
-
-function jsonRpcResult(id: JsonRpcId, result: unknown): JsonRpcResponsePayload {
-  return { jsonrpc: "2.0", id, result };
-}
-
-function jsonRpcError(
-  id: JsonRpcId,
-  code: number,
-  message: string,
-): JsonRpcResponsePayload {
-  return { jsonrpc: "2.0", id, error: { code, message } };
-}
-
-function jsonResponse(payload: unknown): Response {
-  return new Response(JSON.stringify(payload), { headers: jsonHeaders() });
-}
-
-function emptyAcceptedResponse(): Response {
-  return new Response(null, { status: 202, headers: jsonHeaders() });
 }
 
 function errorMessage(error: unknown): string {

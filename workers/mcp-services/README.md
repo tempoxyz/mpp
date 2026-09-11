@@ -1,6 +1,8 @@
 # mpp-services-mcp
 
 Read-only Cloudflare Worker MCP server for the MPP service discovery catalog.
+The official `@modelcontextprotocol/server` SDK handles protocol validation and
+Streamable HTTP transport; this package owns the discovery tools and catalog.
 
 Production endpoint:
 
