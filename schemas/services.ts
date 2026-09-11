@@ -310,6 +310,49 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Hardware Hunter ───────────────────────────────────────────────────
+  {
+    id: "hardware-hunter",
+    name: "Hardware Hunter",
+    url: "https://hardwarehunter.io",
+    serviceUrl: "https://hardwarehunter.io",
+    description:
+      "Trusted hardware price intelligence and market benchmarks (p25/median/p75) over distinct listings and rolling 90-day windows.",
+    icon: "https://hardwarehunter.io/static/favicon.svg",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: [
+      "hardware",
+      "pricing",
+      "gpus",
+      "cpus",
+      "market-intelligence",
+      "benchmarks",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://hardwarehunter.io/mpp",
+      llmsTxt: "https://hardwarehunter.io/llms.txt",
+      apiReference: "https://hardwarehunter.io/api/x402/pricing/catalog",
+    },
+    provider: { name: "Hardware Hunter", url: "https://hardwarehunter.io" },
+    realm: "hardwarehunter.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/x402/pricing/catalog",
+        desc: "Discover trackable hardware components, supported strata, and query pricing",
+      },
+      {
+        route: "GET /api/x402/pricing/component/:component_id",
+        desc: "Query trusted hardware price cohort medians and condition strata (1 cent per query)",
+        amount: "10000",
+        unitType: "query",
+      },
+    ],
+  },
+
   // ── agentfax ───────────────────────────────────────────────────────────
   {
     id: "agentfax",

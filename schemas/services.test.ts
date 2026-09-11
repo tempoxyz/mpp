@@ -249,4 +249,26 @@ describe("services registry", () => {
       tempvpn?.endpoints.some((endpoint) => endpoint.unitType === "session"),
     ).toBe(false);
   });
+
+  it("keeps the Hardware Hunter registry contract valid", () => {
+    const hh = services.find((service) => service.id === "hardware-hunter");
+    expect(hh?.url).toBe("https://hardwarehunter.io");
+    expect(hh?.serviceUrl).toBe("https://hardwarehunter.io");
+    expect(hh?.realm).toBe("hardwarehunter.io");
+    expect(hh?.intent).toBe("charge");
+    expect(hh?.endpoints.map((endpoint) => endpoint.route)).toEqual([
+      "GET /api/x402/pricing/catalog",
+      "GET /api/x402/pricing/component/:component_id",
+    ]);
+    expect(
+      hh?.endpoints.find(
+        (endpoint) =>
+          endpoint.route === "GET /api/x402/pricing/component/:component_id",
+      ),
+    ).toMatchObject({
+      amount: "10000",
+      unitType: "query",
+    });
+  });
 });
+
