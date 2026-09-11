@@ -122,6 +122,48 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── California Bitcoin ───────────────────────────────────────────────
+  {
+    id: "california-bitcoin",
+    name: "California Bitcoin",
+    url: "https://californiabitcoin.org",
+    serviceUrl: "https://californiabitcoin.org",
+    description:
+      "Source-backed Bitcoin research, claim verification, evidence packs, timelines, and deterministic grounding for AI agents.",
+    icon: "https://californiabitcoin.org/assets/favicon-512.png",
+    categories: ["blockchain", "data", "search"],
+    integration: "first-party",
+    tags: [
+      "bitcoin",
+      "research",
+      "verification",
+      "evidence",
+      "timelines",
+      "mcp",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://californiabitcoin.org/developers/",
+      llmsTxt: "https://californiabitcoin.org/llms.txt",
+      apiReference: "https://californiabitcoin.org/openapi.json",
+    },
+    provider: { name: "California Bitcoin", url: "https://californiabitcoin.org" },
+    realm: "californiabitcoin.org",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      { route: "GET /api/agent/v1", desc: "Discover Agent Commerce capabilities and pricing" },
+      { route: "GET /api/agent/v1/search", desc: "Search canonical Bitcoin knowledge" },
+      { route: "GET /api/agent/v1/topic/:id", desc: "Retrieve one canonical Bitcoin knowledge topic" },
+      { route: "POST /api/agent/v1/answer", desc: "Answer a Bitcoin question deterministically" },
+      { route: "POST /api/agent/v1/verify-claim", desc: "Verify a Bitcoin claim against maintained source-backed knowledge", amount: "50", unitType: "request" },
+      { route: "POST /api/agent/v1/evidence-pack", desc: "Build a structured Bitcoin evidence pack", amount: "50", unitType: "request" },
+      { route: "POST /api/agent/v1/timeline", desc: "Build a query-specific sourced Bitcoin timeline", amount: "50", unitType: "request" },
+      { route: "POST /api/agent/v1/deep-ground", desc: "Build a deep deterministic Bitcoin grounding package", amount: "100", unitType: "request" },
+      { route: "POST /api/agent/v1/batch", desc: "Process up to 20 Bitcoin claims or questions", amount: "250", unitType: "request" },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
