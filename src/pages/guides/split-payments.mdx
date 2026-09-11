@@ -117,9 +117,9 @@ const result = await mppx.charge({
 
 The client SDK handles split payments automatically — no client-side configuration is needed. When the server includes `splits` in the Challenge, the client constructs the matching multi-transfer transaction.
 
-### Validating split recipients
+### Validate payment recipients
 
-Use `expectedRecipients` to restrict which split recipients the client signs for. This prevents a compromised server from redirecting funds to unexpected addresses.
+Use `expectedRecipients` to restrict every payment recipient the client signs for. Include the primary recipient and each split recipient. This prevents a compromised server from redirecting funds to unexpected addresses.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -137,6 +137,7 @@ Mppx.create({
       account: provider.getAccount({ signable: true }),
       // [!code hl:start]
       expectedRecipients: [
+        '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // seller (primary)
         '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // platform
         '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', // referrer
       ],
@@ -162,6 +163,7 @@ Mppx.create({
       account,
       // [!code hl:start]
       expectedRecipients: [
+        '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // seller (primary)
         '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // platform
         '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', // referrer
       ],
@@ -174,7 +176,7 @@ Mppx.create({
 </Tab>
 </Tabs>
 
-If the server sends a Challenge with a split recipient not in the allowlist, the client throws an error instead of signing.
+If the server sends a Challenge with a primary or split recipient not in the allowlist, the client throws an error before signing.
 
 ## Constraints
 

@@ -201,7 +201,7 @@ const method = tempo.charge({
 
 - **Type:** `readonly string[]`
 
-Allowlist of addresses the client accepts as split recipients. When set, the client rejects any Challenge whose split recipients are not in this list, preventing a compromised server from redirecting funds.
+Allowlist of addresses the client accepts as payment recipients. When set, the client rejects any Challenge unless its primary recipient and every split recipient are in this list. This validation also applies to zero-amount proofs. Existing allowlists that contain only split recipients are rejected.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -215,10 +215,13 @@ await provider.request({ method: 'wallet_connect' })
 
 const method = tempo.charge({
   account: provider.getAccount({ signable: true }),
+  // [!code focus:start]
+  expectedRecipients: [
+    '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // primary recipient
+    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  ],
+  // [!code focus:end]
   getClient: provider.getClient,
-  expectedRecipients: [ // [!code focus]
-    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
-  ], // [!code focus]
 })
 ```
 
@@ -231,9 +234,12 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const method = tempo.charge({
   account: privateKeyToAccount('0xabc…123'),
-  expectedRecipients: [ // [!code focus]
-    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
-  ], // [!code focus]
+  // [!code focus:start]
+  expectedRecipients: [
+    '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // primary recipient
+    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  ],
+  // [!code focus:end]
 })
 ```
 
