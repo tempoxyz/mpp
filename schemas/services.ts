@@ -122,6 +122,60 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── DeviceCheck ───────────────────────────────────────────────────────
+  {
+    categories: ["compute", "web"],
+    description:
+      "Run a website flow in Safari on a physical iPhone and receive video, screenshots, device identity, and assertion results. Pay only for completed evidence.",
+    docs: {
+      apiReference: "https://devicecheck-mpp.dave-baa.workers.dev/openapi.json",
+      homepage: "https://devicecheck-mpp.dave-baa.workers.dev",
+      llmsTxt: "https://devicecheck-mpp.dave-baa.workers.dev/llms.txt",
+    },
+    endpoints: [
+      {
+        desc: "Check supported physical-iPhone configuration and bounded beta admission",
+        route: "GET /health",
+      },
+      {
+        desc: "Submit one authorized public website flow with up to 12 steps; returns a private job access token",
+        route: "POST /v1/jobs",
+      },
+      {
+        desc: "Poll job status with the private X-Job-Token header; pending and inconclusive jobs are not charged",
+        route: "GET /v1/jobs/:job_id",
+      },
+      {
+        amount: "5000000",
+        desc: "Buy a completed physical-iPhone Safari evidence report; includes all screenshots and the original MP4, with no repeat charge for downloads",
+        route: "GET /v1/jobs/:job_id/result",
+        unitType: "completed verification",
+      },
+    ],
+    id: "devicecheck",
+    integration: "first-party",
+    intent: "charge",
+    name: "DeviceCheck",
+    payments: [TEMPO_PAYMENT],
+    provider: {
+      name: "Dave Kiss",
+      url: "https://devicecheck-mpp.dave-baa.workers.dev/provider",
+    },
+    realm: "devicecheck-mpp.dave-baa.workers.dev",
+    serviceUrl: "https://devicecheck-mpp.dave-baa.workers.dev",
+    status: "beta",
+    tags: [
+      "appium",
+      "iphone",
+      "physical-device",
+      "qa",
+      "safari",
+      "screenshots",
+      "testing",
+      "video",
+    ],
+    url: "https://devicecheck-mpp.dave-baa.workers.dev",
+  },
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
