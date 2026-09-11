@@ -11227,4 +11227,37 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── ToolRouter ──────────────────────────────────────────────────────
+  {
+    id: "toolrouter",
+    name: "ToolRouter",
+    url: "https://toolrouter.com",
+    serviceUrl: "https://api.toolrouter.com",
+    description:
+      "One MCP endpoint with hundreds of paid tools — web search, scraping, image and video generation, data lookups. Agents buy prepaid credits with MPP, then spend them per tool call.",
+    icon: "https://toolrouter.com/icon-256.png",
+    categories: ["ai", "data", "media", "search", "web"],
+    integration: "first-party",
+    tags: ["mcp", "tools", "credits", "agents", "search", "scraping", "image-generation"],
+    status: "active",
+    docs: {
+      homepage: "https://toolrouter.com/docs/billing",
+      llmsTxt: "https://toolrouter.com/llms.txt",
+      apiReference: "https://toolrouter.com/openapi.json",
+    },
+    provider: { name: "ToolRouter", url: "https://toolrouter.com" },
+    realm: "api.toolrouter.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/billing/machine-topup",
+        desc: "Buy ToolRouter credits. Send a ToolRouter API key with { amount_usd } to get the 402 challenge, pay it, retry with the credential.",
+        dynamic: true,
+        amountHint: "$1 – $500 of credits plus purchase fee (5.5%, min $0.80)",
+        docs: "https://toolrouter.com/docs/billing",
+      },
+    ],
+  },
 ];
