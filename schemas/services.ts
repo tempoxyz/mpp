@@ -1430,6 +1430,58 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── markdown.page ──────────────────────────────────────────────────────
+  {
+    id: "markdown-page",
+    name: "markdown.page",
+    url: "https://markdown.page",
+    serviceUrl: "https://markdown.page",
+    description:
+      "Publish Markdown to permanent public URLs and buy reviewed featured placements with MPP.",
+    icon: "https://markdown.page/icon-512.png",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["agents", "hosting", "markdown", "publishing"],
+    status: "active",
+    docs: {
+      homepage: "https://markdown.page/api.md",
+      llmsTxt: "https://markdown.page/llms.txt",
+      apiReference: "https://markdown.page/openapi.json",
+    },
+    provider: { name: "Magic Monad, LLC", url: "https://magicmonad.com" },
+    realm: "markdown.page",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/publish",
+        desc: "Publish Markdown to a permanent public URL",
+        docs: "https://markdown.page/api.md#publish-a-page",
+      },
+      {
+        route: "POST /api/featured/mpp/purchase/week",
+        desc: "Request a reviewed seven-day featured placement",
+        amount: "9000000",
+        unitType: "placement",
+        docs: "https://markdown.page/api.md#agentic-featured-purchases",
+      },
+      {
+        route: "POST /api/featured/mpp/purchase/month",
+        desc: "Request a reviewed 30-day featured placement",
+        amount: "29000000",
+        unitType: "placement",
+        docs: "https://markdown.page/api.md#agentic-featured-purchases",
+      },
+      {
+        route: "POST /api/featured/mpp/purchase/quarter",
+        desc: "Request a reviewed 90-day featured placement",
+        amount: "79000000",
+        unitType: "placement",
+        docs: "https://markdown.page/api.md#agentic-featured-purchases",
+      },
+    ],
+  },
+
   // ── Modal ──────────────────────────────────────────────────────────────
   {
     id: "modal",
