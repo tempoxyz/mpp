@@ -11227,4 +11227,69 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Emboss ─────────────────────────────────────────────────────────────
+  {
+    id: "emboss",
+    name: "Emboss",
+    url: "https://api.getemboss.ai",
+    serviceUrl: "https://api.getemboss.ai",
+    description:
+      "Emboss turns any PDF form into a fillable one, fills it from data or supporting documents, reads a filled form back, and faxes the result to any fax number.",
+    icon: "https://getemboss.ai/icon",
+    categories: ["data", "ai"],
+    integration: "third-party",
+    tags: ["pdf", "forms", "form-filling", "fax", "documents", "agents"],
+    status: "active",
+    docs: {
+      homepage: "https://getemboss.ai/docs/pay-per-call/mpp",
+      llmsTxt: "https://api.getemboss.ai/pay/llms.txt",
+      apiReference: "https://api.getemboss.ai/openapi.json",
+    },
+    provider: { name: "Emboss", url: "https://getemboss.ai" },
+    realm: "api.getemboss.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /pay/make-fillable",
+        desc: "Make a flat PDF fillable. Input: a PDF file.",
+        dynamic: true,
+        amountHint:
+          "$0.05 to $1.00 by page count (exact price in the 402 challenge)",
+        unitType: "request",
+      },
+      {
+        route: "POST /pay/fill-with-context",
+        desc: "Fill a PDF form from supporting context documents. Input: a PDF file plus one or more context files and/or context_text/context_urls.",
+        dynamic: true,
+        amountHint:
+          "$0.08 to $12.93 by page count and context size (exact price in the 402 challenge)",
+        unitType: "request",
+      },
+      {
+        route: "POST /pay/fill",
+        desc: "Fill a PDF form from data. Input: a PDF file plus a values JSON object mapping field names to answers.",
+        dynamic: true,
+        amountHint:
+          "$0.07 to $1.02 by page count (exact price in the 402 challenge)",
+        unitType: "request",
+      },
+      {
+        route: "POST /pay/read",
+        desc: "Read a filled PDF form back into labelled values. Input: a PDF file.",
+        dynamic: true,
+        amountHint: "$0.01 per request (exact price in the 402 challenge)",
+        unitType: "request",
+      },
+      {
+        route: "POST /pay/fax",
+        desc: "Fax a PDF to a destination number. Input: a PDF file and `to` in E.164 form.",
+        dynamic: true,
+        amountHint:
+          "$0.03 per page, up to $3.00 (exact price in the 402 challenge); card payments have a $0.50 minimum",
+        unitType: "request",
+      },
+    ],
+  },
 ];
