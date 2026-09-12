@@ -33,6 +33,7 @@ await provider.request({ method: 'wallet_connect' })
 
 const session = tempo.session.manager({
   account: provider.getAccount({ signable: true }),
+  allowedChainIds: [4217], // Tempo mainnet
   getClient: provider.getClient,
   maxDeposit: '1',
 })
@@ -61,6 +62,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 
 const session = tempo.session.manager({
   account,
+  allowedChainIds: [4217], // Tempo mainnet
   maxDeposit: '1',
 })
 
@@ -656,6 +658,14 @@ Account to sign channel transactions and vouchers with.
 - **Default:** `false`
 
 Accepts a noncanonical reserve contract advertised by the server. Leave this disabled unless you trust the server's custom deployment. Persisted channel state remains bound to the resolved address.
+
+### allowedChainIds (optional)
+
+- **Type:** `readonly number[]`
+
+Allowlist of Tempo chain IDs for Sessions, bootstrap proofs, and restored snapshots. Use `[4217]` for mainnet. A single entry supplies an omitted Challenge chain; multiple entries require the Challenge or resolved client to select one. An empty array rejects every chain.
+
+The manager rejects a configured client, resolved client, or Session snapshot on a conflicting chain.
 
 ### autoSwap (optional)
 

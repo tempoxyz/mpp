@@ -28,6 +28,7 @@ Mppx.create({
     // [!code focus:start]
     tempo.charge({
       account: provider.getAccount({ signable: true }),
+      allowedChainIds: [4217], // Tempo mainnet
       getClient: provider.getClient,
     }),
     // [!code focus:end]
@@ -49,7 +50,7 @@ const account = privateKeyToAccount('0xabc…123')
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo.charge({ account }),
+    tempo.charge({ account, allowedChainIds: [4217] }), // Tempo mainnet
     // [!code focus:end]
   ],
 })
@@ -111,6 +112,14 @@ const method = tempo.charge({
 </Tab>
 </Tabs>
 
+### allowedChainIds (optional)
+
+- **Type:** `readonly number[]`
+
+Allowlist of Tempo chain IDs the client accepts. Use `[4217]` for mainnet. A single entry supplies the chain when a Challenge omits `chainId`; multiple entries require the Challenge or resolved client to select one. An empty array rejects every chain.
+
+The client also rejects a resolved viem client whose chain conflicts with the selected payment chain.
+
 ### autoSwap (optional)
 
 - **Type:** `boolean | { tokenIn?: Address[]; slippage?: number }`
@@ -163,6 +172,8 @@ Client identifier used to derive the client fingerprint in attribution memos.
 - **Type:** `number`
 
 Chain ID this client accepts for Tempo charges. When set, the client rejects any Challenge with a different `chainId`, and uses this chain when the Challenge omits one.
+
+Use `allowedChainIds` when you need an allowlist shared with `tempo.session`. When both options are set, the selected chain must satisfy both.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">

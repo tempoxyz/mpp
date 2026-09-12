@@ -43,6 +43,7 @@ Mppx.create({
     // [!code focus:start]
     tempo({
       account: provider.getAccount({ signable: true }),
+      allowedChainIds: [4217], // Tempo mainnet
       getClient: provider.getClient,
     }),
     // [!code focus:end]
@@ -62,7 +63,7 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     // [!code focus:start]
-    tempo({ account }),
+    tempo({ account, allowedChainIds: [4217] }), // Tempo mainnet
     // [!code focus:end]
   ],
 })
@@ -187,6 +188,12 @@ Account to sign transactions and vouchers with.
 
 Accepts a noncanonical Session reserve contract advertised by the server. This option affects the generated `tempo.session` method only.
 
+### allowedChainIds (optional)
+
+- **Type:** `readonly number[]`
+
+Allowlist of Tempo chain IDs for both charge and Session Credentials. Use `[4217]` for mainnet. A single entry supplies an omitted Challenge chain; multiple entries require the Challenge or resolved client to select one. An empty array rejects every chain.
+
 ### channelStore (optional)
 
 - **Type:** `ChannelStore`
@@ -198,6 +205,8 @@ Store for reusable Sessions channels. Defaults to an in-memory store.
 - **Type:** `number`
 
 Tempo chain ID this client accepts for charges. When set, the client rejects Challenges for other chains and uses this chain when a charge Challenge omits `chainId`.
+
+Use `allowedChainIds` to enforce the same policy for both generated methods. When both options are set, charge payments must satisfy both.
 
 ### getClient (optional)
 

@@ -85,6 +85,8 @@ $ mppx validate https://api.example.com --endpoint GET:/quotes --query symbol=ET
 Run `mppx validate` against both test and production versions of your server. On testnets and Stripe test mode, the CLI automatically completes roundtrip test payments. On mainnets, the CLI can complete real payments from the local `mppx` wallet.
 :::
 
+When your config declares payment methods, `mppx validate` uses their signing accounts, approval hooks, chain policies, and Session stores instead of substituting built-in methods or preflighting the local CLI wallet.
+
 ## Environment variables
 
 | Variable | Description |
@@ -127,6 +129,10 @@ $ mppx account list --format json
 }
 ```
 
+## Streaming output
+
+The CLI writes response body chunks as they arrive. SSE messages and other streamed responses appear without waiting for the response to close.
+
 ## Init command
 
 Create an `mppx.config.*` file in the current directory. The CLI uses `.ts` when it finds `tsconfig.json`, `.mjs` for an ESM package, and `.js` otherwise:
@@ -150,7 +156,10 @@ import { defineConfig, resolveAccount } from 'mppx/cli'
 import { tempo } from 'mppx/client'
 
 export default defineConfig({
-  methods: [tempo({ account: await resolveAccount() })],
+  methods: [tempo({
+    account: await resolveAccount(),
+    allowedChainIds: [4217], // Tempo mainnet
+  })],
 })
 ```
 
@@ -160,6 +169,8 @@ export default defineConfig({
 | `methods` | `Method.AnyClient[]` | Client payment methods, including third-party methods |
 | `paymentPreferences` | `PaymentPreferences` | Selection preferences when a server offers multiple methods |
 | `plugins` | `Plugin[]` | CLI integrations that configure payment methods and output |
+
+Configured methods remain authoritative throughout payment selection, retries, and Session voucher renewal. The CLI preserves their Challenge ordering, signing policy, chain allowlists, and channel stores.
 
 ### Configure payment extensions
 
