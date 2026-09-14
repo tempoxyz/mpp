@@ -15,10 +15,10 @@ describe("ServicesAgentDiscovery", () => {
     );
     expect(
       screen
-        .getByRole("link", { name: "Open a pull request" })
+        .getByRole("link", { name: "service pull request template" })
         .getAttribute("href"),
     ).toBe(
-      "https://github.com/tempoxyz/mpp/compare?expand=1&template=service.md",
+      "https://github.com/tempoxyz/mpp/blob/main/.github/PULL_REQUEST_TEMPLATE/service.md",
     );
   });
 });

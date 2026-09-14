@@ -85,11 +85,12 @@ export function ServicesAgentDiscovery() {
           pricing.
         </li>
         <li data-v="">
+          Open a pull request using the{" "}
           <a
             data-v=""
-            href="https://github.com/tempoxyz/mpp/compare?expand=1&amp;template=service.md"
+            href="https://github.com/tempoxyz/mpp/blob/main/.github/PULL_REQUEST_TEMPLATE/service.md"
           >
-            Open a pull request
+            service pull request template
           </a>
           .
         </li>

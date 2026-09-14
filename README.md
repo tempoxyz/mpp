@@ -65,7 +65,7 @@ Post frontmatter is the source of truth. The build validates it, orders the blog
 
 The service directory at [mpp.dev/services](https://mpp.dev/services) is curated for live, production-ready MPP services.
 
-Read the [service submission guide](https://mpp.dev/services#list-your-service), then use the [service pull request template](https://github.com/tempoxyz/mpp/compare?expand=1&template=service.md) when you open your PR.
+Read the [service submission guide](https://mpp.dev/services#list-your-service), then use the [service pull request template](https://github.com/tempoxyz/mpp/blob/main/.github/PULL_REQUEST_TEMPLATE/service.md) when you open your PR.
 
 ### Submit a pull request to this repo
 
