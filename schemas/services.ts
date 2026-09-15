@@ -122,6 +122,66 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── DPX Stability Oracle ─────────────────────────────────────────────
+  {
+    id: "dpx-stability-oracle",
+    name: "DPX Stability Oracle",
+    url: "https://untitledfinancial.com",
+    serviceUrl: "https://stability.untitledfinancial.com",
+    description:
+      "AI-synthesized macro, climate, FX, and geopolitical stability signal for cross-border stablecoin settlement — live oracle status, corridor risk, and settlement-gate pre-flight checks for stablecoin orchestration platforms.",
+    categories: ["data", "ai"],
+    integration: "third-party",
+    tags: [
+      "macro",
+      "climate",
+      "fx",
+      "compliance",
+      "esg",
+      "settlement",
+      "stablecoin",
+      "cross-border",
+      "sfdr",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://docs.untitledfinancial.com",
+      llmsTxt: "https://stability.untitledfinancial.com/llms.txt",
+      apiReference: "https://stability.untitledfinancial.com/openapi.json",
+    },
+    provider: {
+      name: "Untitled_ LuxPerpetua Technologies, Inc.",
+      url: "https://untitledfinancial.com",
+    },
+    realm: "stability.untitledfinancial.com",
+    intent: "charge",
+    payments: [
+      {
+        method: "x402",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /reliability",
+        desc: "Live oracle status, stability score, peg deviation",
+        unitType: "request",
+      },
+      {
+        route: "GET /settlement-gate",
+        desc: "Composite pre-flight check for a settlement: oracle status + AML/sanctions screen + SFDR PAI pre-assessment, one PROCEED/CAUTION/HOLD recommendation",
+        unitType: "request",
+      },
+      {
+        route: "GET /intelligence",
+        desc: "Full AI intelligence layer — synthesis over 32+ macro, climate, FX, and geopolitical signals",
+        amount: "1000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
