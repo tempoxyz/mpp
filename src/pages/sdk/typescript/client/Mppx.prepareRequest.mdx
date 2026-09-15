@@ -1,0 +1,153 @@
+# `Mppx.prepareRequest` [Prepare a request-bound payment]
+
+Follows safe pre-payment redirects and prepares the exact HTTP request that returned a Challenge.
+
+## Usage
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      account: privateKeyToAccount(
+        '0x0123456789012345678901234567890123456789012345678901234567890123',
+      ),
+    }),
+  ],
+  polyfill: false,
+})
+
+// [!code hl:start]
+const payment = await mppx.prepareRequest('https://api.example.com/checkout', {
+  body: JSON.stringify({ plan: 'pro' }),
+  headers: { 'Content-Type': 'application/json' },
+  method: 'POST',
+})
+
+console.log(payment.challenge.request)
+console.log(payment.redirects)
+
+const response = await payment.pay()
+// [!code hl:end]
+
+console.log(response.status)
+// @log: 200
+```
+
+`prepareRequest` sends the request without creating a Credential, follows pre-payment redirects, and stops at the payment-required response. Use it when you need to inspect or approve payment terms while keeping the Credential bound to the request that produced the Challenge.
+
+The method rejects HTTPS downgrade redirects, removes credentials and sensitive headers on cross-origin redirects, and applies standard redirect method changes. `pay` creates the Credential at most once and sends it only to the prepared URL with redirects disabled.
+
+:::warning[Runtime support]
+Use `prepareRequest` in Node.js and runtimes that expose manual redirect responses. Browsers return opaque manual redirects, so this method rejects browser redirect chains.
+:::
+
+### With request-local selection
+
+Override the configured payment preferences for one request.
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import type { Account } from 'viem'
+
+declare const account: Account
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const payment = await mppx.prepareRequest(
+  'https://api.example.com/paid',
+  undefined,
+  {
+    acceptPayment: 'tempo/charge;q=1, tempo/session;q=0',
+    maxRedirects: 5,
+    orderChallenges: (candidates) => candidates.filter(({ challenge }) =>
+      challenge.request.amount !== '0'
+    ),
+  },
+)
+```
+
+## Return type
+
+```ts
+type PreparedRequest = Readonly<{
+  challenge: Challenge
+  challenges: readonly Challenge[]
+  createCredential: (context?: Context) => Promise<string>
+  method: Method.Client
+  pay: (context?: Context) => Promise<Response>
+  redirects: readonly Readonly<{
+    from: string
+    status: number
+    to: string
+  }>[]
+  request: Request
+  response: Response
+  setCredential: (request: RequestInit, credential: string) => RequestInit
+}>
+```
+
+### challenge
+
+The selected immutable Challenge.
+
+### challenges
+
+All supported Challenges extracted from the payment-required response.
+
+### createCredential
+
+Creates the selected Challenge's Credential. Repeated or concurrent calls return the same promise.
+
+### method
+
+An immutable snapshot of the configured client method selected for the Challenge.
+
+### pay
+
+Creates and sends the Credential to the prepared request. The paid request uses `redirect: 'manual'`, so the Credential doesn't follow a redirect to another URL.
+
+### redirects
+
+Immutable pre-payment redirect records with each source URL, status code, and destination URL.
+
+### request
+
+The exact request that returned the payment-required response.
+
+### response
+
+The payment-required response returned for `request`.
+
+### setCredential
+
+Returns a request initializer with the Credential attached through the protocol that produced the Challenge.
+
+## Parameters
+
+### init (optional)
+
+- **Type:** `RequestInit`
+
+Request options for the initial HTTP request.
+
+### input
+
+- **Type:** `RequestInfo | URL`
+
+URL or request to prepare.
+
+### options (optional)
+
+- **Type:** `{ acceptPayment?: string | readonly AcceptPayment.Entry[]; maxRedirects?: number; orderChallenges?: OrderChallenges }`
+
+Request-local Challenge selection and redirect limits.
+
+- `acceptPayment` overrides the configured payment preferences.
+- `maxRedirects` sets the maximum pre-payment redirects. Defaults to `20`.
+- `orderChallenges` filters or sorts supported Challenge candidates.

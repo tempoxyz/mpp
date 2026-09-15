@@ -2,6 +2,8 @@
 
 Selects a supported Challenge without creating or attaching its Credential.
 
+For manual HTTP requests that can redirect before payment, use [`Mppx.prepareRequest`](/sdk/typescript/client/Mppx.prepareRequest) to keep the Credential pinned to the exact request that produced the Challenge.
+
 ## Usage
 
 ```ts twoslash [client.ts]

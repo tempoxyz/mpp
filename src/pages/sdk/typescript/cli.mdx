@@ -68,7 +68,7 @@ x402 payments support compatible EVM `exact` Challenges and use the same account
 
 ## Validate command
 
-Use `mppx validate` to automatically verify an MPP server implementation end-to-end. The command tests discovery, challenge formats, error handling, and the full payment flow.
+Use `mppx validate` to automatically verify an MPP server implementation end-to-end. The command tests `/llms.txt`, OpenAPI discovery, Challenge formats, error handling, and the full payment flow. A missing, empty, or non-text `/llms.txt` appears as a non-blocking `suggested` result.
 
 ```bash [terminal]
 $ mppx validate https://api.example.com
@@ -86,6 +86,23 @@ Run `mppx validate` against both test and production versions of your server. On
 :::
 
 When your config declares payment methods, `mppx validate` uses their signing accounts, approval hooks, chain policies, and Session stores instead of substituting built-in methods or preflighting the local CLI wallet.
+
+### Programmatic validation
+
+Import `validate` from `mppx/validation` when you need structured results.
+
+```ts twoslash [validate.ts]
+import { validate } from 'mppx/validation'
+
+const result = await validate({
+  skipPayment: true,
+  url: 'https://api.example.com',
+})
+
+console.log(result.summary.suggested)
+```
+
+The `summary` contains `failed`, `passed`, `skipped`, `suggested`, and `warnings` counts. Individual checks use the matching `severity`, including `'suggested'` for optional improvements such as publishing `/llms.txt`. Suggested checks don't make validation fail.
 
 ## Environment variables
 
