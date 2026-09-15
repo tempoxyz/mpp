@@ -29,13 +29,17 @@ Your server stores the subscription after the first payment succeeds. Later requ
     participant Store
     participant Tempo
     Client->>Server: GET /api/pro
-    Server->>Store: Resolve subscription key
+    Server->>Server: Generate access key
     Server-->>Client: 402 Challenge
     Client->>Server: Retry with keyAuthorization Credential
+    Server->>Server: Verify payer and resolve subscription key
     Server->>Tempo: Charge first billing period
     Server->>Store: Store subscription record
     Server-->>Client: 200 OK + Receipt
     Client->>Server: GET /api/pro
+    Server-->>Client: 402 Challenge
+    Client->>Server: Retry with signed Credential
+    Server->>Server: Verify payer
     Server->>Store: Find active subscription
     Server-->>Client: 200 OK + Receipt
 `} />
@@ -85,7 +89,7 @@ export const mppx = Mppx.create({
 })
 ```
 
-The `resolve` function maps each verified payer to one subscription. `requireCredential` makes the server derive access from the signed payer source instead of request headers.
+This setup bootstraps automatically. Before the payer is known, `resolve` returns `null` and the SDK generates an access key for the Challenge. After the client signs, the SDK verifies the payer and calls `resolve` again with `source` to bind the subscription to that payer. Keep `requireCredential: true` so later requests also prove the payer identity. No separate bootstrap endpoint or client-supplied user ID is needed.
 
 :::warning
 Use a durable atomic store in production. `Store.memory()` loses subscription state when the process restarts.

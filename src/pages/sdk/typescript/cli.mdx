@@ -103,11 +103,11 @@ When your config declares payment methods, `mppx validate` uses their signing ac
 Pass method-specific key-value pairs with `-M` (repeatable):
 
 ```bash [terminal]
-$ mppx example.com/content -M channel=0x123 -M deposit=1000000
+$ mppx example.com/content -M deposit=1
 $ mppx example.com/content -M allowCustomEscrow=true
 ```
 
-For Tempo session payments, use `channel` and `deposit`. The CLI accepts only the canonical reserve contract by default; pass `allowCustomEscrow=true` only when you trust the server's custom deployment. For Stripe, use `paymentMethod`.
+For Tempo Session payments, `deposit` sets the maximum deposit in token units: `1` means one token, not one base unit. To reuse a channel, pass `-M channel=<channel-id>` with the full channel ID returned when it was opened. Omit `channel` to let the SDK open one. The CLI accepts only the canonical reserve contract by default; pass `allowCustomEscrow=true` only when you trust the server's custom deployment. For Stripe, use `paymentMethod`.
 
 ## JSON output
 

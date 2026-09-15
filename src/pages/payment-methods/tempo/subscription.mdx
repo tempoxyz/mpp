@@ -48,12 +48,15 @@ A Tempo subscription uses a key authorization. The client authorizes a scoped ac
     Tempo-->>Server: Transaction hash
     Server-->>Client: 200 OK + Receipt
     Client->>Server: Later request
+    Server-->>Client: 402 Challenge
+    Client->>Server: Retry with signed Credential
+    Server->>Server: Verify payer and check subscription
     Server-->>Client: 200 OK + Receipt
 `} />
 
 ## Activation
 
-The first request activates the subscription. The server resolves the request to a stable lookup key, such as `user:123:plan:pro`, and includes an access key in the Challenge. The client signs a `keyAuthorization` Credential that binds:
+With `requireCredential: true`, activation bootstraps without an application login. Return `null` from `resolve` until `source` is available. The SDK generates an access key for the initial Challenge, then verifies the signed Credential and calls `resolve` with the verified payer to obtain a stable lookup key. The client signs a `keyAuthorization` Credential that binds:
 
 - `accessKey`
 - `amount`
@@ -77,6 +80,9 @@ After activation, future requests can reuse the stored subscription while it is 
     participant Server
     participant Store
     Client->>Server: Request protected resource
+    Server-->>Client: 402 Challenge
+    Client->>Server: Retry with signed Credential
+    Server->>Server: Verify payer
     Server->>Store: Lookup active subscription by resolved key
     Store-->>Server: SubscriptionRecord
     Server->>Server: Check expiry, request binding, paid period
@@ -209,7 +215,11 @@ export async function handler(request: Request) {
 ```
 
 :::warning
-Use a durable atomic store such as Redis, Upstash, or Cloudflare KV for production. `Store.memory()` is for local development.
+Use a durable `Store.AtomicStore` shared by all server instances in production. `Store.memory()` is for local development.
+
+The backend must implement `update(key, fn)` as an atomic read-modify-write across all instances. The callback reads the current value (or `null`) and returns `{ op: 'set', value, result }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`. Return `result` after committing the operation. Callbacks must be synchronous and free of side effects because the backend can retry them.
+
+`Store.redis`, `Store.upstash`, and `Store.cloudflare` only expose `update` when the supplied client implements it. Wrapping a standard client does not add atomicity. Use a backend transaction or compare-and-swap implementation; separate `get` and `put` calls are not atomic. `tempo.subscription()` rejects stores without `update`.
 :::
 
 ### Client

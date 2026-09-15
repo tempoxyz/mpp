@@ -296,7 +296,7 @@ Requires a fresh subscription Credential even when a subscription is active. Use
 
 - **Type:** `(parameters: { input: Request; request: SubscriptionRequest; source?: { address: Address; chainId: number } }) => MaybePromise<SubscriptionLookup | null>`
 
-Maps a request to a subscription lookup key. With `requireCredential`, use `source` to derive the key from the verified payer.
+Maps a request to a subscription lookup key. With `requireCredential: true`, return `null` when `source` is absent. The SDK automatically generates the initial Challenge access key, verifies the client signature, and calls `resolve` again with the verified `source`. Derive the key from that payer. Leave `activate` and `accessKey` unset to use this automatic setup.
 
 ### store (optional)
 

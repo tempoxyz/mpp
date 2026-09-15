@@ -242,7 +242,7 @@ Tempo handles payments at scale and has properties that make it a uniquely good 
   <Tab title="Server">
   <div className="space-y-4">
 
-Use [`tempo.session`](/sdk/typescript/server/Method.tempo.session) to accept Sessions. The server needs an RPC URL for channel open, top-up, settlement, and close operations, plus an atomic store backend for channel state.
+Use [`tempo.session`](/sdk/typescript/server/Method.tempo.session) to accept Sessions. The server needs an RPC URL for channel open, top-up, settlement, and close operations, plus an atomic store backend for channel state. The backend must implement atomic `update(key, fn)` across all server instances. The Redis, Upstash, and Cloudflare adapters only preserve an existing `update` implementation; they do not make standard clients atomic.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -256,7 +256,7 @@ const mppx = Mppx.create({
       account, // signs server-side reserve settlement and close transactions
       chainId: 4217, // optional; pins Challenges to Tempo mainnet
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      store: Store.memory(), // use Redis, Upstash, or Cloudflare for production
+      store: Store.memory(), // use a durable AtomicStore in production
     }),
   ],
 })
@@ -278,7 +278,7 @@ const mppx = Mppx.create({
       account, // signs server-side reserve settlement and close transactions
       chainId: 4217, // optional; pins Challenges to Tempo mainnet
       currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
-      store: Store.memory(), // use Redis, Upstash, or Cloudflare for production
+      store: Store.memory(), // use a durable AtomicStore in production
     }),
   ],
 })
