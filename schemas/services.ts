@@ -11227,4 +11227,43 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Talarion ───────────────────────────────────────────────────────────
+  {
+    id: "talarion",
+    name: "Talarion",
+    url: "https://talarion.com",
+    serviceUrl: "https://api.talarion.com",
+    description:
+      "A knowledge base of verified, dated facts your LLM would otherwise get wrong. Built for AI apps that are world-state dependent.",
+    categories: ["search", "ai"],
+    integration: "first-party",
+    tags: ["search", "facts", "news", "archive", "point-in-time"],
+    status: "active",
+    docs: {
+      homepage: "https://docs.talarion.com",
+      apiReference: "https://docs.talarion.com/search",
+      llmsTxt: "https://talarion.com/llms.txt",
+    },
+    provider: { name: "Talarion", url: "https://talarion.com" },
+    realm: "api.talarion.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/search",
+        desc: "Search question in, verified dated facts with sources out",
+        amount: "2000",
+        unitType: "request",
+        docs: "https://docs.talarion.com/search",
+      },
+      {
+        route: "POST /v1/fetch",
+        desc: "Archived text of up to 20 URLs, as of any date",
+        dynamic: true,
+        amountHint: "$0.05 per document returned",
+        unitType: "document",
+        docs: "https://docs.talarion.com/fetch",
+      },
+    ],
+  },
 ];
