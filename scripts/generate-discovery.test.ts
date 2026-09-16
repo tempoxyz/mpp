@@ -311,4 +311,41 @@ describe("service registry integrity", () => {
   it("passes all validation rules", () => {
     expect(() => validateServices(allServices)).not.toThrow();
   });
+
+  it("includes the current Parallel API endpoints and pricing", () => {
+    const parallel = allServices.find((service) => service.id === "parallel");
+
+    expect(parallel?.endpoints).toEqual([
+      {
+        route: "POST /api/responses",
+        desc: "Answer questions with web citations",
+        dynamic: true,
+        amountHint: "$0.01 – $0.25 depending on research effort",
+        unitType: "request",
+        docs: "https://parallelmpp.dev/#responses",
+      },
+      {
+        route: "POST /api/search",
+        desc: "Search the web",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/extract",
+        desc: "Extract page content",
+        amount: "10000",
+        unitType: "url",
+      },
+      {
+        route: "POST /api/task",
+        desc: "Multi-hop web research task - price varies by processor",
+        dynamic: true,
+        amountHint: "$0.10 – $0.30",
+      },
+      {
+        route: "GET /api/task/:runId",
+        desc: "Poll a research task for results",
+      },
+    ]);
+  });
 });

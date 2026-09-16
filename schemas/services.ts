@@ -1896,17 +1896,26 @@ export const services: ServiceDef[] = [
     name: "Parallel",
     url: "https://parallelmpp.dev",
     serviceUrl: `https://parallelmpp.dev`,
-    description: "Web search, page extraction, and multi-hop web research.",
+    description:
+      "Cited answers, web search, page extraction, and multi-hop web research.",
 
     categories: ["search", "ai"],
     integration: "first-party",
-    tags: ["search", "web", "extraction", "research"],
+    tags: ["answers", "search", "web", "extraction", "research"],
     docs: { homepage: "https://parallelmpp.dev/#agents" },
     provider: { name: "Parallel", url: "https://parallel.ai" },
     realm: "parallelmpp.dev",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
     endpoints: [
+      {
+        route: "POST /api/responses",
+        desc: "Answer questions with web citations",
+        dynamic: true,
+        amountHint: "$0.01 – $0.25 depending on research effort",
+        unitType: "request",
+        docs: "https://parallelmpp.dev/#responses",
+      },
       {
         route: "POST /api/search",
         desc: "Search the web",
@@ -1917,13 +1926,17 @@ export const services: ServiceDef[] = [
         route: "POST /api/extract",
         desc: "Extract page content",
         amount: "10000",
-        unitType: "request",
+        unitType: "url",
       },
       {
         route: "POST /api/task",
         desc: "Multi-hop web research task - price varies by processor",
         dynamic: true,
         amountHint: "$0.10 – $0.30",
+      },
+      {
+        route: "GET /api/task/:runId",
+        desc: "Poll a research task for results",
       },
     ],
   },
