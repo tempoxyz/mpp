@@ -334,16 +334,28 @@ type Mppx = {
     },
   ) => Promise<PreparedPayment>
   /** Returns an HTTP response with its exact request and optional payment. */
-  prepareRequest: (
-    input: RequestInfo | URL,
-    init?: RequestInit,
-    options?: {
-      acceptPayment?: string | AcceptPayment.Entry[]
-      maxRedirects?: number
-      orderChallenges?: OrderChallenges
-      requirePayment?: boolean
-    },
-  ) => Promise<PreparedRequest>
+  prepareRequest: {
+    <const RequirePayment extends boolean>(
+      input: RequestInfo | URL,
+      init: RequestInit | undefined,
+      options: {
+        acceptPayment?: string | AcceptPayment.Entry[]
+        maxRedirects?: number
+        orderChallenges?: OrderChallenges
+        requirePayment: RequirePayment
+      },
+    ): Promise<PreparedRequest<RequirePayment>>
+    (
+      input: RequestInfo | URL,
+      init?: RequestInit,
+      options?: {
+        acceptPayment?: string | AcceptPayment.Entry[]
+        maxRedirects?: number
+        orderChallenges?: OrderChallenges
+        requirePayment?: false
+      },
+    ): Promise<PreparedRequest>
+  }
   /** The original, unwrapped fetch — bypasses payment interception. */
   rawFetch: typeof globalThis.fetch
   /** The transport used. */

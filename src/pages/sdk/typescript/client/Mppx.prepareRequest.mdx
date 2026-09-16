@@ -27,11 +27,14 @@ const prepared = await mppx.prepareRequest('https://api.example.com/checkout', {
 })
 
 console.log(prepared.response.status)
+// @log: 402
 
 if (prepared.payment) {
-  console.log(prepared.payment.challenge.request)
+  console.log(`${prepared.payment.challenge.method}/${prepared.payment.challenge.intent}`)
+  // @log: tempo/charge
   const response = await prepared.payment.pay()
   console.log(response.status)
+  // @log: 200
 }
 // [!code hl:end]
 ```
@@ -63,11 +66,13 @@ const mppx = Mppx.create({
   polyfill: false,
 })
 
+// [!code hl:start]
 const prepared = await mppx.prepareRequest(
   'https://api.example.com/paid',
   undefined,
   { requirePayment: true },
 )
+// [!code hl:end]
 
 const response = await prepared.payment.pay()
 ```
@@ -87,6 +92,7 @@ const mppx = Mppx.create({
   polyfill: false,
 })
 
+// [!code hl:start]
 const prepared = await mppx.prepareRequest(
   'https://api.example.com/paid',
   undefined,
@@ -99,8 +105,10 @@ const prepared = await mppx.prepareRequest(
     requirePayment: true,
   },
 )
+// [!code hl:end]
 
-console.log(prepared.payment.challenge.request)
+console.log(`${prepared.payment.challenge.method}/${prepared.payment.challenge.intent}`)
+// @log: tempo/charge
 ```
 
 ## Return type
@@ -108,8 +116,8 @@ console.log(prepared.payment.challenge.request)
 ```ts
 type PreparedRequest<RequirePayment extends boolean = false> = Readonly<{
   payment: RequirePayment extends true
-    ? PreparedPayment
-    : PreparedPayment | undefined
+    ? PreparedRequest.Payment
+    : PreparedRequest.Payment | undefined
   redirects: readonly Readonly<{
     from: string
     status: number
@@ -119,14 +127,16 @@ type PreparedRequest<RequirePayment extends boolean = false> = Readonly<{
   response: Response
 }>
 
-type PreparedPayment = Readonly<{
-  challenge: Challenge
-  challenges: readonly Challenge[]
-  createCredential: (context?: Context) => Promise<string>
-  method: Method.Client
-  pay: (context?: Context) => Promise<Response>
-  setCredential: (request: RequestInit, credential: string) => RequestInit
-}>
+declare namespace PreparedRequest {
+  type Payment = Readonly<{
+    challenge: Challenge
+    challenges: readonly Challenge[]
+    createCredential: (context?: Context) => Promise<string>
+    method: Method.Client
+    pay: (context?: Context) => Promise<Response>
+    setCredential: (request: RequestInit, credential: string) => RequestInit
+  }>
+}
 ```
 
 ### payment
