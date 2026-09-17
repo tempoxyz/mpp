@@ -122,6 +122,35 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── FiledProof ────────────────────────────────────────────────────────
+  {
+    id: "filedproof",
+    name: "FiledProof",
+    url: "https://filedproof.davisvillelabs.com",
+    serviceUrl: "https://filedproof.davisvillelabs.com",
+    description:
+      "Evidence-first SEC filing intelligence for AI agents, including financial-fact reconciliation and disclosure-change evidence from primary-source SEC filings.",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: ["sec", "filings", "financial-data", "disclosures", "evidence", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://filedproof.davisvillelabs.com/agents",
+      llmsTxt: "https://filedproof.davisvillelabs.com/llms.txt",
+      apiReference: "https://filedproof.davisvillelabs.com/openapi.json",
+    },
+    provider: { name: "Davisville Labs LLC", url: "https://davisvillelabs.com" },
+    realm: "filedproof.davisvillelabs.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      { route: "GET /v1/capabilities", desc: "Discover FiledProof capabilities and commerce metadata" },
+      { route: "POST /v1/research/financial-fact/preflight", desc: "Check whether a financial-fact reconciliation is eligible before payment" },
+      { route: "POST /v1/research/financial-fact", desc: "Reconcile one reported financial fact across supported SEC filings", amount: "100", unitType: "request" },
+      { route: "POST /v1/research/changes/:identifier", desc: "Prioritize new SEC disclosure changes with before/after evidence and provenance", amount: "1500", unitType: "request" },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
