@@ -780,6 +780,65 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Bimini Sonar ───────────────────────────────────────────────────────
+  {
+    id: "bimini-sonar",
+    name: "Bimini Sonar",
+    url: "https://sonar.bimini.one",
+    serviceUrl: "https://sonar.bimini.one",
+    description:
+      "Daily forward-looking market assessment — Tailwind, Headwind or Crosswind — with a transparent chain of reasoning, plus the economic events and central-bank transcripts behind it. Paid per call, no account or API key.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "finance",
+      "macro",
+      "economics",
+      "market-data",
+      "central-banks",
+      "analysis",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://sonar.bimini.one/agents",
+      apiReference: "https://sonar.bimini.one/openapi.json",
+    },
+    provider: { name: "Bimini One, Inc.", url: "https://bimini.one" },
+    realm: "sonar.bimini.one",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/data/economic-events",
+        desc: "Economic releases with a directional assessment and supporting analysis",
+        amount: "100",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/data/transcripts",
+        desc: "Central-bank speeches and testimony with a directional assessment",
+        amount: "300",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/data/briefs/:external_id",
+        desc: "Full daily intelligence brief body",
+        amount: "633",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/data/briefs",
+        desc: "Brief catalogue — free",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/data",
+        desc: "Discovery manifest — endpoints, live prices and return shapes",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Browserbase ────────────────────────────────────────────────────────
   {
     id: "browserbase",
