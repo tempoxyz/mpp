@@ -228,6 +228,8 @@ With a Tempo deposit address, `defaultMethods()` returns Tempo charge followed b
 
 Stripe-managed stablecoin charge methods created directly or through `.additional()` require at least `0.01` USD. Below that amount, `mppx` excludes the method before returning a Challenge. Tempo sessions don't use this minimum.
 
+For stablecoin payments with a fractional-cent amount, `mppx` rounds the recorded `PaymentIntent` down to whole cents so it never records more than the on-chain transfer.
+
 ## Returned methods
 
 ### base.charge
