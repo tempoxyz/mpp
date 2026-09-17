@@ -3906,6 +3906,73 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── InferenceView ──────────────────────────────────────────────────
+  {
+    id: "inferenceview",
+    name: "InferenceView",
+    url: "https://inferenceview.com",
+    serviceUrl: "https://inferenceview.com",
+    description:
+      "Purchase bounded reports of retained finalized Tempo observations as CSV, ZIP or JSON, with exact totals and explicit coverage. Request a free scope-and-price quote before Stripe MPP payment. Wallets are not verified agent or customer identities.",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: [
+      "tempo",
+      "transactions",
+      "reports",
+      "csv",
+      "json",
+      "analytics",
+      "provenance",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://inferenceview.com/agent-reports.md",
+      llmsTxt: "https://inferenceview.com/llms.txt",
+      apiReference: "https://inferenceview.com/openapi.json",
+    },
+    provider: { name: "InferenceView", url: "https://inferenceview.com" },
+    realm: "inferenceview.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/reports/catalog",
+        desc: "Read current USD prices, report tiers, row limits, license and checkout availability.",
+        docs: "https://inferenceview.com/agent-reports.md",
+      },
+      {
+        route: "GET /api/reports/agent",
+        desc: "Check live Stripe MPP availability and discover quote, payment and delivery instructions.",
+        docs: "https://inferenceview.com/agent-reports.md",
+      },
+      {
+        route: "POST /api/reports/quote",
+        desc: "Create a free quote for a bounded Tempo report. Review exact price, rows, coverage, truncation, license and expiry before authorizing payment.",
+        docs: "https://inferenceview.com/agent-reports.md",
+      },
+      {
+        route: "POST /api/reports/agent",
+        desc: "Purchase a quoted report using quote_id and a retained random access_key. Authorize the exact Stripe MPP Shared Payment Token challenge, then retry the same body and credential. Returns order and download URL after verified payment.",
+        dynamic: true,
+        amountHint:
+          "From $9 USD: Essential $9, Analytics $29, Evidence $79 with 1,000 rows included; $5 per additional 10,000 rows. Free quote and runtime challenge set the exact price.",
+        unitType: "report",
+        docs: "https://inferenceview.com/agent-reports.md",
+      },
+      {
+        route: "GET /api/reports/order",
+        desc: "Check an existing order using the order query parameter and its Bearer access_key; no additional purchase.",
+        docs: "https://inferenceview.com/agent-reports.md",
+      },
+      {
+        route: "GET /api/reports/download",
+        desc: "Download an existing paid order as ZIP, CSV or JSON using its order parameter and Bearer access_key. Access lasts 30 days and is revoked after a refund or dispute.",
+        docs: "https://inferenceview.com/agent-reports.md",
+      },
+    ],
+  },
+
   // ── KicksDB ────────────────────────────────────────────────────────
   {
     id: "kicksdb",
