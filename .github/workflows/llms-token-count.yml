@@ -45,13 +45,15 @@ jobs:
           COUNT=$TOKEN_COUNT
           THRESHOLD=$TOKEN_THRESHOLD
           STATUS=$( [ "$COUNT" -gt "$THRESHOLD" ] && echo "Over" || echo "Under" )
-          echo "### llms-full.txt token count" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Tokens** | $(printf "%'d" $COUNT) |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Threshold** | $(printf "%'d" $THRESHOLD) |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| **Status** | $STATUS |" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### llms-full.txt token count"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|--------|-------|"
+            echo "| **Tokens** | $(printf "%'d" "$COUNT") |"
+            echo "| **Threshold** | $(printf "%'d" "$THRESHOLD") |"
+            echo "| **Status** | $STATUS |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Create or update issue
         if: steps.count.outputs.over_threshold == 'true'

@@ -1,7 +1,8 @@
 name: Service PR Guide
 
 on:
-  pull_request_target:
+  # This job posts a static comment and never checks out or executes pull request code.
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     types: [opened]
     paths:
       - "schemas/services.ts"

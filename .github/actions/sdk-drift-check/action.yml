@@ -42,35 +42,40 @@ runs:
   steps:
     - name: Update SDK package
       shell: bash
+      env:
+        SDK_PACKAGE: ${{ inputs.sdk-package }}
+        SDK_VERSION: ${{ inputs.sdk-version }}
       run: |
-        if [ "${{ inputs.sdk-version }}" = "latest" ]; then
-          pnpm add -w ${{ inputs.sdk-package }}@latest
+        if [ "$SDK_VERSION" = "latest" ]; then
+          pnpm add -w "$SDK_PACKAGE@latest"
         else
-          pnpm add -w ${{ inputs.sdk-package }}@${{ inputs.sdk-version }}
+          pnpm add -w "$SDK_PACKAGE@$SDK_VERSION"
         fi
 
     - name: Run drift check
       id: check
       shell: bash
       env:
+        ACTION_PATH: ${{ github.action_path }}
+        OUTPUT_DIR: ${{ inputs.output-dir }}
         SDK_PACKAGE: ${{ inputs.sdk-package }}
         VOCS_CONFIG: ${{ inputs.vocs-config }}
         SDK_PATH_PREFIX: ${{ inputs.sdk-path-prefix }}
       run: |
-        mkdir -p ${{ inputs.output-dir }}
+        mkdir -p "$OUTPUT_DIR"
         
         # Run the check script bundled with this action
-        pnpm dlx tsx ${{ github.action_path }}/check-sdk-drift.ts \
-          --output ${{ inputs.output-dir }}/drift-report.json \
-          2>&1 | tee ${{ inputs.output-dir }}/drift-report.txt
+        pnpm dlx tsx "$ACTION_PATH/check-sdk-drift.ts" \
+          --output "$OUTPUT_DIR/drift-report.json" \
+          2>&1 | tee "$OUTPUT_DIR/drift-report.txt"
         
         EXIT_CODE=${PIPESTATUS[0]}
         
         # Parse results for outputs
-        if [ -f "${{ inputs.output-dir }}/drift-report.json" ]; then
-          TOTAL=$(jq -r '.summary.total' ${{ inputs.output-dir }}/drift-report.json)
-          VALID=$(jq -r '.summary.valid' ${{ inputs.output-dir }}/drift-report.json)
-          INVALID=$(jq -r '.summary.invalid' ${{ inputs.output-dir }}/drift-report.json)
+        if [ -f "$OUTPUT_DIR/drift-report.json" ]; then
+          TOTAL=$(jq -r '.summary.total' "$OUTPUT_DIR/drift-report.json")
+          VALID=$(jq -r '.summary.valid' "$OUTPUT_DIR/drift-report.json")
+          INVALID=$(jq -r '.summary.invalid' "$OUTPUT_DIR/drift-report.json")
           
           echo "total=$TOTAL" >> $GITHUB_OUTPUT
           echo "valid=$VALID" >> $GITHUB_OUTPUT

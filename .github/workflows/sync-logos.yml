@@ -51,14 +51,16 @@ jobs:
           SYNCED=$(echo "$SUMMARY" | jq -r '.synced // 0')
           TOTAL=$(echo "$SUMMARY" | jq -r '.total // 0')
           PLACEHOLDERS=$(echo "$SUMMARY" | jq -r '.placeholders // 0')
-          echo "## 🖼️ Logo Sync Results" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Metric | Count |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Total services | $TOTAL |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| ✅ Synced | $SYNCED |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| ⚠️ Placeholders | $PLACEHOLDERS |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| ❌ Failed | $FAILED |" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## 🖼️ Logo Sync Results"
+            echo ""
+            echo "| Metric | Count |"
+            echo "|--------|-------|"
+            echo "| Total services | $TOTAL |"
+            echo "| ✅ Synced | $SYNCED |"
+            echo "| ⚠️ Placeholders | $PLACEHOLDERS |"
+            echo "| ❌ Failed | $FAILED |"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Fail if icons failed
         if: always()
         env:

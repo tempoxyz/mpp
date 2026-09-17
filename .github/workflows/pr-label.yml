@@ -1,7 +1,8 @@
 name: PR Auto-Label
 
 on:
-  pull_request_target:
+  # This job checks out the trusted base branch and reads pull request metadata only.
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     types: [opened, synchronize]
 
 permissions: {}

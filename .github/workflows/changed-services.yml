@@ -1,7 +1,8 @@
 name: Changed Services
 
 on:
-  pull_request_target:
+  # This job fetches files through the API and treats their contents only as data.
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     types: [opened, synchronize]
     paths:
       - "schemas/services.ts"
