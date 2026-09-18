@@ -8,6 +8,8 @@
 
 // --- Shared constants ---
 export const USDCe = "0x20c000000000000000000000b9537d11c60e8b50";
+/** Tempo native pathUSD (TIP-20). */
+export const PATHUSD = `0x20c0${"0".repeat(36)}`;
 /** @deprecated Use `USDCe` instead. */
 export const USDC = USDCe;
 export const MPP_REALM = "mpp.tempo.xyz";
@@ -64,6 +66,13 @@ export interface PaymentDefaults {
 export const TEMPO_PAYMENT: PaymentDefaults = {
   method: "tempo",
   currency: USDCe,
+  decimals: 6,
+};
+
+/** Common payment defaults for Tempo pathUSD services */
+export const PATHUSD_PAYMENT: PaymentDefaults = {
+  method: "tempo",
+  currency: PATHUSD,
   decimals: 6,
 };
 
@@ -1508,6 +1517,60 @@ export const services: ServiceDef[] = [
         desc: "Tip or hire an X user with USDC",
         dynamic: true,
         amountHint: "$0.01+",
+      },
+    ],
+  },
+
+  // ── mpp.tl ─────────────────────────────────────────────────────────────
+  {
+    id: "mpp-tl",
+    name: "mpp.tl",
+    url: "https://mpp.tl",
+    serviceUrl: "https://mpp.tl",
+    description:
+      "Pay-per-call URL shortener for agents. $0.01 Tempo testnet pathUSD for a random code, or $0.01 mainnet pathUSD or USDC.e to pick the path. No API key. GET /{slug} redirects for free.",
+    icon: "https://mpp.tl/icon.svg",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["url", "shortener", "links", "utilities"],
+    status: "active",
+    docs: {
+      homepage: "https://mpp.tl",
+      llmsTxt: "https://mpp.tl/llms.txt",
+      apiReference: "https://mpp.tl/openapi.json",
+    },
+    provider: { name: "mpp.tl", url: "https://mpp.tl" },
+    realm: "mpp.tl",
+    intent: "charge",
+    payments: [PATHUSD_PAYMENT, TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/shorten",
+        desc: "Create a random short code (Tempo testnet pathUSD)",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/shorten/custom",
+        desc: "Create a named short path (Tempo mainnet pathUSD or USDC.e)",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "DELETE /api/links/:code",
+        desc: "Delete a random testnet short link (same payer)",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "DELETE /api/shorten/custom/:slug",
+        desc: "Delete a named mainnet short link (same payer)",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /:slug",
+        desc: "Redirect a short link to its destination (free)",
       },
     ],
   },
