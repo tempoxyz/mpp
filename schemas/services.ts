@@ -11261,7 +11261,7 @@ export const services: ServiceDef[] = [
     endpoints: [
       {
         route: "GET /v1/warn-feed",
-        desc: "Current WARN Act layoff filings, normalized, official source URL on every row. Refuses to charge when its own data is stale.",
+        desc: "Current WARN Act layoff filings with NAICS sector where the state publishes one, normalized, official source URL on every row. Refuses to charge when its own data is stale.",
         amount: "50",
         unitType: "request",
       },
