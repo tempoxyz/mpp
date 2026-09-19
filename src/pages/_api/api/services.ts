@@ -61,13 +61,13 @@ async function liveCatalog(): Promise<ServicesCatalog> {
     });
     if (!response.ok) throw new Error(`MPP proxy manifest ${response.status}`);
     const catalog = mergeMppProxyCatalog(
-      discovery as ServicesCatalog,
+      discovery as unknown as ServicesCatalog,
       await response.json(),
     );
     cachedCatalog = { catalog, expiresAt: Date.now() + MANIFEST_CACHE_MS };
     return catalog;
   } catch (error) {
     console.warn("Falling back to the checked-in MPP service catalog", error);
-    return cachedCatalog?.catalog ?? (discovery as ServicesCatalog);
+    return cachedCatalog?.catalog ?? (discovery as unknown as ServicesCatalog);
   }
 }
