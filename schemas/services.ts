@@ -11239,4 +11239,86 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── FDE Lessons + WARN Feed ─────────────────────────────────────────────
+  {
+    id: "fde-lessons-warn-feed",
+    name: "FDE Lessons + WARN Feed",
+    url: "https://ignatiustheyoungerai.com",
+    serviceUrl: "https://api.ignatiustheyoungerai.com",
+    description:
+      "Current WARN Act mass-layoff filings from official US state sources, and Forward Deployed Engineering rules traced to real incidents.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "layoffs",
+      "warn-act",
+      "labor-market",
+      "sales-intelligence",
+      "engineering",
+      "agent-operations",
+    ],
+    docs: {
+      homepage: "https://ignatiustheyoungerai.com",
+      llmsTxt: "https://api.ignatiustheyoungerai.com/llms.txt",
+      apiReference: "https://api.ignatiustheyoungerai.com/openapi.json",
+    },
+    provider: {
+      name: "IgnatiusTheYoungerAI",
+      url: "https://ignatiustheyoungerai.com",
+    },
+    realm: "api.ignatiustheyoungerai.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/warn-feed",
+        desc: "Current WARN Act layoff filings with NAICS sector where the state publishes one, normalized, official source URL on every row. Refuses to charge when its own data is stale.",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/fde-lessons",
+        desc: "Full Forward Deployed Engineering rule set, each traced to the incident behind it",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/fde-playbooks",
+        desc: "Situational runbooks with ordered, checkable steps",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/fde-preship-checklist",
+        desc: "Pre-ship gates, each naming the concrete failure it prevents",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/pricing",
+        desc: "Agent Pricing Index — full records",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/catalogue",
+        desc: "Index of every rule, playbook and checklist item with bodies withheld. Call before paying.",
+        amount: "0",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/warn-feed/preview",
+        desc: "Real but aged sample rows in the exact paid schema",
+        amount: "0",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/warn-feed/status",
+        desc: "Per-state source fetch results, errors included, plus the freshness policy the paywall enforces",
+        amount: "0",
+        unitType: "request",
+      },
+    ],
+  },
 ];
