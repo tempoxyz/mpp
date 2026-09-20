@@ -11304,6 +11304,10 @@ export const services: ServiceDef[] = [
         amount: "50",
         unitType: "request",
       },
+      {
+        route: "POST /mcp",
+        desc: "MCP server. Free tools are unmetered; paid tools answer in-band with an MPP payment challenge at $0.50/call",
+      },
     ],
   },
 ];
