@@ -45,7 +45,7 @@ $ mppx example.com
 ## Commands and options
 
 :::terminal
-```bash [terminal]
+```bash [test.sh]
 $ mppx --help
 ```
 ```txt
@@ -59,7 +59,7 @@ Keep the default `--protocol auto` for most requests. The CLI prefers MPP when t
 
 Require one protocol when testing an integration or refusing the other protocol:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx https://api.example.com/paid --protocol x402
 $ mppx https://api.example.com/paid --protocol mpp
 ```
@@ -70,13 +70,13 @@ x402 payments support compatible EVM `exact` Challenges and use the same account
 
 Use `mppx validate` to automatically verify an MPP server implementation end-to-end. The command tests `/llms.txt`, OpenAPI discovery, Challenge formats, error handling, and the full payment flow. A missing, empty, or non-text `/llms.txt` appears as a non-blocking `suggested` result.
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx validate https://api.example.com
 ```
 
 To test a specific route that needs request data, pass a body or query parameters:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx validate https://api.example.com --endpoint POST:/reports --body '{"format":"csv"}'
 $ mppx validate https://api.example.com --endpoint GET:/quotes --query symbol=ETH
 ```
@@ -119,7 +119,7 @@ The `summary` contains `failed`, `passed`, `skipped`, `suggested`, and `warnings
 
 Pass method-specific key-value pairs with `-M` (repeatable):
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx example.com/content -M deposit=1
 $ mppx example.com/content -M allowCustomEscrow=true
 ```
@@ -130,7 +130,7 @@ For Tempo Session payments, `deposit` sets the maximum deposit in token units: `
 
 Pass `--format json` to commands that support structured output. This is useful when another tool calls `mppx`.
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx account list --format json
 ```
 
@@ -154,13 +154,13 @@ The CLI writes response body chunks as they arrive. SSE messages and other strea
 
 Create an `mppx.config.*` file in the current directory. The CLI uses `.ts` when it finds `tsconfig.json`, `.mjs` for an ESM package, and `.js` otherwise:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx init
 ```
 
 Use `--force` to overwrite an existing config file:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx init --force
 ```
 
@@ -214,14 +214,14 @@ Extensions run in configuration order for paid requests, `mppx sign`, `mppx vali
 
 Sign a payment Challenge and output its serialized Payment Credential value without making a request. Pass the complete `WWW-Authenticate` value with `--challenge`. Send the result in the field advertised by `header`, or `Authorization` when omitted.
 
-```bash [terminal]
+```bash [test.sh]
 $ challenge='Payment id="abc", realm="api.example.com", method="tempo", intent="charge", request="eyJhbW91bnQiOiIwIiwiY3VycmVuY3kiOiIweDIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJyZWNpcGllbnQiOiIweDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0"'
 $ mppx sign --challenge "$challenge"
 ```
 
 Use `--dry-run` to validate and parse a Challenge without signing:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx sign --challenge "$challenge" --dry-run
 ```
 
@@ -229,7 +229,7 @@ $ mppx sign --challenge "$challenge" --dry-run
 
 Manage local keychain-backed accounts with `mppx account`.
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx account create --account main
 $ mppx account default --account main
 $ mppx account list
@@ -238,7 +238,7 @@ $ mppx account view --account main
 
 Export a local account private key when you need to import it into another wallet or tool:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx account export --account main
 ```
 
@@ -250,14 +250,14 @@ $ mppx account export --account main
 
 The CLI supports Stripe payment methods. Set your Stripe test-mode secret key and make requests to Stripe-enabled endpoints.
 
-```bash [terminal]
+```bash [test.sh]
 $ export MPPX_STRIPE_SECRET_KEY=sk_test_...
 $ mppx https://example.com/content
 ```
 
 Pass method-specific options with `-M`:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx https://example.com/content -M paymentMethod=pm_card_visa
 ```
 
@@ -265,18 +265,18 @@ $ mppx https://example.com/content -M paymentMethod=pm_card_visa
 
 Register `mppx` as an MCP server for use with coding agents:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx mcp add
 ```
 
 Sync skill files to your agent's skill directory:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx skills add
 ```
 
 Generate shell completions:
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx completions
 ```

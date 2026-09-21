@@ -353,7 +353,7 @@ Register your service on [MPPScan](https://mppscan.com) or the [MPP Services dir
 
 After your server is running, test it with the `mppx` CLI:
 
-```bash [terminal]
+```bash [test.sh]
 $ npx mppx validate <your-server>
 ```
 
@@ -363,7 +363,7 @@ Set `testnet: true` in `tempo.charge()` while testing so `npx mppx validate` and
 
 You can also test each step individually:
 
-```bash [terminal]
+```bash [test.sh]
 # Create and fund a testnet account
 $ npx mppx account create --network testnet
 $ npx mppx account fund --network testnet

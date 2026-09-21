@@ -159,7 +159,7 @@ export default { fetch: proxy.fetch }
 
 ### Test via the `mppx` CLI
 
-```bash [terminal]
+```bash [test.sh]
 # Validate the paid route
 $ npx mppx validate http://localhost:3000
 
@@ -220,7 +220,7 @@ Built-in service presets (`openai`, `anthropic`, `stripe`) handle upstream auth 
 
 The proxy auto-generates discovery endpoints so coding agents and CLI tools can find available services and pricing.
 
-```bash [terminal]
+```bash [test.sh]
 # Human-readable overview
 $ curl http://localhost:3000/llms.txt
 

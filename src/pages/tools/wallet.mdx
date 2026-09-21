@@ -37,31 +37,31 @@ Read https://tempo.xyz/SKILL.md and set up tempo
 
 ### Install the CLI
 
-```bash [terminal]
+```bash [test.sh]
 $ curl -fsSL https://tempo.xyz/install | bash
 ```
 
 ### Connect your wallet
 
-```bash [terminal]
+```bash [test.sh]
 $ tempo wallet login
 ```
 
 ### Verify setup
 
-```bash [terminal]
+```bash [test.sh]
 $ tempo wallet whoami
 ```
 
 ### List available services
 
-```bash [terminal]
+```bash [test.sh]
 $ tempo wallet services
 ```
 
 ### Make a paid request
 
-```bash [terminal]
+```bash [test.sh]
 $ tempo request -X POST \
   --json '{"prompt": "a sunset over the ocean"}' \
   https://fal.mpp.tempo.xyz/fal-ai/flux/dev
@@ -101,13 +101,13 @@ Set up https://agents.privy.io/skill.md
 
 ### Install
 
-```bash [terminal]
+```bash [test.sh]
 $ npm install -g @privy-io/agent-wallet-cli
 ```
 
 ### Log in
 
-```bash [terminal]
+```bash [test.sh]
 $ privy-agent-wallets login
 ```
 
@@ -115,19 +115,19 @@ This opens a browser flow—complete Privy auth, approve signer access, then pas
 
 ### Fund wallets
 
-```bash [terminal]
+```bash [test.sh]
 $ privy-agent-wallets fund
 ```
 
 ### List wallets
 
-```bash [terminal]
+```bash [test.sh]
 $ privy-agent-wallets list-wallets
 ```
 
 ### Send a transaction
 
-```bash [terminal]
+```bash [test.sh]
 $ privy-agent-wallets rpc --json '{"method": "eth_sendTransaction", "params": {"to": "0xRecipient", "value": "0.01"}}'
 ```
 
@@ -164,19 +164,19 @@ Set up agentcash.dev/skill.md
 
 Visit [agentcash.dev/onboard](https://agentcash.dev/onboard) to claim a sign-up bonus, then redeem in your terminal:
 
-```bash [terminal]
+```bash [test.sh]
 $ npx agentcash onboard <CODE>
 ```
 
 ### Search for services
 
-```bash [terminal]
+```bash [test.sh]
 $ npx agentcash search "image generation"
 ```
 
 ### Use a service
 
-```bash [terminal]
+```bash [test.sh]
 $ npx agentcash fetch https://stableenrich.dev/api/exa/search \
     --method POST \
     --body '{"query":"agentcash.dev"}'
@@ -184,7 +184,7 @@ $ npx agentcash fetch https://stableenrich.dev/api/exa/search \
 
 ### Install as MCP server (optional)
 
-```bash [terminal]
+```bash [test.sh]
 $ claude mcp add agentcash --scope user -- npx -y agentcash@latest
 ```
 
@@ -222,13 +222,13 @@ Read https://github.com/stripe/link-cli/blob/main/SKILL.md and set up link-cli
 
 ### Install
 
-```bash [terminal]
+```bash [test.sh]
 $ npm install -g @stripe/link-cli
 ```
 
 ### Log in
 
-```bash [terminal]
+```bash [test.sh]
 $ link-cli auth login --client-name "My Agent"
 ```
 
@@ -236,13 +236,13 @@ This displays a verification URL and phrase. Approve in the Link app to complete
 
 ### List payment methods
 
-```bash [terminal]
+```bash [test.sh]
 $ link-cli payment-methods list
 ```
 
 ### Make a paid request
 
-```bash [terminal]
+```bash [test.sh]
 $ link-cli mpp pay https://api.example.com/resource \
   --method POST \
   --data '{"prompt": "hello"}'
@@ -281,32 +281,32 @@ Then use the kite-passport skill to log in and pay for MPP services.
 
 ### Install the CLI
 
-```bash [terminal]
+```bash [test.sh]
 $ curl -fsSL https://agentpassport.ai/install.sh | bash
 ```
 
 ### Log in
 
-```bash [terminal]
+```bash [test.sh]
 $ kpass login init --email <you@example.com>
 ```
 
 ### Register your agent
 
-```bash [terminal]
+```bash [test.sh]
 $ kpass agent:register --type claude
 ```
 
 ### Create a spending session (owner approves via passkey)
 
-```bash [terminal]
+```bash [test.sh]
 $ kpass agent:session create \
     --max-amount-per-tx 0.50 --max-total-amount 5.00 --ttl 1h --assets USDC
 ```
 
 ### Make a paid request
 
-```bash [terminal]
+```bash [test.sh]
 $ kpass agent:session execute \
     --url https://fal.mpp.tempo.xyz/fal-ai/flux/schnell \
     --body '{"prompt": "a sunset over the ocean"}'
@@ -346,13 +346,13 @@ $ bun add -g mppx
 
 ### Create an account
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx account create
 ```
 
 ### Make a paid request
 
-```bash [terminal]
+```bash [test.sh]
 $ mppx https://mpp.dev/api/ping/paid
 ```
 

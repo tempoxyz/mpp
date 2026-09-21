@@ -21,7 +21,7 @@ The `openclaw-mpp` plugin uses a scoped Tempo Wallet access key for automatic MP
 
 Install Privy's OpenClaw skill when the agent needs a Privy wallet for onchain actions. Create a Privy app first, then keep its app secret in the OpenClaw configuration—not in a skill or source file.
 
-```bash [terminal]
+```bash [test.sh]
 $ clawhub install privy
 ```
 
@@ -38,7 +38,7 @@ $ clawhub install privy
 
 Restart the gateway, then ask the agent to create a wallet and attach the spending policies it needs.
 
-```bash [terminal]
+```bash [test.sh]
 $ openclaw gateway restart
 ```
 
@@ -51,7 +51,7 @@ The current `openclaw-mpp` plugin accepts a Tempo Wallet access key; it does not
 
 ## Install from ClawHub
 
-```bash [terminal]
+```bash [test.sh]
 $ openclaw plugins install clawhub:openclaw-mpp
 ```
 
@@ -62,7 +62,7 @@ Restart the gateway to load plugins.
 
 Use npm only as an explicit fallback:
 
-```bash [terminal]
+```bash [test.sh]
 $ openclaw plugins install npm:openclaw-mpp
 ```
 
@@ -72,7 +72,7 @@ The plugin adds `mpp_fetch` for agent-initiated HTTP requests, plus `mpp_wallet_
 
 Run setup once to authorize a scoped access key for OpenClaw. The command prints a Tempo Wallet link and waits for approval.
 
-```bash [terminal]
+```bash [test.sh]
 $ openclaw mpp setup
 ```
 
@@ -86,7 +86,7 @@ If the gateway was already running, restart it after setup so the plugin can loa
 
 Start OpenClaw and confirm that the MPP plugin initializes before making paid requests.
 
-```bash [terminal]
+```bash [test.sh]
 $ openclaw gateway run
 ```
 
@@ -117,13 +117,13 @@ If the active OpenClaw tool profile filters plugin tools, add `mpp` to the exist
 
 Set a shorter lifetime or a different USDC.e limit when authorizing the access key. `--no-deposit` skips the Tempo Wallet funding prompt. It does not bypass payment for protected APIs.
 
-```bash [terminal]
+```bash [test.sh]
 $ openclaw mpp setup --expires 24h --limit USDC=25 --no-deposit
 ```
 
 Inspect the account and access key currently available to OpenClaw:
 
-```bash [terminal]
+```bash [test.sh]
 $ openclaw mpp status
 ```
 
@@ -137,7 +137,7 @@ Publication: published
 
 Create and inspect a separate access key for Tempo testnet when needed. Commands without `--network` continue to target mainnet:
 
-```bash [terminal]
+```bash [test.sh]
 $ openclaw mpp setup --network testnet
 $ openclaw mpp status --network testnet
 ```
