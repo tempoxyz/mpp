@@ -8,22 +8,8 @@ permissions: {}
 jobs:
   scan:
     name: Scan GitHub Actions
-    runs-on: ubuntu-latest
+    uses: tempoxyz/gh-actions/.github/workflows/scan-github-actions.yml@bce53819ffa60fcdf8f0f349686d807e5a66a71b # 2026-09-21T21-56-41Z-bce53819
     permissions:
       actions: read
       contents: read
       id-token: write
-    steps:
-      - name: Secure runner
-        uses: tempoxyz/gh-actions/actions/secure-runner@baf48ebcfcb26812085b8351125493b2ef8009ab # 2026-09-21T19-33-30Z-baf48ebc
-
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Ensure every job starts with secure-runner
-        uses: tempoxyz/gh-actions/actions/ensure-secure-runner@baf48ebcfcb26812085b8351125493b2ef8009ab # 2026-09-21T19-33-30Z-baf48ebc
-
-      - name: Scan GitHub Actions
-        uses: tempoxyz/gh-actions/actions/scan-github-actions@baf48ebcfcb26812085b8351125493b2ef8009ab # 2026-09-21T19-33-30Z-baf48ebc
