@@ -9,7 +9,7 @@ Creates Stripe SPT and stablecoin server methods with deposit-address resolution
 
 ## Usage
 
-Pass a deposit-address resolver, then use `defaultMethods()` to offer Tempo stablecoins and Stripe Shared Payment Tokens. `mppx` records successful Tempo payments as Stripe `PaymentIntent` objects.
+Pass a deposit-address resolver, then use `defaultMethods()` to offer Tempo stablecoins and Stripe Shared Payment Tokens. `mppx` records successful Tempo charges and eligible Session settlements as Stripe `PaymentIntent` objects.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
@@ -129,6 +129,32 @@ The same Credential can invoke the resolver again on retry. Make external work i
 
 ## Advanced options
 
+### Record Tempo Session settlements
+
+Add a Tempo Session method through `defaultMethods().additional()`. Each settlement records the newly settled amount as a Stripe `PaymentIntent`, rounded down to whole cents, before `mppx` calls your optional `onSessionSettlement` hook. `mppx` skips recording when the amount rounds down below one cent.
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { Mppx, stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const payments = stripe.create({
+  client,
+  depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
+  livemode: true,
+  networkId: process.env.STRIPE_NETWORK_ID!,
+})
+
+const mppx = Mppx.create({
+  methods: await payments.defaultMethods().additional({
+    tempo: { session: {} },
+  }),
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+The recorded `PaymentIntent` uses the settlement transaction hash for idempotency and includes `mpp_intent: 'session'` metadata. Session settlements don't include `mpp_challenge_id` because the settlement callback doesn't receive a Challenge.
+
 ### Sponsor Tempo transaction fees
 
 Set `hostedFeePayer: true` to use Stripe's hosted Tempo fee payer for charge and Sessions methods created by this integration.
@@ -240,7 +266,7 @@ Creates a Base x402 charge method for a Stripe Base deposit address. Pass the br
 
 Returns an SPT charge method plus each stablecoin method with a configured deposit address. Pass `{ exclude: ['spt'] }` or `{ exclude: ['tempo'] }` to omit a default.
 
-Call `.additional(config)` before awaiting asynchronous address resolution. The config accepts `base`, `solana`, and `tempo.session` entries. Stablecoin charge methods record successful payments in Stripe without replacing their existing `onPaymentSuccess` hooks.
+Call `.additional(config)` before awaiting asynchronous address resolution. The config accepts `base`, `solana`, and `tempo.session` entries. Stablecoin charge methods record successful payments in Stripe without replacing their existing `onPaymentSuccess` hooks. Tempo Session methods record settlement deltas that floor to at least one cent before calling their existing `onSessionSettlement` hooks.
 
 Function resolvers run in parallel. If one network fails, `mppx` logs a warning, excludes that network's methods, and keeps the methods whose addresses resolved.
 
@@ -258,7 +284,7 @@ Creates a Tempo charge method for a Stripe deposit address. Currency and network
 
 ### tempo.session
 
-Creates a Tempo session method for a Stripe deposit address. Pass the remaining [`tempo.session`](/sdk/typescript/server/Method.tempo.session) configuration.
+Creates a Tempo session method for a Stripe deposit address. Pass the remaining [`tempo.session`](/sdk/typescript/server/Method.tempo.session) configuration. Each settlement that floors to at least one cent records the newly settled amount as a Stripe `PaymentIntent` before the optional `onSessionSettlement` hook runs.
 
 ## Parameters
 
@@ -296,7 +322,7 @@ Selects live or test networks and currencies for built-in stablecoin methods.
 
 - **Type:** `Record<string, string>`
 
-Key-value pairs attached to Stripe `PaymentIntent` objects created or recorded by SPT and stablecoin charge methods. Per-method `metadata` on `base.charge()` or `tempo.charge()` overrides matching keys. `mppx` adds `machine_payment`, `mpp_challenge_id`, `mpp_intent`, and `mpp_sdk` analytics keys by default; matching integration-, method-, or request-scoped metadata overrides them.
+Key-value pairs attached to Stripe `PaymentIntent` objects created or recorded by SPT, stablecoin charge, and Tempo Session methods. Per-method `metadata` on `base.charge()` or `tempo.charge()` overrides matching keys. `mppx` adds `machine_payment`, `mpp_intent`, and `mpp_sdk` analytics keys by default. Charge payments also include `mpp_challenge_id`; Session settlements don't. Matching integration-, method-, or request-scoped metadata overrides built-in values.
 
 ### networkId
 

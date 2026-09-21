@@ -10,9 +10,9 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Stripe [Cards and stablecoins from one integration]
 
-Use Stripe's machine-payments integration to offer stablecoins (Tempo and others) and [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) from one MPP server. Successful stablecoin payments are recorded in Stripe as `PaymentIntent` objects for unified reporting.
+Use Stripe's machine-payments integration to offer stablecoins (Tempo and others) and [Shared Payment Tokens (SPTs)](https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens) from one MPP server. Successful stablecoin charges and Tempo Session settlement amounts of at least one cent are recorded in Stripe as `PaymentIntent` objects for unified reporting.
 
-Every `PaymentIntent` that `mppx` creates or records includes `machine_payment`, `mpp_challenge_id`, `mpp_intent`, and `mpp_sdk` metadata by default so you can identify and analyze MPP payments in Stripe. The SDK identifier includes the `mppx` version. Built-in values are limited to 500 Unicode characters, and matching integration-, method-, or request-scoped metadata overrides them.
+Every `PaymentIntent` that `mppx` creates or records includes `machine_payment`, `mpp_intent`, and `mpp_sdk` metadata by default so you can identify and analyze MPP payments in Stripe. Charge payments also include `mpp_challenge_id`; Session settlements don't have a Challenge in their settlement callback. The SDK identifier includes the `mppx` version. Built-in values are limited to 500 Unicode characters, and matching integration-, method-, or request-scoped metadata overrides them.
 
 SPTs let a client share a customer's payment method with your Stripe account under configurable expiration and usage limits. The client creates an SPT through Stripe, and the server consumes it to create a `PaymentIntent`.
 
@@ -48,6 +48,8 @@ const mppx = Mppx.create({
 ```
 
 The resolver runs only for the stablecoin networks you enable. If one network fails, `mppx` warns and keeps the other resolved methods. Omit `depositAddresses` for a synchronous SPT-only setup.
+
+Add a Tempo Session method through `defaultMethods().additional({ tempo: { session: {} } })`. Each on-chain Session settlement of at least one cent records its newly settled amount in Stripe before `mppx` calls your optional `onSessionSettlement` hook. `mppx` skips recording when the amount rounds down below one cent.
 
 Set `hostedFeePayer: true` in a live-mode integration to sponsor Tempo transaction fees through Stripe. This option applies to Tempo charge and Sessions methods, requires a compatible Stripe Node SDK client, and doesn't support Stripe Connect account routing.
 
