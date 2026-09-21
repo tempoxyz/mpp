@@ -11,6 +11,8 @@ The `charge` intent for the Tempo payment method. Requests a one-time payment fr
 
 Non-zero charges verify on-chain transfers. Zero-amount charges verify a `proof` payload signed by the client's identity key and return a Receipt without broadcasting a transaction.
 
+For non-zero charges, the client generates a Challenge-bound attribution memo and the server always verifies it. Custom top-level memos aren't supported; split transfers can still include their own memos.
+
 ## Usage
 
 ```ts twoslash
@@ -287,12 +289,6 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 
 Renders a payment page when the request accepts `text/html`. Pass an object to customize the page.
 
-### memo (optional)
-
-- **Type:** `string`
-
-On-chain memo for the transaction.
-
 ### onPaymentSuccess (optional)
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge>`
@@ -344,7 +340,7 @@ Testnet mode. Defaults the chain ID to `42431` (Tempo testnet).
 
 - **Type:** `(parameters: { expectedSender: Address; sender: Address; source?: { address: Address; chainId: number } }) => boolean | Promise<boolean>`
 
-Allows a verified TIP-20 transfer sender to differ from the Credential source. Core verification still checks the amount, currency, memo, recipient, replay state, and transaction success.
+Allows a verified TIP-20 transfer sender to differ from the Credential source. Core verification still checks the amount, Challenge-bound attribution memo, currency, recipient, replay state, and transaction success.
 
 ### waitForConfirmation (optional)
 

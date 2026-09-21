@@ -56,6 +56,8 @@ If one asynchronous deposit-address lookup fails, `mppx` logs a warning and keep
 
 :::note
 Stripe requires a minimum charge of `0.50` USD (or equivalent) for card payments through SPTs. Stripe-managed stablecoin charge methods require at least `0.01` USD because Stripe can't record sub-cent `PaymentIntent` amounts. `mppx` excludes methods below these limits before returning a Challenge.
+
+When a stablecoin payment includes a fractional cent, `mppx` rounds the recorded `PaymentIntent` down to whole cents so its amount doesn't exceed the on-chain transfer.
 :::
 
 ### Configure PaymentIntents
