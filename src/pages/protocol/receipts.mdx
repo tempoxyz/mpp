@@ -58,11 +58,11 @@ Receipts enable:
 
 ## Payment method references
 
-| Settlement type | Reference format |
-|-----------------|------------------|
-| On-chain transfer | Transaction hash (`0xtx789...`) |
-| Card authorization | Authorization reference (`auth_1234...`) |
-| Invoice payment | Invoice ID (`inv_1234...`) |
+| Payment method and intent | Reference format |
+|---------------------------|------------------|
+| `stripe/charge` | PaymentIntent ID (`pi_1234...`) |
+| `tempo/charge` | Transaction hash (`0x789...`) |
+| `tempo/session` | Channel ID; settlement and close Receipts may also include `txHash` |
 
 ## Learn more
 

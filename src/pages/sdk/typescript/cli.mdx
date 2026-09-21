@@ -19,7 +19,7 @@ $ npx mppx example.com
 $ pnpm mppx example.com
 ```
 ```bash [bun]
-$ bunx mppx example
+$ bunx mppx example.com
 ```
 :::
 
@@ -275,8 +275,8 @@ Sync skill files to your agent's skill directory:
 $ mppx skills add
 ```
 
-Generate shell completions:
+Generate and load shell completions—for example, with Zsh:
 
 ```bash [test.sh]
-$ mppx completions
+$ eval "$(mppx completions zsh)"
 ```
