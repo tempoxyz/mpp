@@ -24,6 +24,21 @@ function checkBashFences(
 ): Array<{ label: string; line: number }> {
   const lines = content.split("\n");
   const violations: Array<{ label: string; line: number }> = [];
+  const codeGroups: Array<{ end: number; labels: string[]; start: number }> =
+    [];
+
+  for (const [index, line] of lines.entries()) {
+    const opening = line.match(/^(:{3,4})code-group$/);
+    if (!opening) continue;
+
+    const end = lines.indexOf(opening[1], index + 1);
+    if (end === -1) continue;
+    const labels = lines.slice(index + 1, end).flatMap((groupLine) => {
+      const match = groupLine.match(/^```bash \[([^\]]+)\]$/);
+      return match ? [match[1]] : [];
+    });
+    codeGroups.push({ end, labels, start: index });
+  }
 
   for (const [index, line] of lines.entries()) {
     const match = line.match(/^```bash(?: \[([^\]]+)\])?$/);
@@ -31,6 +46,18 @@ function checkBashFences(
 
     const label = match[1] ?? "";
     if (label === "test.sh") continue;
+
+    const codeGroup = codeGroups.find(
+      ({ end, start }) => index > start && index < end,
+    );
+    const isDistinctTabLabel =
+      codeGroup !== undefined &&
+      !PACKAGE_MANAGER_LABELS.has(label) &&
+      label.toLowerCase() !== "terminal" &&
+      !label.endsWith(".sh") &&
+      codeGroup.labels.length > 1 &&
+      new Set(codeGroup.labels).size === codeGroup.labels.length;
+    if (isDistinctTabLabel) continue;
 
     const commandPattern = PACKAGE_MANAGER_LABELS.get(label);
     if (commandPattern) {
@@ -97,6 +124,24 @@ describe("documentation code fences", () => {
     expect(checkBashFences("```bash [npm]\n$ npm install mppx\n```")).toEqual(
       [],
     );
+    expect(
+      checkBashFences(
+        "::::code-group\n```bash [Claude]\n$ claude mcp add mpp\n```\n```bash [Codex]\n$ codex mcp add mpp\n```\n::::",
+      ),
+    ).toEqual([]);
+    expect(
+      checkBashFences(
+        "::::code-group\n```bash [Client]\n$ first\n```\n```bash [Client]\n$ second\n```\n::::",
+      ),
+    ).toEqual([
+      { label: "Client", line: 2 },
+      { label: "Client", line: 5 },
+    ]);
+    expect(
+      checkBashFences(
+        ":::code-group\n```bash [npm]\n$ pnpm add mppx\n```\n```bash [pnpm]\n$ pnpm add mppx\n```\n:::",
+      ),
+    ).toEqual([{ label: "npm", line: 2 }]);
   });
 
   it("detects typecheckable Usage examples without twoslash", () => {
