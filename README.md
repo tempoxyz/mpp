@@ -18,10 +18,10 @@
 The open protocol for machine-to-machine payments.
 
 [![Website](https://img.shields.io/badge/website-mpp.dev-black)](https://mpp.dev)
-[![IETF Internet-Draft](https://img.shields.io/badge/IETF-Internet--Draft-blue)](https://datatracker.ietf.org/doc/draft-httpauth-payment/)
+[![IETF Spec](https://img.shields.io/badge/IETF-Spec-blue)](https://datatracker.ietf.org/doc/draft-httpauth-payment/)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue)](LICENSE-MIT)
 
-[MPP](https://mpp.dev), the Machine Payments Protocol, is an open protocol for machine-to-machine payments co-authored by [Tempo](https://tempo.xyz) and [Stripe](https://stripe.com). Its core is published as an [IETF Internet-Draft](https://datatracker.ietf.org/doc/draft-httpauth-payment/). Paid HTTP services typically require API keys, billing accounts, or checkout flows to be set up before a client can make a request. MPP lets agents, apps, and people pay inline with the request through an [HTTP `402 Payment Required` flow](https://mpp.dev/protocol/http-402). Common use cases include agentic payments, usage-based billing, and machine-to-machine commerce.
+[MPP](https://mpp.dev), the Machine Payments Protocol, is an open standard for machine-to-machine payments co-authored by [Tempo](https://tempo.xyz) and [Stripe](https://stripe.com). Its core is published as an [IETF Specification](https://datatracker.ietf.org/doc/draft-httpauth-payment/). Paid HTTP services typically require API keys, billing accounts, or checkout flows to be set up before a client can make a request. MPP lets agents, apps, and people pay inline with the request through an [HTTP `402 Payment Required` flow](https://mpp.dev/protocol/http-402). Common use cases include agentic payments, usage-based billing, and machine-to-machine commerce.
 
 You can get started today by reading the [protocol overview](https://mpp.dev/protocol), jumping straight to the [quickstart](https://mpp.dev/quickstart), or exploring the [SDKs](https://mpp.dev/sdk).
 
@@ -150,7 +150,7 @@ Contributions to documentation, the service directory, and site improvements are
 | [tempoxyz/mpp-rs](https://github.com/tempoxyz/mpp-rs) | Rust |
 | [wevm/mppx](https://github.com/wevm/mppx) | TypeScript |
 
-The protocol specifications are maintained in [tempoxyz/mpp-specs](https://github.com/tempoxyz/mpp-specs).
+The normative IETF Specification source is in [tempoxyz/mpp-specs](https://github.com/tempoxyz/mpp-specs).
 
 ## Security
 
