@@ -11239,4 +11239,50 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+
+  // ── Checker FX gateway ───────────────────────────────────────────────
+  {
+    id: "checker-fx-gateway",
+    name: "Checker FX gateway",
+    url: "https://md.checker.finance/api/v1",
+    serviceUrl: "https://checker-mpp-fx-gateway.replit.app",
+    description:
+      "Payment-gated access to sanitized indicative FX quotes sourced from Checker for AI agents and developers.",
+    icon: "https://checker-mpp-fx-gateway.replit.app/favicon.svg",
+    categories: ["data"],
+    integration: "third-party",
+    tags: ["fx", "foreign-exchange", "market-data", "quotes", "checker", "mcp", "agents"],
+    status: "active",
+    docs: {
+      homepage: "https://checker-mpp-fx-gateway.replit.app",
+      apiReference: "https://checker-mpp-fx-gateway.replit.app/openapi.json",
+    },
+    provider: { name: "Checker", url: "https://checker.finance" },
+    realm: "checker-mpp-fx-gateway.replit.app",
+    intent: "session",
+    payments: [
+      {
+        method: "tempo",
+        currency: "0x20c0000000000000000000000000000000000000",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/prices",
+        desc: "Get a sanitized indicative FX quote for a currency pair and notional size",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://checker-mpp-fx-gateway.replit.app/openapi.json#/paths/~1v1~1prices/get",
+      },
+      {
+        route: "POST /mcp",
+        desc: "Call the get_fx_quote MCP tool for a sanitized indicative FX quote",
+        amount: "1000",
+        unitType: "request",
+        docs: "https://checker-mpp-fx-gateway.replit.app/openapi.json#/paths/~1mcp/post",
+      },
+    ],
+  },
 ];
