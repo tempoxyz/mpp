@@ -5,6 +5,10 @@ import {
   type ServicesCatalog,
 } from "../../../mpp-proxy-catalog";
 
+// JSON inference adds undefined keys to heterogeneous payment-method maps.
+// The generated catalog is validated against its schema by discovery.test.ts.
+const checkedInCatalog = discovery as unknown as ServicesCatalog;
+
 const CACHE_CONTROL =
   "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
 
@@ -61,13 +65,13 @@ async function liveCatalog(): Promise<ServicesCatalog> {
     });
     if (!response.ok) throw new Error(`MPP proxy manifest ${response.status}`);
     const catalog = mergeMppProxyCatalog(
-      discovery as ServicesCatalog,
+      checkedInCatalog,
       await response.json(),
     );
     cachedCatalog = { catalog, expiresAt: Date.now() + MANIFEST_CACHE_MS };
     return catalog;
   } catch (error) {
     console.warn("Falling back to the checked-in MPP service catalog", error);
-    return cachedCatalog?.catalog ?? (discovery as ServicesCatalog);
+    return cachedCatalog?.catalog ?? checkedInCatalog;
   }
 }
