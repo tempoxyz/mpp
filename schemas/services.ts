@@ -6487,6 +6487,79 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── SummitData ────────────────────────────────────────────────────────
+  {
+    id: "summitdata",
+    name: "SummitData",
+    url: "https://summitdata.dev",
+    serviceUrl: "https://summitdata.dev",
+    description:
+      "Structured data APIs for AI agents. SEC EDGAR filings, Census Bureau demographics, BLS economic data, mutual fund data, business lead scoring, website audits, US geographic lookups, and unit/currency/datetime conversion. Pay $0.005/query — no API keys needed.",
+    icon: "https://summitdata.dev/favicon.ico",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "sec-edgar",
+      "census",
+      "bls",
+      "mutual-funds",
+      "lead-scoring",
+      "web-audit",
+      "geodata",
+      "converter",
+      "government-data",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://summitdata.dev",
+      llmsTxt: "https://summitdata.dev/llms.txt",
+      apiReference: "https://summitdata.dev/openapi.json",
+    },
+    provider: { name: "Summit Forge Digital", url: "https://summitforgedigital.com" },
+    realm: "summitdata.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      // SEC EDGAR
+      { route: "GET /api/sec-edgar/filings", desc: "Company filings by ticker", amount: "5000", unitType: "request" },
+      { route: "GET /api/sec-edgar/facts", desc: "Company financial facts (XBRL)", amount: "5000", unitType: "request" },
+      { route: "GET /api/sec-edgar/search", desc: "Full-text filing search", amount: "5000", unitType: "request" },
+      // Census Bureau
+      { route: "GET /api/census/population", desc: "Population by state/county", amount: "5000", unitType: "request" },
+      { route: "GET /api/census/housing", desc: "Housing data by state", amount: "5000", unitType: "request" },
+      { route: "GET /api/census/economic", desc: "Economic indicators by state", amount: "5000", unitType: "request" },
+      // Bureau of Labor Statistics
+      { route: "GET /api/bls/cpi", desc: "Consumer Price Index", amount: "5000", unitType: "request" },
+      { route: "GET /api/bls/employment", desc: "Employment statistics", amount: "5000", unitType: "request" },
+      { route: "GET /api/bls/series", desc: "Custom BLS series lookup", amount: "5000", unitType: "request" },
+      // FundDB — Mutual Fund Data
+      { route: "GET /api/funddb/fund", desc: "Look up a single fund by symbol", amount: "5000", unitType: "request" },
+      { route: "GET /api/funddb/search", desc: "Search funds by name, category, or family", amount: "5000", unitType: "request" },
+      { route: "GET /api/funddb/compare", desc: "Compare 2-5 funds side by side", amount: "5000", unitType: "request" },
+      { route: "GET /api/funddb/top", desc: "Top funds by category", amount: "5000", unitType: "request" },
+      // LeadScore
+      { route: "GET /api/leadscore/score", desc: "Score a business lead", amount: "5000", unitType: "request" },
+      { route: "GET /api/leadscore/enrich", desc: "Enrich a business with public data", amount: "5000", unitType: "request" },
+      { route: "GET /api/leadscore/verify-email", desc: "Verify an email domain", amount: "5000", unitType: "request" },
+      { route: "GET /api/leadscore/industry", desc: "Classify a company by industry", amount: "5000", unitType: "request" },
+      // WebAudit
+      { route: "GET /api/webaudit/audit", desc: "Full website audit", amount: "5000", unitType: "request" },
+      { route: "GET /api/webaudit/headers", desc: "Security headers analysis", amount: "5000", unitType: "request" },
+      { route: "GET /api/webaudit/performance", desc: "Website performance metrics", amount: "5000", unitType: "request" },
+      { route: "GET /api/webaudit/seo", desc: "SEO metadata analysis", amount: "5000", unitType: "request" },
+      // GeoData
+      { route: "GET /api/geodata/zipcode", desc: "ZIP code lookup", amount: "5000", unitType: "request" },
+      { route: "GET /api/geodata/distance", desc: "Distance between two points", amount: "5000", unitType: "request" },
+      { route: "GET /api/geodata/geocode", desc: "Geocode a US address", amount: "5000", unitType: "request" },
+      { route: "GET /api/geodata/timezone", desc: "Timezone for coordinates", amount: "5000", unitType: "request" },
+      // Converter
+      { route: "GET /api/converter/currency", desc: "Currency exchange rate", amount: "5000", unitType: "request" },
+      { route: "GET /api/converter/units", desc: "Unit conversion", amount: "5000", unitType: "request" },
+      { route: "GET /api/converter/datetime", desc: "Date/time conversion", amount: "5000", unitType: "request" },
+      { route: "GET /api/converter/base", desc: "Number base conversion", amount: "5000", unitType: "request" },
+    ],
+  },
+
   // ── Suno ─────────────────────────────────────────────────────────────
   {
     id: "suno",
