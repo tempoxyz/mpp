@@ -11239,4 +11239,64 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Warpee Knowledge ──────────────────────────────────────────────────────
+  {
+    categories: ["ai", "media", "search"],
+    description:
+      "GM Farcaster is a media network covering Farcaster news and the onchain-social ecosystem. Get grounded, citation-backed answers from hundreds of episodes, with timestamped links back to the source.",
+    docs: {
+      apiReference: "https://api.gmfarcaster.com/v1/openapi.json",
+      homepage: "https://www.gmfarcaster.com/apis",
+    },
+    endpoints: [
+      {
+        route: "POST /v1/query",
+        desc: "Ask a natural-language question and get a grounded, cited answer from the GM Farcaster library.",
+        amount: "5000",
+      },
+    ],
+    icon: "https://www.gmfarcaster.com/icon.png",
+    id: "gmfarcaster-warpee",
+    integration: "first-party",
+    intent: "charge",
+    name: "Warpee Knowledge API",
+    payments: [TEMPO_PAYMENT],
+    provider: { name: "GM Farcaster", url: "https://www.gmfarcaster.com" },
+    realm: "api.gmfarcaster.com",
+    serviceUrl: "https://api.gmfarcaster.com",
+    tags: ["farcaster", "podcast", "knowledge-base", "rag", "citations"],
+    url: "https://www.gmfarcaster.com",
+  },
+  // ── On-Air Shoutout ───────────────────────────────────────────────────────
+  {
+    categories: ["media", "social"],
+    description:
+      "GM Farcaster is a media network covering Farcaster news and the onchain-social ecosystem. Book a sponsor message to be read live on air on its livestream, reviewed by a human before airing, with automatic refunds on decline.",
+    docs: {
+      apiReference: "https://gateway.gmfarcaster.com/openapi.json",
+      homepage: "https://www.gmfarcaster.com/apis",
+    },
+    endpoints: [
+      {
+        route: "POST /v1/shoutout",
+        desc: "Submit a sponsor message to be read live on air. Asynchronous — returns a pending_review receipt, not a finished read.",
+        amount: "5000000",
+      },
+      {
+        route: "GET /v1/shoutout/:id",
+        desc: "Check the status of a submitted shoutout (free, no payment).",
+      },
+    ],
+    icon: "https://www.gmfarcaster.com/icon.png",
+    id: "gmfarcaster-onair-shoutout",
+    integration: "first-party",
+    intent: "charge",
+    name: "On-Air Shoutout API",
+    payments: [TEMPO_PAYMENT],
+    provider: { name: "GM Farcaster", url: "https://www.gmfarcaster.com" },
+    realm: "gateway.gmfarcaster.com",
+    serviceUrl: "https://gateway.gmfarcaster.com",
+    tags: ["farcaster", "advertising", "sponsor", "livestream", "media"],
+    url: "https://www.gmfarcaster.com",
+  },
 ];
