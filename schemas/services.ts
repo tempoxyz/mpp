@@ -122,6 +122,34 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── FilmRightsProof ───────────────────────────────────────────────────
+  {
+    id: "filmrightsproof",
+    name: "FilmRightsProof",
+    url: "https://filmrightsproof.davisvillelabs.com",
+    serviceUrl: "https://filmrightsproof.davisvillelabs.com",
+    description:
+      "Public-record film and television rights-evidence research for AI agents using maintained U.S. Copyright Office records with provenance, ambiguity, and bounded freshness.",
+    categories: ["data", "media", "search"],
+    integration: "first-party",
+    tags: ["film", "television", "copyright", "rights", "evidence", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://filmrightsproof.davisvillelabs.com/agents",
+      llmsTxt: "https://filmrightsproof.davisvillelabs.com/llms.txt",
+      apiReference: "https://filmrightsproof.davisvillelabs.com/openapi.json",
+    },
+    provider: { name: "Davisville Labs LLC", url: "https://davisvillelabs.com" },
+    realm: "filmrightsproof.davisvillelabs.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      { route: "GET /v1/capabilities", desc: "Discover FilmRightsProof capabilities, coverage, and commerce metadata" },
+      { route: "POST /v1/search", desc: "Search maintained public Copyright Office records" },
+      { route: "POST /v1/trace", desc: "Build a structured public-record film or television rights evidence dossier", amount: "200", unitType: "request" },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
