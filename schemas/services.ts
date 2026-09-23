@@ -122,6 +122,47 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── SCVD Context Anchor ───────────────────────────────────────────────
+  {
+    categories: ["ai", "storage"],
+    description:
+      "Sign and retain an agent context summary for retrieval across sessions. Context Anchor accepts MPP EVM charge payments in USDC on Base.",
+    docs: {
+      apiReference: "https://scvd.store/openapi.json",
+      homepage: "https://scvd.store/menu/context_anchor",
+      llmsTxt: "https://scvd.store/llms.txt",
+    },
+    endpoints: [
+      {
+        amount: "1000000",
+        desc: "Sign and store a context summary (required summary query parameter, up to 4000 characters).",
+        docs: "https://scvd.store/menu/context_anchor",
+        route: "GET /api/buy/context_anchor",
+        unitType: "anchor",
+      },
+    ],
+    id: "scvd-context-anchor",
+    integration: "first-party",
+    intent: "charge",
+    name: "SCVD Context Anchor",
+    payments: [
+      {
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+        method: "evm",
+      },
+    ],
+    provider: {
+      name: "SCVD General Store",
+      url: "https://scvd.store",
+    },
+    realm: "scvd.store",
+    serviceUrl: "https://scvd.store",
+    status: "active",
+    tags: ["agent-memory", "base", "context", "signed-evidence", "usdc"],
+    url: "https://scvd.store/menu/context_anchor",
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",

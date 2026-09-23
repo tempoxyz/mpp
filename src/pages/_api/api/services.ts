@@ -5,6 +5,10 @@ import {
   type ServicesCatalog,
 } from "../../../mpp-proxy-catalog";
 
+// The generator validates ServiceDef entries; heterogeneous method keys in the
+// JSON import infer optional undefined members rather than an open string map.
+const staticCatalog = discovery as unknown as ServicesCatalog;
+
 const CACHE_CONTROL =
   "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
 
@@ -60,14 +64,11 @@ async function liveCatalog(): Promise<ServicesCatalog> {
       signal: AbortSignal.timeout(5_000),
     });
     if (!response.ok) throw new Error(`MPP proxy manifest ${response.status}`);
-    const catalog = mergeMppProxyCatalog(
-      discovery as ServicesCatalog,
-      await response.json(),
-    );
+    const catalog = mergeMppProxyCatalog(staticCatalog, await response.json());
     cachedCatalog = { catalog, expiresAt: Date.now() + MANIFEST_CACHE_MS };
     return catalog;
   } catch (error) {
     console.warn("Falling back to the checked-in MPP service catalog", error);
-    return cachedCatalog?.catalog ?? (discovery as ServicesCatalog);
+    return cachedCatalog?.catalog ?? staticCatalog;
   }
 }
