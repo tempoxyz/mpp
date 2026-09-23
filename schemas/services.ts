@@ -6535,6 +6535,94 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── SummitData ────────────────────────────────────────────────────────
+  {
+    id: "summitdata",
+    name: "SummitData",
+    url: "https://summitdata.dev",
+    serviceUrl: "https://summitdata.dev",
+    description:
+      "Structured U.S. government data APIs for AI agents. SEC EDGAR filings, Census Bureau demographics, and BLS economic data — normalized JSON, $0.005/query.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "sec",
+      "edgar",
+      "filings",
+      "census",
+      "demographics",
+      "bls",
+      "economics",
+      "government-data",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://summitdata.dev",
+      llmsTxt: "https://summitdata.dev/llms.txt",
+      apiReference: "https://summitdata.dev/openapi.json",
+    },
+    provider: { name: "Summit Forge Digital", url: "https://summitforgedigital.com" },
+    realm: "summitdata.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/sec-edgar/filings",
+        desc: "Company filings by ticker",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/sec-edgar/facts",
+        desc: "Company financial facts (XBRL)",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/sec-edgar/search",
+        desc: "Full-text filing search",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/census/population",
+        desc: "Population by state/county",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/census/housing",
+        desc: "Housing data by state",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/census/economic",
+        desc: "Economic indicators by state",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/bls/cpi",
+        desc: "Consumer Price Index",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/bls/employment",
+        desc: "Employment statistics",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/bls/series",
+        desc: "Custom BLS series lookup",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Tako ──────────────────────────────────────────────────────────────
   {
     id: "tako",
