@@ -11239,4 +11239,50 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── True Value Rankings ────────────────────────────────────────────────
+  {
+    id: "true-value-rankings",
+    name: "True Value Rankings",
+    url: "https://truevaluerankings.com",
+    serviceUrl: "https://truevaluerankings.com",
+    description:
+      "Cryptocurrency fundamentals scoring: rerank every covered coin with your own weights for TVR's 8 metrics, or profile a portfolio's allocation-weighted fundamentals. Model-derived, educational output; free rankings and scores alongside.",
+    categories: ["data", "blockchain"],
+    integration: "third-party",
+    tags: [
+      "cryptocurrency",
+      "crypto",
+      "fundamentals",
+      "rankings",
+      "scoring",
+      "portfolio",
+      "research",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://truevaluerankings.com",
+      llmsTxt: "https://truevaluerankings.com/llms.txt",
+      apiReference: "https://truevaluerankings.com/openapi.json",
+    },
+    provider: { name: "True Value Rankings", url: "https://truevaluerankings.com" },
+    realm: "truevaluerankings.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /premium/custom-ranking",
+        desc: "Rerank every covered cryptocurrency with your own weights for the 8 fundamental metrics (JSON body: weights, optional coins).",
+        amount: "50000",
+        unitType: "request",
+        docs: "https://truevaluerankings.com/llms-full.txt",
+      },
+      {
+        route: "POST /premium/portfolio-analysis",
+        desc: "Fundamentals profile of a portfolio: allocation-weighted metric scores, each holding's TVR Score and valuation category, and the portfolio TVR Score (JSON body: portfolio, a list of {coin, allocation}).",
+        amount: "80000",
+        unitType: "request",
+        docs: "https://truevaluerankings.com/llms-full.txt",
+      },
+    ],
+  },
 ];
