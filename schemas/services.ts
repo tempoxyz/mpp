@@ -67,6 +67,13 @@ export const TEMPO_PAYMENT: PaymentDefaults = {
   decimals: 6,
 };
 
+/** Payment defaults for services settling in pathUSD on Tempo */
+export const PATHUSD_PAYMENT: PaymentDefaults = {
+  method: "tempo",
+  currency: "0x20c0000000000000000000000000000000000000",
+  decimals: 6,
+};
+
 /** Common payment defaults for Stripe MPP services */
 export const STRIPE_PAYMENT: PaymentDefaults = {
   method: "stripe",
@@ -11239,4 +11246,62 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── corpusAI Cloud Pricing ────────────────────────────────────────────
+  {
+    id: "corpus-cloud-pricing",
+    name: "corpusAI Cloud Pricing",
+    url: "https://cloud.trycorpus.ai",
+    serviceUrl: "https://cloud.trycorpus.ai",
+    description:
+      "Compute price data for agents: event-level spot price history for AWS, GCP and Azure (30 regions, AWS back to 2014), on-demand and 1y/3y committed list prices, GPU rental quotes from 17 providers with daily index fixings per GPU and segment including executed prices, LLM token prices for 900+ models across hosts, a term structure per GPU and a daily capacity stress score. Published, versioned methodology.",
+    icon: "https://cloud.trycorpus.ai/mark.svg",
+    categories: ["data", "compute"],
+    integration: "third-party",
+    tags: [
+      "cloud-pricing",
+      "gpu-rental",
+      "spot-price",
+      "h100",
+      "price-index",
+      "llm-token-prices",
+      "aws",
+      "gcp",
+      "azure",
+      "market-data",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://cloud.trycorpus.ai/",
+      llmsTxt: "https://cloud.trycorpus.ai/llms.txt",
+      apiReference: "https://cloud.trycorpus.ai/openapi.json",
+    },
+    provider: { name: "corpusAI", url: "https://www.trycorpus.ai" },
+    realm: "cloud.trycorpus.ai",
+    intent: "charge",
+    payments: [PATHUSD_PAYMENT],
+    docsBase: "https://cloud.trycorpus.ai/docs",
+    endpoints: [
+      { route: "GET /v1/index/fixing", desc: "One day's GPU index fixing for a ticker such as CX.H100SXM.NEO: median USD per GPU-hour with lo, hi, member counts and the methodology version. Segments: marketplace, aggregator, neo-cloud, interruptible, hyperscaler on-demand, executed, hyperscaler spot.", amount: "10000", unitType: "request" },
+      { route: "GET /v1/index/history", desc: "Daily fixings for a GPU index ticker; SPOT tickers reach back to 2022.", amount: "50000", unitType: "request" },
+      { route: "GET /v1/index/board", desc: "Every GPU index ticker's fixing for one day in one call (367 tickers).", amount: "100000", unitType: "request" },
+      { route: "GET /v1/gpu/quotes", desc: "Latest GPU rental quotes for one model across 17 providers, USD per GPU-hour, with provenance on every row.", amount: "10000", unitType: "request" },
+      { route: "GET /v1/tokens/fixing", desc: "LLM token price fixing for CX.TOK.<MODEL>.IN, .OUT or .BLEND, or the frontier basket: median USD per million tokens across hosts.", amount: "10000", unitType: "request" },
+      { route: "GET /v1/tokens/quotes", desc: "Every host's input and output price for one LLM on one day.", amount: "10000", unitType: "request" },
+      { route: "GET /v1/tokens/board", desc: "Every model's input, output and blended token price for one day plus the frontier basket.", amount: "100000", unitType: "request" },
+      { route: "GET /v1/spot/daily", desc: "Daily spot price bars for one instance type in one region back to 2014 (AWS) with source labels.", amount: "50000", unitType: "request" },
+      { route: "GET /v1/spot/latest", desc: "Current spot price per availability zone for one instance type.", amount: "10000", unitType: "request" },
+      { route: "GET /v1/spot/snapshot", desc: "Current spot price of every instance type in a region.", amount: "100000", unitType: "request" },
+      { route: "GET /v1/ondemand", desc: "On-demand list price change history for one instance type (AWS, GCP, Azure).", amount: "10000", unitType: "request" },
+      { route: "GET /v1/reserved", desc: "Reserved, reservation and committed-use effective hourly prices for one instance type, 1y and 3y terms.", amount: "10000", unitType: "request" },
+      { route: "GET /v1/term", desc: "Term structure per GPU across hyperscalers: spot, on-demand, 1y and 3y committed prices per GPU-hour with discounts.", amount: "50000", unitType: "request" },
+      { route: "GET /v1/term/instance", desc: "Price ladder for one instance type: spot, on-demand, 1y and 3y with discounts.", amount: "10000", unitType: "request" },
+      { route: "GET /v1/capacity/stress", desc: "Capacity stress score for one GPU model, 0 slack to 100 tight, with every component.", amount: "10000", unitType: "request" },
+      { route: "GET /v1/capacity/board", desc: "Every GPU model's capacity stress score for one day, tightest first.", amount: "100000", unitType: "request" },
+      { route: "GET /v1/catalog", desc: "Free: providers, regions, coverage windows and the price of every operation.", docs: "https://cloud.trycorpus.ai/docs" },
+      { route: "GET /v1/gpu/models", desc: "Free: normalised GPU model names with quote counts and providers." },
+      { route: "GET /v1/index/tickers", desc: "Free: every index ticker with its segment and definition." },
+      { route: "GET /v1/tokens/models", desc: "Free: every LLM with a token price fixing and its ticker codes." },
+    ],
+  },
+
 ];
