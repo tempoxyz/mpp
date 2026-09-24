@@ -11239,4 +11239,44 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── APIbase ──
+  {
+    id: "apibase",
+    name: "APIbase",
+    url: "https://apibase.pro",
+    serviceUrl: "https://apibase.pro/mcp",
+    description:
+      "Pay-per-call API access for agent builders — travel, finance, health, education, legal, entertainment, maps, and more. No subscriptions, no per-provider signups.",
+    categories: ["data", "ai", "search"],
+    integration: "third-party",
+    tags: [
+      "mcp",
+      "api",
+      "tools",
+      "travel",
+      "finance",
+      "health",
+      "education",
+      "search",
+      "agents",
+    ],
+    docs: {
+      homepage: "https://apibase.pro",
+      llmsTxt: "https://apibase.pro/llms.txt",
+      apiReference: "https://apibase.pro/.well-known/openapi.json",
+    },
+    provider: { name: "APIbase", url: "https://apibase.pro" },
+    realm: "apibase.pro",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/tools/{tool_id}/call",
+        desc: "Call APIbase's tools — flights, stocks, weather, geocoding, clinical trials, domain registration, and more",
+        dynamic: true,
+        amountHint: "$0.001 – $0.035",
+        unitType: "request",
+      },
+    ],
+  },
 ];
