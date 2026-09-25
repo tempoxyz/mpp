@@ -4148,6 +4148,86 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Goodlabs ────────────────────────────────────────────
+  {
+    id: "goodlabs",
+    name: "Goodlabs",
+    url: "https://goodlabs.com",
+    serviceUrl: "https://goodlabs.mpp.openmerchant.dev",
+    description:
+      "Browse and purchase direct-to-consumer blood tests from Quest, Labcorp, and BioReference through an MPP commerce API.",
+
+    icon: "https://goodlabs.com/favicon.ico",
+    categories: ["web"],
+    integration: "first-party",
+    tags: [
+      "healthcare",
+      "blood-testing",
+      "lab-tests",
+      "commerce",
+      "stripe",
+      "spt",
+    ],
+    status: "beta",
+    docs: {
+      homepage: "https://goodlabs.com/book-tests",
+      llmsTxt: "https://goodlabs.com/llms.txt",
+      apiReference: "https://goodlabs.mpp.openmerchant.dev/openapi.json",
+    },
+    provider: { name: "GoodLabs, Inc.", url: "https://goodlabs.com" },
+    realm: "goodlabs.mpp.openmerchant.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /catalog/search",
+        desc: "Search available blood tests and panels",
+      },
+      {
+        route: "POST /catalog/lookup",
+        desc: "Resolve catalog item, variant, or SKU identifiers",
+      },
+      {
+        route: "POST /catalog/product",
+        desc: "Get one blood test or panel",
+      },
+      {
+        route: "POST /catalog/item_locations",
+        desc: "List eligible service locations and availability",
+      },
+      {
+        route: "POST /quotes",
+        desc: "Create a merchant-authoritative quote",
+      },
+      {
+        route: "GET /quotes/:quote_id",
+        desc: "Retrieve a quote with its access token",
+      },
+      {
+        route: "POST /quotes/:quote_id",
+        desc: "Refresh a quote with its access token",
+      },
+      {
+        route: "POST /purchases",
+        desc: "Purchase selected blood tests with a Stripe Shared Payment Token",
+        dynamic: true,
+        amountHint: "Varies by selected tests",
+      },
+      {
+        route: "GET /orders/:order_id",
+        desc: "Retrieve a paid order",
+      },
+      {
+        route: "GET /openapi.json",
+        desc: "Get the generated OpenAPI document",
+      },
+      {
+        route: "GET /.well-known/mpp.json",
+        desc: "Get the generated MPP service manifest",
+      },
+    ],
+  },
+
   // ── Prospect Butcher Co ─────────────────────────────────────────────────
   {
     id: "prospect-butcher",
