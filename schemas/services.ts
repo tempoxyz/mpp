@@ -11239,4 +11239,51 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── citecheck ──────────────────────────────────────────────────────────
+  {
+    id: "citecheck",
+    name: "citecheck",
+    url: "https://citecheck.citecheck.workers.dev",
+    serviceUrl: "https://citecheck.citecheck.workers.dev",
+    description:
+      "Citation integrity checks for agents: is each cited URL alive, archived, and does it still contain the quoted text; optional support/contradict verdict per claim. Composes with any search API.",
+    categories: ["ai", "data"],
+    integration: "third-party",
+    tags: [
+      "citations",
+      "verification",
+      "fact-check",
+      "hallucination",
+      "provenance",
+      "research",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://citecheck.citecheck.workers.dev",
+      llmsTxt: "https://citecheck.citecheck.workers.dev/llms.txt",
+      apiReference: "https://citecheck.citecheck.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "citecheck",
+      url: "https://citecheck.citecheck.workers.dev",
+    },
+    realm: "citecheck.citecheck.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/check",
+        desc: "Verify up to 10 citations: liveness, Wayback archive, quote drift",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/check/stance",
+        desc: "Same, plus an LLM support/contradict verdict per claim",
+        amount: "100000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
