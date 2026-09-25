@@ -33,22 +33,22 @@
     "@resvg/resvg-wasm": "^2.6.2",
     "@stripe/stripe-js": "^9.7.0",
     "@vercel/blob": "^2.4.0",
-    "accounts": "^0.14.11",
+    "accounts": "^0.14.12",
     "cloudflare-worker-metrics": "^1.4.0",
     "gsap": "^3.15.0",
-    "hono": "^4.12.27",
+    "hono": "^4.13.9",
     "lottie-web": "^5.13.0",
-    "mermaid": "^11.15.0",
+    "mermaid": "^11.17.2",
     "mppx": "0.10.1",
     "nuqs": "2.9.1",
-    "react": "^19",
-    "react-dom": "^19",
+    "react": "~19.2.8",
+    "react-dom": "~19.2.8",
     "stripe": "^22.2.0",
     "tailwindcss": "^4.3.0",
     "viem": "^2.54.0",
-    "vocs": "https://pkg.pr.new/wevm/vocs/vocs@594",
-    "wagmi": "^3.6.16",
-    "waku": "1.0.0-beta.1"
+    "vocs": "2.8.5",
+    "wagmi": "~3.6.21",
+    "waku": "1.0.0-beta.6"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
@@ -69,7 +69,7 @@
     "mdast-util-mdx-expression": "2.0.1",
     "mdast-util-mdx-jsx": "3.2.0",
     "playwright": "^1.60.0",
-    "react-server-dom-webpack": "^19.2.7",
+    "react-server-dom-webpack": "~19.2.8",
     "shiki": "4.1.0",
     "simple-git-hooks": "^2.13.1",
     "tiktoken": "^1.0.22",
@@ -78,15 +78,10 @@
     "unplugin-icons": "^23.0.1",
     "vite": "^8.0.16",
     "vite-plugin-mkcert": "^2.0.0",
-    "vitest": "^4.1.8",
+    "vitest": "^4.1.11",
     "yaml": "^2.9.0"
   },
-  "packageManager": "pnpm@10.22.0",
-  "pnpm": {
-    "overrides": {
-      "mppx>ox": "0.14.33"
-    }
-  },
+  "packageManager": "pnpm@10.34.5",
   "engines": {
     "node": ">=24"
   },

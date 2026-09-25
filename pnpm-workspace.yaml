@@ -26,9 +26,7 @@ trustPolicyExclude:
   - semver@6.3.1
 overrides:
   "@babel/core": 7.29.6
-  dompurify: 3.4.11
-  esbuild: 0.28.1
-  js-yaml: 4.2.0
-  qs: 6.15.2
-  undici: 6.27.0
-  ws: 8.21.0
+  # The latest Scalar json-magic still pins vulnerable undici 7.24.4.
+  "@scalar/json-magic>undici": ^7.29.0
+  # Vocs still requires remark-mdx-frontmatter 5, which requires vulnerable toml 3.
+  "remark-mdx-frontmatter>toml": ^4.2.0
