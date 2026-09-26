@@ -122,6 +122,49 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── ClawdFred Market Evidence ─────────────────────────────────────────
+  {
+    categories: ["data", "blockchain"],
+    description:
+      "Source-linked closed-candle evidence for 1–5 requested Coinbase spot or Hyperliquid perpetual markets. Returns bounded calculations, observation times and evidence hashes; Base ERC-20 supply metadata is also supported. No forecasts or trade execution.",
+    docs: {
+      apiReference:
+        "https://clawdfred-evidence.capecodcryptos.workers.dev/openapi.json",
+      homepage: "https://clawdfred-evidence.capecodcryptos.workers.dev/",
+      llmsTxt: "https://clawdfred-evidence.capecodcryptos.workers.dev/llms.txt",
+    },
+    endpoints: [
+      {
+        amount: "50",
+        desc: "One bundle of 1–5 requested market snapshots with timestamped sources and reproducible metrics",
+        docs: "https://clawdfred-evidence.capecodcryptos.workers.dev/openapi.json",
+        route: "POST /mpp/market_evidence_bundle",
+        unitType: "request",
+      },
+    ],
+    icon: "https://clawdfred-evidence.capecodcryptos.workers.dev/assets/clawdfred-icon.svg",
+    id: "clawdfred-market-evidence",
+    integration: "first-party",
+    intent: "charge",
+    name: "ClawdFred Market Evidence",
+    payments: [STRIPE_PAYMENT],
+    provider: {
+      name: "ClawdFred",
+      url: "https://clawdfred-evidence.capecodcryptos.workers.dev/",
+    },
+    realm: "clawdfred-evidence.capecodcryptos.workers.dev",
+    serviceUrl: "https://clawdfred-evidence.capecodcryptos.workers.dev",
+    status: "beta",
+    tags: [
+      "market-data",
+      "source-evidence",
+      "coinbase",
+      "hyperliquid",
+      "stripe",
+    ],
+    url: "https://clawdfred-evidence.capecodcryptos.workers.dev",
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
