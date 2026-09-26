@@ -122,6 +122,181 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── Vaaya ────────────────────────────────────────────────────────────
+  {
+    id: "vaaya",
+    name: "Vaaya",
+    url: "https://vaaya.ai",
+    serviceUrl: "https://vaaya.ai/api/run",
+    description:
+      "Pay-per-call services for AI agents: cited web answers, people search, social data, maps, email finding, and the Hotel Lobby video recipe.",
+    icon: "https://vaaya.ai/icon.png",
+    categories: ["search", "data", "media", "social"],
+    integration: "third-party",
+    tags: [
+      "search",
+      "people-search",
+      "social-data",
+      "maps",
+      "email-finder",
+      "video-generation",
+      "async-jobs",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://vaaya.ai",
+      llmsTxt: "https://vaaya.ai/mpp/llms.txt",
+      apiReference: "https://vaaya.ai/openapi.json",
+    },
+    provider: { name: "Vaaya", url: "https://vaaya.ai" },
+    realm: "vaaya.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /vaaya/onesearch",
+        desc: "Answer a question with cited evidence in one call",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /vaaya/onefind",
+        desc: "Find people from a plain-English query, returned as rows",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /colors/generate",
+        desc: "Hotel Lobby: replace a performer in a fixed performance video with the adult in your photos (async job; poll the returned status_url for free; failed jobs are refunded on-chain)",
+        dynamic: true,
+        amountHint: "$7.00 Standard (7s) or $29.00 Extended (29s)",
+        unitType: "video",
+      },
+      {
+        route: "POST /files/upload",
+        desc: "Get an upload URL to stage a file (e.g. photos for Hotel Lobby) under your paying wallet",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /files/upload_from_url",
+        desc: "Fetch a public URL into your file library under your paying wallet",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /tikhub/fetch",
+        desc: "Social data (GET endpoints) across TikTok, Douyin, Instagram, Weibo, Bilibili, YouTube and more",
+        dynamic: true,
+        amountHint: "Priced per endpoint; the 402 quotes the exact amount",
+        unitType: "request",
+      },
+      {
+        route: "POST /tikhub/submit",
+        desc: "Social data (POST endpoints) across TikTok, Xiaohongshu, WeChat Channels, Bilibili and more",
+        dynamic: true,
+        amountHint: "Priced per endpoint; the 402 quotes the exact amount",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/geocode",
+        desc: "Address or place name to coordinates",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/reverse-geocode",
+        desc: "Coordinates to the nearest address",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/batch-geocode",
+        desc: "Geocode up to 100 addresses in one call",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/route",
+        desc: "Driving, walking or cycling directions between stops",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/route-matrix",
+        desc: "Distance and time between many points",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/optimized-route",
+        desc: "Best visiting order for a set of stops",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/search-ahead",
+        desc: "Type-ahead predictions for a partial place or address",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/place-search",
+        desc: "Places near a point by keyword or category",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/radius-search",
+        desc: "Points of interest within a radius",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/static-map",
+        desc: "Rendered map image",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/traffic-incidents",
+        desc: "Live traffic incidents and construction in a bounding box",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /mapquest/traffic-markets",
+        desc: "Metro areas with traffic coverage",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /icypeas/email-search",
+        desc: "Find a professional email from name and company",
+        amount: "40000",
+        unitType: "request",
+      },
+      {
+        route: "POST /icypeas/email-verification",
+        desc: "SMTP-level email deliverability check",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /icypeas/domain-scan",
+        desc: "Role-based email addresses for a domain",
+        amount: "40000",
+        unitType: "request",
+      },
+      {
+        route: "POST /icypeas/result",
+        desc: "Fetch the result of an Icypeas search",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
