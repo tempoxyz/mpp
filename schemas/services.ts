@@ -1329,6 +1329,38 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Metalift ──────────────────────────────────────────────────────────
+  {
+    id: "metalift",
+    name: "Metalift",
+    url: "https://mpp.metalift.ai",
+    serviceUrl: "https://mpp.metalift.ai",
+    description:
+      "Hosted scrape, search, and map for agents, with WAF/retail escalation. Pay-per-request USDC.e on Tempo via MPP — no API key.",
+    categories: ["ai", "search"],
+    integration: "first-party",
+    tags: ["scraping", "search", "markdown", "waf", "agents"],
+    status: "active",
+    docs: {
+      homepage: "https://metalift.ai",
+      llmsTxt: "https://mpp.metalift.ai/llms.txt",
+      apiReference: "https://mpp.metalift.ai/openapi.json",
+    },
+    provider: { name: "Metalift", url: "https://metalift.ai" },
+    realm: "mpp.metalift.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      { route: "POST /v1/scrape", desc: "Scrape a URL to markdown", amount: "5000" },
+      { route: "POST /v1/search", desc: "Web search", amount: "2000" },
+      { route: "POST /v1/map", desc: "Map page links", amount: "2000" },
+      { route: "POST /v1/sitemap", desc: "Fetch sitemap URLs", amount: "2000" },
+      { route: "POST /v1/sessions/fetch", desc: "Warm a browser session", amount: "15000" },
+      { route: "POST /v1/batch", desc: "Batch scrape (min $0.01)", amount: "10000" },
+      { route: "POST /v1/crawl", desc: "Start a crawl", amount: "50000" },
+    ],
+  },
+
   // ── GovLaws ────────────────────────────────────────────────────────────
   {
     id: "govlaws",
