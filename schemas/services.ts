@@ -11239,4 +11239,113 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── FundingFeed ───────────────────────────────────────────────────────
+  {
+    id: "fundingfeed",
+    name: "FundingFeed",
+    url: "https://funding-feed.kaminariouji.workers.dev",
+    serviceUrl: "https://funding-feed.kaminariouji.workers.dev",
+    description:
+      "Cross-exchange perpetual funding rate arbitrage, open interest and best-execution in one call, alongside EVM token risk verdicts and LLM-ready web page extraction. Aggregates live funding rates, open interest in USD and real top-of-book quotes from OKX, Bybit, Gate.io, HTX, Hyperliquid, BingX and Bitget for BTC, ETH and SOL perpetuals.",
+    categories: ["data", "blockchain"],
+    integration: "third-party",
+    tags: [
+      "funding-rate",
+      "arbitrage",
+      "open-interest",
+      "perpetual-futures",
+      "market-data",
+      "token-security",
+      "web-extraction",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://funding-feed.kaminariouji.workers.dev",
+      llmsTxt: "https://funding-feed.kaminariouji.workers.dev/llms.txt",
+      apiReference:
+        "https://funding-feed.kaminariouji.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "FundingFeed",
+      url: "https://funding-feed.kaminariouji.workers.dev",
+    },
+    realm: "funding-feed.kaminariouji.workers.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /feed",
+        desc: "Cross-exchange perpetual funding rate arbitrage, open interest and best-execution in one call: funding rate per venue, annualized min/max/mean, the cross-venue funding spread, total open interest in USD and real top-of-book best bid/ask for routing.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /funding-arb",
+        desc: "Funding rate arbitrage only: live funding rate per venue, annualized min/max/mean, the cross-venue funding spread, the arbitrage spread net of fees, and the next funding time per venue.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /perp-oi",
+        desc: "Perpetual open interest in USD with a per-venue breakdown from OKX, Bybit, Gate.io, HTX, Hyperliquid, BingX and Bitget, for sizing crowded positioning.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /best-exec",
+        desc: "Best execution quotes for perpetuals and spot: real top-of-book best bid and best ask per venue, the venue to route to, and the cross-venue spread. Venues publishing only a mid price are excluded.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /token",
+        desc: "Risk verdict for any EVM token contract address: is this token safe to buy, or is it a honeypot, rug pull or scam? Combines a real buy/sell transaction simulation with holder, tax, mint and liquidity findings, and returns a verdict (low-risk, caution, high-risk, likely-scam, or unverified when no security source answered) plus a 0-100 score and a confidence field stating how much data the verdict rests on.",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /extract",
+        desc: "Convert any public web page URL into clean, LLM-ready text plus structured metadata: title, description, headings, up to 100 links with anchor text, and the full readable body with scripts and navigation stripped.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /audit",
+        desc: "Audit a public website URL: HTTP status, redirect chain, security headers, TLS details, robots.txt and sitemap discovery, and page metadata in one call.",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /tempo",
+        desc: "Tempo (chain 4217) wallet activity score and snapshot for any address: 0-100 activity score, TIP-20 balances, inbound and outbound transfer counts over 24h and 7d, distinct counterparties and transfer volume.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /ip",
+        desc: "Geolocate any IPv4 or IPv6 address: country, region, city, postal code, coordinates, continent, ASN, ISP, organisation and timezone. Omit the address to look up the caller.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /ip-geolocation-lookup",
+        desc: "IP geolocation lookup for an IPv4 or IPv6 address: country, city, region, coordinates, ASN and ISP.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /asn-lookup",
+        desc: "ASN lookup for an IP address: autonomous system number, ASN organisation, owning ISP and domain, plus the address country and city.",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /datacenter-vpn-check",
+        desc: "Classify the network behind an IP address: datacenter/hosting, consumer residential ISP, education or government. Returns the verdict with the ASN, organisation, ISP and country it was derived from, plus the confidence and a note that it is an inference from the ASN organisation name rather than a proxy/VPN registry lookup.",
+        amount: "5000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
