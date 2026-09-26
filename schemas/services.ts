@@ -6165,6 +6165,532 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Pocket Network ────────────────────────────────────────────────────
+  {
+    id: "pocket-network",
+    name: "Pocket Network",
+    url: "https://pocket.network",
+    serviceUrl: "https://agent.pocket.network",
+    description:
+      "Pay-per-call marketplace of 98 data services and utilities served by Pocket Network: market, financial and government data, web search and extraction, document parsing, compliance screening, and blockchain data across 49 networks. One price per call, no account or API key.",
+    icon: "https://pocket.network/wp-content/uploads/2026/09/Pocket-Icon.png",
+    categories: ["ai", "blockchain", "compute", "data", "search", "web"],
+    integration: "first-party",
+    tags: [
+      "blockchain-data",
+      "compliance",
+      "documents",
+      "json-rpc",
+      "market-data",
+      "multichain",
+      "pay-per-call",
+      "pocket-network",
+      "web-search",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://agent.pocket.network/agent-integration",
+      llmsTxt: "https://agent.pocket.network/llms.txt",
+      apiReference: "https://agent.pocket.network/openapi.json",
+    },
+    provider: { name: "Pocket Network", url: "https://pocket.network" },
+    realm: "agent.pocket.network",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/address-standardization/v1/address",
+        desc: "Address Standardization: Rule-based postal address normalization: uppercase a free-text US address, expand standard abbreviations and…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/agentsearch-web-extract-v1/v1/extract",
+        desc: "AgentSearch Web Extract: Fetch a URL and get it back ready for an LLM or RAG pipeline: clean markdown (headings and links kept), plain…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/agentsearch-web-search-v1/v1/search",
+        desc: "AgentSearch: Web search built for agents, served over Pocket Network: POST /v1/search with a query and an optional max_res…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/akash",
+        desc: "Akash Network CometBFT and LCD: Read-only access to Akash Network mainnet, the decentralised compute marketplace: the CometBFT RPC (as JSON-R…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/arb-one",
+        desc: "Arbitrum One Mainnet JSON-RPC: Read-only JSON-RPC access to Arbitrum One, the Nitro optimistic rollup on Ethereum, served by the Pocket Netw…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/avax",
+        desc: "Avalanche Mainnet JSON-RPC: Read-only JSON-RPC access to the Avalanche C-Chain, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/base",
+        desc: "Base Mainnet JSON-RPC: Read-only JSON-RPC access to Base mainnet, the Optimism-stack L2 by Coinbase, served by the Pocket Network de…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/bera",
+        desc: "Berachain Mainnet JSON-RPC: Read-only JSON-RPC access to Berachain mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/blast",
+        desc: "Blast Mainnet JSON-RPC: Read-only JSON-RPC access to Blast mainnet L2, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/bsc",
+        desc: "BNB Smart Chain Mainnet JSON-RPC: Read-only JSON-RPC access to BNB Smart Chain mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/celo",
+        desc: "Celo Mainnet JSON-RPC: Read-only JSON-RPC access to Celo mainnet, now an OP-Stack L2, served by the Pocket Network decentralised sup…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/chain-simulation/v1/chain",
+        desc: "Chain Simulation: Pre-sign EVM transaction simulation: an eth_call with state overrides previewing the revert reason and asset…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/clinical-trials/v1/clinical",
+        desc: "Clinical Trials Search: Search ClinicalTrials.gov: eligibility criteria, status, and sites parsed to JSON.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/contract-abi/v1/tool",
+        desc: "Contract ABI Lookup: Verified EVM contract source and ABI across 6 chains, with EIP-1967 proxy detection.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/counterparty/v1/tool",
+        desc: "Counterparty Screening: Screen a counterparty against public-domain watchlists: OFAC SDN (fuzzy match, daily cache) plus SEC and CFTC…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/crypto-fx-market-data/v1/market",
+        desc: "Crypto FX Market Data: Current crypto prices and 24-hour change from the CoinGecko public API.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/debarment-exclusion/v1/debarment",
+        desc: "Debarment and Exclusion Screening: Screen for SAM.gov exclusions: excluded parties by name, UEI, or CAGE with termination dates.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/dns-whois-rdap/v1/tool",
+        desc: "DNS WHOIS and RDAP Lookup: Domain intelligence: DNS records (A, AAAA, MX, TXT, NS, CNAME, SOA) plus RDAP registration data.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/enforcement-actions/v1/enforcement",
+        desc: "Regulatory Enforcement Actions: Search SEC, CFTC, and DOJ enforcement actions: parties, dates, violations, and orders.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/entity-registration/v1/entity",
+        desc: "Entity Registration and Verification: Verify SAM.gov entity registrations: UEI, legal name, registration status, and expiration.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/eth",
+        desc: "Ethereum Mainnet JSON-RPC: Read-only JSON-RPC access to Ethereum mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/export-control-screen/v1/export",
+        desc: "Export Control Screening: Screen against the BIS Entity List and other restricted-party lists for trade compliance.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/fantom",
+        desc: "Fantom Mainnet JSON-RPC: Read-only JSON-RPC access to Fantom Opera mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/fda/v1/tool",
+        desc: "FDA Drug Labels and Adverse Events: FDA drug labeling sections and FAERS adverse-event aggregates in agent-consumable JSON.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/federal-contract-opps/v1/federal",
+        desc: "Federal Contract Opportunities: Search live federal contract opportunities from SAM.gov: solicitations, set-asides, and deadlines.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/federal-register/v1/federal",
+        desc: "Federal Register Search: Search Federal Register rulemaking: new and changed rules, comment windows, and docket links.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/flight-schedules-status/v1/flight",
+        desc: "Flight Schedules Status: Live position of one airborne aircraft from the OpenSky Network, by callsign or ICAO24 address: whether it is…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/fraxtal",
+        desc: "Fraxtal Mainnet JSON-RPC: Read-only JSON-RPC access to Fraxtal, the OP-Stack L2 by Frax, served by the Pocket Network decentralised sup…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/fund-etf-holdings/v1/fund",
+        desc: "Fund and ETF Holdings: Fund and ETF portfolio composition from N-PORT and N-MFP filings.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/fuse",
+        desc: "Fuse Mainnet JSON-RPC: Read-only JSON-RPC access to Fuse mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/gas-price-oracle/v1/gas",
+        desc: "Gas Price Oracle: Multi-chain gas price oracle: current base fee plus priority-fee tiers for EVM chains.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/gnosis",
+        desc: "Gnosis Mainnet JSON-RPC: Read-only JSON-RPC access to Gnosis Chain mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/headless-browser-render/v1/render",
+        desc: "Headless Browser Render: Fetch a web page and return its title and raw HTML (up to 200,000 characters).",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/hyperliquid",
+        desc: "Hyperliquid Mainnet JSON-RPC: Read-only JSON-RPC access to the Hyperliquid HyperEVM, served by the Pocket Network decentralised supplier se…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/ink",
+        desc: "Ink Mainnet JSON-RPC: Read-only JSON-RPC access to Ink, the OP-Stack L2 by Kraken, served by the Pocket Network decentralised suppl…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/insider-transactions/v1/insider",
+        desc: "Insider Transactions Form 4: SEC Form 3, 4, and 5 insider transactions: filer, issuer, transaction date, shares, price, and role.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/ip-geolocation/v1/geo",
+        desc: "IP Geolocation: IP geolocation: country, region, city, postal code, coordinates, ASN and organisation for an IPv4 or IPv6 add…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/juno",
+        desc: "Juno Network CometBFT and LCD: Read-only access to Juno mainnet, the CosmWasm smart-contract hub: the CometBFT RPC (as JSON-RPC or GET route…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/kaia",
+        desc: "Kaia Mainnet JSON-RPC: Read-only JSON-RPC access to Kaia mainnet, the Klaytn and Finschia merged chain, served by the Pocket Network…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/kava",
+        desc: "Kava CometBFT and LCD: Read-only access to Kava mainnet, the Cosmos and EVM co-chain: the CometBFT RPC (as JSON-RPC or GET routes su…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/linea",
+        desc: "Linea Mainnet JSON-RPC: Read-only JSON-RPC access to Linea, the ZK rollup by Consensys, served by the Pocket Network decentralised su…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/literature-search/v1/literature",
+        desc: "Academic Literature Search: Search scholarly literature via OpenAlex: works with metadata and abstracts.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/mantle",
+        desc: "Mantle Mainnet JSON-RPC: Read-only JSON-RPC access to Mantle mainnet L2, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/med-safety/v1/tool",
+        desc: "Medication Safety Lookup: One-call medication safety from openFDA public data: label highlights, shortage status, recent recalls, and a…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/meme-watch/v1/launches",
+        desc: "Meme Watch: A rolling 60-minute feed of Solana memecoin launches as one JSON object.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/moonbeam",
+        desc: "Moonbeam Mainnet JSON-RPC: Read-only JSON-RPC access to Moonbeam, the EVM parachain on Polkadot, served by the Pocket Network decentrali…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/name-resolution/v1/name",
+        desc: "Name Resolution ENS and DNS: ENS and reverse name resolution across EVM chains: name and address pairs with resolution proofs.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/near",
+        desc: "NEAR JSON-RPC: Read-only JSON-RPC access to NEAR Protocol mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/oasys",
+        desc: "Oasys Mainnet JSON-RPC: Read-only JSON-RPC access to the Oasys Hub-Layer mainnet, served by the Pocket Network decentralised supplier…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/occupational-wages/v1/occupational",
+        desc: "Occupational Wage Data: BLS occupational employment and wage statistics by occupation and area.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/ocr-document-parsing/v1/ocr",
+        desc: "OCR Document Parsing: OCR and document parsing: turn an image or PDF into extracted text with layout hints.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/op",
+        desc: "Optimism Mainnet JSON-RPC: Read-only JSON-RPC access to OP Mainnet, the Optimism L2, served by the Pocket Network decentralised supplier…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/opbnb",
+        desc: "opBNB Mainnet JSON-RPC: Read-only JSON-RPC access to opBNB, the OP-Stack L2 on BNB Chain, served by the Pocket Network decentralised…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/osmosis",
+        desc: "Osmosis CometBFT and LCD: Read-only access to Osmosis mainnet, the Cosmos liquidity hub: the CometBFT RPC (as JSON-RPC or GET routes su…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/package-advisories/v1/tool",
+        desc: "Package Security Advisories: Dependency health across PyPI, npm, Go, Cargo, Maven, Composer, and NuGet via deps.dev and OSV: versions, lic…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/patents-trademarks/v1/patents",
+        desc: "Patents and Trademarks Search: Search USPTO patents and trademarks: applications, grants, classifications, and status.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/pii-redaction/v1/pii",
+        desc: "PII Redaction: Detect and redact PII in text: find and mask names, addresses, SSNs, emails, and phone numbers.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/pocket",
+        desc: "Pocket Network CometBFT and LCD: Read-only access to Pocket Network mainnet (Shannon), the protocol this portal relays through: the CometBFT R…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/poly",
+        desc: "Polygon Mainnet JSON-RPC: Read-only JSON-RPC access to Polygon PoS mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/pretty-charts/v1/chart",
+        desc: "Pretty Charts: Renders a chart from inline data (CSV, TSV, JSON or row values) and returns it as static SVG, or a complete H…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/prompt-injection-detect/v1/prompt",
+        desc: "Prompt Injection Detection: Classify agent-bound text for prompt injection: a safe, suspicious, or malicious verdict with the patterns th…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/rate-benchmarks/v1/rate",
+        desc: "Interest Rate Benchmarks: SOFR, Fed funds, and other benchmark interest-rate series as stable JSON.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/reranking/v1/reranking",
+        desc: "Search Result Reranking: Cross-encoder reranking of retrieved documents by relevance to a query, at fixed model precision.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/robinhood",
+        desc: "Robinhood Mainnet JSON-RPC: Read-only JSON-RPC access to Robinhood Chain, an Arbitrum Orbit L2 with ETH gas and ~0.1s blocks, served by t…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/routing-isochrones/v1/routing",
+        desc: "Routing Isochrones: Straight-line geometry, not road routing: a walking-radius circle (speed x time) around a point or geocoded p…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/rss-atom-normalization/v1/rss",
+        desc: "RSS Atom Normalization: Fetch an RSS or Atom feed and return it as one canonical JSON document: the feed title and its entries with t…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/sanctions-watchlist-screen/v1/ofac",
+        desc: "Sanctions and Watchlist Screening: Screen a name against OFAC SDN plus the EU, UN, and UK consolidated lists with fuzzy matching and confidence…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/scroll",
+        desc: "Scroll Mainnet JSON-RPC: Read-only JSON-RPC access to Scroll, the zkEVM rollup on Ethereum, served by the Pocket Network decentralised…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/sec-8k-event-stream/v1/sec",
+        desc: "SEC 8-K Filings: SEC 8-K material-event items as stable JSON from EDGAR full-text: item codes, filing time, and exhibits.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/sec-edgar-xbrl/v1/sec",
+        desc: "SEC EDGAR XBRL Data: SEC EDGAR filing text and XBRL structured financials for any public filer.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/sec-holdings/v1/tool",
+        desc: "SEC Institutional Holdings: SEC 13F institutional positions by filer and quarter: issuer, CUSIP, USD value, and share count.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/sei",
+        desc: "Sei JSON-RPC, CometBFT and LCD: Read-only access to Sei mainnet (pacific-1) on every surface a Sei node exposes: the EVM JSON-RPC methods, th…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/semantic-similarity/v1/semantic",
+        desc: "Semantic Similarity: Text and embedding similarity scoring: cosine match and dedupe decisions at fixed model precision.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/sentiment-classification/v1/sentiment",
+        desc: "Sentiment Classification: Lexicon-based sentiment scoring: label a text positive, negative or neutral with a score and the positive and…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/solana",
+        desc: "Solana JSON-RPC: Read-only JSON-RPC access to Solana mainnet-beta, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/sonic",
+        desc: "Sonic Mainnet JSON-RPC: Read-only JSON-RPC access to Sonic mainnet, the Fantom successor chain, served by the Pocket Network decentra…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/structured-extraction/v1/extract",
+        desc: "Structured Extraction: Rule-based extraction of named fields from text; not a language model, it returns only what the text states.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/structured-web-extraction/v1/url",
+        desc: "Structured Web Extraction: Fetch a web page and return structured data: standard fields (title, description, language, h1, OpenGraph, au…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/sui",
+        desc: "Sui JSON-RPC: Read-only JSON-RPC access to Sui mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/table-extraction/v1/table",
+        desc: "Table Extraction from Text: Extract tables from documents into typed JSON: headers, rows, and cell types.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/taiko",
+        desc: "Taiko Mainnet JSON-RPC: Read-only JSON-RPC access to Taiko Alethia, the based rollup on Ethereum, served by the Pocket Network decent…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/taint-check/v1/scan",
+        desc: "TaintCheck: Scan a dependency manifest for known-vulnerable and confirmed-malicious packages.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/text-embeddings/v1/text",
+        desc: "Text Embeddings: Open-weight text embeddings at a fixed model and precision: deterministic vectors for RAG and memory pipeline…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/token-metadata/v1/token",
+        desc: "Token Metadata: Canonical token metadata across 6 EVM chains: symbol, decimals, name, logo, and token-list provenance.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/token-price-oracles/v1/price",
+        desc: "Token Price Oracles: Chainlink price feed reads for three pairs: ETH/USD and BTC/USD on Ethereum (chain 1) and MATIC/USD on Polygo…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/trade-tariff-data/v1/trade",
+        desc: "Trade and Tariff Data: HTS tariff classification and duty rates for supply-chain and customs agents.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/treasury-fiscal-data/v1/treasury",
+        desc: "Treasury and Fiscal Data: US Treasury yields, debt, and fiscal series as stable JSON from FiscalData.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/tron",
+        desc: "TRON JSON-RPC and HTTP API: Read-only access to TRON mainnet on two surfaces: the Ethereum-compatible JSON-RPC methods (POST the JSON-RPC…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/tx-decoding/v1/tool",
+        desc: "Transaction Decoding: Decodes raw EVM transactions and calldata into agent-readable intent: function signature, decoded arguments,…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/tx-explain/v1/tool",
+        desc: "EVM Transaction Explainer: Explains an EVM transaction in plain language: decoded intent, asset movements, approvals, and risk flags.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/unichain",
+        desc: "Unichain The DeFi Chain by Uniswap Mainnet JSON-RPC: Read-only JSON-RPC access to Unichain, the OP-Stack L2 by Uniswap, served by the Pocket Network decentralised…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/url-fetch-markdown/v1/url",
+        desc: "URL Fetch Markdown: Fetch a URL and return its title and readable body text, with navigation and boilerplate stripped.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/us-code-cfr/v1/us",
+        desc: "US Code and CFR Regulations: US Code and CFR section lookup plus legislative bill tracking from govinfo.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/us-macro/v1/tool",
+        desc: "US Macroeconomic Series: US macroeconomic time series as stable JSON: CPI, unemployment, payrolls, GDP, and rates, with alias sets.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/wallet-portfolio/v1/portfolio",
+        desc: "Wallet Portfolio Aggregation: Wallet holdings across 12 chains in one call: native and known-token balances on Ethereum, Base, BNB Chain, A…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/web-search-serp/v1/search",
+        desc: "Web Search SERP: Web search: up to 20 ranked results (title, url, snippet) for a query, parsed from DuckDuckGo Lite.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/xrplevm",
+        desc: "XRPLEVM Mainnet JSON-RPC: Read-only JSON-RPC access to the XRPL EVM sidechain mainnet, served by the Pocket Network decentralised suppl…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/zksync-era",
+        desc: "zkSync Era Mainnet JSON-RPC: Read-only JSON-RPC access to zkSync Era, the ZK rollup on Ethereum, served by the Pocket Network decentralise…",
+        amount: "5000",
+      },
+    ],
+  },
+
   // ── RentCast ─────────────────────────────────────────────────────────
   {
     id: "rentcast",
