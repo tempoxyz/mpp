@@ -122,6 +122,33 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── PayeeProof ─────────────────────────────────────────────────────────
+  {
+    id: "payeeproof",
+    name: "PayeeProof",
+    url: "https://payeeproof.davisvillelabs.com",
+    serviceUrl: "https://payeeproof.davisvillelabs.com",
+    description:
+      "Payment identity intelligence for AI agents that checks whether a public machine endpoint, claimed service, requested resource, and payment destination are internally consistent before autonomous payment.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["payments", "identity", "agents", "preflight", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://payeeproof.davisvillelabs.com",
+      llmsTxt: "https://payeeproof.davisvillelabs.com/llms.txt",
+      apiReference: "https://payeeproof.davisvillelabs.com/openapi.json",
+    },
+    provider: { name: "Davisville Labs LLC", url: "https://davisvillelabs.com" },
+    realm: "payeeproof.davisvillelabs.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      { route: "GET /v1/capabilities", desc: "Discover PayeeProof capabilities and machine-payment metadata" },
+      { route: "POST /v1/payee/check", desc: "Check public machine endpoint, service identity, resource, and payment-destination consistency", amount: "1", unitType: "request" },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
