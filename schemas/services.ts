@@ -122,6 +122,35 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── ScopeProof ─────────────────────────────────────────────────────────
+  {
+    id: "scopeproof",
+    name: "ScopeProof",
+    url: "https://scopeproof.davisvillelabs.com",
+    serviceUrl: "https://scopeproof.davisvillelabs.com",
+    description:
+      "Deterministic pre-action authorization checks for AI agents against caller-supplied structured authority constraints, with explicit within-scope, outside-scope, or review-required results.",
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: ["authorization", "agents", "policy", "preflight", "mcp"],
+    status: "active",
+    docs: {
+      homepage: "https://scopeproof.davisvillelabs.com",
+      llmsTxt: "https://scopeproof.davisvillelabs.com/llms.txt",
+      apiReference: "https://scopeproof.davisvillelabs.com/openapi.json",
+    },
+    provider: { name: "Davisville Labs LLC", url: "https://davisvillelabs.com" },
+    realm: "scopeproof.davisvillelabs.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      { route: "GET /v1/capabilities", desc: "Discover ScopeProof capabilities and commerce metadata" },
+      { route: "POST /v1/preflight", desc: "Validate structured input without returning an authorization verdict" },
+      { route: "POST /v1/check-action", desc: "Check one proposed action against supplied authority constraints and return a deterministic authorization decision", amount: "1", unitType: "request" },
+      { route: "POST /v1/receipts/verify", desc: "Verify a signed ScopeProof receipt" },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
