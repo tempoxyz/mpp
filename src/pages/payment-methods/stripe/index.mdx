@@ -51,7 +51,7 @@ The resolver runs only for the stablecoin networks you enable. If one network fa
 
 Add a Tempo Session method through `defaultMethods().additional({ tempo: { session: {} } })`. Each on-chain Session settlement of at least one cent records its newly settled amount in Stripe before `mppx` calls your optional `onSessionSettlement` hook. `mppx` skips recording when the amount rounds down below one cent.
 
-Set `hostedFeePayer: true` in a live-mode integration to sponsor Tempo transaction fees through Stripe. This option applies to Tempo charge and Sessions methods, requires a compatible Stripe Node SDK client, and doesn't support Stripe Connect account routing.
+Set `hostedFeePayer: true` to sponsor Tempo transaction fees through Stripe in live mode. This option applies to Tempo charge and Sessions methods, requires a compatible Stripe Node SDK client, and doesn't support Stripe Connect account routing. In test mode, `mppx` accepts the option but leaves fee sponsorship disabled.
 
 Use [`stripe.spt`](/sdk/typescript/server/Method.stripe.spt) directly when you only accept SPT payments. Import `Mppx` from `mppx/server/core` and `stripe` from `mppx/stripe/server/spt` to omit unrelated payment rails.
 

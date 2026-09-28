@@ -133,7 +133,7 @@ const payments = stripe.create({
 })
 ```
 
-The hosted fee payer requires a compatible Stripe Node SDK client and a live-mode integration. It doesn't support Stripe Connect account routing.
+The hosted fee payer requires a compatible Stripe Node SDK client and doesn't support Stripe Connect account routing. In test mode, `mppx` accepts `hostedFeePayer: true` but leaves fee sponsorship disabled.
 
 ### Choose a charge method
 

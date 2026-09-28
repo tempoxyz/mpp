@@ -174,7 +174,7 @@ const payments = stripe.create({
 })
 ```
 
-The hosted fee payer requires a compatible Stripe Node SDK client and a live-mode integration. It doesn't support Stripe Connect account routing.
+The hosted fee payer requires a compatible Stripe Node SDK client and doesn't support Stripe Connect account routing. In test mode, `mppx` accepts `hostedFeePayer: true` but leaves fee sponsorship disabled.
 
 ### SPT only
 
@@ -310,7 +310,7 @@ Static deposit addresses or an asynchronous resolver. Use `stripe.findOrCreateDe
 
 - **Type:** `boolean`
 
-Uses Stripe's hosted Tempo fee payer for charge and Sessions methods. Requires `livemode: true`, a compatible Stripe Node SDK client, and no `connect` configuration.
+Uses Stripe's hosted Tempo fee payer for charge and Sessions methods in live mode. Requires a compatible Stripe Node SDK client and no `connect` configuration. In test mode, `mppx` accepts the option but leaves fee sponsorship disabled.
 
 ### livemode
 

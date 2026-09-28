@@ -293,7 +293,7 @@ console.log(response.status)
 // @log: 200
 ```
 
-The same client now reads native MPP and x402 Challenges, then retries with the matching Credential header. It validates the resource, EIP-3009 token metadata, network, currency, and amount before signing an x402 offer.
+The same client now reads native MPP and x402 Challenges, then retries with the matching Credential header. It accepts an advertised resource URL that differs from the final response URL, then validates the EIP-3009 token metadata, network, currency, and amount before signing an x402 offer.
 
 ### Control the x402 retry
 

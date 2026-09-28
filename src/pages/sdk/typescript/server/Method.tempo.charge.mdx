@@ -11,7 +11,7 @@ The `charge` intent for the Tempo payment method. Requests a one-time payment fr
 
 Non-zero charges verify on-chain transfers. Zero-amount charges verify a `proof` payload signed by the client's identity key and return a Receipt without broadcasting a transaction.
 
-For non-zero charges, the client generates a Challenge-bound attribution memo and the server always verifies it. Custom top-level memos aren't supported; split transfers can still include their own memos.
+For non-zero charges, the client generates a Challenge-bound attribution memo and the server always verifies it. Custom top-level memos aren't supported; split transfers can still include their own memos, but every MPP attribution memo must bind to the same Challenge and realm.
 
 ## Usage
 
@@ -79,6 +79,31 @@ export async function handler(request: Request) {
   return response.withReceipt(Response.json({ data: '...' }))
 }
 ```
+
+### With MACH funding
+
+Let compatible clients fund a stablecoin charge with MACH through the canonical swapper. Keep `currency` set to the stablecoin you want to receive.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ machineTokenEnabled: true })],
+})
+
+export async function handler(request: Request) {
+  const response = await mppx.charge({
+    amount: '0.1',
+    currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })(request)
+
+  if (response.status === 402) return response.challenge
+  return response.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+The client uses MACH only when the canonical route is available, its account holds enough MACH, and the wallet can execute the approval and swap calls. Otherwise, it follows the standard payment path—using `autoSwap` when configured or paying the stablecoin directly. MACH funding doesn't support split charges and uses a funded supported stablecoin for transaction fees.
 
 ### With a custom fee payer policy
 
@@ -289,6 +314,12 @@ Function that returns a viem client for the given chain ID. Overrides the defaul
 
 Renders a payment page when the request accepts `text/html`. Pass an object to customize the page.
 
+### machineTokenEnabled (optional)
+
+- **Type:** `boolean`
+
+Advertises canonical MACH funding for compatible single-recipient charges. Clients can spend MACH while the server receives the requested stablecoin. The server rejects MACH itself as the advertised `currency`.
+
 ### onPaymentSuccess (optional)
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge>`
@@ -398,6 +429,12 @@ ISO 8601 timestamp for when the payment Challenge expires.
 
 Server-defined correlation data. `mppx` serializes it as the base64url-encoded `opaque` auth-param on the Challenge, and clients echo that same string back in the Credential.
 
+### machineTokenEnabled (optional)
+
+- **Type:** `boolean`
+
+Overrides the method default for this charge. Set `true` to advertise the canonical MACH funding route.
+
 ### recipient
 
 - **Type:** `string`
@@ -422,6 +459,8 @@ Split the charge across additional recipients. Each entry specifies an `amount` 
 | Each split amount | Must be > 0 |
 | Sum of splits | Must be strictly less than `amount` |
 | Split memo | Optional, 32-byte hex hash |
+
+At least one matched transfer must include the Challenge-bound attribution memo. Any other matched transfer that contains an MPP attribution memo must bind to the same Challenge and realm. Plain transfers and custom non-MPP memos remain valid.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'

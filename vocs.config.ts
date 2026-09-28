@@ -123,6 +123,10 @@ export default defineConfig({
     { source: "/rust", destination: "/sdk/rust" },
     { source: "/reference", destination: "/sdk" },
     { source: "/api", destination: "/sdk" },
+    {
+      source: "/sdk/typescript/tempo.mach",
+      destination: "/sdk/typescript/tempo.machineTokenDeployments",
+    },
 
     // SDK repo shortcuts
     { source: "/mppx", destination: "https://github.com/wevm/mppx" },
@@ -824,8 +828,8 @@ export default defineConfig({
                         link: "/sdk/typescript/server/Response.requirePayment",
                       },
                       {
-                        text: "tempo.mach",
-                        link: "/sdk/typescript/tempo.mach",
+                        text: "tempo.machineTokenDeployments",
+                        link: "/sdk/typescript/tempo.machineTokenDeployments",
                       },
                       {
                         text: "tempo.renewSubscription",

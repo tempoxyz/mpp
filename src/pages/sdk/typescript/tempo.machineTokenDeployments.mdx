@@ -1,0 +1,37 @@
+---
+description: "Use canonical Tempo deployments when you enable MACH-funded stablecoin charges."
+imageDescription: "Fund stablecoin charges with MACH"
+---
+
+# `machineTokenDeployments` [Canonical MACH funding contracts]
+
+Provides the canonical MACH token and swapper addresses for Tempo mainnet and Moderato testnet.
+
+## Usage
+
+```ts twoslash
+import { machineTokenDeployments } from 'mppx/tempo'
+
+const deployment = machineTokenDeployments[4217]
+
+console.log(deployment.token)
+// @log: 0x20c000000000000000000000f37de3740ADec032
+```
+
+Use these addresses to inspect or allowlist the contracts used by [`machineTokenEnabled`](/sdk/typescript/server/Method.tempo.charge#machinetokenenabled-optional). Continue to advertise the stablecoin you want to receive as the charge currency—servers can't advertise MACH as the settlement currency.
+
+Replace `mach(chainId).address` from earlier releases with `machineTokenDeployments[chainId].token`.
+
+## Return type
+
+```ts
+type ReturnType = Readonly<
+  Record<
+    4217 | 42431,
+    Readonly<{
+      swap: `0x${string}`
+      token: `0x${string}`
+    }>
+  >
+>
+```

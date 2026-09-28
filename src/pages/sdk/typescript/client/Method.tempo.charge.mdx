@@ -63,7 +63,9 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 
 For non-zero Challenges, the client returns either a `transaction` or `hash` payload depending on `mode`. For zero-amount Challenges, it always returns a `proof` payload and skips transaction construction.
 
-For MACH charges, the client automatically selects a funded supported stablecoin for transaction fees. Import [`mach`](/sdk/typescript/tempo.mach) from `mppx/tempo` when you need the deployed token address and metadata.
+When a Challenge enables MACH funding, the client tries the canonical MACH swapper route and settles the requested stablecoin to the server. If the account can't execute that route, the client uses `autoSwap` when configured or falls back to a direct stablecoin payment. MACH funding supports single-recipient charges on Tempo mainnet and Moderato testnet, and uses a funded supported stablecoin as the transaction fee token.
+
+Import [`machineTokenDeployments`](/sdk/typescript/tempo.machineTokenDeployments) from `mppx/tempo` when you need the canonical token and swapper addresses.
 
 ## Return type
 

@@ -18,7 +18,7 @@ The Tempo implementation of the [charge](/intents/charge) intent.
 
 For non-zero charges, the client signs a TIP-20 `transfer` transaction, the server broadcasts it to Tempo, and settlement completes in ~500ms with deterministic finality.
 
-The client adds a Challenge-bound attribution memo to the primary transfer, and the server verifies it. Custom top-level memos aren't supported. Split transfers can still include their own memos.
+The client adds a Challenge-bound attribution memo to the primary transfer, and the server verifies it. Custom top-level memos aren't supported. Split transfers can still include their own memos, but every MPP attribution memo on a matched transfer must bind to the same Challenge and realm.
 
 For zero-amount identity flows, the client sends a `proof` Credential payload instead of a real transaction. The server verifies the signed proof message against the client's `source` identity and returns a Receipt without broadcasting anything on-chain.
 
@@ -88,6 +88,28 @@ const result = await mppx.charge({
 ```
 
 When `feePayer` is `true`, the server adds a fee payer signature (domain `0x78`) before broadcasting. The client doesn't need gas tokens. See [fee sponsorship](/payment-methods/tempo#fee-sponsorship) for details.
+
+### With MACH funding
+
+Set `machineTokenEnabled: true` on the method to let compatible clients spend MACH while your server receives the requested stablecoin.
+
+```ts twoslash
+import { Mppx, tempo } from "mppx/server";
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ machineTokenEnabled: true })],
+});
+
+declare const request: Request;
+// ---cut---
+const result = await mppx.charge({
+  amount: "0.1",
+  currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+  recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+})(request);
+```
+
+The client uses the canonical swapper for supported single-recipient charges when its account holds enough MACH and can execute the route. Otherwise, it follows the standard payment path—using `autoSwap` when configured or paying the stablecoin directly. A funded supported stablecoin pays the transaction fee. Don't advertise MACH as the charge currency.
 
 ### Zero-dollar auth
 
@@ -204,7 +226,7 @@ See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge
 
 Use [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge) with `Mppx.create` to automatically handle `402` responses. For non-zero amounts, the client signs a TIP-20 transfer and retries with the Credential. For zero-amount Challenges, it signs a proof message and retries with a `proof` payload instead.
 
-The client also supports MACH charges. It automatically pays transaction fees with a funded supported stablecoin, so a payer doesn't need additional MACH for fees. Use [`mach`](/sdk/typescript/tempo.mach) from `mppx/tempo` to resolve the deployed address on Tempo mainnet or Moderato testnet.
+The client also supports MACH-funded stablecoin charges. When the server enables the route, the client can swap MACH through the canonical deployment and settle the requested stablecoin. Use [`machineTokenDeployments`](/sdk/typescript/tempo.machineTokenDeployments) from `mppx/tempo` to inspect the canonical token and swapper addresses.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">

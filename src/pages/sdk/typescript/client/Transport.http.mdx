@@ -54,8 +54,11 @@ const mppx = Mppx.create({
 
 - Detects payment required using the **`402` status code**
 - Extracts Challenges from the **`WWW-Authenticate` header**
+- Extracts x402 Challenges from **`PAYMENT-REQUIRED`** without requiring the advertised resource URL to match the final response URL
 - Sends Credentials using **`Authorization`** or the alternate field advertised by the Challenge
 - Preserves an existing non-Payment **`Authorization`** value when attaching another Credential field
+
+The independent x402 resource URL supports redirects, alternate resource hosts, and resource-specific query parameters. Payment methods still enforce their configured network, currency, amount, and recipient policies before signing.
 
 ## Return type
 

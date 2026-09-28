@@ -66,6 +66,12 @@ $ mppx https://api.example.com/paid --protocol mpp
 
 x402 payments support compatible EVM `exact` Challenges and use the same account as EVM charge payments. Configure it with `--account`, `MPPX_ACCOUNT`, or `MPPX_PRIVATE_KEY`.
 
+## Request attribution
+
+The CLI sends `mppx/<version>` as its default `User-Agent`. In recognized coding-agent environments, it appends an attribution token such as `AIAgent/codex_cli` or `AIAgent/claude_code`. Detection covers Antigravity, Claude Code, Cline, Codex CLI, Cursor, Gemini CLI, OpenCode, and OpenClaw.
+
+Pass `--user-agent` to replace the complete default value, including automatic agent attribution.
+
 ## Validate command
 
 Use `mppx validate` to automatically verify an MPP server implementation end-to-end. The command tests `/llms.txt`, OpenAPI discovery, Challenge formats, error handling, and the full payment flow. A missing, empty, or non-text `/llms.txt` appears as a non-blocking `suggested` result.

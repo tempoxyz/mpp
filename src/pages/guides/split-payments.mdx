@@ -66,7 +66,7 @@ const result = await mppx.charge({
 
 ### With per-split memos
 
-Each split can carry its own on-chain memo for reconciliation. The primary transfer uses the SDK-generated Challenge-bound attribution memo and doesn't accept a custom memo.
+Each split can carry its own on-chain memo for reconciliation. The primary transfer uses the SDK-generated Challenge-bound attribution memo and doesn't accept a custom memo. If another matched transfer contains an MPP attribution memo, it must bind to the same Challenge and realm; custom non-MPP memos remain valid.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
