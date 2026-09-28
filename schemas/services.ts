@@ -122,6 +122,88 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── Laso Finance ─────────────────────────────────────────────────────
+  {
+    id: "laso-finance",
+    name: "Laso Finance",
+    url: "https://laso.finance",
+    serviceUrl: "https://laso.finance",
+    description:
+      "Turn USDC into real-world dollars for agents: prepaid cards, gift cards, push-to-card, Venmo and PayPal payouts, and bank payouts.",
+    icon: "https://laso.finance/apple-touch-icon.png",
+    categories: ["web"],
+    integration: "first-party",
+    tags: [
+      "payments",
+      "prepaid-cards",
+      "gift-cards",
+      "payouts",
+      "off-ramp",
+      "usdc",
+      "base",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://docs.laso.finance",
+      llmsTxt: "https://laso.finance/llms.txt",
+      apiReference: "https://laso.finance/openapi.json",
+    },
+    provider: { name: "Laso Finance", url: "https://laso.finance" },
+    realm: "laso.finance",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /get-card",
+        desc: "Order a US prepaid card",
+        dynamic: true,
+        amountHint: "$5 to $1,000 card value",
+      },
+      {
+        route: "GET /order-intl-card",
+        desc: "Order an international prepaid card",
+        dynamic: true,
+        amountHint: "$103.80 to $1,038 including fees",
+      },
+      {
+        route: "GET /fund-card-balance",
+        desc: "Load a reloadable card balance",
+        dynamic: true,
+        amountHint: "$5 to $1,000",
+      },
+      {
+        route: "GET /order-gift-card",
+        desc: "Order a gift card",
+        dynamic: true,
+        amountHint: "$5 to $9,432 depending on brand and value",
+      },
+      {
+        route: "GET /get-push-to-card",
+        desc: "Send money to a debit card (USD, EUR, GBP)",
+        dynamic: true,
+        amountHint: "$11.50 to $10,000 including fees",
+      },
+      {
+        route: "GET /send-payment",
+        desc: "Send a Venmo or PayPal payment",
+        dynamic: true,
+        amountHint: "$6.50 to $1,049 including fees",
+      },
+      {
+        route: "GET /send-bank-payment",
+        desc: "Send dollars to a bank account",
+        dynamic: true,
+        amountHint: "$11.50 to $10,025 including fees",
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",

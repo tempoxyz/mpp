@@ -10,6 +10,10 @@ const CACHE_CONTROL =
 
 const MANIFEST_CACHE_MS = 5 * 60_000;
 
+// Cast through unknown: the JSON import infers every service's `methods` as a
+// union with `?: undefined` keys, which does not fit the index signature.
+const checkedInCatalog = discovery as unknown as ServicesCatalog;
+
 let cachedCatalog: { catalog: ServicesCatalog; expiresAt: number } | undefined;
 
 export async function GET(request: Request) {
@@ -61,13 +65,13 @@ async function liveCatalog(): Promise<ServicesCatalog> {
     });
     if (!response.ok) throw new Error(`MPP proxy manifest ${response.status}`);
     const catalog = mergeMppProxyCatalog(
-      discovery as ServicesCatalog,
+      checkedInCatalog,
       await response.json(),
     );
     cachedCatalog = { catalog, expiresAt: Date.now() + MANIFEST_CACHE_MS };
     return catalog;
   } catch (error) {
     console.warn("Falling back to the checked-in MPP service catalog", error);
-    return cachedCatalog?.catalog ?? (discovery as ServicesCatalog);
+    return cachedCatalog?.catalog ?? checkedInCatalog;
   }
 }
