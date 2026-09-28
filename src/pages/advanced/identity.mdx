@@ -3,7 +3,9 @@ description: "Use MPP Credentials for access control, rate limiting, and multi-s
 imageDescription: "Identify clients across requests without extra auth"
 ---
 
+import { Cards } from 'vocs'
 import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { SpecCard } from '../../components/SpecCard'
 
 # Identity [Verify agents and clients]
 
@@ -257,6 +259,21 @@ export const nonceStore = {
 ```
 
 Adapt `tryClaim` to your storage client's atomic insert-if-absent operation. It returns `true` when it records a new claim and `false` when an unexpired claim already exists. If your `AtomicStore` omits this optimized method, `mppx` falls back to its atomic `update` operation. See [`Store.tryClaim`](/sdk/typescript/core/Store.tryClaim).
+
+## IETF specification
+
+<Cards>
+  <SpecCard
+    description="Read RFC 9421"
+    title="HTTP Message Signatures"
+    to="https://www.rfc-editor.org/rfc/rfc9421"
+  />
+  <SpecCard
+    description="Read the IETF draft"
+    title="Web Bot Auth"
+    to="https://datatracker.ietf.org/doc/html/draft-meunier-web-bot-auth-architecture"
+  />
+</Cards>
 
 ## MPP Credential identity
 
