@@ -88,7 +88,7 @@ Let compatible clients fund a stablecoin charge with MACH through the canonical 
 import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
-  methods: [tempo.charge({ machineTokenEnabled: true })],
+  methods: [tempo.charge({ machineTokenEnabled: true })], // [!code hl]
 })
 
 export async function handler(request: Request) {

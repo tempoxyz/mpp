@@ -12,7 +12,7 @@ Provides the canonical MACH token and swapper addresses for Tempo mainnet and Mo
 ```ts twoslash
 import { machineTokenDeployments } from 'mppx/tempo'
 
-const deployment = machineTokenDeployments[4217]
+const deployment = machineTokenDeployments[4217] // [!code hl]
 
 console.log(deployment.token)
 // @log: 0x20c000000000000000000000f37de3740ADec032
@@ -35,3 +35,7 @@ type ReturnType = Readonly<
   >
 >
 ```
+
+## Parameters
+
+None.
