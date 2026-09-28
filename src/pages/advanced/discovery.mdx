@@ -298,7 +298,7 @@ Optional root-level metadata about the service:
 
 ## Build manually
 
-You can author a discovery document by hand following the discovery specification. The document is a standard OpenAPI 3.1 file with two extensions:
+You can author a discovery document by hand following the [discovery specification](https://paymentauth.org/draft-payment-discovery-01). The document is a standard OpenAPI 3.1 file with two extensions:
 
 ::::steps
 
@@ -340,7 +340,21 @@ For each endpoint that requires payment, add the `x-payment-info` extension with
         },
         // [!code hl:end]
         "responses": {
-          "200": { "description": "Successful response" },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "result": { "type": "string" }
+                  },
+                  "required": ["result"],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
           "402": { "description": "Payment Required" }
         }
       }
@@ -352,6 +366,8 @@ For each endpoint that requires payment, add the `x-payment-info` extension with
 :::warning[Include a 402 response]
 Operations with `x-payment-info` must include a `402` response in the `responses` object. Validators flag this as an error if missing.
 :::
+
+Describe each successful JSON representation with a standard OpenAPI response schema. Discovery clients can flag operations that omit every successful response schema as `output-schema-missing`. A schema applies only to its response status and media type, so don't treat one schema as a guarantee for other successful representations.
 
 ### Add `x-service-info` (optional)
 
@@ -406,11 +422,12 @@ Common validation issues:
 |-------|----------|-------------|
 | Missing `402` response | Error | Operations with `x-payment-info` must include a `402` response |
 | Invalid amount format | Error | Each `offers[].amount` value must be a non-negative integer string |
+| Missing output schema | Warning | Operations without a schema for any successful response representation |
 | Missing `requestBody` | Warning | `POST`/`PUT`/`PATCH` operations without a `requestBody` definition |
 | Invalid URI in docs | Error | `docs` links must be valid URIs or absolute paths |
 
 ## Specification
 
 <Cards>
-  <SpecCard to="https://paymentauth.org/draft-payment-discovery-00" />
+  <SpecCard to="https://paymentauth.org/draft-payment-discovery-01" />
 </Cards>

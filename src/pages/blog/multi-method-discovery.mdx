@@ -17,7 +17,7 @@ import { SpecCard } from '../../components/SpecCard'
 
 One of the core tenants of MPP's design is that it is payment-method and currency agnostic. As of date, over ten payment methods are live across the protocol, spanning stablecoins on every EVM network, cards, and even Bitcoin. As more methods have been added to the protocol, we have seen an increase in services accepting multiple payment methods, multiple currencies, and even multiple intent types on the same endpoint.
 
-Until now, MPP's discovery extension only described a single payment offer per route. That meant registries and clients had to dynamically hit the endpoint and parse a `402` Challenge to learn the full set of payment options. With this update to the discovery spec, servers can declare all of their payment offers ahead of time and ensure that registries always have up to date information.
+Until now, MPP's [discovery extension](https://github.com/tempoxyz/mpp-specs/blob/2f6bfcee6f9e448d2ded15dc350dc92967e17513/specs/extensions/draft-payment-discovery-00.md) only described a single payment offer per route. That meant registries and clients had to dynamically hit the endpoint and parse a `402` Challenge to learn the full set of payment options. With this update to the discovery spec, servers can declare all of their payment offers ahead of time and ensure that registries always have up to date information.
 
 ## What changed
 
@@ -134,7 +134,8 @@ discovery(app, mppx, {
 
 - **Discovery docs**: [mpp.dev/advanced/discovery](/advanced/discovery)
 - **Multiple payment methods guide**: [mpp.dev/guides/multiple-payment-methods](/guides/multiple-payment-methods)
+- **IETF Specification**: [paymentauth.org/draft-payment-discovery-01](https://paymentauth.org/draft-payment-discovery-01)
 
 <Cards>
-  <SpecCard to="https://paymentauth.org/draft-payment-discovery-00" />
+  <SpecCard to="https://paymentauth.org/draft-payment-discovery-01" />
 </Cards>

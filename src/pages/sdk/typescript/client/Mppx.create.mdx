@@ -333,29 +333,6 @@ type Mppx = {
       request?: RequestInit
     },
   ) => Promise<PreparedPayment>
-  /** Returns an HTTP response with its exact request and optional payment. */
-  prepareRequest: {
-    <const RequirePayment extends boolean>(
-      input: RequestInfo | URL,
-      init: RequestInit | undefined,
-      options: {
-        acceptPayment?: string | AcceptPayment.Entry[]
-        maxRedirects?: number
-        orderChallenges?: OrderChallenges
-        requirePayment: RequirePayment
-      },
-    ): Promise<PreparedRequest<RequirePayment>>
-    (
-      input: RequestInfo | URL,
-      init?: RequestInit,
-      options?: {
-        acceptPayment?: string | AcceptPayment.Entry[]
-        maxRedirects?: number
-        orderChallenges?: OrderChallenges
-        requirePayment?: false
-      },
-    ): Promise<PreparedRequest>
-  }
   /** The original, unwrapped fetch — bypasses payment interception. */
   rawFetch: typeof globalThis.fetch
   /** The transport used. */
@@ -366,10 +343,6 @@ type Mppx = {
 ### `preparePayment`
 
 Selects and snapshots a supported Challenge without signing it. The returned object lets you inspect the terms, create the Credential later, and attach it through the correct Payment auth, x402, or MCP protocol. See [`Mppx.preparePayment`](/sdk/typescript/client/Mppx.preparePayment).
-
-### `prepareRequest`
-
-Follows safe pre-payment redirects and returns the exact request, its response, and an optional prepared payment. Use it in Node.js when approval must happen before signing; the paid request doesn't follow redirects. See [`Mppx.prepareRequest`](/sdk/typescript/client/Mppx.prepareRequest).
 
 ### `rawFetch`
 

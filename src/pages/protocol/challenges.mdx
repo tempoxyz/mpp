@@ -20,9 +20,9 @@ The token address below is pathUSD on Tempo mainnet. The identifiers and transac
 | Parameter | Description |
 |-----------|-------------|
 | `id` | Unique Challenge identifier, cryptographically bound to Challenge parameters |
-| `realm` | Protection space identifier (typically the API domain) |
-| `method` | Payment method identifier (such as `tempo` or `stripe`) |
 | `intent` | Payment intent type (such as `charge` or `session`) |
+| `method` | Payment method identifier (such as `tempo` or `stripe`) |
+| `realm` | Protection space identifier (typically the API domain) |
 | `request` | Base64url-encoded JCS JSON with payment details |
 
 ### Optional parameters
@@ -30,7 +30,7 @@ The token address below is pathUSD on Tempo mainnet. The identifiers and transac
 | Parameter | Description |
 |-----------|-------------|
 | `description` | Human-readable description of what's being paid for |
-| `digest` | Request body digest used to bind a body-bearing request |
+| `digest` | Request-body digest in `sha-256=:<base64>:` format |
 | `expires` | ISO 8601 timestamp when the Challenge expires |
 | `header` | HTTP field for the Credential; defaults to `Authorization` when absent |
 | `opaque` | Base64url-encoded JCS JSON for server-defined correlation data |
@@ -99,7 +99,7 @@ Typical binding includes:
 - `header` when advertised
 - `opaque`
 
-For HMAC-bound IDs without `header`, the canonical input sequence remains `realm | method | intent | request | expires | digest | opaque`. When a Challenge advertises `header`, insert its value before the final `opaque` slot. Use an empty string for an absent optional slot.
+For HMAC-bound IDs, use `realm | method | intent | request | expires | digest | opaque` when `header` is absent. When `header` is present, insert it before `opaque`: `realm | method | intent | request | expires | digest | header | opaque`. Use an empty string for any absent optional value other than `header`, whose slot is omitted entirely when absent.
 
 For stateless verification, use an [HMAC-bound](https://en.wikipedia.org/wiki/HMAC) Challenge ID. Stateful servers can store the expected Challenge parameters by ID and compare them when verifying the Credential.
 
