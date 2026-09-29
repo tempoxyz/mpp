@@ -11239,4 +11239,75 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "fde-lessons",
+    name: "FDE Lessons API",
+    url: "https://ignatiustheyoungerai.com",
+    serviceUrl: "https://api.ignatiustheyoungerai.com",
+    description:
+      "Forward Deployed Engineering rules traced to real incidents, situational playbooks, a pre-ship checklist, and the Agent Pricing Index — 47 AI products benchmarked from vendor pricing pages with a verbatim quote and a read date.",
+    icon: "https://ignatiustheyoungerai.com/assets/marks/favicon-64.png",
+    categories: ["data", "ai"],
+    integration: "third-party",
+    tags: ["engineering", "incidents", "playbooks", "ai-pricing", "provenance"],
+    status: "active",
+    docs: {
+      homepage: "https://ignatiustheyoungerai.com/pricing-index",
+      llmsTxt: "https://api.ignatiustheyoungerai.com/llms.txt",
+      apiReference: "https://api.ignatiustheyoungerai.com/openapi.json",
+    },
+    provider: {
+      name: "IgnatiusTheYoungerAI",
+      url: "https://ignatiustheyoungerai.com",
+    },
+    realm: "api.ignatiustheyoungerai.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/catalogue",
+        desc: "List every rule, playbook, and checklist phase available",
+      },
+      {
+        route: "GET /v1/fde-lessons/preview",
+        desc: "Return the foundational engineering rules in full, no payment required",
+      },
+      {
+        route: "GET /v1/fde-lessons",
+        desc: "Return the full engineering ruleset, or the subset matching a topic",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/fde-playbooks",
+        desc: "Return situational runbooks with ordered, checkable steps",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/fde-preship-checklist",
+        desc: "Return the pre-ship checklist, each gate with its concrete check",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/pricing/index",
+        desc: "Browse the Agent Pricing Index dataset",
+      },
+      {
+        route: "GET /v1/pricing/aggregates",
+        desc: "Category medians, published only at five or more submissions",
+      },
+      {
+        route: "GET /v1/pricing",
+        desc: "Query the Agent Pricing Index",
+        amount: "50",
+        unitType: "request",
+      },
+      {
+        route: "POST /mcp",
+        desc: "MCP server. Free tools are unmetered; paid tools answer in-band with an MPP payment challenge at $0.50/call",
+      },
+    ],
+  },
 ];
