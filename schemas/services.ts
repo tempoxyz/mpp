@@ -60,7 +60,10 @@ export interface PaymentDefaults {
   decimals: number;
 }
 
-/** Common payment defaults for Tempo USDC.e services */
+/**
+ * Provider-advertised USDC.e terms, independent of the SDK's OUSD-first defaults.
+ * Change service currencies only after verifying the provider's payment offers.
+ */
 export const TEMPO_PAYMENT: PaymentDefaults = {
   method: "tempo",
   currency: USDCe,

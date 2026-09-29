@@ -7,7 +7,7 @@ Deserializes a base64url JCS string to a payment request.
 ```ts twoslash
 import { PaymentRequest } from 'mppx'
 
-const encoded = 'eyJhbW91bnQiOiIxMDAwMDAwIiwiY3VycmVuY3kiOiIweC4uLiJ9'
+const encoded = 'eyJhbW91bnQiOiIxMDAwMDAwIiwiY3VycmVuY3kiOiIweDIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDZhMzdEQTVDOTk2ODc0QkUiLCJyZWNpcGllbnQiOiIweGYzOUZkNmU1MWFhZDg4RjZGNGNlNmFCODgyNzI3OWNmZkZiOTIyNjYifQ'
 const request = PaymentRequest.deserialize(encoded)
 ```
 

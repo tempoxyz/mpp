@@ -53,27 +53,27 @@ If the wallet is already connected, call `wallet_authorizeAccessKey` with the sa
 
 ### Add spending limits and scopes
 
-Replace the basic `accessKey` object with limits and scopes when a runtime should only spend a fixed budget or call specific contracts, functions, or recipients. In this example, the key can spend up to 10 USDC per day and only transfer USDC to one recipient.
+Replace the basic `accessKey` object with limits and scopes when a runtime should only spend a fixed budget or call specific contracts, functions, or recipients. In this example, the key can spend up to 10 OUSD per day and only transfer OUSD to one recipient.
 
 ```ts [wallet.ts]
 import { Expiry } from 'accounts'
 import { numberToHex, parseUnits } from 'viem'
 import { Scopes } from 'viem/tempo'
 
-const usdc = '0x20C000000000000000000000b9537d11c60E8b50'
+const ousd = '0x20c0000000000000000000006a37DA5C996874BE' // OUSD on Tempo
 const recipientAddress = '0x0000000000000000000000000000000000000001'
 
 const accessKey = {
   expiry: Expiry.days(7),
   limits: [
     {
-      token: usdc,
       limit: numberToHex(parseUnits('10', 6)),
       period: 86_400,
+      token: ousd,
     },
   ],
   scopes: [
-    Scopes.tip20(usdc).transfer({
+    Scopes.tip20(ousd).transfer({
       recipients: [recipientAddress],
     }),
   ],

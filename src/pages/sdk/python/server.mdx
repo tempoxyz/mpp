@@ -235,7 +235,7 @@ intent = ChargeIntent(rpc_url="https://rpc.tempo.xyz")
 @app.get("/resource")
 @requires_payment(
     intent=intent,
-    request={"amount": "1000000", "currency": "0x...", "recipient": "0x..."},
+    request={"amount": "1000000", "currency": "0x20c0000000000000000000006a37DA5C996874BE", "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"},
     realm="api.example.com",
     secret_key="my-server-secret",
 )

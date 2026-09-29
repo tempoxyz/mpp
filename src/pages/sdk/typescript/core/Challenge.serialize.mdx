@@ -12,7 +12,11 @@ const challenge = Challenge.from({
   intent: 'charge',
   method: 'tempo',
   realm: 'mpp.dev',
-  request: { amount: '1000000', currency: '0x...', recipient: '0x...' },
+  request: {
+    amount: '1000000',
+    currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  },
 })
 
 const header = Challenge.serialize(challenge)

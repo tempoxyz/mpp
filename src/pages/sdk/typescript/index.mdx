@@ -355,8 +355,8 @@ You can also override `currency` and `recipient` per call if different routes ne
 ```ts
 mppx.charge({ 
   amount: '0.1', 
-  currency: '0x…', // [!code ++]
-  recipient: '0x…', // [!code ++]
+  currency: '0x20c0000000000000000000006a37DA5C996874BE', // [!code ++]
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code ++]
 })
 ```
 :::
@@ -414,8 +414,8 @@ You can also override `currency` and `recipient` per call if different routes ne
 ```ts
 const response = await mppx.charge({ 
   amount: '0.1', 
-  currency: '0x…', // [!code ++]
-  recipient: '0x…', // [!code ++]
+  currency: '0x20c0000000000000000000006a37DA5C996874BE', // [!code ++]
+  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code ++]
 })(request) 
 ```
 :::

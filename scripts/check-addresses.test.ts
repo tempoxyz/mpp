@@ -1,8 +1,11 @@
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { PaymentRequest } from "mppx";
 import { describe, expect, it } from "vitest";
 
-const PAGES_DIR = resolve(import.meta.dirname, "../src/pages");
+const DOCS_DIRS = ["../src/pages", "../skills"].map((dir) =>
+  resolve(import.meta.dirname, dir),
+);
 
 /** Also match malformed TIP-20 literals so truncated addresses cannot bypass the allowlist. */
 const ADDRESS_RE = /0x(?:20c[0-9a-f]{10,}|[0-9a-f]{40})\b/gi;
@@ -46,23 +49,36 @@ const ALLOWED_ADDRESSES: ReadonlySet<string> = new Set(
   ].map((a) => a.toLowerCase()),
 );
 
-async function collectMdxFiles(dir: string): Promise<string[]> {
+async function collectDocFiles(dir: string): Promise<string[]> {
   const files: string[] = [];
   const entries = await readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
     const full = resolve(dir, entry.name);
     if (entry.isDirectory()) {
-      files.push(...(await collectMdxFiles(full)));
-    } else if (entry.name.endsWith(".mdx")) {
+      files.push(...(await collectDocFiles(full)));
+    } else if (/\.mdx?$/.test(entry.name)) {
       files.push(full);
     }
   }
   return files;
 }
 
+function* decodedExamples(text: string): Generator<string> {
+  yield text;
+  for (const match of text.matchAll(/eyJ[A-Za-z0-9_-]+/g)) {
+    const decoded = Buffer.from(match[0], "base64url").toString("utf-8");
+    try {
+      JSON.parse(decoded);
+    } catch {
+      continue; // Abbreviated serialized output isn't a complete JSON example.
+    }
+    yield* decodedExamples(decoded);
+  }
+}
+
 describe("doc addresses", () => {
-  it("only uses well-known addresses in .mdx files", async () => {
-    const files = await collectMdxFiles(PAGES_DIR);
+  it("uses complete, well-known currency addresses in docs and skills", async () => {
+    const files = (await Promise.all(DOCS_DIRS.map(collectDocFiles))).flat();
     const violations: string[] = [];
 
     for (const filePath of files) {
@@ -73,9 +89,20 @@ describe("doc addresses", () => {
       );
 
       for (const [lineIdx, line] of content.split("\n").entries()) {
-        for (const match of line.matchAll(ADDRESS_RE)) {
-          if (!ALLOWED_ADDRESSES.has(match[0].toLowerCase())) {
-            violations.push(`${rel}:${lineIdx + 1}  ${match[0]}`);
+        for (const example of decodedExamples(line)) {
+          for (const match of example.matchAll(ADDRESS_RE)) {
+            if (!ALLOWED_ADDRESSES.has(match[0].toLowerCase())) {
+              violations.push(`${rel}:${lineIdx + 1}  ${match[0]}`);
+            }
+          }
+          if (
+            /["']?currenc(?:y|ies)["']?\s*:\s*\[?["']0x(?:\.\.\.|…)/.test(
+              example,
+            )
+          ) {
+            violations.push(
+              `${rel}:${lineIdx + 1}  Placeholder currency address`,
+            );
           }
         }
       }
@@ -86,4 +113,32 @@ describe("doc addresses", () => {
       `Unknown addresses found:\n${violations.join("\n")}`,
     ).toHaveLength(0);
   });
+});
+
+it("keeps PaymentRequest serialization examples consistent", async () => {
+  const coreDir = resolve(
+    import.meta.dirname,
+    "../src/pages/sdk/typescript/core",
+  );
+  const serialize = await readFile(
+    resolve(coreDir, "PaymentRequest.serialize.mdx"),
+    "utf-8",
+  );
+  const deserialize = await readFile(
+    resolve(coreDir, "PaymentRequest.deserialize.mdx"),
+    "utf-8",
+  );
+  function property(name: string): string {
+    const match = serialize.match(new RegExp(`${name}: '([^']+)'`));
+    if (!match) throw new Error(`Missing documented ${name}`);
+    return match[1];
+  }
+  const request = PaymentRequest.from({
+    amount: property("amount"),
+    currency: property("currency"),
+    recipient: property("recipient"),
+  });
+  const encoded = PaymentRequest.serialize(request);
+  expect(serialize).toContain(`"${encoded}"`);
+  expect(deserialize).toContain(`'${encoded}'`);
 });

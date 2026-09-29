@@ -16,8 +16,8 @@ http.createServer(async (req, res) => {
   const result = await Mppx.toNodeListener(
     mppx.charge({
       amount: '0.1', 
-      currency: '0x...', 
-      recipient: '0x...',
+      currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
   )(req, res)
 
@@ -62,8 +62,8 @@ http.createServer(async (req, res) => {
     // [!code focus:start]
     mppx.charge({
       amount: '0.1',
-      currency: '0x...',
-      recipient: '0x...',
+      currency: '0x20c0000000000000000000006a37DA5C996874BE',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
     // [!code focus:end]
   )(req, res)

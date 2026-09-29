@@ -20,7 +20,7 @@ TypeScript SDK for the "Payment" HTTP Authentication Scheme. Full 402 flow: chal
 ## Required inputs
 
 - Client integrations need a signing account and one or more client payment methods.
-- Server integrations need a recipient, currency, amount, and `MPP_SECRET_KEY`.
+- Server integrations need a recipient, amount, and `MPP_SECRET_KEY`. Tempo currency lists are optional.
 - Tempo examples use chain ID `4217` unless a page explicitly covers Moderato testnet.
 - Stripe examples need a configured Stripe account and Shared Payment Token flow.
 - MCP integrations need the MCP client or server object to wrap.
@@ -31,7 +31,9 @@ TypeScript SDK for the "Payment" HTTP Authentication Scheme. Full 402 flow: chal
 - Never commit private keys or wallet seeds.
 - Treat runtime `402` Challenges as authoritative for current payment terms.
 - Return `id` and `opaque` unchanged when responding to a Challenge.
-- Use `USDC.e` for Tempo bridged USDC examples, not generic USDC.
+- Use OUSD in single-currency Tempo examples. Omit `currencies` to offer OUSD first with network-specific fallbacks.
+- Factory `currencies` configures accepted tokens; wire requests and per-handler overrides retain singular `currency`.
+- Use complete token addresses. Preserve provider-specific token requirements.
 
 ## Client
 
@@ -67,11 +69,11 @@ const account = privateKeyToAccount('0x...')
 
 const mppx = Mppx.create({
   methods: [
-    tempo.charge({ currency: '0x...', recipient: '0x...' }),
+    tempo.charge({ recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' }),
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x...',
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       store: Store.memory(),
     }),
   ],
@@ -93,7 +95,7 @@ async function handler(request: Request): Promise<Response> {
 | `tempo.session` | `session` | Streaming payments via payment channels on Tempo |
 | `stripe.charge` | `charge` | One-time payment via Stripe |
 
-`tempo()` returns `[tempo.charge, tempo.session]` as a tuple using the current v2 Sessions implementation. Use `tempo.charge()` or `tempo.session()` individually if you only need one intent. Use `tempo.sessionLegacy` only for Legacy Sessions v1 compatibility.
+Server `tempo()` returns a charge/session pair per accepted currency. Individual server `tempo.charge()` and `tempo.session()` factories return nonempty method arrays for their intent. `Mppx.create` flattens these groups. Mainnet defaults to OUSD then USDC.e; Moderato defaults to OUSD then pathUSD. Pass `currencies` to replace that list, for example `currencies: ['0x20c0000000000000000000006a37DA5C996874BE']` to accept only OUSD.
 
 ## Exports
 
