@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 
 const PAGES_DIR = resolve(import.meta.dirname, "../src/pages");
 
-/** Matches `0x` followed by exactly 40 hex characters (word-bounded on the right). */
-const ADDRESS_RE = /0x[0-9a-fA-F]{40}\b/g;
+/** Also match malformed TIP-20 literals so truncated addresses cannot bypass the allowlist. */
+const ADDRESS_RE = /0x(?:20c[0-9a-f]{10,}|[0-9a-f]{40})\b/gi;
 
 /** Well-known addresses that are allowed in documentation. */
 const ALLOWED_ADDRESSES: ReadonlySet<string> = new Set(

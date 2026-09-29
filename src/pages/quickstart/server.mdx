@@ -169,7 +169,7 @@ export async function handler(request: Request) {
 ```
 
 :::info[Currency and recipient values]
-`currencies` lists the accepted TIP-20 token addresses—[`0x20c0…`](https://explore.tempo.xyz/address/0x20c0000000000000000000006a37DA5C996874BE?live=false) is OUSD on Tempo. This example accepts only OUSD; omit `currencies` to offer OUSD first with USDC.e as a fallback. `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
+`currencies` lists the accepted TIP-20 token addresses—[`0x20c0000000000000000000006a37DA5C996874BE`](https://explore.tempo.xyz/address/0x20c0000000000000000000006a37DA5C996874BE?live=false) is OUSD on Tempo. This example accepts only OUSD; omit `currencies` to offer OUSD first with USDC.e as a fallback. `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
 :::
 
 The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.
@@ -302,7 +302,7 @@ By default, the server waits for onchain confirmation before returning a Receipt
 ```ts
 const mppx = Mppx.create({
   methods: [tempo.charge({
-    currencies: ['0x20c0000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     testnet: false,
     waitForConfirmation: false, // [!code focus]
