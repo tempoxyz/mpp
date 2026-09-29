@@ -8,7 +8,7 @@ const DOCS_DIRS = ["../src/pages", "../skills"].map((dir) =>
 );
 
 /** Also match malformed TIP-20 literals so truncated addresses cannot bypass the allowlist. */
-const ADDRESS_RE = /0x(?:20c[0-9a-f]{10,}|[0-9a-f]{40})\b/gi;
+const ADDRESS_RE = /0x(?:20c[0-9a-f]*|[0-9a-f]{40})\b/gi;
 
 /** Well-known addresses that are allowed in documentation. */
 const ALLOWED_ADDRESSES: ReadonlySet<string> = new Set(
@@ -77,6 +77,17 @@ function* decodedExamples(text: string): Generator<string> {
 }
 
 describe("doc addresses", () => {
+  it.each([
+    "0x20c",
+    "0x20c0",
+    "0x20c000000000",
+    "0x20C000000000",
+  ])("rejects truncated TIP-20 literal %s", (address) => {
+    const matches = [...`currency: '${address}'`.matchAll(ADDRESS_RE)];
+    expect(matches.map((match) => match[0])).toEqual([address]);
+    expect(ALLOWED_ADDRESSES.has(address.toLowerCase())).toBe(false);
+  });
+
   it("uses complete, well-known currency addresses in docs and skills", async () => {
     const files = (await Promise.all(DOCS_DIRS.map(collectDocFiles))).flat();
     const violations: string[] = [];
