@@ -14,7 +14,7 @@ require "mpp-rb"
 
 server = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
-    currency: "0x20c0000000000000000000000000000000000000",
+    currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
     intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
   ),
@@ -41,7 +41,7 @@ end
 ```ruby [server.rb]
 server = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
-    currency: "0x20c0000000000000000000000000000000000000",
+    currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
     intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
   ),
@@ -60,7 +60,7 @@ require "mpp-rb"
 
 server = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
-    currency: "0x20c0000000000000000000000000000000000000",
+    currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
     intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
   ),
@@ -106,7 +106,7 @@ Server handlers run inline on the payment request path. Keep them short, or send
 
 ```ruby [server.rb]
 method = Mpp::Methods::Tempo.tempo(
-  currency: "0x20c0000000000000000000000000000000000000",
+  currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
   recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
   intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
 )
@@ -125,7 +125,7 @@ Default TIP-20 token address for charges.
 - **Type:** `Integer`
 - **Default:** `6`
 
-Token decimal places for amount conversion (6 for pathUSD).
+Token decimal places for amount conversion (6 for OUSD).
 
 ### intents
 
@@ -172,7 +172,7 @@ HMAC secret for stateless Challenge ID verification. Reads `MPP_SECRET_KEY` if o
 
 - **Type:** `String`
 
-Payment amount in human-readable units (for example, `"0.50"` for $0.50). Automatically converted to base units using the method's decimal precision (6 decimals for pathUSD).
+Payment amount in human-readable units (for example, `"0.50"` for $0.50). Automatically converted to base units using the method's decimal precision (6 decimals for OUSD).
 
 ### authorization
 
@@ -226,7 +226,7 @@ require "mpp-rb"
 
 handler = Mpp.create(
   method: Mpp::Methods::Tempo.tempo(
-    currency: "0x20c0000000000000000000000000000000000000",
+    currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
     intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
   ),
@@ -251,7 +251,7 @@ Sponsor gas fees so clients do not need native tokens. Pass a `fee_payer` accoun
 fee_payer = Mpp::Methods::Tempo::Account.from_env("FEE_PAYER_KEY")
 
 method = Mpp::Methods::Tempo.tempo(
-  currency: "0x20c0000000000000000000000000000000000000",
+  currency: "0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
   recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
   intents: { "charge" => Mpp::Methods::Tempo::ChargeIntent.new },
   fee_payer: fee_payer,

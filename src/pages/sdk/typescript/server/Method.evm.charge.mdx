@@ -45,14 +45,9 @@ Use lowercase `evm.assets` and `evm.chains` for known asset and chain metadata. 
 
 ## Return type
 
-Returns a function that accepts a `Request` and returns a response object with payment status.
+Returns a single `Method.Server`. Register it with `Mppx.create`, then call the configured `mppx.evm.charge` handler to process requests.
 
-```ts
-type ReturnType = (request: Request) => Promise<
-  | { status: 402; challenge: Response }
-  | { status: 200; withReceipt: <T>(response: T) => T }
->
-```
+For ordered currency offers, use the grouped [`evm({ currencies })`](/sdk/typescript/server/Method.evm) factory.
 
 ## Configuration
 

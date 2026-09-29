@@ -269,7 +269,7 @@ import { Mppx, tempo } from 'mppx/nextjs'
 // [!code hl:start]
 const mppx = Mppx.create({
   methods: [tempo.charge({
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
@@ -290,7 +290,7 @@ const app = new Hono()
 // [!code hl:start]
 const mppx = Mppx.create({
   methods: [tempo.charge({
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
@@ -311,7 +311,7 @@ import { Mppx, tempo } from 'mppx/elysia'
 // [!code hl:start]
 const mppx = Mppx.create({
   methods: [tempo.charge({
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
@@ -334,7 +334,7 @@ const app = express()
 // [!code hl:start]
 const mppx = Mppx.create({
   methods: [tempo.charge({
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
@@ -380,7 +380,7 @@ import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [tempo.charge({
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
@@ -400,7 +400,7 @@ export async function handler(request: Request) {
 ```
 
 :::info[Currency and recipient values]
-`currency` is the TIP-20 token contract address—`0x20c0…` is PathUSD on Tempo. `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
+`currencies` lists the accepted TIP-20 token addresses; this example accepts only OUSD on Tempo. Omit the list to offer OUSD first with USDC.e as a fallback. `recipient` is the address that receives payment. See [Tempo payment method](/payment-methods/tempo) for supported tokens.
 :::
 
 The intent handler accepts a [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-compatible request object, and returns a `Response` object.
@@ -437,7 +437,7 @@ import { Mppx, tempo } from 'mppx/server'
 
 const mppx = Mppx.create({
   methods: [tempo.charge({
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
   secretKey: process.env.MPP_SECRET_KEY!,
@@ -470,7 +470,7 @@ The `mppx` package install automatically includes a [CLI tool](/sdk/typescript/c
 
 ### Create an account
 
-Create a Tempo mainnet account to sign payments. The key is stored in your system keychain. Fund the account with pathUSD before making a paid request.
+Create a Tempo mainnet account to sign payments. The key is stored in your system keychain. Fund the account with OUSD before making a paid request.
 
 :::code-group
 ```bash [npm]

@@ -12,7 +12,7 @@ import { PromptBlock } from '../../components/PromptBlock'
 
 [WebMCP](https://webmachinelearning.github.io/webmcp/) lets a website expose actions to an agent through JavaScript. `mppx` lets those actions call paid HTTP endpoints. The agent discovers the tool from the open page, and the page uses the visitor's connected wallet to complete the MPP payment.
 
-This guide builds a paid `analyze_topic` tool. The tool costs `0.01` pathUSD on Tempo testnet and returns a payment Receipt with its result.
+This guide builds a paid `analyze_topic` tool. The tool costs `0.01` OUSD on Tempo testnet and returns a payment Receipt with its result.
 
 :::info
 WebMCP and MCP use different transports. A WebMCP tool runs in the page and calls a paid HTTP endpoint, so the Challenge, Credential, and Receipt use HTTP headers. A remote MCP server uses the [MPP MCP transport](/protocol/transports/mcp) instead.
@@ -51,7 +51,7 @@ Paste this into your coding agent to add paid WebMCP tools to an existing site:
 {`Use https://mpp.dev/guides/webmcp-payments.md as reference.
 Add a WebMCP tool named analyze_topic to my website. Register it with
 document.modelContext.registerTool and call a same-origin HTTP endpoint
-through mppx.fetch. Charge 0.01 pathUSD on Tempo testnet. Use the site's
+through mppx.fetch. Charge 0.01 OUSD on Tempo testnet. Use the site's
 existing wallet connection and return the Payment Receipt with the result.
 Do not embed a private key in browser code.`}
 </PromptBlock>
@@ -91,7 +91,7 @@ const app = new Hono()
 const mppx = Mppx.create({
   methods: [
     tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       testnet: true,
     }),
@@ -189,7 +189,7 @@ import { mppx } from './payments.js'
 if (typeof document.modelContext?.registerTool === 'function') {
   await document.modelContext.registerTool({ // [!code hl]
     description:
-      'Return a structured topic analysis. Costs 0.01 pathUSD on Tempo testnet.',
+      'Return a structured topic analysis. Costs 0.01 OUSD on Tempo testnet.',
     async execute(input) {
       const topic = String(input.topic ?? '').trim()
       if (!topic) throw new Error('topic is required')
@@ -234,7 +234,7 @@ if (typeof document.modelContext?.registerTool === 'function') {
 3. Inspect the site's available tools and select `analyze_topic`.
 4. Ask the agent to analyze a topic.
 5. Confirm the tool reports its price before execution.
-6. Verify that the result includes a `Payment-Receipt` value and that the recipient received `0.01` pathUSD.
+6. Verify that the result includes a `Payment-Receipt` value and that the recipient received `0.01` OUSD.
 
 Test the HTTP payment independently when debugging the server:
 

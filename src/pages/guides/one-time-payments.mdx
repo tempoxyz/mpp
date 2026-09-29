@@ -30,7 +30,7 @@ Paste this into your coding agent to build the entire guide in one prompt:
 {`Use https://mpp.dev/guides/one-time-payments.md as reference.
 Add mppx to my app with a payment-gated photo endpoint 
 that charges $0.01 per request using the Tempo payment method with 
-PathUSD. When payment is verified, fetch a random photo from 
+OUSD. When payment is verified, fetch a random photo from
 https://picsum.photos/1024/1024 and return the URL as JSON.`}
 </PromptBlock>
 
@@ -61,7 +61,7 @@ $ bun add mppx viem
 Set up an `Mppx` instance with the `tempo` method.
 
 - `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 
 ```ts [app/api/photo/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
@@ -70,7 +70,7 @@ export const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -88,7 +88,7 @@ export const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -114,7 +114,7 @@ export const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -164,7 +164,7 @@ $ bun add mppx hono viem
 Set up an `Mppx` instance with the `tempo` method.
 
 - `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 
 ```ts [server.ts]
 import { Hono } from 'hono'
@@ -176,7 +176,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -197,7 +197,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -226,7 +226,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -278,7 +278,7 @@ $ bun add mppx viem
 Set up an `Mppx` instance with the `tempo` method.
 
 - `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 
 ```ts [src/index.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -287,7 +287,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -305,7 +305,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -332,7 +332,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -389,7 +389,7 @@ $ bun add mppx express viem
 Set up an `Mppx` instance with the `tempo` method.
 
 - `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 
 ```ts [server.ts]
 import express from 'express'
@@ -401,7 +401,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -422,7 +422,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -451,7 +451,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -508,7 +508,7 @@ $ bun add mppx viem
 Set up an `Mppx` instance with the `tempo` method.
 
 - `recipient` is the address where you receive payments.
-- `currency` is the token address for payments (in this case, `pathUSD`).
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 
 ```ts [server.ts]
 import { Mppx, tempo } from 'mppx/server'
@@ -517,7 +517,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -535,7 +535,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })
@@ -562,7 +562,7 @@ const mppx = Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY || crypto.randomBytes(32).toString('base64'),
   methods: [tempo.charge({
     testnet: true,
-    currency: '0x20c0000000000000000000000000000000000000',
+    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })],
 })

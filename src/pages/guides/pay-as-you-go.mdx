@@ -41,7 +41,7 @@ Paste this into your coding agent to build the entire guide in one prompt:
 {`Use https://mpp.dev/guides/pay-as-you-go.md as reference.
 Add mppx to my app with a payment-gated gallery endpoint
 that charges $0.01 per photo using the Tempo session payment method with
-PathUSD. When payment is verified, fetch a random photo from
+OUSD. When payment is verified, fetch a random photo from
 https://picsum.photos/200/200 and return the URL as JSON.`}
 </PromptBlock>
 
@@ -72,7 +72,7 @@ $ bun add mppx viem
 Set up an `Mppx` instance with the current `tempo.session` method.
 
 - `account` signs server-side session settlement and close transactions.
-- `currency` is the token address for payments, in this case `pathUSD`.
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 - `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [app/api/sessions/photo/route.ts]
@@ -87,7 +87,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -110,7 +110,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -141,7 +141,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -160,7 +160,7 @@ export const GET =
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Make a paid request
@@ -191,7 +191,7 @@ $ bun add mppx hono viem
 Set up an `Mppx` instance with the current `tempo.session` method.
 
 - `account` signs server-side session settlement and close transactions.
-- `currency` is the token address for payments, in this case `pathUSD`.
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 - `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [server.ts]
@@ -209,7 +209,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -235,7 +235,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -269,7 +269,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -290,7 +290,7 @@ app.get(
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Make a paid request
@@ -321,7 +321,7 @@ $ bun add mppx viem
 Set up an `Mppx` instance with the current `tempo.session` method.
 
 - `account` signs server-side session settlement and close transactions.
-- `currency` is the token address for payments, in this case `pathUSD`.
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 - `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [src/index.ts]
@@ -335,7 +335,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -357,7 +357,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -388,7 +388,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -414,7 +414,7 @@ export default {
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Make a paid request
@@ -445,7 +445,7 @@ $ bun add mppx express viem
 Set up an `Mppx` instance with the current `tempo.session` method.
 
 - `account` signs server-side session settlement and close transactions.
-- `currency` is the token address for payments, in this case `pathUSD`.
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 - `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [server.ts]
@@ -463,7 +463,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -489,7 +489,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -523,7 +523,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -544,7 +544,7 @@ app.get(
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Make a paid request
@@ -580,7 +580,7 @@ $ bun add mppx viem
 Set up an `Mppx` instance with the current `tempo.session` method.
 
 - `account` signs server-side session settlement and close transactions.
-- `currency` is the token address for payments, in this case `pathUSD`.
+- `currencies: [address]` accepts only OUSD when configuring a Tempo factory. Per-route overrides use singular `currency`.
 - `store` keeps v2 Session channel state; use a durable atomic store in production.
 
 ```ts [server.ts]
@@ -594,7 +594,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -616,7 +616,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -647,7 +647,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -673,7 +673,7 @@ Bun.serve({
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Make a paid request
@@ -703,7 +703,7 @@ const mppx = Mppx.create({
   methods: [tempo({
     account: provider.getAccount({ signable: true }),
     getClient: provider.getClient,
-    maxDeposit: '1', // Reserve up to 1 pathUSD per channel
+    maxDeposit: '1', // Reserve up to 1 OUSD per channel
   })],
 })
 
@@ -723,7 +723,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const mppx = Mppx.create({
   methods: [tempo({
     account: privateKeyToAccount('0x...'),
-    maxDeposit: '1', // Reserve up to 1 pathUSD per channel
+    maxDeposit: '1', // Reserve up to 1 OUSD per channel
   })],
 })
 
@@ -736,7 +736,7 @@ const res = await fetch('http://localhost:3000/api/sessions/photo')
 </Tab>
 </Tabs>
 
-- **`maxDeposit: '1'`**: Reserves up to 1 pathUSD in the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
+- **`maxDeposit: '1'`**: Reserves up to 1 OUSD in the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
 - The client handles the full session lifecycle automatically: channel open, voucher signing, and retry after `402` responses.
 - If the server sets `suggestedDeposit`, the client uses `min(suggestedDeposit, maxDeposit)`.
 

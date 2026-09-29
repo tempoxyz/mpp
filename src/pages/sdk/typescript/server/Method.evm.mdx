@@ -4,7 +4,7 @@ title: "evm server method"
 
 # `evm` [Create EVM charge Challenges]
 
-Namespace for EVM payment methods and known asset metadata.
+Creates ordered EVM charge offers and exposes known asset metadata.
 
 ## Usage
 
@@ -14,8 +14,8 @@ import { Mppx, evm } from 'mppx/server'
 Mppx.create({
   methods: [
     // [!code focus:start]
-    evm.charge({
-      currency: evm.assets.baseSepolia.USDC,
+    evm({
+      currencies: [evm.assets.baseSepolia.USDC],
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       x402: {
         facilitator: 'https://x402.org/facilitator',
@@ -26,6 +26,22 @@ Mppx.create({
   secretKey: process.env.MPP_SECRET_KEY ?? 'local-dev-secret',
 })
 ```
+
+## Configuration
+
+### currencies
+
+- **Type:** `readonly evm.Currency[]`
+
+Ordered token addresses, known assets, or USD token definitions from `viem/tokens`. Supply `chainId` for token definitions and raw addresses; known assets carry their own network. Definitions missing from that chain and non-USD definitions are skipped. Duplicate chain/address pairs are removed, and an empty resolved list throws.
+
+Token metadata alone doesn't establish EIP-3009 support. Use `evm.assets.fromToken(token, { chainId, transfer })` with the correct authorization domain for supported tokens. Base Sepolia examples use USDC because the configured facilitator supports its EIP-3009 flow.
+
+The deprecated `currency` option accepts one asset. Don't combine it with `currencies`. Other options match [`evm.charge`](/sdk/typescript/server/Method.evm.charge).
+
+## Return type
+
+A non-empty array of charge methods, accepted directly in `Mppx.create({ methods: [evm(options)] })`. Unlike the grouped factory, `evm.charge()` continues to return a single method and uses singular `currency`.
 
 ## Exports
 

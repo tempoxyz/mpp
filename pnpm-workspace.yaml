@@ -4,6 +4,7 @@ packages:
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - mppx
+  - viem@2.57.1
   - vocs
   - vite
   - waku

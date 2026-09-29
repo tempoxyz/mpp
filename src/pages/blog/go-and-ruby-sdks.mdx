@@ -47,6 +47,7 @@ func main() {
 	})
 
 	method := charge.NewMethod(charge.MethodConfig{
+		Currency: "0x20c0000000000000000000006a37DA5C996874BE", // OUSD on Tempo
 		Intent:    intent,
 		Recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
 	})

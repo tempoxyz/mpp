@@ -215,7 +215,7 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 
 **MPP core concepts as proper nouns**: Capitalize Challenge, Credential, and Receipt when referring to these as MPP protocol concepts or SDK types. For example: "Parse a Challenge", "Verify a Credential", "Return a Receipt". These are proper nouns within the MPP domain.
 
-**Terminology**: Use "stablecoins" instead of "crypto" when referring to on-chain payment methods. MPP uses stablecoins (USDC.e, USDT) on Tempo—not generic cryptocurrency. Always use "USDC.e" (not "USDC") when referring to the bridged USDC token on Tempo. The only exception is when referring to Circle's USDC stablecoin in general (not Tempo-specific) contexts.
+**Terminology**: Use "stablecoins" instead of "crypto" when referring to on-chain payment methods. MPP uses stablecoins (OUSD, USDC.e) on Tempo—not generic cryptocurrency. Use OUSD in single-currency Tempo examples and setup. Prefer the SDK's OUSD-first defaults when showing fallback offers. Preserve actual provider defaults and chain-specific token requirements. Always use "USDC.e" (not "USDC") when referring to the bridged USDC token on Tempo. The only exception is when referring to Circle's USDC stablecoin in general (not Tempo-specific) contexts.
 
 **`mppx`**: Always write the SDK and package name as lowercase `mppx`, including in prose and headings.
 
@@ -286,7 +286,7 @@ Keep code examples within a single page on one Tempo network unless the section 
 When showing token or contract addresses in code examples, add a short inline comment naming the currency or contract whenever the name is not obvious from surrounding text:
 
 ```ts
-currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
 ```
 
 ## Rules

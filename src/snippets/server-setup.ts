@@ -11,7 +11,7 @@ const mppx = Mppx.create({ methods: [tempo.charge()] });
 export async function handler(request: Request) {
   const response = await mppx.charge({
     amount: "0.1",
-    currency: "0x20c0000000000000000000000000000000000000",
+    currency: "0x20c0000000000000000000006a37DA5C996874BE", // OUSD on Tempo
     recipient: "0x742d35Cc6634c0532925a3b844bC9e7595F8fE00",
   })(request);
 

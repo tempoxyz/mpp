@@ -19,6 +19,8 @@ The previous contract-backed implementation is Legacy Sessions, also called Sess
 
 ## Usage
 
+Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `testnet: true`. Set `currencies` to accept a different list.
+
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -30,7 +32,6 @@ const mppx = Mppx.create({
     // [!code focus:start]
     tempo.session({
       account,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       store: Store.memory(),
     }),
     // [!code focus:end]
@@ -52,7 +53,7 @@ const mppx = Mppx.create({
   methods: [
     tempo({
       account,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -73,7 +74,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.sessionLegacy({
       account,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -103,12 +104,12 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
     tempo.sessionLegacy({
       account,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
       store: Store.memory(),
     }),
   ],
@@ -135,7 +136,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       bootstrap: true,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store,
       resolveChannelId({ request, source }) {
         return (source ? channelIdsBySource.get(source) : undefined) ?? request?.headers.get('Payment-Session') ?? undefined
@@ -151,15 +152,19 @@ If the resolver returns a known channel ID, the server responds with `Payment-Se
 
 Tempo Sessions support the split Credential lifecycle used by [`mppx.validateCredential`](/sdk/typescript/server/Mppx.validateCredential) and [`mppx.broadcastCredential`](/sdk/typescript/server/Mppx.broadcastCredential). Validation checks the Credential without changing channel state. Broadcasting validates again, accepts the voucher or management action, updates accounting, and returns a Receipt.
 
+Content requests require a voucher that advances the accepted cumulative amount before the server charges for another response. Management updates remain idempotent.
+
 Use the split lifecycle for custom transports or background workflows. Normal route handlers invoke it automatically.
 
 ## Return type
 
-```ts
-import type { Method } from 'mppx'
+Returns a non-empty, ordered array of server methods, one per accepted currency. `Mppx.create({ methods: [tempo.session(options)] })` accepts the group directly.
 
-type ReturnType = Method.Server
+```ts
+type ReturnType = readonly [Method.Server, ...Method.Server[]]
 ```
+
+Code that inspects a single method must destructure the group. For route composition, use the configured `mppx.tempo.session` handler.
 
 ## Parameters
 
@@ -193,7 +198,7 @@ Returns whether this configured Sessions offer is available when an HTTP handler
 
 - **Type:** `number`
 
-Tempo chain ID used for Sessions Challenges. Use `4217` for mainnet and `42431` for Moderato testnet.
+Defaults to mainnet (`4217`), or Moderato (`42431`) with `testnet: true`. An explicit `chainId` takes precedence; set it when `getClient` uses another network.
 
 ### channelStateTtl (optional)
 
@@ -202,11 +207,18 @@ Tempo chain ID used for Sessions Challenges. Use `4217` for mainnet and `42431` 
 
 TTL in milliseconds for cached on-chain channel state. After this duration, the server re-queries on-chain state during voucher handling to detect forced close requests.
 
-### currency (optional)
+### currencies (optional)
 
-- **Type:** `Address`
+- **Type:** `readonly (string | Token)[]`
+- **Default:** OUSD, then USDC.e on mainnet; OUSD, then pathUSD on Moderato
 
-Default TIP-20 token address for the payment currency.
+Ordered accepted token addresses or USD token definitions from `viem/tokens`. An explicit list replaces the defaults; `currencies: [ousd(4217).address]` accepts only OUSD on mainnet. Token definitions resolve against `chainId`; unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps.
+
+### currency (optional, deprecated)
+
+- **Type:** `string`
+
+Accepts one token address. Use `currencies: [currency]` instead. Don't set both options. Wire Challenges and per-handler overrides still use singular `currency`.
 
 ### decimals (optional)
 

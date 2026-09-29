@@ -15,6 +15,8 @@ For non-zero charges, the client generates a Challenge-bound attribution memo an
 
 ## Usage
 
+Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `testnet: true`. Set `currencies` to accept a different list.
+
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
 
@@ -24,7 +26,6 @@ export async function handler(request: Request) {
   // [!code focus:start]
   const response = await mppx.charge({
     amount: '0.1',
-    currency: '0x20c0000000000000000000000000000000000000',
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })(request)
   // [!code focus:end]
@@ -48,7 +49,7 @@ import { Expires } from 'mppx'
 export async function handler(request: Request) {
   const response = await mppx.charge({
     amount: '0.1',
-    currency: '0x20c0000000000000000000000000000000000000',
+    currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
     expires: Expires.minutes(10), // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })(request)
@@ -70,7 +71,7 @@ const mppx = Mppx.create({ methods: [tempo.charge()] })
 export async function handler(request: Request) {
   const response = await mppx.charge({
     amount: '0.1',
-    currency: '0x20c0000000000000000000000000000000000000',
+    currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
     description: 'API access for /resource', // [!code focus]
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })(request)
@@ -94,7 +95,7 @@ const mppx = Mppx.create({
 export async function handler(request: Request) {
   const response = await mppx.charge({
     amount: '0.1',
-    currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+    currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })(request)
 
@@ -213,7 +214,7 @@ const mppx = Mppx.create({
 export async function handler(request: Request) {
   const response = await mppx.charge({
     amount: '0',
-    currency: '0x20c0000000000000000000000000000000000000',
+    currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   })(request)
 
@@ -224,14 +225,13 @@ export async function handler(request: Request) {
 
 ## Return type
 
-Returns a function that accepts a `Request` and returns a response object with payment status.
+Returns a non-empty, ordered array of server methods, one per accepted currency. `Mppx.create({ methods: [tempo.charge(options)] })` accepts the group directly.
 
 ```ts
-type ReturnType = (request: Request) => Promise<
-  | { status: 402; challenge: Response }
-  | { status: 200; withReceipt: <T>(response: T) => T }
->
+type ReturnType = readonly [Method.Server, ...Method.Server[]]
 ```
+
+Code that inspects a single method must destructure the group. For route composition, use the configured `mppx.tempo.charge` handler.
 
 ## Configuration
 
@@ -243,11 +243,37 @@ These parameters configure the `tempo.charge()` constructor.
 
 Account or address that receives payments. Use `recipient` when you only need to provide the address.
 
+### allowedFeeTokens (optional)
+
+- **Type:** `readonly Address[]`
+
+Accepted transaction fee tokens for sponsored charges. Local sponsors use the SDK's per-chain defaults when omitted; hosted sponsors choose their fee token unless you restrict this list. An empty list throws. Payment `currencies` and fee tokens are independent.
+
 ### canOffer (optional)
 
 - **Type:** `Method.CanOfferFn`
 
 Returns whether this configured charge offer is available when an HTTP handler composes multiple offers. The hook receives the normalized, immutable payment request and a clone of the incoming `Request`.
+
+### chainId (optional)
+
+- **Type:** `number`
+- **Default:** `4217`
+
+Tempo chain ID. `testnet: true` selects `42431`; an explicit `chainId` takes precedence. Set it explicitly when `getClient` uses another network.
+
+### currencies (optional)
+
+- **Type:** `readonly (string | Token)[]`
+- **Default:** OUSD, then USDC.e on mainnet; OUSD, then pathUSD on Moderato
+
+Ordered accepted token addresses or USD token definitions from `viem/tokens`. An explicit list replaces the defaults; `currencies: [ousd(4217).address]` accepts only OUSD on mainnet. Token definitions resolve against `chainId`; unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps.
+
+### currency (optional, deprecated)
+
+- **Type:** `string`
+
+Accepts one token address. Use `currencies: [currency]` instead. Don't set both options. Wire Challenges and per-handler overrides still use singular `currency`.
 
 ### decimals (optional)
 
@@ -301,6 +327,12 @@ const mppx = Mppx.create({
   ],
 })
 ```
+
+### feeToken (optional)
+
+- **Type:** `Address`
+
+Token used by a local sponsor to pay transaction fees. It must appear in `allowedFeeTokens` when that list is configured. Omit it to select a funded allowed token. Remote fee payers choose their own fee token.
 
 ### getClient (optional)
 
@@ -404,11 +436,11 @@ Set `'0'` to require identity-only zero-dollar auth. In that case, the client su
 
 By default, zero-dollar proof Credentials remain reusable until the Challenge expires. Pass `store` to treat proofs as single-use across the scope of that store.
 
-### currency
+### currency (optional)
 
 - **Type:** `string`
 
-TIP-20 token address for the payment currency.
+Overrides the configured payment currency for this route. Omit it to offer the configured currencies.
 
 ### description (optional)
 
@@ -470,7 +502,7 @@ const mppx = Mppx.create({ methods: [tempo.charge()] })
 export async function handler(request: Request) {
   const response = await mppx.charge({
     amount: '1.00',
-    currency: '0x20c0000000000000000000000000000000000000', // pathUSD
+    currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD
     recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // seller
     splits: [ // [!code focus]
       { amount: '0.10', recipient: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' }, // platform fee // [!code focus]

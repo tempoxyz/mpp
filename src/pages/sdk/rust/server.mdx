@@ -14,7 +14,7 @@ use mpp::server::{Mpp, tempo, TempoConfig};
 
 let mpp = Mpp::create(tempo(TempoConfig {
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-}))?;
+}).currency("0x20c0000000000000000000006a37DA5C996874BE"))?;
 
 let challenge = mpp.charge("0.10")?;
 let receipt = mpp.verify_credential(&credential).await?;
@@ -26,7 +26,7 @@ let receipt = mpp.verify_credential(&credential).await?;
 let mpp = Mpp::create(
     tempo(TempoConfig {
         recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    })
+    }).currency("0x20c0000000000000000000006a37DA5C996874BE")
     .realm("api.example.com")
     .secret_key("my-server-secret")
 )?;
@@ -42,7 +42,7 @@ use mpp::{parse_authorization, format_www_authenticate};
 
 let mpp = Mpp::create(tempo(TempoConfig {
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-}))?;
+}).currency("0x20c0000000000000000000006a37DA5C996874BE"))?;
 
 // In your handler, check for an Authorization header:
 let auth = headers.get("authorization").and_then(|v| v.to_str().ok());
@@ -75,7 +75,7 @@ use mpp::server::{tempo, TempoConfig};
 let builder = tempo(TempoConfig {
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
 })
-.currency("0x20c0000000000000000000000000000000000000")
+.currency("0x20c0000000000000000000006a37DA5C996874BE") // OUSD on Tempo
 .decimals(6)
 .fee_payer(true)
 .realm("api.example.com")
@@ -194,7 +194,7 @@ use mpp::ChargeRequest;
 
 let expected = ChargeRequest {
     amount: "100000".into(),
-    currency: "0x20c0000000000000000000000000000000000000".into(),
+    currency: "0x20c0000000000000000000006a37DA5C996874BE".into(), // OUSD on Tempo
     recipient: Some("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".into()),
     ..Default::default()
 };
@@ -213,7 +213,7 @@ use mpp::server::{Mpp, ServerEvent, ServerEventKind, TempoConfig, tempo};
 
 let mpp = Mpp::create(tempo(TempoConfig {
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-}))?;
+}).currency("0x20c0000000000000000000006a37DA5C996874BE"))?;
 
 // Record successful Credential verification.
 let _success = mpp.on_payment_success(|ctx| async move {
@@ -267,7 +267,7 @@ async fn expensive(charge: MppCharge<OneDollar>) -> &'static str {
 
 let mpp = Mpp::create(tempo(TempoConfig {
     recipient: "0xabc...",
-})).unwrap();
+}).currency("0x20c0000000000000000000006a37DA5C996874BE")).unwrap();
 
 let app = Router::new()
     .route("/basic", get(cheap))
@@ -286,7 +286,7 @@ use mpp::server::SessionChallengeOptions;
 
 let challenge = mpp.session_challenge_with_details(
     "1000",                                             // amount per unit (base units)
-    "0x20c0000000000000000000000000000000000000",        // currency
+    "0x20c0000000000000000000006a37DA5C996874BE",        // currency
     "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",        // recipient
     SessionChallengeOptions {
         unit_type: Some("token"),
@@ -333,7 +333,7 @@ let payment = Mpp::new(method, "api.example.com", "my-server-secret");
 // Generate challenges with explicit base units
 let challenge = payment.charge_challenge(
     "1000000",
-    "0x20c0000000000000000000000000000000000000",
+    "0x20c0000000000000000000006a37DA5C996874BE", // OUSD on Tempo
     "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
 )?;
 

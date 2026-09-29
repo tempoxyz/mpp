@@ -42,7 +42,7 @@ Paste this into your coding agent to build the entire guide in one prompt:
   {`Use https://mpp.dev/guides/streamed-payments.md as reference.
 Add mppx to my app with a payment-gated SSE endpoint
 that streams text word-by-word and charges $0.001 per word using the
-Tempo session payment method with PathUSD and sse: true.`}
+Tempo session payment method with OUSD and sse: true.`}
 </PromptBlock>
 
 ## Manual mode
@@ -87,7 +87,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -111,7 +111,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -149,7 +149,7 @@ export const GET = mppx.session({ amount: "0.001", unitType: "word" })(
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Stream a paid poem
@@ -199,7 +199,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -226,7 +226,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -266,7 +266,7 @@ app.get(
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Stream a paid poem
@@ -312,7 +312,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -335,7 +335,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -380,7 +380,7 @@ export default {
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Stream a paid poem
@@ -430,7 +430,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -457,7 +457,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -497,7 +497,7 @@ app.get(
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Stream a paid poem
@@ -548,7 +548,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -571,7 +571,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217,
-      currency: "0x20c0000000000000000000000000000000000000", // pathUSD on Tempo
+      currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
       sse: true,
       store: Store.memory(),
     }),
@@ -616,7 +616,7 @@ Bun.serve({
 ### Test via the `mppx` CLI
 
 ```bash [test.sh]
-# Create a mainnet account, then fund it with pathUSD
+# Create a mainnet account, then fund it with OUSD
 $ npx mppx account create --network mainnet
 
 # Stream a paid poem
@@ -645,7 +645,7 @@ await provider.request({ method: "wallet_connect" })
 const session = tempo.session.manager({
   account: provider.getAccount({ signable: true }),
   getClient: provider.getClient,
-  maxDeposit: "1", // Reserve up to 1 pathUSD per channel
+  maxDeposit: "1", // Reserve up to 1 OUSD per channel
 });
 
 // .sse() returns an async iterable of SSE data payloads
@@ -665,7 +665,7 @@ import { privateKeyToAccount } from "viem/accounts";
 
 const session = tempo.session.manager({
   account: privateKeyToAccount("0x..."),
-  maxDeposit: "1", // Reserve up to 1 pathUSD per channel
+  maxDeposit: "1", // Reserve up to 1 OUSD per channel
 });
 
 // .sse() returns an async iterable of SSE data payloads
@@ -681,7 +681,7 @@ for await (const word of stream) {
 
 - **`tempo.session.manager()`** — Creates a session manager that handles the full Sessions lifecycle.
 - **`.sse()`** — Connects to an SSE endpoint. Automatically sends new vouchers when the server emits `payment-need-voucher` events.
-- **`maxDeposit: '1'`** — Reserves up to 1 pathUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
+- **`maxDeposit: '1'`** — Reserves up to 1 OUSD. At $0.001/word, this covers ~1,000 words before the channel needs a top-up.
 
 ### Closing the channel
 

@@ -6,6 +6,8 @@ Activation verifies that the signed Tempo key authorization witness matches the 
 
 ## Usage
 
+Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `testnet: true`. Existing subscriptions retain their authorized currency during reuse and renewal.
+
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
 
@@ -16,7 +18,6 @@ const mppx = Mppx.create({
     // [!code focus:start]
     tempo.subscription({
       amount: '1.00',
-      currency: '0x20c0000000000000000000000000000000000000',
       periodCount: '1',
       periodUnit: 'week',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -53,7 +54,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.subscription({
       amount: '1.00',
-      currency: '0x20c0000000000000000000000000000000000000',
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       periodCount: '1',
       periodUnit: 'week',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -113,7 +114,7 @@ const mppx = Mppx.create({
         }
       },
       amount: '1.00',
-      currency: '0x20c0000000000000000000000000000000000000',
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       periodCount: '1',
       periodUnit: 'week',
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -151,11 +152,13 @@ export async function cancelSubscription(userId: string) {
 
 ## Return type
 
-```ts
-import type { Method } from 'mppx'
+Returns a non-empty, ordered array of server methods, one per accepted currency. `Mppx.create({ methods: [tempo.subscription(options)] })` accepts the group directly.
 
-type ReturnType = Method.Server
+```ts
+type ReturnType = readonly [Method.Server, ...Method.Server[]]
 ```
+
+Code that inspects a single method must destructure the group. For route composition, use the configured `mppx.tempo.subscription` handler.
 
 ## Configuration
 
@@ -202,13 +205,20 @@ Returns whether this configured subscription offer is available when an HTTP han
 
 - **Type:** `number`
 
-Tempo chain ID. Use `4217` for mainnet and `42431` for testnet.
+Defaults to mainnet (`4217`), or Moderato (`42431`) with `testnet: true`. An explicit `chainId` takes precedence.
 
-### currency (optional)
+### currencies (optional)
 
-- **Type:** `Address`
+- **Type:** `readonly (string | Token)[]`
+- **Default:** OUSD, then USDC.e on mainnet; OUSD, then pathUSD on Moderato
 
-Default TIP-20 token address.
+Ordered accepted token addresses or USD token definitions from `viem/tokens`. An explicit list replaces the defaults; `currencies: [ousd(4217).address]` accepts only OUSD on mainnet. Token definitions resolve against `chainId`; unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps.
+
+### currency (optional, deprecated)
+
+- **Type:** `string`
+
+Accepts one token address. Use `currencies: [currency]` instead. Don't set both options. Wire Challenges and per-handler overrides still use singular `currency`.
 
 ### decimals (optional)
 

@@ -140,7 +140,7 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217, // optional; pins Challenges to Tempo mainnet
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       settlementSchedule: { // [!code hl]
         amount: '10',
         intervalMs: 60_000,
@@ -216,9 +216,9 @@ Sessions match the billing model that high-volume APIs need: pay stablecoin toke
 
 A typical flow for a high-volume large language model API:
 
-1. **Client:** opens a channel with a 10 USDC deposit
+1. **Client:** opens a channel with a 10 OUSD deposit
 2. **Client:** sends a prompt to the API
-3. **Server:** issues Challenges requesting payment for each chunk (for example, 0.000025 USDC per token)
+3. **Server:** issues Challenges requesting payment for each chunk (for example, 0.000025 OUSD per token)
 4. **Client:** signs a voucher for each chunk—the cumulative amount increases by the cost of tokens received
 5. **Server:** verifies the voucher signature (~microseconds) and sends the next chunk
 6. **Server:** settles on-chain and the client gets the unused deposit back
@@ -255,7 +255,7 @@ const mppx = Mppx.create({
     tempo.session({
       account, // signs server-side reserve settlement and close transactions
       chainId: 4217, // optional; pins Challenges to Tempo mainnet
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(), // use a durable AtomicStore in production
     }),
   ],
@@ -277,7 +277,7 @@ const mppx = Mppx.create({
     tempo.session({
       account, // signs server-side reserve settlement and close transactions
       chainId: 4217, // optional; pins Challenges to Tempo mainnet
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(), // use a durable AtomicStore in production
     }),
   ],
@@ -549,12 +549,12 @@ const mppx = Mppx.create({
     tempo.session({
       account,
       chainId: 4217, // optional; pins Challenges to Tempo mainnet
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       store: Store.memory(),
     }),
     tempo.sessionLegacy({
       account,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
       store: Store.memory(),
     }),
     // [!code hl:end]
@@ -651,7 +651,7 @@ Servers use the canonical TIP-1034 reserve precompile by default. If your server
 ```ts
 const method = tempo.session({
   account,
-  currency: pathUSD,
+  currencies: [OUSD],
   escrowContract: customReserve,
   store,
 })

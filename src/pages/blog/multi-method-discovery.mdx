@@ -64,13 +64,13 @@ This is especially useful for services that mix fixed and dynamic pricing, or co
       },
       {
         "amount": "1000000",
-        "currency": "0x20c0000000000000000000000000000000000000", // [!code hl]
+        "currency": "0x20c0000000000000000000006a37DA5C996874BE", // [!code hl]
         "intent": "charge",
         "method": "tempo"
       },
       {
         "amount": "5000000",
-        "currency": "0x20c0000000000000000000000000000000000000",
+        "currency": "0x20c0000000000000000000006a37DA5C996874BE",
         "intent": "session", // [!code hl]
         "method": "tempo"
       },
@@ -99,7 +99,7 @@ const app = new Hono()
 const mppx = Mppx.create({
   methods: [
     tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000',
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       recipient: '0x...',
       testnet: true,
     }),

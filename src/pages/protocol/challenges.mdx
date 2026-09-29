@@ -10,10 +10,10 @@ Your server issues a **Challenge** to describe the payment required for a resour
 ## Structure
 
 ```http
-WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOiIxMDAwIiwiY3VycmVuY3kiOiIweDIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJyZWNpcGllbnQiOiIweGYzOUZkNmU1MWFhZDg4RjZGNGNlNmFCODgyNzI3OWNmZkZiOTIyNjYifQ", expires="2027-01-15T12:05:00Z", header="Payment-Authorization", opaque="eyJyb3V0ZSI6Ii92MS9zZWFyY2gifQ"
+WWW-Authenticate: Payment id="qB3wErTyU7iOpAsD9fGhJk", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOiIxMDAwIiwiY3VycmVuY3kiOiIweDIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDZhMzdEQTVDOTk2ODc0QkUiLCJyZWNpcGllbnQiOiIweGYzOUZkNmU1MWFhZDg4RjZGNGNlNmFCODgyNzI3OWNmZkZiOTIyNjYifQ", expires="2027-01-15T12:05:00Z", header="Payment-Authorization", opaque="eyJyb3V0ZSI6Ii92MS9zZWFyY2gifQ"
 ```
 
-The token address below is pathUSD on Tempo mainnet. The identifiers and transaction hash in these examples are illustrative.
+The token address below is OUSD on Tempo mainnet. The identifiers and transaction hash in these examples are illustrative.
 
 ### Required parameters
 
@@ -46,7 +46,7 @@ The `request` parameter contains method-specific payment details encoded as base
 ```json [Decoded request object]
 {
   "amount": "1000",
-  "currency": "0x20c0000000000000000000000000000000000000",
+  "currency": "0x20c0000000000000000000006a37DA5C996874BE",
   "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 }
 ```

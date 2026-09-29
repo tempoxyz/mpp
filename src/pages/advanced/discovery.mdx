@@ -83,7 +83,7 @@ const app = new Hono()
 const mppx = Mppx.create({
   methods: [
     tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000',
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       recipient: '0x...',
       testnet: true,
     }),
@@ -114,7 +114,7 @@ import { Mppx, stripe, tempo } from 'mppx/server'
 
 const app = new Hono()
 const charge = tempo.charge({
-  currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+  currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
   recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
 })
 const card = stripe.spt({
@@ -126,8 +126,8 @@ const card = stripe.spt({
 const mppx = Mppx.create({ methods: [charge, card] })
 
 const pay = mppx.compose(
-  [charge, { amount: '0.01', description: 'Premium report' }],
-  [card, { amount: '1', currency: 'usd', description: 'Premium report' }],
+  [mppx.tempo.charge, { amount: '0.01', description: 'Premium report' }],
+  [mppx.stripe.charge, { amount: '1', currency: 'usd', description: 'Premium report' }],
 )
 
 app.get('/v1/report', async (c) => {
@@ -156,7 +156,7 @@ const app = express()
 const mppx = Mppx.create({
   methods: [
     tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000',
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       recipient: '0x...',
       testnet: true,
     }),
@@ -215,7 +215,7 @@ Your server exposes a `GET /openapi.json` endpoint that returns an OpenAPI docum
           "offers": [
             {
               "amount": "1000000",
-              "currency": "0x20c0000000000000000000000000000000000001",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE",
               "description": "Generate text with Tempo",
               "intent": "charge",
               "method": "tempo"
@@ -275,7 +275,7 @@ The flat single-offer form is still valid as shorthand for older emitters, but u
   // [!code hl:start]
   "x-payment-info": {
     "amount": "1000000",
-    "currency": "0x20c0000000000000000000000000000000000001",
+    "currency": "0x20c0000000000000000000006a37DA5C996874BE",
     "description": "Generate text with Tempo",
     "intent": "charge",
     "method": "tempo"
@@ -332,7 +332,7 @@ For each endpoint that requires payment, add the `x-payment-info` extension with
           "offers": [
             {
               "amount": "1000000",
-              "currency": "0x20c0000000000000000000000000000000000001",
+              "currency": "0x20c0000000000000000000006a37DA5C996874BE",
               "intent": "charge",
               "method": "tempo"
             }

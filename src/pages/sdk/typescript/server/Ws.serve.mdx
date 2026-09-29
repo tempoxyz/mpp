@@ -22,7 +22,7 @@ const mppx = Mppx.create({
   methods: [
     tempo.session({
       account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       settlementSchedule: { units: 100 },
       store,
     }),

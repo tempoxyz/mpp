@@ -88,7 +88,7 @@ $ mppx validate https://api.example.com --endpoint GET:/quotes --query symbol=ET
 ```
 
 :::note[End-to-end payments]
-Run `mppx validate` against both test and production versions of your server. On testnets and Stripe test mode, the CLI automatically completes roundtrip test payments. On mainnets, the CLI can complete real payments from the local `mppx` wallet.
+Run `mppx validate` against both test and production versions of your server. On testnets and Stripe test mode, the CLI automatically completes roundtrip test payments. For Tempo testnet Sessions, it also funds the session operator through the faucet so settlement can complete. On mainnets, the CLI can complete real payments from the local `mppx` wallet.
 :::
 
 When your config declares payment methods, `mppx validate` uses their signing accounts, approval hooks, chain policies, and Session stores instead of substituting built-in methods or preflighting the local CLI wallet.
@@ -221,7 +221,7 @@ Extensions run in configuration order for paid requests, `mppx sign`, `mppx vali
 Sign a payment Challenge and output its serialized Payment Credential value without making a request. Pass the complete `WWW-Authenticate` value with `--challenge`. Send the result in the field advertised by `header`, or `Authorization` when omitted.
 
 ```bash [test.sh]
-$ challenge='Payment id="abc", realm="api.example.com", method="tempo", intent="charge", request="eyJhbW91bnQiOiIwIiwiY3VycmVuY3kiOiIweDIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAiLCJyZWNpcGllbnQiOiIweDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwIn0"'
+$ challenge='Payment id="abc", realm="api.example.com", method="tempo", intent="charge", request="eyJhbW91bnQiOiIwIiwiY3VycmVuY3kiOiIweDIwYzAwMDAwMDAwMDAwMDAwMDAwMDAwMDZhMzdEQTVDOTk2ODc0QkUiLCJyZWNpcGllbnQiOiIweGYzOUZkNmU1MWFhZDg4RjZGNGNlNmFCODgyNzI3OWNmZkZiOTIyNjYifQ"'
 $ mppx sign --challenge "$challenge"
 ```
 

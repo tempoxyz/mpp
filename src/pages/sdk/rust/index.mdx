@@ -45,7 +45,7 @@ use mpp::{parse_authorization, format_www_authenticate};
 
 let mpp = Mpp::create(tempo(TempoConfig {
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-}))?;
+}).currency("0x20c0000000000000000000006a37DA5C996874BE"))?;
 
 // Generate a Challenge for $0.50
 let challenge = mpp.charge("0.50")?;

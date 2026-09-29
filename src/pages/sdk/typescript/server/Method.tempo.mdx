@@ -25,6 +25,8 @@ Register [`tempo.subscription`](/sdk/typescript/server/Method.tempo.subscription
 
 ## Usage
 
+By default, offer OUSD first with USDC.e as the mainnet fallback. `testnet: true` offers OUSD then pathUSD on Moderato.
+
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -37,7 +39,6 @@ Mppx.create({
     tempo({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       machineTokenEnabled: true,
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       store: Store.memory(),
@@ -47,7 +48,7 @@ Mppx.create({
 })
 ```
 
-This is equivalent to:
+You can also register the intents separately:
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -58,37 +59,61 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 Mppx.create({
   methods: [
     tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       machineTokenEnabled: true, // [!code hl]
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     }),
     tempo.session({
       account,
       chainId: 4217,
-      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
       store: Store.memory(),
     }),
   ],
 })
 ```
 
+### Accept only OUSD
+
+Pass an explicit list to replace the defaults. Resolve the OUSD address from viem on mainnet:
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/server'
+import { ousd } from 'viem/tokens'
+
+const mppx = Mppx.create({
+  methods: [tempo({
+    currencies: [ousd(4217).address], // [!code hl]
+    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  })],
+})
+```
+
+For multiple currencies, pass an ordered list of addresses or token definitions. For example, `currencies: tokens.tempo` with `tokens` from `viem/tokens` accepts its USD tokens deployed on the configured chain. An explicit list can expand acceptance as the installed registry changes; omit it to keep the SDK's OUSD-first defaults.
+
+Viem `2.57.1` doesn't include a Moderato OUSD entry. Use the SDK defaults on Moderato; a token definition without an entry for that chain is skipped.
+
 ## Return type
 
 ```ts
-type ReturnType = readonly [Method.Server, Method.Server]
+type ReturnType = readonly [Method.Server, Method.Server, ...Method.Server[]]
 ```
 
-A tuple of `[charge, session]` methods. `Mppx.create` accepts tuples in the `methods` array and flattens them automatically.
+An ordered group containing a charge and session method for each currency: OUSD charge, OUSD session, then the fallback pair. `Mppx.create` flattens the group automatically. Session offers share storage and settle each channel in its own currency.
 
 ## Parameters
 
-Accepts the union of [`tempo.charge`](/sdk/typescript/server/Method.tempo.charge) and [`tempo.session`](/sdk/typescript/server/Method.tempo.session) parameters. The most common are listed below.
+Accepts the shared configuration of [`tempo.charge`](/sdk/typescript/server/Method.tempo.charge) and [`tempo.session`](/sdk/typescript/server/Method.tempo.session) parameters. The most common are listed below.
 
 ### account (optional)
 
 - **Type:** `Account`
 
 Account used to sign Tempo transactions and receive payments by default.
+
+### allowedFeeTokens (optional)
+
+- **Type:** `readonly Address[]`
+
+Restricts transaction fee tokens for sponsored charges. Applies only to the charge offers; see [`tempo.charge`](/sdk/typescript/server/Method.tempo.charge#allowedfeetokens-optional).
 
 ### canOffer (optional)
 
@@ -100,13 +125,20 @@ Returns whether each configured Tempo offer is available when an HTTP handler co
 
 - **Type:** `number`
 
-Tempo chain ID used for Sessions Challenges. Use `4217` for mainnet and `42431` for Moderato testnet.
+Defaults to mainnet (`4217`), or Moderato (`42431`) with `testnet: true`. An explicit `chainId` takes precedence; set it when `getClient` uses another network.
 
-### currency (optional)
+### currencies (optional)
 
-- **Type:** `Address`
+- **Type:** `readonly (string | Token)[]`
+- **Default:** OUSD, then USDC.e on mainnet; OUSD, then pathUSD on Moderato
 
-Default TIP-20 token address for the payment currency.
+Ordered accepted token addresses or USD token definitions from `viem/tokens`. An explicit list replaces the defaults; `currencies: [ousd(4217).address]` accepts only OUSD on mainnet. Token definitions resolve against `chainId`; unavailable and non-USD tokens are skipped, and duplicate addresses are removed. An empty resolved list throws. Ordering controls presentation, not client selection or automatic swaps.
+
+### currency (optional, deprecated)
+
+- **Type:** `string`
+
+Accepts one token address. Use `currencies: [currency]` instead. Don't set both options. Wire Challenges and per-handler overrides still use singular `currency`.
 
 ### decimals (optional)
 

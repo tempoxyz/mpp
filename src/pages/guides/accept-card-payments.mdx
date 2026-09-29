@@ -186,7 +186,7 @@ const mppx = Mppx.create({
       paymentMethodTypes: ['card'],
     }),
     tempo.charge({
-      currency: '0x20c0000000000000000000000000000000000000',
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
       recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       testnet: true,
     }),
