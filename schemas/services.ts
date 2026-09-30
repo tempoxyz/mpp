@@ -11242,4 +11242,35 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── KERNEL ───────────────────────────────────────────────────────────
+  {
+    id: "kernel",
+    name: "KERNEL",
+    url: "https://www.kernel.sh",
+    serviceUrl: "https://api.onkernel.com",
+    description:
+      "buy a KERNEL stealth headful chromium browser for 30 minutes, paid by card or link. no account or api key needed. connect over cdp with playwright or puppeteer.",
+    categories: ["web", "compute"],
+    integration: "first-party",
+    tags: ["browser", "stealth", "headful", "cdp", "automation", "playwright"],
+    status: "active",
+    docs: {
+      homepage: "https://www.kernel.sh/docs",
+      llmsTxt: "https://api.onkernel.com/llms.txt",
+      apiReference: "https://api.onkernel.com/openapi.json",
+    },
+    provider: { name: "KERNEL", url: "https://www.kernel.sh" },
+    realm: "api.onkernel.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mpp/browsers",
+        desc: "buy a stealth headful browser session for 30 minutes",
+        amount: "50",
+        unitType: "session",
+      },
+    ],
+  },
 ];
