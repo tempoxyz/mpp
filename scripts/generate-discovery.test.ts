@@ -312,6 +312,20 @@ describe("service registry integrity", () => {
     expect(() => validateServices(allServices)).not.toThrow();
   });
 
+  it.each([
+    "aviationstack",
+    "flightapi",
+    "gemini",
+    "googlemaps",
+    "oxylabs",
+    "serpapi",
+    "spyfu",
+  ])("does not publish the removed proxy service %s", (serviceId) => {
+    expect(
+      allServices.find((service) => service.id === serviceId),
+    ).toBeUndefined();
+  });
+
   it("includes the current Parallel API endpoints and pricing", () => {
     const parallel = allServices.find((service) => service.id === "parallel");
 

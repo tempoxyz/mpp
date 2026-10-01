@@ -70,4 +70,21 @@ describe("services API", () => {
 
     expect(body.services).toEqual([expect.objectContaining({ id: "openai" })]);
   });
+
+  it("does not restore removed proxy services when the manifest is unavailable", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(null, { status: 503 })),
+    );
+
+    const { GET } = await import("./pages/_api/api/services");
+    const response = await GET(
+      new Request(
+        "https://mpp.dev/api/services?ids=aviationstack,flightapi,gemini,googlemaps,oxylabs,serpapi,spyfu",
+      ),
+    );
+
+    expect(await response.json()).toEqual({ services: [] });
+  });
 });
