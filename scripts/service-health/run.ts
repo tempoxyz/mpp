@@ -1,5 +1,7 @@
 import { execFileSync } from "node:child_process";
-import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { appendFileSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { services } from "../../schemas/services.ts";
 import { checkServices } from "./check.ts";
 import { checkMpp, checkUrls } from "./checks.ts";
@@ -26,21 +28,28 @@ if (publish && (!repository || !/^[\w.-]+\/[\w.-]+$/.test(repository)))
   throw new Error("GITHUB_REPOSITORY is required");
 const results = await checkServices(catalog, [checkUrls, checkMpp]);
 const checkedAt = new Date().toISOString();
+const outputDirectory = mkdtempSync(
+  join(process.env.RUNNER_TEMP ?? tmpdir(), "service-health-"),
+);
 const runUrl =
   repository && process.env.GITHUB_RUN_ID
     ? `https://github.com/${repository}/actions/runs/${process.env.GITHUB_RUN_ID}`
-    : "Local run; see service-health-results/results.json";
+    : `Local run; see ${join(outputDirectory, "results.json")}`;
 const body = renderReport(results, checkedAt, runUrl);
-mkdirSync("service-health-results", { recursive: true });
 writeFileSync(
-  "service-health-results/results.json",
+  join(outputDirectory, "results.json"),
   JSON.stringify(
     { checkedAt, results, revision: process.env.GITHUB_SHA },
     null,
     2,
   ),
 );
-writeFileSync("service-health-results/report.md", body);
+writeFileSync(join(outputDirectory, "report.md"), body);
+if (process.env.GITHUB_OUTPUT)
+  appendFileSync(
+    process.env.GITHUB_OUTPUT,
+    `report-directory=${outputDirectory}\n`,
+  );
 if (process.env.GITHUB_STEP_SUMMARY)
   appendFileSync(process.env.GITHUB_STEP_SUMMARY, body);
 console.log(body);

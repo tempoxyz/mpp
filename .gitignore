@@ -31,6 +31,3 @@ bun.lock
 package-lock.json
 yarn.lock
 _
-
-# Weekly service health reports
-service-health-results/
