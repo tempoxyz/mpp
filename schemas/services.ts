@@ -1439,8 +1439,9 @@ export const services: ServiceDef[] = [
     url: "https://govlaws.ai",
     serviceUrl: "https://govlaws.ai",
     description:
-      "Current U.S. federal regulation lookup, semantic search, and change tracking with provenance-rich responses from official government sources.",
+      "Paused by the provider. API access, payments, and data updates have stopped; no restart is scheduled.",
 
+    status: "maintenance",
     categories: ["data", "search"],
     integration: "first-party",
     tags: [
@@ -1452,7 +1453,7 @@ export const services: ServiceDef[] = [
       "federal",
     ],
     docs: {
-      homepage: "https://govlaws.ai/mpp",
+      homepage: "https://govlaws.ai/llms.txt",
       llmsTxt: "https://govlaws.ai/llms.txt",
     },
     provider: { name: "GovLaws", url: "https://govlaws.ai" },
@@ -1538,7 +1539,7 @@ export const services: ServiceDef[] = [
     tags: ["payments", "usdc", "tips", "gigs", "tasks", "earn", "x402", "mpp"],
     docs: {
       homepage: "https://molty.cash",
-      llmsTxt: "https://molty.cash/skills/moltycash/SKILL.md",
+      llmsTxt: "https://molty.cash/llms.txt",
     },
     provider: { name: "molty.cash", url: "https://molty.cash" },
     realm: "api.molty.cash",
@@ -1586,7 +1587,7 @@ export const services: ServiceDef[] = [
     ],
     docs: {
       homepage: "https://docs.nansen.ai",
-      apiReference: "https://docs.nansen.ai/nansen-api-reference",
+      apiReference: "https://docs.nansen.ai/reference",
     },
     provider: { name: "Nansen", url: "https://nansen.ai" },
     realm: "api.nansen.ai",
@@ -2526,20 +2527,13 @@ export const services: ServiceDef[] = [
     url: "https://stabletravel.dev",
     serviceUrl: "https://stabletravel.dev",
     description:
-      "Pay-per-request travel APIs — flights, hotels, activities, transfers, and real-time flight tracking. Powered by Amadeus and FlightAware.",
+      "Flight prices and booking links, award availability, and real-time flight tracking. Powered by Google Flights, Seats.aero, and FlightAware.",
 
     categories: ["data", "web"],
     integration: "first-party",
-    tags: [
-      "amadeus",
-      "flightaware",
-      "flights",
-      "hotels",
-      "activities",
-      "transfers",
-      "travel",
-    ],
+    tags: ["flightaware", "flights", "google-flights", "seats-aero", "travel"],
     docs: {
+      apiReference: "https://stabletravel.dev/openapi.json",
       homepage: "https://stabletravel.dev",
       llmsTxt: "https://stabletravel.dev/llms.txt",
     },
@@ -2548,156 +2542,41 @@ export const services: ServiceDef[] = [
     intent: "charge",
     payments: [TEMPO_PAYMENT],
     endpoints: [
+      {
+        route: "GET /api/google-flights/search",
+        desc: "Search Google Flights for flight offers. Returns best flights, other flights, price insights, and airport info.",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/seats-aero/search",
+        desc: "Search cached Seats.aero award availability by origin, destination, dates, cabin, carriers, and pagination.",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/google-flights/booking",
+        desc: "Get booking options for a specific flight. Requires a departure_token from a search result.",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/seats-aero/availability",
+        desc: "Retrieve bulk cached Seats.aero award availability for a mileage program, optionally filtered by region, date, and cabin.",
+        amount: "40000",
+      },
+      {
+        route: "GET /api/seats-aero/routes",
+        desc: "List airline flight route pairs covered by a Seats.aero mileage program source. These are origin/destination airport pairs, not API routes.",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/seats-aero/trips/:id",
+        desc: "Retrieve flight-level trip details and booking links for a Seats.aero availability ID.",
+        amount: "20000",
+      },
       // Flights
-      {
-        route: "POST /api/flights/search",
-        desc: "Search flight offers (advanced multi-city)",
-        amount: "54000",
-      },
-      {
-        route: "POST /api/flights/price",
-        desc: "Confirm pricing for a flight offer",
-        amount: "32400",
-      },
-      {
-        route: "POST /api/flights/book",
-        desc: "Book a flight (create flight order)",
-        amount: "86400",
-      },
-      {
-        route: "GET /api/flights/orders",
-        desc: "Retrieve a flight order by ID",
-        amount: "5400",
-      },
-      {
-        route: "POST /api/flights/orders/cancel",
-        desc: "Cancel a flight order",
-        amount: "5400",
-      },
-      {
-        route: "POST /api/flights/seatmap",
-        desc: "Get seat maps for a flight",
-        amount: "32400",
-      },
-      {
-        route: "POST /api/flights/upsell",
-        desc: "Get upsell offers for a flight",
-        amount: "32400",
-      },
-      {
-        route: "POST /api/flights/availability",
-        desc: "Check flight availability",
-        amount: "32400",
-      },
-      {
-        route: "GET /api/flights/status",
-        desc: "Get flight status by carrier, number, and date",
-        amount: "5400",
-      },
-      {
-        route: "GET /api/flights/checkin-links",
-        desc: "Get airline check-in page URLs",
-        amount: "5400",
-      },
       // Hotels
-      {
-        route: "GET /api/hotels/list",
-        desc: "List hotels by city code",
-        amount: "32400",
-      },
-      {
-        route: "GET /api/hotels/list/by-geocode",
-        desc: "List hotels by latitude/longitude",
-        amount: "32400",
-      },
-      {
-        route: "GET /api/hotels/search",
-        desc: "Search hotel offers by hotel IDs",
-        amount: "32400",
-      },
-      {
-        route: "GET /api/hotels/search/by-hotel",
-        desc: "Search offers for a specific hotel",
-        amount: "32400",
-      },
-      {
-        route: "GET /api/hotels/offer",
-        desc: "Get details for a specific hotel offer",
-        amount: "32400",
-      },
-      {
-        route: "POST /api/hotels/book",
-        desc: "Book a hotel offer",
-        amount: "2160",
-      },
-      {
-        route: "GET /api/hotels/autocomplete",
-        desc: "Autocomplete hotel names",
-        amount: "5400",
-      },
       // Activities
-      {
-        route: "GET /api/activities/search",
-        desc: "Search tours & activities by lat/lng",
-        amount: "54000",
-      },
-      {
-        route: "GET /api/activities/by-square",
-        desc: "Search activities within a geographic square",
-        amount: "54000",
-      },
-      {
-        route: "GET /api/activities/details",
-        desc: "Get activity details by ID",
-        amount: "54000",
-      },
       // Transfers
-      {
-        route: "POST /api/transfers/search",
-        desc: "Search airport transfer options",
-        amount: "3240",
-      },
-      {
-        route: "POST /api/transfers/book",
-        desc: "Book a transfer",
-        amount: "2160",
-      },
-      {
-        route: "POST /api/transfers/cancel",
-        desc: "Cancel a transfer booking",
-        amount: "2160",
-      },
       // Reference Data
-      {
-        route: "GET /api/reference/locations",
-        desc: "Search locations (airports, cities) by keyword",
-        amount: "5400",
-      },
-      {
-        route: "GET /api/reference/airports",
-        desc: "Find nearby airports by latitude/longitude",
-        amount: "5400",
-      },
-      {
-        route: "GET /api/reference/airlines",
-        desc: "Look up airline by IATA code",
-        amount: "5400",
-      },
-      {
-        route: "GET /api/reference/airline-routes",
-        desc: "Get routes for an airline from an airport",
-        amount: "5400",
-      },
-      {
-        route: "GET /api/reference/airport-routes",
-        desc: "Get direct destinations from an airport",
-        amount: "5400",
-      },
-      {
-        route: "GET /api/reference/cities",
-        desc: "Search cities by keyword",
-        amount: "5400",
-      },
       // FlightAware — Real-Time Flights
       {
         route: "GET /api/flightaware/flights/search",
@@ -4657,8 +4536,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["company", "enrichment", "domain-lookup"],
     docs: {
-      homepage: "https://docs.abstractapi.com/company-enrichment",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-company-enrichment.md",
+      homepage: "https://docs.abstractapi.com/api/company-enrichment",
+      llmsTxt: "https://docs.abstractapi.com/api/company-enrichment.md",
     },
     provider: {
       name: "Company Enrichment",
@@ -5043,8 +4922,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["email", "reputation", "risk-score"],
     docs: {
-      homepage: "https://docs.abstractapi.com/email-reputation",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-email-reputation.md",
+      homepage: "https://docs.abstractapi.com/api/email-reputation",
+      llmsTxt: "https://docs.abstractapi.com/api/email-reputation.md",
     },
     provider: {
       name: "Email Reputation",
@@ -5076,8 +4955,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["forex", "exchange-rates", "currency-conversion"],
     docs: {
-      homepage: "https://docs.abstractapi.com/exchange-rates",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-exchange-rates.md",
+      homepage: "https://docs.abstractapi.com/api/exchange-rates",
+      llmsTxt: "https://docs.abstractapi.com/api/exchange-rates.md",
     },
     provider: {
       name: "Exchange Rates",
@@ -5223,8 +5102,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["holidays", "countries", "public-holidays"],
     docs: {
-      homepage: "https://docs.abstractapi.com/holidays",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-holidays.md",
+      homepage: "https://docs.abstractapi.com/api/holidays",
+      llmsTxt: "https://docs.abstractapi.com/api/holidays.md",
     },
     provider: {
       name: "Holidays",
@@ -5328,8 +5207,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["iban", "banking", "validation"],
     docs: {
-      homepage: "https://docs.abstractapi.com/iban-validation",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-iban-validation.md",
+      homepage: "https://docs.abstractapi.com/api/iban-validation",
+      llmsTxt: "https://docs.abstractapi.com/api/iban-validation.md",
     },
     provider: {
       name: "IBAN Validation",
@@ -5360,8 +5239,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["ip", "vpn-detection", "proxy", "bot-detection"],
     docs: {
-      homepage: "https://docs.abstractapi.com/ip-intelligence",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-ip-intelligence.md",
+      homepage: "https://docs.abstractapi.com/api/ip-intelligence",
+      llmsTxt: "https://docs.abstractapi.com/api/ip-intelligence.md",
     },
     provider: {
       name: "IP Intelligence",
@@ -5758,8 +5637,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["phone", "carrier", "validation"],
     docs: {
-      homepage: "https://docs.abstractapi.com/phone-intelligence",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-phone-intelligence.md",
+      homepage: "https://docs.abstractapi.com/api/phone-intelligence",
+      llmsTxt: "https://docs.abstractapi.com/api/phone-intelligence.md",
     },
     provider: {
       name: "Phone Intelligence",
@@ -6298,8 +6177,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["timezone", "time-conversion", "location"],
     docs: {
-      homepage: "https://docs.abstractapi.com/timezone",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-timezone.md",
+      homepage: "https://docs.abstractapi.com/api/timezones",
+      llmsTxt: "https://docs.abstractapi.com/api/timezones.md",
     },
     provider: {
       name: "Timezone",
@@ -6337,8 +6216,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["vat", "tax", "eu-compliance"],
     docs: {
-      homepage: "https://docs.abstractapi.com/vat",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-vat.md",
+      homepage: "https://docs.abstractapi.com/api/vat-validation",
+      llmsTxt: "https://docs.abstractapi.com/api/vat-validation.md",
     },
     provider: {
       name: "VAT",
@@ -6381,8 +6260,8 @@ export const services: ServiceDef[] = [
     integration: "third-party",
     tags: ["scraping", "web-pages", "javascript-rendering"],
     docs: {
-      homepage: "https://docs.abstractapi.com/web-scraping",
-      llmsTxt: "https://paywithlocus.com/mpp/abstract-web-scraping.md",
+      homepage: "https://docs.abstractapi.com/api/scrape",
+      llmsTxt: "https://docs.abstractapi.com/api/scrape.md",
     },
     provider: {
       name: "Web Scraping",
@@ -6572,8 +6451,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["enrichment", "people", "company", "research"],
-    docs: { homepage: "https://api.sixtyfour.ai" },
-    provider: { name: "Sixtyfour API", url: "https://api.sixtyfour.ai" },
+    docs: { homepage: "https://docs.sixtyfour.ai/introduction" },
+    provider: { name: "Sixtyfour API", url: "https://www.sixtyfour.ai" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -7100,8 +6979,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["local-business", "leads", "enrichment"],
-    docs: { homepage: "https://api.openmart.ai" },
-    provider: { name: "Openmart", url: "https://api.openmart.ai" },
+    docs: { homepage: "https://app.openmart.com/api-docs" },
+    provider: { name: "Openmart", url: "https://www.openmart.com" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -7145,8 +7024,8 @@ export const services: ServiceDef[] = [
     categories: ["data", "social"],
     integration: "third-party",
     tags: ["linkedin", "automation", "scraping"],
-    docs: { homepage: "https://api.edges.run" },
-    provider: { name: "Edges", url: "https://api.edges.run" },
+    docs: { homepage: "https://docs.edges.run/v1/quickstart" },
+    provider: { name: "Edges", url: "https://edges.run" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -7422,8 +7301,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["enrichment", "people", "company", "search"],
-    docs: { homepage: "https://api.captaindata.com" },
-    provider: { name: "CaptainData", url: "https://api.captaindata.com" },
+    docs: { homepage: "https://docs.captaindata.com/v1/introduction" },
+    provider: { name: "CaptainData", url: "https://www.captaindata.com" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -7782,10 +7661,10 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["people", "company", "enrichment", "search"],
-    docs: { homepage: "https://api.peopledatalabs.com" },
+    docs: { homepage: "https://docs.peopledatalabs.com/docs/intro" },
     provider: {
       name: "People Data Labs",
-      url: "https://api.peopledatalabs.com",
+      url: "https://www.peopledatalabs.com",
     },
     realm: "mpp.orthogonal.com",
     intent: "charge",
@@ -7917,8 +7796,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["people", "research", "enrichment"],
-    docs: { homepage: "https://api.happenstance.ai" },
-    provider: { name: "Happenstance", url: "https://api.happenstance.ai" },
+    docs: { homepage: "https://happenstance.ai/developers" },
+    provider: { name: "Happenstance", url: "https://happenstance.ai" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -7943,8 +7822,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["enrichment", "people", "company", "prospecting"],
-    docs: { homepage: "https://api.apollo.io" },
-    provider: { name: "Apollo API", url: "https://api.apollo.io" },
+    docs: { homepage: "https://docs.apollo.io" },
+    provider: { name: "Apollo API", url: "https://www.apollo.io" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -8067,7 +7946,8 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /brand/fonts",
+        healthCheck: { path: "/web/fonts?domain=example.com" },
+        route: "GET /web/fonts",
         desc: "Extract font information from a brand's website including font families, usage statistics, fallbacks, and element/word",
         amount: "30000",
         unitType: "request",
@@ -8097,7 +7977,8 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /brand/naics",
+        healthCheck: { path: "/web/naics?input=example.com" },
+        route: "GET /web/naics",
         desc: "Endpoint to classify any brand into a 2022 NAICS code.",
         amount: "30000",
         unitType: "request",
@@ -8133,13 +8014,15 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /brand/styleguide",
+        healthCheck: { path: "/web/styleguide?url=https%3A%2F%2Fexample.com" },
+        route: "GET /web/styleguide",
         desc: "Automatically extract comprehensive design system information from a brand's website including colors, typography",
         amount: "30000",
         unitType: "request",
       },
       {
-        route: "GET /brand/screenshot",
+        healthCheck: { path: "/web/screenshot?url=https%3A%2F%2Fexample.com" },
+        route: "GET /web/screenshot",
         desc: "Capture a screenshot of a website. Supports both viewport (standard browser view) and full-page screenshots. Can also",
         amount: "30000",
         unitType: "request",
@@ -8379,8 +8262,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["company", "people", "enrichment", "leads"],
-    docs: { homepage: "https://api.companyenrich.com" },
-    provider: { name: "Company Enrich", url: "https://api.companyenrich.com" },
+    docs: { homepage: "https://docs.companyenrich.com/docs/getting-started" },
+    provider: { name: "Company Enrich", url: "https://companyenrich.com" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -8557,8 +8440,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["identity", "verification", "kyc"],
-    docs: { homepage: "https://verification.didit.me" },
-    provider: { name: "Didit API", url: "https://verification.didit.me" },
+    docs: { homepage: "https://docs.didit.me" },
+    provider: { name: "Didit API", url: "https://didit.me" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -8678,10 +8561,10 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["sales-intelligence", "prospecting", "enrichment"],
-    docs: { homepage: "https://bvjmtgaxijpyasjtaqiv.supabase.co" },
+    docs: { homepage: "https://www.bytemine.ai/for/developers" },
     provider: {
       name: "Bytemine",
-      url: "https://bvjmtgaxijpyasjtaqiv.supabase.co",
+      url: "https://www.bytemine.ai",
     },
     realm: "mpp.orthogonal.com",
     intent: "charge",
@@ -9003,8 +8886,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["company", "employee", "jobs", "intelligence"],
-    docs: { homepage: "https://api.coresignal.com" },
-    provider: { name: "Coresignal", url: "https://api.coresignal.com" },
+    docs: { homepage: "https://docs.coresignal.com" },
+    provider: { name: "Coresignal", url: "https://coresignal.com" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -9150,8 +9033,11 @@ export const services: ServiceDef[] = [
     categories: ["search", "web"],
     integration: "third-party",
     tags: ["web-search", "ai", "retrieval"],
-    docs: { homepage: "https://api.linkup.so" },
-    provider: { name: "Linkup API", url: "https://api.linkup.so" },
+    docs: {
+      homepage:
+        "https://docs.linkup.so/pages/documentation/get-started/introduction",
+    },
+    provider: { name: "Linkup API", url: "https://www.linkup.so" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -9189,10 +9075,10 @@ export const services: ServiceDef[] = [
     categories: ["social", "data"],
     integration: "third-party",
     tags: ["social-media", "tiktok", "instagram", "youtube", "scraping"],
-    docs: { homepage: "https://api.scrapecreators.com" },
+    docs: { homepage: "https://docs.scrapecreators.com" },
     provider: {
       name: "Scrape Creators",
-      url: "https://api.scrapecreators.com",
+      url: "https://scrapecreators.com",
     },
     realm: "mpp.orthogonal.com",
     intent: "charge",
@@ -9939,8 +9825,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["business-verification", "address"],
-    docs: { homepage: "https://dev.voygr.tech" },
-    provider: { name: "Voygr", url: "https://dev.voygr.tech" },
+    docs: { homepage: "https://api.voygr.tech/docs" },
+    provider: { name: "Voygr", url: "https://voygr.tech" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -10157,8 +10043,8 @@ export const services: ServiceDef[] = [
     categories: ["data"],
     integration: "third-party",
     tags: ["firmographic", "b2b", "enrichment", "growth"],
-    docs: { homepage: "https://api.crustdata.com" },
-    provider: { name: "Crustdata", url: "https://api.crustdata.com" },
+    docs: { homepage: "https://docs.crustdata.com/general/introduction" },
+    provider: { name: "Crustdata", url: "https://crustdata.com" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
@@ -10214,8 +10100,8 @@ export const services: ServiceDef[] = [
     categories: ["ai", "social"],
     integration: "third-party",
     tags: ["email", "inboxes", "messaging", "agents"],
-    docs: { homepage: "https://api.agentmail.to" },
-    provider: { name: "AgentMail", url: "https://api.agentmail.to" },
+    docs: { homepage: "https://docs.agentmail.to" },
+    provider: { name: "AgentMail", url: "https://www.agentmail.to" },
     realm: "mpp.orthogonal.com",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
