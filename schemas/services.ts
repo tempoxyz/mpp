@@ -11242,4 +11242,89 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Paddock ──────────────────────────────────────────────────────────────────
+  {
+    id: "paddock",
+    name: "Paddock",
+    url: "https://paddock.finance",
+    serviceUrl: "https://paddock.finance",
+    description:
+      "Agent payments have no chargeback. Paddock is pre-payment verification for AI agents. Check an x402 or MPP endpoint before an agent pays it: one verdict with evidence, plus read-only market measurements.",
+    categories: ["data"],
+    integration: "third-party",
+    tags: [],
+    docs: {
+      homepage: "https://paddock.finance",
+      apiReference: "https://paddock.finance/openapi.json",
+    },
+    provider: { name: "Paddock", url: "https://paddock.finance" },
+    realm: "paddock.finance",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/paddock/mcp/verify-before-pay",
+        desc: "Should my agent pay this endpoint right now?",
+        amount: "250000",
+      },
+      {
+        route: "GET /api/paddock/mcp/summary",
+        desc: "How big is agent commerce today? (The citation number.)",
+      },
+      {
+        route: "GET /api/paddock/mcp/category",
+        desc: "Who's selling in this category, and who's actually getting paid?",
+      },
+      {
+        route: "GET /api/paddock/mcp/gaps",
+        desc: "Where is demand outrunning supply?",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/paddock/mcp/best-value",
+        desc: "Which provider in this category should my agent pick?",
+        amount: "20000",
+      },
+      {
+        route: "GET /api/paddock/mcp/liveness",
+        desc: "Was this domain up at last night's probe, per someone who isn't the seller?",
+        amount: "1000",
+      },
+      {
+        route: "GET /api/paddock/mcp/changes",
+        desc: "What changed since a date I name?",
+        amount: "100000",
+      },
+      {
+        route: "GET /api/paddock/mcp/circular-signal",
+        desc: "Is this facilitator's volume real, or is it paying itself?",
+        amount: "990000",
+      },
+      {
+        route: "GET /api/paddock/mcp/whale-activity",
+        desc: "Where did the large settlements go?",
+        amount: "990000",
+      },
+      {
+        route: "GET /api/paddock/mcp/provider-revenue",
+        desc: "Who earns the most, and how much of the market can that answer see?",
+        amount: "990000",
+      },
+      {
+        route: "GET /api/paddock/mcp/token-metrics",
+        desc: "Is today's number a real move or ordinary noise?",
+        amount: "10000",
+      },
+      {
+        route: "GET /api/paddock/mcp/report-data/paid",
+        desc: "What are the numbers behind the monthly report?",
+        amount: "990000",
+      },
+      {
+        route: "GET /api/paddock/mcp/report-data",
+        desc: "State of Agent Commerce report metadata - free preview (title, TOC, executive summary excerpt)",
+      },
+    ],
+  },
 ];
