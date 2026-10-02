@@ -6172,7 +6172,7 @@ export const services: ServiceDef[] = [
     url: "https://pocket.network",
     serviceUrl: "https://agent.pocket.network",
     description:
-      "Pay-per-call marketplace of 98 data services and utilities served by Pocket Network: market, financial and government data, web search and extraction, document parsing, compliance screening, and blockchain data across 49 networks. One price per call, no account or API key.",
+      "Pay-per-call marketplace of 94 data services and utilities served by Pocket Network: market, financial and government data, web search and extraction, document parsing, compliance screening, and blockchain data across 49 networks. One price per call, no account or API key.",
     icon: "https://pocket.network/wp-content/uploads/2026/09/Pocket-Icon.png",
     categories: ["ai", "blockchain", "compute", "data", "search", "web"],
     integration: "first-party",
@@ -6274,11 +6274,6 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
-        route: "POST /v1/crypto-fx-market-data/v1/market",
-        desc: "Crypto FX Market Data: Current crypto prices and 24-hour change from the CoinGecko public API.",
-        amount: "5000",
-      },
-      {
         route: "POST /v1/debarment-exclusion/v1/debarment",
         desc: "Debarment and Exclusion Screening: Screen for SAM.gov exclusions: excluded parties by name, UEI, or CAGE with termination dates.",
         amount: "5000",
@@ -6329,11 +6324,6 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
-        route: "POST /v1/flight-schedules-status/v1/flight",
-        desc: "Flight Schedules Status: Live position of one airborne aircraft from the OpenSky Network, by callsign or ICAO24 address: whether it is…",
-        amount: "5000",
-      },
-      {
         route: "POST /v1/fraxtal",
         desc: "Fraxtal Mainnet JSON-RPC: Read-only JSON-RPC access to Fraxtal, the OP-Stack L2 by Frax, served by the Pocket Network decentralised sup…",
         amount: "5000",
@@ -6376,11 +6366,6 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/insider-transactions/v1/insider",
         desc: "Insider Transactions Form 4: SEC Form 3, 4, and 5 insider transactions: filer, issuer, transaction date, shares, price, and role.",
-        amount: "5000",
-      },
-      {
-        route: "POST /v1/ip-geolocation/v1/geo",
-        desc: "IP Geolocation: IP geolocation: country, region, city, postal code, coordinates, ASN and organisation for an IPv4 or IPv6 add…",
         amount: "5000",
       },
       {
@@ -6671,11 +6656,6 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/wallet-portfolio/v1/portfolio",
         desc: "Wallet Portfolio Aggregation: Wallet holdings across 12 chains in one call: native and known-token balances on Ethereum, Base, BNB Chain, A…",
-        amount: "5000",
-      },
-      {
-        route: "POST /v1/web-search-serp/v1/search",
-        desc: "Web Search SERP: Web search: up to 20 ranked results (title, url, snippet) for a query, parsed from DuckDuckGo Lite.",
         amount: "5000",
       },
       {
