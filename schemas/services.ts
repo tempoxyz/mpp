@@ -10627,6 +10627,76 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Flipvo ─────────────────────────────────────────────────────────────
+  {
+    id: "flipvo",
+    name: "Flipvo",
+    url: "https://flipvo.com",
+    serviceUrl: "https://api.flipvo.com",
+    description:
+      "Pay-per-call US contractor license verification and search (FL, OR, WA, VA), state business entity lookup (FL, OR), and drive time/distance, matrix and nearest-airport routing over OpenStreetMap.",
+    icon: "https://flipvo.com/favicon.svg",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "contractors",
+      "licensing",
+      "business-entities",
+      "compliance",
+      "routing",
+      "drive-time",
+      "airports",
+      "openstreetmap",
+    ],
+    status: "active",
+    docs: {
+      llmsTxt: "https://api.flipvo.com/llms.txt",
+      apiReference: "https://api.flipvo.com/openapi.json",
+    },
+    provider: { name: "Flipvo", url: "https://flipvo.com" },
+    realm: "api.flipvo.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/license/verify",
+        desc: "Verify a contractor license by number or name (FL, OR, WA, VA); FL and OR include the matching business entity",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/license/search",
+        desc: "Search licensed contractors by trade and city or zip (FL, OR, WA, VA)",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/entity/lookup",
+        desc: "Look up a state business-registry record by number or name (FL, OR)",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/drive",
+        desc: "Driving time and distance between two named places",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/matrix",
+        desc: "Drive-time matrix, up to 100 origin x destination elements",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/airport/nearest",
+        desc: "Nearest airports with scheduled service, ranked by drive time",
+        amount: "20000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── AgentPhone (Orthogonal) ──
   {
     id: "orth-agentphone",
