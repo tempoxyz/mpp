@@ -10797,4 +10797,54 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── TrueRandomness ───────────────────────────────────────────────────
+  {
+    id: "truerandomness",
+    name: "TrueRandomness",
+    url: "https://random.cipblujdea.com",
+    serviceUrl: "https://random.cipblujdea.com",
+    description:
+      "Free MCP random_int and status tools, plus paid random integer certificates with drand quicknet provenance.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["randomness", "drand", "mcp", "verifiable"],
+    status: "active",
+    docs: {
+      homepage: "https://random.cipblujdea.com/client",
+      llmsTxt: "https://random.cipblujdea.com/llms.txt",
+      apiReference: "https://random.cipblujdea.com/openapi.json",
+    },
+    provider: {
+      name: "TrueRandomness",
+      url: "https://random.cipblujdea.com",
+    },
+    realm: "verifiable-random-mcp",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mcp",
+        desc: "Free MCP server with random_int and status tools.",
+        healthCheck: false,
+      },
+      {
+        route: "POST /v1/random",
+        desc: "Buy a random integer certificate with drand quicknet provenance.",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          body: {
+            requestId: "53b58afb-d9c2-42a5-81f5-3e92bb41c62b",
+            min: 0,
+            max: 1,
+          },
+        },
+      },
+      {
+        route: "GET /v1/certificates/:requestId",
+        desc: "Retrieve a public certificate for a paid random draw.",
+      },
+    ],
+  },
 ];
