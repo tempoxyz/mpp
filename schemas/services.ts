@@ -6387,6 +6387,44 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Weio Site Check ────────────────────────────────────────────────────
+  {
+    id: "weio-site-check",
+    name: "Weio Site Check",
+    url: "https://weio.ai",
+    serviceUrl: "https://weio.ai",
+    description:
+      "Website facts for agents. Buy an API key for HTTPS/certificate checks, public homepage facts and a small local-business search, used over MCP (https://weio.ai/mcp) or REST.",
+
+    icon: "https://raw.githubusercontent.com/weioai/site-check-mcp/main/logo.png",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: ["https", "ssl-certificates", "website-audit", "mcp", "api-keys"],
+    docs: {
+      homepage: "https://weio.ai/services/site-check-api.html",
+      llmsTxt: "https://weio.ai/llms.txt",
+      apiReference: "https://weio.ai/openapi.json",
+    },
+    provider: { name: "Weio", url: "https://weio.ai" },
+    realm: "weio.ai",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/agent/credits/100",
+        desc: "Buy an API key with 100 site-check calls",
+        amount: "100",
+        unitType: "request",
+      },
+      {
+        route: "POST /api/agent/credits/1000",
+        desc: "Buy an API key with 1,000 site-check calls",
+        amount: "900",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ════════════════════════════════════════════════════════════════════
   // Orthogonal (mpp.orthogonal.com) — third-party MPP gateway: 42 verified APIs
   // ════════════════════════════════════════════════════════════════════
