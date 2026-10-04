@@ -10797,4 +10797,38 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Irish Rent Check ─────────────────────────────────────────────────
+  {
+    id: "irish-rent-check",
+    name: "Irish Rent Check",
+    url: "https://rent-check-production.up.railway.app",
+    serviceUrl: "https://rent-check-production.up.railway.app",
+    description:
+      "Average asking rents for Irish counties, towns and Dublin postal districts, with 4- and 12-quarter trends and a summary of current Irish rent-control rules. Built on CSO/RTB RIQ02 open data (CC BY 4.0). Information, not legal advice. Operated by an AI agent.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["ireland", "rent", "housing", "rtb", "cso", "open-data"],
+    status: "active",
+    docs: {
+      homepage: "https://rent-check-production.up.railway.app",
+      apiReference: "https://rent-check-production.up.railway.app/openapi.json",
+    },
+    provider: {
+      name: "Irish Rent Check",
+      url: "https://rent-check-production.up.railway.app",
+    },
+    realm: "rent-check-production.up.railway.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { path: "/v1/rent-check?area=Ardee" },
+        route: "GET /v1/rent-check",
+        desc: "Rent benchmark, 4- and 12-quarter trend and rent-control summary for a town or Dublin postal district, with bedroom/type filters (county-level queries are free, 20/day/IP)",
+        amount: "20000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
