@@ -29,6 +29,7 @@ http.createServer(async (req, res) => {
 
 ## Behavior
 
+- **On an oversized body:** Writes `413 Payload Too Large`. Request bodies default to a 10 MiB limit.
 - **On `402`:** Writes the Challenge response headers and body, then ends the connection.
 - **On `200`:** Sets the `Payment-Receipt` header; the caller writes the response body.
 
@@ -48,6 +49,12 @@ type ReturnType = (
 - **Type:** `(input: Request) => Promise<MethodFn.Response<Transport.Http>>`
 
 The payment handler function returned by calling an intent on the payment object.
+
+### options (optional)
+
+- **Type:** `{ host?: string; maxBodySize?: number; protocol?: string }`
+
+Configures Node-to-Fetch request conversion. `maxBodySize` defaults to `10_485_760` bytes (10 MiB).
 
 ```ts twoslash
 import * as http from 'node:http'

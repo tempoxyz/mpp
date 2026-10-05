@@ -123,10 +123,10 @@ x402 compatibility options. Pass `facilitator` to verify and settle x402 exact p
 
 `routeBinding` controls scoped-route interoperability:
 
-- **`'resource'`** (default)—Accept standard x402 Credentials by comparing the echoed resource URL and payment requirements. Credentials with the `mppx` extension retain full route-bound nonce verification.
-- **`'required'`**—Require every x402 Credential for a scoped route to include the `mppx` extension and route-bound nonce. Use this when scope, opaque values, or metadata must be cryptographically bound.
+- **`'required'`** (default)—Require every x402 Credential for a scoped route to include the `mppx` extension and route-bound nonce. Use this when scope, opaque values, or metadata must be cryptographically bound.
+- **`'resource'`**—Accept standard x402 Credentials by comparing the echoed resource URL and payment requirements. Credentials with the `mppx` extension retain full route-bound nonce verification.
 
-Both modes verify any Challenge body digest against the request. Standard x402 Credentials can pay `Proxy` routes under the default mode because the proxy's derived scope no longer requires the optional extension.
+Both modes verify any Challenge body digest against the request. Standard x402 Credentials can pay scoped `Proxy` routes only when you set `routeBinding: 'resource'`.
 
 ## Request parameters
 

@@ -9,7 +9,7 @@ import { Challenge, Credential, Receipt } from 'mppx'
 import { Transport } from 'mppx/server'
 
 const http = Transport.from<Request, Response>({
-  name: 'http',
+  credentialHeaders: ['Authorization'],
 
   getCredential(request) {
     const header = request.headers.get('Authorization')
@@ -18,6 +18,8 @@ const http = Transport.from<Request, Response>({
     if (!payment) return null
     return Credential.deserialize(payment)
   },
+
+  name: 'http',
 
   respondChallenge({ challenge, error }) {
     const headers: Record<string, string> = {
@@ -49,16 +51,40 @@ const http = Transport.from<Request, Response>({
 ## Return type
 
 ```ts
-type ReturnType = Transport<Input, ChallengeOutput, ReceiptOutput>
+type ReturnType = Transport<Input, ChallengeOutput, ReceiptResponse, ReceiptOutput>
 ```
 
 ## Parameters
+
+### bindCredential (optional)
+
+- **Type:** `(options: { challenge: Challenge; credential: Credential; input: Input }) => Credential | Promise<Credential>`
+
+Rebinds a transport-native Credential to the normalized route Challenge. Use this when the wire format doesn't carry an MPP Challenge directly.
+
+### captureRequest (optional)
+
+- **Type:** `(input: Input) => CapturedRequest | Promise<CapturedRequest>`
+
+Captures an immutable request snapshot for Challenge binding and later verification.
+
+### credentialHeaders (optional)
+
+- **Type:** `readonly string[]`
+
+HTTP header names from which this transport can read Credentials. Composed methods use this list to keep Credentials scoped to their matching transport.
 
 ### getCredential
 
 - **Type:** `(input: Input) => Credential | null`
 
 Extracts Credential from the transport input. Returns `null` if no Credential was provided, or throws if malformed.
+
+### matchCredential (optional)
+
+- **Type:** `(options: { input: Input; request: Record<string, unknown> }) => boolean | Promise<boolean>`
+
+Returns whether a transport-native Credential targets one configured payment request. Use this when several configured offers share the same wire method and intent.
 
 ### name
 
@@ -74,6 +100,12 @@ Creates a transport response for a payment Challenge.
 
 ### respondReceipt
 
-- **Type:** `(options: { challengeId: string; receipt: Receipt; response: ReceiptOutput }) => ReceiptOutput`
+- **Type:** `(options: { challengeId: string; credential: Credential; envelope?: VerifiedChallengeEnvelope; input: Input; receipt: Receipt; response: ReceiptResponse }) => ReceiptOutput`
 
 Attaches a Receipt to a successful response.
+
+### supportsStreamingReceipts (optional)
+
+- **Type:** `boolean`
+
+Marks transports whose Receipt wrapper accepts route-produced async iterables. Framework adapters use this to preserve streaming payment accounting.

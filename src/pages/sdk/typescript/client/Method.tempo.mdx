@@ -22,9 +22,7 @@ Register [`tempo.subscription`](/sdk/typescript/client/Method.tempo.subscription
 
 If you need to close, top up, or stream a single channel explicitly, use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) instead.
 
-:::warning[Legacy Sessions]
-`tempo.session` is the current Sessions implementation. The previous contract-backed flow is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
-:::
+`mppx` 0.13.0 removed the deprecated Legacy Sessions client exports. Use `tempo.session` for TIP-1034 Sessions.
 
 ## Usage
 
@@ -204,9 +202,9 @@ Store for reusable Sessions channels. Defaults to an in-memory store.
 
 - **Type:** `number`
 
-Tempo chain ID this client accepts for charges. When set, the client rejects Challenges for other chains and uses this chain when a charge Challenge omits `chainId`.
+Tempo chain ID this client accepts for both generated methods. Charge payments use it as an exact chain pin. Sessions receive the equivalent one-chain allowlist.
 
-Use `allowedChainIds` to enforce the same policy for both generated methods. When both options are set, charge payments must satisfy both.
+When `allowedChainIds` is also set, it must include `expectedChainId`; otherwise the generated Session method rejects every chain.
 
 ### getClient (optional)
 

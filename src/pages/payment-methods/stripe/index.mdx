@@ -30,15 +30,17 @@ Use [`stripe.create`](/sdk/typescript/server/Method.stripe.create) as the defaul
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 
 const payments = stripe.create({
   client,
   depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
   livemode: false,
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 
 const mppx = Mppx.create({
@@ -47,7 +49,7 @@ const mppx = Mppx.create({
 })
 ```
 
-The resolver runs only for the stablecoin networks you enable. If one network fails, `mppx` warns and keeps the other resolved methods. Omit `depositAddresses` for a synchronous SPT-only setup.
+The resolver runs only for the stablecoin networks you enable. If one network fails, `mppx` warns and keeps the other resolved methods. Omit `depositAddresses` for a synchronous SPT-only setup. The atomic `store` must be shared by every server instance so Stripe-backed Tempo methods use one replay-protection namespace.
 
 Add a Tempo Session method through `defaultMethods().additional({ tempo: { session: {} } })`. Each on-chain Session settlement of at least one cent records its newly settled amount in Stripe before `mppx` calls your optional `onSessionSettlement` hook. `mppx` skips recording when the amount rounds down below one cent.
 

@@ -137,9 +137,9 @@ Override the transport for this method.
 
 #### validate (optional)
 
-- **Type:** `(parameters: { credential: Credential; request: request }) => Promise<Method.Validation>`
+- **Type:** `(parameters: { credential: Credential; operation?: 'broadcast' | 'validate'; request: request }) => Promise<Method.Validation>`
 
-Validates a Credential without settling, reserving, broadcasting, or otherwise consuming payment state.
+Validates a Credential without settling, reserving, broadcasting, or otherwise consuming payment state. `operation` is `'validate'` for standalone validation and `'broadcast'` when validation immediately precedes the terminal broadcast hook.
 
 #### verify (deprecated)
 

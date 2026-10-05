@@ -13,15 +13,17 @@ Prefer `stripe.create()` so the factory is explicit in application code.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 
 const payments = stripe({
   client,
   depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
   livemode: false,
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 
 const mppx = Mppx.create({

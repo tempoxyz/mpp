@@ -93,7 +93,7 @@ const mppx = Mppx.create({
 
 const app = new Elysia()
   .guard(
-    { beforeHandle: mppx.charge({ amount: '0.1' }) }, // [!code hl]
+    mppx.charge({ amount: '0.1' }), // [!code hl]
     (app) => app.get('/resource', () => ({ data: '...' })),
   )
 ```

@@ -81,6 +81,20 @@ Expected per-tick amount. When set, Credentials with mismatched amounts are reje
 
 Async iterable that produces application messages. When passed as a function, receives a `SessionController` with a `charge(amount?: bigint)` method for requesting payment before yielding each value. Omit `amount` to use the Challenge tick cost, or pass a base-unit amount for dynamic pricing. Each yielded string is sent to the client as an application message frame.
 
+### maxBufferedAmount (optional)
+
+- **Type:** `number`
+- **Default:** `1_048_576`
+
+Maximum queued outbound WebSocket bytes. The helper closes the socket when its buffered amount exceeds this limit.
+
+### maxIncomingMessageBytes (optional)
+
+- **Type:** `number`
+- **Default:** `65_536`
+
+Maximum accepted inbound WebSocket frame size. The helper returns a payment error and closes the socket with code `1009` when a frame exceeds this limit.
+
 ### pollIntervalMs (optional)
 
 - **Type:** `number`
@@ -230,12 +244,13 @@ type Message =
 
 ```ts
 type Socket = {
-  close(code?: number, reason?: string): unknown
-  send(data: string): unknown
   addEventListener?: (type: string, listener: (event: any) => void) => unknown
-  removeEventListener?: (type: string, listener: (event: any) => void) => unknown
-  on?: (type: string, listener: (...args: any[]) => void) => unknown
+  readonly bufferedAmount?: number
+  close(code?: number, reason?: string): unknown
   off?: (type: string, listener: (...args: any[]) => void) => unknown
+  on?: (type: string, listener: (...args: any[]) => void) => unknown
+  removeEventListener?: (type: string, listener: (event: any) => void) => unknown
+  send(data: string): unknown
 }
 ```
 
@@ -244,7 +259,7 @@ type Socket = {
 ```ts
 type SessionRouteResult =
   | { status: 402; challenge: Response }
-  | { status: 200; withReceipt(response?: Response): Response }
+  | { status: 200; withReceipt(response?: Response): Response | Promise<Response> }
 
 type SessionRoute = (request: Request) => Promise<SessionRouteResult>
 ```
