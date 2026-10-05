@@ -617,7 +617,6 @@ export const services: ServiceDef[] = [
       // Metrics
       { route: "GET /v0/metrics", desc: "Query metrics" },
       // API keys
-      { route: "GET /v0/api-keys", desc: "List API keys" },
       { route: "POST /v0/api-keys", desc: "Create API key" },
       { route: "DELETE /v0/api-keys/:api_key", desc: "Delete API key" },
       // Pods
@@ -711,8 +710,6 @@ export const services: ServiceDef[] = [
         route: "DELETE /v0/pods/:pod_id/api-keys/:api_key",
         desc: "Delete API key",
       },
-      // Organization
-      { route: "GET /v0/organizations", desc: "Get organization" },
     ],
   },
 
@@ -4524,38 +4521,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Company Enrichment ───────────────────────────────────────────────
-  {
-    id: "abstract-company-enrichment",
-    name: "Company Enrichment",
-    url: "https://www.abstractapi.com/api/company-enrichment",
-    serviceUrl: "https://abstract-company-enrichment.mpp.paywithlocus.com",
-    description: "Enrich company data from a domain name.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["company", "enrichment", "domain-lookup"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/company-enrichment",
-      llmsTxt: "https://docs.abstractapi.com/api/company-enrichment.md",
-    },
-    provider: {
-      name: "Company Enrichment",
-      url: "https://www.abstractapi.com/api/company-enrichment",
-    },
-    realm: "abstract-company-enrichment.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-company-enrichment/lookup",
-        desc: "Lookup",
-        amount: "6000",
-        unitType: "request",
-      },
-    ],
-  },
-
   // ── Deepgram ─────────────────────────────────────────────────────────
   {
     id: "deepgram",
@@ -4910,83 +4875,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Email Reputation ─────────────────────────────────────────────────
-  {
-    id: "abstract-email-reputation",
-    name: "Email Reputation",
-    url: "https://www.abstractapi.com/api/email-reputation-api",
-    serviceUrl: "https://abstract-email-reputation.mpp.paywithlocus.com",
-    description: "Check the reputation and risk score of an email address.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["email", "reputation", "risk-score"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/email-reputation",
-      llmsTxt: "https://docs.abstractapi.com/api/email-reputation.md",
-    },
-    provider: {
-      name: "Email Reputation",
-      url: "https://www.abstractapi.com/api/email-reputation-api",
-    },
-    realm: "abstract-email-reputation.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-email-reputation/check",
-        desc: "Check",
-        amount: "6000",
-        unitType: "request",
-      },
-    ],
-  },
-
-  // ── Exchange Rates ───────────────────────────────────────────────────
-  {
-    id: "abstract-exchange-rates",
-    name: "Exchange Rates",
-    url: "https://www.abstractapi.com/api/exchange-rate-api",
-    serviceUrl: "https://abstract-exchange-rates.mpp.paywithlocus.com",
-    description:
-      "Live, historical, and conversion exchange rates for 150+ currencies.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["forex", "exchange-rates", "currency-conversion"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/exchange-rates",
-      llmsTxt: "https://docs.abstractapi.com/api/exchange-rates.md",
-    },
-    provider: {
-      name: "Exchange Rates",
-      url: "https://www.abstractapi.com/api/exchange-rate-api",
-    },
-    realm: "abstract-exchange-rates.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-exchange-rates/live",
-        desc: "Live Rates",
-        amount: "6000",
-        unitType: "request",
-      },
-      {
-        route: "POST /abstract-exchange-rates/convert",
-        desc: "Convert",
-        amount: "6000",
-        unitType: "request",
-      },
-      {
-        route: "POST /abstract-exchange-rates/historical",
-        desc: "Historical Rates",
-        amount: "6000",
-        unitType: "request",
-      },
-    ],
-  },
-
   // ── Grok ─────────────────────────────────────────────────────────────
   {
     id: "grok",
@@ -5090,38 +4978,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Holidays ─────────────────────────────────────────────────────────
-  {
-    id: "abstract-holidays",
-    name: "Holidays",
-    url: "https://www.abstractapi.com/api/holidays-api",
-    serviceUrl: "https://abstract-holidays.mpp.paywithlocus.com",
-    description: "Public holiday data for 200+ countries.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["holidays", "countries", "public-holidays"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/holidays",
-      llmsTxt: "https://docs.abstractapi.com/api/holidays.md",
-    },
-    provider: {
-      name: "Holidays",
-      url: "https://www.abstractapi.com/api/holidays-api",
-    },
-    realm: "abstract-holidays.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-holidays/lookup",
-        desc: "Lookup",
-        amount: "6000",
-        unitType: "request",
-      },
-    ],
-  },
-
   // ── Hunter ───────────────────────────────────────────────────────────
   {
     id: "hunter",
@@ -5190,70 +5046,6 @@ export const services: ServiceDef[] = [
         route: "POST /hunter/email-count",
         desc: "Email Count",
         amount: "3000",
-        unitType: "request",
-      },
-    ],
-  },
-
-  // ── IBAN Validation ──────────────────────────────────────────────────
-  {
-    id: "abstract-iban-validation",
-    name: "IBAN Validation",
-    url: "https://www.abstractapi.com/api/iban-validation-api",
-    serviceUrl: "https://abstract-iban-validation.mpp.paywithlocus.com",
-    description: "Validate International Bank Account Numbers (IBANs).",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["iban", "banking", "validation"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/iban-validation",
-      llmsTxt: "https://docs.abstractapi.com/api/iban-validation.md",
-    },
-    provider: {
-      name: "IBAN Validation",
-      url: "https://www.abstractapi.com/api/iban-validation-api",
-    },
-    realm: "abstract-iban-validation.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-iban-validation/validate",
-        desc: "Validate",
-        amount: "6000",
-        unitType: "request",
-      },
-    ],
-  },
-
-  // ── IP Intelligence ──────────────────────────────────────────────────
-  {
-    id: "abstract-ip-intelligence",
-    name: "IP Intelligence",
-    url: "https://www.abstractapi.com/api/ip-intelligence-api",
-    serviceUrl: "https://abstract-ip-intelligence.mpp.paywithlocus.com",
-    description: "Detect VPNs, proxies, bots, and Tor nodes by IP address.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["ip", "vpn-detection", "proxy", "bot-detection"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/ip-intelligence",
-      llmsTxt: "https://docs.abstractapi.com/api/ip-intelligence.md",
-    },
-    provider: {
-      name: "IP Intelligence",
-      url: "https://www.abstractapi.com/api/ip-intelligence-api",
-    },
-    realm: "abstract-ip-intelligence.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-ip-intelligence/lookup",
-        desc: "Lookup",
-        amount: "6000",
         unitType: "request",
       },
     ],
@@ -5621,38 +5413,6 @@ export const services: ServiceDef[] = [
         desc: "Contextualized Embeddings",
         dynamic: true,
         amountHint: "~$0.001",
-      },
-    ],
-  },
-
-  // ── Phone Intelligence ───────────────────────────────────────────────
-  {
-    id: "abstract-phone-intelligence",
-    name: "Phone Intelligence",
-    url: "https://www.abstractapi.com/api/phone-validation-api",
-    serviceUrl: "https://abstract-phone-intelligence.mpp.paywithlocus.com",
-    description: "Validate and get carrier info for phone numbers worldwide.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["phone", "carrier", "validation"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/phone-intelligence",
-      llmsTxt: "https://docs.abstractapi.com/api/phone-intelligence.md",
-    },
-    provider: {
-      name: "Phone Intelligence",
-      url: "https://www.abstractapi.com/api/phone-validation-api",
-    },
-    realm: "abstract-phone-intelligence.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-phone-intelligence/lookup",
-        desc: "Lookup",
-        amount: "6000",
-        unitType: "request",
       },
     ],
   },
@@ -6161,121 +5921,6 @@ export const services: ServiceDef[] = [
         desc: "Crawl",
         dynamic: true,
         amountHint: "$0.21+ (scales with page limit)",
-      },
-    ],
-  },
-
-  // ── Timezone ─────────────────────────────────────────────────────────
-  {
-    id: "abstract-timezone",
-    name: "Timezone",
-    url: "https://www.abstractapi.com/api/time-date-timezone-api",
-    serviceUrl: "https://abstract-timezone.mpp.paywithlocus.com",
-    description: "Current time and timezone conversion for any location.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["timezone", "time-conversion", "location"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/timezones",
-      llmsTxt: "https://docs.abstractapi.com/api/timezones.md",
-    },
-    provider: {
-      name: "Timezone",
-      url: "https://www.abstractapi.com/api/time-date-timezone-api",
-    },
-    realm: "abstract-timezone.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-timezone/current-time",
-        desc: "Current Time",
-        amount: "6000",
-        unitType: "request",
-      },
-      {
-        route: "POST /abstract-timezone/convert-time",
-        desc: "Convert Time",
-        amount: "6000",
-        unitType: "request",
-      },
-    ],
-  },
-
-  // ── VAT ──────────────────────────────────────────────────────────────
-  {
-    id: "abstract-vat",
-    name: "VAT",
-    url: "https://www.abstractapi.com/api/vat-validation-rates-api",
-    serviceUrl: "https://abstract-vat.mpp.paywithlocus.com",
-    description:
-      "VAT number validation, rate calculation, and category lookup for EU.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["vat", "tax", "eu-compliance"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/vat-validation",
-      llmsTxt: "https://docs.abstractapi.com/api/vat-validation.md",
-    },
-    provider: {
-      name: "VAT",
-      url: "https://www.abstractapi.com/api/vat-validation-rates-api",
-    },
-    realm: "abstract-vat.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-vat/validate",
-        desc: "Validate",
-        amount: "6000",
-        unitType: "request",
-      },
-      {
-        route: "POST /abstract-vat/calculate",
-        desc: "Calculate",
-        amount: "6000",
-        unitType: "request",
-      },
-      {
-        route: "POST /abstract-vat/categories",
-        desc: "Categories",
-        amount: "6000",
-        unitType: "request",
-      },
-    ],
-  },
-
-  // ── Web Scraping ─────────────────────────────────────────────────────
-  {
-    id: "abstract-web-scraping",
-    name: "Web Scraping",
-    url: "https://www.abstractapi.com/api/web-scraping-api",
-    serviceUrl: "https://abstract-web-scraping.mpp.paywithlocus.com",
-    description: "Scrape web pages with optional JavaScript rendering.",
-
-    categories: ["web", "data"],
-    integration: "third-party",
-    tags: ["scraping", "web-pages", "javascript-rendering"],
-    docs: {
-      homepage: "https://docs.abstractapi.com/api/scrape",
-      llmsTxt: "https://docs.abstractapi.com/api/scrape.md",
-    },
-    provider: {
-      name: "Web Scraping",
-      url: "https://www.abstractapi.com/api/web-scraping-api",
-    },
-    realm: "abstract-web-scraping.mpp.paywithlocus.com",
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /abstract-web-scraping/scrape",
-        desc: "Scrape",
-        amount: "6000",
-        unitType: "request",
       },
     ],
   },

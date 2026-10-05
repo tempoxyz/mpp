@@ -208,6 +208,33 @@ describe("services registry", () => {
     expect(services.length).toBeGreaterThan(0);
   });
 
+  it("excludes the unavailable Abstract/Locus namespaces", () => {
+    const unavailable = new Set([
+      "abstract-company-enrichment",
+      "abstract-email-reputation",
+      "abstract-exchange-rates",
+      "abstract-holidays",
+      "abstract-iban-validation",
+      "abstract-ip-intelligence",
+      "abstract-phone-intelligence",
+      "abstract-timezone",
+      "abstract-vat",
+      "abstract-web-scraping",
+    ]);
+    expect(services.filter((service) => unavailable.has(service.id))).toEqual(
+      [],
+    );
+  });
+
+  it("keeps AgentMail without its unregistered GET routes", () => {
+    const agentmail = services.find((service) => service.id === "agentmail");
+    expect(agentmail).toBeDefined();
+    const routes = agentmail!.endpoints.map((endpoint) => endpoint.route);
+    expect(routes).toContain("GET /v0/inboxes");
+    expect(routes).not.toContain("GET /v0/api-keys");
+    expect(routes).not.toContain("GET /v0/organizations");
+  });
+
   it("keeps the TempVPN registry contract executable and minute based", () => {
     const tempvpn = services.find((service) => service.id === "tempvpn");
     expect(tempvpn?.serviceUrl).toBe("https://registry.tempvpn.xyz");
