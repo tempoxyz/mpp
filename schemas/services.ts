@@ -230,7 +230,7 @@ export const services: ServiceDef[] = [
     url: "https://qrcode.pub",
     serviceUrl: "https://qrcode.pub",
     description:
-      "Pay-per-call web tools for agents: QR code images, web page to Markdown extraction, page metadata (OpenGraph, JSON-LD) and 30-day file hosting. USDC on Base, no account or API key.",
+      "Pay-per-call web tools for agents: QR code images, web page to Markdown extraction, page metadata (OpenGraph, JSON-LD) and 30-day file hosting. USDC.e on Tempo or USDC on Base, no account or API key.",
     icon: "https://qrcode.pub/icon-512.png",
     categories: ["web", "data", "storage", "media"],
     integration: "first-party",
@@ -242,6 +242,7 @@ export const services: ServiceDef[] = [
       "opengraph",
       "file-hosting",
       "usdc",
+      "tempo",
       "base",
     ],
     status: "active",
@@ -253,6 +254,7 @@ export const services: ServiceDef[] = [
     realm: "qrcode.pub",
     intent: "charge",
     payments: [
+      TEMPO_PAYMENT,
       {
         method: "evm",
         currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
