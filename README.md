@@ -53,6 +53,21 @@ docker compose down
 Set `TEMPO_LOCALNET_IMAGE` to pin a release tag or image digest. Set
 `TEMPO_RPC_URL` to run the same test against an existing localnet.
 
+Audit the service directory without payment or credentials:
+
+```bash
+pnpm check:services                  # All listed services
+pnpm check:services --service=codex  # One service
+```
+
+The report includes link availability, endpoint probe results, and per-service
+endpoint coverage. A reachable homepage is not evidence of a working paid API.
+POST routes require an explicitly safe `healthCheck` fixture in
+`schemas/services.ts`; routes with side effects remain skipped. These probes
+verify payment Challenges, not payment or fulfillment. The complete JSON report
+includes a `services` summary alongside individual results.
+The checker respects configured HTTP proxies and system certificate authorities.
+
 ### Publish a blog post
 
 1. Copy [`templates/blog-post.mdx`](templates/blog-post.mdx) to `src/pages/blog/<slug>.mdx`.

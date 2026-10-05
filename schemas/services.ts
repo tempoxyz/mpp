@@ -1423,7 +1423,12 @@ export const services: ServiceDef[] = [
       { route: "POST /v1/scrape", desc: "Scrape a URL", amount: "2000" },
       { route: "POST /v1/crawl", desc: "Crawl a website", amount: "5000" },
       { route: "POST /v1/map", desc: "Map website URLs", amount: "2000" },
-      { route: "POST /v1/search", desc: "Search the web", amount: "4000" },
+      {
+        healthCheck: { body: { query: "Machine Payments Protocol", limit: 1 } },
+        route: "POST /v1/search",
+        desc: "Search the web",
+        amount: "4000",
+      },
       {
         route: "POST /v1/extract",
         desc: "Extract structured data",
@@ -4548,6 +4553,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { domain: "example.com" } },
         route: "POST /abstract-company-enrichment/lookup",
         desc: "Lookup",
         amount: "6000",
@@ -4828,6 +4834,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { content: "Machine Payments Protocol" } },
         route: "POST /diffbot-nl/analyze",
         desc: "Analyze Text",
         dynamic: true,
@@ -4934,6 +4941,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { email: "test@example.com" } },
         route: "POST /abstract-email-reputation/check",
         desc: "Check",
         amount: "6000",
@@ -4967,6 +4975,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { base: "USD" } },
         route: "POST /abstract-exchange-rates/live",
         desc: "Live Rates",
         amount: "6000",
@@ -5114,6 +5123,9 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: {
+          body: { country: "US", year: "2026", month: "1", day: "1" },
+        },
         route: "POST /abstract-holidays/lookup",
         desc: "Lookup",
         amount: "6000",
@@ -5219,6 +5231,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { iban: "DE89370400440532013000" } },
         route: "POST /abstract-iban-validation/validate",
         desc: "Validate",
         amount: "6000",
@@ -5251,6 +5264,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { ip_address: "8.8.8.8" } },
         route: "POST /abstract-ip-intelligence/lookup",
         desc: "Lookup",
         amount: "6000",
@@ -6189,6 +6203,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { location: "San Francisco, CA" } },
         route: "POST /abstract-timezone/current-time",
         desc: "Current Time",
         amount: "6000",
@@ -6240,6 +6255,7 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
+        healthCheck: { body: {} },
         route: "POST /abstract-vat/categories",
         desc: "Categories",
         amount: "6000",
@@ -6272,6 +6288,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { url: "https://example.com" } },
         route: "POST /abstract-web-scraping/scrape",
         desc: "Scrape",
         amount: "6000",
@@ -7601,6 +7618,9 @@ export const services: ServiceDef[] = [
         dynamic: true,
       },
       {
+        healthCheck: {
+          body: { query: "Machine Payments Protocol", max_results: 1 },
+        },
         route: "POST /search",
         desc: "Execute a search query using Tavily Search.",
         dynamic: true,

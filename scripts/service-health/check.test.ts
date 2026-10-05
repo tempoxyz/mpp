@@ -14,7 +14,7 @@ import {
 } from "./checks.ts";
 import { checkProbe, type Result } from "./http.ts";
 import { type Issue, syncIssue } from "./issues.ts";
-import { renderReport } from "./report.ts";
+import { renderReport, summarizeServices } from "./report.ts";
 
 const service: ServiceDef = {
   categories: [],
@@ -363,6 +363,60 @@ describe("execution", () => {
 });
 
 describe("reporting", () => {
+  it("does not count link checks as endpoint coverage", () => {
+    const results: Result[] = [
+      { ...result, service: "link-only", target: "link", outcome: "pass" },
+      { ...result, service: "skipped-only", outcome: "skipped", attempts: 0 },
+      { ...result, service: "blocked", outcome: "inconclusive" },
+      { ...result, service: "verified", outcome: "pass" },
+    ];
+    expect(summarizeServices(results)).toEqual([
+      {
+        service: "link-only",
+        endpoints: 0,
+        attempted: 0,
+        passed: 0,
+        failed: 0,
+        inconclusive: 0,
+        skipped: 0,
+      },
+      {
+        service: "skipped-only",
+        endpoints: 1,
+        attempted: 0,
+        passed: 0,
+        failed: 0,
+        inconclusive: 0,
+        skipped: 1,
+      },
+      {
+        service: "blocked",
+        endpoints: 1,
+        attempted: 1,
+        passed: 0,
+        failed: 0,
+        inconclusive: 1,
+        skipped: 0,
+      },
+      {
+        service: "verified",
+        endpoints: 1,
+        attempted: 1,
+        passed: 1,
+        failed: 0,
+        inconclusive: 0,
+        skipped: 0,
+      },
+    ]);
+    const report = renderReport(results, "today", "run");
+    expect(report).toContain(
+      "2/4 services have an attempted endpoint probe; 1/4 have at least one passing endpoint probe",
+    );
+    expect(report).toContain(
+      "2 services have no attempted endpoint probes: link-only, skipped-only.",
+    );
+  });
+
   it("renders findings as a bounded Markdown table with escaped cells", () => {
     const body = renderReport(
       [
