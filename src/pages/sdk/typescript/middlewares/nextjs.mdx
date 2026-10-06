@@ -37,6 +37,8 @@ $ bun add mppx
 
 Import `Mppx` and `tempo` from `mppx/nextjs` to create a Next.js-aware payment handler. Each intent (for example, `charge`) returns a wrapper that accepts a route handler.
 
+When route options omit `scope` and reserved scope metadata, the wrapper binds the Challenge to the request method and pathname automatically.
+
 ```ts twoslash [app/api/premium/route.ts]
 import { Mppx, tempo } from 'mppx/nextjs'
 

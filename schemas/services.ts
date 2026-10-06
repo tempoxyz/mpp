@@ -1420,7 +1420,12 @@ export const services: ServiceDef[] = [
       { route: "POST /v1/scrape", desc: "Scrape a URL", amount: "2000" },
       { route: "POST /v1/crawl", desc: "Crawl a website", amount: "5000" },
       { route: "POST /v1/map", desc: "Map website URLs", amount: "2000" },
-      { route: "POST /v1/search", desc: "Search the web", amount: "4000" },
+      {
+        healthCheck: { body: { query: "Machine Payments Protocol", limit: 1 } },
+        route: "POST /v1/search",
+        desc: "Search the web",
+        amount: "4000",
+      },
       {
         route: "POST /v1/extract",
         desc: "Extract structured data",
@@ -4793,6 +4798,7 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
+        healthCheck: { body: { content: "Machine Payments Protocol" } },
         route: "POST /diffbot-nl/analyze",
         desc: "Analyze Text",
         dynamic: true,
@@ -7246,6 +7252,9 @@ export const services: ServiceDef[] = [
         dynamic: true,
       },
       {
+        healthCheck: {
+          body: { query: "Machine Payments Protocol", max_results: 1 },
+        },
         route: "POST /search",
         desc: "Execute a search query using Tavily Search.",
         dynamic: true,

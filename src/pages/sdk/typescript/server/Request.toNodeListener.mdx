@@ -11,6 +11,8 @@ import { Request } from 'mppx/server'
 const listener = Request.toNodeListener((request) => {
   const pathname = new URL(request.url).pathname
   return new Response(`Requested ${pathname}`)
+}, {
+  maxBodySize: 1024 * 1024,
 })
 
 http.createServer(listener).listen(3000)
@@ -25,9 +27,21 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Request } from 'mppx/server'
 
 function middleware(req: IncomingMessage, res: ServerResponse) {
-  const request = Request.fromNodeListener(req, res)
+  const request = Request.fromNodeListener(req, res, { maxBodySize: 1024 * 1024 })
   // handle as a Fetch API Request
 }
+```
+
+The adapter streams Node request bodies with backpressure and rejects bodies larger than `maxBodySize`. `Request.toNodeListener` returns `413 Payload Too Large` by default. When you call `Request.fromNodeListener` directly, await `Request.waitForBody(request)` before committing a successful response so late stream errors and size violations are observed.
+
+### `Request.waitForBody`
+
+Waits for a Node-backed Fetch request body to finish. It resolves immediately for other requests.
+
+```ts
+const request = Request.fromNodeListener(req, res)
+const response = await handler(request)
+await Request.waitForBody(request)
 ```
 
 ## Parameters
@@ -40,6 +54,6 @@ A Fetch API handler that receives a `Request` and returns a `Response`.
 
 ### options (optional)
 
-- **Type:** `RequestListenerOptions`
+- **Type:** `{ host?: string; maxBodySize?: number; onError?: (error: unknown) => void | Response | Promise<void | Response>; protocol?: string }`
 
-Options forwarded to the underlying adapter, including an optional error handler.
+Configures the trusted request origin, body limit, and error response. `maxBodySize` defaults to `10_485_760` bytes (10 MiB).

@@ -40,13 +40,14 @@ The Receipt is a base64url-encoded JSON object.
 | Field | Description |
 |-------|-------------|
 | `externalId` | Optional external reference echoed from the Credential payload |
+| `fundingCurrency` | Optional currency actually debited to fund the payment |
 | `method` | Payment method used |
 | `reference` | Method-specific payment reference (for example, transaction hash or invoice ID) |
 | `status` | Payment outcome (`success`) |
 | `subscriptionId` | Optional server-issued subscription identifier |
 | `timestamp` | When the payment was processed |
 
-Payment method specifications can define additional fields.
+Payment method specifications can define additional fields. Tempo charge Receipts include `fundingCurrency` when `mppx` can verify the direct, machine-token, or auto-swap funding route.
 
 ## Use cases
 

@@ -15,9 +15,7 @@ Creates the low-level Tempo Sessions client method for `Mppx.create`.
 Use `tempo.session()` when you need to register only the current Sessions intent in `Mppx.create`. Use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) when you need a standalone object with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`.
 :::
 
-:::warning[Legacy Sessions]
-`tempo.session` is the current Sessions implementation, backed by the [TIP-1034](https://tips.sh/1034) reserve precompile. The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
-:::
+`tempo.session` uses the [TIP-1034](https://tips.sh/1034) reserve precompile. `mppx` 0.13.0 removed the deprecated Legacy Sessions client exports.
 
 ## Usage
 
@@ -98,93 +96,6 @@ const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef012345678
 
 Mppx.create({
   methods: [tempo({ account })],
-})
-```
-
-</Tab>
-</Tabs>
-
-### With Legacy Sessions
-
-Use `tempo.sessionLegacy.method()` only for servers that still issue Legacy Sessions Challenges.
-
-If a client must support both current and Legacy Sessions during migration, register both methods:
-
-<Tabs stateKey="account-source">
-<Tab title="Accounts SDK">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { Provider } from 'accounts'
-
-const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
-await provider.request({ method: 'wallet_connect' })
-
-Mppx.create({
-  methods: [
-    tempo.session({
-      account: provider.getAccount({ signable: true }),
-      getClient: provider.getClient,
-      maxDeposit: '1',
-    }),
-    tempo.sessionLegacy.method({
-      account: provider.getAccount({ signable: true }),
-      getClient: provider.getClient,
-      maxDeposit: '1',
-    }),
-  ],
-})
-```
-
-</Tab>
-<Tab title="viem">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-Mppx.create({
-  methods: [
-    tempo.session({ account, maxDeposit: '1' }),
-    tempo.sessionLegacy.method({ account, maxDeposit: '1' }),
-  ],
-})
-```
-
-</Tab>
-</Tabs>
-
-<Tabs stateKey="account-source">
-<Tab title="Accounts SDK">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { Provider } from 'accounts'
-
-const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
-await provider.request({ method: 'wallet_connect' })
-
-Mppx.create({
-  methods: [tempo.sessionLegacy.method({
-      account: provider.getAccount({ signable: true }),
-      getClient: provider.getClient,
-    })],
-})
-```
-
-</Tab>
-<Tab title="viem">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-Mppx.create({
-  methods: [tempo.sessionLegacy.method({ account })],
 })
 ```
 

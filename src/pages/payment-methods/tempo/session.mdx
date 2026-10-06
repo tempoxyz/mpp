@@ -20,7 +20,7 @@ The `session` intent enables high-frequency, pay-as-you-go payments over unidire
 Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
 
 :::warning[Legacy integrations]
-`tempo.session` is the current Sessions implementation in `mppx`. The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`. Legacy server support requires `mppx` 0.8.15 or earlier.
+`mppx` 0.13.0 removed the deprecated Legacy Sessions client exports. Close or settle Legacy channels before upgrading because current TIP-1034 Sessions don't share their channel state.
 :::
 
 ## Which client API should I use?
@@ -32,7 +32,6 @@ There are two current Sessions client APIs:
 | `tempo({ account, maxDeposit })` | You want a fetch wrapper that handles both one-time charges and Sessions. This expands to `tempo.charge()` plus the current `tempo.session()` client method. |
 | `tempo.session({ account, maxDeposit })` | You want to register only the current Sessions client method in `Mppx.create`. |
 | `tempo.session.manager({ account, maxDeposit })` | You want direct lifecycle control with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`. Use this when your code must explicitly close or top up a channel. |
-| `tempo.sessionLegacy` / `tempo.sessionLegacy.method()` | You still need compatibility with contract-backed Sessions v1. Do not use this for new integrations. |
 
 For browser reloads or app restarts, pass a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore) to `tempo.session.manager()`. Servers can pair this with [`bootstrap: true`](/sdk/typescript/server/Method.tempo.session#with-same-route-bootstrap) so clients lazily recover a previous channel from the same protected route before opening a new one.
 
@@ -88,6 +87,8 @@ If the channel runs low on funds, the client tops up the channel without closing
 ### Close
 
 Either party can close the channel. The server closes the precompile-backed channel with the highest voucher, settling the final balance on-chain and refunding any unused deposit to the client.
+
+A cooperative close Credential includes the latest voucher signature and a separate `closeSignature` that authorizes the close action. `tempo.session.manager()` creates both automatically. Custom protocol clients can use `Session.Precompile.Voucher.signCloseAuthorization()` from `mppx/tempo`; servers can verify it with `verifyCloseAuthorization()`.
 
 ::::
 
@@ -513,136 +514,11 @@ See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manage
 
 ## Migrate from Legacy Sessions
 
-Legacy Sessions, also called Sessions v1, is the contract-backed session flow. Use `tempo.sessionLegacy` only when you need compatibility with clients or servers that haven't moved to the latest implementation. Legacy server support requires `mppx` 0.8.15 or earlier.
+Legacy Sessions, also called Sessions v1, used a contract-backed channel flow. `mppx` 0.13.0 removes its deprecated client exports, and current Sessions use TIP-1034 reserve channels.
 
-- Register `tempo.session` on the server for the latest implementation.
-- Keep `tempo.sessionLegacy` registered beside `tempo.session` during migration so existing clients keep working.
-- Use `tempo()` on the client when the same fetch wrapper should handle charges and Sessions.
-- Register `tempo.session()` and `tempo.sessionLegacy.method()` explicitly when the client must support both Sessions implementations.
-
-### Compatibility matrix
-
-| Server methods | Client methods | Result |
-|---|---|---|
-| `tempo.session()` only | `tempo.session()` or `tempo()` | Current Sessions flow. New integrations should target this. |
-| `tempo.sessionLegacy()` only | `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` | Legacy Sessions v1 flow. Use only until the server migrates. |
-| `tempo.session()` only | `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` | Not compatible. The client cannot answer current Sessions Challenges. |
-| `tempo.sessionLegacy()` only | `tempo.session()` or `tempo()` | Not compatible for Sessions. The client cannot answer Legacy Sessions Challenges unless `tempo.sessionLegacy.method()` is also registered. |
-| `tempo.session()` and `tempo.sessionLegacy()` | `tempo.session()` and `tempo.sessionLegacy.method()` | Migration mode. Both current and Legacy Sessions Challenges can be handled while clients roll forward. |
-
-Current Sessions Challenges advertise `sessionProtocol: "v2"` in method details and use TIP-1034 reserve channels. Legacy Sessions Challenges use the contract-backed Sessions v1 flow. Channel state is not reusable across implementations; let old channels close or settle under `tempo.sessionLegacy`, and open new channels with `tempo.session`.
-
-### Server
-
-Pin `mppx` to 0.8.15 or earlier for this migration configuration.
-
-```ts
-import { Mppx, Store, tempo } from 'mppx/server'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const mppx = Mppx.create({
-  methods: [
-    // Keep both registered during migration so current and Legacy Sessions clients work.
-    // [!code hl:start]
-    tempo.session({
-      account,
-      chainId: 4217, // optional; pins Challenges to Tempo mainnet
-      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
-      store: Store.memory(),
-    }),
-    tempo.sessionLegacy({
-      account,
-      currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
-      store: Store.memory(),
-    }),
-    // [!code hl:end]
-  ],
-})
-```
-
-### Client
-
-<Tabs stateKey="account-source">
-<Tab title="Accounts SDK">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { createClient, http } from 'viem'
-import { Provider } from 'accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
-
-const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
-await provider.request({ method: 'wallet_connect' })
-
-const { fetch: mppxFetch } = Mppx.create({
-  methods: [
-    tempo.session({
-      account: provider.getAccount({ signable: true }),
-      getClient: () =>
-        createClient({
-          chain: tempoMainnet,
-          transport: http('https://rpc.tempo.xyz'),
-        }),
-      maxDeposit: '1',
-    }),
-    tempo.sessionLegacy.method({
-      account: provider.getAccount({ signable: true }),
-      getClient: () =>
-        createClient({
-          chain: tempoMainnet,
-          transport: http('https://rpc.tempo.xyz'),
-        }),
-      maxDeposit: '1',
-    }),
-  ],
-  polyfill: false,
-})
-
-const response = await mppxFetch('https://api.example.com/resource')
-```
-
-</Tab>
-<Tab title="viem">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const { fetch: mppxFetch } = Mppx.create({
-  methods: [
-    tempo.session({
-      account,
-      getClient: () =>
-        createClient({
-          chain: tempoMainnet,
-          transport: http('https://rpc.tempo.xyz'),
-        }),
-      maxDeposit: '1',
-    }),
-    tempo.sessionLegacy.method({
-      account,
-      getClient: () =>
-        createClient({
-          chain: tempoMainnet,
-          transport: http('https://rpc.tempo.xyz'),
-        }),
-      maxDeposit: '1',
-    }),
-  ],
-  polyfill: false,
-})
-
-const response = await mppxFetch('https://api.example.com/resource')
-```
-
-</Tab>
-</Tabs>
+- Close or settle Legacy channels before upgrading.
+- Upgrade servers to `tempo.session()` and clients to `tempo.session()` or `tempo()`.
+- Use `tempo.session.manager()` when application code needs explicit channel lifecycle control.
 
 ## Custom reserve contracts
 
@@ -672,8 +548,6 @@ const manager = tempo.session.manager({
 ```
 
 For a stricter policy, set the client `escrow` option to the exact address you trust. This pin takes precedence over `allowCustomEscrow`. Persisted channels remain bound to their resolved reserve address, so a later Challenge can't switch an existing channel.
-
-Legacy Sessions clients use the same `allowCustomEscrow` opt-in. Their `escrowContract` option is the exact-address pin.
 
 ## Reserve precompile
 

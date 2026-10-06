@@ -152,7 +152,10 @@ describe("actionability", () => {
       "run",
     );
     expect(report).toContain("1 skipped");
-    expect(report).not.toContain("fixture-needed");
+    expect(report).toContain("no attempted endpoint probes: fixture-needed.");
+    expect(report).not.toContain(
+      "| Service | Endpoint or link | HTTP | Finding | URL |",
+    );
   });
 });
 

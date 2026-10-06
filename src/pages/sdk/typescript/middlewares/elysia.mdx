@@ -13,7 +13,7 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 <SigningAccountTabs />
 
 
-Native [Elysia](https://elysiajs.com) middleware that gates routes behind payment intents.
+Native [Elysia](https://elysiajs.com) middleware that gates routes behind payment intents. Requires Elysia 1.2.0 or newer.
 
 ## Install
 
@@ -35,7 +35,7 @@ $ bun add mppx elysia
 
 ## Usage
 
-Import `Mppx` and `tempo` from `mppx/elysia` to create an Elysia-aware payment handler. Each intent (for example, `charge`) returns an Elysia `beforeHandle` hook you can use with `.guard()` to scope payment to specific routes.
+Import `Mppx` and `tempo` from `mppx/elysia` to create an Elysia-aware payment handler. Each intent returns paired `beforeHandle` and `afterHandle` hooks. Pass the complete result to `.guard()` so `mppx` verifies the Credential before the route and attaches the Receipt to the actual route response.
 
 ```ts [server.ts]
 import { Elysia } from 'elysia'
@@ -45,14 +45,18 @@ const mppx = Mppx.create({ methods: [tempo.charge()] })
 
 const app = new Elysia()
   .guard(
-    { beforeHandle: mppx.charge({ amount: '1' }) },
+    mppx.charge({ amount: '1' }),
     (app) => app.get('/premium', () => ({ data: 'paid content' })),
   )
 ```
 
-### Global application
+Don't register only the `beforeHandle` function. Streaming payments require the paired `afterHandle` hook to meter the route response.
 
-Use `.onBeforeHandle()` to apply payment to all routes.
+When route options omit `scope` and reserved scope metadata, the middleware binds the Challenge to the Elysia method and route path automatically.
+
+### Protect multiple routes
+
+Put multiple routes inside the same `.guard()` callback to apply one payment configuration to all of them.
 
 ```ts [server.ts]
 import { Elysia } from 'elysia'
@@ -61,9 +65,12 @@ import { Mppx, tempo } from 'mppx/elysia'
 const mppx = Mppx.create({ methods: [tempo.charge()] }) // [!code hl]
 
 const app = new Elysia()
-  .onBeforeHandle(mppx.charge({ amount: '1' })) // [!code hl]
-  .get('/premium', () => ({ data: 'paid content' }))
-  .get('/another', () => ({ data: 'also paid' }))
+  .guard(
+    mppx.charge({ amount: '1' }), // [!code hl]
+    (app) => app
+      .get('/premium', () => ({ data: 'paid content' }))
+      .get('/another', () => ({ data: 'also paid' })),
+  )
 ```
 
 ### Session payments
@@ -91,7 +98,7 @@ const mppx = Mppx.create({
 
 const app = new Elysia()
   .guard(
-    { beforeHandle: mppx.session({ amount: '1', unitType: 'token' }) },
+    mppx.session({ amount: '1', unitType: 'token' }),
     (app) => app.get('/content', () => ({ data: 'session content' })),
   )
 ```
@@ -118,12 +125,10 @@ const mppx = Mppx.create({
 })
 
 const app = new Elysia().guard(
-  {
-    beforeHandle: mppx.evm.charge({
-      amount: '0.01',
-      description: 'Premium API access',
-    }),
-  },
+  mppx.evm.charge({
+    amount: '0.01',
+    description: 'Premium API access',
+  }),
   (app) => app.get('/paid', () => ({ data: 'paid content' })),
 )
 ```

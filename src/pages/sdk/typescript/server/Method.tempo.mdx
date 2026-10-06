@@ -20,7 +20,7 @@ Use `tempo(...)` by default. Use `tempo.common(...)` only when you want to make 
 Register [`tempo.subscription`](/sdk/typescript/server/Method.tempo.subscription) separately for recurring payments.
 
 :::warning[Legacy Sessions]
-`tempo.session` is the current Sessions implementation. The previous contract-backed flow is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy` in `mppx` 0.8.15 and earlier.
+`mppx` 0.13.0 removed the deprecated Legacy Sessions client exports. Close or settle Legacy channels before upgrading because current Sessions don't share their channel state.
 :::
 
 ## Usage

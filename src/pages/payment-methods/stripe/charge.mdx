@@ -22,15 +22,17 @@ Use [`stripe.create()`](/sdk/typescript/server/Method.stripe.create) to configur
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 
 const payments = stripe.create({
   client,
   depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
   livemode: !process.env.STRIPE_SECRET_KEY!.includes('_test_'),
   networkId: process.env.STRIPE_PROFILE_ID!,
+  store,
 })
 
 const mppx = Mppx.create({
@@ -52,6 +54,8 @@ export async function handler(request: Request) {
 
 The default handler accepts stablecoins on Tempo or cards and Link through an SPT. If a request doesn't include payment, the server returns a Challenge for each method in its `402` response. The client retries with a Credential for one method. `mppx` creates and confirms a Stripe `PaymentIntent` for an SPT, or records the stablecoin payment as a `PaymentIntent` after on-chain settlement.
 
+The atomic `store` must be shared by every server instance so Stripe-backed Tempo methods use one replay-protection namespace.
+
 If one asynchronous deposit-address lookup fails, `mppx` logs a warning and keeps the methods for networks that resolved. Omit `depositAddresses` when you want a synchronous SPT-only handler.
 
 :::note
@@ -72,6 +76,7 @@ const payments = stripe.create({
   livemode: !process.env.STRIPE_SECRET_KEY!.includes('_test_'),
   metadata: { plan: 'pro' },
   networkId: process.env.STRIPE_PROFILE_ID!,
+  store,
 })
 
 const result = await mppx.charge({
@@ -130,6 +135,7 @@ const payments = stripe.create({
   hostedFeePayer: true,
   livemode: true,
   networkId: process.env.STRIPE_PROFILE_ID!,
+  store,
 })
 ```
 

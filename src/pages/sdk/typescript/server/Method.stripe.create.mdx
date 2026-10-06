@@ -13,9 +13,10 @@ Pass a deposit-address resolver, then use `defaultMethods()` to offer Tempo stab
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 
 const payments = stripe.create({
   client,
@@ -23,6 +24,7 @@ const payments = stripe.create({
   livemode: false,
   metadata: { plan: 'pro' },
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 
 const mppx = Mppx.create({
@@ -41,7 +43,7 @@ export async function handler(request: Request) {
 }
 ```
 
-Test mode uses pathUSD on Tempo testnet. Live mode uses USDC.e on Tempo mainnet. The SPT method defaults to cards and Link in both modes.
+Test mode uses pathUSD on Tempo testnet. Live mode uses USDC.e on Tempo mainnet. The SPT method defaults to cards and Link in both modes. The atomic `store` must be shared by every server instance so Stripe-backed Tempo payments use one replay-protection namespace.
 
 ### Configure one PaymentIntent
 
@@ -49,14 +51,16 @@ Pass `paymentIntentOptions` with route options to associate a Stripe Customer, a
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 const payments = stripe.create({
   client,
   livemode: false,
   metadata: { plan: 'pro' },
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 const mppx = Mppx.create({
   methods: payments.defaultMethods(),
@@ -83,7 +87,7 @@ Pass a resolver when options depend on the verified Credential or canonical requ
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 declare function findOrCreateTaxCalculation(parameters: {
   amount: unknown
@@ -91,10 +95,12 @@ declare function findOrCreateTaxCalculation(parameters: {
 }): Promise<string>
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 const payments = stripe.create({
   client,
   livemode: false,
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 const mppx = Mppx.create({
   methods: payments.defaultMethods(),
@@ -135,14 +141,16 @@ Add a Tempo Session method through `defaultMethods().additional()`. Each settlem
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 const payments = stripe.create({
   client,
   depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
   livemode: true,
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 
 const mppx = Mppx.create({
@@ -161,9 +169,10 @@ Set `hostedFeePayer: true` to use Stripe's hosted Tempo fee payer for charge and
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { stripe } from 'mppx/server'
+import { Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 
 const payments = stripe.create({
   client,
@@ -171,6 +180,7 @@ const payments = stripe.create({
   hostedFeePayer: true,
   livemode: true,
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 ```
 
@@ -186,14 +196,16 @@ Exclude `spt` or `tempo` when you don't want both default charge methods.
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 const payments = stripe.create({
   client,
   depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
   livemode: false,
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 
 const mppx = Mppx.create({
@@ -208,9 +220,10 @@ Provide deposit addresses to create the default methods synchronously and avoid 
 
 ```ts twoslash [server.ts]
 import Stripe from 'stripe'
-import { Mppx, stripe } from 'mppx/server'
+import { Mppx, Store, stripe } from 'mppx/server'
 
 const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore
 
 const payments = stripe.create({
   client,
@@ -219,6 +232,7 @@ const payments = stripe.create({
   },
   livemode: true,
   networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
 })
 
 const mppx = Mppx.create({
@@ -329,3 +343,9 @@ Key-value pairs attached to Stripe `PaymentIntent` objects created or recorded b
 - **Type:** `string`
 
 Stripe Business Network profile ID used by the SPT method.
+
+### store
+
+- **Type:** `Store.AtomicStore`
+
+Atomic replay store shared by every server instance that uses this Stripe integration. `stripe.create()` passes it to every Stripe-backed Tempo charge and Session method and rejects per-method store overrides. Use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` in multi-instance deployments.

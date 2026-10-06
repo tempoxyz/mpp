@@ -14,7 +14,7 @@ Creates a Tempo Sessions server method for voucher verification, channel account
 :::
 
 :::warning[Legacy Sessions]
-The previous contract-backed implementation is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy` in `mppx` 0.8.15 and earlier. Use Sessions for new integrations.
+`mppx` 0.13.0 removed the deprecated Legacy Sessions client exports. Close or settle Legacy channels before upgrading because current Sessions don't share their channel state.
 :::
 
 ## Usage
@@ -60,63 +60,9 @@ const mppx = Mppx.create({
 })
 ```
 
-### With Legacy Sessions
-
-Use `tempo.sessionLegacy()` only for clients that still send Legacy Sessions Credentials. Pin `mppx` to 0.8.15 or earlier when maintaining a Legacy Sessions server.
-
-```ts
-import { Mppx, Store, tempo } from 'mppx/server'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const mppx = Mppx.create({
-  methods: [
-    tempo.sessionLegacy({
-      account,
-      currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
-      store: Store.memory(),
-    }),
-  ],
-})
-```
-
 ## Migrate from Legacy Sessions
 
-Register `tempo.session()` beside `tempo.sessionLegacy()` during migration so existing clients keep working while new clients use Sessions. This server-side migration configuration requires `mppx` 0.8.15 or earlier.
-
-| Server methods | Compatible client methods |
-|---|---|
-| `tempo.session()` only | `tempo.session()` or `tempo()` |
-| `tempo.sessionLegacy()` only | `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` |
-| `tempo.session()` and `tempo.sessionLegacy()` | `tempo.session()` plus `tempo.sessionLegacy.method()` when clients may see both Challenge types |
-
-Current Sessions Challenges include `sessionProtocol: "v2"` and use TIP-1034 reserve channels. Legacy Sessions use the contract-backed Sessions v1 flow. Channel state is not portable between them, so close or settle Legacy channels with `tempo.sessionLegacy` and open new channels with `tempo.session`.
-
-```ts
-import { Mppx, Store, tempo } from 'mppx/server'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const mppx = Mppx.create({
-  methods: [
-    tempo.session({
-      account,
-      chainId: 4217,
-      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
-      store: Store.memory(),
-    }),
-    tempo.sessionLegacy({
-      account,
-      currency: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
-      store: Store.memory(),
-    }),
-  ],
-})
-```
-
-Use `tempo.sessionLegacy()` only while clients still send Legacy Sessions Credentials.
+Legacy Sessions used a contract-backed channel flow. Close or settle those channels with the older SDK before upgrading. Then register `tempo.session()` on the server and `tempo.session()` or `tempo()` on clients. New Sessions advertise `sessionProtocol: "v2"` and use TIP-1034 reserve channels.
 
 ### With same-route bootstrap
 

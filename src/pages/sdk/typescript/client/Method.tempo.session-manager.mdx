@@ -15,9 +15,7 @@ Use this when application code needs direct lifecycle control for one channel. T
 
 Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
 
-:::warning[Legacy Sessions]
-`tempo.session.manager` is the current Sessions manager. The previous contract-backed manager is Legacy Sessions, also called Sessions v1, and is available as `tempo.sessionLegacy`.
-:::
+`mppx` 0.13.0 removed the deprecated Legacy Sessions manager exports.
 
 ## Usage
 
@@ -392,9 +390,9 @@ When `bootstrap: true` is enabled, the manager first sends a same-route `HEAD` r
 
 ## Migrate from Legacy Sessions
 
-Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()`. Use `tempo.session.manager()` for a standalone manager, or `tempo()` when you want the same fetch wrapper to handle one-time charges and Sessions.
+Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` in `mppx` 0.12.0 and earlier. Close or settle existing Legacy channels before upgrading because current Sessions don't share their channel state.
 
-Current Sessions and Legacy Sessions do not share channel state. Existing Legacy channels should be closed or settled through `tempo.sessionLegacy`; new channels should be opened through `tempo.session` or `tempo.session.manager()`. During a rolling migration, register both `tempo.session()` and `tempo.sessionLegacy.method()` if the client may talk to both server versions.
+Use `tempo.session.manager()` for direct lifecycle control, or `tempo()` when the same fetch wrapper handles one-time charges and Sessions.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -457,8 +455,6 @@ const response = await mppxFetch('https://api.example.com/resource')
 
 </Tab>
 </Tabs>
-
-Use `tempo.sessionLegacy()` only while the server still emits Legacy Sessions Challenges.
 
 ## Return type
 

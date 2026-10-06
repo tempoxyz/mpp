@@ -197,9 +197,9 @@ This flow also supports body-bearing and route-scoped endpoints. Standard x402 c
 
 ### Advanced server options
 
-#### Require route-bound x402 Credentials
+#### Accept standard x402 Credentials
 
-Keep the default `routeBinding: 'resource'` for compatibility with standard x402 clients. Set `routeBinding: 'required'` when every x402 Credential for a scoped route must include the `mppx` extension and a route-bound nonce.
+Keep the default `routeBinding: 'required'` so every x402 Credential for a scoped route includes the `mppx` extension and a route-bound nonce. Set `routeBinding: 'resource'` only when scoped routes must accept standard x402 clients that don't implement the extension.
 
 ```ts twoslash [server.ts]
 import { evm } from 'mppx/server'
@@ -210,7 +210,7 @@ const method = evm.charge({
   // [!code hl:start]
   x402: {
     facilitator: 'https://x402.org/facilitator',
-    routeBinding: 'required',
+    routeBinding: 'resource',
   },
   // [!code hl:end]
 })

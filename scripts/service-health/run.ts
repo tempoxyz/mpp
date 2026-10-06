@@ -6,7 +6,7 @@ import { services } from "../../schemas/services.ts";
 import { checkServices } from "./check.ts";
 import { checkMpp, checkUrls } from "./checks.ts";
 import { type Issue, syncIssue } from "./issues.ts";
-import { renderReport } from "./report.ts";
+import { renderReport, summarizeServices } from "./report.ts";
 
 const args = process.argv.slice(2);
 if (args.some((arg) => arg !== "--issue" && !/^--service=.+$/.test(arg)))
@@ -39,7 +39,12 @@ const body = renderReport(results, checkedAt, runUrl);
 writeFileSync(
   join(outputDirectory, "results.json"),
   JSON.stringify(
-    { checkedAt, results, revision: process.env.GITHUB_SHA },
+    {
+      checkedAt,
+      results,
+      revision: process.env.GITHUB_SHA,
+      services: summarizeServices(results),
+    },
     null,
     2,
   ),
