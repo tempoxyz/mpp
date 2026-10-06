@@ -208,6 +208,44 @@ describe("services registry", () => {
     expect(services.length).toBeGreaterThan(0);
   });
 
+  it("lists the Tempo data API separately from the RPC proxy", () => {
+    const api = services.find((service) => service.id === "tempo-api");
+    expect(api).toMatchObject({
+      integration: "first-party",
+      intent: "session",
+      payments: [
+        {
+          currency: "0x20c0000000000000000000000000000000000000",
+          decimals: 6,
+          method: "tempo",
+        },
+      ],
+      realm: "tempo-api",
+      serviceUrl: "https://api.tempo.xyz",
+    });
+    expect(api?.endpoints.map((endpoint) => endpoint.route)).toEqual(
+      expect.arrayContaining([
+        "GET /v1/addresses/:address/balances",
+        "GET /v1/transfers",
+        "GET /v1/transactions/:transactionHash/receipt",
+        "GET /v1/exchange/pairs/:base/depth",
+        "GET /v1/earn/vaults",
+        "GET /v1/fee-amm/pools",
+        "GET /v1/indexer/query",
+      ]),
+    );
+    expect(
+      api?.endpoints
+        .filter((endpoint) =>
+          /^\S+ \/(?:rpc|v1\/(auth|orgs|fee-payer|mpp|webhooks))(\/|$)/.test(
+            endpoint.route,
+          ),
+        )
+        .map((endpoint) => endpoint.route),
+    ).toEqual(["GET /v1/webhooks/event-types"]);
+    expect(api?.endpoints.every((endpoint) => endpoint.dynamic)).toBe(true);
+  });
+
   it("excludes the unavailable Abstract/Locus namespaces", () => {
     const unavailable = new Set([
       "abstract-company-enrichment",

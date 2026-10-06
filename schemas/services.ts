@@ -2065,6 +2065,491 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  {
+    categories: ["blockchain", "data"],
+    description:
+      "Official Tempo API at api.tempo.xyz for indexed TIP-20 balances, transfers, account activity, blocks, transactions, receipts, stablecoin exchange quotes and orderbooks, Earn vaults, fee-AMM data, and read-only SQL on mainnet and Moderato. Public reads are free within quota; MPP sessions provide paid access without an API key.",
+    docs: {
+      apiReference: "https://api.tempo.xyz/openapi.json",
+      homepage: "https://tempo.xyz/developers/docs/api",
+    },
+    endpoints: [
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get asset",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /gecko/:chainId/assets/:address",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List swap events",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /gecko/:chainId/events",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get latest indexed block",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /gecko/:chainId/latest-block",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List trading pairs",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /gecko/:chainId/pairs",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get trading pair",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /gecko/:chainId/pairs/:pairId",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List address activities",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/addresses/:address/activities",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List address balances",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        healthCheck: {
+          path: "/v1/addresses/0x0000000000000000000000000000000000000000/balances",
+        },
+        route: "GET /v1/addresses/:address/balances",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get address balance",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/addresses/:address/balances/:token",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get address valuation",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/addresses/:address/valuation",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List blocks",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/blocks",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get a block by selector",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/blocks/:block",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List account positions",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/earn/addresses/:address/positions",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List vaults",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/earn/vaults",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get vault",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/earn/vaults/:vaultId",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get vault earnings",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/earn/vaults/:vaultId/earnings/:address",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get account position",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/earn/vaults/:vaultId/positions/:address",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List share prices",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/earn/vaults/:vaultId/share-prices",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List verified vaults",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/earn/vaults/verified",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List orders",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/exchange/orders",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get order",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/exchange/orders/:orderId",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List order fills",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/exchange/orders/:orderId/fills",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List pairs",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/exchange/pairs",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get pair",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/exchange/pairs/:base",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get pair depth",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/exchange/pairs/:base/depth",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get pair OHLC",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/exchange/pairs/:base/ohlc",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List swaps",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/exchange/swaps",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List mints",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/fee-amm/mints",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List pools",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/fee-amm/pools",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Query indexed chain data",
+        docs: "https://tempo.xyz/developers/docs/api/indexer-api",
+        dynamic: true,
+        healthCheck: {
+          path: "/v1/indexer/query?sql=SELECT%201&limit=1",
+        },
+        route: "GET /v1/indexer/query",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List routes",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/routes",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get token list",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/tokenlist",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List tokens",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/tokens",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get a TIP-20 token by address or symbol",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/tokens/:token",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List token holders",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/tokens/:token/holders",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get token logo",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/tokens/:token/logo",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List token transactions",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/tokens/:token/transactions",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List transactions",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/transactions",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get a transaction by hash",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/transactions/:transactionHash",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List transaction activities",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/transactions/:transactionHash/activities",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get a transaction receipt",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/transactions/:transactionHash/receipt",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List transaction receipts",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/transactions/receipts",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List transfers",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/transfers",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List verified tokens",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/verified-tokens",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Get verified token",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/verified-tokens/:address",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List verified currencies",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/verified-tokens/currencies",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "List webhook event types",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "GET /v1/webhooks/event-types",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Create quote",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "POST /v1/exchange/quotes",
+        unitType: "request",
+      },
+      {
+        amountHint:
+          "Server-quoted MPP session price; public reads are free within quota.",
+        desc: "Finalize quote",
+        docs: "https://tempo.xyz/developers/docs/api/reference",
+        dynamic: true,
+        route: "POST /v1/exchange/quotes/execute",
+        unitType: "request",
+      },
+    ],
+    id: "tempo-api",
+    integration: "first-party",
+    intent: "session",
+    name: "Tempo API",
+    payments: [
+      {
+        currency: "0x20c0000000000000000000000000000000000000",
+        decimals: 6,
+        method: "tempo",
+      },
+    ],
+    provider: {
+      name: "Tempo",
+      url: "https://tempo.xyz",
+    },
+    realm: "tempo-api",
+    serviceUrl: "https://api.tempo.xyz",
+    status: "beta",
+    tags: [
+      "tempo",
+      "tip20",
+      "balances",
+      "transfers",
+      "transactions",
+      "receipts",
+      "indexer",
+      "sql",
+      "dex",
+      "exchange",
+      "earn",
+      "mainnet",
+      "moderato",
+      "testnet",
+    ],
+    url: "https://tempo.xyz/developers/docs/api",
+  },
+
   // ── Tempo RPC ──────────────────────────────────────────────────────────
   {
     id: "rpc",

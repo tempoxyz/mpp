@@ -71,6 +71,45 @@ describe("services API", () => {
     expect(body.services).toEqual([expect.objectContaining({ id: "openai" })]);
   });
 
+  it("exposes the first-party Tempo API alongside live proxy services", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ services: [] })),
+    );
+
+    const { GET } = await import("./pages/_api/api/services");
+    const response = await GET(
+      new Request("https://mpp.dev/api/services?ids=tempo-api"),
+    );
+
+    expect(await response.json()).toEqual({
+      services: [
+        expect.objectContaining({
+          categories: ["blockchain", "data"],
+          id: "tempo-api",
+          name: "Tempo API",
+          serviceUrl: "https://api.tempo.xyz",
+        }),
+      ],
+    });
+
+    const catalogResponse = await GET(
+      new Request("https://mpp.dev/api/services"),
+    );
+    const catalog = (await catalogResponse.json()) as {
+      services: Array<{
+        id: string;
+        description: string;
+        endpoints: unknown[];
+      }>;
+    };
+    const api = catalog.services.find((service) => service.id === "tempo-api");
+    expect(api?.endpoints).toHaveLength(48);
+    for (const query of ["api.tempo.xyz", "TIP-20 balances", "Moderato"]) {
+      expect(api?.description).toEqual(expect.stringContaining(query));
+    }
+  });
+
   it("does not restore removed proxy services when the manifest is unavailable", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => undefined);
     vi.stubGlobal(
