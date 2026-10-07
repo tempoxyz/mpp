@@ -6172,7 +6172,7 @@ export const services: ServiceDef[] = [
     url: "https://pocket.network",
     serviceUrl: "https://agent.pocket.network",
     description:
-      "Pay-per-call marketplace of 93 data services and utilities served by Pocket Network: market, financial and government data, web search and extraction, document parsing, compliance screening, and blockchain data across 49 networks. One price per call, no account or API key.",
+      "Pay-per-call marketplace of 113 data services and utilities served by Pocket Network: market, financial and government data, web search and extraction, document parsing, compliance screening, and blockchain data across 49 networks. One price per call, no account or API key.",
     icon: "https://pocket.network/wp-content/uploads/2026/09/Pocket-Icon.png",
     categories: ["ai", "blockchain", "compute", "data", "search", "web"],
     integration: "first-party",
@@ -6209,6 +6209,11 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
+        route: "POST /v1/agentsearch-web-render-v1/v1/render",
+        desc: "AgentSearch Web Render: Load a URL in headless Chromium with JavaScript executed and get the rendered page back for an LLM or RAG pip…",
+        amount: "5000",
+      },
+      {
         route: "POST /v1/agentsearch-web-search-v1/v1/search",
         desc: "AgentSearch: Web search built for agents, served over Pocket Network: POST /v1/search with a query and an optional max_res…",
         amount: "5000",
@@ -6226,6 +6231,11 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/avax",
         desc: "Avalanche Mainnet JSON-RPC: Read-only JSON-RPC access to the Avalanche C-Chain, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/backtest-reconcile-v1/v1/reconcile",
+        desc: 'Backtest Reconcile: Do the claimed backtest numbers follow from the trades? Send a TradingView "List of trades" CSV or a JSON tra…',
         amount: "5000",
       },
       {
@@ -6274,6 +6284,16 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
+        route: "POST /v1/dart-correction-impact-v1/v1/impact",
+        desc: "DART Correction Impact: Which parts of a report did a later DART correction change? Send a Korean listed company, the receipt numbers…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/dart-kr-events-v1/v1/query",
+        desc: "DART KR Events: Korean listed-company disclosures from OpenDART: filings tagged original, correction or withdrawal, correctio…",
+        amount: "5000",
+      },
+      {
         route: "POST /v1/debarment-exclusion/v1/debarment",
         desc: "Debarment and Exclusion Screening: Screen for SAM.gov exclusions: excluded parties by name, UEI, or CAGE with termination dates.",
         amount: "5000",
@@ -6296,6 +6316,11 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/eth",
         desc: "Ethereum Mainnet JSON-RPC: Read-only JSON-RPC access to Ethereum mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/event-log-decoding/v1/log",
+        desc: "Event Log Decoding: Decode the event logs of an Ethereum transaction: ERC-20 Transfer events come back typed (from, to, raw value…",
         amount: "5000",
       },
       {
@@ -6329,6 +6354,11 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
+        route: "POST /v1/french-company-check-v1/v1/company",
+        desc: "French Company Check: Legal identity and risk check for a French company from SIRENE/RNE, BODACC and VIES: legal name, SIREN/SIRET,…",
+        amount: "5000",
+      },
+      {
         route: "POST /v1/fund-etf-holdings/v1/fund",
         desc: "Fund and ETF Holdings: Fund and ETF portfolio composition from N-PORT and N-MFP filings.",
         amount: "5000",
@@ -6359,6 +6389,11 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
+        route: "POST /v1/image-transform/v1/image",
+        desc: "ImageOps Image Processing API: Inspect, analyze or transform a public HTTPS image: metadata, resize, crop, rotate, convert, compress, color…",
+        amount: "5000",
+      },
+      {
         route: "POST /v1/ink",
         desc: "Ink Mainnet JSON-RPC: Read-only JSON-RPC access to Ink, the OP-Stack L2 by Kraken, served by the Pocket Network decentralised suppl…",
         amount: "5000",
@@ -6384,6 +6419,31 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
+        route: "POST /v1/kr-apt-trades-v1/v1/query",
+        desc: "KR Apartment Trades: What apartments in a Korean district actually sold for, from MOLIT's real-transaction register: each reported…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/kr-export-pulse-v1/v1/query",
+        desc: "KR Export Pulse: South Korea's export statistics from Korea Customs Service: 10-day provisional totals for semiconductors, car…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/kr-figure-check-v1/v1/check",
+        desc: "KR Figure Check: Do the numbers in a Korean finance text match the official record? Send Korean text; get each checkable numbe…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/kr-law-v1/v1/query",
+        desc: "Korean Law: Korean statutes and administrative rules from the National Law Information Center: find a law by official nam…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/kr-rates-fx-v1/v1/query",
+        desc: "Korean Rates and FX: Official Korean interest rates and won exchange rates: Bank of Korea base, call, KOFR, CD, CP and the KTB cur…",
+        amount: "5000",
+      },
+      {
         route: "POST /v1/linea",
         desc: "Linea Mainnet JSON-RPC: Read-only JSON-RPC access to Linea, the ZK rollup by Consensys, served by the Pocket Network decentralised su…",
         amount: "5000",
@@ -6396,6 +6456,11 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/mantle",
         desc: "Mantle Mainnet JSON-RPC: Read-only JSON-RPC access to Mantle mainnet L2, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/meadow/v2/lookup",
+        desc: "Meadow Protocol: An agent-only messaging network.",
         amount: "5000",
       },
       {
@@ -6416,6 +6481,11 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/name-resolution/v1/name",
         desc: "Name Resolution ENS and DNS: ENS and reverse name resolution across EVM chains: name and address pairs with resolution proofs.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/named-entity-recognition/v1/ner",
+        desc: "Named Entity Recognition: Rule-based named-entity recognition for English text, from patterns and word lists rather than a trained mode…",
         amount: "5000",
       },
       {
@@ -6464,6 +6534,21 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
+        route: "POST /v1/pmic-company-signals/v1/brief",
+        desc: "PMIC Company Fundamentals and Filing Risk: Scored SEC EDGAR briefs for 14 large US companies (Apple, Microsoft, Nvidia, Amazon, JPMorgan, Pfizer and mor…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/pmic-macro-signals/v1/brief",
+        desc: "PMIC Macro and Markets Signals: Scored US and global macro briefs from official data (FRED, BLS, BEA, EIA, ECB, IMF, OECD and more): inflatio…",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/pmic-pharma-signals/v1/brief",
+        desc: "PMIC Pharma Safety and Approval Signals: Scored drug-market and company safety briefs from openFDA, FDA, BLS and ClinicalTrials.gov: recalls, adverse…",
+        amount: "5000",
+      },
+      {
         route: "POST /v1/pocket",
         desc: "Pocket Network CometBFT and LCD: Read-only access to Pocket Network mainnet (Shannon), the protocol this portal relays through: the CometBFT R…",
         amount: "5000",
@@ -6471,6 +6556,11 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/poly",
         desc: "Polygon Mainnet JSON-RPC: Read-only JSON-RPC access to Polygon PoS mainnet, served by the Pocket Network decentralised supplier set.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/prediction-market-intel/v1/market-momentum",
+        desc: "Prediction Market Intelligence: Signals from Polymarket's live public market data: top open markets by trailing volume, the biggest consensus…",
         amount: "5000",
       },
       {
@@ -6609,6 +6699,11 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       {
+        route: "POST /v1/treasury-capital-score/v1/tcs6/entities",
+        desc: "Crypto Treasury Capital Score: TCS-6 treasury capital score for DeFi protocols and DAOs: net realizable treasury, liquidity runway, obligati…",
+        amount: "5000",
+      },
+      {
         route: "POST /v1/treasury-fiscal-data/v1/treasury",
         desc: "Treasury and Fiscal Data: US Treasury yields, debt, and fiscal series as stable JSON from FiscalData.",
         amount: "5000",
@@ -6636,6 +6731,11 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/url-fetch-markdown/v1/url",
         desc: "URL Fetch Markdown: Fetch a URL and return its title and readable body text, with navigation and boilerplate stripped.",
+        amount: "5000",
+      },
+      {
+        route: "POST /v1/url-phishing-reputation/v1/reputation",
+        desc: "URL Phishing Reputation: Check a URL for phishing signs without fetching it: raw IP hosts, punycode, user@host, credential words in th…",
         amount: "5000",
       },
       {
