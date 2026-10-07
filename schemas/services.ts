@@ -10936,4 +10936,46 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Apify ────────────────────────────────────────────────────────────
+  {
+    id: "apify",
+    name: "Apify",
+    url: "https://apify.com",
+    serviceUrl: "https://agi.apify.com",
+    description:
+      "Apify is the largest and most trusted marketplace of tools for web scraping, crawling, data extraction, and automation. Buy a prepaid, spend-capped Apify API token to unlock Actors that extract structured data from social media, e-commerce sites, search engines, maps, travel sites, or any other website, turning the open web into a real-time data source for research, lead generation, and monitoring.",
+    categories: ["data", "web"],
+    integration: "first-party",
+    tags: [
+      "scraping",
+      "crawling",
+      "data-extraction",
+      "actors",
+      "automation",
+      "prepaid-token",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://agi.apify.com",
+      llmsTxt: "https://agi.apify.com/llms.txt",
+      apiReference: "https://agi.apify.com/openapi.json",
+    },
+    provider: { name: "Apify", url: "https://apify.com" },
+    realm: "agi.apify.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: {
+          path: "/protocols/mpp/prepaid-tokens?amount=1&currency=usd",
+        },
+        route: "POST /protocols/mpp/prepaid-tokens",
+        desc: "Buy a prepaid, spend-capped Apify API token. Pass ?amount=<usd>&currency=usd; the token is valid for 14 days and works as a Bearer token against api.apify.com.",
+        dynamic: true,
+        amountHint: "buyer-chosen, minimum $1",
+        unitType: "request",
+      },
+    ],
+  },
 ];
