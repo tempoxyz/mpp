@@ -6172,7 +6172,7 @@ export const services: ServiceDef[] = [
     url: "https://pocket.network",
     serviceUrl: "https://agent.pocket.network",
     description:
-      "Pay-per-call marketplace of 94 data services and utilities served by Pocket Network: market, financial and government data, web search and extraction, document parsing, compliance screening, and blockchain data across 49 networks. One price per call, no account or API key.",
+      "Pay-per-call marketplace of 93 data services and utilities served by Pocket Network: market, financial and government data, web search and extraction, document parsing, compliance screening, and blockchain data across 49 networks. One price per call, no account or API key.",
     icon: "https://pocket.network/wp-content/uploads/2026/09/Pocket-Icon.png",
     categories: ["ai", "blockchain", "compute", "data", "search", "web"],
     integration: "first-party",
@@ -6456,11 +6456,6 @@ export const services: ServiceDef[] = [
       {
         route: "POST /v1/package-advisories/v1/tool",
         desc: "Package Security Advisories: Dependency health across PyPI, npm, Go, Cargo, Maven, Composer, and NuGet via deps.dev and OSV: versions, lic…",
-        amount: "5000",
-      },
-      {
-        route: "POST /v1/patents-trademarks/v1/patents",
-        desc: "Patents and Trademarks Search: Search USPTO patents and trademarks: applications, grants, classifications, and status.",
         amount: "5000",
       },
       {
