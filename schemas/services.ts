@@ -11102,6 +11102,58 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Zinvyl ───────────────────────────────────────────────────────────
+  {
+    id: "zinvyl",
+    name: "Zinvyl",
+    url: "https://zinvyl.com/marketplace",
+    serviceUrl: "https://zinvyl.com/marketplace",
+    description:
+      "Agent-purchasable fixed-scope software, data, diagnostic, workflow, and machine-validation services with explicit acceptance tests, evidence artifacts, and bounded capacity.",
+    categories: ["ai", "data", "web"],
+    integration: "first-party",
+    tags: [
+      "consulting",
+      "api-diagnostics",
+      "workflow-audit",
+      "freight",
+      "evidence",
+      "agent-commerce",
+      "machine-validation",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://zinvyl.com/marketplace/agents",
+      llmsTxt: "https://zinvyl.com/marketplace/llms.txt",
+      apiReference: "https://zinvyl.com/marketplace/openapi.json",
+    },
+    provider: {
+      name: "G.B. Industry LLC d/b/a Zinvyl",
+      url: "https://zinvyl.com",
+    },
+    realm: "zinvyl.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /agent-commerce.json",
+        desc: "List 17 versioned fixed-scope offers, prices, inputs, and acceptance tests",
+      },
+      {
+        route: "POST /api/agent-payment-route",
+        desc: "Create an exact quote-bound purchase intent and reserve bounded capacity",
+      },
+      {
+        healthCheck: false,
+        route: "POST /api/agent-machine-payment",
+        desc: "Fund a prequalified fixed-scope purchase through a signed Stripe MPP challenge",
+        dynamic: true,
+        amountHint:
+          "$0.02–$1,800 by selected fixed-scope offer; requires an exact quote-bound purchase intent",
+      },
+    ],
+  },
+
   // ── KERNEL ───────────────────────────────────────────────────────────
   {
     id: "kernel",
