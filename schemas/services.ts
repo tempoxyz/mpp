@@ -5469,6 +5469,695 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── HubVibe ──────────────────────────────────────────────────────────
+  {
+    id: "hubvibe",
+    name: "HubVibe",
+    url: "https://hubvibe-io.com",
+    serviceUrl: "https://hubvibe-io.com",
+    description:
+      "Pay-per-call tools for AI agents: web search and cited research, email verification, company enrichment, KYC and sanctions screening, stock prices, SEC filings and insider trades, crypto and prediction-market odds, news in any language, economic data and more.",
+    icon: "https://hubvibe-io.com/favicon.svg",
+    categories: ["data", "search", "ai", "web"],
+    integration: "first-party",
+    tags: [
+      "web-search",
+      "email-verification",
+      "kyc",
+      "sanctions-screening",
+      "company-enrichment",
+      "stocks",
+      "sec-filings",
+      "prediction-markets",
+      "news",
+      "research",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://hubvibe-io.com",
+      llmsTxt: "https://hubvibe-io.com/llms.txt",
+      apiReference: "https://hubvibe-io.com/openapi.json",
+    },
+    provider: { name: "HubVibe", url: "https://hubvibe-io.com" },
+    realm: "hubvibe-io.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { body: { task: "Find the official website of Anthropic and summarize what it sells, with sources." } },
+        route: "POST /work/agent/task",
+        desc: "Agent: get a task done",
+        amount: "2750000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { task: "Find the official website of Anthropic and summarize what it sells, with sources." } },
+        route: "POST /work/agent/task_max",
+        desc: "Agent Max: the hardest tasks",
+        amount: "20000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { task: "Find the official website of Anthropic and summarize what it sells, with sources." } },
+        route: "POST /work/agent/task_pro",
+        desc: "Agent Pro: a deeper task",
+        amount: "9000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { address: "0x837C40E2B4e976f43Ffb4451eE281A00fA9477dd" },
+        },
+        route: "POST /work/chain/address",
+        desc: "Base address report",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: {} },
+        route: "POST /work/chain/network",
+        desc: "Base network state",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { method: "eth_blockNumber" } },
+        route: "POST /work/chain/rpc",
+        desc: "Base RPC passthrough",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            hash: "0x9e61e3fce3efad669a236b8d6a0351162c572808026d1a5ffdededd31caad113",
+          },
+        },
+        route: "POST /work/chain/transaction",
+        desc: "Base transaction lookup",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { code: "print(sum(range(10)))" } },
+        route: "POST /work/code/execute",
+        desc: "Execute Python",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            url: "https://www.allbirds.com/products/mens-wool-runners",
+            variant: "size 10",
+          },
+        },
+        route: "POST /work/commerce/availability",
+        desc: "Live availability: can this be bought or booked right now?",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            url: "https://www.allbirds.com/products/mens-wool-runners",
+            variant: "size 10",
+            ship_to: { country: "US", province: "NY", postal_code: "10001" },
+          },
+        },
+        route: "POST /work/commerce/shipping",
+        desc: "Shipping options, eligibility and cart total for a product",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "stripe.com" } },
+        route: "POST /work/company/enrich",
+        desc: "Company profile from a domain or a name",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            history_table: "bigquery-public-data.covid19_nyt.us_states",
+            target_table: "bigquery-public-data.covid19_nyt.us_states",
+            timestamp_col: "date",
+            data_col: "confirmed_cases",
+            id_cols: ["state_name"],
+          },
+        },
+        route: "POST /work/data/anomalies",
+        desc: "Detect anomalies in a time series",
+        amount: "10000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            table: "bigquery-public-data.covid19_nyt.us_states",
+            timestamp_col: "date",
+            data_col: "confirmed_cases",
+            id_cols: ["state_name"],
+          },
+        },
+        route: "POST /work/data/forecast",
+        desc: "Forecast a time series",
+        amount: "10000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { indicator: "inflation", country: "JP", last: 5 },
+        },
+        route: "POST /work/data/macro",
+        desc: "Official economic statistics for a country",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            sql: "SELECT name, SUM(number) AS n FROM `bigquery-public-data.usa_names.usa_1910_2013` GROUP BY name ORDER BY n DESC LIMIT 5",
+          },
+        },
+        route: "POST /work/data/query",
+        desc: "Run a BigQuery query",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            question: "What does it sell, and at what price?",
+            table: "bigquery-public-data.usa_names.usa_1910_2013",
+          },
+        },
+        route: "POST /work/data/question",
+        desc: "Answer a question from a dataset",
+        amount: "5000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "github.com" } },
+        route: "POST /work/domain/dns",
+        desc: "Domain DNS, email security and TLS certificate",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { email: "support@github.com" } },
+        route: "POST /work/email/verify",
+        desc: "Verify an email address before you send",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /work/extract/page",
+        desc: "Web page extraction",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /work/fetch/raw",
+        desc: "Raw HTTP fetch",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            prices: [
+              100, 101.5, 99.8, 102.2, 103.9, 103.1, 105.4, 104.2, 106.8, 108.0,
+              107.1, 109.5, 111.2, 110.4, 112.9, 114.3, 113.0, 115.8, 117.1,
+              116.2, 118.6, 120.0,
+            ],
+            risk_free_rate: 0.04,
+            windows: { sma: [5, 10], ema: [5], rsi: 14, bollinger: 10 },
+            option: {
+              type: "call",
+              strike: 120,
+              rate: 0.04,
+              time_to_expiry_years: 0.5,
+            },
+            kelly: { win_probability: 0.55, win_loss_ratio: 1.5 },
+          },
+        },
+        route: "POST /work/finance/analytics",
+        desc: "Trading mathematics: returns, risk, drawdown, VaR, beta, indicators, options, Kelly",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            name: "Jane Smith",
+            email: "jane@stripe.com",
+            phone: "+44 20 7031 3000",
+            ip: "8.8.8.8",
+            country: "GB",
+          },
+        },
+        route: "POST /work/identity/check",
+        desc: "KYC screening: sanctions, email, phone and IP risk in one call",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            prompt:
+              "A beehive built from circuit boards, isometric illustration",
+          },
+        },
+        route: "POST /work/image/generate",
+        desc: "Generate an image",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { ip: "8.8.8.8" } },
+        route: "POST /work/ip/lookup",
+        desc: "IP address lookup: location, network owner, reverse DNS",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /work/lead/qualify",
+        desc: "Qualify a business website as a sales lead",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            text: "HubVibe sells machine-payable site audits at $0.05 per call.",
+          },
+        },
+        route: "POST /work/llm/analyze",
+        desc: "Analyse text",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            text: "HubVibe sells machine-payable site audits at $0.05 per call.",
+            fields: ["title", "pricing"],
+          },
+        },
+        route: "POST /work/llm/extract",
+        desc: "Extract fields as JSON",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            prompt:
+              "A beehive built from circuit boards, isometric illustration",
+          },
+        },
+        route: "POST /work/llm/generate",
+        desc: "Raw text completion",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { query: "coffee near the Ferry Building, San Francisco" },
+        },
+        route: "POST /work/maps/places",
+        desc: "Find places near a location",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { origin: "San Francisco, CA", destination: "Oakland, CA" },
+        },
+        route: "POST /work/maps/route",
+        desc: "Compute a route",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { location: "Kyoto" } },
+        route: "POST /work/maps/weather",
+        desc: "Weather at a location, now and for seven days",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { symbol: "AAPL", periods: 4, forms: ["10-K", "10-Q"] },
+        },
+        route: "POST /work/market/fundamentals",
+        desc: "SEC-filed fundamentals (XBRL company facts)",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { symbol: "NVDA", days: 90, codes: ["P", "S"] } },
+        route: "POST /work/market/insiders",
+        desc: "Insider trades from SEC Form 4 filings",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: {} },
+        route: "POST /work/market/intel",
+        desc: "Market intelligence read",
+        amount: "5000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: {} },
+        route: "POST /work/market/prediction",
+        desc: "Prediction market probabilities",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { product_id: "BTC-USD" } },
+        route: "POST /work/market/quote",
+        desc: "Crypto spot quote",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { currency: "USD" } },
+        route: "POST /work/market/rates",
+        desc: "Currency exchange rates",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { symbol: "AAPL", range: "1mo" } },
+        route: "POST /work/market/stock",
+        desc: "Live stock quote and daily history",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { product_id: "BTC-USD" } },
+        route: "POST /work/market/ticker",
+        desc: "Crypto ticker",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /work/monitor/check",
+        desc: "Check a page against its baseline",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /work/monitor/snapshot",
+        desc: "Save a monitoring baseline",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { query: "半導体", language: "ja", limit: 5 } },
+        route: "POST /work/news/search",
+        desc: "Current news on any topic, in any language",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { query: "인구", region: "kr", limit: 5 } },
+        route: "POST /work/opendata/search",
+        desc: "Search 16 government open-data portals for datasets",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            url: "https://www.data.go.kr/data/15005995/fileData.do",
+            max_rows: 5,
+          },
+        },
+        route: "POST /work/opendata/table",
+        desc: "Read a government dataset file as JSON rows",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { number: "+44 20 7031 3000" } },
+        route: "POST /work/phone/parse",
+        desc: "Phone number intelligence: valid, where, which network, what type",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: {} },
+        route: "POST /work/prediction/events",
+        desc: "Prediction market events",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { slug: "example-prediction-market-slug" } },
+        route: "POST /work/prediction/market",
+        desc: "Prediction market by slug",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { address: "4600 Silver Hill Rd, Washington, DC 20233" },
+        },
+        route: "POST /work/property/context",
+        desc: "Everything the public record says about a US address",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /work/research/brief",
+        desc: "Research brief on a URL",
+        amount: "5000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { company: "Anthropic" } },
+        route: "POST /work/research/company",
+        desc: "Research and verify a company",
+        amount: "10000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { url: "https://example.com", fields: ["title", "pricing"] },
+        },
+        route: "POST /work/research/page_facts",
+        desc: "Structured facts from a URL",
+        amount: "5000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { question: "What does it sell, and at what price?" },
+        },
+        route: "POST /work/research/web",
+        desc: "Research brief from live web search",
+        amount: "5000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { name: "Rosneft", type: "entity" } },
+        route: "POST /work/sanctions/screen",
+        desc: "Screen a name against US, UK and EU sanctions lists",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            query: "東京 天気予報",
+            country: "JP",
+            language: "ja",
+            count: 5,
+          },
+        },
+        route: "POST /work/search/results",
+        desc: "Web and news results in any language and country (Brave index)",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { query: "x402 payment protocol" } },
+        route: "POST /work/search/web",
+        desc: "Web search",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /work/security/mcp_inspect",
+        desc: "Inspect an MCP endpoint",
+        amount: "5000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { mode: "profile", actor: "bsky.app", posts: 3 } },
+        route: "POST /work/social/bluesky",
+        desc: "Bluesky profile, posts, account search or thread, live",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { mode: "hashtag", tag: "opensource", limit: 3 } },
+        route: "POST /work/social/mastodon",
+        desc: "Mastodon hashtag timeline, account, search or trends, live",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { query: "open source", days: 3, sample: 20, lang: "en" },
+        },
+        route: "POST /work/social/x_pulse",
+        desc: "X (Twitter) topic pulse: volume and engagement as aggregates",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            text: "HubVibe sells machine-payable site audits at $0.05 per call.",
+          },
+        },
+        route: "POST /work/speech/synthesize",
+        desc: "Text to speech",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { audio_base64: "aGVsbG8=" } },
+        route: "POST /work/speech/transcribe",
+        desc: "Speech to text",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            points: [
+              [1, 2.1],
+              [2, 3.9],
+              [3, 6.2],
+              [4, 7.8],
+              [5, 10.1],
+            ],
+            predict_x: [6],
+            probability_queries: [{ below: 8 }],
+          },
+        },
+        route: "POST /work/stats/probability",
+        desc: "Predictive probability engine: regression, normal model, p-values",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            origin: "Ferry Building, San Francisco, CA",
+            destination: "Oakland City Hall, Oakland, CA",
+            travel_mode: "DRIVE",
+            traffic: "aware",
+          },
+        },
+        route: "POST /work/traffic/route",
+        desc: "Traffic-aware travel time and distance between two places",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { airport: "OSL", hours_ahead: 2 } },
+        route: "POST /work/travel/flight_status",
+        desc: "Flight and airport status right now",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            claims: ["HubVibe sells machine-payable site audits."],
+            sources: ["https://example.com"],
+          },
+        },
+        route: "POST /work/verify/claims",
+        desc: "Verify claims against sources",
+        amount: "5000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            prompt:
+              "A single bee landing on a circuit-board flower, slow motion",
+          },
+        },
+        route: "POST /work/video/generate",
+        desc: "Generate a video",
+        amount: "10000000",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: { query: "open source licensing", max_results: 3 },
+        },
+        route: "POST /work/video/youtube",
+        desc: "YouTube search and video statistics, live",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /audit/wcag",
+        desc: "Accessibility audit (WCAG 2.2 via axe-core) of a URL or HTML",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /audit/seo",
+        desc: "SEO audit of a URL or HTML",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /audit/security",
+        desc: "Security-headers audit of a URL",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /audit/performance",
+        desc: "Performance audit of a URL",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { url: "https://example.com" } },
+        route: "POST /audit/bundle",
+        desc: "All four site audits for one URL",
+        amount: "150000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Hunter ───────────────────────────────────────────────────────────
   {
     id: "hunter",
