@@ -1,4 +1,5 @@
 import { stripeMppx } from "../../../../mppx-payment-link-stripe.server";
+import { resolvePicsumPhotoUrl } from "../../../../picsum-photo";
 
 export async function GET(request: Request) {
   const result = await stripeMppx.charge({
@@ -10,15 +11,12 @@ export async function GET(request: Request) {
 
   if (result.status === 402) return result.challenge;
 
-  let imageUrl: string;
-  try {
-    const res = await fetch("https://picsum.photos/1024/1024");
-    if (!res.ok) throw new Error(`upstream responded ${res.status}`);
-    imageUrl = res.url;
-  } catch (error) {
-    console.error("[payment-link/photo-stripe] upstream fetch failed:", error);
-    return new Response("Failed to load photo from upstream", { status: 502 });
-  }
+  const { url: imageUrl, warning } = await resolvePicsumPhotoUrl(
+    1024,
+    "payment-link/photo-stripe",
+  );
+
+  const caption = warning ?? "Paid via MPP — $0.01";
 
   const html = `<!doctype html>
   <html lang="en">
@@ -58,7 +56,7 @@ export async function GET(request: Request) {
   </head>
   <body>
   <img src="${imageUrl}" alt="Random photo from Picsum" height="1024" width="1024" />
-  <p>Paid via MPP — $0.01</p>
+  <p>${caption}</p>
   </body>
   </html>`;
 
