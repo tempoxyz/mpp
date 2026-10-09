@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MPP Playground • Machine Payments Protocol by Stripe & Tempo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="logo-area">
+      <div class="logo-badge">
+        <span class="logo-glow"></span>
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-title">MPP <span class="badge-stripe">PLAYGROUND</span></h1>
+        <p class="brand-subtitle">Machine Payments Protocol • Co-Authored by Stripe & Tempo</p>
+      </div>
+    </div>
+
+    <div class="protocol-badge">
+      <span class="pulse-dot"></span>
+      <span>RFC 402 Extension</span>
+      <span class="version-tag">v1.0.0</span>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="flow">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      HTTP 402 Challenge & Settle
+    </button>
+    <button class="nav-tab" data-tab="streaming">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+      AI Agent Payment Streaming
+    </button>
+    <button class="nav-tab" data-tab="specs">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      Headers & RFC Specs
+    </button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Tab 1: HTTP 402 Flow Simulator -->
+    <section id="tab-flow" class="tab-pane active">
+      <div class="hero-card">
+        <div class="hero-content">
+          <div class="pill-highlight">⚡ Autonomous Agent Micropayments</div>
+          <h2>Live HTTP 402 Payment Required Interactive Flow</h2>
+          <p>
+            Experience how AI models and machines automatically pay API endpoints per request with sub-50ms sub-second settlement on Tempo Moderato.
+          </p>
+        </div>
+      </div>
+
+      <div class="flow-steps-grid mt-4">
+        <!-- Step 1: Client Request -->
+        <div class="step-card" id="card-step-1">
+          <div class="step-header">
+            <span class="step-num">1</span>
+            <h4>Client API Request</h4>
+          </div>
+          <p class="text-muted" style="font-size: 0.85rem;">Client queries protected endpoint without credentials.</p>
+          <div class="form-group mt-2">
+            <input type="text" id="req-path-input" class="form-input mono" value="/v1/ai/gpt4-reasoning" />
+          </div>
+          <button class="btn btn-secondary btn-sm mt-2" id="btn-step-1">Send Request ↗</button>
+        </div>
+
+        <!-- Step 2: Server 402 -->
+        <div class="step-card disabled" id="card-step-2">
+          <div class="step-header">
+            <span class="step-num">2</span>
+            <h4>Server 402 Challenge</h4>
+          </div>
+          <p class="text-muted" style="font-size: 0.85rem;">Server responds with <code>WWW-Authenticate: MPP ...</code></p>
+          <div class="code-box-mini mt-2 mono" id="box-402-header">Awaiting request...</div>
+          <button class="btn btn-primary btn-sm mt-2" id="btn-step-2" disabled>Sign Payment Proof ✍️</button>
+        </div>
+
+        <!-- Step 3: 200 OK Settle -->
+        <div class="step-card disabled" id="card-step-3">
+          <div class="step-header">
+            <span class="step-num">3</span>
+            <h4>Sub-second Settlement</h4>
+          </div>
+          <p class="text-muted" style="font-size: 0.85rem;">Proof verified & settled on Tempo in &lt; 50ms.</p>
+          <div class="code-box-mini mt-2 mono" id="box-settle-result">Awaiting payment...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Agent Streaming -->
+    <section id="tab-streaming" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>🤖 Real-Time Token Streaming Payment Simulation</h3>
+            <p class="text-muted">Simulate an AI agent streaming micropayments per generated LLM token.</p>
+          </div>
+        </div>
+
+        <form id="stream-form" class="stream-form">
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Agent Name</label>
+              <input type="text" id="stream-agent-name" class="form-input" value="Market Research Swarm" />
+            </div>
+            <div class="form-group">
+              <label>Task</label>
+              <input type="text" id="stream-task" class="form-input" value="Financial Data Extraction" />
+            </div>
+            <div class="form-group">
+              <label>Token Count</label>
+              <input type="number" id="stream-tokens" class="form-input" value="250" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-gradient btn-lg mt-2" id="btn-start-stream">
+            ⚡ Start Agent Payment Stream
+          </button>
+        </form>
+
+        <div id="stream-result-box" class="mt-3"></div>
+
+        <div class="mt-4">
+          <h4>Stream History</h4>
+          <div id="streams-list" class="ledger-list mt-2">
+            <div class="empty-state">No payment streams executed yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Specs -->
+    <section id="tab-specs" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <h3>📜 Machine Payments Protocol Header Specification</h3>
+        </div>
+        <div class="json-inspector">
+          <div class="inspector-header"><span>RFC 402 Extension Specs</span></div>
+          <pre>{
+  "protocol": "Machine Payments Protocol (MPP)",
+  "coAuthors": ["Stripe", "Tempo Labs"],
+  "headers": {
+    "challenge": "WWW-Authenticate: MPP realm=\"<path>\", invoice=\"<id>\", amount=\"<amt>\", currency=\"USD\", nonce=\"<n>\"",
+    "authorization": "Authorization: MPP-Proof invoice=\"<id>\", payer=\"<addr>\", sig=\"<sig>\", tx=\"<txHash>\""
+  },
+  "settlementLayers": [
+    "Tempo Moderato Testnet (Sub-50ms EVM)",
+    "Stripe Machine Token Channel"
+  ]
+}</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Machine Payments Protocol Playground • Co-Authored by Stripe & Tempo</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
