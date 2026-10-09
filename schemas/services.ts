@@ -134,6 +134,79 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── x402 Doctor ───────────────────────────────────────────────────────
+  {
+    id: "x402-doctor",
+    name: "x402 Doctor",
+    url: "https://x402-doctor.fizzl.eu",
+    serviceUrl: "https://x402-doctor.fizzl.eu",
+    description:
+      "Check a paid API before your agent pays it: go / caution / no-go verdicts, full diagnosis of x402 and MPP payment challenges, and code fixes for broken endpoints. Never pays the endpoint it checks.",
+    icon: "https://x402-doctor.fizzl.eu/icon.png",
+    categories: ["web", "blockchain"],
+    integration: "first-party",
+    tags: [
+      "payments",
+      "agents",
+      "safety",
+      "diagnostics",
+      "x402",
+      "mpp",
+      "usdc",
+      "base",
+      "tempo",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://x402-doctor.fizzl.eu",
+      llmsTxt: "https://x402-doctor.fizzl.eu/skill.md",
+      apiReference: "https://x402-doctor.fizzl.eu/openapi.json",
+    },
+    provider: { name: "Fizzl", url: "https://fizzl.eu" },
+    realm: "x402-doctor.fizzl.eu",
+    intent: "charge",
+    payments: [
+      TEMPO_PAYMENT,
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /api/v1/preflight",
+        desc: "Is this paid endpoint safe to pay? go / caution / no-go with the reason and the recommended payment option",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/v1/preflight/batch",
+        desc: "Pre-payment verdicts for up to 10 endpoints in one call, plus totals",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/v1/preflight/deep",
+        desc: "Verdict plus full diagnosis, 30-day history and seller reliability, for expensive calls",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/v1/diagnose",
+        desc: "Full diagnosis of an x402 or MPP endpoint: every check of the payment challenge with a fix hint",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/v1/fix",
+        desc: "Code fixes for a broken payment endpoint, for Express, Next.js, Hono or raw HTTP",
+        amount: "50000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── Laso Finance ─────────────────────────────────────────────────────
   {
     id: "laso-finance",
