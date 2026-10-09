@@ -10766,6 +10766,116 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Flipvo ─────────────────────────────────────────────────────────────
+  {
+    id: "flipvo",
+    name: "Flipvo",
+    url: "https://flipvo.com",
+    serviceUrl: "https://api.flipvo.com",
+    description:
+      "Pay-per-call US verification data for agents: contractor license verify and search (CA, FL, MN, OR, TX, VA, WA), state business entities (CO, CT, FL, NY, OR), IRS nonprofit status, OFAC sanctions and HHS-OIG exclusion screening, NPI verification (CMS NPPES), OSHA enforcement history, FMCSA carrier authority, and drive-time routing.",
+    icon: "https://flipvo.com/favicon.svg",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "contractors",
+      "licensing",
+      "business-entities",
+      "compliance",
+      "kyb",
+      "sanctions",
+      "nonprofits",
+      "healthcare",
+      "trucking",
+      "osha",
+      "routing",
+      "drive-time",
+    ],
+    status: "active",
+    docs: {
+      llmsTxt: "https://api.flipvo.com/llms.txt",
+      apiReference: "https://api.flipvo.com/openapi.json",
+    },
+    provider: { name: "Flipvo", url: "https://flipvo.com" },
+    realm: "api.flipvo.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/license/verify",
+        desc: "Verify a contractor or professional license by number or name (CA, FL, MN, OR, TX, VA, WA); FL and OR include the matching business entity",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/license/search",
+        desc: "Search licensed contractors by trade and city, zip or county (CA, FL, MN, OR, TX, VA, WA)",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/entity/lookup",
+        desc: "Look up a state business-registry record by number or name (CO, CT, FL, NY, OR)",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/nonprofit/verify",
+        desc: "IRS nonprofit status by EIN or name: BMF exemption codes, Pub 78 listing, automatic revocations",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/sanctions/screen",
+        desc: "Screen a name against the US OFAC SDN and Consolidated lists, fuzzy and any script",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/exclusions/screen",
+        desc: "Screen a person or business by name or NPI against the HHS-OIG LEIE (Medicare and Medicaid exclusions)",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/npi/verify",
+        desc: "Verify 1-10 NPIs against CMS NPPES (active, deactivated or not found) with HHS-OIG LEIE exclusions by NPI",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/osha/history",
+        desc: "OSHA inspections, violations and penalties for an employer in a state",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/carrier/lookup",
+        desc: "FMCSA motor carrier by USDOT, docket or name: status, out-of-service orders, operating authority, insurance on file",
+        amount: "30000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/drive",
+        desc: "Driving time and distance between two named places",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/matrix",
+        desc: "Drive-time matrix, up to 100 origin x destination elements",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/airport/nearest",
+        desc: "Nearest airports with scheduled service, ranked by drive time",
+        amount: "20000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // ── AgentPhone (Orthogonal) ──
   {
     id: "orth-agentphone",
