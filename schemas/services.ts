@@ -10978,4 +10978,60 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── wtsp.dev ─────────────────────────────────────────────────────────
+  {
+    id: "wtsp",
+    name: "wtsp.dev",
+    url: "https://wtsp.dev",
+    serviceUrl: "https://wtsp.dev",
+    description:
+      "WhatsApp lookups for any phone number: whether it is on WhatsApp, its profile and full business profile, its profile photo, and its carrier and line type. Pay per request; only answers are charged.",
+    icon: "https://wtsp.dev/icon",
+    categories: ["data", "social"],
+    integration: "first-party",
+    tags: [
+      "whatsapp",
+      "phone-lookup",
+      "enrichment",
+      "business-profile",
+      "carrier",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://wtsp.dev",
+      llmsTxt: "https://wtsp.dev/llms.txt",
+      apiReference: "https://wtsp.dev/openapi.json",
+    },
+    provider: { name: "wtsp.dev", url: "https://wtsp.dev" },
+    realm: "wtsp.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/exists",
+        desc: "Whether a phone number is on WhatsApp. Pass ?phone=<number with country code>.",
+        amount: "4000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/profile",
+        desc: "WhatsApp profile: account type, about text, country, devices and the full business profile",
+        amount: "6000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/profile/full",
+        desc: "The WhatsApp profile plus the profile photo",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/carrier",
+        desc: "Carrier, line type, country, region and time zones of a phone number",
+        amount: "4000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
