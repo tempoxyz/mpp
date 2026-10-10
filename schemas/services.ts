@@ -10978,4 +10978,57 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "insight",
+    name: "Insight",
+    url: "https://www.oracleinsight.xyz",
+    serviceUrl: "https://www.oracleinsight.xyz",
+    description:
+      "Oracle-manipulation-aware pre-trade safety checks for DeFi agents. A single trade gets a PASS/WARN/BLOCK verdict backed by multi-provider oracle consensus and verifiable EIP-712 attestations; settlement only happens after the check succeeds.",
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: [
+      "defi",
+      "trading",
+      "risk",
+      "oracle",
+      "security",
+      "attestation",
+      "usdc",
+      "base",
+      "mcp",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://www.oracleinsight.xyz/docs/x402",
+      llmsTxt: "https://www.oracleinsight.xyz/llms.txt",
+      apiReference: "https://www.oracleinsight.xyz/openapi.json",
+    },
+    provider: { name: "Insight", url: "https://www.oracleinsight.xyz" },
+    realm: "oracleinsight.xyz",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        healthCheck: {
+          path: "/api/v1/safety/pre-trade?asset=ETH&chainId=1&action=swap&tradeAmountUsd=1000",
+        },
+        route: "GET /api/v1/safety/pre-trade",
+        desc: "Pre-trade safety check with verifiable attestation. Unpaid requests get a 402 challenge advertising both MPP and x402; settlement happens only after the check succeeds.",
+        amount: "20000",
+      },
+      {
+        healthCheck: false,
+        route: "POST /api/mcp/mpp",
+        desc: "MCP tools/call of pre_trade_safety_check (JSON-RPC, Streamable HTTP). The 402 challenge scope binds the tool name and canonicalized arguments.",
+        amount: "20000",
+      },
+    ],
+  },
 ];
