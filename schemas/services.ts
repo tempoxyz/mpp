@@ -11063,7 +11063,7 @@ export const services: ServiceDef[] = [
           },
         },
         route: "POST /v1/passes",
-        desc: "Buy a 30-day monitor pass for one public URL",
+        desc: "Buy a 30-day Monitor Pass for five public sources, starting with this URL",
         amount: "900",
         unitType: "request",
       },
