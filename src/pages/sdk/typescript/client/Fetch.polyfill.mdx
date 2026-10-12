@@ -15,6 +15,8 @@ import { Tab, Tabs } from 'vocs'
 
 Replaces `globalThis.fetch` with a payment-aware wrapper that handles `402` Payment Required responses.
 
+Payment retries use `redirect: 'manual'` to keep Credentials from following redirects. A `3xx` response returns to you and leaves payment acceptance pending. The initial request retains its configured redirect behavior.
+
 ## Usage
 
 <Tabs stateKey="account-source">

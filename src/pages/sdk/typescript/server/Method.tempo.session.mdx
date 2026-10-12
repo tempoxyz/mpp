@@ -220,6 +220,63 @@ Minimum voucher delta to accept as a numeric string. Rejects vouchers where the 
 
 Runs after this Sessions method returns a successful result. The hook receives the optional associated Challenge, canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
 
+### onSessionSettlement (optional)
+
+- **Type:** `OnSessionSettlement`
+
+Runs after a settlement or close transaction confirms, including when recording the settlement in the channel store fails. Observer errors don't change payment handling. `amount` is cumulative; `delta` is the amount paid by this transaction, read from the settlement Receipt so retries don't double-count a stale checkpoint.
+
+```ts
+type OnSessionSettlement = (
+  context: Readonly<{
+    // [!code hl:start]
+    amount: bigint
+    channelId: Hex
+    delta: bigint
+    trigger: 'close' | 'scheduled' | 'settle'
+    txHash: Hex
+    // [!code hl:end]
+  }>,
+) => void | Promise<void>
+```
+
+### onSessionSettlementFailure (optional)
+
+- **Type:** `OnSessionSettlementFailure`
+
+Runs when scheduled settlement or Credential-driven close fails, including a confirmed settlement whose channel-store checkpoint fails. Observer errors are ignored. Explicit `settle` calls report errors to their caller.
+
+```ts twoslash
+import { Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = tempo.session({
+  account: privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'),
+  // [!code hl:start]
+  onSessionSettlementFailure({ chainId, channelId, error, trigger }) {
+    console.error({ chainId, channelId, error, trigger })
+  },
+  // [!code hl:end]
+  settlementSchedule: { units: 100 },
+  store: Store.memory(),
+})
+```
+
+```ts
+type OnSessionSettlementFailure = (
+  context: Readonly<{
+    // [!code hl:start]
+    chainId: number
+    channelId: Hex
+    error: unknown
+    trigger: 'close' | 'scheduled'
+    // [!code hl:end]
+  }>,
+) => void | Promise<void>
+```
+
+Import `Session` from `mppx/tempo` to access `Session.Server.OnSessionSettlementFailure` and `Session.Server.SessionSettlementFailureContext`. The success-hook types are `Session.Server.OnSessionSettlement` and `Session.Server.SessionSettlementContext`.
+
 ### operator (optional)
 
 - **Type:** `Address`
@@ -264,6 +321,10 @@ Use `source` for identity bootstrap. It is only set after the server verifies th
 - **Type:** `{ amount?: string | bigint; intervalMs?: number; units?: number }`
 
 Server-owned automatic settlement cadence. Clients don't receive or control this schedule.
+
+HTTP, SSE, and WebSocket charges remain served when scheduled settlement encounters a transient transport or RPC failure, rate limit, receipt timeout, or lease-claim failure. The charge remains due for a later settlement. Reverts and configuration errors still fail the request. A confirmed settlement whose checkpoint fails also keeps the charged request successful and reports the error through `onSessionSettlementFailure`.
+
+Settlement records only the spend and units captured with the submitted voucher. Charges accepted while that transaction is pending remain due for the next settlement.
 
 ### sse (optional)
 
@@ -325,6 +386,8 @@ See [`mppx.session.serveWebSocket`](/sdk/typescript/server/Ws.serve) for the ful
 
 Applies this method's `settlementSchedule` to a committed channel charge. The session-bound WebSocket and SSE transports call it automatically. Pass it to a custom streaming adapter's post-charge hook when you manage the transport yourself.
 
+Direct calls report failures through `onSessionSettlementFailure` and reject on settlement failure. Custom adapters must handle retryable failures themselves to keep a charged response served. Confirmed checkpoint failures return the confirmed transaction hash.
+
 ### Snapshot helpers
 
 Use these helpers when you need to read or write the `Payment-Session-Snapshot` header yourself.
@@ -375,6 +438,8 @@ const txHash = await tempo.session.settle(store, client, channelId)
 ```
 
 The sender must be the channel payee or a nonzero operator. Pass transaction options as the fourth argument. Set `feePayer` to an account for local co-signing, or `true` when the client transport uses a configured hosted fee payer service.
+
+`settle` reads back channel state at the confirmed Receipt's block. If the transaction confirms but the channel store can't record it, the success hook still runs and `settle` throws `tempo.SettlementCheckpointError`. Read `error.txHash` to identify the confirmed payment; `error.cause` contains the store failure.
 
 ```ts
 type SettlementTransactionOptions = {

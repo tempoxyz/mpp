@@ -93,7 +93,7 @@ Configured methods retain their identity, currency defaults, and offer order thr
 - **Intent shorthand:** When multiple registered methods share an intent, `mppx.charge(options)` and other intent functions implicitly compose every matching method over HTTP or MCP. Use explicit composition when offers need different options.
 - **Offer policies:** HTTP composition calls each method's `canOffer` hook, then the instance-level [`selectOffers`](/sdk/typescript/server/Mppx.create#selectoffers-optional) hook, before generating Payment auth, x402, or HTML offers. MCP composition requires methods that use the configured MCP transport and rejects HTTP `canOffer` hooks. Static compositions apply `canOffer`; direct method handlers don't.
 - **`Accept-Payment` present:** Ranks and filters the merged Challenges by the client's supported `method/intent` entries. Entries with `q=0` are excluded. If the header is invalid or filters out every Challenge, all Challenges are returned.
-- **Credential present:** Dispatches to exactly one handler matching the Credential's method, intent, request terms, and scope without re-running offer policies. MCP verification failures don't fall through to another offer.
+- **Credential present:** Dispatches an authenticated Payment Credential to exactly one matching handler without re-running offer policies. Native transport Credentials, including x402 payments, must remain eligible under `canOffer` and `selectOffers` before settlement. MCP verification failures don't fall through to another offer.
 - **Discovery enabled:** Exposes every configured offer to `discovery()` and proxy metadata, including offers from nested compositions.
 
 ## Signatures

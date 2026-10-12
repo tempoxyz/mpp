@@ -17,6 +17,8 @@ Creates a scoped `fetch` wrapper that handles `402` Payment Required responses w
 
 The wrapper also handles MCP-over-HTTP payment required errors returned as JSON-RPC `-32042` responses, including the first event in an SSE stream.
 
+Payment retries use `redirect: 'manual'`, even when the initial request allows redirects. A `3xx` response returns without forwarding the Credential to another URL and leaves the payment attempt pending because the redirect doesn't confirm payment acceptance.
+
 ## Usage
 
 <Tabs stateKey="account-source">

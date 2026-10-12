@@ -567,6 +567,8 @@ type SessionManagerSseOptions = RequestInit & {
 
 ### `SessionManagerWebSocketOptions`
 
+Pass `signal` to cancel discovery, Credential creation, or connection establishment. Cancellation rejects `session.ws()` and prevents authorization on a socket that hasn't opened. Closing or failing the socket before it opens also rejects the connection attempt.
+
 ```ts
 type SessionManagerWebSocketOptions = {
   onReceipt?: (receipt: SessionReceipt) => void
@@ -638,6 +640,8 @@ type SessionReceipt = {
 
 :::info
 The `reference` field contains the channel ID, not a transaction hash. To get the settlement transaction hash, read `txHash` from the Receipt returned by `session.close()`.
+
+If a server-driven close fails after submission, the channel remains pending close because the transaction can still confirm. After the transaction expires and the clock-skew allowance passes, a later voucher or close clears the marker if the chain still shows an open channel. Failures before submission and confirmed reverts clear the marker immediately.
 :::
 
 ## Parameters

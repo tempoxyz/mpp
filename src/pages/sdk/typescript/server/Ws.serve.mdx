@@ -48,6 +48,8 @@ await mppx.session.serveWebSocket({
 
 The helper shares the `Store` and `settlementSchedule` configured by `tempo.session()`. It applies the schedule after every committed WebSocket charge.
 
+Retryable scheduled settlement failures keep charged messages served and leave the charge due for a later settlement. Configure [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to observe failures. Reverts and configuration errors still fail the charge.
+
 ### With dynamic amounts
 
 Pass an amount in base units when each message has a different price. An explicit amount reserves that amount for the next emitted message, including when the request already authorized an implicit tick.

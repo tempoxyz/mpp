@@ -163,6 +163,8 @@ const mppx = Mppx.create({
 
 The recorded `PaymentIntent` uses the settlement transaction hash for idempotency and includes `mpp_intent: 'session'` metadata. Session settlements don't include `mpp_challenge_id` because the settlement callback doesn't receive a Challenge.
 
+Settlement deltas come from the confirmed Receipt, so a retry after a failed channel-store checkpoint doesn't record the same amount again.
+
 ### Sponsor Tempo transaction fees
 
 Set `hostedFeePayer: true` to use Stripe's hosted Tempo fee payer for charge and Sessions methods created by this integration.

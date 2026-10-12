@@ -99,7 +99,7 @@ const handler = payment.compose(
 )
 ```
 
-Return at least one offer from the input array, preserve its order, and don't return duplicates. `mppx` runs each method's `canOffer` hook before `selectOffers`. Successfully matched Credentials bypass both hooks, so clients can redeem Challenges that the server already issued.
+Return at least one offer from the input array, preserve its order, and don't return duplicates. `mppx` runs each method's `canOffer` hook before `selectOffers`. Authenticated `Authorization: Payment` Credentials bypass both hooks so clients can redeem issued Challenges. Native transport Credentials, including `PAYMENT-SIGNATURE` x402 payments, must pass both hooks before settlement.
 
 ### With custom transport
 
@@ -150,6 +150,12 @@ type ReturnType = Mppx<[Method.Server], Transport.Http>
 The returned object includes intent functions (for example, `charge`), `broadcastCredential`, `challenge`, `compose`, payment hooks, `validateCredential`, and `verifyCredential`. An intent function calls its only matching method directly or implicitly composes every matching method.
 
 Payment-success hooks receive the canonical `request` included in the Challenge and an optional `requestInput`. `requestInput` contains the resolved server-side method input before request-schema output transforms, including fields intentionally omitted from the Challenge. Both values are immutable snapshots. Standalone Credential verification omits `requestInput` when you don't pass route options.
+
+### Challenge issuance
+
+Each server-generated Challenge includes a fresh `_mppx_nonce` in its metadata, bound by the Challenge ID's HMAC. Identical route terms produce different Challenge IDs on each issuance. Reserve this metadata key for `mppx` and return `id` and `opaque` unchanged in Credentials.
+
+Route verification compares all application and scope metadata while excluding the issuance nonce from stable route requirements. Previously issued signed Challenges without a nonce remain valid. The x402 route-binding extension excludes issuance-only metadata while retaining application metadata, scope, and digest checks.
 
 ### Validate and broadcast Credentials
 
@@ -237,7 +243,7 @@ const payment = Mppx.create({
 
 Selects the composed HTTP offers available for the incoming request. Each offer includes its canonical `key`, method `name`, method `intent`, optional method `alias`, and schema-normalized `request`. Offer objects and their nested request values are immutable. The incoming request is cloned when its body is available; otherwise, the hook receives a bodyless copy with the same metadata.
 
-The hook applies only to HTTP transport and runs before Challenge generation. Return a non-empty, ordered subset of the original offer objects.
+The hook applies only to HTTP transport and runs before Challenge generation and native transport Credential settlement. Authenticated Payment Credentials bypass it. Return a non-empty, ordered subset of the original offer objects.
 
 ### transport (optional)
 
