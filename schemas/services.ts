@@ -134,6 +134,37 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── AsterPay ─────────────────────────────────────────────────────────
+  {
+    categories: ["blockchain", "data"],
+    description:
+      "Pay-per-call cryptocurrency prices using the custom asterpay MPP method and native USDC on Base.",
+    docs: {
+      apiReference: "https://x402.asterpay.io/docs",
+      homepage: "https://asterpay.io",
+    },
+    endpoints: [
+      {
+        amount: "7500",
+        desc: "Get the current cryptocurrency price in USD and EUR.",
+        docs: "https://x402.asterpay.io/docs",
+        healthCheck: { path: "/v1/market/price/bitcoin" },
+        route: "GET /v1/market/price/:symbol",
+        unitType: "request",
+      },
+    ],
+    id: "asterpay",
+    integration: "first-party",
+    intent: "charge",
+    name: "AsterPay",
+    payments: [{ currency: "USDC", decimals: 6, method: "asterpay" }],
+    provider: { name: "AsterPay", url: "https://asterpay.io" },
+    realm: "x402.asterpay.io",
+    serviceUrl: "https://x402.asterpay.io",
+    status: "active",
+    tags: ["crypto-prices", "data", "usdc", "base", "x402"],
+    url: "https://asterpay.io",
+  },
   // ── Laso Finance ─────────────────────────────────────────────────────
   {
     id: "laso-finance",
