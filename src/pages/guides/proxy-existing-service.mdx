@@ -218,20 +218,17 @@ Built-in service presets (`openai`, `anthropic`, `stripe`) handle upstream auth 
 
 ## Discovery
 
-The proxy auto-generates discovery endpoints so coding agents and CLI tools can find available services and pricing.
+The proxy generates OpenAPI and `llms.txt` documents so coding agents and CLI tools can find available services and pricing.
 
 ```bash [test.sh]
 # Human-readable overview
 $ curl http://localhost:3000/llms.txt
 
-# JSON service list
-$ curl http://localhost:3000/discover
-
-# Single service details
-$ curl http://localhost:3000/discover/weather
+# OpenAPI 3.1 document with all service routes
+$ curl http://localhost:3000/openapi.json
 ```
 
-See the [Proxy reference](/sdk/typescript/proxy#discovery-endpoints) for the full list of discovery endpoints.
+See the [Proxy reference](/sdk/typescript/proxy#discovery-endpoints) for discovery endpoint details.
 
 ## Next steps
 

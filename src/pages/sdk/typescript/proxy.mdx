@@ -280,19 +280,14 @@ Request bodies remain available across retries, and retries don't re-verify paym
 
 ## Discovery endpoints
 
-The proxy automatically serves discovery endpoints that describe available services and their routes. Coding agents and CLI tools use these endpoints to understand what the proxy offers.
+The proxy serves an OpenAPI document and an `llms.txt` overview. Both routes include `basePath` when configured.
 
-| Endpoint | Content-Type | Description |
+| Endpoint | Content type | Description |
 |----------|--------------|-------------|
-| `GET /discover` | `application/json` or `text/plain` | Lists all services. Returns JSON by default, markdown for AI user agents and terminal clients. |
-| `GET /discover/{id}` | `application/json` or `text/markdown` | Details for a single service, including routes and pricing. |
-| `GET /discover/{id}.md` | `text/markdown` | Markdown description of a single service. |
-| `GET /discover/all` | `application/json` or `text/markdown` | All services with full route details. |
-| `GET /discover/all.md` | `text/markdown` | Markdown listing of all services and routes. |
-| `GET /llms.txt` | `text/plain` | `llms.txt`-formatted overview of the proxy and its services. |
-| `GET /discover.md` | `text/plain` | Alias for `/llms.txt`. |
+| `GET /openapi.json` | `application/json` | OpenAPI 3.1 document with paid-route `x-payment-info` offers and root `x-service-info` metadata. |
+| `GET /llms.txt` | `text/plain` | Human- and agent-readable service overview with a link to the OpenAPI document. |
 
-The proxy returns markdown instead of JSON when the request comes from a known AI user agent (for example, `ChatGPT-User`, `ClaudeBot`, `PerplexityBot`) or a terminal client (for example, `curl`, `HTTPie`, `mppx`).
+The proxy generates both responses when `Proxy.create` runs and caches the OpenAPI response for five minutes. Other paths, including former `/discover*` routes, return `404` unless they match a configured service.
 
 ## Parameters
 
@@ -304,11 +299,23 @@ The proxy returns markdown instead of JSON when the request comes from a known A
 
 Base path prefix to strip before routing (for example, `'/api/proxy'`). Use when the proxy is mounted at a sub-path.
 
+### categories (optional)
+
+- **Type:** `string[]`
+
+Free-form categories included in the root OpenAPI `x-service-info` metadata. Defaults to the unique categories declared by the configured services.
+
 ### description (optional)
 
 - **Type:** `string`
 
-Short description of the proxy shown in `llms.txt` and discovery endpoints.
+Short description of the proxy shown in `llms.txt`.
+
+### docs (optional)
+
+- **Type:** `Service.Docs`
+
+Documentation links included in the root OpenAPI `x-service-info` metadata. Supports `apiReference`, `homepage`, and `llms`. The `llms` URL defaults to the proxy's `/llms.txt` path.
 
 ### fetch (optional)
 
@@ -332,7 +339,13 @@ Array of service definitions to proxy. Each service is mounted at `/{serviceId}/
 
 - **Type:** `string`
 
-Human-readable title for the proxy shown in `llms.txt` and discovery endpoints.
+Human-readable title shown in `llms.txt` and OpenAPI metadata.
+
+### version (optional)
+
+- **Type:** `string`
+
+Version written to OpenAPI `info.version`. Defaults to `'1.0.0'`.
 
 ## Service type reference
 
@@ -350,17 +363,29 @@ Base URL of the upstream service (for example, `'https://api.openai.com'`).
 
 Shorthand: injects `Authorization: Bearer {token}` header on upstream requests.
 
+### categories (optional)
+
+- **Type:** `string[]`
+
+Free-form categories included in discovery metadata.
+
 ### description (optional)
 
 - **Type:** `string`
 
-Short description of the service, shown in discovery endpoints.
+Short description of the service shown in generated discovery metadata and `llms.txt`.
+
+### docs (optional)
+
+- **Type:** `Service.Docs`
+
+Documentation links included in discovery metadata. Supports `apiReference`, `homepage`, and `llms`.
 
 ### docsLlmsUrl (optional)
 
 - **Type:** `string | ((options: { route?: string }) => string | undefined)`
 
-Documentation URL for the service. Provide a string for a static URL, or a function that receives an optional route pattern and returns a per-endpoint docs URL.
+Legacy shorthand for `docs.llms`. Prefer `docs: { llms: 'https://example.com/llms.txt' }`. A function runs when the service is created and may return the URL.
 
 ### headers (optional)
 
