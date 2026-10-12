@@ -223,6 +223,70 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── PageWire ──────────────────────────────────────────────────────────
+  {
+    id: "pagewire",
+    name: "PageWire",
+    url: "https://pagewire.dev",
+    serviceUrl: "https://pagewire.dev",
+    description:
+      "Pay-per-call web reading for agents: any public page to clean Markdown, page metadata (OpenGraph, JSON-LD), and small same-host crawls. Also a remote MCP server. USDC.e on Tempo or USDC on Base, no account or API key.",
+    icon: "https://pagewire.dev/icon.svg",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: [
+      "scraping",
+      "markdown",
+      "metadata",
+      "opengraph",
+      "crawl",
+      "mcp",
+      "usdc",
+      "tempo",
+      "base",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://pagewire.dev",
+      llmsTxt: "https://pagewire.dev/llms.txt",
+      apiReference: "https://pagewire.dev/openapi.json",
+    },
+    provider: { name: "PageWire", url: "https://pagewire.dev" },
+    realm: "pagewire.dev",
+    intent: "charge",
+    payments: [
+      TEMPO_PAYMENT,
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /x402/extract",
+        desc: "Fetch a public web page and return title, description, clean Markdown and links",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/x402/extract?url=https://example.com" },
+      },
+      {
+        route: "GET /x402/meta",
+        desc: "Fetch a public web page and return its metadata: title, canonical, OpenGraph, Twitter card, icons, JSON-LD",
+        amount: "5000",
+        unitType: "request",
+        healthCheck: { path: "/x402/meta?url=https://example.com" },
+      },
+      {
+        route: "GET /x402/crawl",
+        desc: "Read a page plus up to 4 same-host pages (optional path prefix and limit) as Markdown",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: { path: "/x402/crawl?url=https://example.com" },
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
