@@ -223,6 +223,76 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── QRCode.Pub ────────────────────────────────────────────────────────
+  {
+    id: "qrcode-pub",
+    name: "QRCode.Pub tools for agents",
+    url: "https://qrcode.pub",
+    serviceUrl: "https://qrcode.pub",
+    description:
+      "Pay-per-call web tools for agents: QR code images, web page to Markdown extraction, page metadata (OpenGraph, JSON-LD) and 30-day file hosting. USDC.e on Tempo or USDC on Base, no account or API key.",
+    icon: "https://qrcode.pub/icon-512.png",
+    categories: ["web", "data", "storage", "media"],
+    integration: "first-party",
+    tags: [
+      "qr-code",
+      "scraping",
+      "markdown",
+      "metadata",
+      "opengraph",
+      "file-hosting",
+      "usdc",
+      "tempo",
+      "base",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://qrcode.pub/qr-code-api#x402",
+      apiReference: "https://qrcode.pub/openapi.json",
+    },
+    provider: { name: "QRCode.Pub", url: "https://qrcode.pub" },
+    realm: "qrcode.pub",
+    intent: "charge",
+    payments: [
+      TEMPO_PAYMENT,
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /x402/qr",
+        desc: "QR code image (PNG or SVG) for any text or link: data, size, format, ecc, margin, color, bgcolor",
+        amount: "5000",
+        unitType: "request",
+        healthCheck: { path: "/x402/qr?data=https://example.com" },
+      },
+      {
+        route: "GET /x402/extract",
+        desc: "Fetch a public web page and return title, description, clean Markdown and links",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/x402/extract?url=https://example.com" },
+      },
+      {
+        route: "GET /x402/meta",
+        desc: "Fetch a public web page and return its metadata: title, canonical, OpenGraph, Twitter card, icons, JSON-LD",
+        amount: "5000",
+        unitType: "request",
+        healthCheck: { path: "/x402/meta?url=https://example.com" },
+      },
+      {
+        route: "POST /x402/store",
+        desc: "Host an uploaded file (up to 5 MB: png, jpeg, webp, gif, pdf, json, txt, md, csv) at a public URL for 30 days",
+        amount: "10000",
+        unitType: "file",
+        healthCheck: {},
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
