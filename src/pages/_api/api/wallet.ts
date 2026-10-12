@@ -3,6 +3,7 @@ import { tempoModerato } from "viem/chains";
 import { Actions } from "viem/tempo";
 
 const DEFAULT_CURRENCY = "0x20c0000000000000000000000000000000000000";
+const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/;
 
 function getClient() {
   return createClient({
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
     const { action, address } = body;
 
     if (action === "fund") {
-      if (!address?.startsWith("0x")) {
+      if (!ADDRESS_PATTERN.test(address ?? "")) {
         console.warn(`[wallet] invalid fund address: ${address || "<empty>"}`);
         return Response.json({ error: "Invalid address" }, { status: 400 });
       }
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
     }
 
     if (action === "balance") {
-      if (!address?.startsWith("0x")) {
+      if (!ADDRESS_PATTERN.test(address ?? "")) {
         console.warn(
           `[wallet] invalid balance address: ${address || "<empty>"}`,
         );
