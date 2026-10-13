@@ -1738,6 +1738,52 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Ankr ───────────────────────────────────────────────────────────────
+  {
+    id: "ankr",
+    name: "Ankr",
+    url: "https://www.ankr.com/",
+    serviceUrl: "https://x402.rpc.ankr.com",
+    description:
+      "JSON-RPC for 120+ blockchains, EVM, Solana and more, paid per call. No signup, no API key.",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["rpc", "json-rpc", "evm", "solana", "multichain", "node"],
+    docs: {
+      homepage: "https://www.ankr.com/docs/agentic-rpc/overview/",
+      llmsTxt: "https://www.ankr.com/docs/llms.txt",
+      apiReference: "https://x402.rpc.ankr.com/openapi.json",
+    },
+    provider: { name: "Ankr", url: "https://www.ankr.com/" },
+    realm: "MPP Payment",
+    intent: "charge",
+    payments: [
+      {
+        method: "solana",
+        currency: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        healthCheck: {
+          body: {
+            id: 1,
+            jsonrpc: "2.0",
+            method: "eth_blockNumber",
+            params: [],
+          },
+          path: "/eth",
+        },
+        route: "POST /:chain",
+        desc: "JSON-RPC call on a chain path (eth, solana, polygon, ...)",
+        amount: "1000",
+        unitType: "request",
+        docs: false,
+      },
+    ],
+  },
+
   // ── Anthropic ──────────────────────────────────────────────────────────
   {
     id: "anthropic",
