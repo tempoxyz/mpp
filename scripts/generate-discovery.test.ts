@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   MPP_REALM,
@@ -9,6 +12,7 @@ import {
   buildEndpointDocs,
   buildPayment,
   parseRoute,
+  readAgentSkills,
   validateServices,
 } from "./generate-discovery.ts";
 
@@ -364,5 +368,46 @@ describe("service registry integrity", () => {
         desc: "Poll a research task for results",
       },
     ]);
+  });
+});
+
+// --- agent skills ---
+
+describe("agent skills", () => {
+  const publicDir = resolve(import.meta.dirname, "../public");
+  const skills = readAgentSkills();
+  const index = JSON.parse(
+    readFileSync(
+      resolve(publicDir, ".well-known/agent-skills/index.json"),
+      "utf-8",
+    ),
+  ) as { skills: Array<{ name: string; url: string; digest: string }> };
+
+  it("publishes every skill in skills/", () => {
+    expect(skills.map((skill) => skill.name)).toContain("mppx");
+    expect(index.skills.map((skill) => skill.name)).toEqual(
+      skills.map((skill) => skill.name),
+    );
+  });
+
+  it.each(skills)("serves skills/$name/SKILL.md unchanged", ({ name }) => {
+    const canonical = readFileSync(
+      resolve(import.meta.dirname, `../skills/${name}/SKILL.md`),
+    );
+    const served = readFileSync(
+      resolve(publicDir, `.well-known/agent-skills/${name}/SKILL.md`),
+    );
+    expect(served.equals(canonical)).toBe(true);
+  });
+
+  it.each(skills)("indexes $name with the sha256 of the served bytes", ({
+    name,
+  }) => {
+    const url = `/.well-known/agent-skills/${name}/SKILL.md`;
+    const served = readFileSync(resolve(publicDir, `.${url}`));
+    expect(index.skills.find((skill) => skill.name === name)).toMatchObject({
+      url,
+      digest: `sha256:${createHash("sha256").update(served).digest("hex")}`,
+    });
   });
 });

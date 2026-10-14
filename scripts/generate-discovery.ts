@@ -1,10 +1,19 @@
 /**
- * Generates the service catalog, schemas, and llms.txt from schemas/services.ts.
+ * Generates the service catalog, schemas, and llms.txt from schemas/services.ts,
+ * and publishes the agent skills in skills/ under /.well-known/agent-skills/.
  *
  * Usage: node scripts/generate-discovery.ts
  */
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
   type EndpointDef,
@@ -26,6 +35,13 @@ const OUTPUT_PUBLIC_CATALOG = resolve(
   import.meta.dirname,
   "../public/services/catalog.json",
 );
+const SKILLS_DIR = resolve(import.meta.dirname, "../skills");
+const OUTPUT_AGENT_SKILLS = resolve(
+  import.meta.dirname,
+  "../public/.well-known/agent-skills",
+);
+const AGENT_SKILLS_SCHEMA =
+  "https://schemas.agentskills.io/discovery/0.2.0/schema.json";
 
 /** Services included in the slim example (covers fixed, dynamic, free, and mixed intents) */
 const EXAMPLE_IDS = new Set(["exa", "openrouter", "storage"]);
@@ -223,6 +239,58 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   return entry;
 }
 
+export type AgentSkill = { name: string; content: Buffer };
+
+/** Reads every skills/{name}/SKILL.md, sorted by name. */
+export function readAgentSkills(): AgentSkill[] {
+  return readdirSync(SKILLS_DIR)
+    .filter((name) => existsSync(resolve(SKILLS_DIR, name, "SKILL.md")))
+    .sort()
+    .map((name) => ({
+      name,
+      content: readFileSync(resolve(SKILLS_DIR, name, "SKILL.md")),
+    }));
+}
+
+/**
+ * Builds the Agent Skills discovery index. Each digest is the sha256 of the
+ * exact bytes published at the skill's url.
+ */
+export function buildAgentSkillsIndex(
+  skills: AgentSkill[],
+): Record<string, unknown> {
+  return {
+    $schema: AGENT_SKILLS_SCHEMA,
+    skills: skills.map(({ name, content }) => ({
+      name,
+      type: "skill-md",
+      description: frontmatterField(content.toString("utf8"), "description"),
+      url: `/.well-known/agent-skills/${name}/SKILL.md`,
+      digest: `sha256:${createHash("sha256").update(content).digest("hex")}`,
+    })),
+  };
+}
+
+function frontmatterField(skill: string, field: string): string {
+  const frontmatter = skill.match(/^---\n([\s\S]*?)\n---\n/)?.[1];
+  const value = frontmatter?.match(new RegExp(`^${field}: (.+)$`, "m"))?.[1];
+  if (!value) throw new Error(`Skill frontmatter is missing "${field}"`);
+  return value.trim();
+}
+
+function writeAgentSkills(skills: AgentSkill[]): void {
+  rmSync(OUTPUT_AGENT_SKILLS, { recursive: true, force: true });
+  for (const { name, content } of skills) {
+    const path = resolve(OUTPUT_AGENT_SKILLS, name, "SKILL.md");
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, content);
+  }
+  writeJson(
+    resolve(OUTPUT_AGENT_SKILLS, "index.json"),
+    buildAgentSkillsIndex(skills),
+  );
+}
+
 function writeJson(path: string, data: unknown): void {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
@@ -303,6 +371,11 @@ function generate(): void {
   mkdirSync(dirname(OUTPUT_LLMS_TXT), { recursive: true });
   writeFileSync(OUTPUT_LLMS_TXT, buildLlmsTxt(allBuilt));
   console.log(`Generated ${OUTPUT_LLMS_TXT} (${services.length} services)`);
+
+  // Agent skills (served statically from the canonical skills/ directory)
+  const skills = readAgentSkills();
+  writeAgentSkills(skills);
+  console.log(`Generated ${OUTPUT_AGENT_SKILLS} (${skills.length} skills)`);
 
   // Summary
   let totalEps = 0;

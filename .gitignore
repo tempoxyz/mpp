@@ -24,6 +24,9 @@ schemas/discovery.example.json
 public/services/catalog.json
 public/services/llms.txt
 
+# Generated from skills/ by `pnpm generate:discovery`
+public/.well-known/agent-skills/
+
 # Licensed font files (served via Vercel Blob in production)
 public/fonts/VTCDuBois*
 
