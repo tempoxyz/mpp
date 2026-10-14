@@ -76,6 +76,11 @@ custom props, inline output, and invalid inputs.
 existing components. It explicitly removes `style` and `className` from native
 HTML in text exports while preserving images, links, and content.
 
+The custom `llms.txt` regrouping plugin and development middleware serving old
+build artifacts are removed. Vocs owns the index in development and production;
+post-processing it after generation would invalidate its manifest hash. The
+short index now uses Vocs' standard format.
+
 `check:markdown` now invokes Vocs directly. The previous component allowlist
 wrapper is removed. CI still runs the audit, and production builds also enforce
 it. Tests cover both modes and the environment override.
