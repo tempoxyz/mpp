@@ -11873,4 +11873,94 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── ProofFetch ──────────────────────────────────────────────────────
+  {
+    id: "prooffetch",
+    name: "ProofFetch",
+    url: "https://prooffetch.tryneverclosed.com",
+    serviceUrl: "https://prooffetch.tryneverclosed.com",
+    description:
+      "Cited web evidence for agents: free public-URL preflight with content hashes and prompt-injection indicators, plus paid paragraph-addressable extraction with SHA-256 receipts.",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: ["web-extraction", "citations", "provenance", "prompt-injection"],
+    status: "active",
+    docs: {
+      homepage: "https://github.com/equinoxaifinance-rgb/proof-fetch-docs",
+      llmsTxt: "https://prooffetch.tryneverclosed.com/llms.txt",
+      apiReference: "https://prooffetch.tryneverclosed.com/openapi.json",
+    },
+    provider: {
+      name: "ProofFetch",
+      url: "https://prooffetch.tryneverclosed.com",
+    },
+    realm: "https://proof-fetch-agent-api.neoaethel.workers.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { body: { url: "https://example.com/" } },
+        route: "POST /v1/preflight",
+        desc: "Inspect a public URL for hashes and prompt-injection indicators without returning its text",
+      },
+      {
+        healthCheck: {
+          body: {
+            idempotencyKey: "mpp-health-check-0000000000",
+            url: "https://example.com/",
+          },
+        },
+        route: "POST /v1/evidence",
+        desc: "Cited, paragraph-addressable extraction with SHA-256 receipts",
+        amount: "50",
+        unitType: "request",
+      },
+    ],
+  },
+
+  // ── FluxProof ───────────────────────────────────────────────────────
+  {
+    id: "fluxproof",
+    name: "FluxProof",
+    url: "https://fluxproof.tryneverclosed.com",
+    serviceUrl: "https://fluxproof.tryneverclosed.com",
+    description:
+      "Public webpage change monitoring for agents with SHA-256 hashes, bounded diffs and HMAC-signed webhooks. A one-time payment buys a 30-day monitor pass.",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: ["monitoring", "change-detection", "webhooks", "provenance"],
+    status: "active",
+    docs: {
+      homepage: "https://github.com/equinoxaifinance-rgb/fluxproof-agent-card",
+      llmsTxt: "https://fluxproof.tryneverclosed.com/llms.txt",
+      apiReference: "https://fluxproof.tryneverclosed.com/openapi.json",
+    },
+    provider: {
+      name: "FluxProof",
+      url: "https://fluxproof.tryneverclosed.com",
+    },
+    realm: "https://fluxproof.neoaethel.workers.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { body: { url: "https://example.com/" } },
+        route: "POST /v1/preflight",
+        desc: "Check that a public URL can be monitored",
+      },
+      {
+        healthCheck: {
+          body: {
+            idempotency_key: "mpp-health-check-0000000000",
+            url: "https://example.com/",
+          },
+        },
+        route: "POST /v1/passes",
+        desc: "Buy a 30-day Monitor Pass for five public sources, starting with this URL",
+        amount: "900",
+        unitType: "request",
+      },
+    ],
+  },
 ];
