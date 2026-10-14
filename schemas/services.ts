@@ -10983,8 +10983,8 @@ export const services: ServiceDef[] = [
   {
     id: "prooffetch",
     name: "ProofFetch",
-    url: "https://proof-fetch-agent-api.neoaethel.workers.dev",
-    serviceUrl: "https://proof-fetch-agent-api.neoaethel.workers.dev",
+    url: "https://prooffetch.tryneverclosed.com",
+    serviceUrl: "https://prooffetch.tryneverclosed.com",
     description:
       "Cited web evidence for agents: free public-URL preflight with content hashes and prompt-injection indicators, plus paid paragraph-addressable extraction with SHA-256 receipts.",
     categories: ["web", "data"],
@@ -10993,15 +10993,14 @@ export const services: ServiceDef[] = [
     status: "active",
     docs: {
       homepage: "https://github.com/equinoxaifinance-rgb/proof-fetch-docs",
-      llmsTxt: "https://proof-fetch-agent-api.neoaethel.workers.dev/llms.txt",
-      apiReference:
-        "https://proof-fetch-agent-api.neoaethel.workers.dev/openapi.json",
+      llmsTxt: "https://prooffetch.tryneverclosed.com/llms.txt",
+      apiReference: "https://prooffetch.tryneverclosed.com/openapi.json",
     },
     provider: {
       name: "ProofFetch",
-      url: "https://proof-fetch-agent-api.neoaethel.workers.dev",
+      url: "https://prooffetch.tryneverclosed.com",
     },
-    realm: "https://proof-fetch-agent-api.neoaethel.workers.dev",
+    realm: "https://prooffetch.tryneverclosed.com",
     intent: "charge",
     payments: [STRIPE_PAYMENT],
     endpoints: [
@@ -11029,8 +11028,8 @@ export const services: ServiceDef[] = [
   {
     id: "fluxproof",
     name: "FluxProof",
-    url: "https://fluxproof.neoaethel.workers.dev",
-    serviceUrl: "https://fluxproof.neoaethel.workers.dev",
+    url: "https://fluxproof.tryneverclosed.com",
+    serviceUrl: "https://fluxproof.tryneverclosed.com",
     description:
       "Public webpage change monitoring for agents with SHA-256 hashes, bounded diffs and HMAC-signed webhooks. A one-time payment buys a 30-day monitor pass.",
     categories: ["web", "data"],
@@ -11039,14 +11038,14 @@ export const services: ServiceDef[] = [
     status: "active",
     docs: {
       homepage: "https://github.com/equinoxaifinance-rgb/fluxproof-agent-card",
-      llmsTxt: "https://fluxproof.neoaethel.workers.dev/llms.txt",
-      apiReference: "https://fluxproof.neoaethel.workers.dev/openapi.json",
+      llmsTxt: "https://fluxproof.tryneverclosed.com/llms.txt",
+      apiReference: "https://fluxproof.tryneverclosed.com/openapi.json",
     },
     provider: {
       name: "FluxProof",
-      url: "https://fluxproof.neoaethel.workers.dev",
+      url: "https://fluxproof.tryneverclosed.com",
     },
-    realm: "https://fluxproof.neoaethel.workers.dev",
+    realm: "https://fluxproof.tryneverclosed.com",
     intent: "charge",
     payments: [STRIPE_PAYMENT],
     endpoints: [
