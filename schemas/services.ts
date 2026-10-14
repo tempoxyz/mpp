@@ -11000,7 +11000,7 @@ export const services: ServiceDef[] = [
       name: "ProofFetch",
       url: "https://prooffetch.tryneverclosed.com",
     },
-    realm: "https://prooffetch.tryneverclosed.com",
+    realm: "https://proof-fetch-agent-api.neoaethel.workers.dev",
     intent: "charge",
     payments: [STRIPE_PAYMENT],
     endpoints: [
@@ -11045,7 +11045,7 @@ export const services: ServiceDef[] = [
       name: "FluxProof",
       url: "https://fluxproof.tryneverclosed.com",
     },
-    realm: "https://fluxproof.tryneverclosed.com",
+    realm: "https://fluxproof.neoaethel.workers.dev",
     intent: "charge",
     payments: [STRIPE_PAYMENT],
     endpoints: [
