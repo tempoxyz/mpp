@@ -1,9 +1,10 @@
 # Maintaining generated Markdown
 
 This sample uses the commit-pinned preview `https://pkg.pr.new/vocs@409d900`
-from [Vocs #666](https://github.com/wevm/vocs/pull/666). Replace the preview with
-the published version after that change lands. Do not merge this migration as
-an unrelated production framework upgrade without reviewing the preview.
+from [Vocs #666](https://github.com/wevm/vocs/pull/666). This is an intentional
+preview-package integration for iterating on that PR. To test a new upstream
+commit, update the commit pin and lockfile, then rerun the audit, tests, and build.
+Use a release version when ready to leave the preview channel.
 
 ## Generation and enforcement
 
