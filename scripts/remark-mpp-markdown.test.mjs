@@ -86,7 +86,6 @@ describe("remarkMppMarkdown", () => {
             flow("MppxCreateReferenceCard", [
               attribute("to", "/sdk/Mppx.create"),
             ]),
-            flow("SpecCard", [attribute("to", "https://paymentauth.org")]),
           ],
         ),
         flow("DownloadSvgButton", [
@@ -177,7 +176,6 @@ describe("remarkMppMarkdown", () => {
         "PromptBlock",
         "SdkBadge.GitHub",
         "SdkBadge.Maintainer",
-        "SpecCard",
         "Tab",
         "Tabs",
       ]),
@@ -234,11 +232,6 @@ describe("remarkMppMarkdown", () => {
         attribute("to", "/quickstart"),
       ]),
       flow("MppxCreateReferenceCard", [attribute("to", "/sdk/Mppx.create")]),
-      flow("SpecCard", [
-        attribute("description", "Read the charge specification"),
-        attribute("title", "Charge specification"),
-        attribute("to", "https://paymentauth.org/charge"),
-      ]),
     ]);
 
     expect(tree.children).toEqual([
@@ -257,14 +250,6 @@ describe("remarkMppMarkdown", () => {
           url: "/sdk/Mppx.create",
         },
         { type: "text", value: " — Full API documentation" },
-      ]),
-      paragraph([
-        {
-          children: [{ type: "text", value: "Charge specification" }],
-          type: "link",
-          url: "https://paymentauth.org/charge",
-        },
-        { type: "text", value: " — Read the charge specification" },
       ]),
     ]);
   });
@@ -457,6 +442,28 @@ describe("remarkMppMarkdown", () => {
     [flow("Tabs", [], [flow("Tab")])],
   ])("rejects incomplete static component data", (children) => {
     expect(() => transform(children)).toThrow(TypeError);
+  });
+
+  it("drops native layout attributes while preserving images and unknown expressions", () => {
+    const src = attribute("src", "/logo.svg");
+    const alt = attribute("alt", "MPP logo");
+    const dynamic = attribute(
+      "width",
+      expression({ type: "Identifier", name: "width" }),
+    );
+    const tree = transform([
+      flow("img", [
+        src,
+        alt,
+        dynamic,
+        attribute("className", "logo"),
+        attribute(
+          "style",
+          expression({ type: "ObjectExpression", properties: [] }),
+        ),
+      ]),
+    ]);
+    expect(tree.children[0].attributes).toEqual([src, alt, dynamic]);
   });
 
   it("rejects missing or incomplete blog metadata", () => {

@@ -42,14 +42,14 @@
     "mermaid": "^11.17.2",
     "mppx": "0.13.4",
     "nuqs": "2.9.1",
-    "react": "~19.2.8",
-    "react-dom": "~19.2.8",
+    "react": "~19.3.0",
+    "react-dom": "~19.3.0",
     "stripe": "^22.2.0",
     "tailwindcss": "^4.3.0",
     "viem": "2.57.1",
-    "vocs": "2.8.5",
+    "vocs": "https://pkg.pr.new/vocs@409d900",
     "wagmi": "~3.6.21",
-    "waku": "1.0.0-beta.6"
+    "waku": "1.0.0-rc.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
@@ -70,7 +70,7 @@
     "mdast-util-mdx-expression": "2.0.1",
     "mdast-util-mdx-jsx": "3.2.0",
     "playwright": "^1.60.0",
-    "react-server-dom-webpack": "~19.2.8",
+    "react-server-dom-webpack": "~19.3.0",
     "shiki": "4.1.0",
     "simple-git-hooks": "^2.13.1",
     "tiktoken": "^1.0.22",

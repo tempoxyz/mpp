@@ -49,6 +49,7 @@ export default defineConfig({
     return undefined;
   },
   markdown: {
+    output: { validation: "fail" },
     outputRemarkPlugins: [
       // Production bundles may omit source MDX after Markdown artifacts exist.
       // Builds still fail on missing or invalid posts; only runtime config load

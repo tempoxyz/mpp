@@ -112,9 +112,13 @@ function GlobalClientEffects() {
     const handlePopstate = () => {
       isPopstate.current = true;
     };
-    const handleNavigateStart = () => {
+    // Waku rc removed router events. Track scroll positions between navigations.
+    const handleScroll = () => {
       if (previousPath.current === null) return;
       savedPositions.current[previousPath.current] = window.scrollY;
+    };
+    const persistPositions = () => {
+      handleScroll();
       try {
         sessionStorage.setItem(
           "vocs:scroll",
@@ -124,13 +128,16 @@ function GlobalClientEffects() {
     };
 
     window.addEventListener("popstate", handlePopstate);
-    router.unstable_events.on("start", handleNavigateStart);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("pagehide", persistPositions);
     return () => {
       window.removeEventListener("popstate", handlePopstate);
-      router.unstable_events.off("start", handleNavigateStart);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("pagehide", persistPositions);
+      persistPositions();
       window.history.scrollRestoration = "auto";
     };
-  }, [router.unstable_events]);
+  }, []);
 
   useEffect(() => {
     const hash = router.hash.slice(1);

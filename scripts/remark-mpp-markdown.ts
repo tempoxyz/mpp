@@ -70,6 +70,15 @@ function transformNode(
   if (!isMdxJsxElement(node))
     return [transformChildren(node, headingDepth, blogPosts)];
 
+  // HTML layout styles have no meaning in a text export. Preserve semantic
+  // attributes (href/src/alt) and children; do not drop arbitrary expressions.
+  if (node.name && /^[a-z]/.test(node.name)) {
+    node.attributes = node.attributes.filter(
+      (attribute) =>
+        attribute.type !== "mdxJsxAttribute" ||
+        !["className", "style"].includes(attribute.name as string),
+    );
+  }
   switch (node.name) {
     case "Badge":
     case "Cards":
@@ -106,8 +115,6 @@ function transformNode(
       return badgeGithub(node);
     case "SdkBadge.Maintainer":
       return badgeMaintainer(node);
-    case "SpecCard":
-      return [specCard(node)];
     default:
       // Imported static components run their `toMarkdown` hooks before this
       // plugin. Preserve anything else so `vocs markdown-audit` reports it.
@@ -267,15 +274,6 @@ function badgeMaintainer(node: MdxJsxElement): RootContent[] {
     text("Maintained by "),
     link(requiredString(node, "href"), [text(requiredString(node, "name"))]),
   ]);
-}
-
-function specCard(node: MdxJsxElement): Paragraph {
-  return linkCard({
-    description:
-      stringAttribute(node, "description") ?? "Read the full specification",
-    title: stringAttribute(node, "title") ?? "IETF Specification",
-    to: requiredString(node, "to"),
-  });
 }
 
 function componentNodes(
