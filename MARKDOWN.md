@@ -1,6 +1,6 @@
 # Maintaining generated Markdown
 
-This sample uses the commit-pinned preview `https://pkg.pr.new/vocs@409d900`
+This sample uses the commit-pinned preview `https://pkg.pr.new/vocs@d1097b9`
 from [Vocs #666](https://github.com/wevm/vocs/pull/666). This is an intentional
 preview-package integration for iterating on that PR. To test a new upstream
 commit, update the commit pin and lockfile, then rerun the audit, tests, and build.
@@ -77,10 +77,10 @@ custom props, inline output, and invalid inputs.
 existing components. It explicitly removes `style` and `className` from native
 HTML in text exports while preserving images, links, and content.
 
-The custom `llms.txt` regrouping plugin and development middleware serving old
-build artifacts are removed. Vocs owns the index in development and production;
-post-processing it after generation would invalidate its manifest hash. The
-short index now uses Vocs' standard format.
+The `llms.txt` grouping logic now runs in `markdown.output.transform`, before
+validation and hashing. Vocs owns the final files in development and production.
+The middleware serving old build artifacts and the post-build rewrite are gone;
+sections and concise descriptions are preserved without stale content or hashes.
 
 `check:markdown` now invokes Vocs directly. The previous component allowlist
 wrapper is removed. CI still runs the audit, and production builds also enforce
