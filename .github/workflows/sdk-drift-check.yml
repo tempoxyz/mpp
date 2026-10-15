@@ -44,7 +44,7 @@ jobs:
 
       - name: Run SDK drift check
         id: drift-check
-        uses: ./.github/actions/sdk-drift-check
+        uses: ./.github/actions/sdk-drift-check # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
         with:
           sdk-package: ${{ github.event.inputs.sdk_package || 'mppx' }}
           sdk-version: ${{ github.event.inputs.sdk_version || 'latest' }}

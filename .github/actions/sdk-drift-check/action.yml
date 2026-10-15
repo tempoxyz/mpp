@@ -45,7 +45,7 @@ runs:
       env:
         SDK_PACKAGE: ${{ inputs.sdk-package }}
         SDK_VERSION: ${{ inputs.sdk-version }}
-      run: |
+      run: | # zizmor: ignore[adhoc-packages] the drift check installs the requested SDK version on purpose.
         if [ "$SDK_VERSION" = "latest" ]; then
           pnpm add -w "$SDK_PACKAGE@latest"
         else
