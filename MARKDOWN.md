@@ -1,6 +1,6 @@
 # Maintaining generated Markdown
 
-This sample uses the commit-pinned preview `https://pkg.pr.new/vocs@d1097b9`
+This sample uses the commit-pinned preview `https://pkg.pr.new/vocs@b518f6a`
 from [Vocs #666](https://github.com/wevm/vocs/pull/666). This is an intentional
 preview-package integration for iterating on that PR. To test a new upstream
 commit, update the commit pin and lockfile, then rerun the audit, tests, and build.
@@ -61,7 +61,7 @@ context. Validate the complete output after every migration.
 
 Deploy the Markdown files and `markdown-manifest.json` from the same build as
 the site. In release verification, read the manifest from the local build and
-call `MarkdownOutput.verifyDeployment({ url, manifest })` from `vocs/server`.
+call `MarkdownOutput.verifyDeployment({ url, manifest })` from `vocs/server/markdown`.
 It checks public responses against the build hashes, status, and content types.
 Use the local manifest as the expected value: downloading both manifest and
 content from a stale deployment cannot prove that the latest build shipped.
