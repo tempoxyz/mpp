@@ -11873,4 +11873,56 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── SpecStream ──────────────────────────────────────────────────────────
+  {
+    id: "specstream",
+    name: "SpecStream",
+    url: "https://specstream.ai",
+    serviceUrl: "https://api.specstream.ai",
+    description:
+      "The finished list, not a pile of pages. Describe the list in plain words (companies, local businesses, people, grants, tenders, products, papers, repositories) and get every match from the live web, each row with the page it came from. You pay per match, never for dead ends.",
+    icon: "https://specstream.ai/icons/icon-180.png",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "lists",
+      "lead-generation",
+      "company-data",
+      "local-businesses",
+      "research",
+      "sourced-rows",
+      "pay-per-match",
+      "mcp",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://specstream.ai/agents.md",
+      llmsTxt: "https://specstream.ai/llms.txt",
+      apiReference: "https://specstream.ai/docs/api",
+    },
+    provider: { name: "SpecStream", url: "https://specstream.ai" },
+    realm: "api.specstream.ai",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: {
+          body: { request: "vegan bakeries in Lisbon", count: 10 },
+        },
+        route: "POST /v1/agent/lists",
+        desc: "Buy one list from the live web. Send the list in plain words and an optional count (1 to 500). The 402 states the most it can cost; you pay for the matches found and the rest goes back to the card.",
+        dynamic: true,
+        amountHint:
+          "$0.10, $0.30 or $1.00 per match, plus $0.10 per email and $0.25 per phone; card charge minimum $0.50",
+        unitType: "request",
+        docs: "https://specstream.ai/agents.md",
+      },
+      {
+        route: "GET /v1/agent/lists",
+        desc: "The buying steps as JSON",
+        healthCheck: {},
+      },
+    ],
+  },
 ];
