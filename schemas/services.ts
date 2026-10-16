@@ -11873,4 +11873,38 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Lasso ────────────────────────────────────────────────────────────
+  {
+    id: "lasso",
+    name: "Lasso",
+    url: "https://lasso.sh",
+    serviceUrl: "https://lasso.sh",
+    description:
+      "EVM JSON-RPC routed across multiple providers per chain with live failover, one endpoint per chain. Buy a funded Lasso RPC key with USD credit; the paid response returns the key and its RPC and WebSocket URLs, and calls draw down the credit.",
+    icon: "https://lasso.sh/favicon.ico",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["rpc", "json-rpc", "evm", "multichain", "prepaid-key"],
+    status: "active",
+    docs: {
+      homepage: "https://docs.lasso.sh",
+      llmsTxt: "https://lasso.sh/llms.txt",
+      apiReference: "https://lasso.sh/openapi.json",
+    },
+    provider: { name: "Lasso", url: "https://lasso.sh" },
+    realm: "lasso.sh",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { body: {} },
+        route: "POST /api/v1/credit",
+        desc: 'Buy a funded Lasso RPC key. Send {"usd": "5"} for the credit to load, or an empty body for the minimum; the response returns the key with its RPC and WebSocket URLs.',
+        dynamic: true,
+        amountHint: "buyer-chosen, $0.05 to $100",
+        unitType: "request",
+      },
+    ],
+  },
 ];
