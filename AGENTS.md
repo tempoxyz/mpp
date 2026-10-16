@@ -327,38 +327,10 @@ Example:
 
 ## Generated Markdown
 
-Vocs also publishes Markdown for every page. Custom MDX components need
-semantic Markdown output by default.
-
-When you add a custom component to an `.mdx` page:
-
-1. For an imported, self-closing component without props, add a `toMarkdown`
-   hook with `withMarkdown` from `src/components/markdown.ts`.
-2. Add the component to `src/components/markdown.test.ts`.
-3. For components with props or children, add a renderer in
-   `scripts/remark-mpp-markdown.ts` and a focused example in
-   `scripts/remark-mpp-markdown.test.mjs`.
-4. Run `pnpm check:markdown`.
-
-Allowlist a component in `scripts/check-markdown-components.mjs` only when it
-cannot have a semantic Markdown form. Include a reason and describe its content
-in nearby Markdown so Markdown readers retain the information.
-
-For example, a static card component becomes a titled link with its description:
-
-```js
-case "ExampleCard":
-  return [
-    linkCard({
-      description: "Start accepting payments",
-      title: "Example",
-      to: "/example",
-    }),
-  ];
-```
-
-The Markdown audit runs in CI and fails for every unallowlisted component. It
-lists every affected page and its failure output links back to this workflow.
+Follow [MARKDOWN.md](./MARKDOWN.md). Prefer component-local `markdown` exports;
+use `markdown.output.components` overrides for browser-only modules. Keep
+existing output plugins where page context is required. Add focused renderer
+tests and run `pnpm check:markdown`. Both builds and CI use `fail` mode.
 
 ## Vocs Framework Reference
 
