@@ -1306,6 +1306,60 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── AgentDrives ────────────────────────────────────────────────────────
+  {
+    id: "agentdrives",
+    name: "AgentDrives",
+    url: "https://agentdrives.com",
+    serviceUrl: "https://agentdrives.com",
+    description:
+      "Find the software tools an agent can use on its own for a task. Each result has the tool's level, what our agent got done in it and where it stopped, from a real drive of that product.",
+    icon: "https://agentdrives.com/favicon.svg",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: ["agents", "tool-discovery", "saas", "agent-readiness", "usdc"],
+    status: "active",
+    docs: {
+      homepage: "https://agentdrives.com/data",
+      llmsTxt: "https://agentdrives.com/llms.txt",
+      apiReference: "https://agentdrives.com/openapi.json",
+    },
+    provider: { name: "AgentDrives", url: "https://agentdrives.com" },
+    realm: "agentdrives.com",
+    intent: "charge",
+    payments: [
+      TEMPO_PAYMENT,
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+      STRIPE_PAYMENT,
+    ],
+    endpoints: [
+      {
+        healthCheck: { body: { task: "send an invoice" } },
+        route: "POST /api/paid/find-tools",
+        desc: "Tools an agent can use on its own for a task, with level and evidence",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { amount_usd: 5 } },
+        route: "POST /api/credits/topup",
+        desc: "Prepaid credit for find-tools: 500, 2,000 or 5,000 searches",
+        dynamic: true,
+        amountHint: "$5, $20 or $50",
+      },
+      {
+        healthCheck: false,
+        route: "POST /api/orders/:id/payment",
+        desc: "Pay for a Drive of your own product: where an agent stops in it",
+        amount: "49000000",
+      },
+    ],
+  },
+
   // ── agentfax ───────────────────────────────────────────────────────────
   {
     id: "agentfax",
