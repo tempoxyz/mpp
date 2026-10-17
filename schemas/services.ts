@@ -1029,6 +1029,45 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Livecheck ───────────────────────────────────────────────────────
+  {
+    id: "livecheck",
+    name: "Livecheck",
+    url: "https://livecheck.fly.dev",
+    serviceUrl: "https://livecheck.fly.dev",
+    description:
+      "Live status check for job postings and listings: fetches the URL at call time and returns live, closed, or unknown with evidence.",
+
+    categories: ["data", "web"],
+    integration: "first-party",
+    tags: ["jobs", "job-postings", "listings", "link-check", "verification"],
+    docs: {
+      homepage: "https://livecheck.fly.dev/job?ref=mppdev",
+      llmsTxt: "https://livecheck.fly.dev/llms.txt",
+    },
+    provider: { name: "Livecheck", url: "https://livecheck.fly.dev" },
+    realm: "livecheck.fly.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/verify",
+        desc: "Check whether a URL is live, closed, or unknown, with evidence",
+        amount: "10000",
+      },
+      {
+        route: "POST /v1/verify/job",
+        desc: "Check whether a job posting is still open (live/closed/unknown + evidence)",
+        amount: "10000",
+      },
+      {
+        route: "POST /v1/verify/listing",
+        desc: "Check whether a listing is still available (live/closed/unknown + evidence)",
+        amount: "10000",
+      },
+    ],
+  },
+
   // ── Laso Finance ─────────────────────────────────────────────────────
   {
     id: "laso-finance",
