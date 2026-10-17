@@ -5037,6 +5037,67 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── AUTOGROK Desk ───────────────────────────────────────────────────────
+  {
+    id: "autogrok-desk",
+    name: "AUTOGROK Desk",
+    url: "https://desk.grokaiapps.com",
+    serviceUrl: "https://desk.grokaiapps.com",
+    description:
+      "Prepaid job packs for agents: URL probe, page extract, change watch, JSON shape, and researched briefs (24h, cited sources). Buy a pack via MPP, then spend credits with X-Entitlement-Key on /v1/jobs/* or /mcp.",
+
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: ["scraping", "extraction", "monitoring", "research", "briefs"],
+    docs: {
+      homepage: "https://desk.grokaiapps.com",
+      llmsTxt: "https://desk.grokaiapps.com/llms.txt",
+      apiReference: "https://desk.grokaiapps.com/openapi.json",
+    },
+    provider: { name: "Grok AI Apps", url: "https://desk.grokaiapps.com" },
+    realm: "desk.grokaiapps.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: false,
+        route: "POST /v1/mpp/packs/pack_url_probe_17",
+        desc: "17 URL probe credits",
+        amount: "51",
+      },
+      {
+        healthCheck: false,
+        route: "POST /v1/mpp/packs/pack_page_extract_10",
+        desc: "10 page extract credits",
+        amount: "50",
+      },
+      {
+        healthCheck: false,
+        route: "POST /v1/mpp/packs/pack_watch_5",
+        desc: "5 change-watch credits",
+        amount: "50",
+      },
+      {
+        healthCheck: false,
+        route: "POST /v1/mpp/packs/pack_json_4",
+        desc: "4 JSON shape credits",
+        amount: "60",
+      },
+      {
+        healthCheck: false,
+        route: "POST /v1/mpp/packs/pack_brief_2",
+        desc: "2 brief credits (~500 words, 3+ sources, 24h)",
+        amount: "50",
+      },
+      {
+        healthCheck: false,
+        route: "POST /v1/mpp/packs/pack_deep_brief_1",
+        desc: "1 deep brief credit (~1500 words, 8+ sources, 24h)",
+        amount: "900",
+      },
+    ],
+  },
+
   // ── Martin Estate Winery ────────────────────────────────────────────────
   {
     id: "martin-estate",
