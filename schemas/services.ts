@@ -11873,4 +11873,44 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Brandname Maker ─────────────────────────────────────────────────────
+  {
+    id: "brandname-maker",
+    name: "Brandname Maker",
+    url: "https://brandnamemaker.com",
+    serviceUrl: "https://brandnamemaker.com",
+    description:
+      "Brand and product naming for agents. Send a brief, get a 3–6 name shortlist with consultant-style rationales and real registry domain checks on .com, .app, and .ai. A separate Hero pass writes headline + subheadline copy.",
+    icon: "https://brandnamemaker.com/favicon.ico",
+    categories: ["ai"],
+    integration: "first-party",
+    tags: ["naming", "branding", "domains", "copywriting", "startups"],
+    status: "active",
+    docs: {
+      homepage: "https://brandnamemaker.com/for-agents",
+      llmsTxt: "https://brandnamemaker.com/llms.txt",
+      apiReference: "https://brandnamemaker.com/openapi.json",
+    },
+    provider: { name: "True Frontier", url: "https://truefrontierapps.com" },
+    realm: "brandnamemaker.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /api/v1/name",
+        desc: "Naming pass: shortlist with rationales and domain checks (may return 202 + poll_url); $1.00 by card",
+        amount: "250000",
+        healthCheck: { body: { brief: "health check" } },
+      },
+      { route: "GET /api/v1/name", desc: "Discovery: schema, payment methods, prices" },
+      {
+        route: "POST /api/v1/hero",
+        desc: "Hero pass: headline + subheadline options for a chosen name; $1.00 by card",
+        amount: "250000",
+        healthCheck: { body: { brand_name: "Health", audience: "check", brief: "health check" } },
+      },
+      { route: "GET /api/v1/hero", desc: "Discovery: schema, payment methods, prices" },
+    ],
+  },
+
 ];
