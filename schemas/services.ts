@@ -11873,4 +11873,37 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // x402 Web Probe: pay-per-call website uptime/latency, markdown, domain, meta and on-chain lookups.
+  // Insert into the `services` array in schemas/services.ts (tempoxyz/mpp).
+  {
+    id: "x402-web-probe",
+    name: "x402 Web Probe",
+    url: "https://rockndefi.xyz:8443",
+    serviceUrl: "https://rockndefi.xyz:8443",
+    description:
+      "Pay-per-call website uptime/latency checks, page-to-markdown, domain (DNS/TLS) and metadata lookups, plus EVM balance/tx/ENS queries. Accepts MPP (Tempo) and x402.",
+    categories: ["web", "data", "blockchain"],
+    integration: "first-party",
+    tags: ["uptime", "monitoring", "markdown", "dns", "ens", "evm"],
+    status: "beta",
+    docs: {
+      homepage: "https://rockndefi.xyz:8443",
+      llmsTxt: "https://rockndefi.xyz:8443/llms.txt",
+      apiReference: "https://rockndefi.xyz:8443/openapi.json",
+    },
+    provider: { name: "x402 Web Probe", url: "https://rockndefi.xyz:8443" },
+    realm: "rockndefi.xyz",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      { route: "GET /v1/check", desc: "Website uptime/latency/status check", amount: "1000", unitType: "request", healthCheck: { path: "/v1/check?url=https://example.com" } },
+      { route: "GET /v1/markdown", desc: "Fetch a page and convert to markdown", amount: "3000", unitType: "request", healthCheck: { path: "/v1/markdown?url=https://example.com" } },
+      { route: "GET /v1/domain", desc: "Domain DNS/TLS info", amount: "2000", unitType: "request", healthCheck: { path: "/v1/domain?domain=example.com" } },
+      { route: "GET /v1/meta", desc: "Page metadata (title, OG tags)", amount: "2000", unitType: "request", healthCheck: { path: "/v1/meta?url=https://example.com" } },
+      { route: "GET /v1/chain/balance", desc: "Native token balance", amount: "2000", unitType: "request" },
+      { route: "GET /v1/chain/erc20-balance", desc: "ERC-20 token balance", amount: "2000", unitType: "request" },
+      { route: "GET /v1/chain/tx", desc: "Transaction + receipt lookup", amount: "2000", unitType: "request" },
+      { route: "GET /v1/chain/ens", desc: "ENS name resolution", amount: "2000", unitType: "request" },
+    ],
+  },
 ];
