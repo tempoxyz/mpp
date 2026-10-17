@@ -11873,4 +11873,199 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Tanod ────────────────────────────────────────────────────────────
+  {
+    id: "tanod",
+    name: "Tanod",
+    url: "https://tanod.dev",
+    serviceUrl: "https://tanod.dev",
+    description:
+      "Pay-per-call tools for agents: documents and PDFs to Markdown, tables, Word or CSV; crypto and market data; web pages as Markdown; security scans. Failed lookups are not charged.",
+    icon: "https://tanod.dev/icon.png",
+    categories: ["data", "blockchain", "web"],
+    integration: "first-party",
+    tags: [
+      "security",
+      "mcp-scan",
+      "phishing",
+      "sanctions",
+      "market-data",
+      "pdf",
+      "markdown",
+      "documents",
+      "pdf-tables",
+      "bank-statement",
+      "docx",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://tanod.dev",
+      llmsTxt: "https://tanod.dev/llms.txt",
+      apiReference: "https://tanod.dev/openapi.json",
+    },
+    provider: { name: "Tanod", url: "https://tanod.dev" },
+    realm: "tanod.dev",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/check/url",
+        healthCheck: { body: { url: "https://login-paypa1.example/verify" } },
+        desc: "Check whether a URL or domain is a phishing or scam site",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/sanctions",
+        healthCheck: {
+          body: { address: "0x098B716B8Aaf21512996dC57EB0615e2383E2f96" },
+        },
+        desc: "Check whether a crypto wallet address is on the OFAC sanctions list",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/scan/package",
+        healthCheck: {
+          body: {
+            source: "npm:@modelcontextprotocol/server-filesystem@2026.8.31",
+          },
+        },
+        desc: "Scan an MCP server or agent skill package (npm, PyPI, GitHub) for security risks",
+        dynamic: true,
+        amountHint: "$0.02 to $0.05 depending on package size",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/chain/token-honeypot",
+        healthCheck: {
+          body: {
+            token: "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
+            chain: "base",
+          },
+        },
+        desc: "Simulate a buy and sell of a token to detect honeypots and hidden taxes",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/markets/macro",
+        healthCheck: { body: {} },
+        desc: "Macro snapshot: Treasury yields, FX reference rates, SOFR/EFFR and dollar-index proxy",
+        amount: "4000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/defi/funding",
+        healthCheck: { body: { limit: 5 } },
+        desc: "Hyperliquid perpetual funding rates, hourly and annualised",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/defi/yields",
+        healthCheck: { body: {} },
+        desc: "DeFi lending supply and borrow APY, including the best stablecoin rate",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/fx/live",
+        healthCheck: { body: {} },
+        desc: "Live currency exchange rate such as EUR/USD, with bid and ask",
+        amount: "2000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/news/crypto",
+        healthCheck: { body: {} },
+        desc: "Latest crypto news headlines ranked by outlet coverage",
+        amount: "1000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/render",
+        healthCheck: {
+          body: { url: "https://example.com/", format: "markdown", js: false },
+        },
+        desc: "Fetch a web page as Markdown, or take a PNG screenshot",
+        dynamic: true,
+        amountHint: "$0.002 to $0.01 depending on rendering mode",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/docs/to-markdown",
+        healthCheck: {
+          body: {
+            url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          },
+        },
+        desc: "Convert a PDF, DOCX, Excel, PowerPoint, HTML, EPUB or CSV document to Markdown",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/pdf/tables",
+        healthCheck: {
+          body: { url: "https://tanod.dev/samples/tables-sample.pdf" },
+        },
+        desc: "Extract the tables in a PDF as JSON, CSV or Excel",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/pdf/bank-statement",
+        healthCheck: {
+          body: { url: "https://tanod.dev/samples/statement-sample.pdf" },
+        },
+        desc: "Convert a bank statement PDF to transactions as CSV, Excel, OFX or QIF",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/pdf/to-docx",
+        healthCheck: {
+          body: {
+            url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          },
+        },
+        desc: "Convert a PDF to an editable Word (DOCX) document",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/docs/to-pdf",
+        healthCheck: {
+          body: { url: "https://calibre-ebook.com/downloads/demos/demo.docx" },
+        },
+        desc: "Convert a Word, Excel, PowerPoint or OpenDocument file to PDF",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/pdf/merge",
+        healthCheck: {
+          body: {
+            inputs: [
+              {
+                url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+              },
+              { url: "https://pdfobject.com/pdf/sample.pdf" },
+            ],
+          },
+        },
+        desc: "Merge several PDFs into one, optionally picking pages from each",
+        amount: "5000",
+        unitType: "request",
+      },
+      {
+        route: "POST /v1/space/passes",
+        healthCheck: { body: { lat: 14.5995, lon: 120.9842 } },
+        desc: "Predict satellite passes (ISS and others) over a location",
+        amount: "2000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
