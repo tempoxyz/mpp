@@ -136,6 +136,67 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  {
+    id: "oculr",
+    name: "Oculr",
+    url: "https://www.oculr.xyz",
+    serviceUrl: "https://mpp.oculr.xyz",
+    description:
+      "AI-powered forensic analysis of EVM transactions across 50+ mainnets: send a tx hash, get a structured report with the root cause, fund flows, attacker profile and loss figures. Built for exploit triage and incident response.",
+    icon: "https://www.oculr.xyz/favicon.svg",
+    categories: ["blockchain", "ai", "data"],
+    integration: "first-party",
+    tags: [
+      "security",
+      "exploit",
+      "forensics",
+      "incident-response",
+      "transaction-analysis",
+      "evm",
+      "multichain",
+    ],
+    docs: {
+      homepage: "https://mpp.oculr.xyz/docs",
+      llmsTxt: "https://mpp.oculr.xyz/llms.txt",
+      apiReference: "https://mpp.oculr.xyz/openapi.json",
+    },
+    provider: { name: "Oculr", url: "https://www.oculr.xyz" },
+    realm: "mpp.oculr.xyz",
+    intent: "session",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /explain",
+        desc: "Analyze a transaction (SSE; send Accept: text/event-stream) - metered as the analysis runs",
+        dynamic: true,
+        amountHint:
+          "Typically $1-$2 per analysis: about $1 for routine transactions, up to about $2.50 for exploit investigations",
+        healthCheck: { body: {} },
+        docs: "https://mpp.oculr.xyz/docs/reference/endpoints/explain",
+      },
+      {
+        route: "POST /explain/async",
+        desc: "Submit an analysis job and get a jobId - $0.01 to submit, the remainder is collected on result fetch",
+        dynamic: true,
+        amountHint: "$0.01 to submit; the rest on GET /result/:jobId",
+        healthCheck: { body: {} },
+        docs: "https://mpp.oculr.xyz/docs/reference/endpoints/explain-async",
+      },
+      {
+        route: "GET /result/:jobId",
+        desc: "Poll an async job and fetch its result - collects what the analysis has accrued since the last poll",
+        dynamic: true,
+        amountHint:
+          "Typically $1-$2 per analysis, collected across polls: about $1 for routine transactions, up to about $2.50 for exploit investigations",
+        docs: "https://mpp.oculr.xyz/docs/reference/endpoints/result",
+      },
+      {
+        route: "GET /health",
+        desc: "Liveness check (free)",
+        docs: "https://mpp.oculr.xyz/docs/reference/endpoints/health",
+      },
+    ],
+  },
   // AIsa: fixed-price read-only operations from the public OpenAPI catalog.
   {
     id: "aisa",
