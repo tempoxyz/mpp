@@ -23,14 +23,16 @@ export function stripLayoutDivs(markdown: string): string {
   return markdown
     .split("\n")
     .filter((line) => {
-      const match = line.match(/^ {0,3}(`{3,}|~{3,})/);
+      const match = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
       if (match) {
         const marker = match[1];
+        const suffix = match[2];
         if (!fence) {
           fence = { character: marker[0], length: marker.length };
         } else if (
           marker[0] === fence.character &&
-          marker.length >= fence.length
+          marker.length >= fence.length &&
+          suffix.trim() === ""
         ) {
           fence = undefined;
         }

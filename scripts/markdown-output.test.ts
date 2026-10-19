@@ -43,6 +43,10 @@ describe("final Markdown transform", () => {
       "```tsx",
       '<div className="card">Example</div>',
       "```",
+      "~~~markdown",
+      "~~~typescript",
+      "<div>Nested fence marker</div>",
+      "~~~",
     ].join("\n");
 
     expect(stripLayoutDivs(markdown)).toBe(
@@ -52,6 +56,10 @@ describe("final Markdown transform", () => {
         "```tsx",
         '<div className="card">Example</div>',
         "```",
+        "~~~markdown",
+        "~~~typescript",
+        "<div>Nested fence marker</div>",
+        "~~~",
       ].join("\n"),
     );
   });

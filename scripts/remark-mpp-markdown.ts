@@ -71,7 +71,7 @@ function transformNode(
     return [transformChildren(node, headingDepth, blogPosts)];
 
   if (node.name === "div")
-    return transformNodes(node.children, headingDepth, blogPosts);
+    return transformNodes(node.children, headingDepth + 1, blogPosts);
 
   // HTML layout styles have no meaning in a text export. Preserve semantic
   // attributes (href/src/alt) and children; do not drop arbitrary expressions.
