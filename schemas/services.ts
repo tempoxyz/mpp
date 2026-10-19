@@ -1118,6 +1118,1259 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── afriref (Pan-African government reference data) ─────────────────────
+  {
+    id: "afriref",
+    name: "afriref government reference data",
+    url: "https://afriref.dev",
+    serviceUrl: "https://afriref.dev",
+    description:
+      "Cited Pan-African government reference data for 34 African countries: central-bank policy rates, VAT/GST and registration thresholds, CPI, corporate, personal and withholding tax, social contributions, minimum wages, statutory interest and filing deadlines, each with its official source URL, effective date and last-confirmed date. Also computed answers (VAT, income tax, payroll, wage checks, working days) and finished jobs: cost this hire (Kenya and Nigeria) and charge this sale (EU, UK and South African VAT). Out-of-scope requests are refused free.",
+    icon: "https://afriref.dev/favicon.ico",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "government-data",
+      "tax",
+      "vat",
+      "payroll",
+      "central-bank",
+      "compliance",
+      "africa",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://afriref.dev/docs",
+      llmsTxt: "https://afriref.dev/llms.txt",
+      apiReference: "https://afriref.dev/openapi.json",
+    },
+    provider: { name: "3L Group Consulting", url: "https://afriref.dev" },
+    realm: "afriref.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/:country/:series",
+        desc: "Current value of one series with its official citation",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/za/policy-rate",
+        },
+      },
+      {
+        route: "GET /v1/:country/:series/history",
+        desc: "Dated history of one series with citations",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/za/policy-rate/history",
+        },
+      },
+      {
+        route: "GET /v1/brief/:country",
+        desc: "Every series for one country in one call",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/brief/za",
+        },
+      },
+      {
+        route: "GET /v1/compare",
+        desc: "One series compared across up to 10 countries",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/compare?series=vat&countries=za,ke,ng",
+        },
+      },
+      {
+        route: "GET /v1/certified/:country/:series",
+        desc: "Signed, point-in-time certified extract of one value",
+        amount: "100000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/certified/za/vat",
+        },
+      },
+      {
+        route: "GET /v1/all",
+        desc: "Every current value on this service",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/all",
+        },
+      },
+      {
+        route: "POST /v1/answers/vat",
+        desc: "VAT breakdown with the cited rate",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/working-days",
+        desc: "Business days between two dates",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/income-tax",
+        desc: "Personal income tax computation",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/wage-check",
+        desc: "Minimum-wage compliance check",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/payroll",
+        desc: "Employer and employee payroll contributions",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/vat/determine",
+        desc: "Which country's VAT applies to a sale",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/cost-hire",
+        desc: "Finished job: full cited cost of employing someone",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale",
+        desc: "Finished job: whether and how much VAT to charge on a sale",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale/certified",
+        desc: "Charge this sale plus a signed certified rate extract",
+        amount: "750000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "GET /catalog",
+        desc: "Free catalog of countries and series",
+      },
+    ],
+  },
+
+  // ── euroref (European government reference data) ─────────────────────
+  {
+    id: "euroref",
+    name: "euroref government reference data",
+    url: "https://euroref.dev",
+    serviceUrl: "https://euroref.dev",
+    description:
+      "Cited European government reference data for 34 European countries plus EU-level rates: central-bank policy rates, VAT/GST and registration thresholds, CPI, corporate, personal and withholding tax, social contributions, minimum wages, statutory interest and filing deadlines, each with its official source URL, effective date and last-confirmed date. Also computed answers (VAT, income tax, payroll, wage checks, working days) and finished jobs: cost this hire (Germany, Spain, the UK, Italy and Poland) and charge this sale (EU, UK and South African VAT). Out-of-scope requests are refused free.",
+    icon: "https://euroref.dev/favicon.ico",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "government-data",
+      "tax",
+      "vat",
+      "payroll",
+      "central-bank",
+      "compliance",
+      "europe",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://euroref.dev/docs",
+      llmsTxt: "https://euroref.dev/llms.txt",
+      apiReference: "https://euroref.dev/openapi.json",
+    },
+    provider: { name: "3L Group Consulting", url: "https://afriref.dev" },
+    realm: "euroref.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/:country/:series",
+        desc: "Current value of one series with its official citation",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/de/policy-rate",
+        },
+      },
+      {
+        route: "GET /v1/:country/:series/history",
+        desc: "Dated history of one series with citations",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/de/policy-rate/history",
+        },
+      },
+      {
+        route: "GET /v1/brief/:country",
+        desc: "Every series for one country in one call",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/brief/de",
+        },
+      },
+      {
+        route: "GET /v1/compare",
+        desc: "One series compared across up to 10 countries",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/compare?series=vat&countries=de,fr,es",
+        },
+      },
+      {
+        route: "GET /v1/certified/:country/:series",
+        desc: "Signed, point-in-time certified extract of one value",
+        amount: "100000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/certified/de/vat",
+        },
+      },
+      {
+        route: "GET /v1/all",
+        desc: "Every current value on this service",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/all",
+        },
+      },
+      {
+        route: "POST /v1/answers/vat",
+        desc: "VAT breakdown with the cited rate",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/working-days",
+        desc: "Business days between two dates",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/income-tax",
+        desc: "Personal income tax computation",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/wage-check",
+        desc: "Minimum-wage compliance check",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/payroll",
+        desc: "Employer and employee payroll contributions",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/vat/determine",
+        desc: "Which country's VAT applies to a sale",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/cost-hire",
+        desc: "Finished job: full cited cost of employing someone",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale",
+        desc: "Finished job: whether and how much VAT to charge on a sale",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale/certified",
+        desc: "Charge this sale plus a signed certified rate extract",
+        amount: "750000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "GET /catalog",
+        desc: "Free catalog of countries and series",
+      },
+    ],
+  },
+
+  // ── usaref (North and Central American government reference data) ─────────────────────
+  {
+    id: "usaref",
+    name: "usaref government reference data",
+    url: "https://usaref.dev",
+    serviceUrl: "https://usaref.dev",
+    description:
+      "Cited North and Central American government reference data for 10 North and Central American countries: central-bank policy rates, VAT/GST and registration thresholds, CPI, corporate, personal and withholding tax, social contributions, minimum wages, statutory interest and filing deadlines, each with its official source URL, effective date and last-confirmed date. Also computed answers (VAT, income tax, payroll, wage checks, working days) and finished jobs: cost this hire (the US, Canada and Mexico) and charge this sale (EU, UK and South African VAT). Out-of-scope requests are refused free.",
+    icon: "https://usaref.dev/favicon.ico",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "government-data",
+      "tax",
+      "vat",
+      "payroll",
+      "central-bank",
+      "compliance",
+      "north-america",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://usaref.dev/docs",
+      llmsTxt: "https://usaref.dev/llms.txt",
+      apiReference: "https://usaref.dev/openapi.json",
+    },
+    provider: { name: "3L Group Consulting", url: "https://afriref.dev" },
+    realm: "usaref.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/:country/:series",
+        desc: "Current value of one series with its official citation",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/ca/policy-rate",
+        },
+      },
+      {
+        route: "GET /v1/:country/:series/history",
+        desc: "Dated history of one series with citations",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/ca/policy-rate/history",
+        },
+      },
+      {
+        route: "GET /v1/brief/:country",
+        desc: "Every series for one country in one call",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/brief/ca",
+        },
+      },
+      {
+        route: "GET /v1/compare",
+        desc: "One series compared across up to 10 countries",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/compare?series=vat&countries=ca,mx,us",
+        },
+      },
+      {
+        route: "GET /v1/certified/:country/:series",
+        desc: "Signed, point-in-time certified extract of one value",
+        amount: "100000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/certified/ca/vat",
+        },
+      },
+      {
+        route: "GET /v1/all",
+        desc: "Every current value on this service",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/all",
+        },
+      },
+      {
+        route: "POST /v1/answers/vat",
+        desc: "VAT breakdown with the cited rate",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/working-days",
+        desc: "Business days between two dates",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/income-tax",
+        desc: "Personal income tax computation",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/wage-check",
+        desc: "Minimum-wage compliance check",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/payroll",
+        desc: "Employer and employee payroll contributions",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/vat/determine",
+        desc: "Which country's VAT applies to a sale",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/cost-hire",
+        desc: "Finished job: full cited cost of employing someone",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale",
+        desc: "Finished job: whether and how much VAT to charge on a sale",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale/certified",
+        desc: "Charge this sale plus a signed certified rate extract",
+        amount: "750000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "GET /catalog",
+        desc: "Free catalog of countries and series",
+      },
+    ],
+  },
+
+  // ── latamref (Latin American and Caribbean government reference data) ─────────────────────
+  {
+    id: "latamref",
+    name: "latamref government reference data",
+    url: "https://latamref.dev",
+    serviceUrl: "https://latamref.dev",
+    description:
+      "Cited Latin American and Caribbean government reference data for 22 Latin American and Caribbean countries: central-bank policy rates, VAT/GST and registration thresholds, CPI, corporate, personal and withholding tax, social contributions, minimum wages, statutory interest and filing deadlines, each with its official source URL, effective date and last-confirmed date. Also computed answers (VAT, income tax, payroll, wage checks, working days) and finished jobs: cost this hire (Mexico) and charge this sale (EU, UK and South African VAT). Out-of-scope requests are refused free.",
+    icon: "https://latamref.dev/favicon.ico",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "government-data",
+      "tax",
+      "vat",
+      "payroll",
+      "central-bank",
+      "compliance",
+      "latin-america",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://latamref.dev/docs",
+      llmsTxt: "https://latamref.dev/llms.txt",
+      apiReference: "https://latamref.dev/openapi.json",
+    },
+    provider: { name: "3L Group Consulting", url: "https://afriref.dev" },
+    realm: "latamref.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/:country/:series",
+        desc: "Current value of one series with its official citation",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/mx/policy-rate",
+        },
+      },
+      {
+        route: "GET /v1/:country/:series/history",
+        desc: "Dated history of one series with citations",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/mx/policy-rate/history",
+        },
+      },
+      {
+        route: "GET /v1/brief/:country",
+        desc: "Every series for one country in one call",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/brief/mx",
+        },
+      },
+      {
+        route: "GET /v1/compare",
+        desc: "One series compared across up to 10 countries",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/compare?series=vat&countries=mx,co,cl",
+        },
+      },
+      {
+        route: "GET /v1/certified/:country/:series",
+        desc: "Signed, point-in-time certified extract of one value",
+        amount: "100000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/certified/mx/vat",
+        },
+      },
+      {
+        route: "GET /v1/all",
+        desc: "Every current value on this service",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/all",
+        },
+      },
+      {
+        route: "POST /v1/answers/vat",
+        desc: "VAT breakdown with the cited rate",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/working-days",
+        desc: "Business days between two dates",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/income-tax",
+        desc: "Personal income tax computation",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/wage-check",
+        desc: "Minimum-wage compliance check",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/payroll",
+        desc: "Employer and employee payroll contributions",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/vat/determine",
+        desc: "Which country's VAT applies to a sale",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/cost-hire",
+        desc: "Finished job: full cited cost of employing someone",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale",
+        desc: "Finished job: whether and how much VAT to charge on a sale",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale/certified",
+        desc: "Charge this sale plus a signed certified rate extract",
+        amount: "750000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "GET /catalog",
+        desc: "Free catalog of countries and series",
+      },
+    ],
+  },
+
+  // ── ausref (Australasian and Pacific government reference data) ─────────────────────
+  {
+    id: "ausref",
+    name: "ausref government reference data",
+    url: "https://ausref.dev",
+    serviceUrl: "https://ausref.dev",
+    description:
+      "Cited Australasian and Pacific government reference data for 8 Australasian and Pacific countries: central-bank policy rates, VAT/GST and registration thresholds, CPI, corporate, personal and withholding tax, social contributions, minimum wages, statutory interest and filing deadlines, each with its official source URL, effective date and last-confirmed date. Also computed answers (VAT, income tax, payroll, wage checks, working days) and finished jobs: cost this hire (Australia) and charge this sale (EU, UK and South African VAT). Out-of-scope requests are refused free.",
+    icon: "https://ausref.dev/favicon.ico",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "government-data",
+      "tax",
+      "vat",
+      "payroll",
+      "central-bank",
+      "compliance",
+      "oceania",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://ausref.dev/docs",
+      llmsTxt: "https://ausref.dev/llms.txt",
+      apiReference: "https://ausref.dev/openapi.json",
+    },
+    provider: { name: "3L Group Consulting", url: "https://afriref.dev" },
+    realm: "ausref.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/:country/:series",
+        desc: "Current value of one series with its official citation",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/nz/policy-rate",
+        },
+      },
+      {
+        route: "GET /v1/:country/:series/history",
+        desc: "Dated history of one series with citations",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/nz/policy-rate/history",
+        },
+      },
+      {
+        route: "GET /v1/brief/:country",
+        desc: "Every series for one country in one call",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/brief/nz",
+        },
+      },
+      {
+        route: "GET /v1/compare",
+        desc: "One series compared across up to 10 countries",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/compare?series=vat&countries=nz,au,fj",
+        },
+      },
+      {
+        route: "GET /v1/certified/:country/:series",
+        desc: "Signed, point-in-time certified extract of one value",
+        amount: "100000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/certified/nz/vat",
+        },
+      },
+      {
+        route: "GET /v1/all",
+        desc: "Every current value on this service",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/all",
+        },
+      },
+      {
+        route: "POST /v1/answers/vat",
+        desc: "VAT breakdown with the cited rate",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/working-days",
+        desc: "Business days between two dates",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/income-tax",
+        desc: "Personal income tax computation",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/wage-check",
+        desc: "Minimum-wage compliance check",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/payroll",
+        desc: "Employer and employee payroll contributions",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/vat/determine",
+        desc: "Which country's VAT applies to a sale",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/cost-hire",
+        desc: "Finished job: full cited cost of employing someone",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale",
+        desc: "Finished job: whether and how much VAT to charge on a sale",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale/certified",
+        desc: "Charge this sale plus a signed certified rate extract",
+        amount: "750000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "GET /catalog",
+        desc: "Free catalog of countries and series",
+      },
+    ],
+  },
+
+  // ── mearef (Middle Eastern government reference data) ─────────────────────
+  {
+    id: "mearef",
+    name: "mearef government reference data",
+    url: "https://mearef.dev",
+    serviceUrl: "https://mearef.dev",
+    description:
+      "Cited Middle Eastern government reference data for 9 Middle Eastern countries: central-bank policy rates, VAT/GST and registration thresholds, CPI, corporate, personal and withholding tax, social contributions, minimum wages, statutory interest and filing deadlines, each with its official source URL, effective date and last-confirmed date. Also computed answers (VAT, income tax, payroll, wage checks, working days) and finished jobs: cost this hire (the UAE) and charge this sale (EU, UK and South African VAT). Out-of-scope requests are refused free.",
+    icon: "https://mearef.dev/favicon.ico",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "government-data",
+      "tax",
+      "vat",
+      "payroll",
+      "central-bank",
+      "compliance",
+      "middle-east",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://mearef.dev/docs",
+      llmsTxt: "https://mearef.dev/llms.txt",
+      apiReference: "https://mearef.dev/openapi.json",
+    },
+    provider: { name: "3L Group Consulting", url: "https://afriref.dev" },
+    realm: "mearef.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/:country/:series",
+        desc: "Current value of one series with its official citation",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/sa/policy-rate",
+        },
+      },
+      {
+        route: "GET /v1/:country/:series/history",
+        desc: "Dated history of one series with citations",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/sa/policy-rate/history",
+        },
+      },
+      {
+        route: "GET /v1/brief/:country",
+        desc: "Every series for one country in one call",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/brief/sa",
+        },
+      },
+      {
+        route: "GET /v1/compare",
+        desc: "One series compared across up to 10 countries",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/compare?series=vat&countries=sa,qa,ae",
+        },
+      },
+      {
+        route: "GET /v1/certified/:country/:series",
+        desc: "Signed, point-in-time certified extract of one value",
+        amount: "100000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/certified/sa/vat",
+        },
+      },
+      {
+        route: "GET /v1/all",
+        desc: "Every current value on this service",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/all",
+        },
+      },
+      {
+        route: "POST /v1/answers/vat",
+        desc: "VAT breakdown with the cited rate",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/working-days",
+        desc: "Business days between two dates",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/income-tax",
+        desc: "Personal income tax computation",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/wage-check",
+        desc: "Minimum-wage compliance check",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/payroll",
+        desc: "Employer and employee payroll contributions",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/vat/determine",
+        desc: "Which country's VAT applies to a sale",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/cost-hire",
+        desc: "Finished job: full cited cost of employing someone",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale",
+        desc: "Finished job: whether and how much VAT to charge on a sale",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale/certified",
+        desc: "Charge this sale plus a signed certified rate extract",
+        amount: "750000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "GET /catalog",
+        desc: "Free catalog of countries and series",
+      },
+    ],
+  },
+
+  // ── asiaref (Asian government reference data) ─────────────────────
+  {
+    id: "asiaref",
+    name: "asiaref government reference data",
+    url: "https://asiaref.dev",
+    serviceUrl: "https://asiaref.dev",
+    description:
+      "Cited Asian government reference data for 28 Asian countries: central-bank policy rates, VAT/GST and registration thresholds, CPI, corporate, personal and withholding tax, social contributions, minimum wages, statutory interest and filing deadlines, each with its official source URL, effective date and last-confirmed date. Also computed answers (VAT, income tax, payroll, wage checks, working days) and finished jobs: cost this hire (the UAE) and charge this sale (EU, UK and South African VAT). Out-of-scope requests are refused free.",
+    icon: "https://asiaref.dev/favicon.ico",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "government-data",
+      "tax",
+      "vat",
+      "payroll",
+      "central-bank",
+      "compliance",
+      "asia",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://asiaref.dev/docs",
+      llmsTxt: "https://asiaref.dev/llms.txt",
+      apiReference: "https://asiaref.dev/openapi.json",
+    },
+    provider: { name: "3L Group Consulting", url: "https://afriref.dev" },
+    realm: "asiaref.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /v1/:country/:series",
+        desc: "Current value of one series with its official citation",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/jp/policy-rate",
+        },
+      },
+      {
+        route: "GET /v1/:country/:series/history",
+        desc: "Dated history of one series with citations",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/jp/policy-rate/history",
+        },
+      },
+      {
+        route: "GET /v1/brief/:country",
+        desc: "Every series for one country in one call",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/brief/jp",
+        },
+      },
+      {
+        route: "GET /v1/compare",
+        desc: "One series compared across up to 10 countries",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/compare?series=vat&countries=jp,kr,sg",
+        },
+      },
+      {
+        route: "GET /v1/certified/:country/:series",
+        desc: "Signed, point-in-time certified extract of one value",
+        amount: "100000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/certified/jp/vat",
+        },
+      },
+      {
+        route: "GET /v1/all",
+        desc: "Every current value on this service",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/all",
+        },
+      },
+      {
+        route: "POST /v1/answers/vat",
+        desc: "VAT breakdown with the cited rate",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/working-days",
+        desc: "Business days between two dates",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/income-tax",
+        desc: "Personal income tax computation",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/wage-check",
+        desc: "Minimum-wage compliance check",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/answers/payroll",
+        desc: "Employer and employee payroll contributions",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/vat/determine",
+        desc: "Which country's VAT applies to a sale",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/cost-hire",
+        desc: "Finished job: full cited cost of employing someone",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale",
+        desc: "Finished job: whether and how much VAT to charge on a sale",
+        amount: "500000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "POST /v1/jobs/charge-sale/certified",
+        desc: "Charge this sale plus a signed certified rate extract",
+        amount: "750000",
+        unitType: "request",
+        healthCheck: {
+          body: {},
+        },
+      },
+      {
+        route: "GET /catalog",
+        desc: "Free catalog of countries and series",
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
