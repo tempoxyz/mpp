@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { sectionIndex, transformMarkdownOutput } from "./markdown-output";
+import {
+  sectionIndex,
+  stripLayoutDivs,
+  transformMarkdownOutput,
+} from "./markdown-output";
 
 describe("final Markdown transform", () => {
   it("keeps every generated entry and page while grouping the index", async () => {
@@ -27,5 +31,28 @@ describe("final Markdown transform", () => {
   });
   it("does not invent entries for an empty inventory", () => {
     expect(sectionIndex("# MPP\n")).toBe("# MPP\n");
+  });
+
+  it("removes layout divs without changing fenced examples", () => {
+    const markdown = [
+      '<div class="space-y-4">',
+      "## Framework mode",
+      "</div>",
+      '<div class="h-2" />',
+      "    <div>Indented code</div>",
+      "```tsx",
+      '<div className="card">Example</div>',
+      "```",
+    ].join("\n");
+
+    expect(stripLayoutDivs(markdown)).toBe(
+      [
+        "## Framework mode",
+        "    <div>Indented code</div>",
+        "```tsx",
+        '<div className="card">Example</div>',
+        "```",
+      ].join("\n"),
+    );
   });
 });

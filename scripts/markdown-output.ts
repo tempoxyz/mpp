@@ -5,8 +5,45 @@ export const transformMarkdownOutput: MarkdownOutputTransform = ({
   index,
   pages,
 }) => {
-  return { index: sectionIndex(index), pages };
+  return {
+    index: sectionIndex(index),
+    pages: Object.fromEntries(
+      Object.entries(pages).map(([path, page]) => [
+        path,
+        stripLayoutDivs(page),
+      ]),
+    ),
+  };
 };
+
+/** Remove rendered layout wrappers without changing HTML examples in fences. */
+export function stripLayoutDivs(markdown: string): string {
+  let fence: { character: string; length: number } | undefined;
+
+  return markdown
+    .split("\n")
+    .filter((line) => {
+      const match = line.match(/^ {0,3}(`{3,}|~{3,})/);
+      if (match) {
+        const marker = match[1];
+        if (!fence) {
+          fence = { character: marker[0], length: marker.length };
+        } else if (
+          marker[0] === fence.character &&
+          marker.length >= fence.length
+        ) {
+          fence = undefined;
+        }
+        return true;
+      }
+
+      return (
+        fence !== undefined ||
+        !/^ {0,3}<\/?div(?:\s[^>]*)?\s*\/?>\s*$/.test(line)
+      );
+    })
+    .join("\n");
+}
 
 export function sectionIndex(current: string): string {
   const lines = current.split("\n");

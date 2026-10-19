@@ -70,6 +70,9 @@ function transformNode(
   if (!isMdxJsxElement(node))
     return [transformChildren(node, headingDepth, blogPosts)];
 
+  if (node.name === "div")
+    return transformNodes(node.children, headingDepth, blogPosts);
+
   // HTML layout styles have no meaning in a text export. Preserve semantic
   // attributes (href/src/alt) and children; do not drop arbitrary expressions.
   if (node.name && /^[a-z]/.test(node.name)) {

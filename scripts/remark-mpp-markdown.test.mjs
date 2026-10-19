@@ -466,6 +466,20 @@ describe("remarkMppMarkdown", () => {
     expect(tree.children[0].attributes).toEqual([src, alt, dynamic]);
   });
 
+  it("unwraps layout divs and drops empty spacer divs", () => {
+    const heading = {
+      children: [{ type: "text", value: "Framework mode" }],
+      depth: 3,
+      type: "heading",
+    };
+    const tree = transform([
+      flow("div", [attribute("className", "space-y-4")], [heading]),
+      flow("div", [attribute("className", "h-2")]),
+    ]);
+
+    expect(tree.children).toEqual([heading]);
+  });
+
   it("rejects missing or incomplete blog metadata", () => {
     const missing = { children: [flow("BlogPostList")], type: "root" };
     expect(() => remarkMppMarkdown()(missing)).toThrow(TypeError);
