@@ -45,6 +45,8 @@ export async function handler(request: Request) {
 
 Test mode uses pathUSD on Tempo testnet. Live mode uses USDC.e on Tempo mainnet. The SPT method defaults to cards and Link in both modes. The atomic `store` must be shared by every server instance so Stripe-backed Tempo payments use one replay-protection namespace.
 
+Stripe-backed Session offers require at least one cent of recordable value before application offer policies run. Requests below that minimum don't produce a Stripe-backed Session offer.
+
 ### Configure one PaymentIntent
 
 Pass `paymentIntentOptions` with route options to associate a Stripe Customer, apply an existing Tax Calculation, attach metadata, or send a receipt email. `mppx` keeps these options server-side and excludes them from the Challenge.

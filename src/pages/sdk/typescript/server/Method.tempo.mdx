@@ -169,7 +169,7 @@ Lets compatible charge clients fund the requested stablecoin payment with MACH t
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge> & Method.OnPaymentSuccessFn<typeof tempo.Methods.session>`
 
-Runs after a configured Tempo charge or Sessions result succeeds. The hook receives the optional associated Challenge, canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
+Runs after a configured Tempo charge or Sessions result succeeds. The hook receives the optional associated Challenge, verified `payer` when the method reports one, canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
 
 ### recipient (optional)
 

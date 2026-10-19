@@ -153,6 +153,7 @@ type Page =
   | { path: '/sdk/typescript/core/Credential.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.fromRequest'; render: 'static' }
   | { path: '/sdk/typescript/core/Credential.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Errors'; render: 'static' }
   | { path: '/sdk/typescript/core/Expires'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Method.toClient'; render: 'static' }
@@ -197,6 +198,7 @@ type Page =
   | { path: '/sdk/typescript/server/Transport.mcp'; render: 'static' }
   | { path: '/sdk/typescript/server/Transport.mcpSdk'; render: 'static' }
   | { path: '/sdk/typescript/server/Ws.serve'; render: 'static' }
+  | { path: '/sdk/typescript/tempo.Attribution'; render: 'static' }
   | { path: '/sdk/typescript/tempo.machineTokenDeployments'; render: 'static' }
   | { path: '/sdk/typescript/x402/express'; render: 'static' }
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }

@@ -247,6 +247,8 @@ Overrides the fee-sponsor limits used for subscription activation and renewal tr
 
 `allowKeyAuthorization` defaults to `true`. Setting it to `false` rejects sponsored transactions that install the subscription access key.
 
+Sponsored activation and renewal transactions must have at least 15 seconds of remaining validity when signed and submitted.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
@@ -314,6 +316,8 @@ Maps a request to a subscription lookup key. With `requireCredential: true`, ret
 - **Default:** `Store.memory()`
 
 Atomic store for access keys, activation locks, renewal locks, and subscription records. Use [`Subscription.fromStore`](/payment-methods/tempo/subscription#cancellation) from `mppx/tempo` when you need to update subscription records directly, such as marking `canceledAt`.
+
+The in-memory fallback logs a one-time warning because replay protection applies only within one instance.
 
 ### storeKeyPrefix (optional)
 

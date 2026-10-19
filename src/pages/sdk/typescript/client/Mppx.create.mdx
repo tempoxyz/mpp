@@ -13,6 +13,8 @@ Creates a client-side payment handler. Returns a payment handler with a `fetch` 
 
 Credential-bearing retries use `redirect: 'manual'`. Redirect responses return without forwarding the Credential and leave payment acceptance pending, as with [`Fetch.from`](/sdk/typescript/client/Fetch.from).
 
+When a paid retry returns `5xx`, `onPaymentFailed` receives `PaymentOutcomeUnknownError` with the Challenge, serialized Credential, and a transaction hash when the method can derive one. The response still returns to the caller. If the paid request throws, the hook receives the same error with the original failure as `cause`, and the original failure is thrown to the caller. Reconcile the payment before sending another Credential.
+
 ## Usage
 
 <Tabs stateKey="account-source">
@@ -402,10 +404,12 @@ Payment hooks are for logging, monitoring, tracing, and request-local context. E
 | `onChallengeReceived` | A `402` Challenge is selected |
 | `onCredentialCreated` | A Credential is created for the selected Challenge |
 | `onPaymentResponse` | The retry after payment returns a successful response |
-| `onPaymentFailed` | Challenge parsing, Credential creation, or retry handling fails |
+| `onPaymentFailed` | Challenge parsing, Credential creation, retry handling, or a paid retry with an unknown outcome fails |
 | `on('*', handler)` | Any client payment event fires |
 
 `onChallengeReceived` runs before `onChallenge`. It can return a non-empty Credential string to override the default Credential flow. Other hooks are observers: thrown errors are ignored and don't change payment handling.
+
+When a `payment.failed` observer handles a paid `5xx` response, `mppx` buffers its body up to 64 KiB or 2 seconds before invoking the hook. A cut-off body has `Mppx-Body-Truncated: true`. Native `Response` objects in payment event snapshots expose status and headers without retaining the response body; read the body from the returned response instead.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">

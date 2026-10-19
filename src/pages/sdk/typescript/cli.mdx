@@ -95,6 +95,8 @@ Run `mppx validate` against both test and production versions of your server. On
 
 When your config declares payment methods, `mppx validate` uses their signing accounts, approval hooks, chain policies, and Session stores instead of substituting built-in methods or preflighting the local CLI wallet.
 
+For EVM charges, signing also uses the account selected by `--account`, `MPPX_ACCOUNT`, or `MPPX_PRIVATE_KEY`.
+
 ### Programmatic validation
 
 Import `validate` from `mppx/validation` when you need structured results.

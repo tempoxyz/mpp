@@ -490,13 +490,14 @@ type ChannelStore = {
 
 ```ts
 type ChannelEntry = {
+  chainId: number
   channelId: Hex
   cumulativeAmount: bigint
   deposit: bigint
   descriptor: ChannelDescriptor
   escrow: Address
-  chainId: number
   opened: boolean
+  uncertainTopUp?: boolean
 }
 ```
 
@@ -509,6 +510,7 @@ type ChannelEntry = {
 | `escrow` | Reserve precompile address used to derive the channel ID. |
 | `chainId` | Tempo chain ID used to derive the channel ID and voucher domain. |
 | `opened` | Whether the channel was open when stored. Closed channels are ignored. |
+| `uncertainTopUp` | A dispatched top-up has an unknown outcome. Reconcile it against trusted chain state before another deposit or channel replacement. |
 
 ### `SessionSnapshot`
 
@@ -669,9 +671,9 @@ The manager rejects a configured client, resolved client, or Session snapshot on
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
 
-Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. Use the object form to set a maximum slippage percentage and the fallback token order.
+Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. The swap acquires only the missing balance. Use the object form to set a slippage percentage from `0` to `50`, fallback token order, and a positive input-token base-unit `maxAmountIn`. The default input budget assumes 1:1 token units plus slippage; set `maxAmountIn` for non-parity pairs.
 
 ### bootstrap (optional)
 
@@ -728,6 +730,8 @@ Function that returns a viem client for the given chain ID.
 - **Type:** `string`
 
 Maximum deposit in human-readable units. Converted to raw units via `decimals`.
+
+Automatic and manual funding decisions are serialized for managers sharing a store within one process. The manager refreshes the active deposit before each decision. A top-up request that times out after 30 seconds, fails, or is canceled after dispatch leaves `uncertainTopUp` in the channel store and blocks further deposits until you reconcile the pending transaction against trusted chain state. Coordinate store writes and funding across processes yourself.
 
 ### topUpAmount (optional)
 

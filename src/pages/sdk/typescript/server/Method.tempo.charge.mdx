@@ -13,6 +13,8 @@ Non-zero charges verify on-chain transfers. Zero-amount charges verify a `proof`
 
 For non-zero charges, the client generates a Challenge-bound attribution memo and the server always verifies it. Custom top-level memos aren't supported; split transfers can still include their own memos, but every MPP attribution memo must bind to the same Challenge and realm.
 
+Replayed transaction hashes or proofs, concurrent claims, and settled transfers bound to a different Challenge return `403` Problem Details without a new Challenge. The error is `CredentialReplayedError`, a `VerificationFailedError` subclass with the `verification-failed` problem type. Reconcile an uncertain outcome instead of paying again.
+
 ## Usage
 
 Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `testnet: true`. Set `currencies` to accept a different list.
@@ -109,6 +111,8 @@ The client uses MACH only when the canonical route is available, its account hol
 ### With a custom fee payer policy
 
 Override the local fee-sponsor limits when you co-sign charge transactions.
+
+Sponsored transactions need at least 15 seconds of remaining validity before signing and submission. Set `maxValidityWindowSeconds` to an integer of at least `15`.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -264,6 +268,15 @@ Returns whether this configured charge offer is available when an HTTP handler c
 
 Tempo chain ID. `testnet: true` selects `42431`; an explicit `chainId` takes precedence. Set it explicitly when `getClient` uses another network.
 
+### confirmationTimeoutMs (optional)
+
+- **Type:** `number`
+- **Default:** `30_000`
+
+Maximum milliseconds to confirm a non-zero charge when `waitForConfirmation` is `true`. Synchronous broadcast uses at most two thirds of this time; after an ambiguous RPC error, `mppx` polls for the Receipt until the deadline. Definitive rejections fail immediately.
+
+If a broadcast attempt fails before settlement completes, the server releases its transaction-hash claim. Retrying the same Credential can then recover a transaction that was already included without treating it as a replay.
+
 ### currencies (optional)
 
 - **Type:** `readonly (string | Token)[]`
@@ -358,13 +371,15 @@ Advertises canonical MACH funding for compatible single-recipient charges. Clien
 
 - **Type:** `Method.OnPaymentSuccessFn<typeof tempo.Methods.charge>`
 
-Runs after this Tempo charge succeeds. The hook receives the optional associated Challenge, canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
+Runs after this Tempo charge succeeds. The hook receives the optional associated Challenge, verified `payer` address, canonical request, its Receipt, the HTTP input when available, and the resolved pre-transform `requestInput` when route options are available. Errors don't change payment handling.
 
 ### relay (optional)
 
 - **Type:** `{ apiBaseUrl?: string; apiKey: string; fetch?: typeof globalThis.fetch }`
 
 Delegates Tempo charge Credential validation and finalization to a compatible MPP relay. `apiKey` needs the `mpp:write` scope. Defaults to `https://api.tempo.xyz`; set `apiBaseUrl` for a compatible relay, including one behind a path prefix. The relay broadcasts `pull` Credentials and verifies `push` Credential hashes without broadcasting them again.
+
+The relay consumes each Credential as one authorization. Reusing a Credential doesn't return a cached Receipt for another protected operation. Reconcile an uncertain relay outcome separately from executing the operation again.
 
 ### sponsorBudget (optional)
 
@@ -384,6 +399,8 @@ Set `false` only when another system enforces the aggregate sponsor budget.
 Pass a store when you want replay protection for charge Credentials. A `Store` provides async key-value operations (`get`, `put`, `delete`). An `AtomicStore` extends `Store` with an atomic `update(key, fn)` method and an optional optimized `tryClaim(key, expires)` operation.
 
 For non-zero charges, `mppx` falls back to an in-memory store when you omit this parameter. For zero-dollar proof auth, replay prevention is disabled unless you pass a store.
+
+The fallback logs a one-time warning because in-memory replay protection applies to one instance only. A shared store is also needed when several processes share a fee payer budget. Default sponsor budgets are shared across sibling currency offers within one process.
 
 `mppx` claims transaction hashes and proof Challenge IDs through the Challenge expiration time. It calls [`Store.tryClaim`](/sdk/typescript/core/Store.tryClaim), which uses the store's optimized operation when present and otherwise falls back to `update`.
 

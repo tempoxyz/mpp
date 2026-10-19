@@ -19,6 +19,8 @@ The wrapper also handles MCP-over-HTTP payment required errors returned as JSON-
 
 Payment retries use `redirect: 'manual'`, even when the initial request allows redirects. A `3xx` response returns without forwarding the Credential to another URL and leaves the payment attempt pending because the redirect doesn't confirm payment acceptance.
 
+If a paid retry returns `5xx`, the wrapper returns that response without retrying payment. When a `payment.failed` observer is registered, it receives `PaymentOutcomeUnknownError` with the Challenge, Credential, and a transaction hash when available. A thrown paid retry also reports that error to observers with the original failure as `cause`, while the caller receives the original failure. Reconcile the payment before another attempt. Observed `5xx` bodies are buffered up to 64 KiB or 2 seconds; a cut-off body carries `Mppx-Body-Truncated: true`.
+
 ## Usage
 
 <Tabs stateKey="account-source">

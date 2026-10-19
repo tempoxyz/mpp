@@ -11,6 +11,10 @@ Creates a Tempo Sessions server method for voucher verification, channel account
 
 :::info
 `tempo.session()` is the default Sessions implementation. It uses the [TIP-1034](https://tips.sh/1034) reserve precompile and advertises `sessionProtocol: "v2"` in Challenge method details.
+
+Managed SSE and WebSocket streams check the live reserve state before charging or delivering work. Delivery stops if the channel closes or the check fails. For manual streaming charges, await `stream.charge()` before starting billable work; the charge is committed before that call resolves, even if later work fails or is canceled.
+
+For a custom `tempo.Sse.serve()` integration, pass `beforeCharge: () => Promise<void>` to verify the live reserve state before charging and delivery.
 :::
 
 :::warning[Legacy Sessions]
@@ -341,6 +345,8 @@ When `poll` is enabled, the stream checks the store at `pollingInterval` instead
 
 Atomic store backend for channel state. Session mutations must be linearizable across instances so voucher, top-up, spend, and close updates cannot race.
 
+The in-memory fallback logs a one-time warning because replay protection applies only within one instance.
+
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -440,6 +446,10 @@ const txHash = await tempo.session.settle(store, client, channelId)
 The sender must be the channel payee or a nonzero operator. Pass transaction options as the fourth argument. Set `feePayer` to an account for local co-signing, or `true` when the client transport uses a configured hosted fee payer service.
 
 `settle` reads back channel state at the confirmed Receipt's block. If the transaction confirms but the channel store can't record it, the success hook still runs and `settle` throws `tempo.SettlementCheckpointError`. Read `error.txHash` to identify the confirmed payment; `error.cause` contains the store failure.
+
+When an RPC replica temporarily reports a revert while preparing settlement, `settle` retries preparation. Sponsored settlement and close transactions recheck that at least 15 seconds of validity remain before signing and submission.
+
+For low-level retry control, `tempo.Session.Precompile.Chain.readbackWithRetry` accepts an optional `shouldRetry(error) => boolean` callback. It retries every failure by default; return `false` to stop on a definitive error.
 
 ```ts
 type SettlementTransactionOptions = {

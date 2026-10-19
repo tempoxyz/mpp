@@ -56,6 +56,8 @@ const mppx = Mppx.create({
 - Extracts Challenges from **`error.data.challenges[0]`**
 - Sends Credentials using **`_meta["org.paymentauth/credential"]`**
 
+Automatic JSON and SSE response inspection stops after 1 MiB. Larger responses remain available to the caller, but `mppx` doesn't inspect them for payment Challenges.
+
 ## Return type
 
 ```ts

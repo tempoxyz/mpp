@@ -826,6 +826,10 @@ export default defineConfig({
                         link: "/sdk/typescript/server/Response.requirePayment",
                       },
                       {
+                        text: "tempo.Attribution",
+                        link: "/sdk/typescript/tempo.Attribution",
+                      },
+                      {
                         text: "tempo.machineTokenDeployments",
                         link: "/sdk/typescript/tempo.machineTokenDeployments",
                       },
@@ -968,6 +972,7 @@ export default defineConfig({
                       },
                     ],
                   },
+                  { text: "Errors", link: "/sdk/typescript/core/Errors" },
                   { text: "Expires", link: "/sdk/typescript/core/Expires" },
                   {
                     text: "Method",

@@ -50,6 +50,8 @@ The helper shares the `Store` and `settlementSchedule` configured by `tempo.sess
 
 Retryable scheduled settlement failures keep charged messages served and leave the charge due for a later settlement. Configure [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to observe failures. Reverts and configuration errors still fail the charge.
 
+The helper checks the live reserve before charging and delivering each message. If the channel closes or verification fails, delivery stops. Await `stream.charge()` before billable work; it commits the charge before returning, even if later work fails or the connection closes.
+
 ### With dynamic amounts
 
 Pass an amount in base units when each message has a different price. An explicit amount reserves that amount for the next emitted message, including when the request already authorized an implicit tick.
@@ -140,7 +142,9 @@ URL used for constructing synthetic route requests. `ws://` and `wss://` schemes
 
 ## Advanced options
 
-Use `tempo.Ws.serve()` when a custom integration manages its own store or post-charge behavior. Pass `onChargeCommitted` to run a hook after each nonzero stream charge commits. The legacy `settleScheduled` option remains as a deprecated alias.
+Use `tempo.Ws.serve()` when a custom integration manages its own store or post-charge behavior. Pass `beforeCharge` to verify live reserve state and `onChargeCommitted` to run a hook after each nonzero stream charge commits. The legacy `settleScheduled` option remains as a deprecated alias.
+
+`beforeCharge` has type `(channelId: Hex) => void | Promise<void>`. `mppx.session.serveWebSocket()` supplies the configured Session method's reserve verifier automatically.
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'

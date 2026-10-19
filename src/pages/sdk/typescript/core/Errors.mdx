@@ -1,0 +1,54 @@
+---
+description: "Handle replayed Credentials, unknown outcomes, and server payment failures with clear recovery paths."
+imageDescription: "Handle payment failures without paying twice"
+---
+
+# `Errors` [Handle payment failures]
+
+Inspect payment errors from `mppx` and choose a safe recovery path.
+
+## Usage
+
+```ts twoslash
+import { Errors } from 'mppx'
+import { Mppx, tempo } from 'mppx/client'
+
+const client = Mppx.create({ methods: [tempo.charge()], polyfill: false })
+
+client.onPaymentFailed(({ error }) => {
+  if (error instanceof Errors.PaymentOutcomeUnknownError) {
+    console.log(error.challenge.id, error.credential, error.transactionHash)
+    // Reconcile this payment before attempting another one.
+  }
+})
+```
+
+`PaymentOutcomeUnknownError` is emitted when a paid retry returns `5xx` or throws. It retains the Challenge and serialized Credential; `transactionHash` is available for push and unsponsored Tempo charges when the final hash can be derived. A thrown retry is still thrown to the caller, with its original error available as `cause` on the event error.
+
+`CredentialReplayedError` extends `VerificationFailedError`. Tempo charge servers return it for consumed or concurrently claimed Credentials and transfers bound to another Challenge. HTTP clients receive `403` Problem Details with type `verification-failed` and no new `WWW-Authenticate` Challenge.
+
+`InternalPaymentError.cause` holds the original server error for hooks and logs. The cause is never serialized into Problem Details.
+
+## Return type
+
+```ts
+type PaymentOutcomeUnknownError = Errors.PaymentError & {
+  challenge: Challenge
+  credential: string
+  transactionHash: string | undefined
+}
+```
+
+## Parameters
+
+### cause (optional)
+
+- **Type:** `unknown`
+
+Original error for `InternalPaymentError` or `PaymentOutcomeUnknownError`.
+
+### reason (optional)
+
+- **Type:** `string`
+
+Reason supplied to `CredentialReplayedError`.

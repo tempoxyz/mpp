@@ -63,9 +63,32 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 
 For non-zero Challenges, the client returns either a `transaction` or `hash` payload depending on `mode`. For zero-amount Challenges, it always returns a `proof` payload and skips transaction construction.
 
+The charge transaction's `validBefore` covers fractional-second Challenge expirations, so the transaction remains valid through the full Challenge lifetime.
+
+Set `currencies` and a per-charge amount cap before paying untrusted endpoints. The client skips offers that violate its currency, chain, recipient, or amount policy during Challenge selection and checks again before signing. Concurrent requests using the same Challenge and signer share one in-flight signing operation.
+
 When a Challenge enables MACH funding, the client tries the canonical MACH swapper route and settles the requested stablecoin to the server. If the account can't execute that route, the client uses `autoSwap` when configured or falls back to a direct stablecoin payment. MACH funding supports single-recipient charges on Tempo mainnet and Moderato testnet, and uses a funded supported stablecoin as the transaction fee token.
 
 Import [`machineTokenDeployments`](/sdk/typescript/tempo.machineTokenDeployments) from `mppx/tempo` when you need the canonical token and swapper addresses.
+
+### Cap each payment
+
+Set a currency allowlist and amount cap before paying an API you don't control.
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = tempo.charge({
+  account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
+  allowedChainIds: [4217], // Tempo mainnet
+  // [!code hl:start]
+  currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+  decimals: 6,
+  maxAmount: '1.00',
+  // [!code hl:end]
+})
+```
 
 ## Return type
 
@@ -124,11 +147,11 @@ The client also rejects a resolved viem client whose chain conflicts with the se
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { tokenIn?: Address[]; slippage?: number }`
+- **Type:** `boolean | { maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
 
-Automatically swap from a supported stablecoin (USDC.e, pathUSD) via the Tempo DEX precompile when the client lacks sufficient balance of the requested currency. 
+Automatically swap from a supported stablecoin (USDC.e, pathUSD) via the Tempo DEX precompile when the client lacks sufficient balance of the requested currency. The swap acquires only the missing balance. Quote and balance reads work with newly created access keys before their authorization is published.
 
-Pass `true` to enable, or an object for custom tokens and slippage.
+Pass `true` to enable, or an object for custom tokens and slippage. `slippage` must be between `0` and `50` percent. The default input budget assumes 1:1 token units plus slippage; set a positive `maxAmountIn` in input-token base units for non-parity pairs. The client skips a route whose quote exceeds this budget.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -168,6 +191,18 @@ const method = tempo.charge({
 - **Type:** `string`
 
 Client identifier used to derive the client fingerprint in attribution memos.
+
+### currencies (optional)
+
+- **Type:** `readonly Address[]`
+
+Allowlist of TIP-20 currency addresses, compared without case sensitivity. An empty list rejects every offer. Required when you set `maxAmount` or `maxAtomicAmount`.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Decimals shared by the allowed currencies. Required to parse `maxAmount` because a Challenge doesn't carry currency decimals.
 
 ### expectedChainId (optional)
 
@@ -265,6 +300,18 @@ const method = tempo.charge({
 - **Type:** `(parameters: { chainId: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
+
+### maxAmount (optional)
+
+- **Type:** `string`
+
+Maximum display-unit amount per charge, parsed with `decimals`. Requires `currencies` and `decimals`. Values that require rounding are rejected. The cap includes split payments and applies to each Credential, not cumulatively across retries.
+
+### maxAtomicAmount (optional)
+
+- **Type:** `string`
+
+Maximum amount per charge in the currency's base units. Requires `currencies`. The cap includes split payments and applies to each Credential.
 
 
 ### mode (optional)
