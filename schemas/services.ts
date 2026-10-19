@@ -7441,18 +7441,6 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
-        route: "GET /v1/ats-organizations",
-        desc: "Catalog of every organization tracked across ATS sources. ~50MB payload, refreshed daily at 02:00 UTC.",
-        amount: "10000",
-        unitType: "request",
-      },
-      {
-        route: "GET /v1/modified-ats",
-        desc: "ATS jobs whose fields changed in the last 24 hours. Returns full job data plus date_modified and modified_fields",
-        amount: "10000",
-        unitType: "request",
-      },
-      {
         route: "GET /v1/active-jb",
         desc: "Returns new jobs from LinkedIn, Wellfound, and Y Combinator. LinkedIn hourly for English-speaking countries; others",
         amount: "10000",
@@ -7461,12 +7449,6 @@ export const services: ServiceDef[] = [
       {
         route: "GET /v1/active-ats",
         desc: "Returns new jobs from 54 ATS platforms (company career pages). Refreshed hourly. Supports 30+ filters including title",
-        amount: "10000",
-        unitType: "request",
-      },
-      {
-        route: "GET /v1/ats-organizations-advanced",
-        desc: "Deep company profiles: LinkedIn, Crunchbase funding, Glassdoor ratings, headcount/revenue timeseries, news. Refreshed",
         amount: "10000",
         unitType: "request",
       },
@@ -9164,12 +9146,6 @@ export const services: ServiceDef[] = [
         route: "GET /api/v1/soil-moisture-daily",
         desc: "Daily soil moisture percentage relative to holding capacity at 0-10cm depth",
         dynamic: true,
-      },
-      {
-        route: "GET /embed/location",
-        desc: "Returns a complete, HTML page displaying comprehensive weather data for a specific location. See the examples page for",
-        amount: "100000",
-        unitType: "request",
       },
       {
         route: "GET /api/v1/solar-radiation-hourly",
@@ -11107,17 +11083,6 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
-        route: "GET /screener/company",
-        desc: "Enrich one or more companies by domain, name, or Crustdata company ID. Returns comprehensive firmographic data",
-        dynamic: true,
-      },
-      {
-        route: "GET /screener/person/enrich",
-        desc: "Enrich one or more individuals by LinkedIn URL or business email. Returns employment history, education, skills",
-        amount: "1563000",
-        unitType: "request",
-      },
-      {
         route: "POST /screener/companydb/search",
         desc: "Search millions of companies in Crustdata's database with advanced filtering. Supports nested AND/OR filter logic",
         dynamic: true,
@@ -11514,12 +11479,6 @@ export const services: ServiceDef[] = [
         route: "GET /person/investments/companies",
         desc: "Get companies that a person has invested in.",
         amount: "20000",
-        unitType: "request",
-      },
-      {
-        route: "GET /social/company/posts",
-        desc: "Get posts from a company's LinkedIn page.",
-        amount: "80000",
         unitType: "request",
       },
       {
