@@ -1,8 +1,9 @@
 import { createClient, http } from "viem";
 import { tempoModerato } from "viem/chains";
 import { Actions } from "viem/tempo";
+import { pathusd } from "viem/tokens";
 
-const DEFAULT_CURRENCY = "0x20c0000000000000000000000000000000000000";
+const DEFAULT_CURRENCY = pathusd(42431).address;
 
 function getClient() {
   return createClient({
