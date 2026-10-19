@@ -1,3 +1,5 @@
+import { pathusd, usdc, usdce } from "viem/tokens";
+
 /**
  * MPP Service Registry
  *
@@ -7,7 +9,7 @@
  */
 
 // --- Shared constants ---
-export const USDCe = "0x20c000000000000000000000b9537d11c60e8b50";
+export const USDCe = usdce(4217).address;
 /** @deprecated Use `USDCe` instead. */
 export const USDC = USDCe;
 export const MPP_REALM = "mpp.tempo.xyz";
@@ -1061,7 +1063,7 @@ export const services: ServiceDef[] = [
     payments: [
       {
         method: "evm",
-        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        currency: usdc(8453).address,
         decimals: 6,
       },
     ],
@@ -3414,7 +3416,7 @@ export const services: ServiceDef[] = [
     name: "Tempo API",
     payments: [
       {
-        currency: "0x20c0000000000000000000000000000000000000",
+        currency: pathusd(4217).address,
         decimals: 6,
         method: "tempo",
       },
