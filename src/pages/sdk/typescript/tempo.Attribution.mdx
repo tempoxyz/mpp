@@ -12,11 +12,13 @@ Encode and inspect the 32-byte attribution memos used by Tempo charge payments.
 ```ts twoslash
 import { Attribution } from 'mppx/tempo'
 
+// [!code hl:start]
 const memo = Attribution.encode({
   challengeId: 'challenge-123',
   clientId: 'my-app',
   serverId: 'api.example.com',
 })
+// [!code hl:end]
 
 console.log(Attribution.isMppMemo(memo))
 // @log: true

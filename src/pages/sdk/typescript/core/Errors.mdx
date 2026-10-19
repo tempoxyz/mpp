@@ -16,10 +16,12 @@ import { Mppx, tempo } from 'mppx/client'
 const client = Mppx.create({ methods: [tempo.charge()], polyfill: false })
 
 client.onPaymentFailed(({ error }) => {
+  // [!code hl:start]
   if (error instanceof Errors.PaymentOutcomeUnknownError) {
     console.log(error.challenge.id, error.credential, error.transactionHash)
     // Reconcile this payment before attempting another one.
   }
+  // [!code hl:end]
 })
 ```
 

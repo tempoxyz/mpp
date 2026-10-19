@@ -42,11 +42,11 @@ import {
 MPP uses HTTP status codes consistently to signal payment-related conditions:
 
 :::info[Consistent 402 usage]
-MPP uses `402` for all payment-related Challenges, including failed Credential validation. This differs from other HTTP authentication schemes that use `401` for failed Credentials. The distinction:
+MPP uses `402` when a server offers a payment Challenge, including retryable Credential validation failures. This differs from other HTTP authentication schemes that use `401` for failed Credentials. The distinction:
 
 - **`402`** = Payment barrier (initial Challenge or retry needed)
 - **`401`** = Authentication failure unrelated to payment
-- **`403`** = Payment succeeded but access denied by policy
+- **`403`** = Payment already consumed or access denied by policy; no new Challenge
   :::
 
 | Condition                                          | Status                               | Response                                         |
@@ -56,7 +56,10 @@ MPP uses `402` for all payment-related Challenges, including failed Credential v
 | Unknown, expired, or already-used Challenge id     | <Badge variant="danger">402</Badge>  | Fresh Challenge + `invalid-challenge` problem    |
 | Payment proof invalid or verification failed       | <Badge variant="danger">402</Badge>  | Fresh Challenge + `verification-failed` problem  |
 | Payment verified, access granted                   | <Badge variant="success">200</Badge> | Resource + optional `Payment-Receipt`            |
+| Tempo charge Credential already consumed or claimed | <Badge variant="warning">403</Badge> | No Challenge + `verification-failed` problem     |
 | Payment verified, but policy denies access         | <Badge variant="warning">403</Badge> | No Challenge (payment was valid)                 |
+
+For Tempo charges, `mppx` also returns `403` when a settled transfer is bound to another Challenge. This final response avoids prompting an automatic client to pay again. Invalid or already-used Challenge IDs still receive a fresh `402` Challenge.
 
 See [HTTP 402](/protocol/http-402) for details on when to return each status code.
 
@@ -125,7 +128,7 @@ The digest is computed per [RFC 9530](https://www.rfc-editor.org/rfc/rfc9530) Co
 
 ## Error handling
 
-Failed payment attempts return `402` with a fresh Challenge and a Problem Details [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) body:
+Retryable payment failures return `402` with a fresh Challenge and a Problem Details [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) body:
 
 ```json
 {
@@ -143,7 +146,7 @@ Common error codes (full type URI: `https://paymentauth.org/problems/{code}`):
 | `payment-required`     | Resource requires payment                      |
 | `payment-insufficient` | Amount too low                                 |
 | `payment-expired`      | Challenge or authorization expired             |
-| `verification-failed`  | Proof invalid                                  |
+| `verification-failed`  | Proof invalid; also used for consumed Tempo charge Credentials with `403` |
 | `method-unsupported`   | Method not accepted                            |
 | `malformed-credential` | Invalid Credential format                      |
 | `invalid-challenge`    | Challenge ID unknown, expired, or already used |

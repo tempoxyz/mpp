@@ -31,9 +31,10 @@ WWW-Authenticate: Payment id="abc123",
 | Resource requires payment | **`402`** |
 | Client lacks authentication | `401` |
 | Client authenticated but unauthorized | `403` |
+| Tempo charge Credential already consumed or claimed | `403` |
 | Resource doesn't exist | `404` |
 
-MPP uses `402` consistently for all payment-related Challenges, including when a Credential fails validation. This differs from other HTTP authentication schemes that use `401` for failed Credentials.
+MPP uses `402` when a server offers a payment Challenge, including retryable Credential validation failures. This differs from other HTTP authentication schemes that use `401` for failed Credentials. `mppx` returns `403` without a new Challenge for a consumed or claimed Tempo charge Credential, or a settled transfer bound to another Challenge, so clients don't pay again.
 
 ## Token authentication
 
@@ -51,7 +52,7 @@ With `mppx`, set `requiresAuth: true` to advertise `Payment-Authorization` for t
 
 ## Error responses
 
-Failed payment attempts return `402` with a fresh Challenge and a Problem Details body:
+Retryable payment failures return `402` with a fresh Challenge and a Problem Details body:
 
 ```http
 HTTP/1.1 402 Payment Required
@@ -67,6 +68,8 @@ WWW-Authenticate: Payment id="new456", ...
 }
 ```
 
+A replayed Tempo charge Credential returns `403` with the `verification-failed` problem type and no `WWW-Authenticate` Challenge.
+
 Error types include:
 - `invalid-challenge`—Unknown, expired, or already-used Challenge
 - `malformed-credential`—Invalid base64url or bad JSON
@@ -74,7 +77,7 @@ Error types include:
 - `payment-expired`—Challenge or authorization expired
 - `payment-insufficient`—Amount too low
 - `payment-required`—Resource requires payment
-- `verification-failed`—Payment proof invalid
+- `verification-failed`—Payment proof invalid, or a consumed Tempo charge Credential rejected with `403`
 
 ## Learn more
 
