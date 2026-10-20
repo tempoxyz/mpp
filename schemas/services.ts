@@ -1120,6 +1120,55 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Onward Flights ───────────────────────────────────────────────────
+  {
+    id: "onward-flights",
+    name: "Onward Flights",
+    url: "https://onward.flights",
+    serviceUrl: "https://onward.flights",
+    description:
+      "Search real flights and buy an onward ticket (proof of onward travel) for a traveller, as a web page and PDF with their name on it.",
+    icon: "https://onward.flights/apple-touch-icon.png",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["travel", "flights", "tickets", "usdc", "base"],
+    status: "active",
+    docs: {
+      homepage: "https://onward.flights/agents",
+      llmsTxt: "https://onward.flights/llms.txt",
+      apiReference: "https://onward.flights/openapi.json",
+    },
+    provider: { name: "Onward Flights", url: "https://onward.flights" },
+    realm: "onward.flights",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: usdc(8453).address,
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        healthCheck: { path: "/api/airports?q=bangkok" },
+        route: "GET /api/airports",
+        desc: "Find airport codes by city, airport or country name",
+      },
+      {
+        healthCheck: false,
+        route: "GET /api/flights",
+        desc: "Search one-way flights to use as an onward ticket",
+      },
+      {
+        healthCheck: { body: {} },
+        route: "POST /api/purchase",
+        desc: "Buy the onward ticket for a flight",
+        dynamic: true,
+        amountHint: "$5, or $10 departing some countries",
+      },
+    ],
+  },
+
   // ── Apex DB ───────────────────────────────────────────────────────────
   {
     id: "apex-db",
