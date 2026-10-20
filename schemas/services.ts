@@ -7254,12 +7254,22 @@ export const services: ServiceDef[] = [
       {
         route: "POST /api/mpp/v1/agent/runs",
         desc: "Run a deep-research agent (multi-step research, async)",
-        amount: "1000000",
+        amount: "65000",
         unitType: "request",
       },
       {
         route: "GET /api/mpp/v1/agent/runs/status",
         desc: "Poll status for an agent run (free, receipt-authenticated)",
+      },
+      {
+        route: "POST /api/mpp/v1/agent/answer/runs",
+        desc: "Run the Answer Agent for a cited, multi-step answer (async)",
+        amount: "65000",
+        unitType: "request",
+      },
+      {
+        route: "GET /api/mpp/v1/agent/answer/runs/status",
+        desc: "Poll status for an Answer Agent run (free, receipt-authenticated)",
       },
     ],
   },
