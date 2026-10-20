@@ -120,7 +120,7 @@ describe("services API", () => {
     const { GET } = await import("./pages/_api/api/services");
     const response = await GET(
       new Request(
-        "https://mpp.dev/api/services?ids=aviationstack,flightapi,gemini,googlemaps,oxylabs,serpapi,spyfu",
+        "https://mpp.dev/api/services?ids=aviationstack,codestorage,flightapi,gemini,googlemaps,oxylabs,serpapi,spyfu",
       ),
     );
 

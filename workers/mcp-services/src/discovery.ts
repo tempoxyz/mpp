@@ -14,6 +14,7 @@ export type ServiceSummary = {
   categories: Category[];
   integration?: Integration;
   status: Status;
+  supportsMACH?: true;
   description?: string;
 };
 
@@ -529,6 +530,7 @@ function serviceSummary(service: Service): ServiceSummary {
     categories: service.categories ?? [],
     ...(service.integration ? { integration: service.integration } : {}),
     status: service.status ?? "active",
+    ...(service.supportsMACH ? { supportsMACH: service.supportsMACH } : {}),
     ...(service.description ? { description: service.description } : {}),
   };
 }

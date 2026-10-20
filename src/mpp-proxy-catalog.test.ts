@@ -48,7 +48,7 @@ describe("MPP proxy catalog", () => {
     expect(result.services.find(({ id }) => id === "openai")).toMatchObject({
       name: "OpenAI",
       url: "https://api.openai.com",
-      tags: ["llm"],
+      tags: ["llm", "ai"],
       endpoints: [{ payment: { amount: "100", decimals: 6 } }],
     });
     expect(
@@ -56,8 +56,34 @@ describe("MPP proxy catalog", () => {
     ).toMatchObject({
       name: "New provider",
       serviceUrl: "https://new-provider.mpp.tempo.xyz",
-      supportsCredits: true,
+      supportsMACH: true,
     });
+    expect(
+      result.services.find(({ id }) => id === "external"),
+    ).not.toHaveProperty("supportsMACH");
+    expect(JSON.stringify(result)).not.toContain("supportsCredits");
+  });
+
+  it("keeps provider-specific categories as tags instead of rejecting the manifest", () => {
+    const rox = service("rox", "Rox", "20000");
+    rox.manifest.categories = ["sales", "prospecting", "enrichment", "data"];
+    const result = mergeMppProxyCatalog(staticCatalog, { services: [rox] });
+    expect(result.services.find(({ id }) => id === "rox")).toMatchObject({
+      categories: ["data"],
+      tags: ["sales", "prospecting", "enrichment", "data"],
+      supportsMACH: true,
+    });
+  });
+
+  it("rejects malformed categories", () => {
+    const invalid = service("openai", "OpenAI", "100");
+    expect(() =>
+      mergeMppProxyCatalog(staticCatalog, {
+        services: [
+          { ...invalid, manifest: { ...invalid.manifest, categories: [null] } },
+        ],
+      }),
+    ).toThrow("Invalid MPP proxy service");
   });
 
   it("rejects an empty manifest instead of deleting the last-good catalog", () => {

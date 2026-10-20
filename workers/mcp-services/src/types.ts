@@ -55,6 +55,8 @@ export interface Service {
   integration?: Integration;
   tags?: string[];
   status?: Status;
+  /** Advisory MACH support; the runtime 402 Challenge determines payment terms. */
+  supportsMACH?: true;
   docs?: {
     homepage?: string;
     llmsTxt?: string;

@@ -208,7 +208,8 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   entry.tags = svc.tags;
   entry.status = svc.status ?? "active";
   if (svc.docs) entry.docs = svc.docs;
-  if (svc.realm === MPP_REALM) entry.supportsCredits = true;
+  // The Tempo proxy enables MACH on its shared charge methods.
+  if (svc.realm === MPP_REALM) entry.supportsMACH = true;
   const methods: Record<string, { intents: string[]; assets: string[] }> = {};
   for (const pm of svc.payments) {
     methods[pm.method] = {

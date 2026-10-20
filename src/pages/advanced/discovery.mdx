@@ -28,6 +28,13 @@ Registries aggregate discovery documents from multiple services, making it easy 
 | [MPPScan](https://mppscan.com) | Public registry of MPP-enabled services with search and analytics | [Manually register](https://www.mppscan.com/register) in one click |
 | [MPP Services directory](https://mpp.dev/services) | Curated list of live services on mpp.dev | [Follow the submission guide](/services#list-your-service) |
 
+The directory's service records use `supportsMACH: true` to indicate that a
+service offers a [MACH](https://wallet.tempo.xyz/agent#mach) payment option.
+This replaces `supportsCredits`; it does not change redemption of existing MPP
+Credits. An omitted flag means support is unknown. The flag does not guarantee
+support for every endpoint, payment intent, or client. Use the runtime `402`
+Challenge for payment terms; advertised currencies and prices remain unchanged.
+
 Agents can query the curated services directory over MCP at
 `https://mpp.dev/mcp/services`. The server is read-only and exposes tools to
 list services, rank services for an agent task, inspect endpoint offers, get

@@ -73,9 +73,14 @@ export function mergeMppProxyCatalog(
       url: existing?.url ?? docs?.homepage ?? serviceUrl,
       serviceUrl,
       description: entry.manifest.description,
-      categories: entry.manifest.categories as Category[],
+      categories: entry.manifest.categories.filter(
+        (category): category is Category =>
+          CATEGORIES.has(category as Category),
+      ),
       integration: existing?.integration ?? "third-party",
-      tags: existing?.tags ?? entry.manifest.categories,
+      tags: [
+        ...new Set([...(existing?.tags ?? []), ...entry.manifest.categories]),
+      ],
       status: existing?.status ?? "active",
       docs,
       methods: entry.manifest.methods,
@@ -87,7 +92,8 @@ export function mergeMppProxyCatalog(
           name: entry.manifest.name,
           url: docs?.homepage ?? serviceUrl,
         } as const),
-      supportsCredits: true,
+      // All proxy services use the shared MACH-enabled charge methods.
+      supportsMACH: true,
     } satisfies CatalogService;
   });
 
@@ -135,10 +141,7 @@ function parseProxyManifest(value: unknown): ProxyManifest {
       !SERVICE_ID.test(candidate.id) ||
       candidate.domain !== `${candidate.id}.mpp.tempo.xyz` ||
       ids.has(candidate.id) ||
-      !manifest.categories.every(
-        (category) =>
-          typeof category === "string" && CATEGORIES.has(category as Category),
-      ) ||
+      !manifest.categories.every((category) => typeof category === "string") ||
       !manifest.endpoints.every(
         (endpoint) =>
           endpoint !== null &&

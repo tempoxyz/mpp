@@ -4647,39 +4647,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Code Storage ───────────────────────────────────────────────────────
-  {
-    id: "codestorage",
-    name: "Code Storage",
-    url: "https://code.storage",
-    serviceUrl: `https://codestorage.${MPP_REALM}`,
-    description:
-      "Paid Git repository creation — create repos and get authenticated clone URLs.",
-
-    categories: ["storage"],
-    integration: "third-party",
-    tags: ["git", "repos", "code", "storage"],
-    docs: {
-      llmsTxt: "https://code.storage/docs/llms.txt",
-    },
-    provider: { name: "Code Storage", url: "https://code.storage" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "GET /repos/:id",
-        desc: "Get clone URL for a repository",
-        amount: "10000",
-      },
-      {
-        route: "POST /repos",
-        desc: "Create a Git repository",
-        amount: "1000000",
-      },
-    ],
-  },
-
   // ── GoFlightLabs ───────────────────────────────────────────────────────
   {
     id: "goflightlabs",

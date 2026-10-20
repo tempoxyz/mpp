@@ -45,6 +45,7 @@ const services: Service[] = [
   },
   {
     id: "anthropic",
+    supportsMACH: true,
     name: "Anthropic",
     url: "https://api.anthropic.com",
     description: "Claude chat completions.",
@@ -88,9 +89,12 @@ describe("discovery helpers", () => {
         categories: ["ai", "social"],
         status: "active",
       }),
-      expect.objectContaining({ id: "anthropic" }),
+      expect.objectContaining({ id: "anthropic", supportsMACH: true }),
       expect.objectContaining({ id: "legacy", status: "deprecated" }),
     ]);
+    expect(listServiceSummaries(services)[0]).not.toHaveProperty(
+      "supportsMACH",
+    );
   });
 
   it("searches by query and exact filters", () => {

@@ -11,6 +11,7 @@ import {
 import {
   buildEndpointDocs,
   buildPayment,
+  buildService,
   parseRoute,
   readAgentSkills,
   validateServices,
@@ -84,6 +85,28 @@ function paymentSvc(overrides: Partial<ServiceDef> = {}): ServiceDef {
     ...overrides,
   };
 }
+
+describe("buildService", () => {
+  it("advertises MACH for Tempo proxies without changing their payment offers", () => {
+    const service = buildService(
+      paymentSvc({
+        endpoints: [{ route: "GET /foo", desc: "test", amount: "100" }],
+      }),
+    );
+    expect(service).toMatchObject({
+      supportsMACH: true,
+      methods: { tempo: { intents: ["charge"], assets: [USDC] } },
+      endpoints: [{ payment: { amount: "100", currency: USDC } }],
+    });
+    expect(service).not.toHaveProperty("supportsCredits");
+  });
+
+  it("does not infer MACH support from an external service accepting Tempo", () => {
+    expect(
+      buildService(paymentSvc({ realm: "external.example" })),
+    ).not.toHaveProperty("supportsMACH");
+  });
+});
 
 describe("buildPayment", () => {
   it("returns null for free endpoints", () => {

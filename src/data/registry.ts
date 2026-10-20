@@ -56,6 +56,8 @@ export interface Service {
   integration?: "first-party" | "third-party";
   tags?: string[];
   status?: "active" | "beta" | "deprecated" | "maintenance";
+  /** Advisory MACH support; the runtime 402 Challenge determines payment terms. */
+  supportsMACH?: true;
   docs?: {
     homepage?: string;
     llmsTxt?: string;

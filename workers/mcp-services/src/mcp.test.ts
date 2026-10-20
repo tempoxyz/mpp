@@ -36,6 +36,7 @@ const services: Service[] = [
   },
   {
     id: "anthropic",
+    supportsMACH: true,
     name: "Anthropic",
     url: "https://api.anthropic.com",
     description: "Claude chat completions.",
@@ -103,6 +104,22 @@ describe("mcp handler", () => {
       );
     }
     expect(
+      tools.find((tool) => tool.name === "list_services")?.outputSchema,
+    ).toMatchObject({
+      oneOf: [
+        {
+          properties: {
+            services: {
+              items: {
+                properties: { supportsMACH: { type: "boolean", const: true } },
+              },
+            },
+          },
+        },
+        {},
+      ],
+    });
+    expect(
       tools.find((tool) => tool.name === "get_openapi")?.inputSchema,
     ).toEqual(
       expect.objectContaining({
@@ -111,6 +128,19 @@ describe("mcp handler", () => {
         }),
       }),
     );
+  });
+
+  it("returns MACH support in discovery results without assuming external support", async () => {
+    const body = await callTool("list_services", {});
+    const summaries = body.result.structuredContent.services;
+    expect(
+      summaries.find((service) => service.id === "anthropic"),
+    ).toMatchObject({
+      supportsMACH: true,
+    });
+    expect(
+      summaries.find((service) => service.id === "agentmail"),
+    ).not.toHaveProperty("supportsMACH");
   });
 
   it("searches endpoint-level payment offers with matching and ranking metadata", async () => {
