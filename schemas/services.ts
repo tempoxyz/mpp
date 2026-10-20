@@ -11532,6 +11532,29 @@ export const services: ServiceDef[] = [
         },
       },
       {
+        route: "POST /v1/chat/completions",
+        desc: "OpenAI-compatible chat completions: Llama 3.1 8B at $0.003, Llama 3.3 70B or gpt-oss-120b at $0.01 (picked by the model field)",
+        dynamic: true,
+        amountHint: "$0.003 - $0.01 depending on model",
+        healthCheck: {
+          body: { messages: [{ role: "user", content: "Say hi" }] },
+        },
+      },
+      {
+        route: "POST /v1/responses",
+        desc: "OpenAI Responses API shape over the same models as chat completions",
+        dynamic: true,
+        amountHint: "$0.003 - $0.01 depending on model",
+        healthCheck: { body: { input: "Say hi" } },
+      },
+      {
+        route: "POST /v1/embeddings",
+        desc: "OpenAI-compatible embeddings (BGE-M3, 1,024 dimensions), one input per call",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: { body: { input: "hello" } },
+      },
+      {
         route: "GET /ai/translate",
         desc: "Translate text (100 languages)",
         amount: "3000",
