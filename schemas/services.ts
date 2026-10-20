@@ -11256,12 +11256,19 @@ export const services: ServiceDef[] = [
     docs: {
       homepage: "https://agent-data-tools.revmesh2074.workers.dev",
       llmsTxt: "https://agent-data-tools.revmesh2074.workers.dev/llms.txt",
-      apiReference: "https://agent-data-tools.revmesh2074.workers.dev/openapi.json",
+      apiReference:
+        "https://agent-data-tools.revmesh2074.workers.dev/openapi.json",
     },
-    provider: { name: "SpellzCode", url: "https://agent-data-tools.revmesh2074.workers.dev" },
+    provider: {
+      name: "SpellzCode",
+      url: "https://agent-data-tools.revmesh2074.workers.dev",
+    },
     realm: "agent-data-tools.revmesh2074.workers.dev",
     intent: "charge",
-    payments: [TEMPO_PAYMENT, { method: "evm", currency: usdc(8453).address, decimals: 6 }],
+    payments: [
+      TEMPO_PAYMENT,
+      { method: "evm", currency: usdc(8453).address, decimals: 6 },
+    ],
     endpoints: [
       {
         route: "GET /extract",
@@ -11275,14 +11282,18 @@ export const services: ServiceDef[] = [
         desc: "Read a JavaScript-rendered page as text or Markdown",
         amount: "10000",
         unitType: "request",
-        healthCheck: { path: "/extract/rendered?url=https%3A%2F%2Fexample.com%2F" },
+        healthCheck: {
+          path: "/extract/rendered?url=https%3A%2F%2Fexample.com%2F",
+        },
       },
       {
         route: "GET /pdf/text",
         desc: "PDF to text, page by page",
         amount: "5000",
         unitType: "request",
-        healthCheck: { path: "/pdf/text?url=https%3A%2F%2Fbitcoin.org%2Fbitcoin.pdf" },
+        healthCheck: {
+          path: "/pdf/text?url=https%3A%2F%2Fbitcoin.org%2Fbitcoin.pdf",
+        },
       },
       {
         route: "GET /feed",
@@ -11303,21 +11314,27 @@ export const services: ServiceDef[] = [
         desc: "Discover documentation URLs from a bounded XML sitemap",
         amount: "2000",
         unitType: "request",
-        healthCheck: { path: "/sitemap?url=https%3A%2F%2Fagent-data-tools.revmesh2074.workers.dev%2Fexamples%2Fsitemap%2Fsource.xml" },
+        healthCheck: {
+          path: "/sitemap?url=https%3A%2F%2Fagent-data-tools.revmesh2074.workers.dev%2Fexamples%2Fsitemap%2Fsource.xml",
+        },
       },
       {
         route: "GET /summarize",
         desc: "Summarize a web page",
         amount: "10000",
         unitType: "request",
-        healthCheck: { path: "/summarize?url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FHTTP_402" },
+        healthCheck: {
+          path: "/summarize?url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FHTTP_402",
+        },
       },
       {
         route: "GET /http/security-headers",
         desc: "Audit a page's HTTP security headers",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/http/security-headers?url=https%3A%2F%2Fexample.com" },
+        healthCheck: {
+          path: "/http/security-headers?url=https%3A%2F%2Fexample.com",
+        },
       },
       {
         route: "GET /domain",
@@ -11359,7 +11376,9 @@ export const services: ServiceDef[] = [
         desc: "Counterparty check before paying an EVM address",
         amount: "30000",
         unitType: "request",
-        healthCheck: { path: "/check/counterparty?address=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" },
+        healthCheck: {
+          path: "/check/counterparty?address=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+        },
       },
       {
         route: "GET /package",
@@ -11373,49 +11392,63 @@ export const services: ServiceDef[] = [
         desc: "Inspect an x402 endpoint without paying",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/x402/check?url=https%3A%2F%2Fagent-data-tools.revmesh2074.workers.dev%2Fbtc-fees" },
+        healthCheck: {
+          path: "/x402/check?url=https%3A%2F%2Fagent-data-tools.revmesh2074.workers.dev%2Fbtc-fees",
+        },
       },
       {
         route: "GET /token",
         desc: "Base ERC-20 token facts and risk flags",
         amount: "10000",
         unitType: "request",
-        healthCheck: { path: "/token?address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
+        healthCheck: {
+          path: "/token?address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        },
       },
       {
         route: "GET /token-report",
         desc: "Base token pre-trade report: on-chain risk plus live DEX market data",
         amount: "20000",
         unitType: "request",
-        healthCheck: { path: "/token-report?address=0x4200000000000000000000000000000000000006" },
+        healthCheck: {
+          path: "/token-report?address=0x4200000000000000000000000000000000000006",
+        },
       },
       {
         route: "GET /wallet",
         desc: "Base wallet balances and account nonce snapshot",
         amount: "5000",
         unitType: "request",
-        healthCheck: { path: "/wallet?address=0x4200000000000000000000000000000000000006" },
+        healthCheck: {
+          path: "/wallet?address=0x4200000000000000000000000000000000000006",
+        },
       },
       {
         route: "GET /wallet/portfolio",
         desc: "Wallet holdings valued in USD",
         amount: "5000",
         unitType: "request",
-        healthCheck: { path: "/wallet/portfolio?address=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" },
+        healthCheck: {
+          path: "/wallet/portfolio?address=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+        },
       },
       {
         route: "GET /wallet/balances",
         desc: "Native and USDC balances on 5 networks",
         amount: "5000",
         unitType: "request",
-        healthCheck: { path: "/wallet/balances?address=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" },
+        healthCheck: {
+          path: "/wallet/balances?address=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+        },
       },
       {
         route: "GET /price/token",
         desc: "Token USD price from Uniswap v3 pools",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/price/token?address=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf" },
+        healthCheck: {
+          path: "/price/token?address=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        },
       },
       {
         route: "GET /ens",
@@ -11436,7 +11469,9 @@ export const services: ServiceDef[] = [
         desc: "Base transaction status and details",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/base-tx?hash=0x7d108fa131ed949c76d50caf2e7dfe25fc9903b9d276c40a0446d8afbdfe86b0" },
+        healthCheck: {
+          path: "/base-tx?hash=0x7d108fa131ed949c76d50caf2e7dfe25fc9903b9d276c40a0446d8afbdfe86b0",
+        },
       },
       {
         route: "GET /btc-fees",
@@ -11492,42 +11527,104 @@ export const services: ServiceDef[] = [
         desc: "Chat completion (Llama 3.1 8B)",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/ai/chat?prompt=Explain%20x402%20in%20one%20sentence." },
+        healthCheck: {
+          path: "/ai/chat?prompt=Explain%20x402%20in%20one%20sentence.",
+        },
       },
       {
         route: "GET /ai/translate",
         desc: "Translate text (100 languages)",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/ai/translate?text=Payment%20received%2C%20thank%20you!&to=sv" },
+        healthCheck: {
+          path: "/ai/translate?text=Payment%20received%2C%20thank%20you!&to=sv",
+        },
       },
       {
         route: "GET /ai/extract-json",
         desc: "Extract fields from text as JSON",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/ai/extract-json?text=Invoice%201043%20from%20Acme%20AB%2C%20due%202026-11-01%2C%20total%202%20450%20SEK%20incl.%20VAT.&fields=invoice_number%2Ccompany%2Cdue_date%2Ctotal%2Ccurrency" },
+        healthCheck: {
+          path: "/ai/extract-json?text=Invoice%201043%20from%20Acme%20AB%2C%20due%202026-11-01%2C%20total%202%20450%20SEK%20incl.%20VAT.&fields=invoice_number%2Ccompany%2Cdue_date%2Ctotal%2Ccurrency",
+        },
       },
       {
         route: "GET /ai/embed",
         desc: "Text embeddings (BGE-M3)",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/ai/embed?text=pay-per-call%20APIs%20for%20AI%20agents" },
+        healthCheck: {
+          path: "/ai/embed?text=pay-per-call%20APIs%20for%20AI%20agents",
+        },
       },
       {
         route: "GET /text/prompt-injection",
         desc: "Scan text for prompt-injection attempts",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/text/prompt-injection?text=Thanks%20for%20the%20update.%20The%20signed%20invoice%20is%20attached%20and%20payment%20is%20due%20on%20Friday." },
+        healthCheck: {
+          path: "/text/prompt-injection?text=Thanks%20for%20the%20update.%20The%20signed%20invoice%20is%20attached%20and%20payment%20is%20due%20on%20Friday.",
+        },
       },
       {
         route: "GET /json/repair",
         desc: "Repair broken JSON",
         amount: "3000",
         unitType: "request",
-        healthCheck: { path: "/json/repair?text=%60%60%60json%0A%7Bname%3A%20'Ada'%2C%20tags%3A%20%5B'x'%2C%5D%2C%7D%0A%60%60%60" },
+        healthCheck: {
+          path: "/json/repair?text=%60%60%60json%0A%7Bname%3A%20'Ada'%2C%20tags%3A%20%5B'x'%2C%5D%2C%7D%0A%60%60%60",
+        },
+      },
+    ],
+  },
+  // ── Agent Data Tools credits (card) ───────────────────────────────────
+  {
+    id: "agent-data-tools-credits",
+    name: "Agent Data Tools Credits",
+    url: "https://agent-data-tools.revmesh2074.workers.dev",
+    serviceUrl: "https://agent-data-tools.revmesh2074.workers.dev/credits",
+    description:
+      "Prepaid credit packs for Agent Data Tools, paid by card through a Link agent wallet with no checkout page. The response carries an API key worth the pack's credits (1 credit = $0.001; most tools cost 3), usable over HTTP or MCP for 175 data tools: web and PDF reading, sanctions and counterparty checks, token and wallet reads on five EVM chains, FX, weather and more. Send an existing key as X-API-Key to top it up.",
+    icon: "https://agent-data-tools.revmesh2074.workers.dev/logo.png",
+    categories: ["data", "web", "blockchain"],
+    integration: "first-party",
+    tags: ["credits", "api-key", "web-extraction", "sanctions", "onchain"],
+    status: "active",
+    docs: {
+      homepage: "https://agent-data-tools.revmesh2074.workers.dev/credits",
+      llmsTxt: "https://agent-data-tools.revmesh2074.workers.dev/llms.txt",
+      apiReference:
+        "https://agent-data-tools.revmesh2074.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "SpellzCode",
+      url: "https://agent-data-tools.revmesh2074.workers.dev",
+    },
+    realm: "agent-data-tools.revmesh2074.workers.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /buy/5",
+        desc: "5,000 tool credits (about 1,666 calls at $0.003) and an API key",
+        amount: "500",
+        unitType: "request",
+        healthCheck: { path: "/buy/5" },
+      },
+      {
+        route: "GET /buy/20",
+        desc: "22,000 tool credits (10% bonus) and an API key",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: { path: "/buy/20" },
+      },
+      {
+        route: "GET /buy/100",
+        desc: "125,000 tool credits (25% bonus) and an API key",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/buy/100" },
       },
     ],
   },
