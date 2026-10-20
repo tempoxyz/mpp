@@ -11261,7 +11261,7 @@ export const services: ServiceDef[] = [
     provider: { name: "SpellzCode", url: "https://agent-data-tools.revmesh2074.workers.dev" },
     realm: "agent-data-tools.revmesh2074.workers.dev",
     intent: "charge",
-    payments: [{ method: "evm", currency: usdc(8453).address, decimals: 6 }],
+    payments: [TEMPO_PAYMENT, { method: "evm", currency: usdc(8453).address, decimals: 6 }],
     endpoints: [
       {
         route: "GET /extract",
