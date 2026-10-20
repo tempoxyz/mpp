@@ -11236,7 +11236,7 @@ export const services: ServiceDef[] = [
     url: "https://agent-data-tools.revmesh2074.workers.dev",
     serviceUrl: "https://agent-data-tools.revmesh2074.workers.dev",
     description:
-      "175 pay-per-call data tools for AI agents, most at $0.003: read web pages, PDFs and feeds as clean text; domain, email and company checks; OFAC sanctions screening and counterparty checks; token, wallet and chain reads on Base, Ethereum, Arbitrum, Optimism and Polygon; Bitcoin fees and prices, FX, weather, time and geocoding; small AI text tools. No account; failed calls are never charged.",
+      "179 pay-per-call data tools for AI agents, most at $0.003: read web pages, PDFs and feeds as clean text; SEC filings, airport status and Hyperliquid perp data; domain, email and company checks; OFAC sanctions screening and counterparty checks; token, wallet and chain reads on Base, Ethereum, Arbitrum, Optimism and Polygon; Bitcoin fees and prices, FX, weather, time and geocoding; small AI text tools. No account; failed calls are never charged.",
     icon: "https://agent-data-tools.revmesh2074.workers.dev/logo.png",
     categories: ["data", "web", "blockchain", "ai"],
     integration: "first-party",
@@ -11523,6 +11523,27 @@ export const services: ServiceDef[] = [
         healthCheck: { path: "/holidays?country=SE" },
       },
       {
+        route: "GET /sec/filings",
+        desc: "Latest SEC EDGAR filings for a US-listed company by ticker or CIK (10-K, 10-Q, 8-K, 4)",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: { path: "/sec/filings?ticker=AAPL" },
+      },
+      {
+        route: "GET /airport/status",
+        desc: "FAA status for US airports: ground stops, delays and closures",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: { path: "/airport/status?airport=LGA" },
+      },
+      {
+        route: "GET /hyperliquid/market",
+        desc: "Hyperliquid perp price, funding rate and APR, open interest and 24 h volume",
+        amount: "3000",
+        unitType: "request",
+        healthCheck: { path: "/hyperliquid/market?coin=BTC" },
+      },
+      {
         route: "GET /ai/chat",
         desc: "Chat completion (Llama 3.1 8B)",
         amount: "3000",
@@ -11608,7 +11629,7 @@ export const services: ServiceDef[] = [
     url: "https://agent-data-tools.revmesh2074.workers.dev",
     serviceUrl: "https://agent-data-tools.revmesh2074.workers.dev/credits",
     description:
-      "Prepaid credit packs for Agent Data Tools, paid by card through a Link agent wallet with no checkout page. The response carries an API key worth the pack's credits (1 credit = $0.001; most tools cost 3), usable over HTTP or MCP for 175 data tools: web and PDF reading, sanctions and counterparty checks, token and wallet reads on five EVM chains, FX, weather and more. Send an existing key as X-API-Key to top it up.",
+      "Prepaid credit packs for Agent Data Tools, paid by card through a Link agent wallet with no checkout page. The response carries an API key worth the pack's credits (1 credit = $0.001; most tools cost 3), usable over HTTP or MCP for 179 data tools: web and PDF reading, sanctions and counterparty checks, token and wallet reads on five EVM chains, FX, weather and more. Send an existing key as X-API-Key to top it up.",
     icon: "https://agent-data-tools.revmesh2074.workers.dev/logo.png",
     categories: ["data", "web", "blockchain"],
     integration: "first-party",
