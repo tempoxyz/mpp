@@ -11850,4 +11850,74 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Simple Easy Transactions ─────────────────────────────────────────
+  {
+    id: "simple-easy-transactions",
+    name: "Simple Easy Transactions",
+    url: "https://simpleeasytransactions.com",
+    serviceUrl: "https://simpleeasytransactions.com",
+    description:
+      "Two $1 checks for agents, paid by card or Link: an Agent Payment Readiness Assessment that classifies a declared payment workflow's capabilities, and an AI Visibility Check that reports what AI crawlers may fetch from a public page (robots.txt, llms.txt, markup). A failed visibility check is not charged.",
+    icon: "https://simpleeasytransactions.com/icon.svg",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: [
+      "agent-readiness",
+      "ai-visibility",
+      "robots-txt",
+      "llms-txt",
+      "seo",
+      "payments",
+      "stripe",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://simpleeasytransactions.com",
+      llmsTxt: "https://simpleeasytransactions.com/llms.txt",
+      apiReference: "https://simpleeasytransactions.com/openapi.json",
+    },
+    provider: {
+      name: "SET Enterprises",
+      url: "https://simpleeasytransactions.com",
+    },
+    realm: "simpleeasytransactions.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { body: { url: "https://example.com/" } },
+        route: "POST /api/agent/ai-visibility",
+        desc: "Check which AI crawlers a public page's robots.txt allows and what its llms.txt and markup tell AI engines",
+        amount: "100",
+        unitType: "request",
+      },
+      {
+        healthCheck: {
+          body: {
+            workflow: {
+              name: "Agent checkout for a data API",
+              intendedUsers: "agents",
+              targetEnvironment: "sandbox",
+            },
+            capabilities: {
+              machine_discovery: { status: "implemented" },
+              payment_challenge_and_receipt: { status: "implemented" },
+              idempotency: { status: "implemented" },
+              webhook_verification: { status: "implemented" },
+              durable_fulfillment: { status: "partial" },
+              user_authentication: { status: "partial" },
+              wallet_ownership: { status: "partial" },
+              onramp_provider_handoff: { status: "unknown" },
+              delivery_evidence: { status: "unknown" },
+              recovery_and_reconciliation: { status: "unknown" },
+            },
+          },
+        },
+        route: "POST /api/agent/readiness",
+        desc: "Deterministic agent payment readiness assessment of the capabilities a buyer declares",
+        amount: "100",
+        unitType: "request",
+      },
+    ],
+  },
 ];
