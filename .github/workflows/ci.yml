@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm check:ci
 
   typecheck:
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: node scripts/generate-discovery.ts
       - run: pnpm check:types
 
@@ -69,7 +69,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: node scripts/generate-discovery.ts
       - run: pnpm test
       - name: Verify generated Markdown
@@ -88,7 +88,7 @@ jobs:
         with:
           persist-credentials: false
       - run: docker compose up -d --wait tempo
-      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm test:integration
         env:
           TEMPO_RPC_URL: http://127.0.0.1:18545
@@ -105,7 +105,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm mcp-services:check
 
   build:
@@ -120,7 +120,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/setup-pnpm # zizmor: ignore[self-repository] actionlint does not support $/ references yet.
       - run: pnpm check:generated
       # Twoslash type-checks every annotated snippet, and vocs caches each result
       # keyed only by the snippet's text. Scope the cache to the lockfile and
