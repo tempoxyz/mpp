@@ -136,6 +136,71 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  {
+    id: "fresh402",
+    name: "Fresh402",
+    url: "https://fresh402.kirilllabs.workers.dev",
+    serviceUrl: "https://fresh402.kirilllabs.workers.dev",
+    description:
+      "Agent-friendly website intelligence: on-demand change checks, bounded public web extraction, structural Smart Diff, and conservative JSON OpenAPI contract comparison. Native MPP EVM charge with USDC on Base mainnet; no Tempo or Stripe payments.",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: ["web", "change-detection", "extraction", "openapi", "base", "usdc"],
+    status: "active",
+    docs: {
+      homepage: "https://github.com/kirillradchenko96/fresh402",
+      llmsTxt: "https://fresh402.kirilllabs.workers.dev/llms.txt",
+      apiReference: "https://fresh402.kirilllabs.workers.dev/openapi.json",
+    },
+    provider: {
+      name: "Fresh402",
+      url: "https://github.com/kirillradchenko96/fresh402",
+    },
+    realm: "fresh402.kirilllabs.workers.dev",
+    intent: "charge",
+    payments: [
+      {
+        method: "evm",
+        currency: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "POST /v1/check",
+        desc: "Check a public URL or registered watch for changes ($0.005 USDC)",
+        amount: "5000",
+        unitType: "request",
+        healthCheck: { body: { url: "https://example.com/" } },
+      },
+      {
+        route: "POST /v2/extract",
+        desc: "Extract bounded public HTML, JSON or text ($0.010 USDC)",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { body: { url: "https://example.com/" } },
+      },
+      {
+        route: "POST /v2/smart-diff",
+        desc: "Compare a previously registered watch structurally ($0.015 USDC)",
+        amount: "15000",
+        unitType: "request",
+        healthCheck: {
+          body: { watch_id: "w_00000000000000000000000000000000" },
+        },
+      },
+      {
+        route: "POST /v2/openapi-contract-diff",
+        desc: "Compare a registered JSON OpenAPI 3.0/3.1 contract ($0.020 USDC)",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          body: { watch_id: "w_00000000000000000000000000000000" },
+        },
+      },
+    ],
+  },
+
   // AIsa: fixed-price read-only operations from the public OpenAPI catalog.
   {
     id: "aisa",
