@@ -1,0 +1,4 @@
+self-hosted-runner:
+  labels:
+    # Depot-hosted runners (see tempoxyz/tempo/.github/actionlint.yaml).
+    - depot-ubuntu-latest-8
