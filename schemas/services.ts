@@ -11850,4 +11850,42 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── SaltCrate ─────────────────────────────────────────────────────────
+  {
+    id: "saltcrate-oracle",
+    name: "SaltCrate Oracle",
+    url: "https://saltcrate.com",
+    serviceUrl: "https://saltcrate-oracle.fly.dev/mcp",
+    description:
+      "Pay-per-call MCP server for live web intelligence: fetch and parse any page, check link liveness, detect content changes, and verify claims against sources. Flat $0.50 per tool call via Stripe MPP card.",
+    categories: ["web", "search", "data"],
+    integration: "first-party",
+    tags: [
+      "web-scraping",
+      "link-checker",
+      "change-monitoring",
+      "fact-checking",
+      "mcp",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://saltcrate.com",
+      llmsTxt: "https://saltcrate.com/llms.txt",
+      apiReference: "https://saltcrate.com/openapi.json",
+    },
+    provider: { name: "SaltCrate", url: "https://saltcrate.com" },
+    realm: "saltcrate-oracle.fly.dev",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /mcp",
+        desc: "MCP tool call (fetch, check_link, check_change, or verify)",
+        amount: "50",
+        unitType: "request",
+        docs: "https://saltcrate.com/llms.txt",
+      },
+    ],
+  },
 ];
