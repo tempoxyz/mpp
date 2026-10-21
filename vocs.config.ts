@@ -1141,6 +1141,7 @@ export default defineConfig({
   // Replaces repeated inline Shiki color styles with CSS classes, reducing
   // uncompressed page size by ~1.5 MB. See src/shiki-style-to-class.ts.
   codeHighlight: {
+    engine: "highlights",
     langs: ruby,
     transformers: [shikiStyleToClass()],
   },

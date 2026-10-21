@@ -3,6 +3,8 @@ packages:
 
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
+  # Vocs #670 tests this newly published tokenizer.
+  - '@pierre/highlights@0.2.0'
   - mppx
   - viem@2.57.1
   - vocs
