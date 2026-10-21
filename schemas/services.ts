@@ -2060,11 +2060,18 @@ export const services: ServiceDef[] = [
     url: "https://graph.codex.io",
     serviceUrl: "https://graph.codex.io",
     description:
-      "Comprehensive onchain data API for tokens and prediction markets. Real-time prices, charts, trades, and wallet analytics across 80+ networks via GraphQL.",
+      "Onchain data API for tokens, wallets, launchpads, token risk, and prediction markets. Real-time prices, charts, trades, and holders across 100+ networks via GraphQL.",
 
     categories: ["blockchain", "data"],
     integration: "first-party",
-    tags: ["graphql", "defi", "tokens", "trades", "nft"],
+    tags: [
+      "graphql",
+      "defi",
+      "tokens",
+      "trades",
+      "wallets",
+      "prediction-markets",
+    ],
     docs: {
       homepage: "https://docs.codex.io",
       llmsTxt: "https://docs.codex.io/llms.txt",
@@ -2073,13 +2080,18 @@ export const services: ServiceDef[] = [
     realm: "graph.codex.io",
     intent: "charge",
     payments: [TEMPO_PAYMENT],
-    docsBase: "https://context7.com/websites/codex_io/llms.txt",
     endpoints: [
       {
-        healthCheck: { body: { query: "{ __typename }" } },
+        healthCheck: {
+          body: {
+            query:
+              '{ getTokenPrices(inputs: [{ address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", networkId: 1 }]) { address networkId priceUsd } }',
+          },
+        },
         route: "POST /graphql",
-        desc: "GraphQL query (token data, trades, liquidity, NFTs, wallets)",
+        desc: "GraphQL query (token prices, charts, trades, wallets, holders, token risk, prediction markets)",
         amount: "1000",
+        docs: "https://docs.codex.io/agents/mpp",
       },
     ],
   },
