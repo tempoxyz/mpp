@@ -11850,4 +11850,63 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── OmniProvider ──────────────────────────────────────────────────────
+  {
+    id: "omniprovider",
+    name: "OmniProvider",
+    url: "https://provider.omnidev.tech",
+    serviceUrl: "https://pay.omnidev.tech",
+    description:
+      "Pay-per-call LLM chat and cited briefs for agents. An unpaid request returns 402 with the exact price, payment settles after the response is produced, and a client nonce makes retries free of a second charge.",
+    icon: "https://provider.omnidev.tech/assets/favicon.svg",
+    categories: ["ai"],
+    integration: "third-party",
+    tags: ["llm", "chat", "chat-completions", "multi-model", "prepaid", "usdc"],
+    status: "active",
+    docs: {
+      homepage: "https://provider.omnidev.tech/docs/quickstart",
+      llmsTxt: "https://pay.omnidev.tech/llms.txt",
+      apiReference: "https://pay.omnidev.tech/openapi.json",
+    },
+    provider: { name: "OmniProvider", url: "https://provider.omnidev.tech" },
+    realm: "pay.omnidev.tech",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/chat/nano",
+        desc: "Chat completion, nano tier (fixed price, 1000 token limit in, 256 out)",
+        amount: "1000",
+        unitType: "request",
+        healthCheck: { body: { prompt: "hi" } },
+      },
+      {
+        route: "POST /v1/chat/small",
+        desc: "Chat completion, small tier (fixed price)",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: { body: { prompt: "hi" } },
+      },
+      {
+        route: "POST /v1/brief",
+        desc: "Brief that cites only quotes supplied by the caller (fixed price)",
+        amount: "2000",
+        unitType: "request",
+        healthCheck: { body: { query: "hi", citations: [{ url: "https://example.com", quote: "hi" }] } },
+      },
+      {
+        route: "POST /v1/chat/completions",
+        desc: "OpenAI-style chat completion over a multi-model catalog, priced per token",
+        dynamic: true,
+        amountHint: "from $0.0008; per-token rate card at /v1/models",
+        unitType: "request",
+        healthCheck: { body: { model: "llama-3.1-8b", messages: [{ role: "user", content: "hi" }] } },
+      },
+      {
+        route: "GET /v1/models",
+        desc: "Model catalog and rate card (free)",
+      },
+    ],
+  },
 ];
