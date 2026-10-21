@@ -110,7 +110,9 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    # The Vite build (five environment passes plus static generation) is
+    # CPU-bound; on 4-core hosted runners it alone took about two minutes.
+    runs-on: depot-ubuntu-latest-8
     permissions:
       contents: read
       id-token: write
