@@ -5081,7 +5081,7 @@ packages:
         optional: true
 
   vocs@https://pkg.pr.new/vocs@1c023ba:
-    resolution: {tarball: https://pkg.pr.new/vocs@1c023ba}
+    resolution: {integrity: sha512-euAAzVKX35kF9xVRVgy1EEwprl0VqRQE1WLjC+AbGtHV9cMOSXc4D9SvqUMGBmpS8azfXu67InEU2xSi3FXhtA==, tarball: https://pkg.pr.new/vocs@1c023ba}
     version: 2.10.3
     hasBin: true
     peerDependencies:
