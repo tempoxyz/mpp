@@ -11850,4 +11850,81 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Agent Harbor ─────────────────────────────────────────────────────
+  // First-party: Agent Harbor LLC operates the gateway. Each route also accepts x402 (USDC on Base);
+  // /company ($0.005) is x402-only and is not listed here.
+  {
+    id: "agent-harbor",
+    name: "Agent Harbor",
+    url: "https://agentharbor.agency",
+    serviceUrl: "https://x402.agentharbor.agency",
+    description:
+      "Business data from a company's own website, for agents: business name, contact surface and tech stack, an AI-enriched company profile, a browser-based tracking, consent and schema audit, and an AI-crawler access check. Every claim is checked against page evidence on Agent Harbor's own hardware, and a page that can't be used is not charged.",
+    categories: ["data", "web"],
+    integration: "first-party",
+    tags: [
+      "company-data",
+      "enrichment",
+      "web-scraping",
+      "tech-stack",
+      "seo",
+      "ai-crawlers",
+      "robots-txt",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://agentharbor.agency",
+      llmsTxt: "https://x402.agentharbor.agency/llms.txt",
+      apiReference: "https://x402.agentharbor.agency/openapi.json",
+    },
+    provider: { name: "Agent Harbor LLC", url: "https://agentharbor.agency" },
+    realm: "x402.agentharbor.agency",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { path: "/scrape?domain=example.com" },
+        route: "GET /scrape",
+        desc: "Business name, contact surface and tech stack of a domain, each with its evidence (?domain=)",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "example.com" } },
+        route: "POST /scrape",
+        desc: "Business name, contact surface and tech stack of a domain, each with its evidence",
+        amount: "10000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { path: "/enrich?domain=example.com" },
+        route: "GET /enrich",
+        desc: "Validated company profile: name, firmographics and tech-stack summary, claim-checked (?domain=)",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { body: { domain: "example.com" } },
+        route: "POST /enrich",
+        desc: "Validated company profile: name, firmographics and tech-stack summary, claim-checked",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { path: "/audit?domain=example.com" },
+        route: "GET /audit",
+        desc: "Browser audit of a home page: tags, consent timing, schema.org, AI-crawler access and SEO basics, as a ranked fix list (?domain=)",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        healthCheck: { path: "/ai-crawlers?domain=example.com" },
+        route: "GET /ai-crawlers",
+        desc: "Which AI crawlers (GPTBot, ClaudeBot, PerplexityBot and more) robots.txt allows, plus llms.txt and noindex (?domain=)",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
