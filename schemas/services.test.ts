@@ -204,6 +204,27 @@ describe("services registry", () => {
     expect(dupes, `Duplicate global routes:\n${dupes.join("\n")}`).toEqual([]);
   });
 
+  it("lists Priorivo with exact Stripe EUR charge terms and no health probe", () => {
+    const priorivo = services.find((service) => service.id === "priorivo");
+    expect(priorivo).toMatchObject({
+      name: "Priorivo",
+      serviceUrl: "https://getpriorivo.com",
+      integration: "first-party",
+      status: "active",
+      realm: "getpriorivo.com",
+      intent: "charge",
+      payments: [{ method: "stripe", currency: "eur", decimals: 2 }],
+      endpoints: [
+        {
+          healthCheck: false,
+          route: "POST /api/agent/v1/website-check",
+          amount: "990",
+          unitType: "website-check",
+        },
+      ],
+    });
+  });
+
   it("total services is reasonable (> 0)", () => {
     expect(services.length).toBeGreaterThan(0);
   });

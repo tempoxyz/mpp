@@ -11850,4 +11850,48 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Priorivo ───────────────────────────────────────────────────────────
+  {
+    id: "priorivo",
+    name: "Priorivo",
+    url: "https://getpriorivo.com",
+    serviceUrl: "https://getpriorivo.com",
+    description:
+      "Evidence-based analysis of one public website for AI agents. Get prioritized findings, observed evidence, why each issue matters, and recommended next steps in structured JSON.",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: [
+      "website-analysis",
+      "website-audit",
+      "technical-seo",
+      "web-quality",
+      "evidence",
+      "prioritization",
+      "automation",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://getpriorivo.com/developers/agents/",
+      llmsTxt: "https://getpriorivo.com/llms.txt",
+      apiReference: "https://getpriorivo.com/agents/openapi.json",
+    },
+    provider: { name: "Priorivo", url: "https://getpriorivo.com" },
+    realm: "getpriorivo.com",
+    intent: "charge",
+    payments: [{ method: "stripe", currency: "eur", decimals: 2 }],
+    endpoints: [
+      {
+        // Unpaid quotes reserve capacity; do not probe this endpoint in
+        // directory health checks. The advertised MPP terms are explicit.
+        healthCheck: false,
+        route: "POST /api/agent/v1/website-check",
+        desc: "Analyze one public website and receive prioritized findings with observed evidence and recommended next steps",
+        amount: "990",
+        unitType: "website-check",
+        docs: "https://getpriorivo.com/developers/agents/",
+      },
+    ],
+  },
+
 ];

@@ -115,6 +115,56 @@ describe("formatPrice", () => {
       ),
     ).toBe("$100.00");
   });
+
+  it("displays Stripe EUR prices as euros, not dollars", () => {
+    expect(
+      formatPrice(
+        ep({
+          intent: "charge",
+          method: "stripe",
+          currency: "eur",
+          amount: "990",
+          decimals: 2,
+        }),
+      ),
+    ).toBe("€9.90");
+  });
+
+  it("displays zero and small euro prices without changing USD cases", () => {
+    expect(
+      formatPrice(
+        ep({
+          intent: "charge",
+          method: "stripe",
+          currency: "eur",
+          amount: "0",
+          decimals: 2,
+        }),
+      ),
+    ).toBe("€0");
+    expect(
+      formatPrice(
+        ep({
+          intent: "charge",
+          method: "stripe",
+          currency: "eur",
+          amount: "1",
+          decimals: 2,
+        }),
+      ),
+    ).toBe("€0.01");
+    expect(
+      formatPrice(
+        ep({
+          intent: "charge",
+          method: "tempo",
+          currency: "usd",
+          amount: "990",
+          decimals: 2,
+        }),
+      ),
+    ).toBe("$9.90");
+  });
 });
 
 // ---------------------------------------------------------------------------
