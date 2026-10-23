@@ -2191,6 +2191,42 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Economico ───────────────────────────────────────────────────────────
+  {
+    id: "economico",
+    name: "Economico",
+    url: "https://economi.co",
+    serviceUrl: "https://economi.co",
+    description:
+      "The ERP for founders and their agents. Authenticated agents can pay Economico plan invoices with MPP after OAuth authorization, offer acceptance, and invoice preparation. Bookkeeping operations use the purchased plan.",
+    icon: "https://economi.co/logo.png",
+    categories: ["data"],
+    integration: "first-party",
+    tags: ["accounting", "bookkeeping", "founders", "mcp", "subscriptions"],
+    status: "active",
+    docs: {
+      homepage:
+        "https://economi.co/docs/?utm_source=mppdev&utm_medium=directory&utm_campaign=machine_payments",
+      llmsTxt: "https://economi.co/llms.txt",
+      apiReference: "https://economi.co/openapi.json",
+    },
+    provider: { name: "Economico", url: "https://economi.co" },
+    realm: "economi.co",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT, TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/platform/purchases/{offerId}/payment?method=mpp",
+        desc: "Pay a prepared plan invoice using the payment URL returned by the authenticated purchase workflow. Requires OAuth, X-Economico-Business, and an accepted offer; renewals may also require invoiceId. Omit the request body. MPP credentials use the Payment header alongside OAuth Authorization.",
+        dynamic: true,
+        amountHint:
+          "Startup $29/month or $299/year; extra events $5 per started 500 on Startup or per started 100 on Solo. The prepared invoice and payment challenge determine the exact amount.",
+        unitType: "plan invoice",
+        healthCheck: false,
+        docs: "https://economi.co/openapi.json",
+      },
+    ],
+  },
   // ── Exa ────────────────────────────────────────────────────────────────
   {
     id: "exa",
