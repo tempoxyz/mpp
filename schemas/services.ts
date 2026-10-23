@@ -11850,4 +11850,35 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── Daydream Music Generator ─────────────────────────────────────────
+  {
+    id: "daydream-music",
+    name: "Daydream Music Generator",
+    url: "https://gen.daydream.live",
+    serviceUrl: "https://gen.daydream.live",
+    description:
+      "Instrumental music from a text description: a song up to two minutes with its five stems (drums, bass, guitar, keys, other), made as parts rather than split from a mix. Royalty-free for commercial games and videos. Returns the song queued with an access token; poll it, then download the MP3, WAV and FLAC stems.",
+    icon: "https://gen.daydream.live/apple-touch-icon.png",
+    categories: ["ai", "media"],
+    integration: "first-party",
+    tags: ["music", "audio", "music-generation", "stems", "instrumental", "royalty-free", "game-music", "loops"],
+    docs: {
+      homepage: "https://gen.daydream.live/",
+      llmsTxt: "https://gen.daydream.live/llms.txt",
+      apiReference: "https://gen.daydream.live/docs#pay",
+    },
+    provider: { name: "Daydream", url: "https://daydream.live" },
+    realm: "gen.daydream.live",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/songs",
+        desc: "Make a song from a description (prompt; optional duration, bpm, key, loop). Returns it queued, with an access_token to poll GET /v1/songs/{id}",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: { body: {} },
+      },
+    ],
+  },
 ];
