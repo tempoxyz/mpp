@@ -28,6 +28,9 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   - semver@6.3.1
 overrides:
+  "zod@>=4.0.0 <4.6.6": "4.6.7"
+  "fast-uri@>=3.0.0 <3.1.9": "3.1.9"
+  "body-parser@>=2.0.0 <2.4.0": "2.4.0"
   # Mermaid's KaTeX range excludes the prototype-pollution hardening release.
   'katex@>=0.11.0 <0.18.2': 0.18.2
   # Miniflare pins sharp 0.35.4, whose prebuilt librsvg is vulnerable.
