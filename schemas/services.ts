@@ -11850,4 +11850,53 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Agoranome ────────────────────────────────────────────────────────
+  {
+    id: "agoranome",
+    name: "Agoranome",
+    url: "https://agoranome.com",
+    serviceUrl: "https://api.agoranome.com",
+    description:
+      "Seller tools for agent-paid APIs. The Machine Buyer Panel tests whether buyer-agent models pick your offer over its top rivals and returns a win rate with suggested edits; the demand gap finder ranks the searches buyer agents make whose best results are weak.",
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: [
+      "seller-tools",
+      "buyer-agents",
+      "market-research",
+      "listing-optimization",
+      "x402",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://agoranome.com",
+      llmsTxt: "https://api.agoranome.com/llms.txt",
+      apiReference: "https://api.agoranome.com/openapi.json",
+    },
+    provider: { name: "Agoranome", url: "https://agoranome.com" },
+    realm: "api.agoranome.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: {
+          body: {
+            resource: "https://api.agoranome.com/v1/machine/ping",
+            tasks: ["test an agent payment"],
+          },
+        },
+        route: "POST /v1/seller/panel",
+        desc: "Machine Buyer Panel: buyer-agent models choose between your offer and its top rivals on up to three tasks; returns the win rate with a 95% interval and which edits help",
+        amount: "100",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/seller/gaps",
+        desc: "Demand gap finder: buyer-agent searches whose top results are weak, ranked by measured demand. Optional ?topic=",
+        amount: "100",
+        unitType: "request",
+      },
+    ],
+  },
 ];
