@@ -136,6 +136,38 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  // ── botx402 ──────────────────────────────────────────────────────────
+  {
+    id: "botx402",
+    name: "botx402",
+    url: "https://botx402.io",
+    serviceUrl: "https://api.botx402.io",
+    description:
+      "Native ETH and ERC-20 balances of one Base wallet address, read live from Base mainnet at the latest block, with each token's symbol, decimals and amount.",
+    icon: "https://botx402.io/favicon.svg",
+    categories: ["blockchain", "data"],
+    integration: "first-party",
+    tags: ["base", "wallet", "balances", "erc-20", "onchain"],
+    status: "active",
+    docs: {
+      homepage: "https://botx402.io",
+      llmsTxt: "https://botx402.io/llms.txt",
+      apiReference: "https://api.botx402.io/openapi.json",
+    },
+    provider: { name: "botx402", url: "https://botx402.io" },
+    realm: "api.botx402.io",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /base-address-balance",
+        desc: "Get a Base wallet's ETH and token balances",
+        amount: "10000",
+        unitType: "request",
+      },
+    ],
+  },
+
   // AIsa: fixed-price read-only operations from the public OpenAPI catalog.
   {
     id: "aisa",
