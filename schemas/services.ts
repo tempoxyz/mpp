@@ -11850,4 +11850,39 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── cloudlinux.ro ───────────────────────────────────────────────────────
+  {
+    id: "cloudlinux",
+    name: "cloudlinux.ro",
+    url: "https://www.cloudlinux.ro",
+    serviceUrl: "https://www.cloudlinux.ro/api/v1",
+    description:
+      "EU cloud provider for AI agents: fund a prepaid account over HTTP 402, then order hourly-billed cloud, GPU and dedicated servers, agent workstations, backups, domains and licences through the API or MCP server.",
+    icon: "https://www.cloudlinux.ro/apple-touch-icon.png",
+    categories: ["compute"],
+    integration: "first-party",
+    tags: ["cloud", "vps", "gpu", "dedicated-servers", "hosting", "domains", "ai-agents", "eu"],
+    status: "active",
+    docs: {
+      homepage: "https://www.cloudlinux.ro/docs/agent-payments",
+      llmsTxt: "https://www.cloudlinux.ro/llms.txt",
+      apiReference: "https://www.cloudlinux.ro/docs/api",
+    },
+    provider: { name: "CLOUDZERO SRL", url: "https://www.cloudlinux.ro" },
+    realm: "www.cloudlinux.ro",
+    intent: "charge",
+    // Charges are in EUR; the shared STRIPE_PAYMENT default is USD.
+    payments: [{ method: "stripe", currency: "eur", decimals: 2 }],
+    endpoints: [
+      {
+        healthCheck: { path: "/billing/topup", body: {} },
+        route: "POST /billing/topup",
+        desc: "Add prepaid credit to the calling account (its API key as bearer token on the paid retry). The challenge covers the credit plus an online payment processing fee; exactly the requested credit is added and spendable at once.",
+        dynamic: true,
+        amountHint: "EUR 5 – 5,000 per top-up, plus 3.4% + EUR 0.25 processing fee",
+        unitType: "top-up",
+        docs: "https://www.cloudlinux.ro/docs/agent-payments",
+      },
+    ],
+  },
 ];
