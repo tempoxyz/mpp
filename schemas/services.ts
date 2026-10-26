@@ -2799,6 +2799,54 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Opedd ──────────────────────────────────────────────────────────────
+  {
+    id: "opedd",
+    name: "Opedd",
+    url: "https://opedd.com",
+    serviceUrl: "https://api.opedd.com",
+    description:
+      "Licensed, cited passages from independent publications and research firms, for AI answers. Charged per article used, at each publisher's own price.",
+    icon: "https://raw.githubusercontent.com/Opedd/opedd-mcp/main/assets/opedd-icon-512.png",
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: [
+      "licensed-content",
+      "research",
+      "publications",
+      "citations",
+      "rag",
+      "geopolitics",
+      "finance",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://opedd.com/mcp",
+      llmsTxt: "https://opedd.com/llms.txt",
+      apiReference: "https://api.opedd.com/openapi.json",
+    },
+    provider: { name: "Opedd", url: "https://opedd.com" },
+    realm: "api.opedd.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        // Pricing a question runs a retrieval, so it is not probed.
+        healthCheck: false,
+        route: "POST /agent-answer",
+        desc: "Ask a question; get licensed passages with citations",
+        dynamic: true,
+        amountHint:
+          "Per article used, at each publication's price (card minimum $0.50; the rest is kept as credit)",
+        unitType: "request",
+      },
+      {
+        route: "GET /publisher-directory",
+        desc: "List the publications on Opedd (free)",
+      },
+    ],
+  },
+
   // ── OpenAI ─────────────────────────────────────────────────────────────
   {
     id: "openai",
