@@ -87,20 +87,6 @@ export default defineConfig(({ mode }) => {
         ? [mkcert({ force: true, hosts: ["localhost"] })]
         : []),
     ],
-    // Prevent the TypeScript compiler (used by twoslash) from being bundled into
-    // the server output. TypeScript uses `__filename` which doesn't exist in ESM.
-    environments: {
-      rsc: {
-        build: {
-          rollupOptions: {
-            external: ["typescript"],
-          },
-        },
-      },
-    },
-    ssr: {
-      external: ["typescript"],
-    },
     test: {
       exclude: [
         ...configDefaults.exclude,
