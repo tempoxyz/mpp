@@ -21,21 +21,6 @@ const commitTimestamp = child_process
   .toString()
   .trim();
 
-function stubRehypeMermaid(): Plugin {
-  return {
-    name: "stub-rehype-mermaid",
-    enforce: "pre",
-    resolveId(id) {
-      if (id === "rehype-mermaid") return "\0rehype-mermaid-stub";
-    },
-    load(id) {
-      if (id === "\0rehype-mermaid-stub") {
-        return "export default function rehypeMermaid() { return (tree) => tree }";
-      }
-    },
-  };
-}
-
 // Stub the mermaid library to prevent Vocs's built-in Mermaid.client from
 // bundling the full mermaid package (~2.5 MB of JS chunks). No page uses
 // Vocs's ```mermaid code blocks — all diagrams use the custom
@@ -54,30 +39,6 @@ function stubMermaid(): Plugin {
           async render() { return { svg: '<svg></svg>' } },
         }`;
       }
-    },
-  };
-}
-
-const CONTENT_SIGNAL_DIRECTIVE =
-  "Content-Signal: ai-train=no, search=yes, ai-input=no";
-
-function contentSignalsRobotsTxt(): Plugin {
-  return {
-    name: "content-signals-robots-txt",
-    enforce: "post",
-    async writeBundle(options) {
-      if (!options.dir?.endsWith("/public")) return;
-
-      const robotsPath = path.join(options.dir, "robots.txt");
-      const current = await fs.readFile(robotsPath, "utf8");
-      const next = current.includes("Content-Signal:")
-        ? current.replace(/^Content-Signal:.*$/m, CONTENT_SIGNAL_DIRECTIVE)
-        : current.replace(
-            /(User-agent: \*\nAllow: \/\n)/,
-            `$1\n${CONTENT_SIGNAL_DIRECTIVE}\n`,
-          );
-
-      if (next !== current) await fs.writeFile(robotsPath, next, "utf8");
     },
   };
 }
@@ -114,18 +75,13 @@ export default defineConfig(({ mode }) => {
       __COMMIT_SHA__: JSON.stringify(commitSha),
       __COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
     },
-    optimizeDeps: {
-      include: ["@braintree/sanitize-url", "dayjs"],
-    },
     plugins: [
       clientConfig(),
-      stubRehypeMermaid(),
       stubMermaid(),
       Icons({ compiler: "jsx", jsx: "react" }),
       react(),
       blogContent(),
       vocs(),
-      contentSignalsRobotsTxt(),
       pruneSitemap(),
       ...(mode !== "production" && mode !== "test"
         ? [mkcert({ force: true, hosts: ["localhost"] })]

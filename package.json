@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && node scripts/generate-og-descriptions.ts && vite build",
+    "build": "node scripts/generate-discovery.ts && node scripts/build-diagrams.ts && node scripts/copy-vocs-theme.ts && node scripts/generate-cli-help.ts && vite build",
     "check": "biome check --write",
     "check:ci": "biome check",
     "check:markdown": "vocs markdown-audit",
@@ -47,7 +47,7 @@
     "stripe": "^22.2.0",
     "tailwindcss": "^4.3.0",
     "viem": "2.57.1",
-    "vocs": "https://pkg.pr.new/vocs@1c023ba",
+    "vocs": "2.11.0",
     "wagmi": "~3.6.21",
     "waku": "1.0.0-rc.3"
   },
