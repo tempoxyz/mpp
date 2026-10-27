@@ -8,7 +8,6 @@ import { defineConfig, loadEnv } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import { configDefaults } from "vitest/config";
 import { vocs } from "vocs/vite";
-import { clientConfig } from "./scripts/client-config.js";
 import { assertSitemapXml, pruneSitemapXml } from "./scripts/sitemap.js";
 import { blogContent } from "./scripts/vite-blog.js";
 
@@ -20,43 +19,6 @@ const commitTimestamp = child_process
   .execSync("git log -1 --format=%cI")
   .toString()
   .trim();
-
-function stubRehypeMermaid(): Plugin {
-  return {
-    name: "stub-rehype-mermaid",
-    enforce: "pre",
-    resolveId(id) {
-      if (id === "rehype-mermaid") return "\0rehype-mermaid-stub";
-    },
-    load(id) {
-      if (id === "\0rehype-mermaid-stub") {
-        return "export default function rehypeMermaid() { return (tree) => tree }";
-      }
-    },
-  };
-}
-
-// Stub the mermaid library to prevent Vocs's built-in Mermaid.client from
-// bundling the full mermaid package (~2.5 MB of JS chunks). No page uses
-// Vocs's ```mermaid code blocks — all diagrams use the custom
-// MermaidDiagram component which renders pure SVG without mermaid.
-function stubMermaid(): Plugin {
-  return {
-    name: "stub-mermaid",
-    enforce: "pre",
-    resolveId(id) {
-      if (id === "mermaid") return "\0mermaid-stub";
-    },
-    load(id) {
-      if (id === "\0mermaid-stub") {
-        return `export default {
-          initialize() {},
-          async render() { return { svg: '<svg></svg>' } },
-        }`;
-      }
-    },
-  };
-}
 
 const CONTENT_SIGNAL_DIRECTIVE =
   "Content-Signal: ai-train=no, search=yes, ai-input=no";
@@ -118,9 +80,6 @@ export default defineConfig(({ mode }) => {
       include: ["@braintree/sanitize-url", "dayjs"],
     },
     plugins: [
-      clientConfig(),
-      stubRehypeMermaid(),
-      stubMermaid(),
       Icons({ compiler: "jsx", jsx: "react" }),
       react(),
       blogContent(),
