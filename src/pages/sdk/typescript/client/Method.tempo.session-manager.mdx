@@ -671,9 +671,12 @@ The manager rejects a configured client, resolved client, or Session snapshot on
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
 
 Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. The swap acquires only the missing balance. Use the object form to set a slippage percentage from `0` to `50`, fallback token order, and a positive input-token base-unit `maxAmountIn`. The default input budget assumes 1:1 token units plus slippage; set `maxAmountIn` for non-parity pairs.
+
+
+The default swap sources are pathUSD, USDC.e, and OUSD in that order. Set `fallback: false` with `tokenIn` to allow only those listed input tokens; otherwise the defaults follow your selected tokens.
 
 ### bootstrap (optional)
 

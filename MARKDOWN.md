@@ -1,6 +1,6 @@
 # Maintaining generated Markdown
 
-This site uses Vocs 2.11.0 from npm with `codeHighlight.engine` set to
+This site uses Vocs 2.12.0 from npm with `codeHighlight.engine` set to
 `highlights` for MDX code blocks, client-side samples, and Twoslash hover
 popups. Set it to `shiki` to compare the engines.
 
@@ -84,6 +84,6 @@ sections and concise descriptions are preserved without stale content or hashes.
 wrapper is removed. CI still runs the audit, and production builds also enforce
 it. Tests cover both modes and the environment override.
 
-Vocs 2.11 requires Vite 8, React 19.3, and Waku 1.0 rc. The custom
+Vocs 2.12 requires Vite 8, React 19.3, and Waku 1.0 rc. The custom
 `src/pages/_root.tsx` replaces Vocs Root, so `SiteRootClient` mounts the
 `ScrollRestoration` component exported by `vocs` instead of a local copy.

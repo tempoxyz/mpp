@@ -172,9 +172,12 @@ The client checks the allowlist before resolution and again before signing, and 
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; slippage?: number; tokenIn?: Address[] }`
 
 Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. Use the object form to set a maximum slippage percentage and the fallback token order.
+
+
+The default swap sources are pathUSD, USDC.e, and OUSD in that order. Set `fallback: false` with `tokenIn` to allow only those listed input tokens; otherwise the defaults follow your selected tokens.
 
 ### channelStore (optional)
 

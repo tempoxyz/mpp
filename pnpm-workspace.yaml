@@ -5,7 +5,7 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - mppx
   - viem@2.57.1
-  - vocs@2.11.0
+  - vocs@2.12.0
   - vite
   - waku
 blockExoticSubdeps: true

@@ -4,6 +4,8 @@ Creates a Tempo subscription method for server-side activation, access reuse, an
 
 Activation verifies that the signed Tempo key authorization witness matches the server-issued Challenge ID, preventing reuse across equivalent Challenges.
 
+Anonymous setup carries an authenticated encrypted key token in the Challenge. A successful payment retains the billing key; abandoned Challenges do not create pending key records. A new Challenge can activate an expired subscription for the same payer.
+
 ## Usage
 
 Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `testnet: true`. Existing subscriptions retain their authorized currency during reuse and renewal.

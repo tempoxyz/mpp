@@ -157,6 +157,12 @@ Defaults to mainnet (`4217`), or Moderato (`42431`) with `testnet: true`. An exp
 
 TTL in milliseconds for cached on-chain channel state. After this duration, the server re-queries on-chain state during voucher handling to detect forced close requests.
 
+### chargeOnAcceptance (optional)
+
+- **Type:** `boolean`
+
+Charge request-priced content when its voucher is accepted. Refund content you cannot serve with `tempo.session.credit`.
+
 ### currencies (optional)
 
 - **Type:** `readonly (string | Token)[]`
@@ -320,6 +326,12 @@ type ResolveSessionChannelIdParameters = {
 
 Use `source` for identity bootstrap. It is only set after the server verifies the client's zero-amount proof. Use `request.headers` for app session cookies or explicit `Payment-Session` hints. The returned channel ID is treated as a hint; the server still verifies that the channel exists and matches the current payment request.
 
+### reusableChallenges (optional)
+
+- **Type:** `boolean`
+
+Keep a Session Challenge valid for later requests to the same route until it expires. The binding includes route, currency, recipient, and channel terms, but excludes the quoted amount. Each request charges its own price from the accepted channel balance. Clients can send a voucher with the request instead of waiting for a `402`.
+
 ### settlementSchedule (optional)
 
 - **Type:** `{ amount?: string | bigint; intervalMs?: number; units?: number }`
@@ -329,6 +341,12 @@ Server-owned automatic settlement cadence. Clients don't receive or control this
 HTTP, SSE, and WebSocket charges remain served when scheduled settlement encounters a transient transport or RPC failure, rate limit, receipt timeout, or lease-claim failure. The charge remains due for a later settlement. Reverts and configuration errors still fail the request. A confirmed settlement whose checkpoint fails also keeps the charged request successful and reports the error through `onSessionSettlementFailure`.
 
 Settlement records only the spend and units captured with the submitted voucher. Charges accepted while that transaction is pending remain due for the next settlement.
+
+### sponsorshipLimit (optional)
+
+- **Type:** `{ perDay?: number; store: Store.AtomicStore }`
+
+Limit sponsored channel opens and top-ups separately per verified transaction signer and UTC day. The default limit is five of each. Transactions over the limit continue without sponsorship, so the payer needs its own fee balance.
 
 ### sse (optional)
 
@@ -370,6 +388,13 @@ Suggested deposit amount communicated to clients in the Challenge.
 - **Type:** `string`
 
 Unit type label, such as `"token"`, `"byte"`, or `"request"`.
+
+### voucherStateMaxAge (optional)
+
+- **Type:** `number`
+- **Default:** `0`
+
+Maximum age in milliseconds of verified on-chain state used to accept a voucher before a fresh read finishes in the background. Keep it well below Tempo's 900-second close grace period so accepted vouchers remain settleable. The default reads on-chain state before every acceptance.
 
 ## Related
 
@@ -428,14 +453,30 @@ Charges against a precompile-backed channel's stored balance outside an HTTP han
 ```ts
 import { tempo } from 'mppx/server'
 
-const state = await tempo.session.charge(store, channelId, 10_000n)
+const state = await tempo.session.charge(store, channelId, 10_000n, {
+  idempotencyKey: operationId,
+})
 ```
 
-This returns the updated channel state and throws if the channel is missing, closed, or does not have enough unspent deposit.
+This returns the updated channel state and throws if the channel is missing, closed, or does not have enough unspent deposit. Retrying the same key and amount returns the recorded charge. Reusing a key with another amount throws `IdempotencyKeyConflictError`. Pass `retention` in milliseconds when retries can span more than the default 24 hours.
+
+### `tempo.session.credit`
+
+Return unused spend to a channel at most once per key. Credit only unserved content; a declined credit leaves spend unchanged and needs another refund path. An `unknown` outcome means the store write may have committed, so retry with the same key.
+
+```ts
+import { tempo } from 'mppx/server'
+
+const result = await tempo.session.credit(store, channelId, unusedAmount, {
+  idempotencyKey: refundId,
+})
+```
+
+`credit` declines when the channel is closing or finalized, or the credit would reduce spend below zero or an on-chain settlement floor. The `units` option also returns charged units. Charge and credit keys remain on the channel record for 24 hours by default and expire during a later keyed operation.
 
 ### `tempo.session.settle`
 
-Settles a single precompile-backed channel on-chain.
+Settles the largest accepted voucher at or below recorded spend for a single precompile-backed channel. It throws when no voucher is settleable.
 
 ```ts
 import { tempo } from 'mppx/server'
@@ -474,3 +515,22 @@ const txHashes = await tempo.session.settleBatch(store, client, channelIds)
 ```
 
 `settleBatch` applies the same validation as `settle` to each channel and returns the settlement transaction hashes in order.
+
+### `tempo.session.superviseCloses`
+
+Run close supervision on a schedule, for example every minute. Track channel IDs before their first charge and pass them to each run; the store does not list channels. Supervision reads one pinned block, answers payer close requests before Tempo's 900-second grace period ends, reopens cancelled closes, and finalizes channels from close events.
+
+```ts
+import { tempo } from 'mppx/server'
+
+const result = await tempo.session.superviseCloses({
+  account: settlementAccount,
+  channelIds,
+  client,
+  previousBlock,
+  settlementSchedule: { amount: 100_000n },
+  store,
+})
+```
+
+Persist `result.block` as `previousBlock` only when `result.complete` is true. Remove channels reported `closed`, `unrecovered`, `finalized`, or `missing` from the tracked IDs. Inspect `result.failed` and `result.unrecovered`; retry failed channels. The optional `settlementSchedule` uses raw token units and settles open channels charged outside the Session handler. Use `Session.Server.resolveSettlementSchedule` to convert a configured schedule to raw units.

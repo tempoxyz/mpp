@@ -8,7 +8,6 @@ import { defineConfig, loadEnv } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import { configDefaults } from "vitest/config";
 import { vocs } from "vocs/vite";
-import { clientConfig } from "./scripts/client-config.js";
 import { assertSitemapXml, pruneSitemapXml } from "./scripts/sitemap.js";
 import { blogContent } from "./scripts/vite-blog.js";
 
@@ -20,28 +19,6 @@ const commitTimestamp = child_process
   .execSync("git log -1 --format=%cI")
   .toString()
   .trim();
-
-// Stub the mermaid library to prevent Vocs's built-in Mermaid.client from
-// bundling the full mermaid package (~2.5 MB of JS chunks). No page uses
-// Vocs's ```mermaid code blocks — all diagrams use the custom
-// MermaidDiagram component which renders pure SVG without mermaid.
-function stubMermaid(): Plugin {
-  return {
-    name: "stub-mermaid",
-    enforce: "pre",
-    resolveId(id) {
-      if (id === "mermaid") return "\0mermaid-stub";
-    },
-    load(id) {
-      if (id === "\0mermaid-stub") {
-        return `export default {
-          initialize() {},
-          async render() { return { svg: '<svg></svg>' } },
-        }`;
-      }
-    },
-  };
-}
 
 function pruneSitemap(): Plugin {
   return {
@@ -76,8 +53,6 @@ export default defineConfig(({ mode }) => {
       __COMMIT_TIMESTAMP__: JSON.stringify(commitTimestamp),
     },
     plugins: [
-      clientConfig(),
-      stubMermaid(),
       Icons({ compiler: "jsx", jsx: "react" }),
       react(),
       blogContent(),
