@@ -11850,4 +11850,56 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // ── LastScanned ──────────────────────────────────────────────────────
+  {
+    id: "lastscanned",
+    name: "LastScanned",
+    url: "https://lastscanned.com",
+    serviceUrl: "https://api.lastscanned.com",
+    description:
+      "Normalized package tracking API and MCP server across 533+ carriers (UPS, USPS, FedEx, DHL, OnTrac, UniUni, Gofo, SpeedX, Cainiao, Yanwen, 4PX, Royal Mail, Evri, Canada Post, and more) with automatic carrier detection, cross-border handoff resolution, and chronological scan history.",
+    icon: "https://lastscanned.com/icon.svg",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "package-tracking",
+      "shipping",
+      "logistics",
+      "carriers",
+      "ecommerce",
+      "mcp",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://docs.lastscanned.com",
+      llmsTxt: "https://lastscanned.com/llms.txt",
+      apiReference: "https://api.lastscanned.com/openapi.json",
+    },
+    provider: { name: "LastScanned", url: "https://lastscanned.com" },
+    realm: "api.lastscanned.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /v1/track/:number",
+        desc: "Track a single package with automatic carrier detection, delivery estimate, destination, cross-border handoff tracking, and chronological scan history ($0.02 in USDC on Tempo, or $0.50 by card via Stripe for a 25-lookup pack).",
+        amount: "20000",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/track",
+        desc: "Track 1 to 100 comma-separated tracking numbers (?numbers=num1,num2) in one batch request with optional ?carrier= override.",
+        dynamic: true,
+        amountHint:
+          "$0.02 per tracking number ($0.02–$2.00 in USDC on Tempo, or $0.50 by card via Stripe per 25 tracking numbers)",
+        unitType: "request",
+      },
+      {
+        route: "GET /v1/carriers",
+        desc: "List all supported carrier codes accepted by the optional ?carrier= parameter. Free endpoint (no payment required).",
+        amount: "0",
+        unitType: "request",
+      },
+    ],
+  },
 ];
