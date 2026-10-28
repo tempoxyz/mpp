@@ -1,6 +1,7 @@
 /**
- * Generates the service catalog, schemas, and llms.txt from schemas/services.ts,
- * and publishes the agent skills in skills/ under /.well-known/agent-skills/.
+ * Generates the service catalog, schemas, and llms.txt from schemas/services.ts
+ * and the MPP proxy manifest snapshot (schemas/mpp-proxy.json), and publishes
+ * the agent skills in skills/ under /.well-known/agent-skills/.
  *
  * Usage: node scripts/generate-discovery.ts
  */
@@ -20,11 +21,19 @@ import {
   HTTP_METHODS,
   type HttpMethod,
   MPP_REALM,
+  type MppProxyServiceDef,
+  mppProxyServices,
   type ServiceDef,
   services,
 } from "../schemas/services.ts";
+import {
+  mergeMppProxyCatalog,
+  type ServicesCatalog,
+  withMppProxyMetadata,
+} from "../src/mpp-proxy-catalog.ts";
 
 const SCHEMAS_DIR = resolve(import.meta.dirname, "../schemas");
+const MPP_PROXY_SNAPSHOT = resolve(SCHEMAS_DIR, "mpp-proxy.json");
 const OUTPUT_FULL = resolve(SCHEMAS_DIR, "discovery.json");
 const OUTPUT_EXAMPLE = resolve(SCHEMAS_DIR, "discovery.example.json");
 const OUTPUT_LLMS_TXT = resolve(
@@ -240,6 +249,71 @@ export function buildService(svc: ServiceDef): Record<string, unknown> {
   return entry;
 }
 
+/** Reads the checked-in MPP proxy manifest (refresh with `pnpm sync:mpp-proxy`). */
+export function readMppProxySnapshot(): unknown {
+  return JSON.parse(readFileSync(MPP_PROXY_SNAPSHOT, "utf8"));
+}
+
+function isMppProxyUrl(url: string): boolean {
+  const hostname = new URL(url).hostname;
+  return hostname === MPP_REALM || hostname.endsWith(`.${MPP_REALM}`);
+}
+
+/**
+ * Builds the published catalog: services.ts entries, then every service in the
+ * MPP proxy manifest, with endpoints and pricing from the manifest and the
+ * remaining metadata from mppProxyServices.
+ */
+export function buildCatalog(
+  svcs: ServiceDef[],
+  proxyMetadata: MppProxyServiceDef[],
+  proxyManifest: unknown,
+): Record<string, unknown>[] {
+  for (const svc of svcs) {
+    if (isMppProxyUrl(svc.serviceUrl)) {
+      throw new Error(
+        `Service "${svc.id}" is served by the MPP proxy: list its metadata in mppProxyServices; endpoints come from schemas/mpp-proxy.json`,
+      );
+    }
+  }
+
+  const manifestIds = new Set(
+    mergeMppProxyCatalog(
+      { version: 1, services: [] },
+      proxyManifest,
+    ).services.map((service) => service.id),
+  );
+  const ids = new Set(svcs.map((svc) => svc.id));
+  const seenProxyIds = new Set<string>();
+  for (const meta of proxyMetadata) {
+    if (!manifestIds.has(meta.id)) {
+      throw new Error(
+        `mppProxyServices lists "${meta.id}", which schemas/mpp-proxy.json does not serve`,
+      );
+    }
+    if (seenProxyIds.has(meta.id)) {
+      throw new Error(`Duplicate mppProxyServices ID: "${meta.id}"`);
+    }
+    seenProxyIds.add(meta.id);
+  }
+  for (const id of manifestIds) {
+    if (ids.has(id)) {
+      throw new Error(
+        `Service ID "${id}" is used by both services.ts and the MPP proxy`,
+      );
+    }
+  }
+
+  const catalog = withMppProxyMetadata(
+    {
+      version: 1,
+      services: svcs.map(buildService) as ServicesCatalog["services"],
+    },
+    proxyMetadata,
+  );
+  return mergeMppProxyCatalog(catalog, proxyManifest).services;
+}
+
 export type AgentSkill = { name: string; content: Buffer };
 
 /** Reads every skills/{name}/SKILL.md, sorted by name. */
@@ -354,7 +428,11 @@ function buildLlmsTxt(allBuilt: Record<string, unknown>[]): string {
 function generate(): void {
   validateServices(services);
 
-  const allBuilt = services.map(buildService);
+  const allBuilt = buildCatalog(
+    services,
+    mppProxyServices,
+    readMppProxySnapshot(),
+  );
 
   // Full registry (checked in, used by API)
   writeJson(OUTPUT_FULL, { version: 1, services: allBuilt });
@@ -371,7 +449,7 @@ function generate(): void {
   // llms.txt (served statically, overrides Vocs auto-generated version)
   mkdirSync(dirname(OUTPUT_LLMS_TXT), { recursive: true });
   writeFileSync(OUTPUT_LLMS_TXT, buildLlmsTxt(allBuilt));
-  console.log(`Generated ${OUTPUT_LLMS_TXT} (${services.length} services)`);
+  console.log(`Generated ${OUTPUT_LLMS_TXT} (${allBuilt.length} services)`);
 
   // Agent skills (served statically from the canonical skills/ directory)
   const skills = readAgentSkills();
@@ -383,19 +461,21 @@ function generate(): void {
   let paidEps = 0;
   let dynamicEps = 0;
   let freeEps = 0;
-  for (const svc of services) {
-    for (const ep of svc.endpoints) {
+  for (const svc of allBuilt) {
+    for (const ep of svc.endpoints as Array<{
+      payment?: { amount?: string } | null;
+    }>) {
       totalEps++;
-      if (!ep.amount && !ep.dynamic) freeEps++;
-      else if (ep.dynamic) dynamicEps++;
+      if (!ep.payment) freeEps++;
+      else if (ep.payment.amount === undefined) dynamicEps++;
       else paidEps++;
     }
   }
   console.log(
-    `Generated ${OUTPUT_FULL} (${services.length} services, ${totalEps} endpoints)`,
+    `Generated ${OUTPUT_FULL} (${allBuilt.length} services, ${totalEps} endpoints)`,
   );
   console.log(
-    `Generated ${OUTPUT_PUBLIC_CATALOG} (${services.length} services)`,
+    `Generated ${OUTPUT_PUBLIC_CATALOG} (${allBuilt.length} services)`,
   );
   console.log(
     `Generated ${OUTPUT_EXAMPLE} (${exampleServices.length} services)`,

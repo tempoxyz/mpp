@@ -4,16 +4,20 @@ import { resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   MPP_REALM,
+  mppProxyServices,
   type ServiceDef,
+  services,
   TEMPO_PAYMENT,
   USDC,
 } from "../schemas/services.ts";
 import {
+  buildCatalog,
   buildEndpointDocs,
   buildPayment,
   buildService,
   parseRoute,
   readAgentSkills,
+  readMppProxySnapshot,
   validateServices,
 } from "./generate-discovery.ts";
 
@@ -391,6 +395,70 @@ describe("service registry integrity", () => {
         desc: "Poll a research task for results",
       },
     ]);
+  });
+});
+
+// --- MPP proxy services ---
+
+describe("buildCatalog", () => {
+  const snapshot = readMppProxySnapshot() as {
+    services: Array<{
+      id: string;
+      manifest: { endpoints: Array<{ method: string; path: string }> };
+    }>;
+  };
+  const catalog = buildCatalog(services, mppProxyServices, snapshot);
+  const byId = new Map(catalog.map((service) => [service.id, service]));
+
+  it("publishes every service in the MPP proxy snapshot with its endpoints", () => {
+    for (const entry of snapshot.services) {
+      const service = byId.get(entry.id);
+      expect(service?.serviceUrl).toBe(`https://${entry.id}.${MPP_REALM}`);
+      expect(
+        (service?.endpoints as Array<{ method: string; path: string }>).map(
+          ({ method, path }) => `${method} ${path}`,
+        ),
+      ).toEqual(
+        entry.manifest.endpoints.map(({ method, path }) => `${method} ${path}`),
+      );
+    }
+    expect(catalog).toHaveLength(services.length + snapshot.services.length);
+  });
+
+  it("keeps catalog metadata the manifest lacks", () => {
+    expect(byId.get("anthropic")).toMatchObject({
+      url: "https://api.anthropic.com",
+      integration: "third-party",
+      docs: {
+        apiReference: "https://docs.anthropic.com/en/api",
+        llmsTxt: "https://docs.anthropic.com/llms.txt",
+      },
+      provider: { name: "Anthropic", url: "https://anthropic.com" },
+    });
+    expect(byId.get("rpc")).toMatchObject({ integration: "first-party" });
+  });
+
+  it("rejects proxy services listed with endpoints in services.ts", () => {
+    const proxied = {
+      ...services[0]!,
+      id: "proxied",
+      serviceUrl: `https://proxied.${MPP_REALM}`,
+    };
+    expect(() => buildCatalog([proxied], [], snapshot)).toThrow(
+      "served by the MPP proxy",
+    );
+  });
+
+  it("rejects metadata for a service the proxy no longer serves", () => {
+    expect(() =>
+      buildCatalog([], [{ ...mppProxyServices[0]!, id: "retired" }], snapshot),
+    ).toThrow('lists "retired"');
+  });
+
+  it("rejects a services.ts ID that the proxy also uses", () => {
+    expect(() =>
+      buildCatalog([{ ...services[0]!, id: "openai" }], [], snapshot),
+    ).toThrow('"openai" is used by both');
   });
 });
 
