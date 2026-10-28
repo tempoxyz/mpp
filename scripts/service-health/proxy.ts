@@ -40,6 +40,18 @@ export function mppProxyHealthServices(
       endpoints: CatalogEndpoint[];
     };
     const id = String(service.id);
+    const routes = new Set(
+      service.endpoints.map(
+        (endpoint) => `${endpoint.method} ${endpoint.path}`,
+      ),
+    );
+    // A fixture for a route the proxy no longer serves would silently stop probing it.
+    for (const route of Object.keys(fixtures.get(id) ?? {})) {
+      if (!routes.has(route))
+        throw new Error(
+          `mppProxyServices "${id}" has a health check for "${route}", which the proxy does not serve`,
+        );
+    }
     const endpoints: EndpointDef[] = service.endpoints.map((endpoint) => {
       const route = `${endpoint.method} ${endpoint.path}`;
       const fixture = fixtures.get(id)?.[route];
