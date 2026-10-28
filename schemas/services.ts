@@ -11194,7 +11194,10 @@ export type MppProxyServiceDef = Pick<
   | "status"
   | "docs"
   | "provider"
->;
+> & {
+  /** Health-probe fixtures by route ("METHOD /path"), for proxy routes that need a safe body. */
+  healthChecks?: Record<string, NonNullable<EndpointDef["healthCheck"]>>;
+};
 
 // prettier-ignore
 export const mppProxyServices: MppProxyServiceDef[] = [
@@ -11224,6 +11227,11 @@ export const mppProxyServices: MppProxyServiceDef[] = [
   {
     id: "firecrawl",
     url: "https://api.firecrawl.dev",
+    healthChecks: {
+      "POST /v1/search": {
+        body: { query: "Machine Payments Protocol", limit: 1 },
+      },
+    },
     integration: "third-party",
     tags: ["scraping", "crawling", "extraction", "llm"],
     docs: {
@@ -11270,6 +11278,11 @@ export const mppProxyServices: MppProxyServiceDef[] = [
   {
     id: "rpc",
     url: "https://rpc.tempo.xyz",
+    healthChecks: {
+      "POST /": {
+        body: { id: 1, jsonrpc: "2.0", method: "eth_chainId", params: [] },
+      },
+    },
     integration: "first-party",
     tags: ["rpc", "json-rpc", "evm", "tempo", "node"],
     docs: {
