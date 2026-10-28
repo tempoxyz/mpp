@@ -187,13 +187,32 @@ See the [payment links guide](/guides/payment-links) for a complete browser flow
 The [Link CLI](/tools/wallet#link-cli) handles `stripe.charge` end-to-end—`link-cli mpp pay` parses the 402 Challenge, creates an SPT from the user's Link wallet, and retries the request with the Credential. No code required.
 ::::
 
-Use `stripe` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, creates an SPT through the `createToken` callback, and retries with the Credential.
+Use `stripe` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, gets an SPT from the `createToken` callback, and retries with the Credential.
 
-SPT creation requires a Stripe secret key, so the client accepts a `createToken` callback that proxies through a server endpoint. You can optionally pass a `client` (a Stripe.js instance from `@stripe/stripe-js`) which is forwarded to the `createToken` callback for use with Elements.
+### With an existing SPT
 
-### Simple (known payment method)
+If you already have an SPT, return it from `createToken`.
 
-If you already have a payment method ID (for example a test card or a stored method), pass it as `paymentMethod` and mppx handles the full 402 → SPT → retry flow automatically.
+```ts twoslash
+import { Mppx, stripe } from 'mppx/client'
+
+const mppx = Mppx.create({
+  methods: [
+    stripe.charge({
+      createToken: async () => process.env.STRIPE_SPT!, // [!code hl]
+      paymentMethod: 'card',
+    }),
+  ],
+  polyfill: false,
+})
+
+const response = await mppx.fetch('https://api.example.com/resource')
+// @log: Response { status: 200, ... }
+```
+
+### Create an SPT for a known payment method
+
+Creating an SPT requires a Stripe secret key, so create it through a server endpoint. Pass a payment method ID (for example a test card or a stored method) as `paymentMethod`. You can optionally pass a `client` (a Stripe.js instance from `@stripe/stripe-js`), which is forwarded to `createToken` for use with Elements.
 
 ```ts twoslash
 
@@ -357,7 +376,7 @@ The `test_helpers/shared_payment/granted_tokens` endpoint is for testing. In pro
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | `client` | `StripeJs` | Optional | Stripe.js instance from `@stripe/stripe-js` — forwarded to `createToken` for use with Elements |
-| `createToken` | `(params) => Promise<string>` | Required | Callback to create an SPT (proxied through a server endpoint) |
+| `createToken` | `(params) => Promise<string>` | Required | Callback that returns an SPT: one you already hold, or one created through a server endpoint |
 | `externalId` | `string` | Optional | Client reference ID included in the Credential payload |
 | `paymentMethod` | `string` | Optional | Default Stripe payment method ID (overridden by `context.paymentMethod`) |
 
