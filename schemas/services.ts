@@ -1789,41 +1789,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── Anthropic ──────────────────────────────────────────────────────────
-  {
-    id: "anthropic",
-    name: "Anthropic",
-    url: "https://api.anthropic.com",
-    serviceUrl: `https://anthropic.${MPP_REALM}`,
-    description:
-      "Claude chat completions (Sonnet, Opus, Haiku) via native and OpenAI-compatible APIs.",
-
-    categories: ["ai"],
-    integration: "third-party",
-    tags: ["llm", "claude", "sonnet", "opus", "haiku", "chat"],
-    docs: {
-      homepage: "https://docs.anthropic.com",
-      llmsTxt: "https://docs.anthropic.com/llms.txt",
-      apiReference: "https://docs.anthropic.com/en/api",
-    },
-    provider: { name: "Anthropic", url: "https://anthropic.com" },
-    realm: MPP_REALM,
-    intent: "session",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /v1/messages",
-        desc: "Create messages with Claude (Sonnet, Opus, Haiku) - price varies by model",
-        dynamic: true,
-      },
-      {
-        route: "POST /v1/chat/completions",
-        desc: "OpenAI-compatible chat completions (auto-converted to Anthropic format)",
-        dynamic: true,
-      },
-    ],
-  },
-
   // ── Browserbase ────────────────────────────────────────────────────────
   {
     id: "browserbase",
@@ -2231,155 +2196,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── fal.ai ─────────────────────────────────────────────────────────────
-  {
-    id: "fal",
-    name: "fal.ai",
-    url: "https://fal.run",
-    serviceUrl: `https://fal.${MPP_REALM}`,
-    description:
-      "Image, video, and audio generation with 600+ models (Flux, SD, Recraft, Grok).",
-
-    categories: ["ai", "media"],
-    integration: "third-party",
-    tags: ["image", "video", "flux", "stable-diffusion", "grok", "generation"],
-    docs: {
-      homepage: "https://fal.ai/docs",
-      llmsTxt: "https://fal.ai/docs/llms.txt",
-    },
-    provider: { name: "fal.ai", url: "https://fal.ai" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    docsBase: "https://context7.com/websites/fal_ai/llms.txt",
-    endpoints: [
-      {
-        route: "POST /fal-ai/flux/dev",
-        desc: "FLUX.1 [dev] - High-quality text-to-image generation",
-        amount: "25000",
-      },
-      {
-        route: "POST /fal-ai/flux/dev/image-to-image",
-        desc: "FLUX.1 [dev] - Image-to-image editing and transformations",
-        amount: "25000",
-      },
-      {
-        route: "POST /fal-ai/flux/schnell",
-        desc: "FLUX.1 [schnell] - Fast text-to-image (1-4 steps)",
-        amount: "3000",
-      },
-      {
-        route: "POST /fal-ai/flux-pro/v1.1",
-        desc: "FLUX1.1 [pro] - Professional-grade image generation",
-        amount: "35000",
-      },
-      {
-        route: "POST /fal-ai/flux-pro/v1.1-ultra",
-        desc: "FLUX1.1 [pro] ultra - Up to 2K resolution with improved realism",
-        amount: "60000",
-      },
-      {
-        route: "POST /fal-ai/stable-diffusion-v35-large",
-        desc: "Stable Diffusion 3.5 Large - MMDiT text-to-image",
-        amount: "35000",
-      },
-      {
-        route: "POST /fal-ai/fast-sdxl",
-        desc: "Fast SDXL - Quick Stable Diffusion XL generation",
-        amount: "3000",
-      },
-      {
-        route: "POST /fal-ai/recraft-v3",
-        desc: "Recraft V3 - SOTA text-to-image with long text and vector art",
-        amount: "40000",
-      },
-      {
-        route: "POST /xai/grok-imagine-image",
-        desc: "Grok Imagine - xAI image generation",
-        amount: "40000",
-      },
-      {
-        route: "POST /xai/grok-imagine-image/edit",
-        desc: "Grok Imagine Edit - xAI image editing",
-        amount: "40000",
-      },
-      {
-        route: "POST /fal-ai/stable-video",
-        desc: "Stable Video Diffusion - Image-to-video generation",
-        amount: "70000",
-      },
-      {
-        route: "POST /fal-ai/minimax/video-01",
-        desc: "MiniMax Video-01 - Text/image to video generation",
-        amount: "70000",
-      },
-      {
-        route: "POST /fal-ai/minimax/video-01-live",
-        desc: "MiniMax Video-01 Live - Real-time video generation",
-        amount: "70000",
-      },
-      {
-        route: "POST /xai/grok-imagine-video/text-to-video",
-        desc: "Grok Imagine Video - xAI text-to-video generation",
-        amount: "300000",
-      },
-      {
-        route: "POST /xai/grok-imagine-video/image-to-video",
-        desc: "Grok Imagine Video - xAI image-to-video generation",
-        amount: "300000",
-      },
-      {
-        route: "POST /fal-ai/:model",
-        desc: "fal.ai model generation",
-        amount: "20000",
-      },
-      {
-        route: "POST /fal-ai/:namespace/:model",
-        desc: "fal.ai model generation (with namespace)",
-        amount: "20000",
-      },
-    ],
-  },
-
-  // ── Firecrawl ──────────────────────────────────────────────────────────
-  {
-    id: "firecrawl",
-    name: "Firecrawl",
-    url: "https://api.firecrawl.dev",
-    serviceUrl: `https://firecrawl.${MPP_REALM}`,
-    description:
-      "Web scraping, crawling, and structured data extraction for LLMs.",
-
-    categories: ["web", "data"],
-    integration: "third-party",
-    tags: ["scraping", "crawling", "extraction", "llm"],
-    docs: {
-      homepage: "https://docs.firecrawl.dev",
-      llmsTxt: "https://docs.firecrawl.dev/llms.txt",
-    },
-    provider: { name: "Firecrawl", url: "https://firecrawl.dev" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    docsBase: "https://context7.com/websites/firecrawl_dev/llms.txt",
-    endpoints: [
-      { route: "POST /v1/scrape", desc: "Scrape a URL", amount: "2000" },
-      { route: "POST /v1/crawl", desc: "Crawl a website", amount: "5000" },
-      { route: "POST /v1/map", desc: "Map website URLs", amount: "2000" },
-      {
-        healthCheck: { body: { query: "Machine Payments Protocol", limit: 1 } },
-        route: "POST /v1/search",
-        desc: "Search the web",
-        amount: "4000",
-      },
-      {
-        route: "POST /v1/extract",
-        desc: "Extract structured data",
-        amount: "5000",
-      },
-    ],
-  },
-
   // ── GovLaws ────────────────────────────────────────────────────────────
   {
     id: "govlaws",
@@ -2423,51 +2239,6 @@ export const services: ServiceDef[] = [
         route: "GET /api/mpp/changes",
         desc: "Recent Federal Register change events filtered by agency, citation, or lookback",
         amount: "30000",
-      },
-    ],
-  },
-
-  // ── Modal ──────────────────────────────────────────────────────────────
-  {
-    id: "modal",
-    name: "Modal",
-    url: "https://api.modal.com",
-    serviceUrl: `https://modal.${MPP_REALM}`,
-    description:
-      "Serverless GPU compute for sandboxed code execution and AI/ML workloads.",
-
-    categories: ["compute"],
-    integration: "third-party",
-    tags: ["gpu", "serverless", "sandbox", "compute"],
-    docs: {
-      homepage: "https://modal.com/docs",
-      llmsTxt: "https://modal.com/llms.txt",
-    },
-    provider: { name: "Modal", url: "https://modal.com" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    docsBase: "https://context7.com/websites/modal/llms.txt",
-    endpoints: [
-      {
-        route: "POST /sandbox/create",
-        desc: "Create a sandbox for code execution",
-        dynamic: true,
-      },
-      {
-        route: "POST /sandbox/exec",
-        desc: "Execute command in sandbox",
-        amount: "100",
-      },
-      {
-        route: "POST /sandbox/status",
-        desc: "Get sandbox status",
-        amount: "100",
-      },
-      {
-        route: "POST /sandbox/terminate",
-        desc: "Terminate a sandbox",
-        amount: "100",
       },
     ],
   },
@@ -2795,94 +2566,6 @@ export const services: ServiceDef[] = [
         route: "POST /api/v1/prediction-market/categories",
         desc: "Prediction market categories",
         amount: "10000",
-      },
-    ],
-  },
-
-  // ── OpenAI ─────────────────────────────────────────────────────────────
-  {
-    id: "openai",
-    name: "OpenAI",
-    url: "https://api.openai.com",
-    serviceUrl: `https://openai.${MPP_REALM}`,
-    description:
-      "Chat completions, embeddings, image generation, and audio with model-tier pricing.",
-
-    icon: "https://mpp.tempo.xyz/icons/openai.svg",
-    categories: ["ai", "media"],
-    integration: "third-party",
-    tags: ["llm", "gpt-4o", "dall-e", "whisper", "tts", "embeddings", "chat"],
-    docs: {
-      homepage: "https://platform.openai.com/docs",
-      llmsTxt: "https://developers.openai.com/api/docs/llms.txt",
-      apiReference: "https://platform.openai.com/docs/api-reference",
-    },
-    provider: { name: "OpenAI", url: "https://openai.com" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    docsBase: "https://context7.com/websites/platform_openai/llms.txt",
-    endpoints: [
-      {
-        route: "POST /v1/responses",
-        desc: "Responses API (Codex, GPT-4o, etc.) - price varies by model",
-        dynamic: true,
-        intent: "session",
-      },
-      {
-        route: "POST /v1/chat/completions",
-        desc: "Chat completions (GPT-4o, GPT-4, o1, etc.) - price varies by model",
-        dynamic: true,
-        intent: "session",
-      },
-      {
-        route: "POST /v1/embeddings",
-        desc: "Create embeddings",
-        amount: "100",
-      },
-      {
-        route: "POST /v1/images/generations",
-        desc: "Generate images with DALL-E",
-        amount: "50000",
-      },
-      {
-        route: "POST /v1/audio/transcriptions",
-        desc: "Transcribe audio with Whisper",
-        amount: "10000",
-      },
-      {
-        route: "POST /v1/audio/speech",
-        desc: "Text-to-speech",
-        amount: "20000",
-      },
-    ],
-  },
-
-  // ── OpenRouter ─────────────────────────────────────────────────────────
-  {
-    id: "openrouter",
-    name: "OpenRouter",
-    url: "https://openrouter.ai/api",
-    serviceUrl: `https://openrouter.${MPP_REALM}`,
-    description: "Unified API for 100+ LLMs with live per-model pricing.",
-
-    categories: ["ai"],
-    integration: "third-party",
-    tags: ["llm", "unified", "multi-model", "chat"],
-    docs: {
-      homepage: "https://openrouter.ai/docs",
-      llmsTxt: "https://openrouter.ai/docs/llms.txt",
-    },
-    provider: { name: "OpenRouter", url: "https://openrouter.ai" },
-    realm: MPP_REALM,
-    intent: "session",
-    payments: [TEMPO_PAYMENT],
-    docsBase: "https://context7.com/websites/openrouter_ai/llms.txt",
-    endpoints: [
-      {
-        route: "POST /v1/chat/completions",
-        desc: "Chat completions (GPT-4, Claude, Llama, etc.) - price varies by model",
-        dynamic: true,
       },
     ],
   },
@@ -3496,38 +3179,6 @@ export const services: ServiceDef[] = [
     url: "https://tempo.xyz/developers/docs/api",
   },
 
-  // ── Tempo RPC ──────────────────────────────────────────────────────────
-  {
-    id: "rpc",
-    name: "Tempo RPC",
-    url: "https://rpc.tempo.xyz",
-    serviceUrl: `https://rpc.${MPP_REALM}`,
-    description: "Tempo blockchain JSON-RPC access (mainnet and testnet).",
-
-    categories: ["blockchain"],
-    integration: "first-party",
-    tags: ["rpc", "json-rpc", "evm", "tempo", "node"],
-    docs: {
-      homepage: "https://docs.tempo.xyz",
-      llmsTxt: "https://docs.tempo.xyz/llms.txt",
-    },
-    provider: { name: "Tempo", url: "https://tempo.xyz" },
-    realm: MPP_REALM,
-    intent: "session",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        healthCheck: {
-          body: { id: 1, jsonrpc: "2.0", method: "eth_chainId", params: [] },
-        },
-        route: "POST /",
-        desc: "JSON-RPC calls - $0.001 per call",
-        amount: "1000",
-        unitType: "request",
-      },
-    ],
-  },
-
   // ── Quicknode RPC ──────────────────────────────────────────────────────
   {
     id: "quicknode",
@@ -3570,44 +3221,6 @@ export const services: ServiceDef[] = [
         desc: "JSON-RPC calls - $0.00001 per call",
         amount: "10",
         unitType: "request",
-      },
-    ],
-  },
-
-  // ── Object Storage ─────────────────────────────────────────────────────
-  {
-    id: "storage",
-    name: "Object Storage",
-    url: "https://mpp.tempo.xyz/storage",
-    serviceUrl: `https://storage.${MPP_REALM}`,
-    description:
-      "S3/R2-compatible object storage with dynamic per-size pricing.",
-
-    categories: ["storage"],
-    integration: "first-party",
-    tags: ["s3", "r2", "objects", "blobs", "files"],
-    docs: { homepage: "https://developers.cloudflare.com/r2/" },
-    provider: { name: "Tempo", url: "https://tempo.xyz" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "GET /:key",
-        desc: "Download object ($0.001 base + $0.01/MB)",
-        dynamic: true,
-      },
-      {
-        route: "PUT /:key",
-        desc: "Upload object ($0.001 base + $0.01/MB, max 100MB)",
-        dynamic: true,
-      },
-      { route: "DELETE /:key", desc: "Delete object", amount: "100" },
-      { route: "GET /", desc: "List objects", amount: "100" },
-      {
-        route: "POST /:key",
-        desc: "Initiate/complete multipart upload",
-        amount: "100",
       },
     ],
   },
@@ -4693,295 +4306,6 @@ export const services: ServiceDef[] = [
         route: "GET /api/site/domain/status",
         desc: "Check TLS provisioning status",
       },
-    ],
-  },
-
-  // ── GoFlightLabs ───────────────────────────────────────────────────────
-  {
-    id: "goflightlabs",
-    name: "GoFlightLabs",
-    url: "https://goflightlabs.com",
-    serviceUrl: `https://goflightlabs.${MPP_REALM}`,
-    description:
-      "Real-time flight tracking, prices, schedules, and airline data.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["flights", "tracking", "prices", "airlines", "airports"],
-    provider: { name: "GoFlightLabs", url: "https://goflightlabs.com" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "GET /airports-by-filters",
-        desc: "Airports by filter",
-        amount: "5000",
-      },
-      {
-        route: "GET /flight-data-by-date",
-        desc: "Flight data by date",
-        amount: "5000",
-      },
-      { route: "GET /flight-delay", desc: "Flight delay info", amount: "5000" },
-      {
-        route: "GET /flight-info-by-flight-number",
-        desc: "Flight info by number",
-        amount: "5000",
-      },
-      {
-        route: "GET /flight-prices",
-        desc: "Flight price search",
-        amount: "10000",
-      },
-      { route: "GET /flights", desc: "Real-time flights", amount: "5000" },
-      {
-        route: "GET /flights-airline",
-        desc: "Flights by airline",
-        amount: "5000",
-      },
-      {
-        route: "GET /flights-callsign",
-        desc: "Flights by callsign",
-        amount: "5000",
-      },
-      {
-        route: "GET /flights-history",
-        desc: "Historical flights",
-        amount: "5000",
-      },
-      {
-        route: "GET /flights-schedules",
-        desc: "Flight schedules",
-        amount: "5000",
-      },
-      {
-        route: "GET /future-flights",
-        desc: "Future flight predictions",
-        amount: "5000",
-      },
-      {
-        route: "GET /retrieve-airlines",
-        desc: "Retrieve airlines",
-        amount: "5000",
-      },
-      {
-        route: "GET /retrieve-airports",
-        desc: "Retrieve airports",
-        amount: "5000",
-      },
-      {
-        route: "GET /retrieve-countries",
-        desc: "Retrieve countries",
-        amount: "5000",
-      },
-      { route: "GET /retrieve-routes", desc: "Airline routes", amount: "5000" },
-    ],
-  },
-
-  // ── KicksDB ────────────────────────────────────────────────────────
-  {
-    id: "kicksdb",
-    name: "KicksDB",
-    url: "https://api.kicks.dev",
-    serviceUrl: `https://kicksdb.${MPP_REALM}`,
-    description:
-      "Sneaker & streetwear market data — prices, sales history, and availability from StockX, GOAT, and more.",
-
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["sneakers", "streetwear", "prices", "stockx", "goat"],
-    docs: {
-      homepage: "https://kicks.dev",
-      llmsTxt: "https://docs.kicks.dev/llms.txt",
-      apiReference: "https://docs.kicks.dev",
-    },
-    provider: { name: "KicksDB", url: "https://kicks.dev" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      // Standard API — StockX
-      {
-        route: "GET /v3/stockx/products",
-        desc: "Search StockX products",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/stockx/products/:id",
-        desc: "Get a StockX product",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/stockx/products/:id/sales",
-        desc: "StockX sales history",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/stockx/products/:id/sales/daily",
-        desc: "StockX daily sales data",
-        amount: "500",
-      },
-      {
-        route: "POST /v3/stockx/prices",
-        desc: "StockX batch prices",
-        amount: "500",
-      },
-      // Standard API — GOAT
-      {
-        route: "GET /v3/goat/products",
-        desc: "Search GOAT products",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/goat/products/:id",
-        desc: "Get a GOAT product",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/goat/products/:id/sales",
-        desc: "GOAT sales history",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/goat/products/:id/sales/daily",
-        desc: "GOAT daily sales data",
-        amount: "500",
-      },
-      // Standard API — Shopify, SNKRS, Kream, Novelship
-      {
-        route: "GET /v3/shopify/products",
-        desc: "Search Shopify products",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/shopify/products/:id",
-        desc: "Get a Shopify product",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/shopify/shops",
-        desc: "List Shopify shops",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/snkrs/products",
-        desc: "Search SNKRS products",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/kream/products",
-        desc: "Search Kream products",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/kream/products/:id",
-        desc: "Get a Kream product",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/novelship/products",
-        desc: "Search Novelship products",
-        amount: "500",
-      },
-      // Unified API
-      {
-        route: "GET /v3/unified/products/:id",
-        desc: "Get a unified product",
-        amount: "500",
-      },
-      {
-        route: "GET /v3/unified/gtin",
-        desc: "Look up unified product by GTIN/barcode",
-        amount: "500",
-      },
-      // Exports
-      {
-        route: "GET /v3/exports/daily",
-        desc: "Daily CSV snapshot",
-        amount: "500",
-      },
-      // Real-Time API
-      {
-        route: "GET /v3/realtime/stockx/products",
-        desc: "Search StockX in real-time",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/stockx/products/:id",
-        desc: "Get StockX product in real-time",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/stockx/products/:id/asks",
-        desc: "StockX real-time asks/bids",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/stockx/products/:id/sales",
-        desc: "StockX real-time sales",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/stockx/products/:id/related",
-        desc: "StockX real-time related products",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/goat/products",
-        desc: "Search GOAT in real-time",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/goat/products/:id",
-        desc: "Get GOAT product in real-time",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/goat/products/:id/offers",
-        desc: "GOAT real-time offers",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/goat/products/:id/sales",
-        desc: "GOAT real-time sales",
-        amount: "5000",
-      },
-      {
-        route: "GET /v3/realtime/alias/products/:id/recent-orders",
-        desc: "Real-time recent orders by alias",
-        amount: "5000",
-      },
-    ],
-  },
-
-  // ── 2Captcha ───────────────────────────────────────────────────────
-  {
-    id: "twocaptcha",
-    name: "2Captcha",
-    url: "https://api.2captcha.com",
-    serviceUrl: `https://twocaptcha.${MPP_REALM}`,
-    description:
-      "CAPTCHA solving API — reCAPTCHA, Turnstile, hCaptcha, image captchas, and more.",
-
-    categories: ["web"],
-    integration: "third-party",
-    tags: ["captcha", "automation", "solving"],
-    docs: {
-      homepage: "https://2captcha.com",
-      apiReference: "https://2captcha.com/api-docs",
-    },
-    provider: { name: "2Captcha", url: "https://2captcha.com" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payments: [TEMPO_PAYMENT],
-    endpoints: [
-      {
-        route: "POST /createTask",
-        desc: "Submit a captcha task for solving",
-        amount: "3000",
-      },
-      { route: "POST /getTaskResult", desc: "Poll for task result" },
     ],
   },
 
@@ -11849,5 +11173,147 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
     ],
+  },
+];
+
+/**
+ * Catalog metadata for services the Tempo MPP proxy serves at
+ * https://<id>.mpp.tempo.xyz. Their name, description, categories, payment
+ * methods and endpoints come from the proxy's discovery manifest
+ * (schemas/mpp-proxy.json, refreshed with `pnpm sync:mpp-proxy`); list a
+ * proxy service here only to add what the manifest lacks. A manifest service
+ * without an entry is still published, with defaults.
+ */
+export type MppProxyServiceDef = Pick<
+  ServiceDef,
+  | "id"
+  | "url"
+  | "icon"
+  | "integration"
+  | "tags"
+  | "status"
+  | "docs"
+  | "provider"
+>;
+
+// prettier-ignore
+export const mppProxyServices: MppProxyServiceDef[] = [
+  {
+    id: "anthropic",
+    url: "https://api.anthropic.com",
+    integration: "third-party",
+    tags: ["llm", "claude", "sonnet", "opus", "haiku", "chat"],
+    docs: {
+      homepage: "https://docs.anthropic.com",
+      llmsTxt: "https://docs.anthropic.com/llms.txt",
+      apiReference: "https://docs.anthropic.com/en/api",
+    },
+    provider: { name: "Anthropic", url: "https://anthropic.com" },
+  },
+  {
+    id: "fal",
+    url: "https://fal.run",
+    integration: "third-party",
+    tags: ["image", "video", "flux", "stable-diffusion", "grok", "generation"],
+    docs: {
+      homepage: "https://fal.ai/docs",
+      llmsTxt: "https://fal.ai/docs/llms.txt",
+    },
+    provider: { name: "fal.ai", url: "https://fal.ai" },
+  },
+  {
+    id: "firecrawl",
+    url: "https://api.firecrawl.dev",
+    integration: "third-party",
+    tags: ["scraping", "crawling", "extraction", "llm"],
+    docs: {
+      homepage: "https://docs.firecrawl.dev",
+      llmsTxt: "https://docs.firecrawl.dev/llms.txt",
+    },
+    provider: { name: "Firecrawl", url: "https://firecrawl.dev" },
+  },
+  {
+    id: "modal",
+    url: "https://api.modal.com",
+    integration: "third-party",
+    tags: ["gpu", "serverless", "sandbox", "compute"],
+    docs: {
+      homepage: "https://modal.com/docs",
+      llmsTxt: "https://modal.com/llms.txt",
+    },
+    provider: { name: "Modal", url: "https://modal.com" },
+  },
+  {
+    id: "openai",
+    url: "https://api.openai.com",
+    icon: "https://mpp.tempo.xyz/icons/openai.svg",
+    integration: "third-party",
+    tags: ["llm", "gpt-4o", "dall-e", "whisper", "tts", "embeddings", "chat"],
+    docs: {
+      homepage: "https://platform.openai.com/docs",
+      llmsTxt: "https://developers.openai.com/api/docs/llms.txt",
+      apiReference: "https://platform.openai.com/docs/api-reference",
+    },
+    provider: { name: "OpenAI", url: "https://openai.com" },
+  },
+  {
+    id: "openrouter",
+    url: "https://openrouter.ai/api",
+    integration: "third-party",
+    tags: ["llm", "unified", "multi-model", "chat"],
+    docs: {
+      homepage: "https://openrouter.ai/docs",
+      llmsTxt: "https://openrouter.ai/docs/llms.txt",
+    },
+    provider: { name: "OpenRouter", url: "https://openrouter.ai" },
+  },
+  {
+    id: "rpc",
+    url: "https://rpc.tempo.xyz",
+    integration: "first-party",
+    tags: ["rpc", "json-rpc", "evm", "tempo", "node"],
+    docs: {
+      homepage: "https://docs.tempo.xyz",
+      llmsTxt: "https://docs.tempo.xyz/llms.txt",
+    },
+    provider: { name: "Tempo", url: "https://tempo.xyz" },
+  },
+  {
+    id: "storage",
+    url: "https://mpp.tempo.xyz/storage",
+    integration: "first-party",
+    tags: ["s3", "r2", "objects", "blobs", "files"],
+    docs: { homepage: "https://developers.cloudflare.com/r2/" },
+    provider: { name: "Tempo", url: "https://tempo.xyz" },
+  },
+  {
+    id: "goflightlabs",
+    url: "https://goflightlabs.com",
+    integration: "third-party",
+    tags: ["flights", "tracking", "prices", "airlines", "airports"],
+    provider: { name: "GoFlightLabs", url: "https://goflightlabs.com" },
+  },
+  {
+    id: "kicksdb",
+    url: "https://api.kicks.dev",
+    integration: "third-party",
+    tags: ["sneakers", "streetwear", "prices", "stockx", "goat"],
+    docs: {
+      homepage: "https://kicks.dev",
+      llmsTxt: "https://docs.kicks.dev/llms.txt",
+      apiReference: "https://docs.kicks.dev",
+    },
+    provider: { name: "KicksDB", url: "https://kicks.dev" },
+  },
+  {
+    id: "twocaptcha",
+    url: "https://api.2captcha.com",
+    integration: "third-party",
+    tags: ["captcha", "automation", "solving"],
+    docs: {
+      homepage: "https://2captcha.com",
+      apiReference: "https://2captcha.com/api-docs",
+    },
+    provider: { name: "2Captcha", url: "https://2captcha.com" },
   },
 ];

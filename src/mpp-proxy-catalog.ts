@@ -52,7 +52,11 @@ export function mergeMppProxyCatalog(
   const proxyServices = manifest.services.map((entry) => {
     const existing = metadata.get(entry.id);
     const serviceUrl = `https://${entry.domain}`;
-    const docs = entry.manifest.docs ?? existing?.docs;
+    // The manifest's links win; the catalog's fill the gaps (such as llmsTxt).
+    const docs =
+      existing?.docs || entry.manifest.docs
+        ? { ...existing?.docs, ...entry.manifest.docs }
+        : undefined;
     const endpoints = entry.manifest.endpoints.map((endpoint) => ({
       ...endpoint,
       payment: endpoint.payment

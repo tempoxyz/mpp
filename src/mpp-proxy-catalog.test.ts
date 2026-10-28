@@ -64,6 +64,39 @@ describe("MPP proxy catalog", () => {
     expect(JSON.stringify(result)).not.toContain("supportsCredits");
   });
 
+  it("fills gaps in the manifest's docs from the catalog entry", () => {
+    const catalog: ServicesCatalog = {
+      ...staticCatalog,
+      services: staticCatalog.services.map((entry) =>
+        entry.id === "openai"
+          ? {
+              ...entry,
+              docs: {
+                homepage: "https://stale.example/docs",
+                llmsTxt: "https://platform.openai.com/llms.txt",
+              },
+            }
+          : entry,
+      ),
+    };
+    const openai = service("openai", "OpenAI", "100");
+    const result = mergeMppProxyCatalog(catalog, {
+      services: [
+        {
+          ...openai,
+          manifest: {
+            ...openai.manifest,
+            docs: { homepage: "https://platform.openai.com/docs" },
+          },
+        },
+      ],
+    });
+    expect(result.services.find(({ id }) => id === "openai")?.docs).toEqual({
+      homepage: "https://platform.openai.com/docs",
+      llmsTxt: "https://platform.openai.com/llms.txt",
+    });
+  });
+
   it("keeps provider-specific categories as tags instead of rejecting the manifest", () => {
     const rox = service("rox", "Rox", "20000");
     rox.manifest.categories = ["sales", "prospecting", "enrichment", "data"];
