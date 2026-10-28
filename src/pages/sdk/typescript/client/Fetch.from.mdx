@@ -174,3 +174,21 @@ Filters or reorders supported Challenges before Credential creation.
 - **Default:** `Transport.http()`
 
 Transport used to extract Challenges and attach Credentials.
+
+### trustedTempoProofRealms (optional)
+
+- **Type:** `Record<string, string>`
+
+Origins mapped to the Challenge realm they use, for servers whose realm isn't their hostname. `mppx` refuses to sign a zero-amount Tempo proof when the Challenge realm differs from the hostname of the server that sent it, so another origin can't relay a Challenge and replay the proof at its realm. Pin a server's realm to its origin to allow it.
+
+```ts twoslash
+import { Fetch, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const fetch = Fetch.from({
+  methods: [tempo({ account })],
+  trustedTempoProofRealms: { 'https://api.example.com': 'MPP Payment' }, // [!code focus]
+})
+```

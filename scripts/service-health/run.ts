@@ -6,6 +6,7 @@ import { services } from "../../schemas/services.ts";
 import { checkServices } from "./check.ts";
 import { checkMpp, checkUrls } from "./checks.ts";
 import { type Issue, syncIssue } from "./issues.ts";
+import { mppProxyHealthServices } from "./proxy.ts";
 import { renderReport, summarizeServices } from "./report.ts";
 
 const args = process.argv.slice(2);
@@ -16,9 +17,11 @@ if (args.filter((arg) => arg.startsWith("--service=")).length > 1)
 const selected = args
   .find((arg) => arg.startsWith("--service="))
   ?.slice("--service=".length);
+// Proxy services are published from the proxy's manifest, so they are probed from it too.
+const allServices = [...services, ...mppProxyHealthServices()];
 const catalog = selected
-  ? services.filter((service) => service.id === selected)
-  : services;
+  ? allServices.filter((service) => service.id === selected)
+  : allServices;
 if (!catalog.length) throw new Error("No matching services");
 const publish = args.includes("--issue");
 if (publish && selected)

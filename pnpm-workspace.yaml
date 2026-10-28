@@ -31,9 +31,12 @@ overrides:
   # Miniflare pins sharp 0.35.4, whose prebuilt librsvg is vulnerable.
   'sharp@<0.35.5': 0.35.5
   'source-map-js@>=1.0.0 <1.2.2': 1.2.2
-  'undici@>=7.28.0 <7.29.1': 7.29.1
+  # Miniflare pins undici 7.28.0, below the 7.30.1 security release.
+  'undici@>=7.0.0 <7.30.1': 7.30.1
   "@babel/core": 7.29.6
-  # The latest Scalar json-magic still pins vulnerable undici 7.24.4.
-  "@scalar/json-magic>undici": ^7.29.0
+  # The Scalar json-magic 0.15 that vocs uses pins vulnerable undici 7.24.4.
+  "@scalar/json-magic>undici": ^7.30.1
   # Vocs still requires remark-mdx-frontmatter 5, which requires vulnerable toml 3.
-  "remark-mdx-frontmatter>toml": ^4.2.0
+  "remark-mdx-frontmatter>toml": ^5.0.1
+  # The latest @vercel/cli-config (via @vercel/blob > @vercel/oidc) still pins vulnerable zod 4.1.11.
+  "@vercel/cli-config>zod": ^4.6.6

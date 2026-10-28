@@ -1,8 +1,10 @@
 import discovery from "../../../../schemas/discovery.json";
+import { mppProxyServices } from "../../../../schemas/mpp-proxy-services";
 import {
   MPP_PROXY_MANIFEST_URL,
   mergeMppProxyCatalog,
   type ServicesCatalog,
+  withMppProxyMetadata,
 } from "../../../mpp-proxy-catalog";
 
 const CACHE_CONTROL =
@@ -64,8 +66,10 @@ async function liveCatalog(): Promise<ServicesCatalog> {
       signal: AbortSignal.timeout(5_000),
     });
     if (!response.ok) throw new Error(`MPP proxy manifest ${response.status}`);
+    // Re-seed proxy entries from curated metadata so the live manifest, not the build's
+    // snapshot, supplies every derived field.
     const catalog = mergeMppProxyCatalog(
-      checkedInCatalog,
+      withMppProxyMetadata(checkedInCatalog, mppProxyServices),
       await response.json(),
     );
     cachedCatalog = { catalog, expiresAt: Date.now() + MANIFEST_CACHE_MS };
