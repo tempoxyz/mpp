@@ -74,7 +74,7 @@ type ReturnType = Promise<
 
 Overrides the fee-sponsor limits used for the renewal transaction.
 
-`allowKeyAuthorization` defaults to `true`. Set it to `false` when the sponsor must reject transactions that install a new access key.
+Sponsored transactions may carry a `keyAuthorization`. `maxGas` and `maxTotalFee` bound the sponsor's cost.
 
 ### getClient (optional)
 
