@@ -64,7 +64,7 @@ The proxy returns two handlers:
 Route values use the current `EndpointMap` shape:
 
 - Use an mppx intent handler like `mppx.charge({ amount: '0.05' })` for paid routes.
-- Use `true` for free passthrough routes.
+- Use `true` or `{ free: true }` for free passthrough routes.
 - Use a method-specific handler, such as `mppx.tempo.session({ amount, unitType })`, for session-priced routes.
 
 `Proxy` derives a scope for each route. EVM methods with x402 enabled require the `mppx` route-binding extension on these scoped routes by default. Set [`x402.routeBinding: 'resource'`](/sdk/typescript/server/Method.evm.charge#x402-optional) only when standard x402 clients must pay through resource URL binding.
@@ -251,6 +251,46 @@ Service.from('advanced-api', {
 })
 ```
 
+### With discovery metadata
+
+Add a `summary` and an OpenAPI `requestBody` to a route so agents can see what it does and what to send. The proxy emits both in `/openapi.json`. Declare a free route with metadata as `{ free: true }`.
+
+```ts twoslash [server.ts]
+import { Proxy, Service } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+
+const proxy = Proxy.create({
+  services: [
+    Service.from('search', {
+      baseUrl: 'https://api.example.com',
+      bearer: process.env.SEARCH_API_KEY!,
+      routes: {
+        // [!code hl:start]
+        'GET /v1/status': { free: true, summary: 'Service status' },
+        'POST /v1/search': {
+          pay: mppx.charge({ amount: '0.01' }),
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  properties: { query: { type: 'string' } },
+                  required: ['query'],
+                  type: 'object',
+                },
+              },
+            },
+          },
+          summary: 'Search the web',
+        },
+        // [!code hl:end]
+      },
+    }),
+  ],
+})
+```
+
 ### Recover from upstream errors
 
 Use `onUpstreamError` to retry thrown request errors or non-`2xx` upstream responses. The hook receives the one-based attempt number, the rewritten upstream request, and either an `error` or a cloned `response`.
@@ -284,7 +324,7 @@ The proxy serves an OpenAPI document and an `llms.txt` overview. Both routes inc
 
 | Endpoint | Content type | Description |
 |----------|--------------|-------------|
-| `GET /openapi.json` | `application/json` | OpenAPI 3.1 document with paid-route `x-payment-info` offers and root `x-service-info` metadata. |
+| `GET /openapi.json` | `application/json` | OpenAPI 3.1 document with paid-route `x-payment-info` offers, route `summary` and `requestBody`, and root `x-service-info` metadata. |
 | `GET /llms.txt` | `text/plain` | Human- and agent-readable service overview with a link to the OpenAPI document. |
 
 The proxy generates both responses when `Proxy.create` runs and caches the OpenAPI response for five minutes. Other paths, including former `/discover*` routes, return `404` unless they match a configured service.
@@ -418,8 +458,11 @@ Hook to modify the upstream request before sending. Receives per-endpoint option
 Map of `"METHOD /pattern"` keys to endpoint definitions. Each value is one of:
 
 - **`IntentHandler`** — Payment required. The handler issues a `402` Challenge or verifies payment.
-- **`{ pay: IntentHandler, options: EndpointOptions }`** — Payment required with per-endpoint config overrides passed to `rewriteRequest` via `ctx`.
+- **`{ pay: IntentHandler, options?, requestBody?, summary? }`** — Payment required. `options` are per-endpoint config overrides passed to `rewriteRequest` via `ctx`; `summary` and `requestBody` are emitted in `/openapi.json`.
+- **`{ free: true, options?, requestBody?, summary? }`** — Free passthrough with the same optional fields.
 - **`true`** — Free passthrough. No payment required; `rewriteRequest` is still applied.
+
+Any other value, such as `{ pay: undefined }`, throws instead of proxying the route for free with the service's credentials.
 
 ### title (optional)
 

@@ -115,3 +115,9 @@ The MCP SDK client instance to wrap. Must have a `callTool` method—typically a
 - **Type:** `readonly Method.AnyClient[]`
 
 Array of payment methods to use when handling payment Challenges. The wrapper matches Challenges from the server against installed methods by name and intent.
+
+### config.trustedTempoProofRealms (optional)
+
+- **Type:** `readonly string[]`
+
+Realms allowed to request zero-amount Tempo proofs. An MCP server has no origin that could own a realm, so the wrapper refuses these proofs unless their realm is listed.
