@@ -1031,6 +1031,396 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Syntalic ─────────────────────────────────────────────────────────
+  {
+    id: "syntalic",
+    name: "Syntalic",
+    url: "https://heysynthia.ai/developers",
+    serviceUrl: "https://api.syntalic.com",
+    description:
+      "Retail pricing and shelf data across US and Canadian retailers, plus social attention for CPG brands. Find a product's best price and price history, a brand's share of shelf, promotions, and stock-outs, category inflation and price bands, and the brands and creators driving social conversation.",
+    icon: "https://heysynthia.ai/icon.svg",
+    categories: ["data", "social"],
+    integration: "first-party",
+    tags: [
+      "retail",
+      "ecommerce",
+      "cpg",
+      "pricing",
+      "price-history",
+      "market-intelligence",
+      "brands",
+      "promotions",
+      "social-listening",
+      "gs1-gpc",
+      "ontology",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://heysynthia.ai/docs/introduction",
+      llmsTxt: "https://api.syntalic.com/llms.txt",
+      apiReference: "https://api.syntalic.com/openapi.json",
+    },
+    provider: { name: "Syntalic", url: "https://heysynthia.ai/developers" },
+    realm: "api.syntalic.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      // Shopper: product prices
+      {
+        route: "GET /v1/shopper/best-price",
+        desc: "Find the lowest current price for a product across retailers",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/shopper/best-price?q=airpods" },
+      },
+      {
+        route: "GET /v1/shopper/price-history",
+        desc: "Get a product's price history with its period low, high, and trend",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/shopper/price-history?q=airpods" },
+      },
+      {
+        route: "GET /v1/shopper/deal-finder",
+        desc: "Find discounted, in-stock products in a category",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/shopper/deal-finder?category=electronics" },
+      },
+      {
+        route: "GET /v1/shopper/price-drop-alert",
+        desc: "Check whether a product's price has dropped below its recent average",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/shopper/price-drop-alert?q=airpods" },
+      },
+
+      // Marketing: brands and shelves
+      {
+        route: "GET /v1/marketing/competitive-landscape",
+        desc: "List every product and its current price in a category",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/marketing/competitive-landscape?category=electronics",
+        },
+      },
+      {
+        route: "GET /v1/marketing/brand-tracker",
+        desc: "Track a brand's prices, product count, and promotions over time",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/marketing/brand-tracker?brand=Apple" },
+      },
+      {
+        route: "GET /v1/marketing/promo-intelligence",
+        desc: "Measure promotion frequency and discount depth in a category",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/marketing/promo-intelligence?category=electronics",
+        },
+      },
+      {
+        route: "GET /v1/marketing/share-of-shelf",
+        desc: "Measure each brand's share of shelf in a category",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/marketing/share-of-shelf?category=electronics",
+        },
+      },
+      {
+        route: "GET /v1/marketing/price-positioning",
+        desc: "Place a brand on a category's price ladder against competitors",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/marketing/price-positioning?brand=Apple" },
+      },
+      {
+        route: "GET /v1/marketing/brand-breakdown",
+        desc: "Break a brand's assortment down by category",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/marketing/brand-breakdown?brand=Apple" },
+      },
+      {
+        route: "GET /v1/marketing/retailer-assortment",
+        desc: "Find which retail chains carry a brand or category",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/marketing/retailer-assortment?brand=Apple" },
+      },
+      {
+        route: "GET /v1/marketing/availability-index",
+        desc: "Measure out-of-stock rates by retailer or category",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/marketing/availability-index?category=electronics",
+        },
+      },
+
+      // Analyst: market-level pricing
+      {
+        route: "GET /v1/analyst/inflation",
+        desc: "Track price inflation in a category or department",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: { path: "/v1/analyst/inflation?category=electronics" },
+      },
+      {
+        route: "GET /v1/analyst/price-dispersion",
+        desc: "Measure the price spread across retailers in a category",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/analyst/price-dispersion?category=electronics",
+        },
+      },
+      {
+        route: "GET /v1/analyst/retailer-index",
+        desc: "Get a retailer's price index over time",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: { path: "/v1/analyst/retailer-index?retailer=amazon" },
+      },
+      {
+        route: "GET /v1/analyst/category-summary",
+        desc: "Get summary price statistics for a category or department",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/analyst/category-summary?category=electronics",
+        },
+      },
+      {
+        route: "GET /v1/analyst/price-bands",
+        desc: "Get the price bands and tiers for a category",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/analyst/price-bands?node=electronics/computers",
+        },
+      },
+      {
+        route: "GET /v1/analyst/category-concentration",
+        desc: "Measure how concentrated a category is among its brands",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/analyst/category-concentration?category=electronics",
+        },
+      },
+      {
+        route: "GET /v1/analyst/price-change-leaders",
+        desc: "Rank the biggest price movers in a category or brand",
+        amount: "20000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/analyst/price-change-leaders?category=electronics",
+        },
+      },
+
+      // Social: brand and creator attention
+      {
+        route: "GET /v1/social/creator-index",
+        desc: "Rank creators by mention volume in a category",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/creator-index?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+      {
+        route: "GET /v1/social/brand-share",
+        desc: "Get each brand's share of social conversation in a category",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/brand-share?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+      {
+        route: "GET /v1/social/category-structure",
+        desc: "Show which subcategories lead a category's conversation",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/category-structure?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+      {
+        route: "GET /v1/social/brand-momentum",
+        desc: "Rank brands by conversation momentum in a category",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/brand-momentum?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+      {
+        route: "GET /v1/social/topic-trends",
+        desc: "Find emerging conversation topics in a category",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/topic-trends?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+      {
+        route: "GET /v1/social/product-type-trends",
+        desc: "Rank product types by social attention in a category",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/product-type-trends?category=health-beauty/personal-care",
+        },
+      },
+      {
+        route: "GET /v1/social/product-share",
+        desc: "Rank the products a category's conversation is about",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/product-share?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+      {
+        route: "GET /v1/social/product-names",
+        desc: "List product names from posts that match no catalog product",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: { path: "/v1/social/product-names?brand=OLIPOP" },
+      },
+      {
+        route: "GET /v1/social/brand-signals",
+        desc: "Get the launches, reviews, and prices that posts attach to each brand",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/brand-signals?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+      {
+        route: "GET /v1/social/emerging-brands",
+        desc: "Find brands creators tag that the catalog does not carry yet",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/emerging-brands?product_type=food-beverages-tobacco/beverages",
+        },
+      },
+      {
+        route: "GET /v1/social/series",
+        desc: "Get a weekly mentions and views time series for one brand or topic",
+        amount: "30000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/series?subject=olipop&category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+
+      // Scout: social attention against shelf presence
+      {
+        route: "GET /v1/social/attention-vs-shelf",
+        desc: "Rank brands by the gap between share of conversation and share of shelf",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/attention-vs-shelf?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+      {
+        route: "GET /v1/social/launch-buzz",
+        desc: "Compare new shelf arrivals with the conversation around their brands",
+        amount: "50000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/social/launch-buzz?category=food-beverages-tobacco/beverages/soda",
+        },
+      },
+
+      // Reference: GS1 GPC taxonomy, up to 100 ids per request
+      {
+        route: "GET /v1/reference/classify",
+        desc: "Map Amazon browse nodes or product phrases to GS1 GPC bricks",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/reference/classify?browse_id=300334" },
+      },
+      {
+        route: "GET /v1/reference/reverse",
+        desc: "Map GS1 GPC codes back to Amazon browse nodes",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/reference/reverse?gpc_code=10001159" },
+      },
+      {
+        route: "GET /v1/reference/brick-attributes",
+        desc: "Get the GS1 GPC attribute schema for one or more bricks",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/reference/brick-attributes?gpc_code=10000002",
+        },
+      },
+
+      // Ontology: names to ids
+      {
+        route: "GET /v1/ontology/resolve",
+        desc: "Resolve names to shelf, product type, brand, and retailer ids",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/ontology/resolve?term=yogurt" },
+      },
+      {
+        route: "GET /v1/ontology/neighbors",
+        desc: "List the shelves, product types, brands, and retailers related to an id",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: { path: "/v1/ontology/neighbors?id=gpc:10008059" },
+      },
+      {
+        route: "GET /v1/ontology/coverage",
+        desc: "Report the evidence behind ids and which retailers were checked",
+        amount: "10000",
+        unitType: "request",
+        healthCheck: {
+          path: "/v1/ontology/coverage?id=brand%3Ab_ac1a1c7143cb2199",
+        },
+      },
+
+      // Free catalog discovery
+      {
+        route: "GET /v1/public/stats",
+        desc: "Get catalog coverage and freshness statistics",
+      },
+      {
+        route: "GET /v1/public/categories",
+        desc: "Browse the category taxonomy with listing counts",
+      },
+      {
+        route: "GET /v1/public/retailers",
+        desc: "List the retailers in the catalog",
+      },
+      {
+        route: "GET /v1/public/brands",
+        desc: "List the brands in the catalog",
+      },
+      {
+        route: "GET /v1/public/search",
+        desc: "Search brands and products by name",
+        healthCheck: { path: "/v1/public/search?q=olipop" },
+      },
+      {
+        route: "GET /v1/public/coverage",
+        desc: "Get coverage depth and quality by retailer, country, and category",
+      },
+    ],
+  },
+
   // ── Livecheck ───────────────────────────────────────────────────────
   {
     id: "livecheck",
