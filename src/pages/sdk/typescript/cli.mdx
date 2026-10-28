@@ -124,7 +124,7 @@ The `summary` contains `failed`, `passed`, `skipped`, `suggested`, and `warnings
 | `MPPX_CONFIG` | Path to an `mppx.config.ts`, `mppx.config.js`, or `mppx.config.mjs` file |
 | `MPPX_PRIVATE_KEY` | Use a private key directly instead of the keychain |
 | `MPPX_RPC_URL` | Default RPC endpoint |
-| `MPPX_STRIPE_SECRET_KEY` | Stripe secret key for Stripe payment methods (test mode only: `sk_test_...`) |
+| `MPPX_STRIPE_SECRET_KEY` | Stripe secret key the CLI uses to create SPTs for Stripe payments (test mode only: `sk_test_...`) |
 | `MPPX_STRIPE_SPT_URL` | Custom Stripe shared payment token endpoint (advanced) |
 
 ## Method options
@@ -260,7 +260,7 @@ $ mppx account export --account main
 
 ## Stripe payments
 
-The CLI supports Stripe payment methods. Set your Stripe test-mode secret key and make requests to Stripe-enabled endpoints.
+The CLI supports Stripe payment methods. It creates a test-mode SPT for each payment, so it needs your Stripe test-mode secret key. To pay with an SPT you already hold, use the [`mppx` client](/payment-methods/stripe/charge#with-an-existing-spt) instead—paying doesn't need a Stripe key.
 
 ```bash [test.sh]
 $ export MPPX_STRIPE_SECRET_KEY=sk_test_...
