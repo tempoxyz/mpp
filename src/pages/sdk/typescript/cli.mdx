@@ -92,7 +92,7 @@ $ mppx validate https://api.example.com --endpoint GET:/quotes --query symbol=ET
 ```
 
 :::note[End-to-end payments]
-Run `mppx validate` against both test and production versions of your server. On testnets and Stripe test mode, the CLI automatically completes roundtrip test payments. For Tempo testnet Sessions, it follows the streaming payment flow and funds the session operator through the faucet so settlement can complete. On mainnets, the CLI can complete real payments from the local `mppx` wallet.
+Run `mppx validate` against both test and production versions of your server. On testnets and Stripe test mode, the CLI automatically completes roundtrip test payments. For Tempo testnet Sessions, it follows the streaming payment flow and funds the session operator through the faucet so settlement can complete. A Session that streams over SSE can deliver its Receipt as a final `payment-receipt` event instead of a `Payment-Receipt` header; `mppx validate` accepts either and fails when neither is present. On mainnets, the CLI can complete real payments from the local `mppx` wallet.
 :::
 
 When your config declares payment methods, `mppx validate` uses their signing accounts, approval hooks, chain policies, and Session stores instead of substituting built-in methods or preflighting the local CLI wallet.

@@ -518,62 +518,6 @@ Mppx.create({
 </Tab>
 </Tabs>
 
-### attestation (optional)
-
-- **Type:** `Readonly<Record<string, Attestation.Signer>>`
-
-Request-attestation signers applied to the initial HTTP request and every automatic payment retry. Each attempt uses a fresh shared nonce and timestamp. Configure [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-attestation), or include both signers when a request needs both signatures.
-
-:::code-group
-
-```ts twoslash [Web Bot Auth]
-import * as WebBotAuth from 'mppx/attestation/web-bot-auth'
-import { Mppx, tempo } from 'mppx/client'
-import type { Account } from 'viem'
-
-declare const account: Account
-declare const botPrivateKey: CryptoKey
-
-const client = Mppx.create({
-  // [!code hl:start]
-  attestation: {
-    webBotAuth: WebBotAuth.Client.signer({
-      key: botPrivateKey,
-      keyId: process.env.WEB_BOT_AUTH_KEY_ID!,
-      signatureAgent: process.env.WEB_BOT_AUTH_DIRECTORY!,
-    }),
-  },
-  // [!code hl:end]
-  methods: [tempo({ account })],
-  polyfill: false,
-})
-```
-
-```ts twoslash [Trusted Agent Protocol]
-import * as Tap from 'mppx/attestation/tap'
-import { Mppx, tempo } from 'mppx/client'
-import type { Account } from 'viem'
-
-declare const account: Account
-declare const agentPrivateKey: CryptoKey
-
-const client = Mppx.create({
-  // [!code hl:start]
-  attestation: {
-    tap: Tap.Client.signer({
-      intent: 'payment',
-      key: agentPrivateKey,
-      keyId: 'agent-provider-key-1',
-    }),
-  },
-  // [!code hl:end]
-  methods: [tempo({ account })],
-  polyfill: false,
-})
-```
-
-:::
-
 ### fetch (optional)
 
 - **Type:** `typeof globalThis.fetch`
@@ -621,6 +565,64 @@ const mppx = Mppx.create({
 
 </Tab>
 </Tabs>
+
+### identity (optional)
+
+- **Type:** `readonly Identity.Prover[]`
+
+Identity provers applied to the initial HTTP request and every automatic payment retry, for the origins in each prover's `scope`. Provers in one attempt share a fresh nonce and timestamp. List request signers last so they cover headers added by earlier provers. Configure [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-identity), or your own protocol.
+
+:::code-group
+
+```ts twoslash [Web Bot Auth]
+import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'
+import { Mppx, tempo } from 'mppx/client'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare const botPrivateKey: CryptoKey
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [
+    WebBotAuth.Client.prover({
+      key: botPrivateKey,
+      keyId: process.env.WEB_BOT_AUTH_KEY_ID!,
+      scope: ['https://api.example.com'],
+      signatureAgent: process.env.WEB_BOT_AUTH_DIRECTORY!,
+    }),
+  ],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+```
+
+```ts twoslash [Trusted Agent Protocol]
+import * as Tap from 'mppx/extensions/identity/tap'
+import { Mppx, tempo } from 'mppx/client'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare const agentPrivateKey: CryptoKey
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [
+    Tap.Client.prover({
+      intent: 'payment',
+      key: agentPrivateKey,
+      keyId: 'agent-provider-key-1',
+      scope: ['https://merchant.example'],
+    }),
+  ],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+```
+
+:::
 
 ### methods
 
@@ -987,3 +989,23 @@ const mppx = Mppx.create({
 
 </Tab>
 </Tabs>
+
+### trustedTempoProofRealms (optional)
+
+- **Type:** `Readonly<Record<string, string>>`
+
+The client refuses to sign a zero-amount Tempo proof when the Challenge's realm differs from the hostname of the server that sent it, so another origin can't relay a Challenge and replay the proof at its realm. To allow a server whose realm isn't its hostname, map its origin to the realm.
+
+```ts twoslash
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const mppx = Mppx.create({
+  methods: [tempo({ account })],
+  trustedTempoProofRealms: { 'https://api.example.com': 'MPP Payment' }, // [!code focus]
+})
+```
+
+With `Transport.mcp()` there is no origin, so these proofs are refused unless the realm is listed as a value.

@@ -101,6 +101,29 @@ const handler = payment.compose(
 
 Return at least one offer from the input array, preserve its order, and don't return duplicates. `mppx` runs each method's `canOffer` hook before `selectOffers`. Authenticated `Authorization: Payment` Credentials bypass both hooks so clients can redeem issued Challenges. Native transport Credentials, including `PAYMENT-SIGNATURE` x402 payments, must pass both hooks before settlement.
 
+### With request identity
+
+Require identity proofs, such as Web Bot Auth or Trusted Agent Protocol signatures, per route with `identity`. Every listed verifier must succeed, and the route result exposes verified values through `result.identity.get(verifier)`. See [Identity](/advanced/identity#request-identity).
+
+```ts twoslash
+import * as Tap from 'mppx/extensions/identity/tap'
+import { Mppx, Store, tempo } from 'mppx/server'
+
+declare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>
+
+const tap = Tap.Server.verifier({
+  keyResolver: ({ keyId }) => trustedAgentKeys.get(keyId),
+  nonceStore: Store.memory(),
+})
+
+const payment = Mppx.create({ methods: [tempo.charge()] })
+
+export const handler = payment.charge({
+  amount: '12.50',
+  identity: [tap], // [!code focus]
+})
+```
+
 ### With custom transport
 
 Use a custom transport for non-HTTP environments like MCP servers.
@@ -177,12 +200,6 @@ console.log(receipt.status)
 ```
 
 ## Parameters
-
-### attestation (optional)
-
-- **Type:** `Readonly<Record<string, Attestation.Verifier>>`
-
-Request-attestation verifiers required before an HTTP handler issues a Challenge or accepts a Credential. Invalid attestations return `401`; absent or unverified attestations return `403`. Every configured verifier must succeed. See [Identity](/advanced/identity#request-attestation).
 
 ### methods
 
