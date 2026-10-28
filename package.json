@@ -65,7 +65,7 @@
     "@vitejs/plugin-react": "^6.0.2",
     "ajv": "8",
     "ajv-formats": "^3.0.1",
-    "happy-dom": "^20.9.0",
+    "happy-dom": "^21.0.4",
     "mdast-util-mdx-expression": "2.0.1",
     "mdast-util-mdx-jsx": "3.2.0",
     "playwright": "^1.60.0",
@@ -78,7 +78,7 @@
     "unplugin-icons": "^23.0.1",
     "vite": "^8.3.4",
     "vite-plugin-mkcert": "^2.0.0",
-    "vitest": "^4.1.11",
+    "vitest": "^4.1.12",
     "yaml": "^2.9.0"
   },
   "packageManager": "pnpm@10.34.5",
