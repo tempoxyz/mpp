@@ -63,7 +63,7 @@ const method = stripe.charge({
 
 - **Type:** `(params: OnChallengeParameters) => Promise<string>`
 
-Callback invoked when a Stripe Challenge is received. Must return an SPT token string (`spt_...`). Return an SPT you already hold, or create one through a server endpoint, since creating an SPT requires a Stripe secret key. Paying doesn't need the key.
+Callback invoked when a Stripe Challenge is received. Must return an SPT token string (`spt_...`). Return an existing SPT, or create one through a server endpoint, since SPT creation requires a Stripe secret key.
 
 The callback receives:
 

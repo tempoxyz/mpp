@@ -189,11 +189,9 @@ The [Link CLI](/tools/wallet#link-cli) handles `stripe.charge` end-to-end—`lin
 
 Use `stripe` with `Mppx.create` to automatically handle `402` responses. The client parses the Challenge, gets an SPT from the `createToken` callback, and retries with the Credential.
 
-Paying needs only an SPT—the Credential carries the token, not a Stripe key. `createToken` returns an SPT you already hold, or creates one through your server, since creating an SPT requires a Stripe secret key.
-
 ### With an existing SPT
 
-If you already hold an SPT, for example one issued to your agent, return it from `createToken`. Check the requested amount and currency against the token's limits before returning it.
+If you already have an SPT, return it from `createToken`.
 
 ```ts twoslash
 import { Mppx, stripe } from 'mppx/client'
@@ -212,11 +210,9 @@ const response = await mppx.fetch('https://api.example.com/resource')
 // @log: Response { status: 200, ... }
 ```
 
-The client requires `paymentMethod`; it's forwarded to `createToken`, which ignores it here.
-
 ### Create an SPT for a known payment method
 
-If you have a payment method ID but no SPT (for example a test card or a stored method), pass it as `paymentMethod` and create the SPT through your server. You can optionally pass a `client` (a Stripe.js instance from `@stripe/stripe-js`), which is forwarded to `createToken` for use with Elements.
+Creating an SPT requires a Stripe secret key, so create it through a server endpoint. Pass a payment method ID (for example a test card or a stored method) as `paymentMethod`. You can optionally pass a `client` (a Stripe.js instance from `@stripe/stripe-js`), which is forwarded to `createToken` for use with Elements.
 
 ```ts twoslash
 
