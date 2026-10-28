@@ -37,6 +37,56 @@ const CATEGORIES = new Set<Category>([
 ]);
 const SERVICE_ID = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
+/** Curated catalog fields for a proxy service, which its discovery manifest lacks. */
+export type MppProxyMetadata = Pick<
+  Service,
+  | "id"
+  | "url"
+  | "icon"
+  | "integration"
+  | "tags"
+  | "status"
+  | "docs"
+  | "provider"
+>;
+
+/**
+ * Replaces a catalog's proxy services with entries holding only their curated metadata, so a
+ * merge with a manifest derives every other field from that manifest rather than from an
+ * earlier merge. Placeholders fix the published key order; the merge fills them.
+ */
+export function withMppProxyMetadata(
+  catalog: ServicesCatalog,
+  metadata: readonly MppProxyMetadata[],
+): ServicesCatalog {
+  return {
+    ...catalog,
+    services: [
+      ...catalog.services.filter((service) => !isTempoProxyService(service)),
+      ...metadata.map(
+        (meta) =>
+          ({
+            id: meta.id,
+            name: meta.id,
+            url: meta.url,
+            serviceUrl: "https://" + meta.id + ".mpp.tempo.xyz",
+            description: "",
+            ...(meta.icon ? { icon: meta.icon } : {}),
+            categories: [],
+            integration: meta.integration,
+            tags: meta.tags,
+            status: meta.status ?? "active",
+            ...(meta.docs ? { docs: meta.docs } : {}),
+            methods: {},
+            realm: "mpp.tempo.xyz",
+            endpoints: [],
+            ...(meta.provider ? { provider: meta.provider } : {}),
+          }) as CatalogService,
+      ),
+    ],
+  };
+}
+
 /** Replaces manually copied proxy entries with the proxy's canonical discovery manifest. */
 export function mergeMppProxyCatalog(
   catalog: ServicesCatalog,

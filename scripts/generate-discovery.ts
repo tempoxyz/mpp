@@ -29,6 +29,7 @@ import {
 import {
   mergeMppProxyCatalog,
   type ServicesCatalog,
+  withMppProxyMetadata,
 } from "../src/mpp-proxy-catalog.ts";
 
 const SCHEMAS_DIR = resolve(import.meta.dirname, "../schemas");
@@ -303,30 +304,13 @@ export function buildCatalog(
     }
   }
 
-  const catalog: ServicesCatalog = {
-    version: 1,
-    services: [
-      ...(svcs.map(buildService) as ServicesCatalog["services"]),
-      ...proxyMetadata.map((meta) => ({
-        // Placeholders fix the published key order; the merge fills them.
-        id: meta.id,
-        name: meta.id,
-        url: meta.url,
-        serviceUrl: `https://${meta.id}.${MPP_REALM}`,
-        description: "",
-        ...(meta.icon ? { icon: meta.icon } : {}),
-        categories: [],
-        integration: meta.integration,
-        tags: meta.tags,
-        status: meta.status ?? "active",
-        ...(meta.docs ? { docs: meta.docs } : {}),
-        methods: {},
-        realm: MPP_REALM,
-        endpoints: [],
-        ...(meta.provider ? { provider: meta.provider } : {}),
-      })),
-    ],
-  };
+  const catalog = withMppProxyMetadata(
+    {
+      version: 1,
+      services: svcs.map(buildService) as ServicesCatalog["services"],
+    },
+    proxyMetadata,
+  );
   return mergeMppProxyCatalog(catalog, proxyManifest).services;
 }
 
