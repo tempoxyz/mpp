@@ -199,11 +199,11 @@ A remote fee payer service sponsors client-driven open and top-up transactions, 
 
 ### feePayerPolicy (optional)
 
-- **Type:** `Partial<{ allowKeyAuthorization: boolean; maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
+- **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
 
 Override the local fee-sponsor policy used for sponsored open and top-up transactions and server-driven close transactions.
 
-`allowKeyAuthorization` defaults to `true`. Set it to `false` when the sponsor must reject transactions that install a new access key.
+Sponsored transactions may carry a `keyAuthorization`, so an access key can open a sponsored Session in the transaction that installs it. `maxGas` and `maxTotalFee` bound the sponsor's cost.
 
 ### feeToken (optional)
 

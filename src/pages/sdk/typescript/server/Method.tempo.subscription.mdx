@@ -247,7 +247,7 @@ Application-defined identifier for reconciliation.
 
 Overrides the fee-sponsor limits used for subscription activation and renewal transactions.
 
-`allowKeyAuthorization` defaults to `true`. Setting it to `false` rejects sponsored transactions that install the subscription access key.
+Sponsored transactions may carry a `keyAuthorization`, so the activation transaction can install the subscription access key. `maxGas` and `maxTotalFee` bound the sponsor's cost.
 
 Sponsored activation and renewal transactions must have at least 15 seconds of remaining validity when signed and submitted.
 
