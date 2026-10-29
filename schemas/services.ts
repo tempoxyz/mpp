@@ -11174,6 +11174,82 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── GetNuans ────────────────────────────────────────────────────────────
+  {
+    id: "getnuans",
+    name: "GetNuans",
+    url: "https://getnuans.com",
+    serviceUrl: "https://api.getnuans.com",
+  
+    description:
+      "Order Canadian NUANS reports and business name searches for incorporation and name reservation. AI agents can discover products, obtain validated CAD quotes, pay through Stripe MPP, and track digital report delivery.",
+  
+    icon: "https://getnuans.com/favicon/apple-touch-icon.png",
+  
+    categories: ["data", "search"],
+    integration: "first-party",
+  
+    tags: [
+      "canada",
+      "nuans",
+      "business-name-search",
+      "incorporation",
+      "name-reservation",
+    ],
+  
+    status: "active",
+  
+    docs: {
+      homepage: "https://getnuans.com/agents",
+      apiReference: "https://api.getnuans.com/openapi.json",
+      llmsTxt: "https://getnuans.com/llms.txt",
+    },
+  
+    provider: {
+      name: "GetNuans",
+      url: "https://getnuans.com",
+    },
+  
+    realm: "api.getnuans.com",
+    intent: "charge",
+  
+    payments: [
+      {
+        method: "stripe",
+        currency: "cad",
+        decimals: 2,
+      },
+    ],
+  
+    endpoints: [
+      {
+        route: "GET /api/agent/products",
+        desc:
+          "Discover available Canadian NUANS reports, business name search products, current CAD prices, and jurisdiction-specific requirements.",
+      },
+      {
+        route: "POST /api/agent/quotes",
+        desc:
+          "Validate customer and product details and create an immutable, 10-minute CAD quote without charging the customer.",
+        healthCheck: false,
+      },
+      {
+        route: "POST /api/agent/orders",
+        desc:
+          "Purchase a validated NUANS report or business name search using buyer-authorized Stripe MPP Card or Link Shared Payment Tokens.",
+        dynamic: true,
+        amountHint: "CAD total determined by the validated quote",
+        healthCheck: false,
+      },
+      {
+        route: "POST /api/agent/orders/status",
+        desc:
+          "Track order fulfillment and retrieve protected report download information using Order ID and customer email.",
+        healthCheck: false,
+      },
+    ],
+  },
 ];
 
 export {
