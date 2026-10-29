@@ -4379,6 +4379,40 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Inbox eSIM ──────────────────────────────────────────────────────────
+  {
+    id: "inbox-esim",
+    name: "Inbox eSIM",
+    url: "https://inboxesim.com",
+    serviceUrl: "https://inboxesim.com",
+    description:
+      "Prepaid, data-only travel eSIMs for 200+ countries and regions. Agents find a plan over MCP and buy it for their user; the QR code is emailed in about a minute.",
+    icon: "https://inboxesim.com/apple-icon.png",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["esim", "travel", "mobile-data", "commerce", "mcp"],
+    docs: {
+      homepage: "https://inboxesim.com",
+      llmsTxt: "https://inboxesim.com/llms.txt",
+    },
+    provider: {
+      name: "Inbox eSIM",
+      url: "https://inboxesim.com",
+    },
+    realm: "inboxesim.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: false,
+        route: "POST /api/agent/pay",
+        desc: "Buy one eSIM plan (query: plan_id from the MCP tool find_esim_plans, email, agrees_to_terms=true)",
+        dynamic: true,
+        amountHint: "$2.90 – $384.90 depending on the plan",
+      },
+    ],
+  },
+
   // ── Martin Estate Winery ────────────────────────────────────────────────
   {
     id: "martin-estate",
