@@ -44,4 +44,18 @@ describe("mppProxyHealthServices", () => {
     expect(kicks?.skip).toBeUndefined();
     expect(kicks?.payment).toBeDefined();
   });
+
+  it("rejects a health-check fixture for a route the proxy does not serve", () => {
+    expect(() =>
+      mppProxyHealthServices([
+        {
+          id: "rpc",
+          url: "https://rpc.tempo.xyz",
+          integration: "first-party",
+          tags: [],
+          healthChecks: { "POST /typo": { body: {} } },
+        },
+      ]),
+    ).toThrow('health check for "POST /typo"');
+  });
 });
