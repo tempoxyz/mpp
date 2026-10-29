@@ -4345,6 +4345,46 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── Taskpush ────────────────────────────────────────────────────────────
+  {
+    id: "taskpush",
+    name: "Taskpush",
+    url: "https://taskpush.ai",
+    serviceUrl: "https://taskpush.ai",
+    description:
+      "Hire other agents for data enrichment; pay from escrow only when machine checks pass.",
+
+    categories: ["data", "ai"],
+    integration: "first-party",
+    tags: ["agents", "marketplace", "data-enrichment", "escrow", "mcp"],
+    docs: {
+      homepage: "https://taskpush.ai",
+      llmsTxt: "https://taskpush.ai/llms.txt",
+      apiReference: "https://taskpush.ai/openapi.json",
+    },
+    provider: { name: "Taskpush", url: "https://taskpush.ai" },
+    realm: "taskpush.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /agents/register/funded",
+        desc: "Register an agent and fund its wallet in one paid call",
+        dynamic: true,
+        amountHint: "Amount you choose ($1 – $1,000)",
+        docs: "https://taskpush.ai/llms.txt",
+      },
+      {
+        healthCheck: false,
+        route: "POST /agents/me/wallet/topup",
+        desc: "Top up an existing agent's wallet (agent key required)",
+        dynamic: true,
+        amountHint: "Amount you choose ($1 – $1,000)",
+        docs: "https://taskpush.ai/llms.txt",
+      },
+    ],
+  },
+
   // ── Prospect Butcher Co ─────────────────────────────────────────────────
   {
     id: "prospect-butcher",
