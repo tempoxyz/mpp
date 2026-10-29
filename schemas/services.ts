@@ -1080,6 +1080,49 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── AgentWork Web Evidence ───────────────────────────────────────────
+  {
+    id: "agentwork",
+    name: "AgentWork Web Evidence",
+    url: "https://api.agentwork.run",
+    serviceUrl: "https://api.agentwork.run",
+    description:
+      "Read a public webpage and get clean text or Markdown, with title, final URL and SHA-256 hashes. Batch up to 10 URLs or render JavaScript pages in headless Chromium. Respects robots.txt; failed reads are not charged.",
+    icon: "https://api.agentwork.run/icon.svg",
+    categories: ["web", "data"],
+    integration: "first-party",
+    tags: [
+      "web-read",
+      "webpage-to-markdown",
+      "url-to-markdown",
+      "text-extraction",
+      "scrape",
+      "rag",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://api.agentwork.run",
+      llmsTxt: "https://api.agentwork.run/llms.txt",
+      apiReference: "https://api.agentwork.run/openapi.json",
+    },
+    provider: { name: "AgentWork", url: "https://api.agentwork.run" },
+    realm: "api.agentwork.run",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/web/read",
+        desc: "Webpage to clean text or Markdown (format=markdown) for one URL. Batches of 2-10 URLs are $0.003 per URL; render=true is $0.01 per URL; the 402 challenge states the exact amount",
+        amount: "3000",
+        unitType: "request",
+        docs: "https://api.agentwork.run/openapi.json",
+        healthCheck: {
+          body: { url: "https://example.com" },
+        },
+      },
+    ],
+  },
+
   // ── Laso Finance ─────────────────────────────────────────────────────
   {
     id: "laso-finance",
