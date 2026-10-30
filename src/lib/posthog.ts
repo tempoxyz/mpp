@@ -7,7 +7,6 @@ declare global {
   interface Window {
     dataLayer: unknown[];
     posthog?: {
-      __SV?: number;
       capture: (event: string, properties?: Record<string, unknown>) => void;
     };
   }
