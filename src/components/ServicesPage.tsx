@@ -67,15 +67,18 @@ export function formatPrice(endpoint: Endpoint): string {
   if (!payment.amount) return payment.amountHint ?? "Varies";
   const value = Number(payment.amount) / 10 ** (payment.decimals ?? 0);
   if (Number.isNaN(value)) return "—";
-  if (value === 0) return "$0";
-  if (value >= 1) return `$${value.toFixed(2)}`;
+  // Preserve the existing USD display for Tempo and dollar-denominated
+  // services; do not mislabel Stripe EUR amounts with a dollar sign.
+  const symbol = payment.currency?.toLowerCase() === "eur" ? "€" : "$";
+  if (value === 0) return `${symbol}0`;
+  if (value >= 1) return `${symbol}${value.toFixed(2)}`;
   let output = value.toFixed(6).replace(/0+$/, "");
   if (output.endsWith(".")) output += "00";
   else {
     const decimals = output.length - output.indexOf(".") - 1;
     if (decimals < 2) output += "0".repeat(2 - decimals);
   }
-  return `$${output}`;
+  return `${symbol}${output}`;
 }
 
 const categoryLabel = (service: Service) =>
