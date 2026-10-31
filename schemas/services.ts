@@ -1389,6 +1389,40 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "compassgrade",
+    name: "CompassGrade",
+    url: "https://compassgrade.com",
+    serviceUrl: "https://api-691624144694.us-east1.run.app",
+    description:
+      "Google Maps rank report for one local business: a 49-point rank grid across its service area, the local rivals that outrank it, an estimate of the calls and revenue it misses, and ranked fixes. Asynchronous job with a free status route.",
+
+    categories: ["data", "search"],
+    integration: "first-party",
+    tags: ["google-maps", "local-seo", "local-business", "rankings", "reports"],
+    status: "active",
+    docs: {
+      homepage: "https://compassgrade.com",
+      apiReference: "https://api-691624144694.us-east1.run.app/openapi.json",
+    },
+    provider: { name: "CompassGrade", url: "https://compassgrade.com" },
+    realm: "api-691624144694.us-east1.run.app",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /v1/agent/report",
+        desc: "Buy a Google Maps rank report for one business; returns a job id and status URL",
+        amount: "1490000",
+        unitType: "report",
+      },
+      {
+        route: "GET /v1/agent/report/:id",
+        desc: "Poll a report job (free): pending, then the report as JSON and its public page",
+        healthCheck: false,
+      },
+    ],
+  },
   // ── AgentMail ──────────────────────────────────────────────────────────
   {
     id: "agentmail",
