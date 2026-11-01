@@ -1407,7 +1407,7 @@ export const services: ServiceDef[] = [
         route: "POST /api/orders/:id/payment",
         desc: "Pay for an order: an Audit, a tool comparison or a data plan",
         dynamic: true,
-        amountHint: "$49 to $499 by product",
+        amountHint: "From $49, by product",
       },
     ],
   },
