@@ -121,6 +121,12 @@ We prioritize services that are **high quality and novel**. We may not approve s
 
 Contributions to documentation, the service directory, and site improvements are welcome.
 
+Other contributions go elsewhere:
+
+- **SDK bugs, feature requests, and inconsistencies**: open an issue in the SDK's repository ([mppx](https://github.com/wevm/mppx), [mpp-rs](https://github.com/tempoxyz/mpp-rs), [pympp](https://github.com/tempoxyz/pympp), [mpp-go](https://github.com/tempoxyz/mpp-go)). The SDKs don't accept pull requests from external contributors.
+- **Protocol changes**: open a pull request in [tempoxyz/mpp-specs](https://github.com/tempoxyz/mpp-specs).
+- **Questions**: ask in the [MPP Developers Telegram group](https://t.me/mpp_devs).
+
 ### Pull request checklist
 
 1. **Types pass**: `pnpm check:types`

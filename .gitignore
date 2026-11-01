@@ -9,15 +9,11 @@ worker-configuration.d.ts
 wrangler.deploy.jsonc
 public/specs/
 src/pages/specs/index.mdx
-src/pages/_vocs.generated.css
 src/snippets/cli-help.txt
 .vercel
 .DS_Store
 .env.local
 .lycheecache
-# Generated at build time from MDX frontmatter
-src/generated/
-
 # Generated from schemas/services.ts — run `pnpm generate:discovery` to rebuild
 schemas/discovery.json
 schemas/discovery.example.json

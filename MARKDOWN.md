@@ -1,11 +1,8 @@
 # Maintaining generated Markdown
 
-This site tests Pierre Highlights with the commit-pinned preview
-`https://pkg.pr.new/vocs@1c023ba` from [Vocs #670](https://github.com/wevm/vocs/pull/670).
-`codeHighlight.engine` is set to `highlights` for MDX code blocks, client-side
-samples, and Twoslash hover popups. Set it to `shiki` to compare the engines.
-To test a new upstream commit, update the commit pin and lockfile, then rerun
-the audit, tests, and build. Use a release version when leaving the preview channel.
+This site uses Vocs 2.12.0 from npm with `codeHighlight.engine` set to
+`highlights` for MDX code blocks, client-side samples, and Twoslash hover
+popups. Set it to `shiki` to compare the engines.
 
 ## Generation and enforcement
 
@@ -87,6 +84,6 @@ sections and concise descriptions are preserved without stale content or hashes.
 wrapper is removed. CI still runs the audit, and production builds also enforce
 it. Tests cover both modes and the environment override.
 
-The preview requires React 19.3 and Waku rc.3. The dependency bump includes the
-matching React server package; the scroll-position listener replaces Waku's
-removed navigation event API.
+Vocs 2.12 requires Vite 8, React 19.3, and Waku 1.0 rc. The custom
+`src/pages/_root.tsx` replaces Vocs Root, so `SiteRootClient` mounts the
+`ScrollRestoration` component exported by `vocs` instead of a local copy.

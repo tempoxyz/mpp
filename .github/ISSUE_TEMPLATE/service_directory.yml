@@ -1,0 +1,22 @@
+name: Service directory
+description: Report an incorrect, outdated, or broken listing on mpp.dev/services.
+labels: ['service-directory']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        To add a new service, open a pull request using the [service pull request template](https://github.com/tempoxyz/mpp/blob/main/.github/PULL_REQUEST_TEMPLATE/service.md).
+
+  - type: input
+    attributes:
+      label: Service
+      description: The service name or its URL on mpp.dev/services.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: What is incorrect, outdated, or broken? Include requests and responses if the service does not work.
+    validations:
+      required: true

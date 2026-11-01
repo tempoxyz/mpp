@@ -159,6 +159,10 @@ Each server-generated Challenge includes a fresh `_mppx_nonce` in its metadata, 
 
 Route verification compares all application and scope metadata while excluding the issuance nonce from stable route requirements. Previously issued signed Challenges without a nonce remain valid. The x402 route-binding extension excludes issuance-only metadata while retaining application metadata, scope, and digest checks.
 
+### Route identity
+
+Pass `identity` to an intent function to require [request identity](/advanced/identity#request-identity) verifiers on that route, for example `mppx.charge({ amount: '1', identity: [tap] })`. Every listed verifier must succeed before the handler issues a Challenge or accepts a Credential. Invalid proofs return `401`; missing proofs return `403`. Read verified values with `result.identity.get(verifier)`. Routes without `identity` stay open. `Mppx.create({ attestation })` was removed in `mppx` 0.16.0 and throws.
+
 ### Validate and broadcast Credentials
 
 Use `validateCredential` to pre-check a Credential without consuming payment state. Use `broadcastCredential` to validate again and complete the payment. `verifyCredential` remains as a deprecated alias for the mutating broadcast operation.
@@ -177,12 +181,6 @@ console.log(receipt.status)
 ```
 
 ## Parameters
-
-### attestation (optional)
-
-- **Type:** `Readonly<Record<string, Attestation.Verifier>>`
-
-Request-attestation verifiers required before an HTTP handler issues a Challenge or accepts a Credential. Invalid attestations return `401`; absent or unverified attestations return `403`. Every configured verifier must succeed. See [Identity](/advanced/identity#request-attestation).
 
 ### methods
 

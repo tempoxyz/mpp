@@ -757,6 +757,8 @@ On the server, use [`mppx.session.serveWebSocket()`](/sdk/typescript/server/Ws.s
 
 Configure `settlementSchedule` on `tempo.session()` for SSE or WebSocket streams. `mppx` evaluates the schedule after each committed nonzero stream charge.
 
+Run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) on a schedule to answer close requests for idle channels. Track channel IDs before charging them, and run supervision within Tempo's 900-second close grace period.
+
 Retryable scheduled settlement failures keep charged content served and leave the charge due for a later settlement. Use [`onSessionSettlementFailure`](/sdk/typescript/server/Method.tempo.session#onsessionsettlementfailure-optional) to monitor failures. Confirmed settlements remain successful if only the channel-store checkpoint fails; reverts and configuration errors still fail the charge.
 
 ## Next steps

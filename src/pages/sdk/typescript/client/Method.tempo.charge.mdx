@@ -147,7 +147,7 @@ The client also rejects a resolved viem client whose chain conflicts with the se
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
 
 Automatically swap from a supported stablecoin (USDC.e, pathUSD) via the Tempo DEX precompile when the client lacks sufficient balance of the requested currency. The swap acquires only the missing balance. Quote and balance reads work with newly created access keys before their authorization is published.
 
@@ -185,6 +185,9 @@ const method = tempo.charge({
 
 </Tab>
 </Tabs>
+
+
+The default swap sources are pathUSD, USDC.e, and OUSD in that order. Set `fallback: false` with `tokenIn` to allow only those listed input tokens; otherwise the defaults follow your selected tokens.
 
 ### clientId (optional)
 

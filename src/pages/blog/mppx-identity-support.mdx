@@ -16,9 +16,9 @@ publishedAt: "2026-08-12"
 
 ## Signed identity on every request
 
-When configured, the `mppx` agent SDK signs the initial request and each paid retry using [RFC 9421 HTTP Message Signatures](https://www.rfc-editor.org/rfc/rfc9421). Each [request attestation](/advanced/identity#request-attestation) carries a fresh timestamp and nonce, and the server verifies it before issuing a Challenge or accepting a Credential.
+When configured, the `mppx` agent SDK signs the initial request and each paid retry using [RFC 9421 HTTP Message Signatures](https://www.rfc-editor.org/rfc/rfc9421). Each [request identity proof](/advanced/identity#request-identity) carries a fresh timestamp and nonce, and the server verifies it before issuing a Challenge or accepting a Credential.
 
-The first two request-attestation profiles implemented in `mppx` are:
+The first two request identity profiles implemented in `mppx` are:
 
 - **[Web Bot Auth](https://datatracker.ietf.org/doc/html/draft-meunier-web-bot-auth-architecture)** identifies an automated client through a signed `Signature-Agent` value and a trusted HTTPS directory.
 - **[TAP](https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications/)** carries agent identity and `browse` or `payment` intent from a trusted provider.
@@ -30,34 +30,36 @@ On the client, configure Web Bot Auth, TAP, or both through [`Mppx.create`](/sdk
 ::::code-group
 
 ```ts [Web Bot Auth]
-import * as WebBotAuth from 'mppx/attestation/web-bot-auth'
 import { Mppx, tempo } from 'mppx/client'
+import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'
 
 const client = Mppx.create({
-  attestation: {
-    webBotAuth: WebBotAuth.Client.signer({
+  identity: [
+    WebBotAuth.Client.prover({
       key: webBotAuthPrivateKey,
       keyId: webBotAuthKeyId,
+      scope: ['https://api.example.com'],
       signatureAgent: 'https://bot.example',
     }),
-  },
+  ],
   methods: [tempo({ account })],
   polyfill: false,
 })
 ```
 
 ```ts [TAP]
-import * as Tap from 'mppx/attestation/tap'
 import { Mppx, tempo } from 'mppx/client'
+import * as Tap from 'mppx/extensions/identity/tap'
 
 const client = Mppx.create({
-  attestation: {
-    tap: Tap.Client.signer({
+  identity: [
+    Tap.Client.prover({
       intent: 'payment',
       key: tapPrivateKey,
       keyId: tapKeyId,
+      scope: ['https://merchant.example'],
     }),
-  },
+  ],
   methods: [tempo({ account })],
   polyfill: false,
 })
@@ -67,31 +69,30 @@ const client = Mppx.create({
 
 ### Servers
 
-The server configures matching verifiers when constructing the core MPP server. Each verifier resolves keys from an application-selected trust source. The [generic attestation framework](/advanced/identity#use-the-framework-directly) also supports third-party identity protocols through its lower-level Client and Server APIs.
+The server creates matching verifiers and requires them on each protected route. Each verifier resolves keys from an application-selected trust source. The [generic identity framework](/advanced/identity#use-the-framework-directly) also supports third-party identity protocols through its lower-level Client and Server APIs.
 
 ```ts [server.ts]
-import * as Tap from 'mppx/attestation/tap'
-import * as WebBotAuth from 'mppx/attestation/web-bot-auth'
+import * as Tap from 'mppx/extensions/identity/tap'
+import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'
 import { Mppx, tempo } from 'mppx/server'
 
-const server = Mppx.create({
-  attestation: {
-    tap: Tap.Server.verifier({
-      keyResolver: resolveTapKey,
-      nonceStore,
-    }),
-    webBotAuth: WebBotAuth.Server.verifier({
-      keyResolver: resolveWebBotAuthKey,
-      nonceStore,
-    }),
-  },
-  methods: [tempo.charge()],
+const tap = Tap.Server.verifier({
+  keyResolver: resolveTapKey,
+  nonceStore,
 })
+const webBotAuth = WebBotAuth.Server.verifier({
+  keyResolver: resolveWebBotAuthKey,
+  nonceStore,
+})
+
+const server = Mppx.create({ methods: [tempo.charge()] })
+
+export const handler = server.charge({ amount: '1', identity: [tap, webBotAuth] })
 ```
 
 ## Extensible identity
 
-`mppx` was built around a protocol-neutral, extensible [attestation framework](/advanced/identity#use-the-framework-directly). Web Bot Auth and TAP are the first supported profiles, but more can be added with a Client signer and matching Server verifier through `Attestation.Client` and `Attestation.Server`. Each profile can carry identity on the initial HTTP request and every automatic MPP retry. The Server verifies the result for application policy, while the MPP payment flow stays unchanged.
+`mppx` was built around a protocol-neutral, extensible [identity framework](/advanced/identity#use-the-framework-directly). Web Bot Auth and TAP are the first supported profiles, but more can be added with a Client prover and matching Server verifier from `mppx/identity`. Each profile can carry identity on the initial HTTP request and every automatic MPP retry. The Server verifies the result for application policy, while the MPP payment flow stays unchanged.
 
 ## Learn more
 
