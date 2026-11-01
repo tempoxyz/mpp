@@ -11174,6 +11174,65 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── CMD+RVL Vigil KYC screen ────────────────────────────────────────────
+  {
+    id: "cmdrvl-vigil-kyc",
+    name: "CMD+RVL Vigil KYC Screen",
+    url: "https://cmdrvl.com",
+    serviceUrl: "https://cairn.cmdrvl.com/vigil-paid/v1",
+    description:
+      "KYC and sanctions screening for agents at $1 per screen: one company and up to three named people checked against OFAC, UK, EU, BIS, the US Consolidated Screening List and SAM.gov exclusions, returning structured findings, source evidence and a PDF. No account or API key. Reports potential matches and gaps, never clearance.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "kyc",
+      "sanctions",
+      "ofac",
+      "compliance",
+      "export-control",
+      "screening",
+      "due-diligence",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://cmdrvl.com/developers/kyc-screening/",
+      llmsTxt: "https://cairn.cmdrvl.com/vigil-paid/v1/llms.txt",
+      apiReference: "https://cairn.cmdrvl.com/vigil-paid/v1/openapi.json",
+    },
+    provider: { name: "CMD+RVL", url: "https://cmdrvl.com" },
+    realm: "cairn.cmdrvl.com",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: {
+          body: {
+            company: "Health Check Example LLC",
+            persons: [],
+            wait_seconds: 0,
+          },
+        },
+        route: "POST /screen",
+        desc: "Screen one company and up to three named people against sanctions, export-control and debarment lists. Returns severity, routing, potential matches, sources read and a PDF. Screens take 40 to 100 seconds; set wait_seconds to about 120 for a one-call result.",
+        amount: "1000000",
+        unitType: "request",
+        docs: "https://cmdrvl.com/developers/kyc-screening/",
+      },
+      {
+        route: "GET /screen/:job_id",
+        desc: "Retrieve a screen result with the token from the paid response. Returns 202 while running. No further payment.",
+        docs: false,
+        healthCheck: false,
+      },
+      {
+        route: "GET /screen/:job_id/report.pdf",
+        desc: "Download the review PDF for a completed screen, with the token from the paid response.",
+        docs: false,
+        healthCheck: false,
+      },
+    ],
+  },
 ];
 
 export {
