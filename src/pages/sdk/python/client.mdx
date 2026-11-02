@@ -4,106 +4,79 @@ description: "Use the Python client to handle HTTP 402 responses, pay with suppo
 imageDescription: "Handle paid APIs automatically in Python"
 ---
 
-# Client [Handle 402 responses automatically]
+# Client [Handle `402` responses automatically]
 
-The `Client` class wraps `httpx` and intercepts `402` responses—it parses the Challenge, signs a stablecoin transfer, and retries with the Credential.
+The client wraps `httpx`, selects a supported Challenge, creates a Credential, and retries the request.
 
 ## Quick start
 
 ```python [client.py]
-from mpp.client import Client
-from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
+from mpp.client import Mpp
+from mpp.methods.tempo import OUSD, TempoAccount
+from mpp.methods.tempo import client as tempo
 
 account = TempoAccount.from_key("0x...")
+method = tempo.charge(
+    account=account,
+    allowed_chain_ids=[4217],
+    currency=OUSD,
+    max_amount="0.50",
+    max_amount_decimals=6,
+)
 
-async with Client(methods=[tempo(account=account, intents={"charge": ChargeIntent()})]) as client:
-    response = await client.get("https://api.example.com/resource")
-    print(response.json())
+async with Mpp(
+    allowed_origins=["https://api.example.com"],
+    methods=[method],
+) as payment:
+    response = await payment.fetch("https://api.example.com/resource")
 ```
+
+`allowed_origins` authorizes automatic payment only to exact HTTP origins. An empty list disables automatic payment. Also configure method-level amount, chain, currency, and recipient limits when you know them.
+
+## Use an existing `httpx` client
+
+```python [client.py]
+import httpx
+from mpp.client import Mpp
+
+payment = Mpp(methods=[method])
+
+async with httpx.AsyncClient(transport=payment.payment_transport) as client:
+    response = await client.get("https://api.example.com/resource")
+```
+
+Call `payment.client()` when you want the SDK to construct the `httpx.AsyncClient`.
 
 ## Event handling
 
-Register event handlers to record the automatic `402` flow. Use helper methods for named events, event constants for shared wiring, and `*` for every client event.
-
 ```python [client.py]
-from mpp.client import Client
+from mpp.client import Mpp
 from mpp.events import PAYMENT_RESPONSE
-from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
 
-account = TempoAccount.from_key("0x...")
+payment = Mpp(methods=[method])
 
-async with Client(methods=[tempo(account=account, intents={"charge": ChargeIntent()})]) as client:
-    def log(event: str, data: dict[str, object]) -> None:
-        print(event, data)
-
-    # Record the selected Challenge before the client creates a Credential.
-    client.on_challenge_received(
-        lambda payload: log(
-            "payment.challenge.received",
-            {
-                "challenge_id": payload["challenge"].id,
-                "intent": payload["challenge"].intent,
-                "method": payload["challenge"].method,
-            },
-        )
-    )
-
-    # Record the retried response after payment.
-    client.on(
-        PAYMENT_RESPONSE,
-        lambda payload: log(
-            "payment.response",
-            {"status": payload["response"].status_code},
-        ),
-    )
-
-    # Catch every client payment event in one handler.
-    client.on("*", lambda event: log("payment.event", {"name": event.name}))
-
-    response = await client.get("https://api.example.com/resource")
-```
-
-`on_challenge_received` can return a `Credential` to override the default Credential creation path. Other handlers only record payment handling. Each registration returns an unsubscribe function.
-
-## Common methods
-
-| Method | Description |
-|--------|-------------|
-| `delete(url, **kwargs)` | DELETE request with payment handling |
-| `get(url, **kwargs)` | GET request with payment handling |
-| `post(url, **kwargs)` | POST request with payment handling |
-| `put(url, **kwargs)` | PUT request with payment handling |
-| `request(method, url, **kwargs)` | Generic request |
-
-## One-off requests
-
-```python [client.py]
-from mpp.client import get
-from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
-
-response = await get(
-    "https://api.example.com/resource",
-    methods=[tempo(account=TempoAccount.from_key("0x..."), intents={"charge": ChargeIntent()})],
+unsubscribe = payment.on(
+    PAYMENT_RESPONSE,
+    lambda payload: print(payload["response"].status_code),
 )
 ```
 
-## Custom httpx transport
+`on_challenge_received`, `on_credential_created`, `on_payment_failed`, and `on_payment_response` register named handlers. Each registration returns an unsubscribe function.
 
-`PaymentTransport` wraps any `httpx.AsyncBaseTransport`, so you can compose it with custom transports:
+## Custom transport
 
 ```python [transport.py]
 import httpx
 from mpp.client import PaymentTransport
-from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
 
-account = TempoAccount.from_key("0x...")
 transport = PaymentTransport(
-    methods=[tempo(account=account, intents={"charge": ChargeIntent()})],
+    allowed_origins=["https://api.example.com"],
     inner=httpx.AsyncHTTPTransport(retries=3),
+    methods=[method],
 )
 
 async with httpx.AsyncClient(transport=transport) as client:
     response = await client.get("https://api.example.com/resource")
 ```
 
-For manual Challenge/Credential handling, see [Core types](/sdk/python/core).
+For manual Challenge and Credential handling, see [Core types](/sdk/python/core).

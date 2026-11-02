@@ -3,7 +3,7 @@ description: "Use Python core types for MPP Challenges, Credentials, Receipts, p
 imageDescription: "Core MPP types for Python"
 ---
 
-# Core Types [Challenge, Credential, and Receipt primitives]
+# Core types [Challenge, Credential, and Receipt primitives]
 
 The SDK provides three core types that map directly to HTTP headers: `Challenge`, `Credential`, and `Receipt`.
 
@@ -25,7 +25,7 @@ On the wire, `request` and optional `opaque` are base64url-encoded JSON strings 
 
 ```python
 credential = Credential(
-    id="challenge-id",
+    challenge=challenge.to_echo(),
     payload={"type": "transaction", "signature": "0x..."},
     source="did:pkh:eip155:42431:0xa726a1...",
 )

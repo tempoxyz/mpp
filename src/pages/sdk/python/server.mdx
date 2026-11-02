@@ -5,249 +5,92 @@ imageDescription: "Charge for your Python API endpoints"
 
 # Server [Protect endpoints with payment requirements]
 
-Protect endpoints with payment requirements.
+Configure server methods once, then create a handler for each route price.
 
-## Quick start
-
-Create an `Mpp` instance with `Mpp.create()` and call `charge()` with a human-readable amount. The `tempo()` factory creates a Tempo payment method—configure `currency` and `recipient` once, then every `charge()` call uses those defaults.
+## FastAPI quick start
 
 ```python [server.py]
-import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from mpp import Challenge
-from mpp.server import Mpp
-from mpp.methods.tempo import tempo, ChargeIntent
+from mpp import Credential, Receipt
+from mpp.methods.tempo import server as tempo
+from mpp.server import Mpp, pay
 
 app = FastAPI()
-
-mpp = Mpp.create(
-    method=tempo(
-        currency="0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
-        intents={"charge": ChargeIntent()},
+payment = Mpp(
+    methods=tempo.charge(
         recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ),
-    secret_key=os.environ["MPP_SECRET_KEY"],
 )
 
 @app.get("/resource")
-async def get_resource(request: Request):
-    result = await mpp.charge(
-        authorization=request.headers.get("Authorization"),
-        amount="0.50",
-    )
-
-    if isinstance(result, Challenge):
-        return JSONResponse(
-            status_code=402,
-            content={"error": "Payment required"},
-            headers={"WWW-Authenticate": result.to_www_authenticate(mpp.realm)},
-        )
-
-    credential, receipt = result
-    return {"data": "paid content", "payer": credential.source}
+@pay(payment.charge(amount="0.50"))
+async def get_resource(
+    request: Request,
+    credential: Credential,
+    receipt: Receipt,
+):
+    return JSONResponse({"data": "paid content", "payer": receipt.payer})
 ```
 
-`Mpp.create()` auto-detects `realm` from environment variables (`VERCEL_URL`, `FLY_APP_NAME`, `HOSTNAME`, and others). It reads `MPP_SECRET_KEY` from the environment unless you pass `secret_key` explicitly:
+`@pay` converts FastAPI, Starlette, Django, and Flask requests into the framework-neutral payment flow. It returns the `402` response or adds the Receipt to a successful response.
+
+## Framework-neutral flow
 
 ```python [server.py]
-mpp = Mpp.create(
-    method=tempo(
-        currency="0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
-        intents={"charge": ChargeIntent()},
-        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    ),
-    realm="api.example.com",
-    secret_key="my-server-secret",
-)
+from mpp.server import Request, Response
+
+async def handle(request: Request) -> Response:
+    result = await payment.charge(amount="0.50")(request)
+    if result.status != 200:
+        return result.challenge
+    if result.response is not None:
+        return result.response
+    return result.with_receipt(Response.json({"data": "paid content"}))
 ```
+
+Return `result.response` for method-managed requests such as session top-ups and closes.
+
+## Configure Tempo
+
+```python [server.py]
+from mpp.methods.tempo import PATH_USD
+from mpp.methods.tempo import server as tempo
+
+methods = tempo.charge(
+    chain_id=42431,
+    currencies=[PATH_USD],
+    recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    rpc_url="https://rpc.moderato.tempo.xyz",
+)
+payment = Mpp(methods=methods)
+```
+
+Use a shared persistent replay store across replicas. The default in-memory store is process-local and loses replay state on restart.
+
+## Existing `Authorization` headers
+
+If the route already uses `Authorization`, configure a separate Payment credential header:
+
+```python [server.py]
+payment = Mpp(methods=methods, requires_auth=True)
+```
+
+The Challenge then advertises `Payment-Authorization`.
 
 ## Event handling
 
-Register event handlers to record issued Challenges, successful payments, and rejected Credentials. Use helper methods for named events, event constants for shared wiring, and `*` for every server event.
-
 ```python [server.py]
 from mpp.events import PAYMENT_SUCCESS
-from mpp.methods.tempo import tempo, ChargeIntent
-from mpp.server import Mpp
 
-mpp = Mpp.create(
-    method=tempo(
-        currency="0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
-        intents={"charge": ChargeIntent()},
-        recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    ),
-    secret_key="my-server-secret",
-)
-
-def log(event: str, data: dict[str, object]) -> None:
-    print(event, data)
-
-# Record each Challenge issued by your API.
-mpp.on_challenge_created(
-    lambda payload: log(
-        "payment.challenge.created",
-        {
-            "amount": payload["request"]["amount"],
-            "currency": payload["request"]["currency"],
-            "method": payload["method"],
-        },
-    )
-)
-
-# Record successful Credential verification.
-mpp.on(
+unsubscribe = payment.on(
     PAYMENT_SUCCESS,
-    lambda payload: log(
-        "payment.success",
-        {
-            "intent": payload["intent"],
-            "reference": payload["receipt"].reference,
-        },
-    ),
-)
-
-# Catch every server payment event in one handler.
-mpp.on("*", lambda event: log("payment.event", {"name": event.name}))
-```
-
-Server handlers run inline on the payment request path. Keep them short, or send work to your logger, metrics client, or queue. Each registration returns an unsubscribe function.
-
-## `tempo()` factory
-
-`tempo()` creates a `TempoMethod` that bundles a payment network, its intents, and default parameters together. Each intent must be explicitly registered via the `intents` parameter.
-
-```python [server.py]
-from mpp.methods.tempo import tempo, ChargeIntent
-
-method = tempo(
-    currency="0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
-    recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    intents={"charge": ChargeIntent()},
+    lambda payload: print(payload["receipt"].reference),
 )
 ```
 
-### `tempo()` parameters
+Server event handlers run inline with verification. Keep them short and retain the unsubscribe function while the handler is active.
 
-### currency (optional)
+## Sessions
 
-- **Type:** `str`
-
-Default TIP-20 token address for charges.
-
-### decimals (optional)
-
-- **Type:** `int`
-- **Default:** `6`
-
-Token decimal places for amount conversion (6 for OUSD).
-
-### intents
-
-- **Type:** `dict[str, Intent]`
-
-Intents to register (for example, `charge`). Each intent must be explicitly provided.
-
-### recipient (optional)
-
-- **Type:** `str`
-
-Default recipient address for charges.
-
-### rpc_url (optional)
-
-- **Type:** `str`
-- **Default:** `"https://rpc.tempo.xyz"`
-
-Tempo RPC endpoint URL.
-
-## `Mpp.create()` parameters
-
-### method
-
-- **Type:** `Method`
-
-Payment method instance returned by `tempo()`.
-
-### realm (optional)
-
-- **Type:** `str`
-
-Server realm for `WWW-Authenticate` headers. Auto-detected from environment if omitted.
-
-### secret_key (optional)
-
-- **Type:** `str`
-
-HMAC secret for stateless Challenge ID verification. Reads `MPP_SECRET_KEY` if omitted. Raises if neither is set.
-
-## `charge()` parameters
-
-### amount
-
-- **Type:** `str`
-
-Payment amount in human-readable units (for example, `"0.50"` for $0.50). Automatically converted to base units using the method's decimal precision (6 decimals for OUSD).
-
-### authorization
-
-- **Type:** `str | None`
-
-The `Authorization` header value from the incoming request.
-
-### currency (optional)
-
-- **Type:** `str`
-
-Override the method's default currency address.
-
-### description (optional)
-
-- **Type:** `str`
-
-Human-readable description attached to the Challenge.
-
-### expires (optional)
-
-- **Type:** `str`
-
-Challenge expiration as ISO 8601 timestamp. Defaults to 5 minutes from now.
-
-### recipient (optional)
-
-- **Type:** `str`
-
-Override the method's default recipient address.
-
-## `@requires_payment` decorator
-
-For the lower-level decorator API, use `@requires_payment` with an explicit intent, request, realm, and secret key:
-
-```python [server.py]
-from fastapi import FastAPI, Request
-from mpp import Credential, Receipt
-from mpp.server import requires_payment
-from mpp.methods.tempo import ChargeIntent
-
-app = FastAPI()
-intent = ChargeIntent(rpc_url="https://rpc.tempo.xyz")
-
-@app.get("/resource")
-@requires_payment(
-    intent=intent,
-    request={"amount": "1000000", "currency": "0x20c0000000000000000000006a37DA5C996874BE", "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"},
-    realm="api.example.com",
-    secret_key="my-server-secret",
-)
-async def get_resource(request: Request, credential: Credential, receipt: Receipt):
-    return {"data": "paid content", "payer": credential.source}
-```
-
-### Parameters
-
-| Parameter | Description |
-|-----------|-------------|
-| `intent` | Payment intent for verification |
-| `realm` | Server realm for `WWW-Authenticate` |
-| `request` | Payment request data (dict or callable) |
-| `secret_key` | Secret for Challenge IDs |
+Use `tempo.session(...)` with a durable store for metered payment channels, then create route handlers with `payment.session(...)`. Forward method-managed responses so channel open, top-up, and close requests complete correctly.
