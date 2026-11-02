@@ -29,6 +29,7 @@ jobs:
           close-pr-message: "Closed due to inactivity. Reopen if still needed."
           stale-pr-label: stale
           exempt-draft-pr: false
+          exempt-pr-labels: service-directory # stale-service-prs.yml closes these with the MPPScan pointer
           operations-per-run: 300
           days-before-issue-stale: -1
           days-before-issue-close: -1
