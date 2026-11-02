@@ -91,6 +91,20 @@ mppx.on('payment.success', ({ receipt }) => logger.info(receipt))
 mppx.on('payment.failed', ({ error }) => logger.warn(error.type, error.message))
 ```
 
+### With payer refunds
+
+To refund the payer directly, pass a resolver that derives the payer's origin-chain address from authenticated request context. Fall back to a fixed merchant address so clients that send no hint still get a `402`:
+
+```ts
+const method = nearintents.charge({
+  /* ... */
+  refundTo: async ({ capturedRequest }) => // [!code hl]
+    (await payerRefundAddress(capturedRequest)) ?? MERCHANT_REFUND_ADDRESS, // [!code hl]
+})
+```
+
+Each distinct address mints its own executable quote, so never take it from an unauthenticated header without validation and rate limiting.
+
 ### Server parameters
 
 | Parameter | Type | Required | Default |
@@ -98,7 +112,7 @@ mppx.on('payment.failed', ({ error }) => logger.warn(error.type, error.message))
 | `originAsset` | `string` (CAIP-19) | Required | |
 | `destinationAsset` | `string` (CAIP-19) | Required | |
 | `destinationRecipient` | `string` | Required | |
-| `refundTo` | `string` | Required | |
+| `refundTo` | `string` or `({ capturedRequest, originNetwork }) => string \| Promise<string>` | Required | |
 | `amountOut` | `string` (base units) | Required unless set per route | |
 | `slippageTolerance` | `number` (bps) | Optional | `100` |
 | `referral` | `string` | Optional | `'mpp'` |
@@ -164,13 +178,13 @@ await mppx.fetch('https://api.example.com/resource', {
 
 | Parameter | Type | Required | Default |
 | --- | --- | --- | --- |
-| `policy` | `{ allowedOriginNetworks?, allowedCurrencies?, maxAmountIn?, expectedDestination? }` | Optional | |
+| `policy` | `{ allowedOriginNetworks?, allowedCurrencies?, maxAmountIn?, expectedDestination?, expectedRefundTo? }` | Optional | |
 | `walletClient` | viem-style `WalletClient` | Optional | |
 | `sendDeposit` | `({ challenge, request }) => Promise<hash>` | Optional | |
 | `source` | `string` (`did:pkh`) | Optional | derived from `walletClient` |
 
 :::warning
-A `policy` is **strongly recommended for autonomous payers**. The client always schema-validates the Challenge and refuses expired ones, but the value checks — allowed origin networks/assets, per-asset `maxAmountIn` caps, expected destination leg — only run when a policy is configured. The client pays before delivery; the policy is its safety surface.
+A `policy` is **strongly recommended for autonomous payers**. The client always schema-validates the Challenge and refuses expired ones, but the value checks — allowed origin networks/assets, per-asset `maxAmountIn` caps, expected destination leg, expected refund address — only run when a policy is configured. The client pays before delivery; the policy is its safety surface.
 :::
 
 ## Request fields
@@ -213,8 +227,8 @@ The server verifies and settles in one pass (status-observation mode — no per-
 1. mppx recomputes the Challenge binding (HMAC) and rejects unknown, modified, or expired Challenges before the method runs.
 2. The deposit address must correspond to an active, non-settled quote in server state; `payload.hash` must not be consumed. The hash is claimed **in-flight atomically**, so concurrent presentations of the same Credential settle at most once.
 3. The server notifies 1Click of the deposit (accelerator) and polls the status endpoint until a terminal state — the backend detecting a qualifying deposit ≥ `minAmountIn` at `recipient` *is* the deposit confirmation.
-4. On `SUCCESS`, the presented `hash` must be among the origin-chain transactions the backend observed; the Receipt then carries `challengeId`, `originTxHash`, and the destination-chain delivery hash as `reference`. The merchant has received exactly `amountOut`.
-5. On any terminal state the hash is permanently consumed and the deposit address is spent; the backend refunds non-success deposits to `refundTo`.
+4. On any terminal state, the presented `hash` must be among the origin-chain transactions the backend observed; otherwise the Credential is rejected without being consumed. On `SUCCESS`, the Receipt carries `challengeId`, `originTxHash`, and the destination-chain delivery hash as `reference`. The merchant has received exactly `amountOut`.
+5. The matched hash is then permanently consumed and the deposit address is spent; the backend refunds non-success deposits to `refundTo`.
 
 | Outcome | Response |
 | --- | --- |
