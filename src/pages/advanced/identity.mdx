@@ -245,6 +245,12 @@ const fetch = Identity.Client.wrapFetch(
 await fetch('https://api.example.com/resource')
 ```
 
+### Bind identity to a payment
+
+A payment-stage verifier checks a proof on the paid retry, before settlement. Its optional `challenge(request, { nonce })` hook returns headers added to the `402` once. Every offer in that response carries the same HMAC-bound identity nonce. Bind the proof to `context.nonce`, then check it in `verify(request, context)`. Several offers can use payment-stage identity when they require the same verifiers. Routes with preflight hooks cannot use payment-stage identity.
+
+A client prover can use `prepare(response, { challenge })` to process the `402` before the payment retry. Its `prove(request, context)` receives the selected Challenge. `retry(response)` inspects other rejected responses and can request one resend; paid attempts are never resent.
+
 ### Store nonces
 
 Identity verifiers accept the core `Store.AtomicStore`. `Store.memory()` is limited to one long-lived server process. In a multi-instance deployment, provide a shared atomic store so every instance claims nonces through their expiration time.
@@ -305,7 +311,7 @@ Backends key workloads, sessions, and access control on this public key. Payment
 
 Zero-dollar auth uses the standard Challenge → Credential flow with the amount set to `0`. The client signs the Challenge to prove key ownership. No funds move on-chain, and no additional protocol extensions are required.
 
-For Tempo charge, zero-dollar auth now uses a `proof` Credential payload instead of a real transaction. The client signs a proof message over the Challenge ID, and the server verifies that signature against the `source` DID.
+For Tempo charge, zero-dollar auth uses a `proof` Credential payload instead of a real transaction. The client signs a proof message over the Challenge ID, and the server verifies that signature against the `source` DID. Set the server `realm` to its public hostname. If it differs, clients must pin the realm to that origin with `trustedTempoProofRealms` before signing.
 
 :::warning[Replay protection]
 By default, a valid zero-dollar proof remains reusable until the Challenge expires. Pass a `store` to `tempo.charge()` when you want single-use proof auth. In a multi-instance deployment, use a shared store so every instance sees consumed proofs.

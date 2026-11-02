@@ -13,6 +13,8 @@ Creates a Sessions manager that handles channel open, paid fetches, streaming, t
 
 Use this when application code needs direct lifecycle control for one channel. The manager opens a TIP-1034 channel lazily after the first `402` Challenge, signs cumulative vouchers, tops up when needed, and closes the channel when you call `.close()`.
 
+Session top-up, voucher retry, close, and bootstrap send the Credential in the header selected by the Challenge, including `Payment-Authorization` when required. They preserve the paid request's application `Authorization` header and reject redirects. A Session close does not reuse resource request state.
+
 Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
 
 `mppx` 0.13.0 removed the deprecated Legacy Sessions manager exports.
@@ -741,6 +743,12 @@ Automatic and manual funding decisions are serialized for managers sharing a sto
 - **Type:** `string`
 
 Preferred automatic top-up size in human-readable units. When omitted, `mppx` uses a bounded server `suggestedDeposit`, then the exact shortfall.
+
+### trustedTempoProofRealms (optional)
+
+- **Type:** `Readonly<Record<string, string>>`
+
+Pins the realm of a zero-amount Tempo bootstrap proof to the server origin when the realm differs from its hostname.
 
 ### webSocket (optional)
 
