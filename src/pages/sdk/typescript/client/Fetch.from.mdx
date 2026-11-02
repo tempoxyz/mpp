@@ -15,6 +15,8 @@ import { Tab, Tabs } from 'vocs'
 
 Creates a scoped `fetch` wrapper that handles `402` Payment Required responses without modifying `globalThis.fetch`.
 
+A `402` without a Payment Challenge passes through for another protocol to handle. Request inputs retain their method, headers, and body through payment retries.
+
 The wrapper also handles MCP-over-HTTP payment required errors returned as JSON-RPC `-32042` responses, including the first event in an SSE stream.
 
 Payment retries use `redirect: 'manual'`, even when the initial request allows redirects. A `3xx` response returns without forwarding the Credential to another URL and leaves the payment attempt pending because the redirect doesn't confirm payment acceptance.
@@ -119,6 +121,8 @@ type ReturnType = (
   init?: RequestInit & { context?: AnyContextFor<methods> }
 ) => Promise<Response>
 ```
+
+A zero-amount Tempo proof is signed only when the Challenge realm matches the responding server's hostname. If your server uses a different realm, pin it to the origin with `trustedTempoProofRealms`. MCP has no server origin, so every proof realm must be explicitly pinned.
 
 ## Parameters
 

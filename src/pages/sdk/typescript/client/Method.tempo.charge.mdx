@@ -63,7 +63,7 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 
 For non-zero Challenges, the client returns either a `transaction` or `hash` payload depending on `mode`. For zero-amount Challenges, it always returns a `proof` payload and skips transaction construction.
 
-The charge transaction's `validBefore` covers fractional-second Challenge expirations, so the transaction remains valid through the full Challenge lifetime.
+The charge transaction's `validBefore` covers fractional-second Challenge expirations, so the transaction remains valid through the full Challenge lifetime. Sponsored pull charges require at least 15 seconds of remaining Challenge validity before signing. The client checks again after asynchronous preparation; push and zero-amount Challenges are exempt.
 
 Set `currencies` and a per-charge amount cap before paying untrusted endpoints. The client skips offers that violate its currency, chain, recipient, or amount policy during Challenge selection and checks again before signing. Concurrent requests using the same Challenge and signer share one in-flight signing operation.
 
@@ -206,6 +206,22 @@ Allowlist of TIP-20 currency addresses, compared without case sensitivity. An em
 - **Type:** `number`
 
 Decimals shared by the allowed currencies. Required to parse `maxAmount` because a Challenge doesn't carry currency decimals.
+
+### feeToken (optional)
+
+- **Type:** `Address`
+
+TIP-20 token used to pay transaction fees for a charge without fee sponsorship. Set this when an access key's spending limit does not cover the default fee token. You can override it per request with `context.feeToken`. This option is available on upstream `mppx/main` and requires a package build that includes commit `20eca322`.
+
+```ts
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = tempo.charge({
+  account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
+  feeToken: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
+})
+```
 
 ### expectedChainId (optional)
 

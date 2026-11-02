@@ -311,6 +311,8 @@ Account or remote service for sponsoring transaction fees. Pass a viem `Account`
 
 This setting only applies to non-zero charges. Zero-amount proof flows do not create a transaction.
 
+Sponsored pull charge Challenges with a positive amount require at least 15 seconds of validity when issued. Push and zero-amount Challenges are exempt.
+
 ### feePayerPolicy (optional)
 
 - **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxInFlightReservations: number; maxInFlightTotalFee: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`

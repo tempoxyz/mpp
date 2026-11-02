@@ -69,12 +69,13 @@ const client = Mppx.create({
 
 ### Servers
 
-The server creates matching verifiers and requires them on each protected route. Each verifier resolves keys from an application-selected trust source. The [generic identity framework](/advanced/identity#use-the-framework-directly) also supports third-party identity protocols through its lower-level Client and Server APIs.
+The server creates matching verifiers and requires one accepted protocol on each protected route. Each verifier resolves keys from an application-selected trust source. The [generic identity framework](/advanced/identity#use-the-framework-directly) also supports third-party identity protocols through its lower-level Client and Server APIs.
 
 ```ts [server.ts]
 import * as Tap from 'mppx/extensions/identity/tap'
 import * as WebBotAuth from 'mppx/extensions/identity/web-bot-auth'
 import { Mppx, tempo } from 'mppx/server'
+import * as Identity from 'mppx/identity'
 
 const tap = Tap.Server.verifier({
   keyResolver: resolveTapKey,
@@ -87,7 +88,7 @@ const webBotAuth = WebBotAuth.Server.verifier({
 
 const server = Mppx.create({ methods: [tempo.charge()] })
 
-export const handler = server.charge({ amount: '1', identity: [tap, webBotAuth] })
+export const handler = server.charge({ amount: '1', identity: [Identity.anyOf(tap, webBotAuth)] })
 ```
 
 ## Extensible identity
