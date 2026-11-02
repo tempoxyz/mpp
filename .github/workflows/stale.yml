@@ -1,0 +1,34 @@
+name: Close Stale PRs
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # daily at midnight UTC
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    permissions:
+      actions: write # lets actions/stale delete its _state cache between runs
+      id-token: write
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Secure runner
+        uses: tempoxyz/gh-actions/actions/secure-runner@35019557465e3c38ee3468be171771fd73577584 # 2026-10-20T06-22-38Z-35019557
+      - uses: actions/stale@b5d41d4e1d5dceea10e7104786b73624c18a190f # v10.2.0
+        with:
+          days-before-pr-stale: 14
+          days-before-pr-close: 0
+          stale-pr-message: "This PR has had no activity for 14 days and is being closed as stale."
+          close-pr-message: "Closed due to inactivity. Reopen if still needed."
+          stale-pr-label: stale
+          exempt-draft-pr: false
+          operations-per-run: 300
+          days-before-issue-stale: -1
+          days-before-issue-close: -1
