@@ -17,8 +17,6 @@ Session top-up, voucher retry, close, and bootstrap send the Credential in the h
 
 Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
 
-`mppx` 0.13.0 removed the deprecated Legacy Sessions manager exports.
-
 ## Usage
 
 <Tabs stateKey="account-source">
@@ -389,74 +387,6 @@ const session = tempo.session.manager({
 ```
 
 When `bootstrap: true` is enabled, the manager first sends a same-route `HEAD` request if it has no active channel and no stored channel. Servers that enable bootstrap can answer with a `$0` identity Challenge and then return a `Payment-Session-Snapshot` header. The manager hydrates from that snapshot and persists it through `channelStore`.
-
-## Migrate from Legacy Sessions
-
-Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` in `mppx` 0.12.0 and earlier. Close or settle existing Legacy channels before upgrading because current Sessions don't share their channel state.
-
-Use `tempo.session.manager()` for direct lifecycle control, or `tempo()` when the same fetch wrapper handles one-time charges and Sessions.
-
-<Tabs stateKey="account-source">
-<Tab title="Accounts SDK">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { createClient, http } from 'viem'
-import { Provider } from 'accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
-
-const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
-await provider.request({ method: 'wallet_connect' })
-
-const { fetch: mppxFetch } = Mppx.create({
-  methods: [
-    tempo({
-      account: provider.getAccount({ signable: true }),
-      getClient: () =>
-        createClient({
-          chain: tempoMainnet,
-          transport: http('https://rpc.tempo.xyz'),
-        }),
-      maxDeposit: '1',
-    }),
-  ],
-  polyfill: false,
-})
-
-const response = await mppxFetch('https://api.example.com/resource')
-```
-
-</Tab>
-<Tab title="viem">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const { fetch: mppxFetch } = Mppx.create({
-  methods: [
-    tempo({
-      account,
-      getClient: () =>
-        createClient({
-          chain: tempoMainnet,
-          transport: http('https://rpc.tempo.xyz'),
-        }),
-      maxDeposit: '1',
-    }),
-  ],
-  polyfill: false,
-})
-
-const response = await mppxFetch('https://api.example.com/resource')
-```
-
-</Tab>
-</Tabs>
 
 ## Return type
 

@@ -17,10 +17,6 @@ Managed SSE and WebSocket streams check the live reserve state before charging o
 For a custom `tempo.Sse.serve()` integration, pass `beforeCharge: () => Promise<void>` to verify the live reserve state before charging and delivery.
 :::
 
-:::warning[Legacy Sessions]
-`mppx` 0.13.0 removed the deprecated Legacy Sessions client exports. Close or settle Legacy channels before upgrading because current Sessions don't share their channel state.
-:::
-
 ## Usage
 
 Creates OUSD-first offers with USDC.e as the mainnet fallback, or pathUSD with `testnet: true`. Set `currencies` to accept a different list.
@@ -63,10 +59,6 @@ const mppx = Mppx.create({
   ],
 })
 ```
-
-## Migrate from Legacy Sessions
-
-Legacy Sessions used a contract-backed channel flow. Close or settle those channels with the older SDK before upgrading. Then register `tempo.session()` on the server and `tempo.session()` or `tempo()` on clients. New Sessions advertise `sessionProtocol: "v2"` and use TIP-1034 reserve channels.
 
 ### With same-route bootstrap
 
@@ -518,7 +510,7 @@ const txHashes = await tempo.session.settleBatch(store, client, channelIds)
 
 ### `tempo.session.superviseCloses`
 
-Run close supervision on a schedule, for example every minute. Track channel IDs before their first charge and pass them to each run; the store does not list channels. Supervision reads one pinned block, answers payer close requests before Tempo's 900-second grace period ends, reopens cancelled closes, and finalizes channels from close events.
+Run close supervision on a schedule: every minute is recommended, and every 5 minutes is fine with few open channels. See [Close supervision](/payment-methods/tempo/session#close-supervision) for a complete setup. Track channel IDs before their first charge and pass them to each run; the store does not list channels. Supervision reads one pinned block, answers payer close requests before Tempo's 900-second grace period ends, reopens cancelled closes, and finalizes channels from close events.
 
 ```ts
 import { tempo } from 'mppx/server'
