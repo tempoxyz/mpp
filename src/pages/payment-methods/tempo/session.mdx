@@ -440,10 +440,6 @@ const method = tempo.session({
 
 `tempo.session.manager()` signs close Credentials for you. A custom client signs the close authorization with `Session.Precompile.Voucher.signCloseAuthorization()` from `mppx/tempo`; servers verify it with `verifyCloseAuthorization()`.
 
-### Migrate from Legacy Sessions
-
-`mppx` 0.13.0 removed the Legacy Sessions (Sessions v1) client exports. Legacy channels don't carry over, so close or settle them before you upgrade, then use `tempo.session()` on the server and `tempo()` or `tempo.session()` on the client.
-
 ## Reserve precompile
 
 Sessions use the [TIP-1034 precompile](https://tips.sh/1034) for deposits, settlement, top-ups, and closes. The IETF Specification documents the voucher format and HTTP flow.
