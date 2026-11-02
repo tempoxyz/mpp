@@ -11180,6 +11180,144 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Indo News API ────────────────────────────────────────────────────
+  {
+    id: "indo-news-api",
+    name: "Indo News API",
+    url: "https://indo-news-api.vercel.app",
+    serviceUrl: "https://indo-news-api.vercel.app",
+    description:
+      "Indonesian news and reference data for agents: headlines by topic, incremental delta feed, keyword search, ranked briefing, sentiment index per beat, brand media monitoring, and a full 8-topic digest. Also sells USD/IDR FX series for any pair, crypto prices in rupiah with the Indodax premium, BMKG earthquakes, public holidays, a one-call country snapshot, written coverage reports, and 30-day call licences.",
+    icon: "https://indo-news-api.vercel.app/favicon.ico",
+    categories: ["media", "data", "search"],
+    integration: "third-party",
+    tags: [
+      "news",
+      "indonesia",
+      "sentiment",
+      "media-monitoring",
+      "fx",
+      "earthquakes",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://indo-news-api.vercel.app",
+      llmsTxt: "https://indo-news-api.vercel.app/llms.txt",
+      apiReference: "https://indo-news-api.vercel.app/openapi.json",
+    },
+    provider: {
+      name: "Indo News API",
+      url: "https://indo-news-api.vercel.app",
+    },
+    realm: "indo-news-api.vercel.app",
+    intent: "charge",
+    payments: [
+      {
+        method: "tempo",
+        currency: "0x20c0000000000000000000006a37DA5C996874BE",
+        decimals: 6,
+      },
+    ],
+    endpoints: [
+      {
+        route: "GET /headlines",
+        desc: "Top Indonesian headlines by topic (25 per call)",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /feed",
+        desc: "Incremental news feed: only articles newer than the ?since cursor",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /search",
+        desc: "Keyword search across Indonesian news (up to 25 deduped articles)",
+        amount: "100000",
+        unitType: "request",
+      },
+      {
+        route: "GET /briefing",
+        desc: "Ranked briefing with keyword trends and top sources",
+        amount: "500000",
+        unitType: "request",
+      },
+      {
+        route: "GET /sentiment",
+        desc: "News sentiment index (0-100) for one beat",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /digest",
+        desc: "Full 8-topic Indonesia digest in one call",
+        amount: "2500000",
+        unitType: "request",
+      },
+      {
+        route: "GET /monitor",
+        desc: "Brand coverage monitor with 7-day timeline",
+        amount: "1000000",
+        unitType: "request",
+      },
+      {
+        route: "GET /indonesia",
+        desc: "Compact Indonesia snapshot: FX, crypto, quake and holiday in one call",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /fx",
+        desc: "Currency pair reference rate with a 30-day daily series (USD/IDR default)",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /crypto",
+        desc: "Crypto prices in Indonesian rupiah from Indodax",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /premium",
+        desc: "Indodax rupiah price versus global USD price premium per coin",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /quake",
+        desc: "Latest BMKG earthquakes with magnitude, depth and region",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /holidays",
+        desc: "Indonesian national holidays and joint leave days by year",
+        amount: "50000",
+        unitType: "request",
+      },
+      {
+        route: "GET /report/buy",
+        desc: "Written 30-day coverage report (HTML + JSON)",
+        amount: "49000000",
+        unitType: "request",
+      },
+      {
+        route: "GET /license/pilot",
+        desc: "30-day licence: 1,000 calls on every data endpoint",
+        amount: "99000000",
+        unitType: "request",
+      },
+      {
+        route: "GET /license/growth",
+        desc: "30-day licence: 10,000 calls on every data endpoint",
+        amount: "399000000",
+        unitType: "request",
+      },
+    ],
+  },
 ];
 
 export {
