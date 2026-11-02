@@ -15,120 +15,92 @@ import { SpecCard } from '../../../components/SpecCard'
 <SigningAccountTabs />
 
 
-The `session` intent enables high-frequency, pay-as-you-go payments over unidirectional payment channels. Sessions use the [TIP-1034](https://tips.sh/1034) precompile for low cost and high reliability. Clients deposit funds into a channel reserve and sign off-chain vouchers as they consume resources. The server verifies vouchers with fast signature checks—no RPC or blockchain calls—and settles periodically in batches.
+Sessions let a client pay per request, per token, or per byte without an on-chain transaction for each payment. The client locks up a deposit in a payment channel once, then signs off-chain vouchers as it uses your service. Your server checks each voucher with a signature check—no RPC call—and settles on-chain in batches.
 
-Payment sessions reduce payment verification to near constant time, making it possible to meter and bill at the granularity of individual LLM tokens, API calls, or bytes transferred.
-
-:::warning[Legacy integrations]
-`mppx` 0.13.0 removed the deprecated Legacy Sessions client exports. Close or settle Legacy channels before upgrading because current TIP-1034 Sessions don't share their channel state.
-:::
-
-## Which client API should I use?
-
-There are two current Sessions client APIs:
-
-| API | Use it when |
-|---|---|
-| `tempo({ account, maxDeposit })` | You want a fetch wrapper that handles both one-time charges and Sessions. This expands to `tempo.charge()` plus the current `tempo.session()` client method. |
-| `tempo.session({ account, maxDeposit })` | You want to register only the current Sessions client method in `Mppx.create`. |
-| `tempo.session.manager({ account, maxDeposit })` | You want direct lifecycle control with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`. Use this when your code must explicitly close or top up a channel. |
-
-For browser reloads or app restarts, pass a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore) to `tempo.session.manager()`. Servers can pair this with [`bootstrap: true`](/sdk/typescript/server/Method.tempo.session#with-same-route-bootstrap) so clients lazily recover a previous channel from the same protected route before opening a new one.
-
-## Why Sessions matter in MPP
-
-Traditional payment rails target human purchase flows: a buyer decides, pays, and receives goods. Usage-based billing—the model that powers cloud infrastructure, LLM APIs, and metered services—requires something fundamentally different. It needs payment verification that can keep pace with the service itself.
-
-Consider an LLM API: a single inference request can generate hundreds of tokens over several seconds. Each token has a known cost, but the total cost isn't known when the request begins. Standard billing models handle this by accumulating usage and charging after the fact, introducing credit risk, reconciliation complexity, and billing disputes. Prepaid credit systems require the client to guess consumption upfront and lose unused funds.
-
-Sessions solve this by making payment a continuous, inline part of the HTTP request. The client signs a cumulative voucher for each increment of service consumed, and the server verifies it in microseconds. The server delays on-chain settlement to whenever it chooses, batching hundreds or thousands of vouchers into a single on-chain transaction. This reduces both the latency and the cost of payment verification to near zero.
+Use Sessions for metered usage: LLM tokens, repeated API calls, or streams. For single API calls or one-off purchases, use [charge](/payment-methods/tempo/charge).
 
 ## How it works
-
-### Overview
 
 <MermaidDiagram chart={`sequenceDiagram
     participant Client
     participant Server
     participant Tempo
-    Client->>Tempo: (1) Deposit tokens
-    Tempo-->>Client: Session created
+    Client->>Tempo: (1) Open channel with deposit
     Client->>Server: (2) Open Credential
-    Note over Server: verify deposit
-    Server-->>Client: 200 OK (session established)
+    Server-->>Client: 200 OK + Receipt
     loop Per request
         Client->>Server: (3) Request + voucher
-        Note over Server: recover signature
+        Note over Server: verify signature
         Server-->>Client: 200 OK + Receipt
     end
-    Note over Server: (4) Periodic settlement
-    Server->>Tempo: settle(channelId, voucher)
+    Server->>Tempo: (4) Settle highest voucher
     Client->>Server: (5) Close
     Server->>Tempo: close(channelId, voucher)
     Tempo-->>Client: Refund remaining deposit
 `} />
 
-A payment session has four phases:
-
 ::::steps
 
 ### Open
 
-The client deposits funds into a channel reserve through the [TIP-1034 precompile](https://tips.sh/1034), creating a payment channel between the client (payer) and server (payee). A unique `channelId` identifies the channel and tracks the deposited stablecoins.
+The client deposits stablecoins into a channel on the [TIP-1034 precompile](https://tips.sh/1034). The channel is between the client (payer) and your server (payee), and a `channelId` identifies it.
 
-### Session
+### Pay with vouchers
 
-The client signs vouchers with increasing cumulative amounts as service is consumed. Each voucher authorizes "I have now consumed up to X total." The server verifies the signature, checks that the cumulative amount is higher than the previous voucher, and grants access based on the delta.
+For each request, the client signs a voucher for the new cumulative total: "I have now used up to X." Your server checks the signature and that the total went up, then charges the difference.
 
-### Top up
+### Settle
 
-If the channel runs low on funds, the client tops up the channel without closing it. The session continues uninterrupted.
+Your server submits the highest voucher on-chain to collect what the client spent. The channel stays open. Settlement runs on a schedule you choose; see [Settlement](#settlement).
 
-### Close
+### Top up or close
 
-Either party can close the channel. The server closes the precompile-backed channel with the highest voucher, settling the final balance on-chain and refunding any unused deposit to the client.
-
-A cooperative close Credential includes the latest voucher signature and a separate `closeSignature` that authorizes the close action. `tempo.session.manager()` creates both automatically. Custom protocol clients can use `Session.Precompile.Voucher.signCloseAuthorization()` from `mppx/tempo`; servers can verify it with `verifyCloseAuthorization()`.
+When the deposit runs low, the client tops up without closing the channel. When the client is done, it closes the channel: your server settles the final amount and the rest of the deposit goes back to the client.
 
 ::::
 
-## Session Receipts
+## Server
 
-Session Receipts differ from charge Receipts. The `reference` field contains the payment channel ID (a `bytes32` hash), not a transaction hash. The on-chain settlement transaction hash is only available after closing the channel.
+Use [`tempo.session`](/sdk/typescript/server/Method.tempo.session) to accept Sessions, and `mppx.session` in a request handler to charge for each request.
 
-```ts
-type SessionReceipt = {
-  acceptedCumulative: string
-  challengeId: string
-  channelId: `0x${string}`
-  intent: 'session'
-  method: 'tempo'
-  reference: string
-  spent: string
-  status: 'success'
-  timestamp: string
-  txHash?: `0x${string}`
-  units?: number
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account, // signs settlement and close transactions
+      chainId: 4217, // optional; pins Challenges to Tempo mainnet
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+      store: Store.memory(), // use a shared atomic store in production
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  // [!code hl:start]
+  const result = await mppx.session({
+    amount: '25',
+    unitType: 'llm_token',
+  })(request)
+  // [!code hl:end]
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
 }
 ```
 
-| Field | Charge Receipt | Session Receipt |
-|-------|---------------|-----------------|
-| `reference` | Transaction hash | Channel ID |
-| `status` | `"success"` | `"success"` |
-| `method` | `"tempo"` | `"tempo"` |
+`Store.memory()` works for local development. In production, every server instance must share one store with an atomic `update(key, fn)`: use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` over a backend that implements `update` atomically. These adapters don't add atomicity a backend lacks.
 
-To get the settlement transaction hash, close the channel via `session.close()` and read the `txHash` field from the returned Receipt.
+A production server also needs a [settlement schedule](#settlement) to collect spend and [close supervision](#close-supervision) to protect it.
 
-## Settlement
+### Settlement
 
-Sessions separate payment verification from on-chain settlement. During a request or stream, the client sends cumulative vouchers and the server records the highest valid voucher it has accepted. Settlement submits that highest voucher to the TIP-1034 precompile, updates the on-chain paid amount, and keeps the channel open for more usage unless the channel is closed.
-
-### Automatic settlement
-
-Use automatic settlement when the server should periodically settle accepted usage while a session remains active. The `settlementSchedule` is server-owned and can trigger by spend amount, metered units, or elapsed time. Clients don't receive the schedule and can't change it.
-
-Automatic settlement is the default operational model for high-volume APIs: the hot path stays off-chain, while the server settles in the background as usage accumulates.
+Set `settlementSchedule` so your server settles in the background as spend accumulates. Clients don't see or control the schedule. Settlement triggers when any threshold is crossed: `amount` (spend since the last settlement), `units` (metered units), or `intervalMs` (time since the last settlement).
 
 ```ts twoslash
 import { Mppx, Store, tempo } from 'mppx/server'
@@ -153,38 +125,9 @@ const mppx = Mppx.create({
 })
 ```
 
-Any threshold can trigger settlement. Use `amount` to settle after a token-denominated spend threshold, `units` to settle after metered usage, and `intervalMs` to settle after elapsed time since the previous scheduled settlement.
+The schedule applies to HTTP responses, SSE streams, and WebSocket streams. `mppx` checks it after each charge.
 
-The same schedule applies to ordinary HTTP responses, SSE streams, and session-bound WebSocket streams. `mppx` evaluates it after each committed charge.
-
-### Manual settlement
-
-Use manual settlement from an admin workflow, job queue, or close-out process when you want explicit control over timing. `tempo.session.settle` settles one channel by submitting its highest accepted voucher. `tempo.session.settleBatch` repeats that operation for a list of channel IDs.
-
-Manual settlement is useful for end-of-period reconciliation, draining channels before maintenance, or forcing settlement after detecting unusual channel activity.
-
-```ts twoslash
-import { Store, tempo } from 'mppx/server'
-import { createWalletClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-const store = Store.memory()
-
-const client = createWalletClient({
-  account,
-  chain: tempoMainnet,
-  transport: http('https://rpc.tempo.xyz'),
-})
-
-const channelId = '0x0000000000000000000000000000000000000000000000000000000000000000'
-const txHash = await tempo.session.settle(store, client, channelId, { account }) // [!code hl]
-console.log(txHash)
-// @log: 0x...
-```
-
-Settle multiple channels from the same job with `tempo.session.settleBatch`.
+To settle at a time you pick—for example, end-of-period reconciliation or before maintenance—call `tempo.session.settle` for one channel or `tempo.session.settleBatch` for several. Each submits the channel's highest accepted voucher.
 
 ```ts twoslash
 import { Store, tempo } from 'mppx/server'
@@ -266,102 +209,43 @@ async function supervise() {
     if (['closed', 'finalized', 'missing', 'unrecovered'].includes(outcome)) channelIds.delete(channelId)
 }
 
-setInterval(supervise, 60_000)
+// Schedule the next run after this one finishes, so runs never overlap and an RPC error doesn't crash the server.
+async function loop() {
+  try {
+    await supervise()
+  } catch (error) {
+    console.error('close supervision failed', error)
+  }
+  setTimeout(loop, 60_000)
+}
+loop()
 ```
 
-`superviseCloses` is a higher-level helper over the same on-chain reads and payee close that [manual settlement](#manual-settlement) uses; servers with their own channel bookkeeping can drive those directly instead. Close requests aren't pushed to servers, so polling on a schedule is the supported approach.
+`superviseCloses` is a higher-level helper over the same on-chain reads and payee close that [`tempo.session.settle`](#settlement) uses; servers with their own channel bookkeeping can drive those directly instead. Close requests aren't pushed to servers, so polling on a schedule is the supported approach.
 
-## High volume API billing
+### Receipts
 
-Sessions match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
+A Session Receipt's `reference` is the channel ID, not a transaction hash as in a charge Receipt. Closing the channel returns a Receipt whose `txHash` is the settlement transaction.
 
-A typical flow for a high-volume large language model API:
-
-1. **Client:** opens a channel with a 10 OUSD deposit
-2. **Client:** sends a prompt to the API
-3. **Server:** issues Challenges requesting payment for each chunk (for example, 0.000025 OUSD per token)
-4. **Client:** signs a voucher for each chunk—the cumulative amount increases by the cost of tokens received
-5. **Server:** verifies the voucher signature (~microseconds) and sends the next chunk
-6. **Server:** settles on-chain and the client gets the unused deposit back
-
-The server never touches the chain during inference. Payment verification adds microseconds of CPU overhead per chunk, not hundreds of milliseconds of network latency.
-
-:::info[Why Tempo]
-Tempo handles payments at scale and has properties that make it a uniquely good fit for payment sessions:
-
-- **Channel management UX**—Opening, topping up, and closing channels are on-chain operations. Tempo's ~500ms finality and sub-cent fees keep channel lifecycle from becoming a UX bottleneck.
-- **Payment lane**—Tempo's 2D nonce system provides dedicated nonce lanes for payment transactions, so channel operations don't block other account activity. Server-driven transactions use expiring nonce lanes, so independent processes can share a signer without relying on process-local nonce coordination.
-- **High throughput**—When a server settles thousands of channels, Tempo's throughput handles the settlement volume without congestion or fee spikes.
-- **Fee sponsorship**—Servers can pay channel management fees on behalf of clients, making the client-side integration purely off-chain after the initial deposit.
-- **Enshrined tokens**—TIP-20 tokens are precompile-based, not smart contracts. Token operations are cheaper and more predictable than ERC-20 interactions on other chains.
-- **Enshrined Tempo**—[TIP-1034](https://tips.sh/1034) makes Sessions a native Tempo precompile at the canonical `0x4D5050…` address, whose prefix spells "MPP". The precompile reduces execution overhead, removes the separate approval flow, and keeps session lifecycle operations in the payment lane under congestion.
-:::
-
-## Integration
-
-<Tabs stateKey="platform">
-  <Tab title="Server">
-  <div className="space-y-4">
-
-Use [`tempo.session`](/sdk/typescript/server/Method.tempo.session) to accept Sessions. The server needs an RPC URL for channel open, top-up, settlement, and close operations, plus an atomic store backend for channel state. The backend must implement atomic `update(key, fn)` across all server instances. The Redis, Upstash, and Cloudflare adapters only preserve an existing `update` implementation; they do not make standard clients atomic.
-
-```ts twoslash
-import { Mppx, Store, tempo } from 'mppx/server'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const mppx = Mppx.create({
-  methods: [
-    tempo.session({
-      account, // signs server-side reserve settlement and close transactions
-      chainId: 4217, // optional; pins Challenges to Tempo mainnet
-      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
-      store: Store.memory(), // use a durable AtomicStore in production
-    }),
-  ],
-})
-```
-
-`Store.memory()` works for local development. For multi-instance deployments, use `Store.redis()`, `Store.upstash()`, or `Store.cloudflare()` so channel state is shared across processes. Server-driven Session transactions use Tempo expiring nonce lanes to prevent a shared signing account from depending on one process's local nonce state.
-
-Use `mppx.session` in your request handler to meter access:
-
-```ts twoslash
-import { Mppx, Store, tempo } from 'mppx/server'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const mppx = Mppx.create({
-  methods: [
-    tempo.session({
-      account, // signs server-side reserve settlement and close transactions
-      chainId: 4217, // optional; pins Challenges to Tempo mainnet
-      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
-      store: Store.memory(), // use a durable AtomicStore in production
-    }),
-  ],
-})
-// ---cut---
-export async function handler(request: Request) {
-  const result = await mppx.session({
-    amount: '25',
-    unitType: 'llm_token',
-  })(request)
-
-  if (result.status === 402) return result.challenge
-
-  return result.withReceipt(Response.json({ data: '...' }))
+```ts
+type SessionReceipt = {
+  acceptedCumulative: string
+  challengeId: string
+  channelId: `0x${string}`
+  intent: 'session'
+  method: 'tempo'
+  reference: string // channel ID
+  spent: string
+  status: 'success'
+  timestamp: string
+  txHash?: `0x${string}` // on close
+  units?: number
 }
 ```
 
-  </div>
-  </Tab>
-  <Tab title="Client">
-  <div className="space-y-4">
+## Client
 
-Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mppx.create` when the same fetch wrapper should handle one-time charges and Sessions. The `tempo()` helper expands to both `tempo.charge()` and `tempo.session()`, so you don't need to declare Sessions separately.
+Use [`tempo`](/sdk/typescript/client/Method.tempo) with `Mppx.create`. It handles both one-time charges and Sessions: on a Session Challenge it opens a channel, signs vouchers, and reuses the channel across requests. `maxDeposit` caps how much it locks up per channel.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -383,7 +267,7 @@ const { fetch: mppxFetch } = Mppx.create({
 })
 
 const response = await mppxFetch('https://api.example.com/v1/chat/completions')
-// Automatically opens the channel reserve and signs vouchers per chunk
+// Opens the channel and signs vouchers automatically
 ```
 
 </Tab>
@@ -401,15 +285,66 @@ const { fetch: mppxFetch } = Mppx.create({
 })
 
 const response = await mppxFetch('https://api.example.com/v1/chat/completions')
-// Automatically opens the channel reserve and signs vouchers per chunk
+// Opens the channel and signs vouchers automatically
 ```
 
 </Tab>
 </Tabs>
 
-### With explicit Sessions
+### Closing the channel
 
-Register `tempo.session()` when this client should only handle Sessions. Use `tempo.session.manager()` for the standalone lifecycle manager shown in [closing the channel](#closing-the-channel).
+Channels don't close on their own: the deposit stays locked up until someone closes the channel. To close it and get the unspent deposit back, use `tempo.session.manager()` and call `close()`. The manager also exposes `.topUp()`, `.sse()`, and `.ws()`.
+
+<Tabs stateKey="account-source">
+<Tab title="Accounts SDK">
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { Provider } from 'accounts'
+
+const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
+await provider.request({ method: 'wallet_connect' })
+
+const session = tempo.session.manager({
+  account: provider.getAccount({ signable: true }),
+  getClient: provider.getClient,
+  maxDeposit: '1',
+})
+
+const response = await session.fetch('https://api.example.com/v1/chat/completions')
+const receipt = await session.close() // [!code hl]
+```
+
+</Tab>
+<Tab title="viem">
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+
+const session = tempo.session.manager({
+  account,
+  maxDeposit: '1',
+})
+
+const response = await session.fetch('https://api.example.com/v1/chat/completions')
+const receipt = await session.close() // [!code hl]
+```
+
+</Tab>
+</Tabs>
+
+See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manager) for the full lifecycle API.
+
+### Recovering channels after a restart
+
+To reuse a channel after a browser reload or app restart, pass a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore) to `tempo.session.manager()`. On the server, [`bootstrap: true`](/sdk/typescript/server/Method.tempo.session#with-same-route-bootstrap) lets a client find its previous channel before opening a new one.
+
+### Sessions only
+
+To handle only Sessions and not one-time charges, register `tempo.session()` instead of `tempo()`. To handle both with separate options, register `tempo.charge()` and `tempo.session()` side by side.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -464,125 +399,24 @@ const response = await mppx.fetch('https://api.example.com/v1/chat/completions')
 </Tab>
 </Tabs>
 
-### With multiple methods
+## Why Sessions
 
-Register multiple methods so the client can handle servers that offer multiple payment methods.
+Usage-based services—LLM APIs, cloud infrastructure, metered data—don't know the final cost when a request starts. Billing after the fact adds credit risk and reconciliation; prepaid credits make the client guess and strand unused funds.
 
-For example, to accept both charge and payment sessions:
+With Sessions, payment is part of each request. For an LLM API priced at 0.000025 OUSD per token, a client opens a channel with 10 OUSD, signs a voucher for each chunk it receives, and gets the unused deposit back when it closes. Your server never touches the chain during inference: each voucher costs microseconds of CPU, not a network round trip.
 
-<Tabs stateKey="account-source">
-<Tab title="Accounts SDK">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { Provider } from 'accounts'
-
-const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
-await provider.request({ method: 'wallet_connect' })
-
-Mppx.create({
-  methods: [
-    tempo.charge({
-      account: provider.getAccount({ signable: true }),
-      getClient: provider.getClient,
-    }),
-    // [!code hl:start]
-    tempo.session({
-      account: provider.getAccount({ signable: true }),
-      getClient: provider.getClient,
-      maxDeposit: '1',
-    }),
-    // [!code hl:end]
-  ],
-})
-```
-
-</Tab>
-<Tab title="viem">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-Mppx.create({
-  methods: [
-    tempo.charge({ account }),
-    tempo.session({ account, maxDeposit: '1' }), // [!code hl]
-  ],
-})
-```
-
-</Tab>
-</Tabs>
-
-### Closing the channel
-
-Use `tempo.session.manager()` when you want direct lifecycle control. Channels remain open for reuse across requests. Call `session.close()` to settle on-chain and reclaim unspent deposit.
-
-<Tabs stateKey="account-source">
-<Tab title="Accounts SDK">
-
-```ts twoslash
-import { tempo } from 'mppx/client'
-import { Provider } from 'accounts'
-
-const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
-await provider.request({ method: 'wallet_connect' })
-
-const session = tempo.session.manager({
-  account: provider.getAccount({ signable: true }),
-  getClient: provider.getClient,
-  maxDeposit: '1',
-})
-
-const response = await session.fetch('https://api.example.com/v1/chat/completions')
-const receipt = await session.close()
-```
-
-</Tab>
-<Tab title="viem">
-
-```ts twoslash
-import { tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const session = tempo.session.manager({
-  account,
-  maxDeposit: '1',
-})
-
-const response = await session.fetch('https://api.example.com/v1/chat/completions')
-const receipt = await session.close()
-```
-
-</Tab>
-</Tabs>
-
-:::warning
-Channels do not close automatically. If you don't call `close()`, the deposit stays reserved until the channel expires, the server closes it, or it is manually closed.
+:::info[Why Tempo]
+- **Fast, cheap channel operations**—Opening, topping up, and closing are on-chain. Tempo's ~500ms finality and sub-cent fees keep them out of the way.
+- **Payment lanes**—Channel transactions use dedicated nonce lanes, so they don't block other account activity, and several server processes can share one signing account.
+- **Fee sponsorship**—Your server can pay channel fees for clients, so after the deposit the client side is entirely off-chain.
+- **Native precompile**—[TIP-1034](https://tips.sh/1034) makes Sessions a Tempo precompile at `0x4D5050…` ("MPP"). It needs no token approval and stays in the payment lane under congestion.
 :::
 
-See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manager) for the full session lifecycle API.
+## Advanced options
 
-  </div>
-  </Tab>
-</Tabs>
+### Custom reserve contracts
 
-## Migrate from Legacy Sessions
-
-Legacy Sessions, also called Sessions v1, used a contract-backed channel flow. `mppx` 0.13.0 removes its deprecated client exports, and current Sessions use TIP-1034 reserve channels.
-
-- Close or settle Legacy channels before upgrading.
-- Upgrade servers to `tempo.session()` and clients to `tempo.session()` or `tempo()`.
-- Use `tempo.session.manager()` when application code needs explicit channel lifecycle control.
-
-## Custom reserve contracts
-
-Servers use the canonical TIP-1034 reserve precompile by default. If your server uses a custom deployment, set `escrowContract`; `mppx` advertises that address in every Session Challenge.
+Servers use the canonical TIP-1034 precompile by default. To use a custom deployment, set `escrowContract` on the server; `mppx` advertises it in every Session Challenge.
 
 ```ts
 const method = tempo.session({
@@ -593,25 +427,26 @@ const method = tempo.session({
 })
 ```
 
-Clients reject noncanonical addresses by default. Set `allowCustomEscrow: true` only when you trust the server to select the reserve contract.
+Clients reject noncanonical addresses by default. Set `allowCustomEscrow: true` only when you trust the server to pick the contract, or set `escrow` to pin the exact address you trust. A pin takes precedence, and an existing channel stays bound to its original address.
 
 ```ts
 const method = tempo.session({
   account,
   allowCustomEscrow: true,
 })
-
-const manager = tempo.session.manager({
-  account,
-  allowCustomEscrow: true,
-})
 ```
 
-For a stricter policy, set the client `escrow` option to the exact address you trust. This pin takes precedence over `allowCustomEscrow`. Persisted channels remain bound to their resolved reserve address, so a later Challenge can't switch an existing channel.
+### Custom clients
+
+`tempo.session.manager()` signs close Credentials for you. A custom client signs the close authorization with `Session.Precompile.Voucher.signCloseAuthorization()` from `mppx/tempo`; servers verify it with `verifyCloseAuthorization()`.
+
+### Migrate from Legacy Sessions
+
+`mppx` 0.13.0 removed the Legacy Sessions (Sessions v1) client exports. Legacy channels don't carry over, so close or settle them before you upgrade, then use `tempo.session()` on the server and `tempo()` or `tempo.session()` on the client.
 
 ## Reserve precompile
 
-Sessions use the [TIP-1034 precompile](https://tips.sh/1034) for on-chain deposits, settlement, top-ups, and channel close. The IETF Specification documents the voucher format and HTTP authentication flow.
+Sessions use the [TIP-1034 precompile](https://tips.sh/1034) for deposits, settlement, top-ups, and closes. The IETF Specification documents the voucher format and HTTP flow.
 
 | Network | Chain ID | Precompile address |
 |---|---|---|
