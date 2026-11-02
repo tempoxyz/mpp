@@ -1,16 +1,14 @@
 ---
 title: "Rust SDK for MPP"
 description: "Use the Rust SDK to build MPP clients and servers with typed Challenge, Credential, and Receipt primitives."
-imageDescription: "High-performance MPP library for Rust"
+imageDescription: "Build paid Rust clients and servers"
 ---
 
 import * as SdkBadge from '../../../components/SdkBadge'
 
 # Rust SDK [The mpp Rust library]
 
-## Overview
-
-The `mpp` Rust library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+The `mpp` crate provides payment-aware HTTP clients, server verification, and protocol primitives.
 
 <div className="flex gap-2">
   <SdkBadge.GitHub repo="tempoxyz/mpp-rs" />
@@ -20,43 +18,32 @@ The `mpp` Rust library provides a typed interface over the Machine Payments Prot
 ## Install
 
 ```bash [test.sh]
-$ cargo add mpp
-```
-
-With Tempo blockchain support:
-
-```bash [test.sh]
 $ cargo add mpp --features tempo,client,server
 ```
 
-## Requirements
-
-- Rust 1.75+
-- `reqwest` for HTTP requests
-- `alloy` for Tempo signing (with the `tempo` feature)
+Add `middleware` for `reqwest-middleware`, `axum` for the Axum extractor, or `ws` for WebSocket sessions.
 
 ## Quick start
 
 ### Server
 
 ```rust
-use mpp::server::{Mpp, tempo, TempoConfig};
-use mpp::{parse_authorization, format_www_authenticate};
+use mpp::server::{tempo, Mpp, TempoConfig};
+use mpp::{format_www_authenticate_many, parse_authorization};
 
-let mpp = Mpp::create(tempo(TempoConfig {
+let payment = Mpp::create(tempo(TempoConfig {
     recipient: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-}).currency("0x20c0000000000000000000006a37DA5C996874BE"))?;
+}))?;
 
-// Generate a Challenge for $0.50
-let challenge = mpp.charge("0.50")?;
-let header = format_www_authenticate(&challenge)?;
-// → respond with 402 + WWW-Authenticate header
+let challenges = payment.charge("0.50")?;
+let headers = format_www_authenticate_many(&challenges)?;
+// Return every header value with the 402 response.
 
-// Later, verify the Credential from the retry request
-let credential = parse_authorization(auth_header)?;
-let receipt = mpp.verify_credential(&credential).await?;
-// → respond with 200 + paid content
+let credential = parse_authorization(authorization)?;
+let receipt = payment.verify_charge(&credential, "0.50").await?;
 ```
+
+`charge` returns one Challenge per accepted currency. Return every value so the client can choose a supported stablecoin. `verify_charge` binds verification to the route price and rejects a Credential issued for another route.
 
 ### Client
 
@@ -64,41 +51,39 @@ let receipt = mpp.verify_credential(&credential).await?;
 use mpp::client::{Fetch, TempoProvider};
 use mpp::PrivateKeySigner;
 
-let signer: PrivateKeySigner = "0xac0974bec..."
-    .parse()?;
+let signer: PrivateKeySigner = "0xac0974bec...".parse()?;
 let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
 
-// Handles 402 automatically — pay and retry
 let response = reqwest::Client::new()
     .get("https://api.example.com/paid")
+    .header("Accept-Payment", "tempo/charge")
     .send_with_payment(&provider)
     .await?;
 ```
 
+Automatic payment requires an explicit request-level `Accept-Payment` header by default.
+
 ## Feature flags
 
 | Feature | Description |
-|---------|-------------|
-| `client` | Client-side providers, `Fetch` extension trait |
-| `evm` | Shared EVM utilities (Address, U256, signing) |
-| `middleware` | reqwest-middleware integration (implies `client`) |
-| `server` | Server verification, `ChargeMethod` trait |
-| `tempo` | Tempo blockchain support (includes `evm`) |
+|---|---|
+| `axum` | Axum extractors |
+| `client` | Client providers and the `Fetch` extension trait |
+| `evm` | Shared EVM types and signing |
+| `middleware` | `reqwest-middleware` integration |
+| `server` | Server verification |
+| `stripe` | Stripe Shared Payment Token support |
+| `tempo` | Tempo support, including `evm` |
+| `tower` | Tower server middleware |
+| `ws` | WebSocket transport |
 
 ### Common combinations
 
 ```toml
-# Client only
-mpp = { version = "0.13.0", features = ["tempo", "client"] }
-
-# Server only
-mpp = { version = "0.13.0", features = ["tempo", "server"] }
-
-# Both
-mpp = { version = "0.13.0", features = ["tempo", "client", "server"] }
-
-# With middleware
-mpp = { version = "0.13.0", features = ["tempo", "client", "middleware"] }
+mpp = { version = "0.18.1", features = ["client", "tempo"] }
+mpp = { version = "0.18.1", features = ["server", "tempo"] }
+mpp = { version = "0.18.1", features = ["client", "middleware", "tempo"] }
+mpp = { version = "0.18.1", features = ["axum", "server", "tempo"] }
 ```
 
 ## Next steps

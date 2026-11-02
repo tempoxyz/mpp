@@ -1,15 +1,13 @@
 ---
 description: "Use the Python SDK to build MPP clients and servers with typed Challenge, Credential, and Receipt primitives."
-imageDescription: "MPP client and server library for Python"
+imageDescription: "Add paid requests to Python applications"
 ---
 
 import * as SdkBadge from '../../../components/SdkBadge'
 
 # Python SDK [The pympp Python library]
 
-## Overview
-
-The `mpp` Python library provides a typed interface over the Machine Payments Protocol, from high-level abstractions to low-level primitives and building blocks.
+The `pympp` package provides payment-aware HTTP clients, server handlers, and protocol primitives.
 
 <div className="flex gap-2">
   <SdkBadge.GitHub repo="tempoxyz/pympp" />
@@ -19,80 +17,64 @@ The `mpp` Python library provides a typed interface over the Machine Payments Pr
 ## Install
 
 ```bash [test.sh]
-$ pip install pympp
-```
-
-With Tempo blockchain support:
-
-```bash [test.sh]
 $ pip install "pympp[tempo]"
 ```
 
-## Requirements
-
-- Python 3.11+
-- `httpx` for async HTTP
-- `eth-account` for Tempo signing (with `[tempo]` extra)
+`pympp` requires Python 3.11 or newer. The `tempo` extra installs Tempo signing dependencies.
 
 ## Quick start
 
 ### Server
 
 ```python [server.py]
-import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from mpp import Challenge
-from mpp.server import Mpp
-from mpp.methods.tempo import tempo, ChargeIntent
+from mpp import Credential, Receipt
+from mpp.methods.tempo import server as tempo
+from mpp.server import Mpp, pay
 
 app = FastAPI()
-
-mpp = Mpp.create(
-    method=tempo(
-        currency="0x20c0000000000000000000006a37DA5C996874BE", # OUSD on Tempo
-        intents={"charge": ChargeIntent()},
+payment = Mpp(
+    methods=tempo.charge(
         recipient="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     ),
-    secret_key=os.environ["MPP_SECRET_KEY"],
 )
 
 @app.get("/resource")
-async def get_resource(request: Request):
-    result = await mpp.charge(
-        authorization=request.headers.get("Authorization"),
-        amount="0.50",
-    )
-
-    if isinstance(result, Challenge):
-        return JSONResponse(
-            status_code=402,
-            content={"error": "Payment required"},
-            headers={"WWW-Authenticate": result.to_www_authenticate(mpp.realm)},
-        )
-
-    credential, receipt = result
-    return {"data": "paid content", "payer": credential.source}
+@pay(payment.charge(amount="0.50"))
+async def get_resource(
+    request: Request,
+    credential: Credential,
+    receipt: Receipt,
+):
+    return JSONResponse({"data": "paid content", "payer": receipt.payer})
 ```
-
-Set `MPP_SECRET_KEY` in your environment before you start the server, or pass `secret_key` explicitly to `Mpp.create()`.
 
 ### Client
 
 ```python [client.py]
-import asyncio
-from mpp.client import Client
-from mpp.methods.tempo import tempo, TempoAccount, ChargeIntent
+from mpp.client import Mpp
+from mpp.methods.tempo import OUSD, TempoAccount
+from mpp.methods.tempo import client as tempo
 
-async def main():
-    account = TempoAccount.from_env()
+account = TempoAccount.from_key("0x...")
+method = tempo.charge(
+    account=account,
+    allowed_chain_ids=[4217],
+    currency=OUSD,
+    max_amount="0.50",
+    max_amount_decimals=6,
+)
 
-    async with Client(methods=[tempo(account=account, intents={"charge": ChargeIntent()})]) as client:
-        response = await client.get("https://mpp.dev/api/ping/paid")
-        print(response.json())
-
-asyncio.run(main())
+async with Mpp(
+    allowed_origins=["https://api.example.com"],
+    methods=[method],
+) as payment:
+    response = await payment.fetch("https://api.example.com/resource")
+    print(response.json())
 ```
+
+Pin allowed origins, chains, currencies, recipients, and maximum amounts when the values are known. A Challenge realm is not an authenticated origin.
 
 ## Next steps
 

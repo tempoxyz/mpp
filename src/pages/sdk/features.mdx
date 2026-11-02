@@ -31,7 +31,7 @@ Additional payment methods implement their own SDKs. Refer to the maintaining or
 | Intent | TypeScript | Rust | Python | Go | Ruby |
 |---|---|---|---|---|---|
 | [Charge](/intents/charge) | ✓ | ✓ | ✓ | ✓ | ✓ |
-| [Session](/payment-methods/tempo/session) | ✓ | ✓ | — | — | — |
+| [Session](/payment-methods/tempo/session) | ✓ | ✓ | ✓ | — | — |
 | [Subscription](/intents/subscription) | ✓ | — | — | — | — |
 
 ## Transports
@@ -46,7 +46,7 @@ Additional payment methods implement their own SDKs. Refer to the maintaining or
 | Role | TypeScript | Rust | Python | Go | Ruby |
 |---|---|---|---|---|---|
 | **Client** | fetch | reqwest | httpx | `http.RoundTripper` | async-http |
-| **Server** | Elysia, Express, Hono, Next.js | Axum, Tower | Decorator (`@server.pay`) | `net/http`, Chi, Echo, Fiber, Gin | Rack |
+| **Server** | Elysia, Express, Hono, Next.js | Axum, Tower | FastAPI, Starlette, Django, Flask (`@pay`) | `net/http`, Chi, Echo, Fiber, Gin | Rack |
 
 ### MCP framework integrations
 
@@ -65,6 +65,6 @@ Additional payment methods implement their own SDKs. Refer to the maintaining or
 | Fee payer co-signing | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `hash` payload type | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `proof` payload type | ✓ | ✓ | — | ✓ | ✓ |
-| Session channels (open/voucher/topUp/close) | ✓ | ✓ | — | — | — |
+| Session channels (open/voucher/topUp/close) | ✓ | ✓ | ✓ | — | — |
 | SSE metered streaming | ✓ | ✓ | — | — | — |
 | `transaction` payload type | ✓ | ✓ | ✓ | ✓ | ✓ |
