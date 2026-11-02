@@ -11207,47 +11207,74 @@ export const services: ServiceDef[] = [
     payments: [TEMPO_PAYMENT],
     endpoints: [
       {
-        healthCheck: { body: { domain: "example.com", keywords: ["best running shoes"], country: "US" } },
+        healthCheck: {
+          body: {
+            domain: "example.com",
+            keywords: ["best running shoes"],
+            country: "US",
+          },
+        },
         route: "POST /check_google_rankings",
         desc: "Google rank checker: live Google position and ranking URL of a domain for up to 10 keywords",
         dynamic: true,
-        amountHint: "$0.018 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.018 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { keyword: "seo mcp server", country: "US", depth: 10 } },
+        healthCheck: {
+          body: { keyword: "seo mcp server", country: "US", depth: 10 },
+        },
         route: "POST /get_google_serp",
         desc: "Google SERP API: live Google top 100 results, SERP features and AI Overview sources for a keyword",
         dynamic: true,
-        amountHint: "$0.012 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.012 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { keyword: "keyword research api", country: "US" } },
+        healthCheck: {
+          body: { keyword: "keyword research api", country: "US" },
+        },
         route: "POST /get_bing_serp",
         desc: "Bing SERP API: live Bing top 100 organic results for a keyword and country",
         dynamic: true,
-        amountHint: "$0.01 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.01 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { keyword: "how to submit a sitemap to google", country: "US", domain: "example.com" } },
+        healthCheck: {
+          body: {
+            keyword: "how to submit a sitemap to google",
+            country: "US",
+            domain: "example.com",
+          },
+        },
         route: "POST /get_ai_overview_sources",
         desc: "Google AI Overview API: whether an AI Overview shows for a keyword and every page it cites",
         dynamic: true,
-        amountHint: "$0.012 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.012 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { keyword: "plumber", location: "Austin,Texas,United States", business: "Example Plumbing" } },
+        healthCheck: {
+          body: {
+            keyword: "plumber",
+            location: "Austin,Texas,United States",
+            business: "Example Plumbing",
+          },
+        },
         route: "POST /check_google_maps_rankings",
         desc: "Google Maps rank checker: live local results with rating and reviews for a keyword in a city",
         dynamic: true,
-        amountHint: "$0.012 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.012 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
@@ -11256,16 +11283,20 @@ export const services: ServiceDef[] = [
         route: "POST /get_keyword_search_volume",
         desc: "Keyword search volume API: monthly searches, CPC, difficulty and trend for up to 200 keywords",
         dynamic: true,
-        amountHint: "$0.0303 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.0303 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { seeds: ["trail running shoes"], country: "US", limit: 10 } },
+        healthCheck: {
+          body: { seeds: ["trail running shoes"], country: "US", limit: 10 },
+        },
         route: "POST /find_keyword_ideas",
         desc: "Keyword ideas API: up to 500 related keywords with search volume, CPC and difficulty",
         dynamic: true,
-        amountHint: "$0.033 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.033 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
@@ -11274,7 +11305,8 @@ export const services: ServiceDef[] = [
         route: "POST /get_keyword_difficulty",
         desc: "Keyword difficulty API: Google ranking difficulty from 0 to 100 for up to 500 keywords",
         dynamic: true,
-        amountHint: "$0.0303 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.0303 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
@@ -11283,7 +11315,8 @@ export const services: ServiceDef[] = [
         route: "POST /check_backlinks",
         desc: "Backlink checker API: total backlinks, referring domains, spam score and top backlinks of a site",
         dynamic: true,
-        amountHint: "$0.12 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.12 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
@@ -11292,7 +11325,8 @@ export const services: ServiceDef[] = [
         route: "POST /get_referring_domains",
         desc: "Referring domains API: the domains linking to a site or URL, strongest first",
         dynamic: true,
-        amountHint: "$0.0601 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.0601 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
@@ -11301,34 +11335,48 @@ export const services: ServiceDef[] = [
         route: "POST /get_backlink_anchors",
         desc: "Backlink anchor text API: the anchor texts of links pointing to a site or URL",
         dynamic: true,
-        amountHint: "$0.0601 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.0601 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { target: "example.com", country: "US", limit: 10 } },
+        healthCheck: {
+          body: { target: "example.com", country: "US", limit: 10 },
+        },
         route: "POST /get_ranked_keywords",
         desc: "Ranked keywords API: the Google keywords a domain ranks for, with position, volume and traffic",
         dynamic: true,
-        amountHint: "$0.033 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.033 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { competitor: "competitor.example", yourDomain: "example.com", limit: 10 } },
+        healthCheck: {
+          body: {
+            competitor: "competitor.example",
+            yourDomain: "example.com",
+            limit: 10,
+          },
+        },
         route: "POST /find_competitor_keywords",
         desc: "Keyword gap API: keywords a competitor ranks for in Google that your domain does not",
         dynamic: true,
-        amountHint: "$0.033 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.033 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { domain: "example.com", country: "US", limit: 5 } },
+        healthCheck: {
+          body: { domain: "example.com", country: "US", limit: 5 },
+        },
         route: "POST /find_competitor_domains",
         desc: "SEO competitor finder: the domains competing with a site in Google organic search",
         dynamic: true,
-        amountHint: "$0.0315 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.0315 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
@@ -11337,7 +11385,8 @@ export const services: ServiceDef[] = [
         route: "POST /run_seo_site_audit",
         desc: "SEO site audit API: on-page and technical SEO checks for up to 5 page URLs",
         dynamic: true,
-        amountHint: "$0.01 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.01 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
@@ -11346,7 +11395,8 @@ export const services: ServiceDef[] = [
         route: "POST /get_page_speed_scores",
         desc: "Page speed API: Lighthouse scores and Core Web Vitals (LCP, CLS, TBT, FCP) for a page",
         dynamic: true,
-        amountHint: "$0.015 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.015 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
@@ -11355,25 +11405,40 @@ export const services: ServiceDef[] = [
         route: "POST /get_google_business_profile",
         desc: "Google Business Profile API: rating, review count, category and contact details of a business",
         dynamic: true,
-        amountHint: "$0.018 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.018 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { prompt: "best trail running shoes", brand: "Example", domain: "example.com" } },
+        healthCheck: {
+          body: {
+            prompt: "best trail running shoes",
+            brand: "Example",
+            domain: "example.com",
+          },
+        },
         route: "POST /check_chatgpt_brand_mentions",
         desc: "ChatGPT brand mention checker: whether ChatGPT names your brand for a buyer prompt, with sources",
         dynamic: true,
-        amountHint: "$0.09 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.09 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
       {
-        healthCheck: { body: { prompt: "best trail running shoes", brand: "Example", domain: "example.com" } },
+        healthCheck: {
+          body: {
+            prompt: "best trail running shoes",
+            brand: "Example",
+            domain: "example.com",
+          },
+        },
         route: "POST /check_perplexity_brand_mentions",
         desc: "Perplexity brand mention checker: whether Perplexity names your brand for a prompt, with sources",
         dynamic: true,
-        amountHint: "$0.09 for the example request; the 402 quotes the exact price",
+        amountHint:
+          "$0.09 for the example request; the 402 quotes the exact price",
         unitType: "request",
         docs: "https://docs.crakseo.com/pricing/pay-per-call",
       },
