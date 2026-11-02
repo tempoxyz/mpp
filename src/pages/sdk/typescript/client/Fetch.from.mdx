@@ -122,7 +122,7 @@ type ReturnType = (
 ) => Promise<Response>
 ```
 
-A zero-amount Tempo proof is signed only when the Challenge realm matches the responding server's hostname. If your server uses a different realm, pin it to the origin with `trustedTempoProofRealms`. MCP has no server origin, so every proof realm must be explicitly pinned.
+A zero-amount Tempo proof is signed only when the Challenge realm matches the responding server's hostname. If your server uses a different realm, pin it to the origin with `trustedTempoProofRealms`. Native MCP transports have no server origin, so every proof realm must be explicitly pinned.
 
 ## Parameters
 

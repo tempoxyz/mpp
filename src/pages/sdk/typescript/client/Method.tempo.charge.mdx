@@ -207,22 +207,6 @@ Allowlist of TIP-20 currency addresses, compared without case sensitivity. An em
 
 Decimals shared by the allowed currencies. Required to parse `maxAmount` because a Challenge doesn't carry currency decimals.
 
-### feeToken (optional)
-
-- **Type:** `Address`
-
-TIP-20 token used to pay transaction fees for a charge without fee sponsorship. Set this when an access key's spending limit does not cover the default fee token. You can override it per request with `context.feeToken`. This option is available on upstream `mppx/main` and requires a package build that includes commit `20eca322`.
-
-```ts
-import { tempo } from 'mppx/client'
-import { privateKeyToAccount } from 'viem/accounts'
-
-const method = tempo.charge({
-  account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
-  feeToken: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
-})
-```
-
 ### expectedChainId (optional)
 
 - **Type:** `number`
@@ -313,6 +297,22 @@ const method = tempo.charge({
 </Tab>
 </Tabs>
 
+
+### feeToken (optional)
+
+- **Type:** `Address`
+
+TIP-20 token used to pay transaction fees for a charge without fee sponsorship. Set this when an access key's spending limit does not cover the default fee token. You can override it per request with `context.feeToken`. This option is available on upstream `mppx/main` and requires a package build that includes commit `20eca322`.
+
+```ts
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = tempo.charge({
+  account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
+  feeToken: '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
+})
+```
 
 ### getClient (optional)
 

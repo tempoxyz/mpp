@@ -717,12 +717,6 @@ Token decimals used to convert `maxDeposit` to raw units.
 
 Exact reserve contract address pin. The server-advertised address must match this value, even when `allowCustomEscrow` is `true`.
 
-### trustedTempoProofRealms (optional)
-
-- **Type:** `Readonly<Record<string, string>>`
-
-Pins the realm of a zero-amount Tempo bootstrap proof to the server origin when the realm differs from its hostname.
-
 ### fetch (optional)
 
 - **Type:** `typeof globalThis.fetch`
@@ -749,6 +743,12 @@ Automatic and manual funding decisions are serialized for managers sharing a sto
 - **Type:** `string`
 
 Preferred automatic top-up size in human-readable units. When omitted, `mppx` uses a bounded server `suggestedDeposit`, then the exact shortfall.
+
+### trustedTempoProofRealms (optional)
+
+- **Type:** `Readonly<Record<string, string>>`
+
+Pins the realm of a zero-amount Tempo bootstrap proof to the server origin when the realm differs from its hostname.
 
 ### webSocket (optional)
 
