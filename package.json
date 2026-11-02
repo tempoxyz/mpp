@@ -74,7 +74,6 @@
     "react-server-dom-webpack": "~19.3.0",
     "shiki": "4.1.0",
     "simple-git-hooks": "^2.13.1",
-    "tiktoken": "^1.0.22",
     "tsx": "^4.21.0",
     "typescript": "^6",
     "unplugin-icons": "^23.0.1",
