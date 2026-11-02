@@ -518,7 +518,7 @@ const txHashes = await tempo.session.settleBatch(store, client, channelIds)
 
 ### `tempo.session.superviseCloses`
 
-Run close supervision on a schedule, for example every minute. Track channel IDs before their first charge and pass them to each run; the store does not list channels. Supervision reads one pinned block, answers payer close requests before Tempo's 900-second grace period ends, reopens cancelled closes, and finalizes channels from close events.
+Run close supervision on a schedule: every minute is recommended, and every 5 minutes is fine with few open channels. See [Close supervision](/payment-methods/tempo/session#close-supervision) for a complete setup. Track channel IDs before their first charge and pass them to each run; the store does not list channels. Supervision reads one pinned block, answers payer close requests before Tempo's 900-second grace period ends, reopens cancelled closes, and finalizes channels from close events.
 
 ```ts
 import { tempo } from 'mppx/server'

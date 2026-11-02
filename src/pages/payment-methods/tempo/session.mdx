@@ -211,6 +211,66 @@ console.log(txHashes)
 // @log: ['0x...', '0x...']
 ```
 
+### Close supervision
+
+A payer can request a close on-chain without going through your server, for example when its client crashes or stops paying. After Tempo's 900-second close grace period ends, the payer can withdraw the whole deposit, including spend your server accepted but hasn't settled. An idle channel gets no requests your server could react to, so run close supervision on every server that accepts Sessions.
+
+Run [`tempo.session.superviseCloses`](/sdk/typescript/server/Method.tempo.session#temposessionsupervisecloses) on a schedule. Each run reads the on-chain reserve of the channels you pass it and answers every close request with a payee close that captures what the channel spent, refunding the rest to the payer.
+
+- **Schedule:** run it every minute, as Tempo's own services do. Every 5 minutes is fine while you have few open channels; keep the interval plus a run's duration well inside the 900-second grace period, and shorten it as open channels grow.
+- **Where:** a timer in your server process, or any cron (Cloudflare Workers cron triggers, Vercel Cron Jobs, a Kubernetes CronJob). It needs the same `store` and settlement `account` as `tempo.session()`.
+- **Channel IDs:** the store can't list channels, so record each channel ID when it is first charged (a Session Receipt's `reference` is the channel ID) and drop it after a run reports it `closed`, `finalized`, `missing` or `unrecovered`.
+- **Monitoring:** save `result.block` as `previousBlock` only when `result.complete` is true, and alert when the last complete run's `result.timestamp` grows older than a few intervals.
+
+```ts twoslash
+import { Mppx, Store, tempo } from 'mppx/server'
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo as tempoMainnet } from 'viem/chains'
+
+const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
+const client = createWalletClient({
+  account,
+  chain: tempoMainnet,
+  transport: http('https://rpc.tempo.xyz'),
+})
+const store = Store.memory()
+
+// Keep these in your database so they survive restarts.
+const channelIds = new Set<`0x${string}`>()
+let previousBlock: bigint | undefined
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.session({
+      account,
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+      onPaymentSuccess({ receipt }) { // [!code hl:start]
+        channelIds.add(receipt.reference as `0x${string}`)
+      }, // [!code hl:end]
+      store,
+    }),
+  ],
+})
+
+async function supervise() {
+  const result = await tempo.session.superviseCloses({ // [!code hl:start]
+    account,
+    channelIds,
+    client,
+    previousBlock,
+    store,
+  }) // [!code hl:end]
+  if (result.complete) previousBlock = result.block
+  for (const { channelId, outcome } of result.channels)
+    if (['closed', 'finalized', 'missing', 'unrecovered'].includes(outcome)) channelIds.delete(channelId)
+}
+
+setInterval(supervise, 60_000)
+```
+
+`superviseCloses` is a higher-level helper over the same on-chain reads and payee close that [manual settlement](#manual-settlement) uses; servers with their own channel bookkeeping can drive those directly instead. Close requests aren't pushed to servers, so polling on a schedule is the supported approach.
+
 ## High volume API billing
 
 Sessions match the billing model that high-volume APIs need: pay stablecoin tokens, receive API responses. The granularity of payment matches the granularity of consumption.
