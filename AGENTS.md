@@ -63,6 +63,7 @@ vocs.config.ts     — config file
 
 ### Rules
 
+- **Leave blog posts alone in broad changes**: sweeping edits (renames, deprecations, terminology or style passes) don't change the prose of `src/pages/blog/` posts unless the request names the blog. Posts are dated records. Still update blog code a change breaks (imports, component usage, twoslash snippets) so the site builds and types check.
 - **Alphabetize everything**: object properties in code examples and `###` parameter headings must be alphabetically ordered.
 - **Install code-groups must include npm, pnpm, and bun**: every `:::code-group` with install commands must have all three tabs: `npm`, `pnpm`, and `bun`. Use `npm install`, `pnpm add`, and `bun add` respectively.
 - **No `// @noErrors` in twoslash**: NEVER use `// @noErrors` in twoslash code blocks. All snippets must typecheck against the installed mppx types. If a snippet fails, fix the snippet or bump the mppx version; do not suppress the error.
