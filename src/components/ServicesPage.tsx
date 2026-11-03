@@ -30,6 +30,42 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   web: "Web",
 };
 export const PAGE_SIZE = 60;
+/** OUSD on Tempo: the same address on mainnet (4217) and Moderato (42431). */
+export const OUSD_ADDRESS = "0x20c0000000000000000000006a37DA5C996874BE";
+
+export type ServiceBadge = "ousd" | "sessions";
+export const SERVICE_BADGES: readonly ServiceBadge[] = ["ousd", "sessions"];
+export const BADGE_LABELS: Record<ServiceBadge, string> = {
+  ousd: "OUSD",
+  sessions: "Sessions",
+};
+
+/** Badges derived from the service's advertised Tempo payment method. */
+export function serviceBadges(
+  service: Pick<Service, "methods">,
+): ServiceBadge[] {
+  const tempo = service.methods?.tempo;
+  if (!tempo) return [];
+  const badges: ServiceBadge[] = [];
+  const ousd = OUSD_ADDRESS.toLowerCase();
+  if (tempo.assets?.some((asset) => asset.toLowerCase() === ousd)) {
+    badges.push("ousd");
+  }
+  if (tempo.intents?.includes("session")) badges.push("sessions");
+  return badges;
+}
+
+/** Keeps services that carry every one of the given badges. */
+export function filterByBadges<T extends Pick<Service, "methods">>(
+  services: readonly T[],
+  badges: readonly ServiceBadge[],
+): T[] {
+  if (!badges.length) return [...services];
+  return services.filter((service) => {
+    const has = serviceBadges(service);
+    return badges.every((badge) => has.includes(badge));
+  });
+}
 export const PINNED_IDS: string[] = [
   "openai",
   "alchemy",
@@ -80,6 +116,29 @@ export function formatPrice(endpoint: Endpoint): string {
 
 const categoryLabel = (service: Service) =>
   service.categories?.[0] ? CATEGORY_LABELS[service.categories[0]] : "Service";
+export function ServiceBadges({
+  className,
+  service,
+}: {
+  className?: string;
+  service: Pick<Service, "methods">;
+}) {
+  const badges = serviceBadges(service);
+  if (!badges.length) return null;
+  return (
+    <span className={cx("flex flex-wrap gap-1.5", className)}>
+      {badges.map((badge) => (
+        <span
+          className="inline-flex items-center border border-border bg-[#101010] px-2 py-0.5 font-mono text-xs uppercase leading-4 tracking-[-0.12px] text-secondary"
+          key={badge}
+        >
+          {BADGE_LABELS[badge]}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 const serviceUrl = (service: Service) => service.serviceUrl ?? service.url;
 export const providerUrl = (service: Pick<Service, "provider" | "url">) =>
   service.provider?.url ?? service.url;
@@ -146,6 +205,7 @@ function ServiceTableRow({ service }: { service: Service }) {
               <p className="font-mono text-sm capitalize leading-[1.2] tracking-[0.24px] text-secondary">
                 {categoryLabel(service)}
               </p>
+              <ServiceBadges service={service} />
             </div>
           </div>
 
@@ -377,6 +437,7 @@ function ServiceDetailModal({
               <span className="inline-flex items-center border border-border bg-[#101010] px-3 py-1.5 font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
                 {categoryLabel(service)}
               </span>
+              <ServiceBadges service={service} />
             </div>
             <p className="font-sans text-sm leading-[1.3] text-secondary">
               {service.description}
@@ -613,6 +674,7 @@ export function ServicesPage({
   );
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Category | "">("");
+  const [badges, setBadges] = useState<ServiceBadge[]>([]);
   const [page, setPage] = useState(0);
   const [view, setView] = useState<"cards" | "list">("list");
   const [selected, setSelected] = useState<Service | null>(null);
@@ -632,12 +694,12 @@ export function ServicesPage({
   );
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return services.filter(
+    return filterByBadges(services, badges).filter(
       (service) =>
         (!normalized || searchable(service).includes(normalized)) &&
         (!category || service.categories?.includes(category)),
     );
-  }, [category, query, services]);
+  }, [badges, category, query, services]);
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pages - 1);
   const visible = filtered.slice(
@@ -732,6 +794,35 @@ export function ServicesPage({
                 ]}
                 label={category ? CATEGORY_LABELS[category] : "Showing all"}
               />
+              <fieldset className="order-3 flex shrink-0 gap-2 md:order-2">
+                <legend className="sr-only">Filter by payment support</legend>
+                {SERVICE_BADGES.map((badge) => {
+                  const active = badges.includes(badge);
+                  return (
+                    <button
+                      aria-pressed={active}
+                      className={cx(
+                        "flex h-10 items-center gap-2 border px-4 font-mono text-sm uppercase leading-4 tracking-[-0.14px] transition-colors",
+                        active
+                          ? "border-[rgba(235,235,235,0.4)] bg-[#262626] text-offwhite"
+                          : "border-border bg-[#101010] text-secondary hover:text-offwhite",
+                      )}
+                      key={badge}
+                      onClick={() => {
+                        setBadges((current) =>
+                          current.includes(badge)
+                            ? current.filter((value) => value !== badge)
+                            : [...current, badge],
+                        );
+                        setPage(0);
+                      }}
+                      type="button"
+                    >
+                      {BADGE_LABELS[badge]}
+                    </button>
+                  );
+                })}
+              </fieldset>
               <div className="order-4 hidden md:block">
                 <Button href="/overview" variant="primary">
                   Learn more
@@ -766,7 +857,11 @@ export function ServicesPage({
                     role="button"
                     tabIndex={0}
                   >
-                    <ServiceCard headingLevel="h2" service={service} />
+                    <ServiceCard
+                      badges={<ServiceBadges service={service} />}
+                      headingLevel="h2"
+                      service={service}
+                    />
                   </div>
                 ))}
               </div>

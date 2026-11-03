@@ -1,11 +1,14 @@
+import type { ReactNode } from "react";
 import type { FeaturedService, Service } from "../../data/registry";
 import { serviceIconUrl } from "../../data/registry";
 import { CopyBadge } from "./CopyBadge";
 
 export function ServiceCard({
+  badges,
   headingLevel: Heading = "h3",
   service,
 }: {
+  badges?: ReactNode;
   headingLevel?: "h2" | "h3";
   service: FeaturedService | Service;
 }) {
@@ -27,6 +30,7 @@ export function ServiceCard({
             <p className="font-mono text-sm uppercase leading-4 tracking-[-0.14px] text-secondary">
               {category}
             </p>
+            {badges}
           </div>
         </div>
         <p className="font-sans text-lg leading-[1.2] text-secondary">

@@ -4,10 +4,12 @@ import {
   allCategories,
   buildTryCommands,
   CATEGORY_LABELS,
+  filterByBadges,
   formatPrice,
   orderServices,
   PAGE_SIZE,
   providerUrl,
+  serviceBadges,
 } from "./ServicesPage";
 
 // ---------------------------------------------------------------------------
@@ -268,5 +270,72 @@ describe("buildTryCommands", () => {
     );
     expect(commands).not.toContain("--json");
     expect(commands).not.toContain("-X GET");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// serviceBadges / filterByBadges
+// ---------------------------------------------------------------------------
+
+describe("serviceBadges", () => {
+  const OUSD = "0x20c0000000000000000000006a37DA5C996874BE";
+  const PATH_USD = "0x20c0000000000000000000000000000000000000";
+  const withMethods = (methods: Service["methods"]) => ({ methods });
+
+  it("badges OUSD case-insensitively", () => {
+    expect(
+      serviceBadges(
+        withMethods({
+          tempo: { assets: [OUSD.toLowerCase()], intents: ["charge"] },
+        }),
+      ),
+    ).toEqual(["ousd"]);
+  });
+
+  it("badges sessions from the Tempo intents", () => {
+    expect(
+      serviceBadges(
+        withMethods({
+          tempo: { assets: [OUSD, PATH_USD], intents: ["charge", "session"] },
+        }),
+      ),
+    ).toEqual(["ousd", "sessions"]);
+  });
+
+  it("ignores other assets and methods", () => {
+    expect(
+      serviceBadges(
+        withMethods({
+          stripe: { assets: [OUSD], intents: ["session"] },
+          tempo: { assets: [PATH_USD], intents: ["charge"] },
+        }),
+      ),
+    ).toEqual([]);
+    expect(serviceBadges(withMethods({}))).toEqual([]);
+  });
+
+  it("keeps services carrying every selected badge", () => {
+    const ousdSession = {
+      id: "a",
+      ...withMethods({ tempo: { assets: [OUSD], intents: ["session"] } }),
+    };
+    const ousdCharge = {
+      id: "b",
+      ...withMethods({ tempo: { assets: [OUSD], intents: ["charge"] } }),
+    };
+    const pathSession = {
+      id: "c",
+      ...withMethods({ tempo: { assets: [PATH_USD], intents: ["session"] } }),
+    };
+    const all = [ousdSession, ousdCharge, pathSession];
+    expect(filterByBadges(all, []).map((s) => s.id)).toEqual(["a", "b", "c"]);
+    expect(filterByBadges(all, ["ousd"]).map((s) => s.id)).toEqual(["a", "b"]);
+    expect(filterByBadges(all, ["sessions"]).map((s) => s.id)).toEqual([
+      "a",
+      "c",
+    ]);
+    expect(filterByBadges(all, ["ousd", "sessions"]).map((s) => s.id)).toEqual([
+      "a",
+    ]);
   });
 });

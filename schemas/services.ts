@@ -1,4 +1,4 @@
-import { pathusd, usdc, usdce } from "viem/tokens";
+import { ousd, pathusd, usdc, usdce } from "viem/tokens";
 
 /**
  * MPP Service Registry
@@ -3146,7 +3146,13 @@ export const services: ServiceDef[] = [
     integration: "first-party",
     intent: "session",
     name: "Tempo API",
+    // api.tempo.xyz session currencies on mainnet, in preference order.
     payments: [
+      {
+        currency: ousd(4217).address,
+        decimals: 6,
+        method: "tempo",
+      },
       {
         currency: pathusd(4217).address,
         decimals: 6,
