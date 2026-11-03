@@ -11188,7 +11188,7 @@ export const services: ServiceDef[] = [
     url: "https://indo-news-api.vercel.app",
     serviceUrl: "https://indo-news-api.vercel.app",
     description:
-      "Indonesian news and reference data for agents: headlines by topic, incremental delta feed, keyword search, ranked briefing, sentiment index per beat, brand media monitoring, and a full 8-topic digest. Also sells USD/IDR FX series for any pair, crypto prices in rupiah with the Indodax premium, BMKG earthquakes, public holidays, a one-call country snapshot, written coverage reports, and 30-day call licences.",
+      "Indonesian news and reference data for agents: headlines by topic, incremental delta feed, keyword search, ranked briefing, sentiment index per beat, brand media monitoring, and a full 8-topic digest. Also sells USD/IDR FX series for any pair, crypto prices in rupiah with the Indodax premium, BMKG earthquakes, public holidays, a one-call country snapshot, written coverage reports, and 30-day unmetered licences from $19.",
     icon: "https://indo-news-api.vercel.app/favicon.ico",
     categories: ["media", "data", "search"],
     integration: "third-party",
@@ -11305,14 +11305,20 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
+        route: "GET /license/newsroom",
+        desc: "30-day unmetered licence on every data endpoint ($19)",
+        amount: "19000000",
+        unitType: "request",
+      },
+      {
         route: "GET /license/pilot",
-        desc: "30-day licence: 1,000 calls on every data endpoint",
+        desc: "30-day unmetered licence on every data endpoint ($99)",
         amount: "99000000",
         unitType: "request",
       },
       {
         route: "GET /license/growth",
-        desc: "30-day licence: 10,000 calls on every data endpoint",
+        desc: "30-day unmetered team licence on every data endpoint ($399)",
         amount: "399000000",
         unitType: "request",
       },
