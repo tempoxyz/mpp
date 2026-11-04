@@ -10,10 +10,9 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from "react";
-import { useRouter } from "waku";
+import { ScrollRestoration } from "vocs";
 
 function useNuqsWakuAdapter(): unstable_AdapterInterface {
   const [searchParams, setSearchParams] = useState(() =>
@@ -78,13 +77,9 @@ class RootErrorBoundary extends Component<
   }
 }
 
+// The custom document root replaces Vocs Root, so mount the Vocs client pieces
+// it would otherwise provide: heading-link copy and scroll restoration.
 function GlobalClientEffects() {
-  const router = useRouter();
-  const savedPositions = useRef<Record<string, number>>({});
-  const previousHash = useRef<string | null>(null);
-  const previousPath = useRef<string | null>(null);
-  const isPopstate = useRef(false);
-
   useEffect(() => {
     const copyHeadingUrl = async (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return;
@@ -102,66 +97,7 @@ function GlobalClientEffects() {
     return () => document.removeEventListener("click", copyHeadingUrl);
   }, []);
 
-  useEffect(() => {
-    window.history.scrollRestoration = "manual";
-    try {
-      const stored = sessionStorage.getItem("vocs:scroll");
-      if (stored) savedPositions.current = JSON.parse(stored);
-    } catch {}
-
-    const handlePopstate = () => {
-      isPopstate.current = true;
-    };
-    // Waku rc removed router events. Track scroll positions between navigations.
-    const handleScroll = () => {
-      if (previousPath.current === null) return;
-      savedPositions.current[previousPath.current] = window.scrollY;
-    };
-    const persistPositions = () => {
-      handleScroll();
-      try {
-        sessionStorage.setItem(
-          "vocs:scroll",
-          JSON.stringify(savedPositions.current),
-        );
-      } catch {}
-    };
-
-    window.addEventListener("popstate", handlePopstate);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("pagehide", persistPositions);
-    return () => {
-      window.removeEventListener("popstate", handlePopstate);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("pagehide", persistPositions);
-      persistPositions();
-      window.history.scrollRestoration = "auto";
-    };
-  }, []);
-
-  useEffect(() => {
-    const hash = router.hash.slice(1);
-    if (!hash) return;
-    document.getElementById(hash)?.scrollIntoView({
-      behavior: previousHash.current ? "smooth" : "instant",
-    });
-    previousHash.current = hash;
-  }, [router.hash]);
-
-  useEffect(() => {
-    const hash = router.hash.slice(1);
-    if (isPopstate.current) {
-      window.scrollTo(0, savedPositions.current[router.path] ?? 0);
-      isPopstate.current = false;
-    } else if (hash) {
-      document.getElementById(hash)?.scrollIntoView({ behavior: "instant" });
-    } else {
-      window.scrollTo(0, 0);
-    }
-    previousPath.current = router.path;
-  }, [router.hash, router.path]);
-
-  return null;
+  return <ScrollRestoration />;
 }
 
 export function SiteRootClient({ children }: { children: ReactNode }) {

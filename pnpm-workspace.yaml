@@ -3,11 +3,9 @@ packages:
 
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
-  # Vocs #670 tests this newly published tokenizer.
-  - '@pierre/highlights@0.2.0'
   - mppx
   - viem@2.57.1
-  - vocs
+  - vocs@2.12.0
   - vite
   - waku
 blockExoticSubdeps: true
@@ -28,14 +26,22 @@ trustPolicy: no-downgrade
 trustPolicyExclude:
   - semver@6.3.1
 overrides:
+  "zod@>=4.0.0 <4.6.6": "4.6.7"
+  "fast-uri@>=3.0.0 <3.1.9": "3.1.9"
+  "body-parser@>=2.0.0 <2.4.0": "2.4.0"
+  # wata 0.4 (via accounts) still asks for @hono/node-server ^1, and no 1.x release fixes GHSA-rmxm-3fg6-px4f.
+  "@hono/node-server@>=1.19.10 <2.1.3": "2.1.5"
   # Mermaid's KaTeX range excludes the prototype-pollution hardening release.
   'katex@>=0.11.0 <0.18.2': 0.18.2
   # Miniflare pins sharp 0.35.4, whose prebuilt librsvg is vulnerable.
   'sharp@<0.35.5': 0.35.5
   'source-map-js@>=1.0.0 <1.2.2': 1.2.2
-  'undici@>=7.28.0 <7.29.1': 7.29.1
+  # Miniflare pins undici 7.28.0, below the 7.30.1 security release.
+  'undici@>=7.0.0 <7.30.1': 7.30.1
   "@babel/core": 7.29.6
-  # The latest Scalar json-magic still pins vulnerable undici 7.24.4.
-  "@scalar/json-magic>undici": ^7.29.0
+  # The Scalar json-magic 0.15 that vocs uses pins vulnerable undici 7.24.4.
+  "@scalar/json-magic>undici": ^7.30.1
   # Vocs still requires remark-mdx-frontmatter 5, which requires vulnerable toml 3.
-  "remark-mdx-frontmatter>toml": ^4.2.0
+  "remark-mdx-frontmatter>toml": ^5.0.1
+  # The latest @vercel/cli-config (via @vercel/blob > @vercel/oidc) still pins vulnerable zod 4.1.11.
+  "@vercel/cli-config>zod": ^4.6.6

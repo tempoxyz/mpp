@@ -100,7 +100,7 @@
 
 @import "tailwindcss";
 
-@import "./_vocs.generated.css";
+@import "vocs/styles/theme.css";
 
 @source "../";
 

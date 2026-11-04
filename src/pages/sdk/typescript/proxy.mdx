@@ -41,7 +41,13 @@ const proxy = Proxy.create({
     openai({
       apiKey: process.env.OPENAI_API_KEY!,
       routes: {
-        'POST /v1/chat/completions': mppx.charge({ amount: '0.05' }),
+        'POST /v1/chat/completions': {
+          pay: mppx.charge({ amount: '0.05' }),
+          requestBody: {
+            content: { 'application/json': { schema: { type: 'object' } } },
+          },
+          summary: 'Generate a chat response',
+        },
         'GET /v1/models': true,
       },
     }),
@@ -64,8 +70,11 @@ The proxy returns two handlers:
 Route values use the current `EndpointMap` shape:
 
 - Use an mppx intent handler like `mppx.charge({ amount: '0.05' })` for paid routes.
-- Use `true` for free passthrough routes.
+- Use `true` or `{ free: true, summary, requestBody }` for free passthrough routes.
 - Use a method-specific handler, such as `mppx.tempo.session({ amount, unitType })`, for session-priced routes.
+- Wrap a paid handler as `{ pay, summary, requestBody }` to describe the endpoint in generated `/openapi.json`. `summary` is a short string; `requestBody` is an OpenAPI request body object.
+
+A route without a valid handler or explicit `free: true` fails closed.
 
 `Proxy` derives a scope for each route. EVM methods with x402 enabled require the `mppx` route-binding extension on these scoped routes by default. Set [`x402.routeBinding: 'resource'`](/sdk/typescript/server/Method.evm.charge#x402-optional) only when standard x402 clients must pay through resource URL binding.
 

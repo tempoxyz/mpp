@@ -289,7 +289,7 @@ export default defineConfig({
     { source: "/directory", destination: "/services" },
   ],
   description:
-    "MPP (Machine Payments Protocol) is the open standard for machine-to-machine payments via HTTP 402.",
+    "MPP (Machine Payments Protocol) is the open standard for machine-to-machine payments via HTTP 402, co-authored by Tempo and Stripe.",
   checkDeadlinks: true,
   editLink: {
     link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",

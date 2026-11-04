@@ -77,7 +77,7 @@ Resolves when the WebSocket session completes or the connection closes.
 
 - **Type:** `string`
 
-Expected per-tick amount. When set, Credentials with mismatched amounts are rejected.
+Expected per-tick amount. Set this for custom routes that do not return their canonical Challenge. The helper rejects a route without canonical pricing or an explicit amount. Credentials with mismatched amounts are rejected.
 
 ### generate
 

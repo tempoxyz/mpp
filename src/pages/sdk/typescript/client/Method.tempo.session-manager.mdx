@@ -13,9 +13,9 @@ Creates a Sessions manager that handles channel open, paid fetches, streaming, t
 
 Use this when application code needs direct lifecycle control for one channel. The manager opens a TIP-1034 channel lazily after the first `402` Challenge, signs cumulative vouchers, tops up when needed, and closes the channel when you call `.close()`.
 
-Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
+Session top-up, voucher retry, close, and bootstrap send the Credential in the header selected by the Challenge, including `Payment-Authorization` when required. They preserve the paid request's application `Authorization` header and reject redirects. A Session close does not reuse resource request state.
 
-`mppx` 0.13.0 removed the deprecated Legacy Sessions manager exports.
+Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
 
 ## Usage
 
@@ -388,74 +388,6 @@ const session = tempo.session.manager({
 
 When `bootstrap: true` is enabled, the manager first sends a same-route `HEAD` request if it has no active channel and no stored channel. Servers that enable bootstrap can answer with a `$0` identity Challenge and then return a `Payment-Session-Snapshot` header. The manager hydrates from that snapshot and persists it through `channelStore`.
 
-## Migrate from Legacy Sessions
-
-Legacy Sessions clients used `tempo.sessionLegacy()` or `tempo.sessionLegacy.method()` in `mppx` 0.12.0 and earlier. Close or settle existing Legacy channels before upgrading because current Sessions don't share their channel state.
-
-Use `tempo.session.manager()` for direct lifecycle control, or `tempo()` when the same fetch wrapper handles one-time charges and Sessions.
-
-<Tabs stateKey="account-source">
-<Tab title="Accounts SDK">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { createClient, http } from 'viem'
-import { Provider } from 'accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
-
-const provider = Provider.create({ mpp: false }) // Avoid double 402 handling; mppx is configured below.
-await provider.request({ method: 'wallet_connect' })
-
-const { fetch: mppxFetch } = Mppx.create({
-  methods: [
-    tempo({
-      account: provider.getAccount({ signable: true }),
-      getClient: () =>
-        createClient({
-          chain: tempoMainnet,
-          transport: http('https://rpc.tempo.xyz'),
-        }),
-      maxDeposit: '1',
-    }),
-  ],
-  polyfill: false,
-})
-
-const response = await mppxFetch('https://api.example.com/resource')
-```
-
-</Tab>
-<Tab title="viem">
-
-```ts twoslash
-import { Mppx, tempo } from 'mppx/client'
-import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { tempo as tempoMainnet } from 'viem/chains'
-
-const account = privateKeyToAccount('0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef')
-
-const { fetch: mppxFetch } = Mppx.create({
-  methods: [
-    tempo({
-      account,
-      getClient: () =>
-        createClient({
-          chain: tempoMainnet,
-          transport: http('https://rpc.tempo.xyz'),
-        }),
-      maxDeposit: '1',
-    }),
-  ],
-  polyfill: false,
-})
-
-const response = await mppxFetch('https://api.example.com/resource')
-```
-
-</Tab>
-</Tabs>
-
 ## Return type
 
 `tempo.session.manager()` returns a `SessionManager` object:
@@ -671,9 +603,12 @@ The manager rejects a configured client, resolved client, or Session snapshot on
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
 
 Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. The swap acquires only the missing balance. Use the object form to set a slippage percentage from `0` to `50`, fallback token order, and a positive input-token base-unit `maxAmountIn`. The default input budget assumes 1:1 token units plus slippage; set `maxAmountIn` for non-parity pairs.
+
+
+The default swap sources are pathUSD, USDC.e, and OUSD in that order. Set `fallback: false` with `tokenIn` to allow only those listed input tokens; otherwise the defaults follow your selected tokens.
 
 ### bootstrap (optional)
 
@@ -738,6 +673,12 @@ Automatic and manual funding decisions are serialized for managers sharing a sto
 - **Type:** `string`
 
 Preferred automatic top-up size in human-readable units. When omitted, `mppx` uses a bounded server `suggestedDeposit`, then the exact shortfall.
+
+### trustedTempoProofRealms (optional)
+
+- **Type:** `Readonly<Record<string, string>>`
+
+Pins the realm of a zero-amount Tempo bootstrap proof to the server origin when the realm differs from its hostname.
 
 ### webSocket (optional)
 

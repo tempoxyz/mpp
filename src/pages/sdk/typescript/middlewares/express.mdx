@@ -57,6 +57,8 @@ app.get(
 
 Register the appropriate Express body parser before a paid `POST`, `PUT`, or `PATCH` route. The middleware forwards parsed JSON and binary bodies, repeated headers, and the complete request URL to MPP verification. It omits bodies from `GET` and `HEAD` requests.
 
+Paid JSON responses preserve your Express JSON replacer, spacing, and escaping settings when the middleware attaches a Receipt.
+
 ```ts [server.ts]
 app.use(express.json())
 

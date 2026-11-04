@@ -159,6 +159,10 @@ Each server-generated Challenge includes a fresh `_mppx_nonce` in its metadata, 
 
 Route verification compares all application and scope metadata while excluding the issuance nonce from stable route requirements. Previously issued signed Challenges without a nonce remain valid. The x402 route-binding extension excludes issuance-only metadata while retaining application metadata, scope, and digest checks.
 
+### Route identity
+
+Pass `identity` to an intent function to require [request identity](/advanced/identity#request-identity) verifiers on that route, for example `mppx.charge({ amount: '1', identity: [tap] })`. Every listed verifier must succeed before the handler issues a Challenge or accepts a Credential. Invalid proofs return `401`; missing proofs return `403`. Read verified values with `result.identity.get(verifier)`. Routes without `identity` stay open. `Mppx.create({ attestation })` was removed in `mppx` 0.16.0 and throws.
+
 ### Validate and broadcast Credentials
 
 Use `validateCredential` to pre-check a Credential without consuming payment state. Use `broadcastCredential` to validate again and complete the payment. `verifyCredential` remains as a deprecated alias for the mutating broadcast operation.
@@ -176,13 +180,25 @@ console.log(receipt.status)
 // @log: success
 ```
 
+## Route identity
+
+Require identity per route with `identity: [verifier]` in an intent handler's options. Every listed verifier must succeed; use `Identity.anyOf` to accept one of several protocols. Request-stage verifiers run before a Challenge. Payment-stage verifiers add headers to the `402` and check proofs before settlement. Routes with preflight hooks do not support payment-stage identity. On a successful result, `result.identity?.get(verifier)` returns its verified value. Identity rejections return `401` or `403` on the non-success branch.
+
+```ts twoslash
+import * as Tap from 'mppx/extensions/identity/tap'
+import { Mppx, Store, tempo } from 'mppx/server'
+
+declare const trustedAgentKeys: ReadonlyMap<string, CryptoKey>
+
+const tap = Tap.Server.verifier({
+  keyResolver({ keyId }) { return trustedAgentKeys.get(keyId) },
+  nonceStore: Store.memory(),
+})
+const payment = Mppx.create({ methods: [tempo.charge()] })
+const charge = payment.charge({ amount: '1', identity: [tap] })
+```
+
 ## Parameters
-
-### attestation (optional)
-
-- **Type:** `Readonly<Record<string, Attestation.Verifier>>`
-
-Request-attestation verifiers required before an HTTP handler issues a Challenge or accepts a Credential. Invalid attestations return `401`; absent or unverified attestations return `403`. Every configured verifier must succeed. See [Identity](/advanced/identity#request-attestation).
 
 ### methods
 
@@ -205,7 +221,7 @@ const payment = Mppx.create({
 - **Type:** `string`
 - **Default:** Auto-detected from environment variables (`MPP_REALM`, `FLY_APP_NAME`, `HEROKU_APP_NAME`, `HOST`, `HOSTNAME`, `RAILWAY_PUBLIC_DOMAIN`, `RENDER_EXTERNAL_HOSTNAME`, `VERCEL_URL`, `WEBSITE_HOSTNAME`), falling back to `"MPP Payment"`.
 
-Server realm (for example, hostname). Auto-detected from common platform environment variables. Set explicitly to override.
+Server realm (for example, hostname). Auto-detected from common platform environment variables. Set explicitly to override. For zero-amount Tempo proofs, set this to the server's public hostname. If the realm differs, clients must pin it to the server origin with `trustedTempoProofRealms` before they sign.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'

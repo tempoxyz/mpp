@@ -86,7 +86,7 @@ const paid = Mppx.compose(
 
 ## Behavior
 
-Configured methods retain their identity, currency defaults, and offer order through composition. Only the selected method's `onPaymentSuccess` hook runs.
+Configured methods retain their identity, currency defaults, and offer order through composition. Routes can require payment-stage identity across several offers when those offers use the same verifiers. Only the selected method's `onPaymentSuccess` hook runs.
 
 - **No Credential over HTTP:** Calls all handlers and merges their `402` Challenges into a single response with multiple `WWW-Authenticate` headers.
 - **No Credential over MCP:** Calls all handlers and combines their Challenges in configured order. MCP SDK transport returns an `McpError`; raw MCP transport preserves the JSON-RPC request ID.

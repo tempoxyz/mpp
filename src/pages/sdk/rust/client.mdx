@@ -3,9 +3,9 @@ description: "Use the Rust client to handle HTTP 402 responses, pay with support
 imageDescription: "Handle paid APIs automatically in Rust"
 ---
 
-# Client [Handle 402 responses automatically]
+# Client [Handle `402` responses automatically]
 
-The `Fetch` extension trait adds `.send_with_payment()` to any `reqwest::RequestBuilder`—when a server returns `402`, it parses the Challenge, signs a stablecoin transfer, and retries with the Credential.
+The `Fetch` extension trait selects a supported Challenge, creates a Credential, and retries a `reqwest` request.
 
 ## Quick start
 
@@ -18,47 +18,17 @@ let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
 
 let response = reqwest::Client::new()
     .get("https://api.example.com/paid")
+    .header("Accept-Payment", "tempo/charge")
     .send_with_payment(&provider)
     .await?;
-
-println!("Status: {}", response.status());
 ```
 
-When the server returns `402`, `send_with_payment`:
-
-1. Parses the Challenge from the `WWW-Authenticate` header
-2. Calls `provider.pay()` to sign a stablecoin transfer
-3. Retries the request with the Credential in the `Authorization` header
-
-## `TempoProvider`
-
-`TempoProvider` signs TIP-20 stablecoin transfers on the Tempo blockchain.
-
-```rust
-use mpp::client::TempoProvider;
-use mpp::PrivateKeySigner;
-
-let signer: PrivateKeySigner = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    .parse()?;
-
-let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
-```
-
-### With client ID
-
-Attach an identifier to transactions for attribution:
-
-```rust
-let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?
-    .with_client_id("my-app");
-```
+The default `AcceptPaymentPolicy::Explicit` pays only when the request has an `Accept-Payment` header. This keeps requests to untrusted URLs from authorizing payment implicitly.
 
 ## Middleware
 
-For automatic `402` handling on all requests, use `PaymentMiddleware` with `reqwest-middleware`. Requires the `middleware` feature.
-
 ```toml
-mpp = { version = "0.13.0", features = ["tempo", "client", "middleware"] }
+mpp = { version = "0.18.1", features = ["client", "middleware", "tempo"] }
 ```
 
 ```rust
@@ -66,101 +36,54 @@ use mpp::client::{PaymentMiddleware, TempoProvider};
 use reqwest_middleware::ClientBuilder;
 
 let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
-
 let client = ClientBuilder::new(reqwest::Client::new())
     .with(PaymentMiddleware::new(provider))
     .build();
 
-// All requests through this client handle 402 automatically
-let response = client.get("https://api.example.com/paid").send().await?;
+let response = client
+    .get("https://api.example.com/paid")
+    .header("Accept-Payment", "tempo/charge")
+    .send()
+    .await?;
 ```
 
-## Event handling
-
-Use `ClientEvents` to record the automatic `402` flow. Use helper methods for named events, `on()` for one event kind, and `on_any()` for every client event.
-
-```rust
-use mpp::client::{
-    ClientEvent, ClientEventKind, ClientEvents, PaymentMiddleware, TempoProvider,
-};
-use reqwest_middleware::ClientBuilder;
-
-let provider = TempoProvider::new(signer, "https://rpc.tempo.xyz")?;
-let events = ClientEvents::default();
-
-// Record the selected Challenge before the provider creates a Credential.
-let _challenge = events.on_challenge_received(|ctx| async move {
-    println!("challenge received: {}", ctx.challenge.id);
-    None
-});
-
-// Record the retried response after payment.
-let _response = events.on(ClientEventKind::PaymentResponse, |event| async move {
-    if let ClientEvent::PaymentResponse(ctx) = event {
-        println!("payment response: {}", ctx.status);
-    }
-});
-
-// Catch every client payment event in one handler.
-let _all = events.on_any(|event| async move {
-    println!("payment event: {}", event.kind().as_str());
-});
-
-let client = ClientBuilder::new(reqwest::Client::new())
-    .with(PaymentMiddleware::new(provider).with_events(events))
-    .build();
-```
-
-`on_challenge_received` can return `Some(PaymentCredential)` to override the default provider payment flow. Other handlers only record payment handling. Keep the returned subscription handles alive while handlers remain registered.
+Request-level payment authorization is still required with middleware. Default headers on the `reqwest` client do not authorize payment.
 
 ## Multiple providers
-
-`MultiProvider` wraps multiple payment providers and picks the right one based on the Challenge's `method` and `intent`:
 
 ```rust
 use mpp::client::{MultiProvider, TempoProvider};
 
 let provider = MultiProvider::new()
     .with(TempoProvider::new(signer, "https://rpc.tempo.xyz")?);
-
-let response = reqwest::Client::new()
-    .get("https://api.example.com/paid")
-    .send_with_payment(&provider)
-    .await?;
 ```
 
-## Custom provider
+`MultiProvider` selects by method and intent while preserving the order of the client's `Accept-Payment` preferences.
 
-Implement the `PaymentProvider` trait to add support for custom payment methods:
+## Event handling
 
 ```rust
-use mpp::client::PaymentProvider;
-use mpp::{PaymentChallenge, PaymentCredential, PaymentPayload, MppError};
+use mpp::client::{ClientEventKind, ClientEvents};
 
-#[derive(Clone)]
-struct MyProvider;
-
-impl PaymentProvider for MyProvider {
-    fn supports(&self, method: &str, intent: &str) -> bool {
-        method == "my_network" && intent == "charge"
-    }
-
-    async fn pay(
-        &self,
-        challenge: &PaymentChallenge,
-    ) -> Result<PaymentCredential, MppError> {
-        let echo = challenge.to_echo();
-        Ok(PaymentCredential::new(echo, PaymentPayload::hash("0x...")))
-    }
-}
+let events = ClientEvents::default();
+let _subscription = events.on(ClientEventKind::PaymentResponse, |event| async move {
+    println!("payment event: {}", event.kind().as_str());
+});
 ```
+
+Retain subscription handles while handlers are active.
+
+## Custom providers
+
+Implement `PaymentProvider` for another payment method. Its `pay` method receives a typed `PaymentChallenge` and returns a `PaymentCredential`. Validate the complete Challenge, enforce spending limits, and preserve the Challenge echo unchanged.
 
 ## Key types
 
 | Type | Description |
-|------|-------------|
-| `Fetch` (`PaymentExt`) | Extension trait that adds `send_with_payment` to `reqwest::RequestBuilder` |
-| `MultiProvider` | Wraps multiple providers, routes by method and intent |
-| `PaymentMiddleware` | reqwest-middleware for automatic `402` handling |
-| `PaymentProvider` | Trait for custom payment method implementations |
-| `TempoProvider` | Signs Tempo stablecoin transfers |
+|---|---|
+| `AcceptPaymentPolicy` | Controls which requests authorize automatic payment |
+| `Fetch` | Adds `send_with_payment` to `reqwest::RequestBuilder` |
+| `MultiProvider` | Routes Challenges to supported providers |
+| `PaymentMiddleware` | Adds payment handling to `reqwest-middleware` |
+| `PaymentProvider` | Interface for payment implementations |
+| `TempoProvider` | Creates Tempo charge Credentials |
