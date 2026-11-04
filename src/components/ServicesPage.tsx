@@ -44,14 +44,23 @@ export const BADGE_LABELS: Record<ServiceBadge, string> = {
 export function serviceBadges(
   service: Pick<Service, "methods">,
 ): ServiceBadge[] {
-  const tempo = service.methods?.tempo;
-  if (!tempo) return [];
+  // The live proxy manifest is only loosely validated, so check shapes here.
+  const tempo: unknown = service.methods?.tempo;
+  if (!tempo || typeof tempo !== "object") return [];
+  const { assets, intents } = tempo as { assets?: unknown; intents?: unknown };
   const badges: ServiceBadge[] = [];
   const ousd = OUSD_ADDRESS.toLowerCase();
-  if (tempo.assets?.some((asset) => asset.toLowerCase() === ousd)) {
+  if (
+    Array.isArray(assets) &&
+    assets.some(
+      (asset) => typeof asset === "string" && asset.toLowerCase() === ousd,
+    )
+  ) {
     badges.push("ousd");
   }
-  if (tempo.intents?.includes("session")) badges.push("sessions");
+  if (Array.isArray(intents) && intents.includes("session")) {
+    badges.push("sessions");
+  }
   return badges;
 }
 

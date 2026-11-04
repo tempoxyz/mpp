@@ -314,6 +314,25 @@ describe("serviceBadges", () => {
     expect(serviceBadges(withMethods({}))).toEqual([]);
   });
 
+  it("ignores malformed Tempo method data", () => {
+    const malformed = (tempo: unknown) =>
+      ({ methods: { tempo } }) as unknown as Pick<Service, "methods">;
+    expect(serviceBadges(malformed(null))).toEqual([]);
+    expect(serviceBadges(malformed("tempo"))).toEqual([]);
+    expect(
+      serviceBadges(malformed({ assets: OUSD, intents: "session" })),
+    ).toEqual([]);
+    expect(
+      serviceBadges(malformed({ assets: [42, null, OUSD], intents: [1] })),
+    ).toEqual(["ousd"]);
+    expect(
+      serviceBadges({ methods: undefined } as unknown as Pick<
+        Service,
+        "methods"
+      >),
+    ).toEqual([]);
+  });
+
   it("keeps services carrying every selected badge", () => {
     const ousdSession = {
       id: "a",
