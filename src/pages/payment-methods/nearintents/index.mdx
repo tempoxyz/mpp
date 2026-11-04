@@ -32,9 +32,9 @@ $ bun add @defuse-protocol/nearintents-mpp-sdk mppx
 NEAR Intents brings a distinct set of properties to MPP:
 
 - **Cross-chain by construction**—The payer's chain and the merchant's chain are independent. A client can pay native BTC while the merchant receives USDC on NEAR; the solver network executes the swap in between.
-- **Exact merchant amounts**—Quotes use `EXACT_OUTPUT`: the merchant receives a deterministic amount of its destination asset, with slippage applied to the input side and any excess refunded to the payer's refund address.
+- **Exact merchant amounts**—Quotes use `EXACT_OUTPUT`: the merchant receives a deterministic amount of its destination asset, with slippage applied to the input side and any excess refunded to the quote's `refundTo` address.
 - **Challenge-bound deposit addresses**—Every Challenge carries a **unique, single-use deposit address** minted for that quote. A deposit observed at that address is implicitly bound to the one Challenge that advertised it, giving hash credentials stronger practical binding than a static recipient address.
-- **Recoverable by design**—Every non-success settlement outcome refunds the deposit to a merchant-configured origin-chain address, and transient backend failures never consume the credential: the client simply re-presents it.
+- **Recoverable by design**—Every non-success settlement outcome refunds the deposit to the quote's `refundTo` address, and transient backend failures never consume the credential: the client simply re-presents it.
 - **Chain-agnostic identifiers**—Assets and chains are expressed as [CAIP-19](https://chainagnostic.org/CAIPs/caip-19) / [CAIP-2](https://chainagnostic.org/CAIPs/caip-2) identifiers on the wire, compared by parsed components.
 
 :::info
