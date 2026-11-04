@@ -105,6 +105,23 @@ describe("buildService", () => {
     expect(service).not.toHaveProperty("supportsCredits");
   });
 
+  it("lists every asset of a method in preference order", () => {
+    const ousd = "0x20c0000000000000000000006a37DA5C996874BE";
+    const service = buildService(
+      paymentSvc({
+        intent: "session",
+        payments: [
+          { ...TEMPO_PAYMENT, currency: ousd },
+          TEMPO_PAYMENT,
+          TEMPO_PAYMENT,
+        ],
+      }),
+    );
+    expect(service.methods).toEqual({
+      tempo: { intents: ["session"], assets: [ousd, USDC] },
+    });
+  });
+
   it("does not infer MACH support from an external service accepting Tempo", () => {
     expect(
       buildService(paymentSvc({ realm: "external.example" })),
