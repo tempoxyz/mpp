@@ -136,6 +136,39 @@ export interface ServiceDef {
 
 // prettier-ignore
 export const services: ServiceDef[] = [
+  {
+    id: "exclusive-digits",
+    name: "Exclusive Digits",
+    url: "https://exclusivedigits.com",
+    serviceUrl: "https://exclusivedigits.com/api/agent-commerce",
+    description:
+      "Buy memorable US local phone numbers with Stripe card payments. Inventory search is free; checkout requires partner onboarding and a buyer-authorized shared payment token.",
+    icon: "https://exclusivedigits.com/icon-192x192.png",
+    categories: ["web"],
+    integration: "first-party",
+    tags: ["commerce", "phone-numbers", "stripe", "telecommunications"],
+    status: "beta",
+    docs: {
+      homepage: "https://exclusivedigits.com/agent/commerce",
+      llmsTxt: "https://exclusivedigits.com/llms.txt",
+      apiReference: "https://exclusivedigits.com/openapi.json",
+    },
+    provider: { name: "Exclusive Digits", url: "https://exclusivedigits.com" },
+    realm: "exclusivedigits.com",
+    intent: "charge",
+    payments: [STRIPE_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: false,
+        route: "POST /checkouts/{id}/pay/mpp",
+        desc: "Pay an ACP or UCP checkout with a Stripe shared payment token and X-ED-Commerce-Key. Authorization holds return 202 without a settlement receipt.",
+        dynamic: true,
+        amountHint:
+          "Exact checkout quote in USD cents; price depends on the selected numbers",
+        docs: "https://exclusivedigits.com/agent/commerce",
+      },
+    ],
+  },
   // AIsa: fixed-price read-only operations from the public OpenAPI catalog.
   {
     id: "aisa",
