@@ -14,7 +14,7 @@ This is the guide for a service that wants agents to pay for it: an inference AP
 3. [How your users' fees get sponsored](#sponsor-your-users-fees)
 4. [Charge or Sessions](#use-sessions): use Sessions
 
-Then it shows how to [require an extra identity header](#require-identity-on-paid-routes), such as a one-time password, on a paid route.
+Then it shows how to [require an extra identity header](#require-identity-on-paid-routes), such as an access code, on a paid route.
 
 ## Who can pay you
 
@@ -166,24 +166,24 @@ Keep charge on the same routes for clients that can't open channels: register bo
 
 ## Require identity on paid routes
 
-Payment proves who paid, not who is allowed in. To gate a route on something else, such as a one-time password you emailed a customer, add a request identity verifier. It runs before the `402`, so a request without a valid code never gets a Challenge.
+Payment proves who paid, not who is allowed in. To gate a route on something else, such as a short-lived access code you emailed a customer, add a request identity verifier. It runs before the `402`, so a request without a valid code never gets a Challenge.
 
 ```ts twoslash [server.ts]
 import type * as Identity from 'mppx/identity'
 import { Mppx, Store, tempo } from 'mppx/server'
 import { privateKeyToAccount } from 'viem/accounts'
 
-declare function checkOtp(code: string): Promise<string | undefined> // returns the customer ID
+declare function lookupAccessCode(code: string): Promise<string | undefined> // returns the customer ID; doesn't consume the code
 declare const store: Store.AtomicStore
 const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
 
 // [!code hl:start]
-const otp: Identity.Verifier<{ customerId: string }> = {
+const accessCode: Identity.Verifier<{ customerId: string }> = {
   async verify(request) {
-    const code = request.headers.get('X-OTP')
+    const code = request.headers.get('X-Access-Code')
     if (!code) return { status: 'missing' } // 403
-    const customerId = await checkOtp(code)
-    if (!customerId) return { reason: 'Invalid one-time password', status: 'invalid' } // 401
+    const customerId = await lookupAccessCode(code)
+    if (!customerId) return { reason: 'Invalid access code', status: 'invalid' } // 401
     return { status: 'valid', value: { customerId } }
   },
 }
@@ -197,15 +197,17 @@ const mppx = Mppx.create({
 export async function handler(request: Request) {
   const result = await mppx.session({
     amount: '0.000002',
-    identity: [otp], // [!code hl]
+    identity: [accessCode], // [!code hl]
     unitType: 'llm_token',
   })(request)
   if (result.status === 402) return result.challenge
 
-  console.log(result.identity?.get(otp)?.customerId)
+  console.log(result.identity?.get(accessCode)?.customerId)
   // @log: cus_123
   return result.withReceipt(Response.json({ data: '...' }))
 }
 ```
 
-The client sends `X-OTP` on the first request and on the paid retry; `mppx` clients can attach it with a [prover](/advanced/identity#use-the-framework-directly). For signed agent identity instead of a shared code, use [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-identity).
+The verifier runs on every request: the unpaid request, the paid retry, and each Session voucher after it. Validate the code without consuming it and give it an expiry. To accept a single-use code, exchange it for a session cookie on a separate route and verify the cookie here instead.
+
+The client sends `X-Access-Code` on every request to the route; `mppx` clients can attach it with a [prover](/advanced/identity#use-the-framework-directly). For signed agent identity instead of a shared code, use [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-identity).
