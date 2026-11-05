@@ -11280,6 +11280,12 @@ export const services: ServiceDef[] = [
         unitType: "request",
       },
       {
+        route: "GET /series",
+        desc: "Daily exchange-rate history beyond 30 days: up to 365 days per call",
+        amount: "250000",
+        unitType: "request",
+      },
+      {
         route: "GET /convert",
         desc: "Convert an amount at the reference rate, with the rate date and change",
         amount: "50000",
