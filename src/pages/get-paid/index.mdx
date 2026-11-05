@@ -1,0 +1,49 @@
+---
+description: "Agents already sign up for databases, sandboxes and models on their own. Let them pay you per use with MPP Sessions, then turn them into customers."
+imageDescription: "Turn agents into paying customers"
+---
+
+import { Cards, Card } from 'vocs'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+
+# Get paid by agents [Agents are your newest customers]
+
+Agents already pick and buy infrastructure on their own. They spin up databases, sandboxes and inference endpoints in the middle of a task, and a growing share of new signups on developer platforms never touches a signup form. MPP lets those agents pay you in the same HTTP request they use to call your service: no account, no API key, no card form.
+
+You add one middleware to the routes you want to charge for. Agents that hit them get a `402` with your price, pay, and get the response.
+
+## Why it's worth adding
+
+- **Agents buy without signing up.** An agent with a Tempo wallet can pay any MPP service the first time it sees it. You don't build onboarding, issue keys or chase a human for a card.
+- **Bill per token, row or second.** With [Sessions](/payment-methods/tempo/session) the agent locks up a deposit once and pays every request with a signed voucher your server checks in CPU time. You charge fractions of a cent per unit with no latency on the hot path and no prepaid credits to manage.
+- **Agents become customers.** Every payment carries the payer's wallet, so the agent's work is attached to an identity from the first request. A human can later claim it and upgrade to a plan. See [Let agents sign up as guests](/get-paid/guest-accounts).
+- **Get paid where you already get paid.** Payments land in your Stripe balance next to the rest of your revenue, or in a wallet you hold. See [payouts](/guides/integrate-your-service#how-you-get-paid).
+- **Agents can fund with a card.** Agents top up with MACH, Tempo credit bought by card or Apple Pay, and you still receive stablecoins.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Agent
+    participant API as Your API
+    participant Tempo
+    Agent->>API: POST /v1/responses
+    API-->>Agent: 402 + price per token
+    Agent->>Tempo: Lock up a deposit (once)
+    loop Every request
+        Agent->>API: Request + signed voucher
+        API-->>Agent: 200 + Receipt
+    end
+    API->>Tempo: Settle what was spent
+`} />
+
+## Recommended setup
+
+Lead with Tempo Sessions, accept MACH and OUSD first with USDC.e as fallback. That covers every Tempo wallet, including agents that only hold MACH. Add other [payment methods](/payment-methods), such as cards through Stripe, when you need payers outside Tempo.
+
+## Next steps
+
+<Cards>
+  <Card title="Quickstart" description="Charge for your API with Sessions" to="/quickstart/server" />
+  <Card title="Let agents sign up as guests" description="Turn an agent's purchase into a customer" to="/get-paid/guest-accounts" />
+  <Card title="Integration guide" description="Every lever on one page: MACH, Sessions, the swapper, payouts" to="/guides/integrate-your-service" />
+</Cards>

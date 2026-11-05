@@ -46,8 +46,8 @@ export default function HomePage() {
   return (
     <>
       <MarketingHead
-        description="Charge for API requests, tool calls, and content with HTTP 402 payments co-developed by Tempo and Stripe."
-        imageDescription="Charge for API requests with HTTP 402 payments"
+        description="Let agents pay for your API, database or tool per request or per token. No signup, no API keys. Co-developed by Tempo and Stripe."
+        imageDescription="Let agents pay for your service"
         path="/"
         title="Machine Payments Protocol"
       />

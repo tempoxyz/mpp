@@ -1,37 +1,83 @@
 ---
-description: "Everything a service needs to sell to agents over MPP: who can pay you, how you get paid (into Stripe or a wallet), how to sponsor fees, why to use Sessions, and how to add identity checks."
-imageDescription: "Sell your API to agents with MPP Sessions"
+description: "One page with every lever of an MPP integration: MACH and OUSD, Sessions, the MACH swapper, payouts into Stripe or a wallet, fee sponsorship and identity."
+imageDescription: "Every lever for getting paid by agents"
 ---
 
 import { MermaidDiagram } from '../../components/MermaidDiagram'
 
-# Integrate MPP into your service [Get paid by agents, per request or per token]
+# MPP integration guide [Every lever for getting paid by agents, on one page]
 
-This is the guide for a service that wants agents to pay for it: an inference API, a database, a sandbox, a search API. It answers the four questions every integration asks, in order:
+This page lists every decision in a server-side MPP integration, in order of importance. The recommended default: **Tempo Sessions, OUSD first, MACH turned on.**
 
-1. [Who can pay you](#who-can-pay-you), and how they get a wallet
-2. [How you get paid](#how-you-get-paid): into your Stripe balance or into a wallet you hold
-3. [How your users' fees get sponsored](#sponsor-your-users-fees)
-4. [Charge or Sessions](#use-sessions): use Sessions
+| Lever | Recommended default | Section |
+|---|---|---|
+| What agents pay with | MACH and OUSD, USDC.e as fallback | [MACH and the swapper](#mach-and-the-swapper) |
+| How you charge | Sessions for usage, charge for one-off purchases | [Sessions](#run-sessions-in-production) |
+| Where money lands | Your Stripe balance, or a wallet you hold | [Payouts](#how-you-get-paid) |
+| Who pays network fees | You, through a hosted fee payer | [Fee sponsorship](#sponsor-your-users-fees) |
+| Who can call the route | Anyone who pays, plus optional identity checks | [Identity](#require-identity-on-paid-routes) |
 
-Then it shows how to [require an extra identity header](#require-identity-on-paid-routes), such as an access code, on a paid route.
+## Recommended setup
 
-## Who can pay you
+```ts twoslash [server.ts]
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
 
-Anyone with a Tempo account holding a USD stablecoin. You don't onboard payers, issue API keys or store cards: the `402` Challenge tells their client what to pay, and the Credential proves they paid.
+declare const store: Store.AtomicStore // shared by every server instance
+const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
 
-| Payer | How they get a wallet | How they fund it | Pays with |
-|---|---|---|---|
-| Agent with [Tempo Wallet](/tools/wallet#tempo-wallet) | `tempo wallet login` creates a passkey wallet and a scoped access key with a spend limit | Card or Apple Pay in the wallet, or a stablecoin transfer | Charge and Sessions |
-| Agent with [Privy Agent CLI](/tools/wallet#privy-agent-cli) | `privy-agent-wallets login` | Privy's browser funding flow | Charge and Sessions |
-| Your own app or agent | Any Tempo account: a private key on disk, an embedded wallet, an `mppx` client | Any onramp or transfer | Charge and Sessions |
-| Agent with [Link CLI](/tools/wallet#link-cli) | A Stripe Link wallet | The card already in Link | [Stripe SPT](/payment-methods/stripe) charges only |
+const mppx = Mppx.create({
+  methods: [
+    // [!code hl:start]
+    tempo({
+      account, // signs settlements; receives payments unless you set recipient
+      currencies: [
+        '0x20c0000000000000000000006a37DA5C996874BE', // OUSD on Tempo
+        '0x20C000000000000000000000b9537d11c60E8b50', // USDC.e on Tempo
+      ],
+      machineTokenEnabled: true, // agents holding MACH can pay
+      store,
+    }),
+    // [!code hl:end]
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
 
-Accept OUSD and USDC.e (the `mppx` default on mainnet) and you cover every Tempo wallet. Stripe Link is optional: add the [SPT method](/payment-methods/stripe) only if you also want card payers. You don't need it to get paid into Stripe.
+export async function handler(request: Request) {
+  const result = await mppx.session({ amount: '0.000002', unitType: 'llm_token' })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ output: '...' }))
+}
+```
 
-### MACH
+## MACH and the swapper
 
-MACH is closed-loop USD credit on Tempo that agents buy by card or Apple Pay. A wallet funded with MACH can pay any merchant Tempo has allowlisted for it, and the merchant receives USDC.e or OUSD through Tempo's swapper, never MACH. To accept MACH, send the Tempo team the recipient address your server uses. MACH works with charge today.
+MACH is closed-loop USD credit on Tempo. Agents buy it by card or Apple Pay, one dollar per MACH, which makes it the fastest way for a new agent to get funded. MACH can only be spent with approved merchants and is never paid out: Tempo's **MACH swapper** contract turns it into the stablecoin you asked for.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Agent
+    participant Swapper as MACH swapper
+    participant You as Your recipient
+    Agent->>Swapper: swapTo(MACH, amount, OUSD, you)
+    Note over Swapper: Burns MACH, spends its USDC reserve
+    Swapper->>You: Exact amount in OUSD or USDC.e
+`} />
+
+- **Charges.** Set `machineTokenEnabled: true`. A client holding MACH pays your charge through the swapper's `swapTo` route, and you receive exactly the requested amount in OUSD or USDC.e. Don't list MACH in `currencies`.
+- **Sessions.** The swapper can also act as the payee of a MACH Session: Tempo registers a session route that binds a payee address to your merchant address and payout token, and the swapper converts each settled voucher into your payout token and refunds unused MACH on close. Session routes are set up per merchant today; ask the Tempo team.
+- **Allowlisting.** The swapper only settles to supported merchants. Send the Tempo team the recipient address your server uses, for both charge and Session routes.
+- **Addresses.** Read the canonical MACH token and swapper per chain from [`machineTokenDeployments`](/sdk/typescript/tempo.machineTokenDeployments) in `mppx/tempo` rather than hardcoding them.
+- **Reach.** MACH exists only on Tempo, so keep OUSD and USDC.e accepted, and add other [payment methods](/payment-methods) for payers on other networks.
+
+## Run Sessions in production
+
+[Sessions](/payment-methods/tempo/session) are the default for usage-based pricing: see [Get paid by agents](/get-paid) for why. Sessions need three things in production. The [Sessions guide](/payment-methods/tempo/session) has the code for each:
+
+1. A shared atomic `store` across server instances, holding channel state
+2. A [settlement schedule](/payment-methods/tempo/session#settlement), so spend reaches your recipient regularly
+3. [Close supervision](/payment-methods/tempo/session#close-supervision): run `tempo.session.superviseCloses` every minute (every 5 minutes is fine with few open channels) so you capture spend before a payer's close request completes
+
+Keep charge on the same routes for clients that can't open channels: register both with `tempo()` and the client picks.
 
 ## How you get paid
 
@@ -131,38 +177,18 @@ const method = tempo({
 
 See [fee sponsorship](/payment-methods/tempo#fee-sponsorship) for how the fee payer signature works.
 
-## Use Sessions
+## Who can pay you
 
-If you bill per token, per row, per second or per call, use [Sessions](/payment-methods/tempo/session). Charge puts one transaction onchain per request. Sessions put one deposit onchain, then every request is paid with a signed voucher your server checks in CPU time.
+Anyone with a Tempo account holding a USD stablecoin. You don't onboard payers, issue API keys or store cards: the `402` Challenge tells their client what to pay, and the Credential proves they paid.
 
-<MermaidDiagram chart={`sequenceDiagram
-    participant Agent
-    participant Server as Your API
-    participant Tempo
-    Agent->>Tempo: Open channel with a deposit (once)
-    loop Every request
-        Agent->>Server: Request + voucher for cumulative spend
-        Server-->>Agent: 200 + Receipt
-    end
-    Server->>Tempo: Settle spent amount (on your schedule)
-`} />
+| Payer | How they get a wallet | How they fund it | Pays with |
+|---|---|---|---|
+| Agent with [Tempo Wallet](/tools/wallet#tempo-wallet) | `tempo wallet login` creates a passkey wallet and a scoped access key with a spend limit | Card or Apple Pay in the wallet, or a stablecoin transfer | Charge and Sessions |
+| Agent with [Privy Agent CLI](/tools/wallet#privy-agent-cli) | `privy-agent-wallets login` | Privy's browser funding flow | Charge and Sessions |
+| Your own app or agent | Any Tempo account: a private key on disk, an embedded wallet, an `mppx` client | Any onramp or transfer | Charge and Sessions |
+| Agent with [Link CLI](/tools/wallet#link-cli) | A Stripe Link wallet | The card already in Link | [Stripe SPT](/payment-methods/stripe) charges only |
 
-What that buys you:
-
-- **No latency tax.** Verifying a voucher is a signature check, not a block confirmation. Your p50 doesn't move.
-- **Price at the real unit.** Charge per output token, per query or per byte streamed, down to fractions of a cent, instead of rounding up to a per-request minimum that covers a transaction fee.
-- **Bill as you serve.** Stream an LLM response over SSE and charge per token as it goes; the stream stops when the deposit runs out.
-- **Fees amortized to zero.** You pay for the open, your settlements and the close, not for every request. At thousands of requests per channel, network cost per request rounds to nothing.
-- **The agent never leaves the loop.** One approval funds a channel that serves the whole task. No API key, no account, no prepaid credits with you.
-- **Prepaid credits without the liability.** The deposit stays the agent's money in escrow until a voucher spends it; you never hold balances you might owe back.
-
-Sessions need three things in production. The [Sessions guide](/payment-methods/tempo/session) has the code for each:
-
-1. A shared atomic `store` across server instances, holding channel state
-2. A [settlement schedule](/payment-methods/tempo/session#settlement), so spend reaches your recipient regularly
-3. [Close supervision](/payment-methods/tempo/session#close-supervision): run `tempo.session.superviseCloses` every minute (every 5 minutes is fine with few open channels) so you capture spend before a payer's close request completes
-
-Keep charge on the same routes for clients that can't open channels: register both with `tempo()` and the client picks.
+Accept MACH, OUSD and USDC.e and you cover every Tempo wallet, including agents funded by card through MACH. Stripe Link is optional: add the [SPT method](/payment-methods/stripe) only if you also want card payers. You don't need it to get paid into Stripe.
 
 ## Require identity on paid routes
 

@@ -1,0 +1,91 @@
+---
+description: "Let agents create resources without an account, pay per use, and hand them to a human who claims and upgrades them."
+imageDescription: "Let agents sign up without a signup form"
+---
+
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+
+# Let agents sign up as guests [From an agent's purchase to a paying customer]
+
+Platforms such as databases and sandboxes see most new projects created by agents, not people. Those projects start as temporary guest resources and convert when a human claims them and adds a card. MPP removes the friction on both ends: the agent pays for the resource on the first request, and the payer's wallet ties every later request and the eventual claim to the same identity.
+
+## The flow
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Agent
+    participant API as Your API
+    participant Human
+    Agent->>API: POST /projects
+    API-->>Agent: 402 + Challenge
+    Agent->>API: Retry + Credential
+    API-->>Agent: 201 + project + claim URL
+    loop While the agent works
+        Agent->>API: Use the project, paying per request
+    end
+    Agent->>Human: Here's your project: claim URL
+    Human->>API: Open claim URL and sign in
+    API-->>Human: Project moves to the human's account
+`} />
+
+1. **Create on payment.** The agent calls your create route. It's gated by MPP, so the first request returns a `402` and the paid retry creates the resource.
+2. **Record the payer.** The Credential's `source` is the payer's wallet. Store it as the guest owner.
+3. **Return a claim URL.** Give the agent a single-use claim link along with the resource.
+4. **Bill usage to the same wallet.** Later requests are paid with Sessions, so the guest resource pays for itself while it lives.
+5. **Claim and upgrade.** A human opens the claim link, signs in and takes ownership. From there they keep paying from the same wallet, or move to a plan or a card on file.
+
+## Create a resource on payment
+
+```ts twoslash [server.ts]
+import { Credential } from 'mppx'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+declare const db: {
+  createProject(input: { owner: string }): Promise<{ connectionString: string; id: string }>
+  saveClaim(input: { projectId: string; token: string }): Promise<void>
+}
+
+const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
+
+const mppx = Mppx.create({
+  methods: [tempo({ account, machineTokenEnabled: true, store: Store.memory() })],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+export async function createProject(request: Request) {
+  const result = await mppx.charge({ amount: '0.50', description: 'Create a database' })(request)
+  if (result.status === 402) return result.challenge
+
+  // [!code hl:start]
+  const owner = Credential.fromRequest(request).source!
+  const project = await db.createProject({ owner })
+  const token = crypto.randomUUID()
+  await db.saveClaim({ projectId: project.id, token })
+  // [!code hl:end]
+
+  return result.withReceipt(
+    Response.json(
+      {
+        claimUrl: `https://console.example.com/claim/${token}`,
+        connectionString: project.connectionString,
+        id: project.id,
+      },
+      { status: 201 },
+    ),
+  )
+}
+```
+
+Expire unclaimed guest resources on a schedule you choose. Because the agent paid for creation, abandoned resources cost you nothing.
+
+## Let the agent manage what it owns
+
+Use a zero-amount Challenge to let the agent prove it controls the owner wallet without paying, for example to list or delete its guest projects. See [Zero-dollar auth](/advanced/identity#zero-dollar-auth).
+
+## Upgrade after the claim
+
+After a human claims the resource, pick the billing that fits:
+
+- **Keep paying per use.** The human keeps the agent's wallet funded, and Sessions keep billing usage. No invoice, no card on file.
+- **Move to a plan.** Offer a [subscription](/payment-methods/tempo/subscription) the human approves once from their Tempo Wallet.
+- **Add a card.** Use your existing Stripe checkout, or accept cards over MPP with [Stripe](/payment-methods/stripe).
