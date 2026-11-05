@@ -11363,6 +11363,12 @@ export const services: ServiceDef[] = [
         amount: "399000000",
         unitType: "request",
       },
+      {
+        route: "GET /license/enterprise",
+        desc: "90-day unmetered licence on every data endpoint ($700)",
+        amount: "700000000",
+        unitType: "request",
+      },
     ],
   },
 ];
