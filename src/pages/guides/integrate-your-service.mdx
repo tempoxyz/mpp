@@ -1,0 +1,211 @@
+---
+description: "Everything a service needs to sell to agents over MPP: who can pay you, how you get paid (into Stripe or a wallet), how to sponsor fees, why to use Sessions, and how to add identity checks."
+imageDescription: "Sell your API to agents with MPP Sessions"
+---
+
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+
+# Integrate MPP into your service [Get paid by agents, per request or per token]
+
+This is the guide for a service that wants agents to pay for it: an inference API, a database, a sandbox, a search API. It answers the four questions every integration asks, in order:
+
+1. [Who can pay you](#who-can-pay-you), and how they get a wallet
+2. [How you get paid](#how-you-get-paid): into your Stripe balance or into a wallet you hold
+3. [How your users' fees get sponsored](#sponsor-your-users-fees)
+4. [Charge or Sessions](#use-sessions): use Sessions
+
+Then it shows how to [require an extra identity header](#require-identity-on-paid-routes), such as a one-time password, on a paid route.
+
+## Who can pay you
+
+Anyone with a Tempo account holding a USD stablecoin. You don't onboard payers, issue API keys or store cards: the `402` Challenge tells their client what to pay, and the Credential proves they paid.
+
+| Payer | How they get a wallet | How they fund it | Pays with |
+|---|---|---|---|
+| Agent with [Tempo Wallet](/tools/wallet#tempo-wallet) | `tempo wallet login` creates a passkey wallet and a scoped access key with a spend limit | Card or Apple Pay in the wallet, or a stablecoin transfer | Charge and Sessions |
+| Agent with [Privy Agent CLI](/tools/wallet#privy-agent-cli) | `privy-agent-wallets login` | Privy's browser funding flow | Charge and Sessions |
+| Your own app or agent | Any Tempo account: a private key on disk, an embedded wallet, an `mppx` client | Any onramp or transfer | Charge and Sessions |
+| Agent with [Link CLI](/tools/wallet#link-cli) | A Stripe Link wallet | The card already in Link | [Stripe SPT](/payment-methods/stripe) charges only |
+
+Accept OUSD and USDC.e (the `mppx` default on mainnet) and you cover every Tempo wallet. Stripe Link is optional: add the [SPT method](/payment-methods/stripe) only if you also want card payers. You don't need it to get paid into Stripe.
+
+### MACH
+
+MACH is closed-loop USD credit on Tempo that agents buy by card or Apple Pay. A wallet funded with MACH can pay any merchant Tempo has allowlisted for it, and the merchant receives USDC.e or OUSD through Tempo's swapper, never MACH. To accept MACH, send the Tempo team the recipient address your server uses. MACH works with charge today.
+
+## How you get paid
+
+The `recipient` in your Challenge is where the money lands. Pick one:
+
+- **Your Stripe balance (recommended for businesses already on Stripe).** Stripe gives your account a Tempo deposit address. Payments land in your Stripe balance and show up as `PaymentIntent` objects next to the rest of your revenue: same payouts, refunds and reporting. No wallet to create or secure.
+- **A Tempo wallet you hold.** Any address you control: a [Tempo Wallet](https://wallet.tempo.xyz) backed by a passkey, a Privy server wallet, or a multisig once volume grows. Funds land onchain immediately and stay there until you move them.
+
+### Get paid into Stripe
+
+Machine payments must be enabled on your Stripe account first: complete the prerequisites in the [Stripe MPP guide](https://docs.stripe.com/payments/machine/mpp).
+
+Use [`stripe.create`](/sdk/typescript/server/Method.stripe.create) with a deposit-address resolver. Exclude `spt` to accept only Tempo stablecoins, without Stripe Link, and add a Tempo Session method:
+
+```ts twoslash [server.ts]
+import Stripe from 'stripe'
+import { Mppx, Store, stripe } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+declare const store: Store.AtomicStore // shared by every server instance
+
+// Signs Session settlements. Holds no funds: settled amounts go to the Stripe deposit address.
+const settler = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
+
+const payments = stripe.create({
+  client,
+  depositAddresses: (network) => stripe.findOrCreateDepositAddress(client, network),
+  hostedFeePayer: true, // Stripe pays your users' Tempo fees in live mode
+  livemode: true,
+  networkId: process.env.STRIPE_NETWORK_ID!,
+  store,
+})
+
+const mppx = Mppx.create({
+  methods: await payments
+    .defaultMethods({ exclude: ['spt'] })
+    .additional({ tempo: { session: { account: settler, operator: settler.address } } }),
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+Every charge, and every Session settlement of at least one cent, is recorded in Stripe as a `PaymentIntent` with `machine_payment` and `mpp_intent` metadata. On a platform, pass `connect: { stripeAccount }` to route payments to a connected account; the hosted fee payer doesn't support Connect routing.
+
+The settlement key only signs settle and close transactions for channels paid to your deposit address. It can't send funds anywhere else, so store it in your secret manager like an API key, not like a treasury key.
+
+### Get paid into a wallet
+
+Set `recipient` to your address. For Sessions, `account` signs settlement and doubles as the recipient when you omit it.
+
+```ts twoslash [server.ts]
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+declare const store: Store.AtomicStore
+const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      account,
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // your treasury wallet
+      store,
+    }),
+  ],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+```
+
+## Sponsor your users' fees
+
+Every Tempo payment pays a sub-cent network fee. Pay it for your users so an agent holding only MACH or one stablecoin never gets stuck. Pick the option that matches how you get paid:
+
+- **Into Stripe:** set `hostedFeePayer: true` on `stripe.create`, as above. Stripe sponsors charge and Session transactions in live mode.
+- **Tempo's hosted fee payer:** create a project in the Tempo Console, then point `feePayer` at the sponsor endpoint with your API key. Tempo pays the fees and bills your organization.
+
+```ts twoslash [server.ts]
+import { Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+declare const store: Store.AtomicStore
+const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
+
+const method = tempo({
+  account,
+  // [!code hl:start]
+  feePayer: {
+    headers: { 'tempo-api-key': process.env.TEMPO_API_KEY! },
+    url: 'https://api.tempo.xyz/rpc/sponsor',
+  },
+  // [!code hl:end]
+  store,
+})
+```
+
+- **Your own account:** set `feePayer: true` and keep a small fee-token balance on `account`. Simplest for testing.
+
+See [fee sponsorship](/payment-methods/tempo#fee-sponsorship) for how the fee payer signature works.
+
+## Use Sessions
+
+If you bill per token, per row, per second or per call, use [Sessions](/payment-methods/tempo/session). Charge puts one transaction onchain per request. Sessions put one deposit onchain, then every request is paid with a signed voucher your server checks in CPU time.
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Agent
+    participant Server as Your API
+    participant Tempo
+    Agent->>Tempo: Open channel with a deposit (once)
+    loop Every request
+        Agent->>Server: Request + voucher for cumulative spend
+        Server-->>Agent: 200 + Receipt
+    end
+    Server->>Tempo: Settle spent amount (on your schedule)
+`} />
+
+What that buys you:
+
+- **No latency tax.** Verifying a voucher is a signature check, not a block confirmation. Your p50 doesn't move.
+- **Price at the real unit.** Charge per output token, per query or per byte streamed, down to fractions of a cent, instead of rounding up to a per-request minimum that covers a transaction fee.
+- **Bill as you serve.** Stream an LLM response over SSE and charge per token as it goes; the stream stops when the deposit runs out.
+- **Fees amortized to zero.** You pay for the open, your settlements and the close, not for every request. At thousands of requests per channel, network cost per request rounds to nothing.
+- **The agent never leaves the loop.** One approval funds a channel that serves the whole task. No API key, no account, no prepaid credits with you.
+- **Prepaid credits without the liability.** The deposit stays the agent's money in escrow until a voucher spends it; you never hold balances you might owe back.
+
+Sessions need three things in production. The [Sessions guide](/payment-methods/tempo/session) has the code for each:
+
+1. A shared atomic `store` across server instances, holding channel state
+2. A [settlement schedule](/payment-methods/tempo/session#settlement), so spend reaches your recipient regularly
+3. [Close supervision](/payment-methods/tempo/session#close-supervision): run `tempo.session.superviseCloses` every minute (every 5 minutes is fine with few open channels) so you capture spend before a payer's close request completes
+
+Keep charge on the same routes for clients that can't open channels: register both with `tempo()` and the client picks.
+
+## Require identity on paid routes
+
+Payment proves who paid, not who is allowed in. To gate a route on something else, such as a one-time password you emailed a customer, add a request identity verifier. It runs before the `402`, so a request without a valid code never gets a Challenge.
+
+```ts twoslash [server.ts]
+import type * as Identity from 'mppx/identity'
+import { Mppx, Store, tempo } from 'mppx/server'
+import { privateKeyToAccount } from 'viem/accounts'
+
+declare function checkOtp(code: string): Promise<string | undefined> // returns the customer ID
+declare const store: Store.AtomicStore
+const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
+
+// [!code hl:start]
+const otp: Identity.Verifier<{ customerId: string }> = {
+  async verify(request) {
+    const code = request.headers.get('X-OTP')
+    if (!code) return { status: 'missing' } // 403
+    const customerId = await checkOtp(code)
+    if (!customerId) return { reason: 'Invalid one-time password', status: 'invalid' } // 401
+    return { status: 'valid', value: { customerId } }
+  },
+}
+// [!code hl:end]
+
+const mppx = Mppx.create({
+  methods: [tempo.session({ account, store })],
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.session({
+    amount: '0.000002',
+    identity: [otp], // [!code hl]
+    unitType: 'llm_token',
+  })(request)
+  if (result.status === 402) return result.challenge
+
+  console.log(result.identity?.get(otp)?.customerId)
+  // @log: cus_123
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+The client sends `X-OTP` on the first request and on the paid retry; `mppx` clients can attach it with a [prover](/advanced/identity#use-the-framework-directly). For signed agent identity instead of a shared code, use [Web Bot Auth or Trusted Agent Protocol](/advanced/identity#request-identity).

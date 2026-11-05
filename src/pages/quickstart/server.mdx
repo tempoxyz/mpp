@@ -189,6 +189,10 @@ const response = await mppx.charge({
 ```
 :::
 
+:::tip[Going to production]
+Read [Integrate MPP into your service](/guides/integrate-your-service) before you launch: it covers getting paid into your Stripe balance instead of a wallet, sponsoring your users' fees, and switching per-request routes to Sessions.
+:::
+
 ## Node.js & Express compatibility
 
 If your framework doesn't support the **Fetch API** (for example, Express or Node.js), you're likely interfacing with the [Node.js Request Listener API](https://nodejs.org/api/http.html#httpcreateserveroptions-requestlistener).

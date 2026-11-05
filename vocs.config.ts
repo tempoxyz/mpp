@@ -350,6 +350,10 @@ export default defineConfig({
         text: "Guides",
         items: [
           {
+            text: "Integrate MPP into your service",
+            link: "/guides/integrate-your-service",
+          },
+          {
             text: "Accept one-time payments",
             link: "/guides/one-time-payments",
           },
