@@ -83,7 +83,7 @@ export function Footer() {
           ))}
         </div>
         <p className={cx(linkBase, "mt-2 text-white/50 md:mt-0")}>
-          © 2026 All rights reserved, MPP.
+          © 2026 Tempo Labs, Inc. All rights reserved.
           <br />
           San Francisco, California, USA
         </p>
