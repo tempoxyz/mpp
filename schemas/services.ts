@@ -11188,7 +11188,7 @@ export const services: ServiceDef[] = [
     url: "https://indo-news-api.vercel.app",
     serviceUrl: "https://indo-news-api.vercel.app",
     description:
-      "Indonesian news and reference data for agents: 23 paid routes covering topic headlines, incremental deltas, search, briefings, sentiment, 8-topic digests and brand monitoring; any-pair FX, conversions, rupiah crypto prices, Indodax premium, Asia market snapshots, BMKG earthquake alerts, public-holiday and working-day decisions, a public-page reader, written coverage reports, and 30-day unmetered licences from $19.",
+      "Indonesian news and reference data for agents: 25 paid routes covering topic headlines, incremental deltas, search, briefings, sentiment, 8-topic digests and brand monitoring; any-pair FX, conversions, rupiah crypto prices, Indodax premium, Asia market snapshots, BMKG earthquake alerts, public-holiday and working-day decisions, a public-page reader, written coverage reports, and unmetered Bearer licences that differ by enforced scope: $19 and $99 for 30 days, $399 for 30 days with 1,825 FX prints in one call, and $700 for 90 days with 3,650 prints in one call — the top two also take the whole series as one ?format=csv|jsonl file.",
     icon: "https://indo-news-api.vercel.app/favicon.ico",
     categories: ["media", "data", "search"],
     integration: "third-party",
@@ -11281,7 +11281,7 @@ export const services: ServiceDef[] = [
       },
       {
         route: "GET /series",
-        desc: "Daily exchange-rate history beyond 30 days: up to 365 days per call",
+        desc: "Daily exchange-rate history beyond 30 days: up to 365 prints per call",
         amount: "250000",
         unitType: "request",
       },
@@ -11365,13 +11365,13 @@ export const services: ServiceDef[] = [
       },
       {
         route: "GET /license/growth",
-        desc: "30-day unmetered team licence on every data endpoint ($399)",
+        desc: "30-day unmetered team licence on every data endpoint ($399) — 1,825 FX prints per call plus ?format=csv|jsonl bulk export",
         amount: "399000000",
         unitType: "request",
       },
       {
         route: "GET /license/enterprise",
-        desc: "90-day unmetered licence on every data endpoint ($700)",
+        desc: "90-day unmetered licence on every data endpoint ($700) — 3,650 FX prints per call plus ?format=csv|jsonl bulk export",
         amount: "700000000",
         unitType: "request",
       },
