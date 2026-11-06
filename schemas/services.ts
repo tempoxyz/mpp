@@ -11188,7 +11188,7 @@ export const services: ServiceDef[] = [
     url: "https://indo-news-api.vercel.app",
     serviceUrl: "https://indo-news-api.vercel.app",
     description:
-      "Indonesian news and reference data for agents: 25 paid routes covering topic headlines, incremental deltas, search, briefings, sentiment, 8-topic digests and brand monitoring; any-pair FX, conversions, rupiah crypto prices, Indodax premium, Asia market snapshots, BMKG earthquake alerts, public-holiday and working-day decisions, a public-page reader, written coverage reports, and unmetered Bearer licences that differ by enforced scope: $19 and $99 for 30 days, $399 for 30 days with 1,825 FX prints in one call, and $700 for 90 days with 3,650 prints in one call — the top two also take the whole series as one ?format=csv|jsonl file.",
+      "Indonesian news and reference data for agents: 25 paid routes covering topic headlines, incremental deltas, search, briefings, sentiment, 8-topic digests and brand monitoring; FX for published pairs, conversions, rupiah crypto prices, Indodax premium, Asia market snapshots, BMKG earthquake alerts, public-holiday and working-day decisions, a public-page reader, written coverage reports, and unmetered Bearer licences that differ by enforced scope: $19 and $99 for 30 days, $399 for 30 days with 1,825 FX prints in one call, and $700 for 90 days with 3,650 prints in one call — the top two also take the whole series as one ?format=csv|jsonl file.",
     icon: "https://indo-news-api.vercel.app/favicon.ico",
     categories: ["media", "data", "search"],
     integration: "third-party",
