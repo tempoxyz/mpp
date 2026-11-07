@@ -1,0 +1,172 @@
+---
+description: "Let customers pay from a private Zone balance, so their wallet address and history stay off the public chain."
+imageDescription: "Get paid without exposing who paid you"
+---
+
+import { Cards } from 'vocs'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { OneTimePaymentsCard, ServerQuickstartCard } from '../../components/cards'
+
+# Private payments on Tempo [Accept charges paid from a Zone balance]
+
+A [Zone](https://docs.tempo.xyz/docs/zones) is a private stablecoin ledger connected to Tempo. A payer who holds a balance in a Zone can pay a [Tempo charge](/payment-methods/tempo/charge) from it: the Zone withdraws the amount straight to your recipient on Tempo, and your server verifies the settlement. Tempo shows the Zone's portal paying you, not the payer's account.
+
+Use private payments when payers don't want their wallet address, balance, or spending history on a public chain—for example, agents paying for research APIs or people paying for content.
+
+:::info
+Zone payments work with the charge intent. [Sessions](/payment-methods/tempo/session) and [subscriptions](/payment-methods/tempo/subscription) pay from a Tempo account.
+:::
+
+## What stays private
+
+| Data | Who can see it |
+| --- | --- |
+| Payer's address, balance, and history | The payer and the Zone operator |
+| Withdrawal `senderTag` | Public on Tempo, in place of the payer's address |
+| Recipient, token, amount, and timing | Public on Tempo |
+| Challenge-bound memo | Public on Tempo, in the settlement calldata |
+
+Your server receives the Zone ID, the `senderTag`, and the settlement transaction hash—never the payer's address. The Receipt has no payer.
+
+A Zone hides who paid, not that a payment happened. Amounts and timing stay public, so a distinctive amount paid right after a request can be correlated with it. The Zone operator can read the whole private ledger. See [Zone privacy](https://docs.tempo.xyz/docs/zones/privacy) for the full model.
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Zone
+    participant Server
+    participant Tempo
+    Client->>Server: (1) GET /resource
+    Server-->>Client: 402 + Challenge (zones)
+    Client->>Zone: (2) Withdraw to recipient with Challenge memo
+    Zone->>Tempo: (3) Portal pays recipient
+    Client->>Tempo: (4) Wait for WithdrawalProcessed
+    Client->>Server: (5) zone Credential
+    Server->>Tempo: (6) Verify settlement
+    Server-->>Client: 200 OK + Receipt
+`} />
+
+::::steps
+
+### Accept Zones
+
+Your server lists the Zones it accepts in the Challenge's `methodDetails.zones`.
+
+### Withdraw
+
+The client withdraws the charge amount from its Zone balance straight to your recipient. The withdrawal carries the Challenge-bound attribution memo and no callback (`gasLimit` `0`). The payer also pays the Zone's withdrawal fee.
+
+### Settle
+
+The Zone's portal processes the withdrawal on Tempo, transfers the tokens to your recipient, and emits `WithdrawalProcessed` for the withdrawal's `senderTag`. The client waits for that event.
+
+### Verify
+
+The client sends a `zone` Credential: `{ type: 'zone', zoneId, senderTag, hash }`. Your server reads the settlement transaction and checks that the portal paid the recipient the exact amount in the requested currency, with a memo bound to this Challenge. It then claims the `senderTag` so the payment can't be used twice.
+
+::::
+
+## Server
+
+Pass `zones` to [`tempo.charge`](/sdk/typescript/server/Method.tempo.charge#zones-optional) with the Zone IDs you accept. Everything else stays the same, and clients without a Zone balance still pay on Tempo.
+
+```ts
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      zones: [3, 7], // Zone IDs you accept // [!code hl]
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05' })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+Set `zones: true` to accept a withdrawal from any Zone on the Challenge's chain. You can also set `zones` on a single `mppx.charge` call.
+
+### Requirements
+
+- **Push mode**: a Zone payment is a push payment. If you set `supportedModes`, include `'push'`.
+- **No splits**: a withdrawal pays one recipient, so charges with `splits` don't accept Zone Credentials.
+- **Store**: replay protection claims each `senderTag` in the method's `store`. Use a shared atomic store in production.
+
+A Credential that fails verification gets a `402` with a fresh Challenge. A replayed `senderTag` gets a `403`.
+
+## Client
+
+Pass `zone` to [`tempo.charge`](/sdk/typescript/client/Method.tempo.charge#zone-optional) with a viem client for the Zone. The client must hold the paying account and send the Zone RPC [authorization token](https://docs.tempo.xyz/docs/zones/connect#authorize-access) on every request.
+
+```ts
+import { Mppx, tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { zoneChain } from './zone.config' // Zone chain from the operator
+
+const account = privateKeyToAccount('0xabc…123')
+
+// [!code hl:start]
+const zone = createClient({
+  account,
+  chain: zoneChain,
+  transport: http(process.env.ZONE_RPC_URL, {
+    fetchOptions: { headers: { 'X-Authorization-Token': process.env.ZONE_AUTH_TOKEN! } },
+  }),
+})
+// [!code hl:end]
+
+Mppx.create({
+  methods: [tempo.charge({ account, zone: { client: zone } })], // [!code hl]
+})
+
+const response = await fetch('https://api.example.com/resource')
+```
+
+The client pays from the Zone when the Challenge accepts its Zone, allows push mode, has no splits, and doesn't expire before the withdrawal can settle. Otherwise it pays from `account` on Tempo as usual. The client derives the Zone ID from the Zone's chain ID; pass `zone.zoneId` when the chain ID doesn't encode it.
+
+### Handle slow settlement
+
+A withdrawal can't be undone. The client waits up to `zone.settlementTimeoutMs` (default 60 seconds) for it to settle on Tempo. If it doesn't, the client throws `Errors.ZoneSettlementPendingError` with the `challengeId`, `senderTag`, and `zoneId`.
+
+Retry the same Challenge with the same client to resume waiting—it doesn't withdraw again. You can also look up the withdrawal by `senderTag` with the [Zone withdrawal status API](https://docs.tempo.xyz/docs/zones/withdraw#track-the-withdrawal).
+
+```ts
+import { Errors } from 'mppx'
+
+try {
+  await fetch('https://api.example.com/resource')
+} catch (error) {
+  if (error instanceof Errors.ZoneSettlementPendingError) {
+    // Retry this request instead of paying again.
+    console.log(error.zoneId, error.senderTag)
+  }
+}
+```
+
+## Constraints
+
+| Rule | Value |
+| --- | --- |
+| Intent | Charge only |
+| Payment mode | Push |
+| Splits | Not supported |
+| Amount | Greater than zero |
+| Settlement chain | The Zone must settle on the Challenge's chain |
+| Fees | The payer pays the Zone withdrawal fee on top of the amount |
+
+## Next steps
+
+<Cards>
+  <OneTimePaymentsCard />
+  <ServerQuickstartCard />
+</Cards>

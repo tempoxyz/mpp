@@ -381,3 +381,15 @@ const method = tempo.charge({
 - **Type:** `ResolveAccount`
 
 Selects the account that signs this charge after the Challenge and chain are known.
+
+### zone (optional)
+
+- **Type:** `{ client: Client; settlementTimeoutMs?: number; zoneId?: number }`
+
+Pays from a [Zone](https://docs.tempo.xyz/docs/zones) balance instead of the account's Tempo balance when the Challenge accepts that Zone in `methodDetails.zones`, allows push mode, and has no splits. The client withdraws the amount to the recipient with a Challenge-bound memo, waits for the withdrawal to settle on Tempo, and sends a `zone` Credential. Other Challenges are paid on Tempo as usual.
+
+- `client`: viem client for the Zone chain, with the paying account and the Zone RPC authorization token.
+- `settlementTimeoutMs`: milliseconds to wait for settlement on Tempo. Defaults to `60_000`. The client throws `Errors.ZoneSettlementPendingError` when the wait ends; retrying the same Challenge resumes it without withdrawing again.
+- `zoneId`: Zone ID. Derived from `client.chain.id` when omitted.
+
+See [private payments](/guides/private-payments).

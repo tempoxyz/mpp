@@ -399,6 +399,10 @@ const response = await mppx.fetch('https://api.example.com/v1/chat/completions')
 </Tab>
 </Tabs>
 
+### Private payments
+
+Sessions don't accept payments from a [Zone](https://docs.tempo.xyz/docs/zones) balance. A channel deposit comes from the payer's Tempo account, so the payer's address is public on Tempo. For per-request payments that keep the payer private, use [charge with `zones`](/guides/private-payments).
+
 ## Why Sessions
 
 Usage-based services—LLM APIs, cloud infrastructure, metered data—don't know the final cost when a request starts. Billing after the fact adds credit risk and reconciliation; prepaid credits make the client guess and strand unused funds.

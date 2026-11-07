@@ -7,6 +7,7 @@ import type { PathsForPages } from 'waku/router'
 type Page =
   | { path: '/404'; render: 'static' }
   | { path: '/_api/api/og'; render: 'static' }
+  | { path: '/_root'; render: 'static' }
   | { path: '/_slots'; render: 'static' }
   | { path: '/advanced/discovery'; render: 'static' }
   | { path: '/advanced/identity'; render: 'static' }
@@ -17,6 +18,7 @@ type Page =
   | { path: '/blog/_mdx-wrapper'; render: 'static' }
   | { path: '/blog/evm-x402-support'; render: 'static' }
   | { path: '/blog/go-and-ruby-sdks'; render: 'static' }
+  | { path: '/blog'; render: 'static' }
   | { path: '/blog'; render: 'static' }
   | { path: '/blog/mppx-agent-runtimes'; render: 'static' }
   | { path: '/blog/mppx-identity-support'; render: 'static' }
@@ -37,12 +39,14 @@ type Page =
   | { path: '/guides/one-time-payments'; render: 'static' }
   | { path: '/guides/pay-as-you-go'; render: 'static' }
   | { path: '/guides/payment-links'; render: 'static' }
+  | { path: '/guides/private-payments'; render: 'static' }
   | { path: '/guides/proxy-existing-service'; render: 'static' }
   | { path: '/guides/split-payments'; render: 'static' }
   | { path: '/guides/streamed-payments'; render: 'static' }
   | { path: '/guides/subscription-payments'; render: 'static' }
   | { path: '/guides/use-mpp-with-x402'; render: 'static' }
   | { path: '/guides/webmcp-payments'; render: 'static' }
+  | { path: '/'; render: 'static' }
   | { path: '/'; render: 'static' }
   | { path: '/intents/charge'; render: 'static' }
   | { path: '/intents'; render: 'static' }
@@ -204,6 +208,7 @@ type Page =
   | { path: '/sdk/typescript/x402/hono'; render: 'static' }
   | { path: '/sdk/typescript/x402/mcp'; render: 'static' }
   | { path: '/sdk/typescript/x402/next'; render: 'static' }
+  | { path: '/services'; render: 'static' }
   | { path: '/services'; render: 'static' }
   | { path: '/tools/wallet'; render: 'static' }
   | { path: '/use-cases/agentic-payments'; render: 'static' }
