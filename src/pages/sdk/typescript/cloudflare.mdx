@@ -21,6 +21,7 @@ import { tempo as tempoChain } from 'viem/chains'
 export class MppxChannels extends ChannelStore {}
 
 type Env = {
+  MPP_REALM: string
   MPP_SECRET_KEY: string
   MPPX_CHANNELS: Store.durableObject.Namespace
   SETTLEMENT_PRIVATE_KEY: Hex
@@ -46,6 +47,7 @@ function payments(env: Env) {
       }),
       // [!code hl:end]
     ],
+    realm: env.MPP_REALM,
     secretKey: env.MPP_SECRET_KEY,
   })
   return { account, getClient, mppx, store: storage.store }
@@ -67,7 +69,7 @@ export default {
 
 Fund the settlement account with a fee-paying stablecoin such as USDC.e. OUSD is the payment currency here, not a fee token; set `feeToken` explicitly in `settle` when your account's default isn't suitable.
 
-Merge these bindings into your `wrangler.jsonc`, create the queue, and set `MPP_SECRET_KEY` and `SETTLEMENT_PRIVATE_KEY` as Worker secrets:
+Merge these bindings into your `wrangler.jsonc`, create the queue, and set `MPP_SECRET_KEY` and `SETTLEMENT_PRIVATE_KEY` as Worker secrets. Set `MPP_REALM` to your Worker's public hostname, without a scheme or path, so the client accepts bootstrap proofs and Session payments:
 
 ```jsonc
 {
@@ -79,7 +81,8 @@ Merge these bindings into your `wrangler.jsonc`, create the queue, and set `MPP_
   "queues": {
     "consumers": [{ "queue": "mppx-settlement" }],
     "producers": [{ "binding": "MPPX_SETTLEMENT_QUEUE", "queue": "mppx-settlement" }]
-  }
+  },
+  "vars": { "MPP_REALM": "api.example.com" }
   // [!code hl:end]
 }
 ```
