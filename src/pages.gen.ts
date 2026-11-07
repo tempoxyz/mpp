@@ -40,6 +40,7 @@ type Page =
   | { path: '/guides/one-time-payments'; render: 'static' }
   | { path: '/guides/pay-as-you-go'; render: 'static' }
   | { path: '/guides/payment-links'; render: 'static' }
+  | { path: '/guides/private-payments'; render: 'static' }
   | { path: '/guides/proxy-existing-service'; render: 'static' }
   | { path: '/guides/split-payments'; render: 'static' }
   | { path: '/guides/streamed-payments'; render: 'static' }

@@ -161,6 +161,20 @@ const result = await mppx.charge({
 
 Up to 10 splits per charge. Each split must have a positive amount, and the sum of all splits must be less than the total `amount`. See the [split payments guide](/guides/split-payments) for more details.
 
+### With private payments
+
+Set `zones` to accept payments from a [Zone](https://docs.tempo.xyz/docs/zones) balance. The payer withdraws from the Zone straight to your recipient, so Tempo shows the Zone's portal paying you instead of the payer's account.
+
+```ts
+import { Mppx, tempo } from "mppx/server";
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ zones: [3, 7] })], // Zone IDs you accept // [!code hl]
+});
+```
+
+The client sends a `zone` Credential naming the withdrawal by its `senderTag` and the Tempo transaction that settled it. The server checks that the portal paid the recipient the exact amount with a Challenge-bound memo, then claims the `senderTag` against replay. Zone Credentials need push mode and don't support `splits`. Set `zones: true` to accept any Zone on the Challenge's chain. See the [private payments guide](/guides/private-payments) for the privacy model and a full walkthrough.
+
 ### Payment links
 
 Set `html: true` on the method to render a payment page when a browser navigates to the endpoint. The page shows a "Continue with Tempo" button—after the user pays, the page reloads with the paid resource. Programmatic clients with `Authorization` headers are unaffected.
@@ -466,6 +480,24 @@ Mppx.create({
 </Tabs>
 
 See [auto-swap](/payment-methods/tempo/charge#auto-swap) for more details.
+
+### Pay from a Zone
+
+Pass `zone` with a viem client for the Zone to pay from a private Zone balance when the Challenge accepts that Zone. Other Challenges are paid from `account` on Tempo.
+
+```ts
+import { Mppx, tempo } from "mppx/client";
+import { privateKeyToAccount } from "viem/accounts";
+
+const account = privateKeyToAccount("0xabc…123");
+declare const zoneClient: import("viem").Client; // Zone RPC client with the Zone authorization token
+
+Mppx.create({
+  methods: [tempo.charge({ account, zone: { client: zoneClient } })], // [!code hl]
+});
+```
+
+If the withdrawal doesn't settle within `zone.settlementTimeoutMs`, the client throws `Errors.ZoneSettlementPendingError`. Create the Credential again from the same `402` response to resume waiting without withdrawing again—a repeated request gets a new Challenge and pays again. See [handle slow settlement](/guides/private-payments#handle-slow-settlement).
 
 ## Specification
 

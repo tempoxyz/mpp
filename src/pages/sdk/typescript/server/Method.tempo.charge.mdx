@@ -444,6 +444,12 @@ const mppx = Mppx.create({
 })
 ```
 
+### zones (optional)
+
+- **Type:** `number[] | true`
+
+Zone IDs whose withdrawals pay this charge, or `true` for any Zone on the Challenge's chain. The server advertises them in `methodDetails.zones` and verifies `zone` Credentials from the settlement transaction on Tempo. Zone Credentials need push mode and don't support `splits`. Each settled withdrawal's `senderTag` is claimed in `store` against replay. See [private payments](/guides/private-payments).
+
 ## Request parameters
 
 ### amount
@@ -533,3 +539,9 @@ export async function handler(request: Request) {
   return response.withReceipt(Response.json({ data: '...' }))
 }
 ```
+
+### zones (optional)
+
+- **Type:** `number[] | true`
+
+Overrides the method's `zones` for this charge.
