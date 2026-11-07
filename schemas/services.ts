@@ -11180,6 +11180,47 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  {
+    id: "precleared",
+    name: "Precleared",
+    url: "https://precleared.dev",
+    serviceUrl: "https://precleared.dev",
+    description:
+      "Precleared checks whether a cold email to one address is legal in the recipient's country before an agent sends it: a verdict, the rule with its source, what the footer must include and a signed receipt. It covers 12 countries, including the UK, US, Canada, Australia, the UAE and seven EU countries. Agents buy an API key with checks over MPP, with no account needed.",
+    categories: ["data"],
+    integration: "first-party",
+    tags: [
+      "email",
+      "compliance",
+      "cold-email",
+      "gdpr",
+      "pecr",
+      "can-spam",
+      "casl",
+      "sales",
+    ],
+    status: "active",
+    docs: {
+      homepage: "https://precleared.dev/docs",
+      llmsTxt: "https://precleared.dev/llms.txt",
+      apiReference: "https://precleared.dev/openapi.json",
+    },
+    provider: { name: "Precleared", url: "https://precleared.dev" },
+    realm: "precleared.dev",
+    intent: "charge",
+    payments: [{ method: "stripe", currency: "gbp", decimals: 2 }],
+    endpoints: [
+      {
+        healthCheck: {
+          body: { pack: "starter", email: "healthcheck@example.com" },
+        },
+        route: "POST /api/v1/agent/keys",
+        desc: "Buy a new API key with 300 checks. Send pack: standard for 2,000 checks at £39.",
+        amount: "900",
+        unitType: "pack",
+      },
+    ],
+  },
 ];
 
 export {
