@@ -385,6 +385,10 @@ export default defineConfig({
                 link: "/guides/split-payments",
               },
               {
+                text: "Private payments on Tempo",
+                link: "/guides/private-payments",
+              },
+              {
                 text: "Accept multiple payment methods",
                 link: "/guides/multiple-payment-methods",
               },

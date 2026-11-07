@@ -269,6 +269,10 @@ console.log(response.status)
 </Tab>
 </Tabs>
 
+## Private payments
+
+Subscriptions don't accept payments from a [Zone](https://docs.tempo.xyz/docs/zones) balance. Each renewal transfers from the payer's Tempo account, so the payer's address is public on Tempo. To keep the payer private, charge each period with [charge and `zones`](/guides/private-payments) instead.
+
 ## Advanced options
 
 ### Custom activation
