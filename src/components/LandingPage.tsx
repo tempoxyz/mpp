@@ -24,6 +24,32 @@ const integrations = [
   { href: "https://parallel.ai", name: "Parallel", slug: "6" },
   { href: "https://www.visa.com", name: "Visa", slug: "visa" },
 ];
+const valueProps = [
+  {
+    description:
+      "Agents pay in the same request they call you with. No account, API key or card form.",
+    href: "/get-paid",
+    title: "No signup required",
+  },
+  {
+    description:
+      "Sessions bill per token, row or second with signed vouchers, not one transaction per call.",
+    href: "/payment-methods/tempo/session",
+    title: "Bill per unit with Sessions",
+  },
+  {
+    description:
+      "Every payment carries the payer's wallet. Hand guest resources to a human who claims and upgrades.",
+    href: "/get-paid/guest-accounts",
+    title: "Turn guests into customers",
+  },
+  {
+    description:
+      "Receive stablecoins in your Stripe balance or a wallet. Agents can fund with MACH by card.",
+    href: "/guides/integrate-your-service",
+    title: "Get paid into Stripe",
+  },
+];
 const terminalSteps = [
   Terminal.commands(["./mpp.sh"]),
   Terminal.wizard([
@@ -101,20 +127,23 @@ export function LandingPage() {
 
           <div className="relative z-10 flex max-w-[560px] flex-col gap-8 md:max-w-[978px] md:gap-[38px]">
             <h1 className="font-sans !text-[28px] !font-normal !leading-[1.1] !tracking-[-0.56px] text-offwhite min-[640px]:!text-[32px] min-[640px]:!tracking-[-0.64px] min-[1000px]:!text-[48px] min-[1000px]:!leading-none min-[1000px]:!tracking-[-1.44px]">
-              MPP lets agents pay for services on the
-              <br className="hidden min-[1000px]:block" /> web, extensible to
-              any payment method.
+              Let agents pay for your
+              <br className="hidden min-[1000px]:block" /> service, no signup
+              required.
             </h1>
             <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap">
               <Button
                 className="w-full sm:w-auto"
-                href="/quickstart/agent"
+                href="/quickstart/server"
                 variant="primary"
               >
-                Use with your agent
+                Accept agent payments
               </Button>
-              <Button className="w-full sm:w-auto" href="/quickstart/server">
-                Add payments to your API
+              <Button className="w-full sm:w-auto" href="/get-paid">
+                Why sell to agents
+              </Button>
+              <Button className="w-full sm:w-auto" href="/quickstart/agent">
+                Use with your agent
               </Button>
             </div>
           </div>
@@ -150,6 +179,32 @@ export function LandingPage() {
             </video>
           </div>
         </div>
+
+        <section className="flex flex-col gap-10 px-4 py-20 md:px-12">
+          <div className="flex flex-col gap-6 border-t border-border pt-6">
+            <SectionLabel label="Get paid by agents" />
+            <h2 className="max-w-[720px] font-sans !text-[32px] font-normal !leading-[1.1] !tracking-[-0.32px] text-offwhite">
+              Agents already sign up for databases, sandboxes and models on
+              their own. Make them paying customers.
+            </h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {valueProps.map((item) => (
+              <a
+                className="flex flex-col gap-3 border border-border p-6 transition-colors hover:bg-[#191919]"
+                href={item.href}
+                key={item.title}
+              >
+                <span className="font-sans text-lg text-offwhite">
+                  {item.title}
+                </span>
+                <span className="text-sm leading-6 text-secondary">
+                  {item.description}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
 
         <section className="flex flex-col gap-4 px-4 py-20 md:px-12">
           <SectionLabel label="Integrations" />
@@ -228,13 +283,12 @@ Object.assign(LandingPage, {
     children: [
       {
         type: "text",
-        value:
-          "MPP lets agents pay for services on the web, extensible to any payment method. ",
+        value: "Let agents pay for your service, no signup required. ",
       },
       {
-        children: [{ type: "text", value: "Read the quickstart" }],
+        children: [{ type: "text", value: "Accept agent payments" }],
         type: "link",
-        url: "/quickstart/agent",
+        url: "/quickstart/server",
       },
     ],
     type: "paragraph",

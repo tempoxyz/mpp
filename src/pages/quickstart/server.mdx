@@ -1,20 +1,20 @@
 ---
-description: "Add payment-gated access to your API with mppx. Accept stablecoins, cards, and Bitcoin in a few lines of code using the MPP server SDK."
-imageDescription: "Charge for your API in a few lines of code"
+description: "Let agents pay for your API per request or per token with MPP Sessions. Add one middleware and get paid in stablecoins or into Stripe."
+imageDescription: "Let agents pay for your API"
 ---
 
 import { Cards } from 'vocs'
 import { ServerPrompt } from '../../components/QuickstartPrompt'
 import { ClientQuickstartCard, MppxCreateReferenceCard } from '../../components/cards'
 
-# Add payments to your API [Charge for access to protected resources]
+# Let agents pay for your API [Charge per request or per token with Sessions]
 
 ## Overview
 
-This quickstart demonstrates how to plug MPP into any server framework to accept payments for protected resources. Pick the path that suits you:
+Add MPP to any server framework so agents pay for your routes in the same request. The recommended setup uses Tempo: Sessions for usage-based pricing and charge for one-off purchases, both accepting OUSD and USDC.e, with MACH funding turned on.
 
-- [**Prompt mode**](#prompt-mode): paste a prompt into your coding agent and build in one prompt
-- [**Framework mode**](#framework-mode): use `mppx` middleware for Next.js, Hono, Elysia, or Express
+- [**Prompt mode**](#prompt-mode): paste a prompt into your coding agent
+- [**Framework mode**](#framework-mode): use `mppx` middleware for Next.js, Hono, or Express
 - [**Manual mode**](#advanced-manual-mode): call `mppx/server` directly with the Fetch API
 
 ## Prompt mode
@@ -29,114 +29,97 @@ You generate `MPP_SECRET_KEY`; run `openssl rand -hex 32` to create one. `Mppx.c
 
 ## Framework mode
 
-Use the framework-specific middleware from `mppx` to integrate payment into your server. Each middleware handles the `402` Challenge/Credential flow and attaches Receipts automatically.
+Configure Tempo once with `tempo()`, then charge per unit with `mppx.session`. Each middleware handles the `402` Challenge/Credential flow and attaches Receipts automatically.
+
+- `account` signs Session settlements and receives payments. Pass `recipient` to receive somewhere else, or [get paid into Stripe](/guides/integrate-your-service#get-paid-into-stripe).
+- `machineTokenEnabled` lets agents that hold MACH pay one-off charges while you receive stablecoins.
+- `store` keeps channel state. Use a shared atomic store in production.
 
 ::::code-group
 
-```ts [Next.js]
-import { Mppx, tempo } from 'mppx/nextjs'
-
-// [!code hl:start]
-const mppx = Mppx.create({
-  methods: [tempo.charge({
-    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
-  })],
-  secretKey: process.env.MPP_SECRET_KEY!,
-})
-// [!code hl:end]
-
-export const GET = 
-  mppx.charge({ amount: '0.1' }) // [!code hl]
-  (() => Response.json({ data: '...' }))
-```
-
 ```ts [Hono]
 import { Hono } from 'hono'
+import { Store } from 'mppx'
 import { Mppx, tempo } from 'mppx/hono'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = new Hono()
+const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo.charge({
-    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
-  })],
+  methods: [tempo({ account, machineTokenEnabled: true, store: Store.memory() })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
 // [!code hl:end]
 
-app.get(
-  '/resource', 
-  mppx.charge({ amount: '0.1' }), // [!code hl]
-  (c) => c.json({ data: '...' }),
+app.post(
+  '/v1/responses',
+  mppx.session({ amount: '0.000002', unitType: 'llm_token' }), // [!code hl]
+  (c) => c.json({ output: '...' }),
 )
 ```
 
-```ts [Elysia]
-import { Elysia } from 'elysia'
-import { Mppx, tempo } from 'mppx/elysia'
+```ts [Next.js]
+import { Store } from 'mppx'
+import { Mppx, tempo } from 'mppx/nextjs'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo.charge({
-    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
-  })],
+  methods: [tempo({ account, machineTokenEnabled: true, store: Store.memory() })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
 // [!code hl:end]
 
-const app = new Elysia()
-  .guard(
-    mppx.charge({ amount: '0.1' }), // [!code hl]
-    (app) => app.get('/resource', () => ({ data: '...' })),
-  )
+export const POST =
+  mppx.session({ amount: '0.000002', unitType: 'llm_token' }) // [!code hl]
+  (() => Response.json({ output: '...' }))
 ```
 
 ```ts [Express]
 import express from 'express'
+import { Store } from 'mppx'
 import { Mppx, tempo } from 'mppx/express'
+import { privateKeyToAccount } from 'viem/accounts'
 
 const app = express()
+const account = privateKeyToAccount(process.env.SETTLER_PRIVATE_KEY as `0x${string}`)
 
 // [!code hl:start]
 const mppx = Mppx.create({
-  methods: [tempo.charge({
-    currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
-    recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    testnet: false,
-  })],
+  methods: [tempo({ account, machineTokenEnabled: true, store: Store.memory() })],
   secretKey: process.env.MPP_SECRET_KEY!,
 })
 // [!code hl:end]
 
-app.get(
-  '/resource', 
-  mppx.charge({ amount: '0.1' }), // [!code hl]
-  (req, res) => res.json({ data: '...' }))
+app.post(
+  '/v1/responses',
+  mppx.session({ amount: '0.000002', unitType: 'llm_token' }), // [!code hl]
+  (req, res) => res.json({ output: '...' }),
+)
 ```
 
 ::::
 
-:::tip
-You can also override `currency` and `recipient` per call if different routes need different payment configurations.
+Before you launch, add a [settlement schedule](/payment-methods/tempo/session#settlement) and [close supervision](/payment-methods/tempo/session#close-supervision) so spend reaches you, and read the [integration guide](/guides/integrate-your-service) for MACH, Stripe payouts and fee sponsorship.
+
+### Charge once per request
+
+Use `mppx.charge` on the same instance for one-off purchases, such as creating a resource. Agents holding only MACH can pay these.
 
 ```ts
-mppx.charge({ 
-  amount: '0.1', 
-  currency: '0x20c0000000000000000000006a37DA5C996874BE', // [!code ++]
-  recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code ++]
-})
+app.post(
+  '/projects',
+  mppx.charge({ amount: '0.50', description: 'Create a database' }), // [!code hl]
+  (c) => c.json({ id: 'proj_123' }),
+)
 ```
-:::
 
 :::note
-Don't see your framework? `mppx` is designed to be framework-agnostic. See [Manual mode](#advanced-manual-mode) below.
+Don't see your framework? `mppx` is framework-agnostic. See [Manual mode](#advanced-manual-mode) below.
 :::
 
 ## Advanced: manual mode

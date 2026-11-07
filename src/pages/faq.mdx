@@ -23,6 +23,10 @@ No. With Card or Stripe, you can pay with cards without stablecoins. With Lightn
 
 For stablecoin payments, you need a wallet to sign transactions. SDKs and wallet CLIs can handle key management for you.
 
+## Do I need a wallet to receive payments?
+
+No. If you use Stripe, stablecoin payments can land in your Stripe balance through a Stripe deposit address and show up as `PaymentIntent` objects. See [Get paid into Stripe](/guides/integrate-your-service#get-paid-into-stripe).
+
 ## How is MPP different from x402?
 
 Both MPP and x402 use HTTP `402` to signal that a request requires payment. The key differences:

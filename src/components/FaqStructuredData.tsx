@@ -14,6 +14,11 @@ export const FAQ_ENTRIES = [
   },
   {
     answer:
+      "No. If you use Stripe, stablecoin payments can land in your Stripe balance through a Stripe deposit address and show up as PaymentIntent objects.",
+    question: "Do I need a wallet to receive payments?",
+  },
+  {
+    answer:
       "MPP and x402 both use HTTP 402. MPP uses standard HTTP authentication semantics and supports payment rails including stablecoins, cards, and Lightning. x402 focuses on on-chain payment mechanisms. MPP also defines core Challenge binding, Receipts, and payment intents.",
     question: "How is MPP different from x402?",
   },
