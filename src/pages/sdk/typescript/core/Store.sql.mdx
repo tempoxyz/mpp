@@ -1,0 +1,104 @@
+---
+description: "Keep payment state consistent across servers with your SQL database."
+imageDescription: "Persist payment state in your database"
+---
+
+# `Store.sql` [Atomic SQL storage]
+
+Creates a store with indivisible per-key updates from a Postgres or SQLite query function.
+
+## Usage
+
+Prefer [Store.postgres](/sdk/typescript/core/Store.postgres), [Store.sqlite](/sdk/typescript/core/Store.sqlite), or [Store.d1](/sdk/typescript/core/Store.d1) for supported drivers. Use `Store.sql` for another driver, such as Postgres.js:
+
+```ts [store.ts]
+import { Store } from 'mppx'
+import postgres from 'postgres'
+
+const db = postgres(process.env.DATABASE_URL!)
+
+// [!code hl:start]
+const store = Store.sql({
+  dialect: 'postgres',
+  query: (text, params) => db.unsafe(text, params),
+})
+// [!code hl:end]
+
+await store.put('usage:customer-42', { requests: 1 })
+console.log(await store.get('usage:customer-42'))
+// @log: { requests: 1 }
+```
+
+The database needs `ON CONFLICT` and `RETURNING` support: Postgres, SQLite 3.35+, D1, or libSQL. No interactive transaction is required, so HTTP drivers work too.
+
+Values use JSON text with `ox` bigint serialization. `update` uses compare-and-swap, committing only if the stored value still matches the one it read: it retries conflicts with jittered backoff and throws after `maxAttempts`. Keep its callback synchronous and free of side effects because it can run more than once. [Store.tryClaim](/sdk/typescript/core/Store.tryClaim) records first use of a replay key until a future Unix-millisecond expiry, preventing duplicate requests. These replay claims use a single insert-or-replace-expired statement; ordinary stored values don't expire automatically.
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+`get(key)` returns the stored value or `null`; `put(key, value)` writes it and `delete(key)` removes it. `update(key, fn)` atomically applies a synchronous callback to the current value (or `null`). Return `{ op: 'set', result, value }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`; the update promise resolves to `result`. The callback can run again on conflict, so keep it free of side effects.
+
+[Store.tryClaim(store, key, expires)](/sdk/typescript/core/Store.tryClaim) records first use of a replay key until a future Unix-millisecond timestamp. It returns `true` for a new claim, or `false` for an existing live claim or invalid expiry; this prevents duplicate requests.
+
+## Parameters
+
+### driver
+
+- **Type:** `Store.sql.Driver`
+
+Object with these properties:
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `dialect` | `'postgres' \| 'sqlite'` | Selects `$1` placeholders or `?` placeholders. |
+| `query` | `(sql: string, params: unknown[]) => Promise<Store.sql.Row[]>` | Executes one parameterized statement and returns rows, including `RETURNING` rows. `Store.sql.Row` is `Record<string, unknown>`. |
+
+### options (optional)
+
+- **Type:** `Store.sql.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `createTable` | `boolean` | `true` | Creates the table on first use. Set `false` when migrations manage it. |
+| `keyPrefix` | `string` | None | Prefix for every stored key, including replay claims. |
+| `maxAttempts` | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` | `string` | `'mppx_store'` | Table name, optionally schema-qualified. |
+
+Table identifiers must match `name` or `schema.name`; each part starts with a letter or underscore and contains only letters, digits, or underscores. Invalid names throw at construction. Create the schema yourself when using a schema-qualified name.
+
+## Advanced options
+
+### Manage the table with migrations
+
+Create all three columns before setting `createTable: false`:
+
+```sql
+CREATE TABLE mppx_store (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  expires DOUBLE PRECISION
+);
+```
+
+`expires` mirrors replay-marker expiry in Unix milliseconds; it is `NULL` for other values. If you already have a two-column table, add this nullable column before using the adapter. Backfill it from existing replay markers; remove expired replay-marker rows if you migrate without backfilling. A row with `expires = NULL` blocks a new claim even after the old marker's JSON expiry passes. Never delete live replay claims during migration.
+
+### Use libSQL or Turso
+
+Adapt the driver's result to rows:
+
+```ts [store.ts]
+import { createClient, type InArgs } from '@libsql/client'
+import { Store } from 'mppx'
+
+const client = createClient({ url: process.env.DATABASE_URL! })
+// [!code hl:start]
+const store = Store.sql({
+  dialect: 'sqlite',
+  query: async (sql, params) =>
+    (await client.execute({ args: params as InArgs, sql })).rows,
+})
+// [!code hl:end]
+```

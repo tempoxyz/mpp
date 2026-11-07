@@ -1,0 +1,54 @@
+---
+description: "Share consistent payment state across your servers with Postgres."
+imageDescription: "Keep payment state in Postgres"
+---
+
+# `Store.postgres` [Postgres storage]
+
+Creates an atomic store from a Postgres client's `query` method.
+
+## Usage
+
+```ts [store.ts]
+import { Store } from 'mppx'
+import { Pool } from 'pg'
+
+const db = new Pool({ connectionString: process.env.DATABASE_URL })
+const store = Store.postgres(db) // [!code hl]
+
+console.log(await Store.tryClaim(store, 'request:customer-42:1', Date.now() + 60_000))
+// @log: true
+```
+
+Use this adapter with `pg`, Neon clients exposing `query`, `@vercel/postgres`, a Supabase Postgres connection, or PGlite. For Postgres.js's `unsafe` API, use [Store.sql](/sdk/typescript/core/Store.sql).
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+`get(key)` returns the stored value or `null`; `put(key, value)` writes it and `delete(key)` removes it. `update(key, fn)` atomically applies a synchronous callback to the current value (or `null`). Return `{ op: 'set', result, value }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`; the update promise resolves to `result`. The callback can run again on conflict, so keep it free of side effects.
+
+[Store.tryClaim(store, key, expires)](/sdk/typescript/core/Store.tryClaim) records first use of a replay key until a future Unix-millisecond timestamp. It returns `true` for a new claim, or `false` for an existing live claim or invalid expiry; this prevents duplicate requests.
+
+## Parameters
+
+### client
+
+- **Type:** `Store.postgres.Client`
+
+A client with `query(text: string, values: unknown[])` returning a promise of `{ rows: Store.sql.Row[] }` or `Store.sql.Row[]`. Rows must include results from `RETURNING` statements.
+
+### options (optional)
+
+- **Type:** `Store.sql.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `createTable` | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
+| `keyPrefix` | `string` | None | Prefix for every backing key. |
+| `maxAttempts` | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
+
+See [Store.sql](/sdk/typescript/core/Store.sql) for table creation, migration requirements, serialization, and conflict behavior.

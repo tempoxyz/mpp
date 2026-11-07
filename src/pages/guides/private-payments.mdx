@@ -18,6 +18,8 @@ Use private payments when payers don't want their wallet address, balance, or sp
 Zone payments work with the charge intent. [Sessions](/payment-methods/tempo/session) and [subscriptions](/payment-methods/tempo/subscription) pay from a Tempo account.
 :::
 
+A Challenge is the server's payment request returned with `402`. The client answers with a Credential proving payment; the server returns a Receipt acknowledging it. A Zone's portal is its settlement contract on Tempo. Each withdrawal has a `senderTag`, a hash that identifies the withdrawal without publishing its Zone sender on Tempo. The portal emits a `WithdrawalProcessed` event when it processes that withdrawal; the client waits for this settlement event.
+
 ## What stays private
 
 | Data | Who can see it |
@@ -27,7 +29,7 @@ Zone payments work with the charge intent. [Sessions](/payment-methods/tempo/ses
 | Recipient, token, amount, and timing | Public on Tempo |
 | Challenge-bound memo | Public on Tempo, in the settlement calldata |
 
-Your server receives the Zone ID, the `senderTag`, and the settlement transaction hash—never the payer's address. The Receipt has no payer.
+Your server receives the Zone ID, the `senderTag`, and the settlement transaction hash—never the payer's address. The Receipt has no payer. Treat a Zone Credential as proof of payment, not proof of a payer identity: `validateSender` cannot authenticate the private Zone account.
 
 A Zone hides who paid, not that a payment happened. Amounts and timing stay public, so a distinctive amount paid right after a request can be correlated with it. The Zone operator can read the whole private ledger. See [Zone privacy](https://docs.tempo.xyz/docs/zones/privacy) for the full model.
 
@@ -56,7 +58,7 @@ Your server lists the Zones it accepts in the Challenge's `methodDetails.zones`.
 
 ### Withdraw
 
-The client withdraws the charge amount from its Zone balance straight to your recipient. The withdrawal carries the Challenge-bound attribution memo and no callback (`gasLimit` `0`). The payer also pays the Zone's withdrawal fee.
+The client withdraws the charge amount from its Zone balance straight to your recipient. The withdrawal carries an attribution memo that encodes the Challenge ID and server realm, binding this payment to this Challenge, and no callback (`gasLimit` `0`). The payer also pays the Zone's withdrawal fee.
 
 ### Settle
 
@@ -94,7 +96,7 @@ export async function handler(request: Request) {
 }
 ```
 
-Set `zones: true` to accept a withdrawal from any Zone on the Challenge's chain. You can also set `zones` on a single `mppx.charge` call.
+Set `zones: true` to accept a withdrawal from any Zone on the Challenge's chain. An explicit list must be nonempty; IDs are positive integers below `421_700_000`. You can also set `zones` on a single `mppx.charge` call. Configure this policy yourself rather than trusting a client-supplied Zone ID.
 
 ### Requirements
 
@@ -133,13 +135,15 @@ Mppx.create({
 const response = await fetch('https://api.example.com/resource')
 ```
 
-The client pays from the Zone when the Challenge accepts its Zone, allows push mode, has no splits, and doesn't expire before the withdrawal can settle. Otherwise it pays from `account` on Tempo as usual. The client derives the Zone ID from the Zone's chain ID; pass `zone.zoneId` when the chain ID doesn't encode it.
+The client pays from the Zone when the Challenge accepts its Zone, allows push mode, has no splits, and doesn't expire before the withdrawal can settle. Otherwise it pays from `account` on Tempo as usual. The client derives the Zone ID from the Zone's chain ID; pass `zone.zoneId` when the chain ID doesn't encode it. An explicit ID must match an encoded Zone ID, and the Zone's parent chain must match the Challenge's chain. Explicit `mode: 'pull'` disables this path.
+
+A new withdrawal requires more than `zone.settlementTimeoutMs + 15_000` milliseconds before Challenge expiry, including a 15-second submission margin. The timeout defaults to 60 seconds, so leave more than 75 seconds. Otherwise the client uses the ordinary Tempo payment path. Set a finite, non-negative timeout; waiting stops at Challenge expiry even if the configured timeout is longer.
 
 ### Handle slow settlement
 
 A withdrawal can't be undone. The client waits up to `zone.settlementTimeoutMs` (default 60 seconds) for it to settle on Tempo. If it doesn't, the client throws `Errors.ZoneSettlementPendingError` with the `challengeId`, `senderTag`, and `zoneId`.
 
-To resume, create the Credential again for the same Challenge with the same client—it finds the pending withdrawal instead of withdrawing again. Don't repeat the request: the server issues a new Challenge for it, and paying that one withdraws again. Keep the `402` response and retry Credential creation from it:
+To resume, create the Credential again for the same Challenge with the same client—it finds the pending withdrawal instead of withdrawing again. Don't repeat the request: the server issues a new Challenge for it, and paying that one withdraws again. Keep the `402` response and retry Credential creation from it. `polyfill: false` leaves global fetch unchanged; `rawFetch` fetches without paying and `createCredential` pays the saved Challenge:
 
 ```ts
 import { Errors } from 'mppx'
@@ -168,6 +172,10 @@ if (!credential) throw new Error('Zone withdrawal is still settling')
 
 const response = await mppx.rawFetch(url, { headers: { Authorization: credential } })
 ```
+
+Concurrent attempts for the same full Challenge share one withdrawal request. After settlement succeeds, retain and resend the resulting Credential rather than creating another payment.
+
+The client signs before broadcasting, so it can recover a lost send response by looking up the known transaction hash on the Zone for up to 15 seconds. If that outcome stays unknown, the same Challenge remains blocked from withdrawing again. Only failures before submission and confirmed reverts allow a fresh withdrawal attempt.
 
 The client keeps pending withdrawals in memory, so retry before the process exits and before the Challenge expires. If either happens first, find the withdrawal by its `senderTag` with the [Zone withdrawal status API](https://docs.tempo.xyz/docs/zones/withdraw#track-the-withdrawal) before you pay again.
 

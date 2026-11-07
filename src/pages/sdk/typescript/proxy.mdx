@@ -76,7 +76,7 @@ Route values use the current `EndpointMap` shape:
 
 A route without a valid handler or explicit `free: true` fails closed.
 
-`Proxy` derives a scope for each route. EVM methods with x402 enabled require the `mppx` route-binding extension on these scoped routes by default. Set [`x402.routeBinding: 'resource'`](/sdk/typescript/server/Method.evm.charge#x402-optional) only when standard x402 clients must pay through resource URL binding.
+`Proxy` derives a scope that binds a payment to its route. For EVM payment methods using [x402](/sdk/typescript/server/Method.evm.charge#x402-optional), an alternative HTTP payment protocol, the `mppx` route-binding extension prevents a payment for one route from being reused on another; it is required on scoped routes by default. Set [`x402.routeBinding: 'resource'`](/sdk/typescript/server/Method.evm.charge#x402-optional) only when standard x402 clients must pay through resource URL binding.
 
 ### Multiple services
 
@@ -287,6 +287,43 @@ Service.from('resilient-api', {
 
 Request bodies remain available across retries, and retries don't re-verify payment. Return `{ retry: false }` to preserve the original failure, or include a `response` to replace it. A service-level hook overrides the default hook on `Proxy.create`.
 
+### Recover a paid response
+
+Enable `replay` so a payer that loses its connection can retry the exact paid request with the same Credential without paying again. Share one atomic store across every proxy instance.
+
+```ts twoslash [server.ts]
+import { Store } from 'mppx'
+import { Proxy, Service } from 'mppx/proxy'
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+const proxy = Proxy.create({
+  // [!code hl:start]
+  replay: {
+    maxAttempts: 1,
+    store: Store.memory(), // Single-process example; use a shared atomic store in production.
+  },
+  // [!code hl:end]
+  services: [Service.from('reports', {
+    baseUrl: 'https://api.example.com',
+    routes: { 'POST /reports': mppx.charge({ amount: '0.05' }) },
+  })],
+})
+```
+
+The replay key binds the Credential to the HTTP method, exact origin, path, query, and body. A retried delivery reuses the original paid request's headers after removing payment and hop-by-hop transport fields, not headers supplied on retry. Routes configured with request-identity verification bypass replay so every request still verifies identity.
+
+| Recorded outcome | Retry response |
+| --- | --- |
+| Complete | Stored status, headers, body, and Receipt |
+| In progress | `202` with `Retry-After` |
+| Failed | Another upstream attempt, up to `maxAttempts`; then `502` |
+| Streamed or too large to store | `410`; the response isn't available for replay |
+
+The upstream attempt continues independently of the payer's connection. SSE and oversized response bodies are delivered normally but not retained. Replay doesn't make the upstream operation exactly-once: errors, `5xx` responses, or broken response bodies can allow another upstream execution. Use `maxAttempts: 1` for non-idempotent operations unless the upstream has its own idempotency protection. The SDK default is `3`, including the initial attempt.
+
+Replay is available only while its record remains valid. `ttl` bounds the wait for upstream response headers and retains outcomes after recording; it doesn't limit a stream that has already started. Expired records are deleted on lookup. Configure backing-store expiry to reclaim records nobody retries, and use `waitUntil` on runtimes that can stop after returning a response. Store failures can prevent recovery even when the original response succeeds.
+
 ## Discovery endpoints
 
 The proxy serves an OpenAPI document and an `llms.txt` overview. Both routes include `basePath` when configured.
@@ -332,11 +369,35 @@ Documentation links included in the root OpenAPI `x-service-info` metadata. Supp
 
 Custom `fetch` implementation. Defaults to `globalThis.fetch`.
 
+### maxRequestBodySize (optional)
+
+- **Type:** `number`
+- **Default:** `10 * 1024 * 1024` (10 MiB)
+
+Maximum request body bytes on every route, including free routes and the Node listener. Oversized bodies return `413`. Must be a non-negative safe integer. Paid requests with a Credential are bounded before payment verification; bodies are buffered before upstream forwarding.
+
 ### onUpstreamError (optional)
 
 - **Type:** `Service.UpstreamErrorHandler`
 
 Default handler for thrown upstream request errors and non-`2xx` responses. Return `{ retry: true, delay? }` to retry or `{ retry: false, response? }` to stop. A service can override this hook.
+
+### replay (optional)
+
+- **Type:** `Proxy.ReplayOptions`
+- **Default:** disabled
+
+Paid-delivery recovery options. All fields except `store` are optional.
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `maxAttempts` (optional) | `number` | `3` | Total upstream delivery attempts per Credential, including the first. |
+| `maxBodySize` (optional) | `number` | `1_048_576` | Maximum response body bytes retained. |
+| `maxRequestBodySize` (optional) | `number` | `1_048_576` | Maximum paid replay request bytes; the smaller of this limit and the outer proxy limit applies. Larger requests return `413`. |
+| `retryAfter` (optional) | `number` | `5` | Seconds in `Retry-After` for pending delivery. |
+| `store` | `Store.AtomicStore` | — | Atomic store shared by all proxy instances. |
+| `ttl` (optional) | `number` | `900_000` | Response-start timeout and outcome retention in milliseconds; positive safe integer up to `2_147_483_647`. |
+| `waitUntil` (optional) | `(promise: Promise<unknown>) => void` | — | Keeps background recording alive, for example through Cloudflare's execution context. |
 
 ### services
 

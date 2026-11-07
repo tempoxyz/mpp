@@ -9,13 +9,15 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 <SigningAccountTabs />
 
 
-Creates the low-level Tempo Sessions client method for `Mppx.create`.
+Creates the low-level [Sessions](/payment-methods/tempo/session) client method for `Mppx.create`.
+
+A Session reserves tokens in a payment channel and authorizes cumulative spend with signed vouchers. This method implements the Session payment intent—the kind of payment requested by the server. A Challenge requests payment, a Credential carries the client's proof, a Receipt acknowledges it, and a snapshot reports channel state for recovery.
 
 :::info
 Use `tempo.session()` when you need to register only the current Sessions intent in `Mppx.create`. Use [`tempo.session.manager()`](/sdk/typescript/client/Method.tempo.session-manager) when you need a standalone object with `.fetch()`, `.topUp()`, `.close()`, `.sse()`, or `.ws()`.
 :::
 
-`tempo.session` uses the [TIP-1034](https://tips.sh/1034) reserve precompile.
+`tempo.session` uses the [TIP-1034](https://tips.sh/1034) reserve precompile, the built-in Tempo contract that holds channel deposits and pays the merchant at settlement.
 
 ## Usage
 
@@ -108,6 +110,31 @@ When `Fetch.from` or `Mppx.create` opens a channel automatically, it keeps the n
 
 Direct Credential creation and `tempo.session.manager()` keep explicit lifecycle ownership.
 
+## Origin-bound recovery
+
+Fetch binds each saved channel to the request's HTTP or HTTPS origin. Use a separate `channelStore` per origin. A stored channel from another origin, or an older entry without `origin`, is rejected before reuse rather than silently rebound.
+
+Recovering an unknown channel from a server snapshot requires an explicit `origin` pin (the API origin you trust) or a caller-supplied `descriptor` (the channel terms used to derive its ID). Configure the pin from your application, not from an untrusted Challenge. Direct Credential creation without Fetch also needs this pin to bind newly saved channels to your API.
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = tempo.session({
+  account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
+  allowedChainIds: [4217],
+  // [!code hl:start]
+  currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+  decimals: 6,
+  maxAmount: '0.01',
+  maxDeposit: '1',
+  origin: 'https://api.example.com',
+  // [!code hl:end]
+})
+```
+
+Migrate originless persisted entries only after independently verifying their API origin and descriptor against trusted state. Don't label arbitrary stored channels with the next request's origin or delete funded channels to bypass the check. Keep them for reconciliation and recovery.
+
 ## Return type
 
 ```ts
@@ -172,9 +199,9 @@ The client checks the allowlist before resolution and again before signing, and 
 
 ### autoSwap (optional)
 
-- **Type:** `boolean | { fallback?: boolean; slippage?: number; tokenIn?: Address[] }`
+- **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
 
-Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. Use the object form to set a maximum slippage percentage and the fallback token order.
+Automatically acquire only the missing session currency before opening or topping up a channel. Set `slippage` from `0` to `50` percent and a positive input-token base-unit `maxAmountIn` for non-parity pairs; the default input budget assumes 1:1 token units plus slippage. A per-Credential `autoSwap` override also applies to automatic HTTP and SSE top-ups, so approval hooks can narrow the funding policy.
 
 
 The default swap sources are pathUSD, USDC.e, and OUSD in that order. Set `fallback: false` with `tokenIn` to allow only those listed input tokens; otherwise the defaults follow your selected tokens.
@@ -183,14 +210,20 @@ The default swap sources are pathUSD, USDC.e, and OUSD in that order. Set `fallb
 
 - **Type:** `ChannelStore`
 
-Pluggable persistence for reusable channels. Defaults to an in-memory store.
+Pluggable persistence for reusable channels. Defaults to an in-memory store. Use a separate store per HTTP origin; existing origin bindings cannot be changed during reuse.
+
+### currencies (optional)
+
+- **Type:** `readonly Address[]`
+
+Case-insensitive allowlist of session currencies. An empty list rejects all offers. Required with `maxAmount` or `maxAtomicAmount`.
 
 ### decimals (optional)
 
 - **Type:** `number`
 - **Default:** `6`
 
-Token decimals for parsing human-readable amounts.
+Token decimals for parsing human-readable amounts. Set this explicitly with `maxAmount`; omitting it rejects that cap rather than assuming six decimals.
 
 ### escrow (optional)
 
@@ -198,11 +231,29 @@ Token decimals for parsing human-readable amounts.
 
 Exact reserve contract address pin. The server-advertised address must match this value, even when `allowCustomEscrow` is `true`.
 
+### expectedRecipients (optional)
+
+- **Type:** `readonly Address[]`
+
+Case-insensitive allowlist of channel payees. Offers to other recipients, or without a recipient, are skipped during selection and rejected before signing. Explicit closes remain available outside this policy.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
+
+### maxAmount (optional)
+
+- **Type:** `string`
+
+Maximum display-unit price per session unit (the Challenge `amount`), not total session spend. Requires `currencies` and explicit `decimals`. Extra fractional digits are rejected, not rounded. Policy checks run during offer selection, before signing, and before automatic top-ups. Explicit closes are exempt.
+
+### maxAtomicAmount (optional)
+
+- **Type:** `string`
+
+Maximum per-unit price in raw base units. Requires `currencies`. Checked alongside `maxAmount` when both are set.
 
 ### maxDeposit (optional)
 
@@ -215,6 +266,12 @@ Maximum deposit in human-readable units. Caps server-suggested channel opens and
 - **Type:** `(entry: ChannelEntry) => void`
 
 Called whenever channel state changes.
+
+### origin (optional)
+
+- **Type:** `string`
+
+Trusted HTTP or HTTPS origin for Credential creation and server-snapshot recovery. Fetch supplies the actual request origin, which must match this pin when set. Recovery of an unknown channel requires this pin or an explicit descriptor; see [origin-bound recovery](#origin-bound-recovery).
 
 ### resolveAccount (optional)
 
@@ -236,14 +293,15 @@ Most clients should omit context and let `tempo.session()` open, recover, top up
 type SessionContext = {
   account?: Account
   action?: 'open' | 'topUp' | 'voucher' | 'close'
+  additionalDeposit?: string
+  additionalDepositRaw?: string
+  autoSwap?: boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }
   channelId?: Hex
   cumulativeAmount?: string
   cumulativeAmountRaw?: string
-  transaction?: Hex
-  descriptor?: ChannelDescriptor
-  additionalDeposit?: string
-  additionalDepositRaw?: string
   depositRaw?: string
+  descriptor?: ChannelDescriptor
+  transaction?: Hex
 }
 ```
 
@@ -251,6 +309,7 @@ type SessionContext = {
 |---|---|
 | `account` | Account override for this Credential only. |
 | `action` | Manual Credential action. Omit for automatic session management. |
+| `autoSwap` | Request-local swap policy, including automatic HTTP and SSE top-ups. Omit to inherit the configured policy. |
 | `channelId` | Channel ID to reuse or manually operate on. |
 | `descriptor` | TIP-1034 descriptor required for recovery and manual Credentials. |
 | `transaction` | Signed Tempo transaction for manual `open` or `topUp` Credentials. |

@@ -17,6 +17,8 @@ Session top-up, voucher retry, close, and bootstrap send the Credential in the h
 
 Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
 
+Each manager is pinned to its first HTTP or HTTPS request origin, including probes and WebSocket URLs normalized to HTTP or HTTPS. Use a separate manager and store per API origin. Automatic redirects are disabled (`redirect: 'error'`); explicit manual redirects remain manual. A custom fetch response with another origin is rejected.
+
 ## Usage
 
 <Tabs stateKey="account-source">
@@ -84,7 +86,7 @@ const receipt = await session.close()
 Channels remain open until you call `session.close()`. Close sessions when done to settle on-chain and reclaim unspent deposit.
 :::
 
-If the server refreshes the Challenge during close, the manager signs the refreshed accepted cumulative amount. It rejects a close Receipt with an invalid amount, spend below the latest locally confirmed amount, or spend above the signed cumulative amount.
+If the server refreshes the Challenge during close, the manager signs the refreshed accepted cumulative amount. It rejects a close Receipt with an invalid amount or spend above the signed cumulative amount. An HTTP close may report less spend than an earlier Receipt after a credit; it must still match the exact close Challenge and channel.
 
 ### With SSE streaming
 
@@ -151,7 +153,7 @@ await session.close()
 
 ### With WebSocket streaming
 
-Open a paid WebSocket session. The manager handles the HTTP `402` probe, channel open, in-band voucher signing, and payment control frames.
+Open a paid WebSocket session. The manager handles the HTTP `402` probe, channel open, in-band voucher signing, and payment control frames. This example expects a server route matching `/ws/chat/:prompt`. Use an encoded path segment, not query parameters: payment frames are verified as bodyless POSTs to this URL, and a query string classifies those POSTs as billable content.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -169,8 +171,8 @@ const session = tempo.session.manager({
   maxDeposit: '1',
 })
 
-const url = new URL('wss://api.example.com/ws/chat')
-url.searchParams.set('prompt', 'Tell me something interesting')
+const prompt = encodeURIComponent('Tell me something interesting')
+const url = new URL(`wss://api.example.com/ws/chat/${prompt}`)
 
 const socket = await session.ws(url, {
   onReceipt(receipt) {
@@ -201,8 +203,8 @@ const session = tempo.session.manager({
   maxDeposit: '1',
 })
 
-const url = new URL('wss://api.example.com/ws/chat')
-url.searchParams.set('prompt', 'Tell me something interesting')
+const prompt = encodeURIComponent('Tell me something interesting')
+const url = new URL(`wss://api.example.com/ws/chat/${prompt}`)
 
 const socket = await session.ws(url, {
   onReceipt(receipt) {
@@ -358,7 +360,7 @@ const session = tempo.session.manager({
 </Tab>
 </Tabs>
 
-In browsers, scope the key to the authenticated user and API origin so one user's channel hint is not reused for another user.
+Scope persisted storage to the authenticated user and API origin. Entries must carry that exact `origin`: managers reject channels from another origin and older originless entries before signing. Migrate an originless entry only after independently verifying its origin and descriptor, never by assigning the next request's origin. Preserve funded channels for reconciliation rather than discarding them to bypass this check.
 
 ```ts
 import { createJsonChannelStore, tempo } from 'mppx/client'
@@ -429,6 +431,7 @@ type ChannelEntry = {
   descriptor: ChannelDescriptor
   escrow: Address
   opened: boolean
+  origin?: string
   uncertainTopUp?: boolean
 }
 ```
@@ -442,6 +445,7 @@ type ChannelEntry = {
 | `escrow` | Reserve precompile address used to derive the channel ID. |
 | `chainId` | Tempo chain ID used to derive the channel ID and voucher domain. |
 | `opened` | Whether the channel was open when stored. Closed channels are ignored. |
+| `origin` | Bound HTTP or HTTPS API origin. Required for manager reuse; absent only on legacy or originless standalone entries. |
 | `uncertainTopUp` | A dispatched top-up has an unknown outcome. Reconcile it against trusted chain state before another deposit or channel replacement. |
 
 ### `SessionSnapshot`
@@ -620,7 +624,7 @@ Enables a same-route `HEAD` bootstrap from a server session snapshot before open
 
 - **Type:** `ChannelStore`
 
-Store for reusable session channels. Defaults to an in-memory store.
+Store for reusable session channels. Defaults to an in-memory store. Use a separate store per HTTP origin; the manager refuses mismatched and originless entries.
 
 ### client (optional)
 
@@ -678,7 +682,11 @@ Preferred automatic top-up size in human-readable units. When omitted, `mppx` us
 
 - **Type:** `Readonly<Record<string, string>>`
 
-Pins the realm of a zero-amount Tempo bootstrap proof to the server origin when the realm differs from its hostname.
+Maps trusted HTTP origins to their exact Challenge realm for both zero-amount bootstrap proofs and session payments. By default the realm must match the request hostname. Configure aliases yourself, not from a Challenge or redirect. This does not permit cross-origin channel reuse.
+
+```ts
+trustedTempoProofRealms: { 'https://api.example.com': 'MPP Payment' }
+```
 
 ### webSocket (optional)
 

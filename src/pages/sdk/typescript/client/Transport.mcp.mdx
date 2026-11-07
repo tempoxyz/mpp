@@ -58,6 +58,8 @@ const mppx = Mppx.create({
 
 Automatic JSON and SSE response inspection stops after 1 MiB. Larger responses remain available to the caller, but `mppx` doesn't inspect them for payment Challenges.
 
+Tempo proofs and Session payments require an explicit realm pin on the client because native MCP has no HTTP origin. Set `trustedTempoProofRealms` on [`Mppx.create`](/sdk/typescript/client/Mppx.create#trustedtempoproofrealms-optional), or use the realm list on [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap#configtrustedtempoproofrealms-optional).
+
 ## Return type
 
 ```ts

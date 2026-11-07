@@ -198,7 +198,7 @@ The server returns both methods in the `402` Challenge. See [Accept multiple pay
 
 ## Add a browser payment page
 
-Set `html` on the Stripe method to render a Stripe Elements card form when a browser visits the endpoint. Programmatic clients with `Authorization` headers are unaffected.
+Set `html` on the Stripe method to render a Stripe Elements card form when a browser visits the endpoint. Programmatic clients with `Authorization` headers are unaffected. The Elements page bundle loads only when the server renders a payment page; importing mppx server types doesn't require `@stripe/stripe-js`.
 
 ```ts twoslash
 import Stripe from 'stripe'

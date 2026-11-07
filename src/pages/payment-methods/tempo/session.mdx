@@ -15,7 +15,7 @@ import { SpecCard } from '../../../components/SpecCard'
 <SigningAccountTabs />
 
 
-Sessions let a client pay per request, per token, or per byte without an on-chain transaction for each payment. The client locks up a deposit in a payment channel once, then signs off-chain vouchers as it uses your service. Your server checks each voucher with a signature check—no RPC call—and settles on-chain in batches.
+Sessions let a client pay per request, per token, or per byte without an on-chain transaction for each payment. The client locks up a deposit in a payment channel once, then signs off-chain vouchers as it uses your service. Your server verifies vouchers, checks the live channel reserve, and settles on-chain in batches.
 
 Use Sessions for metered usage: LLM tokens, repeated API calls, or streams. For single API calls or one-off purchases, use [charge](/payment-methods/tempo/charge).
 
@@ -338,9 +338,17 @@ const receipt = await session.close() // [!code hl]
 
 See [`tempo.session.manager`](/sdk/typescript/client/Method.tempo.session-manager) for the full lifecycle API.
 
+### Limit prices and bind the API origin
+
+`currencies` and `expectedRecipients` restrict which Session offers your client accepts. `maxAmount` caps the Challenge price per unit; it requires `currencies` and explicit `decimals`. `maxAtomicAmount` is the raw-unit alternative. These are separate from `maxDeposit`, which bounds funds reserved per channel, not a cumulative budget across replacement channels. Explicit closes remain available outside the price and recipient policy.
+
+Each stored channel belongs to one HTTP origin. Use a separate store per API origin and set `origin` when low-level `tempo.session()` needs to recover an unknown server snapshot. Managers pin their first request origin automatically and reject redirects and foreign response origins. Configure `trustedTempoProofRealms` when a manager's API uses a realm other than its hostname; this authorizes the realm alias, not another origin.
+
 ### Recovering channels after a restart
 
 To reuse a channel after a browser reload or app restart, pass a [`channelStore`](/sdk/typescript/client/Method.tempo.session-manager#channelstore) to `tempo.session.manager()`. On the server, [`bootstrap: true`](/sdk/typescript/server/Method.tempo.session#with-same-route-bootstrap) lets a client find its previous channel before opening a new one.
+
+Old persisted entries without `origin` are rejected. Verify the origin and descriptor independently before migrating them; don't relabel channels with the next request's origin. Keep funded entries for reconciliation. See [origin-bound recovery](/sdk/typescript/client/Method.tempo.session#origin-bound-recovery).
 
 ### Sessions only
 
@@ -407,7 +415,7 @@ Sessions don't accept payments from a [Zone](https://docs.tempo.xyz/docs/zones) 
 
 Usage-based services—LLM APIs, cloud infrastructure, metered data—don't know the final cost when a request starts. Billing after the fact adds credit risk and reconciliation; prepaid credits make the client guess and strand unused funds.
 
-With Sessions, payment is part of each request. For an LLM API priced at 0.000025 OUSD per token, a client opens a channel with 10 OUSD, signs a voucher for each chunk it receives, and gets the unused deposit back when it closes. Your server never touches the chain during inference: each voucher costs microseconds of CPU, not a network round trip.
+With Sessions, payment is part of each request. For an LLM API priced at 0.000025 OUSD per token, a client opens a channel with 10 OUSD, signs a voucher for each chunk it receives, and gets the unused deposit back when it closes. Managed streams check the live reserve before charging and delivering content; settlement runs separately on your configured schedule.
 
 :::info[Why Tempo]
 - **Fast, cheap channel operations**—Opening, topping up, and closing are on-chain. Tempo's ~500ms finality and sub-cent fees keep them out of the way.

@@ -1,0 +1,111 @@
+---
+description: "Recover Stripe reporting for stablecoin payments that have already settled."
+imageDescription: "Recover missing Stripe payment records"
+---
+
+# `stripe.recordPayment` [Record a settled stablecoin payment]
+
+Records an already-settled stablecoin payment as a Stripe `PaymentIntent`.
+
+## Usage
+
+The mppx [`stripe.create`](/sdk/typescript/server/Method.stripe.create) integration records settled stablecoin payments in Stripe automatically. Use this helper if that recording doesn't complete after the on-chain payment settles, for example because the process stops. Confirm settlement on the specified network before calling it; the helper doesn't transfer funds.
+
+```ts twoslash [record-payment.ts]
+import Stripe from 'stripe'
+import { stripe } from 'mppx/server'
+
+const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+// [!code hl:start]
+const result = await stripe.recordPayment(client, {
+  amount: '1000000', // 1 USDC.e, with 6 decimals
+  network: 'tempo',
+  reference: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234',
+})
+// [!code hl:end]
+
+console.log(result.status)
+// @log: created
+```
+
+The helper creates a USD `PaymentIntent` in Stripe's `transaction_verification` mode, which asks Stripe to verify the on-chain transaction rather than charge the payer again. It floors six-decimal token units to whole US cents. Amounts below one cent return `below_minimum` without calling Stripe.
+
+### Retry safely
+
+The transaction hash in `reference` is the Stripe idempotency key, matching mppx's normal automatic recording. Stripe retains keys for at least 24 hours. Repeating equivalent parameters within that retention period returns `replayed` instead of creating another `PaymentIntent`.
+
+A previous call with different parameters returns `key_conflict`, including when automatic recording added metadata your recovery call omitted. Stripe also caches failed responses under idempotency keys, so a conflict doesn't prove a `PaymentIntent` exists. Look it up in Stripe before marking the payment recorded. After Stripe expires a key, this helper alone doesn't prevent duplicates; reconcile Stripe's records before retrying an older payment.
+
+Normal automatic recording uses `<reference>_fallback` only after Stripe definitively rejects the server's optional `paymentIntentOptions` (customer, tax, metadata, or receipt-email fields configured on a payment route). Check that fallback record too during reconciliation. This helper doesn't search Stripe for records under either key and doesn't use the fallback key.
+
+Unlike automatic recording, `recordPayment` throws other Stripe errors so your recovery worker can retry. A `created` or `replayed` result means Stripe returned a `PaymentIntent`, not necessarily that transaction verification succeeded: only `paymentIntentStatus: 'succeeded'` confirms verification. Look up a `processing` or `requires_action` `PaymentIntent` later.
+
+## Return type
+
+```ts
+type ReturnType =
+  | {
+      paymentIntentId: string
+      paymentIntentStatus: string
+      status: 'created' | 'replayed'
+    }
+  | { status: 'key_conflict' }
+  | { status: 'below_minimum' }
+```
+
+| Status | Meaning |
+| --- | --- |
+| `below_minimum` | Amount floors below one US cent; no Stripe request. |
+| `created` | Stripe returned a new `PaymentIntent`; inspect `paymentIntentStatus`. |
+| `key_conflict` | The key was previously used with different parameters; reconcile in Stripe. |
+| `replayed` | Stripe replayed an earlier result for the same key and parameters; inspect `paymentIntentStatus`. |
+
+## Parameters
+
+Call `stripe.recordPayment(client, parameters)`. `client` is the first argument; all other entries below are fields of the second argument.
+
+### amount
+
+- **Type:** `string`
+
+Settled amount in the token's raw six-decimal units, as in the Challenge request. For a [Session](/payment-methods/tempo/session) settlement, use the newly settled amount rather than the cumulative total.
+
+### client
+
+- **Type:** `StripeClient`
+
+Pre-configured Stripe SDK client with `paymentIntents.create` support.
+
+### connect (optional)
+
+- **Type:** `{ applicationFeeAmount?: number; onBehalfOf?: string; stripeAccount: string; transferData?: { amount?: number; destination: string }; transferGroup?: string }`
+
+Stripe Connect settings for the settled payment. Use the same connected account and settlement parameters as the original recording.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `applicationFeeAmount` (optional) | `number` | Application fee in cents. |
+| `onBehalfOf` (optional) | `string` | Connected account used as settlement merchant. |
+| `stripeAccount` | `string` | Account that owns the recorded `PaymentIntent`. |
+| `transferData` (optional) | `{ amount?: number; destination: string }` | Transfer destination and optional amount in cents. |
+| `transferGroup` (optional) | `string` | Group that associates related transfers. |
+
+### metadata (optional)
+
+- **Type:** `Record<string, string>`
+- **Default:** `{}`
+
+Metadata attached to the `PaymentIntent`. This helper doesn't add automatic mppx analytics metadata: `machine_payment`, `mpp_intent`, `mpp_sdk`, and (for charges) `mpp_challenge_id`. Use equivalent metadata when recovering an existing recording attempt to avoid an idempotency conflict.
+
+### network
+
+- **Type:** `'base' | 'solana' | 'tempo'`
+
+Network where the stablecoin payment settled.
+
+### reference
+
+- **Type:** `string`
+
+Settled transaction hash, used as Stripe's idempotency key.

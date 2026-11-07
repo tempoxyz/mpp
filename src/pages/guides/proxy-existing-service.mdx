@@ -216,6 +216,12 @@ const proxy = Proxy.create({
 
 Built-in service presets (`openai`, `anthropic`, `stripe`) handle upstream auth conventions automatically. Use `Service.from` for everything else.
 
+## Recover interrupted delivery
+
+`Proxy.create` limits request bodies to 10 MiB on paid and free routes; set `maxRequestBodySize` when an upstream needs a different limit. Enable `replay` with a shared atomic store to let clients collect a paid response using the same Credential and exact request after a connection loss.
+
+For non-idempotent upstream operations, set `replay.maxAttempts: 1`: the default of three attempts can execute a failed operation again without charging again. In-progress retries return `202`; streamed or oversized responses aren't retained and later return `410`. See [paid-response recovery](/sdk/typescript/proxy#recover-a-paid-response) for configuration and limits.
+
 ## Discovery
 
 The proxy generates OpenAPI and `llms.txt` documents so coding agents and CLI tools can find available services and pricing.

@@ -299,7 +299,7 @@ $ bun add mppx viem
 
 ### Set up `Mppx` instance with streaming
 
-Set up an `Mppx` instance with the current `tempo.session` method and `sse: true`.
+Set `sse: { poll: true }` on Workers: vouchers arrive in other request contexts, which cannot resolve the stream's pending promises.
 
 ```ts [src/index.ts]
 import { Mppx, Store, tempo } from "mppx/server";
@@ -313,7 +313,7 @@ const mppx = Mppx.create({
       account,
       chainId: 4217,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
-      sse: true,
+      sse: { poll: true },
       store: Store.memory(),
     }),
   ],
@@ -336,7 +336,7 @@ const mppx = Mppx.create({
       account,
       chainId: 4217,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
-      sse: true,
+      sse: { poll: true },
       store: Store.memory(),
     }),
   ],
@@ -630,7 +630,7 @@ $ npx mppx http://localhost:3000
 
 ## Client setup
 
-Use `tempo.session.manager()` from `mppx/client` to create a session manager. The `.sse()` method connects to the SSE endpoint and handles voucher renewal automatically—if the server requests a new voucher mid-stream, the client signs and sends one without interrupting the stream.
+Use `tempo.session.manager()` from `mppx/client` to create a session manager. Use one manager and channel store per API origin: its first HTTP or HTTPS request pins that origin, and later requests or redirected responses from other origins are rejected. The `.sse()` method connects to the SSE endpoint and handles voucher renewal automatically—if the server requests a new voucher mid-stream, the client signs and sends one without interrupting the stream.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -737,6 +737,14 @@ const receipt = await session.close()
 
 </Tab>
 </Tabs>
+
+## Prepaid requests and failed delivery
+
+With `sse: true` and `unitType: 'request'`, content is charged when its voucher is accepted, before your handler runs—even for POST requests returning a plain response. Automatic iterables consume that prepayment once, not per emitted chunk. A prepaid Receipt backs one managed SSE response; verify a new payment before retrying delivery. POSTs with a body or query string are content requests, not bodyless payment-management messages; don't return a blanket `204` for every POST.
+
+Keep your existing merchant refund handler, or opt into `sse: { autoCreditPrepaid: true, onRefundRequired }` for managed SSE delivery failures. Don't enable SDK credits alongside another automatic refund handler. SDK credits apply only to undelivered prepaid items when generation or delivery fails. Delivered items, explicit `stream.charge()` calls, and client cancellation aren't automatically refunded; a resolved manual charge is committed even when later work fails.
+
+`onRefundRequired` must durably accept the reconciliation job before returning. If its credit outcome is `unknown`, retry with the same idempotency key, amount, and units within 24 hours before refunding externally. Transfer only the non-null `externalRefundAmount`, never the full `amount` by default. Missing or failed hooks leave durable `prepaidRefunds` for a recovery worker; pending delivery records need manual reconciliation. See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits) for types, recovery rules, and capacity limits. Plain responses and failures outside managed SSE remain your application's refund responsibility.
 
 ## Charge dynamic amounts
 

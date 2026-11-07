@@ -82,6 +82,31 @@ const accessKey = {
 
 You can create separate keys for separate apps, tools, or deployments. Each key can have its own expiry, budget, scopes, recipients, and revocation path.
 
+### Cap payment offers
+
+Use SDK policy in addition to the access key's on-chain budget. The SDK can reject an unwanted currency, recipient, or price before signing. These limits apply to both charge and Session offers:
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const methods = tempo({
+  account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
+  allowedChainIds: [4217],
+  // [!code hl:start]
+  currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+  decimals: 6,
+  expectedRecipients: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
+  maxAmount: '0.01',
+  maxDeposit: '1',
+  // [!code hl:end]
+})
+```
+
+`maxAmount` caps a charge or the Challenge's Session price per unit, not total session spend. It requires `currencies` and explicit `decimals`; `maxAtomicAmount` is the raw-unit alternative. `maxDeposit` bounds reserved funds per channel. Only an on-chain access-key limit bounds spend across channels and processes. Explicit closes remain available outside a Session's price and recipient policy so clients can reclaim funds.
+
+For Sessions, bind storage to the API's HTTP origin and use a separate store per origin. A per-request `autoSwap` override also governs automatic HTTP and SSE top-ups, so an approval hook's narrowed swap budget remains effective.
+
 ### Use the key with `mppx`
 
 Pass the Tempo account to `mppx`. The access key address is optional, but useful when this runtime should use one specific delegated key.

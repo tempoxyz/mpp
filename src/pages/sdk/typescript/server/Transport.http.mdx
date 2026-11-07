@@ -22,6 +22,8 @@ const mppx = Mppx.create({
 - Issues Challenges in the `WWW-Authenticate` header with `402` status
 - Attaches Receipts in the `Payment-Receipt` header
 
+When a method configures a payment page and the request accepts `text/html`, the transport awaits the method's `html.content` loader before rendering. That field accepts a script string or `() => Promise<string>` on the method—not on `Transport.http` options. See [custom HTML](/sdk/typescript/html/custom#content).
+
 ## Return type
 
 ```ts

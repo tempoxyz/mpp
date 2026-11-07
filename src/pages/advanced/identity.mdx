@@ -290,9 +290,9 @@ Adapt `tryClaim` to your storage client's atomic insert-if-absent operation. It 
 
 ## MPP Credential identity
 
-The Credential proves the client controls a specific public key. Its `source` field remains the same regardless of the payment amount, so you can associate paid and identity-only requests with one key.
+For payment methods that authenticate `source`, a verified Credential associates the payment with that key. Private [Zone payments](/guides/private-payments) omit `source` and don't authenticate the payer: require a separately verified request identity for access control.
 
-Extract the client's identity from any verified request using `Credential.fromRequest`:
+After the payment method authenticates `source`, read it with `Credential.fromRequest`. Parsing the Credential alone doesn't verify identity:
 
 ```ts twoslash [server.ts]
 // @noEmit
@@ -305,7 +305,7 @@ const clientIdentity = credential.source
 // @log: "did:pkh:eip155:4217:0x1234..."
 ```
 
-Backends key workloads, sessions, and access control on this public key. Payment and request identity remain separate from Credential identity.
+Key workloads and access control on an authenticated identity, never an arbitrary `source` supplied by a client. The examples below assume a Tempo method that authenticates `source`, with Zone payments disabled; private payments require a separately verified request identity.
 
 ## Zero-dollar auth
 

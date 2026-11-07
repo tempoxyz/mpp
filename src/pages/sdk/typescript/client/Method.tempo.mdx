@@ -196,6 +196,18 @@ Allowlist of Tempo chain IDs for both charge and Session Credentials. Use `[4217
 
 Store for reusable Sessions channels. Defaults to an in-memory store.
 
+### currencies (optional)
+
+- **Type:** `readonly Address[]`
+
+Case-insensitive currency allowlist for both charges and Sessions. Required with either amount cap; an empty list rejects all offers.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Currency decimals. Set explicitly with `maxAmount`.
+
 ### expectedChainId (optional)
 
 - **Type:** `number`
@@ -204,17 +216,41 @@ Tempo chain ID this client accepts for both generated methods. Charge payments u
 
 When `allowedChainIds` is also set, it must include `expectedChainId`; otherwise the generated Session method rejects every chain.
 
+### expectedRecipients (optional)
+
+- **Type:** `readonly Address[]`
+
+Expected charge recipients and Session channel payees. Explicit Session closes are exempt.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`
 
 Function that returns a viem client for the given chain ID.
 
+### maxAmount (optional)
+
+- **Type:** `string`
+
+Maximum display-unit price per charge or Session unit. Requires `currencies` and `decimals`. This is not a total session-spend limit.
+
+### maxAtomicAmount (optional)
+
+- **Type:** `string`
+
+Maximum price per charge or Session unit in raw base units. Requires `currencies`.
+
 ### maxDeposit (optional)
 
 - **Type:** `string`
 
 Maximum deposit in human-readable units. Caps server-suggested channel opens and automatic top-ups.
+
+### origin (optional)
+
+- **Type:** `string`
+
+Trusted HTTP or HTTPS Session origin. Required for unknown server-snapshot recovery unless you supply a descriptor. Use a separate channel store per origin; see [origin-bound recovery](/sdk/typescript/client/Method.tempo.session#origin-bound-recovery).
 
 ### resolveAccount (optional)
 

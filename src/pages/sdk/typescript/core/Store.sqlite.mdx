@@ -1,0 +1,55 @@
+---
+description: "Persist payment state locally with atomic SQLite updates."
+imageDescription: "Keep payment state in SQLite"
+---
+
+# `Store.sqlite` [SQLite storage]
+
+Creates an atomic store from a SQLite database's prepared statements.
+
+## Usage
+
+```ts twoslash
+import { Store } from 'mppx'
+import { DatabaseSync } from 'node:sqlite'
+
+const db = new DatabaseSync('mppx.db')
+const store = Store.sqlite(db) // [!code hl]
+
+await store.put('usage:customer-42', { requests: 1 })
+console.log(await store.get('usage:customer-42'))
+// @log: { requests: 1 }
+```
+
+Works with `node:sqlite`, `better-sqlite3`, and `bun:sqlite`, on SQLite 3.35+ (`RETURNING` support). Use [Store.sql](/sdk/typescript/core/Store.sql#use-libsql-or-turso) for libSQL or Turso's asynchronous API.
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+`get(key)` returns the stored value or `null`; `put(key, value)` writes it and `delete(key)` removes it. `update(key, fn)` atomically applies a synchronous callback to the current value (or `null`). Return `{ op: 'set', result, value }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`; the update promise resolves to `result`. The callback can run again on conflict, so keep it free of side effects.
+
+[Store.tryClaim(store, key, expires)](/sdk/typescript/core/Store.tryClaim) records first use of a replay key until a future Unix-millisecond timestamp. It returns `true` for a new claim, or `false` for an existing live claim or invalid expiry; this prevents duplicate requests.
+
+## Parameters
+
+### database
+
+- **Type:** `Store.sqlite.Database`
+
+Database with `prepare(sql)` returning a statement with `all(...params)`. Statements may also expose `reader` and `run(...params)`; the adapter calls `run` when `reader === false`, as required by `better-sqlite3` for statements without result rows.
+
+### options (optional)
+
+- **Type:** `Store.sql.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `createTable` | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
+| `keyPrefix` | `string` | None | Prefix for every backing key. |
+| `maxAttempts` | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
+
+See [Store.sql](/sdk/typescript/core/Store.sql) for table creation, migration requirements, serialization, and conflict behavior.

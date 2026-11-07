@@ -1,0 +1,109 @@
+---
+description: "Run persistent payment storage in your Cloudflare Worker."
+imageDescription: "Give each payment a durable home"
+---
+
+# `Store.DurableObjectStore` [Durable Object class]
+
+Implements the Durable Object side of [Store.durableObject](/sdk/typescript/core/Store.durableObject), whose adapter sends per-key storage operations from your Worker.
+
+## Usage
+
+Export a subclass from your Worker:
+
+```ts twoslash
+import { Store } from 'mppx'
+
+export class MppxStore extends Store.DurableObjectStore {}
+```
+
+Bind it in `wrangler.jsonc` (merge these fields into your existing configuration):
+
+```jsonc
+{
+  // [!code hl:start]
+  "durable_objects": {
+    "bindings": [{ "class_name": "MppxStore", "name": "MPPX_STORE" }]
+  },
+  "migrations": [{ "new_sqlite_classes": ["MppxStore"], "tag": "v1" }]
+  // [!code hl:end]
+}
+```
+
+The class needs no `cloudflare:workers` import for fetch transport. For Workers RPC, extend `Store.DurableObjectStore.rpc(DurableObject)` instead:
+
+```ts [worker.ts]
+import { DurableObject } from 'cloudflare:workers'
+import { Store } from 'mppx'
+
+export class MppxStore extends Store.DurableObjectStore.rpc(DurableObject) {}
+```
+
+## Return type
+
+The constructor creates a Durable Object instance. `Store.DurableObjectStore.rpc(base)` returns a class typed as the receiving store class, rebuilt on the supplied base.
+
+## Parameters
+
+### env (optional)
+
+- **Type:** `unknown`
+
+Worker bindings, retained as protected `this.env`. Cloudflare supplies them after `state`.
+
+### state
+
+- **Type:** `Store.DurableObjectStore.State`
+
+Object context with `storage` and optional `id.name`. Cloudflare supplies this as the first constructor argument. The protected `state` and `storage` fields expose it to subclasses.
+
+## Subclass hooks
+
+Replay claims record first use of a key until an expiry to prevent duplicate requests. With replay sharding enabled through the `Store.durableObject` adapter's `replayShards` option, reusable objects named `mppx:replay:v<version>:<shard>` hold these claims in a separate SQLite table. Ordinary claims instead store replay markers alongside other values. Shard claims bypass `onWrite` because they write that separate table.
+
+The hooks below use `State.storage`, also available as protected `this.storage`.
+
+| Member | Type | Behavior |
+| --- | --- | --- |
+| `alarm()` | `() => Promise<void>` | Clears expired shard claims and schedules the next expiry; otherwise does nothing. |
+| `isReplayShard()` | `() => boolean` (protected) | Detects a shard by its full object name, or by its claims table when the name is unavailable. |
+| `onWrite(key, previous, next, storage)` | `(string, unknown, unknown, Store.DurableObjectStore.Storage) => void \| Promise<void>` (protected) | Runs after an applied put, delete, swap, or ordinary claim; absent values are `null`. Sharded claims bypass it. |
+
+When storage supports `transaction`, the write and `onWrite` run in the same transaction. Use the supplied `storage` for hook writes and alarms; throwing rolls the write back. Make only storage and alarm calls in the hook. External I/O, including queue sends, can allow another request into the object before commit; perform that work in `alarm()` instead.
+
+An alarm override must call `super.alarm()` and skip its own work in shard objects:
+
+```ts twoslash
+import { Store } from 'mppx'
+
+export class MppxStore extends Store.DurableObjectStore {
+  // [!code hl:start]
+  override async alarm() {
+    await super.alarm()
+    if (this.isReplayShard()) return
+    // Run your non-shard alarm work here.
+  }
+  // [!code hl:end]
+}
+```
+
+Never clear a shard's storage: deleting live claims removes replay protection. `rpc(base)` copies subclass methods and static members, but not subclass constructors, field initializers, or private `#` fields. Add initialization in a subclass of the returned class, or initialize ordinary members lazily.
+
+## Transport methods
+
+Use `Store.durableObject` rather than invoking these methods directly. They form the fetch/RPC transport contract:
+
+| Method | Parameters | Returns |
+| --- | --- | --- |
+| `claimReplay` | `key: string`, `expires: number` | `Promise<boolean>`; claims a shard key until its Unix-millisecond expiry and schedules cleanup. |
+| `fetch` | `request: Request` | `Promise<Response>`; accepts JSON `POST` operations, returns `405` for other methods or `400` for unknown operations. |
+| `releaseReplay` | `key: string` | `Promise<void>`; removes a shard claim. |
+| `storeClaim` | `key: string`, `expires: number`, `encoding?: Store.durableObject.Encoding` | `Promise<boolean>`; claims an absent key or expired replay marker. |
+| `storeDelete` | `key: string`, `encoding?: Store.durableObject.Encoding` | `Promise<void>`; deletes a key. |
+| `storeGet` | `key: string`, `encoding?: Store.durableObject.Encoding` | `Promise<unknown>`; returns the stored representation or `null`. |
+| `storePut` | `key: string`, `value: unknown`, `encoding?: Store.durableObject.Encoding` | `Promise<void>`; writes the stored representation. |
+| `storeSwap` | `key: string`, `expected: unknown`, `value: unknown`, `encoding?: Store.durableObject.Encoding` | `Promise<Store.DurableObjectStore.SwapResult<unknown>>`; compares then writes, or deletes for `value: null`. |
+
+`Store.durableObject.Encoding` is `'json' | 'native'`. Optional `encoding` defaults to `'json'`. JSON transport values are serialized text; native RPC values are structured clones. `SwapResult` is `{ applied: true }` or `{ applied: false, current: value }`, allowing retries without another read. `Store.DurableObjectStore.Stub` describes the `store*` RPC methods, `Store.DurableObjectStore.ReplayShard` describes `claimReplay` and `releaseReplay`, and `Request` is the fetch operation union.
+
+`State`, `Storage`, and `Sql` are structural subsets of Cloudflare types, not additional services to construct. `Storage` needs `delete`, `get`, and `put`; optional alarm, transaction, and SQL methods enable hooks and replay shards. Shards require SQLite-backed storage.

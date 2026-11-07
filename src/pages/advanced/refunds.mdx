@@ -27,20 +27,21 @@ In the charge flow, funds transfer to the server immediately when the client pay
     Server->>Client: Direct transfer back
 `} />
 
-The server knows the client's address from the Credential's `source` field and can return funds at any time using a standard on-chain transfer.
+For payments with an authenticated payer, record the verified payer address and return funds with a standard on-chain transfer. `source` is optional and may be a DID rather than an address; parsing it alone doesn't authenticate the payer.
+
+Private [Zone payments](/guides/private-payments) omit both Credential `source` and Receipt `payer`. Don't infer a refund destination from their settlement transaction or an arbitrary client-supplied `source`. Use a separate authenticated refund policy and reconcile the original withdrawal before transferring funds.
 
 ### Implementation
 
-To refund a charge, send the refund amount back to the client's public key:
+For a charge with a verified payer address, refund to the address recorded during payment verification:
 
 ```ts twoslash [server.ts]
 // @noEmit
-declare const credential: { source: string }
+declare const payment: { payer: string }
 declare function sendTransfer(params: { amount: string; to: string }): Promise<void>
 // ---cut---
-async function refundCharge(credential: { source: string }, amount: string) {
-  const clientAddress = credential.source
-  await sendTransfer({ amount, to: clientAddress })
+async function refundCharge(payment: { payer: string }, amount: string) {
+  await sendTransfer({ amount, to: payment.payer })
 }
 ```
 
@@ -75,6 +76,12 @@ This gives sessions a **built-in refund mechanism**—unclaimed funds are refund
 | Server claims funds | Payment completes, no refund |
 | Server never claims | Funds return to client after session expiry |
 | Server claims partial amount | Remaining funds return to client |
+
+### Credit undelivered content
+
+Use [`tempo.session.credit`](/sdk/typescript/server/Method.tempo.session#temposessioncredit) to reduce accepted spend that hasn't settled or become unavoidably settleable. Supply a stable `idempotencyKey`; retry an `unknown` outcome with that same key and terms before sending an external refund. A declined credit leaves spend unchanged. Preserve the key for every retry within its retention window (24 hours by default).
+
+For managed SSE delivery failures, opt into [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits) instead of running a second automatic refund handler. Persist `onRefundRequired` jobs and reconcile uncertain writes; only a non-null `externalRefundAmount` identifies captured funds safe to refund externally. Client cancellation and delivered content aren't automatically refunded.
 
 ### Refunding via channel close
 
@@ -127,7 +134,7 @@ console.log(receipt?.txHash)
 
 ## Best practices
 
-- **Track refunds by Credential** — Use the Challenge `id` and Credential `source` to associate refunds with the original payment.
-- **Refund to the same address** — Always return funds to the `source` address from the Credential. Don't ask the client for a separate refund address.
+- **Track the original payment**—Record the Challenge ID, settlement reference, and verified payer when available. Zone payments use a withdrawal `senderTag`, not a public payer identity.
+- **Authenticate the refund destination**—Use the recorded, verified payer address for ordinary charges. Private payments need a separate authenticated policy; never trust an unverified refund address.
 - **Treat refunds as a feedback mechanism** — Like traditional payment systems, refunds avoid costly disputes. Handle them promptly through your service's support process.
 - **Log refund transactions** — Keep a record of the original payment and the refund transaction for reconciliation.

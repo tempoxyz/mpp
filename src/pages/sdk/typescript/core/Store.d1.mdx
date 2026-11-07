@@ -1,0 +1,59 @@
+---
+description: "Keep payment state consistent across Cloudflare Workers with D1."
+imageDescription: "Persist payments with Cloudflare D1"
+---
+
+# `Store.d1` [Cloudflare D1 storage]
+
+Creates an atomic store from a Cloudflare D1 database binding.
+
+## Usage
+
+```ts twoslash
+import { Store } from 'mppx'
+
+type Env = { DB: Store.d1.Database }
+
+export default {
+  async fetch(_request: Request, env: Env) {
+    const store = Store.d1(env.DB) // [!code hl]
+    const claimed = await Store.tryClaim(store, 'request:customer-42:1', Date.now() + 60_000)
+    return Response.json({ claimed })
+  },
+}
+```
+
+Bind a D1 database as `DB` in your Worker configuration. Each write is a SQL statement; atomic updates use compare-and-swap without an interactive transaction.
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+`get(key)` returns the stored value or `null`; `put(key, value)` writes it and `delete(key)` removes it. `update(key, fn)` atomically applies a synchronous callback to the current value (or `null`). Return `{ op: 'set', result, value }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`; the update promise resolves to `result`. The callback can run again on conflict, so keep it free of side effects.
+
+[Store.tryClaim(store, key, expires)](/sdk/typescript/core/Store.tryClaim) records first use of a replay key until a future Unix-millisecond timestamp. It returns `true` for a new claim, or `false` for an existing live claim or invalid expiry; this prevents duplicate requests.
+
+## Parameters
+
+### database
+
+- **Type:** `Store.d1.Database`
+
+D1 binding with `prepare(sql).bind(...values).all()` resolving to `{ results: unknown[] }`.
+
+### options (optional)
+
+- **Type:** `Store.sql.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `createTable` | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
+| `keyPrefix` | `string` | None | Prefix for every backing key. |
+| `maxAttempts` | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
+
+The default table is `mppx_store (key TEXT PRIMARY KEY, value TEXT NOT NULL, expires DOUBLE PRECISION)`. Values use the `ox` library's JSON format, including bigints; `expires` is nullable and mirrors replay-marker expiry in Unix milliseconds. If migrations manage an existing table, add this column before using the adapter. `update` retries conflicts up to `maxAttempts`, then throws.
+
+See [Store.sql](/sdk/typescript/core/Store.sql) for table creation, migration requirements, serialization, and conflict behavior.
