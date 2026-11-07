@@ -11180,6 +11180,39 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+
+  // ── Mekler TLS Inspection ────────────────────────────────────────────
+  {
+    id: "mekler-tls",
+    name: "Mekler TLS Inspection",
+    url: "https://api.mekler.ai",
+    serviceUrl: "https://router.sasona.ai/tempo",
+    description:
+      "Inspect a public host's TLS certificate on port 443: expiry and seconds left, the DNS names it covers, its SHA-256 fingerprint, whether it validates against the runtime CA store, and the negotiated TLS version and cipher. One live handshake per call; no HTTP request is sent to the host.",
+
+    categories: ["web", "data"],
+    integration: "third-party",
+    tags: ["tls", "certificates", "https", "monitoring", "web"],
+    status: "active",
+    docs: {
+      homepage: "https://mekler.ai",
+      apiReference: "https://api.mekler.ai/openapi.json",
+    },
+    provider: { name: "Mekler AI", url: "https://mekler.ai" },
+    realm: "router.sasona.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        healthCheck: { body: {} },
+        route: "POST /api-inspect-certificate/mpp",
+        desc: "Inspect one public host's TLS certificate and return its expiry, DNS names, fingerprint, validation result and negotiated TLS details. The /mpp on the end is this directory's own name for the url, so calls arriving from here can be told apart; POST /api-inspect-certificate is the same endpoint.",
+        dynamic: true,
+        amountHint: "$0.0067 on 1 Nov 2026; follows the upstream price",
+        unitType: "request",
+      },
+    ],
+  },
 ];
 
 export {
