@@ -1393,7 +1393,7 @@ export const services: ServiceDef[] = [
   {
     categories: ["ai", "social"],
     description:
-      "Real US and Canada phone numbers, outbound SMS and AI voice calls for agents. Pay per use with MPP: $3 buys a number for 30 days, $0.02 sends a text, in a single 402 round-trip with no account. Calls, transcripts, inbound SMS and live call events run on the same number via prepaid credit.",
+      "Real US and Canada phone numbers, outbound SMS, AI voice calls and inbound call answering for agents. Add credit with a Tempo MPP charge (no signup; the paying wallet gets an agent_token), then rent numbers for $3 per 30 days, place calls at $0.12/min and send texts at $0.02; transcripts, webhooks and an MCP server run on the same credential.",
     docs: {
       apiReference: "https://api.agentline.cloud/openapi.json",
       homepage: "https://agentline.cloud",
@@ -1401,34 +1401,31 @@ export const services: ServiceDef[] = [
     },
     endpoints: [
       {
-        amount: "3000000",
-        desc: "Buy a US or Canada phone number; the paying wallet owns it for 30 days",
-        healthCheck: { body: { country: "US" } },
-        route: "POST /v1/mpp/numbers/buy",
-        unitType: "number",
-      },
-      {
-        amount: "20000",
-        desc: "Send one outbound SMS (up to 2 segments) from a number the wallet owns",
-        healthCheck: { body: { to_number: "+12125550199", body: "hello" } },
-        route: "POST /v1/mpp/sms",
-        unitType: "message",
-      },
-      {
-        amountHint:
-          "$1 – $1000 prepaid credit; calls $0.12/min, inbound SMS $0.02",
-        desc: "Recharge prepaid credit and receive an agent_token (also accepts x402)",
+        amountHint: "$1 – $1000 of credit per payment",
+        desc: "Add credit and receive an agent_token (Tempo MPP; also accepts x402)",
         dynamic: true,
+        healthCheck: { body: { amount: 1 } },
         route: "POST /v1/billing/topup/x402/pay",
       },
       {
-        desc: "Pay-per-use index: operations, prices, flow",
-        route: "GET /v1/mpp",
+        desc: "Rent a US or Canada phone number for 30 days ($3 of credit; agent_token auth)",
+        healthCheck: false,
+        route: "POST /v1/x402/numbers/buy",
       },
       {
-        desc: "Place an AI voice call from an owned number ($0.12/min from prepaid credit, agent_token auth)",
+        desc: "Place an AI voice call from a rented number ($0.12/min of credit; agent_token auth)",
         healthCheck: false,
         route: "POST /v1/x402/calls",
+      },
+      {
+        desc: "Read the transcript of a call",
+        healthCheck: false,
+        route: "GET /v1/x402/calls/:call_id/transcript",
+      },
+      {
+        desc: "Poll call, SMS and inbound events for your numbers",
+        healthCheck: false,
+        route: "GET /v1/x402/events",
       },
     ],
     icon: "https://api.agentline.cloud/favicon.png",
