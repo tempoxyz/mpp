@@ -1357,6 +1357,59 @@ export const services: ServiceDef[] = [
     ],
   },
 
+  // ── 402.shop ───────────────────────────────────────────────────────────
+  {
+    id: "402-shop",
+    name: "402.shop",
+    url: "https://402.shop",
+    serviceUrl: "https://402.shop",
+    description:
+      "Marketplace of digital products from independent sellers. Discover products, read an offer, then buy a one-time price over MPP; the buyer's account unlocks the seller's private files and content.",
+    icon: "https://402.shop/icon1.png",
+    categories: ["media", "web"],
+    integration: "first-party",
+    tags: [
+      "marketplace",
+      "digital-products",
+      "downloads",
+      "creators",
+      "checkout",
+      "agent-commerce",
+    ],
+    docs: {
+      homepage: "https://402.shop/guides/sell-to-ai-agents",
+      llmsTxt: "https://402.shop/llms.txt",
+      apiReference: "https://402.shop/openapi.json",
+    },
+    provider: { name: "402.shop", url: "https://402.shop" },
+    realm: "402.shop",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT],
+    endpoints: [
+      {
+        route: "GET /api/marketplace/products",
+        desc: "Search listed products and their prices",
+      },
+      {
+        route: "GET /api/marketplace/products/:productId",
+        desc: "Read one listed product and its pricing options",
+      },
+      {
+        route: "GET /api/prices/:priceId",
+        desc: "Read a price's offer and whether the account already owns it",
+      },
+      {
+        route: "POST /api/prices/:priceId/purchase",
+        desc: "Buy a one-time price; the paying wallet needs a 402.shop account with a verified email",
+        dynamic: true,
+        amountHint: "Set by each seller, from $0.01",
+        healthCheck: {
+          path: "/api/prices/01a11b3a-d3b6-755e-b7f9-0bd3980a54cd/purchase",
+        },
+      },
+    ],
+  },
+
   // ── agentfax ───────────────────────────────────────────────────────────
   {
     id: "agentfax",
