@@ -5,7 +5,7 @@ imageDescription: "Give each payment a durable home"
 
 # `Store.DurableObjectStore` [Durable Object class]
 
-Implements the Durable Object side of [Store.durableObject](/sdk/typescript/core/Store.durableObject), whose adapter sends per-key storage operations from your Worker.
+Implements the Durable Object storage backend for [Store.durableObject](/sdk/typescript/core/Store.durableObject).
 
 ## Usage
 
@@ -17,7 +17,7 @@ import { Store } from 'mppx'
 export class MppxStore extends Store.DurableObjectStore {}
 ```
 
-Bind it in `wrangler.jsonc` (merge these fields into your existing configuration):
+Merge these bindings into `wrangler.jsonc`:
 
 ```jsonc
 {
@@ -30,7 +30,7 @@ Bind it in `wrangler.jsonc` (merge these fields into your existing configuration
 }
 ```
 
-The class needs no `cloudflare:workers` import for fetch transport. For Workers RPC, extend `Store.DurableObjectStore.rpc(DurableObject)` instead:
+Fetch transport needs no `cloudflare:workers` import. For Workers RPC:
 
 ```ts [worker.ts]
 import { DurableObject } from 'cloudflare:workers'
@@ -41,7 +41,7 @@ export class MppxStore extends Store.DurableObjectStore.rpc(DurableObject) {}
 
 ## Return type
 
-The constructor creates a Durable Object instance. `Store.DurableObjectStore.rpc(base)` returns a class typed as the receiving store class, rebuilt on the supplied base.
+The constructor creates a Durable Object. `rpc(base)` returns the receiving store class rebuilt on `base`, preserving its type.
 
 ## Parameters
 
@@ -49,19 +49,18 @@ The constructor creates a Durable Object instance. `Store.DurableObjectStore.rpc
 
 - **Type:** `unknown`
 
-Worker bindings, retained as protected `this.env`. Cloudflare supplies them after `state`.
+Worker bindings after `state`; available as protected `this.env`.
 
 ### state
 
 - **Type:** `Store.DurableObjectStore.State`
 
-Object context with `storage` and optional `id.name`. Cloudflare supplies this as the first constructor argument. The protected `state` and `storage` fields expose it to subclasses.
+First constructor argument: context with `storage` and optional `id.name`. Available as protected `this.state` and `this.storage`.
 
 ## Subclass hooks
 
-Replay claims record first use of a key until an expiry to prevent duplicate requests. With replay sharding enabled through the `Store.durableObject` adapter's `replayShards` option, reusable objects named `mppx:replay:v<version>:<shard>` hold these claims in a separate SQLite table. Ordinary claims instead store replay markers alongside other values. Shard claims bypass `onWrite` because they write that separate table.
-
-The hooks below use `State.storage`, also available as protected `this.storage`.
+- [Replay sharding](/sdk/typescript/core/Store.durableObject#shard-replay-claims) stores expiring replay claims in a separate SQLite table; ordinary claims use [replay markers](/sdk/typescript/core/Store.tryClaim#support-replay-claims-in-a-custom-store) alongside values.
+- Hooks use `State.storage` (protected `this.storage`).
 
 | Member | Type | Behavior |
 | --- | --- | --- |
@@ -69,7 +68,9 @@ The hooks below use `State.storage`, also available as protected `this.storage`.
 | `isReplayShard()` | `() => boolean` (protected) | Detects a shard by its full object name, or by its claims table when the name is unavailable. |
 | `onWrite(key, previous, next, storage)` | `(string, unknown, unknown, Store.DurableObjectStore.Storage) => void \| Promise<void>` (protected) | Runs after an applied put, delete, swap, or ordinary claim; absent values are `null`. Sharded claims bypass it. |
 
-When storage supports `transaction`, the write and `onWrite` run in the same transaction. Use the supplied `storage` for hook writes and alarms; throwing rolls the write back. Make only storage and alarm calls in the hook. External I/O, including queue sends, can allow another request into the object before commit; perform that work in `alarm()` instead.
+- With `storage.transaction`, writes and `onWrite` share a transaction; throwing rolls it back.
+- Use the hook's supplied `storage` for writes and alarms.
+- Move external I/O, including queue sends, to `alarm()`: I/O can admit another request before commit.
 
 An alarm override must call `super.alarm()` and skip its own work in shard objects:
 
@@ -87,11 +88,11 @@ export class MppxStore extends Store.DurableObjectStore {
 }
 ```
 
-Never clear a shard's storage: deleting live claims removes replay protection. `rpc(base)` copies subclass methods and static members, but not subclass constructors, field initializers, or private `#` fields. Add initialization in a subclass of the returned class, or initialize ordinary members lazily.
+Never clear shard storage: live claims prevent replays. `rpc(base)` copies methods and static members, not constructors, field initializers, or private `#` fields. Initialize in a subclass of its result, or initialize ordinary members lazily.
 
 ## Transport methods
 
-Use `Store.durableObject` rather than invoking these methods directly. They form the fetch/RPC transport contract:
+Use `Store.durableObject` instead of calling these fetch/RPC methods directly:
 
 | Method | Parameters | Returns |
 | --- | --- | --- |
@@ -104,6 +105,10 @@ Use `Store.durableObject` rather than invoking these methods directly. They form
 | `storePut` | `key: string`, `value: unknown`, `encoding?: Store.durableObject.Encoding` | `Promise<void>`; writes the stored representation. |
 | `storeSwap` | `key: string`, `expected: unknown`, `value: unknown`, `encoding?: Store.durableObject.Encoding` | `Promise<Store.DurableObjectStore.SwapResult<unknown>>`; compares then writes, or deletes for `value: null`. |
 
-`Store.durableObject.Encoding` is `'json' | 'native'`. Optional `encoding` defaults to `'json'`. JSON transport values are serialized text; native RPC values are structured clones. `SwapResult` is `{ applied: true }` or `{ applied: false, current: value }`, allowing retries without another read. `Store.DurableObjectStore.Stub` describes the `store*` RPC methods, `Store.DurableObjectStore.ReplayShard` describes `claimReplay` and `releaseReplay`, and `Request` is the fetch operation union.
+- `Store.durableObject.Encoding`: `'json' | 'native'`; defaults to `'json'` (serialized text). Native RPC uses structured clones.
+- `SwapResult`: `{ applied: true } | { applied: false, current: value }`; conflicts return the current value for retry.
+- `Store.DurableObjectStore.Stub`: `store*` RPC methods.
+- `Store.DurableObjectStore.ReplayShard`: `claimReplay` and `releaseReplay`.
+- `Store.DurableObjectStore.Request`: fetch operation union.
 
-`State`, `Storage`, and `Sql` are structural subsets of Cloudflare types, not additional services to construct. `Storage` needs `delete`, `get`, and `put`; optional alarm, transaction, and SQL methods enable hooks and replay shards. Shards require SQLite-backed storage.
+`State`, `Storage`, and `Sql` are structural Cloudflare types. `Storage` requires `delete`, `get`, and `put`; optional alarm, transaction, and SQL methods enable hooks and shards. Shards require SQLite.

@@ -8,7 +8,6 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
 <SigningAccountTabs />
 
-
 Creates a Tempo charge payment method for client-side transaction and proof signing.
 
 ## Usage
@@ -61,15 +60,13 @@ const response = await fetch('https://mpp.dev/api/ping/paid')
 </Tab>
 </Tabs>
 
-For non-zero Challenges, the client returns either a `transaction` or `hash` payload depending on `mode`, or a `zone` payload when it pays from a Zone balance with [`zone`](#zone-optional). For zero-amount Challenges, it always returns a `proof` payload and skips transaction construction.
+- Nonzero Challenges produce a `transaction` or `hash` payload according to `mode`, or `zone` for [Zone payments](#zone-optional). Zero-amount Challenges always produce `proof`, without a transaction.
+- The transaction's `validBefore` covers fractional-second Challenge expiry. Sponsored pull charges need at least 15 seconds of validity, checked before signing and after asynchronous preparation. Push and zero-amount Challenges are exempt.
+- Currency, chain, recipient, and amount policies apply during selection and before signing. Concurrent requests with the same Challenge and signer share one signing operation.
 
-The charge transaction's `validBefore` covers fractional-second Challenge expirations, so the transaction remains valid through the full Challenge lifetime. Sponsored pull charges require at least 15 seconds of remaining Challenge validity before signing. The client checks again after asynchronous preparation; push and zero-amount Challenges are exempt.
+MACH-enabled Challenges use the canonical swapper to pay the requested stablecoin. If unavailable, the client uses configured `autoSwap` or pays stablecoins directly. MACH supports single-recipient charges on mainnet and Moderato; fees use a funded, supported stablecoin.
 
-Set `currencies` and a per-charge amount cap before paying untrusted endpoints. The client skips offers that violate its currency, chain, recipient, or amount policy during Challenge selection and checks again before signing. Concurrent requests using the same Challenge and signer share one in-flight signing operation.
-
-When a Challenge enables MACH funding, the client tries the canonical MACH swapper route and settles the requested stablecoin to the server. If the account can't execute that route, the client uses `autoSwap` when configured or falls back to a direct stablecoin payment. MACH funding supports single-recipient charges on Tempo mainnet and Moderato testnet, and uses a funded supported stablecoin as the transaction fee token.
-
-Import [`machineTokenDeployments`](/sdk/typescript/tempo.machineTokenDeployments) from `mppx/tempo` when you need the canonical token and swapper addresses.
+[`machineTokenDeployments`](/sdk/typescript/tempo.machineTokenDeployments) in `mppx/tempo` lists canonical token and swapper addresses.
 
 ### Cap each payment
 
@@ -104,7 +101,7 @@ type ReturnType = Method.Client
 
 - **Type:** `Account`
 
-Account to sign transactions and zero-dollar proofs with. You can override this per call using the context.
+Signs transactions and zero-amount proofs. Overridable per call through context.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -141,17 +138,19 @@ const method = tempo.charge({
 
 - **Type:** `readonly number[]`
 
-Allowlist of Tempo chain IDs the client accepts. Use `[4217]` for mainnet. A single entry supplies the chain when a Challenge omits `chainId`; multiple entries require the Challenge or resolved client to select one. An empty array rejects every chain.
+Allowed Tempo chain IDs; use `[4217]` for mainnet.
 
-The client also rejects a resolved viem client whose chain conflicts with the selected payment chain.
+- One entry supplies an omitted `chainId`; multiple entries require a Challenge or resolved-client chain.
+- An empty list rejects all chains.
+- A conflicting resolved-client chain is rejected.
 
 ### autoSwap (optional)
 
 - **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
 
-Automatically swap from a supported stablecoin (USDC.e, pathUSD) via the Tempo DEX precompile when the client lacks sufficient balance of the requested currency. The swap acquires only the missing balance. Quote and balance reads work with newly created access keys before their authorization is published.
+Swaps supported stablecoins through the Tempo DEX precompile to acquire only the missing balance. Quote and balance reads work with new access keys before on-chain authorization.
 
-Pass `true` to enable, or an object for custom tokens and slippage. `slippage` must be between `0` and `50` percent. The default input budget assumes 1:1 token units plus slippage; set a positive `maxAmountIn` in input-token base units for non-parity pairs. The client skips a route whose quote exceeds this budget.
+Pass `true` or configure tokens and `slippage` (`0`–`50` percent). The default budget assumes 1:1 token units plus slippage; set a positive `maxAmountIn` in input-token base units for non-parity pairs. Quotes above the budget are skipped.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -186,8 +185,7 @@ const method = tempo.charge({
 </Tab>
 </Tabs>
 
-
-The default swap sources are pathUSD, USDC.e, and OUSD in that order. Set `fallback: false` with `tokenIn` to allow only those listed input tokens; otherwise the defaults follow your selected tokens.
+Default sources: pathUSD, USDC.e, then OUSD. Custom `tokenIn` tokens are tried first; add `fallback: false` to exclude defaults.
 
 ### clientId (optional)
 
@@ -211,9 +209,7 @@ Decimals shared by the allowed currencies. Required to parse `maxAmount` because
 
 - **Type:** `number`
 
-Chain ID this client accepts for Tempo charges. When set, the client rejects any Challenge with a different `chainId`, and uses this chain when the Challenge omits one.
-
-Use `allowedChainIds` when you need an allowlist shared with `tempo.session`. When both options are set, the selected chain must satisfy both.
+Accepted chain, also used when the Challenge omits `chainId`. Other chains are rejected. Use `allowedChainIds` for an allowlist shared with `tempo.session`; when both are set, both must match.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -252,7 +248,7 @@ const method = tempo.charge({
 
 - **Type:** `readonly string[]`
 
-Allowlist of addresses the client accepts as payment recipients. When set, the client rejects any Challenge unless its primary recipient and every split recipient are in this list. This validation also applies to zero-amount proofs. Existing allowlists that contain only split recipients are rejected.
+The primary recipient and every split recipient must be in this allowlist, including for zero-amount proofs. A list containing only split recipients is insufficient.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -302,7 +298,7 @@ const method = tempo.charge({
 
 - **Type:** `Address`
 
-TIP-20 token used to pay transaction fees for a charge without fee sponsorship. Set this when an access key's spending limit does not cover the default fee token. You can override it per request with `context.feeToken`. This option is available on upstream `mppx/main` and requires a package build that includes commit `20eca322`.
+TIP-20 fee token for unsponsored charges. Set it when an access key's limit excludes the default fee token; override per request with `context.feeToken`.
 
 ```ts
 import { tempo } from 'mppx/client'
@@ -386,14 +382,18 @@ Selects the account that signs this charge after the Challenge and chain are kno
 
 - **Type:** `{ client: Client; settlementTimeoutMs?: number; zoneId?: number }`
 
-Pays from a [Zone](https://docs.tempo.xyz/docs/zones) balance instead of the account's Tempo balance when the Challenge accepts that Zone in `methodDetails.zones`, allows push mode, and has no splits. The client withdraws the amount to the recipient with a Challenge-bound memo, waits for the withdrawal to settle on Tempo, and sends a `zone` Credential. Other Challenges are paid on Tempo as usual.
+Pays from a [Zone](https://docs.tempo.xyz/docs/zones) when the Challenge's `methodDetails.zones` accepts it, permits push, and has no splits. Withdraws to the recipient with a Challenge-bound memo, waits for Tempo settlement, then sends a `zone` Credential. Other Challenges use Tempo.
 
 - `client`: viem client for the Zone chain, with the paying account and the Zone RPC authorization token.
 - `settlementTimeoutMs`: finite, non-negative milliseconds to wait for settlement on Tempo. Defaults to `60_000`. The client throws `Errors.ZoneSettlementPendingError` when the wait ends; creating the Credential again for the same Challenge resumes it without withdrawing again.
 - `zoneId`: Zone ID. Derived from `client.chain.id` when omitted. An explicit ID must match an encoded client-chain Zone ID.
 
-The Zone must settle on the Challenge's chain. Explicit client `mode: 'pull'` disables Zone payment. A new withdrawal requires more than `settlementTimeoutMs + 15_000` milliseconds of Challenge validity; otherwise the client pays on Tempo. A pending wait is bounded by the remaining Challenge validity.
+- The Zone must settle on the Challenge's chain. Explicit `mode: 'pull'` disables this path.
+- New withdrawals require more than `settlementTimeoutMs + 15_000` milliseconds of Challenge validity; otherwise payment uses Tempo. Pending waits stop at Challenge expiry.
 
-Concurrent Credential attempts for the same full Challenge share one withdrawal. After a lost send response, the client looks up the signed transaction's known hash on the Zone for up to 15 seconds. If its outcome remains unknown, retrying that Challenge does not withdraw again; reconcile on-chain before paying another Challenge. Failures before submission and confirmed reverts are safe to retry. Pending state is in memory and is removed after successful settlement, so retain and reuse the resulting Credential rather than create another payment.
+- Concurrent attempts for the same full Challenge share one withdrawal.
+- After a lost send response, the client checks the signed transaction's known hash on the Zone for up to 15 seconds. An unknown outcome blocks another withdrawal for that Challenge; reconcile on-chain before paying another Challenge.
+- Pre-submission failures and confirmed reverts are safe to retry.
+- Pending state is in memory and cleared after settlement. Retain and reuse the resulting Credential instead of paying again.
 
 See [private payments](/guides/private-payments).

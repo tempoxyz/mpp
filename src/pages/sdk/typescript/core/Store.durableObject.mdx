@@ -5,7 +5,7 @@ imageDescription: "Persist payments with Durable Objects"
 
 # `Store.durableObject` [Durable Object storage]
 
-Creates a store with indivisible per-key updates and one Durable Object per key.
+Creates an atomic store with one Durable Object per key.
 
 ## Usage
 
@@ -27,7 +27,9 @@ export default {
 
 Bind `MppxStore` as a SQLite-backed class with a `new_sqlite_classes` migration; see [Store.DurableObjectStore](/sdk/typescript/core/Store.DurableObjectStore#usage).
 
-Each key's reads and writes are linearizable across Worker isolates and locations. `update(key, fn)` passes the current value (or `null`) to your synchronous, side-effect-free callback; the callback returns a change and result as described below. The store runs it in the Worker and commits with compare-and-swap in the object. Conflicts retry with jittered backoff, using the value returned by the failed swap, up to the `maxAttempts` option (default `32`), rerunning the callback with that current value.
+- Per-key reads and writes are linearizable across isolates and locations.
+- `update` runs its callback in the Worker and commits by compare-and-swap in the object.
+- Conflicts rerun the callback with the failed swap's current value and jittered backoff, up to `options.maxAttempts` (default `32`).
 
 ## Return type
 
@@ -35,9 +37,8 @@ Each key's reads and writes are linearizable across Worker isolates and location
 type ReturnType = Store.AtomicStore
 ```
 
-`get(key)` returns the stored value or `null`; `put(key, value)` writes it and `delete(key)` removes it. `update(key, fn)` atomically applies a synchronous callback to the current value (or `null`). Return `{ op: 'set', result, value }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`; the update promise resolves to `result`. The callback can run again on conflict, so keep it free of side effects.
-
-[Store.tryClaim(store, key, expires)](/sdk/typescript/core/Store.tryClaim) records first use of a replay key until a future Unix-millisecond timestamp. It returns `true` for a new claim, or `false` for an existing live claim or invalid expiry; this prevents duplicate requests.
+- Provides `get`, `put`, `delete`, atomic `update`, and [replay claims](/sdk/typescript/core/Store.tryClaim); see the [AtomicStore contract](/sdk/typescript/core/Store.sql#return-type).
+- Keep update callbacks synchronous and side-effect-free: conflicts rerun them.
 
 ## Parameters
 
@@ -45,7 +46,7 @@ type ReturnType = Store.AtomicStore
 
 - **Type:** `Store.durableObject.Namespace`
 
-Namespace binding of a [Store.DurableObjectStore](/sdk/typescript/core/Store.DurableObjectStore) subclass. Keys normally select `idFromName(key)`; reserved shard-like names and names starting with `mppx:key:` are escaped to avoid object-name collisions.
+Binding of a [Store.DurableObjectStore](/sdk/typescript/core/Store.DurableObjectStore) subclass. Keys select `idFromName(key)`; reserved shard-like names and `mppx:key:` prefixes are escaped to avoid collisions.
 
 ### options (optional)
 
@@ -53,12 +54,12 @@ Namespace binding of a [Store.DurableObjectStore](/sdk/typescript/core/Store.Dur
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `encoding` | `'json' \| 'native'` | `'json'` | JSON text or structured-clone values. Native encoding requires RPC. |
-| `keyPrefix` | `string` | None | Prefix for every backing key, including replay claims made by [Store.tryClaim](/sdk/typescript/core/Store.tryClaim), which records first use until a Unix-millisecond expiry. |
-| `maxAttempts` | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
-| `replayShards` | `number` | Disabled | Positive safe integer count of SQLite-backed objects that each hold multiple expiring replay claims. |
-| `replayShardVersion` | `number` | `1` | Positive safe integer version in shard object names. |
-| `transport` | `'fetch' \| 'rpc'` | `'fetch'` | Fetch requests or Workers RPC method calls. |
+| `encoding` (optional) | `'json' \| 'native'` | `'json'` | JSON text or structured-clone values. Native encoding requires RPC. |
+| `keyPrefix` (optional) | `string` | None | Prefix for every key, including replay claims. |
+| `maxAttempts` (optional) | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `replayShards` (optional) | `number` | Disabled | Positive safe integer count of SQLite replay-claim objects. |
+| `replayShardVersion` (optional) | `number` | `1` | Positive safe integer version in shard object names. |
+| `transport` (optional) | `'fetch' \| 'rpc'` | `'fetch'` | Fetch requests or Workers RPC method calls. |
 
 Invalid shard counts or versions throw at construction, as does `encoding: 'native'` without `transport: 'rpc'`.
 
@@ -66,7 +67,7 @@ Invalid shard counts or versions throw at construction, as does `encoding: 'nati
 
 ### Use Workers RPC and native values
 
-Workers RPC only reaches classes derived from Cloudflare's `DurableObject`, so the Worker class must extend the RPC base:
+Workers RPC requires Cloudflare's `DurableObject` base:
 
 ```ts [worker.ts]
 import { DurableObject } from 'cloudflare:workers'
@@ -90,16 +91,16 @@ export default {
 }
 ```
 
-`json` uses the `ox` library's JSON serialization, including bigint support. `native` preserves structured-clone values and can read values written directly with `storage.put`. Keep one encoding per namespace or key prefix: stored values carry no encoding tag, native clients read old JSON as text, and JSON clients cannot read native values. Migrate values or use a new prefix before switching.
+`json` uses `ox` JSON serialization, including bigints. `native` preserves structured clones and reads direct `storage.put` values. Keep one encoding per namespace or prefix: values have no encoding tag, native clients read JSON as text, and JSON clients can't read native values. Migrate values or change prefixes before switching.
 
-Native compare-and-swap compares values structurally, including cycles and aliasing, arrays, plain objects, typed arrays, buffers, dates, regular expressions, boxed primitives, and primitive-keyed maps and sets. Key or insertion order matters. Object-keyed maps, object-valued sets, views of resizable buffers, and unsupported object types throw rather than endlessly conflicting.
+Native compare-and-swap is structural; key/insertion order matters. It supports cycles, aliasing, arrays, plain objects, typed arrays, buffers, dates, regular expressions, boxed primitives, and primitive-keyed maps/sets. Object-keyed maps, object-valued sets, resizable-buffer views, and unsupported types throw.
 
 ### Shard replay claims
 
-Set `replayShards` to spread short-lived replay claims across reusable SQLite-backed objects named `mppx:replay:v<version>:<shard>`, selected by a stable FNV-1a hash of the prefixed key. Claims live in `mppx_replay_claims` and alarms remove expired rows instead of leaving one object per replay key.
+`replayShards` spreads claims across reusable SQLite objects named `mppx:replay:v<version>:<shard>`, selected by stable FNV-1a hashing of prefixed keys. Claims use `mppx_replay_claims`; alarms delete expired rows.
 
-Sharded claims are separate from ordinary values: `get` and `update` don't see them, and a value at the same key doesn't block a claim. `delete` releases both the ordinary key and its shard claim. Reserve replay keys for expiring claims.
+Sharded claims are invisible to `get` and `update`; ordinary values don't block them. `delete` removes both. Reserve replay keys for expiring claims.
 
-Enabling sharding or changing its count or version permits an old, unexpired claim to be claimed again under the new settings. Change settings only when no old claim matters—for example, together with `Mppx.create`'s `secretKey`, which authenticates payment Challenges and invalidates old Challenges when rotated—and bump `replayShardVersion` when changing the count. Don't run different settings side by side while old claims matter.
+Enabling sharding or changing its count/version permits replay of old live claims. Change settings only when those claims no longer matter—for example, rotate `Mppx.create`'s Challenge-authenticating `secretKey` to invalidate old Challenges. Bump `replayShardVersion` when changing the count; never mix settings while old claims matter.
 
-A subclass's constructor, handlers, and alarms also run in shard objects. Use `isReplayShard()` to skip your own work, never clear shard storage, and call `super.alarm()` when overriding alarms. See [subclass hooks](/sdk/typescript/core/Store.DurableObjectStore#subclass-hooks).
+Subclass constructors, handlers, and alarms also run in shards. Guard custom work with `isReplayShard()`, never clear shard storage, and preserve `super.alarm()`. See [subclass hooks](/sdk/typescript/core/Store.DurableObjectStore#subclass-hooks).

@@ -21,7 +21,7 @@ const client = new Stripe(process.env.STRIPE_SECRET_KEY!)
 const result = await stripe.recordPayment(client, {
   amount: '1000000', // 1 USDC.e, with 6 decimals
   network: 'tempo',
-  reference: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234',
+  reference: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
 })
 // [!code hl:end]
 
@@ -33,13 +33,12 @@ The helper creates a USD `PaymentIntent` in Stripe's `transaction_verification` 
 
 ### Retry safely
 
-The transaction hash in `reference` is the Stripe idempotency key, matching mppx's normal automatic recording. Stripe retains keys for at least 24 hours. Repeating equivalent parameters within that retention period returns `replayed` instead of creating another `PaymentIntent`.
-
-A previous call with different parameters returns `key_conflict`, including when automatic recording added metadata your recovery call omitted. Stripe also caches failed responses under idempotency keys, so a conflict doesn't prove a `PaymentIntent` exists. Look it up in Stripe before marking the payment recorded. After Stripe expires a key, this helper alone doesn't prevent duplicates; reconcile Stripe's records before retrying an older payment.
-
-Normal automatic recording uses `<reference>_fallback` only after Stripe definitively rejects the server's optional `paymentIntentOptions` (customer, tax, metadata, or receipt-email fields configured on a payment route). Check that fallback record too during reconciliation. This helper doesn't search Stripe for records under either key and doesn't use the fallback key.
-
-Unlike automatic recording, `recordPayment` throws other Stripe errors so your recovery worker can retry. A `created` or `replayed` result means Stripe returned a `PaymentIntent`, not necessarily that transaction verification succeeded: only `paymentIntentStatus: 'succeeded'` confirms verification. Look up a `processing` or `requires_action` `PaymentIntent` later.
+- **Retries:** `reference` is the transaction hash and Stripe idempotency key, matching automatic recording. Stripe retains keys for at least 24 hours; equivalent parameters return `replayed` within that period.
+- **Conflicts:** Different parameters, including omitted [automatic metadata](#metadata-optional), return `key_conflict`. Stripe caches failed responses too, so a conflict doesn't prove a `PaymentIntent` exists. Look it up before marking the payment recorded.
+- **Expired keys:** Reconcile Stripe records before retrying older payments; expired keys no longer prevent duplicates.
+- **Fallback records:** Automatic recording uses `<reference>_fallback` only after Stripe definitively rejects optional `paymentIntentOptions` (customer, tax, metadata, or receipt-email fields). Check both keys during reconciliation. This helper neither searches Stripe nor uses the fallback key.
+- **Other errors:** Unlike automatic recording, this helper throws other Stripe errors so your recovery worker can retry.
+- **Verification:** `created` and `replayed` mean Stripe returned a `PaymentIntent`, not that verification succeeded. Only `paymentIntentStatus: 'succeeded'` confirms it. Recheck `processing` or `requires_action` records later.
 
 ## Return type
 
@@ -47,11 +46,13 @@ Unlike automatic recording, `recordPayment` throws other Stripe errors so your r
 type ReturnType =
   | {
       paymentIntentId: string
+      // [!code hl:start]
       paymentIntentStatus: string
       status: 'created' | 'replayed'
     }
   | { status: 'key_conflict' }
   | { status: 'below_minimum' }
+// [!code hl:end]
 ```
 
 | Status | Meaning |

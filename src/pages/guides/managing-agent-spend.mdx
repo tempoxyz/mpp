@@ -84,7 +84,7 @@ You can create separate keys for separate apps, tools, or deployments. Each key 
 
 ### Cap payment offers
 
-Use SDK policy in addition to the access key's on-chain budget. The SDK can reject an unwanted currency, recipient, or price before signing. These limits apply to both charge and Session offers:
+Set SDK limits to reject unwanted currencies, recipients, or prices before signing a charge or Session payment:
 
 ```ts twoslash
 import { tempo } from 'mppx/client'
@@ -103,9 +103,11 @@ const methods = tempo({
 })
 ```
 
-`maxAmount` caps a charge or the Challenge's Session price per unit, not total session spend. It requires `currencies` and explicit `decimals`; `maxAtomicAmount` is the raw-unit alternative. `maxDeposit` bounds reserved funds per channel. Only an on-chain access-key limit bounds spend across channels and processes. Explicit closes remain available outside a Session's price and recipient policy so clients can reclaim funds.
+- `maxAmount` caps each charge or Session unit, not total spend. It requires `currencies` and `decimals`; use `maxAtomicAmount` for raw units.
+- `maxDeposit` caps reserved funds per channel. Use an access-key limit to cap spend across channels and processes.
+- Use a separate Session store per API origin. Per-request `autoSwap` limits also apply to automatic top-ups.
 
-For Sessions, bind storage to the API's HTTP origin and use a separate store per origin. A per-request `autoSwap` override also governs automatic HTTP and SSE top-ups, so an approval hook's narrowed swap budget remains effective.
+Explicit Session closes bypass price and recipient policy so clients can reclaim funds.
 
 ### Use the key with `mppx`
 

@@ -23,7 +23,7 @@ export default {
 }
 ```
 
-Bind a D1 database as `DB` in your Worker configuration. Each write is a SQL statement; atomic updates use compare-and-swap without an interactive transaction.
+Bind the database as `DB`. Writes use single SQL statements; updates use compare-and-swap, not interactive transactions.
 
 ## Return type
 
@@ -31,9 +31,8 @@ Bind a D1 database as `DB` in your Worker configuration. Each write is a SQL sta
 type ReturnType = Store.AtomicStore
 ```
 
-`get(key)` returns the stored value or `null`; `put(key, value)` writes it and `delete(key)` removes it. `update(key, fn)` atomically applies a synchronous callback to the current value (or `null`). Return `{ op: 'set', result, value }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`; the update promise resolves to `result`. The callback can run again on conflict, so keep it free of side effects.
-
-[Store.tryClaim(store, key, expires)](/sdk/typescript/core/Store.tryClaim) records first use of a replay key until a future Unix-millisecond timestamp. It returns `true` for a new claim, or `false` for an existing live claim or invalid expiry; this prevents duplicate requests.
+- Provides `get`, `put`, `delete`, atomic `update`, and [replay claims](/sdk/typescript/core/Store.tryClaim); see the [AtomicStore contract](/sdk/typescript/core/Store.sql#return-type).
+- Keep update callbacks synchronous and side-effect-free: conflicts rerun them.
 
 ## Parameters
 
@@ -49,11 +48,9 @@ D1 binding with `prepare(sql).bind(...values).all()` resolving to `{ results: un
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `createTable` | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
-| `keyPrefix` | `string` | None | Prefix for every backing key. |
-| `maxAttempts` | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
-| `table` | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
+| `createTable` (optional) | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
+| `keyPrefix` (optional) | `string` | None | Prefix for every backing key. |
+| `maxAttempts` (optional) | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` (optional) | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
 
-The default table is `mppx_store (key TEXT PRIMARY KEY, value TEXT NOT NULL, expires DOUBLE PRECISION)`. Values use the `ox` library's JSON format, including bigints; `expires` is nullable and mirrors replay-marker expiry in Unix milliseconds. If migrations manage an existing table, add this column before using the adapter. `update` retries conflicts up to `maxAttempts`, then throws.
-
-See [Store.sql](/sdk/typescript/core/Store.sql) for table creation, migration requirements, serialization, and conflict behavior.
+Uses `ox` JSON serialization, including bigints. `update` throws after `maxAttempts` conflicts. For the default schema and required nullable `expires` column, see [SQL migrations](/sdk/typescript/core/Store.sql#manage-the-table-with-migrations).

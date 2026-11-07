@@ -97,7 +97,7 @@ const mppx = Mppx.create({
 
 ### Create the `/api/sessions/poem` route
 
-Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
+Return an async generator from the poem route. Charge each word with `stream.charge()` before yielding it; metadata and newlines are free.
 
 ```ts [app/api/sessions/poem/route.ts]
 import { Store } from 'mppx'
@@ -209,7 +209,7 @@ const mppx = Mppx.create({
 
 ### Create the `/api/sessions/poem` route
 
-Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
+Return an async generator from the session middleware. Charge each word with `stream.charge()` before yielding it; metadata and newlines are free.
 
 ```ts [server.ts]
 import { Store } from 'mppx'
@@ -313,7 +313,7 @@ const mppx = Mppx.create({
       account,
       chainId: 4217,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
-      sse: { poll: true },
+      sse: { poll: true }, // [!code hl]
       store: Store.memory(),
     }),
   ],
@@ -322,7 +322,7 @@ const mppx = Mppx.create({
 
 ### Create the `/api/sessions/poem` route
 
-Create the poem route. The `withReceipt` method accepts an async generator—each yielded value is one SSE event and one charged word.
+Return an async generator from the poem route. Charge each word with `stream.charge()` before yielding it; metadata and newlines are free.
 
 ```ts [src/index.ts]
 import { Mppx, Store, tempo } from "mppx/server";
@@ -336,7 +336,7 @@ const mppx = Mppx.create({
       account,
       chainId: 4217,
       currencies: ["0x20c0000000000000000000006a37DA5C996874BE"], // OUSD on Tempo
-      sse: { poll: true },
+      sse: { poll: true }, // [!code hl]
       store: Store.memory(),
     }),
   ],
@@ -440,7 +440,7 @@ const mppx = Mppx.create({
 
 ### Create the `/api/sessions/poem` route
 
-Create the poem route with the session middleware. The handler returns an async generator—each yielded value is one SSE event and one charged word.
+Return an async generator from the session middleware. Charge each word with `stream.charge()` before yielding it; metadata and newlines are free.
 
 ```ts [server.ts]
 import { Store } from 'mppx'
@@ -558,7 +558,7 @@ const mppx = Mppx.create({
 
 ### Create the streaming poem route
 
-Create the route handler. `withReceipt` accepts an async generator—each yielded value becomes one SSE `event: message` and is charged one tick (`$0.001`). If the channel balance runs out mid-stream, the server emits `event: payment-need-voucher` and pauses until the client sends a new voucher.
+Pass an async generator to `withReceipt`. Charge each word with `stream.charge()` before yielding it; metadata and newlines are free. If the balance runs out, the server emits `event: payment-need-voucher` and waits for a new voucher.
 
 ```ts [server.ts]
 import { Mppx, Store, tempo } from "mppx/server";
@@ -740,11 +740,12 @@ const receipt = await session.close()
 
 ## Prepaid requests and failed delivery
 
-With `sse: true` and `unitType: 'request'`, content is charged when its voucher is accepted, before your handler runs—even for POST requests returning a plain response. Automatic iterables consume that prepayment once, not per emitted chunk. A prepaid Receipt backs one managed SSE response; verify a new payment before retrying delivery. POSTs with a body or query string are content requests, not bodyless payment-management messages; don't return a blanket `204` for every POST.
+- With `sse: true` and `unitType: 'request'`, payment is charged before your handler runs—once per request, not per chunk. This includes plain POST responses; POSTs with a body or query carry content—don't return a blanket `204`.
+- Enable `sse: { autoCreditPrepaid: true, onRefundRequired }` to credit undelivered prepaid items after managed SSE failures. Don't combine this with another automatic refund handler.
+- Delivered content, manual charges, and client cancellation aren't automatically refunded. Handle plain-response refunds in your application.
+- Persist recovery jobs in `onRefundRequired`. Retry uncertain credits with the same key, amount, and units before external refunds; transfer only a non-null `externalRefundAmount`.
 
-Keep your existing merchant refund handler, or opt into `sse: { autoCreditPrepaid: true, onRefundRequired }` for managed SSE delivery failures. Don't enable SDK credits alongside another automatic refund handler. SDK credits apply only to undelivered prepaid items when generation or delivery fails. Delivered items, explicit `stream.charge()` calls, and client cancellation aren't automatically refunded; a resolved manual charge is committed even when later work fails.
-
-`onRefundRequired` must durably accept the reconciliation job before returning. If its credit outcome is `unknown`, retry with the same idempotency key, amount, and units within 24 hours before refunding externally. Transfer only the non-null `externalRefundAmount`, never the full `amount` by default. Missing or failed hooks leave durable `prepaidRefunds` for a recovery worker; pending delivery records need manual reconciliation. See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits) for types, recovery rules, and capacity limits. Plain responses and failures outside managed SSE remain your application's refund responsibility.
+See [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits) for recovery rules and limits.
 
 ## Charge dynamic amounts
 
@@ -759,7 +760,7 @@ return result.withReceipt(async function* (stream) {
 
 ## WebSocket alternative
 
-The examples above use Server-Sent Events (SSE) for streaming. If your use case benefits from a persistent bidirectional connection — for example, interactive chat or real-time sessions — you can stream over WebSocket instead. The session payment flow is the same (channel open, voucher signing, close), but vouchers and content travel over a single socket rather than separate HTTP requests.
+Use WebSocket for bidirectional streaming. Vouchers and content share one socket; channel opening, signing, and closing work the same way.
 
 On the server, use [`mppx.session.serveWebSocket()`](/sdk/typescript/server/Ws.serve) to reuse the Session method's store and automatic settlement schedule. On the client, use [`session.ws()`](/sdk/typescript/client/Method.tempo.session-manager#with-websocket-streaming) instead of `session.sse()`.
 

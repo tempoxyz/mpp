@@ -24,13 +24,13 @@ console.log(replayed)
 // @log: false
 ```
 
-An `AtomicStore` is a key-value store with indivisible per-key `update(key, fn)` operations. The update callback reads the current value (or `null`) and returns a change plus a result; concurrent updates can't both commit against the same old value.
-
-`Store.tryClaim` uses the store's optional optimized `tryClaim` operation when present. Otherwise, it falls back to `AtomicStore.update`. Expired replay markers can be claimed again; legacy non-marker values remain claimed. Non-finite or already-expired proposed expiries return `false`. The optimized path also checks expiry after the operation completes, so a claim that expires in flight returns `false`.
+- Use the store's native `tryClaim` when available; otherwise use [atomic `update`](/sdk/typescript/core/Store.sql#return-type).
+- Reclaim expired replay markers; existing values without the [marker shape](#support-replay-claims-in-a-custom-store) remain claimed.
+- Return `false` if expiry passes during a native claim operation.
 
 ### Support replay claims in a custom store
 
-`AtomicStore` accepts an optional `tryClaim` fast path. Reject non-finite expiries and check `expires <= Date.now()` inside the atomic operation, not only before asynchronous work. The fallback stores a `ReplayMarker`, so include that type in a custom store's item map when you don't provide the fast path.
+Implement optional `AtomicStore.tryClaim` as one insert-if-absent-with-expiry operation. Reject non-finite expiries and check `expires <= Date.now()` inside it, not just before asynchronous work. Without this fast path, include `ReplayMarker` in the store's item map:
 
 ```ts
 type TryClaim<itemMap extends StoreItemMap = StoreItemMap> = <
@@ -47,7 +47,7 @@ type ReplayMarker = {
 
 ### Compose a native claim implementation
 
-Spread a Redis or Upstash adapter into `Store.from`, then add a native `tryClaim` operation. The wrapper preserves the fast path and applies `keyPrefix` to claim keys.
+`Store.from` preserves an adapter’s native `tryClaim` and applies `keyPrefix` to its keys:
 
 ```ts [store.ts]
 import { Store } from 'mppx'
@@ -77,7 +77,9 @@ const store = Store.from(
 )
 ```
 
-Use an absolute Unix-millisecond expiry such as Upstash `pxat` or Redis `PXAT`, not a relative duration. The native operation must not create an already-expired claim; use backend-side expiry validation where needed. [SQL stores](/sdk/typescript/core/Store.sql) and [Durable Object stores](/sdk/typescript/core/Store.durableObject) provide built-in claim operations. Durable Object replay sharding groups many expiring claims into reusable objects with a separate claims table. With sharding enabled, claims live separately from ordinary values: `get` doesn't return them, and `delete` releases them.
+Use absolute Unix-millisecond expiry (Upstash `pxat` or Redis `PXAT`), not a duration. Validate expiry backend-side where needed to prevent already-expired inserts.
+
+[SQL](/sdk/typescript/core/Store.sql) and [Durable Object](/sdk/typescript/core/Store.durableObject) stores include native claims. [Replay sharding](/sdk/typescript/core/Store.durableObject#shard-replay-claims) keeps claims in reusable objects, separate from values: `get` excludes them; `delete` releases them.
 
 ## Return type
 
@@ -85,7 +87,7 @@ Use an absolute Unix-millisecond expiry such as Upstash `pxat` or Redis `PXAT`, 
 type ReturnType = boolean | Promise<boolean>
 ```
 
-Returns `true` when this call records the key and `false` when an unexpired claim already exists or the proposed expiry is invalid or has passed.
+Returns `true` for a new claim; `false` for an existing live claim or a non-finite or expired expiry.
 
 ## Parameters
 
@@ -93,16 +95,16 @@ Returns `true` when this call records the key and `false` when an unexpired clai
 
 - **Type:** `number`
 
-Finite Unix timestamp in milliseconds when the replay claim expires; it must be in the future.
+Future, finite Unix-millisecond expiry.
 
 ### key
 
 - **Type:** `string`
 
-Store key to claim. Typed stores constrain this value to their item-map keys.
+Key to claim; typed stores restrict it to item-map keys.
 
 ### store
 
 - **Type:** `Store.AtomicStore`
 
-Atomic store used to persist the replay marker. Implement `store.tryClaim` as a single insert-if-absent-with-expiry operation when your backend supports it.
+Atomic store that persists the claim.

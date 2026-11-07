@@ -27,9 +27,9 @@ In the charge flow, funds transfer to the server immediately when the client pay
     Server->>Client: Direct transfer back
 `} />
 
-For payments with an authenticated payer, record the verified payer address and return funds with a standard on-chain transfer. `source` is optional and may be a DID rather than an address; parsing it alone doesn't authenticate the payer.
+Refund to the payer address recorded during payment verification. Parsing the optional Credential `source` doesn't authenticate an address.
 
-Private [Zone payments](/guides/private-payments) omit both Credential `source` and Receipt `payer`. Don't infer a refund destination from their settlement transaction or an arbitrary client-supplied `source`. Use a separate authenticated refund policy and reconcile the original withdrawal before transferring funds.
+Private [Zone payments](/guides/private-payments) omit `source` and Receipt `payer`. Authenticate a refund destination separately and reconcile the withdrawal before transferring funds.
 
 ### Implementation
 
@@ -79,9 +79,10 @@ This gives sessions a **built-in refund mechanism**—unclaimed funds are refund
 
 ### Credit undelivered content
 
-Use [`tempo.session.credit`](/sdk/typescript/server/Method.tempo.session#temposessioncredit) to reduce accepted spend that hasn't settled or become unavoidably settleable. Supply a stable `idempotencyKey`; retry an `unknown` outcome with that same key and terms before sending an external refund. A declined credit leaves spend unchanged. Preserve the key for every retry within its retention window (24 hours by default).
-
-For managed SSE delivery failures, opt into [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits) instead of running a second automatic refund handler. Persist `onRefundRequired` jobs and reconcile uncertain writes; only a non-null `externalRefundAmount` identifies captured funds safe to refund externally. Client cancellation and delivered content aren't automatically refunded.
+- Use [`tempo.session.credit`](/sdk/typescript/server/Method.tempo.session#temposessioncredit) to reduce unserved spend above the settlement floor. A declined credit leaves spend unchanged.
+- Retry an `unknown` outcome with the same `idempotencyKey`, amount, and units within the configured retention window (24 hours by default) before refunding externally.
+- For managed SSE failures, use [automatic prepaid credits](/sdk/typescript/server/Method.tempo.session#automatic-prepaid-credits), not a second refund handler. Persist recovery jobs in `onRefundRequired`; transfer only a non-null `externalRefundAmount`.
+- Delivered content and client cancellation aren't automatically refunded.
 
 ### Refunding via channel close
 

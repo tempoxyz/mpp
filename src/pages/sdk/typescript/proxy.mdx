@@ -76,7 +76,8 @@ Route values use the current `EndpointMap` shape:
 
 A route without a valid handler or explicit `free: true` fails closed.
 
-`Proxy` derives a scope that binds a payment to its route. For EVM payment methods using [x402](/sdk/typescript/server/Method.evm.charge#x402-optional), an alternative HTTP payment protocol, the `mppx` route-binding extension prevents a payment for one route from being reused on another; it is required on scoped routes by default. Set [`x402.routeBinding: 'resource'`](/sdk/typescript/server/Method.evm.charge#x402-optional) only when standard x402 clients must pay through resource URL binding.
+- For EVM methods using [x402](/sdk/typescript/server/Method.evm.charge#x402-optional), scoped routes require the `mppx` route-binding extension by default to prevent cross-route payment reuse.
+- Set [`x402.routeBinding: 'resource'`](/sdk/typescript/server/Method.evm.charge#x402-optional) only when standard x402 clients require resource URL binding.
 
 ### Multiple services
 
@@ -311,18 +312,21 @@ const proxy = Proxy.create({
 })
 ```
 
-The replay key binds the Credential to the HTTP method, exact origin, path, query, and body. A retried delivery reuses the original paid request's headers after removing payment and hop-by-hop transport fields, not headers supplied on retry. Routes configured with request-identity verification bypass replay so every request still verifies identity.
+- Retries must match the Credential, method, origin, path, query, and body.
+- Retries reuse the original request's headers, minus payment and hop-by-hop fields.
+- Routes with request-identity verification bypass replay and verify every request.
 
 | Recorded outcome | Retry response |
 | --- | --- |
 | Complete | Stored status, headers, body, and Receipt |
 | In progress | `202` with `Retry-After` |
-| Failed | Another upstream attempt, up to `maxAttempts`; then `502` |
+| Failed | Retry if attempts remain; otherwise `502` |
 | Streamed or too large to store | `410`; the response isn't available for replay |
 
-The upstream attempt continues independently of the payer's connection. SSE and oversized response bodies are delivered normally but not retained. Replay doesn't make the upstream operation exactly-once: errors, `5xx` responses, or broken response bodies can allow another upstream execution. Use `maxAttempts: 1` for non-idempotent operations unless the upstream has its own idempotency protection. The SDK default is `3`, including the initial attempt.
-
-Replay is available only while its record remains valid. `ttl` bounds the wait for upstream response headers and retains outcomes after recording; it doesn't limit a stream that has already started. Expired records are deleted on lookup. Configure backing-store expiry to reclaim records nobody retries, and use `waitUntil` on runtimes that can stop after returning a response. Store failures can prevent recovery even when the original response succeeds.
+- Upstream work continues after the payer disconnects. SSE and oversized responses are delivered but not retained.
+- Use `maxAttempts: 1` for non-idempotent operations unless the upstream enforces idempotency. Errors, `5xx` responses, and broken bodies can trigger another execution; replay isn't an exactly-once guarantee. The default is `3` attempts, including the first.
+- `ttl` limits the wait for response headers and retains recorded outcomes, not an active stream's duration. Expired records are deleted on lookup; configure store expiry for records nobody retries.
+- Use `waitUntil` on runtimes that can stop after returning a response. Store failures can prevent recovery even if the original response succeeds.
 
 ## Discovery endpoints
 

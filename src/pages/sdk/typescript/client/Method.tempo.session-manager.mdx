@@ -8,16 +8,13 @@ import { SigningAccountTabs } from '../../../../components/SigningAccountTabs'
 
 <SigningAccountTabs />
 
+Manages paid requests, streaming, and one channel's lifecycle: opens on the first `402` Challenge, signs vouchers, tops up, and closes with `.close()`.
 
-Creates a Sessions manager that handles channel open, paid fetches, streaming, top-ups, and close.
+Use `tempo.session()` inside `Mppx.create`, or `tempo()` for both charges and Sessions.
 
-Use this when application code needs direct lifecycle control for one channel. The manager opens a TIP-1034 channel lazily after the first `402` Challenge, signs cumulative vouchers, tops up when needed, and closes the channel when you call `.close()`.
-
-Session top-up, voucher retry, close, and bootstrap send the Credential in the header selected by the Challenge, including `Payment-Authorization` when required. They preserve the paid request's application `Authorization` header and reject redirects. A Session close does not reuse resource request state.
-
-Use `tempo.session()` instead when you only need to register the current Sessions method inside `Mppx.create`. Use `tempo()` when the same fetch wrapper should handle both one-time charges and current Sessions.
-
-Each manager is pinned to its first HTTP or HTTPS request origin, including probes and WebSocket URLs normalized to HTTP or HTTPS. Use a separate manager and store per API origin. Automatic redirects are disabled (`redirect: 'error'`); explicit manual redirects remain manual. A custom fetch response with another origin is rejected.
+- Top-up, voucher retry, close, and bootstrap use the Challenge-selected Credential header, including `Payment-Authorization`, and preserve application `Authorization`. Close never reuses resource request state.
+- Use a separate manager and store per API origin. The first request pins the origin, including probes and WebSocket URLs normalized to HTTP(S).
+- Automatic redirects use `redirect: 'error'`; management requests reject redirects, while explicit manual redirects stay manual. Cross-origin custom fetch responses are rejected.
 
 ## Usage
 
@@ -86,11 +83,13 @@ const receipt = await session.close()
 Channels remain open until you call `session.close()`. Close sessions when done to settle on-chain and reclaim unspent deposit.
 :::
 
-If the server refreshes the Challenge during close, the manager signs the refreshed accepted cumulative amount. It rejects a close Receipt with an invalid amount or spend above the signed cumulative amount. An HTTP close may report less spend than an earlier Receipt after a credit; it must still match the exact close Challenge and channel.
+- On a refreshed close Challenge, the manager signs its accepted cumulative amount.
+- The close Receipt must have a valid amount, spend no more than signed, and match the exact Challenge and channel.
+- After a credit, HTTP close spend can be lower than an earlier Receipt.
 
 ### With SSE streaming
 
-Stream server-sent events with automatic voucher handling. The manager signs incremental vouchers as the server requests more payment during the stream.
+Streams server-sent events and signs vouchers as payment is requested.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -153,7 +152,7 @@ await session.close()
 
 ### With WebSocket streaming
 
-Open a paid WebSocket session. The manager handles the HTTP `402` probe, channel open, in-band voucher signing, and payment control frames. This example expects a server route matching `/ws/chat/:prompt`. Use an encoded path segment, not query parameters: payment frames are verified as bodyless POSTs to this URL, and a query string classifies those POSTs as billable content.
+Handles the `402` probe, channel open, vouchers, and payment frames. This example needs a `/ws/chat/:prompt` server route. Encode the prompt in the path, not the query: payment frames become bodyless POSTs, which a query string classifies as billable content.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -171,8 +170,10 @@ const session = tempo.session.manager({
   maxDeposit: '1',
 })
 
+// [!code hl:start]
 const prompt = encodeURIComponent('Tell me something interesting')
 const url = new URL(`wss://api.example.com/ws/chat/${prompt}`)
+// [!code hl:end]
 
 const socket = await session.ws(url, {
   onReceipt(receipt) {
@@ -203,8 +204,10 @@ const session = tempo.session.manager({
   maxDeposit: '1',
 })
 
+// [!code hl:start]
 const prompt = encodeURIComponent('Tell me something interesting')
 const url = new URL(`wss://api.example.com/ws/chat/${prompt}`)
+// [!code hl:end]
 
 const socket = await session.ws(url, {
   onReceipt(receipt) {
@@ -319,7 +322,7 @@ console.log(receipt?.status)
 
 ### With session resumption
 
-Pass `channelStore` to persist channel hints between manager instances. The next manager sends the stored channel ID as a hint and hydrates from server snapshots when the server supports them.
+Pass `channelStore` to reuse channel hints across managers. The next manager sends the stored ID and restores state from server snapshots when supported.
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -360,7 +363,9 @@ const session = tempo.session.manager({
 </Tab>
 </Tabs>
 
-Scope persisted storage to the authenticated user and API origin. Entries must carry that exact `origin`: managers reject channels from another origin and older originless entries before signing. Migrate an originless entry only after independently verifying its origin and descriptor, never by assigning the next request's origin. Preserve funded channels for reconciliation rather than discarding them to bypass this check.
+- Scope storage to the authenticated user and API origin. Mismatched or originless entries are rejected before signing.
+- Migrate only after independently verifying the origin and descriptor—never assign the next request's origin.
+- Preserve funded channels for reconciliation; don't discard them to bypass this check.
 
 ```ts
 import { createJsonChannelStore, tempo } from 'mppx/client'
@@ -388,7 +393,7 @@ const session = tempo.session.manager({
 })
 ```
 
-When `bootstrap: true` is enabled, the manager first sends a same-route `HEAD` request if it has no active channel and no stored channel. Servers that enable bootstrap can answer with a `$0` identity Challenge and then return a `Payment-Session-Snapshot` header. The manager hydrates from that snapshot and persists it through `channelStore`.
+With `bootstrap: true` and no active or stored channel, the manager sends a same-route `HEAD`. Supporting servers return a `$0` identity Challenge, then a `Payment-Session-Snapshot`. The manager restores and saves it through `channelStore`.
 
 ## Return type
 
@@ -410,7 +415,7 @@ type SessionManager = {
 
 ### `ChannelStore`
 
-`channelStore` is optional client persistence for channel hints. It does not authorize payment by itself; the server still verifies the channel snapshot and voucher signatures.
+Optional persistence for channel hints, not payment authorization. The server still verifies snapshots and voucher signatures.
 
 ```ts
 type ChannelStore = {
@@ -505,7 +510,7 @@ type SessionManagerSseOptions = RequestInit & {
 
 ### `SessionManagerWebSocketOptions`
 
-Pass `signal` to cancel discovery, Credential creation, or connection establishment. Cancellation rejects `session.ws()` and prevents authorization on a socket that hasn't opened. Closing or failing the socket before it opens also rejects the connection attempt.
+`signal` cancels discovery, Credential creation, or connection setup. Cancellation rejects `session.ws()` and prevents authorization before the socket opens. A socket that closes or fails before opening also rejects.
 
 ```ts
 type SessionManagerWebSocketOptions = {
@@ -517,7 +522,7 @@ type SessionManagerWebSocketOptions = {
 
 ### `SessionManagedWebSocket`
 
-`session.ws()` returns a managed WebSocket facade. Payment protocol frames are handled internally; application listeners only receive application messages and close/error/open events.
+`session.ws()` handles payment frames internally. Listeners receive only application messages and close/error/open events.
 
 ```ts
 type SessionManagedWebSocket = {
@@ -577,9 +582,9 @@ type SessionReceipt = {
 ```
 
 :::info
-The `reference` field contains the channel ID, not a transaction hash. To get the settlement transaction hash, read `txHash` from the Receipt returned by `session.close()`.
+`reference` is the channel ID. Read the settlement hash from `session.close()`'s Receipt `txHash`.
 
-If a server-driven close fails after submission, the channel remains pending close because the transaction can still confirm. After the transaction expires and the clock-skew allowance passes, a later voucher or close clears the marker if the chain still shows an open channel. Failures before submission and confirmed reverts clear the marker immediately.
+A server-driven close failure after submission stays pending: the transaction may still confirm. After transaction expiry plus clock-skew allowance, a later voucher or close clears the marker if the channel remains open on-chain. Pre-submission failures and confirmed reverts clear it immediately.
 :::
 
 ## Parameters
@@ -595,24 +600,28 @@ Account to sign channel transactions and vouchers with.
 - **Type:** `boolean`
 - **Default:** `false`
 
-Accepts a noncanonical reserve contract advertised by the server. Leave this disabled unless you trust the server's custom deployment. Persisted channel state remains bound to the resolved address.
+Accepts the server's noncanonical reserve contract. Enable only for a trusted deployment. Stored channels remain bound to the resolved contract address.
 
 ### allowedChainIds (optional)
 
 - **Type:** `readonly number[]`
 
-Allowlist of Tempo chain IDs for Sessions, bootstrap proofs, and restored snapshots. Use `[4217]` for mainnet. A single entry supplies an omitted Challenge chain; multiple entries require the Challenge or resolved client to select one. An empty array rejects every chain.
+Allowed chains for Sessions, bootstrap proofs, and snapshots; use `[4217]` for mainnet.
 
-The manager rejects a configured client, resolved client, or Session snapshot on a conflicting chain.
+- One entry supplies an omitted Challenge chain; multiple entries require a Challenge or resolved-client chain.
+- An empty list rejects all chains.
+- Configured clients, resolved clients, and snapshots must match the selected chain.
 
 ### autoSwap (optional)
 
 - **Type:** `boolean | { fallback?: boolean; maxAmountIn?: bigint; slippage?: number; tokenIn?: Address[] }`
 
-Automatically acquire the session currency from fallback stablecoins before opening or topping up a channel. The swap acquires only the missing balance. Use the object form to set a slippage percentage from `0` to `50`, fallback token order, and a positive input-token base-unit `maxAmountIn`. The default input budget assumes 1:1 token units plus slippage; set `maxAmountIn` for non-parity pairs.
+Acquires only the missing session currency before opens and top-ups.
 
+- The object sets token order, `slippage` (`0`–`50` percent), and positive `maxAmountIn` in input-token base units.
+- The default budget assumes 1:1 token units plus slippage; set `maxAmountIn` for non-parity pairs.
 
-The default swap sources are pathUSD, USDC.e, and OUSD in that order. Set `fallback: false` with `tokenIn` to allow only those listed input tokens; otherwise the defaults follow your selected tokens.
+Default sources: pathUSD, USDC.e, then OUSD. Custom `tokenIn` tokens are tried first; add `fallback: false` to exclude defaults.
 
 ### bootstrap (optional)
 
@@ -636,7 +645,7 @@ Viem client instance. Shorthand for `getClient: () => client`.
 
 - **Type:** `unknown`
 
-Base method context supplied to every Credential the manager creates. The value must match the Sessions context schema. Manager-generated operation fields override matching fields in this context.
+Base context for every Credential. Must match the Sessions context schema; manager-generated operation fields take precedence.
 
 ### decimals (optional)
 
@@ -670,7 +679,9 @@ Function that returns a viem client for the given chain ID.
 
 Maximum deposit in human-readable units. Converted to raw units via `decimals`.
 
-Automatic and manual funding decisions are serialized for managers sharing a store within one process. The manager refreshes the active deposit before each decision. A top-up request that times out after 30 seconds, fails, or is canceled after dispatch leaves `uncertainTopUp` in the channel store and blocks further deposits until you reconcile the pending transaction against trusted chain state. Coordinate store writes and funding across processes yourself.
+- Managers sharing a store serialize automatic and manual funding within one process and refresh the deposit before each decision.
+- A dispatched top-up that fails, is canceled, or times out after 30 seconds sets `uncertainTopUp`, blocking deposits until you reconcile against trusted chain state.
+- Coordinate funding and store writes across processes yourself.
 
 ### topUpAmount (optional)
 
@@ -682,7 +693,7 @@ Preferred automatic top-up size in human-readable units. When omitted, `mppx` us
 
 - **Type:** `Readonly<Record<string, string>>`
 
-Maps trusted HTTP origins to their exact Challenge realm for both zero-amount bootstrap proofs and session payments. By default the realm must match the request hostname. Configure aliases yourself, not from a Challenge or redirect. This does not permit cross-origin channel reuse.
+Maps trusted HTTP origins to exact Challenge realms for bootstrap proofs and Session payments. By default, the realm must match the request hostname. Configure aliases yourself, never from a Challenge or redirect. Cross-origin channel reuse stays prohibited.
 
 ```ts
 trustedTempoProofRealms: { 'https://api.example.com': 'MPP Payment' }

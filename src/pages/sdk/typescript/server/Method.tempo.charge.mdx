@@ -346,7 +346,12 @@ const mppx = Mppx.create({
 })
 ```
 
-Sponsorship preflight first simulates sender execution at the signed gas limit with zero fees, then simulates the sponsored envelope with the sponsor's `feePayerSignature` and explicit zero priority fee when needed. A local sponsor's simulation-only gas buffer is capped by `maxGas` and `maxTotalFee`; the broadcast gas is unchanged. Hosted or capped simulations tolerate only final-phase out-of-gas errors after the sender check succeeds. Other node rejections raise `Errors.PaymentSimulationError` with phase `'sender'` or `'sponsored'`; transport failures remain unchanged.
+Sponsorship preflight:
+
+- Simulates sender execution at the signed gas limit with zero fees, then the sponsored envelope with the sponsor's `feePayerSignature` and explicit zero priority fee when needed.
+- Caps a local sponsor's simulation-only gas buffer by `maxGas` and `maxTotalFee`; broadcast gas stays unchanged.
+- Tolerates only final-phase out-of-gas errors in hosted or capped simulations, after the sender check succeeds.
+- Raises [`Errors.PaymentSimulationError`](/sdk/typescript/core/Errors#paymentsimulationerror) with phase `'sender'` or `'sponsored'` for other node rejections. Transport failures remain unchanged.
 
 ### feeToken (optional)
 

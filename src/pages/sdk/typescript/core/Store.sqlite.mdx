@@ -21,7 +21,7 @@ console.log(await store.get('usage:customer-42'))
 // @log: { requests: 1 }
 ```
 
-Works with `node:sqlite`, `better-sqlite3`, and `bun:sqlite`, on SQLite 3.35+ (`RETURNING` support). Use [Store.sql](/sdk/typescript/core/Store.sql#use-libsql-or-turso) for libSQL or Turso's asynchronous API.
+Supports `node:sqlite`, `better-sqlite3`, and `bun:sqlite` with SQLite 3.35+ (`RETURNING`). For asynchronous libSQL or Turso, use [Store.sql](/sdk/typescript/core/Store.sql#use-libsql-or-turso).
 
 ## Return type
 
@@ -29,9 +29,8 @@ Works with `node:sqlite`, `better-sqlite3`, and `bun:sqlite`, on SQLite 3.35+ (`
 type ReturnType = Store.AtomicStore
 ```
 
-`get(key)` returns the stored value or `null`; `put(key, value)` writes it and `delete(key)` removes it. `update(key, fn)` atomically applies a synchronous callback to the current value (or `null`). Return `{ op: 'set', result, value }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`; the update promise resolves to `result`. The callback can run again on conflict, so keep it free of side effects.
-
-[Store.tryClaim(store, key, expires)](/sdk/typescript/core/Store.tryClaim) records first use of a replay key until a future Unix-millisecond timestamp. It returns `true` for a new claim, or `false` for an existing live claim or invalid expiry; this prevents duplicate requests.
+- Provides `get`, `put`, `delete`, atomic `update`, and [replay claims](/sdk/typescript/core/Store.tryClaim); see the [AtomicStore contract](/sdk/typescript/core/Store.sql#return-type).
+- Keep update callbacks synchronous and side-effect-free: conflicts rerun them.
 
 ## Parameters
 
@@ -39,7 +38,7 @@ type ReturnType = Store.AtomicStore
 
 - **Type:** `Store.sqlite.Database`
 
-Database with `prepare(sql)` returning a statement with `all(...params)`. Statements may also expose `reader` and `run(...params)`; the adapter calls `run` when `reader === false`, as required by `better-sqlite3` for statements without result rows.
+Database exposing `prepare(sql).all(...params)`. Statements may expose `reader` and `run(...params)`; the adapter calls `run` when `reader === false`, as `better-sqlite3` requires.
 
 ### options (optional)
 
@@ -47,9 +46,9 @@ Database with `prepare(sql)` returning a statement with `all(...params)`. Statem
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `createTable` | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
-| `keyPrefix` | `string` | None | Prefix for every backing key. |
-| `maxAttempts` | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
-| `table` | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
+| `createTable` (optional) | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
+| `keyPrefix` (optional) | `string` | None | Prefix for every backing key. |
+| `maxAttempts` (optional) | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` (optional) | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
 
-See [Store.sql](/sdk/typescript/core/Store.sql) for table creation, migration requirements, serialization, and conflict behavior.
+See [Store.sql](/sdk/typescript/core/Store.sql) for schema, migrations, serialization, and conflict errors.
