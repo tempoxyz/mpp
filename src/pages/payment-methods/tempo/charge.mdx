@@ -497,7 +497,7 @@ Mppx.create({
 });
 ```
 
-If the withdrawal doesn't settle within `zone.settlementTimeoutMs`, the client throws `Errors.ZoneSettlementPendingError`. Retry the same Challenge to resume waiting without withdrawing again. See [private payments](/guides/private-payments#client).
+If the withdrawal doesn't settle within `zone.settlementTimeoutMs`, the client throws `Errors.ZoneSettlementPendingError`. Create the Credential again from the same `402` response to resume waiting without withdrawing again—a repeated request gets a new Challenge and pays again. See [handle slow settlement](/guides/private-payments#handle-slow-settlement).
 
 ## Specification
 

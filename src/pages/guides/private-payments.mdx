@@ -138,20 +138,37 @@ The client pays from the Zone when the Challenge accepts its Zone, allows push m
 
 A withdrawal can't be undone. The client waits up to `zone.settlementTimeoutMs` (default 60 seconds) for it to settle on Tempo. If it doesn't, the client throws `Errors.ZoneSettlementPendingError` with the `challengeId`, `senderTag`, and `zoneId`.
 
-Retry the same Challenge with the same client to resume waiting—it doesn't withdraw again. You can also look up the withdrawal by `senderTag` with the [Zone withdrawal status API](https://docs.tempo.xyz/docs/zones/withdraw#track-the-withdrawal).
+To resume, create the Credential again for the same Challenge with the same client—it finds the pending withdrawal instead of withdrawing again. Don't repeat the request: the server issues a new Challenge for it, and paying that one withdraws again. Keep the `402` response and retry Credential creation from it:
 
 ```ts
 import { Errors } from 'mppx'
+import { Mppx, tempo } from 'mppx/client'
 
-try {
-  await fetch('https://api.example.com/resource')
-} catch (error) {
-  if (error instanceof Errors.ZoneSettlementPendingError) {
-    // Retry this request instead of paying again.
-    console.log(error.zoneId, error.senderTag)
+const mppx = Mppx.create({
+  methods: [tempo.charge({ account, zone: { client: zone } })],
+  polyfill: false,
+})
+
+const url = 'https://api.example.com/resource'
+const challengeResponse = await mppx.rawFetch(url) // 402 with the Challenge
+
+// [!code hl:start]
+let credential: string | undefined
+for (let attempt = 0; attempt < 3 && !credential; attempt++) {
+  try {
+    credential = await mppx.createCredential(challengeResponse)
+  } catch (error) {
+    // Same Challenge, so the retry waits for the same withdrawal.
+    if (!(error instanceof Errors.ZoneSettlementPendingError)) throw error
   }
 }
+// [!code hl:end]
+if (!credential) throw new Error('Zone withdrawal is still settling')
+
+const response = await mppx.rawFetch(url, { headers: { Authorization: credential } })
 ```
+
+The client keeps pending withdrawals in memory, so retry before the process exits and before the Challenge expires. If either happens first, find the withdrawal by its `senderTag` with the [Zone withdrawal status API](https://docs.tempo.xyz/docs/zones/withdraw#track-the-withdrawal) before you pay again.
 
 ## Constraints
 

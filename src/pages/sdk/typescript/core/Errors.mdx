@@ -31,7 +31,7 @@ client.onPaymentFailed(({ error }) => {
 
 `InternalPaymentError.cause` holds the original server error for hooks and logs. The cause is never serialized into Problem Details.
 
-`ZoneSettlementPendingError` is thrown by a Tempo charge client that withdrew from a Zone when the withdrawal doesn't settle on Tempo in time. It carries `challengeId`, `senderTag`, and `zoneId`. Retry the same Challenge with the same client to resume waiting instead of paying again. See [private payments](/guides/private-payments#handle-slow-settlement).
+`ZoneSettlementPendingError` is thrown by a Tempo charge client that withdrew from a Zone when the withdrawal doesn't settle on Tempo in time. It carries `challengeId`, `senderTag`, and `zoneId`. Create the Credential again from the same `402` response with the same client to resume waiting; a repeated request gets a new Challenge and pays again. See [private payments](/guides/private-payments#handle-slow-settlement).
 
 ## Return type
 
