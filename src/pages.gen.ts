@@ -138,6 +138,7 @@ type Page =
   | { path: '/sdk/typescript/client/Transport.from'; render: 'static' }
   | { path: '/sdk/typescript/client/Transport.http'; render: 'static' }
   | { path: '/sdk/typescript/client/Transport.mcp'; render: 'static' }
+  | { path: '/sdk/typescript/cloudflare'; render: 'static' }
   | { path: '/sdk/typescript/core/BodyDigest.compute'; render: 'static' }
   | { path: '/sdk/typescript/core/BodyDigest.verify'; render: 'static' }
   | { path: '/sdk/typescript/core/Challenge.credentialHeader'; render: 'static' }
@@ -166,6 +167,12 @@ type Page =
   | { path: '/sdk/typescript/core/Receipt.from'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.fromResponse'; render: 'static' }
   | { path: '/sdk/typescript/core/Receipt.serialize'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.DurableObjectStore'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.d1'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.durableObject'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.postgres'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.sql'; render: 'static' }
+  | { path: '/sdk/typescript/core/Store.sqlite'; render: 'static' }
   | { path: '/sdk/typescript/core/Store.tryClaim'; render: 'static' }
   | { path: '/sdk/typescript/html/custom'; render: 'static' }
   | { path: '/sdk/typescript'; render: 'static' }
@@ -180,6 +187,7 @@ type Page =
   | { path: '/sdk/typescript/server/Method.stripe.create'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.findOrCreateDepositAddress'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe'; render: 'static' }
+  | { path: '/sdk/typescript/server/Method.stripe.recordPayment'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.stripe.spt'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo.charge'; render: 'static' }
   | { path: '/sdk/typescript/server/Method.tempo'; render: 'static' }

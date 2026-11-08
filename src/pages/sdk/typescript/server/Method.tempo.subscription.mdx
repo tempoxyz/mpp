@@ -251,6 +251,13 @@ Sponsored transactions may carry a `keyAuthorization`, so the activation transac
 
 Sponsored activation and renewal transactions must have at least 15 seconds of remaining validity when signed and submitted.
 
+Sponsorship preflight:
+
+- Simulates sender execution at the signed gas limit with zero fees, then the sponsored envelope with the sponsor's `feePayerSignature` and explicit zero priority fee when needed.
+- Caps a local sponsor's simulation-only gas buffer by `maxGas` and `maxTotalFee`; broadcast gas stays unchanged.
+- Tolerates only final-phase out-of-gas errors in hosted or capped simulations, after the sender check succeeds.
+- Raises [`Errors.PaymentSimulationError`](/sdk/typescript/core/Errors#paymentsimulationerror) with phase `'sender'` or `'sponsored'` for other node rejections. Transport failures remain unchanged.
+
 ### getClient (optional)
 
 - **Type:** `(parameters: { chainId?: number }) => MaybePromise<Client>`

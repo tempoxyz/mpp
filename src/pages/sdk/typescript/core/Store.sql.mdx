@@ -1,0 +1,115 @@
+---
+description: "Keep payment state consistent across servers with your SQL database."
+imageDescription: "Persist payment state in your database"
+---
+
+# `Store.sql` [Atomic SQL storage]
+
+Creates an atomic store from a Postgres or SQLite query function.
+
+## Usage
+
+Prefer [Store.postgres](/sdk/typescript/core/Store.postgres), [Store.sqlite](/sdk/typescript/core/Store.sqlite), or [Store.d1](/sdk/typescript/core/Store.d1). For other drivers, supply a query function:
+
+```ts [store.ts]
+import { Store } from 'mppx'
+import postgres from 'postgres'
+
+const db = postgres(process.env.DATABASE_URL!)
+
+// [!code hl:start]
+const store = Store.sql({
+  dialect: 'postgres',
+  query: (text, params) => db.unsafe(text, params),
+})
+// [!code hl:end]
+
+await store.put('usage:customer-42', { requests: 1 })
+console.log(await store.get('usage:customer-42'))
+// @log: { requests: 1 }
+```
+
+Requires `ON CONFLICT` and `RETURNING`: Postgres, SQLite 3.35+, D1, or libSQL. HTTP drivers work; interactive transactions aren’t required.
+
+- Values use `ox` JSON serialization, including bigints.
+- Updates use compare-and-swap with jittered retries; they throw after `maxAttempts` conflicts.
+- Replay claims use one insert-or-replace-expired statement; ordinary values don't expire automatically.
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+| Method | Behavior |
+| --- | --- |
+| `delete(key)` | Removes a value. |
+| `get(key)` | Returns the value or `null`. |
+| `put(key, value)` | Writes a value. |
+| `update(key, fn)` | Atomically applies `fn` to the value or `null` and resolves to its `result`. |
+
+Update callbacks return `{ op: 'set', result, value }`, `{ op: 'delete', result }`, or `{ op: 'noop', result }`. Keep them synchronous and side-effect-free: conflicts rerun them.
+
+[Store.tryClaim(store, key, expires)](/sdk/typescript/core/Store.tryClaim) returns `true` for a new replay claim, or `false` for a live claim or invalid expiry.
+
+## Parameters
+
+### driver
+
+- **Type:** `Store.sql.Driver`
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `dialect` | `'postgres' \| 'sqlite'` | Selects `$1` placeholders or `?` placeholders. |
+| `query` | `(sql: string, params: unknown[]) => Promise<Store.sql.Row[]>` | Executes one parameterized statement and returns rows, including `RETURNING` rows. `Store.sql.Row` is `Record<string, unknown>`. |
+
+### options (optional)
+
+- **Type:** `Store.sql.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `createTable` (optional) | `boolean` | `true` | Creates the table on first use. Set `false` when migrations manage it. |
+| `keyPrefix` (optional) | `string` | None | Prefix for every stored key, including replay claims. |
+| `maxAttempts` (optional) | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` (optional) | `string` | `'mppx_store'` | Table name, optionally schema-qualified. |
+
+Identifiers accept `name` or `schema.name`, with each part matching `[A-Za-z_][A-Za-z0-9_]*`; invalid names throw at construction. Create schemas yourself.
+
+## Advanced options
+
+### Manage the table with migrations
+
+Create all three columns before setting `createTable: false`:
+
+```sql
+CREATE TABLE mppx_store (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  expires DOUBLE PRECISION
+);
+```
+
+`expires` stores replay-marker expiry in Unix milliseconds, or `NULL` for ordinary values. For an existing two-column table:
+
+- Add nullable `expires` before using the adapter.
+- Backfill existing replay expiries, or remove expired markers: `expires = NULL` blocks reclamation even after the marker’s stored JSON expiry.
+- Never delete live replay claims.
+
+### Use libSQL or Turso
+
+Adapt the driver's result to rows:
+
+```ts [store.ts]
+import { createClient, type InArgs } from '@libsql/client'
+import { Store } from 'mppx'
+
+const client = createClient({ url: process.env.DATABASE_URL! })
+// [!code hl:start]
+const store = Store.sql({
+  dialect: 'sqlite',
+  query: async (sql, params) =>
+    (await client.execute({ args: params as InArgs, sql })).rows,
+})
+// [!code hl:end]
+```

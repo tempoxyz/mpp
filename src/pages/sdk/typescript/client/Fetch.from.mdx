@@ -19,6 +19,8 @@ A `402` without a Payment Challenge passes through for another protocol to handl
 
 The wrapper also handles MCP-over-HTTP payment required errors returned as JSON-RPC `-32042` responses, including the first event in an SSE stream.
 
+When [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap) owns a tool call, the fetch wrapper leaves payment handling to that adapter so its approval hook runs before signing.
+
 Payment retries use `redirect: 'manual'`, even when the initial request allows redirects. A `3xx` response returns without forwarding the Credential to another URL and leaves the payment attempt pending because the redirect doesn't confirm payment acceptance.
 
 If a paid retry returns `5xx`, the wrapper returns that response without retrying payment. When a `payment.failed` observer is registered, it receives `PaymentOutcomeUnknownError` with the Challenge, Credential, and a transaction hash when available. A thrown paid retry also reports that error to observers with the original failure as `cause`, while the caller receives the original failure. Reconcile the payment before another attempt. Observed `5xx` bodies are buffered up to 64 KiB or 2 seconds; a cut-off body carries `Mppx-Body-Truncated: true`.
@@ -122,7 +124,7 @@ type ReturnType = (
 ) => Promise<Response>
 ```
 
-A zero-amount Tempo proof is signed only when the Challenge realm matches the responding server's hostname. If your server uses a different realm, pin it to the origin with `trustedTempoProofRealms`. Native MCP transports have no server origin, so every proof realm must be explicitly pinned.
+A zero-amount Tempo proof or Session payment is signed only when the Challenge realm matches the responding server's hostname. If your server uses a different realm, pin it to the origin with `trustedTempoProofRealms`. Native MCP transports have no server origin, so every proof or Session realm must be explicitly pinned.
 
 ## Parameters
 
@@ -183,7 +185,7 @@ Transport used to extract Challenges and attach Credentials.
 
 - **Type:** `Record<string, string>`
 
-Origins mapped to the Challenge realm they use, for servers whose realm isn't their hostname. `mppx` refuses to sign a zero-amount Tempo proof when the Challenge realm differs from the hostname of the server that sent it, so another origin can't relay a Challenge and replay the proof at its realm. Pin a server's realm to its origin to allow it.
+Origins mapped to the Challenge realm they use, for servers whose realm isn't their hostname. `mppx` refuses to sign a zero-amount Tempo proof or Session payment when the Challenge realm differs from the hostname of the server that sent it, so another origin can't relay a Challenge and replay the signature at its realm. Pin a server's realm to its origin to allow it.
 
 ```ts twoslash
 import { Fetch, tempo } from 'mppx/client'

@@ -154,7 +154,7 @@ Fixed or per-Credential Stripe Connect settlement policy. Properties are `applic
 
 - **Type:** `{ createTokenUrl: string; publishableKey: string; ...Html.Config }`
 
-Renders a Stripe Elements payment form for browser requests. See the [payment links guide](/guides/payment-links).
+Renders a Stripe Elements payment form for browser requests. The page bundle loads only when a browser payment page is rendered. The `elements.createPaymentMethodOptions`, `elements.options`, and `elements.paymentOptions` fields use structural types compatible with Stripe.js; consuming mppx server types doesn't require installing `@stripe/stripe-js`. See the [payment links guide](/guides/payment-links).
 
 ### metadata (optional)
 

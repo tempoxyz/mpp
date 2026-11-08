@@ -103,6 +103,8 @@ Return at least one offer from the input array, preserve its order, and don't re
 
 ### With custom transport
 
+The default HTTP transport also renders payment pages configured on each method. Method-level `html.content` accepts a script string or async loader (`() => Promise<string>`); `mppx` awaits it when rendering a single-method or composed payment page. This isn't an `Mppx.create` option. See [custom HTML](/sdk/typescript/html/custom#content).
+
 Use a custom transport for non-HTTP environments like MCP servers.
 
 ```ts twoslash
@@ -221,7 +223,7 @@ const payment = Mppx.create({
 - **Type:** `string`
 - **Default:** Auto-detected from environment variables (`MPP_REALM`, `FLY_APP_NAME`, `HEROKU_APP_NAME`, `HOST`, `HOSTNAME`, `RAILWAY_PUBLIC_DOMAIN`, `RENDER_EXTERNAL_HOSTNAME`, `VERCEL_URL`, `WEBSITE_HOSTNAME`), falling back to `"MPP Payment"`.
 
-Server realm (for example, hostname). Auto-detected from common platform environment variables. Set explicitly to override. For zero-amount Tempo proofs, set this to the server's public hostname. If the realm differs, clients must pin it to the server origin with `trustedTempoProofRealms` before they sign.
+Server realm (for example, hostname). Auto-detected from common platform environment variables. Set explicitly to override. For zero-amount Tempo proofs and Session payments, set this to the server's public hostname. If the realm differs, clients must pin it to the server origin with `trustedTempoProofRealms` before they sign.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'

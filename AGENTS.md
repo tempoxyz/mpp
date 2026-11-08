@@ -254,6 +254,8 @@ Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
 
 **Structure**: Never skip heading levels. Keep headings under 12 words. Use imperative mood for procedures.
 
+**Keep docs concise**: Lead with what to do. Prefer bullet points over paragraphs for parallel rules. Keep guides focused on the default flow; link to reference pages for types, recovery rules, and limits instead of repeating them. Cut repeated definitions and explanations.
+
 **H1 with bracketed tagline**: This project uses Vocs-style H1 headings with a bracketed tagline for page subtitles. This is an intentional deviation from Stripe style:
 ```md
 # Page Title [Short tagline describing the page]

@@ -165,3 +165,9 @@ Filters or reorders supported Challenges before Credential creation.
 - **Default:** `Transport.http()`
 
 Transport used to extract Challenges and attach Credentials.
+
+### trustedTempoProofRealms (optional)
+
+- **Type:** `Readonly<Record<string, string>>`
+
+Pins server origins to realms for zero-amount Tempo proofs and Session payments. Without a pin, the realm must match the responding server's hostname. See [`Fetch.from`](/sdk/typescript/client/Fetch.from#trustedtempoproofrealms-optional).

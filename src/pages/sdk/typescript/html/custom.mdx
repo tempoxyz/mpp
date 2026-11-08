@@ -77,9 +77,9 @@ Method-specific data passed to the client script as `context.config`. For exampl
 
 ### content
 
-- **Type:** `string`
+- **Type:** `string | (() => Promise<string>)`
 
-The JavaScript bundle for your payment form. Embedded as an inline `<script>` in the HTML page. Import with `?raw` to get the file contents as a string.
+The JavaScript bundle for your payment form. Embedded as an inline `<script>` in the HTML page. Import with `?raw` to get the file contents as a string, or pass an async loader. The server awaits the loader only when rendering a payment page, including composed offers.
 
 ### formatAmount
 
@@ -167,10 +167,16 @@ c.root.appendChild(container)
 
 ### Bundling the script
 
-`content` expects a single JavaScript string. Bundle your client script into one file, then import with `?raw`:
+`content` accepts a single JavaScript string or an async function returning that string. Bundle your client script into one file, then import with `?raw`:
 
 ```ts [methods.server.ts]
 import htmlContent from './html/main.js?raw'
+```
+
+To keep a large page bundle out of server startup, export its bundled source as `html` from a generated module and load it on demand:
+
+```ts [methods.server.ts]
+const content = async () => (await import('./html.gen.js')).html
 ```
 
 If you use TypeScript, compile `main.ts` to `main.js` as part of your build step.
