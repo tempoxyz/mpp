@@ -14,10 +14,16 @@ import lockupLightRaw from "../assets/lockup-light.svg?raw";
 import logoDarkRaw from "../assets/logo-dark.svg?raw";
 import logoLightRaw from "../assets/logo-light.svg?raw";
 import { type LottieAnimation, loadLottiePlayer } from "../lib/lottie.js";
+import { setPostHogLoading } from "../lib/posthog.js";
 import { injectShikiColors } from "../shiki-style-to-class.js";
+
+let isPostHogImportInFlight = false;
 
 if (typeof window !== "undefined") {
   window.addEventListener("vite:preloadError", (event) => {
+    // A failed optional analytics chunk is not deploy skew; let the import's
+    // own catch handle it instead of reloading the page.
+    if (isPostHogImportInFlight) return;
     const key = `vite:preloadError:${(event as unknown as CustomEvent).detail?.message}`;
     if (!sessionStorage.getItem(key)) {
       sessionStorage.setItem(key, "1");
@@ -113,16 +119,20 @@ function usePostHog() {
     if (window.posthog) return;
 
     let cancelled = false;
+    setPostHogLoading(true);
     const load = async () => {
       // Bundle posthog-js and the extensions mpp.dev uses instead of letting
       // the snippet fetch array.js and extension scripts from PostHog's CDN,
       // which cannot carry Subresource Integrity.
+      isPostHogImportInFlight = true;
       const [{ default: posthog }] = await Promise.all([
         import("posthog-js"),
         import("posthog-js/dist/surveys"),
         import("posthog-js/dist/dead-clicks-autocapture"),
         import("posthog-js/dist/web-vitals-with-attribution"),
-      ]);
+      ]).finally(() => {
+        isPostHogImportInFlight = false;
+      });
       if (cancelled || window.posthog) return;
       posthog.init(POSTHOG_KEY, {
         api_host: "https://us.i.posthog.com",
@@ -131,10 +141,14 @@ function usePostHog() {
       });
       window.posthog = posthog;
     };
+    let started = false;
     const inject = () => {
-      load().catch(() => {
-        // Analytics are optional; ignore load failures.
-      });
+      started = true;
+      load()
+        .catch(() => {
+          // Analytics are optional; ignore load failures.
+        })
+        .finally(() => setPostHogLoading(false));
     };
 
     const idleCallback = window.requestIdleCallback?.(inject);
@@ -143,6 +157,7 @@ function usePostHog() {
 
     return () => {
       cancelled = true;
+      if (!started) setPostHogLoading(false);
       if (idleCallback !== undefined) window.cancelIdleCallback(idleCallback);
       if (timeout !== undefined) window.clearTimeout(timeout);
     };

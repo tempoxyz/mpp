@@ -14,6 +14,23 @@ declare global {
 
 const eventQueue: PostHogEvent[] = [];
 let isProcessingQueue = false;
+let isPostHogLoading = false;
+
+/**
+ * Marks the bundled PostHog load as in flight. While it is, queued events are
+ * kept however long the load takes; when it settles, they are sent, or dropped
+ * if PostHog failed to load.
+ */
+export function setPostHogLoading(loading: boolean) {
+  isPostHogLoading = loading;
+  if (loading) return;
+  if (window.posthog?.capture) {
+    for (const event of eventQueue) {
+      window.posthog.capture(event.name, event.properties);
+    }
+  }
+  eventQueue.length = 0;
+}
 
 /**
  * Safely capture an event to PostHog.
@@ -53,7 +70,8 @@ function processQueue() {
       retries++;
       setTimeout(checkAndProcess, 100);
     } else {
-      eventQueue.length = 0;
+      // setPostHogLoading(false) flushes or drops events kept during a load.
+      if (!isPostHogLoading) eventQueue.length = 0;
       isProcessingQueue = false;
     }
   };
