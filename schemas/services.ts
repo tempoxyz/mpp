@@ -11180,6 +11180,66 @@ export const services: ServiceDef[] = [
       },
     ],
   },
+  // subPAY.ai: PDF document readers, paid per page; price quoted per document in the 402.
+  {
+    id: "subpay",
+    name: "subPAY.ai Document Readers",
+    url: "https://subpay.ai",
+    serviceUrl: "https://subpay.ai/api/mpp/v1",
+    description:
+      "PDFs to structured JSON, paid per page with no account. Reads any PDF at a URL (summary, sections, key facts, tables, per-page text, one question answered with page citations), invoices and receipts with the arithmetic checked, and construction pay applications (AIA G702/G703) and change orders with the math checked. Pages are counted and priced before payment; only successful reads are charged; documents are not stored.",
+    icon: "https://subpay.ai/icon.png",
+    categories: ["ai", "data"],
+    integration: "first-party",
+    tags: ["pdf", "document-extraction", "invoices", "ocr", "construction"],
+    status: "active",
+    docs: {
+      homepage: "https://subpay.ai/developers",
+      llmsTxt: "https://subpay.ai/llms.txt",
+      apiReference: "https://subpay.ai/openapi.json",
+    },
+    provider: { name: "subPAY.ai", url: "https://subpay.ai" },
+    realm: "subpay.ai",
+    intent: "charge",
+    payments: [TEMPO_PAYMENT, STRIPE_PAYMENT],
+    endpoints: [
+      {
+        route: "POST /pdf",
+        desc: "Read any PDF at a public URL: summary, sections, key facts, tables, per-page text, optional question answered",
+        dynamic: true,
+        amountHint:
+          "$0.04 per page, up to 25 pages ($1.00), quoted per document",
+        unitType: "page",
+        healthCheck: {
+          body: {
+            url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          },
+        },
+      },
+      {
+        route: "POST /invoice",
+        desc: "Read an invoice, bill or receipt PDF into JSON with line, tax and total arithmetic checked",
+        dynamic: true,
+        amountHint:
+          "$0.04 per page, up to 25 pages ($1.00), quoted per document",
+        unitType: "page",
+      },
+      {
+        route: "POST /extract",
+        desc: "Read a construction pay application (AIA G702/G703) or change order PDF into JSON with the math checked",
+        dynamic: true,
+        amountHint:
+          "$0.04 per page, up to 25 pages ($1.00), quoted per document",
+        unitType: "page",
+      },
+      {
+        route: "GET /pdf",
+        desc: "Describe the PDF reader, price and payment methods (free)",
+      },
+      { route: "GET /invoice", desc: "Describe the invoice reader (free)" },
+      { route: "GET /extract", desc: "Describe the pay-app reader (free)" },
+    ],
+  },
 ];
 
 export {
