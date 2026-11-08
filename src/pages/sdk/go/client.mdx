@@ -21,8 +21,9 @@ import (
 )
 
 method, err := charge.New(charge.Config{
-	PrivateKey: os.Getenv("MPP_PRIVATE_KEY"),
-	RPCURL:     "https://rpc.tempo.xyz",
+	PaymentPolicy: charge.MaxAmount("", "0.50", 6),
+	PrivateKey:    os.Getenv("MPP_PRIVATE_KEY"),
+	RPCURL:        "https://rpc.tempo.xyz",
 })
 if err != nil {
 	log.Fatal(err)
@@ -36,6 +37,8 @@ if err != nil {
 defer resp.Body.Close()
 fmt.Println("Status:", resp.StatusCode)
 ```
+
+`PaymentPolicy` must authorize every nonzero payment. A missing policy rejects paid Challenges. Combine `MaxAmount`, `AllowChainIDs`, and a custom policy when you can pin the currency, chain, recipient, and budget.
 
 When the server returns `402`, the client:
 
@@ -68,6 +71,12 @@ Credential type to use: `transaction`, `hash`, or `proof`. Defaults to `transact
 - **Type:** `string`
 
 Hex-encoded private key for signing transactions.
+
+### PaymentPolicy
+
+- **Type:** `func(context.Context, tempo.ChargeRequest) error`
+
+Required authorization callback for nonzero payments.
 
 ### RPC (optional)
 

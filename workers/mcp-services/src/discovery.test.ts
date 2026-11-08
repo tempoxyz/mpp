@@ -4,6 +4,7 @@ import {
   listServiceSummaries,
   offersForService,
   registryOpenApiView,
+  searchOffers,
   searchServices,
 } from "./discovery.js";
 import type { Service } from "./types.js";
@@ -126,6 +127,42 @@ describe("discovery helpers", () => {
       }),
     ]);
     expect(offersForService(service, "inboxes")).toHaveLength(2);
+  });
+
+  it("filters offers by any asset the offer's method accepts", () => {
+    const ousd = "0x20c0000000000000000000006a37DA5C996874BE";
+    const pathUsd = "0x20c0000000000000000000000000000000000000";
+    const service: Service = {
+      id: "tempo-api",
+      name: "Tempo API",
+      url: "https://api.tempo.xyz",
+      categories: ["blockchain"],
+      integration: "first-party",
+      tags: [],
+      status: "beta",
+      methods: { tempo: { assets: [ousd, pathUsd], intents: ["session"] } },
+      endpoints: [
+        {
+          method: "GET",
+          path: "/v1/transfers",
+          payment: {
+            currency: ousd,
+            dynamic: true,
+            intent: "session",
+            method: "tempo",
+          },
+        },
+      ],
+    };
+    const ids = (currency: string) =>
+      searchOffers([service, ...services], { currency }).map(
+        (offer) => offer.service.id,
+      );
+    expect(ids(ousd)).toEqual(["tempo-api"]);
+    expect(ids(pathUsd.toUpperCase().replace("0X", "0x"))).toEqual([
+      "tempo-api",
+    ]);
+    expect(ids("0x20c000000000000000000000b9537d11c60e8b50")).toEqual([]);
   });
 
   it("builds a registry fallback view for services without openapi", () => {

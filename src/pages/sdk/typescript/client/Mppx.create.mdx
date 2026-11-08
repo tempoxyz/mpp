@@ -924,7 +924,7 @@ const mppx = Mppx.create({
 
 - **Type:** `Record<string, string>`
 
-Origins mapped to the Challenge realm they use, for servers whose realm isn't their hostname. `mppx` refuses to sign a zero-amount Tempo proof when the Challenge realm differs from the hostname of the server that sent it, so another origin can't relay a Challenge and replay the proof at its realm. Pin a server's realm to its origin to allow it.
+Origins mapped to the Challenge realm they use, for servers whose realm isn't their hostname. `mppx` refuses to sign a zero-amount Tempo proof or Session payment when the Challenge realm differs from the hostname of the server that sent it, so another origin can't relay a Challenge and replay the signature at its realm. Pin a server's realm to its origin to allow it. With `Transport.mcp()`, only realms present in this map are trusted, regardless of the origin keys.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/client'

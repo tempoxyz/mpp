@@ -97,7 +97,7 @@ Maximum queued outbound WebSocket bytes. The helper closes the socket when its b
 - **Type:** `number`
 - **Default:** `65_536`
 
-Maximum accepted inbound WebSocket frame size. The helper returns a payment error and closes the socket with code `1009` when a frame exceeds this limit.
+Maximum accepted inbound WebSocket frame size. The helper queues a payment error and closes with code `1009` when a frame exceeds this limit, without waiting for a stalled send. At most 32 payment actions can queue; exceeding that limit reports `429` and closes with code `1008`. Authorization failures use a short, fixed close reason; full payment diagnostics remain in the error frame. Adapter close failures are contained.
 
 ### pollIntervalMs (optional)
 
@@ -110,7 +110,7 @@ Polling interval in milliseconds for voucher balance checks.
 
 - **Type:** `Parameters<typeof mppx.session.serveWebSocket>[0]['route']`
 
-Session route handler. Receives synthetic POST requests constructed from in-band authorization frames. The synthetic request carries only the `Authorization` header—no cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
+Session route handler. Receives synthetic POST requests constructed from in-band authorization frames. The synthetic request carries only the `Authorization` header—no cookies, bodies, or other headers from the original WebSocket upgrade request. It retains query parameters present in the supplied `url`.
 
 ```ts twoslash
 import { Mppx, tempo } from 'mppx/server'
@@ -138,7 +138,7 @@ WebSocket instance. Accepts a browser `WebSocket`, a `ws` library socket, or any
 
 - **Type:** `string`
 
-URL used for constructing synthetic route requests. `ws://` and `wss://` schemes are normalized to `http://` and `https://`.
+URL used for constructing synthetic route requests. `ws://` and `wss://` schemes are normalized to `http://` and `https://`. Keep application parameters in an encoded path segment and match that server route, rather than putting them in a query string: Session accounting classifies POSTs with a query string as content, including payment authorization frames.
 
 ## Advanced options
 
@@ -179,7 +179,7 @@ await tempo.Ws.serve({
 })
 ```
 
-Credential verification routes each in-band authorization frame through `route` as a synthetic `POST` request carrying only the `Authorization` header. It doesn't include cookies, bodies, query parameters, or other headers from the original WebSocket upgrade request.
+Credential verification routes each in-band authorization frame through `route` as a synthetic `POST` request carrying only the `Authorization` header. It doesn't include cookies, bodies, or other headers from the original WebSocket upgrade request. Query parameters in the supplied `url` are retained.
 
 ## Helper functions
 

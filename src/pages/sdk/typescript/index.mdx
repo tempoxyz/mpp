@@ -45,6 +45,10 @@ $ bun add mppx
 
 Use `mppx/server` for most servers. It exports the server runtime and every built-in payment method.
 
+### Cloudflare Workers
+
+Use [`mppx/cloudflare`](/sdk/typescript/cloudflare) for Durable Object session storage and queued settlement. The [upstream examples](https://github.com/wevm/mppx/tree/main/examples) run as Workers, including charge, subscription, and SSE session servers. For other shared databases, use [`Store.postgres`](/sdk/typescript/core/Store.postgres), [`Store.sqlite`](/sdk/typescript/core/Store.sqlite), or [`Store.d1`](/sdk/typescript/core/Store.d1).
+
 ### x402 compatibility
 
 Use a framework-specific x402 entrypoint when you already have an official x402 route table and resource server. These wrappers preserve x402 handling and add native MPP Challenges and Credentials to the same route.

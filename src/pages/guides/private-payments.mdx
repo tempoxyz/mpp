@@ -1,0 +1,198 @@
+---
+title: "Private payments on Tempo"
+description: "Let customers pay from a private Zone balance, so their wallet address and history stay off the public chain."
+imageDescription: "Get paid without exposing who paid you"
+---
+
+import { Cards } from 'vocs'
+import { MermaidDiagram } from '../../components/MermaidDiagram'
+import { OneTimePaymentsCard, ServerQuickstartCard } from '../../components/cards'
+
+# Private payments on Tempo [Accept charges paid from a Zone balance]
+
+Accept [Tempo charges](/payment-methods/tempo/charge) from a [Zone](https://docs.tempo.xyz/docs/zones), a private stablecoin ledger. The Zone's portal contract pays your recipient on Tempo without exposing the payer's account.
+
+:::info
+Zone payments work with the charge intent. [Sessions](/payment-methods/tempo/session) and [subscriptions](/payment-methods/tempo/subscription) pay from a Tempo account.
+:::
+
+## What stays private
+
+| Data | Who can see it |
+| --- | --- |
+| Payer's address, balance, and history | The payer and the Zone operator |
+| Withdrawal `senderTag` | Public on Tempo, in place of the payer's address |
+| Recipient, token, amount, and timing | Public on Tempo |
+| Challenge-bound memo | Public on Tempo, in the settlement calldata |
+
+- Your server receives the Zone ID, withdrawal identifier (`senderTag`), and settlement hash—not the payer's address. The Receipt has no payer.
+- A Zone Credential proves payment, not identity; `validateSender` cannot authenticate the private account.
+- Public amounts and timing can link a payment to a request. The Zone operator sees the private ledger. See [Zone privacy](https://docs.tempo.xyz/docs/zones/privacy).
+
+## How it works
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Zone
+    participant Server
+    participant Tempo
+    Client->>Server: (1) GET /resource
+    Server-->>Client: 402 + Challenge (zones)
+    Client->>Zone: (2) Withdraw to recipient with Challenge memo
+    Zone->>Tempo: (3) Portal pays recipient
+    Client->>Tempo: (4) Wait for WithdrawalProcessed
+    Client->>Server: (5) zone Credential
+    Server->>Tempo: (6) Verify settlement
+    Server-->>Client: 200 OK + Receipt
+`} />
+
+::::steps
+
+### Accept Zones
+
+Your server lists the Zones it accepts in the Challenge's `methodDetails.zones`.
+
+### Withdraw
+
+The client withdraws to your recipient with a memo binding the Challenge ID and server realm, and no callback (`gasLimit: 0`). The payer also pays the withdrawal fee.
+
+### Settle
+
+The portal pays your recipient on Tempo and emits `WithdrawalProcessed` for the `senderTag`. The client waits for this event.
+
+### Verify
+
+The client sends `{ type: 'zone', zoneId, senderTag, hash }`. Your server verifies the portal, recipient, exact amount, currency, and Challenge-bound memo, then claims the `senderTag` to prevent replay.
+
+::::
+
+## Server
+
+Pass accepted Zone IDs as [`tempo.charge`'s `zones`](/sdk/typescript/server/Method.tempo.charge#zones-optional). Other clients still pay on Tempo.
+
+```ts
+import { Mppx, tempo } from 'mppx/server'
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({
+      currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+      recipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      zones: [3, 7], // Zone IDs you accept // [!code hl]
+    }),
+  ],
+})
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05' })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+- `zones: true` accepts any Zone on the Challenge's chain.
+- An explicit list must be nonempty, with positive integer IDs below `421_700_000`.
+- Override `zones` per `mppx.charge` call if needed. Configure it yourself; don't trust client-supplied Zone IDs.
+
+### Requirements
+
+- **Push mode**: a Zone payment is a push payment. If you set `supportedModes`, include `'push'`.
+- **No splits**: a withdrawal pays one recipient, so charges with `splits` don't accept Zone Credentials.
+- **Store**: replay protection claims each `senderTag` in the method's `store`. Use a shared atomic store in production.
+
+A Credential that fails verification gets a `402` with a fresh Challenge. A replayed `senderTag` gets a `403`.
+
+## Client
+
+Pass a Zone viem client as [`tempo.charge`'s `zone.client`](/sdk/typescript/client/Method.tempo.charge#zone-optional), with the paying account and RPC [authorization token](https://docs.tempo.xyz/docs/zones/connect#authorize-access) on every request.
+
+```ts
+import { Mppx, tempo } from 'mppx/client'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { zoneChain } from './zone.config' // Zone chain from the operator
+
+const account = privateKeyToAccount('0xabc…123')
+
+// [!code hl:start]
+const zone = createClient({
+  account,
+  chain: zoneChain,
+  transport: http(process.env.ZONE_RPC_URL, {
+    fetchOptions: { headers: { 'X-Authorization-Token': process.env.ZONE_AUTH_TOKEN! } },
+  }),
+})
+// [!code hl:end]
+
+Mppx.create({
+  methods: [tempo.charge({ account, zone: { client: zone } })], // [!code hl]
+})
+
+const response = await fetch('https://api.example.com/resource')
+```
+
+Zone payment requires:
+
+- A Challenge accepting the Zone, permitting push, and having no splits. Explicit `mode: 'pull'` disables it.
+- A Zone settling on the Challenge's chain. `zone.zoneId` defaults to the Zone ID encoded in `client.chain.id`; supply it when absent. Explicit and encoded IDs must match.
+- More than `zone.settlementTimeoutMs + 15_000` milliseconds before expiry—over 75 seconds with the default 60-second timeout. The extra 15 seconds cover submission. Set a finite, non-negative timeout; waiting stops at Challenge expiry.
+
+Otherwise, the client pays from `account` on Tempo.
+
+### Handle slow settlement
+
+Withdrawals can't be undone. A settlement timeout throws `Errors.ZoneSettlementPendingError` with `challengeId`, `senderTag`, and `zoneId`.
+
+Keep the `402` response and retry Credential creation for that exact Challenge with the same client. Repeating the resource request can issue a new Challenge and withdraw again. Here, `polyfill: false` preserves global fetch; `rawFetch` doesn't pay, and `createCredential` pays the saved Challenge:
+
+```ts
+import { Errors } from 'mppx'
+import { Mppx, tempo } from 'mppx/client'
+
+const mppx = Mppx.create({
+  methods: [tempo.charge({ account, zone: { client: zone } })],
+  polyfill: false,
+})
+
+const url = 'https://api.example.com/resource'
+const challengeResponse = await mppx.rawFetch(url) // 402 with the Challenge
+
+// [!code hl:start]
+let credential: string | undefined
+for (let attempt = 0; attempt < 3 && !credential; attempt++) {
+  try {
+    credential = await mppx.createCredential(challengeResponse)
+  } catch (error) {
+    // Same Challenge, so the retry waits for the same withdrawal.
+    if (!(error instanceof Errors.ZoneSettlementPendingError)) throw error
+  }
+}
+// [!code hl:end]
+if (!credential) throw new Error('Zone withdrawal is still settling')
+
+const response = await mppx.rawFetch(url, { headers: { Authorization: credential } })
+```
+
+- Concurrent attempts for the same full Challenge share one withdrawal. After settlement, retain and resend the Credential rather than paying again.
+- After a lost send response, the client checks the signed transaction's known hash on the Zone for up to 15 seconds. An unknown outcome blocks another withdrawal for that Challenge. Only pre-submission failures and confirmed reverts permit a fresh attempt.
+- Pending state is in memory. Retry before process exit or Challenge expiry. Otherwise, check the `senderTag` with the [withdrawal status API](https://docs.tempo.xyz/docs/zones/withdraw#track-the-withdrawal) before paying again.
+
+## Constraints
+
+| Rule | Value |
+| --- | --- |
+| Intent | Charge only |
+| Payment mode | Push |
+| Splits | Not supported |
+| Amount | Greater than zero |
+| Settlement chain | The Zone must settle on the Challenge's chain |
+| Fees | The payer pays the Zone withdrawal fee on top of the amount |
+
+## Next steps
+
+<Cards>
+  <OneTimePaymentsCard />
+  <ServerQuickstartCard />
+</Cards>

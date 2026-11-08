@@ -82,6 +82,33 @@ const accessKey = {
 
 You can create separate keys for separate apps, tools, or deployments. Each key can have its own expiry, budget, scopes, recipients, and revocation path.
 
+### Cap payment offers
+
+Set SDK limits to reject unwanted currencies, recipients, or prices before signing a charge or Session payment:
+
+```ts twoslash
+import { tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const methods = tempo({
+  account: privateKeyToAccount('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'),
+  allowedChainIds: [4217],
+  // [!code hl:start]
+  currencies: ['0x20c0000000000000000000006a37DA5C996874BE'], // OUSD on Tempo
+  decimals: 6,
+  expectedRecipients: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
+  maxAmount: '0.01',
+  maxDeposit: '1',
+  // [!code hl:end]
+})
+```
+
+- `maxAmount` caps each charge or Session unit, not total spend. It requires `currencies` and `decimals`; use `maxAtomicAmount` for raw units.
+- `maxDeposit` caps reserved funds per channel. Use an access-key limit to cap spend across channels and processes.
+- Use a separate Session store per API origin. Per-request `autoSwap` limits also apply to automatic top-ups.
+
+Explicit Session closes bypass price and recipient policy so clients can reclaim funds.
+
 ### Use the key with `mppx`
 
 Pass the Tempo account to `mppx`. The access key address is optional, but useful when this runtime should use one specific delegated key.

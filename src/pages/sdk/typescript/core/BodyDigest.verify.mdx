@@ -9,8 +9,10 @@ import { BodyDigest } from 'mppx'
 
 const digest = BodyDigest.compute({ amount: '1000' })
 const isValid = BodyDigest.verify(digest, '{"amount":"1000"}')
-// => true
+// @log: true
 ```
+
+`verify` accepts both the SDK's `sha-256=base64hash` form and the RFC 9530 byte-sequence form `sha-256=:base64hash:`. Padding inside the colons is optional. `compute` continues to return the SDK form.
 
 ## Return type
 

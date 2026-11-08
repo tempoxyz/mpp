@@ -687,7 +687,9 @@ $ npx mppx http://localhost:3000
 
 ## Client setup
 
-When using sessions from a client, set `maxDeposit` to enable automatic channel management. This is the maximum amount of tokens the client reserves in the payment channel. Any unspent deposit is refunded when the channel closes.
+Set `maxDeposit` to bound the tokens reserved per channel. Automatic channel management doesn't require this option, but an unattended client needs a limit. Unspent funds return when the channel closes. This is not a total budget across replacement channels; use an [access-key spending limit](/guides/managing-agent-spend) for that.
+
+For an API you don't control, also pin `currencies` and `expectedRecipients`, and set `maxAmount` with explicit `decimals` to cap each unit price. Use one channel store per HTTP origin. Set a trusted `origin` to recover unknown server snapshots; see [origin-bound recovery](/sdk/typescript/client/Method.tempo.session#origin-bound-recovery).
 
 <Tabs stateKey="account-source">
 <Tab title="Accounts SDK">
@@ -736,7 +738,7 @@ const res = await fetch('http://localhost:3000/api/sessions/photo')
 </Tab>
 </Tabs>
 
-- **`maxDeposit: '1'`**: Reserves up to 1 OUSD in the payment channel. At $0.01/photo, this covers up to 100 requests before the channel runs out.
+- **`maxDeposit: '1'`**: Caps reserved funds at 1 OUSD per channel. At $0.01/photo, 1 OUSD covers 100 requests.
 - The client handles the full session lifecycle automatically: channel open, voucher signing, and retry after `402` responses.
 - If the server sets `suggestedDeposit`, the client uses `min(suggestedDeposit, maxDeposit)`.
 

@@ -284,6 +284,8 @@ Under the hood, the MCP transport encodes MPP Challenges, Credentials, and Recei
 
 A payment-aware MCP client like [`McpClient.wrap`](/sdk/typescript/client/McpClient.wrap) handles this automatically—the agent doesn't need to know the encoding details.
 
+When the client also installs a global mppx fetch polyfill, `McpClient.wrap` still owns tool-payment approval and retries. For Tempo Sessions or zero-amount proofs, explicitly list the server's realm in the wrapper's `trustedTempoProofRealms`; native MCP has no origin to trust automatically.
+
 ## Specification
 
 <Cards>

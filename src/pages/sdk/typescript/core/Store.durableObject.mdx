@@ -1,0 +1,106 @@
+---
+description: "Keep payment state consistent across locations with Durable Objects."
+imageDescription: "Persist payments with Durable Objects"
+---
+
+# `Store.durableObject` [Durable Object storage]
+
+Creates an atomic store with one Durable Object per key.
+
+## Usage
+
+```ts twoslash
+import { Store } from 'mppx'
+
+export class MppxStore extends Store.DurableObjectStore {}
+
+type Env = { MPPX_STORE: Store.durableObject.Namespace }
+
+export default {
+  async fetch(_request: Request, env: Env) {
+    const store = Store.durableObject(env.MPPX_STORE) // [!code hl]
+    await store.put('usage:customer-42', { requests: 1 })
+    return Response.json(await store.get('usage:customer-42'))
+  },
+}
+```
+
+Bind `MppxStore` as a SQLite-backed class with a `new_sqlite_classes` migration; see [Store.DurableObjectStore](/sdk/typescript/core/Store.DurableObjectStore#usage).
+
+- Per-key reads and writes are linearizable across isolates and locations.
+- `update` runs its callback in the Worker and commits by compare-and-swap in the object.
+- Conflicts rerun the callback with the failed swap's current value and jittered backoff, up to `options.maxAttempts` (default `32`).
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+- Provides `get`, `put`, `delete`, atomic `update`, and [replay claims](/sdk/typescript/core/Store.tryClaim); see the [AtomicStore contract](/sdk/typescript/core/Store.sql#return-type).
+- Keep update callbacks synchronous and side-effect-free: conflicts rerun them.
+
+## Parameters
+
+### namespace
+
+- **Type:** `Store.durableObject.Namespace`
+
+Binding of a [Store.DurableObjectStore](/sdk/typescript/core/Store.DurableObjectStore) subclass. Keys select `idFromName(key)`; reserved shard-like names and `mppx:key:` prefixes are escaped to avoid collisions.
+
+### options (optional)
+
+- **Type:** `Store.durableObject.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `encoding` (optional) | `'json' \| 'native'` | `'json'` | JSON text or structured-clone values. Native encoding requires RPC. |
+| `keyPrefix` (optional) | `string` | None | Prefix for every key, including replay claims. |
+| `maxAttempts` (optional) | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `replayShards` (optional) | `number` | Disabled | Positive safe integer count of SQLite replay-claim objects. |
+| `replayShardVersion` (optional) | `number` | `1` | Positive safe integer version in shard object names. |
+| `transport` (optional) | `'fetch' \| 'rpc'` | `'fetch'` | Fetch requests or Workers RPC method calls. |
+
+Invalid shard counts or versions throw at construction, as does `encoding: 'native'` without `transport: 'rpc'`.
+
+## Advanced options
+
+### Use Workers RPC and native values
+
+Workers RPC requires Cloudflare's `DurableObject` base:
+
+```ts [worker.ts]
+import { DurableObject } from 'cloudflare:workers'
+import { Store } from 'mppx'
+
+export class MppxStore extends Store.DurableObjectStore.rpc(DurableObject) {}
+
+type Env = { MPPX_STORE: DurableObjectNamespace<MppxStore> }
+
+export default {
+  async fetch(_request: Request, env: Env) {
+    // [!code hl:start]
+    const store = Store.durableObject(env.MPPX_STORE, {
+      encoding: 'native',
+      transport: 'rpc',
+    })
+    // [!code hl:end]
+    await store.put('usage:customer-42', { requests: 1n })
+    return new Response('Saved')
+  },
+}
+```
+
+`json` uses `ox` JSON serialization, including bigints. `native` preserves structured clones and reads direct `storage.put` values. Keep one encoding per namespace or prefix: values have no encoding tag, native clients read JSON as text, and JSON clients can't read native values. Migrate values or change prefixes before switching.
+
+Native compare-and-swap is structural; key/insertion order matters. It supports cycles, aliasing, arrays, plain objects, typed arrays, buffers, dates, regular expressions, boxed primitives, and primitive-keyed maps/sets. Object-keyed maps, object-valued sets, resizable-buffer views, and unsupported types throw.
+
+### Shard replay claims
+
+`replayShards` spreads claims across reusable SQLite objects named `mppx:replay:v<version>:<shard>`, selected by stable FNV-1a hashing of prefixed keys. Claims use `mppx_replay_claims`; alarms delete expired rows.
+
+Sharded claims are invisible to `get` and `update`; ordinary values don't block them. `delete` removes both. Reserve replay keys for expiring claims.
+
+Enabling sharding or changing its count/version permits replay of old live claims. Change settings only when those claims no longer matter—for example, rotate `Mppx.create`'s Challenge-authenticating `secretKey` to invalidate old Challenges. Bump `replayShardVersion` when changing the count; never mix settings while old claims matter.
+
+Subclass constructors, handlers, and alarms also run in shards. Guard custom work with `isReplayShard()`, never clear shard storage, and preserve `super.alarm()`. See [subclass hooks](/sdk/typescript/core/Store.DurableObjectStore#subclass-hooks).

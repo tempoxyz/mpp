@@ -385,6 +385,10 @@ export default defineConfig({
                 link: "/guides/split-payments",
               },
               {
+                text: "Private payments on Tempo",
+                link: "/guides/private-payments",
+              },
+              {
                 text: "Accept multiple payment methods",
                 link: "/guides/multiple-payment-methods",
               },
@@ -588,6 +592,10 @@ export default defineConfig({
             items: [
               { text: "Getting started", link: "/sdk/typescript" },
               {
+                text: "Cloudflare Workers",
+                link: "/sdk/typescript/cloudflare",
+              },
+              {
                 text: "Client reference",
                 items: [
                   {
@@ -744,6 +752,10 @@ export default defineConfig({
                       {
                         text: "stripe.findOrCreateDepositAddress",
                         link: "/sdk/typescript/server/Method.stripe.findOrCreateDepositAddress",
+                      },
+                      {
+                        text: "stripe.recordPayment",
+                        link: "/sdk/typescript/server/Method.stripe.recordPayment",
                       },
                       {
                         text: "stripe.spt",
@@ -1036,6 +1048,30 @@ export default defineConfig({
                     text: "Store",
                     collapsed: true,
                     items: [
+                      {
+                        text: ".DurableObjectStore",
+                        link: "/sdk/typescript/core/Store.DurableObjectStore",
+                      },
+                      {
+                        text: ".d1",
+                        link: "/sdk/typescript/core/Store.d1",
+                      },
+                      {
+                        text: ".durableObject",
+                        link: "/sdk/typescript/core/Store.durableObject",
+                      },
+                      {
+                        text: ".postgres",
+                        link: "/sdk/typescript/core/Store.postgres",
+                      },
+                      {
+                        text: ".sql",
+                        link: "/sdk/typescript/core/Store.sql",
+                      },
+                      {
+                        text: ".sqlite",
+                        link: "/sdk/typescript/core/Store.sqlite",
+                      },
                       {
                         text: ".tryClaim",
                         link: "/sdk/typescript/core/Store.tryClaim",

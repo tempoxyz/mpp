@@ -7,6 +7,8 @@ imageDescription: "Build custom payment UIs with typed context and theming"
 
 Sets up a context for building payment method UIs in the browser. Returns Challenge data, theme tokens, and helpers for error handling and Credential submission.
 
+The server can load the payment page's script asynchronously through `html.content`; this doesn't change the browser context returned by `Html.init`. See [script bundling](/sdk/typescript/html/custom#bundling-the-script).
+
 For a full guide on adding HTML support to a custom payment method, see [Custom HTML](/sdk/typescript/html/custom).
 
 ## Usage

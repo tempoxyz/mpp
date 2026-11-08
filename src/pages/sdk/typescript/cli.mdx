@@ -78,7 +78,7 @@ Pass `--user-agent` to replace the complete default value, including automatic a
 
 Use `mppx validate` to automatically verify an MPP server implementation end-to-end. The command tests `/llms.txt`, OpenAPI discovery, Challenge formats, error handling, and the full payment flow. A missing, empty, or non-text `/llms.txt` appears as a non-blocking `suggested` result.
 
-Validation probes reject redirects. Pass the final endpoint URL so probes stay on the intended target.
+Validation probes reject redirects and suppress automatic payment handling, including through an installed mppx fetch polyfill. Explicit end-to-end payment checks remain separate. Pass the final endpoint URL so probes stay on the intended target.
 
 ```bash [test.sh]
 $ mppx validate https://api.example.com
@@ -89,10 +89,13 @@ To test a specific route that needs request data, pass a body or query parameter
 ```bash [test.sh]
 $ mppx validate https://api.example.com --endpoint POST:/reports --body '{"format":"csv"}'
 $ mppx validate https://api.example.com --endpoint GET:/quotes --query symbol=ETH
+$ mppx validate https://api.example.com --endpoint POST:/reports -H 'X-API-Key: example-key' --body '{"format":"csv"}'
 ```
 
+The malformed-Credential probe preserves your `-H` headers and supplied `Content-Type`, and sends its invalid Credential in the field advertised by the Challenge rather than assuming `Authorization`.
+
 :::note[End-to-end payments]
-Run `mppx validate` against both test and production versions of your server. On testnets and Stripe test mode, the CLI automatically completes roundtrip test payments. For Tempo testnet Sessions, it follows the streaming payment flow and funds the session operator through the faucet so settlement can complete. On mainnets, the CLI can complete real payments from the local `mppx` wallet.
+Run `mppx validate` against both test and production versions of your server. On testnets and Stripe test mode, the CLI automatically completes roundtrip test payments. For Tempo testnet Sessions, it follows the streaming payment flow and funds the session operator through the faucet so settlement can complete. For SSE Sessions, validation reads the in-stream `payment-receipt` event as the stream is consumed and reports a missing event as a failure. On mainnets, the CLI can complete real payments from the local `mppx` wallet.
 :::
 
 When your config declares payment methods, `mppx validate` uses their signing accounts, approval hooks, chain policies, and Session stores instead of substituting built-in methods or preflighting the local CLI wallet.
@@ -157,6 +160,8 @@ $ mppx account list --format json
   ]
 }
 ```
+
+Problem Details fields containing nested objects or arrays are displayed as JSON rather than `[object Object]`. On payment retry, the CLI ignores fresh mppx issuance nonces but still rejects changes to payment terms or application metadata and requires a new approval.
 
 ## Streaming output
 

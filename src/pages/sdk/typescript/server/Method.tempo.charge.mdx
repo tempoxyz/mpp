@@ -273,7 +273,9 @@ Tempo chain ID. `testnet: true` selects `42431`; an explicit `chainId` takes pre
 - **Type:** `number`
 - **Default:** `30_000`
 
-Maximum milliseconds to confirm a non-zero charge when `waitForConfirmation` is `true`. Synchronous broadcast uses at most two thirds of this time; after an ambiguous RPC error, `mppx` polls for the Receipt until the deadline. Definitive rejections fail immediately.
+Maximum milliseconds to confirm a non-zero charge when `waitForConfirmation` is `true`. Synchronous broadcast uses at most two thirds of this time. After an ambiguous error (including `ExpiringNonceReplay`), `mppx` polls until the deadline or two seconds after transaction expiry (whichever comes first), then makes a final lookup. If unresolved, it throws `Errors.BroadcastOutcomeUnknownError` with `transactionHash`, optional `validBefore`, and the RPC error as `cause`. Definitive rejections fail immediately.
+
+Reconcile the known hash before starting a new payment. An unknown broadcast outcome is not a failed payment.
 
 If a broadcast attempt fails before settlement completes, the server releases its transaction-hash claim. Retrying the same Credential can then recover a transaction that was already included without treating it as a replay.
 
@@ -311,6 +313,8 @@ Account or remote service for sponsoring transaction fees. Pass a viem `Account`
 
 This setting only applies to non-zero charges. Zero-amount proof flows do not create a transaction.
 
+Sponsored pull charge Challenges with a positive amount require at least 15 seconds of validity when issued. Push and zero-amount Challenges are exempt.
+
 ### feePayerPolicy (optional)
 
 - **Type:** `Partial<{ maxFeePerGas: bigint; maxGas: bigint; maxInFlightReservations: number; maxInFlightTotalFee: bigint; maxPriorityFeePerGas: bigint; maxTotalFee: bigint; maxValidityWindowSeconds: number }>`
@@ -341,6 +345,13 @@ const mppx = Mppx.create({
   ],
 })
 ```
+
+Sponsorship preflight:
+
+- Simulates sender execution at the signed gas limit with zero fees, then the sponsored envelope with the sponsor's `feePayerSignature` and explicit zero priority fee when needed.
+- Caps a local sponsor's simulation-only gas buffer by `maxGas` and `maxTotalFee`; broadcast gas stays unchanged.
+- Tolerates only final-phase out-of-gas errors in hosted or capped simulations, after the sender check succeeds.
+- Raises [`Errors.PaymentSimulationError`](/sdk/typescript/core/Errors#paymentsimulationerror) with phase `'sender'` or `'sponsored'` for other node rejections. Transport failures remain unchanged.
 
 ### feeToken (optional)
 
@@ -428,7 +439,7 @@ Allows a verified TIP-20 transfer sender to differ from the Credential source. C
 - **Type:** `boolean`
 - **Default:** `true`
 
-Whether to wait for the charge transaction to confirm on-chain before responding. When `false`, the transaction is simulated via `eth_estimateGas` and broadcast without waiting for inclusion. The Receipt optimistically reports `status: 'success'` based on simulation alone.
+Whether to wait for the charge transaction to confirm on-chain before responding. When `false`, the transaction is simulated and broadcast without waiting for inclusion. The Receipt optimistically reports `status: 'success'` based on simulation alone. An ambiguous broadcast failure throws `Errors.BroadcastOutcomeUnknownError` immediately without polling for a Receipt.
 
 This option applies only to non-zero charges. Zero-amount proof flows return immediately after signature verification.
 
@@ -441,6 +452,12 @@ const mppx = Mppx.create({
   })],
 })
 ```
+
+### zones (optional)
+
+- **Type:** `number[] | true`
+
+Zone IDs whose withdrawals pay this charge, or `true` for any Zone on the Challenge's chain. The server advertises them in `methodDetails.zones` and verifies `zone` Credentials from the settlement transaction on Tempo. Zone Credentials need push mode and don't support `splits`. Each settled withdrawal's `senderTag` is claimed in `store` against replay. Zone IDs are positive integers below `421_700_000`; an explicit array must not be empty. Verification requires a successful canonical portal event and top-level `processWithdrawals` calldata with the exact recipient, token, amount, Challenge-bound memo, and `gasLimit: 0`. Bounced withdrawals are rejected. A Zone Receipt omits `payer`; `validateSender` cannot establish the private Zone payer's identity. See [private payments](/guides/private-payments).
 
 ## Request parameters
 
@@ -531,3 +548,9 @@ export async function handler(request: Request) {
   return response.withReceipt(Response.json({ data: '...' }))
 }
 ```
+
+### zones (optional)
+
+- **Type:** `number[] | true`
+
+Overrides the method's `zones` for this charge.

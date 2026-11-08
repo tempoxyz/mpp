@@ -18,7 +18,7 @@ const client = Mppx.create({ methods: [tempo.charge()], polyfill: false })
 client.onPaymentFailed(({ error }) => {
   // [!code hl:start]
   if (error instanceof Errors.PaymentOutcomeUnknownError) {
-    console.log(error.challenge.id, error.credential, error.transactionHash)
+    console.log(error.challenge.id, error.transactionHash)
     // Reconcile this payment before attempting another one.
   }
   // [!code hl:end]
@@ -29,7 +29,43 @@ client.onPaymentFailed(({ error }) => {
 
 `CredentialReplayedError` extends `VerificationFailedError`. Tempo charge servers return it for consumed or concurrently claimed Credentials and transfers bound to another Challenge. HTTP clients receive `403` Problem Details with type `verification-failed` and no new `WWW-Authenticate` Challenge.
 
-`InternalPaymentError.cause` holds the original server error for hooks and logs. The cause is never serialized into Problem Details.
+`InternalPaymentError.cause` holds the original server error for hooks. The cause is never serialized into Problem Details. Avoid logging raw upstream errors or serialized Credentials.
+
+### BroadcastOutcomeUnknownError
+
+A server broadcast fails without proving whether the node accepted the transaction, and no on-chain transaction receipt arrives before polling stops. The transaction may still be included until `validBefore` (Unix seconds). Look up `transactionHash` before retrying; after `validBefore` passes, a lookup can settle the outcome because the transaction can no longer be included. Without an expiry, continue reconciliation rather than assuming failure.
+
+This is an `Error`, not a `PaymentError`. Server HTTP handlers return a generic `500` `InternalPaymentError` whose `cause` holds this error.
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `transactionHash` | `` `0x${string}` `` | Hash to look up on chain. |
+| `validBefore` | `number \| undefined` | Last inclusion deadline, in Unix seconds. |
+
+### PaymentSimulationError
+
+In a sponsored payment, a fee payer pays network fees for the sender. The sender phase simulates the sender's calls; the sponsored phase simulates the final transaction with that fee payer.
+
+A sponsored payment fails simulation before broadcast. Inspect `phase`, not node error text, to distinguish sender-call failures from failures of the final sponsored envelope. This is also an `Error` exposed as `InternalPaymentError.cause` on server hooks, not a public Problem Details subtype.
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `feePayer` | `` `0x${string}` \| undefined `` | Fee payer; set only for the sponsored phase. |
+| `paymentToken` | `` `0x${string}` \| undefined `` | TIP-20 token for a single transfer or transfer-with-memo call. |
+| `phase` | `'sender' \| 'sponsored'` | Sender's calls before sponsorship, or the final fee-payer-billed envelope. |
+| `sender` | `` `0x${string}` \| undefined `` | Sender of the simulated transaction. |
+
+### ZoneSettlementPendingError
+
+`ZoneSettlementPendingError` is thrown when a private payment withdraws funds from a Zone (a private execution environment) but its transfer to Tempo hasn't settled before the client stops waiting. It carries `challengeId`, `senderTag`, and `zoneId`. The withdrawal can't be undone and may still settle.
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `challengeId` | `string` | Challenge paid by the withdrawal. |
+| `senderTag` | `` `0x${string}` `` | Withdrawal tag to find on the Zone portal. |
+| `zoneId` | `number` | Zone the withdrawal left. |
+
+Call `mppx.createCredential(response)` again with the original `402` response and the same client to resume waiting; a repeated request gets a new Challenge and pays again. See [private payments](/guides/private-payments#handle-slow-settlement).
 
 ## Return type
 
@@ -47,7 +83,7 @@ type PaymentOutcomeUnknownError = Errors.PaymentError & {
 
 - **Type:** `unknown`
 
-Original error for `InternalPaymentError` or `PaymentOutcomeUnknownError`.
+Original error for `InternalPaymentError`, `PaymentOutcomeUnknownError`, `BroadcastOutcomeUnknownError`, `PaymentSimulationError`, or `ZoneSettlementPendingError`.
 
 ### reason (optional)
 

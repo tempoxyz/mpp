@@ -81,7 +81,7 @@ const handler = mppx.charge({
 })
 ```
 
-Request-scoped metadata overrides matching integration-level and per-method keys. For completed stablecoin payments, these options are best-effort: if Stripe rejects them, `mppx` retries the recording once without the optional fields. SPT payments don't use this fallback.
+Request-scoped metadata overrides matching integration-level and per-method keys. For completed stablecoin payments, these options are best-effort: if Stripe definitively rejects their parameters, `mppx` retries recording once without the optional fields under `<reference>_fallback`. Other Stripe failures are not retried under a different key. SPT payments don't use this fallback.
 
 ### Resolve PaymentIntent options
 
@@ -245,6 +245,8 @@ const mppx = Mppx.create({
 })
 ```
 
+Use [`stripe.recordPayment`](/sdk/typescript/server/Method.stripe.recordPayment) to recover a settled stablecoin payment that wasn't recorded, for example after the process stops between broadcast and recording.
+
 ## Return type
 
 ```ts
@@ -270,7 +272,7 @@ type StripeMachinePayments = {
 
 With a Tempo deposit address, `defaultMethods()` returns Tempo charge followed by SPT charge. Without `depositAddresses`, it returns only SPT. A function resolver makes the result awaitable; static addresses or no resolver return synchronously. Chain `.additional({ ... })` before awaiting to add Base charge, Tempo session, or a Solana method factory.
 
-Stripe-managed stablecoin charge methods created directly or through `.additional()` require at least `0.01` USD. Below that amount, `mppx` excludes the method before returning a Challenge. Tempo sessions don't use this minimum.
+Stripe-managed stablecoin charge methods created directly or through `.additional()` require at least `0.01` USD. Below that amount, `mppx` excludes the method before returning a Challenge. Stripe-backed Sessions apply their own one-cent offer minimum.
 
 For stablecoin payments with a fractional-cent amount, `mppx` rounds the recorded `PaymentIntent` down to whole cents so it never records more than the on-chain transfer.
 

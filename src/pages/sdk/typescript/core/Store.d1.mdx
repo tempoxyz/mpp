@@ -1,0 +1,56 @@
+---
+description: "Keep payment state consistent across Cloudflare Workers with D1."
+imageDescription: "Persist payments with Cloudflare D1"
+---
+
+# `Store.d1` [Cloudflare D1 storage]
+
+Creates an atomic store from a Cloudflare D1 database binding.
+
+## Usage
+
+```ts twoslash
+import { Store } from 'mppx'
+
+type Env = { DB: Store.d1.Database }
+
+export default {
+  async fetch(_request: Request, env: Env) {
+    const store = Store.d1(env.DB) // [!code hl]
+    const claimed = await Store.tryClaim(store, 'request:customer-42:1', Date.now() + 60_000)
+    return Response.json({ claimed })
+  },
+}
+```
+
+Bind the database as `DB`. Writes use single SQL statements; updates use compare-and-swap, not interactive transactions.
+
+## Return type
+
+```ts
+type ReturnType = Store.AtomicStore
+```
+
+- Provides `get`, `put`, `delete`, atomic `update`, and [replay claims](/sdk/typescript/core/Store.tryClaim); see the [AtomicStore contract](/sdk/typescript/core/Store.sql#return-type).
+- Keep update callbacks synchronous and side-effect-free: conflicts rerun them.
+
+## Parameters
+
+### database
+
+- **Type:** `Store.d1.Database`
+
+D1 binding with `prepare(sql).bind(...values).all()` resolving to `{ results: unknown[] }`.
+
+### options (optional)
+
+- **Type:** `Store.sql.Options`
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `createTable` (optional) | `boolean` | `true` | Creates the table on first use; set `false` for a migration-managed table. |
+| `keyPrefix` (optional) | `string` | None | Prefix for every backing key. |
+| `maxAttempts` (optional) | `number` | `32` | Maximum compare-and-swap attempts per `update`. |
+| `table` (optional) | `string` | `'mppx_store'` | Valid `name` or `schema.name` identifier. |
+
+Uses `ox` JSON serialization, including bigints. `update` throws after `maxAttempts` conflicts. For the default schema and required nullable `expires` column, see [SQL migrations](/sdk/typescript/core/Store.sql#manage-the-table-with-migrations).
