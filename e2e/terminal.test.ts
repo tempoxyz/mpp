@@ -710,7 +710,7 @@ describe("terminal (pay-as-you-go guide)", () => {
       waitUntil: "load",
     });
 
-    const terminal = page.locator("[data-terminal]").first();
+    const terminal = page.locator("[data-terminal]");
 
     // Terminal should render
     await playwrightExpect(terminal).toBeVisible({
@@ -793,7 +793,12 @@ describe("terminal (streamed-payments guide)", () => {
       waitUntil: "load",
     });
 
-    const terminal = page.locator("[data-terminal]").last();
+    // Wait for hydration, then switch the demo to streaming
+    await page.waitForSelector("[data-terminal]", { timeout: 15_000 });
+    await page.waitForTimeout(2_000);
+    await page.getByRole("button", { name: "Streaming", exact: true }).click();
+
+    const terminal = page.locator("[data-terminal]");
 
     // Terminal should render
     await playwrightExpect(terminal).toBeVisible({

@@ -7,8 +7,7 @@ import { Cards, Tab, Tabs } from 'vocs'
 import { OneTimePaymentsCard, ServerQuickstartCard, WalletCliCard } from '../../components/cards'
 import { PromptBlock } from '../../components/PromptBlock'
 import { SigningAccountTabs } from '../../components/SigningAccountTabs'
-import { TerminalGallery } from '../../components/TerminalGallery'
-import { TerminalPoem } from '../../components/TerminalPoem'
+import { UsageDemo } from '../../components/UsageDemo'
 
 # Accept usage-based payments [Bill per request or per token with sessions]
 
@@ -30,12 +29,12 @@ Unlike [one-time payments](/guides/one-time-payments), vouchers are **not bottle
 Build a payment-gated photo gallery API that charges $0.01 per photo.
 The server returns random photos from [Picsum](https://picsum.photos) behind a paywall, but you could generate images with an AI model instead, such as [OpenAI Image Generation](https://developers.openai.com/api/reference/resources/images).
 
-### Photo gallery demo
+### Try it
 
-Try the payment-gated photo gallery API. Click **Run demo** to create a wallet, fund it, and generate a gallery of paid photos.
+Pick a demo, then click **Run demo** to create a wallet, fund it, and pay per photo or per streamed word.
 
-<div style={{ height: 480 }}>
-  <TerminalGallery />
+<div style={{ height: 520 }}>
+  <UsageDemo />
 </div>
 
 ### Per-request prompt mode
@@ -804,13 +803,7 @@ Build a payment-gated poetry API that streams poems word-by-word and charges $0.
 
 The server charges per token as content streams. If the channel balance runs out mid-stream, the client automatically sends a new voucher and the stream resumes.
 
-### Poem streaming demo
-
-Try the payment-gated poetry API. Click **Run demo** to create a wallet, fund it, and stream a paid poem.
-
-<div style={{ height: 480 }}>
-  <TerminalPoem />
-</div>
+Pick **Streaming** in the [demo above](#try-it) to stream a paid poem.
 
 ### Streaming prompt mode
 
