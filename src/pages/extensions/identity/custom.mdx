@@ -1,9 +1,16 @@
 ---
-description: "Use your existing API keys, sessions, or SSO as MPP identity with Identity.from."
-imageDescription: "Use your own identity system"
+description: "Use your existing API keys, sessions, or SSO as MPP identity, or build your own identity protocol."
+imageDescription: "Use your own identity"
 ---
 
-# Your own identity system [Reuse your access policy]
+# Your own identity [Reuse your login or protocol]
+
+Use your own identity in one of two ways:
+
+- **Look up a credential you already issue**, such as an API key or session, with `Identity.from`. Server only.
+- **Build a protocol** when the client must prove something new, with your own prover and verifier.
+
+## Look up your users
 
 Use [`Identity.from`](/sdk/typescript/core/Identity.from) for API keys, sessions, SSO, or KYC checks you already operate. Return an authenticated identity, `undefined` or `null` for no identity (`401`), or throw [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) with a `status` (`invalid`, `forbidden`, or `unavailable`) for an expected rejection. Other errors propagate.
 
@@ -30,3 +37,41 @@ export const handler = mppx.charge({ amount: '0.05', identity: [customer] })
 ```
 
 Read the verified customer with `result.identity?.get(customer)` in a successful handler. To accept either email or your existing system, pass `identity: [Identity.anyOf(email, customer)]`; a plain list requires both. Every `anyOf` member runs, and the first valid member wins.
+
+## Build your own protocol
+
+Third-party identity protocols implement the `Identity.Verifier` and `Identity.Prover` types from `mppx/identity`.
+
+- **Verifier:** `verify(request)` returns `{ status: 'valid', value }` or a [rejection status](/extensions/identity#how-identity-checks-run) with a `reason` and optional `headers`.
+- **Prover:** `prove(request, context)` returns the proved request for origins in `scope`. `context` has a fresh nonce, a timestamp, and on a paid retry the Challenge.
+- **`prepare`** (optional): runs on a `402` before the paid retry. Its `requirements` list the 402's `Identity-Required` entries.
+- **`retry`** (optional): returns headers to resend a rejected non-402 request once. Paid attempts are never resent.
+- **`headers`** (optional): sensitive request headers, stripped on cross-origin redirects and never proxied upstream.
+
+```ts twoslash [identity.ts]
+import type * as Identity from 'mppx/identity'
+
+declare function signRequest(request: Request, context: Identity.ProveContext): Promise<Request>
+
+export const prover: Identity.Prover = {
+  // [!code hl:start]
+  prove: (request, context) => signRequest(request, context),
+  scope: ['https://api.example.com'],
+  // [!code hl:end]
+}
+```
+
+Outside `Mppx.create`, wrap any Fetch implementation with `Identity.Client.wrapFetch`. Prefer `Mppx.create({ identity })`, which also passes the payment Challenge to provers.
+
+```ts twoslash [client.ts]
+import * as Identity from 'mppx/identity'
+
+declare const prover: Identity.Prover
+
+const fetch = Identity.Client.wrapFetch(
+  globalThis.fetch,
+  Identity.Client.from([prover]),
+)
+
+await fetch('https://api.example.com/resource')
+```

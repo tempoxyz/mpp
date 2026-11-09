@@ -468,26 +468,14 @@ export default defineConfig({
               { text: "Overview", link: "/extensions/identity" },
               { text: "Email OTP", link: "/extensions/identity/email-otp" },
               {
-                text: "Your own identity system",
-                link: "/extensions/identity/custom",
-              },
-              {
-                text: "Attestations",
-                link: "/extensions/identity/attestations",
-              },
-              {
                 text: "Agent signatures",
                 link: "/extensions/identity/agent-signatures",
               },
-              { text: "Payer check", link: "/extensions/identity/payer-check" },
               {
-                text: "MPP Credential identity",
-                link: "/extensions/identity/credential",
+                text: "Your own identity",
+                link: "/extensions/identity/custom",
               },
-              {
-                text: "Build your own protocol",
-                link: "/extensions/identity/protocol",
-              },
+              { text: "Payer identity", link: "/extensions/identity/payer" },
             ],
           },
           { text: "Payment hooks", link: "/extensions/payment-hooks" },

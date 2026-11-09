@@ -14,13 +14,10 @@ Require a verified identity before payment, check the payer before settlement, o
 
 | Option | Verifies | Use it for |
 |---|---|---|
-| [**Email OTP**](/extensions/identity/email-otp) | Control of an email inbox, attested by a trusted issuer | Verified-address access and domain allowlists |
-| [**Your own identity system**](/extensions/identity/custom) | Your API key, session, or provider lookup | Existing customer access policy |
-| [**Attestations**](/extensions/identity/attestations) | Any fact an issuer attests, such as a phone number | Your own issuer or attestation type |
-| [**Agent signatures**](/extensions/identity/agent-signatures) | The agent or bot that signed the HTTP request | Bot recognition and agent-specific policy |
-| [**Payer check**](/extensions/identity/payer-check) <Badge variant="info">Experimental</Badge> | The payer named in the Credential | KYC allowlists and payer policy |
-| [**MPP Credential**](/extensions/identity/credential) | The key in the Credential's `source` field | Ownership and identity-only MPP flows |
-| [**Your own protocol**](/extensions/identity/protocol) | Whatever your verifier and prover implement | Third-party identity protocols |
+| [**Email OTP**](/extensions/identity/email-otp) | An email inbox, or any fact a trusted issuer attests | Verified-address access without your own login |
+| [**Agent signatures**](/extensions/identity/agent-signatures) | The agent or bot that signed the request | Bot recognition and agent-specific policy |
+| [**Your own identity**](/extensions/identity/custom) | Your API keys or sessions, or your own protocol | Existing customer access policy |
+| [**Payer identity**](/extensions/identity/payer) | The payer named in the MPP Credential | Ownership, zero-dollar auth, and payer allowlists |
 
 ## How identity checks run
 

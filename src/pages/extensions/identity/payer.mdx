@@ -1,11 +1,12 @@
 ---
-description: "Use the MPP Credential's payer DID as identity, including zero-dollar auth."
+description: "Use the MPP Credential's payer as identity, including zero-dollar auth, and check the payer before settlement."
 imageDescription: "Use the payer as identity"
 ---
 
+import { Badge } from 'vocs'
 import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
-# MPP Credential identity [Use the payer as identity]
+# Payer identity [Use the payer as identity]
 
 The Credential's optional `source` is a DID naming the payer's key, not a raw public key. Tempo verifies the Credential's signature or transaction against this identity. After the payment method verifies it, read `source` with `Credential.fromRequest`. Parsing alone doesn't verify identity. [Zone payments](/guides/private-payments) use a private payment environment whose Credentials omit `source`, so they require separate request authentication:
 
@@ -219,3 +220,37 @@ export async function resultHandler(request: Request) {
 ```
 
 ::::
+
+## Check the payer before settlement
+
+<Badge variant="info">Experimental</Badge>
+
+A payment check verifies the payer on the paid retry, after the Credential is checked and before it settles. Pass it as `identity: { payment }`; request verifiers go under `request`.
+
+```ts twoslash [server.ts]
+import type * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const allowedPayers: ReadonlySet<string>
+
+// [!code hl:start]
+const allowlist: Identity.PaymentCheck<{ payer: string }> = {
+  requires: [{ issuer: 'https://kyc.example.com', type: 'kyc' }],
+  verify({ credential }) {
+    const payer = credential?.source
+    if (!payer) return { reason: 'The Credential names no payer.', status: 'missing' }
+    if (!allowedPayers.has(payer))
+      return { reason: 'This payer is not allowed.', status: 'forbidden' }
+    return { status: 'valid', value: { payer } }
+  },
+}
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+export const handler = mppx.charge({ amount: '0.05', identity: { payment: allowlist } }) // [!code hl]
+```
+
+- Every `402` for the route lists `requires` in an `Identity-Required` header, such as `kyc;issuer="https://kyc.example.com"`.
+- `verify` runs once on the paid retry. A rejection gets its fixed status code with no fresh Challenge, because the client may already have pushed the payment.
+- `credential.source` is the client's claim. Tempo transaction and hash Credentials reject a `source` that doesn't match the payer, unless [`validateSender`](/sdk/typescript/server/Method.tempo.charge#validatesender-optional) accepts another sender; Zone Credentials don't check it. Don't allowlist by `source` on routes that accept `zones` or set `validateSender`.
+- Routes with a payment check reject x402 Credentials and don't offer x402. Composed offers must share the same check.
+- The API may change in any release.

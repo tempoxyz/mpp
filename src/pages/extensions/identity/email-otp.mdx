@@ -1,5 +1,5 @@
 ---
-description: "Require a verified email address before payment with email OTP attestations."
+description: "Require a verified email address, or any fact a trusted issuer attests, before payment."
 imageDescription: "Verify an email before payment"
 ---
 
@@ -7,7 +7,9 @@ import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Email OTP [Verify an email address]
 
-Use the email OTP extension when callers need a verified address and you don't have an existing identity system. An issuer is the service that emails codes and signs attestations: bearer tokens confirming inbox access for a specific API origin. The server checks this token before issuing a payment Challenge or settling a Credential. The examples use Tempo's hosted issuer; you can also self-host it.
+Use the email OTP extension when callers need a verified address and you don't have an existing identity system. An issuer is the service that emails codes and signs attestations: bearer tokens confirming inbox access for a specific API origin. The server checks this token before issuing a payment Challenge or settling a Credential.
+
+The examples use Tempo's hosted issuer; you can also self-host it.
 
 ```ts twoslash [server.ts]
 import * as EmailOtp from 'mppx/extensions/identity/email-otp'
@@ -86,3 +88,59 @@ Don't forward `Identity-Attestation` to upstream services. `mppx` strips it from
 :::
 
 See [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier) for key resolution and rejection rules, and [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover) for callbacks, expiry handling, and errors. The [Cloudflare Worker example](https://github.com/wevm/mppx/tree/main/examples/email-otp) includes a terminal prompt, a domain allowlist, and a self-hosted issuer option.
+
+## Other attestation types
+
+An attestation is a short-lived token an issuer signs after checking one fact about the caller, bound to your API's origin. Email OTP is one attestation type. Use the attestation module directly for another type, such as a phone number, or for your own issuer.
+
+```ts twoslash [server.ts]
+import * as Attestation from 'mppx/extensions/identity/attestation'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const phone = Attestation.Server.verifier({
+  audience: 'https://api.example.com',
+  issuer: 'https://phone.example.com',
+  type: 'phone',
+  validate: (claims) =>
+    claims.sub.startsWith('+1') ? undefined : 'Only US numbers are allowed.',
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+export const handler = mppx.charge({ amount: '0.05', identity: [phone] })
+```
+
+A request without a matching attestation gets `401` with `Identity-Attestation-Required: phone;issuer="https://phone.example.com"`. A `validate` rejection gets `403`, and unreachable issuer keys get `503`.
+
+On the client, the prover sends cached attestations to in-scope origins and calls `acquire` when a server asks for one from a trusted issuer:
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import * as Attestation from 'mppx/extensions/identity/attestation'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function obtainPhoneAttestation(parameters: {
+  audience: string
+  issuer: string
+}): Promise<string | undefined>
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [Attestation.Client.prover({
+    acquire: ({ audience, issuer }) => obtainPhoneAttestation({ audience, issuer }),
+    issuers: ['https://phone.example.com'],
+    scope: ['https://api.example.com'],
+    types: ['phone'],
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+```
+
+- The audience is always the request's own origin, never one a server names, so a server can't obtain an attestation it could replay elsewhere.
+- `acquire` only runs for `issuers` you list. Never trust an issuer named only by a server.
+- To run an issuer, sign claims with [`Attestation.sign`](/sdk/typescript/core/Attestation.sign) and publish your Ed25519 keys at `/.well-known/jwks.json`. Servers read them with [`Attestation.Jwks.resolver`](/sdk/typescript/core/Attestation.Jwks.resolver).
+
+See [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier) and [`Attestation.Client.prover`](/sdk/typescript/client/Attestation.prover) for every option.
