@@ -325,34 +325,32 @@ export default defineConfig({
   sidebar: {
     "/": [
       {
-        text: "Introduction",
+        text: "Get paid by agents",
         items: [
-          { text: "Overview", link: "/overview" },
+          { text: "Why sell to agents", link: "/get-paid" },
+          { text: "Quickstart", link: "/quickstart/server" },
           {
-            text: "IETF Specs",
-            link: "https://paymentauth.org",
+            text: "Let agents sign up as guests",
+            link: "/get-paid/guest-accounts",
           },
-          { text: "Governance", link: "/governance" },
-          { text: "FAQ", link: "/faq" },
-          { text: "Build with an LLM", link: "/guides/building-with-an-llm" },
+          { text: "Integration guide", link: "/guides/integrate-your-service" },
         ],
       },
       {
-        text: "Quick Start",
+        text: "Tempo",
         items: [
-          { text: "Overview", link: "/quickstart" },
-          { text: "Add payments to your API", link: "/quickstart/server" },
-          { text: "Use with agents", link: "/quickstart/agent" },
-          { text: "Use with your app", link: "/quickstart/client" },
+          { text: "Overview", link: "/payment-methods/tempo" },
+          { text: "Sessions", link: "/payment-methods/tempo/session" },
+          { text: "Charge", link: "/payment-methods/tempo/charge" },
+          {
+            text: "Subscriptions",
+            link: "/payment-methods/tempo/subscription",
+          },
         ],
       },
       {
         text: "Guides",
         items: [
-          {
-            text: "Accept one-time payments",
-            link: "/guides/one-time-payments",
-          },
           {
             text: "Accept pay-as-you-go payments",
             link: "/guides/pay-as-you-go",
@@ -362,54 +360,64 @@ export default defineConfig({
             link: "/guides/streamed-payments",
           },
           {
+            text: "Accept one-time payments",
+            link: "/guides/one-time-payments",
+          },
+          {
             text: "Create and manage subscriptions",
             link: "/guides/subscription-payments",
           },
           {
-            text: "Use MPP with x402",
-            link: "/guides/use-mpp-with-x402",
+            text: "Monetize your MCP server",
+            link: "/guides/monetize-mcp-server",
           },
+          {
+            text: "Monetize WebMCP tools",
+            link: "/guides/webmcp-payments",
+          },
+          {
+            text: "Proxy an existing service",
+            link: "/guides/proxy-existing-service",
+          },
+          {
+            text: "Accept split payments",
+            link: "/guides/split-payments",
+          },
+          {
+            text: "Private payments on Tempo",
+            link: "/guides/private-payments",
+          },
+          {
+            text: "Create a payment link",
+            link: "/guides/payment-links",
+          },
+        ],
+      },
+      {
+        text: "Pay as an agent",
+        items: [
+          { text: "Use with agents", link: "/quickstart/agent" },
+          { text: "Use with your app", link: "/quickstart/client" },
+          { text: "Wallets", link: "/tools/wallet" },
           {
             text: "Managing agent spend",
             link: "/guides/managing-agent-spend",
           },
+          { text: "Services", link: "/services" },
+        ],
+      },
+      {
+        text: "Introduction",
+        items: [
+          { text: "Overview", link: "/overview" },
+          { text: "Quickstart overview", link: "/quickstart" },
           {
-            text: "Advanced",
-            items: [
-              {
-                text: "Accept card payments",
-                link: "/guides/accept-card-payments",
-              },
-              {
-                text: "Accept split payments",
-                link: "/guides/split-payments",
-              },
-              {
-                text: "Private payments on Tempo",
-                link: "/guides/private-payments",
-              },
-              {
-                text: "Accept multiple payment methods",
-                link: "/guides/multiple-payment-methods",
-              },
-              {
-                text: "Create a payment link",
-                link: "/guides/payment-links",
-              },
-              {
-                text: "Monetize your MCP server",
-                link: "/guides/monetize-mcp-server",
-              },
-              {
-                text: "Monetize WebMCP tools",
-                link: "/guides/webmcp-payments",
-              },
-              {
-                text: "Proxy an existing service",
-                link: "/guides/proxy-existing-service",
-              },
-            ],
+            text: "IETF Specs",
+            link: "https://paymentauth.org",
           },
+          { text: "Governance", link: "/governance" },
+          { text: "FAQ", link: "/faq" },
+          { text: "Build with an LLM", link: "/guides/building-with-an-llm" },
         ],
       },
       {
@@ -479,22 +487,18 @@ export default defineConfig({
         ],
       },
       {
-        text: "Payment Methods",
+        text: "Other payment methods",
         items: [
           { text: "Overview", link: "/payment-methods" },
           {
-            text: "Tempo",
-            collapsed: true,
-            items: [
-              { text: "Overview", link: "/payment-methods/tempo" },
-              { text: "Charge", link: "/payment-methods/tempo/charge" },
-              { text: "Session", link: "/payment-methods/tempo/session" },
-              {
-                text: "Subscription",
-                link: "/payment-methods/tempo/subscription",
-              },
-            ],
+            text: "Accept card payments",
+            link: "/guides/accept-card-payments",
           },
+          {
+            text: "Accept multiple payment methods",
+            link: "/guides/multiple-payment-methods",
+          },
+          { text: "Use MPP with x402", link: "/guides/use-mpp-with-x402" },
           {
             text: "EVM",
             collapsed: true,

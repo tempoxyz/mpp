@@ -28,9 +28,12 @@ type Page =
   | { path: '/brand'; render: 'static' }
   | { path: '/extensions'; render: 'static' }
   | { path: '/faq'; render: 'static' }
+  | { path: '/get-paid/guest-accounts'; render: 'static' }
+  | { path: '/get-paid'; render: 'static' }
   | { path: '/governance'; render: 'static' }
   | { path: '/guides/accept-card-payments'; render: 'static' }
   | { path: '/guides/building-with-an-llm'; render: 'static' }
+  | { path: '/guides/integrate-your-service'; render: 'static' }
   | { path: '/guides/managing-agent-spend'; render: 'static' }
   | { path: '/guides/monetize-mcp-server'; render: 'static' }
   | { path: '/guides/multiple-payment-methods'; render: 'static' }
