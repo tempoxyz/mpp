@@ -394,7 +394,7 @@ export default defineConfig({
             ],
           },
           {
-            text: "Agents",
+            text: "Agent developers",
             items: [
               {
                 text: "Manage agent spend",
