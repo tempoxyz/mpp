@@ -372,14 +372,14 @@ export default defineConfig({
           {
             text: "Accept payments",
             items: [
-              { text: "One-time payments", link: "/guides/one-time-payments" },
-              { text: "Pay-as-you-go payments", link: "/guides/pay-as-you-go" },
-              { text: "Streamed payments", link: "/guides/streamed-payments" },
+              { text: "One-time", link: "/guides/one-time-payments" },
+              { text: "Pay-as-you-go", link: "/guides/pay-as-you-go" },
+              { text: "Streaming", link: "/guides/streamed-payments" },
               { text: "Subscriptions", link: "/guides/subscription-payments" },
-              { text: "Split payments", link: "/guides/split-payments" },
-              { text: "Card payments", link: "/guides/accept-card-payments" },
+              { text: "Splits", link: "/guides/split-payments" },
+              { text: "Cards", link: "/guides/accept-card-payments" },
               {
-                text: "Multiple payment methods",
+                text: "Multiple methods",
                 link: "/guides/multiple-payment-methods",
               },
               { text: "Payment links", link: "/guides/payment-links" },
@@ -387,10 +387,7 @@ export default defineConfig({
                 text: "Proxy an existing service",
                 link: "/guides/proxy-existing-service",
               },
-              {
-                text: "Accept x402 payments",
-                link: "/guides/use-mpp-with-x402",
-              },
+              { text: "x402", link: "/guides/use-mpp-with-x402" },
             ],
           },
           {
@@ -409,17 +406,22 @@ export default defineConfig({
                 link: "/guides/webmcp-payments",
               },
               {
-                text: "Cloudflare Agents",
-                link: "/partner-integrations/cloudflare-agents",
-              },
-              {
-                text: "Official MCP SDK",
-                link: "/partner-integrations/mcp-sdk",
-              },
-              { text: "OpenClaw", link: "/partner-integrations/openclaw" },
-              {
-                text: "Vercel AI SDK",
-                link: "/partner-integrations/vercel-ai-sdk",
+                text: "Agent SDKs",
+                items: [
+                  {
+                    text: "Cloudflare Agents",
+                    link: "/partner-integrations/cloudflare-agents",
+                  },
+                  {
+                    text: "MCP SDK",
+                    link: "/partner-integrations/mcp-sdk",
+                  },
+                  { text: "OpenClaw", link: "/partner-integrations/openclaw" },
+                  {
+                    text: "Vercel AI SDK",
+                    link: "/partner-integrations/vercel-ai-sdk",
+                  },
+                ],
               },
             ],
           },
@@ -431,7 +433,7 @@ export default defineConfig({
           {
             text: "Protocol",
             link: "/protocol",
-            collapsed: true,
+            collapsed: false,
             items: [
               { text: "HTTP 402", link: "/protocol/http-402" },
               { text: "Challenges", link: "/protocol/challenges" },
@@ -454,7 +456,7 @@ export default defineConfig({
           {
             text: "Intents",
             link: "/intents",
-            collapsed: true,
+            collapsed: false,
             items: [
               { text: "Charge", link: "/intents/charge" },
               { text: "Session", link: "/intents/session" },
@@ -464,13 +466,13 @@ export default defineConfig({
           {
             text: "Extensions",
             link: "/extensions",
-            collapsed: true,
+            collapsed: false,
             items: [
               { text: "Discovery", link: "/extensions/discovery" },
               {
                 text: "Identity",
                 link: "/extensions/identity",
-                collapsed: true,
+                collapsed: false,
                 items: [
                   { text: "Email OTP", link: "/extensions/identity/email-otp" },
                   {

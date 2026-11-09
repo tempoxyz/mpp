@@ -4,7 +4,7 @@ imageDescription: "Recurring stablecoin billing for APIs"
 ---
 
 import { SigningAccountTabs } from '../../../components/SigningAccountTabs'
-import { Badge, Card, Cards, Tab, Tabs } from 'vocs'
+import { Card, Cards, Tab, Tabs } from 'vocs'
 import { MermaidDiagram } from '../../../components/MermaidDiagram'
 
 # Tempo subscription [Recurring billing]
@@ -26,7 +26,7 @@ A Tempo subscription uses a key authorization. The client authorizes a scoped ac
 
 ## Choosing a payment method
 
-| | **Charge** | **Session** | **Subscription** <Badge variant="info">New</Badge> |
+| | **Charge** | **Session** | **Subscription** |
 |---|---|---|---|
 | **Pattern** | One-time payment | Pay-as-you-go usage | Recurring access |
 | **Client action** | Sign each paid transfer | Open channel and sign vouchers | Authorize an access key once |
