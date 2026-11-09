@@ -27,6 +27,10 @@ Paste this into your coding agent to set up a server with `mppx` in one prompt:
 You generate `MPP_SECRET_KEY`; run `openssl rand -hex 32` to create one. `Mppx.create()` reads it by default. Store it in your platform secret manager, keep it server-side, and never log it. See [Security](/advanced/security).
 :::
 
+:::warning[Pass a shared `store` in production]
+`tempo.charge()` throws at startup without a `store` when `NODE_ENV` is `production`, on multi-instance platforms such as Vercel, and on Cloudflare Workers. The store keeps replay protection consistent across instances. Pass a shared store such as [`Store.postgres`](/sdk/typescript/core/Store.postgres) or [`Store.durableObject`](/sdk/typescript/core/Store.durableObject), or `Store.memory()` for one long-lived process. The examples below run locally without one. See [`store`](/sdk/typescript/server/Method.tempo.charge#store-optional).
+:::
+
 ## Framework mode
 
 Use the framework-specific middleware from `mppx` to integrate payment into your server. Each middleware handles the `402` Challenge/Credential flow and attaches Receipts automatically.
