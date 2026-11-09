@@ -18,7 +18,7 @@ console.log(deployment.token)
 // @log: 0x20c000000000000000000000f37de3740ADec032
 ```
 
-Use these addresses to inspect or allowlist the contracts used by [`machineTokenEnabled`](/sdk/typescript/server/Method.tempo.charge#machinetokenenabled-optional). Continue to advertise the stablecoin you want to receive as the charge currency—servers can't advertise MACH as the settlement currency.
+Use these addresses to inspect or allowlist the contracts used by [`machineTokenEnabled`](/sdk/typescript/server/Method.tempo.charge#machinetokenenabled-optional). For charges, continue to advertise the stablecoin you want to receive—servers can't advertise MACH as a charge currency. To receive MACH directly in Sessions, use [`machineTokenSessionEnabled`](/sdk/typescript/server/Method.tempo.session#machinetokensessionenabled-optional).
 
 Replace `mach(chainId).address` from earlier releases with `machineTokenDeployments[chainId].token`.
 
