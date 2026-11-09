@@ -648,7 +648,7 @@ const shortcuts = [
     title: "Documentation",
   },
   {
-    href: "/advanced/discovery",
+    href: "/extensions/discovery",
     subtext: "Let agents automatically find your API.",
     title: "Discovery",
   },

@@ -107,7 +107,12 @@ function llmsGroupForEntry(entry: string): string {
   )
     return "Quickstart";
   if (pagePath.startsWith("/guides")) return "Guides";
-  if (pagePath.startsWith("/protocol") || pagePath.startsWith("/advanced"))
+  if (
+    pagePath.startsWith("/protocol") ||
+    pagePath.startsWith("/advanced") ||
+    (pagePath.startsWith("/extensions") &&
+      !pagePath.startsWith("/extensions/third-party"))
+  )
     return "Protocol";
   if (
     pagePath.startsWith("/payment-methods") ||

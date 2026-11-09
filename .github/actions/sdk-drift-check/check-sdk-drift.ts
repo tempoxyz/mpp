@@ -269,6 +269,27 @@ export function parseLink(
     };
   }
 
+  if (symbolPart.startsWith("Attestation.")) {
+    const rest = symbolPart.slice("Attestation.".length);
+    if (area !== "core")
+      return {
+        link,
+        area,
+        namespace: area === "client" ? "Client" : "Server",
+        member: rest,
+        entrypoint: "extensions/identity/attestation",
+      };
+    // Core links name a top-level export (sign, Constants) or a namespace member (Jwks.resolver).
+    const [head, ...tail] = rest.split(".");
+    return {
+      link,
+      area,
+      namespace: tail.length > 0 ? head : "Attestation",
+      member: tail.length > 0 ? tail.join(".") : rest,
+      entrypoint: "extensions/identity/attestation",
+    };
+  }
+
   if (area === "core" && symbolPart.startsWith("Identity.")) {
     return {
       link,
@@ -382,6 +403,10 @@ export async function getSdkExports(
     { area: "core", path: packageName },
     { area: "client", path: `${packageName}/client` },
     { area: "server", path: `${packageName}/server` },
+    {
+      area: "extensions/identity/attestation",
+      path: `${packageName}/extensions/identity/attestation`,
+    },
     {
       area: "extensions/identity/email-otp",
       path: `${packageName}/extensions/identity/email-otp`,

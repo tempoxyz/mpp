@@ -5,7 +5,7 @@ imageDescription: "Control identity rejection responses"
 
 # `Identity.Rejection` [Reject an identity]
 
-Signals an expected identity rejection from an [`Identity.from`](/sdk/typescript/core/Identity.from) lookup callback. That verifier authenticates callers before payment; returning `undefined` or `null` reports no identity (`401`), while throwing this error explicitly rejects one.
+Rejects the identity a request carries, from an [`Identity.from`](/sdk/typescript/core/Identity.from) lookup.
 
 ## Usage
 
@@ -15,16 +15,27 @@ import * as Identity from 'mppx/identity'
 const member = Identity.from({
   verify(request) {
     if (!request.headers.has('X-Api-Key')) return undefined
-    throw new Identity.Rejection('This API key is disabled.', { code: 403 }) // [!code hl]
+    throw new Identity.Rejection('This API key is disabled.', { status: 'forbidden' }) // [!code hl]
   },
 })
 ```
 
-`Identity.from` converts this error to an `invalid` verification result. Its message becomes the response body and its code becomes the HTTP status. Don't put secrets or raw provider errors in the message. Other error classes propagate instead of becoming authentication failures.
+- Return `undefined` or `null` for a request with no identity (`missing`, `401`); throw this error to reject one it carries.
+- The message becomes the response body. Don't put secrets or raw provider errors in it.
+- Other error classes propagate instead of becoming identity rejections.
 
 ## Return type
 
-An `Error` subclass with `name: 'Rejection'`, `message: string`, and `readonly code: number`.
+An `Error` subclass:
+
+```ts
+type Rejection = Error & {
+  /** @deprecated Read `status`. */
+  code: number
+  name: 'Rejection'
+  status: 'forbidden' | 'invalid' | 'unavailable'
+}
+```
 
 ## Parameters
 
@@ -36,7 +47,24 @@ Public rejection reason.
 
 ### options (optional)
 
-- **Type:** `{ code?: number }`
+- **Type:** `{ code?: number; status?: 'forbidden' | 'invalid' | 'unavailable' }`
 - **Default:** `{}`
 
-Set `options.code` to the HTTP rejection status. Defaults to `401`; use `403` for a caller your policy forbids. The constructor doesn't validate the number—pass an appropriate HTTP error status.
+#### options.code (optional, deprecated)
+
+- **Type:** `number`
+
+HTTP status of the rejection. Use `status` instead. `403` maps to `forbidden`, `503` to `unavailable`, and any other code to `invalid`, sent with that code.
+
+#### options.status (optional)
+
+- **Type:** `'forbidden' | 'invalid' | 'unavailable'`
+- **Default:** `'invalid'`
+
+Fixed status of the rejection. See [`Identity.Status`](/sdk/typescript/core/Identity.Status).
+
+- `invalid` (`401`): the proof didn't verify.
+- `forbidden` (`403`): the caller is known, but your policy doesn't allow it.
+- `unavailable` (`503`): the identity can't be checked right now, such as during a provider outage.
+
+Any other value throws a `TypeError`.

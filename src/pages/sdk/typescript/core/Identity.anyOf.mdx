@@ -1,0 +1,73 @@
+---
+description: "Accept any one of several identity proofs on a paid route, such as an API key or a verified email."
+imageDescription: "Let callers prove who they are in more than one way"
+---
+
+# `Identity.anyOf` [Accept one of several identities]
+
+Creates a verifier that accepts the request when any one of its members verifies.
+
+## Usage
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare const customers: ReadonlyMap<string, { customerId: string }>
+
+const customer = Identity.from({
+  verify: (request) => customers.get(request.headers.get('X-Api-Key') ?? ''),
+})
+const email = EmailOtp.Server.verifier({
+  audience: 'https://api.example.com',
+  issuer: 'https://identity.mpp.tempo.xyz',
+})
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({
+    amount: '0.05',
+    identity: [Identity.anyOf(customer, email)], // [!code hl]
+  })(request)
+  if (result.status === 402) return result.challenge
+  const caller = result.identity?.get(customer) ?? result.identity?.get(email)
+  return result.withReceipt(Response.json(caller))
+}
+```
+
+A plain list such as `identity: [customer, email]` requires both. See [Combine verifiers](/extensions/identity#combine-verifiers).
+
+## Behavior
+
+- **Every member runs:** in list order, even after one verifies, so each presented proof's replay nonce is consumed.
+- **At most once per request:** a member also listed elsewhere in the route, or in another offer of a [composed](/sdk/typescript/server/Mppx.compose) route, runs once.
+- **First valid member wins:** `result.identity?.get(member)` returns the winner's value, at any nesting depth.
+- **All members reject:** the status highest in [`Identity.Status.precedence`](/sdk/typescript/core/Identity.Status#precedence) decides the status and reason, and every member's headers are merged.
+
+## Grouped alternatives
+
+Members' `Identity-Attestation-Required` values become one inner list of alternatives, so the client obtains one attestation, not all of them. A route accepting email from two issuers responds with:
+
+```http
+Identity-Attestation-Required: (email;issuer="https://a.example" email;issuer="https://b.example")
+```
+
+The client's attestation prover meets the group with the first alternative that succeeds, in listed order. If a member requires several attestations at once, the values are sent as they are, so the client asks for more than the route needs, never less. See [Use attestations](/extensions/identity#use-attestations).
+
+## Return type
+
+```ts
+type ReturnType = Identity.Verifier<{
+  index: number // index of the first valid member
+  value: unknown // that member's value
+}>
+```
+
+## Parameters
+
+### verifiers
+
+- **Type:** `readonly [Identity.Verifier, Identity.Verifier, ...Identity.Verifier[]]`
+
+Two or more request verifiers, passed as arguments. A verifier with the removed `stage: 'payment'` throws a `TypeError`.

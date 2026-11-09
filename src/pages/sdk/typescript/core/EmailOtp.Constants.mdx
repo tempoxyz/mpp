@@ -5,15 +5,15 @@ imageDescription: "Connect custom clients to email verification"
 
 # `EmailOtp.Constants` [Email OTP integration values]
 
-Exports the headers, paths, type, and code-entry limit used by the email one-time-code extension. An issuer service emails a code and exchanges it for a signed attestation token confirming inbox access for one API origin.
+Exports the paths, type, and code-entry limit used by the email one-time-code extension. An issuer service emails a code and exchanges it for a signed attestation token confirming inbox access for one API origin. Values every attestation shares are in [`Attestation.Constants`](/sdk/typescript/core/Attestation.Constants).
 
 ## Usage
 
 ```ts twoslash
 import * as EmailOtp from 'mppx/extensions/identity/email-otp'
 
-console.log(EmailOtp.Constants.header) // [!code hl]
-// @log: Identity-Attestation
+console.log(EmailOtp.Constants.otpPath) // [!code hl]
+// @log: /email/otp
 ```
 
 ## Properties
@@ -28,7 +28,7 @@ Maximum code prompts per acquisition in [`Client.prover`](/sdk/typescript/client
 
 - **Type:** `'Identity-Attestation'`
 
-Request header carrying bearer attestations. Comma-separated values can carry several tokens. Keep tokens at their intended API origin; forwarding can expose a reusable session-like credential.
+Deprecated alias of [`Attestation.Constants.header`](/sdk/typescript/core/Attestation.Constants#header).
 
 ### otpPath
 
@@ -40,13 +40,13 @@ Issuer endpoint used by [`Client.sendCode`](/sdk/typescript/client/EmailOtp.send
 
 - **Type:** `'Identity-Attestation-Required'`
 
-Rejection response header naming the required type and trusted issuer, such as `email;issuer="https://identity.mpp.tempo.xyz"`.
+Deprecated alias of [`Attestation.Constants.requiredHeader`](/sdk/typescript/core/Attestation.Constants#requiredheader).
 
 ### type
 
 - **Type:** `'email'`
 
-Attestation type this extension accepts. It isn't a generic phone or KYC attestation API.
+Attestation type this extension accepts. For other types, use [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier).
 
 ### verifyPath
 

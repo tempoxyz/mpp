@@ -1,0 +1,72 @@
+---
+description: "Fetch and cache an issuer's signing keys with outage-safe defaults."
+imageDescription: "Keep attestation checks fast and resilient"
+---
+
+# `Attestation.Jwks.resolver` [Resolve issuer keys]
+
+Creates a key resolver that reads an issuer's JSON Web Key Set from `<issuer>/.well-known/jwks.json`. [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier) and [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier) use one by default.
+
+## Usage
+
+Share one resolver across verifiers to share its cache:
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+const keyResolver = Attestation.Jwks.resolver({ ttl: 600 }) // [!code hl]
+
+const phone = Attestation.Server.verifier({
+  audience: 'https://api.example.com',
+  issuer: 'https://issuer.example.com',
+  keyResolver,
+  type: 'phone',
+})
+```
+
+## Return type
+
+`(parameters: { issuer: string; keyId: string }) => Promise<CryptoKey | undefined>`
+
+- Returns the Ed25519 key for `keyId`, or `undefined` when the issuer's current set doesn't have it.
+- Throws when the set can't be fetched and no usable stale set has the key, which verifiers answer with `503`.
+- Keeps only `OKP` Ed25519 keys with string `kid` and `x`. Skips keys whose `use` isn't `sig`, whose `alg` isn't `EdDSA` or `Ed25519`, whose `key_ops` lacks `verify`, or that fail to import.
+- Treats a non-`2xx` response, a redirect, or a body without a `keys` array as a failed fetch. Concurrent lookups share one fetch.
+- Bypasses automatic payment handling in MPP fetch wrappers, so a key lookup never pays a `402`.
+
+## Parameters
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Fetch for the key set.
+
+### maxStale (optional)
+
+- **Type:** `number`
+- **Default:** `3600`
+
+Seconds after its fetch that the last good key set keeps verifying while the issuer is unreachable. After that, verification fails closed, so a rotated-out key stops working.
+
+### refreshInterval (optional)
+
+- **Type:** `number`
+- **Default:** `30`
+
+Minimum seconds between refetches per issuer, for unknown key IDs and after a failed fetch.
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `5`
+
+Seconds before a key set fetch is abandoned.
+
+### ttl (optional)
+
+- **Type:** `number`
+- **Default:** `300`
+
+Seconds a fetched key set is cached.

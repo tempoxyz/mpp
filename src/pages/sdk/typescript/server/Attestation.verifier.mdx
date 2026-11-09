@@ -1,0 +1,138 @@
+---
+description: "Accept phone, email, or any other fact a trusted issuer signs before callers pay."
+imageDescription: "Require a verified identity before payment"
+---
+
+# `Attestation.Server.verifier` [Require an identity attestation]
+
+Creates a verifier that requires one attestation type from one issuer before issuing a payment Challenge or accepting a payment Credential. An attestation is a signed bearer token in which an issuer confirms one fact about the caller, bound to your API's origin.
+
+## Usage
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const phone = Attestation.Server.verifier({
+  audience: 'https://api.example.com',
+  issuer: 'https://issuer.example.com',
+  type: 'phone',
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05', identity: [phone] })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ phone: result.identity?.get(phone)?.claims.sub }))
+}
+```
+
+Pair it with [`Attestation.Client.prover`](/sdk/typescript/client/Attestation.prover). For email, use [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier), which wraps this verifier. See [Use attestations](/extensions/identity#use-attestations).
+
+### Apply route policy
+
+Return a reason from `validate` to reject a verified attestation with `403`:
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+const phone = Attestation.Server.verifier({
+  audience: 'https://api.example.com',
+  issuer: 'https://issuer.example.com',
+  type: 'phone',
+  // [!code hl:start]
+  validate: (claims) =>
+    claims.sub.startsWith('+1') ? undefined : 'Only US and Canadian numbers are allowed.',
+  // [!code hl:end]
+})
+```
+
+## Return type
+
+`Identity.Verifier<Attestation.Verified>`. A successful result contains the verified claims:
+
+```ts
+type Verified = {
+  claims: {
+    aud: string // your origin
+    exp: number // expiry, Unix seconds
+    iat: number // issued at, Unix seconds
+    iss: string // issuer URL
+    jti?: string // attestation ID
+    sub: string // attested subject, such as a phone number
+    type: string // attestation type
+  }
+}
+```
+
+| Outcome | Status | HTTP | `Identity-Attestation-Required` |
+|---|---|---|---|
+| No attestation of this type and issuer | `missing` | `401` | Yes |
+| No candidate verifies | `invalid` | `401` | Yes |
+| `validate` rejects every verified candidate | `forbidden` | `403` | No |
+| Issuer keys can't be fetched | `unavailable` | `503` | No |
+
+`Identity-Attestation-Required` names the type and issuer, such as `phone;issuer="https://issuer.example.com"`, so a client prover can acquire a replacement. On `503`, the client keeps its attestation.
+
+## Parameters
+
+### audience
+
+- **Type:** `string | ((request: Request) => string)`
+
+Your API's public origin, which attestations must be bound to. URLs normalize to their origin, so a trailing slash matches. The function form is deprecated: it's only safe where your platform guarantees the request's host, since many Node servers build the URL from the caller's `Host` header.
+
+### clockTolerance (optional)
+
+- **Type:** `number`
+- **Default:** `60`
+
+Tolerance for `iat`, `exp`, and `maxAge`, in seconds.
+
+### fetch (optional)
+
+- **Type:** `typeof globalThis.fetch`
+- **Default:** `globalThis.fetch`
+
+Fetch for the default [`Attestation.Jwks.resolver`](/sdk/typescript/core/Attestation.Jwks.resolver). Ignored with `keyResolver`.
+
+### issuer
+
+- **Type:** `string`
+
+Trusted issuer URL. Requires HTTPS, except HTTP on `localhost` or `127.0.0.1`. Trailing slashes are removed.
+
+### keyResolver (optional)
+
+- **Type:** `(parameters: { issuer: string; keyId: string }) => CryptoKey | undefined | Promise<CryptoKey | undefined>`
+- **Default:** `Attestation.Jwks.resolver({ fetch })`
+
+Resolves the issuer's Ed25519 public key. Return `undefined` for an unknown key (`invalid`); throw only when keys can't be fetched (`unavailable`).
+
+### maxAge (optional)
+
+- **Type:** `number`
+
+Oldest accepted `iat`, in seconds before now. Defaults to the attestation's own `exp` alone.
+
+### type
+
+- **Type:** `string`
+
+Accepted attestation type, such as `phone` or `email`.
+
+### validate (optional)
+
+- **Type:** `(claims: Attestation.Claims, request: Request) => string | undefined | Promise<string | undefined>`
+
+Route policy for verified claims. Return `undefined` to accept. Any other value, including an empty string, rejects with `forbidden`; a nonempty string becomes the reason.
+
+## Behavior
+
+- Reads comma-separated tokens from `Identity-Attestation`. Tokens of other types or issuers are left to their own verifiers.
+- Verifies at most three distinct candidates bound to your origin and unexpired, latest expiry first. A forged candidate doesn't hide a later valid one. With no usable candidate, it verifies the first matching token so the rejection says why.
+- When every candidate fails, `forbidden` wins over `unavailable`, then `invalid`.
+- Throws `TypeError` at construction for an invalid `issuer`, `clockTolerance`, or `maxAge`.
+- Treat attestations like session tokens: they're reusable at your origin until expiry. They say what the issuer checked, not what the caller may do, and don't authorize payment.

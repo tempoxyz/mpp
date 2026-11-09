@@ -1,0 +1,96 @@
+---
+description: "Check an identity attestation's signature and claims outside a payment route."
+imageDescription: "Verify identity attestations anywhere"
+---
+
+# `Attestation.verify` [Verify an attestation]
+
+Verifies one attestation's signature and claims. Use it in an issuer's tests or custom code; payment routes use [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier).
+
+## Usage
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+declare const attestation: string
+
+// [!code hl:start]
+const result = await Attestation.verify(attestation, {
+  audience: 'https://api.example.com',
+  issuer: 'https://issuer.example.com',
+  keyResolver: Attestation.Jwks.resolver(),
+  type: 'phone',
+})
+// [!code hl:end]
+
+if (result.status === 'valid') console.log(result.claims.sub)
+// @log: +14155550123
+```
+
+## Return type
+
+```ts
+type VerifyResult =
+  | { status: 'valid'; claims: Attestation.Claims }
+  | { status: 'invalid' | 'unavailable'; reason: string }
+```
+
+- **`valid`:** every check passed.
+- **`invalid`:** the token is malformed (including over `8192` characters), has the wrong algorithm, `typ`, issuer, type, or audience, lacks a key ID or subject, has a non-string `jti`, is expired, issued in the future, or older than `maxAge`, has an unknown key ID, or has a bad signature.
+- **`unavailable`:** `keyResolver` threw, so the issuer's keys couldn't be fetched. This says nothing about the token.
+
+## Parameters
+
+### options.audience
+
+- **Type:** `string`
+
+Origin the attestation must be bound to. Compared exactly with `aud`.
+
+### options.clockTolerance (optional)
+
+- **Type:** `number`
+- **Default:** `60`
+
+Tolerance for `iat`, `exp`, and `maxAge`, in seconds.
+
+### options.issuer
+
+- **Type:** `string`
+
+Trusted issuer URL. Compared exactly with `iss`.
+
+### options.keyResolver
+
+- **Type:** `(parameters: { issuer: string; keyId: string }) => CryptoKey | undefined | Promise<CryptoKey | undefined>`
+
+Resolves the issuer's Ed25519 public key for the header's `kid`, such as [`Attestation.Jwks.resolver`](/sdk/typescript/core/Attestation.Jwks.resolver). Return `undefined` for an unknown key; throw when keys can't be fetched.
+
+### options.maxAge (optional)
+
+- **Type:** `number`
+
+Oldest accepted `iat`, in seconds before now. Defaults to the attestation's own `exp` alone.
+
+### options.now (optional)
+
+- **Type:** `number`
+- **Default:** `Math.floor(Date.now() / 1000)`
+
+Current Unix time in seconds, for tests.
+
+### options.type
+
+- **Type:** `string`
+
+Accepted attestation type, such as `phone`.
+
+### token
+
+- **Type:** `string`
+
+Compact JWS attestation.
+
+## Errors
+
+Throws `TypeError` when `clockTolerance`, `maxAge`, or `now` isn't a non-negative integer.

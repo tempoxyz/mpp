@@ -63,6 +63,7 @@ const STATIC_ASSET_SOURCES = [
 const DOC_SECTIONS = [
   "advanced",
   "blog",
+  "extensions",
   "guides",
   "intents",
   "overview",
@@ -76,13 +77,7 @@ const DOC_SECTIONS = [
   "use-cases",
 ];
 
-const DOC_STANDALONE_PAGES = [
-  "/brand",
-  "/extensions",
-  "/faq",
-  "/governance",
-  "/mpp-vs-x402",
-];
+const DOC_STANDALONE_PAGES = ["/brand", "/faq", "/governance", "/mpp-vs-x402"];
 
 const DISCOVERY_PAGE_SOURCES = [
   "/",

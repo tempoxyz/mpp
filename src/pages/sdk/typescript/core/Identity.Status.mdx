@@ -1,0 +1,61 @@
+---
+description: "Map every identity rejection to one fixed HTTP status, so clients know whether to retry, re-prove, or stop."
+imageDescription: "Predictable responses for every identity failure"
+---
+
+# `Identity.Status` [Fixed statuses for identity rejections]
+
+Fixed HTTP status codes for rejected identity outcomes, and the precedence that decides between several rejections.
+
+## Usage
+
+```ts twoslash
+import * as Identity from 'mppx/identity'
+
+console.log(Identity.Status.codes.forbidden)
+// @log: 403
+
+console.log(Identity.Status.precedence)
+// @log: ['forbidden', 'unavailable', 'invalid', 'missing']
+```
+
+## Statuses
+
+| Status | HTTP | Meaning |
+|---|---|---|
+| `missing` | `401` | No proof was presented |
+| `invalid` | `401` | A proof was presented but didn't verify |
+| `forbidden` | `403` | The proof verified, but the identity isn't allowed |
+| `unavailable` | `503` | The proof can't be checked right now, such as during an issuer outage |
+
+- A verifier returns `valid` with a value, or one of these statuses. Type: `Identity.RejectionStatus`.
+- A rejected route returns the deciding status's code, the reason as the body, `Cache-Control: no-store`, and the verifiers' headers. It never returns a fresh `402`.
+- The route result marks the rejection as `result.rejection` (`{ stage, status, reason }`) on its non-`200` branch. See [`Mppx.create`](/sdk/typescript/server/Mppx.create#route-identity).
+- An unknown status counts as `invalid`, so a broken verifier fails closed.
+
+## Precedence
+
+When several verifiers reject, or every [`Identity.anyOf`](/sdk/typescript/core/Identity.anyOf) member does:
+
+- The first status in `precedence` decides the status and reason. On ties, the first rejecting verifier wins.
+- The headers of every rejection are merged into the response.
+
+For example, a `forbidden` rejection from one verifier outranks a `missing` one from another, so the route returns `403`.
+
+## Deprecated `code`
+
+`missing` and `invalid` outcomes still accept a deprecated `code`: `403` maps to `forbidden`, `503` to `unavailable`, and any other HTTP error code is sent as is. Return `status: 'forbidden'` or `status: 'unavailable'` instead.
+
+## Return type
+
+```ts
+type Status = {
+  codes: {
+    forbidden: 403
+    invalid: 401
+    missing: 401
+    unavailable: 503
+  }
+  precedence: readonly ['forbidden', 'unavailable', 'invalid', 'missing']
+}
+```

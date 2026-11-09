@@ -27,6 +27,10 @@ Paste this into your coding agent to set up a server with `mppx` in one prompt:
 You generate `MPP_SECRET_KEY`; run `openssl rand -hex 32` to create one. `Mppx.create()` reads it by default. Store it in your platform secret manager, keep it server-side, and never log it. See [Security](/advanced/security).
 :::
 
+:::warning[Pass a shared `store` in production]
+`tempo.charge()` throws at startup without a `store` when `NODE_ENV` is `production`, on multi-instance platforms such as Vercel, and on Cloudflare Workers. The store keeps replay protection consistent across instances. Pass a shared store such as [`Store.postgres`](/sdk/typescript/core/Store.postgres) or [`Store.durableObject`](/sdk/typescript/core/Store.durableObject), or `Store.memory()` for one long-lived process. The examples below run locally without one. See [`store`](/sdk/typescript/server/Method.tempo.charge#store-optional).
+:::
+
 ## Framework mode
 
 Use the framework-specific middleware from `mppx` to integrate payment into your server. Each middleware handles the `402` Challenge/Credential flow and attaches Receipts automatically.
@@ -317,7 +321,7 @@ Optimistic verification simulates the transaction but does not wait for inclusio
 
 ## Discovery
 
-After your server is running, add [discovery](/advanced/discovery) so agents can find your API and its payment terms automatically. The `discovery()` helper generates a `GET /openapi.json` endpoint from your route configuration:
+After your server is running, add [discovery](/extensions/discovery) so agents can find your API and its payment terms automatically. The `discovery()` helper generates a `GET /openapi.json` endpoint from your route configuration:
 
 ```ts [server.ts]
 import { Hono } from 'hono'
@@ -345,7 +349,7 @@ discovery(app, mppx, {
 // [!code hl:end]
 ```
 
-The generated document advertises each paid route with canonical `x-payment-info.offers[]` entries. See [Discovery](/advanced/discovery) for the full document shape, multi-offer examples, and flat-shorthand compatibility notes.
+The generated document advertises each paid route with canonical `x-payment-info.offers[]` entries. See [Discovery](/extensions/discovery) for the full document shape, multi-offer examples, and flat-shorthand compatibility notes.
 
 Register your service on [MPPScan](https://mppscan.com) or the [MPP Services directory](/services) so agents and registries can discover it.
 

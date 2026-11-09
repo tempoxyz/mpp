@@ -28,7 +28,7 @@ Use the same issuer and the `id` from [`sendCode`](/sdk/typescript/client/EmailO
 
 ## Return type
 
-`Promise<{ attestation: string; expiresAt: Date }>` from the issuer's `attestation` and `expires_at` fields. The helper validates a nonempty token string and parseable expiry, not the token signature. The API's [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier) authenticates it. The issuer controls the lifetime.
+`Promise<{ attestation: string; expiresAt: Date }>` from the issuer's `attestation` and `expires_at` fields. The helper validates a nonempty token string and parseable expiry, not the token signature. The API's [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier) authenticates it; read its claims with [`Attestation.decode`](/sdk/typescript/core/Attestation.decode). The issuer controls the lifetime.
 
 ## Parameters
 

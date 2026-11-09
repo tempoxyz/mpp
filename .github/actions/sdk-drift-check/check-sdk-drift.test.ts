@@ -297,6 +297,23 @@ describe("parseLink", () => {
       });
     });
 
+    it.each([
+      ["client", "prover", "Client", "prover"],
+      ["server", "verifier", "Server", "verifier"],
+      ["core", "sign", "Attestation", "sign"],
+      ["core", "Constants", "Attestation", "Constants"],
+      ["core", "Jwks.resolver", "Jwks", "resolver"],
+    ])("maps %s Attestation.%s to %s.%s", (area, path, namespace, member) => {
+      const link = `/sdk/typescript/${area}/Attestation.${path}`;
+      expect(parseLink(link, prefix)).toEqual<SidebarReference>({
+        link,
+        area,
+        namespace,
+        member,
+        entrypoint: "extensions/identity/attestation",
+      });
+    });
+
     it("maps EmailOtp.Constants to the extension's Constants export", () => {
       const link = "/sdk/typescript/core/EmailOtp.Constants";
       expect(parseLink(link, prefix)).toEqual<SidebarReference>({
@@ -454,6 +471,16 @@ describe("getSdkExports", () => {
       "server/EmailOtp.verifier",
       "core/Identity.Rejection",
       "core/Identity.from",
+      "core/Identity.Headers",
+      "core/Identity.Status",
+      "core/Identity.anyOf",
+      "client/Attestation.prover",
+      "server/Attestation.verifier",
+      "core/Attestation.Constants",
+      "core/Attestation.Jwks.resolver",
+      "core/Attestation.decode",
+      "core/Attestation.sign",
+      "core/Attestation.verify",
     ]) {
       const ref = parseLink(`/sdk/typescript/${path}`, "/sdk/typescript")!;
       const area = ref.entrypoint ?? ref.area;

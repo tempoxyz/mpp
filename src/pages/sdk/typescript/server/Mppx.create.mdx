@@ -161,13 +161,19 @@ Each server-generated Challenge includes a fresh `_mppx_nonce` in its metadata, 
 
 Route verification compares all application and scope metadata while excluding the issuance nonce from stable route requirements. Previously issued signed Challenges without a nonce remain valid. The x402 route-binding extension excludes issuance-only metadata while retaining application metadata, scope, and digest checks.
 
-### Route identity
+### Identity rejections
 
-Pass `identity` to an intent function to require [identity verifiers](/advanced/identity#route-identity) on that route, for example `mppx.charge({ amount: '1', identity: [tap] })`. Every listed verifier must succeed before the handler issues a Challenge or accepts a Credential.
+When a route rejects the request's identity, the result stays on the non-`200` branch: `result.challenge` holds the rejection response (`401`, `403`, or `503`, with no Payment Challenge) and `result.rejection` is set. Return `result.challenge` as is. See [Route identity](#route-identity).
 
-- Web Bot Auth and TAP return `401` for invalid proofs and `403` for missing proofs or unresolved keys.
-- [Email OTP](/sdk/typescript/server/EmailOtp.verifier) and [`Identity.from`](/sdk/typescript/core/Identity.from) return `401` when no identity is present.
-- Read verified values with `result.identity?.get(verifier)`. Routes without `identity` don't require an identity proof; payment requirements still apply.
+```ts
+type Rejection = {
+  reason: string // also the response body
+  stage: 'payment' | 'request' // 'payment' for the payment check on the paid retry
+  status: 'forbidden' | 'invalid' | 'missing' | 'unavailable'
+}
+```
+
+On a successful result, `result.identity?.get(verifier)` returns a verifier's or payment check's value.
 
 `Mppx.create({ attestation })` was removed in `mppx` 0.16.0 and throws.
 
@@ -190,7 +196,7 @@ console.log(receipt.status)
 
 ## Route identity
 
-Require identity per route with `identity: [verifier]` in an intent handler's options. Every listed verifier must succeed; use `Identity.anyOf` to accept one of several protocols. Request-stage verifiers run before a Challenge. Payment-stage verifiers add headers to the `402` and check proofs before settlement. Routes with preflight hooks do not support payment-stage identity. On a successful result, `result.identity?.get(verifier)` returns its verified value. Identity rejections use the verifier's HTTP status on the non-success branch; see the [identity reference](/sdk/typescript/server/EmailOtp.verifier#errors) for email OTP failure statuses.
+Pass `identity` in an intent handler's options to require identity on that route. Every listed verifier must be valid before the route issues a Challenge or accepts a Credential; use [`Identity.anyOf`](/sdk/typescript/core/Identity.anyOf) to accept one of several. See the [identity guide](/extensions/identity#how-identity-checks-run).
 
 ```ts twoslash
 import * as Tap from 'mppx/extensions/identity/tap'
@@ -203,8 +209,55 @@ const tap = Tap.Server.verifier({
   nonceStore: Store.memory(),
 })
 const payment = Mppx.create({ methods: [tempo.charge()] })
-const charge = payment.charge({ amount: '1', identity: [tap] })
+const charge = payment.charge({ amount: '1', identity: [tap] }) // [!code hl]
 ```
+
+Rejections use the fixed [`Identity.Status`](/sdk/typescript/core/Identity.Status) codes:
+
+- `401`: no proof (`missing`), such as an unsigned request to a Web Bot Auth or TAP route, or a proof that doesn't verify (`invalid`).
+- `403`: the proof verified, but the identity isn't allowed (`forbidden`), such as an untrusted or unresolvable signing key.
+- `503`: the proof can't be checked right now (`unavailable`).
+
+Verifiers with `stage: 'payment'` throw a `TypeError`. Use a payment check instead.
+
+### Check the payer before settlement
+
+**Experimental:** the payment check may change in any release.
+
+Pass `identity: { payment, request }` to check the payer's identity on the paid retry. `request` takes the same verifiers as the list form.
+
+```ts twoslash
+import type * as Identity from 'mppx/identity'
+import { Mppx, tempo } from 'mppx/server'
+
+declare function verifyKyc(token: string, challengeId: string): Promise<{ subject: string } | undefined>
+
+// [!code hl:start]
+const kyc: Identity.PaymentCheck<{ subject: string }> = {
+  requires: [{ issuer: 'https://kyc.example', type: 'kyc' }],
+  async verify({ challenge, credential, request }) {
+    const token = request.headers.get('X-Kyc-Token')
+    if (!token) return { status: 'missing' }
+    const value = await verifyKyc(token, challenge.id)
+    if (!value) return { reason: 'The KYC token is invalid.', status: 'invalid' }
+    if (credential && value.subject !== credential.source)
+      return { reason: 'The KYC subject is not the payer.', status: 'forbidden' }
+    return { status: 'valid', value }
+  },
+}
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+const charge = mppx.charge({ amount: '1', identity: { payment: kyc } })
+```
+
+- **`requires`:** listed in every `402` of the route as `Identity-Required`, such as `kyc;issuer="https://kyc.example"`.
+- **`verify`:** runs once on the paid retry, with the answered Challenge and its Credential, before settlement. A rejection returns its fixed status with `result.rejection.stage` set to `'payment'`, never a fresh `402`, since the client may already have pushed the payment.
+- **Bind the payer:** compare the proof's subject with the Credential's `source`, or a client could prove one identity and pay from another wallet. Zone Credentials don't check `source`, and `validateSender` can accept a payment from another wallet, so don't rely on it on routes that accept `zones` or set `validateSender`.
+- **`authorize` routes:** `verify` first runs without a Credential, and only a `valid` result lets `authorize` run.
+- **x402:** routes with a payment check reject x402 Credentials as `invalid` and don't offer x402.
+- **Unsupported:** routes with a preflight hook or the HTML checkout throw a `TypeError`.
+
+See [Check the payer before settlement](/extensions/identity#check-the-payer-before-settlement).
 
 ## Parameters
 

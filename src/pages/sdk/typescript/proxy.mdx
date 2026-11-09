@@ -62,7 +62,7 @@ import { createServer } from 'node:http'
 createServer(proxy.listener).listen(3000)
 ```
 
-The proxy removes `Identity-Attestation` and `Identity-Attestation-Required` from requests sent upstream, alongside payment and hop-by-hop headers. Identity verification stays at the proxy; upstream services don't receive the caller's attestation.
+The proxy strips [`Identity.Headers.request`](/sdk/typescript/core/Identity.Headers) (`Identity-Attestation`) from requests sent upstream, alongside payment and hop-by-hop headers, and drops `Identity-Attestation-Required` and `Identity-Required` from upstream responses. Identity verification stays at the proxy; upstream services don't receive the caller's attestation.
 
 The proxy returns two handlers:
 
@@ -316,7 +316,7 @@ const proxy = Proxy.create({
 
 - Retries must match the Credential, method, origin, path, query, and body.
 - Retries reuse the original request's headers, minus payment and hop-by-hop fields.
-- Routes with request-identity verification bypass replay and verify every request.
+- Routes with identity verifiers or a payment check bypass replay and verify every request.
 
 | Recorded outcome | Retry response |
 | --- | --- |

@@ -1,4 +1,4 @@
-import { Mppx, tempo } from "mppx/server";
+import { Mppx, Store, tempo } from "mppx/server";
 import { createClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { tempoModerato } from "viem/chains";
@@ -47,6 +47,9 @@ export const mppx = Mppx.create({
         },
       },
       sse: true,
+      // Testnet demo: keep replay state per instance, as before mppx required
+      // an explicit store in production.
+      store: Store.memory(),
       testnet: true,
     }),
   ],

@@ -5,9 +5,7 @@ imageDescription: "Use your existing identity system with paid routes"
 
 # `Identity.from` [Verify your own identities]
 
-Creates a verifier from your identity lookup. It runs before issuing a payment Challenge or accepting a payment Credential, so identity failures stop payment processing.
-
-Return an authenticated value to continue; `undefined` or `null` rejects the request with `401`. The optional `challenge` headers accompany identity rejections, not the payment `402`.
+Creates a verifier from your identity lookup. It runs before the server issues a payment Challenge or settles a Credential, so identity failures stop payment processing.
 
 ## Usage
 
@@ -24,7 +22,7 @@ const customer = Identity.from({
     const key = request.headers.get('X-Api-Key')
     if (!key) return undefined
     const identity = customers.get(key)
-    if (!identity) throw new Identity.Rejection('Unknown API key.', { code: 403 })
+    if (!identity) throw new Identity.Rejection('Unknown API key.', { status: 'forbidden' })
     return identity
   },
 })
@@ -38,20 +36,20 @@ export async function handler(request: Request) {
 }
 ```
 
-The verifier runs before the server issues a payment Challenge or settles a Credential. It doesn't authenticate a returned value for you—validate the API key, session, or provider response inside `verify`.
+`Identity.from` doesn't authenticate a returned value for you—validate the API key, session, or provider response inside `verify`. See [Use your own identity system](/extensions/identity#use-your-own-identity-system).
 
 ## Return type
 
-`Identity.Verifier<value>` with `stage: 'request'`. Read the returned identity with `result.identity?.get(verifier)` after a successful payment result.
+`Identity.Verifier<value>`. Read the returned identity with `result.identity?.get(verifier)` after a successful payment result.
 
-| Lookup outcome | Verifier outcome | HTTP response |
+| Lookup outcome | Status | HTTP response |
 |---|---|---|
 | Identity value | `valid` | Continue to payment |
 | `undefined` or `null` | `missing` | `401`, with `challenge` headers |
-| [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) | `invalid` | Rejection's `code` and message, with `challenge` headers |
-| Any other thrown error | Propagates | Handle as an application error |
+| Throws [`Identity.Rejection`](/sdk/typescript/core/Identity.Rejection) | The rejection's `status` | `401`, `403`, or `503` with the message as the body and `challenge` headers |
+| Throws any other error | Propagates | Handle as an application error |
 
-Other values, including `false` and `0`, count as identities. Return `undefined` or `null` to signal no identity.
+Other values, including `false` and `0`, count as identities. See [`Identity.Status`](/sdk/typescript/core/Identity.Status) for status codes.
 
 ## Parameters
 
@@ -59,14 +57,14 @@ Other values, including `false` and `0`, count as identities. Return `undefined`
 
 - **Type:** `HeadersInit`
 
-Headers sent for missing and rejected identities. No headers by default. This is a static header set, not a payment-stage challenge hook.
+Headers sent with missing and rejected identities, telling the client what identity to present. They aren't added to the `402`. No headers by default.
 
 ### verify
 
 - **Type:** `(request: Request) => value | null | undefined | Promise<value | null | undefined>`
 
-Look up and authenticate the caller. Throw `Identity.Rejection` for a known rejection; let operational errors propagate.
+Look up and authenticate the caller. Return `undefined` or `null` when the request carries no identity. Throw `Identity.Rejection` to reject the one it carries; let other errors propagate.
 
 ## Accept alternative identities
 
-Use `identity: [Identity.anyOf(email, customer)]` to accept either an email verifier or your lookup. Every member runs; the first valid member in list order wins. If none succeeds, a presented but invalid identity takes precedence over a missing identity. The results lookup includes the winning member, so `result.identity?.get(customer)` works when it wins. A plain list such as `identity: [email, customer]` requires both.
+Use `identity: [Identity.anyOf(email, customer)]` to accept either an email verifier or your lookup. A plain list such as `identity: [email, customer]` requires both. See [`Identity.anyOf`](/sdk/typescript/core/Identity.anyOf).

@@ -1,0 +1,41 @@
+---
+description: "Read an identity attestation's claims for routing and display."
+imageDescription: "Inspect identity attestations"
+---
+
+# `Attestation.decode` [Decode an attestation]
+
+Decodes an attestation without verifying it. Use it to read the audience, issuer, type, or expiry; use [`Attestation.verify`](/sdk/typescript/core/Attestation.verify) before trusting any claim.
+
+## Usage
+
+```ts twoslash
+import * as Attestation from 'mppx/extensions/identity/attestation'
+
+declare const attestation: string
+
+const decoded = Attestation.decode(attestation) // [!code hl]
+console.log(decoded?.claims.aud)
+// @log: https://api.example.com
+```
+
+## Return type
+
+```ts
+type Decoded = {
+  claims: Partial<Attestation.Claims> & Record<string, unknown> // unverified
+  header: { alg?: unknown; kid?: unknown; typ?: unknown }
+  signature: Uint8Array
+  signingInput: Uint8Array // base64url(header) + '.' + base64url(claims)
+} | undefined
+```
+
+Returns `undefined` when the token is longer than `8192` characters, doesn't have three base64url parts, or its header or claims aren't JSON objects.
+
+## Parameters
+
+### token
+
+- **Type:** `string`
+
+Compact JWS attestation.

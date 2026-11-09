@@ -29,24 +29,49 @@ export async function handler(request: Request) {
 }
 ```
 
-Pair it with [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover). The issuer verifies access to an email inbox; `allow` decides whether that address may use your route. This doesn't prove a legal identity or bind the address to a payment key.
+Pair it with [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover). The issuer verifies access to an email inbox; `allow` decides whether that address may use your route. This doesn't prove a legal identity or bind the address to a payment key. See [Verify an email address](/extensions/identity#verify-an-email-address).
 
-## Return type
+It's an [`Attestation.Server.verifier`](/sdk/typescript/server/Attestation.verifier) of type `email` whose `validate` runs `allow`, so candidate selection and key handling are the same.
 
-`Identity.Verifier<EmailOtp.VerifiedEmail>` with `stage: 'request'`. A successful result contains:
+### Accept several issuers
 
-```ts
+Combine verifiers with `Identity.anyOf`. The rejection lists the issuers as alternatives, so the client gets one code, from the first issuer it trusts:
+
+```ts twoslash
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import * as Identity from 'mppx/identity'
+
 // [!code hl:start]
-type VerifiedEmail = {
-  email: string
-  expiresAt: Date
-  id?: string | undefined
-  issuer: string
-}
+const email = Identity.anyOf(
+  EmailOtp.Server.verifier({ audience: 'https://api.example.com', issuer: 'https://identity.mpp.tempo.xyz' }),
+  EmailOtp.Server.verifier({ audience: 'https://api.example.com', issuer: 'https://identity.example.com' }),
+)
 // [!code hl:end]
 ```
 
-`email` is lowercased, `expiresAt` comes from the attestation's `exp`, and `id` is its optional `jti`.
+A plain list, `identity: [first, second]`, requires both and costs a code per issuer. See [Combine verifiers](/extensions/identity#combine-verifiers).
+
+## Return type
+
+`Identity.Verifier<EmailOtp.VerifiedEmail>`. A successful result contains:
+
+```ts
+type VerifiedEmail = {
+  email: string // lowercased
+  expiresAt: Date // from exp
+  id?: string // from jti
+  issuer: string
+}
+```
+
+| Outcome | Status | HTTP | `Identity-Attestation-Required` |
+|---|---|---|---|
+| No email attestation from this issuer | `missing` | `401` | Yes |
+| No candidate verifies | `invalid` | `401` | Yes |
+| `allow` rejects every verified address | `forbidden` | `403` | No |
+| Issuer keys can't be fetched | `unavailable` | `503` | No |
+
+`Identity-Attestation-Required: email;issuer="…"` lets the client acquire a replacement. On `503`, the client keeps its attestation.
 
 ## Parameters
 
@@ -55,59 +80,49 @@ type VerifiedEmail = {
 - **Type:** `(email: string, request: Request) => boolean | Promise<boolean>`
 - **Default:** Accept any verified address.
 
-Apply route policy to the lowercased address. Return `false` to reject it with `403`. Thrown errors propagate.
+Route policy for the lowercased address. Return `false` to reject it as `forbidden`. Thrown errors propagate.
 
 ### audience
 
 - **Type:** `string | ((request: Request) => string)`
 
-Your API's public origin. Parsed URLs normalize to their origin, so a trailing slash matches. Prefer a fixed configured origin. Derive it from the request only when your platform guarantees the host; a caller-controlled `Host` header can otherwise bypass audience isolation.
+Your API's public origin. URLs normalize to their origin, so a trailing slash matches. The function form is deprecated: it's only safe where your platform guarantees the request's host, since a caller-controlled `Host` header can otherwise bypass audience isolation.
 
 ### clockTolerance (optional)
 
 - **Type:** `number`
 - **Default:** `60`
 
-Clock tolerance for issued-at time (`iat`), expiry (`exp`), and the optional age limit (`maxAge`), in seconds. Must be a non-negative safe integer.
+Tolerance for `iat`, `exp`, and `maxAge`, in seconds.
 
 ### fetch (optional)
 
 - **Type:** `typeof globalThis.fetch`
 - **Default:** `globalThis.fetch`
 
-Fetch for the default Ed25519 key lookup at `<issuer>/.well-known/jwks.json`; see `keyResolver` below for caching. The SDK bypasses automatic payment handling in MPP fetch wrappers so a key lookup never pays a `402`. Redirects aren't followed.
+Fetch for the default key resolver. Ignored with `keyResolver`.
 
 ### issuer
 
 - **Type:** `string`
 
-Trusted issuer URL. Requires HTTPS, except HTTP on `localhost` or `127.0.0.1` for development. Trailing slashes are removed. The verifier never trusts an issuer named only by the client.
+Trusted issuer URL. Requires HTTPS, except HTTP on `localhost` or `127.0.0.1`. Trailing slashes are removed. The verifier never trusts an issuer named only by the client.
 
 ### keyResolver (optional)
 
 - **Type:** `(parameters: { issuer: string; keyId: string }) => CryptoKey | undefined | Promise<CryptoKey | undefined>`
+- **Default:** [`Attestation.Jwks.resolver({ fetch })`](/sdk/typescript/core/Attestation.Jwks.resolver)
 
-Resolve an Ed25519 public key. Return `undefined` for unknown keys; throw for lookup outages (`503`). By default, fetch `<issuer>/.well-known/jwks.json`: cache for `300` seconds, throttle unknown-key refreshes to `30` seconds, share concurrent fetches, and time out after `5` seconds. During outages, known keys from the last successful fetch remain usable for up to `3600` seconds after that fetch. Unknown keys during an outage fail with `503`. Provide a custom resolver to change this policy.
+Resolves the issuer's Ed25519 public key. Return `undefined` for an unknown key; throw only when keys can't be fetched (`503`).
 
 ### maxAge (optional)
 
 - **Type:** `number`
 
-Maximum age since `iat`, in seconds, in addition to `exp`. No extra age limit by default. Must be a non-negative safe integer.
-
-## Rejections and errors
-
-- `401`: missing or invalid matching attestation. Includes `Identity-Attestation-Required: email;issuer="…"` so a client can acquire a replacement.
-- `403`: a verified address fails `allow`. No replacement requirement is added.
-- `503`: issuer keys cannot be resolved and no candidate verifies. No replacement requirement is added; keep the existing attestation during an outage.
-- `TypeError` at construction: invalid issuer URL, `clockTolerance`, or `maxAge`.
-
-Verification checks the Ed25519 signature, `EdDSA` algorithm, `mpp-attestation+jwt` token type, key ID, issuer, audience, email type, nonempty subject, timestamps, and optional string ID. Tokens longer than `8192` characters are malformed.
-
-The `Identity-Attestation` request header can contain comma-separated tokens. The verifier tries at most three distinct usable candidates for its issuer and type, latest expiry first. A forged, unavailable-key, or disallowed candidate doesn't hide a later valid candidate within that bound. If none succeeds, policy rejection takes precedence over key unavailability, then invalid identity. The format and key helpers are internal to email OTP, not general public attestation APIs.
+Oldest accepted `iat`, in seconds before now. Defaults to the attestation's own `exp` alone.
 
 ## Protect bearer attestations
 
-- Keep attestations like session tokens. They remain reusable at the audience origin until expiry; this verifier doesn't consume one-time nonces.
-- Use HTTPS and don't forward `Identity-Attestation` to other services. An API forwarding requests to another service must authenticate those outgoing requests independently.
+- Keep attestations like session tokens. They remain reusable at the audience origin until expiry.
+- Use HTTPS and don't forward `Identity-Attestation` to other services. Authenticate each hop independently.
 - Don't treat an email attestation as payment authorization. Continue verifying the MPP Credential separately.
