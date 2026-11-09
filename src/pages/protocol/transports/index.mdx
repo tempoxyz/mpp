@@ -3,7 +3,8 @@ description: "Map MPP Challenges, Credentials, and Receipts to HTTP headers, JSO
 imageDescription: "Payment flows over HTTP, MCP, and WebSocket transports"
 ---
 
-import { Cards } from 'vocs'
+import { Badge, Cards } from 'vocs'
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
 import { SpecCard } from '../../../components/SpecCard'
 
 # Transports [HTTP, MCP, and WebSocket bindings for payment flows]
@@ -14,9 +15,9 @@ MPP defines how the Payment authentication scheme operates over different transp
 
 | Transport | Use Case | Spec |
 |-----------|----------|------|
-| [HTTP](/protocol/transports/http) | REST APIs, web resources | [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-11) |
-| [MCP](/protocol/transports/mcp) | AI tool calls using Model Context Protocol | MCP transport binding |
-| [WebSocket](/protocol/transports/websocket) | Bidirectional payment streams | [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455) |
+| [HTTP](#http) | REST APIs, web resources | [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-11) |
+| [MCP](#mcp-and-json-rpc) | AI tool calls using Model Context Protocol | MCP transport binding |
+| [WebSocket](#websocket) | Bidirectional payment streams | [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455) |
 | JSON-RPC | Non-MCP JSON-RPC services | [JSON-RPC 2.0](https://www.jsonrpc.org/specification) |
 
 ## Transport-agnostic design
@@ -29,8 +30,360 @@ MPP's core concepts—Challenges, Credentials, and Receipts—remain the same ac
 
 Choose the transport that matches your protocol. HTTP for REST APIs, MCP for AI agent tool calls, WebSocket for bidirectional payment streams, or JSON-RPC for non-MCP JSON-RPC services.
 
-## Specification
+## HTTP
+
+The HTTP transport is the primary binding for MPP, using standard HTTP headers from [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#section-11).
+
+### Headers
+
+| Direction | Header | Purpose |
+|-----------|--------|---------|
+| Server → Client | `WWW-Authenticate: Payment ...` | Challenge |
+| Client → Server | `Authorization: Payment ...` | Credential when the Challenge omits `header` |
+| Client → Server | `Payment-Authorization: Payment ...` | Credential when the Challenge sets `header="Payment-Authorization"` |
+| Server → Client | `Payment-Receipt: ...` | Receipt |
+
+### HTTP example flow
+
+:::steps
+
+#### <div className="mr-2"><Badge variant="info">Client</Badge></div> Request a resource
+
+```http
+GET /api/data HTTP/1.1
+Host: api.example.com
+```
+
+#### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Send a payment Challenge
+
+Return the `WWW-Authenticate` header with a `Payment` Challenge.
+
+```http
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment id="abc123", method="tempo", intent="charge", request="..."
+```
+
+#### <div className="mr-2"><Badge variant="info">Client</Badge></div> Retry with a Credential
+
+Send the `Authorization` header.
+
+```http
+GET /api/data HTTP/1.1
+Host: api.example.com
+Authorization: Payment eyJjaGFsbGVuZ2UiOnsiaWQiOiJhYmMxMjMi...
+```
+
+#### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Return a Receipt
+
+Return the `Payment-Receipt` header with a success Receipt.
+
+```http
+HTTP/1.1 200 OK
+Payment-Receipt: eyJzdGF0dXMiOiJzdWNjZXNzIi4uLn0
+Content-Type: application/json
+
+{"data": "..."}
+```
+
+:::
+
+### Header encoding
+
+Challenges are encoded as [auth-params](https://www.rfc-editor.org/rfc/rfc9110#section-11.2) in `WWW-Authenticate`. The `request` and `opaque` auth-params use base64url-encoded JCS JSON strings. Credentials echo those same Challenge values inside the base64url-encoded Payment Credential, and Receipts use base64url-encoded JSON in `Payment-Receipt`.
+
+### Combine application authentication and payment
+
+Use a separate payment field when your endpoint needs a Bearer, Basic, or other application Credential in `Authorization`. With `mppx`, set `requiresAuth: true` on the server. The Challenge advertises `header="Payment-Authorization"`, and compatible clients attach the Payment Credential there without replacing the existing `Authorization` value.
+
+```http
+GET /api/data HTTP/1.1
+Authorization: Bearer application-token
+Host: api.example.com
+Payment-Authorization: Payment eyJjaGFsbGVuZ2UiOnsiaWQiOiJhYmMxMjMi...
+```
+
+## MCP and JSON-RPC
+
+The [Model Context Protocol](https://modelcontextprotocol.io) (MCP) transport enables payments for AI tool calls using JSON-RPC.
+
+AI agents use MCP to call tools on remote servers. The MCP transport allows these tool calls to require payment, enabling autonomous agent-to-service payments.
+
+| MPP concept | MCP encoding |
+|-------------|--------------|
+| Credential | `_meta.org.paymentauth/credential` |
+| Payment error | JSON-RPC error with a specification-defined code and Challenge data |
+| Receipt | `_meta.org.paymentauth/receipt` |
+
+### Challenge
+
+Payment requirements are signaled using JSON-RPC error code `-32042`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": {
+    "code": -32042, // [!code highlight]
+    "message": "Payment Required",
+    "data": {
+      "httpStatus": 402,
+      "challenges": [{ // [!code highlight]
+        "id": "ch_abc123",
+        "realm": "search.example.com",
+        "method": "tempo",
+        "intent": "charge",
+        "request": {
+          "amount": "10",
+          "currency": "0x20c0000000000000000000006a37DA5C996874BE", // OUSD on Tempo
+          "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        }
+      }]
+    }
+  }
+}
+```
+
+### Error codes
+
+MCP transports preserve the payment error category in the JSON-RPC code:
+
+| Code | Meaning |
+| --- | --- |
+| `-32603` | Internal payment error |
+| `-32602` | Malformed Credential or invalid payment payload |
+| `-32043` | Payment verification failed |
+| `-32042` | Payment required |
+
+Payment errors include one or more Challenges in `error.data.challenges`. A payment-aware client can retry a `-32043` response when the server provides a replacement Challenge.
+
+#### TypeScript constants
+
+Use the exported constants and `Mcp.errorCode` when you integrate a custom MCP transport.
+
+```ts twoslash
+import { Errors, Mcp } from 'mppx'
+
+console.log(Mcp.paymentRequiredCode)
+// @log: -32042
+
+console.log(Mcp.errorCode(new Errors.InternalPaymentError()))
+// @log: -32603
+```
+
+### Credential
+
+Credentials are passed in the `_meta` field of the tool call:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "web-search",
+    "arguments": {"query": "MCP protocol"},
+    "_meta": { // [!code highlight]
+      "org.paymentauth/credential": { // [!code highlight]
+        "challenge": { ... },
+        "source": "0x1234...",
+        "payload": { "signature": "0xabc..." }
+      }
+    }
+  }
+}
+```
+
+### Receipt
+
+Receipts are returned in the result `_meta`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [{ "type": "text", "text": "Search results..." }],
+    "_meta": { // [!code highlight]
+      "org.paymentauth/receipt": { // [!code highlight]
+        "status": "success",
+        "challengeId": "ch_abc123",
+        "method": "tempo"
+      }
+    }
+  }
+}
+```
+
+### Comparison with HTTP
+
+| Aspect | HTTP | MCP |
+|--------|------|-----|
+| Challenge delivery | `WWW-Authenticate` header | JSON-RPC payment error with `error.data.challenges` |
+| Credential delivery | `Authorization` or the Challenge's advertised field | `_meta.org.paymentauth/credential` |
+| Receipt delivery | `Payment-Receipt` header | `_meta.org.paymentauth/receipt` |
+| Encoding | Base64url in headers | Native JSON in body |
+
+### MCP example flow
+
+:::steps
+
+#### <div className="mr-2"><Badge variant="info">Agent</Badge></div> Call a tool
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "web-search",
+    "arguments": {"query": "MCP payments"}
+  }
+}
+```
+
+#### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Return payment Challenge
+
+Respond with error code `-32042`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "error": {
+    "code": -32042,
+    "message": "Payment Required",
+    "data": {
+      "challenges": [{ "id": "ch_abc", "method": "tempo", ... }]
+    }
+  }
+}
+```
+
+#### <div className="mr-2"><Badge variant="info">Agent</Badge></div> Retry with Credential
+
+Include the Credential in `_meta`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "web-search",
+    "arguments": {"query": "MCP payments"},
+    "_meta": {
+      "org.paymentauth/credential": { ... }
+    }
+  }
+}
+```
+
+#### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Return result with Receipt
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [{ "type": "text", "text": "Results..." }],
+    "_meta": {
+      "org.paymentauth/receipt": { "status": "success", ... }
+    }
+  }
+}
+```
+
+:::
+
+## WebSocket
+
+The WebSocket transport binds MPP payment flows to a persistent WebSocket connection using JSON message framing. Unlike the HTTP transport, the client and server exchange payment messages in-band—no separate requests needed for voucher top-ups.
+
+### Message protocol
+
+All messages are JSON objects with an `mpp` field as a discriminator:
+
+| Direction | `mpp` value | Payload | Purpose |
+|-----------|-------------|---------|---------|
+| Client → Server | `authorization` | `authorization: string` | Send Credential or top-up voucher |
+| Server → Client | `message` | `data: string` | Application data |
+| Client → Server | `payment-close-request` | — | Request session close |
+| Server → Client | `payment-close-ready` | `data: SessionReceipt` | Acknowledge close with final Receipt |
+| Server → Client | `payment-error` | `status: number, message: string` | Report error |
+| Server → Client | `payment-need-voucher` | `data: NeedVoucherEvent` | Request more funds |
+| Server → Client | `payment-receipt` | `data: SessionReceipt` | Confirm Credential |
+
+#### Example messages
+
+```json
+// Client sends Credential
+{ "mpp": "authorization", "authorization": "eyJjaGFsbGVuZ2UiOi..." }
+
+// Server confirms payment
+{ "mpp": "payment-receipt", "data": { "status": "success", ... } }
+
+// Server streams data
+{ "mpp": "message", "data": "chunk of application data" }
+
+// Server requests top-up
+{ "mpp": "payment-need-voucher", "data": { "remaining": "0", ... } }
+
+// Client requests close
+{ "mpp": "payment-close-request" }
+
+// Server acknowledges close
+{ "mpp": "payment-close-ready", "data": { "status": "success", ... } }
+```
+
+### Connection flow
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant C as Client
+    participant S as Server
+    C->>S: WebSocket connect
+    C->>S: authorization (Credential)
+    S->>C: payment-Receipt
+    S-->>C: message (data)
+    S-->>C: message (data)
+    S->>C: payment-need-voucher
+    C->>S: authorization (top-up voucher)
+    S->>C: payment-Receipt
+    S-->>C: message (data)
+    C->>S: payment-close-request
+    S->>C: payment-close-ready (final Receipt)
+`} messageColors={{
+  'authorization': { light: '#16a34a', dark: '#4ade80' },
+  'payment-Receipt': { light: '#16a34a', dark: '#4ade80' },
+  'payment-close-ready': { light: '#16a34a', dark: '#4ade80' },
+  'payment-need-voucher': { light: '#dc2626', dark: '#f87171' },
+}} />
+
+> **Green** arrows represent payment flow (`authorization`, `payment-receipt`). **Red** arrows indicate a payment is required (`payment-need-voucher`). Black arrows are data messages.
+
+1. The client opens a WebSocket connection (`ws://` or `wss://`)
+2. The client sends an `authorization` message containing the session Credential
+3. The server verifies the Credential and responds with a `payment-receipt`
+4. The server streams `message` events with application data
+5. When the channel balance depletes, the server sends `payment-need-voucher`
+6. The client tops up by sending a new `authorization` with a voucher
+7. When the stream ends, the server sends `payment-close-ready` with the final Receipt
+8. The client can also initiate close at any time via `payment-close-request`
+
+### When to use WebSocket vs SSE
+
+| Aspect | WebSocket | Server-Sent Events |
+|--------|-----------|---------------------|
+| Direction | Bidirectional | Server → Client only |
+| Voucher top-ups | In-band `authorization` message | Separate HTTP request |
+| Overhead | Single persistent connection | HTTP connection + side-channel |
+| High-frequency metering | Lower overhead per message | Higher overhead per top-up |
+| Environment support | Broad (browsers, agents, servers) | Limited in some runtimes |
+
+Use the WebSocket transport when you need bidirectional communication—for example, streaming sessions where the client tops up vouchers frequently. Use SSE when the server only needs to push data and top-ups are infrequent.
+
+## IETF Specification
 
 <Cards>
+  <SpecCard to="https://paymentauth.org" />
   <SpecCard to="https://paymentauth.org/draft-payment-transport-mcp-00" title="MCP Transport" description="Read the MCP transport binding" />
 </Cards>

@@ -706,11 +706,11 @@ describe("terminal (one-time-payments guide)", () => {
 describe("terminal (pay-as-you-go guide)", () => {
   it("renders the gallery payment flow with session reuse", async () => {
     const page = await newPage();
-    await page.goto(pageUrl("/guides/pay-as-you-go"), {
+    await page.goto(pageUrl("/guides/usage-based"), {
       waitUntil: "load",
     });
 
-    const terminal = page.locator("[data-terminal]");
+    const terminal = page.locator("[data-terminal]").first();
 
     // Terminal should render
     await playwrightExpect(terminal).toBeVisible({
@@ -789,11 +789,11 @@ describe("terminal (pay-as-you-go guide)", () => {
 describe("terminal (streamed-payments guide)", () => {
   it("renders the poem streaming flow", async () => {
     const page = await newPage();
-    await page.goto(pageUrl("/guides/streamed-payments"), {
+    await page.goto(pageUrl("/guides/usage-based"), {
       waitUntil: "load",
     });
 
-    const terminal = page.locator("[data-terminal]");
+    const terminal = page.locator("[data-terminal]").last();
 
     // Terminal should render
     await playwrightExpect(terminal).toBeVisible({

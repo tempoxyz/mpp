@@ -97,7 +97,7 @@ export function EvmChargeCard() {
       description="One-time EVM stablecoin payments with inline x402 exact support"
       icon="lucide:coins"
       title="EVM charge"
-      to="/payment-methods/evm/charge"
+      to="/payment-methods/evm#charge"
     />
   );
 }
@@ -119,7 +119,7 @@ export function PayAsYouGoCard() {
       description="Session-based billing with payment channels"
       icon="lucide:repeat"
       title="Accept pay-as-you-go payments"
-      to="/guides/pay-as-you-go"
+      to="/guides/usage-based#per-request"
     />
   );
 }
@@ -295,7 +295,7 @@ export function LightningChargeCard() {
       description="One-time payments using BOLT11 invoices"
       icon="lucide:zap"
       title="Lightning charge"
-      to="/payment-methods/lightning/charge"
+      to="/payment-methods/lightning#charge"
     />
   );
 }
@@ -306,7 +306,7 @@ export function LightningSessionCard() {
       description="Prepaid metered access with per-request billing"
       icon="lucide:waves"
       title="Lightning session"
-      to="/payment-methods/lightning/session"
+      to="/payment-methods/lightning#session"
     />
   );
 }
@@ -328,7 +328,7 @@ export function XrplChargeCard() {
       description="One-time payments in XRP, issued currencies or MPT"
       icon="simple-icons:xrp"
       title="XRPL charge"
-      to="/payment-methods/xrpl/charge"
+      to="/payment-methods/xrpl#charge"
     />
   );
 }
@@ -339,7 +339,7 @@ export function XrplSessionCard() {
       description="Off-chain vouchers over a native Payment Channel"
       icon="simple-icons:xrp"
       title="XRPL session"
-      to="/payment-methods/xrpl/session"
+      to="/payment-methods/xrpl#session"
     />
   );
 }
@@ -361,7 +361,7 @@ export function StellarChargeCard() {
       description="One-time SAC token transfers settled on-chain"
       icon="simple-icons:stellar"
       title="Stellar charge"
-      to="/payment-methods/stellar/charge"
+      to="/payment-methods/stellar#charge"
     />
   );
 }
@@ -372,7 +372,7 @@ export function StellarChannelCard() {
       description="Pay-as-you-go payments over one-way payment channels"
       icon="simple-icons:stellar"
       title="Stellar channel"
-      to="/payment-methods/stellar/session"
+      to="/payment-methods/stellar#session"
     />
   );
 }
@@ -394,7 +394,7 @@ export function SolanaChargeCard() {
       description="One-time payments with signed transactions or confirmed signatures"
       icon="simple-icons:solana"
       title="Solana charge"
-      to="/payment-methods/solana/charge"
+      to="/payment-methods/solana#charge"
     />
   );
 }
@@ -405,7 +405,7 @@ export function SolanaSessionCard() {
       description="Pay-as-you-go metered payments with off-chain vouchers and on-chain settlement"
       icon="simple-icons:solana"
       title="Solana session"
-      to="/payment-methods/solana/session"
+      to="/payment-methods/solana#session"
     />
   );
 }
@@ -427,7 +427,7 @@ export function MonadChargeCard() {
       description="Immediate one-time payments settled on Monad"
       icon='<svg viewBox="0 0 105 105"><path fill="currentColor" d="M52.02 0C37 0 0 37.34 0 52.5S37 105 52.02 105c15.02 0 52.02-37.34 52.02-52.5S67.04 0 52.02 0Zm-8.1 82.52c-6.34-1.74-23.37-31.81-21.64-38.2 1.73-6.39 31.52-23.58 37.85-21.84 6.34 1.74 23.37 31.81 21.64 38.2-1.73 6.39-31.52 23.58-37.85 21.84Z"/></svg>'
       title="Monad charge"
-      to="/payment-methods/monad/charge"
+      to="/payment-methods/monad#charge"
     />
   );
 }
@@ -449,7 +449,7 @@ export function NearIntentsChargeCard() {
       description="One-time cross-chain payments via 1Click deposit addresses"
       icon="simple-icons:near"
       title="NEAR Intents charge"
-      to="/payment-methods/nearintents/charge"
+      to="/payment-methods/nearintents#charge"
     />
   );
 }
@@ -471,7 +471,7 @@ export function RedotPayChargeCard() {
       description="One-time payments with RedotPay payment proofs"
       icon="lucide:wallet-cards"
       title="RedotPay charge"
-      to="/payment-methods/redotpay/charge"
+      to="/payment-methods/redotpay#charge"
     />
   );
 }
@@ -504,7 +504,7 @@ export function CardChargeCard() {
       description="One-time payments using encrypted network tokens"
       icon="lucide:credit-card"
       title="Card charge"
-      to="/payment-methods/card/charge"
+      to="/payment-methods/card#charge"
     />
   );
 }
@@ -561,7 +561,7 @@ export function StripeChargeCard() {
       description="One-time payments through Stripe"
       icon="lucide:credit-card"
       title="Charge"
-      to="/payment-methods/stripe/charge"
+      to="/payment-methods/stripe#charge"
     />
   );
 }
@@ -572,7 +572,7 @@ export function GoCoreTypesCard() {
       description="Challenge, Credential, Receipt types"
       icon="lucide:box"
       title="Core types"
-      to="/sdk/go/core"
+      to="/sdk/go#core-types"
     />
   );
 }
@@ -583,7 +583,7 @@ export function GoClientCard() {
       description="Handle 402 responses automatically"
       icon="lucide:send"
       title="Client"
-      to="/sdk/go/client"
+      to="/sdk/go#client"
     />
   );
 }
@@ -594,7 +594,7 @@ export function GoServerCard() {
       description="Protect endpoints with payments"
       icon="lucide:server"
       title="Server"
-      to="/sdk/go/server"
+      to="/sdk/go#server"
     />
   );
 }
@@ -605,7 +605,7 @@ export function PythonCoreTypesCard() {
       description="Challenge, Credential, Receipt types"
       icon="lucide:box"
       title="Core types"
-      to="/sdk/python/core"
+      to="/sdk/python#core-types"
     />
   );
 }
@@ -616,7 +616,7 @@ export function PythonClientCard() {
       description="Handle 402 responses automatically"
       icon="lucide:send"
       title="Client"
-      to="/sdk/python/client"
+      to="/sdk/python#client"
     />
   );
 }
@@ -627,7 +627,7 @@ export function PythonServerCard() {
       description="Protect endpoints with payments"
       icon="lucide:server"
       title="Server"
-      to="/sdk/python/server"
+      to="/sdk/python#server"
     />
   );
 }
@@ -649,7 +649,7 @@ export function RubyCoreTypesCard() {
       description="Challenge, Credential, Receipt types"
       icon="lucide:box"
       title="Core types"
-      to="/sdk/ruby/core"
+      to="/sdk/ruby#core-types"
     />
   );
 }
@@ -660,7 +660,7 @@ export function RubyClientCard() {
       description="Handle 402 responses automatically"
       icon="lucide:send"
       title="Client"
-      to="/sdk/ruby/client"
+      to="/sdk/ruby#client"
     />
   );
 }
@@ -671,7 +671,7 @@ export function RubyServerCard() {
       description="Protect endpoints with payments"
       icon="lucide:server"
       title="Server"
-      to="/sdk/ruby/server"
+      to="/sdk/ruby#server"
     />
   );
 }

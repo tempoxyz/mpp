@@ -165,7 +165,7 @@ const response = await fetch('https://api.example.com/resource')
 ```
 
 :::warning[Security: server-side authorization]
-The `createToken` callback proxies through your own server because SPT creation requires a Stripe secret key. The server **must** derive SPT parameters (amount, currency, expiry) itself—never accept them from the client. See the [SPT creation proxy endpoint](/payment-methods/stripe/charge#spt-creation-proxy-endpoint) for a secure implementation.
+The `createToken` callback proxies through your own server because SPT creation requires a Stripe secret key. The server **must** derive SPT parameters (amount, currency, expiry) itself—never accept them from the client. See the [SPT creation proxy endpoint](/payment-methods/stripe#spt-creation-proxy-endpoint) for a secure implementation.
 :::
 
 ## Accept cards and stablecoins together
