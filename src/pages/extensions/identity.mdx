@@ -448,7 +448,7 @@ export const handler = mppx.charge({ amount: '0.05', identity: { payment: allowl
 
 - Every `402` for the route lists `requires` in an `Identity-Required` header, such as `kyc;issuer="https://kyc.example.com"`.
 - `verify` runs once on the paid retry. A rejection gets its fixed status code with no fresh Challenge, because the client may already have pushed the payment.
-- `credential.source` is the client's claim. Tempo transaction and hash Credentials reject a `source` that doesn't match the payer; Zone Credentials don't check it. Don't allowlist by `source` on routes that accept `zones`.
+- `credential.source` is the client's claim. Tempo transaction and hash Credentials reject a `source` that doesn't match the payer, unless [`validateSender`](/sdk/typescript/server/Method.tempo.charge#validatesender-optional) accepts another sender; Zone Credentials don't check it. Don't allowlist by `source` on routes that accept `zones` or set `validateSender`.
 - Routes with a payment check reject x402 Credentials and don't offer x402. Composed offers must share the same check.
 - The API may change in any release.
 

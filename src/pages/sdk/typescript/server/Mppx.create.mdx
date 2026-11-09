@@ -252,7 +252,7 @@ const charge = mppx.charge({ amount: '1', identity: { payment: kyc } })
 
 - **`requires`:** listed in every `402` of the route as `Identity-Required`, such as `kyc;issuer="https://kyc.example"`.
 - **`verify`:** runs once on the paid retry, with the answered Challenge and its Credential, before settlement. A rejection returns its fixed status with `result.rejection.stage` set to `'payment'`, never a fresh `402`, since the client may already have pushed the payment.
-- **Bind the payer:** compare the proof's subject with the Credential's `source`, or a client could prove one identity and pay from another wallet. Zone Credentials don't check `source`, so don't rely on it on routes that accept `zones`.
+- **Bind the payer:** compare the proof's subject with the Credential's `source`, or a client could prove one identity and pay from another wallet. Zone Credentials don't check `source`, and `validateSender` can accept a payment from another wallet, so don't rely on it on routes that accept `zones` or set `validateSender`.
 - **`authorize` routes:** `verify` first runs without a Credential, and only a `valid` result lets `authorize` run.
 - **x402:** routes with a payment check reject x402 Credentials as `invalid` and don't offer x402.
 - **Unsupported:** routes with a preflight hook or the HTML checkout throw a `TypeError`.
