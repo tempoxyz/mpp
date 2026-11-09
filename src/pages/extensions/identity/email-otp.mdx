@@ -1,0 +1,88 @@
+---
+description: "Require a verified email address before payment with email OTP attestations."
+imageDescription: "Verify an email before payment"
+---
+
+import { MermaidDiagram } from '../../../components/MermaidDiagram'
+
+# Email OTP [Verify an email address]
+
+Use the email OTP extension when callers need a verified address and you don't have an existing identity system. An issuer is the service that emails codes and signs attestations: bearer tokens confirming inbox access for a specific API origin. The server checks this token before issuing a payment Challenge or settling a Credential. The examples use Tempo's hosted issuer; you can also self-host it.
+
+```ts twoslash [server.ts]
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import { Mppx, tempo } from 'mppx/server'
+
+// [!code hl:start]
+const email = EmailOtp.Server.verifier({
+  allow: (address) => address.endsWith('@example.com'),
+  audience: 'https://api.example.com',
+  issuer: 'https://identity.mpp.tempo.xyz',
+})
+// [!code hl:end]
+const mppx = Mppx.create({ methods: [tempo.charge()] })
+
+export async function handler(request: Request) {
+  const result = await mppx.charge({ amount: '0.05', identity: [email] })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ email: result.identity?.get(email)?.email }))
+}
+```
+
+Configure the matching client prover. Use your terminal or form to return the emailed code from `code`:
+
+```ts twoslash [client.ts]
+import { Mppx, tempo } from 'mppx/client'
+import * as EmailOtp from 'mppx/extensions/identity/email-otp'
+import type { Account } from 'viem'
+
+declare const account: Account
+declare function promptForCode(message: string): Promise<string | undefined>
+
+const client = Mppx.create({
+  // [!code hl:start]
+  identity: [EmailOtp.Client.prover({
+    code: ({ audience, email, issuer }) =>
+      promptForCode(`Code from ${issuer} for ${email} at ${audience}:`),
+    email: 'you@example.com',
+    issuers: ['https://identity.mpp.tempo.xyz'],
+    scope: ['https://api.example.com'],
+  })],
+  // [!code hl:end]
+  methods: [tempo({ account })],
+  polyfill: false,
+})
+
+const response = await client.fetch('https://api.example.com/report')
+console.log(response.status)
+// @log: 200
+```
+
+<MermaidDiagram chart={`sequenceDiagram
+    participant Client
+    participant Issuer
+    participant API
+    Client->>API: Request without attestation
+    API-->>Client: 401 + Identity-Attestation-Required
+    Client->>Issuer: Request code for email and API origin
+    Issuer-->>Client: Email code
+    Client->>Issuer: Exchange code
+    Issuer-->>Client: Origin-bound attestation
+    Client->>API: Request + Identity-Attestation
+    API-->>Client: 402 + Challenge
+    Client->>API: Credential + Identity-Attestation
+    API-->>Client: 200 + Receipt
+`} />
+
+- The prover only contacts allowlisted `issuers` and only sends attestations to in-scope origins matching their audience. Never trust an issuer supplied only by a server—it could relay your code to another issuer.
+- The server returns `401` for missing or invalid attestations, `403` for a verified address rejected by `allow`, and `503` when issuer keys are unavailable. Only identity success reaches payment.
+- Cached attestations are reused in memory and refreshed near expiry before payment. The prover prompts at most three times for rejected codes; paid attempts aren't resent by identity recovery.
+- For your own send/verify form, use [`sendCode`](/sdk/typescript/client/EmailOtp.sendCode), [`verifyCode`](/sdk/typescript/client/EmailOtp.verifyCode), and [pre-obtained attestations](/sdk/typescript/client/EmailOtp.prover#use-a-custom-email-form).
+
+:::warning[Keep attestations at their audience]
+An attestation is a reusable bearer token, not a per-request signature. Use HTTPS and configure `audience` as your fixed public API origin. Derive it from the request only when the platform guarantees the host; a caller-controlled `Host` header can bypass isolation.
+
+Don't forward `Identity-Attestation` to upstream services. `mppx` strips it from cross-origin payment preparation, and its proxy strips both this request header and upstream `Identity-Attestation-Required` responses. Authenticate each hop independently.
+:::
+
+See [`EmailOtp.Server.verifier`](/sdk/typescript/server/EmailOtp.verifier) for key resolution and rejection rules, and [`EmailOtp.Client.prover`](/sdk/typescript/client/EmailOtp.prover) for callbacks, expiry handling, and errors. The [Cloudflare Worker example](https://github.com/wevm/mppx/tree/main/examples/email-otp) includes a terminal prompt, a domain allowlist, and a self-hosted issuer option.

@@ -1,0 +1,42 @@
+---
+description: "Implement your own identity protocol with the Identity.Verifier and Identity.Prover types."
+imageDescription: "Build your own identity protocol"
+---
+
+# Build your own protocol [Custom verifiers and provers]
+
+Third-party identity protocols implement the `Identity.Verifier` and `Identity.Prover` types from `mppx/identity`. For a lookup in your own system, prefer [`Identity.from`](/sdk/typescript/core/Identity.from).
+
+- **Verifier:** `verify(request)` returns `{ status: 'valid', value }` or a [rejection status](/extensions/identity#how-identity-checks-run) with a `reason` and optional `headers`.
+- **Prover:** `prove(request, context)` returns the proved request for origins in `scope`. `context` has a fresh nonce, a timestamp, and on a paid retry the Challenge.
+- **`prepare`** (optional): runs on a `402` before the paid retry. Its `requirements` list the 402's `Identity-Required` entries.
+- **`retry`** (optional): returns headers to resend a rejected non-402 request once. Paid attempts are never resent.
+- **`headers`** (optional): sensitive request headers, stripped on cross-origin redirects and never proxied upstream.
+
+```ts twoslash [identity.ts]
+import type * as Identity from 'mppx/identity'
+
+declare function signRequest(request: Request, context: Identity.ProveContext): Promise<Request>
+
+export const prover: Identity.Prover = {
+  // [!code hl:start]
+  prove: (request, context) => signRequest(request, context),
+  scope: ['https://api.example.com'],
+  // [!code hl:end]
+}
+```
+
+Outside `Mppx.create`, wrap any Fetch implementation with `Identity.Client.wrapFetch`. Prefer `Mppx.create({ identity })`, which also passes the payment Challenge to provers.
+
+```ts twoslash [client.ts]
+import * as Identity from 'mppx/identity'
+
+declare const prover: Identity.Prover
+
+const fetch = Identity.Client.wrapFetch(
+  globalThis.fetch,
+  Identity.Client.from([prover]),
+)
+
+await fetch('https://api.example.com/resource')
+```
